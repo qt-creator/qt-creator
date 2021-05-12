@@ -99,12 +99,12 @@ public:
     static QString stripLastNewline(const QString &in);
 
     // Fully synchronous VCS execution (QProcess-based)
-    Utils::SynchronousProcessResponse
-    vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
-                            unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    Utils::SynchronousProcessResponse
-    vcsFullySynchronousExec(const QString &workingDir, const Utils::CommandLine &cmdLine,
-                            unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    void vcsFullySynchronousExec(Utils::SynchronousProcess &process,
+                                 const QString &workingDir, const QStringList &args,
+                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    void vcsFullySynchronousExec(Utils::SynchronousProcess &process,
+                                 const QString &workingDir, const Utils::CommandLine &cmdLine,
+                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
@@ -119,10 +119,11 @@ protected:
 
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
-    Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
-                                                         const QStringList &args,
-                                                         unsigned flags = 0,
-                                                         QTextCodec *outputCodec = nullptr) const;
+    void vcsSynchronousExec(Utils::SynchronousProcess &proc,
+                            const QString &workingDir,
+                            const QStringList &args,
+                            unsigned flags = 0,
+                            QTextCodec *outputCodec = nullptr) const;
 
 private:
     void saveSettings();

@@ -88,15 +88,15 @@ static FormatTask format(FormatTask task)
         // Format temporary file
         QStringList options = task.command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
-        Utils::SynchronousProcess process;
+        SynchronousProcess process;
         process.setTimeoutS(5);
-        Utils::SynchronousProcessResponse response = process.runBlocking({executable, options});
-        if (response.result != Utils::SynchronousProcessResponse::Finished) {
+        process.runBlocking({executable, options});
+        if (process.result() != QtcProcess::Finished) {
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Failed to format: %1."))
-                    .arg(response.exitMessage(executable, 5));
+                             .arg(process.exitMessage(executable, 5));
             return task;
         }
-        const QString output = response.stdErr();
+        const QString output = process.stdErr();
         if (!output.isEmpty())
             task.error = executable + QLatin1String(": ") + output;
 

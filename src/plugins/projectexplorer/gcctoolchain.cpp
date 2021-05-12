@@ -88,15 +88,15 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
     cpp.setEnvironment(environment);
     cpp.setTimeoutS(10);
     CommandLine cmdLine(gcc, arguments);
-    SynchronousProcessResponse response =  cpp.runBlocking(cmdLine);
-    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0) {
+    cpp.runBlocking(cmdLine);
+    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
         Core::MessageManager::writeFlashing({"Compiler feature detection failure!",
-                                             response.exitMessage(cmdLine.toUserOutput(), 10),
-                                             QString::fromUtf8(response.allRawOutput())});
+                                             cpp.exitMessage(cmdLine.toUserOutput(), 10),
+                                             QString::fromUtf8(cpp.allRawOutput())});
         return QByteArray();
     }
 
-    return response.allOutput().toUtf8();
+    return cpp.allOutput().toUtf8();
 }
 
 static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,

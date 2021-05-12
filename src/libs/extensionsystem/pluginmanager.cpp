@@ -418,10 +418,10 @@ QString PluginManager::systemInformation()
     QString result;
     CommandLine qtDiag(HostOsInfo::withExecutableSuffix(
                 QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag"));
-    SynchronousProcess qtdiagProc;
-    const SynchronousProcessResponse response = qtdiagProc.runBlocking(qtDiag);
-    if (response.result == SynchronousProcessResponse::Finished)
-        result += response.allOutput() + "\n";
+    SynchronousProcess qtDiagProc;
+    qtDiagProc.runBlocking(qtDiag);
+    if (qtDiagProc.result() == QtcProcess::Finished)
+        result += qtDiagProc.allOutput() + "\n";
     result += "Plugin information:\n\n";
     auto longestSpec = std::max_element(d->pluginSpecs.cbegin(), d->pluginSpecs.cend(),
                                         [](const PluginSpec *left, const PluginSpec *right) {

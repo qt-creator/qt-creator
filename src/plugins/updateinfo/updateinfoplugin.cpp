@@ -138,7 +138,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     d->m_checkUpdatesCommand->addJob({Utils::FilePath::fromString(d->m_maintenanceTool), {"--checkupdates"}},
                                      60 * 3, // 3 minutes timeout
                                      /*workingDirectory=*/QString(),
-                                     [](int /*exitCode*/) { return Utils::SynchronousProcessResponse::Finished; });
+                                     [](int /*exitCode*/) { return Utils::QtcProcess::Finished; });
     d->m_checkUpdatesCommand->execute();
     d->m_progress = d->m_checkUpdatesCommand->futureProgress();
     if (d->m_progress) {

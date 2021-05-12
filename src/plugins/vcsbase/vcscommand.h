@@ -45,10 +45,11 @@ public:
 
     const Utils::Environment processEnvironment() const override;
 
-    Utils::SynchronousProcessResponse runCommand(const Utils::CommandLine &command,
-                                                 int timeoutS,
-                                                 const QString &workDirectory = QString(),
-                                                 const Utils::ExitCodeInterpreter &interpreter = {}) override;
+    void runCommand(Utils::SynchronousProcess &process,
+                    const Utils::CommandLine &command,
+                    int timeoutS,
+                    const QString &workDirectory = QString(),
+                    const Utils::ExitCodeInterpreter &interpreter = {}) override;
 
 private:
     void emitRepositoryChanged(const QString &workingDirectory);

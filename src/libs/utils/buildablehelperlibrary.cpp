@@ -46,10 +46,10 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     SynchronousProcess proc;
     proc.setTimeoutS(1);
-    SynchronousProcessResponse response = proc.runBlocking({path, {"-print-env"}});
-    if (response.result != SynchronousProcessResponse::Finished)
+    proc.runBlocking({path, {"-print-env"}});
+    if (proc.result() != QtcProcess::Finished)
         return QString();
-    const QString output = response.stdOut();
+    const QString output = proc.stdOut();
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return QString();
@@ -130,13 +130,13 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 
     SynchronousProcess qmake;
     qmake.setTimeoutS(5);
-    SynchronousProcessResponse response = qmake.runBlocking({qmakePath, {"--version"}});
-    if (response.result != SynchronousProcessResponse::Finished) {
-        qWarning() << response.exitMessage(qmakePath, 5);
+    qmake.runBlocking({qmakePath, {"--version"}});
+    if (qmake.result() != QtcProcess::Finished) {
+        qWarning() << qmake.exitMessage(qmakePath, 5);
         return QString();
     }
 
-    const QString output = response.allOutput();
+    const QString output = qmake.allOutput();
     static const QRegularExpression regexp("(QMake version:?)[\\s]*([\\d.]*)",
                                            QRegularExpression::CaseInsensitiveOption);
     const QRegularExpressionMatch match = regexp.match(output);

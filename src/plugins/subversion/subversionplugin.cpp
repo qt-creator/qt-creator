@@ -1026,14 +1026,14 @@ SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
         return response;
     }
 
-    const SynchronousProcessResponse sp_resp
-            = m_client->vcsFullySynchronousExec(workingDir, arguments, flags, timeOutS, outputCodec);
+    SynchronousProcess proc;
+    m_client->vcsFullySynchronousExec(proc, workingDir, arguments, flags, timeOutS, outputCodec);
 
-    response.error = sp_resp.result != SynchronousProcessResponse::Finished;
+    response.error = proc.result() != QtcProcess::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(m_settings.binaryPath.value(), timeOutS);
-    response.stdErr = sp_resp.stdErr();
-    response.stdOut = sp_resp.stdOut();
+        response.message = proc.exitMessage(m_settings.binaryPath.value(), timeOutS);
+    response.stdErr = proc.stdErr();
+    response.stdOut = proc.stdOut();
     return response;
 }
 

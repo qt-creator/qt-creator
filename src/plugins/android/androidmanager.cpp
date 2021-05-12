@@ -538,8 +538,8 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
                           {"-list", "-keystore", keystorePath, "--storepass", keystorePasswd});
     SynchronousProcess proc;
     proc.setTimeoutS(10);
-    SynchronousProcessResponse response = proc.run(cmd);
-    return (response.result == SynchronousProcessResponse::Finished && response.exitCode == 0);
+    proc.run(cmd);
+    return proc.result() == QtcProcess::Finished && proc.exitCode() == 0;
 }
 
 bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd)
@@ -554,9 +554,8 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
 
     SynchronousProcess proc;
     proc.setTimeoutS(10);
-    SynchronousProcessResponse response
-            = proc.run({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
+    proc.run({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
+    return proc.result() == QtcProcess::Finished && proc.exitCode() == 0;
 }
 
 bool AndroidManager::checkCertificateExists(const QString &keystorePath,
@@ -568,9 +567,8 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
 
     SynchronousProcess proc;
     proc.setTimeoutS(10);
-    SynchronousProcessResponse response
-            = proc.run({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
+    proc.run({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
+    return proc.result() == QtcProcess::Finished && proc.exitCode() == 0;
 }
 
 using GradleProperties = QMap<QByteArray, QByteArray>;
@@ -724,15 +722,15 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     SynchronousProcess cmdProc;
     cmdProc.setTimeoutS(timeoutS);
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
-    SynchronousProcessResponse response = cmdProc.run(command, writeData);
-    cmdResult.m_stdOut = response.stdOut().trimmed();
-    cmdResult.m_stdErr = response.stdErr().trimmed();
-    cmdResult.m_success = response.result == SynchronousProcessResponse::Finished;
+    cmdProc.run(command, writeData);
+    cmdResult.m_stdOut = cmdProc.stdOut().trimmed();
+    cmdResult.m_stdErr = cmdProc.stdErr().trimmed();
+    cmdResult.m_success = cmdProc.result() == QtcProcess::Finished;
     qCDebug(androidManagerLog) << "Command finshed (sync):" << command.toUserOutput()
                                << "Success:" << cmdResult.m_success
-                               << "Output:" << response.allRawOutput();
+                               << "Output:" << cmdProc.allRawOutput();
     if (!cmdResult.success())
-        cmdResult.m_exitMessage = response.exitMessage(command.executable().toString(), timeoutS);
+        cmdResult.m_exitMessage = cmdProc.exitMessage(command.executable().toString(), timeoutS);
     return cmdResult;
 }
 

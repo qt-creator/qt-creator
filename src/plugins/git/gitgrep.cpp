@@ -194,15 +194,16 @@ public:
                 command.data(), &VcsCommand::cancel);
         watcher.setFuture(m_fi.future());
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
-        SynchronousProcessResponse resp = command->runCommand({GitClient::instance()->vcsBinary(), arguments}, 0);
-        switch (resp.result) {
-        case SynchronousProcessResponse::TerminatedAbnormally:
-        case SynchronousProcessResponse::StartFailed:
-        case SynchronousProcessResponse::Hang:
+        SynchronousProcess proc;
+        command->runCommand(proc, {GitClient::instance()->vcsBinary(), arguments}, 0);
+        switch (proc.result()) {
+        case QtcProcess::TerminatedAbnormally:
+        case QtcProcess::StartFailed:
+        case QtcProcess::Hang:
             m_fi.reportCanceled();
             break;
-        case SynchronousProcessResponse::Finished:
-        case SynchronousProcessResponse::FinishedError:
+        case QtcProcess::Finished:
+        case QtcProcess::FinishedError:
             // When no results are found, git-grep exits with non-zero status.
             // Do not consider this as an error.
             break;

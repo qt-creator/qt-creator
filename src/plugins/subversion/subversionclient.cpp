@@ -91,10 +91,10 @@ bool SubversionClient::doCommit(const QString &repositoryRoot,
             << QLatin1String("--file") << commitMessageFile;
 
     QStringList args(vcsCommandString(CommitCommand));
-    SynchronousProcessResponse resp =
-            vcsSynchronousExec(repositoryRoot, args << svnExtraOptions << escapeFiles(files),
-                               VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
-    return resp.result == SynchronousProcessResponse::Finished;
+    SynchronousProcess proc;
+    vcsSynchronousExec(proc, repositoryRoot, args << svnExtraOptions << escapeFiles(files),
+                       VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
+    return proc.result() == QtcProcess::Finished;
 }
 
 void SubversionClient::commit(const QString &repositoryRoot,
@@ -151,12 +151,12 @@ QString SubversionClient::synchronousTopic(const QString &repository) const
     else
         svnVersionBinary = svnVersionBinary.left(pos + 1);
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
-    const SynchronousProcessResponse result
-            = vcsFullySynchronousExec(repository, {svnVersionBinary, args});
-    if (result.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, repository, {svnVersionBinary, args});
+    if (proc.result() != QtcProcess::Finished)
         return QString();
 
-    return result.stdOut().trimmed();
+    return proc.stdOut().trimmed();
 }
 
 QString SubversionClient::escapeFile(const QString &file)

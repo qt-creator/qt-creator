@@ -74,10 +74,9 @@ QString findFallbackDefinitionsLocation()
         for (auto &program : programs) {
             Utils::SynchronousProcess process;
             process.setTimeoutS(5);
-            Utils::SynchronousProcessResponse response
-                    = process.runBlocking({program, {"--prefix"}});
-            if (response.result == Utils::SynchronousProcessResponse::Finished) {
-                QString output = response.stdOut();
+            process.runBlocking({program, {"--prefix"}});
+            if (process.result() == Utils::QtcProcess::Finished) {
+                QString output = process.stdOut();
                 output.remove(QLatin1Char('\n'));
                 for (auto &kateSyntaxPath : kateSyntaxPaths) {
                     dir.setPath(output + kateSyntaxPath);

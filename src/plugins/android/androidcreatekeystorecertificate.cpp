@@ -198,11 +198,12 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
 
     SynchronousProcess genKeyCertProc;
     genKeyCertProc.setTimeoutS(15);
-    SynchronousProcessResponse response = genKeyCertProc.run(command);
+    genKeyCertProc.run(command);
 
-    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0) {
+    if (genKeyCertProc.result() != QtcProcess::Finished || genKeyCertProc.exitCode() != 0) {
         QMessageBox::critical(this, tr("Error"),
-                              response.exitMessage(command.executable().toString(), 15) + '\n' + response.allOutput());
+                              genKeyCertProc.exitMessage(command.executable().toString(), 15)
+                                                     + '\n' + genKeyCertProc.allOutput());
         return;
     }
     accept();

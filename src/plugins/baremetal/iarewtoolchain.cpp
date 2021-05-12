@@ -111,10 +111,9 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     cmd.addArg("--predef_macros");
     cmd.addArg(outpath);
 
-    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished
-            || response.exitCode != 0) {
-        qWarning() << response.exitMessage(cmd.toUserOutput(), 10);
+    cpp.runBlocking(cmd);
+    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
+        qWarning() << cpp.exitMessage(cmd.toUserOutput(), 10);
         return {};
     }
 
@@ -157,11 +156,11 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId
     cmd.addArg(".");
 
     // Note: Response should retutn an error, just don't check on errors.
-    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
+    cpp.runBlocking(cmd);
 
     HeaderPaths headerPaths;
 
-    const QByteArray output = response.allOutput().toUtf8();
+    const QByteArray output = cpp.allOutput().toUtf8();
     for (auto pos = 0; pos < output.size(); ++pos) {
         const int searchIndex = output.indexOf("searched:", pos);
         if (searchIndex == -1)

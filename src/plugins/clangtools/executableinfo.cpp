@@ -55,16 +55,16 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
     Environment::setupEnglishOutput(&env);
     cpp.setEnvironment(env);
 
-    const SynchronousProcessResponse response = cpp.runBlocking(commandLine);
-    if (response.result != SynchronousProcessResponse::Finished
+    cpp.runBlocking(commandLine);
+    if (cpp.result() != QtcProcess::Finished
             && (failSilently == FailSilently::No
-                || response.result != SynchronousProcessResponse::FinishedError)) {
-        Core::MessageManager::writeFlashing(response.exitMessage(commandLine.toUserOutput(), 10));
-        Core::MessageManager::writeFlashing(QString::fromUtf8(response.allRawOutput()));
+            || cpp.result() != QtcProcess::FinishedError)) {
+        Core::MessageManager::writeFlashing(cpp.exitMessage(commandLine.toUserOutput(), 10));
+        Core::MessageManager::writeFlashing(QString::fromUtf8(cpp.allRawOutput()));
         return {};
     }
 
-    return response.stdOut();
+    return cpp.stdOut();
 }
 
 static QStringList queryClangTidyChecks(const QString &executable,

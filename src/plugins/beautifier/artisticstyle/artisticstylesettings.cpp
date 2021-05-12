@@ -84,15 +84,15 @@ static int parseVersion(const QString &text)
 static int updateVersionHelper(const Utils::FilePath &command)
 {
     Utils::SynchronousProcess process;
-    Utils::SynchronousProcessResponse response = process.runBlocking({command, {"--version"}});
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
+    process.runBlocking({command, {"--version"}});
+    if (process.result() != Utils::QtcProcess::Finished)
         return 0;
 
     // Astyle prints the version on stdout or stderr, depending on platform
-    const int version = parseVersion(response.stdOut().trimmed());
+    const int version = parseVersion(process.stdOut().trimmed());
     if (version != 0)
         return version;
-    return parseVersion(response.stdErr().trimmed());
+    return parseVersion(process.stdErr().trimmed());
 }
 
 void ArtisticStyleSettings::updateVersion()
@@ -181,8 +181,8 @@ void ArtisticStyleSettings::createDocumentationFile() const
 {
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
-    Utils::SynchronousProcessResponse response = process.runBlocking({command(), {"-h"}});
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
+    process.runBlocking({command(), {"-h"}});
+    if (process.result() != Utils::QtcProcess::Finished)
         return;
 
     QFile file(documentationFilePath());
@@ -200,7 +200,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
     // astyle writes its output to 'error'...
-    const QStringList lines = response.stdErr().split(QLatin1Char('\n'));
+    const QStringList lines = process.stdErr().split(QLatin1Char('\n'));
     QStringList keys;
     QStringList docu;
     for (QString line : lines) {

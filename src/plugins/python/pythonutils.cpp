@@ -87,10 +87,10 @@ static QString pythonName(const FilePath &pythonPath)
         SynchronousProcess pythonProcess;
         pythonProcess.setTimeoutS(2);
         const CommandLine pythonVersionCommand(pythonPath, {"--version"});
-        const SynchronousProcessResponse response = pythonProcess.runBlocking(pythonVersionCommand);
-        if (response.result != SynchronousProcessResponse::Finished)
+        pythonProcess.runBlocking(pythonVersionCommand);
+        if (pythonProcess.result() != QtcProcess::Finished)
             return {};
-        name = response.allOutput().trimmed();
+        name = pythonProcess.allOutput().trimmed();
         nameForPython[pythonPath] = name;
     }
     return name;
@@ -109,7 +109,7 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
     Environment env = pythonProcess.environment();
     env.set("PYTHONVERBOSE", "x");
     pythonProcess.setEnvironment(env);
-    SynchronousProcessResponse response = pythonProcess.runBlocking(pylsCommand);
+    pythonProcess.runBlocking(pylsCommand);
 
     static const QString pylsInitPattern = "(.*)"
                                            + QRegularExpression::escape(
@@ -120,7 +120,7 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
     static const QRegularExpression regexNotCached(" code object from " + pylsInitPattern,
                                                    QRegularExpression::MultilineOption);
 
-    const QString &output = response.allOutput();
+    const QString output = pythonProcess.allOutput();
     for (const auto &regex : {regexCached, regexNotCached}) {
         const QRegularExpressionMatch result = regex.match(output);
         if (result.hasMatch()) {
@@ -148,7 +148,6 @@ QList<const StdIOSettings *> configuredPythonLanguageServer()
 static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python)
 {
     using namespace LanguageClient;
-    SynchronousProcess pythonProcess;
     const CommandLine pythonLShelpCommand(python, {"-m", "pyls", "-h"});
     const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
     for (const StdIOSettings *serverSetting : configuredPythonLanguageServer()) {
@@ -159,13 +158,14 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
         }
     }
 
-    SynchronousProcessResponse response = pythonProcess.runBlocking(pythonLShelpCommand);
-    if (response.allOutput().contains("Python Language Server"))
+    SynchronousProcess pythonProcess;
+    pythonProcess.runBlocking(pythonLShelpCommand);
+    if (pythonProcess.allOutput().contains("Python Language Server"))
         return {PythonLanguageServerState::AlreadyInstalled, modulePath};
 
     const CommandLine pythonPipVersionCommand(python, {"-m", "pip", "-V"});
-    response = pythonProcess.runBlocking(pythonPipVersionCommand);
-    if (response.allOutput().startsWith("pip "))
+    pythonProcess.runBlocking(pythonPipVersionCommand);
+    if (pythonProcess.allOutput().startsWith("pip "))
         return {PythonLanguageServerState::CanBeInstalled, FilePath()};
     else
         return {PythonLanguageServerState::CanNotBeInstalled, FilePath()};

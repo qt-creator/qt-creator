@@ -150,9 +150,10 @@ bool BazaarClient::synchronousUncommit(const QString &workingDir,
          << revisionSpec(revision)
          << extraOptions;
 
-    const SynchronousProcessResponse result = vcsFullySynchronousExec(workingDir, args);
-    VcsOutputWindow::append(result.stdOut());
-    return result.result == SynchronousProcessResponse::Finished;
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDir, args);
+    VcsOutputWindow::append(proc.stdOut());
+    return proc.result() == QtcProcess::Finished;
 }
 
 void BazaarClient::commit(const QString &repositoryRoot, const QStringList &files,
@@ -190,10 +191,11 @@ bool BazaarClient::managesFile(const QString &workingDirectory, const QString &f
     QStringList args(QLatin1String("status"));
     args << fileName;
 
-    const SynchronousProcessResponse result = vcsFullySynchronousExec(workingDirectory, args);
-    if (result.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return false;
-    return result.rawStdOut.startsWith("unknown");
+    return proc.rawStdOut().startsWith("unknown");
 }
 
 void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
@@ -231,8 +233,8 @@ ExitCodeInterpreter BazaarClient::exitCodeInterpreter(VcsCommandTag cmd) const
 {
     if (cmd == DiffCommand) {
         return [](int code) {
-            return (code < 0 || code > 2) ? SynchronousProcessResponse::FinishedError
-                                          : SynchronousProcessResponse::Finished;
+            return (code < 0 || code > 2) ? QtcProcess::FinishedError
+                                          : QtcProcess::Finished;
         };
     }
     return {};

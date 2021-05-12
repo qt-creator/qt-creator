@@ -150,9 +150,8 @@ void UncrustifySettings::createDocumentationFile() const
 {
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
-    Utils::SynchronousProcessResponse response
-            = process.runBlocking({command(), {"--show-config"}});
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
+    process.runBlocking({command(), {"--show-config"}});
+    if (process.result() != Utils::QtcProcess::Finished)
         return;
 
     QFile file(documentationFilePath());
@@ -169,7 +168,7 @@ void UncrustifySettings::createDocumentationFile() const
     stream.writeComment("Created " + QDateTime::currentDateTime().toString(Qt::ISODate));
     stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
-    const QStringList lines = response.allOutput().split(QLatin1Char('\n'));
+    const QStringList lines = process.allOutput().split(QLatin1Char('\n'));
     const int totalLines = lines.count();
     for (int i = 0; i < totalLines; ++i) {
         const QString &line = lines.at(i);

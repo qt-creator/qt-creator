@@ -189,9 +189,8 @@ bool CMakeTool::isValid() const
     return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
 }
 
-Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, int timeoutS) const
+void CMakeTool::runCMake(Utils::SynchronousProcess &cmake, const QStringList &args, int timeoutS) const
 {
-    Utils::SynchronousProcess cmake;
     cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
     Utils::Environment env = Utils::Environment::systemEnvironment();
@@ -199,7 +198,7 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, int ti
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
 
-    return cmake.runBlocking({cmakeExecutable(), args});
+    cmake.runBlocking({cmakeExecutable(), args});
 }
 
 QVariantMap CMakeTool::toMap() const
@@ -280,22 +279,22 @@ TextEditor::Keywords CMakeTool::keywords()
         return {};
 
     if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
-        Utils::SynchronousProcessResponse response;
-        response = run({"--help-command-list"}, 5);
-        if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_introspection->m_functions = response.stdOut().split('\n');
+        Utils::SynchronousProcess proc;
+        runCMake(proc, {"--help-command-list"}, 5);
+        if (proc.result() == Utils::QtcProcess::Finished)
+            m_introspection->m_functions = proc.stdOut().split('\n');
 
-        response = run({"--help-commands"}, 5);
-        if (response.result == Utils::SynchronousProcessResponse::Finished)
-            parseFunctionDetailsOutput(response.stdOut());
+        runCMake(proc, {"--help-commands"}, 5);
+        if (proc.result() == Utils::QtcProcess::Finished)
+            parseFunctionDetailsOutput(proc.stdOut());
 
-        response = run({"--help-property-list"}, 5);
-        if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_introspection->m_variables = parseVariableOutput(response.stdOut());
+        runCMake(proc, {"--help-property-list"}, 5);
+        if (proc.result() == Utils::QtcProcess::Finished)
+            m_introspection->m_variables = parseVariableOutput(proc.stdOut());
 
-        response = run({"--help-variable-list"}, 5);
-        if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            m_introspection->m_variables.append(parseVariableOutput(response.stdOut()));
+        runCMake(proc, {"--help-variable-list"}, 5);
+        if (proc.result() == Utils::QtcProcess::Finished) {
+            m_introspection->m_variables.append(parseVariableOutput(proc.stdOut()));
             m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
             Utils::sort(m_introspection->m_variables);
         }
@@ -486,11 +485,12 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    Utils::SynchronousProcessResponse response = run({"-E", "capabilities"});
+    Utils::SynchronousProcess cmake;
+    runCMake(cmake, {"-E", "capabilities"});
 
-    if (response.result == Utils::SynchronousProcessResponse::Finished) {
+    if (cmake.result() == Utils::QtcProcess::Finished) {
         m_introspection->m_didRun = true;
-        parseFromCapabilities(response.stdOut());
+        parseFromCapabilities(cmake.stdOut());
     } else {
         m_introspection->m_didRun = false;
     }

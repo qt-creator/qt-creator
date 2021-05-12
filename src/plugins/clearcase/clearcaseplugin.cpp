@@ -1667,17 +1667,18 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
         return response;
     }
 
-    const SynchronousProcessResponse sp_resp =
-                  VcsBase::runVcs(workingDir,
-                                  {executable, arguments},
-                                  timeOutS,
-                                  flags, outputCodec);
+    SynchronousProcess proc;
 
-    response.error = sp_resp.result != SynchronousProcessResponse::Finished;
+    VcsCommand command(workingDir, Environment::systemEnvironment());
+    command.addFlags(flags);
+    command.setCodec(outputCodec);
+    command.runCommand(proc, {executable, arguments}, timeOutS);
+
+    response.error = proc.result() != QtcProcess::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(executable, timeOutS);
-    response.stdErr = sp_resp.stdErr();
-    response.stdOut = sp_resp.stdOut();
+        response.message = proc.exitMessage(executable, timeOutS);
+    response.stdErr = proc.stdErr();
+    response.stdOut = proc.stdOut();
     return response;
 }
 
@@ -2356,10 +2357,10 @@ QString ClearCasePluginPrivate::runExtDiff(const QString &workingDir, const QStr
     process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
-    SynchronousProcessResponse response = process.run(diff);
-    if (response.result != SynchronousProcessResponse::Finished)
+    process.run(diff);
+    if (process.result() != QtcProcess::Finished)
         return QString();
-    return response.allOutput();
+    return process.allOutput();
 }
 
 void ClearCasePluginPrivate::syncSlot()

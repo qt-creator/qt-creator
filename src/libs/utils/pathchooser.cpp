@@ -151,10 +151,10 @@ QString BinaryVersionToolTipEventFilter::toolVersion(const CommandLine &cmd)
         return QString();
     SynchronousProcess proc;
     proc.setTimeoutS(1);
-    SynchronousProcessResponse response = proc.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished)
+    proc.runBlocking(cmd);
+    if (proc.result() != QtcProcess::Finished)
         return QString();
-    return response.allOutput();
+    return proc.allOutput();
 }
 
 // Extends BinaryVersionToolTipEventFilter to prepend the existing pathchooser

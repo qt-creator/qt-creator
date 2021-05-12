@@ -108,9 +108,8 @@ bool ClangToolRunner::supportsVFSOverlay() const
     auto it = vfsCapabilities.find(m_executable);
     if (it == vfsCapabilities.end()) {
         Utils::SynchronousProcess p;
-        Utils::SynchronousProcessResponse response = p.runBlocking(
-            Utils::CommandLine(m_executable, {"--help"}));
-        it = vfsCapabilities.insert(m_executable, response.allOutput().contains("vfsoverlay"));
+        p.runBlocking(Utils::CommandLine(m_executable, {"--help"}));
+        it = vfsCapabilities.insert(m_executable, p.allOutput().contains("vfsoverlay"));
     }
     return it.value();
 }

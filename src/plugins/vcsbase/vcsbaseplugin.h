@@ -147,13 +147,6 @@ VCSBASE_EXPORT void setSource(Core::IDocument *document, const QString &source);
 // Returns the source of editor contents.
 VCSBASE_EXPORT QString source(Core::IDocument *document);
 
-VCSBASE_EXPORT Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
-                                                        const Utils::CommandLine &cmd,
-                                                        int timeOutS,
-                                                        unsigned flags = 0,
-                                                        QTextCodec *outputCodec = nullptr,
-                                                        const Utils::Environment &env = {});
-
 class VCSBASE_EXPORT VcsBasePluginPrivate : public Core::IVersionControl
 {
     Q_OBJECT

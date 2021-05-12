@@ -204,8 +204,8 @@ public:
     {
         if (cmd == DiffCommand) {
             return [](int code) {
-                return (code < 0 || code > 2) ? SynchronousProcessResponse::FinishedError
-                                              : SynchronousProcessResponse::Finished;
+                return (code < 0 || code > 2) ? QtcProcess::FinishedError
+                                              : QtcProcess::Finished;
             };
         }
         return {};
@@ -1446,28 +1446,31 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
         return response;
     }
     // Run, connect stderr to the output window
-    const SynchronousProcessResponse sp_resp =
-            runVcs(workingDirectory, {executable, m_settings.addOptions(arguments)},
-                   timeOutS, flags, outputCodec);
+    SynchronousProcess proc;
+
+    VcsCommand command(workingDirectory, Environment::systemEnvironment());
+    command.addFlags(flags);
+    command.setCodec(outputCodec);
+    command.runCommand(proc, {executable, m_settings.addOptions(arguments)}, timeOutS);
 
     response.result = CvsResponse::OtherError;
-    response.stdErr = sp_resp.stdErr();
-    response.stdOut = sp_resp.stdOut();
-    switch (sp_resp.result) {
-    case SynchronousProcessResponse::Finished:
+    response.stdErr = proc.stdErr();
+    response.stdOut = proc.stdOut();
+    switch (proc.result()) {
+    case QtcProcess::Finished:
         response.result = CvsResponse::Ok;
         break;
-    case SynchronousProcessResponse::FinishedError:
+    case QtcProcess::FinishedError:
         response.result = CvsResponse::NonNullExitCode;
         break;
-    case SynchronousProcessResponse::TerminatedAbnormally:
-    case SynchronousProcessResponse::StartFailed:
-    case SynchronousProcessResponse::Hang:
+    case QtcProcess::TerminatedAbnormally:
+    case QtcProcess::StartFailed:
+    case QtcProcess::Hang:
         break;
     }
 
     if (response.result != CvsResponse::Ok)
-        response.message = sp_resp.exitMessage(executable.toString(), timeOutS);
+        response.message = proc.exitMessage(executable.toString(), timeOutS);
 
     return response;
 }

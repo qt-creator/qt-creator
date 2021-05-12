@@ -93,14 +93,13 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
 
     const CommandLine cmd(compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()});
 
-    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished
-            || response.exitCode != 0) {
-        qWarning() << response.exitMessage(compiler.toString(), 10);
+    cpp.runBlocking(cmd);
+    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
+        qWarning() << cpp.exitMessage(compiler.toString(), 10);
         return {};
     }
 
-    const QByteArray output = response.allOutput().toUtf8();
+    const QByteArray output = cpp.allOutput().toUtf8();
     return Macro::toMacros(output);
 }
 
@@ -116,14 +115,13 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
 
     const CommandLine cmd(compiler, {compilerTargetFlag(abi), "--print-search-dirs"});
 
-    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished
-            || response.exitCode != 0) {
-        qWarning() << response.exitMessage(compiler.toString(), 10);
+    cpp.runBlocking(cmd);
+    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
+        qWarning() << cpp.exitMessage(compiler.toString(), 10);
         return {};
     }
 
-    QString output = response.allOutput();
+    QString output = cpp.allOutput();
     HeaderPaths headerPaths;
     QTextStream in(&output);
     QString line;

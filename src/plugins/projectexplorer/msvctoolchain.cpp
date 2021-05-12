@@ -234,35 +234,35 @@ static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
 static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
 {
     QVector<VisualStudioInstallation> installations;
-    Utils::SynchronousProcess vsWhereProcess;
+    SynchronousProcess vsWhereProcess;
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
     const CommandLine cmd(vswhere,
             {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"});
-    Utils::SynchronousProcessResponse response = vsWhereProcess.runBlocking(cmd);
-    switch (response.result) {
-    case Utils::SynchronousProcessResponse::Finished:
+    vsWhereProcess.runBlocking(cmd);
+    switch (vsWhereProcess.result()) {
+    case QtcProcess::Finished:
         break;
-    case Utils::SynchronousProcessResponse::StartFailed:
+    case QtcProcess::StartFailed:
         qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "could not be started.";
         return installations;
-    case Utils::SynchronousProcessResponse::FinishedError:
+    case QtcProcess::FinishedError:
         qWarning().noquote().nospace() << QDir::toNativeSeparators(vswhere)
                                        << " finished with exit code "
-                                       << response.exitCode << ".";
+                                       << vsWhereProcess.exitCode() << ".";
         return installations;
-    case Utils::SynchronousProcessResponse::TerminatedAbnormally:
+    case QtcProcess::TerminatedAbnormally:
         qWarning().noquote().nospace()
-            << QDir::toNativeSeparators(vswhere) << " crashed. Exit code: " << response.exitCode;
+            << QDir::toNativeSeparators(vswhere) << " crashed. Exit code: " << vsWhereProcess.exitCode();
         return installations;
-    case Utils::SynchronousProcessResponse::Hang:
+    case QtcProcess::Hang:
         qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "did not finish in" << timeoutS
                              << "seconds.";
         return installations;
     }
 
-    QByteArray output = response.stdOut().toUtf8();
+    QByteArray output = vsWhereProcess.stdOut().toUtf8();
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
     if (error.error != QJsonParseError::NoError || doc.isNull()) {
@@ -621,11 +621,11 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
         arguments << QLatin1String("/TC");
     arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
-    SynchronousProcessResponse response = cpp.runBlocking({binary, arguments});
-    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
+    cpp.runBlocking({binary, arguments});
+    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0)
         return predefinedMacros;
 
-    const QStringList output = Utils::filtered(response.stdOut().split('\n'),
+    const QStringList output = Utils::filtered(cpp.stdOut().split('\n'),
                                                [](const QString &s) { return s.startsWith('V'); });
     for (const QString &line : output)
         predefinedMacros.append(Macro::fromKeyValue(line.mid(1)));
@@ -1495,13 +1495,12 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
 static QVersionNumber clangClVersion(const QString &clangClPath)
 {
     SynchronousProcess clangClProcess;
-    const SynchronousProcessResponse response
-        = clangClProcess.runBlocking({clangClPath, {"--version"}});
-    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0)
+    clangClProcess.runBlocking({clangClPath, {"--version"}});
+    if (clangClProcess.result() != QtcProcess::Finished || clangClProcess.exitCode() != 0)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
                                               QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
-                                              .match(response.stdOut());
+                                              .match(clangClProcess.stdOut());
     if (!match.hasMatch())
         return {};
     return QVersionNumber::fromString(match.captured(1));
@@ -1677,20 +1676,20 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (!cxxflags.contains("--driver-mode=g++"))
         return MsvcToolChain::msvcPredefinedMacros(cxxflags, env);
 
-    Utils::SynchronousProcess cpp;
+    SynchronousProcess cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
 
     QStringList arguments = cxxflags;
     arguments.append(gccPredefinedMacrosOptions(language()));
     arguments.append("-");
-    Utils::SynchronousProcessResponse response = cpp.runBlocking({compilerCommand(), arguments});
-    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0) {
+    cpp.runBlocking({compilerCommand(), arguments});
+    if (cpp.result() != Utils::QtcProcess::Finished || cpp.exitCode() != 0) {
         // Show the warning but still parse the output.
         QTC_CHECK(false && "clang-cl exited with non-zero code.");
     }
 
-    return Macro::toMacros(response.allRawOutput());
+    return Macro::toMacros(cpp.allRawOutput());
 }
 
 Utils::LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &cxxflags,
@@ -2022,12 +2021,12 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
         qDebug() << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
-    Utils::SynchronousProcessResponse response = run.runBlocking(cmd);
+    run.runBlocking(cmd);
 
-    if (response.result != Utils::SynchronousProcessResponse::Finished) {
-        const QString message = !response.stdErr().isEmpty()
-                                    ? response.stdErr()
-                                    : response.exitMessage(cmdPath.toString(), 10);
+    if (run.result() != QtcProcess::Finished) {
+        const QString message = !run.stdErr().isEmpty()
+                                    ? run.stdErr()
+                                    : run.exitMessage(cmdPath.toString(), 10);
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())
@@ -2039,7 +2038,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     }
 
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QString stdOut = response.stdOut();
+    const QString stdOut = run.stdOut();
 
     //
     // Now parse the file to get the environment settings

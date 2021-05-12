@@ -159,10 +159,10 @@ namespace {
                 SynchronousProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 proc.setTimeoutS(30);
-                SynchronousProcessResponse response = proc.runBlocking({executable, {shell}});
-                if (response.result != SynchronousProcessResponse::Finished)
+                proc.runBlocking({executable, {shell}});
+                if (proc.result() != QtcProcess::Finished)
                     return true;
-                return !response.allOutput().contains("x86-64");
+                return !proc.allOutput().contains("x86-64");
             }
         }
         return false;
@@ -561,14 +561,14 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(30);
     CommandLine cmd{adbToolPath, {"devices"}};
-    SynchronousProcessResponse response = adbProc.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished) {
+    adbProc.runBlocking(cmd);
+    if (adbProc.result() != QtcProcess::Finished) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration", "Could not run: %1")
                 .arg(cmd.toUserOutput());
         return devices;
     }
-    QStringList adbDevs = response.allOutput().split('\n', Qt::SkipEmptyParts);
+    QStringList adbDevs = adbProc.allOutput().split('\n', Qt::SkipEmptyParts);
     if (adbDevs.empty())
         return devices;
 
@@ -629,11 +629,11 @@ QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QStr
 
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished)
+    adbProc.runBlocking(cmd);
+    if (adbProc.result() != QtcProcess::Finished)
         return QString();
 
-    return response.allOutput();
+    return adbProc.allOutput();
 }
 
 int AndroidConfig::getSDKVersion(const FilePath &adbToolPath, const QString &device)
@@ -726,11 +726,11 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.runBlocking({adbToolPath, arguments});
-    if (response.result != SynchronousProcessResponse::Finished)
+    adbProc.runBlocking({adbToolPath, arguments});
+    if (adbProc.result() != QtcProcess::Finished)
         return result;
 
-    QString output = response.allOutput().trimmed();
+    QString output = adbProc.allOutput().trimmed();
     if (!output.isEmpty()) {
         QStringList result = output.split(QLatin1Char(','));
         if (!result.isEmpty())
@@ -748,11 +748,11 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
 
         SynchronousProcess abiProc;
         abiProc.setTimeoutS(10);
-        SynchronousProcessResponse abiResponse = abiProc.runBlocking({adbToolPath, arguments});
-        if (abiResponse.result != SynchronousProcessResponse::Finished)
+        abiProc.runBlocking({adbToolPath, arguments});
+        if (abiProc.result() != QtcProcess::Finished)
             return result;
 
-        QString abi = abiResponse.allOutput().trimmed();
+        QString abi = abiProc.allOutput().trimmed();
         if (abi.isEmpty())
             break;
         result << abi;

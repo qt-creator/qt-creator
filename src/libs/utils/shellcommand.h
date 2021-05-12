@@ -142,10 +142,11 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    virtual SynchronousProcessResponse runCommand(const CommandLine &command,
-                                                  int timeoutS,
-                                                  const QString &workingDirectory = QString(),
-                                                  const ExitCodeInterpreter &interpreter = {});
+    virtual void runCommand(Utils::SynchronousProcess &process,
+                            const CommandLine &command,
+                            int timeoutS,
+                            const QString &workingDirectory = QString(),
+                            const ExitCodeInterpreter &interpreter = {});
 
     void cancel();
 
@@ -167,15 +168,17 @@ private:
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
-    SynchronousProcessResponse runFullySynchronous(const CommandLine &cmd,
-                                                   QSharedPointer<OutputProxy> proxy,
-                                                   int timeoutS, const QString &workingDirectory,
-                                                   const ExitCodeInterpreter &interpreter = {});
+    void runFullySynchronous(SynchronousProcess &proc,
+                             const CommandLine &cmd,
+                             QSharedPointer<OutputProxy> proxy,
+                             int timeoutS, const QString &workingDirectory,
+                             const ExitCodeInterpreter &interpreter = {});
     // Run with an event loop. Signals will be delivered.
-    SynchronousProcessResponse runSynchronous(const CommandLine &cmd,
-                                              QSharedPointer<OutputProxy> proxy,
-                                              int timeoutS, const QString &workingDirectory,
-                                              const ExitCodeInterpreter &interpreter = {});
+    void runSynchronous(SynchronousProcess &proc,
+                        const CommandLine &cmd,
+                        QSharedPointer<OutputProxy> proxy,
+                        int timeoutS, const QString &workingDirectory,
+                        const ExitCodeInterpreter &interpreter = {});
 
     class Internal::ShellCommandPrivate *const d;
 };

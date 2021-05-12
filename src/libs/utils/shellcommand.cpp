@@ -273,13 +273,13 @@ void ShellCommand::run(QFutureInterface<void> &future)
     d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
-        SynchronousProcessResponse resp
-                = runCommand(job.command, job.timeoutS, job.workingDirectory,
-                             job.exitCodeInterpreter);
-        stdOut += resp.stdOut();
-        stdErr += resp.stdErr();
-        d->m_lastExecExitCode = resp.exitCode;
-        d->m_lastExecSuccess = resp.result == SynchronousProcessResponse::Finished;
+        SynchronousProcess proc;
+        runCommand(proc, job.command, job.timeoutS, job.workingDirectory,
+                   job.exitCodeInterpreter);
+        stdOut += proc.stdOut();
+        stdErr += proc.stdErr();
+        d->m_lastExecExitCode = proc.exitCode();
+        d->m_lastExecSuccess = proc.result() == QtcProcess::Finished;
         if (!d->m_lastExecSuccess)
             break;
     }
@@ -306,17 +306,16 @@ void ShellCommand::run(QFutureInterface<void> &future)
     this->deleteLater();
 }
 
-SynchronousProcessResponse ShellCommand::runCommand(const CommandLine &command, int timeoutS,
-                                                    const QString &workingDirectory,
-                                                    const ExitCodeInterpreter &interpreter)
+void ShellCommand::runCommand(SynchronousProcess &proc,
+                              const CommandLine &command, int timeoutS,
+                              const QString &workingDirectory,
+                              const ExitCodeInterpreter &interpreter)
 {
-    SynchronousProcessResponse response;
-
     const QString dir = workDirectory(workingDirectory);
 
     if (command.executable().isEmpty()) {
-        response.result = SynchronousProcessResponse::StartFailed;
-        return response;
+        proc.setResult(QtcProcess::StartFailed);
+        return;
     }
 
     QSharedPointer<OutputProxy> proxy(d->m_proxyFactory());
@@ -327,32 +326,30 @@ SynchronousProcessResponse ShellCommand::runCommand(const CommandLine &command, 
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
-        response = runFullySynchronous(command, proxy, timeoutS, dir, interpreter);
+        runFullySynchronous(proc, command, proxy, timeoutS, dir, interpreter);
     } else {
-        response = runSynchronous(command, proxy, timeoutS, dir, interpreter);
+        runSynchronous(proc, command, proxy, timeoutS, dir, interpreter);
     }
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
-        if (response.result == SynchronousProcessResponse::Finished) {
+        if (proc.result() == QtcProcess::Finished) {
             if (d->m_flags & ShowSuccessMessage)
-                emit proxy->appendMessage(response.exitMessage(command.executable().toUserOutput(), timeoutS));
+                emit proxy->appendMessage(proc.exitMessage(command.executable().toUserOutput(), timeoutS));
         } else if (!(d->m_flags & SuppressFailMessage)) {
-            emit proxy->appendError(response.exitMessage(command.executable().toUserOutput(), timeoutS));
+            emit proxy->appendError(proc.exitMessage(command.executable().toUserOutput(), timeoutS));
         }
     }
-
-    return response;
 }
 
-SynchronousProcessResponse ShellCommand::runFullySynchronous(const CommandLine &cmd,
-                                                             QSharedPointer<OutputProxy> proxy,
-                                                             int timeoutS,
-                                                             const QString &workingDirectory,
-                                                             const ExitCodeInterpreter &interpreter)
+void ShellCommand::runFullySynchronous(SynchronousProcess &process,
+                                       const CommandLine &cmd,
+                                       QSharedPointer<OutputProxy> proxy,
+                                       int timeoutS,
+                                       const QString &workingDirectory,
+                                       const ExitCodeInterpreter &interpreter)
 {
     // Set up process
-    SynchronousProcess process;
     if (d->m_disableUnixTerminal)
         process.setDisableUnixTerminal();
     const QString dir = workDirectory(workingDirectory);
@@ -366,14 +363,14 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const CommandLine &
     process.setTimeoutS(timeoutS);
     process.setExitCodeInterpreter(interpreter);
 
-    SynchronousProcessResponse resp = process.runBlocking(cmd);
+    process.runBlocking(cmd);
 
     if (!d->m_aborted) {
-        const QString stdErr = resp.stdErr();
+        const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
             emit proxy->append(stdErr);
 
-        const QString stdOut = resp.stdOut();
+        const QString stdOut = process.stdOut();
         if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
             if (d->m_flags & SilentOutput)
                 emit proxy->appendSilently(stdOut);
@@ -381,17 +378,15 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const CommandLine &
                 emit proxy->append(stdOut);
         }
     }
-
-    return resp;
 }
 
-SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
-                                                        QSharedPointer<OutputProxy> proxy,
-                                                        int timeoutS,
-                                                        const QString &workingDirectory,
-                                                        const ExitCodeInterpreter &interpreter)
+void ShellCommand::runSynchronous(SynchronousProcess &process,
+                                  const CommandLine &cmd,
+                                  QSharedPointer<OutputProxy> proxy,
+                                  int timeoutS,
+                                  const QString &workingDirectory,
+                                  const ExitCodeInterpreter &interpreter)
 {
-    SynchronousProcess process;
     process.setExitCodeInterpreter(interpreter);
     connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::stopProcess);
     process.setEnvironment(processEnvironment());
@@ -438,7 +433,7 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
     process.setTimeoutS(timeoutS);
     process.setExitCodeInterpreter(interpreter);
 
-    return process.run(cmd);
+    process.run(cmd);
 }
 
 const QVariant &ShellCommand::cookie() const

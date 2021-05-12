@@ -73,6 +73,19 @@ static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningM
 
 static std::function<void(QtcProcess &)> s_remoteRunProcessHook;
 
+/* Result of SynchronousProcess execution */
+class SynchronousProcessResponse
+{
+public:
+    void clear();
+
+    QtcProcess::Result result = QtcProcess::StartFailed;
+    int exitCode = -1;
+
+    QByteArray rawStdOut;
+    QByteArray rawStdErr;
+};
+
 // Data for one channel buffer (stderr/stdout)
 class ChannelBuffer : public QObject
 {
@@ -112,7 +125,7 @@ public:
     void slotError(QProcess::ProcessError);
     void clearForRun();
 
-    SynchronousProcessResponse::Result interpretExitCode(int exitCode);
+    QtcProcess::Result interpretExitCode(int exitCode);
 
     QtcProcess *q;
     QTextCodec *m_codec = QTextCodec::codecForLocale();
@@ -139,19 +152,17 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result.clear();
-    m_result.codec = m_codec;
     m_startFailure = false;
     m_binary = {};
 }
 
-SynchronousProcessResponse::Result QtcProcessPrivate::interpretExitCode(int exitCode)
+QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
 {
     if (m_exitCodeInterpreter)
         return m_exitCodeInterpreter(exitCode);
 
     // default:
-    return exitCode ? SynchronousProcessResponse::FinishedError
-                    : SynchronousProcessResponse::Finished;
+    return exitCode ? QtcProcess::FinishedError : QtcProcess::Finished;
 }
 
 } // Internal
@@ -459,6 +470,21 @@ QString QtcProcess::normalizeNewlines(const QString &text)
     return res;
 }
 
+QtcProcess::Result QtcProcess::result() const
+{
+    return d->m_result.result;
+}
+
+void QtcProcess::setResult(Result result)
+{
+    d->m_result.result = result;
+}
+
+int QtcProcess::exitCode() const
+{
+    return d->m_result.exitCode;
+}
+
 
 // Path utilities
 
@@ -576,19 +602,19 @@ QString QtcProcess::locateBinary(const QString &binary)
 // ----------- SynchronousProcessResponse
 void SynchronousProcessResponse::clear()
 {
-    result = StartFailed;
+    result = QtcProcess::StartFailed;
     exitCode = -1;
     rawStdOut.clear();
     rawStdErr.clear();
 }
 
-QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeoutS) const
+QString QtcProcess::exitMessage(const QString &binary, int timeoutS) const
 {
-    switch (result) {
+    switch (result()) {
     case Finished:
         return QtcProcess::tr("The command \"%1\" finished successfully.").arg(QDir::toNativeSeparators(binary));
     case FinishedError:
-        return QtcProcess::tr("The command \"%1\" terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode);
+        return QtcProcess::tr("The command \"%1\" terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode());
     case TerminatedAbnormally:
         return QtcProcess::tr("The command \"%1\" terminated abnormally.").arg(QDir::toNativeSeparators(binary));
     case StartFailed:
@@ -600,19 +626,19 @@ QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeo
     return QString();
 }
 
-QByteArray SynchronousProcessResponse::allRawOutput() const
+QByteArray QtcProcess::allRawOutput() const
 {
-    if (!rawStdOut.isEmpty() && !rawStdErr.isEmpty()) {
-        QByteArray result = rawStdOut;
+    if (!d->m_result.rawStdOut.isEmpty() && !d->m_result.rawStdErr.isEmpty()) {
+        QByteArray result = d->m_result.rawStdOut;
         if (!result.endsWith('\n'))
             result += '\n';
-        result += rawStdErr;
+        result += d->m_result.rawStdErr;
         return result;
     }
-    return !rawStdOut.isEmpty() ? rawStdOut : rawStdErr;
+    return !d->m_result.rawStdOut.isEmpty() ? d->m_result.rawStdOut : d->m_result.rawStdErr;
 }
 
-QString SynchronousProcessResponse::allOutput() const
+QString QtcProcess::allOutput() const
 {
     const QString out = stdOut();
     const QString err = stdErr();
@@ -627,21 +653,32 @@ QString SynchronousProcessResponse::allOutput() const
     return !out.isEmpty() ? out : err;
 }
 
-QString SynchronousProcessResponse::stdOut() const
+QString QtcProcess::stdOut() const
 {
-    return QtcProcess::normalizeNewlines(codec->toUnicode(rawStdOut));
+    return normalizeNewlines(d->m_codec->toUnicode(d->m_result.rawStdOut));
 }
 
-QString SynchronousProcessResponse::stdErr() const
+QString QtcProcess::stdErr() const
 {
-    return QtcProcess::normalizeNewlines(codec->toUnicode(rawStdErr));
+    return normalizeNewlines(d->m_codec->toUnicode(d->m_result.rawStdErr));
 }
 
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse& r)
+QByteArray QtcProcess::rawStdOut() const
+{
+    return d->m_result.rawStdOut;
+}
+
+QByteArray QtcProcess::rawStdErr() const
+{
+    return d->m_result.rawStdErr;
+}
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
 {
     QDebug nsp = str.nospace();
-    nsp << "SynchronousProcessResponse: result=" << r.result << " ex=" << r.exitCode << '\n'
-        << r.rawStdOut.size() << " bytes stdout, stderr=" << r.rawStdErr << '\n';
+    nsp << "QtcProcess: result="
+        << r.d->m_result.result << " ex=" << r.exitCode() << '\n'
+        << r.d->m_result.rawStdOut.size() << " bytes stdout, stderr=" << r.d->m_result.rawStdErr << '\n';
     return str;
 }
 
@@ -748,7 +785,7 @@ static bool isGuiThread()
 }
 #endif
 
-SynchronousProcessResponse QtcProcess::run(const CommandLine &cmd, const QByteArray &writeData)
+void QtcProcess::run(const CommandLine &cmd, const QByteArray &writeData)
 {
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
@@ -759,18 +796,15 @@ SynchronousProcessResponse QtcProcess::run(const CommandLine &cmd, const QByteAr
 
         waitForFinished();
 
-        SynchronousProcessResponse res;
-        res.result = SynchronousProcessResponse::Finished;
-        res.exitCode = exitCode();
-        res.rawStdOut = readAllStandardOutput();
-        res.rawStdErr = readAllStandardError();
-        return res;
+        d->m_result.result = QtcProcess::Finished;
+        d->m_result.exitCode = exitCode();
+        d->m_result.rawStdOut = readAllStandardOutput();
+        d->m_result.rawStdErr = readAllStandardError();
+        return;
     };
 
     qCDebug(processLog).noquote() << "Starting:" << cmd.toUserOutput();
-    ExecuteOnDestruction logResult([this] {
-        qCDebug(processLog) << d->m_result;
-    });
+    ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     d->clearForRun();
 
@@ -810,11 +844,9 @@ SynchronousProcessResponse QtcProcess::run(const CommandLine &cmd, const QByteAr
             QApplication::restoreOverrideCursor();
 #endif
     }
-
-    return  d->m_result;
 }
 
-SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
+void QtcProcess::runBlocking(const CommandLine &cmd)
 {
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
@@ -825,18 +857,15 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
 
         waitForFinished();
 
-        SynchronousProcessResponse res;
-        res.result = SynchronousProcessResponse::Finished;
-        res.exitCode = exitCode();
-        res.rawStdOut = readAllStandardOutput();
-        res.rawStdErr = readAllStandardError();
-        return res;
+        d->m_result.result = QtcProcess::Finished;
+        d->m_result.exitCode = exitCode();
+        d->m_result.rawStdOut = readAllStandardOutput();
+        d->m_result.rawStdErr = readAllStandardError();
+        return;
     };
 
     qCDebug(processLog).noquote() << "Starting blocking:" << cmd.toUserOutput();
-    ExecuteOnDestruction logResult([this] {
-        qCDebug(processLog) << d->m_result;
-    });
+    ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     d->clearForRun();
 
@@ -845,12 +874,12 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
     setCommand(cmd);
     start();
     if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
-        d->m_result.result = SynchronousProcessResponse::StartFailed;
-        return d->m_result;
+        d->m_result.result = QtcProcess::StartFailed;
+        return;
     }
     closeWriteChannel();
     if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
-        d->m_result.result = SynchronousProcessResponse::Hang;
+        d->m_result.result = QtcProcess::Hang;
         terminate();
         if (!waitForFinished(1000)) {
             kill();
@@ -859,12 +888,12 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
     }
 
     if (state() != QProcess::NotRunning)
-        return d->m_result;
+        return;
 
     d->m_result.exitCode = exitCode();
-    if (d->m_result.result == SynchronousProcessResponse::StartFailed) {
+    if (d->m_result.result == QtcProcess::StartFailed) {
         if (exitStatus() != QProcess::NormalExit)
-            d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
+            d->m_result.result = QtcProcess::TerminatedAbnormally;
         else
             d->m_result.result = d->interpretExitCode(d->m_result.exitCode);
     }
@@ -873,8 +902,6 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
 
     d->m_result.rawStdOut = d->m_stdOut.rawData;
     d->m_result.rawStdErr = d->m_stdErr.rawData;
-
-    return d->m_result;
 }
 
 void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
@@ -897,7 +924,7 @@ void QtcProcessPrivate::slotTimeout()
         m_waitingForUser = false;
         if (terminate) {
             q->stopProcess();
-            m_result.result = SynchronousProcessResponse::Hang;
+            m_result.result = QtcProcess::Hang;
         } else {
             m_hangTimerCount = 0;
         }
@@ -920,8 +947,8 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus e)
         break;
     case QProcess::CrashExit:
         // Was hang detected before and killed?
-        if (m_result.result != SynchronousProcessResponse::Hang)
-            m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
+        if (m_result.result != QtcProcess::Hang)
+            m_result.result = QtcProcess::TerminatedAbnormally;
         m_result.exitCode = -1;
         break;
     }
@@ -934,8 +961,8 @@ void QtcProcessPrivate::slotError(QProcess::ProcessError e)
     if (debug)
         qDebug() << Q_FUNC_INFO << e;
     // Was hang detected before and killed?
-    if (m_result.result != SynchronousProcessResponse::Hang)
-        m_result.result = SynchronousProcessResponse::StartFailed;
+    if (m_result.result != QtcProcess::Hang)
+        m_result.result = QtcProcess::StartFailed;
     m_startFailure = true;
     m_eventLoop.quit();
 }

@@ -96,12 +96,13 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
     // This  only works when called from the repo and outputs paths relative to it.
     const QStringList args(QLatin1String("manifest"));
 
-    const SynchronousProcessResponse result = vcsFullySynchronousExec(repository, args);
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, repository, args);
 
     const QDir repositoryDir(repository);
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
-    const QStringList files = result.stdOut().split(QLatin1Char('\n'));
+    const QStringList files = proc.stdOut().split(QLatin1Char('\n'));
     foreach (const QString &fileName, files) {
         const QFileInfo managedFile(repositoryDir, fileName);
         if (needle == managedFile)
@@ -126,17 +127,17 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
     if (workingDirectory.exists()) {
         // Let's make first init
         QStringList arguments(QLatin1String("init"));
-        const SynchronousProcessResponse resp = vcsFullySynchronousExec(
-                    workingDirectory.path(), arguments);
-        if (resp.result != SynchronousProcessResponse::Finished)
+        SynchronousProcess proc;
+        vcsFullySynchronousExec(proc, workingDirectory.path(), arguments);
+        if (proc.result() != QtcProcess::Finished)
             return false;
 
         // Then pull remote repository
         arguments.clear();
         arguments << QLatin1String("pull") << dstLocation;
-        const SynchronousProcessResponse resp1 = vcsSynchronousExec(
-                    workingDirectory.path(), arguments, flags);
-        if (resp1.result != SynchronousProcessResponse::Finished)
+        SynchronousProcess proc1;
+        vcsSynchronousExec(proc1, workingDirectory.path(), arguments, flags);
+        if (proc1.result() != QtcProcess::Finished)
             return false;
 
         // By now, there is no hgrc file -> create it
@@ -151,16 +152,16 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
         // And last update repository
         arguments.clear();
         arguments << QLatin1String("update");
-        const SynchronousProcessResponse resp2 = vcsSynchronousExec(
-                    workingDirectory.path(), arguments, flags);
-        return resp2.result == SynchronousProcessResponse::Finished;
+        SynchronousProcess proc2;
+        vcsSynchronousExec(proc2, workingDirectory.path(), arguments, flags);
+        return proc2.result() == QtcProcess::Finished;
     } else {
         QStringList arguments(QLatin1String("clone"));
         arguments << dstLocation << workingDirectory.dirName();
         workingDirectory.cdUp();
-        const SynchronousProcessResponse resp = vcsSynchronousExec(
-                    workingDirectory.path(), arguments, flags);
-        return resp.result == SynchronousProcessResponse::Finished;
+        SynchronousProcess proc;
+        vcsSynchronousExec(proc, workingDirectory.path(), arguments, flags);
+        return proc.result() == QtcProcess::Finished;
     }
 }
 
@@ -177,11 +178,15 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     // cause mercurial doesn`t understand LANG
     Environment env = Environment::systemEnvironment();
     env.set("LANGUAGE", "C");
-    const SynchronousProcessResponse resp = VcsBase::runVcs(
-                workingDir, {vcsBinary(), args}, vcsTimeoutS(), flags, nullptr, env);
-    const bool ok = resp.result == SynchronousProcessResponse::Finished;
+    SynchronousProcess proc;
 
-    parsePullOutput(resp.stdOut().trimmed());
+    VcsCommand command(workingDir, env);
+    command.addFlags(flags);
+    command.runCommand(proc, {vcsBinary(), args}, vcsTimeoutS());
+
+    const bool ok = proc.result() == QtcProcess::Finished;
+
+    parsePullOutput(proc.stdOut().trimmed());
     return ok;
 }
 
@@ -218,22 +223,25 @@ QStringList MercurialClient::parentRevisionsSync(const QString &workingDirectory
     args << QLatin1String("parents") <<  QLatin1String("-r") <<revision;
     if (!file.isEmpty())
         args << file;
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, args);
-    if (resp.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return QStringList();
     /* Looks like: \code
 changeset:   0:031a48610fba
 user: ...
 \endcode   */
     // Obtain first line and split by blank-delimited tokens
-    const QStringList lines = resp.stdOut().split(QLatin1Char('\n'));
+    const QStringList lines = proc.stdOut().split(QLatin1Char('\n'));
     if (lines.size() < 1) {
-        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(resp.stdOut())));
+        VcsOutputWindow::appendSilently(
+            msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(proc.stdOut())));
         return QStringList();
     }
     QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
-        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(resp.stdOut())));
+        VcsOutputWindow::appendSilently(
+            msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(proc.stdOut())));
         return QStringList();
     }
     // Remove revision numbers
@@ -258,10 +266,11 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
     if (!format.isEmpty())
         args << QLatin1String("--template") << format;
 
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, args);
-    if (resp.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return revision;
-    return stripLastNewline(resp.stdOut());
+    return stripLastNewline(proc.stdOut());
 }
 
 // Default format: "SHA1 (author summmary)"
@@ -277,7 +286,9 @@ bool MercurialClient::managesFile(const QString &workingDirectory, const QString
 {
     QStringList args;
     args << QLatin1String("status") << QLatin1String("--unknown") << fileName;
-    return vcsFullySynchronousExec(workingDirectory, args).stdOut().isEmpty();
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    return proc.stdOut().isEmpty();
 }
 
 void MercurialClient::incoming(const QString &repositoryRoot, const QString &repository)

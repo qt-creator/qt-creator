@@ -1007,14 +1007,13 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     const QStringList params = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(),
         "-storepass", m_keystorePasswd, "-J-Duser.language=en"};
 
-    Utils::SynchronousProcess keytoolProc;
+    SynchronousProcess keytoolProc;
     keytoolProc.setTimeoutS(30);
-    const SynchronousProcessResponse response
-            = keytoolProc.run({AndroidConfigurations::currentConfig().keytoolPath(), params});
-    if (response.result > Utils::SynchronousProcessResponse::FinishedError)
+    keytoolProc.run({AndroidConfigurations::currentConfig().keytoolPath(), params});
+    if (keytoolProc.result() > QtcProcess::FinishedError)
         QMessageBox::critical(nullptr, tr("Error"), tr("Failed to run keytool."));
     else
-        model = new CertificatesModel(response.stdOut(), this);
+        model = new CertificatesModel(keytoolProc.stdOut(), this);
 
     return model;
 }

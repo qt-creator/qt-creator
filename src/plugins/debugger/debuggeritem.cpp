@@ -69,11 +69,10 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 static QString getConfigurationOfGdbCommand(const FilePath &command, const Utils::Environment &sysEnv)
 {
     // run gdb with the --configuration opion
-    Utils::SynchronousProcess gdbConfigurationCall;
-    gdbConfigurationCall.setEnvironment(sysEnv);
-    Utils::SynchronousProcessResponse output =
-            gdbConfigurationCall.runBlocking({command, {"--configuration"}});
-    return output.allOutput();
+    SynchronousProcess proc;
+    proc.setEnvironment(sysEnv);
+    proc.runBlocking({command, {"--configuration"}});
+    return proc.allOutput();
 }
 
 //! Extract the target ABI identifier from GDB output
@@ -186,13 +185,13 @@ void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
 
     SynchronousProcess proc;
     proc.setEnvironment(sysEnv);
-    SynchronousProcessResponse response = proc.runBlocking({m_command, {version}});
-    if (response.result != SynchronousProcessResponse::Finished) {
+    proc.runBlocking({m_command, {version}});
+    if (proc.result() != QtcProcess::Finished) {
         m_engineType = NoEngineType;
         return;
     }
     m_abis.clear();
-    const QString output = response.allOutput().trimmed();
+    const QString output = proc.allOutput().trimmed();
     if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
 

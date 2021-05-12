@@ -752,21 +752,6 @@ void setProcessEnvironment(Environment *e, bool forceCLocale, const QString &ssh
         e->set("SSH_ASKPASS", sshPromptBinary);
 }
 
-// Run a process synchronously, returning Utils::SynchronousProcessResponse
-// response struct and using the VcsBasePlugin flags as applicable
-SynchronousProcessResponse runVcs(const QString &workingDir,
-                                  const CommandLine &cmd,
-                                  int timeOutS,
-                                  unsigned flags,
-                                  QTextCodec *outputCodec,
-                                  const Environment &env)
-{
-    VcsCommand command(workingDir, env.size() == 0 ? Environment::systemEnvironment() : env);
-    command.addFlags(flags);
-    command.setCodec(outputCodec);
-    return command.runCommand(cmd, timeOutS);
-}
-
 } // namespace VcsBase
 
 #include "vcsbaseplugin.moc"

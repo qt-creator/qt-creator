@@ -83,12 +83,12 @@ static bool runCommand(const CommandLine &command, QString *stdOutput, QString *
 {
     SynchronousProcess p;
     p.setTimeoutS(-1);
-    SynchronousProcessResponse resp = p.runBlocking(command);
+    p.runBlocking(command);
     if (stdOutput)
-        *stdOutput = resp.stdOut();
+        *stdOutput = p.stdOut();
     if (allOutput)
-        *allOutput = resp.allOutput();
-    return resp.result == SynchronousProcessResponse::Finished;
+        *allOutput = p.allOutput();
+    return p.result() == QtcProcess::Finished;
 }
 
 static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutput = nullptr)

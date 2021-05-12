@@ -70,10 +70,10 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
     qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
-    SynchronousProcessResponse response = proc.runBlocking(cmd);
-    if (response.result == Utils::SynchronousProcessResponse::Finished) {
+    proc.runBlocking(cmd);
+    if (proc.result() == Utils::QtcProcess::Finished) {
         if (output)
-            *output = response.allOutput();
+            *output = proc.allOutput();
         return true;
     }
     return false;
@@ -199,10 +199,10 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
 {
     const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
-    Utils::SynchronousProcess proc;
+    SynchronousProcess proc;
     proc.setTimeoutS(5);
-    const Utils::SynchronousProcessResponse response = proc.runBlocking(command);
-    return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
+    proc.runBlocking(command);
+    return proc.result() == QtcProcess::Finished && proc.exitCode() == 0;
 }
 
 static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
@@ -350,10 +350,10 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     qCDebug(avdManagerLog) << "Running command (isAvdBooted):" << command.toUserOutput();
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    const SynchronousProcessResponse response = adbProc.runBlocking(command);
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
+    adbProc.runBlocking(command);
+    if (adbProc.result() != QtcProcess::Finished)
         return false;
-    QString value = response.allOutput().trimmed();
+    QString value = adbProc.allOutput().trimmed();
     return value == "stopped";
 }
 

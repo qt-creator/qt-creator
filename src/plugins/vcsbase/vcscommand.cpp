@@ -76,14 +76,14 @@ const Environment VcsCommand::processEnvironment() const
     return env;
 }
 
-SynchronousProcessResponse VcsCommand::runCommand(const CommandLine &command, int timeoutS,
-                                                  const QString &workingDirectory,
-                                                  const ExitCodeInterpreter &interpreter)
+void VcsCommand::runCommand(SynchronousProcess &proc,
+                            const CommandLine &command,
+                            int timeoutS,
+                            const QString &workingDirectory,
+                            const ExitCodeInterpreter &interpreter)
 {
-    SynchronousProcessResponse response
-            = Core::ShellCommand::runCommand(command, timeoutS, workingDirectory, interpreter);
+    ShellCommand::runCommand(proc, command, timeoutS, workingDirectory, interpreter);
     emitRepositoryChanged(workingDirectory);
-    return response;
 }
 
 void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)

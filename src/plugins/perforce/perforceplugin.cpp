@@ -1272,28 +1272,28 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
             process.setStdOutCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
     }
     process.setTimeOutMessageBoxEnabled(true);
-    const SynchronousProcessResponse sp_resp = process.run({m_settings.p4BinaryPath.value(), args});
+    process.run({m_settings.p4BinaryPath.value(), args});
 
     PerforceResponse response;
     response.error = true;
-    response.exitCode = sp_resp.exitCode;
-    response.stdErr = sp_resp.stdErr();
-    response.stdOut = sp_resp.stdOut();
-    switch (sp_resp.result) {
-    case SynchronousProcessResponse::Finished:
+    response.exitCode = process.exitCode();
+    response.stdErr = process.stdErr();
+    response.stdOut = process.stdOut();
+    switch (process.result()) {
+    case QtcProcess::Finished:
         response.error = false;
         break;
-    case SynchronousProcessResponse::FinishedError:
-        response.message = msgExitCode(sp_resp.exitCode);
+    case QtcProcess::FinishedError:
+        response.message = msgExitCode(process.exitCode());
         response.error = !(flags & IgnoreExitCode);
         break;
-    case SynchronousProcessResponse::TerminatedAbnormally:
+    case QtcProcess::TerminatedAbnormally:
         response.message = msgCrash();
         break;
-    case SynchronousProcessResponse::StartFailed:
+    case QtcProcess::StartFailed:
         response.message = msgNotStarted(m_settings.p4BinaryPath.value());
         break;
-    case SynchronousProcessResponse::Hang:
+    case QtcProcess::Hang:
         response.message = msgCrash();
         break;
     }

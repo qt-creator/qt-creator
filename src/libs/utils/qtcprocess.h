@@ -44,10 +44,14 @@ class Environment;
 
 namespace Internal { class QtcProcessPrivate; }
 
-/* Result of SynchronousProcess execution */
-class QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
+class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
+    Q_OBJECT
+
 public:
+    QtcProcess(QObject *parent = nullptr);
+    ~QtcProcess();
+
     enum Result {
         // Finished with return code 0
         Finished,
@@ -59,35 +63,6 @@ public:
         StartFailed,
         // Hang, no output after time out
         Hang };
-
-    void clear();
-
-    // Helper to format an exit message.
-    QString exitMessage(const QString &binary, int timeoutS) const;
-
-    QByteArray allRawOutput() const;
-    QString allOutput() const;
-
-    QString stdOut() const;
-    QString stdErr() const;
-
-    Result result = StartFailed;
-    int exitCode = -1;
-
-    QByteArray rawStdOut;
-    QByteArray rawStdErr;
-    QTextCodec *codec = QTextCodec::codecForLocale();
-};
-
-using ExitCodeInterpreter = std::function<SynchronousProcessResponse::Result(int /*exitCode*/)>;
-
-class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
-{
-    Q_OBJECT
-
-public:
-    QtcProcess(QObject *parent = nullptr);
-    ~QtcProcess();
 
     void setEnvironment(const Environment &env);
     const Environment &environment() const;
@@ -109,12 +84,12 @@ public:
 
     void setCodec(QTextCodec *c);
     void setTimeOutMessageBoxEnabled(bool);
-    void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
+    void setExitCodeInterpreter(const std::function<QtcProcess::Result(int)> &interpreter);
 
     // Starts a nested event loop and runs the command
-    SynchronousProcessResponse run(const CommandLine &cmd, const QByteArray &writeData = {});
+    void run(const CommandLine &cmd, const QByteArray &writeData = {});
     // Starts the command blocking the UI fully
-    SynchronousProcessResponse runBlocking(const CommandLine &cmd);
+    void runBlocking(const CommandLine &cmd);
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
@@ -129,6 +104,24 @@ public:
 
     static QString normalizeNewlines(const QString &text);
 
+    Result result() const;
+    void setResult(Result result);
+
+    QByteArray allRawOutput() const;
+    QString allOutput() const;
+
+    QString stdOut() const;
+    QString stdErr() const;
+
+    QByteArray rawStdOut() const;
+    QByteArray rawStdErr() const;
+
+    int exitCode() const;
+
+    // Helper to format an exit message.
+    QString exitMessage(const QString &binary, int timeoutS) const;
+
+
     // Helpers to find binaries. Do not use it for other path variables
     // and file types.
     static QString locateBinary(const QString &binary);
@@ -139,13 +132,17 @@ private:
     void setupChildProcess() override;
 #endif
     friend class SynchronousProcess;
+    friend QDebug operator<<(QDebug str, const QtcProcess &r);
+
     Internal::QtcProcessPrivate *d = nullptr;
 
     void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
     QProcessEnvironment processEnvironment() const = delete;
 };
 
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
+using ExitCodeInterpreter = std::function<QtcProcess::Result(int /*exitCode*/)>;
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &);
 
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
 {

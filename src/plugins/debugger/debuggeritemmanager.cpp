@@ -743,11 +743,11 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     FilePaths suspects;
 
     if (HostOsInfo::isMacHost()) {
-        SynchronousProcess lldbInfo;
-        lldbInfo.setTimeoutS(2);
-        SynchronousProcessResponse response = lldbInfo.runBlocking({"xcrun", {"--find", "lldb"}});
-        if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            QString lPath = response.allOutput().trimmed();
+        SynchronousProcess proc;
+        proc.setTimeoutS(2);
+        proc.runBlocking({"xcrun", {"--find", "lldb"}});
+        if (proc.result() == QtcProcess::Finished) {
+            QString lPath = proc.allOutput().trimmed();
             if (!lPath.isEmpty()) {
                 const QFileInfo fi(lPath);
                 if (fi.exists() && fi.isExecutable() && !fi.isDir())

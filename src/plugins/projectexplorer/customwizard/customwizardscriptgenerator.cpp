@@ -112,11 +112,11 @@ static bool
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory),
                qPrintable(cmd.toUserOutput()));
-    Utils::SynchronousProcessResponse response = process.run(cmd);
-    if (response.result != Utils::SynchronousProcessResponse::Finished) {
+    process.run(cmd);
+    if (process.result() != Utils::QtcProcess::Finished) {
         *errorMessage = QString::fromLatin1("Generator script failed: %1")
-                .arg(response.exitMessage(binary, 30));
-        const QString stdErr = response.stdErr();
+                            .arg(process.exitMessage(binary, 30));
+        const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty()) {
             errorMessage->append(QLatin1Char('\n'));
             errorMessage->append(stdErr);
@@ -124,7 +124,7 @@ static bool
         return false;
     }
     if (stdOut) {
-        *stdOut = response.stdOut();
+        *stdOut = process.stdOut();
         if (CustomWizard::verbose())
             qDebug("Output: '%s'\n", qPrintable(*stdOut));
     }
