@@ -84,30 +84,7 @@ public:
 ItemLibraryView::ItemLibraryView(QObject* parent)
     : AbstractView(parent)
 
-{
-    m_imageCacheData = std::make_unique<ImageCacheData>();
-
-    auto setTargetInImageCache =
-        [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
-            if (target == imageCacheData->collector.target())
-                return;
-
-            if (target)
-                imageCacheData->cache.clean();
-
-            imageCacheData->collector.setTarget(target);
-        };
-
-    if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
-        m_imageCacheData->collector.setTarget(project->activeTarget());
-        connect(project, &ProjectExplorer::Project::activeTargetChanged, this, setTargetInImageCache);
-    }
-
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            this,
-            [=](ProjectExplorer::Project *project) { setTargetInImageCache(activeTarget(project)); });
-}
+{}
 
 ItemLibraryView::~ItemLibraryView()
 {
@@ -121,9 +98,9 @@ bool ItemLibraryView::hasWidget() const
 WidgetInfo ItemLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new ItemLibraryWidget{m_imageCacheData->cache,
-                                         m_imageCacheData->asynchronousFontImageCache,
-                                         m_imageCacheData->synchronousFontImageCache};
+        m_widget = new ItemLibraryWidget{imageCacheData()->cache,
+                                         imageCacheData()->asynchronousFontImageCache,
+                                         imageCacheData()->synchronousFontImageCache};
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -206,9 +183,41 @@ void ItemLibraryView::setResourcePath(const QString &resourcePath)
     m_widget->setResourcePath(resourcePath);
 }
 
+ImageCacheData *ItemLibraryView::imageCacheData()
+{
+    std::call_once(imageCacheFlag, [this]() {
+        m_imageCacheData = std::make_unique<ImageCacheData>();
+        auto setTargetInImageCache =
+            [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
+                if (target == imageCacheData->collector.target())
+                    return;
+
+                if (target)
+                    imageCacheData->cache.clean();
+
+                imageCacheData->collector.setTarget(target);
+            };
+
+        if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
+            m_imageCacheData->collector.setTarget(project->activeTarget());
+            connect(project,
+                    &ProjectExplorer::Project::activeTargetChanged,
+                    this,
+                    setTargetInImageCache);
+        }
+        connect(ProjectExplorer::SessionManager::instance(),
+                &ProjectExplorer::SessionManager::startupProjectChanged,
+                this,
+                [=](ProjectExplorer::Project *project) {
+                    setTargetInImageCache(activeTarget(project));
+                });
+    });
+    return m_imageCacheData.get();
+}
+
 AsynchronousImageCache &ItemLibraryView::imageCache()
 {
-    return m_imageCacheData->cache;
+    return imageCacheData()->cache;
 }
 
 void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)

@@ -29,6 +29,7 @@
 
 #include <QPointer>
 
+#include <mutex>
 
 namespace QmlDesigner {
 
@@ -66,6 +67,9 @@ protected:
     void updateImports();
 
 private:
+    ImageCacheData *imageCacheData();
+
+    std::once_flag imageCacheFlag;
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     QPointer<ItemLibraryWidget> m_widget;
     bool m_hasErrors = false;
