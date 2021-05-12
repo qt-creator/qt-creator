@@ -16,26 +16,26 @@ msvc {
 } else {
 
     SOURCES += \
+        $$IDE_SOURCE_TREE/src/libs/utils/commandline.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/environment.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/fileutils.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/processargs.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/savefile.cpp
 
     HEADERS += \
+        $$IDE_SOURCE_TREE/src/libs/utils/commandline.h \
         $$IDE_SOURCE_TREE/src/libs/utils/environment.h \
         $$IDE_SOURCE_TREE/src/libs/utils/fileutils.h \
         $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.h \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/processargs.h \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.h \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.h \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h \

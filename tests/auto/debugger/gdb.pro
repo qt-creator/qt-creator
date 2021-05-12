@@ -17,24 +17,24 @@ HEADERS += \
 
 !msvc {
     SOURCES += \
+        $$UTILSDIR/commandline.cpp \
         $$UTILSDIR/environment.cpp \
         $$UTILSDIR/fileutils.cpp \
         $$UTILSDIR/hostosinfo.cpp \
         $$UTILSDIR/namevaluedictionary.cpp \
         $$UTILSDIR/namevalueitem.cpp \
-        $$UTILSDIR/processargs.cpp \
         $$UTILSDIR/qtcassert.cpp \
         $$UTILSDIR/qtcprocess.cpp \
         $$UTILSDIR/processhandle.cpp \
         $$UTILSDIR/savefile.cpp \
 
     HEADERS += \
+        $$UTILSDIR/commandline.h \
         $$UTILSDIR/environment.h \
         $$UTILSDIR/fileutils.h \
         $$UTILSDIR/hostosinfo.h \
         $$UTILSDIR/namevaluedictionary.h \
         $$UTILSDIR/namevalueitem.h \
-        $$UTILSDIR/processargs.h \
         $$UTILSDIR/qtcassert.h \
         $$UTILSDIR/qtcprocess.h \
         $$UTILSDIR/processhandle.h \
