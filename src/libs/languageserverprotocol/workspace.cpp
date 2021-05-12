@@ -78,7 +78,7 @@ bool WorkspaceFoldersChangeEvent::isValid(ErrorHierarchy *error) const
             && checkArray<WorkSpaceFolder>(error, removedKey);
 }
 
-bool ConfigurationParams::ConfigureationItem::isValid(ErrorHierarchy *error) const
+bool ConfigurationParams::ConfigurationItem::isValid(ErrorHierarchy *error) const
 {
     return checkOptional<QString>(error, scopeUriKey)
             && checkOptional<QString>(error, sectionKey);

@@ -110,7 +110,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationParams : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    class ConfigureationItem : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationItem : public JsonObject
     {
     public:
         using JsonObject::JsonObject;
@@ -126,11 +126,11 @@ public:
         bool isValid(ErrorHierarchy *error) const override;
     };
 
-    QList<ConfigureationItem> items() const { return array<ConfigureationItem>(itemsKey); }
-    void setItems(const QList<ConfigureationItem> &items) { insertArray(itemsKey, items); }
+    QList<ConfigurationItem> items() const { return array<ConfigurationItem>(itemsKey); }
+    void setItems(const QList<ConfigurationItem> &items) { insertArray(itemsKey, items); }
 
     bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<ConfigureationItem>(error, itemsKey); }
+    { return checkArray<ConfigurationItem>(error, itemsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest : public Request<
