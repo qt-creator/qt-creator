@@ -145,9 +145,8 @@ void WinRtDeviceFactory::autoDetect()
     if (!m_process) {
         qCDebug(winrtDeviceLog) << __FUNCTION__ << "Creating process";
         m_process = new Utils::QtcProcess(this);
-        connect(m_process, &QProcess::errorOccurred, this, &WinRtDeviceFactory::onProcessError);
-        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &WinRtDeviceFactory::onProcessFinished);
+        connect(m_process, &QtcProcess::errorOccurred, this, &WinRtDeviceFactory::onProcessError);
+        connect(m_process, &QtcProcess::finished, this, &WinRtDeviceFactory::onProcessFinished);
     }
 
     const CommandLine cmd{runnerFilePath, {"--list-devices"}};

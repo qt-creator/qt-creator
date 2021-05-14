@@ -99,7 +99,7 @@ class AbstractProcessStep::Private
 public:
     Private(AbstractProcessStep *q) : q(q) {}
 
-    void cleanUp(QProcess *process);
+    void cleanUp(QtcProcess *process);
 
     AbstractProcessStep *q;
     std::unique_ptr<QtcProcess> m_process;
@@ -232,11 +232,11 @@ void AbstractProcessStep::doRun()
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
         d->m_process->setLowPriority();
 
-    connect(d->m_process.get(), &QProcess::readyReadStandardOutput,
+    connect(d->m_process.get(), &QtcProcess::readyReadStandardOutput,
             this, &AbstractProcessStep::processReadyReadStdOutput);
-    connect(d->m_process.get(), &QProcess::readyReadStandardError,
+    connect(d->m_process.get(), &QtcProcess::readyReadStandardError,
             this, &AbstractProcessStep::processReadyReadStdError);
-    connect(d->m_process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(d->m_process.get(), &QtcProcess::finished,
             this, &AbstractProcessStep::slotProcessFinished);
 
     d->m_process->start();
@@ -282,7 +282,7 @@ void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
         params->setCommandLine(d->m_commandLineProvider());
 }
 
-void AbstractProcessStep::Private::cleanUp(QProcess *process)
+void AbstractProcessStep::Private::cleanUp(QtcProcess *process)
 {
     // The process has finished, leftover data is read in processFinished
     q->processFinished(process->exitCode(), process->exitStatus());
@@ -400,9 +400,9 @@ void AbstractProcessStep::finish(bool success)
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
-    QProcess *process = d->m_process.get();
+    QtcProcess *process = d->m_process.get();
     if (!process) // Happens when the process was canceled and handed over to the Reaper.
-        process = qobject_cast<QProcess *>(sender()); // The process was canceled!
+        process = qobject_cast<QtcProcess *>(sender()); // The process was canceled!
     if (process) {
         stdError(d->stderrStream->toUnicode(process->readAllStandardError()));
         stdOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()));

@@ -35,6 +35,8 @@
 
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -104,11 +106,11 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     process->setWorkingDirectory(workDirectory.toString());
     process->setEnvironment(parameters.environment);
 
-    connect(process.get(), &QProcess::readyReadStandardOutput,
+    connect(process.get(), &QtcProcess::readyReadStandardOutput,
             this, &CMakeProcess::processStandardOutput);
-    connect(process.get(), &QProcess::readyReadStandardError,
+    connect(process.get(), &QtcProcess::readyReadStandardError,
             this, &CMakeProcess::processStandardError);
-    connect(process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
     Utils::CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, QString("-B"), workDirectory.toString()}) + arguments);

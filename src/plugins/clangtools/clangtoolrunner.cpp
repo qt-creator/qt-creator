@@ -83,13 +83,11 @@ void ClangToolRunner::init(const QString &outputDirPath, const Environment &envi
     m_outputDirPath = outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
 
-    m_process->setProcessChannelMode(QProcess::MergedChannels);
     m_process->setEnvironment(environment);
     m_process->setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
-    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &ClangToolRunner::onProcessFinished);
-    connect(m_process, &QProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
-    connect(m_process, &QProcess::readyRead, this, &ClangToolRunner::onProcessOutput);
+    connect(m_process, &QtcProcess::finished, this, &ClangToolRunner::onProcessFinished);
+    connect(m_process, &QtcProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
+    connect(m_process, &QtcProcess::readyRead, this, &ClangToolRunner::onProcessOutput);
 }
 
 QStringList ClangToolRunner::mainToolArguments() const

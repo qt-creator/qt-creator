@@ -1086,7 +1086,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     }
 
     m_licenseTextCache.clear();
-    result.success = licenseCommand.exitStatus() == QtcProcess::NormalExit;
+    result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
     if (!result.success) {
         result.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
                                                       "License command failed.\n\n");

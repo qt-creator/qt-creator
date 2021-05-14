@@ -251,15 +251,15 @@ public:
     {
         Core::ProgressManager::addTask(m_future.future(), "Install PyLS", installPylsTaskId);
         connect(&m_process,
-                QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                &QtcProcess::finished,
                 this,
                 &PythonLSInstallHelper::installFinished);
         connect(&m_process,
-                &QProcess::readyReadStandardError,
+                &QtcProcess::readyReadStandardError,
                 this,
                 &PythonLSInstallHelper::errorAvailable);
         connect(&m_process,
-                &QProcess::readyReadStandardOutput,
+                &QtcProcess::readyReadStandardOutput,
                 this,
                 &PythonLSInstallHelper::outputAvailable);
 
@@ -276,8 +276,8 @@ public:
         m_process.start();
 
         Core::MessageManager::writeDisrupting(
-            tr("Running \"%1 %2\" to install Python language server")
-                .arg(m_process.program(), m_process.arguments().join(' ')));
+            tr("Running \"%1\" to install Python language server")
+                .arg(m_process.commandLine().toUserOutput()));
 
         m_killTimer.setSingleShot(true);
         m_killTimer.start(5 /*minutes*/ * 60 * 1000);

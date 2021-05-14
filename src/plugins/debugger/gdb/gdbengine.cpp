@@ -166,9 +166,9 @@ GdbEngine::GdbEngine()
     connect(&s.useDynamicType, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
 
-    connect(&m_gdbProc, &QProcess::errorOccurred,
+    connect(&m_gdbProc, &QtcProcess::errorOccurred,
             this, &GdbEngine::handleGdbError);
-    connect(&m_gdbProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&m_gdbProc, &QtcProcess::finished,
             this, &GdbEngine::handleGdbFinished);
     connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput,
             this, &GdbEngine::readGdbStandardOutput);

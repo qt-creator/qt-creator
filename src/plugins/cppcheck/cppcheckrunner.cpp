@@ -49,13 +49,13 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) :
         m_maxArgumentsLength = std::max(argMax.toInt(), m_maxArgumentsLength);
     }
 
-    connect(m_process, &QProcess::readyReadStandardOutput,
+    connect(m_process, &QtcProcess::readyReadStandardOutput,
             this, &CppcheckRunner::readOutput);
-    connect(m_process, &QProcess::readyReadStandardOutput,
+    connect(m_process, &QtcProcess::readyReadStandardOutput,
             this, &CppcheckRunner::readError);
-    connect(m_process, &QProcess::started,
+    connect(m_process, &QtcProcess::started,
             this, &CppcheckRunner::handleStarted);
-    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(m_process, &QtcProcess::finished,
             this, &CppcheckRunner::handleFinished);
 
     m_queueTimer.setSingleShot(true);
@@ -128,8 +128,7 @@ const Utils::FilePaths &CppcheckRunner::currentFiles() const
 
 QString CppcheckRunner::currentCommand() const
 {
-    return m_process->program() + ' ' +
-            m_process->arguments().join(' ');
+    return m_process->commandLine().toUserOutput();
 }
 
 void CppcheckRunner::checkQueued()

@@ -52,6 +52,7 @@
 
 enum { debug = 0 };
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace Gerrit {
@@ -283,17 +284,16 @@ QueryContext::QueryContext(const QString &query,
                 + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
         m_arguments = server.curlArguments() << url;
     }
-    connect(&m_process, &QProcess::readyReadStandardError, this, [this] {
+    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
         const QString text = QString::fromLocal8Bit(m_process.readAllStandardError());
         VcsOutputWindow::appendError(text);
         m_error.append(text);
     });
-    connect(&m_process, &QProcess::readyReadStandardOutput, this, [this] {
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
         m_output.append(m_process.readAllStandardOutput());
     });
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &QueryContext::processFinished);
-    connect(&m_process, &QProcess::errorOccurred, this, &QueryContext::processError);
+    connect(&m_process, &QtcProcess::finished, this, &QueryContext::processFinished);
+    connect(&m_process, &QtcProcess::errorOccurred, this, &QueryContext::processError);
     connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
@@ -383,8 +383,7 @@ void QueryContext::timeout()
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
     QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
     box.addButton(tr("Keep Running"), QMessageBox::NoRole);
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            &box, &QDialog::reject);
+    connect(&m_process, &QtcProcess::finished, &box, &QDialog::reject);
     box.exec();
     if (m_process.state() != QProcess::Running)
         return;

@@ -730,8 +730,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         openButton->deleteLater();
     };
 
-    connect(gitCloner,
-            QOverload<int, QtcProcess::ExitStatus>::of(&QtcProcess::finished),
+    connect(gitCloner, &QtcProcess::finished,
             m_ui.openSslPathChooser,
             [=](int exitCode, QProcess::ExitStatus exitStatus) {
                 openSslProgressDialog->close();
@@ -739,7 +738,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
                 m_ui.openSslPathChooser->triggerChanged(); // After cloning, the path exists
 
                 if (!openSslProgressDialog->wasCanceled()
-                    || (exitStatus == QtcProcess::NormalExit && exitCode != 0)) {
+                    || (exitStatus == QProcess::NormalExit && exitCode != 0)) {
                     failDialog();
                 }
             });

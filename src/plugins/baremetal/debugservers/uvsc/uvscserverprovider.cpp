@@ -380,31 +380,22 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
 {
     setId("BareMetalUvscServer");
 
-    const QString program = runnable.executable.toString();
-    const QStringList args = runnable.commandLineArguments.split(' ');
-    m_process.setProgram(program);
-    m_process.setArguments(args);
+    m_process.setCommand(runnable.commandLine());
 
-    connect(&m_process, &QtcProcess::started, this, [this]() {
+    connect(&m_process, &QtcProcess::started, this, [this] {
         ProcessHandle pid(m_process.processId());
         this->runControl()->setApplicationProcessHandle(pid);
         reportStarted();
     });
-    connect(&m_process,
-            QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
-            this,
-            [this](int exitCode, QProcess::ExitStatus status) {
-                const QString msg = (status == QProcess::CrashExit)
-                                        ? RunControl::tr("%1 crashed.")
-                                        : RunControl::tr("%2 exited with code %1").arg(exitCode);
-                appendMessage(msg.arg(m_process.program()), Utils::NormalMessageFormat);
-                reportStopped();
-            });
+    connect(&m_process, &QtcProcess::finished, this, [this] {
+        appendMessage(m_process.exitMessage(), NormalMessageFormat);
+        reportStopped();
+    });
     connect(&m_process, &QtcProcess::errorOccurred, this, [this] (QProcess::ProcessError error) {
         if (error == QProcess::Timedout)
             return; // No actual change on the process side.
         const QString msg = userMessageForProcessError(
-                    error, FilePath::fromString(m_process.program()));
+                    error, m_process.commandLine().executable());
         appendMessage(msg, Utils::NormalMessageFormat);
         reportStopped();
     });
@@ -412,8 +403,8 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
 
 void UvscServerProviderRunner::start()
 {
-    const QString msg = RunControl::tr("Starting %1 %2...")
-            .arg(m_process.program()).arg(m_process.arguments().join(' '));
+    const QString msg = RunControl::tr("Starting %1 ...")
+            .arg(m_process.commandLine().toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
     m_process.start();

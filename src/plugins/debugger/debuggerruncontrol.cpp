@@ -103,13 +103,13 @@ public:
     LocalProcessRunner(DebuggerRunTool *runTool, const CommandLine &command)
         : RunWorker(runTool->runControl()), m_runTool(runTool), m_command(command)
     {
-        connect(&m_proc, &QProcess::errorOccurred,
+        connect(&m_proc, &QtcProcess::errorOccurred,
                 this, &LocalProcessRunner::handleError);
-        connect(&m_proc, &QProcess::readyReadStandardOutput,
+        connect(&m_proc, &QtcProcess::readyReadStandardOutput,
                 this, &LocalProcessRunner::handleStandardOutput);
-        connect(&m_proc, &QProcess::readyReadStandardError,
+        connect(&m_proc, &QtcProcess::readyReadStandardError,
                 this, &LocalProcessRunner::handleStandardError);
-        connect(&m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+        connect(&m_proc, &QtcProcess::finished,
                 this, &LocalProcessRunner::handleFinished);
     }
 

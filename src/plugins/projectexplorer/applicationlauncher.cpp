@@ -131,18 +131,18 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
         m_guiProcess.setProcessChannelMode(QProcess::MergedChannels);
     } else {
         m_guiProcess.setProcessChannelMode(QProcess::SeparateChannels);
-        connect(&m_guiProcess, &QProcess::readyReadStandardError,
+        connect(&m_guiProcess, &QtcProcess::readyReadStandardError,
                 this, &ApplicationLauncherPrivate::readLocalStandardError);
     }
-    connect(&m_guiProcess, &QProcess::readyReadStandardOutput,
+    connect(&m_guiProcess, &QtcProcess::readyReadStandardOutput,
             this, &ApplicationLauncherPrivate::readLocalStandardOutput);
-    connect(&m_guiProcess, &QProcess::errorOccurred,
+    connect(&m_guiProcess, &QtcProcess::errorOccurred,
             this, &ApplicationLauncherPrivate::localGuiProcessError);
-    connect(&m_guiProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&m_guiProcess, &QtcProcess::finished,
             this, &ApplicationLauncherPrivate::localProcessDone);
-    connect(&m_guiProcess, &QProcess::started,
+    connect(&m_guiProcess, &QtcProcess::started,
             this, &ApplicationLauncherPrivate::handleProcessStarted);
-    connect(&m_guiProcess, &QProcess::errorOccurred,
+    connect(&m_guiProcess, &QtcProcess::errorOccurred,
             q, &ApplicationLauncher::error);
 
     m_consoleProcess.setSettings(Core::ICore::settings());

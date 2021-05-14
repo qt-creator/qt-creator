@@ -205,12 +205,11 @@ CdbEngine::CdbEngine() :
     DebuggerSettings *s = debuggerSettings();
     connect(s->createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &CdbEngine::processFinished);
-    connect(&m_process, &QProcess::errorOccurred, this, &CdbEngine::processError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
+    connect(&m_process, &QtcProcess::finished, this, &CdbEngine::processFinished);
+    connect(&m_process, &QtcProcess::errorOccurred, this, &CdbEngine::processError);
+    connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &CdbEngine::readyReadStandardOut);
-    connect(&m_process, &QProcess::readyReadStandardError,
+    connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &CdbEngine::readyReadStandardOut);
     connect(&s->useDebuggingHelpers, &BaseAspect::changed,
             this, &CdbEngine::updateLocals);

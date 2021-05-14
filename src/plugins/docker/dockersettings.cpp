@@ -83,8 +83,7 @@ void DockerSettings::updateImageList()
     QtcProcess process;
     process.setCommand({"docker", {"search", imageListFilter.value()}});
 
-    const auto finished = QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished);
-    connect(&process, finished, this, [&process, this] {
+    connect(&process, &QtcProcess::finished, this, [&process, this] {
         const QString data = QString::fromUtf8(process.readAll());
         imageList.setValue(data);
     });

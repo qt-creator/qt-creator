@@ -211,12 +211,11 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
     appendMessage(cmdLine.toUserOutput(), NormalMessageFormat);
 
     if (connectProcess) {
-        connect(process, &QProcess::started, this, &WinRtRunnerHelper::started);
-        connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &WinRtRunnerHelper::onProcessFinished);
-        connect(process, &QProcess::errorOccurred, this, &WinRtRunnerHelper::onProcessError);
-        connect(process, &QProcess::readyReadStandardOutput, this, &WinRtRunnerHelper::onProcessReadyReadStdOut);
-        connect(process, &QProcess::readyReadStandardError, this, &WinRtRunnerHelper::onProcessReadyReadStdErr);
+        connect(process, &QtcProcess::started, this, &WinRtRunnerHelper::started);
+        connect(process, &QtcProcess::finished, this, &WinRtRunnerHelper::onProcessFinished);
+        connect(process, &QtcProcess::errorOccurred, this, &WinRtRunnerHelper::onProcessError);
+        connect(process, &QtcProcess::readyReadStandardOutput, this, &WinRtRunnerHelper::onProcessReadyReadStdOut);
+        connect(process, &QtcProcess::readyReadStandardError, this, &WinRtRunnerHelper::onProcessReadyReadStdErr);
     }
 
     process->setUseCtrlCStub(true);

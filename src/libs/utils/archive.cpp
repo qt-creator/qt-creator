@@ -212,7 +212,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
     archive->m_process->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(
         archive->m_process,
-        &QProcess::readyReadStandardOutput,
+        &QtcProcess::readyReadStandardOutput,
         archive,
         [archive]() {
             if (!archive->m_process)
@@ -222,7 +222,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         Qt::QueuedConnection);
     QObject::connect(
         archive->m_process,
-        QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+        &QtcProcess::finished,
         archive,
         [archive](int, QProcess::ExitStatus) {
             if (!archive->m_process)
@@ -236,7 +236,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         Qt::QueuedConnection);
     QObject::connect(
         archive->m_process,
-        &QProcess::errorOccurred,
+        &QtcProcess::errorOccurred,
         archive,
         [archive](QProcess::ProcessError) {
             if (!archive->m_process)
@@ -248,22 +248,18 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
             archive->deleteLater();
         },
         Qt::QueuedConnection);
+
     QTimer::singleShot(0, archive, [archive, tool, workingDirectory] {
         archive->outputReceived(
             tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
                 .arg(CommandLine(tool->executable, tool->arguments).toUserOutput(),
                      workingDirectory));
     });
-    archive->m_process->setProgram(tool->executable);
 
-#ifdef Q_OS_WIN
-    if (!tool->nativeWindowsArguments)
-        archive->m_process->setArguments(tool->arguments);
-    else if (!tool->arguments.isEmpty())
-        archive->m_process->setNativeArguments(tool->arguments.at(0));
-#else
-    archive->m_process->setArguments(tool->arguments);
-#endif
+    CommandLine cmd = tool->nativeWindowsArguments
+        ? CommandLine{FilePath::fromString(tool->executable), tool->arguments[0], CommandLine::Raw}
+        : CommandLine{tool->executable, tool->arguments};
+    archive->m_process->setCommand(cmd);
     archive->m_process->setWorkingDirectory(workingDirectory);
     archive->m_process->setOpenMode(QProcess::ReadOnly);
     archive->m_process->start();

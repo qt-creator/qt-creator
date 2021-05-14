@@ -37,6 +37,8 @@
 
 #include <QLoggingCategory>
 
+using namespace Utils;
+
 namespace MesonProjectManager {
 namespace Internal {
 
@@ -164,19 +166,16 @@ void MesonProcess::setupProcess(const Command &command,
     if (m_process)
         disconnect(m_process.get());
     m_process = std::make_unique<Utils::QtcProcess>();
-    connect(m_process.get(),
-            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this,
-            &MesonProcess::handleProcessFinished);
-    connect(m_process.get(), &QProcess::errorOccurred, this, &MesonProcess::handleProcessError);
+    connect(m_process.get(), &QtcProcess::finished, this, &MesonProcess::handleProcessFinished);
+    connect(m_process.get(), &QtcProcess::errorOccurred, this, &MesonProcess::handleProcessError);
     if (!captureStdo) {
         connect(m_process.get(),
-                &QProcess::readyReadStandardOutput,
+                &QtcProcess::readyReadStandardOutput,
                 this,
                 &MesonProcess::processStandardOutput);
 
         connect(m_process.get(),
-                &QProcess::readyReadStandardError,
+                &QtcProcess::readyReadStandardError,
                 this,
                 &MesonProcess::processStandardError);
     }

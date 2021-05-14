@@ -112,8 +112,11 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
                 .arg(patch, patchProcess.errorString()));
         return false;
     }
+
+
     patchProcess.write(input);
     patchProcess.closeWriteChannel();
+
     QByteArray stdOut;
     QByteArray stdErr;
     if (!patchProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {

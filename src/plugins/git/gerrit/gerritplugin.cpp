@@ -140,12 +140,11 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_server(server)
     , m_state(FetchState)
 {
-    connect(&m_process, &QProcess::errorOccurred, this, &FetchContext::processError);
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &FetchContext::processFinished);
-    connect(&m_process, &QProcess::readyReadStandardError,
+    connect(&m_process, &QtcProcess::errorOccurred, this, &FetchContext::processError);
+    connect(&m_process, &QtcProcess::finished, this, &FetchContext::processFinished);
+    connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &FetchContext::processReadyReadStandardError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
+    connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &FetchContext::processReadyReadStandardOutput);
     connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &FetchContext::terminate);
     m_watcher.setFuture(m_progress.future());

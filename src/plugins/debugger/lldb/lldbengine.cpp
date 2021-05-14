@@ -98,13 +98,13 @@ LldbEngine::LldbEngine()
     connect(&ds.intelFlavor, &BaseAspect::changed,
             this, &LldbEngine::updateAll);
 
-    connect(&m_lldbProc, &QProcess::errorOccurred,
+    connect(&m_lldbProc, &QtcProcess::errorOccurred,
             this, &LldbEngine::handleLldbError);
-    connect(&m_lldbProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&m_lldbProc, &QtcProcess::finished,
             this, &LldbEngine::handleLldbFinished);
-    connect(&m_lldbProc, &QProcess::readyReadStandardOutput,
+    connect(&m_lldbProc, &QtcProcess::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);
-    connect(&m_lldbProc, &QProcess::readyReadStandardError,
+    connect(&m_lldbProc, &QtcProcess::readyReadStandardError,
             this, &LldbEngine::readLldbStandardError);
 
     connect(this, &LldbEngine::outputReady,

@@ -34,14 +34,15 @@
 #include <QRegularExpression>
 #include <QTimer>
 
+using namespace Utils;
+
 namespace Perforce {
 namespace Internal {
 
 PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QProcess::errorOccurred, this, &PerforceChecker::slotError);
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &PerforceChecker::slotFinished);
+    connect(&m_process, &QtcProcess::errorOccurred, this, &PerforceChecker::slotError);
+    connect(&m_process, &QtcProcess::finished, this, &PerforceChecker::slotFinished);
 }
 
 PerforceChecker::~PerforceChecker()

@@ -653,13 +653,12 @@ void ExternalToolRunner::run()
         }
     }
     m_process = new QtcProcess(this);
-    connect(m_process, &QProcess::started, this, &ExternalToolRunner::started);
-    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &ExternalToolRunner::finished);
-    connect(m_process, &QProcess::errorOccurred, this, &ExternalToolRunner::error);
-    connect(m_process, &QProcess::readyReadStandardOutput,
+    connect(m_process, &QtcProcess::started, this, &ExternalToolRunner::started);
+    connect(m_process, &QtcProcess::finished, this, &ExternalToolRunner::finished);
+    connect(m_process, &QtcProcess::errorOccurred, this, &ExternalToolRunner::error);
+    connect(m_process, &QtcProcess::readyReadStandardOutput,
             this, &ExternalToolRunner::readStandardOutput);
-    connect(m_process, &QProcess::readyReadStandardError,
+    connect(m_process, &QtcProcess::readyReadStandardError,
             this, &ExternalToolRunner::readStandardError);
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);

@@ -52,7 +52,7 @@ public:
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
-class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
+class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
 {
     Q_OBJECT
 
@@ -77,6 +77,9 @@ public:
 
     void setCommand(const CommandLine &cmdLine);
     const CommandLine &commandLine() const;
+
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &dir);
 
     void setUseCtrlCStub(bool enabled);
     void setLowPriority();
@@ -103,7 +106,7 @@ public:
 
     static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 
-    void setOpenMode(OpenMode mode);
+    void setOpenMode(QIODevice::OpenMode mode);
 
     bool stopProcess();
     bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
@@ -134,10 +137,52 @@ public:
 
     static Environment systemEnvironmentForBinary(const FilePath &filePath);
 
+    // FIXME: Cut down the following bits inherited from QProcess and QIODevice.
+
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+
+    QProcess::ProcessError error() const;
+    QProcess::ProcessState state() const;
+
+    QString errorString() const;
+    void setErrorString(const QString &str);
+
+    qint64 processId() const;
+
+    bool waitForStarted(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
+    bool waitForFinished(int msecs = 30000);
+
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+    QByteArray readAll();
+    QByteArray readLine();
+
+    QProcess::ExitStatus exitStatus() const;
+
+    void kill();
+
+    qint64 write(const QByteArray &input);
+    void closeWriteChannel();
+    void close();
+    void setReadChannel(QProcess::ProcessChannel channel);
+    bool canReadLine() const;
+    bool atEnd() const;
+
+    QIODevice *ioDevice(); // FIXME: Remove.
+
+signals:
+    void started();
+    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void errorOccurred(QProcess::ProcessError error);
+    void stateChanged(QProcess::ProcessState state);
+
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+    void readyRead();
+
+
 private:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override;
-#endif
     friend class SynchronousProcess;
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
 

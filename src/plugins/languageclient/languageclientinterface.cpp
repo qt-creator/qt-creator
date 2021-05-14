@@ -30,6 +30,7 @@
 #include <QLoggingCategory>
 
 using namespace LanguageServerProtocol;
+using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarningMsg);
 
@@ -88,11 +89,11 @@ void BaseClientInterface::parseData(const QByteArray &data)
 
 StdIOClientInterface::StdIOClientInterface()
 {
-    connect(&m_process, &QProcess::readyReadStandardError,
+    connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &StdIOClientInterface::readError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
+    connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &StdIOClientInterface::readOutput);
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&m_process, &QtcProcess::finished,
             this, &StdIOClientInterface::onProcessFinished);
 }
 
@@ -124,7 +125,8 @@ void StdIOClientInterface::setWorkingDirectory(const QString &workingDirectory)
 void StdIOClientInterface::sendData(const QByteArray &data)
 {
     if (m_process.state() != QProcess::Running) {
-        emit error(tr("Cannot send data to unstarted server %1").arg(m_process.program()));
+        emit error(tr("Cannot send data to unstarted server %1")
+            .arg(m_process.commandLine().toUserOutput()));
         return;
     }
     qCDebug(LOGLSPCLIENTV) << "StdIOClient send data:";

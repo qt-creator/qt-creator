@@ -32,6 +32,8 @@
 
 #include <projectexplorer/runcontrol.h> // for RunWorker
 
+#include <utils/qtcprocess.h>
+
 namespace Utils { class PathChooser; }
 
 namespace BareMetal {
@@ -149,7 +151,7 @@ private:
     void start() final;
     void stop() final;
 
-    QProcess m_process;
+    Utils::QtcProcess m_process;
 };
 
 } // namespace Internal

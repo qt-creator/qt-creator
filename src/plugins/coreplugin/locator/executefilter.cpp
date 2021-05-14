@@ -34,6 +34,8 @@
 using namespace Core;
 using namespace Core::Internal;
 
+using namespace Utils;
+
 ExecuteFilter::ExecuteFilter()
 {
     setId("Execute custom commands");
@@ -47,10 +49,9 @@ ExecuteFilter::ExecuteFilter()
 
     m_process = new Utils::QtcProcess(this);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    connect(m_process, QOverload<int ,QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &ExecuteFilter::finished);
-    connect(m_process, &QProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
-    connect(m_process, &QProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
+    connect(m_process, &QtcProcess::finished, this, &ExecuteFilter::finished);
+    connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
+    connect(m_process, &QtcProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
 
     m_runTimer.setSingleShot(true);
     connect(&m_runTimer, &QTimer::timeout, this, &ExecuteFilter::runHeadCommand);
