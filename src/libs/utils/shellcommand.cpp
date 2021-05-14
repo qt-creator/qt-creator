@@ -323,12 +323,15 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
     if (!(d->m_flags & SuppressCommandLogging))
         emit proxy->appendCommand(dir, command);
 
+    proc.setTimeoutS(timeoutS);
+    proc.setExitCodeInterpreter(interpreter);
+
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
-        runFullySynchronous(proc, command, proxy, timeoutS, dir, interpreter);
+        runFullySynchronous(proc, command, proxy, dir);
     } else {
-        runSynchronous(proc, command, proxy, timeoutS, dir, interpreter);
+        runSynchronous(proc, command, proxy, dir);
     }
 
     if (!d->m_aborted) {
@@ -345,9 +348,7 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
 void ShellCommand::runFullySynchronous(SynchronousProcess &process,
                                        const CommandLine &cmd,
                                        QSharedPointer<OutputProxy> proxy,
-                                       int timeoutS,
-                                       const QString &workingDirectory,
-                                       const ExitCodeInterpreter &interpreter)
+                                       const QString &workingDirectory)
 {
     // Set up process
     if (d->m_disableUnixTerminal)
@@ -360,8 +361,6 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
         process.setProcessChannelMode(QProcess::MergedChannels);
     if (d->m_codec)
         process.setCodec(d->m_codec);
-    process.setTimeoutS(timeoutS);
-    process.setExitCodeInterpreter(interpreter);
 
     process.runBlocking(cmd);
 
@@ -383,14 +382,10 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
 void ShellCommand::runSynchronous(SynchronousProcess &process,
                                   const CommandLine &cmd,
                                   QSharedPointer<OutputProxy> proxy,
-                                  int timeoutS,
-                                  const QString &workingDirectory,
-                                  const ExitCodeInterpreter &interpreter)
+                                  const QString &workingDirectory)
 {
-    process.setExitCodeInterpreter(interpreter);
     connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::stopProcess);
     process.setEnvironment(processEnvironment());
-    process.setTimeoutS(timeoutS);
     if (d->m_codec)
         process.setCodec(d->m_codec);
     if (d->m_disableUnixTerminal)
@@ -430,8 +425,6 @@ void ShellCommand::runSynchronous(SynchronousProcess &process,
 
     if (d->m_codec)
         process.setCodec(d->m_codec);
-    process.setTimeoutS(timeoutS);
-    process.setExitCodeInterpreter(interpreter);
 
     process.run(cmd);
 }

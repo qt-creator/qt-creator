@@ -171,14 +171,12 @@ private:
     void runFullySynchronous(SynchronousProcess &proc,
                              const CommandLine &cmd,
                              QSharedPointer<OutputProxy> proxy,
-                             int timeoutS, const QString &workingDirectory,
-                             const ExitCodeInterpreter &interpreter = {});
+                             const QString &workingDirectory);
     // Run with an event loop. Signals will be delivered.
     void runSynchronous(SynchronousProcess &proc,
                         const CommandLine &cmd,
                         QSharedPointer<OutputProxy> proxy,
-                        int timeoutS, const QString &workingDirectory,
-                        const ExitCodeInterpreter &interpreter = {});
+                        const QString &workingDirectory);
 
     class Internal::ShellCommandPrivate *const d;
 };
