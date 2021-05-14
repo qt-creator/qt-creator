@@ -132,7 +132,7 @@ private:
     void setupChildProcess() override;
 #endif
     friend class SynchronousProcess;
-    friend QDebug operator<<(QDebug str, const QtcProcess &r);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
 
     Internal::QtcProcessPrivate *d = nullptr;
 
