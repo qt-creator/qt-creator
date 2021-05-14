@@ -153,8 +153,9 @@ protected:
                                           const QString &sysRoot,
                                           const QString &originalTargetTriple);
 
-    static HeaderPaths gccHeaderPaths(const Utils::FilePath &gcc, const QStringList &args,
-                                      const QStringList &env);
+    static HeaderPaths gccHeaderPaths(const Utils::FilePath &gcc,
+                                      const QStringList &args,
+                                      const Utils::Environment &env);
 
     class WarningFlagAdder
     {

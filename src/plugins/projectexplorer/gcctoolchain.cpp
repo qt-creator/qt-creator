@@ -76,7 +76,7 @@ static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedA
 static const char parentToolChainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolChainId";
 static const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
 
-static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, const QStringList &env)
+static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, const Environment &env)
 {
     if (!gcc.isExecutableFile())
         return QByteArray();
@@ -101,7 +101,7 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
 
 static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,
                                                    const QStringList &args,
-                                                   const QStringList &env)
+                                                   const Environment &env)
 {
     QStringList arguments = args;
     arguments << "-";
@@ -125,8 +125,9 @@ static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,
     return predefinedMacros;
 }
 
-HeaderPaths GccToolChain::gccHeaderPaths(const FilePath &gcc, const QStringList &arguments,
-                                         const QStringList &env)
+HeaderPaths GccToolChain::gccHeaderPaths(const FilePath &gcc,
+                                         const QStringList &arguments,
+                                         const Environment &env)
 {
     HeaderPaths builtInHeaderPaths;
     QByteArray line;
@@ -208,9 +209,10 @@ static Abis guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
 }
 
 
-static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path, const QStringList &env,
-                                                   const ProjectExplorer::Macros &macros,
-                                                   const QStringList &extraArgs = QStringList())
+static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path,
+                                                    const Environment &env,
+                                                    const Macros &macros,
+                                                    const QStringList &extraArgs = {})
 {
     if (path.isEmpty())
         return GccToolChain::DetectedAbisResult();
@@ -227,7 +229,8 @@ static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path, const 
     return GccToolChain::DetectedAbisResult(guessGccAbi(machine, macros), machine);
 }
 
-static QString gccVersion(const FilePath &path, const QStringList &env,
+static QString gccVersion(const FilePath &path,
+                          const Environment &env,
                           const QStringList &extraArgs)
 {
     QStringList arguments = extraArgs;
@@ -235,8 +238,9 @@ static QString gccVersion(const FilePath &path, const QStringList &env,
     return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
 }
 
-static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &env,
-                                     const QStringList &extraArgs = {})
+static FilePath gccInstallDir(const FilePath &path,
+                              const Environment &env,
+                              const QStringList &extraArgs = {})
 {
     QStringList arguments = extraArgs;
     arguments << "-print-search-dirs";
@@ -437,7 +441,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
 
         const Macros macros = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
                                                   arguments,
-                                                  env.toStringList());
+                                                  env);
 
         const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
         macroCache->insert(arguments, report);
@@ -583,7 +587,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
 
     HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
                                        arguments,
-                                       env.toStringList());
+                                       env);
     extraHeaderPathsFunction(paths);
     headerCache->insert(qMakePair(env, arguments), paths);
 
@@ -819,7 +823,7 @@ GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
     addToEnvironment(env);
     ProjectExplorer::Macros macros = createMacroInspectionRunner()({}).macros;
     return guessGccAbi(findLocalCompiler(compilerCommand(), env),
-                       env.toStringList(),
+                       env,
                        macros,
                        platformCodeGenFlags());
 }
@@ -828,7 +832,7 @@ QString GccToolChain::detectVersion() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return gccVersion(findLocalCompiler(compilerCommand(), env), env.toStringList(),
+    return gccVersion(findLocalCompiler(compilerCommand(), env), env,
                       filteredFlags(platformCodeGenFlags(), true));
 }
 
@@ -836,7 +840,7 @@ Utils::FilePath GccToolChain::detectInstallDir() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return gccInstallDir(findLocalCompiler(compilerCommand(), env), env.toStringList(),
+    return gccInstallDir(findLocalCompiler(compilerCommand(), env), env,
                          filteredFlags(platformCodeGenFlags(), true));
 }
 
@@ -1149,14 +1153,14 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const ToolChainDescr
     const FilePath localCompilerPath = findLocalCompiler(tcd.compilerPath, systemEnvironment);
     Macros macros
             = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(tcd.language),
-                                  systemEnvironment.toStringList());
+                                  systemEnvironment);
     if (macros.isEmpty())
         return result;
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
-                                                                      systemEnvironment.toStringList(),
+                                                                      systemEnvironment,
                                                                       macros);
     const Utils::FilePath installDir = gccInstallDir(localCompilerPath,
-                                                     systemEnvironment.toStringList());
+                                                     systemEnvironment);
 
     for (const Abi &abi : detectedAbis.supportedAbis) {
         std::unique_ptr<GccToolChain> tc(dynamic_cast<GccToolChain *>(create()));
@@ -1306,8 +1310,8 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
         QStringList args = gccPredefinedMacrosOptions(Constants::CXX_LANGUAGE_ID)
                 + splitString(m_platformCodeGenFlagsLineEdit->text());
         const FilePath localCompilerPath = findLocalCompiler(path, env);
-        m_macros = gccPredefinedMacros(localCompilerPath, args, env.toStringList());
-        abiList = guessGccAbi(localCompilerPath, env.toStringList(), m_macros,
+        m_macros = gccPredefinedMacros(localCompilerPath, args, env);
+        abiList = guessGccAbi(localCompilerPath, env, m_macros,
                               splitString(m_platformCodeGenFlagsLineEdit->text())).supportedAbis;
     }
     m_abiWidget->setEnabled(haveCompiler);
