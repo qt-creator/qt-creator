@@ -788,3 +788,7 @@ static inline constexpr vecn<T, S> operator<(vecn<T, S> a, vecn<T, S> b)
     }
     return x;
 }
+
+struct foo {
+#define blubb
+};
