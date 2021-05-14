@@ -274,8 +274,9 @@ void ShellCommand::run(QFutureInterface<void> &future)
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
         SynchronousProcess proc;
-        runCommand(proc, job.command, job.timeoutS, job.workingDirectory,
-                   job.exitCodeInterpreter);
+        proc.setExitCodeInterpreter(job.exitCodeInterpreter);
+        proc.setTimeoutS(job.timeoutS);
+        runCommand(proc, job.command, job.workingDirectory);
         stdOut += proc.stdOut();
         stdErr += proc.stdErr();
         d->m_lastExecExitCode = proc.exitCode();
@@ -307,9 +308,8 @@ void ShellCommand::run(QFutureInterface<void> &future)
 }
 
 void ShellCommand::runCommand(SynchronousProcess &proc,
-                              const CommandLine &command, int timeoutS,
-                              const QString &workingDirectory,
-                              const ExitCodeInterpreter &interpreter)
+                              const CommandLine &command,
+                              const QString &workingDirectory)
 {
     const QString dir = workDirectory(workingDirectory);
 
@@ -322,9 +322,6 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
 
     if (!(d->m_flags & SuppressCommandLogging))
         emit proxy->appendCommand(dir, command);
-
-    proc.setTimeoutS(timeoutS);
-    proc.setExitCodeInterpreter(interpreter);
 
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)

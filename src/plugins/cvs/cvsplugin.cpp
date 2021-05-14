@@ -1447,11 +1447,12 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
     }
     // Run, connect stderr to the output window
     SynchronousProcess proc;
+    proc.setTimeoutS(timeOutS);
 
     VcsCommand command(workingDirectory, Environment::systemEnvironment());
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    command.runCommand(proc, {executable, m_settings.addOptions(arguments)}, timeOutS);
+    command.runCommand(proc, {executable, m_settings.addOptions(arguments)});
 
     response.result = CvsResponse::OtherError;
     response.stdErr = proc.stdErr();

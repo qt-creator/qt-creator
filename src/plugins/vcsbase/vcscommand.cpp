@@ -78,11 +78,9 @@ const Environment VcsCommand::processEnvironment() const
 
 void VcsCommand::runCommand(SynchronousProcess &proc,
                             const CommandLine &command,
-                            int timeoutS,
-                            const QString &workingDirectory,
-                            const ExitCodeInterpreter &interpreter)
+                            const QString &workingDirectory)
 {
-    ShellCommand::runCommand(proc, command, timeoutS, workingDirectory, interpreter);
+    ShellCommand::runCommand(proc, command, workingDirectory);
     emitRepositoryChanged(workingDirectory);
 }
 

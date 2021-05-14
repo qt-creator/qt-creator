@@ -195,7 +195,8 @@ public:
         watcher.setFuture(m_fi.future());
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
         SynchronousProcess proc;
-        command->runCommand(proc, {GitClient::instance()->vcsBinary(), arguments}, 0);
+        proc.setTimeoutS(0);
+        command->runCommand(proc, {GitClient::instance()->vcsBinary(), arguments});
         switch (proc.result()) {
         case QtcProcess::TerminatedAbnormally:
         case QtcProcess::StartFailed:

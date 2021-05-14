@@ -179,10 +179,11 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     Environment env = Environment::systemEnvironment();
     env.set("LANGUAGE", "C");
     SynchronousProcess proc;
+    proc.setTimeoutS(vcsTimeoutS());
 
     VcsCommand command(workingDir, env);
     command.addFlags(flags);
-    command.runCommand(proc, {vcsBinary(), args}, vcsTimeoutS());
+    command.runCommand(proc, {vcsBinary(), args});
 
     const bool ok = proc.result() == QtcProcess::Finished;
 

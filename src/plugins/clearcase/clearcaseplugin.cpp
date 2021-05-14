@@ -1668,11 +1668,12 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
     }
 
     SynchronousProcess proc;
+    proc.setTimeoutS(timeOutS);
 
     VcsCommand command(workingDir, Environment::systemEnvironment());
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    command.runCommand(proc, {executable, arguments}, timeOutS);
+    command.runCommand(proc, {executable, arguments});
 
     response.error = proc.result() != QtcProcess::Finished;
     if (response.error)

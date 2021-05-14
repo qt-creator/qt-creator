@@ -162,7 +162,8 @@ void VcsBaseClientImpl::vcsFullySynchronousExec(SynchronousProcess &proc,
     command.addFlags(flags);
     if (codec)
         command.setCodec(codec);
-    command.runCommand(proc, cmdLine, (timeoutS > 0) ? timeoutS : vcsTimeoutS());
+    proc.setTimeoutS(timeoutS > 0 ? timeoutS : vcsTimeoutS());
+    command.runCommand(proc, cmdLine);
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
@@ -211,9 +212,10 @@ void VcsBaseClientImpl::vcsSynchronousExec(SynchronousProcess &proc, const QStri
 {
     Environment env = processEnvironment();
     VcsCommand command(workingDir, env.size() == 0 ? Environment::systemEnvironment() : env);
+    proc.setTimeoutS(vcsTimeoutS());
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    command.runCommand(proc, {vcsBinary(), args}, vcsTimeoutS());
+    command.runCommand(proc, {vcsBinary(), args});
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const

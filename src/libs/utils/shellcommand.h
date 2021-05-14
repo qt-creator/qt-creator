@@ -144,9 +144,7 @@ public:
     // be triggered!
     virtual void runCommand(Utils::SynchronousProcess &process,
                             const CommandLine &command,
-                            int timeoutS,
-                            const QString &workingDirectory = QString(),
-                            const ExitCodeInterpreter &interpreter = {});
+                            const QString &workingDirectory = QString());
 
     void cancel();
 
