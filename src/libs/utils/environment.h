@@ -31,12 +31,10 @@
 #include "namevalueitem.h"
 #include "optional.h"
 
-#include <QMap>
 #include <QStringList>
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QDebug)
 QT_FORWARD_DECLARE_CLASS(QProcessEnvironment)
 
 namespace Utils {
@@ -48,8 +46,6 @@ public:
 
     static Environment systemEnvironment();
     static void setupEnglishOutput(Environment *environment);
-    static void setupEnglishOutput(QProcessEnvironment *environment);
-    static void setupEnglishOutput(QStringList *environment);
 
     QProcessEnvironment toProcessEnvironment() const;
 
