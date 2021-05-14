@@ -261,11 +261,12 @@ unsigned int FossilClient::synchronousBinaryVersion() const
 
     QStringList args("version");
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(QString(), args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, QString(), args);
+    if (proc.result() != QtcProcess::Finished)
         return 0;
 
-    QString output = response.stdOut();
+    QString output = proc.stdOut();
     output = output.trimmed();
 
     // fossil version:
@@ -299,22 +300,24 @@ BranchInfo FossilClient::synchronousCurrentBranch(const QString &workingDirector
         return BranchInfo();
 
     // First try to get the current branch from the list of open branches
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, {"branch", "list"});
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list"});
+    if (proc.result() != QtcProcess::Finished)
         return BranchInfo();
 
-    const QString output = sanitizeFossilOutput(response.stdOut());
+    const QString output = sanitizeFossilOutput(proc.stdOut());
     BranchInfo currentBranch = Utils::findOrDefault(branchListFromOutput(output), [](const BranchInfo &b) {
         return b.isCurrent();
     });
 
     if (!currentBranch.isCurrent()) {
         // If not available from open branches, request it from the list of closed branches.
-        const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, {"branch", "list", "--closed"});
-        if (response.result != SynchronousProcessResponse::Finished)
+        SynchronousProcess proc;
+        vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list", "--closed"});
+        if (proc.result() != QtcProcess::Finished)
             return BranchInfo();
 
-        const QString output = sanitizeFossilOutput(response.stdOut());
+        const QString output = sanitizeFossilOutput(proc.stdOut());
         currentBranch = Utils::findOrDefault(branchListFromOutput(output, BranchInfo::Closed), [](const BranchInfo &b) {
             return b.isCurrent();
         });
@@ -332,19 +335,20 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const QString &workingDir
         return QList<BranchInfo>();
 
     // First get list of open branches
-    SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, {"branch", "list"});
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list"});
+    if (proc.result() != QtcProcess::Finished)
         return QList<BranchInfo>();
 
-    QString output = sanitizeFossilOutput(response.stdOut());
+    QString output = sanitizeFossilOutput(proc.stdOut());
     QList<BranchInfo> branches = branchListFromOutput(output);
 
     // Append a list of closed branches.
-    response = vcsFullySynchronousExec(workingDirectory, {"branch", "list", "--closed"});
-    if (response.result != SynchronousProcessResponse::Finished)
+    vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list", "--closed"});
+    if (proc.result() != QtcProcess::Finished)
         return QList<BranchInfo>();
 
-    output = sanitizeFossilOutput(response.stdOut());
+    output = sanitizeFossilOutput(proc.stdOut());
     branches.append(branchListFromOutput(output, BranchInfo::Closed));
 
     std::sort(branches.begin(), branches.end(),
@@ -379,12 +383,12 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     if (!id.isEmpty())
         args << id;
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(
-                workingDirectory, args, ShellCommand::SuppressCommandLogging);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args, ShellCommand::SuppressCommandLogging);
+    if (proc.result() != QtcProcess::Finished)
         return RevisionInfo();
 
-    const QString output = sanitizeFossilOutput(response.stdOut());
+    const QString output = sanitizeFossilOutput(proc.stdOut());
 
     QString revisionId;
     QString parentId;
@@ -443,11 +447,12 @@ QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, c
     if (!id.isEmpty())
         args << id;
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return QStringList();
 
-    const QString output = sanitizeFossilOutput(response.stdOut());
+    const QString output = sanitizeFossilOutput(proc.stdOut());
 
     return output.split('\n', Qt::SkipEmptyParts);
 }
@@ -465,11 +470,12 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
 
     const QStringList args("settings");
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return RepositorySettings();
 
-    const QString output = sanitizeFossilOutput(response.stdOut());
+    const QString output = sanitizeFossilOutput(proc.stdOut());
 
     for (const QString &line : output.split('\n', Qt::SkipEmptyParts)) {
         // parse settings line:
@@ -519,8 +525,9 @@ bool FossilClient::synchronousSetSetting(const QString &workingDirectory,
     if (isGlobal)
         args << "--global";
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    return (response.result == SynchronousProcessResponse::Finished);
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    return (proc.result() == QtcProcess::Finished);
 }
 
 
@@ -575,11 +582,12 @@ QString FossilClient::synchronousUserDefaultQuery(const QString &workingDirector
 
     const QStringList args({"user", "default"});
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return QString();
 
-    QString output = sanitizeFossilOutput(response.stdOut());
+    QString output = sanitizeFossilOutput(proc.stdOut());
 
     return output.trimmed();
 }
@@ -591,8 +599,9 @@ bool FossilClient::synchronousSetUserDefault(const QString &workingDirectory, co
 
     // set repository-default user
     const QStringList args({"user", "default", userName, "--user", userName});
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    return (response.result == SynchronousProcessResponse::Finished);
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    return (proc.result() == QtcProcess::Finished);
 }
 
 QString FossilClient::synchronousGetRepositoryURL(const QString &workingDirectory)
@@ -602,11 +611,12 @@ QString FossilClient::synchronousGetRepositoryURL(const QString &workingDirector
 
     const QStringList args("remote-url");
 
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return QString();
 
-    QString output = sanitizeFossilOutput(response.stdOut());
+    QString output = sanitizeFossilOutput(proc.stdOut());
     output = output.trimmed();
 
     // Fossil returns "off" when no remote-url is set.
@@ -655,40 +665,39 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
     args << extraOptions << repoFilePath.toUserOutput();
-    SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return false;
 
-    QString output = sanitizeFossilOutput(response.stdOut());
+    QString output = sanitizeFossilOutput(proc.stdOut());
     outputWindow->append(output);
 
     // check out the created repository file into the working directory
 
     args.clear();
-    response.clear();
     output.clear();
 
     args << "open" << repoFilePath.toUserOutput();
-    response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return false;
 
-    output = sanitizeFossilOutput(response.stdOut());
+    output = sanitizeFossilOutput(proc.stdOut());
     outputWindow->append(output);
 
     // set user default to admin if specified
 
     if (!adminUser.isEmpty()) {
         args.clear();
-        response.clear();
         output.clear();
 
         args << "user" << "default" << adminUser << "--user" << adminUser;
-        response = vcsFullySynchronousExec(workingDirectory, args);
-        if (response.result != SynchronousProcessResponse::Finished)
+        vcsFullySynchronousExec(proc, workingDirectory, args);
+        if (proc.result() != QtcProcess::Finished)
             return false;
 
-        QString output = sanitizeFossilOutput(response.stdOut());
+        QString output = sanitizeFossilOutput(proc.stdOut());
         outputWindow->append(output);
     }
 
@@ -710,8 +719,9 @@ bool FossilClient::synchronousMove(const QString &workingDir,
 
     QStringList args(vcsCommandString(MoveCommand));
     args << extraOptions << from << to;
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDir, args);
-    return (response.result == SynchronousProcessResponse::Finished);
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDir, args);
+    return (proc.result() == QtcProcess::Finished);
 }
 
 bool FossilClient::synchronousPull(const QString &workingDir, const QString &srcLocation, const QStringList &extraOptions)
@@ -731,8 +741,9 @@ bool FossilClient::synchronousPull(const QString &workingDir, const QString &src
             VcsBase::VcsCommand::SshPasswordPrompt
             | VcsBase::VcsCommand::ShowStdOut
             | VcsBase::VcsCommand::ShowSuccessMessage;
-    const SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
-    const bool success = (resp.result == SynchronousProcessResponse::Finished);
+    SynchronousProcess proc;
+    vcsSynchronousExec(proc, workingDir, args, flags);
+    const bool success = (proc.result() == QtcProcess::Finished);
     if (success)
         emit changed(QVariant(workingDir));
     return success;
@@ -755,8 +766,9 @@ bool FossilClient::synchronousPush(const QString &workingDir, const QString &dst
             VcsBase::VcsCommand::SshPasswordPrompt
             | VcsBase::VcsCommand::ShowStdOut
             | VcsBase::VcsCommand::ShowSuccessMessage;
-    const SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
-    return (resp.result == SynchronousProcessResponse::Finished);
+    SynchronousProcess proc;
+    vcsSynchronousExec(proc, workingDir, args, flags);
+    return (proc.result() == QtcProcess::Finished);
 }
 
 void FossilClient::commit(const QString &repositoryRoot, const QStringList &files,
@@ -846,10 +858,11 @@ QString FossilClient::findTopLevelForFile(const QFileInfo &file) const
 bool FossilClient::managesFile(const QString &workingDirectory, const QString &fileName) const
 {
     const QStringList args({"finfo", fileName});
-    const SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
-    if (response.result != SynchronousProcessResponse::Finished)
+    SynchronousProcess proc;
+    vcsFullySynchronousExec(proc, workingDirectory, args);
+    if (proc.result() != QtcProcess::Finished)
         return false;
-    QString output = sanitizeFossilOutput(response.stdOut());
+    QString output = sanitizeFossilOutput(proc.stdOut());
     return !output.startsWith("no history for file", Qt::CaseInsensitive);
 }
 
