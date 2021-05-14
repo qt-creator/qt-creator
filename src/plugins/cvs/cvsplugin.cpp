@@ -1470,7 +1470,7 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
     }
 
     if (response.result != CvsResponse::Ok)
-        response.message = proc.exitMessage(executable.toString(), timeOutS);
+        response.message = proc.exitMessage();
 
     return response;
 }

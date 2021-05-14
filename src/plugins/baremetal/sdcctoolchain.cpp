@@ -95,7 +95,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
 
     cpp.runBlocking(cmd);
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
-        qWarning() << cpp.exitMessage(compiler.toString(), 10);
+        qWarning() << cpp.exitMessage();
         return {};
     }
 
@@ -117,7 +117,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
 
     cpp.runBlocking(cmd);
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
-        qWarning() << cpp.exitMessage(compiler.toString(), 10);
+        qWarning() << cpp.exitMessage();
         return {};
     }
 

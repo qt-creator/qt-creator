@@ -608,20 +608,22 @@ void SynchronousProcessResponse::clear()
     rawStdErr.clear();
 }
 
-QString QtcProcess::exitMessage(const QString &binary, int timeoutS) const
+QString QtcProcess::exitMessage()
 {
+    const QString fullCmd = commandLine().toUserOutput();
     switch (result()) {
     case Finished:
-        return QtcProcess::tr("The command \"%1\" finished successfully.").arg(QDir::toNativeSeparators(binary));
+        return QtcProcess::tr("The command \"%1\" finished successfully.").arg(fullCmd);
     case FinishedError:
-        return QtcProcess::tr("The command \"%1\" terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode());
+        return QtcProcess::tr("The command \"%1\" terminated with exit code %2.")
+            .arg(fullCmd).arg(exitCode());
     case TerminatedAbnormally:
-        return QtcProcess::tr("The command \"%1\" terminated abnormally.").arg(QDir::toNativeSeparators(binary));
+        return QtcProcess::tr("The command \"%1\" terminated abnormally.").arg(fullCmd);
     case StartFailed:
-        return QtcProcess::tr("The command \"%1\" could not be started.").arg(QDir::toNativeSeparators(binary));
+        return QtcProcess::tr("The command \"%1\" could not be started.").arg(fullCmd);
     case Hang:
         return QtcProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
-                .arg(QDir::toNativeSeparators(binary)).arg(timeoutS);
+            .arg(fullCmd).arg(d->m_hangTimerCount);
     }
     return QString();
 }

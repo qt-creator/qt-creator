@@ -118,9 +118,7 @@ public:
 
     int exitCode() const;
 
-    // Helper to format an exit message.
-    QString exitMessage(const QString &binary, int timeoutS) const;
-
+    QString exitMessage();
 
     // Helpers to find binaries. Do not use it for other path variables
     // and file types.

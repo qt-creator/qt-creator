@@ -93,7 +93,7 @@ static FormatTask format(FormatTask task)
         process.runBlocking({executable, options});
         if (process.result() != QtcProcess::Finished) {
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Failed to format: %1."))
-                             .arg(process.exitMessage(executable, 5));
+                             .arg(process.exitMessage());
             return task;
         }
         const QString output = process.stdErr();

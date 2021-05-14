@@ -132,7 +132,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
     qmake.setTimeoutS(5);
     qmake.runBlocking({qmakePath, {"--version"}});
     if (qmake.result() != QtcProcess::Finished) {
-        qWarning() << qmake.exitMessage(qmakePath, 5);
+        qWarning() << qmake.exitMessage();
         return QString();
     }
 

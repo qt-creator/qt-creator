@@ -2024,9 +2024,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     run.runBlocking(cmd);
 
     if (run.result() != QtcProcess::Finished) {
-        const QString message = !run.stdErr().isEmpty()
-                                    ? run.stdErr()
-                                    : run.exitMessage(cmdPath.toString(), 10);
+        const QString message = !run.stdErr().isEmpty() ? run.stdErr() : run.exitMessage();
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())

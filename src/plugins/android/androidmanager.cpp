@@ -730,7 +730,7 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
                                << "Success:" << cmdResult.m_success
                                << "Output:" << cmdProc.allRawOutput();
     if (!cmdResult.success())
-        cmdResult.m_exitMessage = cmdProc.exitMessage(command.executable().toString(), timeoutS);
+        cmdResult.m_exitMessage = cmdProc.exitMessage();
     return cmdResult;
 }
 

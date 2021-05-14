@@ -1031,7 +1031,7 @@ SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
 
     response.error = proc.result() != QtcProcess::Finished;
     if (response.error)
-        response.message = proc.exitMessage(m_settings.binaryPath.value(), timeOutS);
+        response.message = proc.exitMessage();
     response.stdErr = proc.stdErr();
     response.stdOut = proc.stdOut();
     return response;

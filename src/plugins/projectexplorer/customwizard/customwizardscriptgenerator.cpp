@@ -114,8 +114,7 @@ static bool
                qPrintable(cmd.toUserOutput()));
     process.run(cmd);
     if (process.result() != Utils::QtcProcess::Finished) {
-        *errorMessage = QString::fromLatin1("Generator script failed: %1")
-                            .arg(process.exitMessage(binary, 30));
+        *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty()) {
             errorMessage->append(QLatin1Char('\n'));

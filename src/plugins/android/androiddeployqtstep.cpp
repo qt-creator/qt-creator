@@ -481,9 +481,10 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
     buildProc.setTimeoutS(2 * 60);
     emit addOutput(tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);
+
     buildProc.run(command);
     if (buildProc.result() != QtcProcess::Finished || buildProc.exitCode() != 0) {
-        const QString error = buildProc.exitMessage(command.executable().toString(), 2 * 60);
+        const QString error = buildProc.exitMessage();
         emit addOutput(error, OutputFormat::ErrorMessage);
         TaskHub::addTask(DeploymentTask(Task::Error, error));
     }

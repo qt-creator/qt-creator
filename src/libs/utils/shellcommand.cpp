@@ -338,9 +338,9 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
         // Success/Fail message in appropriate window?
         if (proc.result() == QtcProcess::Finished) {
             if (d->m_flags & ShowSuccessMessage)
-                emit proxy->appendMessage(proc.exitMessage(command.executable().toUserOutput(), timeoutS));
+                emit proxy->appendMessage(proc.exitMessage());
         } else if (!(d->m_flags & SuppressFailMessage)) {
-            emit proxy->appendError(proc.exitMessage(command.executable().toUserOutput(), timeoutS));
+            emit proxy->appendError(proc.exitMessage());
         }
     }
 }

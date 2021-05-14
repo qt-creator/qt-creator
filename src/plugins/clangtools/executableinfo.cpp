@@ -59,7 +59,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
     if (cpp.result() != QtcProcess::Finished
             && (failSilently == FailSilently::No
             || cpp.result() != QtcProcess::FinishedError)) {
-        Core::MessageManager::writeFlashing(cpp.exitMessage(commandLine.toUserOutput(), 10));
+        Core::MessageManager::writeFlashing(cpp.exitMessage());
         Core::MessageManager::writeFlashing(QString::fromUtf8(cpp.allRawOutput()));
         return {};
     }

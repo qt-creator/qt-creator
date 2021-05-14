@@ -1676,7 +1676,7 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
 
     response.error = proc.result() != QtcProcess::Finished;
     if (response.error)
-        response.message = proc.exitMessage(executable, timeOutS);
+        response.message = proc.exitMessage();
     response.stdErr = proc.stdErr();
     response.stdOut = proc.stdOut();
     return response;

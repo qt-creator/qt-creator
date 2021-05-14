@@ -288,7 +288,7 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
 
     cpp.runBlocking(cmd);
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
-        qWarning() << cpp.exitMessage(compiler.toString(), 10);
+        qWarning() << cpp.exitMessage();
         return {};
     }
 
