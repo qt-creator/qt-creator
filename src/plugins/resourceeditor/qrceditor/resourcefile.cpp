@@ -190,6 +190,7 @@ Core::IDocument::OpenResult ResourceFile::load()
             const QString alias = felt.attribute(QLatin1String("alias"));
             File * const file = new File(p, fileName, alias);
             file->compress = felt.attribute(QLatin1String("compress"));
+            file->compressAlgo = felt.attribute(QLatin1String("compress-algo"));
             file->threshold = felt.attribute(QLatin1String("threshold"));
             p->file_list.append(file);
         }
@@ -226,6 +227,8 @@ QString ResourceFile::contents() const
                 felt.setAttribute(QLatin1String("alias"), file.alias);
             if (!file.compress.isEmpty())
                 felt.setAttribute(QLatin1String("compress"), file.compress);
+            if (!file.compressAlgo.isEmpty())
+                felt.setAttribute(QLatin1String("compress-algo"), file.compressAlgo);
             if (!file.threshold.isEmpty())
                 felt.setAttribute(QLatin1String("threshold"), file.threshold);
         }
