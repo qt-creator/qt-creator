@@ -519,6 +519,7 @@ void TimelineWidget::setTimelineActive(bool b)
         m_graphicsView->setVisible(false);
         m_rulerView->setVisible(false);
         m_scrollbar->setVisible(false);
+        m_statusBar->clear();
         m_addButton->setVisible(true);
         m_onboardingContainer->setVisible(true);
     }
