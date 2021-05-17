@@ -30,6 +30,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QJsonDocument>
@@ -39,6 +40,8 @@
 #include <QUuid>
 
 #include <memory>
+
+using namespace Utils;
 
 namespace CMakeProjectManager {
 
@@ -107,17 +110,17 @@ public:
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
-CMakeTool::CMakeTool(Detection d, const Utils::Id &id)
+CMakeTool::CMakeTool(Detection d, const Id &id)
     : m_id(id)
     , m_isAutoDetected(d == AutoDetection)
     , m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
-    QTC_ASSERT(m_id.isValid(), m_id = Utils::Id::fromString(QUuid::createUuid().toString()));
+    QTC_ASSERT(m_id.isValid(), m_id = Id::fromString(QUuid::createUuid().toString()));
 }
 
 CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
     CMakeTool(fromSdk ? CMakeTool::AutoDetection : CMakeTool::ManualDetection,
-              Utils::Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
+              Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
 {
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
@@ -129,9 +132,9 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
     if (!fromSdk)
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
 
-    setFilePath(Utils::FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
+    setFilePath(FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 
-    m_qchFilePath = Utils::FilePath::fromVariant(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
+    m_qchFilePath = FilePath::fromVariant(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
     if (m_qchFilePath.isEmpty())
         m_qchFilePath = searchQchFile(m_executable);
@@ -139,12 +142,12 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
 
 CMakeTool::~CMakeTool() = default;
 
-Utils::Id CMakeTool::createId()
+Id CMakeTool::createId()
 {
-    return Utils::Id::fromString(QUuid::createUuid().toString());
+    return Id::fromString(QUuid::createUuid().toString());
 }
 
-void CMakeTool::setFilePath(const Utils::FilePath &executable)
+void CMakeTool::setFilePath(const FilePath &executable)
 {
     if (m_executable == executable)
         return;
@@ -155,7 +158,7 @@ void CMakeTool::setFilePath(const Utils::FilePath &executable)
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
-Utils::FilePath CMakeTool::filePath() const
+FilePath CMakeTool::filePath() const
 {
     return m_executable;
 }
@@ -189,12 +192,12 @@ bool CMakeTool::isValid() const
     return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
 }
 
-void CMakeTool::runCMake(Utils::SynchronousProcess &cmake, const QStringList &args, int timeoutS) const
+void CMakeTool::runCMake(SynchronousProcess &cmake, const QStringList &args, int timeoutS) const
 {
     cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    Utils::Environment::setupEnglishOutput(&env);
+    Environment env = Environment::systemEnvironment();
+    Environment::setupEnglishOutput(&env);
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
 
@@ -217,24 +220,24 @@ QVariantMap CMakeTool::toMap() const
     return data;
 }
 
-Utils::FilePath CMakeTool::cmakeExecutable() const
+FilePath CMakeTool::cmakeExecutable() const
 {
     return cmakeExecutable(m_executable);
 }
 
-void CMakeTool::setQchFilePath(const Utils::FilePath &path)
+void CMakeTool::setQchFilePath(const FilePath &path)
 {
     m_qchFilePath = path;
 }
 
-Utils::FilePath CMakeTool::qchFilePath() const
+FilePath CMakeTool::qchFilePath() const
 {
     return m_qchFilePath;
 }
 
-Utils::FilePath CMakeTool::cmakeExecutable(const Utils::FilePath &path)
+FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 {
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         const QString executableString = path.toString();
         const int appIndex = executableString.lastIndexOf(".app");
         const int appCutIndex = appIndex + 4;
@@ -242,17 +245,16 @@ Utils::FilePath CMakeTool::cmakeExecutable(const Utils::FilePath &path)
         const bool containsApp = appIndex >= 0 && !endsWithApp
                                  && executableString.at(appCutIndex) == '/';
         if (endsWithApp || containsApp) {
-            const Utils::FilePath toTest = Utils::FilePath::fromString(
-                                               executableString.left(appCutIndex))
-                                               .pathAppended("Contents/bin/cmake");
+            const FilePath toTest = FilePath::fromString(executableString.left(appCutIndex))
+                    .pathAppended("Contents/bin/cmake");
             if (toTest.exists())
                 return toTest.canonicalPath();
         }
     }
 
-    const Utils::FilePath resolvedPath = path.canonicalPath();
+    const FilePath resolvedPath = path.canonicalPath();
     // Evil hack to make snap-packages of CMake work. See QTCREATORBUG-23376
-    if (Utils::HostOsInfo::isLinuxHost() && resolvedPath.fileName() == "snap")
+    if (HostOsInfo::isLinuxHost() && resolvedPath.fileName() == "snap")
         return path;
 
     return resolvedPath;
@@ -279,21 +281,21 @@ TextEditor::Keywords CMakeTool::keywords()
         return {};
 
     if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
-        Utils::SynchronousProcess proc;
+        SynchronousProcess proc;
         runCMake(proc, {"--help-command-list"}, 5);
-        if (proc.result() == Utils::QtcProcess::Finished)
+        if (proc.result() == QtcProcess::Finished)
             m_introspection->m_functions = proc.stdOut().split('\n');
 
         runCMake(proc, {"--help-commands"}, 5);
-        if (proc.result() == Utils::QtcProcess::Finished)
+        if (proc.result() == QtcProcess::Finished)
             parseFunctionDetailsOutput(proc.stdOut());
 
         runCMake(proc, {"--help-property-list"}, 5);
-        if (proc.result() == Utils::QtcProcess::Finished)
+        if (proc.result() == QtcProcess::Finished)
             m_introspection->m_variables = parseVariableOutput(proc.stdOut());
 
         runCMake(proc, {"--help-variable-list"}, 5);
-        if (proc.result() == Utils::QtcProcess::Finished) {
+        if (proc.result() == QtcProcess::Finished) {
             m_introspection->m_variables.append(parseVariableOutput(proc.stdOut()));
             m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
             Utils::sort(m_introspection->m_variables);
@@ -345,7 +347,7 @@ CMakeTool::PathMapper CMakeTool::pathMapper() const
 {
     if (m_pathMapper)
         return m_pathMapper;
-    return [](const Utils::FilePath &fn) { return fn; };
+    return [](const FilePath &fn) { return fn; };
 }
 
 Utils::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
@@ -359,12 +361,12 @@ Utils::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
     return {};
 }
 
-Utils::FilePath CMakeTool::searchQchFile(const Utils::FilePath &executable)
+FilePath CMakeTool::searchQchFile(const FilePath &executable)
 {
     if (executable.isEmpty())
         return {};
 
-    Utils::FilePath prefixDir = executable.parentDir().parentDir();
+    FilePath prefixDir = executable.parentDir().parentDir();
     QDir docDir{prefixDir.pathAppended("doc/cmake").toString()};
     if (!docDir.exists())
         docDir.setPath(prefixDir.pathAppended("share/doc/cmake").toString());
@@ -374,7 +376,7 @@ Utils::FilePath CMakeTool::searchQchFile(const Utils::FilePath &executable)
     const QStringList files = docDir.entryList(QStringList("*.qch"));
     for (const QString &docFile : files) {
         if (docFile.startsWith("cmake", Qt::CaseInsensitive)) {
-            return Utils::FilePath::fromString(docDir.absoluteFilePath(docFile));
+            return FilePath::fromString(docDir.absoluteFilePath(docFile));
         }
     }
 
@@ -485,10 +487,10 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    Utils::SynchronousProcess cmake;
+    SynchronousProcess cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
-    if (cmake.result() == Utils::QtcProcess::Finished) {
+    if (cmake.result() == QtcProcess::Finished) {
         m_introspection->m_didRun = true;
         parseFromCapabilities(cmake.stdOut());
     } else {

@@ -32,11 +32,8 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
-#include <utils/qtcprocess.h>
 
-QT_FORWARD_DECLARE_CLASS(QProcess)
-
-namespace ProjectExplorer { class Kit; }
+namespace Utils { class SynchronousProcess; }
 
 namespace CMakeProjectManager {
 

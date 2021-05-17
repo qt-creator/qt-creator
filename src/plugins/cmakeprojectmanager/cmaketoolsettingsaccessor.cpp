@@ -48,11 +48,11 @@ namespace Internal {
 // CMakeToolSettingsUpgraders:
 // --------------------------------------------------------------------
 
-class CMakeToolSettingsUpgraderV0 : public Utils::VersionUpgrader
+class CMakeToolSettingsUpgraderV0 : public VersionUpgrader
 {
     // Necessary to make Version 1 supported.
 public:
-    CMakeToolSettingsUpgraderV0() : Utils::VersionUpgrader(0, "4.6") { }
+    CMakeToolSettingsUpgraderV0() : VersionUpgrader(0, "4.6") { }
 
     // NOOP
     QVariantMap upgrade(const QVariantMap &data) final { return data; }
@@ -62,38 +62,38 @@ public:
 // Helpers:
 // --------------------------------------------------------------------
 
-static const char CMAKE_TOOL_COUNT_KEY[] = "CMakeTools.Count";
-static const char CMAKE_TOOL_DATA_KEY[] = "CMakeTools.";
-static const char CMAKE_TOOL_DEFAULT_KEY[] = "CMakeTools.Default";
-static const char CMAKE_TOOL_FILENAME[] = "cmaketools.xml";
+const char CMAKE_TOOL_COUNT_KEY[] = "CMakeTools.Count";
+const char CMAKE_TOOL_DATA_KEY[] = "CMakeTools.";
+const char CMAKE_TOOL_DEFAULT_KEY[] = "CMakeTools.Default";
+const char CMAKE_TOOL_FILENAME[] = "cmaketools.xml";
 
 static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 {
-    Utils::Environment env = Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
 
-    Utils::FilePaths path = env.path();
+    FilePaths path = env.path();
     path = Utils::filteredUnique(path);
 
     if (HostOsInfo::isWindowsHost()) {
         for (auto envVar : {"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
             if (qEnvironmentVariableIsSet(envVar)) {
                 const QString progFiles = qEnvironmentVariable(envVar);
-                path.append(Utils::FilePath::fromString(progFiles + "/CMake"));
-                path.append(Utils::FilePath::fromString(progFiles + "/CMake/bin"));
+                path.append(FilePath::fromString(progFiles + "/CMake"));
+                path.append(FilePath::fromString(progFiles + "/CMake/bin"));
             }
         }
     }
 
     if (HostOsInfo::isMacHost()) {
-        path.append(Utils::FilePath::fromString("/Applications/CMake.app/Contents/bin"));
-        path.append(Utils::FilePath::fromString("/usr/local/bin"));
-        path.append(Utils::FilePath::fromString("/opt/local/bin"));
+        path.append(FilePath::fromString("/Applications/CMake.app/Contents/bin"));
+        path.append(FilePath::fromString("/usr/local/bin"));
+        path.append(FilePath::fromString("/opt/local/bin"));
     }
 
     const QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
 
     FilePaths suspects;
-    foreach (const Utils::FilePath &base, path) {
+    foreach (const FilePath &base, path) {
         if (base.isEmpty())
             continue;
 
@@ -199,7 +199,7 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
 }
 
 void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTools,
-                                               const Utils::Id &defaultId,
+                                               const Id &defaultId,
                                                QWidget *parent)
 {
     QVariantMap data;
@@ -244,8 +244,7 @@ CMakeToolSettingsAccessor::cmakeTools(const QVariantMap &data, bool fromSdk) con
         result.cmakeTools.emplace_back(std::move(item));
     }
 
-    result.defaultToolId = Utils::Id::fromSetting(data.value(CMAKE_TOOL_DEFAULT_KEY,
-                                                            Utils::Id().toSetting()));
+    result.defaultToolId = Id::fromSetting(data.value(CMAKE_TOOL_DEFAULT_KEY, Id().toSetting()));
 
     return result;
 }
