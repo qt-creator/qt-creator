@@ -87,7 +87,7 @@ public:
 };
 
 // Data for one channel buffer (stderr/stdout)
-class ChannelBuffer : public QObject
+class ChannelBuffer
 {
 public:
     void clearForRun();
