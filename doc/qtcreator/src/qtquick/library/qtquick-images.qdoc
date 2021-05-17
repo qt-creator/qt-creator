@@ -207,6 +207,25 @@
 
     \youtube DVWd_xMMgvg
 
+    \if defined(qtdesignstudio)
+    \section1 Iso Icon
+
+    The IsoIcon component specifies an icon from an ISO 7000 icon library as a
+    \l [QtQuickExtras] {Picture} component. The icon to use for the type and
+    its color can be specified.
+
+    To select an icon in the \uicontrol {ISO Icon Browser} in \QDS, select
+    the ISO icon in \l Navigator or \l {Form Editor}, and then select
+    \uicontrol {Choose Icon} in the context menu.
+
+    \image studio-iso-icon.png
+
+    You can use the \l{Picking Colors}{color picker} in \l Properties to
+    set the icon color.
+
+    \image iso-icon-browser.png
+    \endif
+
     \section1 Summary of Images
 
     The following table lists the components that you can use to add images.
@@ -244,8 +263,8 @@
     \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/iso-icons-16px.png
-        \li IsoIcon
-        \li Studio Components
+        \li \l{Iso Icon}
+        \li Qt Quick Studio Components
         \li
         \li An icon from an ISO 7000 icon library specified as a \l Picture
             component. You can select the icon to use and its color.

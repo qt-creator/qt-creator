@@ -67,7 +67,7 @@
     show the main QML file when the application starts.
 
     The \e {Qt Quick Designer Components} module is delivered with \QDS. If you
-    use Studio Components or Effects in your project, you have to build the
+    use Qt Quick Studio Components or Effects in your project, you have to build the
     module and install it to your Qt to be able to build your project.
 
     The \l{Qt Quick Timeline} module is delivered with \QDS and with Qt 5.14,
@@ -134,7 +134,7 @@
 
     \section1 Adding Qt Quick Designer Components to Qt Installations
 
-    If you use Studio Components or Effects in your project, you have to
+    If you use Qt Quick Studio Components or Effects in your project, you have to
     check out and install the \e {Qt Quick Designer Components} module from
     \l{https://codereview.qt-project.org/admin/repos/qt-labs/qtquickdesigner-components}
     {Qt Code Review}.
