@@ -33,8 +33,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <utils/environment.h>
-
 #include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
@@ -43,8 +41,7 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils {
-class CommandLine;
-class SynchronousProcessResponse;
+class Environment;
 } // namespace Utils
 
 namespace Core {
