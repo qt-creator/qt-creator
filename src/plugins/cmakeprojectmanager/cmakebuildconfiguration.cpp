@@ -38,6 +38,7 @@
 
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
+#include <qnx/qnxconstants.h>
 #include <webassembly/webassemblyconstants.h>
 
 #include <coreplugin/find/itemviewfind.h>
@@ -789,6 +790,11 @@ static bool isWebAssembly(const Kit *k)
     return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
+static bool isQnx(const Kit *k)
+{
+    return DeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
+}
+
 static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
 {
     // Generator:
@@ -963,7 +969,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             }
         }
 
-        if (isWebAssembly(k)) {
+        if (isWebAssembly(k) || isQnx(k)) {
             const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt && qt->qtVersion().majorVersion >= 6)
                 initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
