@@ -248,9 +248,9 @@ QList<ToolChain *> QnxConfiguration::autoDetect(const QList<ToolChain *> &alread
 
 void QnxConfiguration::createTools(const Target &target)
 {
-    QnxToolChain *tc = createToolChain(target);
+    QnxToolChainMap toolchainMap = createToolChain(target);
     QVariant debuggerId = createDebugger(target);
-    createKit(target, tc, debuggerId);
+    createKit(target, toolchainMap, debuggerId);
 }
 
 QVariant QnxConfiguration::createDebugger(const Target &target)
@@ -270,23 +270,31 @@ QVariant QnxConfiguration::createDebugger(const Target &target)
     return Debugger::DebuggerItemManager::registerDebugger(debugger);
 }
 
-QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
+QnxConfiguration::QnxToolChainMap QnxConfiguration::createToolChain(const Target &target)
 {
-    auto toolChain = new QnxToolChain;
-    toolChain->setDetection(ToolChain::AutoDetection);
-    toolChain->setLanguage(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    toolChain->setTargetAbi(target.m_abi);
-    toolChain->setDisplayName(
-                QCoreApplication::translate(
-                    "Qnx::Internal::QnxConfiguration",
-                    "QCC for %1 (%2)")
-                .arg(displayName())
-                .arg(target.shortDescription()));
-    toolChain->setSdpPath(sdpPath().toString());
-    toolChain->setCpuDir(target.cpuDir());
-    toolChain->resetToolChain(qccCompilerPath());
-    ToolChainManager::registerToolChain(toolChain);
-    return toolChain;
+    QnxToolChainMap toolChainMap;
+
+    for (auto language : { ProjectExplorer::Constants::C_LANGUAGE_ID,
+                           ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
+        auto toolChain = new QnxToolChain;
+        toolChain->setDetection(ToolChain::AutoDetection);
+        toolChain->setLanguage(language);
+        toolChain->setTargetAbi(target.m_abi);
+        toolChain->setDisplayName(
+                    QCoreApplication::translate(
+                        "Qnx::Internal::QnxConfiguration",
+                        "QCC for %1 (%2)")
+                    .arg(displayName())
+                    .arg(target.shortDescription()));
+        toolChain->setSdpPath(sdpPath().toString());
+        toolChain->setCpuDir(target.cpuDir());
+        toolChain->resetToolChain(qccCompilerPath());
+        ToolChainManager::registerToolChain(toolChain);
+
+        toolChainMap.insert(std::make_pair(language, toolChain));
+    }
+
+    return toolChainMap;
 }
 
 QList<ToolChain *> QnxConfiguration::findToolChain(const QList<ToolChain *> &alreadyKnown,
@@ -299,7 +307,7 @@ QList<ToolChain *> QnxConfiguration::findToolChain(const QList<ToolChain *> &alr
                                          });
 }
 
-void QnxConfiguration::createKit(const Target &target, QnxToolChain *toolChain,
+void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &toolChainMap,
                                  const QVariant &debugger)
 {
     QnxQtVersion *qnxQt = qnxQtVersion(target);
@@ -309,8 +317,8 @@ void QnxConfiguration::createKit(const Target &target, QnxToolChain *toolChain,
 
     const auto init = [&](Kit *k) {
         QtKitAspect::setQtVersion(k, qnxQt);
-        ToolChainKitAspect::setToolChain(k, toolChain);
-        ToolChainKitAspect::clearToolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        ToolChainKitAspect::setToolChain(k, toolChainMap.at(ProjectExplorer::Constants::C_LANGUAGE_ID));
+        ToolChainKitAspect::setToolChain(k, toolChainMap.at(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
         if (debugger.isValid())
             DebuggerKitAspect::setDebugger(k, debugger);

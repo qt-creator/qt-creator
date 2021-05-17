@@ -124,8 +124,11 @@ private:
 
     void createTools(const Target &target);
     QVariant createDebugger(const Target &target);
-    QnxToolChain *createToolChain(const Target &target);
-    void createKit(const Target &target, QnxToolChain *toolChain, const QVariant &debugger);
+
+    using QnxToolChainMap = std::map<const char*, QnxToolChain*>;
+
+    QnxToolChainMap createToolChain(const Target &target);
+    void createKit(const Target &target, const QnxToolChainMap &toolChain, const QVariant &debugger);
 
     const Target *findTargetByDebuggerPath(const Utils::FilePath &path) const;
 
