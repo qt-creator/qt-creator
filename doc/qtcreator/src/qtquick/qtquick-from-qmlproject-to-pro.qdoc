@@ -141,7 +141,7 @@
 
     For example:
     \badcode
-    git clone "ssh://user@codereview.qt-project.org:29418/qt-labs/qtquickdesigner-components"
+    git clone "https://codereview.qt-project.org/qt-labs/qtquickdesigner-components"
     \endcode
 
     Then use qmake from your Qt installation to build the module and to add it
@@ -166,7 +166,7 @@
 
     For example:
     \badcode
-    git clone ssh://user@codereview.qt-project.org:29418/qt/qtquicktimeline
+    git clone "https://codereview.qt-project.org/qt/qtquicktimeline"
     \endcode
 
     Then build the module and add it to your Qt as described in the previous
