@@ -1733,12 +1733,11 @@ Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &bui
         results.append(BuildSystemTask(Task::Error, msg));
     }
 
-    QFileInfo qmakeInfo = qmakeCommand().toFileInfo();
-    if (!qmakeInfo.exists() ||
-        !qmakeInfo.isExecutable()) {
+    FilePath qmake = qmakeCommand();
+    if (!qmake.isExecutableFile()) {
         //: %1: Path to qmake executable
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
-                                                        "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand().toUserOutput());
+                                                        "The qmake command \"%1\" was not found or is not executable.").arg(qmake.toUserOutput());
         results.append(BuildSystemTask(Task::Error, msg));
     }
 
@@ -1762,8 +1761,7 @@ QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
     return nullptr;
 }
 
-static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env,
-                                QString *error)
+static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, QString *error)
 {
     QTC_ASSERT(error, return QByteArray());
 
@@ -1803,8 +1801,7 @@ bool BaseQtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Env
     if (!error)
         error = &tmp;
 
-    const QFileInfo qmake = binary.toFileInfo();
-    if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
+    if (!binary.isExecutableFile()) {
         *error = QCoreApplication::translate("QtVersion", "qmake \"%1\" is not an executable.").arg(binary.toUserOutput());
         return false;
     }
@@ -2320,8 +2317,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
         return l->m_priority > r->m_priority;
     });
 
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
+    if (!qmakePath.isExecutableFile())
         return nullptr;
 
     QtVersionFactory::SetupData setup;
