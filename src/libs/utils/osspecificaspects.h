@@ -75,6 +75,13 @@ inline QString pathWithNativeSeparators(OsType osType, const QString &pathName)
             std::replace(std::begin(n) + pos, std::end(n), '/', '\\');
             return n;
         }
+    } else {
+        const int pos = pathName.indexOf('\\');
+        if (pos >= 0) {
+            QString n = pathName;
+            std::replace(std::begin(n) + pos, std::end(n), '\\', '/');
+            return n;
+        }
     }
     return pathName;
 }
