@@ -666,7 +666,10 @@ void ExternalToolRunner::run()
     const CommandLine cmd{m_resolvedExecutable, m_resolvedArguments, CommandLine::Raw};
     m_process->setCommand(cmd);
     m_process->setEnvironment(m_resolvedEnvironment);
-    MessageManager::writeDisrupting(tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
+    const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
+                           ? [](const QString &m) { MessageManager::writeDisrupting(m); }
+                           : [](const QString &m) { MessageManager::writeSilently(m); };
+    write(tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
     m_process->start();
 }
 
@@ -686,7 +689,10 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
     }
     if (m_tool->modifiesCurrentDocument())
         DocumentManager::unexpectFileChange(m_expectedFileName);
-    MessageManager::writeFlashing(tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput()));
+    const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
+                           ? [](const QString &m) { MessageManager::writeFlashing(m); }
+                           : [](const QString &m) { MessageManager::writeSilently(m); };
+    write(tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput()));
     deleteLater();
 }
 
