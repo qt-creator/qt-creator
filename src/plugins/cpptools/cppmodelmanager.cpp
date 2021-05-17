@@ -1293,6 +1293,10 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
         defaultKit->addToEnvironment(env);
         ToolChainInfo tcInfo(defaultTc, sysroot.toString(), env);
         part->setupToolchainProperties(tcInfo, {});
+        if (part->language == Language::C)
+            part->languageVersion = Utils::LanguageVersion::LatestC;
+        else
+            part->languageVersion = Utils::LanguageVersion::LatestCxx;
     }
     part->updateLanguageFeatures();
 
