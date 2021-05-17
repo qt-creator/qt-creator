@@ -72,6 +72,8 @@ ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
             break;
         case ProjectFile::CXXSource:
         case ProjectFile::CXXHeader:
+        case ProjectFile::CudaSource:
+        case ProjectFile::OpenCLSource:
             m_cxxSources += projectFile;
             break;
         case ProjectFile::ObjCXXSource:
@@ -86,7 +88,8 @@ ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
         case ProjectFile::ObjCHeader:
             m_objcSources += projectFile;
             break;
-        default:
+        case ProjectFile::Unclassified:
+        case ProjectFile::Unsupported:
             continue;
         }
     }
