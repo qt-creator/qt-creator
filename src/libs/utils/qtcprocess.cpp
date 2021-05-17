@@ -81,9 +81,6 @@ public:
 
     QtcProcess::Result result = QtcProcess::StartFailed;
     int exitCode = -1;
-
-    QByteArray rawStdOut;
-    QByteArray rawStdErr;
 };
 
 // Data for one channel buffer (stderr/stdout)
@@ -607,8 +604,6 @@ void SynchronousProcessResponse::clear()
 {
     result = QtcProcess::StartFailed;
     exitCode = -1;
-    rawStdOut.clear();
-    rawStdErr.clear();
 }
 
 QString QtcProcess::exitMessage()
@@ -633,14 +628,14 @@ QString QtcProcess::exitMessage()
 
 QByteArray QtcProcess::allRawOutput() const
 {
-    if (!d->m_result.rawStdOut.isEmpty() && !d->m_result.rawStdErr.isEmpty()) {
-        QByteArray result = d->m_result.rawStdOut;
+    if (!d->m_stdOut.rawData.isEmpty() && !d->m_stdErr.rawData.isEmpty()) {
+        QByteArray result = d->m_stdOut.rawData;
         if (!result.endsWith('\n'))
             result += '\n';
-        result += d->m_result.rawStdErr;
+        result += d->m_stdErr.rawData;
         return result;
     }
-    return !d->m_result.rawStdOut.isEmpty() ? d->m_result.rawStdOut : d->m_result.rawStdErr;
+    return !d->m_stdOut.rawData.isEmpty() ? d->m_stdOut.rawData : d->m_stdErr.rawData;
 }
 
 QString QtcProcess::allOutput() const
@@ -660,22 +655,22 @@ QString QtcProcess::allOutput() const
 
 QString QtcProcess::stdOut() const
 {
-    return normalizeNewlines(d->m_codec->toUnicode(d->m_result.rawStdOut));
+    return normalizeNewlines(d->m_codec->toUnicode(d->m_stdOut.rawData));
 }
 
 QString QtcProcess::stdErr() const
 {
-    return normalizeNewlines(d->m_codec->toUnicode(d->m_result.rawStdErr));
+    return normalizeNewlines(d->m_codec->toUnicode(d->m_stdErr.rawData));
 }
 
 QByteArray QtcProcess::rawStdOut() const
 {
-    return d->m_result.rawStdOut;
+    return d->m_stdOut.rawData;
 }
 
 QByteArray QtcProcess::rawStdErr() const
 {
-    return d->m_result.rawStdErr;
+    return d->m_stdErr.rawData;
 }
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
@@ -683,7 +678,7 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
     QDebug nsp = str.nospace();
     nsp << "QtcProcess: result="
         << r.d->m_result.result << " ex=" << r.exitCode() << '\n'
-        << r.d->m_result.rawStdOut.size() << " bytes stdout, stderr=" << r.d->m_result.rawStdErr << '\n';
+        << r.d->m_stdOut.rawData.size() << " bytes stdout, stderr=" << r.d->m_stdErr.rawData << '\n';
     return str;
 }
 
@@ -808,8 +803,8 @@ void QtcProcess::run(const CommandLine &cmd)
 
         d->m_result.result = QtcProcess::Finished;
         d->m_result.exitCode = exitCode();
-        d->m_result.rawStdOut = readAllStandardOutput();
-        d->m_result.rawStdErr = readAllStandardError();
+        d->m_stdOut.rawData += readAllStandardOutput();
+        d->m_stdErr.rawData += readAllStandardError();
         return;
     };
 
@@ -845,9 +840,6 @@ void QtcProcess::run(const CommandLine &cmd)
         d->m_stdOut.append(readAllStandardOutput(), false);
         d->m_stdErr.append(readAllStandardError(), false);
 
-        d->m_result.rawStdOut = d->m_stdOut.rawData;
-        d->m_result.rawStdErr = d->m_stdErr.rawData;
-
         d->m_timer.stop();
 #ifdef QT_GUI_LIB
         if (isGuiThread())
@@ -869,8 +861,8 @@ void QtcProcess::runBlocking(const CommandLine &cmd)
 
         d->m_result.result = QtcProcess::Finished;
         d->m_result.exitCode = exitCode();
-        d->m_result.rawStdOut = readAllStandardOutput();
-        d->m_result.rawStdErr = readAllStandardError();
+        d->m_stdOut.rawData += readAllStandardOutput();
+        d->m_stdErr.rawData += readAllStandardError();
         return;
     };
 
@@ -909,9 +901,6 @@ void QtcProcess::runBlocking(const CommandLine &cmd)
     }
     d->m_stdOut.append(readAllStandardOutput(), false);
     d->m_stdErr.append(readAllStandardError(), false);
-
-    d->m_result.rawStdOut = d->m_stdOut.rawData;
-    d->m_result.rawStdErr = d->m_stdErr.rawData;
 }
 
 void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
