@@ -111,7 +111,8 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     cmd.addArg("--predef_macros");
     cmd.addArg(outpath);
 
-    cpp.runBlocking(cmd);
+    cpp.setCommand(cmd);
+    cpp.runBlocking();
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
         qWarning() << cpp.exitMessage();
         return {};
@@ -145,18 +146,17 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId
         return {};
     fakeIn.close();
 
-    SynchronousProcess cpp;
-    cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
-
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
         cmd.addArg(cppLanguageOption(compiler));
     cmd.addArg("--preinclude");
     cmd.addArg(".");
 
-    // Note: Response should retutn an error, just don't check on errors.
-    cpp.runBlocking(cmd);
+    SynchronousProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setTimeoutS(10);
+    cpp.setCommand(cmd);
+    cpp.runBlocking();
 
     HeaderPaths headerPaths;
 

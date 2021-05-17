@@ -150,7 +150,8 @@ void UncrustifySettings::createDocumentationFile() const
 {
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
-    process.runBlocking({command(), {"--show-config"}});
+    process.setCommand({command(), {"--show-config"}});
+    process.runBlocking();
     if (process.result() != Utils::QtcProcess::Finished)
         return;
 

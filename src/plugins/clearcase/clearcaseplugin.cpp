@@ -2358,7 +2358,8 @@ QString ClearCasePluginPrivate::runExtDiff(const QString &workingDir, const QStr
     process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
-    process.run(diff);
+    process.setCommand(diff);
+    process.run();
     if (process.result() != QtcProcess::Finished)
         return QString();
     return process.allOutput();

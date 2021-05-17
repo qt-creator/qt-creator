@@ -70,7 +70,8 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
     qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
-    proc.runBlocking(cmd);
+    proc.setCommand(cmd);
+    proc.runBlocking();
     if (proc.result() == Utils::QtcProcess::Finished) {
         if (output)
             *output = proc.allOutput();
@@ -201,7 +202,8 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
     SynchronousProcess proc;
     proc.setTimeoutS(5);
-    proc.runBlocking(command);
+    proc.setCommand(command);
+    proc.runBlocking();
     return proc.result() == QtcProcess::Finished && proc.exitCode() == 0;
 }
 
@@ -350,7 +352,8 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     qCDebug(avdManagerLog) << "Running command (isAvdBooted):" << command.toUserOutput();
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    adbProc.runBlocking(command);
+    adbProc.setCommand(command);
+    adbProc.runBlocking();
     if (adbProc.result() != QtcProcess::Finished)
         return false;
     QString value = adbProc.allOutput().trimmed();

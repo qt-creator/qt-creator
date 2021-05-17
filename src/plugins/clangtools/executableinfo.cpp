@@ -54,8 +54,9 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
     Environment env = Environment::systemEnvironment();
     Environment::setupEnglishOutput(&env);
     cpp.setEnvironment(env);
+    cpp.setCommand(commandLine);
 
-    cpp.runBlocking(commandLine);
+    cpp.runBlocking();
     if (cpp.result() != QtcProcess::Finished
             && (failSilently == FailSilently::No
             || cpp.result() != QtcProcess::FinishedError)) {

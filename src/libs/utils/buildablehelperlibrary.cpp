@@ -46,7 +46,8 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     SynchronousProcess proc;
     proc.setTimeoutS(1);
-    proc.runBlocking({path, {"-print-env"}});
+    proc.setCommand({path, {"-print-env"}});
+    proc.runBlocking();
     if (proc.result() != QtcProcess::Finished)
         return QString();
     const QString output = proc.stdOut();
@@ -130,7 +131,8 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 
     SynchronousProcess qmake;
     qmake.setTimeoutS(5);
-    qmake.runBlocking({qmakePath, {"--version"}});
+    qmake.setCommand({qmakePath, {"--version"}});
+    qmake.runBlocking();
     if (qmake.result() != QtcProcess::Finished) {
         qWarning() << qmake.exitMessage();
         return QString();

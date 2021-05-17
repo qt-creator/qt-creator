@@ -239,8 +239,8 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     }
 
     qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput() << args;
-    cmake.runBlocking({cmakeExecutable, args});
-
+    cmake.setCommand({cmakeExecutable, args});
+    cmake.runBlocking();
 
     QFile qmakeLocationTxt(qtcQMakeProbeDir.path() + "/qmake-location.txt");
     if (!qmakeLocationTxt.open(QIODevice::ReadOnly)) {

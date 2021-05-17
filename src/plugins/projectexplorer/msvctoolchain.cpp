@@ -238,9 +238,9 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
-    const CommandLine cmd(vswhere,
-            {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"});
-    vsWhereProcess.runBlocking(cmd);
+    vsWhereProcess.setCommand({vswhere,
+                        {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
+    vsWhereProcess.runBlocking();
     switch (vsWhereProcess.result()) {
     case QtcProcess::Finished:
         break;
@@ -621,7 +621,8 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
         arguments << QLatin1String("/TC");
     arguments << toProcess << QLatin1String("/EP") << saver.filePath().toUserOutput();
-    cpp.runBlocking({binary, arguments});
+    cpp.setCommand({binary, arguments});
+    cpp.runBlocking();
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0)
         return predefinedMacros;
 
@@ -1495,7 +1496,8 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
 static QVersionNumber clangClVersion(const QString &clangClPath)
 {
     SynchronousProcess clangClProcess;
-    clangClProcess.runBlocking({clangClPath, {"--version"}});
+    clangClProcess.setCommand({clangClPath, {"--version"}});
+    clangClProcess.runBlocking();
     if (clangClProcess.result() != QtcProcess::Finished || clangClProcess.exitCode() != 0)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
@@ -1721,6 +1723,8 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     arguments.append(gccPredefinedMacrosOptions(language()));
     arguments.append("-");
     cpp.runBlocking({clangPath(), arguments});
+    cpp.setCommand({compilerCommand(), arguments});
+    cpp.runBlocking();
     if (cpp.result() != Utils::QtcProcess::Finished || cpp.exitCode() != 0) {
         // Show the warning but still parse the output.
         QTC_CHECK(false && "clang-cl exited with non-zero code.");
@@ -2058,7 +2062,8 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
         qDebug() << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
-    run.runBlocking(cmd);
+    run.setCommand(cmd);
+    run.runBlocking();
 
     if (run.result() != QtcProcess::Finished) {
         const QString message = !run.stdErr().isEmpty() ? run.stdErr() : run.exitMessage();

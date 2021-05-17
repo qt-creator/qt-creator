@@ -281,7 +281,8 @@ Interpreter::Interpreter(const FilePath &python, const QString &defaultName, boo
     SynchronousProcess pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
     pythonProcess.setTimeoutS(1);
-    pythonProcess.runBlocking({python, {"--version"}});
+    pythonProcess.setCommand({python, {"--version"}});
+    pythonProcess.runBlocking();
     if (pythonProcess.result() == QtcProcess::Finished)
         name = pythonProcess.stdOut().trimmed();
     if (name.isEmpty())

@@ -86,8 +86,8 @@ static QString pythonName(const FilePath &pythonPath)
     if (name.isEmpty()) {
         SynchronousProcess pythonProcess;
         pythonProcess.setTimeoutS(2);
-        const CommandLine pythonVersionCommand(pythonPath, {"--version"});
-        pythonProcess.runBlocking(pythonVersionCommand);
+        pythonProcess.setCommand({pythonPath, {"--version"}});
+        pythonProcess.runBlocking();
         if (pythonProcess.result() != QtcProcess::Finished)
             return {};
         name = pythonProcess.allOutput().trimmed();
@@ -109,7 +109,8 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
     Environment env = pythonProcess.environment();
     env.set("PYTHONVERBOSE", "x");
     pythonProcess.setEnvironment(env);
-    pythonProcess.runBlocking(pylsCommand);
+    pythonProcess.setCommand(pylsCommand);
+    pythonProcess.runBlocking();
 
     static const QString pylsInitPattern = "(.*)"
                                            + QRegularExpression::escape(
@@ -159,12 +160,13 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
     }
 
     SynchronousProcess pythonProcess;
-    pythonProcess.runBlocking(pythonLShelpCommand);
+    pythonProcess.setCommand(pythonLShelpCommand);
+    pythonProcess.runBlocking();
     if (pythonProcess.allOutput().contains("Python Language Server"))
         return {PythonLanguageServerState::AlreadyInstalled, modulePath};
 
-    const CommandLine pythonPipVersionCommand(python, {"-m", "pip", "-V"});
-    pythonProcess.runBlocking(pythonPipVersionCommand);
+    pythonProcess.setCommand({python, {"-m", "pip", "-V"}});
+    pythonProcess.runBlocking();
     if (pythonProcess.allOutput().startsWith("pip "))
         return {PythonLanguageServerState::CanBeInstalled, FilePath()};
     else

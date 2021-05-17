@@ -4978,7 +4978,8 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
     Environment envLang(QProcess::systemEnvironment());
     Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
-    proc.runBlocking({debugger.executable, args});
+    proc.setCommand({debugger.executable, args});
+    proc.runBlocking();
 
     if (proc.result() == QtcProcess::Finished) {
         QString output = proc.stdOut();

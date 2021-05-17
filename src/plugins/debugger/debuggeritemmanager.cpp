@@ -745,7 +745,8 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     if (HostOsInfo::isMacHost()) {
         SynchronousProcess proc;
         proc.setTimeoutS(2);
-        proc.runBlocking({"xcrun", {"--find", "lldb"}});
+        proc.setCommand({"xcrun", {"--find", "lldb"}});
+        proc.runBlocking();
         if (proc.result() == QtcProcess::Finished) {
             QString lPath = proc.allOutput().trimmed();
             if (!lPath.isEmpty()) {

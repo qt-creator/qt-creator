@@ -138,9 +138,9 @@ static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const Environmen
     SynchronousProcess cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
+    cpp.setCommand({compiler, {fakeIn.fileName()}});
 
-    const CommandLine cmd(compiler, {fakeIn.fileName()});
-    cpp.runBlocking(cmd);
+    cpp.runBlocking();
     QString output = cpp.allOutput();
     Macros macros;
     QTextStream stream(&output);
@@ -268,8 +268,8 @@ static Macros dumpC166PredefinedMacros(const FilePath &compiler, const Environme
         }
     };
 
-    const CommandLine cmd(compiler, {fakeIn.fileName()});
-    cpp.runBlocking(cmd);
+    cpp.setCommand({compiler, {fakeIn.fileName()}});
+    cpp.runBlocking();
     const QString output = cpp.allOutput();
     extractMacros(output);
     return macros;
@@ -284,9 +284,9 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
     QStringList args = extraArgs;
     args.push_back("-E");
     args.push_back("--list-macros");
-    const CommandLine cmd(compiler, args);
+    cpp.setCommand({compiler, args});
 
-    cpp.runBlocking(cmd);
+    cpp.runBlocking();
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
         qWarning() << cpp.exitMessage();
         return {};

@@ -1009,7 +1009,8 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 
     SynchronousProcess keytoolProc;
     keytoolProc.setTimeoutS(30);
-    keytoolProc.run({AndroidConfigurations::currentConfig().keytoolPath(), params});
+    keytoolProc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), params});
+    keytoolProc.run();
     if (keytoolProc.result() > QtcProcess::FinishedError)
         QMessageBox::critical(nullptr, tr("Error"), tr("Failed to run keytool."));
     else

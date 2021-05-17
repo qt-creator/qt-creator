@@ -90,9 +90,14 @@ public:
     void setWriteData(const QByteArray &writeData);
 
     // Starts a nested event loop and runs the command
-    void run(const CommandLine &cmd);
+    void run();
+
     // Starts the command blocking the UI fully
-    void runBlocking(const CommandLine &cmd);
+    void runBlocking();
+
+    // FIXME: Remove. Kept for downstream for a while.
+    void run(const CommandLine &cmd) { setCommand(cmd); run(); }
+    void runBlocking(const CommandLine &cmd) { setCommand(cmd); runBlocking(); }
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);

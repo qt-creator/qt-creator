@@ -1272,7 +1272,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
             process.setStdOutCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
     }
     process.setTimeOutMessageBoxEnabled(true);
-    process.run({m_settings.p4BinaryPath.value(), args});
+    process.setCommand({m_settings.p4BinaryPath.value(), args});
+    process.run();
 
     PerforceResponse response;
     response.error = true;

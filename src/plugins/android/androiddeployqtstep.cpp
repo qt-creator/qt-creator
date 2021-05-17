@@ -482,7 +482,8 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
     emit addOutput(tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);
 
-    buildProc.run(command);
+    buildProc.setCommand(command);
+    buildProc.run();
     if (buildProc.result() != QtcProcess::Finished || buildProc.exitCode() != 0) {
         const QString error = buildProc.exitMessage();
         emit addOutput(error, OutputFormat::ErrorMessage);

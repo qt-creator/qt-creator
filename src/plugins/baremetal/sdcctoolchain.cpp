@@ -90,10 +90,9 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
     SynchronousProcess cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
+    cpp.setCommand({compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()}});
 
-    const CommandLine cmd(compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()});
-
-    cpp.runBlocking(cmd);
+    cpp.runBlocking();
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
         qWarning() << cpp.exitMessage();
         return {};
@@ -112,10 +111,9 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
     SynchronousProcess cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
+    cpp.setCommand({compiler, {compilerTargetFlag(abi), "--print-search-dirs"}});
 
-    const CommandLine cmd(compiler, {compilerTargetFlag(abi), "--print-search-dirs"});
-
-    cpp.runBlocking(cmd);
+    cpp.runBlocking();
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
         qWarning() << cpp.exitMessage();
         return {};

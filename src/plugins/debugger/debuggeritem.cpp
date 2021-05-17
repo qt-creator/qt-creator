@@ -71,7 +71,8 @@ static QString getConfigurationOfGdbCommand(const FilePath &command, const Utils
     // run gdb with the --configuration opion
     SynchronousProcess proc;
     proc.setEnvironment(sysEnv);
-    proc.runBlocking({command, {"--configuration"}});
+    proc.setCommand({command, {"--configuration"}});
+    proc.runBlocking();
     return proc.allOutput();
 }
 
@@ -185,7 +186,8 @@ void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
 
     SynchronousProcess proc;
     proc.setEnvironment(sysEnv);
-    proc.runBlocking({m_command, {version}});
+    proc.setCommand({m_command, {version}});
+    proc.runBlocking();
     if (proc.result() != QtcProcess::Finished) {
         m_engineType = NoEngineType;
         return;

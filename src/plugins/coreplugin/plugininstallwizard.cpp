@@ -429,7 +429,8 @@ static std::function<void(QFileInfo)> postCopyOperation()
         // to get it loaded as a plugin in Qt Creator.
         SynchronousProcess xattr;
         xattr.setTimeoutS(1);
-        xattr.runBlocking({"/usr/bin/xattr", {"-d", "com.apple.quarantine", fi.absoluteFilePath()}});
+        xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", fi.absoluteFilePath()}});
+        xattr.runBlocking();
     };
 }
 

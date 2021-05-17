@@ -323,12 +323,13 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
     if (!(d->m_flags & SuppressCommandLogging))
         emit proxy->appendCommand(dir, command);
 
+    proc.setCommand(command);
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
-        runFullySynchronous(proc, command, proxy, dir);
+        runFullySynchronous(proc, proxy, dir);
     } else {
-        runSynchronous(proc, command, proxy, dir);
+        runSynchronous(proc, proxy, dir);
     }
 
     if (!d->m_aborted) {
@@ -343,7 +344,6 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
 }
 
 void ShellCommand::runFullySynchronous(SynchronousProcess &process,
-                                       const CommandLine &cmd,
                                        QSharedPointer<OutputProxy> proxy,
                                        const QString &workingDirectory)
 {
@@ -359,7 +359,7 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
     if (d->m_codec)
         process.setCodec(d->m_codec);
 
-    process.runBlocking(cmd);
+    process.runBlocking();
 
     if (!d->m_aborted) {
         const QString stdErr = process.stdErr();
@@ -377,7 +377,6 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
 }
 
 void ShellCommand::runSynchronous(SynchronousProcess &process,
-                                  const CommandLine &cmd,
                                   QSharedPointer<OutputProxy> proxy,
                                   const QString &workingDirectory)
 {
@@ -423,7 +422,7 @@ void ShellCommand::runSynchronous(SynchronousProcess &process,
     if (d->m_codec)
         process.setCodec(d->m_codec);
 
-    process.run(cmd);
+    process.run();
 }
 
 const QVariant &ShellCommand::cookie() const

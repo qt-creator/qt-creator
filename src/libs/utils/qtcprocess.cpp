@@ -131,6 +131,7 @@ public:
     bool m_startFailure = false;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
+    bool m_isSynchronousProcess = false;
 };
 
 void QtcProcessPrivate::clearForRun()
@@ -718,6 +719,8 @@ void ChannelBuffer::append(const QByteArray &text, bool emitSignals)
 // ----------- SynchronousProcess
 SynchronousProcess::SynchronousProcess()
 {
+    d->m_isSynchronousProcess = true; // Only for QTC_ASSERTs above.
+
     d->m_timer.setInterval(1000);
     connect(&d->m_timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
     connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -741,6 +744,7 @@ SynchronousProcess::~SynchronousProcess()
 
 void QtcProcess::setTimeoutS(int timeoutS)
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     if (timeoutS > 0)
         d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
@@ -755,6 +759,7 @@ void QtcProcess::setCodec(QTextCodec *c)
 
 void QtcProcess::setTimeOutMessageBoxEnabled(bool v)
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_timeOutMessageBoxEnabled = v;
 }
 
@@ -765,6 +770,7 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_writeData = writeData;
 }
 
@@ -775,11 +781,11 @@ static bool isGuiThread()
 }
 #endif
 
-void QtcProcess::run(const CommandLine &cmd)
+void QtcProcess::run()
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     // FIXME: Implement properly
-    if (cmd.executable().needsDevice()) {
-        setCommand(cmd);
+    if (d->m_commandLine.executable().needsDevice()) {
 
         // writeData ?
         start();
@@ -793,16 +799,15 @@ void QtcProcess::run(const CommandLine &cmd)
         return;
     };
 
-    qCDebug(processLog).noquote() << "Starting:" << cmd.toUserOutput();
+    qCDebug(processLog).noquote() << "Starting:" << d->m_commandLine.toUserOutput();
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     d->clearForRun();
 
-    d->m_binary = cmd.executable();
+    d->m_binary = d->m_commandLine.executable();
     // using QProcess::start() and passing program, args and OpenMode results in a different
     // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
     // only with the OpenMode
-    setCommand(cmd);
     if (!d->m_writeData.isEmpty()) {
         connect(this, &QProcess::started, this, [this] {
             write(d->m_writeData);
@@ -833,11 +838,11 @@ void QtcProcess::run(const CommandLine &cmd)
     }
 }
 
-void QtcProcess::runBlocking(const CommandLine &cmd)
+void QtcProcess::runBlocking()
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     // FIXME: Implement properly
-    if (cmd.executable().needsDevice()) {
-        setCommand(cmd);
+    if (d->m_commandLine.executable().needsDevice()) {
 
         // writeData ?
         start();
@@ -851,14 +856,13 @@ void QtcProcess::runBlocking(const CommandLine &cmd)
         return;
     };
 
-    qCDebug(processLog).noquote() << "Starting blocking:" << cmd.toUserOutput();
+    qCDebug(processLog).noquote() << "Starting blocking:" << d->m_commandLine.toUserOutput();
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     d->clearForRun();
 
-    d->m_binary = cmd.executable();
+    d->m_binary = d->m_commandLine.executable();
     setOpenMode(QIODevice::ReadOnly);
-    setCommand(cmd);
     start();
     if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
         d->m_result = QtcProcess::StartFailed;
@@ -890,11 +894,13 @@ void QtcProcess::runBlocking(const CommandLine &cmd)
 
 void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdOut.outputCallback = callback;
 }
 
 void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
 {
+    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdErr.outputCallback = callback;
 }
 

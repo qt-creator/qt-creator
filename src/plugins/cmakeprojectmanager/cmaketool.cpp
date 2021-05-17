@@ -200,8 +200,8 @@ void CMakeTool::runCMake(SynchronousProcess &cmake, const QStringList &args, int
     Environment::setupEnglishOutput(&env);
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
-
-    cmake.runBlocking({cmakeExecutable(), args});
+    cmake.setCommand({cmakeExecutable(), args});
+    cmake.runBlocking();
 }
 
 QVariantMap CMakeTool::toMap() const

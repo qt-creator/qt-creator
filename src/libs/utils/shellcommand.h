@@ -167,12 +167,10 @@ private:
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
     void runFullySynchronous(SynchronousProcess &proc,
-                             const CommandLine &cmd,
                              QSharedPointer<OutputProxy> proxy,
                              const QString &workingDirectory);
     // Run with an event loop. Signals will be delivered.
     void runSynchronous(SynchronousProcess &proc,
-                        const CommandLine &cmd,
                         QSharedPointer<OutputProxy> proxy,
                         const QString &workingDirectory);
 

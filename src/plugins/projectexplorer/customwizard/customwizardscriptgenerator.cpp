@@ -112,7 +112,8 @@ static bool
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory),
                qPrintable(cmd.toUserOutput()));
-    process.run(cmd);
+    process.setCommand(cmd);
+    process.run();
     if (process.result() != Utils::QtcProcess::Finished) {
         *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.stdErr();

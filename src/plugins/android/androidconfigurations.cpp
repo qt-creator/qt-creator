@@ -159,7 +159,8 @@ namespace {
                 SynchronousProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 proc.setTimeoutS(30);
-                proc.runBlocking({executable, {shell}});
+                proc.setCommand({executable, {shell}});
+                proc.runBlocking();
                 if (proc.result() != QtcProcess::Finished)
                     return true;
                 return !proc.allOutput().contains("x86-64");
@@ -561,7 +562,8 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(30);
     CommandLine cmd{adbToolPath, {"devices"}};
-    adbProc.runBlocking(cmd);
+    adbProc.setCommand(cmd);
+    adbProc.runBlocking();
     if (adbProc.result() != QtcProcess::Finished) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration", "Could not run: %1")
@@ -629,7 +631,8 @@ QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QStr
 
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    adbProc.runBlocking(cmd);
+    adbProc.setCommand(cmd);
+    adbProc.runBlocking();
     if (adbProc.result() != QtcProcess::Finished)
         return QString();
 
@@ -726,7 +729,8 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    adbProc.runBlocking({adbToolPath, arguments});
+    adbProc.setCommand({adbToolPath, arguments});
+    adbProc.runBlocking();
     if (adbProc.result() != QtcProcess::Finished)
         return result;
 
@@ -748,7 +752,8 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
 
         SynchronousProcess abiProc;
         abiProc.setTimeoutS(10);
-        abiProc.runBlocking({adbToolPath, arguments});
+        abiProc.setCommand({adbToolPath, arguments});
+        abiProc.runBlocking();
         if (abiProc.result() != QtcProcess::Finished)
             return result;
 

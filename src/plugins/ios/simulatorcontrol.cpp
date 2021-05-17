@@ -83,7 +83,8 @@ static bool runCommand(const CommandLine &command, QString *stdOutput, QString *
 {
     SynchronousProcess p;
     p.setTimeoutS(-1);
-    p.runBlocking(command);
+    p.setCommand(command);
+    p.runBlocking();
     if (stdOutput)
         *stdOutput = p.stdOut();
     if (allOutput)

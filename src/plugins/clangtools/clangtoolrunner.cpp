@@ -107,8 +107,9 @@ bool ClangToolRunner::supportsVFSOverlay() const
     static QMap<QString, bool> vfsCapabilities;
     auto it = vfsCapabilities.find(m_executable);
     if (it == vfsCapabilities.end()) {
-        Utils::SynchronousProcess p;
-        p.runBlocking(Utils::CommandLine(m_executable, {"--help"}));
+        SynchronousProcess p;
+        p.setCommand({m_executable, {"--help"}});
+        p.runBlocking();
         it = vfsCapabilities.insert(m_executable, p.allOutput().contains("vfsoverlay"));
     }
     return it.value();

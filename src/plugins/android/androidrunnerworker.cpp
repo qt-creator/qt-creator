@@ -138,7 +138,8 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
     do {
         QThread::msleep(200);
         SynchronousProcess proc;
-        proc.runBlocking({adbPath, args});
+        proc.setCommand({adbPath, args});
+        proc.runBlocking();
         const QByteArray out = proc.allRawOutput();
         if (preNougat) {
             processPID = extractPID(out, packageName);
