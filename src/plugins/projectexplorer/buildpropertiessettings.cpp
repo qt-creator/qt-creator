@@ -70,7 +70,7 @@ BuildPropertiesSettings::BuildPropertiesSettings()
 
     registerAspect(&qtQuickCompiler);
     qtQuickCompiler.setSettingsKey("ProjectExplorer/Settings/QtQuickCompiler");
-    qtQuickCompiler.setLabelText(tr("Use Qt Quick Compiler:"));
+    qtQuickCompiler.setLabelText(tr("Use qmlcachegen:"));
 
     QObject::connect(&showQtSettings, &BoolAspect::valueChanged,
                      &qmlDebugging, &BaseAspect::setVisible);

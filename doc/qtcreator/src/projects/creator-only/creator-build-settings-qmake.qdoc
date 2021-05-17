@@ -82,18 +82,15 @@
 
     \section1 Compiling QML
 
-    Since Qt 5.11, you can compile QML source code into the final binary. This
-    improves the startup time of the application and eliminates the need to
-    deploy QML files together with the application. For more information, see
+    You can compile QML source code into the final binary to improve the
+    startup time of the application and eliminate the need to deploy QML
+    files together with the application. For more information, see
     \l{Ahead-of-Time Compilation}.
 
-    \QC project wizard templates create Qt Quick projects that can be compiled,
+    \QC project wizard templates create Qt Quick projects that can be compiled
     because they are set up to use the Qt Resource System. To compile QML code,
-    select \uicontrol Enable in the \uicontrol {Qt Quick Compiler} field. To
+    select \uicontrol Enable in the \uicontrol {Use qmlcachegen} field. To
     use default settings, select \uicontrol {Leave at Default}.
-
-    \note In earlier Qt versions, this was a commercial feature. For more
-    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
 
     \section1 qmake Build Steps
 
