@@ -50,5 +50,5 @@ equals(TEST, 1) {
     SOURCES += \
         $$PWD/locatorfiltertest.cpp \
         $$PWD/locator_test.cpp
-    DEFINES += SRCDIR=\\\"$$PWD\\\"
+    DEFINES += SRCDIR=\\\"$$PWD/..\\\"
 }
