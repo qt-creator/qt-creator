@@ -27,6 +27,8 @@
 
 #include "cmaketoolsettingsaccessor.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
@@ -69,10 +71,14 @@ CMakeToolManager::CMakeToolManager()
     connect(this, &CMakeToolManager::cmakeAdded, this, &CMakeToolManager::cmakeToolsChanged);
     connect(this, &CMakeToolManager::cmakeRemoved, this, &CMakeToolManager::cmakeToolsChanged);
     connect(this, &CMakeToolManager::cmakeUpdated, this, &CMakeToolManager::cmakeToolsChanged);
+
+    setObjectName("CMakeToolManager");
+    ExtensionSystem::PluginManager::addObject(this);
 }
 
 CMakeToolManager::~CMakeToolManager()
 {
+    ExtensionSystem::PluginManager::removeObject(this);
     delete d;
 }
 
@@ -169,6 +175,20 @@ void CMakeToolManager::updateDocumentation()
             docs.append(tool->qchFilePath().toString());
     }
     Core::HelpManager::registerDocumentation(docs);
+}
+
+void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath)
+{
+    const Id id = Id::fromString(cmakePath.toUserOutput());
+
+    CMakeTool *cmakeTool = findById(id);
+    if (cmakeTool)
+        return;
+
+    auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
+    newTool->setFilePath(cmakePath);
+    newTool->setDisplayName(cmakePath.toUserOutput());
+    registerCMakeTool(std::move(newTool));
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)

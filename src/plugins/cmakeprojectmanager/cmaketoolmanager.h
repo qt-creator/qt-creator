@@ -62,6 +62,9 @@ public:
 
     static void updateDocumentation();
 
+public slots:
+    void registerCMakeByPath(const Utils::FilePath &cmakePath);
+
 signals:
     void cmakeAdded (const Utils::Id &id);
     void cmakeRemoved (const Utils::Id &id);

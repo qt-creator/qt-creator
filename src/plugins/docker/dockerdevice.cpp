@@ -27,6 +27,8 @@
 
 #include "dockerconstants.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -371,6 +373,27 @@ void DockerDevice::autoDetectToolChains()
             toolChains.append(toolChain);
         }
    }
+}
+
+void DockerDevice::autoDetectCMake()
+{
+    QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager");
+    if (!cmakeManager)
+        return;
+
+   QString error;
+   QString source = "docker:" + d->m_data.imageId;
+   const QStringList candidates = {"/usr/local/bin/cmake", "/usr/bin/cmake"};
+   for (const QString &candidate : candidates) {
+       const FilePath cmake = mapToGlobalPath(FilePath::fromString(candidate));
+       QTC_CHECK(hasLocalFileAccess());
+       if (cmake.isExecutableFile()) {
+           const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                                      "registerCMakeByPath",
+                                                      Q_ARG(Utils::FilePath, cmake));
+           QTC_CHECK(res);
+       }
+    }
 }
 
 void DockerDevice::tryCreateLocalFileAccess() const
@@ -798,8 +821,11 @@ public:
         device->setupId(IDevice::ManuallyAdded, Utils::Id());
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
+
+        device->tryCreateLocalFileAccess();
         device->autoDetectToolChains();
         device->autoDetectQtVersion();
+        device->autoDetectCMake();
         return device;
     }
 

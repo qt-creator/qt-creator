@@ -87,6 +87,7 @@ public:
     const DockerDeviceData &data() const;
     void autoDetectQtVersion() const;
     void autoDetectToolChains();
+    void autoDetectCMake();
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;
