@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -30,50 +30,54 @@
 
     \title Exporting from Design Tools
 
-    You need to use \QB to first export 2D assets from design tools and then to
-    \l{Importing Designs}{import} them into \QDS.
+    When working with 2D assets, you can use \QB to export them from design
+    tools into a metadata format that you can then \l{Importing Designs}{import}
+    into \QDS.
 
     When working with 3D assets, you can use the export functions provided by
     the 3D graphics tools to save the assets in widely-used 3D graphics formats,
     and then use \QB to import them into \QDS.
+
+    For best results when importing assets, follow
+    the guidelines for creating and exporting them.
+
+    \section1 2D Assets
 
     You can use the Qt Installer to install \QB if you have a commercial
     \QDS license. You can also purchase a \QB license separately from the
     \l{https://marketplace.qt.io/}{Qt Marketplace} and then install \QB using
     the Qt Installer.
 
-    For best results when importing assets, follow
-    the guidelines for creating and exporting them.
+    \table
+    \row
+        \li \inlineimage ai-logo.png
+        \li \inlineimage ps-logo.png
+        \li \inlineimage sketch-logo.png
+        \li \inlineimage figma-logo.png
+    \row
+        \li \l{Exporting Designs from Adobe Illustrator}{Adobe Illustrator}
+        \li \l{Exporting Designs from Adobe Photoshop}{Adobe Photoshop}
+        \li \l{Exporting Designs from Sketch}{Sketch}
+        \li \l{Exporting Designs from Figma}{Figma}
+    \endtable
 
-    \list
+    \section1 3D Assets
 
-        \li \l{Exporting Designs from Adobe Illustrator}
+    You can import files you created using 3D graphics applications and
+    stored in several widely-used formats, such as .blend, .dae, .fbx,
+    .glb, .gltf, .obj, .uia, or .uip.
 
-            You can either copy-paste your assets to Adobe Photoshop as
-            \e {smart objects} or export them into file formats supported
-             by \QDS.
+    For an overview, see \l{Exporting 3D Assets}.
 
-        \li \l{Exporting Designs from Adobe Photoshop}
+    \table
+    \row
+        \li \inlineimage blender-logo.png
+        \li \inlineimage maya-logo.png
+        \li \inlineimage qt-3ds-logo.png
+    \row
+        \li \l{Exporting from Blender}{Blender}
+        \li \l{Exporting from Maya}{Maya}
+        \li \l{Exporting from Qt 3D Studio}{Qt 3D Studio}
+    \endtable
 
-            You can use the \QBPS export tool in Adobe Photoshop to convert
-            designs into \e {.metadata} format that you can import into
-            projects in \QDS.
-
-        \li \l{Exporting Designs from Sketch}
-
-            You can use the \QBSK export tool in Sketch to convert designs into
-            metadata that you can import into projects in \QDS.
-
-        \li \l{Exporting Designs from Figma}
-
-            You can use the \QBF export tool in Figma to convert designs into
-            metadata that you can import into projects in \QDS.
-
-        \li \l{Exporting 3D Assets}
-
-            You can import files you created using 3D graphics applications and
-            stored in several widely-used formats, such as .blend, .dae, .fbx,
-            .glb, .gltf, .obj, .uia, or .uip.
-
-    \endlist
 */
