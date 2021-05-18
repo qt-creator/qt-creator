@@ -52,11 +52,13 @@ protected:
         const QString newFileName = temporaryDir.filePath(QFileInfo(yamlFilePath).fileName());
 
         Utils::FileReader reader;
-        if (QTC_GUARD(reader.fetch(yamlFilePath, QIODevice::ReadOnly | QIODevice::Text))) {
+        if (QTC_GUARD(reader.fetch(Utils::FilePath::fromString(yamlFilePath),
+                                   QIODevice::ReadOnly | QIODevice::Text))) {
             QByteArray contents = reader.data();
             contents.replace("FILE_PATH", filePathToInject.toLocal8Bit());
 
-            Utils::FileSaver fileSaver(newFileName, QIODevice::WriteOnly | QIODevice::Text);
+            Utils::FileSaver fileSaver(Utils::FilePath::fromString(newFileName),
+                                       QIODevice::WriteOnly | QIODevice::Text);
             QTC_CHECK(fileSaver.write(contents));
             QTC_CHECK(fileSaver.finalize());
         }
