@@ -102,7 +102,15 @@ public:
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;
-    QString path() const;
+
+    QString scheme() const { return m_scheme; }
+    void setScheme(const QString &scheme);
+
+    QString host() const { return m_host; }
+    void setHost(const QString &host);
+
+    QString path() const { return m_data; }
+    void setPath(const QString &path) { m_data = path; }
 
     bool needsDevice() const;
     bool exists() const;
@@ -165,8 +173,9 @@ private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
 
+    QString m_scheme;
+    QString m_host;
     QString m_data;
-    QUrl m_url;
 };
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);

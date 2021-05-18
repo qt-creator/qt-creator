@@ -50,6 +50,8 @@ private slots:
     void relativePath_specials();
     void relativePath_data();
     void relativePath();
+    void fromToString_data();
+    void fromToString();
 
 private:
     QTemporaryDir tempDir;
@@ -255,6 +257,76 @@ void tst_fileutils::relativePath()
     FilePath actualPath = FilePath::fromString(rootPath + "/" + relative)
                               .relativePath(FilePath::fromString(rootPath + "/" + anchor));
     QCOMPARE(actualPath.toString(), result);
+}
+
+void tst_fileutils::fromToString_data()
+{
+    QTest::addColumn<QString>("scheme");
+    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QString>("full");
+
+    QTest::newRow("s0") << "" << "" << "" << "";
+    QTest::newRow("s1") << "" << "" << "/" << "/";
+    QTest::newRow("s2") << "" << "" << "a/b/c/d" << "a/b/c/d";
+    QTest::newRow("s3") << "" << "" << "/a/b" << "/a/b";
+
+    QTest::newRow("s4")
+        << "docker" << "1234abcdef" << "/bin/ls" << "docker://1234abcdef/bin/ls";
+
+    QTest::newRow("s5")
+        << "docker" << "1234" << "/bin/ls" << "docker://1234/bin/ls";
+
+    // This is not a proper URL.
+    QTest::newRow("s6")
+        << "docker" << "1234" << "somefile" << "docker://1234/./somefile";
+
+    // Local Windows paths:
+    QTest::newRow("w1") << "" << "" << "C:/data" << "C:/data";
+    QTest::newRow("w2") << "" << "" << "C:/" << "C:/";
+    QTest::newRow("w3") << "" << "" << "//./com1" << "//./com1";
+    QTest::newRow("w4") << "" << "" << "//?/path" << "//?/path";
+    QTest::newRow("w5") << "" << "" << "/Global?\?/UNC/host" << "/Global?\?/UNC/host";
+    QTest::newRow("w6") << "" << "" << "//server/dir/file" << "//server/dir/file";
+    QTest::newRow("w7") << "" << "" << "//server/dir" << "//server/dir";
+    QTest::newRow("w8") << "" << "" << "//server" << "//server";
+
+    // Not supported yet: "Remote" windows. Would require use of e.g.
+    // FileUtils::isRelativePath with support from the remote device
+    // identifying itself as Windows.
+
+    //  Actual   (filePath.path()): "/C:/data"
+    //  Expected (path)           : "C:/data"
+
+    //QTest::newRow("w9") << "scheme" << "server" << "C:/data"
+    //    << "scheme://server/C:/data";
+}
+
+void tst_fileutils::fromToString()
+{
+    QFETCH(QString, full);
+    QFETCH(QString, scheme);
+    QFETCH(QString, host);
+    QFETCH(QString, path);
+
+    FilePath filePath = FilePath::fromString(full);
+
+    QCOMPARE(filePath.toString(), full);
+
+    QCOMPARE(filePath.scheme(), scheme);
+    QCOMPARE(filePath.host(), host);
+    QCOMPARE(filePath.path(), path);
+
+
+    FilePath copy = filePath;
+    copy.setHost(host);
+    QCOMPARE(copy.toString(), full);
+
+    copy.setScheme(scheme);
+    QCOMPARE(copy.toString(), full);
+
+    copy.setPath(path);
+    QCOMPARE(copy.toString(), full);
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)

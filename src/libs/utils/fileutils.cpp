@@ -254,12 +254,13 @@ FilePath FilePath::operator/(const QString &str) const
 void FilePath::clear()
 {
     m_data.clear();
-    m_url.clear();
+    m_host.clear();
+    m_scheme.clear();
 }
 
 bool FilePath::isEmpty() const
 {
-    return m_data.isEmpty() && !m_url.isValid();
+    return m_data.isEmpty();
 }
 
 /*!
@@ -676,7 +677,8 @@ QFileInfo FilePath::toFileInfo() const
 FilePath FilePath::fromUrl(const QUrl &url)
 {
     FilePath fn;
-    fn.m_url = url;
+    fn.m_scheme = url.scheme();
+    fn.m_host = url.host();
     fn.m_data = url.path();
     return fn;
 }
@@ -684,12 +686,20 @@ FilePath FilePath::fromUrl(const QUrl &url)
 /// \returns a QString for passing on to QString based APIs
 QString FilePath::toString() const
 {
-    return m_data;
+    if (m_scheme.isEmpty())
+        return m_data;
+    if (m_data.startsWith('/'))
+        return m_scheme + "://" + m_host + m_data;
+    return m_scheme + "://" + m_host + "/./" + m_data;
 }
 
 QUrl FilePath::toUrl() const
 {
-    return m_url;
+    QUrl url;
+    url.setScheme(m_scheme);
+    url.setHost(m_host);
+    url.setPath(m_data);
+    return url;
 }
 
 void FilePath::setDeviceFileHooks(const DeviceFileHooks &hooks)
@@ -701,9 +711,9 @@ void FilePath::setDeviceFileHooks(const DeviceFileHooks &hooks)
 /// Converts the separators to the native format
 QString FilePath::toUserOutput() const
 {
-    if (m_url.isEmpty())
-        return QDir::toNativeSeparators(toString());
-    return m_url.toString();
+    if (m_scheme.isEmpty())
+        return QDir::toNativeSeparators(m_data);
+    return toString();
 }
 
 QString FilePath::fileName() const
@@ -737,12 +747,18 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
     return m_data;
 }
 
-QString FilePath::path() const
+void FilePath::setScheme(const QString &scheme)
 {
-    if (!m_data.isEmpty())
-        return m_data;
-    return m_url.path();
+    QTC_CHECK(!scheme.contains('/'));
+    m_scheme = scheme;
 }
+
+void FilePath::setHost(const QString &host)
+{
+    QTC_CHECK(!host.contains('/'));
+    m_host = host;
+}
+
 
 /// \returns a bool indicating whether a file with this
 /// FilePath exists.
@@ -844,7 +860,7 @@ QByteArray FilePath::fileContents(int maxSize) const
 
 bool FilePath::needsDevice() const
 {
-    return m_url.isValid();
+    return !m_scheme.isEmpty();
 }
 
 
@@ -899,7 +915,26 @@ FilePath FilePath::absoluteFromRelativePath(const FilePath &anchor) const
 FilePath FilePath::fromString(const QString &filename)
 {
     FilePath fn;
-    fn.m_data = filename;
+    if (filename.startsWith('/')) {
+        fn.m_data = filename;  // fast track: absolute local paths
+    } else {
+        int pos1 = filename.indexOf("://");
+        if (pos1 >= 0) {
+            fn.m_scheme = filename.left(pos1);
+            pos1 += 3;
+            int pos2 = filename.indexOf('/', pos1);
+            if (pos2 == -1) {
+                fn.m_data = filename.mid(pos1);
+            } else {
+                fn.m_host = filename.mid(pos1, pos2 - pos1);
+                fn.m_data = filename.mid(pos2);
+            }
+            if (fn.m_data.startsWith("/./"))
+                fn.m_data = fn.m_data.mid(3);
+        } else {
+            fn.m_data = filename; // treat everything else as local, too.
+        }
+    }
     return fn;
 }
 
@@ -949,9 +984,7 @@ FilePath FilePath::fromVariant(const QVariant &variant)
 
 QVariant FilePath::toVariant() const
 {
-    if (!m_url.isEmpty())
-        return m_url;
-    return m_data;
+    return toString();
 }
 
 QDir FilePath::toDir() const
@@ -961,9 +994,12 @@ QDir FilePath::toDir() const
 
 bool FilePath::operator==(const FilePath &other) const
 {
-    if (!m_url.isEmpty())
-        return m_url == other.m_url;
-    return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
+    if (m_scheme.isEmpty())
+        return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
+
+    // FIXME: This should take the host's file name case sensitivity into account.
+    // The first approximation here is "Anything unusual is not case sensitive"
+    return m_data == other.m_data && m_host == other.m_host && m_scheme == other.m_scheme;
 }
 
 bool FilePath::operator!=(const FilePath &other) const
@@ -973,9 +1009,16 @@ bool FilePath::operator!=(const FilePath &other) const
 
 bool FilePath::operator<(const FilePath &other) const
 {
-    if (!m_url.isEmpty())
-        return m_url < other.m_url;
-    return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) < 0;
+    if (m_scheme.isEmpty())
+        return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) < 0;
+
+    // FIXME: This should take the host's file name case sensitivity into account.
+    // The first approximation here is "Anything unusual is not case sensitive"
+    if (m_data != other.m_data)
+        return m_data < other.m_data;
+    if (m_host != other.m_host)
+        return m_host < other.m_host;
+    return m_scheme < other.m_scheme;
 }
 
 bool FilePath::operator<=(const FilePath &other) const
@@ -1034,7 +1077,7 @@ bool FilePath::endsWith(const QString &s) const
 
 bool FilePath::isDir() const
 {
-    QTC_CHECK(m_url.isEmpty()); // FIXME: Not implemented yet.
+    QTC_CHECK(m_scheme.isEmpty()); // FIXME: Not implemented yet.
     return QFileInfo(m_data).isDir();
 }
 
@@ -1150,26 +1193,10 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
-    FilePath res = *this;
-
-    if (res.m_url.isValid()) {
-        if (deviceTemplate.m_url.isValid()) {
-            const QString path = m_url.path();
-            res.m_url = deviceTemplate.toUrl();
-            res.m_url.setPath(path);
-        } else {
-            res.m_data = deviceTemplate.m_data;
-            res.m_url.clear();
-        }
-    } else {
-        if (deviceTemplate.m_url.isValid()) {
-            res.m_url = deviceTemplate.m_url;
-            res.m_url.setPath(m_data);
-            res.m_data.clear();
-        } else {
-            // Nothing to do.
-        }
-    }
+    FilePath res;
+    res.m_data = m_data;
+    res.m_host = deviceTemplate.m_host;
+    res.m_scheme = deviceTemplate.m_scheme;
     return res;
 }
 
@@ -1178,16 +1205,9 @@ FilePath FilePath::pathAppended(const QString &str) const
     FilePath fn = *this;
     if (str.isEmpty())
         return fn;
-    if (fn.m_url.isValid()) {
-        QString path = fn.m_url.path();
-        if (!path.isEmpty() && !path.endsWith(QLatin1Char('/')))
-            path.append('/');
-        fn.m_url.setPath(path);
-    } else {
-        if (!fn.m_data.isEmpty() && !fn.m_data.endsWith(QLatin1Char('/')))
-            fn.m_data.append('/');
-        fn.m_data.append(str);
-    }
+    if (!fn.m_data.isEmpty() && !fn.m_data.endsWith(QLatin1Char('/')))
+        fn.m_data.append('/');
+    fn.m_data.append(str);
     return fn;
 }
 
