@@ -33,11 +33,14 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -268,7 +271,7 @@ IDeviceWidget *DockerDevice::createWidget()
 class DockerDevicePrivate : public QObject
 {
 public:
-    DockerDevicePrivate()
+    DockerDevicePrivate(DockerDevice *parent) : q(parent)
     {
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [](const QString &path) {
             Q_UNUSED(path)
@@ -284,6 +287,14 @@ public:
 
     int runSynchronously(const CommandLine &cmd) const;
 
+    void tryCreateLocalFileAccess();
+
+    void setupKit();
+    BaseQtVersion *autoDetectQtVersion() const;
+    QList<ToolChain *> autoDetectToolChains();
+    void autoDetectCMake();
+
+    DockerDevice *q;
     DockerDeviceData m_data;
 
     // For local file access
@@ -294,7 +305,7 @@ public:
 };
 
 DockerDevice::DockerDevice(const DockerDeviceData &data)
-    : d(new DockerDevicePrivate)
+    : d(new DockerDevicePrivate(this))
 {
     d->m_data = data;
 
@@ -346,59 +357,97 @@ const DockerDeviceData &DockerDevice::data() const
     return d->m_data;
 }
 
-void DockerDevice::autoDetectQtVersion() const
+BaseQtVersion *DockerDevicePrivate::autoDetectQtVersion() const
 {
    QString error;
-   QString source = "docker:" + d->m_data.imageId;
+   QString source = "docker:" + m_data.imageId;
    const QStringList candidates = {"/usr/local/bin/qmake", "/usr/bin/qmake"};
    for (const QString &candidate : candidates) {
-       const FilePath qmake = mapToGlobalPath(FilePath::fromString(candidate));
+       const FilePath qmake = q->mapToGlobalPath(FilePath::fromString(candidate));
        if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, source, &error)) {
             QtVersionManager::addVersion(qtVersion);
-            return;
+            return qtVersion;
        }
    }
+   return nullptr;
 }
 
-void DockerDevice::autoDetectToolChains()
+QList<ToolChain *> DockerDevicePrivate::autoDetectToolChains()
 {
    const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
    QList<ToolChain *> toolChains;
    for (ToolChainFactory *factory : factories) {
-        const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, sharedFromThis());
+        const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, q->sharedFromThis());
         for (ToolChain *toolChain : newToolChains) {
             LOG("Found ToolChain: " << toolChain->compilerCommand().toUserOutput());
             ToolChainManager::registerToolChain(toolChain);
             toolChains.append(toolChain);
         }
    }
+
+   return toolChains;
 }
 
-void DockerDevice::autoDetectCMake()
+void DockerDevicePrivate::autoDetectCMake()
 {
     QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager");
     if (!cmakeManager)
         return;
 
    QString error;
-   QString source = "docker:" + d->m_data.imageId;
+   QString source = "docker:" + m_data.imageId;
    const QStringList candidates = {"/usr/local/bin/cmake", "/usr/bin/cmake"};
    for (const QString &candidate : candidates) {
-       const FilePath cmake = mapToGlobalPath(FilePath::fromString(candidate));
-       QTC_CHECK(hasLocalFileAccess());
+       const FilePath cmake = q->mapToGlobalPath(FilePath::fromString(candidate));
+       QTC_CHECK(q->hasLocalFileAccess());
        if (cmake.isExecutableFile()) {
            const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                       "registerCMakeByPath",
                                                       Q_ARG(Utils::FilePath, cmake));
            QTC_CHECK(res);
        }
-    }
+   }
+}
+
+void DockerDevicePrivate::setupKit()
+{
+    tryCreateLocalFileAccess();
+
+    QList<ToolChain *> toolChains = autoDetectToolChains();
+
+    BaseQtVersion *qt = autoDetectQtVersion();
+
+    autoDetectCMake();
+
+    const auto initializeKit = [this, toolChains, qt](Kit *k) {
+        k->setAutoDetected(false);
+        k->setAutoDetectionSource("DockerDevice:" + m_data.imageId);
+        k->setUnexpandedDisplayName("%{Device:Name}");
+
+        DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
+        DeviceKitAspect::setDevice(k, q->sharedFromThis());
+        for (ToolChain *tc : toolChains)
+            ToolChainKitAspect::setToolChain(k, tc);
+        QtSupport::QtKitAspect::setQtVersion(k, qt);
+
+        k->setSticky(ToolChainKitAspect::id(), true);
+        k->setSticky(QtSupport::QtKitAspect::id(), true);
+        k->setSticky(DeviceKitAspect::id(), true);
+        k->setSticky(DeviceTypeKitAspect::id(), true);
+    };
+
+    KitManager::registerKit(initializeKit);
 }
 
 void DockerDevice::tryCreateLocalFileAccess() const
 {
-    if (!d->m_container.isEmpty())
+    d->tryCreateLocalFileAccess();
+}
+
+void DockerDevicePrivate::tryCreateLocalFileAccess()
+{
+    if (!m_container.isEmpty())
         return;
 
     QString tempFileName;
@@ -409,25 +458,25 @@ void DockerDevice::tryCreateLocalFileAccess() const
         tempFileName = temp.fileName();
     }
 
-    d->m_shell = new QtcProcess;
+    m_shell = new QtcProcess;
     // FIXME: Make mounts flexible
-    d->m_shell->setCommand({"docker", {"run", "-i", "--cidfile=" + tempFileName,
+    m_shell->setCommand({"docker", {"run", "-i", "--cidfile=" + tempFileName,
                                        "-v", "/opt:/opt",
                                        "-v", "/data:/data",
                                        "-e", "DISPLAY=:0",
                                        "-e", "XAUTHORITY=/.Xauthority",
                                        "--net", "host",
-                                       d->m_data.imageId, "/bin/sh"}});
-    LOG("RUNNING: " << d->m_shell->commandLine().toUserOutput());
-    d->m_shell->start();
-    d->m_shell->waitForStarted();
+                                       m_data.imageId, "/bin/sh"}});
+    LOG("RUNNING: " << m_shell->commandLine().toUserOutput());
+    m_shell->start();
+    m_shell->waitForStarted();
 
     LOG("CHECKING: " << tempFileName);
     for (int i = 0; i <= 10; ++i) {
         QFile file(tempFileName);
         file.open(QIODevice::ReadOnly);
-        d->m_container = QString::fromUtf8(file.readAll()).trimmed();
-        if (!d->m_container.isEmpty()) {
+        m_container = QString::fromUtf8(file.readAll()).trimmed();
+        if (!m_container.isEmpty()) {
             LOG("Container: " << d->m_container);
             break;
         }
@@ -439,16 +488,16 @@ void DockerDevice::tryCreateLocalFileAccess() const
     }
 
     QtcProcess proc;
-    proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", d->m_container}});
+    proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", m_container}});
     //LOG(proc2.commandLine().toUserOutput());
     proc.start();
     proc.waitForFinished();
     const QByteArray out = proc.readAllStandardOutput();
-    d->m_mergedDir = QString::fromUtf8(out).trimmed();
-    if (d->m_mergedDir.endsWith('/'))
-        d->m_mergedDir.chop(1);
+    m_mergedDir = QString::fromUtf8(out).trimmed();
+    if (m_mergedDir.endsWith('/'))
+        m_mergedDir.chop(1);
 
-    d->m_mergedDirWatcher.addPath(d->m_mergedDir);
+    m_mergedDirWatcher.addPath(m_mergedDir);
 }
 
 bool DockerDevice::hasLocalFileAccess() const
@@ -822,10 +871,7 @@ public:
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
 
-        device->tryCreateLocalFileAccess();
-        device->autoDetectToolChains();
-        device->autoDetectQtVersion();
-        device->autoDetectCMake();
+        device->d->setupKit();
         return device;
     }
 

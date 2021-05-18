@@ -85,9 +85,6 @@ public:
     void runProcess(Utils::QtcProcess &process) const override;
 
     const DockerDeviceData &data() const;
-    void autoDetectQtVersion() const;
-    void autoDetectToolChains();
-    void autoDetectCMake();
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;
@@ -101,6 +98,7 @@ private:
     QVariantMap toMap() const final;
 
     class DockerDevicePrivate *d = nullptr;
+    friend class DockerDeviceSetupWizard;
 };
 
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
