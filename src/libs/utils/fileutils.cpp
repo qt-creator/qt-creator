@@ -878,6 +878,13 @@ FilePath FilePath::absolutePath() const
     return result;
 }
 
+FilePath FilePath::absoluteFilePath() const
+{
+    FilePath result = *this;
+    result.m_data = QFileInfo(m_data).absoluteFilePath();
+    return result;
+}
+
 /// Constructs an absolute FilePath from this path which
 /// is interpreted as being relative to \a anchor.
 FilePath FilePath::absoluteFromRelativePath(const FilePath &anchor) const
