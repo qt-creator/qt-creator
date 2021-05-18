@@ -81,11 +81,11 @@ public:
     QString fallbackSaveAsFileName() const override;
 
     bool isSaveAsAllowed() const override;
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     void reload();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-    OpenResult open(QString *errorString, const QString &fileName,
-                    const QString &realFileName) override;
+    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
     bool selectEncoding();
     State state() const { return m_state; }
 

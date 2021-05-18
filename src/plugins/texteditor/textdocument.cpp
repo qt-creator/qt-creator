@@ -600,7 +600,7 @@ SyntaxHighlighter *TextDocument::syntaxHighlighter() const
  * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-bool TextDocument::save(QString *errorString, const QString &saveFileName, bool autoSave)
+bool TextDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     QTextCursor cursor(&d->m_document);
 
@@ -638,11 +638,9 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
         if (d->m_storageSettings.m_addFinalNewLine)
           ensureFinalNewLine(cursor);
         cursor.endEditBlock();
-      }
+    }
 
-    QString fName = filePath().toString();
-    if (!saveFileName.isEmpty())
-        fName = saveFileName;
+    const Utils::FilePath &savePath = filePath.isEmpty() ? this->filePath() : filePath;
 
     // check if UTF8-BOM has to be added or removed
     Utils::TextFileFormat saveFormat = format();
@@ -659,7 +657,7 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
         }
     }
 
-    const bool ok = write(fName, saveFormat, d->m_document.toPlainText(), errorString);
+    const bool ok = write(savePath, saveFormat, d->m_document.toPlainText(), errorString);
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {
@@ -681,9 +679,8 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
         return true;
 
     // inform about the new filename
-    const QFileInfo fi(fName);
     d->m_document.setModified(false); // also triggers update of the block revisions
-    setFilePath(Utils::FilePath::fromUserInput(fi.absoluteFilePath()));
+    setFilePath(savePath.absoluteFilePath());
     emit changed();
     return true;
 }
@@ -715,33 +712,35 @@ bool TextDocument::isModified() const
     return d->m_document.isModified();
 }
 
-Core::IDocument::OpenResult TextDocument::open(QString *errorString, const QString &fileName,
-                                               const QString &realFileName)
+Core::IDocument::OpenResult TextDocument::open(QString *errorString,
+                                               const Utils::FilePath &filePath,
+                                               const Utils::FilePath &realFilePath)
 {
-    emit aboutToOpen(fileName, realFileName);
-    OpenResult success = openImpl(errorString, fileName, realFileName, /*reload =*/ false);
+    emit aboutToOpen(filePath, realFilePath);
+    OpenResult success = openImpl(errorString, filePath, realFilePath, /*reload =*/ false);
     if (success == OpenResult::Success) {
-        setMimeType(Utils::mimeTypeForFile(fileName).name());
+        setMimeType(Utils::mimeTypeForFile(filePath.toString()).name());
         emit openFinishedSuccessfully();
     }
     return success;
 }
 
-Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const QString &fileName,
-                                                   const QString &realFileName, bool reload)
+Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
+                                                   const Utils::FilePath &filePath,
+                                                   const Utils::FilePath &realFilePath,
+                                                   bool reload)
 {
     QStringList content;
 
     ReadResult readResult = Utils::TextFileFormat::ReadIOError;
 
-    if (!fileName.isEmpty()) {
-        const QFileInfo fi(fileName);
-        readResult = read(realFileName, &content, errorString);
+    if (!filePath.isEmpty()) {
+        readResult = read(realFilePath, &content, errorString);
         const int chunks = content.size();
 
         // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
         // since it will reset the undo's clear index
-        if (!reload || fileName == realFileName)
+        if (!reload || filePath == realFilePath)
             d->m_document.setUndoRedoEnabled(reload);
 
         QTextCursor c(&d->m_document);
@@ -775,7 +774,7 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
 
         // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
         // since it will reset the undo's clear index
-        if (!reload || fileName == realFileName)
+        if (!reload || filePath == realFilePath)
             d->m_document.setUndoRedoEnabled(true);
 
         auto documentLayout =
@@ -783,8 +782,8 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         QTC_ASSERT(documentLayout, return OpenResult::CannotHandle);
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
         d->updateRevisions();
-        d->m_document.setModified(fileName != realFileName);
-        setFilePath(Utils::FilePath::fromUserInput(fi.absoluteFilePath()));
+        d->m_document.setModified(filePath != realFilePath);
+        setFilePath(filePath);
     }
     if (readResult == Utils::TextFileFormat::ReadIOError)
         return OpenResult::ReadError;
@@ -800,10 +799,10 @@ bool TextDocument::reload(QString *errorString, QTextCodec *codec)
 
 bool TextDocument::reload(QString *errorString)
 {
-    return reload(errorString, filePath().toString());
+    return reload(errorString, filePath());
 }
 
-bool TextDocument::reload(QString *errorString, const QString &realFileName)
+bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
 {
     emit aboutToReload();
     auto documentLayout =
@@ -812,8 +811,8 @@ bool TextDocument::reload(QString *errorString, const QString &realFileName)
     if (documentLayout)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
-    const QString &file = filePath().toString();
-    bool success = openImpl(errorString, file, realFileName, /*reload =*/ true) == OpenResult::Success;
+    bool success = openImpl(errorString, filePath(), realFilePath, /*reload =*/true)
+                   == OpenResult::Success;
 
     if (documentLayout)
         documentLayout->documentReloaded(marks, this); // re-adds text marks

@@ -48,9 +48,10 @@ signals:
     void contentSet();
 
 public:
-    OpenResult open(QString *errorString, const QString &fileName,
-                               const QString &realFileName) override;
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    OpenResult open(QString *errorString,
+                    const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;

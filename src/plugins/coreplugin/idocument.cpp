@@ -224,7 +224,7 @@ public:
     Utils::FilePath filePath;
     QString preferredDisplayName;
     QString uniqueDisplayName;
-    QString autoSaveName;
+    Utils::FilePath autoSavePath;
     Utils::InfoBar *infoBar = nullptr;
     Id id;
     optional<bool> fileIsReadOnly;
@@ -291,14 +291,14 @@ Id IDocument::id() const
     The open() method is used to load the contents of a file when a document is
     opened in an editor.
 
-    If the document is opened from an auto save file, \a realFileName is the
-    name of the auto save file that should be loaded, and \a fileName is the
+    If the document is opened from an auto save file, \a realFilePath is the
+    name of the auto save file that should be loaded, and \a filePath is the
     file name of the resulting file. In that case, the contents of the auto
     save file should be loaded, the file name of the IDocument should be set to
-    \a fileName, and the document state be set to modified.
+    \a filePath, and the document state be set to modified.
 
-    If the editor is opened from a regular file, \a fileName and \a
-    realFileName are the same.
+    If the editor is opened from a regular file, \a filePath and \a
+    filePath are the same.
 
     Use \a errorString to return an error message if this document cannot
     handle the file contents.
@@ -312,16 +312,16 @@ Id IDocument::id() const
     \sa shouldAutoSave()
     \sa setFilePath()
 */
-IDocument::OpenResult IDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
+IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePath &filePath, const Utils::FilePath &realFilePath)
 {
     Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
-    Q_UNUSED(realFileName)
+    Q_UNUSED(filePath)
+    Q_UNUSED(realFilePath)
     return OpenResult::CannotHandle;
 }
 
 /*!
-    Saves the contents of the document to the \a fileName on disk.
+    Saves the contents of the document to the \a filePath on disk.
 
     If \a autoSave is \c true, the saving is done for an auto-save, so the
     document should avoid cleanups or other operations that it does for
@@ -335,10 +335,10 @@ IDocument::OpenResult IDocument::open(QString *errorString, const QString &fileN
 
     \sa shouldAutoSave()
 */
-bool IDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+bool IDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
+    Q_UNUSED(filePath)
     Q_UNUSED(autoSave)
     return false;
 }
@@ -613,11 +613,11 @@ void IDocument::setMimeType(const QString &mimeType)
 /*!
     \internal
 */
-bool IDocument::autoSave(QString *errorString, const QString &fileName)
+bool IDocument::autoSave(QString *errorString, const FilePath &filePath)
 {
-    if (!save(errorString, fileName, true))
+    if (!save(errorString, filePath, true))
         return false;
-    d->autoSaveName = fileName;
+    d->autoSavePath = filePath;
     return true;
 }
 
@@ -626,9 +626,9 @@ static const char kRestoredAutoSave[] = "RestoredAutoSave";
 /*!
     \internal
 */
-void IDocument::setRestoredFrom(const QString &name)
+void IDocument::setRestoredFrom(const Utils::FilePath &path)
 {
-    d->autoSaveName = name;
+    d->autoSavePath = path;
     d->restored = true;
     Utils::InfoBarEntry info(Id(kRestoredAutoSave),
                              tr("File was restored from auto-saved copy. "
@@ -641,9 +641,9 @@ void IDocument::setRestoredFrom(const QString &name)
 */
 void IDocument::removeAutoSaveFile()
 {
-    if (!d->autoSaveName.isEmpty()) {
-        QFile::remove(d->autoSaveName);
-        d->autoSaveName.clear();
+    if (!d->autoSavePath.isEmpty()) {
+        QFile::remove(d->autoSavePath.toString());
+        d->autoSavePath.clear();
         if (d->restored) {
             d->restored = false;
             infoBar()->removeInfo(Id(kRestoredAutoSave));

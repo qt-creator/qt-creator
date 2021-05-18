@@ -230,28 +230,27 @@ public:
         return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
     }
 
-    bool save(QString *errorString, const QString &fn, bool autoSave) override
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        const FilePath fileNameToUse = fn.isEmpty() ? filePath() : FilePath::fromString(fn);
-        if (m_widget->save(errorString, filePath().toString(), fileNameToUse.toString())) {
+        const FilePath &fileNameToUse = filePath.isEmpty() ? this->filePath() : filePath;
+        if (m_widget->save(errorString, this->filePath().toString(), fileNameToUse.toString())) {
             setFilePath(fileNameToUse);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    OpenResult open(QString *errorString, const QString &fileName,
-                    const QString &realFileName) override
+    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override
     {
-        QTC_CHECK(fileName == realFileName); // The bineditor can do no autosaving
-        return openImpl(errorString, fileName);
+        QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
+        return openImpl(errorString, filePath);
     }
 
-    OpenResult openImpl(QString *errorString, const QString &fileName, quint64 offset = 0)
+    OpenResult openImpl(QString *errorString, const Utils::FilePath &filePath, quint64 offset = 0)
     {
-        QFile file(fileName);
+        QFile file(filePath.toString());
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
             quint64 size = static_cast<quint64>(file.size());
@@ -274,12 +273,11 @@ public:
             }
             if (offset >= size)
                 return OpenResult::CannotHandle;
-            setFilePath(FilePath::fromString(fileName));
+            setFilePath(filePath);
             m_widget->setSizes(offset, file.size());
             return OpenResult::Success;
         }
-        QString errStr = tr("Cannot open %1: %2").arg(
-                QDir::toNativeSeparators(fileName), file.errorString());
+        QString errStr = tr("Cannot open %1: %2").arg(filePath.toUserOutput(), file.errorString());
         if (errorString)
             *errorString = errStr;
         else
@@ -312,7 +310,7 @@ public:
     void provideNewRange(quint64 offset)
     {
         if (filePath().exists())
-            openImpl(nullptr, filePath().toString(), offset);
+            openImpl(nullptr, filePath(), offset);
     }
 
 public:
@@ -332,7 +330,7 @@ public:
         emit aboutToReload();
         int cPos = m_widget->cursorPosition();
         m_widget->clear();
-        const bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
+        const bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
         m_widget->setCursorPosition(cPos);
         emit reloadFinished(success);
         return success;

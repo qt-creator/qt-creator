@@ -66,26 +66,25 @@ ModelDocument::~ModelDocument()
     delete d;
 }
 
-Core::IDocument::OpenResult ModelDocument::open(QString *errorString, const QString &fileName,
-                                                const QString &realFileName)
+Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
+                                                const Utils::FilePath &filePath,
+                                                const Utils::FilePath &realFilePath)
 {
-    Q_UNUSED(fileName)
+    Q_UNUSED(filePath)
 
-    OpenResult result = load(errorString, realFileName);
+    OpenResult result = load(errorString, realFilePath.toString());
     return result;
 }
 
-bool ModelDocument::save(QString *errorString, const QString &name, bool autoSave)
+bool ModelDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     if (!d->documentController) {
         *errorString = tr("No model loaded. Cannot save.");
         return false;
     }
 
-    QString actualName = filePath().toString();
-    if (!name.isEmpty())
-        actualName = name;
-    d->documentController->projectController()->setFileName(actualName);
+    const Utils::FilePath actualName = filePath.isEmpty() ? this->filePath() : filePath;
+    d->documentController->projectController()->setFileName(actualName.toString());
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {

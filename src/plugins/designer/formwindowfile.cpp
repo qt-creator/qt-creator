@@ -65,51 +65,51 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             m_resourceHandler, &ResourceHandler::updateResources);
 }
 
-Core::IDocument::OpenResult FormWindowFile::open(QString *errorString, const QString &fileName,
-                                                 const QString &realFileName)
+Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
+                                                 const Utils::FilePath &filePath,
+                                                 const Utils::FilePath &realFilePath)
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << "FormWindowFile::open" << fileName;
+        qDebug() << "FormWindowFile::open" << filePath.toUserOutput();
 
     QDesignerFormWindowInterface *form = formWindow();
     QTC_ASSERT(form, return OpenResult::CannotHandle);
 
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return OpenResult::ReadError;
 
-    const QFileInfo fi(fileName);
-    const QString absfileName = fi.absoluteFilePath();
-
     QString contents;
-    Utils::TextFileFormat::ReadResult readResult = read(absfileName, &contents, errorString);
+    Utils::TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(),
+                                                        &contents,
+                                                        errorString);
     if (readResult == Utils::TextFileFormat::ReadEncodingError)
         return OpenResult::CannotHandle;
     if (readResult != Utils::TextFileFormat::ReadSuccess)
         return OpenResult::ReadError;
 
-    form->setFileName(absfileName);
+    form->setFileName(filePath.absoluteFilePath().toString());
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
     if (!form->setContents(&str, errorString))
         return OpenResult::CannotHandle;
-    form->setDirty(fileName != realFileName);
+    form->setDirty(filePath != realFilePath);
 
     syncXmlFromFormWindow();
-    setFilePath(Utils::FilePath::fromString(absfileName));
+    setFilePath(filePath.absoluteFilePath());
     setShouldAutoSave(false);
     resourceHandler()->updateProjectResources();
 
     return OpenResult::Success;
 }
 
-bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
+bool FormWindowFile::save(QString *errorString, const FilePath &filePath, bool autoSave)
 {
-    const FilePath actualName = name.isEmpty() ? filePath() : FilePath::fromString(name);
+    const FilePath &actualName = filePath.isEmpty() ? this->filePath() : filePath;
 
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << name << "->" << actualName;
+        qDebug() << Q_FUNC_INFO << filePath << "->" << actualName;
 
     QTC_ASSERT(m_formWindow, return false);
 
@@ -119,7 +119,7 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(actualName.toString());
-    const bool writeOK = writeFile(actualName.toString(), errorString);
+    const bool writeOK = writeFile(actualName, errorString);
     m_shouldAutoSave = false;
     if (autoSave)
         return writeOK;
@@ -228,7 +228,7 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     } else {
         emit aboutToReload();
         const bool success
-                = (open(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success);
+                = (open(errorString, filePath(), filePath()) == OpenResult::Success);
         emit reloadFinished(success);
         return success;
     }
@@ -247,11 +247,11 @@ QString FormWindowFile::fallbackSaveAsFileName() const
     return m_suggestedName;
 }
 
-bool FormWindowFile::writeFile(const QString &fn, QString *errorString) const
+bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorString) const
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << filePath() << fn;
-    return write(fn, format(), m_formWindow->contents(), errorString);
+        qDebug() << Q_FUNC_INFO << this->filePath() << filePath;
+    return write(filePath, format(), m_formWindow->contents(), errorString);
 }
 
 QDesignerFormWindowInterface *FormWindowFile::formWindow() const

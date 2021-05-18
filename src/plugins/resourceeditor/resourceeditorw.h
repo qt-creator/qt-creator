@@ -51,9 +51,9 @@ public:
     ResourceEditorDocument(QObject *parent = nullptr);
 
     //IDocument
-    OpenResult open(QString *errorString, const QString &fileName,
-                    const QString &realFileName) override;
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     QString plainText() const;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;

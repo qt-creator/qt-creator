@@ -39,13 +39,13 @@ class SubmitEditorFile : public Core::IDocument
 public:
     explicit SubmitEditorFile(VcsBaseSubmitEditor *editor);
 
-    OpenResult open(QString *errorString, const QString &fileName,
-                    const QString &realFileName) override;
+    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
 
     bool isModified() const override { return m_modified; }
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
     void setModified(bool modified = true);

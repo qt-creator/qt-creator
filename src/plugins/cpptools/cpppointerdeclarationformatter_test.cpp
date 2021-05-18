@@ -106,7 +106,9 @@ public:
         QScopedPointer<TextEditor::BaseTextEditor> editor(
                     TextEditor::PlainTextEditorFactory::createPlainTextEditor());
         QString error;
-        editor->document()->open(&error, document->fileName(), document->fileName());
+        editor->document()->open(&error,
+                                 Utils::FilePath::fromString(document->fileName()),
+                                 Utils::FilePath::fromString(document->fileName()));
         QVERIFY(error.isEmpty());
 
         // Set cursor position

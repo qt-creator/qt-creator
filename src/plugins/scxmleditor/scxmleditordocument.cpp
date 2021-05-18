@@ -57,32 +57,33 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     });
 }
 
-Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
+                                                      const Utils::FilePath &filePath,
+                                                      const Utils::FilePath &realFilePath)
 {
-    Q_UNUSED(realFileName)
+    Q_UNUSED(realFilePath)
 
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return OpenResult::ReadError;
 
     if (!m_designWidget)
         return OpenResult::ReadError;
 
-    const QFileInfo fi(fileName);
-    const QString absfileName = fi.absoluteFilePath();
-    if (!m_designWidget->load(absfileName)) {
+    const FilePath &absoluteFilePath = filePath.absoluteFilePath();
+    if (!m_designWidget->load(absoluteFilePath.toString())) {
         *errorString = m_designWidget->errorMessage();
         return OpenResult::ReadError;
     }
 
-    setFilePath(Utils::FilePath::fromString(absfileName));
+    setFilePath(absoluteFilePath);
 
     return OpenResult::Success;
 }
 
-bool ScxmlEditorDocument::save(QString *errorString, const QString &name, bool autoSave)
+bool ScxmlEditorDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
 {
-    const FilePath oldFileName = filePath();
-    const FilePath actualName = name.isEmpty() ? oldFileName : FilePath::fromString(name);
+    const FilePath oldFileName = this->filePath();
+    const FilePath actualName = filePath.isEmpty() ? oldFileName : filePath;
     if (actualName.isEmpty())
         return false;
     bool dirty = m_designWidget->isDirty();

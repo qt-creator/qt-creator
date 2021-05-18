@@ -202,7 +202,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
         if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
                                 contentsCopyDir, 0, revert)) {
             QString errorString;
-            if (textDocument->reload(&errorString, contentsCopyFileName))
+            if (textDocument->reload(&errorString, FilePath::fromString(contentsCopyFileName)))
                 m_document->reload();
         }
     }

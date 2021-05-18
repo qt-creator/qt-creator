@@ -80,22 +80,25 @@ ImageViewerFile::~ImageViewerFile()
     cleanUp();
 }
 
-Core::IDocument::OpenResult ImageViewerFile::open(QString *errorString, const QString &fileName,
-                                                  const QString &realFileName)
+Core::IDocument::OpenResult ImageViewerFile::open(QString *errorString,
+                                                  const Utils::FilePath &filePath,
+                                                  const Utils::FilePath &realfilePath)
 {
-    QTC_CHECK(fileName == realFileName); // does not support auto save
-    OpenResult success = openImpl(errorString, fileName);
+    QTC_CHECK(filePath == realfilePath); // does not support auto save
+    OpenResult success = openImpl(errorString, filePath);
     emit openFinished(success == OpenResult::Success);
     return success;
 }
 
-Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
+Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
+                                                      const Utils::FilePath &filePath)
 {
     cleanUp();
 
-    if (!QFileInfo(fileName).isReadable())
+    if (!filePath.isReadableFile())
         return OpenResult::ReadError;
 
+    const QString &fileName = filePath.toString();
     QByteArray format = QImageReader::imageFormat(fileName);
     // if it is impossible to recognize a file format - file will not be open correctly
     if (format.isEmpty()) {
@@ -141,7 +144,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
         emit imageSizeChanged(m_pixmap->size());
     }
 
-    setFilePath(Utils::FilePath::fromString(fileName));
+    setFilePath(filePath);
     setMimeType(Utils::mimeTypeForFile(fileName).name());
     return OpenResult::Success;
 }
@@ -163,7 +166,7 @@ bool ImageViewerFile::reload(QString *errorString,
     if (flag == FlagIgnore)
         return true;
     emit aboutToReload();
-    bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
+    bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
     emit reloadFinished(success);
     return success;
 }

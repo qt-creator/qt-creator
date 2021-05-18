@@ -51,22 +51,23 @@ SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
             this, &Core::IDocument::contentsChanged);
 }
 
-Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const QString &fileName,
-                                                   const QString &realFileName)
+Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString,
+                                                   const Utils::FilePath &filePath,
+                                                   const Utils::FilePath &realFilePath)
 {
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return OpenResult::ReadError;
 
     FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(realFileName), QIODevice::Text, errorString))
+    if (!reader.fetch(realFilePath, QIODevice::Text, errorString))
         return OpenResult::ReadError;
 
     const QString text = QString::fromLocal8Bit(reader.data());
     if (!m_editor->setFileContents(text.toUtf8()))
         return OpenResult::CannotHandle;
 
-    setFilePath(FilePath::fromString(fileName));
-    setModified(fileName != realFileName);
+    setFilePath(filePath.absoluteFilePath());
+    setModified(filePath != realFilePath);
     return OpenResult::Success;
 }
 
@@ -88,16 +89,16 @@ void SubmitEditorFile::setModified(bool modified)
     emit changed();
 }
 
-bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
+bool SubmitEditorFile::save(QString *errorString, const FilePath &filePath, bool autoSave)
 {
-    const FilePath fName = fileName.isEmpty() ? filePath() : FilePath::fromString(fileName);
+    const FilePath &fName = filePath.isEmpty() ? this->filePath() : filePath;
     FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
     if (!saver.finalize(errorString))
         return false;
     if (autoSave)
         return true;
-    setFilePath(FilePath::fromUserInput(fName.toFileInfo().absoluteFilePath()));
+    setFilePath(fName.absoluteFilePath());
     setModified(false);
     if (!errorString->isEmpty())
         return false;

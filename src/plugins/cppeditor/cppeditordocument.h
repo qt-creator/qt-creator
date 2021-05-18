@@ -71,7 +71,7 @@ public:
     TextEditor::TabSettings tabSettings() const override;
 
     bool save(QString *errorString,
-              const QString &fileName = QString(),
+              const Utils::FilePath &filePath = Utils::FilePath(),
               bool autoSave = false) override;
 
 signals:

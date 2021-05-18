@@ -69,7 +69,7 @@ void VirtualFileSystemOverlay::update()
                     .pathAppended(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
                 saved.path = saved.path + ".1";
-            if (!doc->save(&error, saved.path.toString(), true)) {
+            if (!doc->save(&error, saved.path, true)) {
                 qCDebug(LOG) << error;
                 continue;
             }

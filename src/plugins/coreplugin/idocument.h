@@ -27,6 +27,7 @@
 
 #include "core_global.h"
 
+#include <utils/fileutils.h>
 #include <utils/id.h>
 
 #include <QObject>
@@ -87,9 +88,9 @@ public:
     void setId(Utils::Id id);
     Utils::Id id() const;
 
-    virtual OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
+    virtual OpenResult open(QString *errorString, const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
 
-    virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
+    virtual bool save(QString *errorString, const Utils::FilePath &filePath = Utils::FilePath(), bool autoSave = false);
 
     virtual QByteArray contents() const;
     virtual bool setContents(const QByteArray &contents);
@@ -124,8 +125,8 @@ public:
 
     void checkPermissions();
 
-    bool autoSave(QString *errorString, const QString &filePath);
-    void setRestoredFrom(const QString &name);
+    bool autoSave(QString *errorString, const Utils::FilePath &filePath);
+    void setRestoredFrom(const Utils::FilePath &path);
     void removeAutoSaveFile();
 
     bool hasWriteWarning() const;

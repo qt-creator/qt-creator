@@ -112,7 +112,7 @@ public:
     void removeMarkFromMarksCache(TextMark *mark);
 
     // IDocument implementation.
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
@@ -127,10 +127,10 @@ public:
     void setFallbackSaveAsPath(const QString &fallbackSaveAsPath);
     void setFallbackSaveAsFileName(const QString &fallbackSaveAsFileName);
 
-    OpenResult open(QString *errorString, const QString &fileName,
-                    const QString &realFileName) override;
+    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
     virtual bool reload(QString *errorString);
-    bool reload(QString *errorString, const QString &realFileName);
+    bool reload(QString *errorString, const Utils::FilePath &realFilePath);
 
     bool setPlainText(const QString &text);
     QTextDocument *document() const;
@@ -156,7 +156,7 @@ public:
         const std::function<Utils::FilePath()> &filePath);
 
 signals:
-    void aboutToOpen(const QString &fileName, const QString &realFileName);
+    void aboutToOpen(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
     void openFinishedSuccessfully();
     void contentsChangedWithPosition(int position, int charsRemoved, int charsAdded);
     void tabSettingsChanged();
@@ -167,7 +167,9 @@ protected:
     virtual void applyFontSettings();
 
 private:
-    OpenResult openImpl(QString *errorString, const QString &fileName, const QString &realFileName,
+    OpenResult openImpl(QString *errorString,
+                        const Utils::FilePath &filePath,
+                        const Utils::FilePath &realFileName,
                         bool reload);
     void cleanWhitespace(QTextCursor &cursor, bool inEntireDocument, bool cleanIndentation);
     void ensureFinalNewLine(QTextCursor &cursor);

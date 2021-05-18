@@ -1464,10 +1464,10 @@ TextDocument *TextEditorWidget::textDocument() const
     return d->m_document.data();
 }
 
-void TextEditorWidget::aboutToOpen(const QString &fileName, const QString &realFileName)
+void TextEditorWidget::aboutToOpen(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(realFileName)
+    Q_UNUSED(filePath)
+    Q_UNUSED(realFilePath)
 }
 
 void TextEditorWidget::openFinishedSuccessfully()

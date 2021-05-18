@@ -283,14 +283,14 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
     });
 }
 
-void GitEditorWidget::aboutToOpen(const QString &fileName, const QString &realFileName)
+void GitEditorWidget::aboutToOpen(const Utils::FilePath &filePath,
+                                  const Utils::FilePath &realFilePath)
 {
-    Q_UNUSED(realFileName)
+    Q_UNUSED(realFilePath)
     Utils::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
-        QFileInfo fi(fileName);
-        const QString gitPath = fi.absolutePath();
+        const QString gitPath = filePath.absolutePath().toString();
         setSource(gitPath);
         textDocument()->setCodec(
                     GitClient::instance()->encoding(gitPath, "i18n.commitEncoding"));

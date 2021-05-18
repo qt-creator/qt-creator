@@ -744,17 +744,19 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
     return notSaved.isEmpty();
 }
 
-bool DocumentManager::saveDocument(IDocument *document, const QString &fileName, bool *isReadOnly)
+bool DocumentManager::saveDocument(IDocument *document,
+                                   const Utils::FilePath &filePath,
+                                   bool *isReadOnly)
 {
     bool ret = true;
-    QString effName = fileName.isEmpty() ? document->filePath().toString() : fileName;
-    expectFileChange(effName); // This only matters to other IDocuments which refer to this file
+    const Utils::FilePath &savePath = filePath.isEmpty() ? document->filePath() : filePath;
+    expectFileChange(savePath.toString()); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
     QString errorString;
-    if (!document->save(&errorString, fileName, false)) {
+    if (!document->save(&errorString, filePath, false)) {
         if (isReadOnly) {
-            QFile ofi(effName);
+            QFile ofi(savePath.toString());
             // Check whether the existing file is writable
             if (!ofi.open(QIODevice::ReadWrite) && ofi.open(QIODevice::ReadOnly)) {
                 *isReadOnly = true;
@@ -769,7 +771,7 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
     }
 
     addDocument(document, addWatcher);
-    unexpectFileChange(effName);
+    unexpectFileChange(savePath.toString());
     m_instance->updateSaveAll();
     return ret;
 }
@@ -1314,7 +1316,7 @@ void DocumentManager::checkForReload()
     // handle deleted files
     EditorManager::closeDocuments(documentsToClose, false);
     for (auto it = documentsToSave.cbegin(), end = documentsToSave.cend(); it != end; ++it) {
-        saveDocument(it.key(), it.value());
+        saveDocument(it.key(), Utils::FilePath::fromString(it.value()));
         it.key()->checkPermissions();
     }
 

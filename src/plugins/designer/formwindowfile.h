@@ -48,9 +48,9 @@ public:
     ~FormWindowFile() override { }
 
     // IDocument
-    OpenResult open(QString *errorString, const QString &fileName,
-                    const QString &realFileName) override;
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
+    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
@@ -62,7 +62,7 @@ public:
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);
 
-    bool writeFile(const QString &fileName, QString *errorString) const;
+    bool writeFile(const Utils::FilePath &filePath, QString *errorString) const;
 
     QDesignerFormWindowInterface *formWindow() const;
     void syncXmlFromFormWindow();

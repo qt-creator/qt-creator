@@ -265,7 +265,7 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+bool DiffEditorDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
@@ -273,7 +273,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     if (state() != LoadOK)
         return false;
 
-    const bool ok = write(fileName, format(), plainText(), errorString);
+    const bool ok = write(filePath, format(), plainText(), errorString);
 
     if (!ok)
         return false;
@@ -282,9 +282,8 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     setDescription(QString());
     Core::EditorManager::clearUniqueId(this);
 
-    const QFileInfo fi(fileName);
     setTemporary(false);
-    setFilePath(FilePath::fromString(fi.absoluteFilePath()));
+    setFilePath(filePath.absoluteFilePath());
     setPreferredDisplayName(QString());
     emit temporaryStateChanged();
 
@@ -306,16 +305,16 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    return open(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success;
+    return open(errorString, filePath(), filePath()) == OpenResult::Success;
 }
 
-Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const QString &fileName,
-                              const QString &realFileName)
+Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const Utils::FilePath &filePath,
+                              const Utils::FilePath &realFilePath)
 {
-    QTC_CHECK(fileName == realFileName); // does not support autosave
+    QTC_CHECK(filePath == realFilePath); // does not support autosave
     beginReload();
     QString patch;
-    ReadResult readResult = read(fileName, &patch, errorString);
+    ReadResult readResult = read(filePath, &patch, errorString);
     if (readResult == TextFileFormat::ReadIOError
         || readResult == TextFileFormat::ReadMemoryAllocationError) {
         return OpenResult::ReadError;
@@ -326,13 +325,12 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
     if (!ok) {
         *errorString = tr("Could not parse patch file \"%1\". "
                           "The content is not of unified diff format.")
-                .arg(fileName);
+                .arg(filePath.toUserOutput());
     } else {
-        const QFileInfo fi(fileName);
         setTemporary(false);
         emit temporaryStateChanged();
-        setFilePath(FilePath::fromString(fi.absoluteFilePath()));
-        setDiffFiles(fileDataList, fi.absolutePath());
+        setFilePath(filePath.absoluteFilePath());
+        setDiffFiles(fileDataList, filePath.absoluteFilePath().toString());
     }
     endReload(ok);
     if (!ok && readResult == TextFileFormat::ReadEncodingError)

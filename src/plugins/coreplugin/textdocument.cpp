@@ -82,7 +82,7 @@ QByteArray BaseTextDocument::decodingErrorSample() const
 }
 
 /*!
-    Writes out the contents (\a data) of the text file \a fileName.
+    Writes out the contents (\a data) of the text file \a filePath.
     Uses the format obtained from the last read() of the file.
 
     If an error occurs while writing the file, \a errorMessage is set to the
@@ -91,13 +91,15 @@ QByteArray BaseTextDocument::decodingErrorSample() const
     Returns whether the operation was successful.
 */
 
-bool BaseTextDocument::write(const QString &fileName, const QString &data, QString *errorMessage) const
+bool BaseTextDocument::write(const Utils::FilePath &filePath,
+                             const QString &data,
+                             QString *errorMessage) const
 {
-    return write(fileName, format(), data, errorMessage);
+    return write(filePath, format(), data, errorMessage);
 }
 
 /*!
-    Writes out the contents (\a data) of the text file \a fileName.
+    Writes out the contents (\a data) of the text file \a filePath.
     Uses the custom format \a format.
 
     If an error occurs while writing the file, \a errorMessage is set to the
@@ -106,11 +108,14 @@ bool BaseTextDocument::write(const QString &fileName, const QString &data, QStri
     Returns whether the operation was successful.
 */
 
-bool BaseTextDocument::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
+bool BaseTextDocument::write(const Utils::FilePath &filePath,
+                             const Utils::TextFileFormat &format,
+                             const QString &data,
+                             QString *errorMessage) const
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << this << fileName;
-    return format.writeFile(Utils::FilePath::fromString(fileName), data, errorMessage);
+        qDebug() << Q_FUNC_INFO << this << filePath;
+    return format.writeFile(filePath, data, errorMessage);
 }
 
 void BaseTextDocument::setSupportsUtf8Bom(bool value)
@@ -124,7 +129,7 @@ void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTermina
 }
 
 /*!
-    Autodetects file format and reads the text file specified by \a fileName
+    Autodetects file format and reads the text file specified by \a filePath
     into a list of strings specified by \a plainTextList.
 
     If an error occurs while writing the file, \a errorString is set to the
@@ -133,16 +138,21 @@ void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTermina
     Returns whether the operation was successful.
 */
 
-BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
+BaseTextDocument::ReadResult BaseTextDocument::read(const Utils::FilePath &filePath,
+                                                    QStringList *plainTextList,
+                                                    QString *errorString)
 {
-    d->m_readResult =
-        Utils::TextFileFormat::readFile(Utils::FilePath::fromString(fileName), codec(),
-                                        plainTextList, &d->m_format, errorString, &d->m_decodingErrorSample);
+    d->m_readResult = Utils::TextFileFormat::readFile(filePath,
+                                                      codec(),
+                                                      plainTextList,
+                                                      &d->m_format,
+                                                      errorString,
+                                                      &d->m_decodingErrorSample);
     return d->m_readResult;
 }
 
 /*!
-    Autodetects file format and reads the text file specified by \a fileName
+    Autodetects file format and reads the text file specified by \a filePath
     into \a plainText.
 
     If an error occurs while writing the file, \a errorString is set to the
@@ -151,11 +161,16 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QSt
     Returns whether the operation was successful.
 */
 
-BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
+BaseTextDocument::ReadResult BaseTextDocument::read(const Utils::FilePath &filePath,
+                                                    QString *plainText,
+                                                    QString *errorString)
 {
-    d->m_readResult =
-        Utils::TextFileFormat::readFile(Utils::FilePath::fromString(fileName), codec(),
-                                        plainText, &d->m_format, errorString, &d->m_decodingErrorSample);
+    d->m_readResult = Utils::TextFileFormat::readFile(filePath,
+                                                      codec(),
+                                                      plainText,
+                                                      &d->m_format,
+                                                      errorString,
+                                                      &d->m_decodingErrorSample);
     return d->m_readResult;
 }
 

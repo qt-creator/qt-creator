@@ -27,6 +27,7 @@
 
 #include <coreplugin/core_global.h>
 
+#include <utils/fileutils.h>
 #include <utils/id.h>
 
 #include <QObject>
@@ -79,7 +80,7 @@ public:
     static QString filePathKey(const QString &filePath, ResolveMode resolveMode);
 
     static bool saveDocument(IDocument *document,
-                             const QString &fileName = QString(),
+                             const Utils::FilePath &filePath = Utils::FilePath(),
                              bool *isReadOnly = nullptr);
 
     static QString allDocumentFactoryFiltersString(QString *allFilesFilter);

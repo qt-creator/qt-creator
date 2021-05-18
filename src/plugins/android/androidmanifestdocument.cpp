@@ -47,10 +47,10 @@ AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *ed
             this, &Core::IDocument::changed);
 }
 
-bool AndroidManifestDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+bool AndroidManifestDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     m_editorWidget->preSave();
-    bool result = TextDocument::save(errorString, fileName, autoSave);
+    bool result = TextDocument::save(errorString, filePath, autoSave);
     m_editorWidget->postSave();
     return result;
 }

@@ -861,6 +861,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     IEditor *editor = nullptr;
     auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
 
+    auto fp = Utils::FilePath::fromString(fn);
+    auto realFp = Utils::FilePath::fromString(realFn);
+
     IEditorFactory *factory = factories.takeFirst();
     while (factory) {
         editor = createEditor(factory, fn);
@@ -870,7 +873,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         }
 
         QString errorString;
-        IDocument::OpenResult openResult = editor->document()->open(&errorString, fn, realFn);
+        IDocument::OpenResult openResult = editor->document()->open(&errorString, fp, realFp);
         if (openResult == IDocument::OpenResult::Success)
             break;
 
@@ -933,7 +936,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         return nullptr;
 
     if (realFn != fn)
-        editor->document()->setRestoredFrom(realFn);
+        editor->document()->setRestoredFrom(realFp);
     addEditor(editor);
 
     if (newEditor)
@@ -2351,7 +2354,7 @@ void EditorManagerPrivate::autoSave()
                 || !QFileInfo(savePath).isWritable()) // FIXME: save them to a dedicated directory
             continue;
         QString errorString;
-        if (!document->autoSave(&errorString, saveName))
+        if (!document->autoSave(&errorString, Utils::FilePath::fromUserInput(saveName)))
             errors << errorString;
     }
     if (!errors.isEmpty())
@@ -2463,7 +2466,7 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
 
     emit m_instance->aboutToSave(document);
     // try saving, no matter what isReadOnly tells us
-    success = DocumentManager::saveDocument(document, QString(), &isReadOnly);
+    success = DocumentManager::saveDocument(document, FilePath(), &isReadOnly);
 
     if (!success && isReadOnly) {
         MakeWritableResult answer = makeFileWritable(document);
@@ -2503,7 +2506,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     }
 
     emit m_instance->aboutToSave(document);
-    const bool success = DocumentManager::saveDocument(document, absoluteFilePath.toString());
+    const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
     document->checkPermissions();
 
     // TODO: There is an issue to be treated here. The new file might be of a different mime

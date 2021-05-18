@@ -186,7 +186,7 @@ public:
     TextDocument *textDocument() const;
     QSharedPointer<TextDocument> textDocumentPtr() const;
 
-    virtual void aboutToOpen(const QString &fileName, const QString &realFileName);
+    virtual void aboutToOpen(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
     virtual void openFinishedSuccessfully();
     // IEditor
     QByteArray saveState() const;

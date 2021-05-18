@@ -447,7 +447,7 @@ TextEditor::TabSettings CppEditorDocument::tabSettings() const
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
-bool CppEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+bool CppEditorDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     Utils::ExecuteOnDestruction resetSettingsOnScopeExit;
 
@@ -490,7 +490,7 @@ bool CppEditorDocument::save(QString *errorString, const QString &fileName, bool
         setStorageSettings(settings);
     }
 
-    return TextEditor::TextDocument::save(errorString, fileName, autoSave);
+    return TextEditor::TextDocument::save(errorString, filePath, autoSave);
 }
 
 } // namespace Internal

@@ -36,7 +36,7 @@ class AndroidManifestDocument : public TextEditor::TextDocument
 {
 public:
     explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget);
-    bool save(QString *errorString, const QString &fileName = QString(),
+    bool save(QString *errorString, const Utils::FilePath &filePath,
               bool autoSave = false) override;
 
     bool isModified() const override;
