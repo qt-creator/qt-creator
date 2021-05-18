@@ -31,27 +31,39 @@
     \list
         \li \l{Getting Started}
             \list
-                \li \l{Exporting from Design Tools}
+                \l {Exporting and Importing}
                     \list
-                        \li \l{Exporting Designs from Adobe Illustrator}
-                        \li \l{Exporting Designs from Adobe Photoshop}
+                        \li \l{Exporting from Design Tools}
                             \list
-                                \li \l{Setting Up Qt Bridge for Adobe Photoshop}
-                                \li \l{Using Qt Bridge for Adobe Photoshop}
+                                \li \l{Exporting Designs from Adobe Illustrator}
+                                \li \l{Exporting Designs from Adobe Photoshop}
+                                    \list
+                                        \li \l{Setting Up Qt Bridge for Adobe Photoshop}
+                                        \li \l{Using Qt Bridge for Adobe Photoshop}
+                                    \endlist
+                                \li \l{Exporting Designs from Sketch}
+                                    \list
+                                        \li \l{Setting Up Qt Bridge for Sketch}
+                                        \li \l{Using Qt Bridge for Sketch}
+                                    \endlist
+                                \li \l{Exporting Designs from Figma}
+                                    \list
+                                        \li \l{Setting Up Qt Bridge for Figma}
+                                        \li \l{Using Qt Bridge for Figma}
+                                    \endlist
+                                \li \l{Exporting 3D Assets}
+                                    \list
+                                        \li \l{Exporting from Blender}
+                                        \li \l{Exporting from Maya}
+                                        \li \l{Exporting from Qt 3D Studio}
+                                    \endlist
                             \endlist
-                        \li \l{Exporting Designs from Sketch}
+                        \li \l{Importing Designs}
                             \list
-                                \li \l{Setting Up Qt Bridge for Sketch}
-                                \li \l{Using Qt Bridge for Sketch}
+                                \li \l{Importing 2D Assets}
+                                \li \l{Importing 3D Assets}
                             \endlist
-                        \li \l{Exporting Designs from Figma}
-                            \list
-                                \li \l{Setting Up Qt Bridge for Figma}
-                                \li \l{Using Qt Bridge for Figma}
-                            \endlist
-                        \li \l{Exporting from Blender}
-                        \li \l{Exporting from Maya}
-                        \li \l{Exporting from Qt 3D Studio}
+                        \li \l{Exporting Components}
                     \endlist
                 \li \l{User Interface}
                     \list
@@ -86,13 +98,7 @@
             \list
                 \li \l{Creating Projects}
                 \li \l{Using Git}
-                \li \l{Importing Designs}
-                    \list
-                        \li \l{Importing 2D Assets}
-                        \li \l{Importing 3D Assets}
-                    \endlist
                 \li \l{Converting UI Projects to Applications}
-                \li \l{Exporting Components}
             \endlist
         \li \l{Creating UIs}
             \list

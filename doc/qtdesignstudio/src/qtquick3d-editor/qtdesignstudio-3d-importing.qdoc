@@ -27,10 +27,10 @@
     \page studio-importing-3d.html
     \if defined(qtdesignstudio)
     \previouspage studio-importing-2d.html
-    \nextpage quick-converting-ui-projects.html
+    \nextpage creator-exporting-qml.html
     \else
     \previouspage exporting-from-maya.html
-    \nextpage studio-3d-editor.html
+    \nextpage studio-3d-view.html
     \endif
 
     \title Importing 3D Assets

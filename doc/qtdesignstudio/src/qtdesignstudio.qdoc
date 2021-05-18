@@ -47,7 +47,7 @@
         \row
         \li \b {\l{Getting Started}}
             \list
-                \li \l{Exporting from Design Tools}
+                \li \l{Exporting and Importing}
                 \li \l{User Interface}
                 \li \l{Design Views}
                 \li \l{Tutorials}
@@ -57,9 +57,7 @@
                 \list
                     \li \l{Creating Projects}
                     \li \l{Using Git}
-                    \li \l{Importing Designs}
                     \li \l{Converting UI Projects to Applications}
-                    \li \l{Exporting Components}
                 \endlist
             \li \b {\l{Creating UIs}}
                 \list

@@ -55,23 +55,11 @@
             project source files and configuration files. Do not store generated
             files.
 
-        \li \l{Importing Designs}
-
-            You can import assets that you exported from Adobe Photoshop to a
-            \QDS project and edit them in the Design mode to create a UI.
-
         \li \l {Converting UI Projects to Applications}
 
             \QDS projects are useful for creating UIs. To use them
             for application development in Qt Creator, you have to convert them
             to Qt Quick Application projects that contain .pro, .cpp, and .qrc
             files.
-
-        \li \l {Exporting Components}
-
-            You can export UI files (.ui.qml) to JSON metadata format
-            and PNG assets to generate native file formats in content creation
-            tools, such as Adobe Photoshop, using \QB.
-
     \endlist
 */

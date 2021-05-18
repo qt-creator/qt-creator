@@ -1,0 +1,95 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage studio-getting-started.html
+    \page studio-exporting-and-importing.html
+    \nextpage qtbridge-overview.html
+
+    \title Exporting and Importing
+
+    Typically, you as a designer would design a UI using imaging and design
+    tools, such as Adobe Photoshop, Sketch, Figma, Blender, or Maya, and then
+    send your design to a developer for implementation. You can use the \QB
+    export tool to convert 2D assets into a metadata format supported by \QDS.
+    You can use the export functionality of 3D graphics tools to save your 3D
+    assets in a format that can be imported into \QDS.
+
+    You can import the 2D and 3D assets into \QDS for editing before you
+    submit the UI to the developer for adding the functionality to the
+    application.
+
+    If you want to make further changes to your components in the design tool,
+    you can export the UI files back into the metadata format, which you can
+    then import back into the design tool by using \QB. For example, you could
+    create components in a design tool and export them to \QDS before you start
+    making instances of them. In \QDS, you can add functionality to the
+    components, such as button states and then bring them back to the design
+    tool as assets. If you use functional \QDS components in the design tool,
+    you will find it easier to merge new iterations of the design to \QDS and
+    continue to build the components there.
+
+    The following image describes the workflow using \QBPS and \QDS:
+
+    \image studio-workflow.png
+
+    The workflow consists of the following steps:
+
+    \list 1
+        \li Export your design from a design tool into the metadata format.
+        \li \l{Creating Projects}{Create a project} in \QDS and import the
+            metadata file to it.
+        \li Edit the imported components and create more components in
+            \l {Form Editor} and \l {3D Editor}.
+        \li Animate your design in \l {Transition Editor} or \l Timeline
+            and \l {Curve Editor}.
+        \li Create interactions in \l States and \l {Connection View}.
+        \li \l{Previewing}{Preview} your design in real time, on the desktop
+            or on a mobile or an embedded device.
+        \li Optionally, export your components back into the metadata format
+            that you can import back into the design tool by using \QB. You
+            can continue to iterate your design this way until it is ready.
+    \endlist
+
+    For more information, watch a video that shows how to perform the tasks
+    above:
+
+    \youtube pEETxSxYazg
+
+    \list
+        \li \l {Exporting from Design Tools}
+
+            Export designs containing 2D and 3D assets into a metadata format
+            that you can import to projects in \QDS.
+        \li \l{Importing Designs}
+
+            Import assets that you exported from design tools to a \QDS project
+            and edit them in the \uicontrol Design mode to create a UI.
+        \li \l {Exporting Components}
+
+            Export UI files (.ui.qml) back to the metadata format and PNG assets
+            to generate native file formats in design tools using \QB.
+     \endlist
+*/

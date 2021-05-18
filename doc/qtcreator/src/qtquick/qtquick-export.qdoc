@@ -25,10 +25,11 @@
 
 /*!
     \page creator-exporting-qml.html
-    \previouspage quick-converting-ui-projects.html
     \if defined(qtdesignstudio)
+    \previouspage studio-importing-3d.html
     \nextpage quick-uis.html
     \else
+    \previouspage quick-converting-ui-projects.html
     \nextpage creator-using-qt-designer.html
     \endif
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -26,51 +26,19 @@
 /*!
     \previouspage index.html
     \page studio-getting-started.html
-    \nextpage qtbridge-overview.html
+    \nextpage studio-exporting-and-importing.html
 
     \title Getting Started
 
-    Typically, you as a designer would design a UI using imaging and design
-    tools, such as Adobe Photoshop, Sketch, Blender, or Maya, and then send your
-    design to a developer for implementation. With the \QB export tool,
-    you can convert 2D assets into \l {Qt Quick} files. You can use the export
-    functionality of 3D graphics tools to save your 3D assets in a format
-    supported by \QDS. You can import the 2D and 3D assets into \QDS for
-    editing, before you submit the UI to the developer for adding the
-    functionality to the application.
-
-    The following image describes the workflow using \QBPS and \QDS:
-
-    \image studio-workflow.png
-
-    The workflow consists of the following steps:
-
-    \list 1
-        \li Export your design from a design tool.
-        \li Create a project in \QDS and import your design to it.
-        \li Create reusable components in the Design mode.
-        \li Animate your design with the transition editor or timeline and
-            easing curve editor.
-        \li Create interactions using states and connections.
-        \li Preview your design in real time, on the desktop or on a mobile
-            or an embedded device.
-    \endlist
-
-    For more information, watch a video that shows how to perform the tasks
-    above:
-
-    \youtube pEETxSxYazg
-
-    \section1 First Steps
-
-    The following topics contain information that you'll need to find your
-    way around \QDS:
+    The following topics contain information that you'll need to get started
+    with \QDS:
 
     \list
-        \li \l {Exporting from Design Tools}
+        \li \l {Exporting and Importing}
 
             Describes how to export designs containing 2D and 3D assets into
-            files that you can import to projects in \QDS.
+            files that you can import to projects in \QDS, how to import them,
+            and how to export them from \QDS back to the metadata format.
         \li \l {User Interface}
 
             Describes the parts and basic features of \QDS.
