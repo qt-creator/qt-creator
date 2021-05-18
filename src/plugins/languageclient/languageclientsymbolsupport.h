@@ -64,7 +64,7 @@ public:
     void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor);
 
     static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
-    static QStringList getFileContents(const QString &filePath);
+    static QStringList getFileContents(const Utils::FilePath &filePath);
 
 private:
     void handleFindReferencesResponse(

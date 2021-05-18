@@ -489,8 +489,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     for (const Location &loc : locations) // TODO: Can contain duplicates. Rather fix in clang than work around it here.
         refData->fileData[loc.uri()].rangesAndLineText << qMakePair(loc.range(), QString()); // TODO: Can we assume that locations for the same file are grouped?
     for (auto it = refData->fileData.begin(); it != refData->fileData.end(); ++it) {
-        const QStringList lines = SymbolSupport::getFileContents(
-                    it.key().toFilePath().toString());
+        const QStringList lines = SymbolSupport::getFileContents(it.key().toFilePath());
         it->fileContent = lines.join('\n');
         for (auto &rangeWithText : it.value().rangesAndLineText) {
             const int lineNo = rangeWithText.first.start().line();

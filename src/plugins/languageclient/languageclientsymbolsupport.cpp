@@ -135,18 +135,18 @@ struct ItemData
     QVariant userData;
 };
 
-QStringList SymbolSupport::getFileContents(const QString &filePath)
+QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
 {
     QString fileContent;
     if (TextEditor::TextDocument *document = TextEditor::TextDocument::textDocumentForFilePath(
-            Utils::FilePath::fromString(filePath))) {
+            filePath)) {
         fileContent = document->plainText();
     } else {
         Utils::TextFileFormat format;
         format.lineTerminationMode = Utils::TextFileFormat::LFLineTerminator;
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        if (Utils::TextFileFormat::readFile(filePath, codec, &fileContent, &format, &error)
+        if (Utils::TextFileFormat::readFile(filePath.toString(), codec, &fileContent, &format, &error)
             != Utils::TextFileFormat::ReadSuccess) {
             qDebug() << "Failed to read file" << filePath << ":" << error;
         }
@@ -155,17 +155,17 @@ QStringList SymbolSupport::getFileContents(const QString &filePath)
 }
 
 QList<Core::SearchResultItem> generateSearchResultItems(
-    const QMap<QString, QList<ItemData>> &rangesInDocument)
+    const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument)
 {
     QList<Core::SearchResultItem> result;
     for (auto it = rangesInDocument.begin(); it != rangesInDocument.end(); ++it) {
-        const QString &fileName = it.key();
+        const Utils::FilePath &filePath = it.key();
 
         Core::SearchResultItem item;
-        item.setFilePath(Utils::FilePath::fromString(fileName));
+        item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
 
-        QStringList lines = SymbolSupport::getFileContents(fileName);
+        QStringList lines = SymbolSupport::getFileContents(filePath);
         for (const ItemData &data : it.value()) {
             item.setMainRange(data.range);
             if (data.range.begin.line > 0 && data.range.begin.line <= lines.size())
@@ -182,9 +182,9 @@ QList<Core::SearchResultItem> generateSearchResultItems(
 {
     if (locations.isNull())
         return {};
-    QMap<QString, QList<ItemData>> rangesInDocument;
+    QMap<Utils::FilePath, QList<ItemData>> rangesInDocument;
     for (const Location &location : locations.toList())
-        rangesInDocument[location.uri().toFilePath().toString()]
+        rangesInDocument[location.uri().toFilePath()]
             << ItemData{SymbolSupport::convertRange(location.range()), {}};
     return generateSearchResultItems(rangesInDocument);
 }
@@ -336,17 +336,17 @@ QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits)
             return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(edit)};
         });
     };
-    QMap<QString, QList<ItemData>> rangesInDocument;
+    QMap<Utils::FilePath, QList<ItemData>> rangesInDocument;
     auto documentChanges = edits.documentChanges().value_or(QList<TextDocumentEdit>());
     if (!documentChanges.isEmpty()) {
         for (const TextDocumentEdit &documentChange : qAsConst(documentChanges)) {
-            rangesInDocument[documentChange.textDocument().uri().toFilePath().toString()] = convertEdits(
+            rangesInDocument[documentChange.textDocument().uri().toFilePath()] = convertEdits(
                 documentChange.edits());
         }
     } else {
         auto changes = edits.changes().value_or(WorkspaceEdit::Changes());
         for (auto it = changes.begin(), end = changes.end(); it != end; ++it)
-            rangesInDocument[it.key().toFilePath().toString()] = convertEdits(it.value());
+            rangesInDocument[it.key().toFilePath()] = convertEdits(it.value());
     }
     return generateSearchResultItems(rangesInDocument);
 }
