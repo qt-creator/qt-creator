@@ -122,7 +122,9 @@ bool FixitsRefactoringFile::apply()
 
     QString error;
     for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
-        if (!m_textFileFormat.writeFile(it.key(), it.value()->toPlainText(), &error)) {
+        if (!m_textFileFormat.writeFile(FilePath::fromString(it.key()),
+                                        it.value()->toPlainText(),
+                                        &error)) {
             qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << error;
             return false; // Error writing file
         }
@@ -163,10 +165,12 @@ QTextDocument *FixitsRefactoringFile::document(const QString &filePath) const
         if (!filePath.isEmpty()) {
             QString error;
             QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-            TextFileFormat::ReadResult result = TextFileFormat::readFile(
-                        filePath, defaultCodec,
-                        &fileContents, &m_textFileFormat,
-                        &error);
+            TextFileFormat::ReadResult result = TextFileFormat::readFile(FilePath::fromString(
+                                                                             filePath),
+                                                                         defaultCodec,
+                                                                         &fileContents,
+                                                                         &m_textFileFormat,
+                                                                         &error);
             if (result != TextFileFormat::ReadSuccess) {
                 qCDebug(fixitsLog) << "ERROR: Could not read " << filePath << ":" << error;
                 m_textFileFormat.codec = nullptr;

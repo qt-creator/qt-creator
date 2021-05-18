@@ -543,7 +543,7 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
             QString error;
             Utils::TextFileFormat textFileFormat;
             const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-            if (Utils::TextFileFormat::readFile(qmlProjectFilePath.toString(), codec, &fileContent, &textFileFormat, &error)
+            if (Utils::TextFileFormat::readFile(qmlProjectFilePath, codec, &fileContent, &textFileFormat, &error)
                     != Utils::TextFileFormat::ReadSuccess) {
                 qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
             }
@@ -556,7 +556,7 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
 
             fileContent.replace(match.capturedStart(1), match.capturedLength(1), QFileInfo(newFilePath).fileName());
 
-            if (!textFileFormat.writeFile(qmlProjectFilePath.toString(), fileContent, &error))
+            if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
                 qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
 
             refresh(Everything);

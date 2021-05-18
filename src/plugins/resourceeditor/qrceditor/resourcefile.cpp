@@ -242,7 +242,9 @@ bool ResourceFile::save()
         return false;
     }
 
-    return m_textFileFormat.writeFile(m_file_name, contents(), &m_error_message);
+    return m_textFileFormat.writeFile(Utils::FilePath::fromString(m_file_name),
+                                      contents(),
+                                      &m_error_message);
 }
 
 void ResourceFile::refresh()

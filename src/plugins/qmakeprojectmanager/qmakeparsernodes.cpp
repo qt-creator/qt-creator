@@ -770,12 +770,12 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
         QString contents;
         {
             QString errorMsg;
-            if (TextFileFormat::readFile(
-                        filePath().toString(),
-                        Core::EditorManager::defaultTextCodec(),
-                        &contents,
-                        &m_textFormat,
-                        &errorMsg) != TextFileFormat::ReadSuccess) {
+            if (TextFileFormat::readFile(filePath(),
+                                         Core::EditorManager::defaultTextCodec(),
+                                         &contents,
+                                         &m_textFormat,
+                                         &errorMsg)
+                != TextFileFormat::ReadSuccess) {
                 QmakeBuildSystem::proFileParseError(errorMsg, filePath());
                 return qMakePair(includeFile, lines);
             }
@@ -932,7 +932,7 @@ void QmakePriFile::save(const QStringList &lines)
         QTC_ASSERT(m_textFormat.codec, return);
         FileChangeBlocker changeGuard(filePath().toString());
         QString errorMsg;
-        if (!m_textFormat.writeFile(filePath().toString(), lines.join('\n'), &errorMsg)) {
+        if (!m_textFormat.writeFile(filePath(), lines.join('\n'), &errorMsg)) {
             QMessageBox::critical(Core::ICore::dialogParent(), QCoreApplication::translate(
                                       "QmakePriFile", "File Error"), errorMsg);
         }

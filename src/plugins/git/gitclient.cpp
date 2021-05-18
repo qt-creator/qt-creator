@@ -3836,8 +3836,11 @@ IEditor *GitClient::openShowEditor(const QString &workingDirectory, const QStrin
         if (content.isEmpty())
             return nullptr;
         QByteArray fileContent;
-        if (TextFileFormat::readFileUTF8(path, nullptr, &fileContent, nullptr)
-                == TextFileFormat::ReadSuccess) {
+        if (TextFileFormat::readFileUTF8(Utils::FilePath::fromString(path),
+                                         nullptr,
+                                         &fileContent,
+                                         nullptr)
+            == TextFileFormat::ReadSuccess) {
             if (fileContent == content)
                 return nullptr; // open the file for read/write
         }

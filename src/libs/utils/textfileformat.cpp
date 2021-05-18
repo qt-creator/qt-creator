@@ -198,7 +198,7 @@ bool TextFileFormat::decode(const QByteArray &data, QStringList *target) const
 
 // Read text file contents to string or stringlist.
 template <class Target>
-TextFileFormat::ReadResult readTextFile(const QString &fileName, const QTextCodec *defaultCodec,
+TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                                         Target *target, TextFileFormat *format, QString *errorString,
                                         QByteArray *decodingErrorSampleIn = nullptr)
 {
@@ -208,7 +208,7 @@ TextFileFormat::ReadResult readTextFile(const QString &fileName, const QTextCode
     QByteArray data;
     try {
         FileReader reader;
-        if (!reader.fetch(fileName, errorString))
+        if (!reader.fetch(filePath.toString(), errorString))
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
@@ -236,15 +236,15 @@ TextFileFormat::ReadResult readTextFile(const QString &fileName, const QTextCode
 */
 
 TextFileFormat::ReadResult
-    TextFileFormat::readFile(const QString &fileName, const QTextCodec *defaultCodec,
+    TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                              QStringList *plainTextList, TextFileFormat *format, QString *errorString,
                              QByteArray *decodingErrorSample /* = 0 */)
 {
     const TextFileFormat::ReadResult result =
-        readTextFile(fileName, defaultCodec,
+        readTextFile(filePath, defaultCodec,
                      plainTextList, format, errorString, decodingErrorSample);
     if (debug)
-        qDebug().nospace() << Q_FUNC_INFO << fileName << ' ' << *format
+        qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *format
                            << " returns " << result << '/' << plainTextList->size() << " chunks";
     return result;
 }
@@ -254,27 +254,27 @@ TextFileFormat::ReadResult
 */
 
 TextFileFormat::ReadResult
-    TextFileFormat::readFile(const QString &fileName, const QTextCodec *defaultCodec,
+    TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                              QString *plainText, TextFileFormat *format, QString *errorString,
                              QByteArray *decodingErrorSample /* = 0 */)
 {
     const TextFileFormat::ReadResult result =
-        readTextFile(fileName, defaultCodec,
+        readTextFile(filePath, defaultCodec,
                      plainText, format, errorString, decodingErrorSample);
     if (debug)
-        qDebug().nospace() << Q_FUNC_INFO << fileName << ' ' << *format
+        qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *format
                            << " returns " << result << '/' << plainText->size() << " characters";
     return result;
 }
 
-TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
+TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath,
                                                         const QTextCodec *defaultCodec,
                                                         QByteArray *plainText, QString *errorString)
 {
     QByteArray data;
     try {
         FileReader reader;
-        if (!reader.fetch(fileName, errorString))
+        if (!reader.fetch(filePath.toString(), errorString))
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
@@ -302,7 +302,7 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
     Writes out a text file.
 */
 
-bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QString *errorString) const
+bool TextFileFormat::writeFile(const FilePath &filePath, QString plainText, QString *errorString) const
 {
     QTC_ASSERT(codec, return false);
 
@@ -313,7 +313,7 @@ bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QStri
     if (lineTerminationMode == CRLFLineTerminator)
         plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
 
-    FileSaver saver(fileName, fileMode);
+    FileSaver saver(filePath.toString(), fileMode);
     if (!saver.hasError()) {
         if (hasUtf8Bom && codec->name() == "UTF-8")
             saver.write("\xef\xbb\xbf", 3);
@@ -321,7 +321,7 @@ bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QStri
     }
     const bool ok = saver.finalize(errorString);
     if (debug)
-        qDebug().nospace() << Q_FUNC_INFO << fileName << ' ' << *this <<  ' ' << plainText.size()
+        qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *this <<  ' ' << plainText.size()
                            << " bytes, returns " << ok;
     return ok;
 }

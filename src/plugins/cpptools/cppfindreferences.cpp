@@ -140,7 +140,7 @@ static QByteArray getSource(const Utils::FilePath &fileName,
         QString error;
         QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
         Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
-                    fileName.toString(), defaultCodec, &fileContents, &format, &error);
+                    fileName, defaultCodec, &fileContents, &format, &error);
         if (result != Utils::TextFileFormat::ReadSuccess)
             qWarning() << "Could not read " << fileName << ". Error: " << error;
 

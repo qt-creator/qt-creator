@@ -165,7 +165,7 @@ bool GeneratedFile::write(QString *errorMessage) const
     Utils::TextFileFormat format;
     format.codec = EditorManager::defaultTextCodec();
     format.lineTerminationMode = EditorManager::defaultLineEnding();
-    return format.writeFile(m_d->path, contents(), errorMessage);
+    return format.writeFile(Utils::FilePath::fromString(m_d->path), contents(), errorMessage);
 }
 
 GeneratedFile::Attributes GeneratedFile::attributes() const

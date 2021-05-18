@@ -146,7 +146,7 @@ QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
         format.lineTerminationMode = Utils::TextFileFormat::LFLineTerminator;
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        if (Utils::TextFileFormat::readFile(filePath.toString(), codec, &fileContent, &format, &error)
+        if (Utils::TextFileFormat::readFile(filePath, codec, &fileContent, &format, &error)
             != Utils::TextFileFormat::ReadSuccess) {
             qDebug() << "Failed to read file" << filePath << ":" << error;
         }

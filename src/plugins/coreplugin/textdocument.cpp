@@ -110,7 +110,7 @@ bool BaseTextDocument::write(const QString &fileName, const Utils::TextFileForma
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << fileName;
-    return format.writeFile(fileName, data, errorMessage);
+    return format.writeFile(Utils::FilePath::fromString(fileName), data, errorMessage);
 }
 
 void BaseTextDocument::setSupportsUtf8Bom(bool value)
@@ -136,7 +136,7 @@ void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTermina
 BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
 {
     d->m_readResult =
-        Utils::TextFileFormat::readFile(fileName, codec(),
+        Utils::TextFileFormat::readFile(Utils::FilePath::fromString(fileName), codec(),
                                         plainTextList, &d->m_format, errorString, &d->m_decodingErrorSample);
     return d->m_readResult;
 }
@@ -154,7 +154,7 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QSt
 BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
 {
     d->m_readResult =
-        Utils::TextFileFormat::readFile(fileName, codec(),
+        Utils::TextFileFormat::readFile(Utils::FilePath::fromString(fileName), codec(),
                                         plainText, &d->m_format, errorString, &d->m_decodingErrorSample);
     return d->m_readResult;
 }

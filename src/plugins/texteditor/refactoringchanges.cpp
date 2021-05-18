@@ -98,7 +98,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     TextFileFormat format;
     format.codec = EditorManager::defaultTextCodec();
     QString error;
-    bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
+    bool saveOk = format.writeFile(Utils::FilePath::fromString(fileName), document->toPlainText(), &error);
     delete document;
     if (!saveOk)
         return false;
@@ -198,10 +198,12 @@ QTextDocument *RefactoringFile::mutableDocument() const
         if (!m_fileName.isEmpty()) {
             QString error;
             QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
-            TextFileFormat::ReadResult result = TextFileFormat::readFile(
-                        m_fileName, defaultCodec,
-                        &fileContents, &m_textFileFormat,
-                        &error);
+            TextFileFormat::ReadResult result = TextFileFormat::readFile(FilePath::fromString(
+                                                                             m_fileName),
+                                                                         defaultCodec,
+                                                                         &fileContents,
+                                                                         &m_textFileFormat,
+                                                                         &error);
             if (result != TextFileFormat::ReadSuccess) {
                 qWarning() << "Could not read " << m_fileName << ". Error: " << error;
                 m_textFileFormat.codec = nullptr;
@@ -372,7 +374,9 @@ bool RefactoringFile::apply()
                 QString error;
                 // suppress "file has changed" warnings if the file is open in a read-only editor
                 Core::FileChangeBlocker block(m_fileName);
-                if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error)) {
+                if (!m_textFileFormat.writeFile(FilePath::fromString(m_fileName),
+                                                doc->toPlainText(),
+                                                &error)) {
                     qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
                     result = false;
                 }

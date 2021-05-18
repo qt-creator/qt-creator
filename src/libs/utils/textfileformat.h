@@ -36,6 +36,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class FilePath;
+
 class QTCREATOR_UTILS_EXPORT TextFileFormat  {
 public:
     enum LineTerminationMode
@@ -65,16 +67,16 @@ public:
     bool decode(const QByteArray &data, QString *target) const;
     bool decode(const QByteArray &data, QStringList *target) const;
 
-    static ReadResult readFile(const QString &fileName, const QTextCodec *defaultCodec,
+    static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                                QStringList *plainText, TextFileFormat *format, QString *errorString,
                                QByteArray *decodingErrorSample = nullptr);
-    static ReadResult readFile(const QString &fileName, const QTextCodec *defaultCodec,
+    static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                                QString *plainText, TextFileFormat *format, QString *errorString,
                                QByteArray *decodingErrorSample = nullptr);
-    static ReadResult readFileUTF8(const QString &fileName, const QTextCodec *defaultCodec,
+    static ReadResult readFileUTF8(const FilePath &filePath, const QTextCodec *defaultCodec,
                                    QByteArray *plainText, QString *errorString);
 
-    bool writeFile(const QString &fileName, QString plainText, QString *errorString) const;
+    bool writeFile(const FilePath &filePath, QString plainText, QString *errorString) const;
 
     static QByteArray decodingErrorSample(const QByteArray &data);
 

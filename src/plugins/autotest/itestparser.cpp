@@ -60,8 +60,11 @@ QByteArray CppParser::getFileContent(const QString &filePath) const
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        if (Utils::TextFileFormat::readFileUTF8(filePath, codec, &fileContent, &error)
-                != Utils::TextFileFormat::ReadSuccess) {
+        if (Utils::TextFileFormat::readFileUTF8(Utils::FilePath::fromString(filePath),
+                                                codec,
+                                                &fileContent,
+                                                &error)
+            != Utils::TextFileFormat::ReadSuccess) {
             qDebug() << "Failed to read file" << filePath << ":" << error;
         }
     }

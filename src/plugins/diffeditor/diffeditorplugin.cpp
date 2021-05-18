@@ -199,7 +199,7 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
     QList<ReloadInput> result;
 
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(
-        DocumentModel::documentForFilePath(Utils::FilePath::fromString(m_fileName)));
+        DocumentModel::documentForFilePath(FilePath::fromString(m_fileName)));
 
     if (textDocument && textDocument->isModified()) {
         QString errorString;
@@ -207,7 +207,7 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
 
         QString leftText;
         const Utils::TextFileFormat::ReadResult leftResult
-                = Utils::TextFileFormat::readFile(m_fileName, format.codec,
+            = Utils::TextFileFormat::readFile(FilePath::fromString(m_fileName), format.codec,
                                         &leftText, &format, &errorString);
 
         const QString rightText = textDocument->plainText();
@@ -262,9 +262,8 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 
             QString leftText;
             const QString fileName = textDocument->filePath().toString();
-            const Utils::TextFileFormat::ReadResult leftResult
-                    = Utils::TextFileFormat::readFile(fileName, format.codec,
-                                            &leftText, &format, &errorString);
+            const Utils::TextFileFormat::ReadResult leftResult = Utils::TextFileFormat::readFile(
+                FilePath::fromString(fileName), format.codec, &leftText, &format, &errorString);
 
             const QString rightText = textDocument->plainText();
 
@@ -321,9 +320,8 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 
             QString leftText;
             const QString fileName = textDocument->filePath().toString();
-            const Utils::TextFileFormat::ReadResult leftResult
-                    = Utils::TextFileFormat::readFile(fileName, format.codec,
-                                            &leftText, &format, &errorString);
+            const Utils::TextFileFormat::ReadResult leftResult = Utils::TextFileFormat::readFile(
+                FilePath::fromString(fileName), format.codec, &leftText, &format, &errorString);
 
             const QString rightText = textDocument->plainText();
 
@@ -378,12 +376,10 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
     QString leftText;
     QString rightText;
 
-    const Utils::TextFileFormat::ReadResult leftResult
-            = Utils::TextFileFormat::readFile(m_leftFileName, format.codec,
-                                    &leftText, &format, &errorString);
-    const Utils::TextFileFormat::ReadResult rightResult
-            = Utils::TextFileFormat::readFile(m_rightFileName, format.codec,
-                                    &rightText, &format, &errorString);
+    const Utils::TextFileFormat::ReadResult leftResult = Utils::TextFileFormat::readFile(
+        FilePath::fromString(m_leftFileName), format.codec, &leftText, &format, &errorString);
+    const Utils::TextFileFormat::ReadResult rightResult = Utils::TextFileFormat::readFile(
+        FilePath::fromString(m_rightFileName), format.codec, &rightText, &format, &errorString);
 
     ReloadInput reloadInput;
     reloadInput.leftText = leftText;

@@ -220,8 +220,11 @@ bool CppSourceProcessor::getFileContents(const QString &absoluteFilePath,
     // Get from file
     *revision = 0;
     QString error;
-    if (Utils::TextFileFormat::readFileUTF8(absoluteFilePath, m_defaultCodec, contents, &error)
-            != Utils::TextFileFormat::ReadSuccess) {
+    if (Utils::TextFileFormat::readFileUTF8(Utils::FilePath::fromString(absoluteFilePath),
+                                            m_defaultCodec,
+                                            contents,
+                                            &error)
+        != Utils::TextFileFormat::ReadSuccess) {
         qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath),
                  qPrintable(error));
         return false;

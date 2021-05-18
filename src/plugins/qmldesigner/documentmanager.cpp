@@ -302,7 +302,7 @@ bool DocumentManager::createFile(const QString &filePath, const QString &content
     textFileFormat.codec = Core::EditorManager::defaultTextCodec();
     QString errorMessage;
 
-    return textFileFormat.writeFile(filePath, contents, &errorMessage);
+    return textFileFormat.writeFile(Utils::FilePath::fromString(filePath), contents, &errorMessage);
 }
 
 void DocumentManager::addFileToVersionControl(const QString &directoryPath, const QString &newFilePath)

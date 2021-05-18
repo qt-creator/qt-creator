@@ -361,8 +361,12 @@ static std::unique_ptr<QTextDocument> getCurrentDocument(const QString &path)
     QString contents;
     Utils::TextFileFormat format;
     QString error;
-    if (Utils::TextFileFormat::readFile(path, defaultCodec, &contents, &format, &error)
-            != Utils::TextFileFormat::ReadSuccess) {
+    if (Utils::TextFileFormat::readFile(Utils::FilePath::fromString(path),
+                                        defaultCodec,
+                                        &contents,
+                                        &format,
+                                        &error)
+        != Utils::TextFileFormat::ReadSuccess) {
         qWarning() << "Error reading file " << path << " : " << error;
         return {};
     }

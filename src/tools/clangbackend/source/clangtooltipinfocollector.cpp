@@ -34,9 +34,10 @@
 #include "unsavedfile.h"
 
 #include <clangsupport/sourcerangecontainer.h>
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
-#include <utils/qtcassert.h>
 
 #include <utf8string.h>
 
@@ -487,7 +488,10 @@ UnsavedFile ToolTipInfoCollector::unsavedFile(const Utf8String &filePath) const
     QString errorString;
     using namespace Utils;
     const TextFileFormat::ReadResult readResult
-            = TextFileFormat::readFileUTF8(filePath.toString(), codec, &fileContent, &errorString);
+        = TextFileFormat::readFileUTF8(Utils::FilePath::fromString(filePath),
+                                       codec,
+                                       &fileContent,
+                                       &errorString);
     if (readResult != TextFileFormat::ReadSuccess) {
         qWarning() << "Failed to read file" << filePath << ":" << errorString;
         return UnsavedFile();
