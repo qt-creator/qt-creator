@@ -66,20 +66,20 @@ DebuggerOutputParser::DebuggerOutputParser(const QString &output)
 
 void DebuggerOutputParser::skipCommas()
 {
-    while (from != to && *from == ',')
+    while (from < to && *from == ',')
         ++from;
 }
 
 void DebuggerOutputParser::skipSpaces()
 {
-    while (from != to && isspace(from->unicode()))
+    while (from < to && isspace(from->unicode()))
         ++from;
 }
 
 QString DebuggerOutputParser::readString(const std::function<bool(char)> &isValidChar)
 {
     QString res;
-    while (from != to && isValidChar(from->unicode()))
+    while (from < to && isValidChar(from->unicode()))
         res += *from++;
     return res;
 }
@@ -87,7 +87,7 @@ QString DebuggerOutputParser::readString(const std::function<bool(char)> &isVali
 int DebuggerOutputParser::readInt()
 {
     int res = 0;
-    while (from != to && *from >= '0' && *from <= '9') {
+    while (from < to && *from >= '0' && *from <= '9') {
         res *= 10;
         res += (*from++).unicode() - '0';
     }
@@ -107,6 +107,9 @@ static bool isNameChar(char c)
 void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
 {
     parser.skipSpaces();
+
+    if (parser.isAtEnd())
+        return;
 
     //qDebug() << "parseResultOrValue: " << parser.buffer();
     parseValue(parser);
@@ -303,9 +306,11 @@ void GdbMi::parseList(DebuggerOutputParser &parser)
         if (child.isValid()) {
             m_children.push_back(child);
             parser.skipCommas();
-        } else {
-            parser.advance();
+            continue;
         }
+
+        QTC_ASSERT(!parser.isAtEnd(), break);
+        parser.advance();
     }
 }
 

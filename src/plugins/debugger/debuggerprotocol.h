@@ -131,7 +131,7 @@ public:
 
     QChar current() const { return *from; }
     bool isCurrent(QChar c) const { return *from == c; }
-    bool isAtEnd() const { return from == to; }
+    bool isAtEnd() const { return from >= to; }
 
     void advance() { ++from; }
     void advance(int n) { from += n; }
