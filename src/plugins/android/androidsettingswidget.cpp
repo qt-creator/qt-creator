@@ -594,7 +594,7 @@ void AndroidSettingsWidget::validateOpenSsl()
 
 void AndroidSettingsWidget::onSdkPathChanged()
 {
-    auto sdkPath = FilePath::fromUserInput(m_ui.SDKLocationPathChooser->rawPath());
+    const FilePath sdkPath = m_ui.SDKLocationPathChooser->filePath();
     m_androidConfig.setSdkLocation(sdkPath);
     FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
     if (currentOpenSslPath.isEmpty() || !currentOpenSslPath.exists())
@@ -606,7 +606,7 @@ void AndroidSettingsWidget::onSdkPathChanged()
 
 void AndroidSettingsWidget::validateSdk()
 {
-    auto sdkPath = FilePath::fromUserInput(m_ui.SDKLocationPathChooser->rawPath());
+    const FilePath sdkPath = m_ui.SDKLocationPathChooser->filePath();
     m_androidConfig.setSdkLocation(sdkPath);
 
     m_androidSummary->setPointValid(SdkPathExistsRow, m_androidConfig.sdkLocation().exists());
@@ -865,12 +865,12 @@ void AndroidSettingsWidget::downloadSdk()
     }
 
     const QString message = tr("Download and install Android SDK Tools to: %1?")
-                        .arg(QDir::toNativeSeparators(m_ui.SDKLocationPathChooser->rawPath()));
+                        .arg(m_ui.SDKLocationPathChooser->filePath().toUserOutput());
     auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
                                               message, QMessageBox::Yes | QMessageBox::No);
     if (userInput == QMessageBox::Yes) {
         if (m_javaSummary->allRowsOk()) {
-            auto javaPath = FilePath::fromUserInput(m_ui.OpenJDKLocationPathChooser->rawPath());
+            auto javaPath = m_ui.OpenJDKLocationPathChooser->filePath();
             m_sdkDownloader.downloadAndExtractSdk(javaPath.toString(),
                                                   m_ui.SDKLocationPathChooser->filePath().toString());
         }
