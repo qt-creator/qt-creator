@@ -151,6 +151,7 @@ add_qtc_test(unittest GTEST
     sourcerangefilter-test.cpp
     sourcesmanager-test.cpp
     spydummy.cpp spydummy.h
+    sqlitealgorithms-test.cpp
     sqliteindex-test.cpp
     sqliteteststatement.h
     sqlitetransaction-test.cpp

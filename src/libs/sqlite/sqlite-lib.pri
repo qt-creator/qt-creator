@@ -25,6 +25,7 @@ SOURCES += \
     $$PWD/sqlitebasestatement.cpp
 HEADERS += \
     $$PWD/constraints.h \
+    $$PWD/sqlitealgorithms.h \
     $$PWD/sqliteblob.h \
     $$PWD/sqlitelibraryinitializer.h \
     $$PWD/sqlitetimestamp.h \

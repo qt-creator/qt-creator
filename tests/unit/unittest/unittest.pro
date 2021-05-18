@@ -73,6 +73,7 @@ SOURCES += \
     nodelistproperty-test.cpp \
     projectstoragesqlitefunctionregistry-test.cpp \
     storagecache-test.cpp \
+    sqlitealgorithms-test.cpp \
     synchronousimagecache-test.cpp \
     imagecachegenerator-test.cpp \
     imagecachestorage-test.cpp \
