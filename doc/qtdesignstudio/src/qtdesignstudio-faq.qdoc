@@ -30,10 +30,76 @@
 
     \title Frequently Asked Questions
 
-    This section contains answers to some frequently asked questions about \QDS.
-    You might also find answers to your questions in the product documentation
-    by searching or browsing the index in the \l{Using the Help Mode}
-    {Help mode}. Many questions are also answered by the
-    \l{Examples and Tutorials}{examples and video tutorials}.
+    This section contains answers to some frequently asked questions about \QDS
+    grouped by categories. You might also find answers to your questions in the
+    product documentation by searching or browsing the index in the
+    \l{Using the Help Mode}{Help mode}. Many questions are also answered by the
+    \l{Examples and Tutorials}{examples and video tutorials}. Also see
+    \l {Qt Quick Best Practices} to learn about the most efficient ways to use
+    \QDS.
 
+    \section1 \QB
+    \section2 How does \QBPS differ from \QBSK?
+
+    Visually, \QBPS and \QBSK, and \QBF are identical. The biggest difference
+    between \QBPS and \QBSK is that \QBSK can export .svg (vector), .png and
+    .jpeg files, while \QBPS only supports .png and .jpeg. Adobe Illustrator
+    users can port their designs into Photoshop, but they must be rasterized
+    into \e {smart objects}.
+
+    For more information, see \l {Exporting from Design Tools}.
+
+    \section2 Do I need to copy the .qml files in the resource folder after each design modification?
+    No you don't. When you add new or modified .metadata files to your project
+    from Photoshop, \QBPS, or \QBSK, select the \uicontrol {Merge QML} check
+    box in the \uicontrol {Asset Import} dialog to merge the changes into
+    existing QML files instead of overwriting them.
+
+    For more information, see \l {Importing 2D Assets}.
+
+    \section1 Using 3D Components
+    \section2 What are the 3D import formats for \QDS?
+    You can import files stored in several widely-used formats, such as .fbx,
+    .obj, .gltf, .glb, .blend, .dae, .uia, and .uip.
+
+    For more information, see \l {Importing 3D Assets}
+
+    \section2 What are the keyboard shortcuts for moving around in \uicontrol {3D Editor?}
+    \list
+        \li To pan: \key Alt + middle mouse button
+        \li To orbit (rotate): \key Alt (or \key Option on \macos) + left mouse button
+        \li To zoom: \key Alt + right mouse button
+    \endlist
+
+    For more information, see \l {3D Editor}.
+
+    \section1 Integration Between \QDS and \QC
+    \section2 Is there a way to automatically propagate name changes between \QDS and \QC?
+
+    Unfortunately we do not automate renaming files between tools at the moment.
+    If you decide to change the name of a property, alias, or signal in \QDS,
+    you need to manually change the name in \QC to maintain the connection.
+    However, you can rename symbols in all files within a project. To rename a
+    QML type in a project, select \uicontrol Tools > \uicontrol QML/JS >
+    \uicontrol {Rename Symbol Under Cursor} or press \key Ctrl+Shift+R. For more
+    information, see \l {Renaming Symbols}.
+
+    \section2 When turning your \QDS project into application in \QC, what is the best way to add .qml files?
+
+    Use the project wizard templates to create an application in \QC and copy
+    your .qml files to the project folder. Then make some changes to the project
+    configuration and source files, as instructed in
+    \l {Converting UI Projects to Applications}.
+
+    \section1 Performance
+    \section2 Will my application with 3D components run at 60 FPS?
+
+    With the ability to test the full (2D/3D) UI in \QDS on target hardware,
+    you will quickly be able to determine if a 3D object is causing performance
+    issues using the \uicontrol FPS display in \uicontrol Design mode.
+    \uicontrol FPS displays the frames-per-second (FPS) refresh rate of
+    previewed animations.
+
+    See \l {Optimizing Your 3D Scene} to learn how you can enhance the
+    performance by optimizing your scene.
 */
