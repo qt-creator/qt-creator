@@ -775,7 +775,7 @@ void PerforcePluginPrivate::startSubmitProject()
         cleanCommitMessageFile();
         return;
     }
-    m_commitMessageFileName = saver.fileName();
+    m_commitMessageFileName = saver.filePath().toString();
 
     args.clear();
     args << QLatin1String("files");
@@ -1385,7 +1385,7 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const QString &workingDir,
     QString errorMessage;
     QSharedPointer<TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
     if (!tempFile.isNull()) {
-        actualArgs << QLatin1String("-x") << tempFile->fileName();
+        actualArgs << QLatin1String("-x") << tempFile->filePath().toString();
     } else if (!errorMessage.isEmpty()) {
         PerforceResponse tempFailResponse;
         tempFailResponse.error = true;
@@ -1598,7 +1598,7 @@ bool PerforcePluginPrivate::submitEditorAboutToClose()
     }
     // Pipe file into p4 submit -i
     FileReader reader;
-    if (!reader.fetch(m_commitMessageFileName, QIODevice::Text)) {
+    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName), QIODevice::Text)) {
         VcsOutputWindow::appendError(reader.errorString());
         return false;
     }

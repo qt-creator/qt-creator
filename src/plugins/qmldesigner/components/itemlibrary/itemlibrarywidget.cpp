@@ -199,8 +199,10 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     updateSearch();
 
     /* style sheets */
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
-    m_resourcesView->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    setStyleSheet(Theme::replaceCssColors(
+        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+    m_resourcesView->setStyleSheet(Theme::replaceCssColors(
+        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"))));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);

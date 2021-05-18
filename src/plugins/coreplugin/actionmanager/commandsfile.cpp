@@ -130,7 +130,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
 
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
-    Utils::FileSaver saver(m_filename, QIODevice::Text);
+    Utils::FileSaver saver(Utils::FilePath::fromString(m_filename), QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
         QXmlStreamWriter w(saver.file());

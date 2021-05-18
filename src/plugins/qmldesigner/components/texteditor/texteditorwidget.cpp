@@ -85,7 +85,9 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
         });
 
         textEditor->editorWidget()->installEventFilter(this);
-        static QString styleSheet = Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+        static QString styleSheet = Theme::replaceCssColors(
+            QString::fromUtf8(Utils::FileReader::fetchQrc(
+                ":/qmldesigner/scrollbar.css")));
         textEditor->editorWidget()->verticalScrollBar()->setStyleSheet(styleSheet);
         textEditor->editorWidget()->horizontalScrollBar()->setStyleSheet(styleSheet);
     }

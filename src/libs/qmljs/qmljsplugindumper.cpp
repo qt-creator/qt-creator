@@ -370,7 +370,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
 
         for (const QString &p: paths) {
             Utils::FileReader reader;
-            if (!reader.fetch(p, QFile::Text)) {
+            if (!reader.fetch(Utils::FilePath::fromString(p), QFile::Text)) {
                 result.errors += reader.errorString();
                 continue;
             }

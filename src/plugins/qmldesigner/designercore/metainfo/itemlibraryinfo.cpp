@@ -167,7 +167,7 @@ static QByteArray getSourceForUrl(const QString &fileURl)
 {
     Utils::FileReader fileReader;
 
-    if (fileReader.fetch(fileURl))
+    if (fileReader.fetch(Utils::FilePath::fromString(fileURl)))
         return fileReader.data();
     else
         return Utils::FileReader::fetchQrc(fileURl);

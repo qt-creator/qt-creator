@@ -185,7 +185,8 @@ private:
 
 static bool writeFile(const QString &filePath, const QString &contents)
 {
-    Utils::FileSaver saver(filePath, QIODevice::Text | QIODevice::WriteOnly);
+    Utils::FileSaver saver(Utils::FilePath::fromString(filePath),
+                           QIODevice::Text | QIODevice::WriteOnly);
     return saver.write(contents.toUtf8()) && saver.finalize();
 }
 
@@ -303,7 +304,7 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &
 {
     FileChangeBlocker changeGuard(fileName);
     // Make sure we can open the file for writing
-    Utils::FileSaver saver(fileName, QIODevice::Text);
+    Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
     if (!saver.hasError()) {
         QTextStream stream(saver.file());
         for (const QString &filePath : rawList)

@@ -193,7 +193,7 @@ void SuppressionDialog::maybeShow(MemcheckErrorView *view)
 
 void SuppressionDialog::accept()
 {
-    const QString path = m_fileChooser->filePath().toString();
+    const Utils::FilePath path = m_fileChooser->filePath();
     QTC_ASSERT(!path.isEmpty(), return);
     QTC_ASSERT(!m_suppressionEdit->toPlainText().trimmed().isEmpty(), return);
 
@@ -207,16 +207,16 @@ void SuppressionDialog::accept()
         return;
 
     // Add file to project if there is a project containing this file on the file system.
-    if (!ProjectExplorer::SessionManager::projectForFile(Utils::FilePath::fromString(path))) {
+    if (!ProjectExplorer::SessionManager::projectForFile(path)) {
         for (ProjectExplorer::Project *p : ProjectExplorer::SessionManager::projects()) {
             if (path.startsWith(p->projectDirectory().toString())) {
-                p->rootProjectNode()->addFiles(QStringList() << path);
+                p->rootProjectNode()->addFiles({path.toString()});
                 break;
             }
         }
     }
 
-    m_settings->suppressions.addSuppressionFile(path);
+    m_settings->suppressions.addSuppressionFile(path.toString());
 
     QModelIndexList indices = m_view->selectionModel()->selectedRows();
     Utils::sort(indices, [](const QModelIndex &l, const QModelIndex &r) {

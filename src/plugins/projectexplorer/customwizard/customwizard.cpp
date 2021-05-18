@@ -198,7 +198,7 @@ static inline bool createFile(CustomWizardFile cwFile,
     const QFile::OpenMode openMode
             = cwFile.binary ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
     Utils::FileReader reader;
-    if (!reader.fetch(sourcePath, openMode, errorMessage))
+    if (!reader.fetch(Utils::FilePath::fromString(sourcePath), openMode, errorMessage))
         return false;
 
     Core::GeneratedFile generatedFile;

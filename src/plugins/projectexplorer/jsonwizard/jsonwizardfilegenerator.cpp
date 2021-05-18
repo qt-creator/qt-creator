@@ -99,7 +99,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
         QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
 
     Utils::FileReader reader;
-    if (!reader.fetch(file.source, openMode, errorMessage))
+    if (!reader.fetch(Utils::FilePath::fromString(file.source), openMode, errorMessage))
         return Core::GeneratedFile();
 
     // Generate file information:

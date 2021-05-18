@@ -306,7 +306,7 @@ bool SnippetsCollection::synchronize(QString *errorString)
                 QDir::toNativeSeparators(m_userSnippetsPath));
         return false;
     }
-    Utils::FileSaver saver(m_userSnippetsPath + m_userSnippetsFile);
+    Utils::FileSaver saver(Utils::FilePath::fromString(m_userSnippetsPath + m_userSnippetsFile));
     if (!saver.hasError()) {
         using GroupIndexByIdConstIt = QHash<QString, int>::ConstIterator;
 

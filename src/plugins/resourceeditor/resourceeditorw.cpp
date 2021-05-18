@@ -199,12 +199,12 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
         return false;
 
     const QString originalFileName = m_model->fileName();
-    m_model->setFileName(saver.fileName());
+    m_model->setFileName(saver.filePath().toString());
     const bool success = (m_model->reload() == OpenResult::Success);
     m_model->setFileName(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
-        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << success;
+        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.filePath() << ") returns " << success;
     emit loaded(success);
     return success;
 }

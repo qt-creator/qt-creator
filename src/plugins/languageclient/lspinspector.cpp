@@ -344,7 +344,7 @@ void LspLogWidget::saveLog()
     const QString fileName = QFileDialog::getSaveFileName(this, LspInspector::tr("Log File"));
     if (fileName.isEmpty())
         return;
-    Utils::FileSaver saver(fileName, QIODevice::Text);
+    Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
     saver.write(contents.toUtf8());
     if (!saver.finalize(this))
         saveLog();

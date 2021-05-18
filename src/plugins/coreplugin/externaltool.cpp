@@ -474,7 +474,7 @@ ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *er
 {
     QString absFileName = QFileInfo(fileName).absoluteFilePath();
     FileReader reader;
-    if (!reader.fetch(absFileName, errorMessage))
+    if (!reader.fetch(FilePath::fromString(absFileName), errorMessage))
         return nullptr;
     ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
     if (!tool)
@@ -500,7 +500,7 @@ bool ExternalTool::save(QString *errorMessage) const
 {
     if (m_fileName.isEmpty())
         return false;
-    FileSaver saver(m_fileName);
+    FileSaver saver(FilePath::fromString(m_fileName));
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);

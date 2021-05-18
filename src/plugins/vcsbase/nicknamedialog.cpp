@@ -244,7 +244,7 @@ bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
     if (fileName.isEmpty())
         return true;
     FileReader reader;
-    if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
+    if (!reader.fetch(Utils::FilePath::fromString(fileName), QIODevice::Text, errorMessage))
          return false;
     // Split into lines and read
     NickNameEntry entry;

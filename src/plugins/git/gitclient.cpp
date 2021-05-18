@@ -2855,7 +2855,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
             if (templateFileInfo.isRelative())
                 templateFilename = repoDirectory + '/' + templateFilename;
             FileReader reader;
-            if (!reader.fetch(templateFilename, QIODevice::Text, errorMessage))
+            if (!reader.fetch(Utils::FilePath::fromString(templateFilename), QIODevice::Text, errorMessage))
                 return false;
             *commitTemplate = QString::fromLocal8Bit(reader.data());
         }

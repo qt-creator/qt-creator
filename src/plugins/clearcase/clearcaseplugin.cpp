@@ -1437,7 +1437,7 @@ void ClearCasePluginPrivate::startCheckIn(const QString &workingDir, const QStri
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_checkInMessageFileName = saver.fileName();
+    m_checkInMessageFileName = saver.filePath().toString();
     m_checkInView = workingDir;
     // Create a submit editor and set file list
     ClearCaseSubmitEditor *editor = openClearCaseSubmitEditor(m_checkInMessageFileName, m_viewData.isUcm);
@@ -2603,7 +2603,7 @@ void ClearCasePlugin::testLogResolving()
 void ClearCasePlugin::initTestCase()
 {
     dd->m_tempFile = QDir::currentPath() + QLatin1String("/cc_file.cpp");
-    FileSaver srcSaver(dd->m_tempFile);
+    FileSaver srcSaver(Utils::FilePath::fromString(dd->m_tempFile));
     srcSaver.write(QByteArray());
     srcSaver.finalize();
 }
@@ -2695,7 +2695,7 @@ public:
         ClearCasePluginPrivate::instance()->setFakeCleartool(true);
         VcsManager::clearVersionControlCache();
 
-        FileSaver srcSaver(fileName);
+        FileSaver srcSaver(Utils::FilePath::fromString(fileName));
         srcSaver.write(QByteArray());
         srcSaver.finalize();
         m_editor = EditorManager::openEditor(fileName);

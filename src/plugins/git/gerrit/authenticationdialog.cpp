@@ -154,7 +154,8 @@ bool AuthenticationDialog::setupCredentials()
     }
     if (!found)
         out << "machine " << m_server->host << " login " << user << " password " << password << '\n';
-    Utils::FileSaver saver(m_netrcFileName, QFile::WriteOnly | QFile::Truncate | QFile::Text);
+    Utils::FileSaver saver(Utils::FilePath::fromString(m_netrcFileName),
+                           QFile::WriteOnly | QFile::Truncate | QFile::Text);
     saver.write(netrcContents.toUtf8());
     return saver.finalize();
 }

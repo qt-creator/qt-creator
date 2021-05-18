@@ -58,7 +58,7 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     cleanup();
 
     Utils::FileReader reader;
-    if (!reader.fetch(keyFilePath)) {
+    if (!reader.fetch(Utils::FilePath::fromString(keyFilePath))) {
         emit error(tr("Public key error: %1").arg(reader.errorString()));
         return;
     }

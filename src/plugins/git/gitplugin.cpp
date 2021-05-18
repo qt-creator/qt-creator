@@ -1354,7 +1354,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.fileName();
+    m_commitMessageFileName = saver.filePath().toString();
     openSubmitEditor(m_commitMessageFileName, data);
 }
 

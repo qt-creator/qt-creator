@@ -157,7 +157,7 @@ bool GeneratedFile::write(QString *errorMessage) const
     // Write out
     if (isBinary()) {
         QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
-        Utils::FileSaver saver(m_d->path, flags);
+        Utils::FileSaver saver(FilePath::fromString(m_d->path), flags);
         saver.write(m_d->contents);
         return saver.finalize(errorMessage);
     }

@@ -276,9 +276,9 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
     // Meanwhile cache the Component UUIDs as well
     std::unique_ptr<Model> model(Model::create("Item", 2, 7));
     Utils::FileReader reader;
-    if (!reader.fetch(path.toString())) {
+    if (!reader.fetch(path)) {
         ExportNotification::addError(tr("Cannot preprocess file: %1. Error %2")
-                                     .arg(path.toString()).arg(reader.errorString()));
+                                     .arg(path.toUserOutput()).arg(reader.errorString()));
         return;
     }
 
@@ -301,11 +301,11 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
         // Some UUIDs were assigned. Rewrite the file.
         rewriterView->writeAuxiliaryData();
         const QByteArray data = textEdit.toPlainText().toUtf8();
-        Utils::FileSaver saver(path.toString(), QIODevice::Text);
+        Utils::FileSaver saver(path, QIODevice::Text);
         saver.write(data);
         if (!saver.finalize()) {
             ExportNotification::addError(tr("Cannot update %1.\n%2")
-                                         .arg(path.toString()).arg(saver.errorString()));
+                                         .arg(path.toUserOutput()).arg(saver.errorString()));
             return;
         }
 
@@ -414,7 +414,7 @@ void AssetExporter::writeMetadata() const
             return;
         }
 
-        Utils::FileSaver saver(path.toString(), QIODevice::Text);
+        Utils::FileSaver saver(path, QIODevice::Text);
         saver.write(doc.toJson(QJsonDocument::Indented));
         if (!saver.finalize()) {
             ExportNotification::addError(tr("Writing metadata failed. %1").

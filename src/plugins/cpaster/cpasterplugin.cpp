@@ -400,7 +400,7 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
         MessageManager::writeDisrupting(saver.errorString());
         return;
     }
-    const QString fileName = saver.fileName();
+    const QString fileName = saver.filePath().toString();
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
     IEditor *editor = EditorManager::openEditor(fileName);

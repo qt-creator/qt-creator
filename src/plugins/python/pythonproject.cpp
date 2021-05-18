@@ -295,7 +295,7 @@ bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &f
 
     // New project file
     if (fileName.endsWith(".pyproject")) {
-        FileSaver saver(fileName, QIODevice::ReadOnly | QIODevice::Text);
+        FileSaver saver(FilePath::fromString(fileName), QIODevice::ReadOnly | QIODevice::Text);
         if (!saver.hasError()) {
             QString content = QTextStream(saver.file()).readAll();
             if (saver.finalize(ICore::dialogParent())) {
@@ -306,7 +306,7 @@ bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &f
             }
         }
     } else { // Old project file
-        FileSaver saver(fileName, QIODevice::WriteOnly | QIODevice::Text);
+        FileSaver saver(FilePath::fromString(fileName), QIODevice::WriteOnly | QIODevice::Text);
         if (!saver.hasError()) {
             QTextStream stream(saver.file());
             for (const QString &filePath : rawList)

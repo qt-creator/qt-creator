@@ -95,7 +95,7 @@ static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
         const QString fileName = QFileDialog::getSaveFileName(parent, LogWindow::tr("Log File"));
         if (fileName.isEmpty())
             break;
-        Utils::FileSaver saver(fileName, QIODevice::Text);
+        Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
         saver.write(editor->toPlainText().toUtf8());
         if (saver.finalize(parent))
             success = true;

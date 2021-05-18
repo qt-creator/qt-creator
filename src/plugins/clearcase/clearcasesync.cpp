@@ -275,7 +275,7 @@ public:
     TempFile(const QString &fileName)
         : m_fileName(fileName)
     {
-        Utils::FileSaver srcSaver(fileName);
+        Utils::FileSaver srcSaver(Utils::FilePath::fromString(fileName));
         srcSaver.write(QByteArray());
         srcSaver.finalize();
 

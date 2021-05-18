@@ -246,16 +246,16 @@ void AbstractSettings::save()
             continue;
         }
 
-        Utils::FileSaver saver(fi.absoluteFilePath());
+        Utils::FileSaver saver(Utils::FilePath::fromUserInput(fi.absoluteFilePath()));
         if (saver.hasError()) {
             BeautifierPlugin::showError(tr("Cannot open file \"%1\": %2.")
-                                        .arg(saver.fileName())
+                                        .arg(saver.filePath().toUserOutput())
                                         .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
             if (!saver.finalize()) {
                 BeautifierPlugin::showError(tr("Cannot save file \"%1\": %2.")
-                                            .arg(saver.fileName())
+                                            .arg(saver.filePath().toUserOutput())
                                             .arg(saver.errorString()));
             }
         }

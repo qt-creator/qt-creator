@@ -138,7 +138,7 @@ bool Macro::loadHeader(const QString &fileName)
 
 bool Macro::save(const QString &fileName, QWidget *parent)
 {
-    Utils::FileSaver saver(fileName);
+    Utils::FileSaver saver(Utils::FilePath::fromString(fileName));
     if (!saver.hasError()) {
         QDataStream stream(saver.file());
         stream << d->version;

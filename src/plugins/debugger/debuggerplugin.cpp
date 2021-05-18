@@ -1942,7 +1942,7 @@ void DebuggerPluginPrivate::dumpLog()
         tr("Save Debugger Log"), Utils::TemporaryDirectory::masterDirectoryPath());
     if (fileName.isEmpty())
         return;
-    FileSaver saver(fileName);
+    FileSaver saver(Utils::FilePath::fromUserInput(fileName));
     if (!saver.hasError()) {
         QTextStream ts(saver.file());
         ts << logWindow->inputContents();

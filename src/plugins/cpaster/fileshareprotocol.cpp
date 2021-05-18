@@ -209,6 +209,6 @@ void FileShareProtocol::paste(
         return;
     }
 
-    Core::MessageManager::writeSilently(tr("Pasted: %1").arg(saver.fileName()));
+    Core::MessageManager::writeSilently(tr("Pasted: %1").arg(saver.filePath().toUserOutput()));
 }
 } // namespace CodePaster

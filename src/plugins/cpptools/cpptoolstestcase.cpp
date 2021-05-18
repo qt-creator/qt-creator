@@ -242,7 +242,7 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
 
 bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
 {
-    Utils::FileSaver saver(filePath);
+    Utils::FileSaver saver(Utils::FilePath::fromString(filePath));
     if (!saver.write(contents) || !saver.finalize()) {
         const QString warning = QLatin1String("Failed to write file to disk: ") + filePath;
         QWARN(qPrintable(warning));

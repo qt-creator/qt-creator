@@ -450,35 +450,41 @@ QByteArray FileUtils::fileId(const FilePath &fileName)
 
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
-    QTC_ASSERT(fileName.startsWith(QLatin1Char(':')), return QByteArray());
+    QTC_ASSERT(fileName.startsWith(':'), return QByteArray());
     QFile file(fileName);
     bool ok = file.open(QIODevice::ReadOnly);
     QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QByteArray());
     return file.readAll();
 }
 
-bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode)
+bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode)
 {
     QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false);
 
-    QFile file(fileName);
+    if (filePath.needsDevice()) {
+        // TODO: add error handling to FilePath::fileContents
+        m_data = filePath.fileContents();
+        return true;
+    }
+
+    QFile file(filePath.toString());
     if (!file.open(QIODevice::ReadOnly | mode)) {
         m_errorString = tr("Cannot open %1 for reading: %2").arg(
-                QDir::toNativeSeparators(fileName), file.errorString());
+                filePath.toUserOutput(), file.errorString());
         return false;
     }
     m_data = file.readAll();
     if (file.error() != QFile::NoError) {
         m_errorString = tr("Cannot read %1: %2").arg(
-                QDir::toNativeSeparators(fileName), file.errorString());
+                filePath.toUserOutput(), file.errorString());
         return false;
     }
     return true;
 }
 
-bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QString *errorString)
+bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QString *errorString)
 {
-    if (fetch(fileName, mode))
+    if (fetch(filePath, mode))
         return true;
     if (errorString)
         *errorString = m_errorString;
@@ -486,9 +492,9 @@ bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QStrin
 }
 
 #ifdef QT_GUI_LIB
-bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QWidget *parent)
+bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QWidget *parent)
 {
-    if (fetch(fileName, mode))
+    if (fetch(filePath, mode))
         return true;
     if (parent)
         QMessageBox::critical(parent, tr("File Error"), m_errorString);
@@ -545,11 +551,10 @@ bool FileSaverBase::setResult(bool ok)
 {
     if (!ok && !m_hasError) {
         if (!m_file->errorString().isEmpty()) {
-            m_errorString = tr("Cannot write file %1: %2").arg(
-                        QDir::toNativeSeparators(m_fileName), m_file->errorString());
+            m_errorString = tr("Cannot write file %1: %2")
+                                .arg(m_filePath.toUserOutput(), m_file->errorString());
         } else {
-            m_errorString = tr("Cannot write file %1. Disk full?").arg(
-                        QDir::toNativeSeparators(m_fileName));
+            m_errorString = tr("Cannot write file %1. Disk full?").arg(m_filePath.toUserOutput());
         }
         m_hasError = true;
     }
@@ -573,9 +578,9 @@ bool FileSaverBase::setResult(QXmlStreamWriter *stream)
 }
 
 
-FileSaver::FileSaver(const QString &filename, QIODevice::OpenMode mode)
+FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
 {
-    m_fileName = filename;
+    m_filePath = filePath;
     // Workaround an assert in Qt -- and provide a useful error message, too:
     if (HostOsInfo::isWindowsHost()) {
         // Taken from: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
@@ -583,24 +588,25 @@ FileSaver::FileSaver(const QString &filename, QIODevice::OpenMode mode)
                 = {"CON", "PRN", "AUX", "NUL",
                    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
-        const QString fn = QFileInfo(filename).baseName().toUpper();
+        const QString fn = filePath.toFileInfo().baseName().toUpper();
         if (reservedNames.contains(fn)) {
-            m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.").arg(filename);
+            m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.")
+                                .arg(filePath.toString());
             m_hasError = true;
             return;
         }
     }
     if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
-        m_file.reset(new QFile{filename});
+        m_file.reset(new QFile{filePath.toString()});
         m_isSafe = false;
     } else {
-        m_file.reset(new SaveFile{filename});
+        m_file.reset(new SaveFile{filePath.toString()});
         m_isSafe = true;
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
-        QString err = QFile::exists(filename) ?
+        QString err = filePath.exists() ?
                 tr("Cannot overwrite file %1: %2") : tr("Cannot create file %1: %2");
-        m_errorString = err.arg(QDir::toNativeSeparators(filename), m_file->errorString());
+        m_errorString = err.arg(filePath.toUserOutput(), m_file->errorString());
         m_hasError = true;
     }
 }
@@ -634,14 +640,14 @@ TempFileSaver::TempFileSaver(const QString &templ)
                 tempFile->errorString());
         m_hasError = true;
     }
-    m_fileName = tempFile->fileName();
+    m_filePath = FilePath::fromString(tempFile->fileName());
 }
 
 TempFileSaver::~TempFileSaver()
 {
     m_file.reset();
     if (m_autoRemove)
-        QFile::remove(m_fileName);
+        QFile::remove(m_filePath.toString());
 }
 
 /*! \class Utils::FilePath

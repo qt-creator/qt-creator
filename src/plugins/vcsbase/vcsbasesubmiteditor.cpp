@@ -274,8 +274,11 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::dialogParent()))
+    if (!reader.fetch(FilePath::fromString(fieldConfigFile),
+                      QIODevice::Text,
+                      Core::ICore::dialogParent())) {
         return;
+    }
     // Parse into fields
     const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));
     if (fields.empty())
@@ -657,7 +660,7 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     QtcProcess checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
-    checkProcess.setCommand({checkScript, {saver.fileName()}});
+    checkProcess.setCommand({checkScript, {saver.filePath().toString()}});
     checkProcess.start();
     checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {

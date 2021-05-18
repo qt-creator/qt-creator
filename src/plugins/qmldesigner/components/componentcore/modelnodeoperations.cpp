@@ -1458,7 +1458,7 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     QPlainTextEdit textEditTemplate;
     Utils::FileReader reader;
 
-    QTC_ASSERT(reader.fetch(templateFile), return);
+    QTC_ASSERT(reader.fetch(Utils::FilePath::fromString(templateFile)), return);
     QString qmlTemplateString = QString::fromUtf8(reader.data());
     QString imports;
 

@@ -141,7 +141,7 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
             return false;
 
         // By now, there is no hgrc file -> create it
-        FileSaver saver(workingDirectory.path() + QLatin1String("/.hg/hgrc"));
+        FileSaver saver(Utils::FilePath::fromString(workingDirectory.path() + "/.hg/hgrc"));
         const QString hgrc = QLatin1String("[paths]\ndefault = ") + dstLocation + QLatin1Char('\n');
         saver.write(hgrc.toUtf8());
         if (!saver.finalize()) {

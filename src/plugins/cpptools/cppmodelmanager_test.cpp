@@ -139,7 +139,7 @@ public:
     bool readContents(QByteArray *contents)
     {
         Utils::FileReader fileReader;
-        const bool isFetchOk = fileReader.fetch(m_filePath);
+        const bool isFetchOk = fileReader.fetch(Utils::FilePath::fromString(m_filePath));
         if (isFetchOk) {
             m_originalFileContents = fileReader.data();
             if (contents)

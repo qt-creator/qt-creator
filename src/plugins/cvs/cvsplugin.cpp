@@ -1010,7 +1010,7 @@ void CvsPluginPrivate::startCommit(const QString &workingDir, const QString &fil
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.fileName();
+    m_commitMessageFileName = saver.filePath().toString();
     // Create a submit editor and set file list
     CvsSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
     setSubmitEditor(editor);

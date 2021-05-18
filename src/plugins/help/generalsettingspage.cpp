@@ -248,7 +248,7 @@ void GeneralSettingsPage::exportBookmarks()
     if (!fileName.endsWith(suffix))
         fileName.append(suffix);
 
-    Utils::FileSaver saver(fileName);
+    Utils::FileSaver saver(Utils::FilePath::fromString(fileName));
     if (!saver.hasError()) {
         XbelWriter writer(LocalHelpManager::bookmarkManager().treeBookmarkModel());
         writer.writeToFile(saver.file());

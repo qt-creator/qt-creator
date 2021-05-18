@@ -692,7 +692,7 @@ void TestResultsPane::onSaveWholeTriggered()
     if (fileName.isEmpty())
         return;
 
-    Utils::FileSaver saver(fileName, QIODevice::Text);
+    Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
     if (!saver.write(getWholeOutput().toUtf8()) || !saver.finalize()) {
         QMessageBox::critical(ICore::dialogParent(), tr("Error"),
                               tr("Failed to write \"%1\".\n\n%2").arg(fileName)

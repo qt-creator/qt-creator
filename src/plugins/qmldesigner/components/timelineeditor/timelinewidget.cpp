@@ -128,7 +128,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     const QString css = Theme::replaceCssColors(QString::fromUtf8(
-        Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+        Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 
     m_scrollbar->setStyleSheet(css);
     m_scrollbar->setOrientation(Qt::Horizontal);

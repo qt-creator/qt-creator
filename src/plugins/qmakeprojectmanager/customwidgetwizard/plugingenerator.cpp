@@ -55,7 +55,9 @@ struct ProjectContents {
 };
 
 // Create a binary icon file
-static inline Core::GeneratedFile generateIconFile(const QString &source, const QString &target, QString *errorMessage)
+static inline Core::GeneratedFile generateIconFile(const Utils::FilePath &source,
+                                                   const QString &target,
+                                                   QString *errorMessage)
 {
     // Read out source
     Utils::FileReader reader;
@@ -270,7 +272,9 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         const QFileInfo qfi(icon);
         if (qfi.dir() != slashLessBaseDir) {
             const QString newIcon = baseDir + qfi.fileName();
-            const Core::GeneratedFile iconFile = generateIconFile(icon, newIcon, errorMessage);
+            const Core::GeneratedFile iconFile = generateIconFile(Utils::FilePath::fromFileInfo(qfi),
+                                                                  newIcon,
+                                                                  errorMessage);
             if (iconFile.path().isEmpty())
                 return QList<Core::GeneratedFile>();
             rc.push_back(iconFile);
@@ -311,7 +315,7 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
                                          QString *errorMessage)
 {
     Utils::FileReader reader;
-    if (!reader.fetch(tmpl, errorMessage))
+    if (!reader.fetch(Utils::FilePath::fromString(tmpl), errorMessage))
         return QString();
 
 

@@ -961,7 +961,7 @@ namespace ADS
 
         QDir tmp;
         tmp.mkpath(fileName.toFileInfo().path());
-        Utils::FileSaver fileSaver(fileName.toString(), QIODevice::Text);
+        Utils::FileSaver fileSaver(fileName, QIODevice::Text);
         if (!fileSaver.hasError())
             fileSaver.write(data);
 

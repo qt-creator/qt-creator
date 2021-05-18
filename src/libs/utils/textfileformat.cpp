@@ -208,7 +208,7 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
     QByteArray data;
     try {
         FileReader reader;
-        if (!reader.fetch(filePath.toString(), errorString))
+        if (!reader.fetch(filePath, errorString))
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
@@ -274,7 +274,7 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath
     QByteArray data;
     try {
         FileReader reader;
-        if (!reader.fetch(filePath.toString(), errorString))
+        if (!reader.fetch(filePath, errorString))
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
@@ -313,7 +313,7 @@ bool TextFileFormat::writeFile(const FilePath &filePath, QString plainText, QStr
     if (lineTerminationMode == CRLFLineTerminator)
         plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
 
-    FileSaver saver(filePath.toString(), fileMode);
+    FileSaver saver(filePath, fileMode);
     if (!saver.hasError()) {
         if (hasUtf8Bom && codec->name() == "UTF-8")
             saver.write("\xef\xbb\xbf", 3);

@@ -215,7 +215,7 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
                         = QDir(canonicalProjectDir().toString()).absoluteFilePath(mainFilePath);
                 Utils::FileReader reader;
                 QString errorMessage;
-                if (!reader.fetch(mainFilePath, &errorMessage)) {
+                if (!reader.fetch(Utils::FilePath::fromString(mainFilePath), &errorMessage)) {
                     MessageManager::writeFlashing(tr("Warning while loading project file %1.")
                                                       .arg(projectFilePath().toUserOutput()));
                     MessageManager::writeSilently(errorMessage);

@@ -369,7 +369,7 @@ void CppFileSettingsWidget::slotEdit()
         path = QFileDialog::getSaveFileName(this, tr("Choose Location for New License Template File"));
         if (path.isEmpty())
             return;
-        Utils::FileSaver saver(path, QIODevice::Text);
+        Utils::FileSaver saver(Utils::FilePath::fromString(path), QIODevice::Text);
         saver.write(tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
         if (!saver.finalize(this))
             return;

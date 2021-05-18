@@ -419,7 +419,8 @@ bool BinEditorWidget::save(QString *errorString, const QString &oldFileName, con
         if (!QFile::rename(tmpName, newFileName))
             return false;
     }
-    Utils::FileSaver saver(newFileName, QIODevice::ReadWrite); // QtBug: WriteOnly truncates.
+    Utils::FileSaver saver(Utils::FilePath::fromString(newFileName),
+                           QIODevice::ReadWrite); // QtBug: WriteOnly truncates.
     if (!saver.hasError()) {
         QFile *output = saver.file();
         const qint64 size = output->size();

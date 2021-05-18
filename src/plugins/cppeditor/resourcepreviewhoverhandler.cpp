@@ -85,7 +85,7 @@ static QString makeResourcePath(const QStringList &prefixList, const QString &fi
 static QString findResourceInFile(const QString &resName, const QString &filePathName)
 {
     Utils::FileReader reader;
-    if (!reader.fetch(filePathName))
+    if (!reader.fetch(Utils::FilePath::fromString(filePathName)))
         return QString();
 
     const QByteArray contents = reader.data();

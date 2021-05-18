@@ -409,7 +409,7 @@ static Document::Ptr getParsedDocument(const QString &fileName,
         src = workingCopy.source(fileName);
     } else {
         Utils::FileReader reader;
-        if (reader.fetch(fileName)) // ### FIXME error reporting
+        if (reader.fetch(Utils::FilePath::fromString(fileName))) // ### FIXME error reporting
             src = QString::fromLocal8Bit(reader.data()).toUtf8();
     }
 

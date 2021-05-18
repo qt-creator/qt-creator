@@ -58,7 +58,7 @@ Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const Q
         return OpenResult::ReadError;
 
     FileReader reader;
-    if (!reader.fetch(realFileName, QIODevice::Text, errorString))
+    if (!reader.fetch(Utils::FilePath::fromString(realFileName), QIODevice::Text, errorString))
         return OpenResult::ReadError;
 
     const QString text = QString::fromLocal8Bit(reader.data());
@@ -91,8 +91,7 @@ void SubmitEditorFile::setModified(bool modified)
 bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     const FilePath fName = fileName.isEmpty() ? filePath() : FilePath::fromString(fileName);
-    FileSaver saver(fName.toString(),
-                    QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+    FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
     if (!saver.finalize(errorString))
         return false;

@@ -620,7 +620,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
         arguments << QLatin1String("/TC");
-    arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
+    arguments << toProcess << QLatin1String("/EP") << saver.filePath().toUserOutput();
     cpp.runBlocking({binary, arguments});
     if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0)
         return predefinedMacros;
@@ -2016,7 +2016,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", QDir::toNativeSeparators(saver.fileName())});
+    CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     if (debug)
         qDebug() << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.size();

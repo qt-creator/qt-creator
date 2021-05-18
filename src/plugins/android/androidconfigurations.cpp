@@ -856,7 +856,7 @@ QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath) const
         const FilePath ndkReleaseTxtPath = ndkPath.pathAppended("RELEASE.TXT");
         Utils::FileReader reader;
         QString errorString;
-        if (reader.fetch(ndkReleaseTxtPath.toString(), &errorString)) {
+        if (reader.fetch(ndkReleaseTxtPath, &errorString)) {
             // RELEASE.TXT contains the ndk version in either of the following formats:
             // r6a
             // r10e (64 bit)

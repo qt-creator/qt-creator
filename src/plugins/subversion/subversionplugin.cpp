@@ -820,7 +820,7 @@ void SubversionPluginPrivate::startCommit(const QString &workingDir, const QStri
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.fileName();
+    m_commitMessageFileName = saver.filePath().toString();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
     QTC_ASSERT(editor, return);

@@ -238,7 +238,7 @@ void ColorScheme::clear()
 
 bool ColorScheme::save(const QString &fileName, QWidget *parent) const
 {
-    Utils::FileSaver saver(fileName);
+    Utils::FileSaver saver(Utils::FilePath::fromString(fileName));
     if (!saver.hasError()) {
         QXmlStreamWriter w(saver.file());
         w.setAutoFormatting(true);

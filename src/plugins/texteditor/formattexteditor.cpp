@@ -81,13 +81,13 @@ static FormatTask format(FormatTask task)
         if (!sourceFile.finalize()) {
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
                                                    "Cannot create temporary file \"%1\": %2."))
-                    .arg(sourceFile.fileName(), sourceFile.errorString());
+                    .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString());
             return task;
         }
 
         // Format temporary file
         QStringList options = task.command.options();
-        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
+        options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         SynchronousProcess process;
         process.setTimeoutS(5);
         process.runBlocking({executable, options});
@@ -102,9 +102,9 @@ static FormatTask format(FormatTask task)
 
         // Read text back
         Utils::FileReader reader;
-        if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
+        if (!reader.fetch(sourceFile.filePath(), QIODevice::Text)) {
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Cannot read file \"%1\": %2."))
-                    .arg(sourceFile.fileName(), reader.errorString());
+                    .arg(sourceFile.filePath().toUserOutput(), reader.errorString());
             return task;
         }
         task.formattedData = QString::fromUtf8(reader.data());

@@ -281,14 +281,14 @@ class QTCREATOR_UTILS_EXPORT FileReader
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
-    bool fetch(const QString &fileName, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::ReadOnly is implicit
-    bool fetch(const QString &fileName, QIODevice::OpenMode mode, QString *errorString);
-    bool fetch(const QString &fileName, QString *errorString)
-        { return fetch(fileName, QIODevice::NotOpen, errorString); }
+    bool fetch(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::ReadOnly is implicit
+    bool fetch(const FilePath &filePath, QIODevice::OpenMode mode, QString *errorString);
+    bool fetch(const FilePath &filePath, QString *errorString)
+        { return fetch(filePath, QIODevice::NotOpen, errorString); }
 #ifdef QT_GUI_LIB
-    bool fetch(const QString &fileName, QIODevice::OpenMode mode, QWidget *parent);
-    bool fetch(const QString &fileName, QWidget *parent)
-        { return fetch(fileName, QIODevice::NotOpen, parent); }
+    bool fetch(const FilePath &filePath, QIODevice::OpenMode mode, QWidget *parent);
+    bool fetch(const FilePath &filePath, QWidget *parent)
+        { return fetch(filePath, QIODevice::NotOpen, parent); }
 #endif // QT_GUI_LIB
     const QByteArray &data() const { return m_data; }
     const QString &errorString() const { return m_errorString; }
@@ -304,7 +304,7 @@ public:
     FileSaverBase();
     virtual ~FileSaverBase();
 
-    QString fileName() const { return m_fileName; }
+    FilePath filePath() const { return m_filePath; }
     bool hasError() const { return m_hasError; }
     QString errorString() const { return m_errorString; }
     virtual bool finalize();
@@ -324,7 +324,7 @@ public:
 
 protected:
     std::unique_ptr<QFile> m_file;
-    QString m_fileName;
+    FilePath m_filePath;
     QString m_errorString;
     bool m_hasError = false;
 
@@ -337,7 +337,7 @@ class QTCREATOR_UTILS_EXPORT FileSaver : public FileSaverBase
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     // QIODevice::WriteOnly is implicit
-    explicit FileSaver(const QString &filename, QIODevice::OpenMode mode = QIODevice::NotOpen);
+    explicit FileSaver(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen);
 
     bool finalize() override;
     using FileSaverBase::finalize;
