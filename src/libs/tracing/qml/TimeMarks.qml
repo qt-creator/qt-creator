@@ -70,7 +70,7 @@ Item {
 
     Connections {
         target: model
-        function onExpandedRowHeightChanged() {
+        function onExpandedRowHeightChanged(row, height) {
             if (model && model.expanded && row >= 0)
                 rowRepeater.itemAt(row).height = height;
         }
