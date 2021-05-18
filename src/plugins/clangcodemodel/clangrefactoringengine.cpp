@@ -86,6 +86,23 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     m_watcher->setFuture(cursorFuture);
 }
 
+void RefactoringEngine::globalRename(const CppTools::CursorInEditor &cursor,
+                                     CppTools::UsagesCallback &&callback,
+                                     const QString &replacement)
+{
+    ProjectExplorer::Project * const project
+            = ProjectExplorer::SessionManager::projectForFile(cursor.filePath());
+    ClangdClient * const client = ClangModelManagerSupport::instance()->clientForProject(project);
+    if (!client || !client->isFullyIndexed()) {
+        CppTools::CppModelManager::builtinRefactoringEngine()
+                ->globalRename(cursor, std::move(callback), replacement);
+        return;
+    }
+    QTC_ASSERT(client->documentOpen(cursor.textDocument()),
+               client->openDocument(cursor.textDocument()));
+    client->findUsages(cursor.textDocument(), cursor.cursor(), replacement);
+}
+
 void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
                                    CppTools::UsagesCallback &&callback) const
 {
@@ -99,7 +116,7 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
     }
     QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                client->openDocument(cursor.textDocument()));
-    client->findUsages(cursor.textDocument(), cursor.cursor());
+    client->findUsages(cursor.textDocument(), cursor.cursor(), {});
 }
 
 } // namespace Internal

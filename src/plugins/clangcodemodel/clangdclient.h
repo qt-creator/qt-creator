@@ -26,6 +26,7 @@
 #pragma once
 
 #include <languageclient/client.h>
+#include <utils/optional.h>
 
 #include <QVersionNumber>
 
@@ -49,7 +50,8 @@ public:
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);
 
-    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
+    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                    const Utils::optional<QString> &replacement);
 
     void enableTesting();
 

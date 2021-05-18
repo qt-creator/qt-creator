@@ -49,6 +49,9 @@ namespace CppTools {
 class CppModelManager;
 
 Core::SearchResultColor::Style CPPTOOLS_EXPORT colorStyleForUsageType(CPlusPlus::Usage::Type type);
+void CPPTOOLS_EXPORT renameFilesForSymbol(const QString &oldSymbolName,
+                                          const QString &newSymbolName,
+                                          const QVector<ProjectExplorer::Node *> &files);
 
 class CPPTOOLS_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
 {

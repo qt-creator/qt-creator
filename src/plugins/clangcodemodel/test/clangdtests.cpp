@@ -168,7 +168,7 @@ void ClangdTests::testFindReferences()
     QTextCursor cursor((doc)->document()); \
     cursor.setPosition((pos)); \
     searchResults.clear(); \
-    client->findUsages((doc), cursor); \
+    client->findUsages((doc), cursor, {}); \
     QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::findUsagesDone)); \
 } while (false)
 

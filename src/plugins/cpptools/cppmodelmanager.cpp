@@ -323,7 +323,7 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
 void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
                                    const QString &replacement)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines, false);
     QTC_ASSERT(engine, return;);
     engine->globalRename(data, std::move(renameCallback), replacement);
 }

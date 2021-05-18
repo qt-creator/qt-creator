@@ -32,7 +32,12 @@
 #include <cpptools/cppfindreferences.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <languageclient/languageclientinterface.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
+#include <texteditor/basefilefind.h>
+#include <utils/algorithm.h>
 
+#include <QCheckBox>
 #include <QFile>
 #include <QHash>
 #include <QPointer>
@@ -42,6 +47,7 @@ using namespace CPlusPlus;
 using namespace Core;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
+using namespace ProjectExplorer;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -296,15 +302,20 @@ public:
     QString fileContent;
     AstNode ast;
 };
+class ReplacementData {
+public:
+    QString oldSymbolName;
+    QString newSymbolName;
+    QSet<Utils::FilePath> fileRenameCandidates;
+};
 class ReferencesData {
 public:
-    void setCanceled() { search->setUserData(true); }
-    bool isCanceled() const { return search && search->userData().toBool(); }
-
     QMap<DocumentUri, ReferencesFileData> fileData;
     QList<MessageId> pendingAstRequests;
     QPointer<SearchResult> search;
+    Utils::optional<ReplacementData> replacementData;
     quint64 key;
+    bool canceled = false;
 };
 
 class ClangdClient::Private
@@ -313,9 +324,14 @@ public:
     Private(ClangdClient *q) : q(q) {}
 
     void handleFindUsagesResult(quint64 key, const QList<Location> &locations);
-    void addSearchResultsForFile(const ReferencesData &refData, const Utils::FilePath &file,
+    static void handleRenameRequest(const SearchResult *search,
+                                    const ReplacementData &replacementData,
+                                    const QString &newSymbolName,
+                                    const QList<Core::SearchResultItem> &checkedItems,
+                                    bool preserveCase);
+    void addSearchResultsForFile(ReferencesData &refData, const Utils::FilePath &file,
                                  const ReferencesFileData &fileData);
-    void reportAllSearchResultsAndFinish(const ReferencesData &data);
+    void reportAllSearchResultsAndFinish(ReferencesData &data);
     void finishSearch(const ReferencesData &refData, bool canceled);
 
     ClangdClient * const q;
@@ -326,7 +342,7 @@ public:
     bool isTesting = false;
 };
 
-ClangdClient::ClangdClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir)
+ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     : Client(clientInterface(jsonDbDir)), d(new Private(this))
 {
     setName(tr("clangd"));
@@ -355,7 +371,7 @@ ClangdClient::ClangdClient(ProjectExplorer::Project *project, const Utils::FileP
 
         // Report all search results found so far.
         for (quint64 key : d->runningFindUsages.keys())
-            d->reportAllSearchResultsAndFinish(d->runningFindUsages.value(key));
+            d->reportAllSearchResultsAndFinish(d->runningFindUsages[key]);
         QTC_CHECK(d->runningFindUsages.isEmpty());
     });
 
@@ -388,13 +404,9 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
             TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})));
 }
 
-void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor)
+void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                              const Utils::optional<QString> &replacement)
 {
-    if (versionNumber() < QVersionNumber(13)) {
-        symbolSupport().findUsages(document, cursor);
-        return;
-    }
-
     QTextCursor termCursor(cursor);
     termCursor.select(QTextCursor::WordUnderCursor);
     const QString searchTerm = termCursor.selectedText(); // TODO: This will be wrong for e.g. operators. Use a Symbol info request to get the real symbol string.
@@ -402,19 +414,42 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
         return;
 
     ReferencesData refData;
+    refData.key = d->nextFindUsagesKey++;
+    if (replacement) {
+        ReplacementData replacementData;
+        replacementData.oldSymbolName = searchTerm;
+        replacementData.newSymbolName = *replacement;
+        if (replacementData.newSymbolName.isEmpty())
+            replacementData.newSymbolName = replacementData.oldSymbolName;
+        refData.replacementData = replacementData;
+    }
     refData.search = SearchResultWindow::instance()->startNewSearch(
                 tr("C++ Usages:"),
                 {},
                 searchTerm,
-                SearchResultWindow::SearchOnly,
+                replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
     refData.search->setFilter(new CppTools::CppSearchResultFilter);
+    if (refData.replacementData) {
+        refData.search->setTextToReplace(refData.replacementData->newSymbolName);
+        const auto renameFilesCheckBox = new QCheckBox;
+        renameFilesCheckBox->setVisible(false);
+        refData.search->setAdditionalReplaceWidget(renameFilesCheckBox);
+        const auto renameHandler =
+                [search = refData.search](const QString &newSymbolName,
+                                          const QList<SearchResultItem> &checkedItems,
+                                          bool preserveCase) {
+            const auto replacementData = search->userData().value<ReplacementData>();
+            Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
+                                         preserveCase);
+        };
+        connect(refData.search, &SearchResult::replaceButtonClicked, renameHandler);
+    }
     connect(refData.search, &SearchResult::activated, [](const SearchResultItem& item) {
         Core::EditorManager::openEditorAtSearchResult(item);
     });
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    refData.key = d->nextFindUsagesKey++;
     d->runningFindUsages.insert(refData.key, refData);
 
     const Utils::optional<MessageId> requestId = symbolSupport().findUsages(
@@ -431,7 +466,7 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
         if (refData == d->runningFindUsages.end())
             return;
         cancelRequest(*requestId);
-        refData->setCanceled();
+        refData->canceled = true;
         refData->search->disconnect(this);
         d->finishSearch(*refData, true);
     });
@@ -462,7 +497,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     const auto refData = runningFindUsages.find(key);
     if (refData == runningFindUsages.end())
         return;
-    if (!refData->search || refData->isCanceled()) {
+    if (!refData->search || refData->canceled) {
         finishSearch(*refData, true);
         return;
     }
@@ -478,7 +513,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
         const auto refData = runningFindUsages.find(key);
         if (refData == runningFindUsages.end())
             return;
-        refData->setCanceled();
+        refData->canceled = true;
         refData->search->disconnect(q);
         for (const MessageId &id : qAsConst(refData->pendingAstRequests))
             q->cancelRequest(id);
@@ -499,7 +534,8 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     }
 
     qCDebug(clangdLog) << "document count is" << refData->fileData.size();
-    if (refData->fileData.size() > 15) { // TODO: If we need to keep this, make it configurable.
+    if (refData->replacementData || q->versionNumber() < QVersionNumber(13)
+            || refData->fileData.size() > 15) { // TODO: If we need to keep this, make it configurable.
         qCDebug(clangdLog) << "skipping AST retrieval";
         reportAllSearchResultsAndFinish(*refData);
         return;
@@ -520,7 +556,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
             const auto refData = runningFindUsages.find(key);
             if (refData == runningFindUsages.end())
                 return;
-            if (!refData->search || refData->isCanceled())
+            if (!refData->search || refData->canceled)
                 return;
             ReferencesFileData &data = refData->fileData[loc];
             const auto result = response.result();
@@ -545,7 +581,33 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     }
 }
 
-void ClangdClient::Private::addSearchResultsForFile(const ReferencesData &refData,
+void ClangdClient::Private::handleRenameRequest(const SearchResult *search,
+                                                const ReplacementData &replacementData,
+                                                const QString &newSymbolName,
+                                                const QList<SearchResultItem> &checkedItems,
+                                                bool preserveCase)
+{
+    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(newSymbolName, checkedItems,
+                                                                       preserveCase);
+    if (!fileNames.isEmpty())
+        SearchResultWindow::instance()->hide();
+
+    const auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
+    QTC_ASSERT(renameFilesCheckBox, return);
+    if (!renameFilesCheckBox->isChecked())
+        return;
+
+    QVector<Node *> fileNodes;
+    for (const Utils::FilePath &file : replacementData.fileRenameCandidates) {
+        Node * const node = ProjectTree::nodeForFile(file);
+        if (node)
+            fileNodes << node;
+    }
+    if (!fileNodes.isEmpty())
+        CppTools::renameFilesForSymbol(replacementData.oldSymbolName, newSymbolName, fileNodes);
+}
+
+void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
         const Utils::FilePath &file,
         const ReferencesFileData &fileData)
 {
@@ -563,6 +625,15 @@ void ClangdClient::Private::addSearchResultsForFile(const ReferencesData &refDat
         item.setMainRange(SymbolSupport::convertRange(range));
         item.setUseTextEditorFont(true);
         item.setLineText(rangeWithText.second);
+        if (refData.search->supportsReplace()) {
+            const bool fileInSession = SessionManager::projectForFile(file);
+            item.setSelectForReplacement(fileInSession);
+            if (fileInSession && file.toFileInfo().baseName().compare(
+                        refData.replacementData->oldSymbolName,
+                        Qt::CaseInsensitive) == 0) {
+                refData.replacementData->fileRenameCandidates << file; // TODO: We want to do this only for types. Use SymbolInformation once we have it.
+            }
+        }
         items << item;
     }
     if (isTesting)
@@ -571,11 +642,11 @@ void ClangdClient::Private::addSearchResultsForFile(const ReferencesData &refDat
         refData.search->addResults(items, SearchResult::AddOrdered);
 }
 
-void ClangdClient::Private::reportAllSearchResultsAndFinish(const ReferencesData &refData)
+void ClangdClient::Private::reportAllSearchResultsAndFinish(ReferencesData &refData)
 {
     for (auto it = refData.fileData.begin(); it != refData.fileData.end(); ++it)
         addSearchResultsForFile(refData, it.key().toFilePath(), it.value());
-    finishSearch(refData, refData.isCanceled());
+    finishSearch(refData, refData.canceled);
 }
 
 void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool canceled)
@@ -585,9 +656,23 @@ void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool can
     } else if (refData.search) {
         refData.search->finishSearch(canceled);
         refData.search->disconnect(q);
+        if (refData.replacementData) {
+            const auto renameCheckBox = qobject_cast<QCheckBox *>(
+                        refData.search->additionalReplaceWidget());
+            QTC_CHECK(renameCheckBox);
+            const QSet<Utils::FilePath> files = refData.replacementData->fileRenameCandidates;
+            renameCheckBox->setText(tr("Re&name %n files", nullptr, files.size()));
+            const QStringList filesForUser = Utils::transform<QStringList>(files,
+                        [](const Utils::FilePath &fp) { return fp.toUserOutput(); });
+            renameCheckBox->setToolTip(tr("Files:\n%1").arg(filesForUser.join('\n')));
+            renameCheckBox->setVisible(true);
+            refData.search->setUserData(QVariant::fromValue(*refData.replacementData));
+        }
     }
     runningFindUsages.remove(refData.key);
 }
 
 } // namespace Internal
 } // namespace ClangCodeModel
+
+Q_DECLARE_METATYPE(ClangCodeModel::Internal::ReplacementData)

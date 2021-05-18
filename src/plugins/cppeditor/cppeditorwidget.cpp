@@ -491,7 +491,8 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
 {
     if (cursor.isNull())
         cursor = textCursor();
-    CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
+    CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this,
+                textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
     d->m_modelManager->globalRename(cursorInEditor,
                                     [=](const CppTools::Usages &usages) {

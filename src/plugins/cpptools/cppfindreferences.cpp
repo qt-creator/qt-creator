@@ -59,6 +59,8 @@ using namespace ProjectExplorer;
 
 namespace CppTools {
 
+namespace { static bool isAllLowerCase(const QString &text) { return text.toLower() == text; } }
+
 SearchResultColor::Style colorStyleForUsageType(CPlusPlus::Usage::Type type)
 {
     switch (type) {
@@ -73,6 +75,51 @@ SearchResultColor::Style colorStyleForUsageType(CPlusPlus::Usage::Type type)
         return SearchResultColor::Style::Default;
     }
     return SearchResultColor::Style::Default; // For dumb compilers.
+}
+
+void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
+                          const QVector<Node *> &files)
+{
+    Internal::CppFileSettings settings;
+    settings.fromSettings(Core::ICore::settings());
+
+    const QStringList newPaths =
+            Utils::transform<QList>(files,
+                                    [&oldSymbolName, newSymbolName, &settings](const Node *node) -> QString {
+        const QFileInfo fi = node->filePath().toFileInfo();
+        const QString oldBaseName = fi.baseName();
+        QString newBaseName = newSymbolName;
+
+        // 1) new symbol lowercase: new base name lowercase
+        if (isAllLowerCase(newSymbolName)) {
+            newBaseName = newSymbolName;
+
+        // 2) old base name mixed case: new base name is verbatim symbol name
+        } else if (!isAllLowerCase(oldBaseName)) {
+            newBaseName = newSymbolName;
+
+        // 3) old base name lowercase, old symbol mixed case: new base name lowercase
+        } else if (!isAllLowerCase(oldSymbolName)) {
+            newBaseName = newSymbolName.toLower();
+
+        // 4) old base name lowercase, old symbol lowercase, new symbol mixed case:
+        //    use the preferences setting for new base name case
+        } else if (settings.lowerCaseFiles) {
+            newBaseName = newSymbolName.toLower();
+        }
+
+        if (newBaseName == oldBaseName)
+            return QString();
+
+        return fi.absolutePath() + "/" + newBaseName + '.' + fi.completeSuffix();
+    });
+
+    for (int i = 0; i < files.size(); ++i) {
+        if (!newPaths.at(i).isEmpty()) {
+            Node *node = files.at(i);
+            ProjectExplorerPlugin::renameFile(node, newPaths.at(i));
+        }
+    }
 }
 
 QWidget *CppSearchResultFilter::createWidget()
@@ -469,11 +516,6 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 
-static bool isAllLowerCase(const QString &text)
-{
-    return text.toLower() == text;
-}
-
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<SearchResultItem> &items,
                                                bool preserveCase)
@@ -495,48 +537,7 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
     if (!renameFilesCheckBox || !renameFilesCheckBox->isChecked())
         return;
 
-    CppFileSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-
-    const QStringList newPaths =
-            Utils::transform<QList>(parameters.filesToRename,
-                                    [&parameters, text, &settings](const Node *node) -> QString {
-        const QFileInfo fi = node->filePath().toFileInfo();
-        const QString oldSymbolName = parameters.prettySymbolName;
-        const QString oldBaseName = fi.baseName();
-        const QString newSymbolName = text;
-        QString newBaseName = newSymbolName;
-
-        // 1) new symbol lowercase: new base name lowercase
-        if (isAllLowerCase(newSymbolName)) {
-            newBaseName = newSymbolName;
-
-        // 2) old base name mixed case: new base name is verbatim symbol name
-        } else if (!isAllLowerCase(oldBaseName)) {
-            newBaseName = newSymbolName;
-
-        // 3) old base name lowercase, old symbol mixed case: new base name lowercase
-        } else if (!isAllLowerCase(oldSymbolName)) {
-            newBaseName = newSymbolName.toLower();
-
-        // 4) old base name lowercase, old symbol lowercase, new symbol mixed case:
-        //    use the preferences setting for new base name case
-        } else if (settings.lowerCaseFiles) {
-            newBaseName = newSymbolName.toLower();
-        }
-
-        if (newBaseName == oldBaseName)
-            return QString();
-
-        return fi.absolutePath() + "/" + newBaseName + '.' + fi.completeSuffix();
-    });
-
-    for (int i = 0; i < parameters.filesToRename.size(); ++i) {
-        if (!newPaths.at(i).isEmpty()) {
-            Node *node = parameters.filesToRename.at(i);
-            ProjectExplorerPlugin::renameFile(node, newPaths.at(i));
-        }
-    }
+    renameFilesForSymbol(parameters.prettySymbolName, text, parameters.filesToRename);
 }
 
 void CppFindReferences::searchAgain()

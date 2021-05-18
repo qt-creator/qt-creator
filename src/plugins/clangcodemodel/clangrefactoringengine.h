@@ -44,8 +44,8 @@ public:
     void startLocalRenaming(const CppTools::CursorInEditor &data,
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&,
-                      const QString &) override {}
+    void globalRename(const CppTools::CursorInEditor &cursor, CppTools::UsagesCallback &&callback,
+                      const QString &replacement) override;
     void findUsages(const CppTools::CursorInEditor &cursor,
                     CppTools::UsagesCallback &&callback) const override;
     void globalFollowSymbol(const CppTools::CursorInEditor &,
