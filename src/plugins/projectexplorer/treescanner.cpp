@@ -150,7 +150,7 @@ void TreeScanner::scanForFiles(FutureInterface &fi, const Utils::FilePath& direc
 {
     Result nodes = FileNode::scanForFiles(fi, directory,
                 [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
-        const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn.toString());
+        const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
 
         // Skip some files during scan.
         if (filter && filter(mimeType, fn))

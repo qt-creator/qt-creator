@@ -307,8 +307,7 @@ FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
 
 FileType Node::fileTypeForFileName(const Utils::FilePath &file)
 {
-    return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString(),
-                                                      Utils::MimeMatchMode::MatchExtension));
+    return fileTypeForMimeType(Utils::mimeTypeForFile(file, Utils::MimeMatchMode::MatchExtension));
 }
 
 QString Node::pathOrDirectory(bool dir) const

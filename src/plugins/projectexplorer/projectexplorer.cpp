@@ -4024,7 +4024,7 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 
 bool ProjectExplorerPlugin::isProjectFile(const Utils::FilePath &filePath)
 {
-    Utils::MimeType mt = Utils::mimeTypeForFile(filePath.toString());
+    Utils::MimeType mt = Utils::mimeTypeForFile(filePath);
     for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
         if (mt.inherits(it.key()))
             return true;

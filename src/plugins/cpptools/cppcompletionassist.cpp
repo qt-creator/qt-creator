@@ -1316,9 +1316,7 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
     if (!m_interface->languageFeatures().objCEnabled)
         return false;
 
-    const QString fileName = m_interface->filePath().toString();
-
-    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
+    const Utils::MimeType mt = Utils::mimeTypeForFile(m_interface->filePath());
     return mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
             || mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }

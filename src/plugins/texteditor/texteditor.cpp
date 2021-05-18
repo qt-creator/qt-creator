@@ -3204,7 +3204,7 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
 
 void TextEditorWidgetPrivate::reconfigure()
 {
-    m_document->setMimeType(Utils::mimeTypeForFile(m_document->filePath().toString()).name());
+    m_document->setMimeType(Utils::mimeTypeForFile(m_document->filePath()).name());
     q->configureGenericHighlighter();
 }
 
