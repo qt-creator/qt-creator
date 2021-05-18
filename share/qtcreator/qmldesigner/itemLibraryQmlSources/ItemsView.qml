@@ -225,7 +225,8 @@ ScrollView {
                     importToRemove = importRemovable ? importUrl : ""
                     currentImport = model
                     currentCategory = null
-                    moduleContextMenu.popup()
+                    if (!rootView.isSearchActive())
+                        moduleContextMenu.popup()
                 }
 
                 Column {
@@ -251,7 +252,8 @@ ScrollView {
                             onShowContextMenu: {
                                 currentCategory = model
                                 currentImport = parent.currentImportModel
-                                moduleContextMenu.popup()
+                                if (!rootView.isSearchActive())
+                                    moduleContextMenu.popup()
                             }
 
                             Grid {

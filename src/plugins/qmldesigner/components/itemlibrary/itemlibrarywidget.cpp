@@ -301,6 +301,11 @@ void ItemLibraryWidget::handleAddImport(int index)
     updateSearch();
 }
 
+bool ItemLibraryWidget::isSearchActive() const
+{
+    return !m_filterText.isEmpty();
+}
+
 void ItemLibraryWidget::delayedUpdateModel()
 {
     static bool disableTimer = DesignerSettings::getValue(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();

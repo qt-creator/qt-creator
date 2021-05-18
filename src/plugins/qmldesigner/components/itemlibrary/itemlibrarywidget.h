@@ -96,6 +96,7 @@ public:
     Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
     Q_INVOKABLE void handleAddImport(int index);
+    Q_INVOKABLE bool isSearchActive() const;
 
 signals:
     void itemActivated(const QString& itemName);
