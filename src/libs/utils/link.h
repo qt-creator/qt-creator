@@ -55,7 +55,13 @@ public:
     { return linkTextStart != linkTextEnd; }
 
     bool operator==(const Link &other) const
-    { return linkTextStart == other.linkTextStart && linkTextEnd == other.linkTextEnd; }
+    {
+        return targetFilePath == other.targetFilePath
+                && targetLine == other.targetLine
+                && targetColumn == other.targetColumn
+                && linkTextStart == other.linkTextStart
+                && linkTextEnd == other.linkTextEnd;
+    }
 
     int linkTextStart = -1;
     int linkTextEnd = -1;

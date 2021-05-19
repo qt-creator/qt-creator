@@ -277,6 +277,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         } else if (!processor->running()) {
             delete processor;
         } else { // ...async request was triggered
+            if (IAssistProposal *newProposal = processor->immediateProposal(assistInterface))
+                displayProposal(newProposal, reason);
             QTC_CHECK(!m_asyncProcessor);
             m_asyncProcessor = processor;
         }

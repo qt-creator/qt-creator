@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include "utils/optional.h"
 
 #include <languageserverprotocol/languagefeatures.h>
@@ -39,7 +41,7 @@ namespace LanguageClient {
 
 class Client;
 
-class DocumentSymbolCache : public QObject
+class LANGUAGECLIENT_EXPORT DocumentSymbolCache : public QObject
 {
     Q_OBJECT
 public:

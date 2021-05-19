@@ -37,7 +37,6 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -84,9 +83,13 @@ protected:
     {
         GenericProposalModelPtr proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
-            emit proposalItemActivated(proposalModel->proposalItem(0));
-            deleteLater();
-            return;
+            const auto item = dynamic_cast<VirtualFunctionProposalItem *>(
+                        proposalModel->proposalItem(0));
+            if (item && item->link().hasValidTarget()) {
+                emit proposalItemActivated(proposalModel->proposalItem(0));
+                deleteLater();
+                return;
+            }
         }
         GenericProposalWidget::showProposal(prefix);
     }
@@ -95,24 +98,7 @@ private:
     QKeySequence m_sequence;
 };
 
-class VirtualFunctionProposal : public GenericProposal
-{
-public:
-    VirtualFunctionProposal(int cursorPos,
-                            const QList<AssistProposalItemInterface *> &items,
-                            bool openInSplit)
-        : GenericProposal(cursorPos, items)
-        , m_openInSplit(openInSplit)
-    {
-        setFragile(true);
-    }
 
-    IAssistProposalWidget *createWidget() const override
-    { return new VirtualFunctionProposalWidget(m_openInSplit); }
-
-private:
-    bool m_openInSplit;
-};
 
 class VirtualFunctionAssistProcessor : public IAssistProcessor
 {
@@ -205,6 +191,18 @@ IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 {
     return new VirtualFunctionAssistProcessor(m_params);
+}
+
+VirtualFunctionProposal::VirtualFunctionProposal(
+        int cursorPos, const QList<AssistProposalItemInterface *> &items, bool openInSplit)
+    : GenericProposal(cursorPos, items), m_openInSplit(openInSplit)
+{
+    setFragile(true);
+}
+
+IAssistProposalWidget *VirtualFunctionProposal::createWidget() const
+{
+    return new VirtualFunctionProposalWidget(m_openInSplit);
 }
 
 } // namespace CppTools

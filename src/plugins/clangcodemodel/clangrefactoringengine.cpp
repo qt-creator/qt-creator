@@ -132,10 +132,8 @@ void RefactoringEngine::globalFollowSymbol(
                                      inNextSplit);
         return;
     }
-    QTC_ASSERT(client->documentOpen(cursor.textDocument()),
-               client->openDocument(cursor.textDocument()));
-    client->symbolSupport().findLinkAt(cursor.textDocument(), cursor.cursor(), std::move(callback),
-                                       true);
+    client->followSymbol(cursor.textDocument(), cursor.cursor(), cursor.editorWidget(),
+                         std::move(callback), true, inNextSplit);
 }
 
 } // namespace Internal

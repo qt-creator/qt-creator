@@ -26,11 +26,13 @@
 #pragma once
 
 #include <languageclient/client.h>
+#include <utils/link.h>
 #include <utils/optional.h>
 
 #include <QVersionNumber>
 
 namespace Core { class SearchResultItem; }
+namespace CppTools { class CppEditorWidgetInterface; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor { class TextDocument; }
 
@@ -52,6 +54,12 @@ public:
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                     const Utils::optional<QString> &replacement);
+    void followSymbol(TextEditor::TextDocument *document,
+            const QTextCursor &cursor,
+            CppTools::CppEditorWidgetInterface *editorWidget,
+            Utils::ProcessLinkCallback &&callback,
+            bool resolveTarget,
+            bool openInSplit);
 
     void enableTesting();
 
@@ -62,6 +70,9 @@ signals:
 
 private:
     class Private;
+    class FollowSymbolData;
+    class VirtualFunctionAssistProcessor;
+    class VirtualFunctionAssistProvider;
     Private * const d;
 };
 

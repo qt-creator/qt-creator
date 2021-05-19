@@ -180,10 +180,8 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     ClangdClient * const client
             = ClangModelManagerSupport::instance()->clientForFile(data.filePath());
     if (client && client->isFullyIndexed()) {
-        QTC_ASSERT(client->documentOpen(data.textDocument()),
-                   client->openDocument(data.textDocument()));
-        client->symbolSupport().findLinkAt(data.textDocument(), data.cursor(),
-                                           std::move(processLinkCallback), resolveTarget);
+        client->followSymbol(data.textDocument(), data.cursor(), data.editorWidget(),
+                             std::move(processLinkCallback), resolveTarget, inNextSplit);
         return;
     }
 

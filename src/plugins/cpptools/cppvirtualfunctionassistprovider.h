@@ -27,6 +27,7 @@
 
 #include "cpptools_global.h"
 
+#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/iassistprovider.h>
 
 #include <cplusplus/CppDocument.h>
@@ -36,7 +37,25 @@
 #include <QSharedPointer>
 #include <QTextCursor>
 
+namespace TextEditor {
+class AssistProposalItemInterface;
+class IAssistProposalWidget;
+}
+
 namespace CppTools {
+
+class CPPTOOLS_EXPORT VirtualFunctionProposal : public TextEditor::GenericProposal
+{
+public:
+    VirtualFunctionProposal(int cursorPos,
+                            const QList<TextEditor::AssistProposalItemInterface *> &items,
+                            bool openInSplit);
+
+private:
+    TextEditor::IAssistProposalWidget *createWidget() const override;
+
+    bool m_openInSplit;
+};
 
 class CPPTOOLS_EXPORT VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
 {
