@@ -119,5 +119,28 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
     client->findUsages(cursor.textDocument(), cursor.cursor(), {});
 }
 
+void RefactoringEngine::globalFollowSymbol(
+        const CppTools::CursorInEditor &cursor,
+        Utils::ProcessLinkCallback &&callback,
+        const CPlusPlus::Snapshot &snapshot,
+        const CPlusPlus::Document::Ptr &doc,
+        CppTools::SymbolFinder *symbolFinder,
+        bool inNextSplit) const
+{
+    ProjectExplorer::Project * const project
+            = ProjectExplorer::SessionManager::projectForFile(cursor.filePath());
+    ClangdClient * const client = ClangModelManagerSupport::instance()->clientForProject(project);
+    if (!client || !client->isFullyIndexed()) {
+        CppTools::CppModelManager::builtinRefactoringEngine()
+                ->globalFollowSymbol(cursor, std::move(callback), snapshot, doc, symbolFinder,
+                                     inNextSplit);
+        return;
+    }
+    QTC_ASSERT(client->documentOpen(cursor.textDocument()),
+               client->openDocument(cursor.textDocument()));
+    client->symbolSupport().findLinkAt(cursor.textDocument(), cursor.cursor(), std::move(callback),
+                                       true);
+}
+
 } // namespace Internal
 } // namespace ClangCodeModel

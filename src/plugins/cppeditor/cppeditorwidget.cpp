@@ -786,13 +786,14 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     const Utils::FilePath &filePath = textDocument()->filePath();
 
-    followSymbolInterface().findLink(CppTools::CursorInEditor{cursor, filePath, this},
-                                     std::move(processLinkCallback),
-                                     resolveTarget,
-                                     d->m_modelManager->snapshot(),
-                                     d->m_lastSemanticInfo.doc,
-                                     d->m_modelManager->symbolFinder(),
-                                     inNextSplit);
+    followSymbolInterface().findLink(
+                CppTools::CursorInEditor{cursor, filePath, this, textDocument()},
+                std::move(processLinkCallback),
+                resolveTarget,
+                d->m_modelManager->snapshot(),
+                d->m_lastSemanticInfo.doc,
+                d->m_modelManager->symbolFinder(),
+                inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const

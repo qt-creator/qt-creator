@@ -344,7 +344,7 @@ void CppModelManager::globalFollowSymbol(
         SymbolFinder *symbolFinder,
         bool inNextSplit) const
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines, false);
     QTC_ASSERT(engine, return;);
     engine->globalFollowSymbol(data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
                                symbolFinder, inNextSplit);

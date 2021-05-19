@@ -48,14 +48,12 @@ public:
                       const QString &replacement) override;
     void findUsages(const CppTools::CursorInEditor &cursor,
                     CppTools::UsagesCallback &&callback) const override;
-    void globalFollowSymbol(const CppTools::CursorInEditor &,
-                            ::Utils::ProcessLinkCallback &&,
-                            const CPlusPlus::Snapshot &,
-                            const CPlusPlus::Document::Ptr &,
-                            CppTools::SymbolFinder *,
-                            bool) const override
-    {
-    }
+    void globalFollowSymbol(const CppTools::CursorInEditor &cursor,
+                            ::Utils::ProcessLinkCallback &&callback,
+                            const CPlusPlus::Snapshot &snapshot,
+                            const CPlusPlus::Document::Ptr &doc,
+                            CppTools::SymbolFinder *symbolFinder,
+                            bool inNextSplit) const override;
 
 private:
     using FutureCursorWatcher = QFutureWatcher<CppTools::CursorInfo>;
