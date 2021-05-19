@@ -1043,7 +1043,9 @@ bool FilePath::operator>=(const FilePath &other) const
 
 FilePath FilePath::operator+(const QString &s) const
 {
-    return FilePath::fromString(m_data + s);
+    FilePath res = *this;
+    res.m_data += s;
+    return res;
 }
 
 /// \returns whether FilePath is a child of \a s
