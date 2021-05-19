@@ -23,8 +23,11 @@
 **
 ****************************************************************************/
 
-#include "clangeditordocumentprocessor.h"
 #include "clangfollowsymbol.h"
+
+#include "clangdclient.h"
+#include "clangeditordocumentprocessor.h"
+#include "clangmodelmanagersupport.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
@@ -173,6 +176,16 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                                  CppTools::SymbolFinder *symbolFinder,
                                  bool inNextSplit)
 {
+    ClangdClient * const client
+            = ClangModelManagerSupport::instance()->clientForFile(data.filePath());
+    if (client && client->isFullyIndexed()) {
+        QTC_ASSERT(client->documentOpen(data.textDocument()),
+                   client->openDocument(data.textDocument()));
+        client->symbolSupport().findLinkAt(data.textDocument(), data.cursor(),
+                                           std::move(processLinkCallback), resolveTarget);
+        return;
+    }
+
     int line = 0;
     int column = 0;
     QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
