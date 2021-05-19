@@ -256,7 +256,7 @@ void QnxConfiguration::createTools(const Target &target)
 QVariant QnxConfiguration::createDebugger(const Target &target)
 {
     Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-    setQnxValuesToEnvironment(sysEnv);
+    sysEnv.modify(qnxEnvironmentItems());
     Debugger::DebuggerItem debugger;
     debugger.setCommand(target.m_debuggerPath);
     debugger.reinitializeFromFile(sysEnv);
@@ -342,6 +342,8 @@ void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &to
         k->setSticky(SysRootKitAspect::id(), true);
         k->setSticky(DebuggerKitAspect::id(), true);
         k->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);
+
+        EnvironmentKitAspect::setEnvironmentChanges(k, qnxEnvironmentItems());
     };
 
     // add kit with device and qt version not sticky
@@ -415,11 +417,14 @@ void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
     });
 }
 
-void QnxConfiguration::setQnxValuesToEnvironment(Utils::Environment &env)
+EnvironmentItems QnxConfiguration::qnxEnvironmentItems() const
 {
-    env.set(QNXConfiguration, m_qnxConfiguration.toString());
-    env.set(QNXTarget, m_qnxTarget.toString());
-    env.set(QNXHost, m_qnxHost.toString());
+    Utils::EnvironmentItems envList;
+    envList.push_back(EnvironmentItem(QNXConfiguration, m_qnxConfiguration.toString()));
+    envList.push_back(EnvironmentItem(QNXTarget, m_qnxTarget.toString()));
+    envList.push_back(EnvironmentItem(QNXHost, m_qnxHost.toString()));
+
+    return envList;
 }
 
 const QnxConfiguration::Target *QnxConfiguration::findTargetByDebuggerPath(
@@ -445,7 +450,7 @@ void QnxConfiguration::assignDebuggersToTargets()
                 QStringList(HostOsInfo::withExecutableSuffix(QLatin1String("nto*-gdb"))),
                 QDir::Files);
     Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-    setQnxValuesToEnvironment(sysEnv);
+    sysEnv.modify(qnxEnvironmentItems());
     foreach (const QString &debuggerName, debuggerNames) {
         const FilePath debuggerPath = FilePath::fromString(hostUsrBinDir.path())
                 .pathAppended(debuggerName);

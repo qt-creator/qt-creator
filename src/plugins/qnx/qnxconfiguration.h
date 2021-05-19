@@ -90,7 +90,7 @@ private:
 
     void setDefaultConfiguration(const Utils::FilePath &envScript);
 
-    void setQnxValuesToEnvironment(Utils::Environment &env);
+    Utils::EnvironmentItems qnxEnvironmentItems() const;
 
     QString m_configName;
 
