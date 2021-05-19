@@ -105,6 +105,13 @@
             the UI. For the time being, it does not do anything.
         \li The \e {Screen01.ui.qml} file is a custom component created by
             the wizard template. For more information, see \l {UI Files}.
+
+            By default, this is the main file in the project, but you can
+            change that in the .qmlproject file. While the custom component
+            is a good starting point for new users, you don't have to use it.
+            Specifically, if you export and import designs using \QB, your main
+            file is most likely called something else. For more information,
+            see \l {Exporting from Design Tools}.
         \li The \e {qtquickcontrols2.conf} file specifies the selected
             \l {Styling Qt Quick Controls}{UI style} and some style-specific
             arguments.

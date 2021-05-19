@@ -112,8 +112,15 @@
             image files in the project folder belong to the project. Therefore,
             you do not need to individually list all the files in the project.
         \li .qml file defines the functionality and appearance of a component.
-        \li .ui.qml file defines a visual component that you can edit in
-            \l{Form Editor}.
+        \li \e Screen01.ui.qml defines a custom component that you can edit in
+            \l{Form Editor}. For more information, see \l {UI Files}.
+
+            By default, this is the main file in the project, but you can
+            change that in the .qmlproject file. While the custom component
+            is a good starting point for new users, you don't have to use it.
+            Specifically, if you export and import designs using \QB, your main
+            file is most likely called something else. For more information,
+            see \l {Exporting from Design Tools}.
         \li qtquickcontrols2.conf file specifies the preferred style and some
             style-specific arguments.
         \li \e fonts folder contains font files that you have added in
