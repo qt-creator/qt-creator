@@ -32,6 +32,8 @@ namespace ManualTest {
 class ThemeSelector : public QComboBox {
 public:
     ThemeSelector(QWidget *parent = nullptr);
+
+    static void setTheme(const QString &themeFile);
 };
 
-}
+} // namespace ManualTest

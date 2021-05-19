@@ -35,9 +35,11 @@
 #include <QDir>
 #include <QSettings>
 
+namespace ManualTest {
+
 static const char themeNameKey[] = "ThemeName";
 
-static void setTheme(const QString &themeFile)
+void ThemeSelector::setTheme(const QString &themeFile)
 {
     using namespace Utils;
 
@@ -50,7 +52,7 @@ static void setTheme(const QString &themeFile)
     QApplication::setPalette(theme.palette());
 }
 
-ManualTest::ThemeSelector::ThemeSelector(QWidget *parent)
+ThemeSelector::ThemeSelector(QWidget *parent)
     : QComboBox(parent)
 {
     QCoreApplication::setOrganizationName("QtProject");
@@ -71,3 +73,5 @@ ManualTest::ThemeSelector::ThemeSelector(QWidget *parent)
         appSettings.setValue(themeNameKey, currentText());
     });
 }
+
+} // namespace ManualTest
