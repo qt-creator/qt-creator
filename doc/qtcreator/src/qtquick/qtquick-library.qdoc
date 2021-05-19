@@ -40,11 +40,11 @@
 
     \image qtquick-components-tab.png "Library view Components tab"
 
-    \uicontrol Components displays modules that have been added to your project.
-    In many modules the components have been further organized into different
-    categories. The modules contain visual components, such as basic shapes,
-    UI controls, and 3D components, and add functionality to the project.
-    All components have a type.
+    \uicontrol Library > \uicontrol Components displays modules that have been
+    added to your project. In many modules the components have been further
+    organized into different categories. The modules contain visual components,
+    such as basic shapes, UI controls, and 3D components, and add functionality
+    to the project. All components have a type.
 
     The UI controls can be styled to have the look and feel of a particular
     operating system, such as \macOS, Windows, Android, or iOS.
@@ -117,12 +117,12 @@
     \image qtquick-library-context-menu.png "Context menu commands in Library"
     \image qtquick-library-context-menu-hide.png "Context menu command Hide Category"
 
-    To use the context menu commands in Library, right-click on the name of
-    a module or category and select one of the following commands:
+    To use the context menu commands in \uicontrol Library, right-click the
+    name of a module or category and select one of the following commands:
 
     \list
-        \li \uicontrol {Remove Module}: removes the component module added to
-            \uicontrol Library.
+        \li \uicontrol {Remove Module}: removes the module and all of its
+            components from \uicontrol Library > \uicontrol Components.
         \li \uicontrol {Expand All}: expands all the modules.
         \li \uicontrol {Collapse All}: collapses all the modules.
         \li \uicontrol {Hide Category}: hides the category from the module.
@@ -131,4 +131,8 @@
         \li \uicontrol {Show All Hidden Categories}: shows the hidden
             categories in all of the modules.
     \endlist
+
+    \note The context menu commands for the \uicontrol Library categories do not
+    function if you have entered something into the \uicontrol Search field.
+    Clear the \uicontrol Search field to resume using the context menu commands.
 */
