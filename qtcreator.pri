@@ -4,6 +4,8 @@ QTCREATOR_PRI_INCLUDED = 1
 include($$PWD/qtcreator_ide_branding.pri)
 !isEmpty(IDE_BRANDING_PRI): include($$IDE_BRANDING_PRI)
 
+include(qtcreator_testvars.pri)
+
 PRODUCT_BUNDLE_IDENTIFIER=$${PRODUCT_BUNDLE_ORGANIZATION}.$${IDE_ID}
 VERSION = $$QTCREATOR_VERSION
 
@@ -65,17 +67,6 @@ darwin:!minQtVersion(5, 7, 0) {
     # Qt 5.6 still sets deployment target 10.7, which does not work
     # with all C++11/14 features (e.g. std::future)
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.8
-}
-
-QTC_BUILD_TESTS = $$(QTC_BUILD_TESTS)
-!isEmpty(QTC_BUILD_TESTS):TEST = $$QTC_BUILD_TESTS
-
-!isEmpty(BUILD_TESTS):TEST = 1
-
-isEmpty(TEST):CONFIG(debug, debug|release) {
-    !debug_and_release|build_pass {
-        TEST = 1
-    }
 }
 
 isEmpty(IDE_LIBRARY_BASENAME) {

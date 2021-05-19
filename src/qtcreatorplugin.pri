@@ -1,3 +1,5 @@
+include(../qtcreator_testvars.pri)
+
 depfile = $$replace(_PRO_FILE_PWD_, ([^/]+$), \\1/\\1_dependencies.pri)
 exists($$depfile) {
     include($$depfile)
