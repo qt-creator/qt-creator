@@ -96,7 +96,6 @@ public:
     QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
     bool hasFileApi() const;
-    QVector<std::pair<QString, int>> supportedFileApiObjects() const;
     Version version() const;
 
     bool isAutoDetected() const;

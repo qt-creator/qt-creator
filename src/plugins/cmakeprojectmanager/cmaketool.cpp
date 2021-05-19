@@ -312,11 +312,6 @@ bool CMakeTool::hasFileApi() const
     return isValid() ? !m_introspection->m_fileApis.isEmpty() : false;
 }
 
-QVector<std::pair<QString, int>> CMakeTool::supportedFileApiObjects() const
-{
-    return isValid() ? Utils::transform(m_introspection->m_fileApis, [](const Internal::FileApi &api) { return std::make_pair(api.kind, api.version.first); }) : QVector<std::pair<QString, int>>();
-}
-
 CMakeTool::Version CMakeTool::version() const
 {
     return m_introspection ? m_introspection->m_version : CMakeTool::Version();
