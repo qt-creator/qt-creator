@@ -75,7 +75,8 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
                                      ImageCacheGeneratorInterface &generator,
                                      TimeStampProviderInterface &timeStampProvider)
 {
-    const auto id = extraId.empty() ? Utils::PathString{name} : Utils::PathString{name, "+", extraId};
+    const auto id = extraId.empty() ? Utils::PathString{name}
+                                    : Utils::PathString::join({name, "+", extraId});
 
     const auto timeStamp = timeStampProvider.timeStamp(name);
     const auto entry = requestType == RequestType::Image ? storage.fetchImage(id, timeStamp)

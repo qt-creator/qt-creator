@@ -129,7 +129,7 @@ sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
 
 void DatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey, Utils::SmallStringView newPragmaValue)
 {
-    ReadWriteStatement<1>{Utils::SmallString{"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"},
+    ReadWriteStatement<1>{Utils::SmallString::join({"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"}),
                           m_database}
         .execute();
     Utils::SmallString pragmeValueInDatabase = toValue<Utils::SmallString>("PRAGMA " + pragmaKey);

@@ -83,8 +83,9 @@ public:
     }
 
     NativeFilePath(Utils::SmallStringView directory, Utils::SmallStringView name)
-        : m_path({directory, Utils::HostOsInfo::isWindowsHost() ? "\\" : "/", name}),
-          m_slashIndex(directory.size())
+        : m_path(Utils::PathString::join(
+            {directory, Utils::HostOsInfo::isWindowsHost() ? "\\" : "/", name}))
+        , m_slashIndex(directory.size())
     {}
 
     Utils::SmallStringView directory() const noexcept

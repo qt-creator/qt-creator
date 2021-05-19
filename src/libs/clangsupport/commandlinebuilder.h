@@ -219,7 +219,7 @@ public:
                   });
 
         for (const CompilerMacro &macro : macros)
-            commandLine.emplace_back(Utils::SmallString{"-D", macro.key, "=", macro.value});
+            commandLine.emplace_back(Utils::SmallString::join({"-D", macro.key, "=", macro.value}));
     }
 
     void addPreIncludeSearchPath(NativeFilePathView preIncludeSearchPath)

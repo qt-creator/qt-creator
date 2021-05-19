@@ -127,9 +127,9 @@ void Internal::SessionsBase::createSessionTable(Database &database)
 
 void Sessions::revert()
 {
-    ReadStatement<1> selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
-                                                        sessionsTableName,
-                                                        " ORDER BY id DESC"},
+    ReadStatement<1> selectChangeSets{Utils::PathString::join({"SELECT changeset FROM ",
+                                                               sessionsTableName,
+                                                               " ORDER BY id DESC"}),
                                       database};
 
     auto changeSets = selectChangeSets.values<SessionChangeSet>(1024);
@@ -151,9 +151,9 @@ void Sessions::revert()
 
 void Sessions::apply()
 {
-    ReadStatement<1> selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
-                                                        sessionsTableName,
-                                                        " ORDER BY id"},
+    ReadStatement<1> selectChangeSets{Utils::PathString::join({"SELECT changeset FROM ",
+                                                               sessionsTableName,
+                                                               " ORDER BY id"}),
                                       database};
 
     auto changeSets = selectChangeSets.values<SessionChangeSet>(1024);
@@ -182,14 +182,14 @@ void Sessions::applyAndUpdateSessions()
 
 void Sessions::deleteAll()
 {
-    WriteStatement{Utils::SmallString{"DELETE FROM ", sessionsTableName}, database}.execute();
+    WriteStatement{Utils::SmallString::join({"DELETE FROM ", sessionsTableName}), database}.execute();
 }
 
 SessionChangeSets Sessions::changeSets() const
 {
-    ReadStatement<1> selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
-                                                        sessionsTableName,
-                                                        " ORDER BY id DESC"},
+    ReadStatement<1> selectChangeSets{Utils::PathString::join({"SELECT changeset FROM ",
+                                                               sessionsTableName,
+                                                               " ORDER BY id DESC"}),
                                       database};
 
     return selectChangeSets.values<SessionChangeSet>(1024);

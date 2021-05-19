@@ -37,7 +37,8 @@ namespace {
 
 Utils::PathString createId(Utils::PathString filePath, Utils::SmallString extraId)
 {
-    return extraId.empty() ? Utils::PathString{filePath} : Utils::PathString{filePath, "+", extraId};
+    return extraId.empty() ? Utils::PathString{filePath}
+                           : Utils::PathString::join({filePath, "+", extraId});
 }
 } // namespace
 

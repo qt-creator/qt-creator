@@ -90,8 +90,8 @@ public:
     }
 
     FilePath(Utils::SmallStringView directory, Utils::SmallStringView name)
-        : Utils::PathString({directory, "/", name}),
-          m_slashIndex(std::ptrdiff_t(directory.size()))
+        : Utils::PathString(Utils::PathString::join({directory, "/", name}))
+        , m_slashIndex(std::ptrdiff_t(directory.size()))
     {}
 
     bool isValid() const { return size() > 0 && m_slashIndex >= 0; }

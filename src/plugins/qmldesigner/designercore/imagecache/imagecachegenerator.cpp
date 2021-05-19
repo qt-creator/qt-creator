@@ -81,7 +81,7 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
 namespace {
 Utils::PathString createId(Utils::SmallStringView name, Utils::SmallStringView extraId)
 {
-    return extraId.empty() ? Utils::PathString{name} : Utils::PathString{name, "+", extraId};
+    return extraId.empty() ? Utils::PathString{name} : Utils::PathString::join({name, "+", extraId});
 }
 template<typename Callbacks, typename... Argument>
 void callCallbacks(const Callbacks &callbacks, Argument &&...arguments)

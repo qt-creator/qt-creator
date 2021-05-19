@@ -57,18 +57,17 @@ public:
         checkTableName();
         checkColumns();
 
-        return {"CREATE ",
-                m_indexType == IndexType::Unique ? "UNIQUE " : "",
-                "INDEX IF NOT EXISTS index_",
-                m_tableName,
-                "_",
-                m_columnNames.join("_"),
-                " ON ",
-                m_tableName,
-                "(",
-                m_columnNames.join(", "),
-                ")"
-        };
+        return Utils::SmallString::join({"CREATE ",
+                                         m_indexType == IndexType::Unique ? "UNIQUE " : "",
+                                         "INDEX IF NOT EXISTS index_",
+                                         m_tableName,
+                                         "_",
+                                         m_columnNames.join("_"),
+                                         " ON ",
+                                         m_tableName,
+                                         "(",
+                                         m_columnNames.join(", "),
+                                         ")"});
     }
 
     void checkTableName() const

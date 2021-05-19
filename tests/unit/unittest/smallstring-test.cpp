@@ -1556,7 +1556,7 @@ TEST(SmallString, CompareTextWithDifferentLineEndings)
 
 TEST(SmallString, ConstSubscriptOperator)
 {
-    const SmallString text = {"some text"};
+    const SmallString text{"some text"};
 
     auto &&sign = text[5];
 
@@ -1565,7 +1565,7 @@ TEST(SmallString, ConstSubscriptOperator)
 
 TEST(SmallString, NonConstSubscriptOperator)
 {
-    SmallString text = {"some text"};
+    SmallString text{"some text"};
 
     auto &&sign = text[5];
 
@@ -1574,7 +1574,7 @@ TEST(SmallString, NonConstSubscriptOperator)
 
 TEST(SmallString, ManipulateConstSubscriptOperator)
 {
-    const SmallString text = {"some text"};
+    const SmallString text{"some text"};
     auto &&sign = text[5];
 
     sign = 'q';
@@ -1609,28 +1609,28 @@ TEST(SmallString, EmptyInitializerListSize)
 
 TEST(SmallString, EmptyInitializerListNullTerminated)
 {
-    auto end = SmallString{{}}[0];
+    auto end = SmallString::join({})[0];
 
     ASSERT_THAT(end, '\0');
 }
 
 TEST(SmallString, InitializerListContent)
 {
-    SmallString text = {"some", " ", "text"};
+    auto text = SmallString::join({"some", " ", "text"});
 
     ASSERT_THAT(text, SmallString("some text"));
 }
 
 TEST(SmallString, InitializerListSize)
 {
-    SmallString text = {"some", " ", "text"};
+    auto text = SmallString::join({"some", " ", "text"});
 
     ASSERT_THAT(text, SizeIs(9));
 }
 
 TEST(SmallString, InitializerListNullTerminated)
 {
-    auto end = SmallString{"some", " ", "text"}[9];
+    auto end = SmallString::join({"some", " ", "text"})[9];
 
     ASSERT_THAT(end, '\0');
 }

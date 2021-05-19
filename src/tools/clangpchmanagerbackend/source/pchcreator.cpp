@@ -92,10 +92,12 @@ FilePath PchCreator::generatePchFilePath() const
     std::uniform_int_distribution<std::uint_fast64_t> distribution(
         1, std::numeric_limits<std::uint_fast64_t>::max());
 
-    return FilePathView{Utils::PathString{Utils::SmallString(m_environment.pchBuildDirectory()),
-                                          "/",
-                                          std::to_string(distribution(randomNumberGenator)),
-                                          ".pch"}};
+    auto joinedPath = Utils::PathString::join({Utils::SmallString(m_environment.pchBuildDirectory()),
+                                               "/",
+                                               std::to_string(distribution(randomNumberGenator)),
+                                               ".pch"});
+
+    return FilePathView{joinedPath};
 }
 
 Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTask &pchTask,

@@ -152,14 +152,7 @@ public:
              >
     BasicSmallString(BeginIterator begin, EndIterator end)
         : BasicSmallString(&(*begin), size_type(end - begin))
-    {
-    }
-
-    BasicSmallString(std::initializer_list<SmallStringView> list)
-        : m_data(Internal::StringDataLayout<Size>())
-    {
-        appendInitializerList(list, 0);
-    }
+    {}
 
     ~BasicSmallString() noexcept
     {

@@ -62,9 +62,8 @@ public:
              Utils::SmallStringView sessionsTableName)
         : SessionsBase(database, sessionsTableName)
         , database(database)
-        , insertSession{Utils::PathString{"INSERT INTO ",
-                                          sessionsTableName,
-                                          "(changeset) VALUES(?)"},
+        , insertSession{Utils::PathString::join(
+                            {"INSERT INTO ", sessionsTableName, "(changeset) VALUES(?)"}),
                         database}
         , databaseName(databaseName)
         , session{nullptr, sqlite3session_delete}

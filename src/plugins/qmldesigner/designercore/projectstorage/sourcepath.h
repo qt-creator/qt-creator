@@ -83,7 +83,7 @@ public:
     }
 
     SourcePath(Utils::SmallStringView directory, Utils::SmallStringView name)
-        : Utils::PathString({directory, "/", name})
+        : Utils::PathString(Utils::PathString::join({directory, "/", name}))
         , m_slashIndex(std::ptrdiff_t(directory.size()))
     {}
 
