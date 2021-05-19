@@ -146,6 +146,8 @@ public:
     bool isDir() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
 
+    Qt::CaseSensitivity caseSensitivity() const;
+
     FilePath relativeChildPath(const FilePath &parent) const;
     FilePath relativePath(const FilePath &anchor) const;
     FilePath pathAppended(const QString &str) const;

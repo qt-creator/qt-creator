@@ -210,6 +210,18 @@ bool FilePath::isNewerThan(const QDateTime &timeStamp) const
     return false;
 }
 
+Qt::CaseSensitivity FilePath::caseSensitivity() const
+{
+    if (m_scheme.isEmpty())
+        return HostOsInfo::fileNameCaseSensitivity();
+
+    // FIXME: This could or possibly should the target device's file name case sensitivity
+    // into account by diverting to IDevice. However, as this is expensive and we are
+    // in time-critical path here, we go with "good enough" for now:
+    // The first approximation is "Anything unusual is not case sensitive"
+    return Qt::CaseSensitive;
+}
+
 /*!
   Recursively resolves symlinks if \a filePath is a symlink.
   To resolve symlinks anywhere in the path, see canonicalPath.
@@ -994,12 +1006,9 @@ QDir FilePath::toDir() const
 
 bool FilePath::operator==(const FilePath &other) const
 {
-    if (m_scheme.isEmpty())
-        return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
-
-    // FIXME: This should take the host's file name case sensitivity into account.
-    // The first approximation here is "Anything unusual is not case sensitive"
-    return m_data == other.m_data && m_host == other.m_host && m_scheme == other.m_scheme;
+    return QString::compare(m_data, other.m_data, caseSensitivity()) == 0
+        && m_host == other.m_host
+        && m_scheme == other.m_scheme;
 }
 
 bool FilePath::operator!=(const FilePath &other) const
@@ -1009,13 +1018,9 @@ bool FilePath::operator!=(const FilePath &other) const
 
 bool FilePath::operator<(const FilePath &other) const
 {
-    if (m_scheme.isEmpty())
-        return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) < 0;
-
-    // FIXME: This should take the host's file name case sensitivity into account.
-    // The first approximation here is "Anything unusual is not case sensitive"
-    if (m_data != other.m_data)
-        return m_data < other.m_data;
+    const int cmp = QString::compare(m_data, other.m_data, caseSensitivity());
+    if (cmp != 0)
+        return cmp < 0;
     if (m_host != other.m_host)
         return m_host < other.m_host;
     return m_scheme < other.m_scheme;
@@ -1046,7 +1051,7 @@ bool FilePath::isChildOf(const FilePath &s) const
 {
     if (s.isEmpty())
         return false;
-    if (!m_data.startsWith(s.m_data, HostOsInfo::fileNameCaseSensitivity()))
+    if (!m_data.startsWith(s.m_data, caseSensitivity()))
         return false;
     if (m_data.size() <= s.m_data.size())
         return false;
@@ -1066,13 +1071,13 @@ bool FilePath::isChildOf(const QDir &dir) const
 /// \returns whether FilePath startsWith \a s
 bool FilePath::startsWith(const QString &s) const
 {
-    return m_data.startsWith(s, HostOsInfo::fileNameCaseSensitivity());
+    return m_data.startsWith(s, caseSensitivity());
 }
 
 /// \returns whether FilePath endsWith \a s
 bool FilePath::endsWith(const QString &s) const
 {
-    return m_data.endsWith(s, HostOsInfo::fileNameCaseSensitivity());
+    return m_data.endsWith(s, caseSensitivity());
 }
 
 bool FilePath::isDir() const
@@ -1307,7 +1312,7 @@ void withNtfsPermissions(const std::function<void()> &task)
 std::hash<Utils::FilePath>::result_type
     std::hash<Utils::FilePath>::operator()(const std::hash<Utils::FilePath>::argument_type &fn) const
 {
-    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+    if (fn.caseSensitivity() == Qt::CaseInsensitive)
         return hash<string>()(fn.toString().toUpper().toStdString());
     return hash<string>()(fn.toString().toStdString());
 }

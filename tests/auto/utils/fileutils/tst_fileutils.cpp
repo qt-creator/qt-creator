@@ -52,6 +52,8 @@ private slots:
     void relativePath();
     void fromToString_data();
     void fromToString();
+    void comparison_data();
+    void comparison();
 
 private:
     QTemporaryDir tempDir;
@@ -327,6 +329,39 @@ void tst_fileutils::fromToString()
 
     copy.setPath(path);
     QCOMPARE(copy.toString(), full);
+}
+
+void tst_fileutils::comparison()
+{
+    QFETCH(QString, left);
+    QFETCH(QString, right);
+    QFETCH(bool, hostSensitive);
+    QFETCH(bool, expected);
+
+    HostOsInfo::setOverrideFileNameCaseSensitivity(
+        hostSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+
+    FilePath l = FilePath::fromString(left);
+    FilePath r = FilePath::fromString(right);
+    QCOMPARE(l == r, expected);
+}
+
+void tst_fileutils::comparison_data()
+{
+    QTest::addColumn<QString>("left");
+    QTest::addColumn<QString>("right");
+    QTest::addColumn<bool>("hostSensitive");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("r1") << "Abc" << "abc" << true << false;
+    QTest::newRow("r2") << "Abc" << "abc" << false << true;
+    QTest::newRow("r3") << "x://y/Abc" << "x://y/abc" << true << false;
+    QTest::newRow("r4") << "x://y/Abc" << "x://y/abc" << false << false;
+
+    QTest::newRow("s1") << "abc" << "abc" << true << true;
+    QTest::newRow("s2") << "abc" << "abc" << false << true;
+    QTest::newRow("s3") << "x://y/abc" << "x://y/abc" << true << true;
+    QTest::newRow("s4") << "x://y/abc" << "x://y/abc" << false << true;
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)
