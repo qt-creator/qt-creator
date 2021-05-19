@@ -1,0 +1,237 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-user-interaction-methods.html
+    \previouspage quick-controls.html
+    \nextpage quick-data-models.html
+
+    \title User Interaction Methods
+
+    You can create instances of preset basic components to add interaction
+    methods to UIs, such as performing actions by using a pointing device or
+    the keyboard, or flicking the visible area of the screen horizontally or
+    vertically. They are availabe in \l Library > \uicontrol Components >
+    \uicontrol {Default Components} > \uicontrol Basic.
+
+    In addition, you can create instances of preset \l{UI Controls} to inform
+    users about the progress of the application or to gather input from users.
+
+    The following basic components are available for user interaction:
+
+    \list
+        \li \l {Mouse Area}
+        \li \l {Focus Scope}
+        \li \l {Flickable}
+        \li \l {Summary of Basic Interaction Methods}
+    \endlist
+
+    You can specify values for the properties of component instances in the
+    \l Properties view.
+
+    \section1 Mouse Area
+
+    Signals and handlers are used to deliver mouse interactions. Specifically,
+    you can use a \uicontrol {Mouse Area} component to define JavaScript
+    callbacks (also called signal handlers), which accept mouse events within
+    a defined area.
+
+    A mouse area receives events within a defined area. One quick way to define
+    this area is to \l{Setting Anchors and Margins}{anchor} the mouse area to
+    its parent's area. If the parent is a \l {basic-rectangle}{Rectangle} (or
+    any component that is derived from an \l {basic-item}{Item}), the mouse area
+    will fill the area defined by the parent's dimensions. Alternatively, you
+    can define an area smaller or larger than the parent. Several controls, such
+    as \l {Button}{buttons}, contain a mouse area.
+
+    A mouse area emits \l{Connecting Components to Signals}{signals} in response
+    to different mouse events:
+
+    \list
+        \li \c canceled()
+        \li \c clicked()
+        \li \c doubleClicked()
+        \li \c entered()
+        \li \c exited()
+        \li \c positionChanged()
+        \li \c pressAndHold()
+        \li \c pressed()
+        \li \c released()
+    \endlist
+
+    \if defined(qtcreator)
+    A more modern way of handling events from all pointing devices, including
+    mouse and touchscreen, is via \l {Qt Quick Input Handlers}.
+    \endif
+
+    \section1 Focus Scope
+
+    When a key is pressed or released, a key event is generated and delivered
+    to the focused component. If no component has active focus, the key event
+    is ignored. If the component with active focus accepts the key event,
+    propagation stops. Otherwise the event is sent to the component's parent
+    until the event is accepted, or the root component is reached and the event
+    is ignored.
+
+    A component has focus when the \uicontrol Focus property in the
+    \uicontrol Advanced tab is set to \c true. However, for reusable
+    or imported components, this is not sufficient, and you should use
+    a \uicontrol {Focus Scope} component.
+
+    Within each focus scope, one object may have focus enabled. If more
+    than one component have it enabled, the last component to enable it
+    will have the focus and the others are unset, similarly to when there
+    are no focus scopes.
+
+    When a focus scope receives active focus, the contained component with
+    focus set (if any) also gets the active focus. If this component is
+    also a focus scope, both the focus scope and the sub-focused component
+    will have active focus.
+
+    The \uicontrol {Focus Scope} component is not a visual component and
+    therefore the properties of its children need to be exposed to the parent
+    component of the focus scope. \l{Using Layouts}{Layouts} and
+    \l{Using Positioners}{positioners} will use these visual and styling
+    properties to create the layout.
+
+    For more information, see \l {Keyboard Focus in Qt Quick}.
+
+    \section1 Flickable
+
+    \uicontrol Flickable places its children on a surface that can be dragged
+    and flicked, causing the view onto the child components to scroll. This
+    behavior forms the basis of components that are designed to show large
+    numbers of child components, such as \uicontrol {List View} and
+    \uicontrol {Grid View}. For more information, see \l{List and Grid Views}.
+
+    In traditional user interfaces, views can be scrolled using standard
+    controls, such as scroll bars and arrow buttons. In some situations, it
+    is also possible to drag the view directly by pressing and holding a
+    mouse button while moving the cursor. In touch-based user interfaces,
+    this dragging action is often complemented with a flicking action, where
+    scrolling continues after the user has stopped touching the view.
+
+    The contents of a flickable component are not automatically clipped. If
+    the component is not used as a full-screen component, consider selecting the
+    \uicontrol Clip check box in the \uicontrol Visibility section.
+
+    \image qtquick-designer-flickable-properties.png "Flickable properties"
+
+    Users can interact with a flickable component if the \uicontrol Interactive
+    property is set to \c true. Set it to \c false to temporarily disable
+    flicking. This enables special interaction with the component's children.
+    For example, you might want to freeze a flickable map while scrolling
+    through a pop-up that is a child of the Flickable.
+
+    The \uicontrol {Flick direction} field determines whether the view can be
+    flicked horizontally or vertically. Select \uicontrol AutoFlickDirection
+    to enable flicking vertically if the content height is not equal to height
+    of the flickable and horizontally if the content width is not equal
+    to the width of the flickable. Select \uicontrol AutoFlickIfNeeded if
+    the content height or width is greater than that of the flickable.
+
+    Specify the maximum velocity for flicking the view in pixels per second in
+    the \uicontrol {Max. velocity} field. Specify the rate at which a flick
+    will decelerate in the \uicontrol Decelerate field.
+
+    The \uicontrol {Bounds movement} property determines whether the flickable
+    will give a feeling that the edges of the view are soft, rather than a hard
+    physical boundary. Select \uicontrol StopAtBounds for custom edge effects
+    where the contents do not follow drags or flicks beyond the bounds of the
+    flickable. Select \uicontrol FollowBoundsBehavior to have the contents
+    follow drags or flicks beyond the bounds of the flickable depending on the
+    value of the \uicontrol Behavior field.
+
+    In the \uicontrol {Press delay} field, specify the time in milliseconds
+    to delay delivering a press to children of a flickable. This can be useful
+    when reacting to a press before a flicking action has undesirable effects.
+    If the flickable is dragged or flicked before the delay times out,
+    the press event will not be delivered. If the button is released
+    within the timeout, both the press and release will be delivered.
+
+    \note For nested flickables with press delay set, the press delay of
+    outer flickables is overridden by the innermost flickable. If the drag
+    exceeds the platform drag threshold, the press event will be delivered
+    regardless of this property.
+
+    The \uicontrol {Pixel aligned} property sets the alignment of
+    \uicontrol {Content X} and \uicontrol {Content Y} to pixels (\c true)
+    or subpixels (\c false). Enable it to optimize for still content or
+    moving content with high constrast edges, such as one-pixel-wide lines,
+    text, or vector graphics. Disable this property when optimizing for
+    animation quality.
+
+    If \uicontrol {Synchronous drag} is set to \c true, then when the mouse or
+    touchpoint moves far enough to begin dragging the content, the content will
+    jump, so that the content pixel which was under the cursor or touchpoint
+    when pressed remains under that point. The default is \c false, which
+    provides a smoother experience (no jump) at the cost of losing some of the
+    drag distance at the beginning.
+
+    The \uicontrol {Content size} field specifies the dimensions of the
+    surface controlled by a flickable. Typically, set the values of the
+    \uicontrol W and \uicontrol H fields to the combined size of the components
+    placed in the flickable. You can set additional margins around the
+    content in the \uicontrol Margins field.
+
+    The \uicontrol Origin field specifies the origin of the content. It
+    refers to the top-left position of the content regardless of layout
+    direction. Usually, the \uicontrol X and \uicontrol Y values are set to 0.
+    However, a \l{ListView}{List View} and \l {GridView}{Grid View}
+    may have an arbitrary origin due to delegate size variation, or component
+    insertion or removal outside the visible region.
+
+    \section1 Summary of Basic Interaction Methods
+
+    The following table lists the components that you can use to add basic
+    interaction methods to UIs with links to their developer documentation.
+    They are availabe in \l Library > \uicontrol Components >
+    \uicontrol {Default Components} > \uicontrol Basic. The \e MCU column
+    indicates which components are supported on MCUs.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li MCU
+        \li Purpose
+    \row
+        \li \inlineimage flickable-icon16.png
+        \li \l [QML]{Flickable}
+        \li \inlineimage ok
+        \li Items can be flicked horizontally or vertically.
+    \row
+        \li \inlineimage focusscope-icon16.png
+        \li \l{FocusScope}{Focus Scope}
+        \li
+        \li Assists in keyboard focus handling when building reusable
+            components.
+    \row
+        \li \inlineimage mouse-area-icon16.png
+        \li \l [QtQuick]{MouseArea}{Mouse Area}
+        \li \inlineimage ok
+        \li Enables simple mouse handling.
+    \endtable
+*/
