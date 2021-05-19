@@ -588,22 +588,21 @@ DeviceEnvironmentFetcher::Ptr DockerDevice::environmentFetcher() const
 
 FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 {
-    QUrl url = pathOnDevice.toUrl();
-    if (url.isValid()) {
-        QTC_CHECK(url.host() == d->m_data.imageId);
-        QTC_CHECK(url.scheme() == "docker");
+    if (pathOnDevice.needsDevice()) {
+        // Already correct form, only sanity check it's ours...
+        QTC_CHECK(handlesFile(pathOnDevice));
         return pathOnDevice;
     }
-    url.setScheme("docker");
-    url.setHost(d->m_data.imageId);
-    url.setPath(pathOnDevice.toString());
-    return FilePath::fromUrl(url);
+    FilePath result;
+    result.setScheme("docker");
+    result.setHost(d->m_data.imageId);
+    result.setPath(pathOnDevice.path());
+    return result;
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
-    const QUrl &url = filePath.toUrl();
-    return url.scheme() == "docker" && url.host() == d->m_data.imageId;
+    return filePath.scheme() == "docker" && filePath.host() == d->m_data.imageId;
 }
 
 bool DockerDevice::isExecutableFile(const FilePath &filePath) const
