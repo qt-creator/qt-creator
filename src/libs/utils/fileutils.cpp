@@ -1095,9 +1095,10 @@ bool FilePath::isDir() const
 /// That is, this never returns a path starting with "../"
 FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
-    if (!isChildOf(parent))
-        return FilePath();
-    return FilePath::fromString(m_data.mid(parent.m_data.size() + 1, -1));
+    FilePath res;
+    if (isChildOf(parent))
+        res.m_data = m_data.mid(parent.m_data.size() + 1, -1);
+    return res;
 }
 
 /// \returns the relativePath of FilePath to given \a anchor.
