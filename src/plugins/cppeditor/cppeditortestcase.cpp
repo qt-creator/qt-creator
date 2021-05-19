@@ -28,9 +28,12 @@
 #include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppeditorplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppsemanticinfo.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QDir>
@@ -74,12 +77,20 @@ bool TestDocument::hasCursorMarker() const { return m_cursorPosition != -1; }
 bool TestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
 
 TestCase::TestCase(bool runGarbageCollector)
-    : CppTools::Tests::TestCase(runGarbageCollector)
+    : CppTools::Tests::TestCase(runGarbageCollector),
+      m_prevUseClangd(CppTools::codeModelSettings()->useClangd())
 {
 }
 
 TestCase::~TestCase()
 {
+    CppTools::codeModelSettings()->setUseClangd(m_prevUseClangd);
+}
+
+void TestCase::setUseClangd()
+{
+    if (CppEditorPlugin::instance()->m_testKit)
+        CppTools::codeModelSettings()->setUseClangd(true);
 }
 
 bool TestCase::openCppEditor(const QString &fileName, CppEditor **editor, CppEditorWidget **editorWidget)

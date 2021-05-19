@@ -49,6 +49,7 @@
 
 using namespace CPlusPlus;
 using namespace Core;
+using namespace CppTools::Tests;
 using namespace ProjectExplorer;
 
 namespace ClangCodeModel {
@@ -65,20 +66,6 @@ void ClangdTests::initTestCase()
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
     settings->setUseClangd(true);
-}
-
-template <typename Signal> static bool waitForSignalOrTimeout(
-        const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal)
-{
-    QTimer timer;
-    timer.setSingleShot(true);
-    timer.setInterval(timeOutInMs());
-    QEventLoop loop;
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
-    timer.start();
-    loop.exec();
-    return timer.isActive();
 }
 
 // The main point here is to test our access type categorization.
@@ -110,7 +97,7 @@ void ClangdTests::testFindReferences()
     ClangdClient *client = modelManagerSupport->clientForProject(openProjectResult.project());
     if (!client) {
         QVERIFY(waitForSignalOrTimeout(modelManagerSupport,
-                                       &ClangModelManagerSupport::createdClient));
+                                       &ClangModelManagerSupport::createdClient, timeOutInMs()));
         client = modelManagerSupport->clientForProject(openProjectResult.project());
     }
     QVERIFY(client);
@@ -119,7 +106,7 @@ void ClangdTests::testFindReferences()
     // Wait until the client is fully initialized, i.e. it's completed the handshake
     // with the server.
     if (!client->reachable())
-        QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::initialized));
+        QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::initialized, timeOutInMs()));
     QVERIFY(client->reachable());
 
     // The kind of AST support we need was introduced in LLVM 13.
@@ -128,7 +115,7 @@ void ClangdTests::testFindReferences()
 
     // Wait for index to build.
     if (!client->isFullyIndexed())
-        QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::indexingFinished));
+        QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::indexingFinished, timeOutInMs()));
     QVERIFY(client->isFullyIndexed());
 
     // Open cpp documents.
@@ -167,7 +154,7 @@ void ClangdTests::testFindReferences()
     cursor.setPosition((pos)); \
     searchResults.clear(); \
     client->findUsages((doc), cursor, {}); \
-    QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::findUsagesDone)); \
+    QVERIFY(waitForSignalOrTimeout(client, &ClangdClient::findUsagesDone, timeOutInMs())); \
 } while (false)
 
 #define EXPECT_RESULT(index, lne, col, type) \

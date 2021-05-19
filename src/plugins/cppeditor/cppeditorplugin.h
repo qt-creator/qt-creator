@@ -27,6 +27,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+#ifdef WITH_TESTS
+namespace ProjectExplorer { class Kit; }
+#endif
+
 namespace CppEditor {
 namespace Internal {
 
@@ -49,6 +53,10 @@ public:
 
     CppQuickFixAssistProvider *quickFixProvider() const;
 
+#ifdef WITH_TESTS
+    ProjectExplorer::Kit *m_testKit = nullptr;
+#endif
+
 signals:
     void outlineSortingChanged(bool sort);
     void typeHierarchyRequested();
@@ -67,6 +75,8 @@ private:
     QVector<QObject *> createTestObjects() const override;
 
 private slots:
+    void initTestCase();
+
     // The following tests expect that no projects are loaded on start-up.
     void test_SwitchMethodDeclarationDefinition_data();
     void test_SwitchMethodDeclarationDefinition();

@@ -6257,6 +6257,10 @@ void TextEditorWidget::findLinkAt(const QTextCursor &cursor,
 
 bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 {
+#ifdef WITH_TESTS
+    struct Signaller { ~Signaller() { emit EditorManager::instance()->linkOpened(); } } s;
+#endif
+
     if (!link.hasValidTarget())
         return false;
 

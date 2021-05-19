@@ -28,12 +28,17 @@
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppelementevaluator.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
 #include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/cppvirtualfunctionproposalitem.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/cppmodelmanager.h>
+
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -76,6 +81,7 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace Core;
+using namespace ProjectExplorer;
 
 class OverrideItem {
 public:
@@ -267,6 +273,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
 {
     QVERIFY(succeededSoFar());
 
+    setUseClangd();
+
     // Check if there are initial and target position markers
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker(testFiles);
     QVERIFY2(initialTestFile,
@@ -275,13 +283,68 @@ F2TestCase::F2TestCase(CppEditorAction action,
     QVERIFY2(targetTestFile,
         "No test file with target cursor marker is provided.");
 
+    const QString curTestName = QLatin1String(QTest::currentTestFunction());
+    const QString tag = QLatin1String(QTest::currentDataTag());
+    const bool useClangd = CppTools::codeModelSettings()->useClangd();
+    if (useClangd) {
+        if (curTestName == "test_FollowSymbolUnderCursor_virtualFunctionCall"
+                || curTestName == "test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments") {
+            QSKIP("TODO: Add test infrastructure for this");
+        }
+        if (curTestName == "test_FollowSymbolUnderCursor_QObject_connect"
+                || curTestName == "test_FollowSymbolUnderCursor_QObject_oldStyleConnect") {
+            QSKIP("TODO: Implement fall-back");
+        }
+        if (curTestName == "test_FollowSymbolUnderCursor_classOperator" && tag == "backward")
+            QSKIP("clangd goes to operator name first");
+        if (tag.toLower().contains("fuzzy"))
+            QSKIP("fuzzy matching is not supposed to work with clangd"); // TODO: Implement fallback as we do with libclang
+        if (tag == "baseClassFunctionIntroducedByUsingDeclaration")
+            QSKIP("clangd points to the using declaration");
+        if (tag == "classDestructor")
+            QSKIP("clangd wants the cursor before the ~ character");
+        if (curTestName == "test_FollowSymbolUnderCursor_classOperator_inOp")
+            QSKIP("clangd goes to operator name first");
+        if (tag == "fromFunctionBody" || tag == "fromReturnType"
+                || tag == "conversionOperatorDecl2Def") {
+            QSKIP("TODO: explicit decl/def switch not yet supported with clangd");
+        }
+    }
+
     // Write files to disk
     CppTools::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
+    QString projectFileContent = "CppApplication { files: [";
     foreach (TestDocumentPtr testFile, testFiles) {
         QVERIFY(testFile->baseDirectory().isEmpty());
         testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
+        projectFileContent += QString::fromLatin1("\"%1\",").arg(testFile->filePath());
+    }
+    projectFileContent += "]}\n";
+
+    class ProjectCloser {
+    public:
+        void setProject(Project *p) { m_p = p; }
+        ~ProjectCloser() { if (m_p) ProjectExplorerPlugin::unloadProject(m_p); }
+    private:
+        Project * m_p = nullptr;
+    } projectCloser;
+
+    if (useClangd) {
+        TestDocument projectFile(projectFileContent.toUtf8(), "project.qbs");
+        projectFile.setBaseDirectory(temporaryDir.path());
+        QVERIFY(projectFile.writeToDisk());
+        const auto openProjectResult = ProjectExplorerPlugin::openProject(projectFile.filePath());
+        QVERIFY2(openProjectResult && openProjectResult.project(),
+                 qPrintable(openProjectResult.errorMessage()));
+        projectCloser.setProject(openProjectResult.project());
+        openProjectResult.project()->configureAsExampleProject(
+                    CppEditorPlugin::instance()->m_testKit);
+
+        // Wait until project is fully indexed.
+        QVERIFY(CppTools::Tests::waitForSignalOrTimeout(openProjectResult.project(),
+                &Project::indexingFinished, CppTools::Tests::clangdIndexingTimeout()));
     }
 
     // Update Code Model
@@ -294,7 +357,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
     foreach (TestDocumentPtr testFile, testFiles) {
         QVERIFY(openCppEditor(testFile->filePath(), &testFile->m_editor,
                               &testFile->m_editorWidget));
-        closeEditorAtEndOfTestCase(testFile->m_editor);
+        if (!useClangd) // Editors get closed when unloading project.
+            closeEditorAtEndOfTestCase(testFile->m_editor);
 
         // Wait until the indexer processed the just opened file.
         // The file is "Full Checked" since it is in the working copy now,
@@ -303,13 +367,16 @@ F2TestCase::F2TestCase(CppEditorAction action,
             const Document::Ptr document = waitForFileInGlobalSnapshot(testFile->filePath());
             QVERIFY(document);
             if (document->checkMode() == Document::FullCheck) {
+                if (!document->diagnosticMessages().isEmpty())
+                    qDebug() << document->diagnosticMessages().first().text();
                 QVERIFY(document->diagnosticMessages().isEmpty());
                 break;
             }
         }
 
         // Rehighlight
-        waitForRehighlightedSemanticDocument(testFile->m_editorWidget);
+        if (!useClangd)
+            waitForRehighlightedSemanticDocument(testFile->m_editorWidget);
     }
 
     // Activate editor of initial test file
@@ -329,14 +396,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         FollowSymbolInterface &delegate = CppModelManager::instance()->followSymbolInterface();
         auto* builtinFollowSymbol = dynamic_cast<FollowSymbolUnderCursor *>(&delegate);
         if (!builtinFollowSymbol) {
-            if (filePaths.size() > 1)
-                QSKIP("Clang FollowSymbol does not currently support multiple files (except cpp+header)");
-            const QString curTestName = QLatin1String(QTest::currentTestFunction());
-            if (curTestName == "test_FollowSymbolUnderCursor_QObject_connect"
-                    || curTestName == "test_FollowSymbolUnderCursor_virtualFunctionCall"
-                    || curTestName == "test_FollowSymbolUnderCursor_QTCREATORBUG7903") {
+            if (curTestName == "test_FollowSymbolUnderCursor_QTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
-            }
 
             widget->openLinkUnderCursor();
             break;
@@ -358,14 +419,24 @@ F2TestCase::F2TestCase(CppEditorAction action,
         break;
     }
     case SwitchBetweenMethodDeclarationDefinitionAction:
-        CppEditorPlugin::instance()->switchDeclarationDefinition();
+        if (CppTools::codeModelSettings()->useClangd())
+            initialTestFile->m_editorWidget->openLinkUnderCursor();
+        else
+            CppEditorPlugin::instance()->switchDeclarationDefinition();
         break;
     default:
         QFAIL("Unknown test action");
         break;
     }
 
-    QCoreApplication::processEvents();
+    if (useClangd) {
+        QEXPECT_FAIL("infiniteLoopLocalTypedef_QTCREATORBUG-11999",
+                     "clangd bug: Go to definition does not return", Abort);
+        QVERIFY(CppTools::Tests::waitForSignalOrTimeout(EditorManager::instance(),
+                                                        &EditorManager::linkOpened, 10000));
+    } else {
+        QCoreApplication::processEvents();
+    }
 
     // Compare
     IEditor *currentEditor = EditorManager::currentEditor();
@@ -379,8 +450,11 @@ F2TestCase::F2TestCase(CppEditorAction action,
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
 
-    QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
-    QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
+    if (!CppTools::codeModelSettings()->useClangd()) {
+        QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
+        QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
+    }
+
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
     QCOMPARE(currentTextEditor->currentColumn(), expectedColumn);
 
@@ -420,6 +494,25 @@ Q_DECLARE_METATYPE(QList<CppEditor::Internal::TestDocumentPtr>)
 
 namespace CppEditor {
 namespace Internal {
+
+void CppEditorPlugin::initTestCase()
+{
+    const auto settings = CppTools::codeModelSettings();
+    const QString clangdFromEnv = qEnvironmentVariable("QTC_CLANGD");
+    if (clangdFromEnv.isEmpty())
+        return;
+    settings->setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+    const auto clangd = settings->clangdFilePath();
+    if (clangd.isEmpty() || !clangd.exists())
+        return;
+
+    // Find suitable kit.
+    m_testKit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid();
+    });
+    if (!m_testKit)
+        QSKIP("This test requires at least one kit to be present");
+}
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
 {
@@ -576,7 +669,6 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
                  "int OtherClass::var;\n"
                  "namespace NS {\n"
                  "int OtherClass::var;\n"
-                 "float Test::var;\n"
                  "int Test::$var;\n"
                  "}\n");
 
@@ -1276,7 +1368,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
             "int OtherClass::var;\n"
             "namespace NS {\n"
             "int OtherClass::var;\n"
-            "float Test::var;\n"
             "int Test::$var;\n"
             "}\n", "file.cpp")};
 }

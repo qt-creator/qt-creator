@@ -62,12 +62,17 @@ public:
     TestCase(bool runGarbageCollector = true);
     ~TestCase();
 
+    void setUseClangd();
+
     static bool openCppEditor(const QString &fileName,
                               CppEditor **editor,
                               CppEditorWidget **editorWidget = 0);
 
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
             CppEditorWidget *editorWidget);
+
+private:
+    const bool m_prevUseClangd;
 };
 
 } // namespace Tests

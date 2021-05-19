@@ -36,6 +36,7 @@
 #include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/cppvirtualfunctionproposalitem.h>
 #include <languageclient/languageclientinterface.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <texteditor/basefilefind.h>
@@ -513,11 +514,14 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setLocatorsEnabled(false);
     setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
-    connect(this, &Client::workDone, this, [this](const ProgressToken &token) {
+    connect(this, &Client::workDone, this, [this, project](const ProgressToken &token) {
         const QString * const val = Utils::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
             emit indexingFinished();
+#ifdef WITH_TESTS
+            emit project->indexingFinished("Indexer.Clangd");
+#endif
         }
     });
 
@@ -848,6 +852,8 @@ void ClangdClient::followSymbol(
         return;
     }
 
+    qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
+                       << cursor.blockNumber() << cursor.positionInBlock();
     d->followSymbolData.emplace(this, ++d->nextFollowSymbolId, cursor, editorWidget,
                                 DocumentUri::fromFilePath(document->filePath()),
                                 std::move(callback), openInSplit);
@@ -856,6 +862,7 @@ void ClangdClient::followSymbol(
     //         AST node corresponding to the cursor position, so we can find out whether
     //         we have to look for overrides.
     const auto gotoDefCallback = [this, id = d->followSymbolData->id](const Utils::Link &link) {
+        qCDebug(clangdLog) << "received go to definition response";
         if (!link.hasValidTarget()) {
             d->followSymbolData.reset();
             return;
@@ -872,6 +879,7 @@ void ClangdClient::followSymbol(
                                     Range(cursor)));
     astRequest.setResponseCallback([this, id = d->followSymbolData->id](
                                    const AstRequest::Response &response) {
+        qCDebug(clangdLog) << "received ast response";
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
         const auto result = response.result();
@@ -890,6 +898,8 @@ void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
     QTC_ASSERT(followSymbolData->cursorNode.isValid(), return);
+
+    qCDebug(clangdLog) << "handling go to definition result";
 
     // No dis-ambiguation necessary. Call back with the link and finish.
     if (!followSymbolData->cursorNode.isMemberFunctionCall()

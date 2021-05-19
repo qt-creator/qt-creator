@@ -192,6 +192,10 @@ signals:
     void autoSaved();
     void currentEditorAboutToChange(Core::IEditor *editor);
 
+#ifdef WITH_TESTS
+    void linkOpened();
+#endif
+
 public slots:
     static void saveDocument();
     static void saveDocumentAs();

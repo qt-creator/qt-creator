@@ -17,6 +17,7 @@ QtcPlugin {
 
     pluginTestDepends: [
         "QmakeProjectManager",
+        "QbsProjectManager",
     ]
 
     files: [

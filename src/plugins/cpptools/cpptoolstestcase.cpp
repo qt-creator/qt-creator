@@ -44,6 +44,7 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
 
 #include <QtTest>
@@ -420,6 +421,16 @@ bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
 }
 
 #undef RETURN_FALSE_IF_NOT
+
+int clangdIndexingTimeout()
+{
+    const QByteArray timeoutAsByteArray = qgetenv("QTC_CLANGD_INDEXING_TIMEOUT");
+    bool isConversionOk = false;
+    const int intervalAsInt = timeoutAsByteArray.toInt(&isConversionOk);
+    if (!isConversionOk)
+        return Utils::HostOsInfo::isWindowsHost() ? 20000 : 10000;
+    return intervalAsInt;
+}
 
 } // namespace Tests
 } // namespace CppTools

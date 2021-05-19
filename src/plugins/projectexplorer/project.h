@@ -212,6 +212,10 @@ signals:
 
     void rootProjectDirectoryChanged();
 
+#ifdef WITH_TESTS
+    void indexingFinished(Utils::Id indexer);
+#endif
+
 protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     void createTargetFromMap(const QVariantMap &map, int index);

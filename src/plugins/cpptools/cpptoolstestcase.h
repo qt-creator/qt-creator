@@ -30,7 +30,9 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/temporarydirectory.h>
 
+#include <QEventLoop>
 #include <QStringList>
+#include <QTimer>
 
 namespace CPlusPlus {
 class Document;
@@ -53,6 +55,23 @@ class CppModelManager;
 class ProjectInfo;
 
 namespace Tests {
+
+int CPPTOOLS_EXPORT clangdIndexingTimeout();
+
+template <typename Signal> inline bool waitForSignalOrTimeout(
+        const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal,
+        int timeoutInMs)
+{
+    QTimer timer;
+    timer.setSingleShot(true);
+    timer.setInterval(timeoutInMs);
+    QEventLoop loop;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
+    timer.start();
+    loop.exec();
+    return timer.isActive();
+}
 
 class CPPTOOLS_EXPORT TestDocument
 {

@@ -7185,7 +7185,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "}\n"
              "void NS::C::f(NS::C &c)\n"
              "{\n"
-             "    @{start}C *c = &c;@{end}\n"
+             "    @{start}C *c2 = &c;@{end}\n"
              "}\n")
         << _("namespace NS {\n"
              "class C {\n"
@@ -7197,7 +7197,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "}\n"
              "inline void NS::C::extracted(NS::C &c)\n"
              "{\n"
-             "    C *c = &c;\n"
+             "    C *c2 = &c;\n"
              "}\n"
              "\n"
              "void NS::C::f(NS::C &c)\n"
