@@ -295,12 +295,11 @@ QString CppModelManager::editorConfigurationFileName()
     return QLatin1String("<per-editor-defines>");
 }
 
-static RefactoringEngineInterface *getRefactoringEngine(
-        CppModelManagerPrivate::REHash &engines, bool excludeClangCodeModel = true)
+static RefactoringEngineInterface *getRefactoringEngine(CppModelManagerPrivate::REHash &engines)
 {
     QTC_ASSERT(!engines.empty(), return nullptr;);
     RefactoringEngineInterface *currentEngine = engines[REType::BuiltIn];
-    if (!excludeClangCodeModel && engines.find(REType::ClangCodeModel) != engines.end()) {
+    if (engines.find(REType::ClangCodeModel) != engines.end()) {
         currentEngine = engines[REType::ClangCodeModel];
     } else if (engines.find(REType::ClangRefactoring) != engines.end()) {
         RefactoringEngineInterface *engine = engines[REType::ClangRefactoring];
@@ -314,8 +313,7 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
                                          CppTools::ProjectPart *projectPart,
                                          RenameCallback &&renameSymbolsCallback)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines,
-                                                              false);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
     QTC_ASSERT(engine, return;);
     engine->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
 }
@@ -323,7 +321,7 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
 void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
                                    const QString &replacement)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines, false);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
     QTC_ASSERT(engine, return;);
     engine->globalRename(data, std::move(renameCallback), replacement);
 }
@@ -331,7 +329,7 @@ void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&
 void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
                                  UsagesCallback &&showUsagesCallback) const
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines, false);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
     QTC_ASSERT(engine, return;);
     engine->findUsages(data, std::move(showUsagesCallback));
 }
@@ -344,7 +342,7 @@ void CppModelManager::globalFollowSymbol(
         SymbolFinder *symbolFinder,
         bool inNextSplit) const
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines, false);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
     QTC_ASSERT(engine, return;);
     engine->globalFollowSymbol(data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
                                symbolFinder, inNextSplit);
