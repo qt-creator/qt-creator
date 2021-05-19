@@ -80,6 +80,7 @@ public:
     ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
     ClangdClient *clientForProject(const ProjectExplorer::Project *project);
+    ClangdClient *clientForFile(const Utils::FilePath &file);
 
     static ClangModelManagerSupport *instance();
 

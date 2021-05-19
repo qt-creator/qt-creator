@@ -353,6 +353,11 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
     return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
+ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file)
+{
+    return clientForProject(ProjectExplorer::SessionManager::projectForFile(file));
+}
+
 ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
                                                      const Utils::FilePath &jsonDbDir)
 {

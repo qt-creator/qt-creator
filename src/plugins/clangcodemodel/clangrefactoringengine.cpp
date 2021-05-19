@@ -31,7 +31,6 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <languageclient/languageclientsymbolsupport.h>
-#include <projectexplorer/session.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
@@ -90,9 +89,8 @@ void RefactoringEngine::globalRename(const CppTools::CursorInEditor &cursor,
                                      CppTools::UsagesCallback &&callback,
                                      const QString &replacement)
 {
-    ProjectExplorer::Project * const project
-            = ProjectExplorer::SessionManager::projectForFile(cursor.filePath());
-    ClangdClient * const client = ClangModelManagerSupport::instance()->clientForProject(project);
+    ClangdClient * const client
+            = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
     if (!client || !client->isFullyIndexed()) {
         CppTools::CppModelManager::builtinRefactoringEngine()
                 ->globalRename(cursor, std::move(callback), replacement);
@@ -106,9 +104,8 @@ void RefactoringEngine::globalRename(const CppTools::CursorInEditor &cursor,
 void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
                                    CppTools::UsagesCallback &&callback) const
 {
-    ProjectExplorer::Project * const project
-            = ProjectExplorer::SessionManager::projectForFile(cursor.filePath());
-    ClangdClient * const client = ClangModelManagerSupport::instance()->clientForProject(project);
+    ClangdClient * const client
+            = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
     if (!client || !client->isFullyIndexed()) {
         CppTools::CppModelManager::builtinRefactoringEngine()
                 ->findUsages(cursor, std::move(callback));
@@ -127,9 +124,8 @@ void RefactoringEngine::globalFollowSymbol(
         CppTools::SymbolFinder *symbolFinder,
         bool inNextSplit) const
 {
-    ProjectExplorer::Project * const project
-            = ProjectExplorer::SessionManager::projectForFile(cursor.filePath());
-    ClangdClient * const client = ClangModelManagerSupport::instance()->clientForProject(project);
+    ClangdClient * const client
+            = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
     if (!client || !client->isFullyIndexed()) {
         CppTools::CppModelManager::builtinRefactoringEngine()
                 ->globalFollowSymbol(cursor, std::move(callback), snapshot, doc, symbolFinder,
