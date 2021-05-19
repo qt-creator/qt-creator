@@ -1016,7 +1016,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
     const bool forAndroid = DeviceTypeKitAspect::deviceTypeId(kit())
                             == Android::Constants::ANDROID_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
-        if (ct.targetType == UtilityType)
+        if (CMakeBuildSystem::filteredOutTarget(ct))
             continue;
 
         if (ct.targetType == ExecutableType || (forAndroid && ct.targetType == DynamicLibraryType)) {
@@ -1047,11 +1047,10 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 
 QStringList CMakeBuildSystem::buildTargetTitles() const
 {
-    auto nonUtilityTargets = filtered(m_buildTargets, [this](const CMakeBuildTarget &target){
-        return target.targetType != UtilityType ||
-               CMakeBuildStep::specialTargets(usesAllCapsTargets()).contains(target.title);
+    auto nonAutogenTargets = filtered(m_buildTargets, [this](const CMakeBuildTarget &target){
+        return !CMakeBuildSystem::filteredOutTarget(target);
     });
-    return transform(nonUtilityTargets, &CMakeBuildTarget::title);
+    return transform(nonAutogenTargets, &CMakeBuildTarget::title);
 }
 
 const QList<CMakeBuildTarget> &CMakeBuildSystem::buildTargets() const
@@ -1071,6 +1070,12 @@ CMakeConfig CMakeBuildSystem::parseCMakeCacheDotTxt(const Utils::FilePath &cache
     if (!errorMessage->isEmpty())
         return {};
     return result;
+}
+
+bool CMakeBuildSystem::filteredOutTarget(const CMakeBuildTarget &target)
+{
+    return target.title.endsWith("_autogen") ||
+           target.title.endsWith("_autogen_timestamp_deps");
 }
 
 bool CMakeBuildSystem::isMultiConfig() const

@@ -99,6 +99,8 @@ public:
     static CMakeConfig parseCMakeCacheDotTxt(const Utils::FilePath &cacheFile,
                                              QString *errorMessage);
 
+    static bool filteredOutTarget(const CMakeBuildTarget &target);
+
     bool isMultiConfig() const;
     bool usesAllCapsTargets() const;
 
