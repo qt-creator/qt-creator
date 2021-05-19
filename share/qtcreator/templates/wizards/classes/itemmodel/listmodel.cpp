@@ -35,6 +35,24 @@ int %{CN}::rowCount(const QModelIndex &parent) const
 
     // FIXME: Implement me!
 }
+@if %{DynamicFetch}
+
+bool %{CN}::hasChildren(const QModelIndex &parent) const
+{
+    // FIXME: Implement me!
+}
+
+bool %{CN}::canFetchMore(const QModelIndex &parent) const
+{
+    // FIXME: Implement me!
+    return false;
+}
+
+void %{CN}::fetchMore(const QModelIndex &parent)
+{
+    // FIXME: Implement me!
+}
+@endif
 
 QVariant %{CN}::data(const QModelIndex &index, int role) const
 {

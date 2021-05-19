@@ -84,6 +84,7 @@ public:
 
     // not used, only loaded and saved
     QString compress;
+    QString compressAlgo;
     QString threshold;
 
 private:

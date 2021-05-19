@@ -28,6 +28,14 @@ public:
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
+@if %{DynamicFetch}
+    // Fetch data dynamically:
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+
+    bool canFetchMore(const QModelIndex &parent) const override;
+    void fetchMore(const QModelIndex &parent) override;
+
+@endif
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 @if %{Editable}

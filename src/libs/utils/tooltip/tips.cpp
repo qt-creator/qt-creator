@@ -206,7 +206,12 @@ void TextTip::configure(const QPoint &pos)
     // Try to find a nice width without unnecessary wrapping.
     setWordWrap(false);
     int tipWidth = sizeHint().width();
-    const int screenWidth = QGuiApplication::screenAt(pos)->availableGeometry().width();
+
+    QScreen *screen = QGuiApplication::screenAt(pos);
+    if (!screen)
+        screen = QGuiApplication::primaryScreen();
+
+    const int screenWidth = screen->availableGeometry().width();
     const int maxDesiredWidth = int(screenWidth * .5);
     if (tipWidth > maxDesiredWidth) {
         setWordWrap(true);

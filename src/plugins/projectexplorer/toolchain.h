@@ -146,7 +146,7 @@ public:
 
     Utils::Id language() const;
 
-    Utils::FilePath compilerCommand() const;
+    virtual Utils::FilePath compilerCommand() const; // FIXME: De-virtualize.
     void setCompilerCommand(const Utils::FilePath &command);
 
     virtual QList<Utils::OutputLineParser *> createOutputParsers() const = 0;
