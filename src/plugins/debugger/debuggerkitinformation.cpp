@@ -345,6 +345,7 @@ Runnable DebuggerKitAspect::runnable(const Kit *kit)
         runnable.executable = item->command();
         runnable.workingDirectory = item->workingDirectory().toString();
         runnable.environment = Utils::Environment::systemEnvironment();
+        kit->addToEnvironment(runnable.environment);
         runnable.environment.set("LC_NUMERIC", "C");
     }
     return runnable;
