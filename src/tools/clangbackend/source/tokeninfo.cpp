@@ -384,7 +384,9 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
     if (cursor.isInvalidDeclaration())
         return;
 
-    if (recursion == Recursion::FirstPass && cursor.kind() != CXCursor_NotImplemented) {
+    if (recursion == Recursion::FirstPass
+            && cursor.kind() != CXCursor_NotImplemented
+            && cursor.kind() != CXCursor_PreprocessingDirective) {
         const Cursor c = realCursor(cursor);
         if (!clang_isInvalid(c.kind()) && c != cursor) {
             identifierKind(c, Recursion::FirstPass);

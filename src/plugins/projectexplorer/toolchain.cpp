@@ -279,14 +279,7 @@ void ToolChain::toolChainUpdated()
 
 void ToolChain::setDetection(ToolChain::Detection de)
 {
-    if (d->m_detection == de)
-        return;
-    if (d->m_detection == ToolChain::UninitializedDetection) {
-        d->m_detection = de;
-    } else {
-        d->m_detection = de;
-        toolChainUpdated();
-    }
+    d->m_detection = de;
 }
 
 QString ToolChain::typeDisplayName() const

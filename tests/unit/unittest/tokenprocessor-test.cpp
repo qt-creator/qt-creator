@@ -1813,6 +1813,12 @@ TEST_F(TokenProcessor, CyrillicString)
     ASSERT_THAT(infos[5], IsHighlightingMark(792u, 24u, 3u, HighlightingType::StringLiteral));
 }
 
+TEST_F(TokenProcessor, PreProcessorInStruct)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(793, 14));
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

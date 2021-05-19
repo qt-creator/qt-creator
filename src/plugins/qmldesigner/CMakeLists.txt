@@ -16,6 +16,7 @@ add_qtc_plugin(QmlDesigner
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
     QtSupport TextEditor
+  PLUGIN_RECOMMENDS QmlPreview
   SOURCES
     designersettings.cpp designersettings.h
     designmodecontext.cpp designmodecontext.h

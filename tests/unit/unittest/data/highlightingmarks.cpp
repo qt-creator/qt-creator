@@ -790,3 +790,7 @@ static inline constexpr vecn<T, S> operator<(vecn<T, S> a, vecn<T, S> b)
 }
 
 const char *cyrillic = "б";
+
+struct foo {
+#define blubb
+};
