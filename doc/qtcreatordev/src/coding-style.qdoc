@@ -574,7 +574,7 @@
 
         void SomeThing::bar()
         {
-            FileName f;              // or Utils::FileName f
+            FilePath f;              // or Utils::FilePath f
             ...
         }
         ...
@@ -637,11 +637,38 @@
     instead of backslashes (\\) even on Windows. To pass a file name from the user
     to the API, convert it with QDir::fromNativeSeparators first. To present a file
     name to the user, convert it back to native format with
-    QDir::toNativeSeparators. Consider using Utils::FileName::fromUserInput(QString)
-    and Utils::FileName::toUserOutput() for these tasks.
+    QDir::toNativeSeparators. Consider using Utils::FilePath::fromUserInput(QString)
+    and Utils::FilePath::toUserOutput() for these tasks.
 
-    Use Utils::FileName when comparing file names, because that takes case sensitivity into account.
+    Use Utils::FilePath when comparing file names, because that takes case sensitivity into account.
     Also make sure that you compare clean paths (QDir::cleanPath()).
+
+
+    \section2 Classes to Use and Classes Not to Use
+
+    A significant portion of Qt Creator code handles data on devices that are not
+    the same as the development machine. These may differ in aspects like path
+    separator, line endings, process launching details and so on.
+
+    However, some basic Qt classes assume that a Qt application is only
+    concerned with machines that are similar to the development machine.
+
+    These classes are therefore not appropriate to use in the part of Qt Creator that
+    is concerned with non-local code. Instead, Qt Creator's Utils library provides
+    substitutes, leading to the following rules:
+
+    \list
+        \li Use Utils::FilePath for any QString that semantically is a file or directory,
+            see also \l{Passing File Names}.
+        \li Prefer using Utils::FilePath over any use of QDir and QFileInfo.
+        \li Prefer using Utils::QtcProcess over QProcess.
+        \li If Utils::FilePath or Utils::QtcProcess functionality is not sufficient
+            for your purpose, prefer enhancing them over falling back to QString
+            or QProcess.
+        \li Avoid platform #ifdefs unless they are absolutely needed for locally
+            executed code, and even then prefer Utils::HostInfo over #ifdefs.
+    \endlist
+
 
     \section2 Plugin Extension Points
 
