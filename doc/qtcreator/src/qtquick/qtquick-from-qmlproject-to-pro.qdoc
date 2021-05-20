@@ -66,14 +66,18 @@
     Then you can use the \l QQuickView class in the main C++ source file to
     show the main QML file when the application starts.
 
-    The \e {Qt Quick Designer Components} module is delivered with \QDS. If you
-    use Studio Components or Effects in your project, you have to build the
-    module and install it to your Qt to be able to build your project.
+    The \e {Qt Quick Designer Components} module is delivered with the
+    standalone \QDS installation. If you use Qt Quick Studio Components
+    or Effects from the module in a project that you want to edit in \QC,
+    you have to build the module and install it to your Qt to be able to
+    build your project.
 
-    The \l{Qt Quick Timeline} module is delivered with \QDS and with Qt 5.14,
-    and later. If you use a timeline in a \QDS project that you import to \QC,
-    and your Qt is older than 5.14, you must build the Qt Quick Timeline module
-    and install it to your Qt to be able to build your project.
+    The \l{Qt Quick Timeline} module is delivered with the standalone \QDS
+    installation package and with Qt 5.14, and later. If you install \QDS
+    using the Qt Installation Tool or use \QC, remember to also select the
+    Qt Quick Timeline module for installation. If your Qt is older than 5.14,
+    you must build the Qt Quick Timeline module and install it to your Qt to
+    be able to build your project.
 
     \section1 Converting Projects
 
@@ -134,8 +138,8 @@
 
     \section1 Adding Qt Quick Designer Components to Qt Installations
 
-    If you use Studio Components or Effects in your project, you have to
-    check out and install the \e {Qt Quick Designer Components} module from
+    If you use Qt Quick Studio Components or Effects in your project, you have
+    to check out and install the \e {Qt Quick Designer Components} module from
     \l{https://codereview.qt-project.org/admin/repos/qt-labs/qtquickdesigner-components}
     {Qt Code Review}.
 
