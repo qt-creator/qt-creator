@@ -45,6 +45,7 @@ class Node;
 struct TestCaseInfo
 {
     QString name;
+    int number = -1;
     Utils::FilePath path;
     int line = 0;
 };

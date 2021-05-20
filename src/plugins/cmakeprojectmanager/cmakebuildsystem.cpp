@@ -70,7 +70,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -994,7 +993,9 @@ void CMakeBuildSystem::runCTest()
                 const QJsonArray cmakelists = btGraph.value("files").toArray();
                 const QJsonArray nodes = btGraph.value("nodes").toArray();
                 const QJsonArray tests = jsonObj.value("tests").toArray();
+                int counter = 0;
                 for (const QJsonValue &testVal : tests) {
+                    ++counter;
                     const QJsonObject test = testVal.toObject();
                     QTC_ASSERT(!test.isEmpty(), continue);
                     const int bt = test.value("backtrace").toInt(-1);
@@ -1003,7 +1004,7 @@ void CMakeBuildSystem::runCTest()
                     int file = btRef.value("file").toInt(-1);
                     int line = btRef.value("line").toInt(-1);
                     QTC_ASSERT(file != -1 && line != -1, continue);
-                    m_testNames.append({ test.value("name").toString(),
+                    m_testNames.append({ test.value("name").toString(), counter,
                                          FilePath::fromString(cmakelists.at(file).toString()), line });
                 }
             }
@@ -1109,14 +1110,17 @@ CommandLine CMakeBuildSystem::commandLineForTests(const QList<QString> &tests,
                                                   const QStringList &options) const
 {
     QStringList args = options;
+    const QSet<QString> testsSet = Utils::toSet(tests);
     auto current = Utils::transform<QSet<QString>>(m_testNames, &TestCaseInfo::name);
-    if (tests.isEmpty() || current == Utils::toSet(tests))
+    if (tests.isEmpty() || current == testsSet)
         return {m_ctestPath, args};
 
-    const QString regex = Utils::transform(tests, [](const QString &current) {
-        return QRegularExpression::escape(current);
-    }).join('|');
-    args << "-R" << QString('(' + regex + ')');
+    QString testNumbers("0,0,0"); // start, end, stride
+    for (const TestCaseInfo &info : m_testNames) {
+        if (testsSet.contains(info.name))
+            testNumbers += QString(",%1").arg(info.number);
+    }
+    args << "-I" << testNumbers;
     return {m_ctestPath, args};
 }
 
