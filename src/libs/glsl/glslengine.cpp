@@ -87,30 +87,30 @@ Engine::~Engine()
 
 const QString *Engine::identifier(const QString &s)
 {
-    return &(*_identifiers.insert(s));
+    return &(*_identifiers.insert(s).first);
 }
 
 const QString *Engine::identifier(const char *s, int n)
 {
-    return &(*_identifiers.insert(QString::fromLatin1(s, n)));
+    return &(*_identifiers.insert(QString::fromLatin1(s, n)).first);
 }
 
-QSet<QString> Engine::identifiers() const
+std::unordered_set<QString> Engine::identifiers() const
 {
     return _identifiers;
 }
 
 const QString *Engine::number(const QString &s)
 {
-    return &(*_numbers.insert(s));
+    return &(*_numbers.insert(s).first);
 }
 
 const QString *Engine::number(const char *s, int n)
 {
-    return &(*_numbers.insert(QString::fromLatin1(s, n)));
+    return &(*_numbers.insert(QString::fromLatin1(s, n)).first);
 }
 
-QSet<QString> Engine::numbers() const
+std::unordered_set<QString> Engine::numbers() const
 {
     return _numbers;
 }
