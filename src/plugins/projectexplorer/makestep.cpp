@@ -273,7 +273,7 @@ bool MakeStep::userArgsContainsJobCount() const
 Environment MakeStep::makeEnvironment() const
 {
     Environment env = buildEnvironment();
-    Utils::Environment::setupEnglishOutput(&env);
+    env.setupEnglishOutput();
     if (makeCommand().isEmpty()) {
         // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
         const QList<ToolChain *> tcs = preferredToolChains(target()->kit());

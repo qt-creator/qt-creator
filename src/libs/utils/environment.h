@@ -45,7 +45,6 @@ public:
     using NameValueDictionary::NameValueDictionary;
 
     static Environment systemEnvironment();
-    static void setupEnglishOutput(Environment *environment);
 
     QProcessEnvironment toProcessEnvironment() const;
 
@@ -57,6 +56,8 @@ public:
 
     void prependOrSetLibrarySearchPath(const QString &value);
     void prependOrSetLibrarySearchPaths(const QStringList &values);
+
+    void setupEnglishOutput();
 
     using PathFilter = std::function<bool(const FilePath &)>;
     FilePath searchInPath(const QString &executable,

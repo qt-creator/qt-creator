@@ -153,7 +153,7 @@ void AbstractProcessStep::setEnvironmentModifier(const std::function<void (Envir
 
 void AbstractProcessStep::setUseEnglishOutput()
 {
-    d->m_environmentModifier = [](Environment &env) { Environment::setupEnglishOutput(&env); };
+    d->m_environmentModifier = [](Environment &env) { env.setupEnglishOutput(); };
 }
 
 void AbstractProcessStep::setCommandLineProvider(const std::function<CommandLine()> &provider)

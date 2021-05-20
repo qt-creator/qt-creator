@@ -52,7 +52,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
 
     SynchronousProcess cpp;
     Environment env = Environment::systemEnvironment();
-    Environment::setupEnglishOutput(&env);
+    env.setupEnglishOutput();
     cpp.setEnvironment(env);
     cpp.setCommand(commandLine);
 

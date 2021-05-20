@@ -192,7 +192,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
 
     setEnvironmentModifier([](Environment &env) {
         const QString ninjaProgressString = "[%f/%t "; // ninja: [33/100
-        Environment::setupEnglishOutput(&env);
+        env.setupEnglishOutput();
         if (!env.expandedValueForKey("NINJA_STATUS").startsWith(ninjaProgressString))
             env.set("NINJA_STATUS", ninjaProgressString + "%o/sec] ");
     });

@@ -202,7 +202,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     cmake.setTimeoutS(5);
     cmake.setDisableUnixTerminal();
     Environment env = Environment::systemEnvironment();
-    Environment::setupEnglishOutput(&env);
+    env.setupEnglishOutput();
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
 

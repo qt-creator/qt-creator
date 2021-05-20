@@ -197,7 +197,7 @@ void CMakeTool::runCMake(SynchronousProcess &cmake, const QStringList &args, int
     cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
     Environment env = Environment::systemEnvironment();
-    Environment::setupEnglishOutput(&env);
+    env.setupEnglishOutput();
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
     cmake.setCommand({cmakeExecutable(), args});

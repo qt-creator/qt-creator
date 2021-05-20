@@ -130,11 +130,10 @@ Environment Environment::systemEnvironment()
     return *staticSystemEnvironment();
 }
 
-void Environment::setupEnglishOutput(Environment *environment)
+void Environment::setupEnglishOutput()
 {
-    QTC_ASSERT(environment, return);
-    environment->set("LC_MESSAGES", "en_US.utf8");
-    environment->set("LANGUAGE", "en_US:en");
+    set("LC_MESSAGES", "en_US.utf8");
+    set("LANGUAGE", "en_US:en");
 }
 
 FilePath Environment::searchInDirectory(const QStringList &execs, const FilePath &directory,

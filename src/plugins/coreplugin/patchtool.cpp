@@ -84,7 +84,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
     Environment env = Environment::systemEnvironment();
-    Environment::setupEnglishOutput(&env);
+    env.setupEnglishOutput();
     patchProcess.setEnvironment(env);
     QStringList args;
     // Add argument 'apply' when git is used as patch command since git 2.5/Windows
