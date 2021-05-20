@@ -699,6 +699,7 @@ void AbstractView::setEnabled(bool b)
 
 QList<ModelNode> AbstractView::allModelNodes() const
 {
+    QTC_ASSERT(model(), return {});
     return toModelNodeList(model()->d->allNodes());
 }
 
