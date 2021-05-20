@@ -221,12 +221,26 @@ def qdump__CPlusPlus__Internal__Value(d, value):
 
 def qdump__Utils__FilePath(d, value):
     try:
+        # support FilePath before 4.15 as well
         if not d.extractPointer(value["m_url"]):  # there is no valid URL
             d.putStringValue(value["m_data"])
         else:
             d.putItem(value["m_url"])
     except:
-        d.putStringValue(value)  # support FileName before 4.10 as well
+        scheme, host, path = d.split("{@QString}{@QString}{@QString}", value)
+        scheme_enc = d.encodeString(scheme)
+        host_enc = d.encodeString(host)
+        path_enc = d.encodeString(path)
+        val = ""
+        slash = "2F00"
+        dot = "2E00"
+        colon = "3A00"
+        if len(scheme_enc):
+            val = scheme_enc + colon + slash + slash + host_enc
+            if not path_enc.startswith(slash):
+                val += slash + dot + slash
+        val += path_enc
+        d.putValue(val, "utf16")
     d.putPlainChildren(value)
 
 
