@@ -1722,7 +1722,6 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     QStringList arguments = cxxflags;
     arguments.append(gccPredefinedMacrosOptions(language()));
     arguments.append("-");
-    cpp.runBlocking({clangPath(), arguments});
     cpp.setCommand({compilerCommand(), arguments});
     cpp.runBlocking();
     if (cpp.result() != Utils::QtcProcess::Finished || cpp.exitCode() != 0) {
