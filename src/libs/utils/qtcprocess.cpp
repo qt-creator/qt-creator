@@ -134,6 +134,7 @@ public:
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
     bool m_isSynchronousProcess = false;
+    bool m_processUserEvents = false;
 };
 
 void QtcProcessPrivate::clearForRun()
@@ -744,6 +745,11 @@ SynchronousProcess::~SynchronousProcess()
     disconnect(this, nullptr, this, nullptr);
 }
 
+void SynchronousProcess::setProcessUserEventWhileRunning()
+{
+    d->m_processUserEvents = true;
+}
+
 void QtcProcess::setTimeoutS(int timeoutS)
 {
     QTC_CHECK(d->m_isSynchronousProcess);
@@ -783,14 +789,14 @@ static bool isGuiThread()
 }
 #endif
 
-void QtcProcess::run()
+void SynchronousProcess::runBlocking()
 {
     QTC_CHECK(d->m_isSynchronousProcess);
     // FIXME: Implement properly
     if (d->m_commandLine.executable().needsDevice()) {
 
         // writeData ?
-        start();
+        QtcProcess::start();
 
         waitForFinished();
 
@@ -801,97 +807,73 @@ void QtcProcess::run()
         return;
     };
 
-    qCDebug(processLog).noquote() << "Starting:" << d->m_commandLine.toUserOutput();
+    qCDebug(processLog).noquote() << "Starting blocking:" << d->m_commandLine.toUserOutput()
+        << " process user events: " << d->m_processUserEvents;
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     d->clearForRun();
 
     d->m_binary = d->m_commandLine.executable();
-    // using QProcess::start() and passing program, args and OpenMode results in a different
-    // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
-    // only with the OpenMode
-    if (!d->m_writeData.isEmpty()) {
-        connect(this, &QProcess::started, this, [this] {
-            write(d->m_writeData);
-            closeWriteChannel();
-        });
-    }
-    setOpenMode(d->m_writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
-    start();
 
-    // On Windows, start failure is triggered immediately if the
-    // executable cannot be found in the path. Do not start the
-    // event loop in that case.
-    if (!d->m_startFailure) {
-        d->m_timer.start();
+    if (d->m_processUserEvents) {
+        if (!d->m_writeData.isEmpty()) {
+            connect(this, &QProcess::started, this, [this] {
+                write(d->m_writeData);
+                closeWriteChannel();
+            });
+        }
+        setOpenMode(d->m_writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+        QtcProcess::start();
+
+        // On Windows, start failure is triggered immediately if the
+        // executable cannot be found in the path. Do not start the
+        // event loop in that case.
+        if (!d->m_startFailure) {
+            d->m_timer.start();
 #ifdef QT_GUI_LIB
-        if (isGuiThread())
-            QApplication::setOverrideCursor(Qt::WaitCursor);
+            if (isGuiThread())
+                QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-        d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+            d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+            d->m_stdOut.append(readAllStandardOutput(), false);
+            d->m_stdErr.append(readAllStandardError(), false);
+
+            d->m_timer.stop();
+#ifdef QT_GUI_LIB
+            if (isGuiThread())
+                QApplication::restoreOverrideCursor();
+#endif
+        }
+    } else {
+        setOpenMode(QIODevice::ReadOnly);
+        QtcProcess::start();
+        if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
+            d->m_result = QtcProcess::StartFailed;
+            return;
+        }
+        closeWriteChannel();
+        if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
+            d->m_result = QtcProcess::Hang;
+            terminate();
+            if (!waitForFinished(1000)) {
+                kill();
+                waitForFinished(1000);
+            }
+        }
+
+        if (state() != QProcess::NotRunning)
+            return;
+
+        d->m_exitCode = exitCode();
+        if (d->m_result == QtcProcess::StartFailed) {
+            if (exitStatus() != QProcess::NormalExit)
+                d->m_result = QtcProcess::TerminatedAbnormally;
+            else
+                d->m_result = d->interpretExitCode(d->m_exitCode);
+        }
         d->m_stdOut.append(readAllStandardOutput(), false);
         d->m_stdErr.append(readAllStandardError(), false);
-
-        d->m_timer.stop();
-#ifdef QT_GUI_LIB
-        if (isGuiThread())
-            QApplication::restoreOverrideCursor();
-#endif
     }
-}
-
-void QtcProcess::runBlocking()
-{
-    QTC_CHECK(d->m_isSynchronousProcess);
-    // FIXME: Implement properly
-    if (d->m_commandLine.executable().needsDevice()) {
-
-        // writeData ?
-        start();
-
-        waitForFinished();
-
-        d->m_result = QtcProcess::Finished;
-        d->m_exitCode = exitCode();
-        d->m_stdOut.rawData += readAllStandardOutput();
-        d->m_stdErr.rawData += readAllStandardError();
-        return;
-    };
-
-    qCDebug(processLog).noquote() << "Starting blocking:" << d->m_commandLine.toUserOutput();
-    ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
-
-    d->clearForRun();
-
-    d->m_binary = d->m_commandLine.executable();
-    setOpenMode(QIODevice::ReadOnly);
-    start();
-    if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
-        d->m_result = QtcProcess::StartFailed;
-        return;
-    }
-    closeWriteChannel();
-    if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
-        d->m_result = QtcProcess::Hang;
-        terminate();
-        if (!waitForFinished(1000)) {
-            kill();
-            waitForFinished(1000);
-        }
-    }
-
-    if (state() != QProcess::NotRunning)
-        return;
-
-    d->m_exitCode = exitCode();
-    if (d->m_result == QtcProcess::StartFailed) {
-        if (exitStatus() != QProcess::NormalExit)
-            d->m_result = QtcProcess::TerminatedAbnormally;
-        else
-            d->m_result = d->interpretExitCode(d->m_exitCode);
-    }
-    d->m_stdOut.append(readAllStandardOutput(), false);
-    d->m_stdErr.append(readAllStandardError(), false);
 }
 
 void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)

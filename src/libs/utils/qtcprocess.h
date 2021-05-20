@@ -89,16 +89,6 @@ public:
     // FIXME: This is currently only used in run(), not in start()
     void setWriteData(const QByteArray &writeData);
 
-    // Starts a nested event loop and runs the command
-    void run();
-
-    // Starts the command blocking the UI fully
-    void runBlocking();
-
-    // FIXME: Remove. Kept for downstream for a while.
-    void run(const CommandLine &cmd) { setCommand(cmd); run(); }
-    void runBlocking(const CommandLine &cmd) { setCommand(cmd); runBlocking(); }
-
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
@@ -156,6 +146,16 @@ class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
 public:
     SynchronousProcess();
     ~SynchronousProcess() override;
+
+    // Force the use of 'runBlocking' for now.
+    void start() = delete;
+
+    // This starts a nested event loop when running the command.
+    void setProcessUserEventWhileRunning(); // Avoid.
+
+    // Starts the command and waits for finish. User input processing depends
+    // on whether setProcessUserEventWhileRunning was called.
+    void runBlocking();
 };
 
 } // namespace Utils

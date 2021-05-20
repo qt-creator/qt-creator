@@ -1273,7 +1273,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({m_settings.p4BinaryPath.value(), args});
-    process.run();
+    process.setProcessUserEventWhileRunning();
+    process.runBlocking();
 
     PerforceResponse response;
     response.error = true;

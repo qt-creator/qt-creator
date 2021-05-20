@@ -68,7 +68,8 @@ void XcodeProbe::detectDeveloperPaths()
     Utils::SynchronousProcess selectedXcode;
     selectedXcode.setTimeoutS(5);
     selectedXcode.setCommand({"/usr/bin/xcode-select", {"--print-path"}});
-    selectedXcode.run();
+    selectedXcode.setProcessUserEventWhileRunning();
+    selectedXcode.runBlocking();
     if (selectedXcode.result() != QtcProcess::Finished)
         qCWarning(probeLog)
                 << QString::fromLatin1("Could not detect selected Xcode using xcode-select");

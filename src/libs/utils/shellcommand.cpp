@@ -422,7 +422,8 @@ void ShellCommand::runSynchronous(SynchronousProcess &process,
     if (d->m_codec)
         process.setCodec(d->m_codec);
 
-    process.run();
+    process.setProcessUserEventWhileRunning();
+    process.runBlocking();
 }
 
 const QVariant &ShellCommand::cookie() const

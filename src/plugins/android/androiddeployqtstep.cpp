@@ -483,7 +483,8 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
                    OutputFormat::NormalMessage);
 
     buildProc.setCommand(command);
-    buildProc.run();
+    buildProc.setProcessUserEventWhileRunning();
+    buildProc.runBlocking();
     if (buildProc.result() != QtcProcess::Finished || buildProc.exitCode() != 0) {
         const QString error = buildProc.exitMessage();
         emit addOutput(error, OutputFormat::ErrorMessage);
