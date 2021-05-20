@@ -101,7 +101,7 @@ QChar DebuggerOutputParser::readChar()
 
 static bool isNameChar(char c)
 {
-    return c != '=' && c != ':' && !isspace(c);
+    return c != '=' && c != ':' && c != ']' && !isspace(c);
 }
 
 void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
@@ -118,8 +118,12 @@ void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
         //qDebug() << "no valid result in " << parser.buffer();
         return;
     }
-    if (parser.isAtEnd() || parser.isCurrent('('))
+    if (parser.isAtEnd())
         return;
+    if (parser.isCurrent('(')) {
+        parser.advance();
+        return;
+    }
 
     m_name = parser.readString(isNameChar);
 
@@ -296,7 +300,8 @@ void GdbMi::parseList(DebuggerOutputParser &parser)
     parser.advance();
     m_type = List;
     parser.skipCommas();
-    while (!parser.isAtEnd()) {
+    while (true) {
+        QTC_ASSERT(!parser.isAtEnd(), break);
         if (parser.isCurrent(']')) {
             parser.advance();
             break;
@@ -306,11 +311,7 @@ void GdbMi::parseList(DebuggerOutputParser &parser)
         if (child.isValid()) {
             m_children.push_back(child);
             parser.skipCommas();
-            continue;
         }
-
-        QTC_ASSERT(!parser.isAtEnd(), break);
-        parser.advance();
     }
 }
 
