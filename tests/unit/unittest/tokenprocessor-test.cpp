@@ -1815,7 +1815,7 @@ TEST_F(TokenProcessor, CyrillicString)
 
 TEST_F(TokenProcessor, PreProcessorInStruct)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(793, 14));
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(795, 14));
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
 }
 
