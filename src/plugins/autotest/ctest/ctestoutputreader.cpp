@@ -81,7 +81,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression testProject("^Test project (.*)$");
     static const QRegularExpression testCase("^(test \\d+)|(    Start\\s+\\d+: .*)$");
     static const QRegularExpression testResult("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
-                                               "(Passed|\\*\\*\\*Failed|"
+                                               "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
                                                ".*\\*\\*\\*Exception:.*)\\s+(.*) sec$");
     static const QRegularExpression summary("^\\d+% tests passed, (\\d+) tests failed "
                                             "out of (\\d+)");
@@ -114,7 +114,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         const QString resultType = match.captured(3);
         if (resultType == "Passed")
             m_result = ResultType::Pass;
-        else if (resultType == "***Failed")
+        else if (resultType == "***Failed" || resultType == "***Not Run")
             m_result = ResultType::Fail;
         else
             m_result = ResultType::MessageFatal;
