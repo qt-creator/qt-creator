@@ -277,11 +277,15 @@ static void loadSessionData()
 
 class SeparatedView : public QTabWidget
 {
+    Q_OBJECT
 public:
     SeparatedView() : QTabWidget(DebuggerMainWindow::instance())
     {
         setTabsClosable(true);
         connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);
+        connect(tabBar(), &QTabBar::customContextMenuRequested,
+                this, &SeparatedView::tabBarContextMenuRequested);
+        tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
         setWindowFlags(windowFlags() | Qt::Window);
         setWindowTitle(WatchHandler::tr("Debugger - %1").arg(Core::Constants::IDE_DISPLAY_NAME));
 
@@ -327,6 +331,15 @@ public:
         sanitize();
     }
 
+    void tabBarContextMenuRequested(const QPoint &point)
+    {
+        const QWidget *w = widget(tabBar()->tabAt(point));
+        if (!w)
+            return;
+        emit tabBarContextMenuRequestedSignal(tabBar()->mapToGlobal(point),
+                                              w->property(INameProperty).toString());
+    }
+
     void sanitize()
     {
         if (count() == 0)
@@ -356,6 +369,7 @@ public:
         if (!t) {
             t = new T;
             t->setProperty(KeyProperty, key);
+            t->setProperty(INameProperty, item->iname);
             addTab(t, item->name);
         }
         setProperty(INameProperty, item->iname);
@@ -365,6 +379,9 @@ public:
         raise();
         return t;
     }
+
+Q_SIGNALS:
+    void tabBarContextMenuRequestedSignal(const QPoint &position, const QString &watchiName);
 };
 
 class TextEdit : public QTextEdit
@@ -476,6 +493,9 @@ public:
     QHash<QString, QString> m_valueCache;
 
     Location m_location;
+
+private:
+    void separatedViewTabBarContextMenuRequested(const QPoint &point, const QString &iname);
 };
 
 WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
@@ -524,6 +544,9 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         m_engine, &DebuggerEngine::updateAll);
     connect(&s.useAnnotationsInMainEditor, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateAll);
+
+    connect(m_separatedView, &SeparatedView::tabBarContextMenuRequestedSignal,
+            this, &WatchModel::separatedViewTabBarContextMenuRequested);
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &loadSessionData);
@@ -1884,6 +1907,12 @@ void WatchModel::addCharsPrintableMenu(QMenu *menu)
     addBaseChangeAction(tr("Show Unprintable Characters as Escape Sequences"), -1);
     addBaseChangeAction(tr("Show Unprintable Characters as Octal"), 8);
     addBaseChangeAction(tr("Show Unprintable Characters as Hexadecimal"), 16);
+}
+
+void WatchModel::separatedViewTabBarContextMenuRequested(const QPoint &point, const QString &iname)
+{
+    auto menu = createFormatMenu(findItem(iname), m_separatedView);
+    menu->exec(point);
 }
 
 QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
