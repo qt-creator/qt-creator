@@ -51,6 +51,12 @@ void SnippetOverlay::addSnippetSelection(const QTextCursor &cursor,
     addOverlaySelection(cursor, color, color, TextEditorOverlay::ExpandBegin);
 }
 
+void SnippetOverlay::setFinalSelection(const QTextCursor &cursor, const QColor &color)
+{
+    m_finalSelectionIndex = selections().size();
+    addOverlaySelection(cursor, color, color, TextEditorOverlay::ExpandBegin);
+}
+
 void SnippetOverlay::updateEquivalentSelections(const QTextCursor &cursor)
 {
     const int &currentIndex = indexForCursor(cursor);
@@ -92,6 +98,12 @@ bool SnippetOverlay::hasCursorInSelection(const QTextCursor &cursor) const
     return indexForCursor(cursor) >= 0;
 }
 
+QTextCursor SnippetOverlay::firstSelectionCursor() const
+{
+    const QList<OverlaySelection> selections = TextEditorOverlay::selections();
+    return selections.isEmpty() ? QTextCursor() : cursorForSelection(selections.first());
+}
+
 QTextCursor SnippetOverlay::nextSelectionCursor(const QTextCursor &cursor) const
 {
     const QList<OverlaySelection> selections = TextEditorOverlay::selections();
@@ -100,8 +112,11 @@ QTextCursor SnippetOverlay::nextSelectionCursor(const QTextCursor &cursor) const
     const SnippetSelection &currentSelection = selectionForCursor(cursor);
     if (currentSelection.variableIndex >= 0) {
         int nextVariableIndex = currentSelection.variableIndex + 1;
-        if (nextVariableIndex >= m_variables.size())
+        if (nextVariableIndex >= m_variables.size()) {
+            if (m_finalSelectionIndex >= 0)
+                return cursorForIndex(m_finalSelectionIndex);
             nextVariableIndex = 0;
+        }
 
         for (int selectionIndex : m_variables[nextVariableIndex]) {
             if (selections[selectionIndex].m_cursor_begin.position() > cursor.position())
@@ -141,6 +156,11 @@ QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) c
             return cursorForIndex(i);
     }
     return cursorForSelection(selections.last());
+}
+
+bool SnippetOverlay::isFinalSelection(const QTextCursor &cursor) const
+{
+    return m_finalSelectionIndex >= 0 ? cursor == cursorForIndex(m_finalSelectionIndex) : false;
 }
 
 int SnippetOverlay::indexForCursor(const QTextCursor &cursor) const

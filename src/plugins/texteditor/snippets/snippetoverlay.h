@@ -46,13 +46,17 @@ public:
                              const QColor &color,
                              NameMangler *mangler,
                              int variableGoup);
+    void setFinalSelection(const QTextCursor &cursor, const QColor &color);
+
     void updateEquivalentSelections(const QTextCursor &cursor);
     void mangle();
 
     bool hasCursorInSelection(const QTextCursor &cursor) const;
 
+    QTextCursor firstSelectionCursor() const;
     QTextCursor nextSelectionCursor(const QTextCursor &cursor) const;
     QTextCursor previousSelectionCursor(const QTextCursor &cursor) const;
+    bool isFinalSelection(const QTextCursor &cursor) const;
 
 private:
     struct SnippetSelection
@@ -65,6 +69,7 @@ private:
     SnippetSelection selectionForCursor(const QTextCursor &cursor) const;
 
     QList<SnippetSelection> m_selections;
+    int m_finalSelectionIndex = -1;
     QMap<int, QList<int>> m_variables;
 };
 

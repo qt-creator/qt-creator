@@ -51,6 +51,7 @@ public:
         QString text;
         int variableIndex = -1; // if variable index is >= 0 the text is interpreted as a variable
         NameMangler *mangler = nullptr;
+        bool finalPart = false;
     };
     QList<Part> parts;
     QList<QList<int>> variables;

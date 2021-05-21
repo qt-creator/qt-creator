@@ -2770,15 +2770,26 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
 
     for (const CursorPart &part : cursorParts) {
         const QColor &color = part.cursor.hasSelection() ? occurrencesColor : renameColor;
-        d->m_snippetOverlay->addSnippetSelection(part.cursor,
-                                                 color,
-                                                 part.mangler,
-                                                 part.variableIndex);
+        if (part.finalPart) {
+            d->m_snippetOverlay->setFinalSelection(part.cursor, color);
+        } else {
+            d->m_snippetOverlay->addSnippetSelection(part.cursor,
+                                                     color,
+                                                     part.mangler,
+                                                     part.variableIndex);
+        }
     }
 
-    if (!cursorParts.isEmpty()) {
-        setTextCursor(cursorParts.first().cursor);
-        d->m_snippetOverlay->setVisible(true);
+    cursor = d->m_snippetOverlay->firstSelectionCursor();
+    if (!cursor.isNull()) {
+        setTextCursor(cursor);
+        if (d->m_snippetOverlay->isFinalSelection(cursor)) {
+            d->m_snippetOverlay->mangle();
+            d->m_snippetOverlay->clear();
+            d->m_snippetOverlay->setVisible(false);
+        } else {
+            d->m_snippetOverlay->setVisible(true);
+        }
     }
 }
 
@@ -3486,9 +3497,14 @@ void TextEditorWidgetPrivate::snippetTabOrBacktab(bool forward)
 {
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
         return;
-    QTextCursor cursor = q->textCursor();
-    q->setTextCursor(forward ? m_snippetOverlay->nextSelectionCursor(cursor)
-                             : m_snippetOverlay->previousSelectionCursor(cursor));
+    QTextCursor cursor = forward ? m_snippetOverlay->nextSelectionCursor(q->textCursor())
+                                 : m_snippetOverlay->previousSelectionCursor(q->textCursor());
+    q->setTextCursor(cursor);
+    if (m_snippetOverlay->isFinalSelection(cursor)) {
+        m_snippetOverlay->setVisible(false);
+        m_snippetOverlay->mangle();
+        m_snippetOverlay->clear();
+    }
 }
 
 // Calculate global position for a tooltip considering the left extra area.
