@@ -714,7 +714,8 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
         return;
     }
 
-    Core::IEditor *editor = Core::EditorManager::openEditor(saver.fileName(), Constants::COMMIT_ID);
+    Core::IEditor *editor = Core::EditorManager::openEditor(saver.filePath().toString(),
+                                                            Constants::COMMIT_ID);
     if (!editor) {
         VcsBase::VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
         return;
