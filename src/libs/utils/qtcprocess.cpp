@@ -477,7 +477,7 @@ void QtcProcess::setResult(Result result)
 
 int QtcProcess::exitCode() const
 {
-    return d->m_exitCode;
+    return d->m_isSynchronousProcess ? d->m_exitCode : QProcess::exitCode(); // FIXME: Unify.
 }
 
 
