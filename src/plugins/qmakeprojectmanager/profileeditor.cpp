@@ -238,11 +238,11 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
             else
                 return processLinkCallback(link);
         }
-        link.targetFileName = QDir::cleanPath(fileName);
+        link.targetFilePath = Utils::FilePath::fromString(QDir::cleanPath(fileName));
     } else {
-        link.targetFileName = checkForPrfFile(buffer);
+        link.targetFilePath = Utils::FilePath::fromString(checkForPrfFile(buffer));
     }
-    if (!link.targetFileName.isEmpty()) {
+    if (!link.targetFilePath.isEmpty()) {
         link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
         link.linkTextEnd = cursor.position() - positionInBlock + endPos;
     }

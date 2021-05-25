@@ -155,7 +155,7 @@ TEST_F(RefactoringEngine, InGlobalFollowSymbol)
     ON_CALL(mockSymbolQuery, declarationsAt(Eq(12), 2, 5)).WillByDefault(Return(usages));
 
     EXPECT_CALL(mockCallback,
-                Call(AllOf(Field(&Link::targetFileName, Eq("/path1")),
+                Call(AllOf(Field(&Link::targetFilePath, Eq(Utils::FilePath::fromString("/path1"))),
                            Field(&Link::targetLine, Eq(1)),
                            Field(&Link::targetColumn, Eq(2)))));
 
@@ -171,7 +171,7 @@ TEST_F(RefactoringEngine, InGlobalFollowSymbolSkipCurrentFile)
     ON_CALL(mockSymbolQuery, declarationsAt(Eq(12), 2, 5)).WillByDefault(Return(usages));
 
     EXPECT_CALL(mockCallback,
-                Call(AllOf(Field(&Link::targetFileName, Eq("/path2")),
+                Call(AllOf(Field(&Link::targetFilePath, Eq(Utils::FilePath::fromString("/path2"))),
                            Field(&Link::targetLine, Eq(4)),
                            Field(&Link::targetColumn, Eq(4)))));
 

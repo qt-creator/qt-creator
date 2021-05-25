@@ -208,7 +208,7 @@ Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snaps
         foreach (const Macro &macro, doc->definedMacros()) {
             if (macro.name() == name) {
                 Link link;
-                link.targetFileName = macro.fileName();
+                link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
                 link.targetLine = macro.line();
                 return link;
             }
@@ -643,7 +643,7 @@ void FollowSymbolUnderCursor::findLink(
             const int lineno = cursor.blockNumber() + 1;
             foreach (const Document::Include &incl, doc->resolvedIncludes()) {
                 if (incl.line() == lineno) {
-                    link.targetFileName = incl.resolvedFileName();
+                    link.targetFilePath = Utils::FilePath::fromString(incl.resolvedFileName());
                     link.linkTextStart = beginOfToken + 1;
                     link.linkTextEnd = endOfToken - 1;
                     processLinkCallback(link);
@@ -671,7 +671,7 @@ void FollowSymbolUnderCursor::findLink(
             editorWidget->showPreProcessorWidget();
         } else if (fileName != CppModelManager::configurationFileName()) {
             const Macro &macro = use->macro();
-            link.targetFileName = macro.fileName();
+            link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
             link.targetLine = macro.line();
             link.linkTextStart = use->utf16charsBegin();
             link.linkTextEnd = use->utf16charsEnd();

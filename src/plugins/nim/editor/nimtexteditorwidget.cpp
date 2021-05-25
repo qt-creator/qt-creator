@@ -105,5 +105,5 @@ void NimTextEditorWidget::onFindLinkFinished()
     }
 
     const Line &line = m_request->lines().front();
-    m_callback(Utils::Link{line.abs_path, line.row, line.column});
+    m_callback(Utils::Link{Utils::FilePath::fromString(line.abs_path), line.row, line.column});
 }

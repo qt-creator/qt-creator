@@ -366,7 +366,9 @@ Utils::Link Location::toLink() const
     // fromPercentEncoding convert %xx encoding to raw values and then interpret
     // the result as utf-8, so toUtf8() must be used here.
     file = QUrl::fromPercentEncoding(file.toUtf8());
-    return Utils::Link(file, range().start().line() + 1, range().start().character());
+    return Utils::Link(Utils::FilePath::fromString(file),
+                       range().start().line() + 1,
+                       range().start().character());
 }
 
 DocumentUri::DocumentUri(const QString &other)

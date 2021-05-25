@@ -195,7 +195,7 @@ void DocumentLocatorFilter::accept(Core::LocatorFilterEntry selection,
                                           lineColumn.column);
     } else if (selection.internalData.canConvert<Utils::Link>()) {
         auto link = qvariant_cast<Utils::Link>(selection.internalData);
-        Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
+        Core::EditorManager::openEditorAt(link.targetFilePath, link.targetLine, link.targetColumn);
     }
 }
 
@@ -295,7 +295,7 @@ void WorkspaceLocatorFilter::accept(Core::LocatorFilterEntry selection,
 {
     if (selection.internalData.canConvert<Utils::Link>()) {
         auto link = qvariant_cast<Utils::Link>(selection.internalData);
-        Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
+        Core::EditorManager::openEditorAt(link.targetFilePath, link.targetLine, link.targetColumn);
     }
 }
 

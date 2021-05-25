@@ -117,7 +117,7 @@ static Utils::Link linkAtCursor(const QTextCursor &cursor,
     if (mark.extraInfo.includeDirectivePath && !isValidIncludePathToken(mark))
         return Link();
 
-    Link token(filePath, mark.line, mark.column);
+    Link token(Utils::FilePath::fromString(filePath), mark.line, mark.column);
     token.linkTextStart = getMarkPos(cursor, mark);
     token.linkTextEnd = token.linkTextStart + mark.length;
 
@@ -155,8 +155,9 @@ static ::Utils::ProcessLinkCallback extendedCallback(::Utils::ProcessLinkCallbac
     // If globalFollowSymbol finds nothing follow to the declaration.
     return [original_callback = std::move(callback), result](const ::Utils::Link &link) {
         if (link.linkTextStart < 0 && result.isResultOnlyForFallBack) {
-            return original_callback(::Utils::Link(result.fileName, result.startLine,
-                                          result.startColumn - 1));
+            return original_callback(::Utils::Link(::Utils::FilePath::fromString(result.fileName),
+                                                   result.startLine,
+                                                   result.startColumn - 1));
         }
         return original_callback(link);
     };
@@ -243,7 +244,9 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                                                  symbolFinder,
                                                  inNextSplit);
         } else {
-            callback(Link(result.fileName, result.startLine, result.startColumn - 1));
+            callback(Link(Utils::FilePath::fromString(result.fileName),
+                          result.startLine,
+                          result.startColumn - 1));
         }
     });
 

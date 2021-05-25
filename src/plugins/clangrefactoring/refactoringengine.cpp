@@ -132,7 +132,7 @@ void RefactoringEngine::globalFollowSymbol(const CppTools::CursorInEditor &data,
 
     });
 
-    processLinkCallback(Link(usage.path, usage.line, usage.column - 1));
+    processLinkCallback(Link(Utils::FilePath::fromString(usage.path), usage.line, usage.column - 1));
 }
 
 bool RefactoringEngine::isRefactoringEngineAvailable() const

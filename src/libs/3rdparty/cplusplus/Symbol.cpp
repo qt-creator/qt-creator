@@ -450,5 +450,5 @@ Utils::Link Symbol::toLink() const
     if (isGenerated())
         column = 0;
 
-    return Utils::Link(filename, line, column);
+    return Utils::Link(Utils::FilePath::fromString(filename), line, column);
 }

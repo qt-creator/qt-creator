@@ -332,11 +332,11 @@ void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
         return;
 
     const Link updatedLink = CppElementEvaluator::linkFromExpression(
-                getExpression(index), link.targetFileName);
+                getExpression(index), link.targetFilePath.toString());
     if (updatedLink.hasValidTarget())
         link = updatedLink;
 
-    Core::EditorManager::openEditorAt(link.targetFileName,
+    Core::EditorManager::openEditorAt(link.targetFilePath,
                                       link.targetLine,
                                       link.targetColumn,
                                       Constants::CPPEDITOR_ID);
@@ -346,7 +346,7 @@ void CppTypeHierarchyWidget::onItemDoubleClicked(const QModelIndex &index)
 {
     const auto link = index.data(LinkRole).value<Link>();
     if (link.hasValidTarget())
-        performFromExpression(getExpression(index), link.targetFileName);
+        performFromExpression(getExpression(index), link.targetFilePath.toString());
 }
 
 // CppTypeHierarchyFactory
@@ -390,7 +390,7 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
     foreach (const QModelIndex &index, indexes) {
         auto link = index.data(LinkRole).value<Link>();
         if (link.hasValidTarget())
-            data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
+            data->addFile(link.targetFilePath.toString(), link.targetLine, link.targetColumn);
     }
     return data;
 }

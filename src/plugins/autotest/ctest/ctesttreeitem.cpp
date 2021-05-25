@@ -88,7 +88,7 @@ QVariant CTestTreeItem::data(int column, int role) const
         return checked();
     if (role == LinkRole) {
         QVariant itemLink;
-        itemLink.setValue(Utils::Link(filePath(), line()));
+        itemLink.setValue(Utils::Link(Utils::FilePath::fromString(filePath()), line()));
         return itemLink;
     }
     return ITestTreeItem::data(column, role);

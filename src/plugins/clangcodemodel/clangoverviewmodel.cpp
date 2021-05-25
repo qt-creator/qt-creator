@@ -226,7 +226,7 @@ Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
     auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    return Link(m_filePath, item->token.line, item->token.column - 1);
+    return Link(FilePath::fromString(m_filePath), item->token.line, item->token.column - 1);
 }
 
 LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const

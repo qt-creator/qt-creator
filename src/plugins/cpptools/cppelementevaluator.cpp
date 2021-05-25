@@ -90,7 +90,7 @@ public:
         helpCategory = Core::HelpItem::Brief;
         helpIdCandidates = QStringList(fileName);
         helpMark = fileName;
-        link = Utils::Link(path);
+        link = Utils::Link(Utils::FilePath::fromString(path));
         tooltip = path;
     }
 
@@ -108,7 +108,7 @@ public:
         const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
         helpIdCandidates = QStringList(macroName);
         helpMark = macroName;
-        link = Utils::Link(macro.fileName(), macro.line());
+        link = Utils::Link(Utils::FilePath::fromString(macro.fileName()), macro.line());
         tooltip = macro.toStringWithLineBreaks();
     }
 };

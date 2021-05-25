@@ -137,12 +137,12 @@ bool ITestTreeItem::lessThan(const ITestTreeItem *other, ITestTreeItem::SortMode
 
         const Utils::Link &leftLink = data(0, LinkRole).value<Utils::Link>();
         const Utils::Link &rightLink = other->data(0, LinkRole).value<Utils::Link>();
-        if (leftLink.targetFileName == rightLink.targetFileName) {
+        if (leftLink.targetFilePath == rightLink.targetFilePath) {
             return leftLink.targetLine == rightLink.targetLine
                     ? leftLink.targetColumn > rightLink.targetColumn
                     : leftLink.targetLine > rightLink.targetLine;
         }
-        return leftLink.targetFileName > rightLink.targetFileName;
+        return leftLink.targetFilePath > rightLink.targetFilePath;
     }
     }
     return true;
@@ -185,7 +185,8 @@ QVariant TestTreeItem::data(int column, int role) const
         if (type() == GroupNode)
             return QVariant();
         QVariant itemLink;
-        itemLink.setValue(Utils::Link(filePath(), line(), int(m_column)));
+        itemLink.setValue(
+            Utils::Link(Utils::FilePath::fromString(filePath()), line(), int(m_column)));
         return itemLink;
     }
     return ITestTreeItem::data(column, role);

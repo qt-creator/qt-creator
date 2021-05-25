@@ -162,17 +162,19 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     QList<Core::LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
     const QList<Core::LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
     if (!lspMatches.isEmpty()) {
-        std::set<std::tuple<QString, int, int>> locations;
+        std::set<std::tuple<Utils::FilePath, int, int>> locations;
         for (const auto &entry : qAsConst(matches)) {
             const CppTools::IndexItem::Ptr item
                     = qvariant_cast<CppTools::IndexItem::Ptr>(entry.internalData);
-            locations.insert(std::make_tuple(item->fileName(), item->line(), item->column()));
+            locations.insert(std::make_tuple(Utils::FilePath::fromString(item->fileName()),
+                                             item->line(),
+                                             item->column()));
         }
         for (const auto &entry : lspMatches) {
             if (!entry.internalData.canConvert<Utils::Link>())
                 continue;
             const auto link = qvariant_cast<Utils::Link>(entry.internalData);
-            if (locations.find(std::make_tuple(link.targetFileName, link.targetLine,
+            if (locations.find(std::make_tuple(link.targetFilePath, link.targetLine,
                                                link.targetColumn)) == locations.cend()) {
                 matches << entry; // TODO: Insert sorted?
             }

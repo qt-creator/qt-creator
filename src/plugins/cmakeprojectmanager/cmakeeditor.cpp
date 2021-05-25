@@ -212,7 +212,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
             else
                 return processLinkCallback(link);
         }
-        link.targetFileName = fileName;
+        link.targetFilePath = Utils::FilePath::fromString(fileName);
         link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
         link.linkTextEnd = cursor.position() - positionInBlock + endPos;
     }

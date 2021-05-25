@@ -267,8 +267,9 @@ void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 {
     const Utils::Link link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget()) {
-        Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine,
-            link.targetColumn);
+        Core::EditorManager::openEditorAt(link.targetFilePath,
+                                          link.targetLine,
+                                          link.targetColumn);
     }
 }
 

@@ -46,7 +46,7 @@ void VirtualFunctionProposalItem::apply(TextEditor::TextDocumentManipulatorInter
     Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::NoFlags;
     if (m_openInSplit)
         flags |= Core::EditorManager::OpenInOtherSplit;
-    Core::EditorManager::openEditorAt(m_link.targetFileName,
+    Core::EditorManager::openEditorAt(m_link.targetFilePath,
                                       m_link.targetLine,
                                       m_link.targetColumn,
                                       CppEditor::Constants::CPPEDITOR_ID,

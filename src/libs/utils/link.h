@@ -25,23 +25,26 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QString>
 #include <qmetatype.h>
 
 #include <functional>
 
+
 namespace Utils {
 
 struct Link
 {
-    Link(const QString &fileName = QString(), int line = 0, int column = 0)
-        : targetFileName(fileName)
+    Link(const Utils::FilePath &filePath = Utils::FilePath(), int line = 0, int column = 0)
+        : targetFilePath(filePath)
         , targetLine(line)
         , targetColumn(column)
     {}
 
     bool hasValidTarget() const
-    { return !targetFileName.isEmpty(); }
+    { return !targetFilePath.isEmpty(); }
 
     bool hasValidLinkText() const
     { return linkTextStart != linkTextEnd; }
@@ -52,7 +55,7 @@ struct Link
     int linkTextStart = -1;
     int linkTextEnd = -1;
 
-    QString targetFileName;
+    Utils::FilePath targetFilePath;
     int targetLine;
     int targetColumn;
 };

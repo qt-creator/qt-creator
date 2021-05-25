@@ -162,7 +162,7 @@ private:
 
     Qt::ItemFlags flags(int) const override
     {
-        Utils::Link link(m_filePath, m_line);
+        const Utils::Link link(Utils::FilePath::fromString(m_filePath), m_line);
         if (link.hasValidTarget())
             return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -199,7 +199,7 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
         case Qt::DecorationRole:
             return FileIconProvider::icon(QFileInfo(m_filePath));
         case LinkRole:
-            return QVariant::fromValue(Utils::Link(m_filePath, m_line));
+            return QVariant::fromValue(Utils::Link(Utils::FilePath::fromString(m_filePath), m_line));
     }
 
     return QVariant();
@@ -282,7 +282,7 @@ QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) co
     for (const QModelIndex &index : indexes) {
         auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
-            data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
+            data->addFile(link.targetFilePath.toString(), link.targetLine, link.targetColumn);
     }
     return data;
 }
@@ -434,11 +434,11 @@ void CppIncludeHierarchyWidget::perform()
     if (!m_editor)
         return;
 
-    QString document = m_editor->textDocument()->filePath().toString();
-    m_model.buildHierarchy(document);
+    const Utils::FilePath documentPath = m_editor->textDocument()->filePath();
+    m_model.buildHierarchy(documentPath.toString());
 
     m_inspectedFile->setText(m_editor->textDocument()->displayName());
-    m_inspectedFile->setLink(Utils::Link(document));
+    m_inspectedFile->setLink(Utils::Link(documentPath));
 
     // expand "Includes" and "Included by"
     m_treeView->expand(m_model.index(0, 0));
@@ -465,7 +465,7 @@ void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
     const auto link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget())
-        EditorManager::openEditorAt(link.targetFileName,
+        EditorManager::openEditorAt(link.targetFilePath,
                                     link.targetLine,
                                     link.targetColumn,
                                     Constants::CPPEDITOR_ID);

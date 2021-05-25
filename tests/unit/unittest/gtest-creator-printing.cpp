@@ -189,8 +189,8 @@ std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
 
 std::ostream &operator<<(std::ostream &out, const Link &link)
 {
-    return out << "(" << link.targetFileName << ", " << link.targetLine << ", " << link.targetColumn
-               << ", " << link.linkTextStart << ", " << link.linkTextEnd << ")";
+    return out << "(" << link.targetFilePath.toString() << ", " << link.targetLine << ", "
+               << link.targetColumn << ", " << link.linkTextStart << ", " << link.linkTextEnd << ")";
 }
 
 const char * toText(Utils::Language language)

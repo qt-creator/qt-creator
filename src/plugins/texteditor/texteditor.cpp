@@ -6244,7 +6244,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
     if (!link.hasValidTarget())
         return false;
 
-    if (!inNextSplit && textDocument()->filePath().toString() == link.targetFileName) {
+    if (!inNextSplit && textDocument()->filePath() == link.targetFilePath) {
         EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn, true, true);
         setFocus();
@@ -6254,8 +6254,11 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
     if (inNextSplit)
         flags |= EditorManager::OpenInOtherSplit;
 
-    return EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn,
-                                       Id(), flags);
+    return EditorManager::openEditorAt(link.targetFilePath,
+                                       link.targetLine,
+                                       link.targetColumn,
+                                       Id(),
+                                       flags);
 }
 
 bool TextEditorWidgetPrivate::isMouseNavigationEvent(QMouseEvent *e) const
@@ -8670,7 +8673,7 @@ void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
         return;
 
     auto data = new DropMimeData;
-    data->addFile(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
+    data->addFile(m_link.targetFilePath.toString(), m_link.targetLine, m_link.targetColumn);
     auto drag = new QDrag(this);
     drag->setMimeData(data);
     drag->exec(Qt::CopyAction);
@@ -8682,7 +8685,9 @@ void TextEditorLinkLabel::mouseReleaseEvent(QMouseEvent *event)
     if (!m_link.hasValidTarget())
         return;
 
-    EditorManager::openEditorAt(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
+    EditorManager::openEditorAt(m_link.targetFilePath.toString(),
+                                m_link.targetLine,
+                                m_link.targetColumn);
 }
 
 //

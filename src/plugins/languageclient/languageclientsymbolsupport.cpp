@@ -110,7 +110,7 @@ void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
     if (!resolveTarget) {
         QTextCursor linkCursor = cursor;
         linkCursor.select(QTextCursor::WordUnderCursor);
-        Utils::Link link(document->filePath().toString(),
+        Utils::Link link(document->filePath(),
                          linkCursor.blockNumber() + 1,
                          linkCursor.positionInBlock());
         link.linkTextStart = linkCursor.selectionStart();
