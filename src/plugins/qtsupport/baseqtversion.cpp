@@ -196,8 +196,10 @@ public:
     static QString qmakeProperty(const QHash<ProKey, ProString> &versionInfo,
                                  const QByteArray &name,
                                  PropertyVariant variant = PropertyVariantGet);
-    static FilePath mkspecDirectoryFromVersionInfo(const QHash<ProKey,ProString> &versionInfo);
-    static FilePath mkspecFromVersionInfo(const QHash<ProKey,ProString> &versionInfo);
+    static FilePath mkspecDirectoryFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,
+                                                   const FilePath &qmakeCommand);
+    static FilePath mkspecFromVersionInfo(const QHash<ProKey,ProString> &versionInfo,
+                                          const FilePath &qmakeCommand);
     static FilePath sourcePath(const QHash<ProKey,ProString> &versionInfo);
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
@@ -722,11 +724,24 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     d->m_autodetectionSource = map.value(QTVERSIONAUTODETECTIONSOURCE).toString();
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
-    QString string = map.value(QTVERSIONQMAKEPATH).toString();
+    d->m_qmakeCommand = FilePath::fromVariant(map.value(QTVERSIONQMAKEPATH));
+
+    QString string = d->m_qmakeCommand.toString();
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
+    if (!d->m_qmakeCommand.needsDevice()) {
+        // FIXME: generalize for all devices.
+        QFileInfo fi(string);
+        if (BuildableHelperLibrary::isQtChooser(fi)) {
+            // we don't want to treat qtchooser as a normal qmake
+            // see e.g. QTCREATORBUG-9841, also this lead to users changing what
+            // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
+            string = BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget());
+            d->m_qmakeCommand = FilePath::fromString(string);
+        }
+    }
 
-    d->m_data.qtSources = FilePath::fromUserInput(map.value(QTVERSIONSOURCEPATH).toString());
+    d->m_data.qtSources = FilePath::fromVariant(map.value(QTVERSIONSOURCEPATH));
 
     // Handle ABIs provided by the SDKTool:
     // Note: Creator does not write these settings itself, so it has to come from the SDKTool!
@@ -735,15 +750,6 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     d->m_data.qtAbis = Utils::filtered(d->m_data.qtAbis, &Abi::isValid);
     d->m_data.hasQtAbis = !d->m_data.qtAbis.isEmpty();
 
-    QFileInfo fi(string);
-    if (BuildableHelperLibrary::isQtChooser(fi)) {
-        // we don't want to treat qtchooser as a normal qmake
-        // see e.g. QTCREATORBUG-9841, also this lead to users changing what
-        // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
-        string = BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget());
-    }
-
-    d->m_qmakeCommand = FilePath::fromString(string);
     updateDefaultDisplayName();
 
     // Clear the cached qmlscene command, it might not match the restored path anymore.
@@ -755,12 +761,13 @@ QVariantMap BaseQtVersion::toMap() const
     QVariantMap result;
     result.insert(Constants::QTVERSIONID, uniqueId());
     d->m_data.unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
+
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
     result.insert(QTVERSIONAUTODETECTIONSOURCE, autodetectionSource());
     if (!d->m_overrideFeatures.isEmpty())
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
-    result.insert(QTVERSIONQMAKEPATH, qmakeCommand().toString());
+    result.insert(QTVERSIONQMAKEPATH, qmakeCommand().toVariant());
     return result;
 }
 
@@ -1142,13 +1149,13 @@ void BaseQtVersionPrivate::updateMkspec()
         return;
 
     m_mkspecUpToDate = true;
-    m_mkspecFullPath = mkspecFromVersionInfo(versionInfo());
+    m_mkspecFullPath = mkspecFromVersionInfo(versionInfo(), m_qmakeCommand);
 
     m_mkspec = m_mkspecFullPath;
     if (m_mkspecFullPath.isEmpty())
         return;
 
-    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo());
+    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo(), m_qmakeCommand);
 
     if (m_mkspec.isChildOf(baseMkspecDir)) {
         m_mkspec = m_mkspec.relativeChildPath(baseMkspecDir);
@@ -1303,60 +1310,49 @@ void BaseQtVersionPrivate::updateVersionInfo()
     }
     m_qmakeIsExecutable = true;
 
-    m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX"));
+    m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX")).onDevice(m_qmakeCommand);
 
-    m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS"));
-    m_data.libExecPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBEXECS"));
-    m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION"));
-    m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA"));
+    m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS")).onDevice(m_qmakeCommand);
+    m_data.libExecPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBEXECS")).onDevice(m_qmakeCommand);
+    m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION")).onDevice(m_qmakeCommand);
+    m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA")).onDevice(m_qmakeCommand);
     m_data.demosPath = FilePath::fromString(
-        QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath());
-    m_data.docsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DOCS"));
+        QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath()).onDevice(m_qmakeCommand);
+    m_data.docsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DOCS")).onDevice(m_qmakeCommand);
     m_data.examplesPath = FilePath::fromString(
-        QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath());
-    m_data.headerPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS"));
-    m_data.importsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_IMPORTS"));
-    m_data.libraryPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBS"));
-    m_data.pluginPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS"));
-    m_data.qmlPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_QML"));
-    m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS"));
+        QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath()).onDevice(m_qmakeCommand);
+    m_data.headerPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS")).onDevice(m_qmakeCommand);
+    m_data.importsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_IMPORTS")).onDevice(m_qmakeCommand);
+    m_data.libraryPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBS")).onDevice(m_qmakeCommand);
+    m_data.pluginPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS")).onDevice(m_qmakeCommand);
+    m_data.qmlPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_QML")).onDevice(m_qmakeCommand);
+    m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS")).onDevice(m_qmakeCommand);
 
-    m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS"));
-    m_data.hostLibexecPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_LIBEXECS"));
-    m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA"));
-    m_data.hostPrefixPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_PREFIX"));
-
-    const QString qtHeaderData = q->headerPath().toString();
+    m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS")).onDevice(m_qmakeCommand);
+    m_data.hostLibexecPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_LIBEXECS")).onDevice(m_qmakeCommand);
+    m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA")).onDevice(m_qmakeCommand);
+    m_data.hostPrefixPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_PREFIX")).onDevice(m_qmakeCommand);
 
     // Now check for a qt that is configured with a prefix but not installed
-    QString installDir = q->hostBinPath().toString();
-    if (!installDir.isNull()) {
-        if (!QFileInfo::exists(installDir))
-            m_data.installed = false;
-    }
+    if (!m_data.hostBinPath.isReadableDir())
+        m_data.installed = false;
+
     // Framework builds for Qt 4.8 don't use QT_INSTALL_HEADERS
     // so we don't check on mac
     if (!HostOsInfo::isMacHost()) {
-        if (!qtHeaderData.isNull()) {
-            if (!QFileInfo::exists(qtHeaderData))
-                m_data.installed = false;
-        }
+        if (!m_data.headerPath.isReadableDir())
+            m_data.installed = false;
     }
-    const QString qtInstallDocs = q->docsPath().toString();
-    if (!qtInstallDocs.isEmpty()) {
-        if (QFileInfo::exists(qtInstallDocs))
-            m_data.hasDocumentation = true;
-    }
-    const QString qtInstallExamples = q->examplesPath().toString();
-    if (!qtInstallExamples.isEmpty()) {
-        if (QFileInfo::exists(qtInstallExamples))
-            m_data.hasExamples = true;
-    }
-    const QString qtInstallDemos = q->demosPath().toString();
-    if (!qtInstallDemos.isEmpty()) {
-        if (QFileInfo::exists(qtInstallDemos))
-            m_data.hasDemos = true;
-    }
+
+    if (m_data.docsPath.isReadableDir())
+        m_data.hasDocumentation = true;
+
+    if (m_data.examplesPath.isReadableDir())
+        m_data.hasExamples = true;
+
+    if (m_data.demosPath.isReadableDir())
+        m_data.hasDemos = true;
+
     m_data.qtVersionString = qmakeProperty("QT_VERSION");
 
     m_isUpdating = false;
@@ -1842,17 +1838,19 @@ QString BaseQtVersionPrivate::qmakeProperty(const QByteArray &name,
     return qmakeProperty(m_versionInfo, name, variant);
 }
 
-FilePath BaseQtVersionPrivate::mkspecDirectoryFromVersionInfo(const QHash<ProKey, ProString> &versionInfo)
+FilePath BaseQtVersionPrivate::mkspecDirectoryFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,
+                                                              const FilePath &qmakeCommand)
 {
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
         return FilePath();
-    return FilePath::fromUserInput(dataDir + "/mkspecs");
+    return FilePath::fromUserInput(dataDir + "/mkspecs").onDevice(qmakeCommand);
 }
 
-FilePath BaseQtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> &versionInfo)
+FilePath BaseQtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,
+                                                     const FilePath &qmakeCommand)
 {
-    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo);
+    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo, qmakeCommand);
     if (baseMkspecDir.isEmpty())
         return FilePath();
 
@@ -2059,35 +2057,24 @@ FilePaths BaseQtVersionPrivate::qtCorePaths()
     updateVersionInfo();
     const QString versionString = m_data.qtVersionString;
 
-    const QString installLibsDir = q->libraryPath().toString();
-    const QString installBinDir = q->binPath().toString();
-
     const QDir::Filters filters = QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot;
 
-    const QFileInfoList entryInfoList = [&]() {
-         QFileInfoList result;
-         if (!installLibsDir.isEmpty())
-             result += QDir(installLibsDir).entryInfoList(filters);
-        if (!installBinDir.isEmpty())
-            result += QDir(installBinDir).entryInfoList(filters);
-        return result;
-    }();
+    const FilePaths entries = m_data.libraryPath.dirEntries(filters)
+                            + m_data.binPath.dirEntries(filters);
+
     FilePaths staticLibs;
     FilePaths dynamicLibs;
-    for (const QFileInfo &info : entryInfoList) {
-        const QString file = info.fileName();
-        if (info.isDir()
-                && file.startsWith("QtCore")
-                && file.endsWith(".framework")) {
+    for (const FilePath &entry : entries) {
+        const QString file = entry.fileName();
+        if (file.startsWith("QtCore") && file.endsWith(".framework") && entry.isReadableDir()) {
             // handle Framework
-            const FilePath lib = FilePath::fromFileInfo(info);
-            dynamicLibs.append(lib.pathAppended(file.left(file.lastIndexOf('.'))));
-        } else if (info.isReadable()) {
-            if (file.startsWith("libQtCore") || file.startsWith("QtCore")
+            dynamicLibs.append(entry.pathAppended(file.left(file.lastIndexOf('.'))));
+        } else if (file.startsWith("libQtCore") || file.startsWith("QtCore")
                 || file.startsWith("libQt5Core") || file.startsWith("Qt5Core")
                 || file.startsWith("libQt6Core") || file.startsWith("Qt6Core")) {
+            if (entry.isReadableFile()) {
                 if (file.endsWith(".a") || file.endsWith(".lib"))
-                    staticLibs.append(FilePath::fromFileInfo(info));
+                    staticLibs.append(entry);
                 else if (file.endsWith(".dll")
                          || file.endsWith(QString::fromLatin1(".so.") + versionString)
                          || file.endsWith(".so")
@@ -2095,7 +2082,7 @@ FilePaths BaseQtVersionPrivate::qtCorePaths()
                          || file.contains(QRegularExpression("\\.so\\.[0-9]+\\.[0-9]+$")) // QTCREATORBUG-23818
 #endif
                          || file.endsWith(QLatin1Char('.') + versionString + ".dylib"))
-                    dynamicLibs.append(FilePath::fromFileInfo(info));
+                    dynamicLibs.append(entry);
             }
         }
     }
@@ -2301,7 +2288,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
     QHash<ProKey, ProString> versionInfo;
     if (!BaseQtVersionPrivate::queryQMakeVariables(qmakePath, Environment::systemEnvironment(), &versionInfo, error))
         return nullptr;
-    FilePath mkspec = BaseQtVersionPrivate::mkspecFromVersionInfo(versionInfo);
+    FilePath mkspec = BaseQtVersionPrivate::mkspecFromVersionInfo(versionInfo, qmakePath);
 
     QMakeVfs vfs;
     QMakeGlobals globals;
@@ -2310,7 +2297,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
     ProFileEvaluator evaluator(&globals, &parser, &vfs, &msgHandler);
-    evaluator.loadNamedSpec(mkspec.toString(), false);
+    evaluator.loadNamedSpec(mkspec.path(), false);
 
     QList<QtVersionFactory *> factories = g_qtVersionFactories;
     Utils::sort(factories, [](const QtVersionFactory *l, const QtVersionFactory *r) {
