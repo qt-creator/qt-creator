@@ -58,7 +58,6 @@ private:
 
 private:
     Ui::IosSettingsWidget *m_ui = nullptr;
-    SimulatorControl *m_simControl = nullptr;
 };
 
 } // namespace Internal

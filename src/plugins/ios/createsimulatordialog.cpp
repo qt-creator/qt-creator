@@ -38,10 +38,9 @@ namespace Internal {
 
 using namespace std::placeholders;
 
-CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::CreateSimulatorDialog),
-    m_simControl(new SimulatorControl(this))
+CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
+    : QDialog(parent)
+    , m_ui(new Ui::CreateSimulatorDialog)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);

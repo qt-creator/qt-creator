@@ -74,9 +74,8 @@ public:
 
 class DeviceTypeInfo : public SimulatorEntity {};
 
-class SimulatorControl : public QObject
+class SimulatorControl
 {
-    Q_OBJECT
 public:
     struct ResponseData {
         ResponseData(const QString & udid):
@@ -87,10 +86,6 @@ public:
         qint64 pID = -1;
         QString commandOutput;
     };
-
-public:
-    explicit SimulatorControl(QObject* parent = nullptr);
-    ~SimulatorControl() override;
 
 public:
     static QList<DeviceTypeInfo> availableDeviceTypes();
@@ -104,23 +99,24 @@ public:
     static QString bundleExecutable(const Utils::FilePath &bundlePath);
 
 public:
-    QFuture<ResponseData> startSimulator(const QString &simUdid) const;
-    QFuture<ResponseData> installApp(const QString &simUdid, const Utils::FilePath &bundlePath) const;
-    QFuture<ResponseData> launchApp(const QString &simUdid, const QString &bundleIdentifier,
-                                    bool waitForDebugger, const QStringList &extraArgs,
-                                    const QString& stdoutPath = QString(),
-                                    const QString& stderrPath = QString()) const;
-    QFuture<ResponseData> deleteSimulator(const QString &simUdid) const;
-    QFuture<ResponseData> resetSimulator(const QString &simUdid) const;
-    QFuture<ResponseData> renameSimulator(const QString &simUdid, const QString &newName) const;
-    QFuture<ResponseData> createSimulator(const QString &name,
-                                          const DeviceTypeInfo &deviceType,
-                                          const RuntimeInfo &runtime);
-    QFuture<ResponseData> takeSceenshot(const QString &simUdid, const QString &filePath);
-
-private:
-    SimulatorControlPrivate *d;
+    static QFuture<ResponseData> startSimulator(const QString &simUdid);
+    static QFuture<ResponseData> installApp(const QString &simUdid,
+                                            const Utils::FilePath &bundlePath);
+    static QFuture<ResponseData> launchApp(const QString &simUdid,
+                                           const QString &bundleIdentifier,
+                                           bool waitForDebugger,
+                                           const QStringList &extraArgs,
+                                           const QString &stdoutPath = QString(),
+                                           const QString &stderrPath = QString());
+    static QFuture<ResponseData> deleteSimulator(const QString &simUdid);
+    static QFuture<ResponseData> resetSimulator(const QString &simUdid);
+    static QFuture<ResponseData> renameSimulator(const QString &simUdid, const QString &newName);
+    static QFuture<ResponseData> createSimulator(const QString &name,
+                                                 const DeviceTypeInfo &deviceType,
+                                                 const RuntimeInfo &runtime);
+    static QFuture<ResponseData> takeSceenshot(const QString &simUdid, const QString &filePath);
 };
+
 } // namespace Internal
 } // namespace Ios
 

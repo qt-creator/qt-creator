@@ -60,7 +60,6 @@ private:
 private:
     Utils::FutureSynchronizer m_futureSync;
     Ui::CreateSimulatorDialog *m_ui = nullptr;
-    SimulatorControl *m_simControl = nullptr;
     QList<RuntimeInfo> m_runtimes;
 };
 

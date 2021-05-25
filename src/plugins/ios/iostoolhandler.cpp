@@ -307,7 +307,6 @@ class IosSimulatorToolHandlerPrivate : public IosToolHandlerPrivate
 {
 public:
     explicit IosSimulatorToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
-    ~IosSimulatorToolHandlerPrivate() override;
 
 // IosToolHandlerPrivate overrides
 public:
@@ -327,7 +326,6 @@ private:
 
 private:
     qint64 m_pid = -1;
-    SimulatorControl *simCtl;
     LogTailFiles outputLogger;
     Utils::FutureSynchronizer futureSynchronizer;
 };
@@ -802,20 +800,14 @@ void IosDeviceToolHandlerPrivate::stop(int errorCode)
 // IosSimulatorToolHandlerPrivate
 
 IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceType &devType,
-                                                         IosToolHandler *q)
-    : IosToolHandlerPrivate(devType, q),
-      simCtl(new SimulatorControl)
+                                                               IosToolHandler *q)
+    : IosToolHandlerPrivate(devType, q)
 {
     QObject::connect(&outputLogger, &LogTailFiles::logMessage,
                      std::bind(&IosToolHandlerPrivate::appOutput, this, _1));
     futureSynchronizer.setCancelOnWait(true);
 }
 
-IosSimulatorToolHandlerPrivate::~IosSimulatorToolHandlerPrivate()
-{
-    futureSynchronizer.waitForFinished();
-    delete simCtl;
-}
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundlePath,
                                                         const QString &deviceIdentifier, int timeout)
 {
@@ -840,7 +832,8 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundle
     if (SimulatorControl::isSimulatorRunning(m_deviceId))
         installAppOnSimulator();
     else
-        futureSynchronizer.addFuture(Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart));
+        futureSynchronizer.addFuture(
+            Utils::onResultReady(SimulatorControl::startSimulator(m_deviceId), onSimulatorStart));
 }
 
 void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
@@ -876,7 +869,8 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     if (SimulatorControl::isSimulatorRunning(m_deviceId))
         launchAppOnSimulator(extraArgs);
     else
-        futureSynchronizer.addFuture(Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart));
+        futureSynchronizer.addFuture(
+            Utils::onResultReady(SimulatorControl::startSimulator(m_deviceId), onSimulatorStart));
 }
 
 void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int timeout)
@@ -926,7 +920,8 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
     };
 
     isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
-    auto installFuture = simCtl->installApp(m_deviceId, Utils::FilePath::fromString(m_bundlePath));
+    auto installFuture = SimulatorControl::installApp(m_deviceId,
+                                                      Utils::FilePath::fromString(m_bundlePath));
     futureSynchronizer.addFuture(Utils::onResultReady(installFuture, onResponseAppInstall));
 }
 
@@ -990,11 +985,16 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
         }
     };
 
-    futureSynchronizer.addFuture(Utils::onResultReady(
-                      simCtl->launchApp(m_deviceId, bundleId, debugRun, extraArgs,
-                                        captureConsole ? stdoutFile->fileName() : QString(),
-                                        captureConsole ? stderrFile->fileName() : QString()),
-                      onResponseAppLaunch));
+    futureSynchronizer.addFuture(
+        Utils::onResultReady(SimulatorControl::launchApp(m_deviceId,
+                                                         bundleId,
+                                                         debugRun,
+                                                         extraArgs,
+                                                         captureConsole ? stdoutFile->fileName()
+                                                                        : QString(),
+                                                         captureConsole ? stderrFile->fileName()
+                                                                        : QString()),
+                             onResponseAppLaunch));
 }
 
 bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::ResponseData &responseData)
