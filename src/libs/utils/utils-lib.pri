@@ -142,7 +142,8 @@ SOURCES += \
     $$PWD/layoutbuilder.cpp \
     $$PWD/variablechooser.cpp \
     $$PWD/futuresynchronizer.cpp \
-    $$PWD/qtcsettings.cpp
+    $$PWD/qtcsettings.cpp \
+    $$PWD/link.cpp \
 
 HEADERS += \
     $$PWD/environmentfwd.h \

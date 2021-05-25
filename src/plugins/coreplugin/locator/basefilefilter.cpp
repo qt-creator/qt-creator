@@ -28,6 +28,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/link.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -137,9 +138,10 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
     // If search string contains spaces, treat them as wildcard '*' and search in full path
     const QString entry = QDir::fromNativeSeparators(origEntry).replace(' ', '*');
-    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
+    QString postfix;
+    Link link = Link::fromString(entry, true, &postfix);
 
-    const QRegularExpression regexp = createRegExp(fp.filePath);
+    const QRegularExpression regexp = createRegExp(link.targetFilePath.toString());
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
         return {};
@@ -148,9 +150,9 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         return candidate.contains('/') || candidate.contains('*');
     };
 
-    const bool hasPathSeparator = containsPathSeparator(fp.filePath);
+    const bool hasPathSeparator = containsPathSeparator(link.targetFilePath.toString());
     const bool containsPreviousEntry = !d->m_current.previousEntry.isEmpty()
-            && fp.filePath.contains(d->m_current.previousEntry);
+            && link.targetFilePath.toString().contains(d->m_current.previousEntry);
     const bool pathSeparatorAdded = !containsPathSeparator(d->m_current.previousEntry)
             && hasPathSeparator;
     const bool searchInPreviousResults = !d->m_current.forceNewSearchList && containsPreviousEntry
@@ -160,7 +162,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 
     QTC_ASSERT(d->m_current.iterator.data(), return QList<LocatorFilterEntry>());
     d->m_current.previousResultPaths.clear();
-    d->m_current.previousEntry = fp.filePath;
+    d->m_current.previousEntry = link.targetFilePath.toString();
     d->m_current.iterator->toFront();
     bool canceled = false;
     while (d->m_current.iterator->hasNext()) {
@@ -176,7 +178,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 
         if (match.hasMatch()) {
             QFileInfo fi(path.toString());
-            LocatorFilterEntry filterEntry(this, fi.fileName(), QString(path.toString() + fp.postfix));
+            LocatorFilterEntry filterEntry(this, fi.fileName(), QString(path.toString() + postfix));
             filterEntry.fileName = path.toString();
             filterEntry.extraInfo = FilePath::fromFileInfo(fi).shortNativePath();
 

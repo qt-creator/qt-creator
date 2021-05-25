@@ -30,11 +30,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/reaper.h>
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
+#include <utils/link.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
-#include <utils/commandline.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
@@ -251,17 +252,17 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
 
 void SpotlightLocatorFilter::prepareSearch(const QString &entry)
 {
-    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
-    if (fp.filePath.isEmpty()) {
+    Link link = Utils::Link::fromString(entry, true);
+    if (link.targetFilePath.isEmpty()) {
         setFileIterator(new BaseFileFilter::ListIterator(Utils::FilePaths()));
     } else {
         // only pass the file name part to allow searches like "somepath/*foo"
-        int lastSlash = fp.filePath.lastIndexOf(QLatin1Char('/'));
-        const QString query = fp.filePath.mid(lastSlash + 1);
-        std::unique_ptr<MacroExpander> expander(createMacroExpander(query));
+
+        std::unique_ptr<MacroExpander> expander(createMacroExpander(link.targetFilePath.fileName()));
         const QString argumentString = expander->expand(
-            caseSensitivity(fp.filePath) == Qt::CaseInsensitive ? m_arguments
-                                                                : m_caseSensitiveArguments);
+            caseSensitivity(link.targetFilePath.toString()) == Qt::CaseInsensitive
+                ? m_arguments
+                : m_caseSensitiveArguments);
         setFileIterator(
             new SpotlightIterator(QStringList(m_command) + ProcessArgs::splitArgs(argumentString)));
     }

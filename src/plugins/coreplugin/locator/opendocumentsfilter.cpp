@@ -28,6 +28,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileutils.h>
+#include <utils/link.h>
 
 #include <QAbstractItemModel>
 #include <QFileInfo>
@@ -59,9 +60,10 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
-    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
+    QString postfix;
+    Link link = Link::fromString(entry, true, &postfix);
 
-    const QRegularExpression regexp = createRegExp(fp.filePath);
+    const QRegularExpression regexp = createRegExp(link.targetFilePath.toString());
     if (!regexp.isValid())
         return goodEntries;
 
@@ -75,7 +77,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
         QString displayName = editorEntry.displayName;
         const QRegularExpressionMatch match = regexp.match(displayName);
         if (match.hasMatch()) {
-            LocatorFilterEntry filterEntry(this, displayName, QString(fileName + fp.postfix));
+            LocatorFilterEntry filterEntry(this, displayName, QString(fileName + postfix));
             filterEntry.extraInfo = FilePath::fromString(fileName).shortNativePath();
             filterEntry.fileName = fileName;
             filterEntry.highlightInfo = highlightInfo(match);

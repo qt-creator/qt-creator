@@ -36,6 +36,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/link.h>
 
 #include <QDir>
 #include <QJsonObject>
@@ -128,11 +129,11 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         }
     }
     // file names can match with +linenumber or :linenumber
-    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entryFileName);
-    regExp = createRegExp(fp.filePath, caseSensitivity_);
+    QString postfix;
+    Link link = Link::fromString(entry, true, &postfix);
+    regExp = createRegExp(link.targetFilePath.toString(), caseSensitivity_);
     if (!regExp.isValid())
         return {};
-    const QString fileName = QFileInfo(fp.filePath).fileName();
     for (const QString &file : files) {
         if (future.isCanceled())
             break;
@@ -141,7 +142,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         if (match.hasMatch()) {
             const MatchLevel level = matchLevelFor(match, file);
             const QString fullPath = dirInfo.filePath(file);
-            LocatorFilterEntry filterEntry(this, file, QString(fullPath + fp.postfix));
+            LocatorFilterEntry filterEntry(this, file, QString(fullPath + postfix));
             filterEntry.fileName = fullPath;
             filterEntry.highlightInfo = highlightInfo(match);
 
@@ -150,7 +151,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     }
 
     // "create and open" functionality
-    const QString fullFilePath = dirInfo.filePath(fileName);
+    const QString fullFilePath = dirInfo.filePath(link.targetFilePath.fileName());
     const bool containsWildcard = entry.contains('?') || entry.contains('*');
     if (!containsWildcard && !QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this, tr("Create and Open \"%1\"").arg(entry), fullFilePath);

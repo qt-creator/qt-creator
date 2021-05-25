@@ -35,13 +35,17 @@
 
 namespace Utils {
 
-struct Link
+struct QTCREATOR_UTILS_EXPORT Link
 {
     Link(const Utils::FilePath &filePath = Utils::FilePath(), int line = 0, int column = 0)
         : targetFilePath(filePath)
         , targetLine(line)
         , targetColumn(column)
     {}
+
+    static Link fromString(const QString &fileName,
+                           bool canContainLineNumber = false,
+                           QString *postfix = nullptr);
 
     bool hasValidTarget() const
     { return !targetFilePath.isEmpty(); }
