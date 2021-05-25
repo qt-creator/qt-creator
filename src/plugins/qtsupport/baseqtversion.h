@@ -122,7 +122,7 @@ public:
 
     void applyProperties(QMakeGlobals *qmakeGlobals) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
-    virtual Utils::Environment qmakeRunEnvironment() const;
+    Utils::Environment qmakeRunEnvironment() const;
 
     // source path defined by qmake property QT_INSTALL_PREFIX/src or by qmake.stash QT_SOURCE_TREE
     Utils::FilePath sourcePath() const;
@@ -253,6 +253,7 @@ protected:
 
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
+    virtual void setupQmakeRunEnvironment(Utils::Environment &env) const;
 
 private:
     void updateDefaultDisplayName();

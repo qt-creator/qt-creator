@@ -1182,7 +1182,9 @@ void BaseQtVersion::ensureMkSpecParsed() const
     QMakeVfs vfs;
     QMakeGlobals option;
     applyProperties(&option);
-    option.environment = qmakeRunEnvironment().toProcessEnvironment();
+    Environment env = Environment::systemEnvironment(); // FIXME: Use build device
+    setupQmakeRunEnvironment(env);
+    option.environment = env.toProcessEnvironment();
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
@@ -1706,9 +1708,17 @@ void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 // One such example is Blackberry which for some reason decided to always use the same
 // qmake and use environment variables embedded in their mkspecs to make that point to
 // the different Qt installations.
+
 Environment BaseQtVersion::qmakeRunEnvironment() const
 {
-    return Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment(); // FIXME: Use build environment
+    setupQmakeRunEnvironment(env);
+    return env;
+}
+
+void BaseQtVersion::setupQmakeRunEnvironment(Environment &env) const
+{
+    Q_UNUSED(env);
 }
 
 bool BaseQtVersion::hasQmlDumpWithRelocatableFlag() const

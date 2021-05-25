@@ -56,7 +56,7 @@ public:
     ProjectExplorer::Abis detectQtAbis() const override;
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
-    Utils::Environment qmakeRunEnvironment() const override;
+    void setupQmakeRunEnvironment(Utils::Environment &env) const override;
 
     QtSupport::QtConfigWidget *createConfigurationWidget() const override;
 

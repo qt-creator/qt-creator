@@ -145,12 +145,10 @@ void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) c
             config.bestNdkPlatformMatch(qMax(minimumNDK(), AndroidManager::minimumSDK(k)), this));
 }
 
-Utils::Environment AndroidQtVersion::qmakeRunEnvironment() const
+void AndroidQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
     env.set(QLatin1String("ANDROID_NDK_ROOT"),
             AndroidConfigurations::currentConfig().ndkLocation(this).toUserOutput());
-    return env;
 }
 
 QString AndroidQtVersion::description() const

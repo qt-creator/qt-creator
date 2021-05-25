@@ -134,15 +134,12 @@ void QnxQtVersion::addToEnvironment(const Kit *k, Environment &env) const
     env.prependOrSetLibrarySearchPath(libraryPath().toString());
 }
 
-Environment QnxQtVersion::qmakeRunEnvironment() const
+void QnxQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
 {
     if (!sdpPath().isEmpty())
         updateEnvironment();
 
-    Environment env = Environment::systemEnvironment();
     env.modify(m_qnxEnv);
-
-    return env;
 }
 
 QtSupport::QtConfigWidget *QnxQtVersion::createConfigurationWidget() const
