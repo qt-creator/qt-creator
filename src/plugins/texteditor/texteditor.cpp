@@ -6254,11 +6254,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
     if (inNextSplit)
         flags |= EditorManager::OpenInOtherSplit;
 
-    return EditorManager::openEditorAt(link.targetFilePath,
-                                       link.targetLine,
-                                       link.targetColumn,
-                                       Id(),
-                                       flags);
+    return EditorManager::openEditorAt(link, Id(), flags);
 }
 
 bool TextEditorWidgetPrivate::isMouseNavigationEvent(QMouseEvent *e) const

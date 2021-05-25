@@ -31,6 +31,7 @@
 #include "documentmodel.h"
 #include "ieditor.h"
 
+#include "utils/link.h"
 #include "utils/textfileformat.h"
 
 #include <QList>
@@ -40,7 +41,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QMenu)
 
-namespace Utils { class MimeType; }
+namespace Utils {
+class MimeType;
+}
 
 namespace Core {
 
@@ -86,10 +89,13 @@ public:
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
-    static IEditor *openEditor(const Utils::FilePath &filePath, Utils::Id editorId = {},
-        OpenEditorFlags flags = NoFlags, bool *newEditor = nullptr);
-    static IEditor *openEditorAt(const Utils::FilePath &filePath,  int line, int column = 0,
-                                 Utils::Id editorId = {}, OpenEditorFlags flags = NoFlags,
+    static IEditor *openEditor(const Utils::FilePath &filePath,
+                               Utils::Id editorId = {},
+                               OpenEditorFlags flags = NoFlags,
+                               bool *newEditor = nullptr);
+    static IEditor *openEditorAt(const Utils::Link &link,
+                                 Utils::Id editorId = {},
+                                 OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
 
     // Kept for a while for transition.

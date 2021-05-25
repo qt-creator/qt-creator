@@ -465,10 +465,7 @@ void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
     const auto link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget())
-        EditorManager::openEditorAt(link.targetFilePath,
-                                    link.targetLine,
-                                    link.targetColumn,
-                                    Constants::CPPEDITOR_ID);
+        EditorManager::openEditorAt(link, Constants::CPPEDITOR_ID);
 }
 
 void CppIncludeHierarchyWidget::editorsClosed(const QList<IEditor *> &editors)

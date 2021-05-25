@@ -336,10 +336,7 @@ void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
     if (updatedLink.hasValidTarget())
         link = updatedLink;
 
-    Core::EditorManager::openEditorAt(link.targetFilePath,
-                                      link.targetLine,
-                                      link.targetColumn,
-                                      Constants::CPPEDITOR_ID);
+    Core::EditorManager::openEditorAt(link, Constants::CPPEDITOR_ID);
 }
 
 void CppTypeHierarchyWidget::onItemDoubleClicked(const QModelIndex &index)

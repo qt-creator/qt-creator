@@ -41,6 +41,7 @@
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/link.h>
 #include <utils/utilsicons.h>
 
 #include <QDebug>
@@ -401,15 +402,16 @@ void EditorView::closeSplit()
 void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     bool first = true;
+    auto specToLink = [](const DropSupport::FileSpec &spec) {
+        return Utils::Link(FilePath::fromString(spec.filePath), spec.line, spec.column);
+    };
     auto openEntry = [&](const DropSupport::FileSpec &spec) {
         if (first) {
             first = false;
-            EditorManagerPrivate::openEditorAt(this, FilePath::fromString(spec.filePath), spec.line, spec.column);
+            EditorManagerPrivate::openEditorAt(this, specToLink(spec));
         } else if (spec.column != -1 || spec.line != -1) {
             EditorManagerPrivate::openEditorAt(this,
-                                               FilePath::fromString(spec.filePath),
-                                               spec.line,
-                                               spec.column,
+                                               specToLink(spec),
                                                Id(),
                                                EditorManager::DoNotChangeCurrentEditor
                                                    | EditorManager::DoNotMakeVisible);

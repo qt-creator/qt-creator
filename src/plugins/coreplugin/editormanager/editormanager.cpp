@@ -953,16 +953,18 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     return result;
 }
 
-IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const FilePath &filePath, int line,
-                                            int column, Id editorId,
-                                            EditorManager::OpenEditorFlags flags, bool *newEditor)
+IEditor *EditorManagerPrivate::openEditorAt(EditorView *view,
+                                            const Link &link,
+                                            Id editorId,
+                                            EditorManager::OpenEditorFlags flags,
+                                            bool *newEditor)
 {
     EditorManager::cutForwardNavigationHistory();
     EditorManager::addCurrentPositionToNavigationHistory();
     EditorManager::OpenEditorFlags tempFlags = flags | EditorManager::IgnoreNavigationHistory;
-    IEditor *editor = openEditor(view, filePath, editorId, tempFlags, newEditor);
-    if (editor && line != -1)
-        editor->gotoLine(line, column);
+    IEditor *editor = openEditor(view, link.targetFilePath, editorId, tempFlags, newEditor);
+    if (editor && link.targetLine != -1)
+        editor->gotoLine(link.targetLine, link.targetColumn);
     return editor;
 }
 
@@ -3110,20 +3112,25 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
     \sa openExternalEditor()
     \sa IEditor::gotoLine()
 */
-IEditor *EditorManager::openEditorAt(const FilePath &filePath, int line, int column,
-                                     Id editorId, OpenEditorFlags flags, bool *newEditor)
+IEditor *EditorManager::openEditorAt(const Link &link,
+                                     Id editorId,
+                                     OpenEditorFlags flags,
+                                     bool *newEditor)
 {
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
     return EditorManagerPrivate::openEditorAt(EditorManagerPrivate::currentEditorView(),
-                                              filePath, line, column, editorId, flags, newEditor);
+                                              link,
+                                              editorId,
+                                              flags,
+                                              newEditor);
 }
 
 IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
                                      Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
-    return openEditorAt(FilePath::fromString(fileName), line, column, editorId, flags, newEditor);
+    return openEditorAt(Link(FilePath::fromString(fileName), line, column), editorId, flags, newEditor);
 }
 
 /*!

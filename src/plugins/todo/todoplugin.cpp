@@ -37,6 +37,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/projectpanelfactory.h>
+#include <utils/link.h>
 
 #include <QFileInfo>
 #include <QSettings>
@@ -103,7 +104,7 @@ void TodoPluginPrivate::scanningScopeChanged(ScanningScope scanningScope)
 void TodoPluginPrivate::todoItemClicked(const TodoItem &item)
 {
     if (item.file.exists())
-        Core::EditorManager::openEditorAt(item.file, item.line);
+        Core::EditorManager::openEditorAt(Utils::Link(item.file, item.line));
 }
 
 void TodoPluginPrivate::createItemsProvider()

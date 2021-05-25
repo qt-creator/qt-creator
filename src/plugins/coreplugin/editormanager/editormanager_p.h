@@ -85,9 +85,7 @@ public:
                                EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                bool *newEditor = nullptr);
     static IEditor *openEditorAt(EditorView *view,
-                                 const Utils::FilePath &filePath,
-                                 int line,
-                                 int column = 0,
+                                 const Utils::Link &filePath,
                                  Utils::Id editorId = {},
                                  EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                  bool *newEditor = nullptr);
