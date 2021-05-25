@@ -1287,8 +1287,7 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
         Utils::FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
         if (sysroot.isEmpty())
             sysroot = Utils::FilePath::fromString(defaultTc->sysRoot());
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        defaultKit->addToEnvironment(env);
+        Utils::Environment env = defaultKit->buildEnvironment();
         ToolChainInfo tcInfo(defaultTc, sysroot.toString(), env);
         part->setupToolchainProperties(tcInfo, {});
         if (part->language == Language::C)

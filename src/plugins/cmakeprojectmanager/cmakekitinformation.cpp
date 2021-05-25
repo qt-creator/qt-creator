@@ -661,8 +661,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
                 = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
             if (settings->ninjaPath.filePath().isEmpty()) {
-                Utils::Environment env = Utils::Environment::systemEnvironment();
-                k->addToEnvironment(env);
+                Utils::Environment env = k->buildEnvironment();
                 return !env.searchInPath("ninja").isEmpty();
             }
             return true;
@@ -829,7 +828,7 @@ KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
     return new CMakeGeneratorKitAspectWidget(k, this);
 }
 
-void CMakeGeneratorKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
+void CMakeGeneratorKitAspect::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
 {
     GeneratorInfo info = generatorInfo(k);
     if (info.generator == "NMake Makefiles JOM") {

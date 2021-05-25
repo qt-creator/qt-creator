@@ -188,10 +188,7 @@ Environment BuildSystem::activeParseEnvironment() const
     if (rc)
         return rc->runnable().environment;
 
-    Environment result = Utils::Environment::systemEnvironment();
-    d->m_target->kit()->addToEnvironment(result);
-
-    return result;
+    return d->m_target->kit()->buildEnvironment();
 }
 
 void BuildSystem::requestParseHelper(int delay)

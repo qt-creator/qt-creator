@@ -682,7 +682,13 @@ int KitAspect::weight(const Kit *k) const
     return k->value(id()).isValid() ? 1 : 0;
 }
 
-void KitAspect::addToEnvironment(const Kit *k, Environment &env) const
+void KitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
+{
+    Q_UNUSED(k)
+    Q_UNUSED(env)
+}
+
+void KitAspect::addToRunEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     Q_UNUSED(env)

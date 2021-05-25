@@ -49,8 +49,7 @@ LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target, bool includeBuild
             if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
                 env = bc->environment();
             } else { // Fallback for targets without buildconfigurations:
-                env = Environment::systemEnvironment();
-                target->kit()->addToEnvironment(env);
+                env = target->kit()->buildEnvironment();
             }
             return env;
         });

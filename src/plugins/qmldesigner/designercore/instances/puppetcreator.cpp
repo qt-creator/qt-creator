@@ -462,7 +462,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (QTC_GUARD(m_target)) {
         if (!useOnlyFallbackPuppet())
-            m_target->kit()->addToEnvironment(environment);
+            m_target->kit()->addToBuildEnvironment(environment);
         const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
         if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
             // Update PATH to include QT_HOST_BINS
@@ -561,8 +561,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
 QString PuppetCreator::buildCommand() const
 {
-    Utils::Environment environment = Utils::Environment::systemEnvironment();
-    m_target->kit()->addToEnvironment(environment);
+    const Utils::Environment environment = m_target->kit()->buildEnvironment();
 
     if (ToolChain *toolChain = ToolChainKitAspect::cxxToolChain(m_target->kit()))
         return toolChain->makeCommand(environment).toString();

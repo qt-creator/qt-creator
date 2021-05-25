@@ -563,10 +563,30 @@ QVariantMap Kit::toMap() const
     return data;
 }
 
-void Kit::addToEnvironment(Environment &env) const
+void Kit::addToBuildEnvironment(Environment &env) const
 {
     for (KitAspect *aspect : KitManager::kitAspects())
-        aspect->addToEnvironment(this, env);
+        aspect->addToBuildEnvironment(this, env);
+}
+
+void Kit::addToRunEnvironment(Environment &env) const
+{
+    for (KitAspect *aspect : KitManager::kitAspects())
+        aspect->addToRunEnvironment(this, env);
+}
+
+Environment Kit::buildEnvironment() const
+{
+    Environment env = Environment::systemEnvironment(); // FIXME: Use build device
+    addToBuildEnvironment(env);
+    return env;
+}
+
+Environment Kit::runEnvironment() const
+{
+    Environment env = Environment::systemEnvironment(); // FIXME: Use run device
+    addToRunEnvironment(env);
+    return env;
 }
 
 QList<OutputLineParser *> Kit::createOutputParsers() const

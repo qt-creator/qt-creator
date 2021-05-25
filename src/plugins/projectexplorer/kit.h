@@ -115,7 +115,12 @@ public:
     bool isDataEqual(const Kit *other) const;
     bool isEqual(const Kit *other) const;
 
-    void addToEnvironment(Utils::Environment &env) const;
+    void addToBuildEnvironment(Utils::Environment &env) const;
+    Utils::Environment buildEnvironment() const;
+
+    void addToRunEnvironment(Utils::Environment &env) const;
+    Utils::Environment runEnvironment() const;
+
     QList<Utils::OutputLineParser *> createOutputParsers() const;
 
     QString toHtml(const Tasks &additional = Tasks(), const QString &extraText = QString()) const;

@@ -277,7 +277,7 @@ KitAspect::ItemList QtKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Qt version"), version ? version->displayName() : tr("None")}};
 }
 
-void QtKitAspect::addToEnvironment(const Kit *k, Environment &env) const
+void QtKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     BaseQtVersion *version = qtVersion(k);
     if (version)

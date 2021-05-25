@@ -526,7 +526,7 @@ KitAspect::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Compiler"), tc ? tc->displayName() : tr("None")}};
 }
 
-void ToolChainKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
+void ToolChainKitAspect::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
 {
     ToolChain *tc = cxxToolChain(k);
     if (tc)
@@ -1501,12 +1501,17 @@ void EnvironmentKitAspect::fix(Kit *k)
     }
 }
 
-void EnvironmentKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
+void EnvironmentKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     const QStringList values
             = Utils::transform(Utils::EnvironmentItem::toStringList(environmentChanges(k)),
                                [k](const QString &v) { return k->macroExpander()->expand(v); });
     env.modify(Utils::EnvironmentItem::fromStringList(values));
+}
+
+void EnvironmentKitAspect::addToRunEnvironment(const Kit *k, Environment &env) const
+{
+    addToBuildEnvironment(k, env);
 }
 
 KitAspectWidget *EnvironmentKitAspect::createConfigWidget(Kit *k) const

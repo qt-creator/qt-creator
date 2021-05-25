@@ -96,7 +96,9 @@ public:
 
     virtual KitAspectWidget *createConfigWidget(Kit *) const = 0;
 
-    virtual void addToEnvironment(const Kit *k, Utils::Environment &env) const;
+    virtual void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const;
+    virtual void addToRunEnvironment(const Kit *k, Utils::Environment &env) const;
+
     virtual QList<Utils::OutputLineParser *> createOutputParsers(const Kit *k) const;
 
     virtual QString displayNamePostfix(const Kit *k) const;

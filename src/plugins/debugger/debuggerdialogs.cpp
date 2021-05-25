@@ -474,11 +474,9 @@ void StartApplicationDialog::run(bool attachRemote)
         debugger->setSysRoot(newParameters.sysRoot);
 
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-    if (isLocal) {
-        Environment inferiorEnvironment = Environment::systemEnvironment();
-        k->addToEnvironment(inferiorEnvironment);
-        debugger->setInferiorEnvironment(inferiorEnvironment);
-    }
+    if (isLocal) // FIXME: Restriction needed?
+        debugger->setInferiorEnvironment(k->runEnvironment());
+
     if (!attachRemote)
         debugger->setStartMode(isLocal ? StartExternal : StartRemoteProcess);
 

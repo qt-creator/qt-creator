@@ -83,7 +83,9 @@ public:
 
     ItemList toUserOutput(const Kit *k) const override;
 
-    void addToEnvironment(const Kit *k, Utils::Environment &env) const override;
+    void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const override;
+    void addToRunEnvironment(const Kit *, Utils::Environment &) const override {}
+
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
     QList<Utils::OutputLineParser *> createOutputParsers(const Kit *k) const override;
     QSet<Utils::Id> availableFeatures(const Kit *k) const override;
@@ -219,7 +221,9 @@ public:
     Tasks validate(const Kit *k) const override;
     void fix(Kit *k) override;
 
-    void addToEnvironment(const Kit *k, Utils::Environment &env) const override;
+    void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const override;
+    void addToRunEnvironment(const Kit *, Utils::Environment &) const override;
+
     KitAspectWidget *createConfigWidget(Kit *k) const override;
 
     ItemList toUserOutput(const Kit *k) const override;
