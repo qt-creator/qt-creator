@@ -401,4 +401,35 @@ optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArray &id
     return nullopt;
 }
 
+void EnvironmentChange::addSetValue(const QString &key, const QString &value)
+{
+    m_changeItems.append([key, value](Environment &env) { env.set(key, value); });
+}
+
+void EnvironmentChange::addUnsetValue(const QString &key)
+{
+    m_changeItems.append([key](Environment &env) { env.unset(key); });
+}
+
+void EnvironmentChange::addPrependToPath(const QString &value)
+{
+    m_changeItems.append([value](Environment &env) { env.prependOrSetPath(value); });
+}
+
+void EnvironmentChange::addAppendToPath(const QString &value)
+{
+    m_changeItems.append([value](Environment &env) { env.appendOrSetPath(value); });
+}
+
+void EnvironmentChange::addModify(const NameValueItems &items)
+{
+    m_changeItems.append([items](Environment &env) { env.modify(items); });
+}
+
+void EnvironmentChange::applyToEnvironment(Environment &env) const
+{
+    for (const Item &item : m_changeItems)
+        item(env);
+}
+
 } // namespace Utils

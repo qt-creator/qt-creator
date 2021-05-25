@@ -86,6 +86,26 @@ private:
                                       QSet<FilePath> &alreadyChecked);
 };
 
+class QTCREATOR_UTILS_EXPORT EnvironmentChange final
+{
+public:
+    using Item = std::function<void(Environment &)>;
+
+    EnvironmentChange() = default;
+
+    void applyToEnvironment(Environment &) const;
+
+    void addSetValue(const QString &key, const QString &value);
+    void addUnsetValue(const QString &key);
+    void addPrependToPath(const QString &value);
+    void addAppendToPath(const QString &value);
+    void addModify(const NameValueItems &items);
+    void addChange(const Item &item) { m_changeItems.append(item); }
+
+private:
+    QList<Item> m_changeItems;
+};
+
 class QTCREATOR_UTILS_EXPORT EnvironmentProvider
 {
 public:
