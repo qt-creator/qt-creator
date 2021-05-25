@@ -32,5 +32,10 @@
         <file>find-usages/defs.h</file>
         <file>find-usages/main.cpp</file>
         <file>find-usages/find-usages.pro</file>
+        <file>follow-symbol/cursor.cpp</file>
+        <file>follow-symbol/cursor.h</file>
+        <file>follow-symbol/follow-symbol.pro</file>
+        <file>follow-symbol/header.h</file>
+        <file>follow-symbol/main.cpp</file>
     </qresource>
 </RCC>

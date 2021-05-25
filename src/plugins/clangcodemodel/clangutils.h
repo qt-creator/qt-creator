@@ -78,7 +78,7 @@ public:
     QString error;
 };
 
-enum CompilationDbPurpose { Project, CodeModel };
+enum class CompilationDbPurpose { Project, CodeModel };
 GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo,
                                                   CompilationDbPurpose purpose);
 

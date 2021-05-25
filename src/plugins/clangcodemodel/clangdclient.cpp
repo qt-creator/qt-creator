@@ -897,7 +897,6 @@ void ClangdClient::followSymbol(
 void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
-    QTC_ASSERT(followSymbolData->cursorNode.isValid(), return);
 
     qCDebug(clangdLog) << "handling go to definition result";
 
