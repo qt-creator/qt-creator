@@ -40,7 +40,7 @@ using namespace Core::Tests;
 
 namespace {
 
-QTC_DECLARE_MYTESTDATADIR("../../../../tests/locators/")
+QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
 
 class MyBaseFileFilter : public Core::BaseFileFilter
 {

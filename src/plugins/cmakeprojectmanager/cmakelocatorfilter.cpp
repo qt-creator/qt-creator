@@ -71,7 +71,7 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
 
         const QList<CMakeBuildTarget> buildTargets = bs->buildTargets();
         for (const CMakeBuildTarget &target : buildTargets) {
-            if (target.targetType == UtilityType && !CMakeBuildStep::specialTargets(bs->usesAllCapsTargets()).contains(target.title))
+            if (CMakeBuildSystem::filteredOutTarget(target))
                 continue;
             const int index = target.title.indexOf(entry);
             if (index >= 0) {

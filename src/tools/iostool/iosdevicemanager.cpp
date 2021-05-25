@@ -33,6 +33,8 @@
 #include <QHash>
 #include <QLibrary>
 #include <QMultiHash>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QRegularExpression>

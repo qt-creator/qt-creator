@@ -342,7 +342,10 @@ void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
 
 void ToolTip::placeTip(const QPoint &pos)
 {
-    QRect screen = QGuiApplication::screenAt(pos)->availableGeometry();
+    QScreen *qscreen = QGuiApplication::screenAt(pos);
+    if (!qscreen)
+        qscreen = QGuiApplication::primaryScreen();
+    const QRect screen = qscreen->availableGeometry();
     QPoint p = pos;
     p += offsetFromPosition();
     if (p.x() + m_tip->width() > screen.x() + screen.width())

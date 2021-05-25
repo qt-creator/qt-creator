@@ -66,20 +66,20 @@ DebuggerOutputParser::DebuggerOutputParser(const QString &output)
 
 void DebuggerOutputParser::skipCommas()
 {
-    while (from != to && *from == ',')
+    while (from < to && *from == ',')
         ++from;
 }
 
 void DebuggerOutputParser::skipSpaces()
 {
-    while (from != to && isspace(from->unicode()))
+    while (from < to && isspace(from->unicode()))
         ++from;
 }
 
 QString DebuggerOutputParser::readString(const std::function<bool(char)> &isValidChar)
 {
     QString res;
-    while (from != to && isValidChar(from->unicode()))
+    while (from < to && isValidChar(from->unicode()))
         res += *from++;
     return res;
 }
@@ -87,7 +87,7 @@ QString DebuggerOutputParser::readString(const std::function<bool(char)> &isVali
 int DebuggerOutputParser::readInt()
 {
     int res = 0;
-    while (from != to && *from >= '0' && *from <= '9') {
+    while (from < to && *from >= '0' && *from <= '9') {
         res *= 10;
         res += (*from++).unicode() - '0';
     }
@@ -101,12 +101,15 @@ QChar DebuggerOutputParser::readChar()
 
 static bool isNameChar(char c)
 {
-    return c != '=' && c != ':' && !isspace(c);
+    return c != '=' && c != ':' && c != ']' && !isspace(c);
 }
 
 void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
 {
     parser.skipSpaces();
+
+    if (parser.isAtEnd())
+        return;
 
     //qDebug() << "parseResultOrValue: " << parser.buffer();
     parseValue(parser);
@@ -115,8 +118,12 @@ void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
         //qDebug() << "no valid result in " << parser.buffer();
         return;
     }
-    if (parser.isAtEnd() || parser.isCurrent('('))
+    if (parser.isAtEnd())
         return;
+    if (parser.isCurrent('(')) {
+        parser.advance();
+        return;
+    }
 
     m_name = parser.readString(isNameChar);
 
@@ -293,7 +300,8 @@ void GdbMi::parseList(DebuggerOutputParser &parser)
     parser.advance();
     m_type = List;
     parser.skipCommas();
-    while (!parser.isAtEnd()) {
+    while (true) {
+        QTC_ASSERT(!parser.isAtEnd(), break);
         if (parser.isCurrent(']')) {
             parser.advance();
             break;
@@ -303,8 +311,6 @@ void GdbMi::parseList(DebuggerOutputParser &parser)
         if (child.isValid()) {
             m_children.push_back(child);
             parser.skipCommas();
-        } else {
-            parser.advance();
         }
     }
 }

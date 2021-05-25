@@ -29,9 +29,10 @@
 #include "glslmemorypool.h"
 #include "glsltypes.h"
 #include <qstring.h>
-#include <qset.h>
+
 #include <functional>
 #include <set>
+#include <unordered_set>
 
 namespace GLSL {
 
@@ -91,11 +92,11 @@ public:
 
     const QString *identifier(const QString &s);
     const QString *identifier(const char *s, int n);
-    QSet<QString> identifiers() const;
+    std::unordered_set<QString> identifiers() const;
 
     const QString *number(const QString &s);
     const QString *number(const char *s, int n);
-    QSet<QString> numbers() const;
+    std::unordered_set<QString> numbers() const;
 
     // types
     const UndefinedType *undefinedType();
@@ -128,8 +129,8 @@ public:
     void error(int line, const QString &message);
 
 private:
-    QSet<QString> _identifiers;
-    QSet<QString> _numbers;
+    std::unordered_set<QString> _identifiers;
+    std::unordered_set<QString> _numbers;
     TypeTable<VectorType> _vectorTypes;
     TypeTable<MatrixType> _matrixTypes;
     TypeTable<ArrayType> _arrayTypes;

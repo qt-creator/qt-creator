@@ -27,6 +27,12 @@ accept_configuration:
           property: host.os
           equals_value: MacOS
 
+machine_type:
+  Build:
+    cores: 8
+  Test:
+    cores: 8
+
 run_license_check: &run_license_check
      type: Group
      enable_if:

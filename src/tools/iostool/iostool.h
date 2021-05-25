@@ -29,6 +29,7 @@
 
 #include <QFile>
 #include <QObject>
+#include <QRecursiveMutex>
 #include <QString>
 #include <QXmlStreamWriter>
 

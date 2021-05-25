@@ -53,6 +53,12 @@ find_package(Qt5
 if (Qt5_VERSION VERSION_LESS 6.0.0)
   install(TARGETS Qt6Core5Compat EXPORT QtCreator)
   set(BUILD_WITH_PCH_DEFAULT ON)
+
+  # Specify standards conformance mode to MSVC 2017 and later
+  # Qt6 has the values as part of the Qt6::Platform target interface
+  if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
+    add_compile_options(/permissive- /Zc:__cplusplus)
+  endif()
 else()
   set(BUILD_WITH_PCH_DEFAULT OFF)
 endif()
@@ -87,11 +93,6 @@ endfunction()
 
 set_if_target(_has_svg_target Qt5::Svg)
 option(ENABLE_SVG_SUPPORT "Enable SVG support" "${_has_svg_target}")
-
-# specify standards conformance mode to MSVC 2017 and later
-if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
-    add_compile_options(/permissive-)
-endif()
 
 add_library(OptionalSvg INTERFACE)
 if (TARGET Qt5::Svg AND ENABLE_SVG_SUPPORT)

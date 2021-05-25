@@ -241,6 +241,12 @@ QVariant read(int variantType, const QString &str)
 
     bool conversionOk = true;
     switch (variantType) {
+    case QMetaType::QVariant: {
+        auto tmp = QVariant(str);
+        value = QVariant(tmp);
+        conversionOk = tmp.isValid();
+        break;
+        }
     case QMetaType::QPoint:
         value = pointFFromString(str, &conversionOk).toPoint();
         break;

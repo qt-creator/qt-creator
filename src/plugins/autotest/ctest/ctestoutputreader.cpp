@@ -81,7 +81,8 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression testProject("^Test project (.*)$");
     static const QRegularExpression testCase("^(test \\d+)|(    Start\\s+\\d+: .*)$");
     static const QRegularExpression testResult("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
-                                               "(Passed|\\*\\*\\*Failed)\\s+(.*) sec$");
+                                               "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
+                                               ".*\\*\\*\\*Exception:.*)\\s+(.*) sec$");
     static const QRegularExpression summary("^\\d+% tests passed, (\\d+) tests failed "
                                             "out of (\\d+)");
     static const QRegularExpression summaryTime("^Total Test time .* =\\s+(.*) sec$");
@@ -110,7 +111,13 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = testResult.match(line)) {
         m_description = match.captured();
         m_testName = match.captured(1);
-        m_result = (match.captured(3) == "Passed") ? ResultType::Pass : ResultType::Fail;
+        const QString resultType = match.captured(3);
+        if (resultType == "Passed")
+            m_result = ResultType::Pass;
+        else if (resultType == "***Failed" || resultType == "***Not Run")
+            m_result = ResultType::Fail;
+        else
+            m_result = ResultType::MessageFatal;
     } else if (ExactMatch match = summary.match(line)) {
         if (!m_testName.isEmpty())
             sendCompleteInformation();

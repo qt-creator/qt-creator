@@ -160,7 +160,6 @@ extend_qtc_plugin(Core
 
 extend_qtc_plugin(Core
   CONDITION WITH_TESTS
-  DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}/locator"
   SOURCES
     locator/locator_test.cpp
     locator/locatorfiltertest.cpp locator/locatorfiltertest.h
