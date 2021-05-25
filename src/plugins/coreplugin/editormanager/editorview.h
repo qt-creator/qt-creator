@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/dropsupport.h>
+#include <utils/fileutils.h>
 #include <utils/id.h>
 
 #include <QMap>
@@ -62,7 +63,7 @@ namespace Internal {
 
 struct EditLocation {
     QPointer<IDocument> document;
-    QString fileName;
+    Utils::FilePath filePath;
     Utils::Id id;
     QVariant state;
 };

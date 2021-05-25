@@ -571,7 +571,7 @@ void DiffEditorPluginPrivate::diffExternalFiles()
                                                      QString());
     if (fileName1.isNull())
         return;
-    if (EditorManager::skipOpeningBigTextFile(fileName1))
+    if (EditorManager::skipOpeningBigTextFile(FilePath::fromString(fileName1)))
         return;
 
     const QString fileName2 = QFileDialog::getOpenFileName(ICore::dialogParent(),
@@ -579,7 +579,7 @@ void DiffEditorPluginPrivate::diffExternalFiles()
                                                      QString());
     if (fileName2.isNull())
         return;
-    if (EditorManager::skipOpeningBigTextFile(fileName2))
+    if (EditorManager::skipOpeningBigTextFile(FilePath::fromString(fileName2)))
         return;
 
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN

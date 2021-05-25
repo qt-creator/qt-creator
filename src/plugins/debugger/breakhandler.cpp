@@ -1490,7 +1490,7 @@ void BreakHandler::gotoLocation(const Breakpoint &bp) const
         // Don't use gotoLocation unconditionally as this ends up in
         // disassembly if OperateByInstruction is on. But fallback
         // to disassembly if we can't open the file.
-        if (IEditor *editor = EditorManager::openEditor(bp->markerFileName().toString()))
+        if (IEditor *editor = EditorManager::openEditor(bp->markerFileName()))
             editor->gotoLine(bp->markerLineNumber(), 0);
         else
             m_engine->openDisassemblerView(Location(bp->m_parameters.address));
@@ -2694,7 +2694,7 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
 void BreakpointManager::gotoLocation(const GlobalBreakpoint &gbp) const
 {
     QTC_ASSERT(gbp, return);
-    if (IEditor *editor = EditorManager::openEditor(gbp->markerFileName().toString()))
+    if (IEditor *editor = EditorManager::openEditor(gbp->markerFileName()))
         editor->gotoLine(gbp->markerLineNumber(), 0);
 }
 

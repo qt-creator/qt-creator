@@ -740,19 +740,19 @@ EditorArea *EditorManagerPrivate::mainEditorArea()
     return d->m_editorAreas.at(0);
 }
 
-bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
+bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 {
     if (!d->m_settings.warnBeforeOpeningBigFilesEnabled)
         return false;
 
-    if (!QFileInfo::exists(filePath))
+    if (!filePath.exists())
         return false;
 
-    Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
+    Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath.toString());
     if (!mimeType.inherits("text/plain"))
         return false;
 
-    const QFileInfo fileInfo(filePath);
+    const QFileInfo fileInfo = filePath.toFileInfo();
     const qint64 fileSize = fileInfo.size();
     const double fileSizeInMB = fileSize / 1000.0 / 1000.0;
     if (fileSizeInMB > d->m_settings.bigFileSizeLimitInMB
@@ -782,13 +782,13 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
     return false;
 }
 
-IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileName, Id editorId,
+IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &filePath, Id editorId,
                                           EditorManager::OpenEditorFlags flags, bool *newEditor)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << fileName << editorId.name();
+        qDebug() << Q_FUNC_INFO << filePath << editorId.name();
 
-    QString fn = fileName;
+    QString fn = filePath.toString();
     QFileInfo fi(fn);
     int lineNumber = -1;
     int columnNumber = -1;
@@ -803,7 +803,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
 
     if (fn.isEmpty())
         return nullptr;
-    if (fn != fileName)
+    if (fn != filePath.toString())
         fi.setFile(fn);
 
     if (newEditor)
@@ -855,7 +855,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         }
     }
 
-    if (skipOpeningBigTextFile(fileName))
+    if (skipOpeningBigTextFile(filePath))
         return nullptr;
 
     IEditor *editor = nullptr;
@@ -952,26 +952,25 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     return result;
 }
 
-IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const QString &fileName, int line,
+IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const FilePath &filePath, int line,
                                             int column, Id editorId,
                                             EditorManager::OpenEditorFlags flags, bool *newEditor)
 {
     EditorManager::cutForwardNavigationHistory();
     EditorManager::addCurrentPositionToNavigationHistory();
     EditorManager::OpenEditorFlags tempFlags = flags | EditorManager::IgnoreNavigationHistory;
-    IEditor *editor = openEditor(view, fileName, editorId, tempFlags, newEditor);
+    IEditor *editor = openEditor(view, filePath, editorId, tempFlags, newEditor);
     if (editor && line != -1)
         editor->gotoLine(line, column);
     return editor;
 }
 
-IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Utils::Id editorId)
+IEditor *EditorManagerPrivate::openEditorWith(const FilePath &filePath, Id editorId)
 {
     // close any open editors that have this file open
     // remember the views to open new editors in there
     QList<EditorView *> views;
-    QList<IEditor *> editorsOpenForFile = DocumentModel::editorsForFilePath(
-        FilePath::fromString(fileName));
+    QList<IEditor *> editorsOpenForFile = DocumentModel::editorsForFilePath(filePath);
     foreach (IEditor *openEditor, editorsOpenForFile) {
         EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
         if (view && view->currentEditor() == openEditor) // visible
@@ -982,7 +981,7 @@ IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Utils::Id
 
     IEditor *openedEditor = nullptr;
     if (views.isEmpty()) {
-        openedEditor = EditorManager::openEditor(fileName, editorId);
+        openedEditor = EditorManager::openEditor(filePath, editorId);
     } else {
         if (EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
             if (views.removeOne(currentView))
@@ -990,7 +989,7 @@ IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Utils::Id
         }
         EditorManager::OpenEditorFlags flags;
         foreach (EditorView *view, views) {
-            IEditor *editor = EditorManagerPrivate::openEditor(view, fileName, editorId, flags);
+            IEditor *editor = EditorManagerPrivate::openEditor(view, filePath, editorId, flags);
             if (!openedEditor && editor)
                 openedEditor = editor;
             // Do not change the current editor after opening the first one. That
@@ -1592,7 +1591,7 @@ bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
         return editor != nullptr;
     }
 
-    if (!openEditor(view, entry->fileName().toString(), entry->id(), flags)) {
+    if (!openEditor(view, entry->fileName(), entry->id(), flags)) {
         DocumentModelPrivate::removeEntry(entry);
         return false;
     }
@@ -2932,7 +2931,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
             // while the menu is still being processed.
             connect(action, &QAction::triggered, d,
                     [fileName, editorId]() {
-                        EditorManagerPrivate::openEditorWith(fileName, editorId);
+                        EditorManagerPrivate::openEditorWith(FilePath::fromString(fileName), editorId);
                     }, Qt::QueuedConnection);
         }
         // Add all suitable external editors
@@ -3061,7 +3060,7 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
 }
 
 /*!
-    Opens the document specified by \a fileName using the editor type \a
+    Opens the document specified by \a filePath using the editor type \a
     editorId and the specified \a flags.
 
     If \a editorId is \c Id(), the editor type is derived from the file's MIME
@@ -3075,18 +3074,24 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
     \sa openEditorWithContents()
     \sa openExternalEditor()
 */
-IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
+IEditor *EditorManager::openEditor(const FilePath &filePath, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
     return EditorManagerPrivate::openEditor(EditorManagerPrivate::currentEditorView(),
-                                            fileName, editorId, flags, newEditor);
+                                            filePath, editorId, flags, newEditor);
+}
+
+IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
+                                   OpenEditorFlags flags, bool *newEditor)
+{
+    return openEditor(FilePath::fromString(fileName), editorId, flags, newEditor);
 }
 
 /*!
-    Opens the document specified by \a fileName using the editor type \a
+    Opens the document specified by \a filePath using the editor type \a
     editorId and the specified \a flags.
 
     Moves the text cursor to the \a line and \a column.
@@ -3104,14 +3109,20 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
     \sa openExternalEditor()
     \sa IEditor::gotoLine()
 */
-IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
+IEditor *EditorManager::openEditorAt(const FilePath &filePath, int line, int column,
                                      Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
     return EditorManagerPrivate::openEditorAt(EditorManagerPrivate::currentEditorView(),
-                                              fileName, line, column, editorId, flags, newEditor);
+                                              filePath, line, column, editorId, flags, newEditor);
+}
+
+IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
+                                     Id editorId, OpenEditorFlags flags, bool *newEditor)
+{
+    return openEditorAt(FilePath::fromString(fileName), line, column, editorId, flags, newEditor);
 }
 
 /*!
@@ -3186,9 +3197,9 @@ EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QStrin
 /*!
     Returns whether \a fileName is an auto-save file created by \QC.
 */
-bool EditorManager::isAutoSaveFile(const QString &fileName)
+bool EditorManager::isAutoSaveFile(const QString &filePath)
 {
-    return fileName.endsWith(".autosave");
+    return filePath.endsWith(".autosave");
 }
 
 /*!
@@ -3348,7 +3359,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     though it is big. Depending on the settings this might ask the user to
     decide whether the file should be opened.
 */
-bool EditorManager::skipOpeningBigTextFile(const QString &filePath)
+bool EditorManager::skipOpeningBigTextFile(const FilePath &filePath)
 {
     return EditorManagerPrivate::skipOpeningBigTextFile(filePath);
 }
@@ -3449,7 +3460,7 @@ void EditorManager::setLastEditLocation(const IEditor* editor)
     const QByteArray &state = editor->saveState();
     EditLocation location;
     location.document = document;
-    location.fileName = document->filePath().toString();
+    location.filePath = document->filePath();
     location.id = document->id();
     location.state = QVariant(state);
 

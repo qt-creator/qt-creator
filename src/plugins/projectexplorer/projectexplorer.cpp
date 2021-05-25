@@ -3442,7 +3442,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
                                   : tr("%1 in %2").arg(li.displayName).arg(li.path.toUserOutput());
         auto *action = new QAction(displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
-            Core::EditorManager::openEditorAt(path.toString(), line);
+            Core::EditorManager::openEditorAt(path, line);
         });
 
         projectMenu->addAction(action);
@@ -3622,7 +3622,7 @@ void ProjectExplorerPluginPrivate::openFile()
 {
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    EditorManager::openEditor(currentNode->filePath().toString());
+    EditorManager::openEditor(currentNode->filePath());
 }
 
 void ProjectExplorerPluginPrivate::searchOnFileSystem()

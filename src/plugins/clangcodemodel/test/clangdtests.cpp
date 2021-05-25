@@ -137,16 +137,14 @@ void ClangdTests::testFindReferences()
     };
     const auto headerPath = Utils::FilePath::fromString(testDir.absolutePath("defs.h"));
     QVERIFY2(headerPath.exists(), qPrintable(headerPath.toUserOutput()));
-    QScopedPointer<IEditor, EditorCloser> headerEditor(
-                EditorManager::openEditor(headerPath.toString()));
+    QScopedPointer<IEditor, EditorCloser> headerEditor(EditorManager::openEditor(headerPath));
     QVERIFY(headerEditor);
     const auto headerDoc = qobject_cast<TextEditor::TextDocument *>(headerEditor->document());
     QVERIFY(headerDoc);
     QVERIFY(client->documentForFilePath(headerPath) == headerDoc);
     const auto cppFilePath = Utils::FilePath::fromString(testDir.absolutePath("main.cpp"));
     QVERIFY2(cppFilePath.exists(), qPrintable(cppFilePath.toUserOutput()));
-    QScopedPointer<IEditor, EditorCloser> cppFileEditor(
-                EditorManager::openEditor(cppFilePath.toString()));
+    QScopedPointer<IEditor, EditorCloser> cppFileEditor(EditorManager::openEditor(cppFilePath));
     QVERIFY(cppFileEditor);
     const auto cppDoc = qobject_cast<TextEditor::TextDocument *>(cppFileEditor->document());
     QVERIFY(cppDoc);

@@ -1347,7 +1347,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
 
     QCOMPARE(SessionManager::startupProject(), theProject.project());
     QCOMPARE(ProjectTree::currentProject(), theProject.project());
-    QVERIFY(Core::EditorManager::openEditor(projectDir.pathAppended("main.cpp").toString()));
+    QVERIFY(Core::EditorManager::openEditor(projectDir.pathAppended("main.cpp")));
     QVERIFY(ProjectTree::currentNode());
     ProjectTree::instance()->expandAll();
     SessionManager::closeAllProjects(); // QTCREATORBUG-25655

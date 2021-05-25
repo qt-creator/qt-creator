@@ -94,11 +94,19 @@ public:
     };
 
     static FilePathInfo splitLineAndColumnNumber(const QString &filePath);
-    static IEditor *openEditor(const QString &fileName, Utils::Id editorId = {},
+    static IEditor *openEditor(const Utils::FilePath &filePath, Utils::Id editorId = {},
         OpenEditorFlags flags = NoFlags, bool *newEditor = nullptr);
-    static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
+    static IEditor *openEditorAt(const Utils::FilePath &filePath,  int line, int column = 0,
                                  Utils::Id editorId = {}, OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
+
+    // Kept for a while for transition.
+    static IEditor *openEditor(const QString &fileName, Utils::Id editorId = {},
+        OpenEditorFlags flags = NoFlags, bool *newEditor = nullptr); // FIXME: Remove overload
+    static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
+                                 Utils::Id editorId = {}, OpenEditorFlags flags = NoFlags,
+                                 bool *newEditor = nullptr); // FIXME: Remove overload
+
     static void openEditorAtSearchResult(const SearchResultItem &item,
                                          Utils::Id editorId = {},
                                          OpenEditorFlags flags = NoFlags,
@@ -107,7 +115,7 @@ public:
                                            const QByteArray &contents = QByteArray(),
                                            const QString &uniqueId = QString(),
                                            OpenEditorFlags flags = NoFlags);
-    static bool skipOpeningBigTextFile(const QString &filePath);
+    static bool skipOpeningBigTextFile(const Utils::FilePath &filePath);
     static void clearUniqueId(IDocument *document);
 
     static bool openExternalEditor(const QString &fileName, Utils::Id editorId);

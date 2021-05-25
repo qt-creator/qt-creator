@@ -178,7 +178,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
     } else {
         crumblePath()->popElement();
         nextFileIsCalledInternally();
-        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName.toString(),
+        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName,
                                         Utils::Id(),
                                         Core::EditorManager::DoNotMakeVisible);
         if (clickedCrumbleBarInfo.modelNode.isValid()) {

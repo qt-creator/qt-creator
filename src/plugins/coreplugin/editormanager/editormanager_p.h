@@ -80,18 +80,18 @@ public:
     static EditorView *currentEditorView();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
-                               const QString &fileName,
+                               const Utils::FilePath &filePath,
                                Utils::Id editorId = {},
                                EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                bool *newEditor = nullptr);
     static IEditor *openEditorAt(EditorView *view,
-                                 const QString &fileName,
+                                 const Utils::FilePath &filePath,
                                  int line,
                                  int column = 0,
                                  Utils::Id editorId = {},
                                  EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                  bool *newEditor = nullptr);
-    static IEditor *openEditorWith(const QString &fileName, Utils::Id editorId);
+    static IEditor *openEditorWith(const Utils::FilePath &filePath, Utils::Id editorId);
     static IEditor *duplicateEditor(IEditor *editor);
     static IEditor *activateEditor(EditorView *view, IEditor *editor,
                                    EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
@@ -209,7 +209,7 @@ private:
     static void setupSaveActions(IDocument *document, QAction *saveAction,
                                  QAction *saveAsAction, QAction *revertToSavedAction);
     static void updateWindowTitle();
-    static bool skipOpeningBigTextFile(const QString &filePath);
+    static bool skipOpeningBigTextFile(const Utils::FilePath &filePath);
 
 private:
     explicit EditorManagerPrivate(QObject *parent);

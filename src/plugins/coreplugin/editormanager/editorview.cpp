@@ -261,15 +261,14 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
 
     EditLocation location;
     location.document = document;
-    location.fileName = document->filePath().toString();
+    location.filePath = document->filePath();
     location.id = document->id();
     location.state = QVariant(state);
 
     for (int i = 0; i < history.size(); ++i) {
         const EditLocation &item = history.at(i);
         if (item.document == document
-                || (!item.document
-                    && !DocumentModel::indexOfFilePath(FilePath::fromString(item.fileName)))) {
+                || (!item.document && !DocumentModel::indexOfFilePath(item.filePath))) {
             history.removeAt(i--);
         }
     }
@@ -405,10 +404,10 @@ void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
     auto openEntry = [&](const DropSupport::FileSpec &spec) {
         if (first) {
             first = false;
-            EditorManagerPrivate::openEditorAt(this, spec.filePath, spec.line, spec.column);
+            EditorManagerPrivate::openEditorAt(this, FilePath::fromString(spec.filePath), spec.line, spec.column);
         } else if (spec.column != -1 || spec.line != -1) {
             EditorManagerPrivate::openEditorAt(this,
-                                               spec.filePath,
+                                               FilePath::fromString(spec.filePath),
                                                spec.line,
                                                spec.column,
                                                Id(),
@@ -495,7 +494,7 @@ void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveSta
 
     EditLocation location;
     location.document = document;
-    location.fileName = document->filePath().toString();
+    location.filePath = document->filePath();
     location.id = document->id();
     location.state = QVariant(state);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
@@ -550,17 +549,15 @@ void EditorView::updateCurrentPositionInNavigationHistory()
         location = &m_navigationHistory[m_navigationHistory.size()-1];
     }
     location->document = document;
-    location->fileName = document->filePath().toString();
+    location->filePath = document->filePath();
     location->id = document->id();
     location->state = QVariant(editor->saveState());
 }
 
-namespace {
-static inline bool fileNameWasRemoved(const QString &fileName)
+static bool fileNameWasRemoved(const FilePath &filePath)
 {
-    return !fileName.isEmpty() && !QFileInfo::exists(fileName);
+    return !filePath.isEmpty() && !filePath.exists();
 }
-} // End of anonymous namespace
 
 void EditorView::goBackInNavigationHistory()
 {
@@ -574,11 +571,11 @@ void EditorView::goBackInNavigationHistory()
                                         EditorManager::IgnoreNavigationHistory);
         }
         if (!editor) {
-            if (fileNameWasRemoved(location.fileName)) {
+            if (fileNameWasRemoved(location.filePath)) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
                 continue;
             }
-            editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
+            editor = EditorManagerPrivate::openEditor(this, location.filePath, location.id,
                                     EditorManager::IgnoreNavigationHistory);
             if (!editor) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
@@ -605,11 +602,11 @@ void EditorView::goForwardInNavigationHistory()
                                                                      EditorManager::IgnoreNavigationHistory);
         }
         if (!editor) {
-            if (fileNameWasRemoved(location.fileName)) {
+            if (fileNameWasRemoved(location.filePath)) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
                 continue;
             }
-            editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
+            editor = EditorManagerPrivate::openEditor(this, location.filePath, location.id,
                                                       EditorManager::IgnoreNavigationHistory);
             if (!editor) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
@@ -634,10 +631,10 @@ void EditorView::goToEditLocation(const EditLocation &location)
     }
 
     if (!editor) {
-        if (fileNameWasRemoved(location.fileName))
+        if (fileNameWasRemoved(location.filePath))
             return;
 
-        editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
+        editor = EditorManagerPrivate::openEditor(this, location.filePath, location.id,
                                                   EditorManager::IgnoreNavigationHistory);
     }
 
@@ -967,7 +964,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
         stream >> fileName >> id >> editorState;
         if (!QFile::exists(fileName))
             return;
-        IEditor *e = EditorManagerPrivate::openEditor(view(), fileName, Id::fromString(id),
+        IEditor *e = EditorManagerPrivate::openEditor(view(), FilePath::fromString(fileName), Id::fromString(id),
                                                       EditorManager::IgnoreNavigationHistory
                                                       | EditorManager::DoNotChangeCurrentEditor);
 

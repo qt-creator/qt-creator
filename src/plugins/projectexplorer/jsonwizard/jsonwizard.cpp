@@ -514,7 +514,7 @@ void JsonWizard::openProjectForNode(Node *node)
 
     Utils::optional<FilePath> projFilePath = projNode->visibleAfterAddFileAction();
 
-    if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value().toString())) {
+    if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value())) {
             auto errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                        "Failed to open an editor for \"%1\".")
                     .arg(QDir::toNativeSeparators(projFilePath.value().toString()));

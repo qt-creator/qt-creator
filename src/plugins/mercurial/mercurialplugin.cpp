@@ -643,8 +643,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
         return;
     }
 
-    Core::IEditor *editor = Core::EditorManager::openEditor(saver.filePath().toString(),
-                                                            Constants::COMMIT_ID);
+    Core::IEditor *editor = Core::EditorManager::openEditor(saver.filePath(), Constants::COMMIT_ID);
     if (!editor) {
         VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
         return;

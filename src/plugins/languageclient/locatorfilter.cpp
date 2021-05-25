@@ -190,7 +190,7 @@ void DocumentLocatorFilter::accept(Core::LocatorFilterEntry selection,
 {
     if (selection.internalData.canConvert<Utils::LineColumn>()) {
         auto lineColumn = qvariant_cast<Utils::LineColumn>(selection.internalData);
-        Core::EditorManager::openEditorAt(m_currentUri.toFilePath().toString(),
+        Core::EditorManager::openEditorAt(m_currentUri.toFilePath(),
                                           lineColumn.line + 1,
                                           lineColumn.column);
     } else if (selection.internalData.canConvert<Utils::Link>()) {

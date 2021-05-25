@@ -103,7 +103,7 @@ void TodoPluginPrivate::scanningScopeChanged(ScanningScope scanningScope)
 void TodoPluginPrivate::todoItemClicked(const TodoItem &item)
 {
     if (item.file.exists())
-        Core::EditorManager::openEditorAt(item.file.toString(), item.line);
+        Core::EditorManager::openEditorAt(item.file, item.line);
 }
 
 void TodoPluginPrivate::createItemsProvider()

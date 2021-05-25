@@ -62,7 +62,7 @@ bool AssetExporterView::loadQmlFile(const Utils::FilePath &path, uint timeoutSec
 
     setState(LoadState::Busy);
     m_retryCount = std::max(MinRetry, static_cast<int>((timeoutSecs * 1000) / RetryIntervalMs));
-    m_currentEditor = Core::EditorManager::openEditor(path.toString(), Utils::Id(),
+    m_currentEditor = Core::EditorManager::openEditor(path, Utils::Id(),
                                     Core::EditorManager::DoNotMakeVisible);
     Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
     Core::ModeManager::setFocusToCurrentMode();

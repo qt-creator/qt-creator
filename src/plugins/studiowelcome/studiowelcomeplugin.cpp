@@ -213,7 +213,7 @@ public:
         const Utils::FilePath qmlFile = Core::ICore::resourcePath("examples")
                                             / example / formFile;
 
-        Core::EditorManager::openEditor(qmlFile.toString());
+        Core::EditorManager::openEditor(qmlFile);
     }
 public slots:
     void resetProjects();
