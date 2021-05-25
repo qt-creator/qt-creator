@@ -912,6 +912,10 @@ function(qtc_add_resources target resourceName)
     return()
   endif()
 
+  if(NOT TARGET ${target})
+    return()
+  endif()
+
   string(REPLACE "/" "_" resourceName ${resourceName})
   string(REPLACE "." "_" resourceName ${resourceName})
 
