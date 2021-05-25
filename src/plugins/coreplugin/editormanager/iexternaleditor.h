@@ -32,6 +32,8 @@
 
 #include <QObject>
 
+namespace Utils { class FilePath; }
+
 namespace Core {
 
 class IExternalEditor;
@@ -52,7 +54,7 @@ public:
     virtual QStringList mimeTypes() const = 0;
     virtual Utils::Id id() const = 0;
     virtual QString displayName() const = 0;
-    virtual bool startEditor(const QString &fileName, QString *errorMessage) = 0;
+    virtual bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) = 0;
 };
 
 } // namespace Core

@@ -62,7 +62,7 @@ public:
     Utils::Id id() const override;
     QString displayName() const override;
 
-    bool startEditor(const QString &fileName, QString *errorMessage) override;
+    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
 
     // Data required to launch the editor
     struct LaunchData {
@@ -79,7 +79,7 @@ protected:
 
     // Try to retrieve the binary of the editor from the Qt version,
     // prepare arguments accordingly (Mac "open" if desired)
-    bool getEditorLaunchData(const QString &fileName,
+    bool getEditorLaunchData(const Utils::FilePath &filePath,
                              LaunchData *data,
                              QString *errorMessage) const;
 
@@ -104,7 +104,7 @@ class DesignerExternalEditor : public ExternalQtEditor
 public:
     DesignerExternalEditor();
 
-    bool startEditor(const QString &fileName, QString *errorMessage) override;
+    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
 
 private:
     void processTerminated(const QString &binary);

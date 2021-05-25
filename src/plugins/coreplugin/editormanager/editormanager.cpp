@@ -2942,7 +2942,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
             QAction *action = menu->addAction(externalEditor->displayName());
             Utils::Id editorId = externalEditor->id();
             connect(action, &QAction::triggered, [fileName, editorId]() {
-                EditorManager::openExternalEditor(fileName, editorId);
+                EditorManager::openExternalEditor(FilePath::fromString(fileName), editorId);
             });
         }
     }
@@ -3173,7 +3173,7 @@ bool EditorManager::isAutoSaveFile(const QString &filePath)
 }
 
 /*!
-    Opens the document specified by \a fileName in the external editor specified
+    Opens the document specified by \a filePath in the external editor specified
     by \a editorId.
 
     Returns \c false and displays an error message if \a editorId is not the ID
@@ -3181,7 +3181,7 @@ bool EditorManager::isAutoSaveFile(const QString &filePath)
 
     \sa openEditor()
 */
-bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
+bool EditorManager::openExternalEditor(const FilePath &filePath, Id editorId)
 {
     IExternalEditor *ee = Utils::findOrDefault(IExternalEditor::allExternalEditors(),
                                                Utils::equal(&IExternalEditor::id, editorId));
@@ -3189,7 +3189,7 @@ bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
         return false;
     QString errorMessage;
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    const bool ok = ee->startEditor(fileName, &errorMessage);
+    const bool ok = ee->startEditor(filePath, &errorMessage);
     QApplication::restoreOverrideCursor();
     if (!ok)
         QMessageBox::critical(ICore::dialogParent(), tr("Opening File"), errorMessage);

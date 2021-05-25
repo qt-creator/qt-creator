@@ -25,6 +25,8 @@
 
 #include "systemeditor.h"
 
+#include <utils/fileutils.h>
+
 #include <QStringList>
 #include <QUrl>
 #include <QDesktopServices>
@@ -53,11 +55,11 @@ QString SystemEditor::displayName() const
     return tr("System Editor");
 }
 
-bool SystemEditor::startEditor(const QString &fileName, QString *errorMessage)
+bool SystemEditor::startEditor(const FilePath &filePath, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     QUrl url;
-    url.setPath(fileName);
+    url.setPath(filePath.toString());
     url.setScheme(QLatin1String("file"));
     if (!QDesktopServices::openUrl(url)) {
         if (errorMessage)

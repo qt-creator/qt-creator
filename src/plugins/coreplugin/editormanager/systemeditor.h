@@ -41,7 +41,7 @@ public:
     Utils::Id id() const override;
     QString displayName() const override;
 
-    bool startEditor(const QString &fileName, QString *errorMessage) override;
+    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
 };
 
 } // namespace Internal

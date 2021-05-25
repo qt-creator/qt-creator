@@ -116,7 +116,7 @@ public:
     static bool skipOpeningBigTextFile(const Utils::FilePath &filePath);
     static void clearUniqueId(IDocument *document);
 
-    static bool openExternalEditor(const QString &fileName, Utils::Id editorId);
+    static bool openExternalEditor(const Utils::FilePath &filePath, Utils::Id editorId);
     static void addCloseEditorListener(const std::function<bool(IEditor *)> &listener);
 
     static QStringList getOpenFileNames();

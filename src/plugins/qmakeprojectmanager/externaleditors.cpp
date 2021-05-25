@@ -156,7 +156,7 @@ static QString findFirstCommand(QVector<QtSupport::BaseQtVersion *> qtVersions,
     return QString();
 }
 
-bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
+bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
                                            LaunchData *data,
                                            QString *errorMessage) const
 {
@@ -168,7 +168,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     // As fallback check PATH
     data->workingDirectory.clear();
     QVector<QtSupport::BaseQtVersion *> qtVersionsToCheck; // deduplicated after being filled
-    if (const Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(fileName))) {
+    if (const Project *project = SessionManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory().toString();
         // active kit
         if (const Target *target = project->activeTarget()) {
@@ -193,7 +193,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         return false;
     }
     // Setup binary + arguments, use Mac Open if appropriate
-    data->arguments.push_back(fileName);
+    data->arguments.push_back(filePath.toString());
     if (Utils::HostOsInfo::isMacHost())
         *data = createMacOpenCommand(*data);
     if (debug)
@@ -201,10 +201,10 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     return true;
 }
 
-bool ExternalQtEditor::startEditor(const QString &fileName, QString *errorMessage)
+bool ExternalQtEditor::startEditor(const Utils::FilePath &filePath, QString *errorMessage)
 {
     LaunchData data;
-    return getEditorLaunchData(fileName, &data, errorMessage)
+    return getEditorLaunchData(filePath, &data, errorMessage)
             && startEditorProcess(data, errorMessage);
 }
 
@@ -244,11 +244,11 @@ void DesignerExternalEditor::processTerminated(const QString &binary)
     socket->deleteLater();
 }
 
-bool DesignerExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
+bool DesignerExternalEditor::startEditor(const Utils::FilePath &filePath, QString *errorMessage)
 {
     LaunchData data;
     // Find the editor binary
-    if (!getEditorLaunchData(fileName, &data, errorMessage)) {
+    if (!getEditorLaunchData(filePath, &data, errorMessage)) {
         return false;
     }
     // Known one?
@@ -256,9 +256,9 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
     if (it != m_processCache.end()) {
         // Process is known, write to its socket to cause it to open the file
         if (debug)
-           qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << fileName;
+           qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
         QTcpSocket *socket = it.value();
-        if (!socket->write(fileName.toUtf8() + '\n')) {
+        if (!socket->write(filePath.toString().toUtf8() + '\n')) {
             *errorMessage = tr("Qt Designer is not responding (%1).").arg(socket->errorString());
             return false;
         }
@@ -272,7 +272,7 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
     }
     const quint16 port = server.serverPort();
     if (debug)
-        qDebug() << Q_FUNC_INFO << "\nLaunching server:" << port << data.binary << fileName;
+        qDebug() << Q_FUNC_INFO << "\nLaunching server:" << port << data.binary << filePath;
     // Start first one with file and socket as '-client port file'
     // Wait for the socket listening
     data.arguments.push_front(QString::number(port));

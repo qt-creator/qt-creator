@@ -948,7 +948,7 @@ void MainWindow::openFileWith()
         if (!editorId.isValid())
             continue;
         if (isExternal)
-            EditorManager::openExternalEditor(fileName, editorId);
+            EditorManager::openExternalEditor(FilePath::fromString(fileName), editorId);
         else
             EditorManagerPrivate::openEditorWith(FilePath::fromString(fileName), editorId);
     }
