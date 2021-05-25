@@ -541,7 +541,7 @@ int main(int argc, char **argv)
     if (!qEnvironmentVariableIsSet("QT_OPENGL"))
         QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #else
-    qputenv("QT_QUICK_BACKEND", "opengl");
+    qputenv("QSG_RHI_BACKEND", "opengl");
 #endif
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
