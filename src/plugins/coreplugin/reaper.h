@@ -27,12 +27,12 @@
 
 #include "core_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QProcess);
+namespace Utils { class QtcProcess; }
 
 namespace Core {
 namespace Reaper {
 
-CORE_EXPORT void reap(QProcess *p, int timeoutMs = 500);
+CORE_EXPORT void reap(Utils::QtcProcess *p, int timeoutMs = 500);
 
 } // namespace Reaper
 } // namespace Core

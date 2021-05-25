@@ -34,31 +34,17 @@
 #include <QThread>
 #include <QTimer>
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 
 static ProcessReapers *d = nullptr;
 
-static void killProcess(QProcess *process)
-{
-    if (auto qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
-        qtcProcess->kill();
-    else
-        process->kill();
-}
-
-static void terminateProcess(QProcess *process)
-{
-    if (auto qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
-        qtcProcess->terminate();
-    else
-        process->terminate();
-}
-
 class ProcessReaper final : public QObject
 {
 public:
-    ProcessReaper(QProcess *p, int timeoutMs);
+    ProcessReaper(QtcProcess *p, int timeoutMs);
     ~ProcessReaper() final;
 
     int timeoutMs() const;
@@ -67,12 +53,12 @@ public:
 
 private:
     mutable QTimer m_iterationTimer;
-    QProcess *m_process;
+    QtcProcess *m_process;
     int m_emergencyCounter = 0;
     QProcess::ProcessState m_lastState = QProcess::NotRunning;
 };
 
-ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
+ProcessReaper::ProcessReaper(QtcProcess *p, int timeoutMs) : m_process(p)
 {
     d->m_reapers.append(this);
 
@@ -113,12 +99,12 @@ void ProcessReaper::nextIteration()
 
     if (state == QProcess::Starting) {
         if (m_lastState == QProcess::Starting)
-            killProcess(m_process);
+            m_process->kill();
     } else if (state == QProcess::Running) {
         if (m_lastState == QProcess::Running)
-            killProcess(m_process);
+            m_process->kill();
         else
-            terminateProcess(m_process);
+            m_process->terminate();
     }
 
     m_lastState = state;
@@ -165,7 +151,7 @@ ProcessReapers::~ProcessReapers()
 
 namespace Reaper {
 
-void reap(QProcess *process, int timeoutMs)
+void reap(QtcProcess *process, int timeoutMs)
 {
     if (!process)
         return;
