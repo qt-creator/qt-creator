@@ -41,8 +41,16 @@ namespace Utils {
 
 class CommandLine;
 class Environment;
+class QtcProcess;
 
 namespace Internal { class QtcProcessPrivate; }
+
+class DeviceProcessHooks
+{
+public:
+    std::function<void(QtcProcess &)> startProcessHook;
+    std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
+};
 
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
@@ -92,7 +100,7 @@ public:
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
-    static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
+    static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 
     void setOpenMode(OpenMode mode);
 
@@ -122,6 +130,8 @@ public:
     // and file types.
     static QString locateBinary(const QString &binary);
     static QString locateBinary(const QString &path, const QString &binary);
+
+    static Environment systemEnvironmentForBinary(const FilePath &filePath);
 
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

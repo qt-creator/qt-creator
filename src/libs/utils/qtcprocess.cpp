@@ -73,7 +73,7 @@ enum { defaultMaxHangTimerCount = 10 };
 
 static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
 
-static std::function<void(QtcProcess &)> s_remoteRunProcessHook;
+static DeviceProcessHooks s_deviceHooks;
 
 // Data for one channel buffer (stderr/stdout)
 class ChannelBuffer
@@ -225,8 +225,8 @@ void QtcProcess::start()
     QTC_CHECK(d->m_writeData.isEmpty()); // FIXME: Use it.
 
     if (d->m_commandLine.executable().needsDevice()) {
-        QTC_ASSERT(s_remoteRunProcessHook, return);
-        s_remoteRunProcessHook(*this);
+        QTC_ASSERT(s_deviceHooks.startProcessHook, return);
+        s_deviceHooks.startProcessHook(*this);
         return;
     }
 
@@ -336,9 +336,9 @@ void QtcProcess::setDisableUnixTerminal()
     d->m_disableUnixTerminal = true;
 }
 
-void QtcProcess::setRemoteStartProcessHook(const std::function<void(QtcProcess &)> &hook)
+void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 {
-    s_remoteRunProcessHook = hook;
+    s_deviceHooks = hooks;
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -559,6 +559,16 @@ QString QtcProcess::locateBinary(const QString &path, const QString &binary)
             return rc;
     }
     return QString();
+}
+
+Environment QtcProcess::systemEnvironmentForBinary(const FilePath &filePath)
+{
+    if (filePath.needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.systemEnvironmentForBinary, return {});
+        return s_deviceHooks.systemEnvironmentForBinary(filePath);
+    }
+
+    return Environment::systemEnvironment();
 }
 
 QString QtcProcess::locateBinary(const QString &binary)

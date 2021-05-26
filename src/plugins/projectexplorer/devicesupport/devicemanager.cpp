@@ -363,59 +363,69 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DeviceManager::save);
 
-    DeviceFileHooks hooks;
+    DeviceFileHooks deviceHooks;
 
-    hooks.isExecutableFile = [](const FilePath &filePath) {
+    deviceHooks.isExecutableFile = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->isExecutableFile(filePath);
     };
 
-    hooks.isReadableFile = [](const FilePath &filePath) {
+    deviceHooks.isReadableFile = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->isReadableFile(filePath);
     };
 
-    hooks.isReadableDir = [](const FilePath &filePath) {
+    deviceHooks.isReadableDir = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->isReadableDirectory(filePath);
     };
 
-    hooks.isWritableDir = [](const FilePath &filePath) {
+    deviceHooks.isWritableDir = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->isWritableDirectory(filePath);
     };
 
-    hooks.createDir = [](const FilePath &filePath) {
+    deviceHooks.createDir = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->createDirectory(filePath);
     };
 
-    hooks.dirEntries = [](const FilePath &filePath,
+    deviceHooks.dirEntries = [](const FilePath &filePath,
             const QStringList &nameFilters, QDir::Filters filters) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return FilePaths());
         return device->directoryEntries(filePath, nameFilters, filters);
     };
 
-    hooks.fileContents = [](const FilePath &filePath, int maxSize) {
+    deviceHooks.fileContents = [](const FilePath &filePath, int maxSize) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return QByteArray());
         return device->fileContents(filePath, maxSize);
     };
 
-    FilePath::setDeviceFileHooks(hooks);
+    FilePath::setDeviceFileHooks(deviceHooks);
 
-    QtcProcess::setRemoteStartProcessHook([](QtcProcess &process) {
+    DeviceProcessHooks processHooks;
+
+    processHooks.startProcessHook = [](QtcProcess &process) {
         FilePath filePath = process.commandLine().executable();
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return);
         device->runProcess(process);
-    });
+    };
+
+    processHooks.systemEnvironmentForBinary = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return Environment());
+        return device->systemEnvironment();
+    };
+
+    QtcProcess::setRemoteProcessHooks(processHooks);
 }
 
 DeviceManager::~DeviceManager()
