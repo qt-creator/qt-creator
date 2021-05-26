@@ -30,22 +30,29 @@
     You can use project wizard templates to create stylable UI controls based
     on the components in the Qt Quick Controls module:
 
-    \list
+    \table
+    \row
         \li \l Button
         \li \l {Check Box}
         \li \l {Slider and Dial}{Dial}
+    \row
+        \li \inlineimage studio-custom-button.gif
+        \li \inlineimage studio-custom-check-box.gif
+        \li \inlineimage studio-custom-dial.gif
+    \row
         \li \l {Slider and Dial}{Slider}
         \li \l {Spin Box}
         \li \l Switch
-        \li \l [QtQuickControls2] {Pane}
-        \li \l {Stack Layout}
-        \li \l [QtQuickControls2] {SwipeView}{Swipe View}
-    \endlist
+    \row
+        \li \inlineimage studio-custom-slider.gif
+        \li \inlineimage studio-custom-spinbox.gif
+        \li \inlineimage studio-custom-switch.gif
+    \endtable
 
     You can edit the properties of the controls in all the preset
     \l{Adding States}{states} to apply your own style to them.
 
-    \image studio-dial.png "A stylable Dial component"
+    \image studio-dial.png "A stylable Dial component in Form Editor"
 
     To create stylable UI controls:
 
@@ -67,6 +74,14 @@
     For an example of using the \uicontrol Button template to create a button
     and styling it, see \l{Creating a Push Button} in the \l{Log In UI - Part 1}
     tutorial.
+
+    In addition, you can create starting points for different types of screens:
+
+    \list
+        \li \l [QtQuickControls2] {Pane}
+        \li \l {Stack Layout}
+        \li \l [QtQuickControls2] {SwipeView}{Swipe View}
+    \endlist
 
 //! [creating studio components]
 */

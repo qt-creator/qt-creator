@@ -33,7 +33,7 @@
     You can create instances of preset UI controls to inform users about
     the progress of the application or to gather input from users. They are
     available in \l Library > \uicontrol Components >
-    \uicontrol {Qt Quick Controls}.
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls.
 
     \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls components in Library"
 
@@ -111,9 +111,19 @@
 
     \section2 Button
 
-    \image qtquickcontrols2-button.gif "Button"
+    You can create an instance of \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Button:
 
-    \uicontrol Button can be pushed or clicked by users. Typically, buttons
+    \image qtquickcontrols2-button.gif "Qt Quick Controls - Button"
+
+    \if defined(qtdesignstudio)
+    Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
+    {custom button}:
+
+    \image studio-custom-button.gif "Custom button"
+    \endif
+
+    A button can be pushed or clicked by users. Typically, buttons
     are used to perform an action or to answer a question. For example, \e OK,
     \e Apply, \e Cancel, \e Close, \e Yes, \e No, and \e Help.
 
@@ -155,9 +165,20 @@
 
     \section2 Check Box
 
-    \image qtquickcontrols2-checkbox.gif "Check box"
+    You can create instances of \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls >
+    \uicontrol {Check Box}:
 
-    \uicontrol {Check Box} presents an option button that can be toggled on
+    \image qtquickcontrols2-checkbox.gif "Check boxes"
+
+    \if defined(qtdesignstudio)
+    Alternatively, you can use a wizard to create \l{Creating Custom Controls}
+    {custom check boxes}:
+
+    \image studio-custom-check-box.gif "Custom check boxes"
+    \endif
+
+    A check box presents an option button that can be toggled on
     (checked) or off (unchecked). Check boxes are typically used to select
     one or more options from a set of options. For larger sets of options,
     such as those in a list, consider using \uicontrol {Check Delegate} instead.
@@ -225,9 +246,19 @@
 
     \section2 Switch
 
+    You can create an instance of \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Switch:
+
     \image qtquickcontrols2-switch.gif "Switch"
 
-    \uicontrol Switch is an option button that can be dragged or toggled on
+    \if defined(qtdesignstudio)
+    Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
+    {custom switch}:
+
+    \image studio-custom-switch.gif "Custom switch"
+    \endif
+
+    A switch is an option button that can be dragged or toggled on
     (checked) or off (unchecked). Switches are typically used to select between
     two states: \e on or \e off. For larger sets of options, such as those in a
     list, consider using \uicontrol {Switch Delegate} instead.
@@ -370,9 +401,19 @@
     \target slider-control
     \section2 Slider and Dial
 
+    You can create an instance of \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Slider:
+
     \image qtquickcontrols2-slider.gif "Slider"
 
-    \uicontrol Slider is used to select a value by sliding a handle along a
+    \if defined(qtdesignstudio)
+    Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
+    {custom slider}:
+
+    \image studio-custom-slider.gif "Custom slider"
+    \endif
+
+    A slider is used to select a value by sliding a handle along a
     track, whereas \uicontrol {Range Slider} is used to select a range
     specified by two values, by sliding each handle along a track.
 
@@ -382,7 +423,17 @@
     devices such as stereos or industrial equipment. It allows users to
     specify a value within a range.
 
+    You can create an instance of \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Dial:
+
     \image qtquickcontrols2-dial-no-wrap.gif "Dial"
+
+    \if defined(qtdesignstudio)
+    Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
+    {custom dial}:
+
+    \image studio-custom-dial.gif "Custom dial"
+    \endif
 
     In the \uicontrol From and \uicontrol To fields, set the range of the
     slider or dial. Set the value of the slide handle or dial in the
@@ -424,9 +475,20 @@
 
     \section2 Spin Box
 
+    You can create an instance of \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls >
+    \uicontrol {Spin Box}:
+
     \image qtquickcontrols2-spinbox.png "Spin Box"
 
-    \uicontrol {Spin box} enables users to choose an integer value by clicking
+    \if defined(qtdesignstudio)
+    Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
+    {custom spin box}:
+
+    \image studio-custom-spinbox.gif "Custom spin box"
+    \endif
+
+    A spin box enables users to choose an integer value by clicking
     the up or down indicator buttons, or by pressing up or down on the keyboard.
     Select the \uicontrol Editable check box to enable users to enter a text
     value in the input field.
@@ -549,7 +611,7 @@
 
     \section1 Styling Controls
 
-    The UI controls can be \l {Styling Qt Quick Controls}{styled}.
+    The preset UI controls can be \l {Styling Qt Quick Controls}{styled}.
     \uicontrol {Form Editor} reads the preferred style from a
     configuration file (\c qtquickcontrols2.conf). To change the
     style, select another style from the list on the main toolbar. This
@@ -593,8 +655,8 @@
 
     The following table lists preset UI controls with links to their developer
     documentation. They are available in \l Library > \uicontrol Components >
-    \uicontrol {Qt Quick Controls}. The \e MCU column indicates which controls
-    are supported on MCUs.
+    \uicontrol {Qt Quick Controls} > \uicontrol Controls. The \e MCU column
+    indicates which controls are supported on MCUs.
 
     \table
     \header
