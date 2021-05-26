@@ -35,12 +35,26 @@
 using namespace Utils;
 
 const char kExitCodeSubProcessCode[] = "QTC_TST_QTCPROCESS_EXITCODE_CODE";
+const char kRunBlockingStdOutSubProcessMagicWord[] = "42";
+const char kRunBlockingStdOutSubProcessWithEndl[] = "QTC_TST_QTCPROCESS_RUNBLOCKINGSTDOUT_WITHENDL";
 
 static void exitCodeSubProcessMain()
 {
     const int exitCode = qEnvironmentVariableIntValue(kExitCodeSubProcessCode);
     std::cout << "Exiting with code:" << exitCode << std::endl;
     exit(exitCode);
+}
+
+static void blockingStdOutSubProcessMain()
+{
+    std::cout << "Wait for the Answer to the Ultimate Question of Life, "
+                 "The Universe, and Everything..." << std::endl;
+    QThread::msleep(300);
+    std::cout << kRunBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
+    if (qEnvironmentVariable(kRunBlockingStdOutSubProcessWithEndl) == "true")
+        std::cout << std::endl;
+    QThread::msleep(5000);
+    exit(0);
 }
 
 class MacroMapExpander : public AbstractMacroExpander {
@@ -86,6 +100,8 @@ private slots:
     void iteratorEditsLinux();
     void exitCode_data();
     void exitCode();
+    void runBlockingStdOut_data();
+    void runBlockingStdOut();
 
 private:
     void iteratorEditsHelper(OsType osType);
@@ -103,6 +119,8 @@ void tst_QtcProcess::initTestCase()
 {
     if (qEnvironmentVariableIsSet(kExitCodeSubProcessCode))
         exitCodeSubProcessMain();
+    if (qEnvironmentVariableIsSet(kRunBlockingStdOutSubProcessWithEndl))
+        blockingStdOutSubProcessMain();
 
     homeStr = QLatin1String("@HOME@");
     home = QDir::homePath();
@@ -801,6 +819,54 @@ void tst_QtcProcess::exitCode()
 
         QCOMPARE(sP.exitCode(), exitCode);
     }
+}
+
+void tst_QtcProcess::runBlockingStdOut_data()
+{
+    QTest::addColumn<bool>("withEndl");
+    QTest::addColumn<int>("timeOutS");
+
+    QTest::newRow("Terminated stdout delivered instantly")
+            << true
+            << 2;
+    QTest::newRow("Unterminated stdout lost: early timeout")
+            << false
+            << 2;
+    QTest::newRow("Unterminated stdout lost: hanging")
+            << false
+            << 20;
+}
+
+void tst_QtcProcess::runBlockingStdOut()
+{
+    QFETCH(bool, withEndl);
+    QFETCH(int, timeOutS);
+
+    SynchronousProcess sp;
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    sp.setCommand(CommandLine(binary, args));
+    Environment env = Environment::systemEnvironment();
+    env.set(kRunBlockingStdOutSubProcessWithEndl, withEndl ? "true" : "false");
+    sp.setEnvironment(env);
+    sp.setTimeoutS(timeOutS);
+    bool readLastLine = false;
+    sp.setStdOutCallback([&readLastLine, &sp](const QString &out) {
+        if (out.startsWith(kRunBlockingStdOutSubProcessMagicWord)) {
+            readLastLine = true;
+            sp.kill();
+        }
+    });
+    sp.runBlocking();
+
+    // See also QTCREATORBUG-25667 for why it is a bad idea to use SynchronousProcess::runBlocking
+    // with interactive cli tools.
+    QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
+    QVERIFY2(sp.result() != QtcProcess::Hang, "Process run did not time out.");
+
+    QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
+    QEXPECT_FAIL("Unterminated stdout lost: hanging", "", Continue);
+    QVERIFY2(readLastLine, "Last line was read.");
 }
 
 QTEST_MAIN(tst_QtcProcess)
