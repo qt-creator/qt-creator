@@ -71,12 +71,11 @@ bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &argu
 
     d = new CompilationDatabaseProjectManagerPluginPrivate;
 
+    FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
+                                                     COMPILE_COMMANDS_JSON);
     FileIconProvider::registerIconOverlayForFilename(
-                Utils::Icons::PROJECT.imageFileName(),
-                COMPILE_COMMANDS_JSON);
-    FileIconProvider::registerIconOverlayForFilename(
-                Utils::Icons::PROJECT.imageFileName(),
-                QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
+        Utils::Icons::PROJECT.imageFilePath().toString(),
+        QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
 
     ProjectManager::registerProjectType<CompilationDatabaseProject>(
                 Constants::COMPILATIONDATABASEMIMETYPE);

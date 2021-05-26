@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "utils_global.h"
+#include "fileutils.h"
 #include "theme/theme.h"
+#include "utils_global.h"
 
 #include <QIcon>
 #include <QPair>
@@ -38,7 +39,8 @@ QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace Utils {
 
-using IconMaskAndColor = QPair<QString, Theme::Color>;
+using IconMaskAndColor = QPair<FilePath, Theme::Color>;
+using IconStringMaskAndColor = QPair<QString, Theme::Color>;
 
 // Returns a recolored icon with shadow and custom disabled state for a
 // series of grayscalemask|Theme::Color mask pairs
@@ -59,7 +61,10 @@ public:
 
     Icon();
     Icon(std::initializer_list<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
+    Icon(std::initializer_list<IconStringMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
+    Icon(const FilePath &imageFileName);
     Icon(const QString &imageFileName);
+
     Icon(const Icon &other) = default;
 
     QIcon icon() const;
@@ -68,7 +73,7 @@ public:
 
     // Try to avoid it. it is just there for special API cases in Qt Creator
     // where icons are still defined as filename.
-    QString imageFileName() const;
+    FilePath imageFilePath() const;
 
     // Returns either the classic or a themed icon depending on
     // the current Theme::FlatModeIcons flag.

@@ -300,37 +300,37 @@ const Icon MACOS_TOUCHBAR_CLEAR(
 
 QIcon CodeModelIcon::iconForType(CodeModelIcon::Type type)
 {
-    static const IconMaskAndColor classRelationIcon {
+    static const IconStringMaskAndColor classRelationIcon {
         QLatin1String(":/codemodel/images/classrelation.png"), Theme::IconsCodeModelOverlayForegroundColor};
-    static const IconMaskAndColor classRelationBackgroundIcon {
+    static const IconStringMaskAndColor classRelationBackgroundIcon {
         QLatin1String(":/codemodel/images/classrelationbackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
-    static const IconMaskAndColor classMemberFunctionIcon {
+    static const IconStringMaskAndColor classMemberFunctionIcon {
         QLatin1String(":/codemodel/images/classmemberfunction.png"), Theme::IconsCodeModelFunctionColor};
-    static const IconMaskAndColor classMemberVariableIcon {
+    static const IconStringMaskAndColor classMemberVariableIcon {
         QLatin1String(":/codemodel/images/classmembervariable.png"), Theme::IconsCodeModelVariableColor};
-    static const IconMaskAndColor functionIcon {
+    static const IconStringMaskAndColor functionIcon {
         QLatin1String(":/codemodel/images/member.png"), Theme::IconsCodeModelFunctionColor};
-    static const IconMaskAndColor variableIcon {
+    static const IconStringMaskAndColor variableIcon {
         QLatin1String(":/codemodel/images/member.png"), Theme::IconsCodeModelVariableColor};
-    static const IconMaskAndColor signalIcon {
+    static const IconStringMaskAndColor signalIcon {
         QLatin1String(":/codemodel/images/signal.png"), Theme::IconsCodeModelFunctionColor};
-    static const IconMaskAndColor slotIcon {
+    static const IconStringMaskAndColor slotIcon {
         QLatin1String(":/codemodel/images/slot.png"), Theme::IconsCodeModelFunctionColor};
-    static const IconMaskAndColor propertyIcon {
+    static const IconStringMaskAndColor propertyIcon {
         QLatin1String(":/codemodel/images/property.png"), Theme::IconsCodeModelOverlayForegroundColor};
-    static const IconMaskAndColor propertyBackgroundIcon {
+    static const IconStringMaskAndColor propertyBackgroundIcon {
         QLatin1String(":/codemodel/images/propertybackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
-    static const IconMaskAndColor protectedIcon {
+    static const IconStringMaskAndColor protectedIcon {
         QLatin1String(":/codemodel/images/protected.png"), Theme::IconsCodeModelOverlayForegroundColor};
-    static const IconMaskAndColor protectedBackgroundIcon {
+    static const IconStringMaskAndColor protectedBackgroundIcon {
         QLatin1String(":/codemodel/images/protectedbackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
-    static const IconMaskAndColor privateIcon {
+    static const IconStringMaskAndColor privateIcon {
         QLatin1String(":/codemodel/images/private.png"), Theme::IconsCodeModelOverlayForegroundColor};
-    static const IconMaskAndColor privateBackgroundIcon {
+    static const IconStringMaskAndColor privateBackgroundIcon {
         QLatin1String(":/codemodel/images/privatebackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
-    static const IconMaskAndColor staticIcon {
+    static const IconStringMaskAndColor staticIcon {
         QLatin1String(":/codemodel/images/static.png"), Theme::IconsCodeModelOverlayForegroundColor};
-    static const IconMaskAndColor staticBackgroundIcon {
+    static const IconStringMaskAndColor staticBackgroundIcon {
         QLatin1String(":/codemodel/images/staticbackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
 
     switch (type) {

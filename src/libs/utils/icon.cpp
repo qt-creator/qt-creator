@@ -63,10 +63,12 @@ static MasksAndColors masksAndColors(const Icon &icon, int dpr)
 {
     MasksAndColors result;
     for (const IconMaskAndColor &i: icon) {
-        const QString &fileName = i.first;
+        const QString &fileName = i.first.toString();
         const QColor color = creatorTheme()->color(i.second);
-        const QString dprFileName = StyleHelper::availableImageResolutions(i.first).contains(dpr) ?
-                    StyleHelper::imageFileWithResolution(fileName, dpr) : fileName;
+        const QString dprFileName = StyleHelper::availableImageResolutions(i.first.toString())
+                                            .contains(dpr)
+                                        ? StyleHelper::imageFileWithResolution(fileName, dpr)
+                                        : fileName;
         QPixmap pixmap;
         if (!pixmap.load(dprFileName)) {
             pixmap = QPixmap(1, 1);
@@ -161,10 +163,22 @@ Icon::Icon(std::initializer_list<IconMaskAndColor> args, Icon::IconStyleOptions 
 {
 }
 
-Icon::Icon(const QString &imageFileName)
-    : m_style(None)
+Icon::Icon(std::initializer_list<IconStringMaskAndColor> args, Icon::IconStyleOptions style)
+    : m_style(style)
+{
+    reserve(args.size());
+    for (const IconStringMaskAndColor &i : args)
+        append({FilePath::fromString(i.first), i.second});
+}
+
+Icon::Icon(const FilePath &imageFileName)
 {
     append({imageFileName, Theme::Color(-1)});
+}
+
+Icon::Icon(const QString &imageFileName)
+    : Icon(FilePath::fromString(imageFileName))
+{
 }
 
 QIcon Icon::icon() const
@@ -172,7 +186,7 @@ QIcon Icon::icon() const
     if (isEmpty()) {
         return QIcon();
     } else if (m_style == None) {
-        return QIcon(constFirst().first);
+        return QIcon(constFirst().first.toString());
     } else {
         QIcon result;
         const int maxDpr = qRound(qApp->devicePixelRatio());
@@ -193,7 +207,7 @@ QPixmap Icon::pixmap(QIcon::Mode iconMode) const
     if (isEmpty()) {
         return QPixmap();
     } else if (m_style == None) {
-        return QPixmap(StyleHelper::dpiSpecificImageFile(constFirst().first));
+        return QPixmap(StyleHelper::dpiSpecificImageFile(constFirst().first.toString()));
     } else {
         const MasksAndColors masks =
                 masksAndColors(*this, qRound(qApp->devicePixelRatio()));
@@ -204,9 +218,9 @@ QPixmap Icon::pixmap(QIcon::Mode iconMode) const
     }
 }
 
-QString Icon::imageFileName() const
+FilePath Icon::imageFilePath() const
 {
-    QTC_ASSERT(length() == 1, return QString());
+    QTC_ASSERT(length() == 1, return {});
     return first().first;
 }
 
