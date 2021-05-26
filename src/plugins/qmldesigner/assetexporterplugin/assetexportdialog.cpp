@@ -32,6 +32,8 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 
@@ -80,8 +82,13 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
 {
     m_ui->setupUi(this);
 
-    m_ui->exportPath->setFilePath(exportPath);
-    m_ui->exportPath->setPromptDialogTitle(tr("Choose Export Path"));
+    m_ui->exportPath->setExpectedKind(Utils::PathChooser::Kind::SaveFile);
+    m_ui->exportPath->setFilePath(
+                exportPath.pathAppended(
+                    ProjectExplorer::SessionManager::startupProject()->displayName()  + ".metadata"
+                ));
+    m_ui->exportPath->setPromptDialogTitle(tr("Choose Export File"));
+    m_ui->exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));
     m_ui->exportPath->lineEdit()->setReadOnly(true);
     m_ui->exportPath->addButton(tr("Open"), this, [this]() {
         Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_ui->exportPath->path());
@@ -92,6 +99,7 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_ui->advancedOptions->setWidget(optionsWidget);
     auto optionsLayout = new QHBoxLayout(optionsWidget);
     optionsLayout->setContentsMargins(8, 8, 8, 8);
+
     m_exportAssetsCheck = new QCheckBox(tr("Export assets"), this);
     m_exportAssetsCheck->setChecked(true);
     optionsLayout->addWidget(m_exportAssetsCheck);
@@ -153,7 +161,12 @@ void AssetExportDialog::onExport()
     TaskHub::clearTasks(Constants::TASK_CATEGORY_ASSET_EXPORT);
     m_exportLogs->clear();
 
-    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->filePath(),
+    Utils::FilePath selectedPath = m_ui->exportPath->filePath();
+    Utils::FilePath exportPath = m_perComponentExportCheck->isChecked() ?
+                (selectedPath.isDir() ? selectedPath : selectedPath.parentDir()) :
+                selectedPath;
+
+    m_assetExporter.exportQml(m_filePathModel.files(), exportPath,
                               m_exportAssetsCheck->isChecked(),
                               m_perComponentExportCheck->isChecked());
 }

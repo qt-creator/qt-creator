@@ -123,7 +123,9 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
 {
     m_perComponentExport = perComponentExport;
     ExportNotification::addInfo(tr("Export root directory: %1.\nExporting assets: %2")
-                                .arg(exportPath.toUserOutput())
+                                .arg(exportPath.isDir()
+                                     ? exportPath.toUserOutput()
+                                     : exportPath.parentDir().toUserOutput())
                                 .arg(exportAssets? tr("Yes") : tr("No")));
 
     if (m_perComponentExport)
@@ -134,7 +136,8 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
     m_totalFileCount = m_exportFiles.count();
     m_components.clear();
     m_componentUuidCache.clear();
-    m_exportPath = exportPath;
+    m_exportPath = exportPath.isDir() ? exportPath : exportPath.parentDir();
+    m_exportFile = exportPath.fileName();
     m_currentState.change(ParsingState::Parsing);
     if (exportAssets)
         m_assetDumper = make_unique<AssetDumper>();
@@ -437,7 +440,7 @@ void AssetExporter::writeMetadata() const
         QJsonArray artboards;
         std::transform(m_components.cbegin(), m_components.cend(), back_inserter(artboards),
                        [](const unique_ptr<Component> &c) {return c->json(); });
-        writeFile(m_exportPath.pathAppended(projectName + ".metadata"), artboards);
+        writeFile(m_exportPath.pathAppended(m_exportFile), artboards);
     }
     notifyProgress(1.0);
     ExportNotification::addInfo(tr("Export finished."));
