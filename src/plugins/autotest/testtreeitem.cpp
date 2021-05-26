@@ -54,7 +54,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
 }
 
 ITestTreeItem::ITestTreeItem(ITestBase *testBase, const QString &name,
-                             const QString &filePath, Type type)
+                             const Utils::FilePath &filePath, Type type)
     : m_testBase(testBase)
     , m_name(name)
     , m_filePath(filePath)
@@ -70,7 +70,7 @@ QVariant ITestTreeItem::data(int /*column*/, int role) const
         else
             return m_name;
     case Qt::ToolTipRole:
-        return m_filePath;
+        return m_filePath.toString();
     case Qt::DecorationRole:
         return testTreeIcon(m_type);
     case Qt::CheckStateRole:
@@ -162,7 +162,7 @@ ITestConfiguration *ITestTreeItem::asConfiguration(TestRunMode mode) const
 /****************************** TestTreeItem ********************************************/
 
 TestTreeItem::TestTreeItem(ITestFramework *testFramework, const QString &name,
-                           const QString &filePath, Type type)
+                           const Utils::FilePath &filePath, Type type)
     : ITestTreeItem(testFramework, name, filePath, type)
 {
     switch (type) {
@@ -186,7 +186,7 @@ QVariant TestTreeItem::data(int column, int role) const
             return QVariant();
         QVariant itemLink;
         itemLink.setValue(
-            Utils::Link(Utils::FilePath::fromString(filePath()), line(), int(m_column)));
+            Utils::Link(filePath(), line(), int(m_column)));
         return itemLink;
     }
     return ITestTreeItem::data(column, role);
@@ -240,7 +240,7 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
         childItem(row)->markForRemovalRecursively(mark);
 }
 
-void TestTreeItem::markForRemovalRecursively(const QString &filepath)
+void TestTreeItem::markForRemovalRecursively(const Utils::FilePath &filepath)
 {
     bool mark = filePath() == filepath;
     forFirstLevelChildItems([&mark, &filepath](TestTreeItem *child) {
@@ -267,20 +267,20 @@ TestTreeItem *TestTreeItem::findChildByName(const QString &name)
     });
 }
 
-TestTreeItem *TestTreeItem::findChildByFile(const QString &filePath)
+TestTreeItem *TestTreeItem::findChildByFile(const Utils::FilePath &filePath)
 {
     return findFirstLevelChildItem([filePath](const TestTreeItem *other) {
         return other->filePath() == filePath;
     });
 }
 
-TestTreeItem *TestTreeItem::findChildByFileAndType(const QString &filePath, Type tType)
+TestTreeItem *TestTreeItem::findChildByFileAndType(const Utils::FilePath &filePath, Type tType)
 {
     return findFirstLevelChildItem([filePath, tType](const TestTreeItem *other) {
         return other->type() == tType && other->filePath() == filePath;
     });}
 
-TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QString &filePath)
+TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const Utils::FilePath &filePath)
 {
     return findFirstLevelChildItem([name, filePath](const TestTreeItem *other) {
         return other->filePath() == filePath && other->name() == name;
@@ -310,7 +310,7 @@ bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
         return false;
 
     // for now there's only the possibility to have 'Folder' nodes
-    return QFileInfo(other->filePath()).absolutePath() == filePath();
+    return other->filePath().absolutePath() == filePath();
 }
 
 bool TestTreeItem::isGroupable() const
@@ -360,7 +360,7 @@ void TestTreeItem::copyBasicDataFrom(const TestTreeItem *other)
     m_status = other->m_status;
 }
 
-inline bool TestTreeItem::modifyFilePath(const QString &filepath)
+inline bool TestTreeItem::modifyFilePath(const Utils::FilePath &filepath)
 {
     if (filePath() != filepath) {
         setFilePath(filepath);

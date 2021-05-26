@@ -40,15 +40,10 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
-static QString constructSourceFilePath(const QString &path, const QString &filePath)
-{
-    return QFileInfo(path, filePath).canonicalFilePath();
-}
-
 BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                                              QProcess *testApplication,
-                                             const QString &buildDirectory,
-                                             const QString &projectFile,
+                                             const Utils::FilePath &buildDirectory,
+                                             const Utils::FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)

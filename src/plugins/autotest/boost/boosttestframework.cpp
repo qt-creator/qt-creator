@@ -43,7 +43,7 @@ ITestTreeItem *BoostTestFramework::createRootNode()
                 this,
                 QCoreApplication::translate("BoostTestFramework",
                                             BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), ITestTreeItem::Root);
+                Utils::FilePath(), ITestTreeItem::Root);
 }
 
 const char *BoostTestFramework::name() const

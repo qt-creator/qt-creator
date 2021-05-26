@@ -48,7 +48,7 @@ public:
 
     explicit GTestTreeItem(ITestFramework *testFramework,
                            const QString &name = QString(),
-                           const QString &filePath = QString(),
+                           const Utils::FilePath &filePath = Utils::FilePath(),
                            Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type), m_state(Enabled)
     {}
@@ -73,7 +73,7 @@ public:
     TestStates state() const { return m_state; }
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
                                               GTestTreeItem::TestStates state,
-                                              const QString &proFile) const;
+                                              const Utils::FilePath &proFile) const;
     QString nameSuffix() const;
     bool isGroupNodeFor(const TestTreeItem *other) const override;
     bool isGroupable() const override;

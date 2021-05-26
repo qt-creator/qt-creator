@@ -42,7 +42,7 @@ public:
     Q_DECLARE_FLAGS(TestStates, TestState)
 
     explicit CatchTreeItem(ITestFramework *testFramework, const QString &name = QString(),
-                           const QString &filePath = QString(), Type type = Root)
+                           const Utils::FilePath &filePath = Utils::FilePath(), Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type) {}
 
     void setStates(CatchTreeItem::TestStates state) { m_state = state; }

@@ -39,7 +39,7 @@ class TestOutputReader : public QObject
     Q_OBJECT
 public:
     TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                     QProcess *testApplication, const QString &buildDirectory);
+                     QProcess *testApplication, const Utils::FilePath &buildDirectory);
     virtual ~TestOutputReader();
     void processStdOutput(const QByteArray &outputLine);
     virtual void processStdError(const QByteArray &outputLine);
@@ -56,6 +56,9 @@ public:
 signals:
     void newOutputLineAvailable(const QByteArray &outputLine, OutputChannel channel);
 protected:
+    static Utils::FilePath constructSourceFilePath(const Utils::FilePath &base,
+                                                   const QString &file);
+
     QString removeCommandlineColors(const QString &original);
     virtual void processOutputLine(const QByteArray &outputLine) = 0;
     virtual TestResultPtr createDefaultResult() const = 0;
@@ -65,7 +68,7 @@ protected:
     void reportResult(const TestResultPtr &result);
     QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned
-    QString m_buildDir;
+    Utils::FilePath m_buildDir;
     QString m_id;
     QHash<ResultType, int> m_summary;
     int m_disabled = -1;

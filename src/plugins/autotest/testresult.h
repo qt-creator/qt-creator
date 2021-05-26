@@ -27,6 +27,8 @@
 
 #include "autotestconstants.h"
 
+#include <utils/fileutils.h>
+
 #include <QColor>
 #include <QMetaType>
 #include <QSharedPointer>
@@ -92,11 +94,11 @@ public:
     QString name() const { return m_name; }
     ResultType result() const { return m_result; }
     QString description() const { return m_description; }
-    QString fileName() const { return m_file; }
+    Utils::FilePath fileName() const { return m_file; }
     int line() const { return m_line; }
 
     void setDescription(const QString &description) { m_description = description; }
-    void setFileName(const QString &fileName) { m_file = fileName; }
+    void setFileName(const Utils::FilePath &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
     void setResult(ResultType type) { m_result = type; }
 
@@ -113,7 +115,7 @@ private:
     QString m_name;
     ResultType m_result = ResultType::Invalid;  // the real result..
     QString m_description;
-    QString m_file;
+    Utils::FilePath m_file;
     int m_line = 0;
 };
 

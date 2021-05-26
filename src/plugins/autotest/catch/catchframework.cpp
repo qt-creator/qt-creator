@@ -49,7 +49,7 @@ ITestTreeItem *CatchFramework::createRootNode()
 {
     return new CatchTreeItem(this,
                              QCoreApplication::translate("CatchFramework", "Catch Test"),
-                             QString(), ITestTreeItem::Root);
+                             Utils::FilePath(), ITestTreeItem::Root);
 }
 
 } // namespace Internal

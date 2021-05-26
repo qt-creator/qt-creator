@@ -37,7 +37,7 @@ namespace Internal {
 class QtTestResult : public TestResult
 {
 public:
-    QtTestResult(const QString &id, const QString &projectFile, TestType type,
+    QtTestResult(const QString &id, const Utils::FilePath &projectFile, TestType type,
                  const QString &className);
     const QString outputString(bool selected) const override;
 
@@ -59,7 +59,7 @@ private:
 
     QString m_function;
     QString m_dataTag;
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     TestType m_type;
 };
 

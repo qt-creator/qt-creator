@@ -91,7 +91,7 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 }
 
 static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
-                               const QString &fileName)
+                               const Utils::FilePath &fileName)
 {
     const QList<CppTools::ProjectPart::Ptr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0) {
@@ -122,14 +122,14 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
         const QByteArray name = macro.macro().name();
         if (QuickTestUtils::isQuickTestMacro(name)) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(getFileContent(doc->fileName())
+            return QLatin1String(getFileContent(Utils::FilePath::fromString(doc->fileName()))
                                  .mid(int(arg.bytesBegin()), int(arg.bytesEnd() - arg.bytesBegin())));
         }
     }
 
     // check for using quick_test_main() directly
     const QString fileName = doc->fileName();
-    const QByteArray &fileContent = getFileContent(fileName);
+    const QByteArray &fileContent = getFileContent(Utils::FilePath::fromString(fileName));
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     if (document.isNull())
         return QString();
@@ -182,7 +182,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QS
 static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> futureInterface,
                                              const Document::Ptr &qmlJSDoc,
                                              ITestFramework *framework,
-                                             const QString &proFile = QString())
+                                             const Utils::FilePath &proFile = Utils::FilePath())
 {
     if (qmlJSDoc.isNull())
         return false;
@@ -203,7 +203,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
         parseResult->proFile = proFile;
         parseResult->itemType = TestTreeItem::TestCase;
         if (!testCaseName.isEmpty()) {
-            parseResult->fileName = testCase.m_locationAndType.m_name;
+            parseResult->fileName = Utils::FilePath::fromString(testCase.m_locationAndType.m_name);
             parseResult->name = testCaseName;
             parseResult->line = testCase.m_locationAndType.m_line;
             parseResult->column = testCase.m_locationAndType.m_column;
@@ -214,7 +214,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
             funcResult->name = function.m_functionName;
             funcResult->displayName = function.m_functionName;
             funcResult->itemType = function.m_locationAndType.m_type;
-            funcResult->fileName = function.m_locationAndType.m_name;
+            funcResult->fileName = Utils::FilePath::fromString(function.m_locationAndType.m_name);
             funcResult->line = function.m_locationAndType.m_line;
             funcResult->column = function.m_locationAndType.m_column;
             funcResult->proFile = proFile;
@@ -235,11 +235,11 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> fut
     if (quickTestName(document).isEmpty())
         return false;
 
-    const QString cppFileName = document->fileName();
-    QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(cppFileName);
+    QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(document->fileName());
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
-    const QString &proFile = ppList.at(0)->projectFile;
+    const Utils::FilePath cppFileName = Utils::FilePath::fromString(document->fileName());
+    const Utils::FilePath proFile = Utils::FilePath::fromString(ppList.at(0)->projectFile);
     m_mainCppFiles.insert(cppFileName, proFile);
     const QString srcDir = quickTestSrcDir(modelManager, cppFileName);
     if (srcDir.isEmpty())
@@ -315,14 +315,14 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
             this, &QuickTestParser::handleDirectoryChanged);
 }
 
-void QuickTestParser::init(const QStringList &filesToParse, bool fullParse)
+void QuickTestParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
     if (!fullParse) {
         // in a full parse we get the correct entry points by the respective main
         m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(framework(), filesToParse);
         // get rid of cached main cpp files that are going to get processed anyhow
-        for (const QString &file : filesToParse) {
+        for (const Utils::FilePath &file : filesToParse) {
             if (m_mainCppFiles.contains(file)) {
                 m_mainCppFiles.remove(file);
                 if (m_mainCppFiles.isEmpty())
@@ -344,13 +344,13 @@ void QuickTestParser::release()
 }
 
 bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                      const QString &fileName)
+                                      const Utils::FilePath &fileName)
 {
     if (fileName.endsWith(".qml")) {
-        const QString &proFile = m_proFilesForQmlFiles.value(fileName);
+        const Utils::FilePath &proFile = m_proFilesForQmlFiles.value(fileName);
         if (proFile.isEmpty())
             return false;
-        Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
+        Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName.toString());
         return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, framework(), proFile);
     }
     if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
@@ -361,9 +361,9 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
     return handleQtQuickTest(futureInterface, document, framework());
 }
 
-QString QuickTestParser::projectFileForMainCppFile(const QString &fileName) const
+Utils::FilePath QuickTestParser::projectFileForMainCppFile(const Utils::FilePath &fileName) const
 {
-    return m_mainCppFiles.contains(fileName) ? m_mainCppFiles.value(fileName) : QString();
+    return m_mainCppFiles.contains(fileName) ? m_mainCppFiles.value(fileName) : Utils::FilePath();
 }
 
 } // namespace Internal

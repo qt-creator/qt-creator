@@ -34,7 +34,7 @@
 namespace Autotest {
 namespace Internal {
 
-QtTestResult::QtTestResult(const QString &id, const QString &projectFile, TestType type,
+QtTestResult::QtTestResult(const QString &id, const Utils::FilePath &projectFile, TestType type,
                            const QString &className)
     : TestResult(id, className), m_projectFile(projectFile), m_type(type)
 {

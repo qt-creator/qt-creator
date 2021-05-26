@@ -43,9 +43,10 @@ bool isQuickTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<QString, QString> proFilesForQmlFiles(ITestFramework *framework, const QStringList &files)
+QHash<Utils::FilePath, Utils::FilePath> proFilesForQmlFiles(ITestFramework *framework,
+                                                            const Utils::FilePaths &files)
 {
-    QHash<QString, QString> result;
+    QHash<Utils::FilePath, Utils::FilePath> result;
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
@@ -53,16 +54,16 @@ QHash<QString, QString> proFilesForQmlFiles(ITestFramework *framework, const QSt
         return result;
 
     rootNode->forFirstLevelChildItems([&result, &files](TestTreeItem *child) {
-        const QString &file = child->filePath();
+        const Utils::FilePath &file = child->filePath();
         if (!file.isEmpty() && files.contains(file)) {
-            const QString &proFile = child->proFile();
+            const Utils::FilePath &proFile = child->proFile();
             if (!proFile.isEmpty())
                 result.insert(file, proFile);
         }
         child->forFirstLevelChildItems([&result, &files](TestTreeItem *grandChild) {
-            const QString &file = grandChild->filePath();
+            const Utils::FilePath &file = grandChild->filePath();
             if (!file.isEmpty() && files.contains(file)) {
-                const QString &proFile = grandChild->proFile();
+                const Utils::FilePath &proFile = grandChild->proFile();
                 if (!proFile.isEmpty())
                     result.insert(file, proFile);
             }

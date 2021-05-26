@@ -39,8 +39,8 @@ class CatchOutputReader : public TestOutputReader
 
 public:
     CatchOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                      QProcess *testApplication, const QString &buildDirectory,
-                      const QString &projectFile);
+                      QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                      const Utils::FilePath &projectFile);
 
 protected:
     void processOutputLine(const QByteArray &outputLineWithNewLine) override;
@@ -74,7 +74,7 @@ private:
     QStack<TestOutputNode> m_testCaseInfo;
     int m_sectionDepth = 0;
 
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     QString m_currentTagName;
     QString m_currentExpression;
     QXmlStreamReader m_xmlReader;

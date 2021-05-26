@@ -117,14 +117,9 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                           fm.elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
     }
 
-    QString file = testResult->fileName();
-    const int pos = file.lastIndexOf('/');
-    if (pos != -1)
-        file = file.mid(pos + 1);
-
+    const QString file = testResult->fileName().fileName();
     painter->setClipRect(positions.fileArea());
     painter->drawText(positions.fileAreaLeft(), positions.top() + fm.ascent(), file);
-
 
     if (testResult->line()) {
         QString line = QString::number(testResult->line());

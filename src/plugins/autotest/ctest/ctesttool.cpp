@@ -40,8 +40,7 @@ Utils::Id CTestTool::buildSystemId() const
 
 ITestTreeItem *CTestTool::createItemFromTestCaseInfo(const ProjectExplorer::TestCaseInfo &tci)
 {
-    CTestTreeItem *item = new CTestTreeItem(this, tci.name, tci.path.toString(),
-                                            TestTreeItem::TestCase);
+    CTestTreeItem *item = new CTestTreeItem(this, tci.name, tci.path, TestTreeItem::TestCase);
     item->setLine(tci.line);
     return item;
 }
@@ -55,7 +54,7 @@ ITestTreeItem *CTestTool::createRootNode()
 {
     return new CTestTreeItem(this,
                              QCoreApplication::translate("CTestTool", "CTest"),
-                             QString(), ITestTreeItem::Root);
+                             Utils::FilePath(), ITestTreeItem::Root);
 }
 
 } // namespace Internal

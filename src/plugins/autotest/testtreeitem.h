@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
 #include <QList>
@@ -41,8 +42,6 @@ namespace {
         FailedRole  // marker for having failed in last run
     };
 }
-
-namespace Utils { class FilePath; }
 
 namespace Autotest {
 
@@ -75,7 +74,7 @@ public:
 
     explicit ITestTreeItem(ITestBase *testBase,
                            const QString &name = QString(),
-                           const QString &filePath = QString(),
+                           const Utils::FilePath &filePath = Utils::FilePath(),
                            Type type = Root);
 
     virtual QVariant data(int column, int role) const override;
@@ -93,15 +92,15 @@ public:
 
     const QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
-    const QString filePath() const { return m_filePath; }
-    void setFilePath(const QString &filePath) { m_filePath = filePath; }
+    const Utils::FilePath filePath() const { return m_filePath; }
+    void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
     Type type() const { return m_type; }
     int line() const { return m_line; }
     void setLine(int line) { m_line = line;}
     ITestBase *testBase() const { return m_testBase; }
 
     virtual bool lessThan(const ITestTreeItem *other, SortMode mode) const;
-    QString cacheName() const { return m_filePath + ':' + m_name; }
+    QString cacheName() const { return m_filePath.toString() + ':' + m_name; }
 
 protected:
     void setType(Type type) { m_type = type; }
@@ -110,7 +109,7 @@ protected:
 private:
     ITestBase *m_testBase = nullptr; // not owned
     QString m_name;
-    QString m_filePath;
+    Utils::FilePath m_filePath;
     Type m_type;
     int m_line = 0;
     bool m_failed = false;
@@ -121,7 +120,7 @@ class TestTreeItem : public ITestTreeItem
 public:
     explicit TestTreeItem(ITestFramework *testFramework,
                           const QString &name = QString(),
-                          const QString &filePath = QString(),
+                          const Utils::FilePath &filePath = Utils::FilePath(),
                           Type type = Root);
 
     virtual TestTreeItem *copyWithoutChildren() = 0;
@@ -134,11 +133,11 @@ public:
     ITestFramework *framework() const;
     void setColumn(int column) { m_column = column; }
     int column() const { return m_column; }
-    QString proFile() const { return m_proFile; }
-    void setProFile(const QString &proFile) { m_proFile = proFile; }
+    Utils::FilePath proFile() const { return m_proFile; }
+    void setProFile(const Utils::FilePath &proFile) { m_proFile = proFile; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
-    virtual void markForRemovalRecursively(const QString &filepath);
+    virtual void markForRemovalRecursively(const Utils::FilePath &filepath);
     virtual bool removeOnSweepIfEmpty() const { return type() == GroupNode; }
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }
@@ -146,9 +145,9 @@ public:
     TestTreeItem *parentItem() const;
 
     TestTreeItem *findChildByName(const QString &name);
-    TestTreeItem *findChildByFile(const QString &filePath);
-    TestTreeItem *findChildByFileAndType(const QString &filePath, Type type);
-    TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
+    TestTreeItem *findChildByFile(const Utils::FilePath &filePath);
+    TestTreeItem *findChildByFileAndType(const Utils::FilePath &filePath, Type type);
+    TestTreeItem *findChildByNameAndFile(const QString &name, const Utils::FilePath &filePath);
 
     virtual ITestConfiguration *debugConfiguration() const { return nullptr; }
     virtual bool canProvideDebugConfiguration() const { return false; }
@@ -174,7 +173,7 @@ protected:
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
 
 private:
-    bool modifyFilePath(const QString &filepath);
+    bool modifyFilePath(const Utils::FilePath &filepath);
     bool modifyName(const QString &name);
 
     enum Status
@@ -185,7 +184,7 @@ private:
     };
 
     int m_column = 0;
-    QString m_proFile;
+    Utils::FilePath m_proFile;
     Status m_status = NewlyAdded;
 
     friend class TestTreeModel; // grant access to (protected) findChildBy()
@@ -194,7 +193,7 @@ private:
 class TestCodeLocationAndType
 {
 public:
-    QString m_name;     // tag name for m_type == TestDataTag, file name for other values
+    QString m_name;     // tag name for m_type == TestDataTag, file name for other values // FIXME
     int m_line = 0;
     int m_column = 0;
     TestTreeItem::Type m_type = TestTreeItem::Root;

@@ -33,7 +33,7 @@ namespace Internal {
 class CTestTreeItem final : public Autotest::ITestTreeItem
 {
 public:
-    CTestTreeItem(ITestBase *testBase, const QString &name, const QString &filepath, Type type);
+    CTestTreeItem(ITestBase *testBase, const QString &name, const Utils::FilePath &filepath, Type type);
 
     QList<ITestConfiguration *> getAllTestConfigurations() const final;
     QList<ITestConfiguration *> getSelectedTestConfigurations() const final;

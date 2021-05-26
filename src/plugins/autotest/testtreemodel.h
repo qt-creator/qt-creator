@@ -88,7 +88,7 @@ public:
 #endif
 
     void markAllFrameworkItemsForRemoval();
-    void markForRemoval(const QString &filePath);
+    void markForRemoval(const Utils::FilePath &filePath);
     void sweep();
 
 signals:
@@ -105,7 +105,7 @@ private:
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
     void removeAllTestToolItems();
-    void removeFiles(const QStringList &files);
+    void removeFiles(const Utils::FilePaths &files);
     bool sweepChildren(TestTreeItem *item);
     void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     void revalidateCheckState(ITestTreeItem *item);

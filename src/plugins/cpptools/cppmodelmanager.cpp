@@ -1419,16 +1419,16 @@ void CppModelManager::onAboutToLoadSession()
     GC();
 }
 
-QSet<QString> CppModelManager::dependingInternalTargets(const QString &file) const
+QSet<QString> CppModelManager::dependingInternalTargets(const Utils::FilePath &file) const
 {
     QSet<QString> result;
     const Snapshot snapshot = this->snapshot();
     QTC_ASSERT(snapshot.contains(file), return result);
     bool wasHeader;
     const QString correspondingFile
-            = correspondingHeaderOrSource(file, &wasHeader, CacheUsage::ReadOnly);
+            = correspondingHeaderOrSource(file.toString(), &wasHeader, CacheUsage::ReadOnly);
     const Utils::FilePaths dependingFiles = snapshot.filesDependingOn(
-                wasHeader ? file : correspondingFile);
+                wasHeader ? file : Utils::FilePath::fromString(correspondingFile));
     for (const Utils::FilePath &fn : qAsConst(dependingFiles)) {
         for (const ProjectPart::Ptr &part : projectPart(fn))
             result.insert(part->buildSystemTarget);
@@ -1436,7 +1436,7 @@ QSet<QString> CppModelManager::dependingInternalTargets(const QString &file) con
     return result;
 }
 
-QSet<QString> CppModelManager::internalTargets(const QString &filePath) const
+QSet<QString> CppModelManager::internalTargets(const Utils::FilePath &filePath) const
 {
     const QList<ProjectPart::Ptr> projectParts = projectPart(filePath);
     // if we have no project parts it's most likely a header with declarations only and CMake based

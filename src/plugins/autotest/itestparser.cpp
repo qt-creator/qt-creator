@@ -36,7 +36,7 @@ CppParser::CppParser(ITestFramework *framework)
 {
 }
 
-void CppParser::init(const QStringList &filesToParse, bool fullParse)
+void CppParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
     Q_UNUSED(fullParse)
@@ -44,7 +44,7 @@ void CppParser::init(const QStringList &filesToParse, bool fullParse)
     m_workingCopy = CppTools::CppModelManager::instance()->workingCopy();
 }
 
-bool CppParser::selectedForBuilding(const QString &fileName)
+bool CppParser::selectedForBuilding(const Utils::FilePath &fileName)
 {
     QList<CppTools::ProjectPart::Ptr> projParts =
             CppTools::CppModelManager::instance()->projectPart(fileName);
@@ -52,7 +52,7 @@ bool CppParser::selectedForBuilding(const QString &fileName)
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
 
-QByteArray CppParser::getFileContent(const QString &filePath) const
+QByteArray CppParser::getFileContent(const Utils::FilePath &filePath) const
 {
     QByteArray fileContent;
     if (m_workingCopy.contains(filePath)) {
@@ -60,11 +60,8 @@ QByteArray CppParser::getFileContent(const QString &filePath) const
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        if (Utils::TextFileFormat::readFileUTF8(Utils::FilePath::fromString(filePath),
-                                                codec,
-                                                &fileContent,
-                                                &error)
-            != Utils::TextFileFormat::ReadSuccess) {
+        if (Utils::TextFileFormat::readFileUTF8(filePath, codec, &fileContent, &error)
+                != Utils::TextFileFormat::ReadSuccess) {
             qDebug() << "Failed to read file" << filePath << ":" << error;
         }
     }
@@ -78,7 +75,7 @@ void CppParser::release()
     m_workingCopy = CppTools::WorkingCopy();
 }
 
-CPlusPlus::Document::Ptr CppParser::document(const QString &fileName)
+CPlusPlus::Document::Ptr CppParser::document(const Utils::FilePath &fileName)
 {
     return selectedForBuilding(fileName) ? m_cppSnapshot.document(fileName) : nullptr;
 }

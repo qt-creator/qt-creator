@@ -375,7 +375,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
 
     // check whether we have been triggered on a test function definition
     const int line = currentEditor->currentLine();
-    const QString &filePath = currentEditor->textDocument()->filePath().toString();
+    const Utils::FilePath &filePath = currentEditor->textDocument()->filePath();
     const QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;
     });

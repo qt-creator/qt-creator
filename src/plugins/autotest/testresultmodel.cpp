@@ -299,7 +299,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     }
 
     TestResultItem *parentItem = findParentItemFor(newItem, root);
-    addFileName(testResult->fileName()); // ensure we calculate the results pane correctly
+    addFileName(testResult->fileName().fileName()); // ensure we calculate the results pane correctly
     if (parentItem) {
         parentItem->appendChild(newItem);
         if (autoExpand) {
@@ -362,16 +362,14 @@ void TestResultModel::recalculateMaxWidthOfFileName(const QFont &font)
     const QFontMetrics fm(font);
     m_maxWidthOfFileName = 0;
     for (const QString &fileName : qAsConst(m_fileNames)) {
-        int pos = fileName.lastIndexOf('/');
-        m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName.mid(pos + 1)));
+        m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName));
     }
 }
 
 void TestResultModel::addFileName(const QString &fileName)
 {
     const QFontMetrics fm(m_measurementFont);
-    int pos = fileName.lastIndexOf('/');
-    m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName.mid(pos + 1)));
+    m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName));
     m_fileNames.insert(fileName);
 }
 

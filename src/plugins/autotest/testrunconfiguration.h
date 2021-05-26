@@ -65,9 +65,9 @@ public:
     {
         ProjectExplorer::Runnable r;
         QTC_ASSERT(m_testConfig, return r);
-        r.executable = Utils::FilePath::fromString(m_testConfig->executableFilePath());
+        r.executable = m_testConfig->executableFilePath();
         r.commandLineArguments = m_testConfig->argumentsForTestRunner().join(' ');
-        r.workingDirectory = m_testConfig->workingDirectory();
+        r.workingDirectory = m_testConfig->workingDirectory().toString();
         r.environment = m_testConfig->environment();
         r.device = ProjectExplorer::DeviceManager::instance()->defaultDevice(
                     ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);

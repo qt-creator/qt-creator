@@ -62,16 +62,16 @@ void ITestConfiguration::setWorkingDirectory(const QString &workingDirectory)
     m_runnable.workingDirectory = workingDirectory;
 }
 
-QString ITestConfiguration::workingDirectory() const
+Utils::FilePath ITestConfiguration::workingDirectory() const
 {
     if (!m_runnable.workingDirectory.isEmpty()) {
         const QFileInfo info(m_runnable.workingDirectory);
         if (info.isDir()) // ensure wanted working dir does exist
-            return info.absoluteFilePath();
+            return Utils::FilePath::fromString(info.absoluteFilePath());
     }
 
-    const QString executable = executableFilePath();
-    return executable.isEmpty() ? executable : QFileInfo(executable).absolutePath();
+    const Utils::FilePath executable = executableFilePath();
+    return executable.isEmpty() ? executable : executable.absolutePath();
 }
 
 bool ITestConfiguration::hasExecutable() const
@@ -79,15 +79,15 @@ bool ITestConfiguration::hasExecutable() const
     return !m_runnable.executable.isEmpty();
 }
 
-QString ITestConfiguration::executableFilePath() const
+Utils::FilePath ITestConfiguration::executableFilePath() const
 {
     if (!hasExecutable())
-        return QString();
+        return {};
 
     QFileInfo commandFileInfo = m_runnable.executable.toFileInfo();
-    if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
-        return commandFileInfo.absoluteFilePath();
-    } else if (commandFileInfo.path() == "."){
+    if (m_runnable.executable.isExecutableFile() && m_runnable.executable.path() != ".") {
+        return m_runnable.executable.absoluteFilePath();
+    } else if (m_runnable.executable.path() == "."){
         QString fullCommandFileName = m_runnable.executable.toString();
         // TODO: check if we can use searchInPath() from Utils::Environment
         const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
@@ -96,10 +96,10 @@ QString ITestConfiguration::executableFilePath() const
         for (const QString &path : pathList) {
             QString filePath(path + QDir::separator() + fullCommandFileName);
             if (QFileInfo(filePath).isExecutable())
-                return commandFileInfo.absoluteFilePath();
+                return m_runnable.executable.absoluteFilePath();
         }
     }
-    return QString();
+    return {};
 }
 
 Environment ITestConfiguration::filteredEnvironment(const Environment &original) const
@@ -158,12 +158,12 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
     if (!targetInfo.targetFilePath.isEmpty())
         m_runnable.executable = ensureExeEnding(targetInfo.targetFilePath);
 
-    QString buildBase;
+    Utils::FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
-        buildBase = buildConfig->buildDirectory().toString();
+        buildBase = buildConfig->buildDirectory();
         const QString projBase = startupProject->projectDirectory().toString();
         if (m_projectFile.startsWith(projBase))
-            m_buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
+            m_buildDir = (buildBase / m_projectFile.toString().mid(projBase.length())).absolutePath();
     }
     if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
         m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
@@ -225,12 +225,12 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     if (localExecutable.isEmpty())
         return;
 
-    QString buildBase;
+    Utils::FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
-        buildBase = buildConfig->buildDirectory().toString();
+        buildBase = buildConfig->buildDirectory();
         const QString projBase = startupProject->projectDirectory().toString();
         if (m_projectFile.startsWith(projBase))
-            m_buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
+            m_buildDir = (buildBase / m_projectFile.toString().mid(projBase.length())).absolutePath();
     }
 
     // deployment information should get taken into account, but it pretty much seems as if
@@ -323,12 +323,12 @@ void TestConfiguration::setExecutableFile(const QString &executableFile)
     m_runnable.executable = Utils::FilePath::fromString(executableFile);
 }
 
-void TestConfiguration::setProjectFile(const QString &projectFile)
+void TestConfiguration::setProjectFile(const Utils::FilePath &projectFile)
 {
     m_projectFile = projectFile;
 }
 
-void TestConfiguration::setBuildDirectory(const QString &buildDirectory)
+void TestConfiguration::setBuildDirectory(const FilePath &buildDirectory)
 {
     m_buildDir = buildDirectory;
 }

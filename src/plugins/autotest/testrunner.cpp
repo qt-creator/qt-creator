@@ -176,13 +176,13 @@ static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentIt
 
 bool TestRunner::currentConfigValid()
 {
-    QString commandFilePath;
+    Utils::FilePath commandFilePath;
     if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
         commandFilePath = current->executableFilePath();
     } else {
         TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
-        commandFilePath = current->commandLine().executable().toString();
+        commandFilePath = current->commandLine().executable();
     }
     if (commandFilePath.isEmpty()) {
         reportResult(ResultType::MessageFatal,
@@ -208,7 +208,7 @@ void TestRunner::setUpProcess()
     m_currentProcess->setReadChannel(QProcess::StandardOutput);
     if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
-        m_currentProcess->setProgram(current->executableFilePath());
+        m_currentProcess->setProgram(current->executableFilePath().toString());
     } else {
         TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
         m_currentProcess->setProgram(current->commandLine().executable().toString());
@@ -231,7 +231,7 @@ void TestRunner::setUpProcessEnv()
         m_currentProcess->setArguments(current->commandLine().splitArguments());
     }
 
-    m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory());
+    m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory().toString());
     const Utils::Environment &original = m_currentConfig->environment();
     Utils::Environment environment =  m_currentConfig->filteredEnvironment(original);
     const Utils::EnvironmentItems removedVariables = Utils::filtered(
@@ -625,10 +625,10 @@ void TestRunner::debugTests()
         return;
     }
 
-    const QString &commandFilePath = config->executableFilePath();
+    const Utils::FilePath &commandFilePath = config->executableFilePath();
     if (commandFilePath.isEmpty()) {
         reportResult(ResultType::MessageFatal, tr("Could not find command \"%1\". (%2)")
-                     .arg(config->executableFilePath(), config->displayName()));
+                     .arg(config->executableFilePath().toString(), config->displayName()));
         onFinished();
         return;
     }
@@ -638,7 +638,7 @@ void TestRunner::debugTests()
 
     QStringList omitted;
     Runnable inferior = config->runnable();
-    inferior.executable = FilePath::fromString(commandFilePath);
+    inferior.executable = commandFilePath;
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
     inferior.commandLineArguments = Utils::ProcessArgs::joinArgs(args);

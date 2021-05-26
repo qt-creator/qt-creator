@@ -71,7 +71,8 @@ private:
 };
 
 CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                     QProcess *testApplication, const QString &buildDirectory)
+                                     QProcess *testApplication,
+                                     const Utils::FilePath &buildDirectory)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
 {
 }

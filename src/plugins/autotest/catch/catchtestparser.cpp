@@ -105,7 +105,8 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
-bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface, const QString &fileName)
+bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                                      const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot) || !hasCatchNames(doc))
@@ -113,28 +114,28 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
-    const QByteArray &fileContent = getFileContent(filePath);
+    const QByteArray &fileContent = getFileContent(fileName);
 
-    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
-    QString proFile;
+    Utils::FilePath proFile;
     const CppTools::ProjectPart::Ptr projectPart = projectParts.first();
-    proFile = projectPart->projectFile;
+    proFile = Utils::FilePath::fromString(projectPart->projectFile);
 
     CatchCodeParser codeParser(fileContent, projectPart->languageFeatures);
     const CatchTestCodeLocationList foundTests = codeParser.findTests();
 
     CatchParseResult *parseResult = new CatchParseResult(framework());
     parseResult->itemType = TestTreeItem::TestSuite;
-    parseResult->fileName = filePath;
+    parseResult->fileName = fileName;
     parseResult->name = filePath;
     parseResult->displayName = filePath;
-    parseResult->proFile = projectParts.first()->projectFile;
+    parseResult->proFile = proFile;
 
     for (const CatchTestCodeLocationAndType & testLocation : foundTests) {
         CatchParseResult *testCase = new CatchParseResult(framework());
-        testCase->fileName = filePath;
+        testCase->fileName = fileName;
         testCase->name = testLocation.m_name;
         testCase->proFile = proFile;
         testCase->itemType = testLocation.m_type;

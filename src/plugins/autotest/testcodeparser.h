@@ -74,7 +74,7 @@ signals:
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
-    void requestRemoval(const QString &filePath);
+    void requestRemoval(const Utils::FilePath &filePath);
     void requestRemoveAllFrameworkItems();
 
 public:
@@ -87,12 +87,12 @@ public:
     void aboutToShutdown();
 
 private:
-    bool postponed(const QStringList &fileList);
-    void scanForTests(const QStringList &fileList = QStringList(),
+    bool postponed(const Utils::FilePaths &fileList);
+    void scanForTests(const Utils::FilePaths &fileList = Utils::FilePaths(),
                       const QList<ITestParser *> &parsers = {});
 
     // qml files must be handled slightly different
-    void onDocumentUpdated(const QString &fileName, bool isQmlFile = false);
+    void onDocumentUpdated(const Utils::FilePath &fileName, bool isQmlFile = false);
     void onTaskStarted(Utils::Id type);
     void onAllTasksFinished(Utils::Id type);
     void onFinished();
@@ -110,7 +110,7 @@ private:
     bool m_dirty = false;
     bool m_singleShotScheduled = false;
     bool m_reparseTimerTimedOut = false;
-    QSet<QString> m_postponedFiles;
+    QSet<Utils::FilePath> m_postponedFiles;
     State m_parserState = Idle;
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
     QList<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager

@@ -98,8 +98,9 @@ static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
     return false;
 }
 
-static BoostTestParseResult *createParseResult(const QString &name, const QString &filePath,
-                                               const QString &projectFile, ITestFramework *framework,
+static BoostTestParseResult *createParseResult(const QString &name, const Utils::FilePath &filePath,
+                                               const Utils::FilePath &projectFile,
+                                               ITestFramework *framework,
                                                TestTreeItem::Type type, const BoostTestInfo &info)
 {
     BoostTestParseResult *partialSuite = new BoostTestParseResult(framework);
@@ -116,21 +117,19 @@ static BoostTestParseResult *createParseResult(const QString &name, const QStrin
 }
 
 bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                      const QString &fileName)
+                                      const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesBoostTest(doc, m_cppSnapshot) || !hasBoostTestMacros(doc))
         return false;
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QString &filePath = doc->fileName();
-
-    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
     const CppTools::ProjectPart::Ptr projectPart = projectParts.first();
-    const auto projectFile = projectPart->projectFile;
-    const QByteArray &fileContent = getFileContent(filePath);
+    const auto projectFile = Utils::FilePath::fromString(projectPart->projectFile);
+    const QByteArray &fileContent = getFileContent(fileName);
 
     BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, m_cppSnapshot);
     const BoostTestCodeLocationList foundTests = codeParser.findTests();
@@ -141,7 +140,7 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
         BoostTestInfoList suitesStates = locationAndType.m_suitesState;
         BoostTestInfo firstSuite = suitesStates.first();
         QStringList suites = firstSuite.fullName.split('/');
-        BoostTestParseResult *topLevelSuite = createParseResult(suites.first(), filePath,
+        BoostTestParseResult *topLevelSuite = createParseResult(suites.first(), fileName,
                                                                 projectFile, framework(),
                                                                 TestTreeItem::TestSuite,
                                                                 firstSuite);
@@ -150,7 +149,7 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
         while (!suitesStates.isEmpty()) {
             firstSuite = suitesStates.first();
             suites = firstSuite.fullName.split('/');
-            BoostTestParseResult *suiteResult = createParseResult(suites.last(), filePath,
+            BoostTestParseResult *suiteResult = createParseResult(suites.last(), fileName,
                                                                   projectFile, framework(),
                                                                   TestTreeItem::TestSuite,
                                                                   firstSuite);
@@ -163,7 +162,7 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
             BoostTestInfo tmpInfo{
                 locationAndType.m_suitesState.last().fullName + "::" + locationAndType.m_name,
                         locationAndType.m_state, locationAndType.m_line};
-            BoostTestParseResult *funcResult = createParseResult(locationAndType.m_name, filePath,
+            BoostTestParseResult *funcResult = createParseResult(locationAndType.m_name, fileName,
                                                                  projectFile, framework(),
                                                                  locationAndType.m_type,
                                                                  tmpInfo);

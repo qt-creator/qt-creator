@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QHash>
 
 namespace Utils { class Environment; }
@@ -37,8 +39,10 @@ namespace Internal {
 namespace QTestUtils {
 
 bool isQTestMacro(const QByteArray &macro);
-QHash<QString, QString> testCaseNamesForFiles(ITestFramework *framework, const QStringList &files);
-QMultiHash<QString, QString> alternativeFiles(ITestFramework *framework, const QStringList &files);
+QHash<Utils::FilePath, QString> testCaseNamesForFiles(ITestFramework *framework,
+                                                      const Utils::FilePaths &files);
+QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles(ITestFramework *framework,
+                                                              const Utils::FilePaths &files);
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest);
 Utils::Environment prepareBasicEnvironment(const Utils::Environment &env);
 

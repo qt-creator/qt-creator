@@ -49,8 +49,8 @@ public:
     ITestFramework *framework;
     TestTreeItem::Type itemType = TestTreeItem::Root;
     QString displayName;
-    QString fileName;
-    QString proFile;
+    Utils::FilePath fileName;
+    Utils::FilePath proFile;
     QString name;
     int line = 0;
     int column = 0;
@@ -63,9 +63,9 @@ class ITestParser
 public:
     explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
     virtual ~ITestParser() { }
-    virtual void init(const QStringList &filesToParse, bool fullParse) = 0;
+    virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                 const QString &fileName) = 0;
+                                 const Utils::FilePath &fileName) = 0;
     virtual void release() = 0;
 
     ITestFramework *framework() const { return m_framework; }
@@ -78,12 +78,12 @@ class CppParser : public ITestParser
 {
 public:
     explicit CppParser(ITestFramework *framework);
-    void init(const QStringList &filesToParse, bool fullParse) override;
-    static bool selectedForBuilding(const QString &fileName);
-    QByteArray getFileContent(const QString &filePath) const;
+    void init(const Utils::FilePaths &filesToParse, bool fullParse) override;
+    static bool selectedForBuilding(const Utils::FilePath &fileName);
+    QByteArray getFileContent(const Utils::FilePath &filePath) const;
     void release() override;
 
-    CPlusPlus::Document::Ptr document(const QString &fileName);
+    CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName);
 
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;

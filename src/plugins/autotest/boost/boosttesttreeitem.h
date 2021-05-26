@@ -50,7 +50,7 @@ public:
 
     explicit BoostTestTreeItem(ITestFramework *framework,
                                const QString &name = QString(),
-                               const QString &filePath = QString(),
+                               const Utils::FilePath &filePath = Utils::FilePath(),
                                Type type = Root)
         : TestTreeItem(framework, name, filePath, type)
     {}
@@ -82,7 +82,7 @@ private:
     bool enabled() const;
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
                                               BoostTestTreeItem::TestStates state,
-                                              const QString &proFile) const;
+                                              const Utils::FilePath &proFile) const;
     QString prependWithParentsSuitePaths(const QString &testName) const;
     QList<ITestConfiguration *> getTestConfigurations(
             std::function<bool(BoostTestTreeItem *)> predicate) const;

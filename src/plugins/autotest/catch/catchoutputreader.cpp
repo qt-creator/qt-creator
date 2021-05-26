@@ -49,8 +49,8 @@ namespace CatchXml {
 }
 
 CatchOutputReader::CatchOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                     QProcess *testApplication, const QString &buildDirectory,
-                                     const QString &projectFile)
+                                     QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                                     const Utils::FilePath &projectFile)
     : TestOutputReader (futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
@@ -174,11 +174,8 @@ TestResultPtr CatchOutputReader::createDefaultResult() const
         result->setDescription(m_testCaseInfo.last().name);
         result->setLine(m_testCaseInfo.last().line);
         const QString givenPath = m_testCaseInfo.last().filename;
-        const Utils::FilePath filePath = Utils::FilePath::fromFileInfo(QFileInfo(givenPath));
         if (!givenPath.isEmpty()) {
-            result->setFileName(QDir::isAbsolutePath(givenPath)
-                                ? filePath.toString()
-                                : QFileInfo(m_buildDir + '/' + givenPath).canonicalFilePath());
+            result->setFileName(constructSourceFilePath(m_buildDir, givenPath));
         }
     } else {
         result = new CatchResult(id(), QString());

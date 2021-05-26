@@ -50,7 +50,7 @@ ITestTreeItem *GTestFramework::createRootNode()
                 this,
                 QCoreApplication::translate("GTestFramework",
                                             GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), ITestTreeItem::Root);
+                Utils::FilePath(), ITestTreeItem::Root);
 }
 
 const char *GTestFramework::name() const

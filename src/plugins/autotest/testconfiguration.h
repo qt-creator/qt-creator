@@ -61,9 +61,9 @@ public:
     void setEnvironment(const Utils::Environment &env) { m_runnable.environment = env; }
     Utils::Environment environment() const { return m_runnable.environment; }
     void setWorkingDirectory(const QString &workingDirectory);
-    QString workingDirectory() const;
+    Utils::FilePath workingDirectory() const;
     bool hasExecutable() const;
-    QString executableFilePath() const;
+    Utils::FilePath executableFilePath() const;
 
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
@@ -99,16 +99,16 @@ public:
 
     void setTestCases(const QStringList &testCases);
     void setExecutableFile(const QString &executableFile);
-    void setProjectFile(const QString &projectFile);
-    void setBuildDirectory(const QString &buildDirectory);
+    void setProjectFile(const Utils::FilePath &projectFile);
+    void setBuildDirectory(const Utils::FilePath &buildDirectory);
     void setInternalTarget(const QString &target);
     void setInternalTargets(const QSet<QString> &targets);
     void setOriginalRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
 
     ITestFramework *framework() const;
     QStringList testCases() const { return m_testCases; }
-    QString buildDirectory() const { return m_buildDir; }
-    QString projectFile() const { return m_projectFile; }
+    Utils::FilePath buildDirectory() const { return m_buildDir; }
+    Utils::FilePath projectFile() const { return m_projectFile; }
     QSet<QString> internalTargets() const { return m_buildTargets; }
     ProjectExplorer::RunConfiguration *originalRunConfiguration() const { return m_origRunConfig; }
     Internal::TestRunConfiguration *runConfiguration() const { return m_runConfig; }
@@ -120,8 +120,8 @@ public:
 
 private:
     QStringList m_testCases;
-    QString m_projectFile;
-    QString m_buildDir;
+    Utils::FilePath m_projectFile;
+    Utils::FilePath m_buildDir;
     QString m_deducedFrom;
     bool m_deducedConfiguration = false;
     Internal::TestRunConfiguration *m_runConfig = nullptr;

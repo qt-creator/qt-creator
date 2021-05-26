@@ -43,7 +43,7 @@ namespace Autotest {
 namespace Internal {
 
 CTestTreeItem::CTestTreeItem(ITestBase *testBase, const QString &name,
-                             const QString &filepath, Type type)
+                             const Utils::FilePath &filepath, Type type)
     : ITestTreeItem(testBase, name, filepath, type)
 {
 }
@@ -88,7 +88,7 @@ QVariant CTestTreeItem::data(int column, int role) const
         return checked();
     if (role == LinkRole) {
         QVariant itemLink;
-        itemLink.setValue(Utils::Link(Utils::FilePath::fromString(filePath()), line()));
+        itemLink.setValue(Utils::Link(filePath(), line()));
         return itemLink;
     }
     return ITestTreeItem::data(column, role);

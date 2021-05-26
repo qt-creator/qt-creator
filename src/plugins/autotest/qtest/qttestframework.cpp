@@ -42,7 +42,7 @@ ITestTreeItem *QtTestFramework::createRootNode()
                 this,
                 QCoreApplication::translate("QtTestFramework",
                                             QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), ITestTreeItem::Root);
+                Utils::FilePath(), ITestTreeItem::Root);
 }
 
 const char *QtTestFramework::name() const

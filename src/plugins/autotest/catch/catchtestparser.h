@@ -45,7 +45,7 @@ public:
     CatchTestParser(ITestFramework *framework)
         : CppParser(framework) {}
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                         const QString &fileName) override;
+                         const Utils::FilePath &fileName) override;
 };
 
 } // namespace Internal

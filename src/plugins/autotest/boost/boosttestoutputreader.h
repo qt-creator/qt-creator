@@ -39,8 +39,8 @@ class BoostTestOutputReader : public TestOutputReader
     Q_OBJECT
 public:
     BoostTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                          QProcess *testApplication, const QString &buildDirectory,
-                          const QString &projectFile, LogLevel log, ReportLevel report);
+                          QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                          const Utils::FilePath &projectFile, LogLevel log, ReportLevel report);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
     void processStdError(const QByteArray &outputLine) override;
@@ -51,12 +51,12 @@ private:
     void sendCompleteInformation();
     void handleMessageMatch(const QRegularExpressionMatch &match);
     void reportNoOutputFinish(const QString &description, ResultType type);
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     QString m_currentModule;
     QString m_currentSuite;
     QString m_currentTest;
     QString m_description;
-    QString m_fileName;
+    Utils::FilePath m_fileName;
     ResultType m_result = ResultType::Invalid;
     int m_lineNumber = 0;
     int m_testCaseCount = -1;

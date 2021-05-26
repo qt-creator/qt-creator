@@ -125,14 +125,11 @@ static QString constructBenchmarkInformation(const QString &metric, double value
             .arg(iterations);
 }
 
-static QString constructSourceFilePath(const QString &path, const QString &filePath)
-{
-    return QFileInfo(path, filePath).canonicalFilePath();
-}
-
 QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                       QProcess *testApplication, const QString &buildDirectory,
-                                       const QString &projectFile, OutputMode mode, TestType type)
+                                       QProcess *testApplication,
+                                       const Utils::FilePath &buildDirectory,
+                                       const Utils::FilePath &projectFile,
+                                       OutputMode mode, TestType type)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
     , m_mode(mode)
@@ -237,9 +234,8 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
                 const QXmlStreamAttributes &attributes = m_xmlReader.attributes();
                 m_result = TestResult::resultFromString(
                             attributes.value(QStringLiteral("type")).toString());
-                m_file = decode(attributes.value(QStringLiteral("file")).toString());
-                if (!m_file.isEmpty())
-                    m_file = constructSourceFilePath(m_buildDir, m_file);
+                const QString file = decode(attributes.value(QStringLiteral("file")).toString());
+                m_file = constructSourceFilePath(m_buildDir, file);
                 m_lineNumber = attributes.value(QStringLiteral("line")).toInt();
             } else if (currentTag == QStringLiteral("BenchmarkResult")) {
                 const QXmlStreamAttributes &attributes = m_xmlReader.attributes();

@@ -88,7 +88,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
 }
 
 bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                  const QString &fileName)
+                                  const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesGTest(doc, m_cppSnapshot) || !hasGTestNames(doc))
@@ -96,18 +96,18 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInt
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
-    const QByteArray &fileContent = getFileContent(filePath);
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
+    const QByteArray &fileContent = getFileContent(fileName);
+    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     GTestVisitor visitor(document);
     visitor.accept(ast);
 
     const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
-    QString proFile;
+    Utils::FilePath proFile;
     const QList<CppTools::ProjectPart::Ptr> &ppList = modelManager->projectPart(filePath);
     if (!ppList.isEmpty())
-        proFile = ppList.first()->projectFile;
+        proFile = Utils::FilePath::fromString(ppList.first()->projectFile);
     else
         return false; // happens if shutting down while parsing
 
@@ -115,7 +115,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInt
         const GTestCaseSpec &testSpec = it.key();
         GTestParseResult *parseResult = new GTestParseResult(framework());
         parseResult->itemType = TestTreeItem::TestSuite;
-        parseResult->fileName = filePath;
+        parseResult->fileName = fileName;
         parseResult->name = testSpec.testCaseName;
         parseResult->parameterized = testSpec.parameterized;
         parseResult->typed = testSpec.typed;
@@ -125,7 +125,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInt
         for (const GTestCodeLocationAndType &location : it.value()) {
             GTestParseResult *testSet = new GTestParseResult(framework());
             testSet->name = location.m_name;
-            testSet->fileName = filePath;
+            testSet->fileName = fileName;
             testSet->line = location.m_line;
             testSet->column = location.m_column;
             testSet->disabled = location.m_state & GTestTreeItem::Disabled;

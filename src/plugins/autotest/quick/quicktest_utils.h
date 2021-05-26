@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QHash>
 
 namespace Autotest {
@@ -35,7 +37,8 @@ namespace Internal {
 namespace QuickTestUtils {
 
 bool isQuickTestMacro(const QByteArray &macro);
-QHash<QString, QString> proFilesForQmlFiles(ITestFramework *framework, const QStringList &files);
+QHash<Utils::FilePath, Utils::FilePath> proFilesForQmlFiles(ITestFramework *framework,
+                                                            const Utils::FilePaths &files);
 
 } // namespace QuickTestUtils
 } // namespace Internal

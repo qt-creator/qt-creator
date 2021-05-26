@@ -36,14 +36,10 @@
 namespace Autotest {
 namespace Internal {
 
-static QString constructSourceFilePath(const QString &path, const QString &filePath)
-{
-    return QFileInfo(path, filePath).canonicalFilePath();
-}
-
 GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                     QProcess *testApplication, const QString &buildDirectory,
-                                     const QString &projectFile)
+                                     QProcess *testApplication,
+                                     const Utils::FilePath &buildDirectory,
+                                     const Utils::FilePath &projectFile)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
@@ -181,7 +177,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(type);
         testResult->setLine(match.captured(3).toInt());
-        const QString file = constructSourceFilePath(m_buildDir, match.captured(2));
+        const Utils::FilePath file = constructSourceFilePath(m_buildDir, match.captured(2));
         if (!file.isEmpty())
             testResult->setFileName(file);
         testResult->setDescription(match.captured(4));
@@ -246,7 +242,7 @@ void GTestOutputReader::handleDescriptionAndReportResult(TestResultPtr testResul
         testResult = createDefaultResult();
         testResult->setResult(ResultType::MessageLocation);
         testResult->setLine(innerMatch.captured(2).toInt());
-        QString file = constructSourceFilePath(m_buildDir, innerMatch.captured(1));
+        const Utils::FilePath file = constructSourceFilePath(m_buildDir, innerMatch.captured(1));
         if (!file.isEmpty())
             testResult->setFileName(file);
         resultDescription << output;

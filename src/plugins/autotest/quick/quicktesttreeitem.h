@@ -35,7 +35,7 @@ class QuickTestTreeItem : public TestTreeItem
 public:
     explicit QuickTestTreeItem(ITestFramework *testFramework,
                                const QString &name = QString(),
-                               const QString &filePath = QString(),
+                               const Utils::FilePath &filePath = Utils::FilePath(),
                                Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type)
     {}
@@ -59,11 +59,11 @@ public:
     bool removeOnSweepIfEmpty() const override;
     TestTreeItem *createParentGroupNode() const override;
     bool isGroupable() const override;
-    void markForRemovalRecursively(const QString &filePath) override;
+    void markForRemovalRecursively(const Utils::FilePath &filePath) override;
 private:
-    TestTreeItem *findChildByFileNameAndType(const QString &filePath, const QString &name,
+    TestTreeItem *findChildByFileNameAndType(const Utils::FilePath &filePath, const QString &name,
                                              Type tType);
-    TestTreeItem *findChildByNameFileAndLine(const QString &name, const QString &filePath,
+    TestTreeItem *findChildByNameFileAndLine(const QString &name, const Utils::FilePath &filePath,
                                              int line);
     TestTreeItem *unnamedQuickTests() const;
 };

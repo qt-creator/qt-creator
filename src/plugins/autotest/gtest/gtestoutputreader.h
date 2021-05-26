@@ -38,8 +38,8 @@ class GTestOutputReader : public TestOutputReader
 
 public:
     GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                      QProcess *testApplication, const QString &buildDirectory,
-                      const QString &projectFile);
+                      QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                      const Utils::FilePath &projectFile);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
     void processStdError(const QByteArray &outputLine) override;
@@ -50,7 +50,7 @@ private:
     void setCurrentTestSuite(const QString &testSuite);
     void handleDescriptionAndReportResult(TestResultPtr testResult);
 
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     QString m_currentTestSuite;
     QString m_currentTestCase;
     QString m_description;

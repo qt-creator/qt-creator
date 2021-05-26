@@ -46,11 +46,11 @@ class QuickTestParser : public QObject, public CppParser
     Q_OBJECT
 public:
     explicit QuickTestParser(ITestFramework *framework);
-    void init(const QStringList &filesToParse, bool fullParse) override;
+    void init(const Utils::FilePaths &filesToParse, bool fullParse) override;
     void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                         const QString &fileName) override;
-    QString projectFileForMainCppFile(const QString &fileName) const;
+                         const Utils::FilePath &fileName) override;
+    Utils::FilePath projectFileForMainCppFile(const Utils::FilePath &fileName) const;
 private:
     bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
                            CPlusPlus::Document::Ptr document, ITestFramework *framework);
@@ -59,10 +59,10 @@ private:
     QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
     QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir);
     QmlJS::Snapshot m_qmlSnapshot;
-    QHash<QString, QString> m_proFilesForQmlFiles;
+    QHash<Utils::FilePath, Utils::FilePath> m_proFilesForQmlFiles;
     QFileSystemWatcher m_directoryWatcher;
     QMap<QString, QMap<QString, QDateTime> > m_watchedFiles;
-    QMap<QString, QString> m_mainCppFiles;
+    QMap<Utils::FilePath, Utils::FilePath> m_mainCppFiles;
 };
 
 } // namespace Internal

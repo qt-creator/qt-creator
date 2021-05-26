@@ -47,9 +47,10 @@ bool isQTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<QString, QString> testCaseNamesForFiles(ITestFramework *framework, const QStringList &files)
+QHash<Utils::FilePath, QString> testCaseNamesForFiles(ITestFramework *framework,
+                                                      const Utils::FilePaths &files)
 {
-    QHash<QString, QString> result;
+    QHash<Utils::FilePath, QString> result;
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
@@ -64,17 +65,18 @@ QHash<QString, QString> testCaseNamesForFiles(ITestFramework *framework, const Q
     return result;
 }
 
-QMultiHash<QString, QString> alternativeFiles(ITestFramework *framework, const QStringList &files)
+QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles(ITestFramework *framework,
+                                                              const Utils::FilePaths &files)
 {
-    QMultiHash<QString, QString> result;
+    QMultiHash<Utils::FilePath, Utils::FilePath> result;
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
     rootNode->forFirstLevelChildren([&result, &files](ITestTreeItem *child) {
-        const QString &baseFilePath = child->filePath();
+        const Utils::FilePath &baseFilePath = child->filePath();
         for (int childRow = 0, count = child->childCount(); childRow < count; ++childRow) {
             auto grandChild = static_cast<const QtTestTreeItem *>(child->childAt(childRow));
-            const QString &filePath = grandChild->filePath();
+            const Utils::FilePath &filePath = grandChild->filePath();
             if (grandChild->inherited() && baseFilePath != filePath && files.contains(filePath)) {
                 if (!result.contains(filePath, baseFilePath))
                     result.insert(filePath, baseFilePath);

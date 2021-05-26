@@ -38,8 +38,16 @@
 
 namespace Autotest {
 
+Utils::FilePath TestOutputReader::constructSourceFilePath(const Utils::FilePath &path,
+                                                          const QString &filePath)
+{
+    if (!filePath.isEmpty() && filePath.at(0) != '.')
+        return Utils::FilePath::fromFileInfo(QFileInfo(filePath));
+    return (path / filePath).canonicalPath();
+}
+
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                   QProcess *testApplication, const QString &buildDirectory)
+                                   QProcess *testApplication, const Utils::FilePath &buildDirectory)
     : m_futureInterface(futureInterface)
     , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
@@ -167,9 +175,11 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
         m_sanitizerLines.append("Sanitizer Issue");
         m_sanitizerLines.append(lineStr);
         if (m_sanitizerOutputMode == SanitizerOutputMode::Ubsan) {
-            const QString path = QFileInfo(m_buildDir, match.captured(1)).canonicalFilePath();
+            const Utils::FilePath path = constructSourceFilePath(m_buildDir, match.captured(1));
             // path may be empty if not existing - so, provide at least what we have
-            m_sanitizerResult->setFileName(path.isEmpty() ? match.captured(1) : path);
+            m_sanitizerResult->setFileName(path.isEmpty()
+                                           ? Utils::FilePath::fromString(match.captured(1))
+                                           : path);
             m_sanitizerResult->setLine(match.captured(2).toInt());
         }
     }

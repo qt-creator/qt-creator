@@ -36,7 +36,7 @@
 namespace Autotest {
 namespace Internal {
 
-BoostTestResult::BoostTestResult(const QString &id, const QString &projectFile, const QString &name)
+BoostTestResult::BoostTestResult(const QString &id, const Utils::FilePath &projectFile, const QString &name)
     : TestResult(id, name), m_projectFile(projectFile)
 {
 }

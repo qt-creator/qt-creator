@@ -36,7 +36,7 @@ namespace Internal {
 class GTestResult : public TestResult
 {
 public:
-    GTestResult(const QString &id, const QString &projectFile, const QString &name);
+    GTestResult(const QString &id, const Utils::FilePath &projectFile, const QString &name);
     const QString outputString(bool selected) const override;
 
     void setTestCaseName(const QString &testSetName) { m_testCaseName = testSetName; }
@@ -53,7 +53,7 @@ private:
     bool matchesTestSuite(const TestTreeItem *treeItem) const;
 
     QString m_testCaseName;
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     int m_iteration = 1;
 };
 

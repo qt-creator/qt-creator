@@ -473,7 +473,7 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
 
     const TestResult *testResult = m_filterModel->testResult(index);
     if (testResult && !testResult->fileName().isEmpty())
-        EditorManager::openEditorAt(testResult->fileName(), testResult->line(), 0);
+        EditorManager::openEditorAt(Utils::Link{testResult->fileName(), testResult->line(), 0});
 }
 
 void TestResultsPane::onRunAllTriggered()
@@ -750,8 +750,7 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
         bool isLocationItem = result->result() == ResultType::MessageLocation;
         if (interested.contains(result->result())
                 || (isLocationItem && interested.contains(parentType))) {
-            const Utils::FilePath fileName = Utils::FilePath::fromString(result->fileName());
-            TestEditorMark *mark = new TestEditorMark(index, fileName, result->line());
+            TestEditorMark *mark = new TestEditorMark(index, result->fileName(), result->line());
             mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
             mark->setColor(Utils::Theme::OutputPanes_TestFailTextColor);
             mark->setPriority(TextEditor::TextMark::NormalPriority);

@@ -73,7 +73,7 @@ const ITestTreeItem *CatchResult::findTestTreeItem() const
         return nullptr;
 
     const QString tcName = name();
-    const QString tcFilePath = fileName();
+    const Utils::FilePath tcFilePath = fileName();
     return rootNode->findAnyChild([&tcName, &tcFilePath](const Utils::TreeItem *item) {
         const auto treeItem = static_cast<const CatchTreeItem *>(item);
         if (!treeItem || treeItem->filePath() != tcFilePath)

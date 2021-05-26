@@ -139,7 +139,7 @@ QVariant GTestTreeItem::data(int column, int role) const
     case Qt::ToolTipRole:
         if (type() == GroupNode
                 && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
-            const auto tpl = QString("<p>%1</p><p>%2</p>").arg(filePath());
+            const auto tpl = QString("<p>%1</p><p>%2</p>").arg(filePath().toString());
             return tpl.arg(QCoreApplication::translate(
                                "GTestTreeItem", "Change GTest filter in use inside the settings."));
         }
@@ -217,7 +217,7 @@ struct GTestCases
 };
 
 static void collectTestInfo(const GTestTreeItem *item,
-                            QHash<QString, GTestCases> &testCasesForProFile,
+                            QHash<Utils::FilePath, GTestCases> &testCasesForProFile,
                             bool ignoreCheckState)
 {
     QTC_ASSERT(item, return);
@@ -232,7 +232,7 @@ static void collectTestInfo(const GTestTreeItem *item,
     QTC_ASSERT(childCount != 0, return);
     QTC_ASSERT(item->type() == TestTreeItem::TestSuite, return);
     if (ignoreCheckState || item->checked() == Qt::Checked) {
-        const QString &projectFile = item->childItem(0)->proFile();
+        const Utils::FilePath &projectFile = item->childItem(0)->proFile();
         testCasesForProFile[projectFile].filters.append(
                     gtestFilter(item->state()).arg(item->name()).arg('*'));
         testCasesForProFile[projectFile].testSetCount += childCount - 1;
@@ -251,7 +251,7 @@ static void collectTestInfo(const GTestTreeItem *item,
 }
 
 static void collectFailedTestInfo(const GTestTreeItem *item,
-                                  QHash<QString, GTestCases> &testCasesForProfile)
+                                  QHash<Utils::FilePath, GTestCases> &testCasesForProfile)
 {
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->type() == TestTreeItem::Root, return);
@@ -276,7 +276,7 @@ QList<ITestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreChec
     if (!project || type() != Root)
         return result;
 
-    QHash<QString, GTestCases> testCasesForProFile;
+    QHash<Utils::FilePath, GTestCases> testCasesForProFile;
     for (int row = 0, count = childCount(); row < count; ++row) {
         auto child = static_cast<const GTestTreeItem *>(childAt(row));
         collectTestInfo(child, testCasesForProFile, ignoreCheckState);
@@ -315,7 +315,7 @@ QList<ITestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
     if (!project || type() != Root)
         return result;
 
-    QHash<QString, GTestCases> testCasesForProFile;
+    QHash<Utils::FilePath, GTestCases> testCasesForProFile;
     collectFailedTestInfo(this, testCasesForProFile);
 
     for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
@@ -340,10 +340,9 @@ QList<ITestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Ut
     if (!project || type() != Root)
         return result;
 
-    QHash<QString, GTestCases> testCases;
-    const QString &file = fileName.toString();
-    forAllChildItems([&testCases, &file](TestTreeItem *node) {
-        if (node->type() == Type::TestCase && node->filePath() == file) {
+    QHash<Utils::FilePath, GTestCases> testCases;
+    forAllChildItems([&testCases, &fileName](TestTreeItem *node) {
+        if (node->type() == Type::TestCase && node->filePath() == fileName) {
             QTC_ASSERT(node->parentItem(), return);
             const GTestTreeItem *testCase = static_cast<GTestTreeItem *>(node->parentItem());
             QTC_ASSERT(testCase->type() == Type::TestSuite, return);
@@ -381,8 +380,7 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
     case Root:
         if (result->framework->grouping()) {
             if (GTestFramework::groupMode() == GTest::Constants::Directory) {
-                const QFileInfo fileInfo(parseResult->fileName);
-                const QFileInfo base(fileInfo.absolutePath());
+                const Utils::FilePath base = parseResult->fileName.absolutePath();
                 for (int row = 0; row < childCount(); ++row) {
                     GTestTreeItem *group = static_cast<GTestTreeItem *>(childAt(row));
                     if (group->filePath() != base.absoluteFilePath())
@@ -466,9 +464,9 @@ bool GTestTreeItem::modify(const TestParseResult *result)
 TestTreeItem *GTestTreeItem::createParentGroupNode() const
 {
     if (GTestFramework::groupMode() == GTest::Constants::Directory) {
-        const QFileInfo fileInfo(filePath());
-        const QFileInfo base(fileInfo.absolutePath());
-        return new GTestTreeItem(framework(), base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+        const QFileInfo base = filePath().absolutePath().toFileInfo();
+        return new GTestTreeItem(framework(), base.baseName(), filePath().absolutePath(),
+                                 TestTreeItem::GroupNode);
     } else { // GTestFilter
         QTC_ASSERT(childCount(), return nullptr); // paranoia
         const TestTreeItem *firstChild = childItem(0);
@@ -476,7 +474,10 @@ TestTreeItem *GTestTreeItem::createParentGroupNode() const
         const QString fullTestName = name() + '.' + firstChild->name();
         const QString groupNodeName =
                 matchesFilter(activeFilter, fullTestName) ? matchingString() : notMatchingString();
-        auto groupNode = new GTestTreeItem(framework(), groupNodeName, activeFilter, TestTreeItem::GroupNode);
+        // FIXME activeFilter is not a FilePath
+        auto groupNode = new GTestTreeItem(framework(), groupNodeName,
+                                           Utils::FilePath::fromString(activeFilter),
+                                           TestTreeItem::GroupNode);
         if (groupNodeName == notMatchingString())
             groupNode->setData(0, Qt::Unchecked, Qt::CheckStateRole);
         return groupNode;
@@ -497,7 +498,7 @@ bool GTestTreeItem::modifyTestSetContent(const GTestParseResult *result)
 
 TestTreeItem *GTestTreeItem::findChildByNameStateAndFile(const QString &name,
                                                          GTestTreeItem::TestStates state,
-                                                         const QString &proFile) const
+                                                         const Utils::FilePath &proFile) const
 {
     return findFirstLevelChildItem([name, state, proFile](const TestTreeItem *other) {
         const GTestTreeItem *gtestItem = static_cast<const GTestTreeItem *>(other);
@@ -524,18 +525,19 @@ QSet<QString> internalTargets(const TestTreeItem &item)
     QSet<QString> result;
     const auto cppMM = CppTools::CppModelManager::instance();
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
-    const QString file = item.filePath();
+    const Utils::FilePath filePath = item.filePath();
+    const QString file = filePath.toString();
     const QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo.projectParts();
     if (projectParts.isEmpty())
-        return cppMM->dependingInternalTargets(file);
+        return cppMM->dependingInternalTargets(item.filePath());
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
-        if (projectPart->projectFile == item.proFile()
+        if (Utils::FilePath::fromString(projectPart->projectFile) == item.proFile()
                 && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
                                 return pf.path == file;
         })) {
             result.insert(projectPart->buildSystemTarget);
             if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
-                result.unite(cppMM->dependingInternalTargets(file));
+                result.unite(cppMM->dependingInternalTargets(filePath));
         }
     }
     return result;
@@ -548,7 +550,7 @@ bool GTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
         return false;
 
     if (GTestFramework::groupMode() == GTest::Constants::Directory) {
-        return QFileInfo(other->filePath()).absolutePath() == filePath();
+        return other->filePath().absolutePath() == filePath();
     } else { // GTestFilter
         QString fullName;
         if (other->type() == TestSuite) {
@@ -563,9 +565,10 @@ bool GTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
         } else {
             QTC_ASSERT(false, return false);
         }
-        if (GTestFramework::currentGTestFilter() != filePath()) // filter has changed in settings
+        // FIXME gtest filter is no FilePath
+        if (GTestFramework::currentGTestFilter() != filePath().toString()) // filter has changed in settings
             return false;
-        bool matches = matchesFilter(filePath(), fullName);
+        bool matches = matchesFilter(filePath().toString(), fullName);
         return (matches && name() == matchingString())
                 || (!matches && name() == notMatchingString());
     }

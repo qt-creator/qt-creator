@@ -115,7 +115,11 @@ void TestTreeModel::setupParsingConnections()
     connect(cppMM, &CppTools::CppModelManager::documentUpdated,
             m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
     connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
-            this, &TestTreeModel::removeFiles, Qt::QueuedConnection);
+            this, [this](const QStringList &files) {
+                const Utils::FilePaths filesToRemove
+                        = Utils::transform(files, &Utils::FilePath::fromString);
+                removeFiles(filesToRemove);
+            }, Qt::QueuedConnection);
     connect(cppMM, &CppTools::CppModelManager::projectPartsUpdated,
             m_parser, &TestCodeParser::onProjectPartsUpdated);
 
@@ -123,7 +127,11 @@ void TestTreeModel::setupParsingConnections()
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
             m_parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            this, &TestTreeModel::removeFiles, Qt::QueuedConnection);
+            this, [this](const QStringList files) {
+                const Utils::FilePaths filesToRemove
+                        = Utils::transform(files, &Utils::FilePath::fromString);
+                removeFiles(filesToRemove);
+            }, Qt::QueuedConnection);
     connectionsInitialized = true;
 }
 
@@ -481,9 +489,9 @@ void TestTreeModel::clearFailedMarks()
     m_failedStateCache.clear();
 }
 
-void TestTreeModel::removeFiles(const QStringList &files)
+void TestTreeModel::removeFiles(const Utils::FilePaths &files)
 {
-    for (const QString &file : files)
+    for (const Utils::FilePath &file : files)
         markForRemoval(file);
     sweep();
 }
@@ -497,7 +505,7 @@ void TestTreeModel::markAllFrameworkItemsForRemoval()
     }
 }
 
-void TestTreeModel::markForRemoval(const QString &filePath)
+void TestTreeModel::markForRemoval(const Utils::FilePath &filePath)
 {
     if (filePath.isEmpty())
         return;
@@ -865,7 +873,7 @@ QMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
 
     if (TestTreeItem *rootNode = boostTestRootNode()) {
         rootNode->forFirstLevelChildItems([&result](TestTreeItem *child) {
-            result.insert(child->name() + '|' + child->proFile(), child->childCount());
+            result.insert(child->name() + '|' + child->proFile().toString(), child->childCount());
         });
     }
     return result;

@@ -48,8 +48,8 @@ public:
     };
 
     QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                       QProcess *testApplication, const QString &buildDirectory,
-                       const QString &projectFile, OutputMode mode, TestType type);
+                       QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                       const Utils::FilePath &projectFile, OutputMode mode, TestType type);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
     TestResultPtr createDefaultResult() const override;
@@ -78,14 +78,14 @@ private:
     };
 
     CDATAMode m_cdataMode = None;
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     QString m_className;
     QString m_testCase;
     QString m_formerTestCase;
     QString m_dataTag;
     ResultType m_result = ResultType::Invalid;
     QString m_description;
-    QString m_file;
+    Utils::FilePath m_file;
     int m_lineNumber = 0;
     QString m_duration;
     QXmlStreamReader m_xmlReader;

@@ -36,7 +36,7 @@ namespace Autotest {
 namespace Internal {
 
 QtTestTreeItem::QtTestTreeItem(ITestFramework *testFramework, const QString &name,
-                               const QString &filePath, TestTreeItem::Type type)
+                               const Utils::FilePath &filePath, TestTreeItem::Type type)
     : TestTreeItem(testFramework, name, filePath, type)
 {
     if (type == TestDataTag)
@@ -291,9 +291,8 @@ QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const U
         return result;
 
     QHash<TestTreeItem *, QStringList> testFunctions;
-    const QString &file = fileName.toString();
-    forAllChildItems([&testFunctions, &file](TestTreeItem *node) {
-        if (node->type() == Type::TestFunction && node->filePath() == file) {
+    forAllChildItems([&testFunctions, &fileName](TestTreeItem *node) {
+        if (node->type() == Type::TestFunction && node->filePath() == fileName) {
             QTC_ASSERT(node->parentItem(), return);
             TestTreeItem *testCase = node->parentItem();
             QTC_ASSERT(testCase->type() == Type::TestCase, return);
@@ -318,7 +317,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         if (result->framework->grouping()) {
-            const QString path = QFileInfo(result->fileName).absolutePath();
+            const Utils::FilePath path = result->fileName.absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);
                 if (group->filePath() != path)
@@ -357,7 +356,7 @@ TestTreeItem *QtTestTreeItem::findChild(const TestTreeItem *other)
         if (otherType != TestFunction && otherType != TestDataFunction && otherType != TestSpecialFunction)
             return nullptr;
         auto qtOther = static_cast<const QtTestTreeItem *>(other);
-        return findChildByNameAndInheritance(other->filePath(), qtOther->inherited());
+        return findChildByNameAndInheritance(other->name(), qtOther->inherited());
     }
     case TestFunction:
     case TestDataFunction:
@@ -388,9 +387,8 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *QtTestTreeItem::createParentGroupNode() const
 {
-    const QFileInfo fileInfo(filePath());
-    const QFileInfo base(fileInfo.absolutePath());
-    return new QtTestTreeItem(framework(), base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+    const QFileInfo base = filePath().absolutePath().toFileInfo();
+    return new QtTestTreeItem(framework(), base.baseName(), filePath().absolutePath(), TestTreeItem::GroupNode);
 }
 
 bool QtTestTreeItem::isGroupable() const

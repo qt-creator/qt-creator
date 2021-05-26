@@ -35,7 +35,7 @@ class BoostTestTreeItem;
 class BoostTestResult : public TestResult
 {
 public:
-    BoostTestResult(const QString &id, const QString &projectFile, const QString &name);
+    BoostTestResult(const QString &id, const Utils::FilePath &projectFile, const QString &name);
     const QString outputString(bool selected) const override;
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
@@ -45,7 +45,7 @@ public:
 private:
     bool matches(const BoostTestTreeItem *item) const;
 
-    QString m_projectFile;
+    Utils::FilePath m_projectFile;
     QString m_testSuite;
     QString m_testCase;
 };

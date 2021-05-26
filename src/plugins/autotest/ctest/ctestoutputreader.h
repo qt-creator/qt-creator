@@ -36,7 +36,7 @@ class CTestOutputReader final : public Autotest::TestOutputReader
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestOutputReader)
 public:
     CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                      QProcess *testApplication, const QString &buildDirectory);
+                      QProcess *testApplication, const Utils::FilePath &buildDirectory);
 
 protected:
     void processOutputLine(const QByteArray &outputLineWithNewLine) final;
