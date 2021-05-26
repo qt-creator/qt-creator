@@ -42,12 +42,10 @@ QmlDesignerIconProvider::QmlDesignerIconProvider()
 
 }
 
-static QString iconPath()
+static Utils::FilePath iconPath()
 {
     return Core::ICore::resourcePath(
-               "qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/")
-               .toString()
-           + "/";
+        "qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/");
 }
 
 QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
@@ -72,18 +70,15 @@ QPixmap QmlDesignerIconProvider::getPixmap(const QString &id)
     else if (id == "plus")
         result = Utils::Icons::PLUS_TOOLBAR.pixmap();
     else if (id == "expression")
-        result = Icon({
-                { iconPath() + QLatin1String("expression.png"), Theme::QmlDesigner_HighlightColor}}).pixmap();
+        result = Icon({{iconPath() / "expression.png", Theme::QmlDesigner_HighlightColor}}).pixmap();
     else if (id == "placeholder")
-        result = Icon(iconPath() + "placeholder.png").pixmap();
+        result = Icon(iconPath() / "placeholder.png").pixmap();
     else if (id == "submenu")
-        result = Icon(iconPath() + "submenu.png").pixmap();
+        result = Icon(iconPath() / "submenu.png").pixmap();
     else if (id == "up-arrow")
-        result = Icon({
-                { iconPath() + QLatin1String("up-arrow.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+        result = Icon({{iconPath() / "up-arrow.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "down-arrow")
-        result = Icon({
-                { iconPath() + QLatin1String("down-arrow.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+        result = Icon({{iconPath() / "down-arrow.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "checkbox-indicator")
         result = Icon({
                 { ":/qmldesigner/images/checkbox_indicator.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
