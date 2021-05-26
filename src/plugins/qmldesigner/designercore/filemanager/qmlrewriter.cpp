@@ -93,13 +93,17 @@ QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
 
     TextEditor::TabSettings tabSettings = textModifier()->tabSettings();
     QString result;
+    bool addLineSep = false;
     constexpr char lineSep('\n');
     const QStringList lines = text.split(lineSep);
     for (const QString &line : lines) {
-        if (!result.isEmpty())
+        if (addLineSep)
             result += lineSep;
+
+        addLineSep = true;
         if (line.isEmpty())
             continue;
+
         const int firstNoneSpace = TextEditor::TabSettings::firstNonSpace(line);
         const int lineIndentColumn = tabSettings.indentationColumn(line) + int(depth);
         result.append(tabSettings.indentationString(0, lineIndentColumn, 0));
