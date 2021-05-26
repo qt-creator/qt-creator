@@ -13,7 +13,7 @@ instructions:
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_110-based
+        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_120-based
 
   - type: Group
     enable_if:
