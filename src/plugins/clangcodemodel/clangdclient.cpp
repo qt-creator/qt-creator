@@ -386,6 +386,7 @@ public:
     Utils::optional<ReplacementData> replacementData;
     quint64 key;
     bool canceled = false;
+    bool categorize = CppTools::codeModelSettings()->categorizeFindReferences();
 };
 
 using SymbolData = QPair<QString, Utils::Link>;
@@ -594,7 +595,8 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
                 replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
-    refData.search->setFilter(new CppTools::CppSearchResultFilter);
+    if (refData.categorize)
+        refData.search->setFilter(new CppTools::CppSearchResultFilter);
     if (refData.replacementData) {
         refData.search->setTextToReplace(refData.replacementData->newSymbolName);
         const auto renameFilesCheckBox = new QCheckBox;
@@ -699,7 +701,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
 
     qCDebug(clangdLog) << "document count is" << refData->fileData.size();
     if (refData->replacementData || q->versionNumber() < QVersionNumber(13)
-            || refData->fileData.size() > 15) { // TODO: If we need to keep this, make it configurable.
+            || !refData->categorize) {
         qCDebug(clangdLog) << "skipping AST retrieval";
         reportAllSearchResultsAndFinish(*refData);
         return;

@@ -25,9 +25,11 @@
 
 #include "cppfindreferences.h"
 
+#include "cppcodemodelsettings.h"
 #include "cppfilesettingspage.h"
 #include "cpptoolsconstants.h"
 #include "cppmodelmanager.h"
+#include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -295,6 +297,7 @@ class ProcessFile
     CPlusPlus::Document::Ptr symbolDocument;
     CPlusPlus::Symbol *symbol;
     QFutureInterface<CPlusPlus::Usage> *future;
+    const bool categorize;
 
 public:
     // needed by QtConcurrent
@@ -305,12 +308,14 @@ public:
                 const CPlusPlus::Snapshot snapshot,
                 CPlusPlus::Document::Ptr symbolDocument,
                 CPlusPlus::Symbol *symbol,
-                QFutureInterface<CPlusPlus::Usage> *future)
+                QFutureInterface<CPlusPlus::Usage> *future,
+                bool categorize)
         : workingCopy(workingCopy),
           snapshot(snapshot),
           symbolDocument(symbolDocument),
           symbol(symbol),
-          future(future)
+          future(future),
+          categorize(categorize)
     { }
 
     QList<CPlusPlus::Usage> operator()(const Utils::FilePath &fileName)
@@ -342,7 +347,7 @@ public:
             if (doc != symbolDocument)
                 doc->check();
 
-            CPlusPlus::FindUsages process(unpreprocessedSource, doc, snapshot);
+            CPlusPlus::FindUsages process(unpreprocessedSource, doc, snapshot, categorize);
             process(symbol);
 
             usages = process.usages();
@@ -395,7 +400,8 @@ QList<int> CppFindReferences::references(CPlusPlus::Symbol *symbol,
 static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
                         const WorkingCopy workingCopy,
                         const CPlusPlus::LookupContext &context,
-                        CPlusPlus::Symbol *symbol)
+                        CPlusPlus::Symbol *symbol,
+                        bool categorize)
 {
     const CPlusPlus::Identifier *symbolId = symbol->identifier();
     QTC_ASSERT(symbolId != nullptr, return);
@@ -428,7 +434,7 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol, &future);
+    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol, &future, categorize);
     UpdateUI reduce(&future);
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
     // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
@@ -458,7 +464,8 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                                 SearchResultWindow::PreserveCaseDisabled,
                                                 QLatin1String("CppEditor"));
     search->setTextToReplace(replacement);
-    search->setFilter(new CppSearchResultFilter);
+    if (codeModelSettings()->categorizeFindReferences())
+        search->setFilter(new CppSearchResultFilter);
     auto renameFilesCheckBox = new QCheckBox();
     renameFilesCheckBox->setVisible(false);
     search->setAdditionalReplaceWidget(renameFilesCheckBox);
@@ -469,6 +476,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     CppFindReferencesParameters parameters;
     parameters.symbolId = fullIdForSymbol(symbol);
     parameters.symbolFileName = QByteArray(symbol->fileName());
+    parameters.categorize = codeModelSettings()->categorizeFindReferences();
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
         CPlusPlus::Overview overview;
@@ -477,7 +485,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     }
 
     search->setUserData(QVariant::fromValue(parameters));
-    findAll_helper(search, symbol, context);
+    findAll_helper(search, symbol, context, codeModelSettings()->categorizeFindReferences());
 }
 
 void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol,
@@ -492,7 +500,7 @@ void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol,
 }
 
 void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *symbol,
-                                       const CPlusPlus::LookupContext &context)
+                                       const CPlusPlus::LookupContext &context, bool categorize)
 {
     if (!(symbol && symbol->identifier())) {
         search->finishSearch(false);
@@ -507,7 +515,7 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
     QFuture<CPlusPlus::Usage> result;
     result = Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,
-                             workingCopy, context, symbol);
+                             workingCopy, context, symbol, categorize);
     createWatcher(result, search);
 
     FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),
@@ -553,7 +561,7 @@ void CppFindReferences::searchAgain()
         search->finishSearch(false);
         return;
     }
-    findAll_helper(search, symbol, context);
+    findAll_helper(search, symbol, context, parameters.categorize);
 }
 
 namespace {

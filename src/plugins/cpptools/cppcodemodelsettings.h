@@ -85,6 +85,9 @@ public:
     void setClangdFilePath(const Utils::FilePath &filePath) { m_clangdFilePath = filePath; }
     Utils::FilePath clangdFilePath() const;
 
+    void setCategorizeFindReferences(bool categorize) { m_categorizeFindReferences = categorize; }
+    bool categorizeFindReferences() const { return m_categorizeFindReferences; }
+
 signals:
     void clangDiagnosticConfigsInvalidated(const QVector<Utils::Id> &configId);
     void changed();
@@ -99,6 +102,7 @@ private:
     bool m_enableLowerClazyLevels = true; // For UI behavior only
     Utils::FilePath m_clangdFilePath;
     bool m_useClangd = false;
+    bool m_categorizeFindReferences = false; // Ephemeral!
 };
 
 } // namespace CppTools

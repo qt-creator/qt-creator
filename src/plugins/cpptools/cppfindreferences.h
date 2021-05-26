@@ -75,6 +75,7 @@ public:
     QByteArray symbolFileName;
     QString prettySymbolName;
     QVector<ProjectExplorer::Node *> filesToRename;
+    bool categorize = false;
 };
 
 class CppFindReferences: public QObject
@@ -104,7 +105,7 @@ private:
     void findMacroUses(const CPlusPlus::Macro &macro, const QString &replacement,
                        bool replace);
     void findAll_helper(Core::SearchResult *search, CPlusPlus::Symbol *symbol,
-                        const CPlusPlus::LookupContext &context);
+                        const CPlusPlus::LookupContext &context, bool categorize);
     void createWatcher(const QFuture<CPlusPlus::Usage> &future, Core::SearchResult *search);
     CPlusPlus::Symbol *findSymbol(const CppFindReferencesParameters &parameters,
                     const CPlusPlus::Snapshot &snapshot, CPlusPlus::LookupContext *context);

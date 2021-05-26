@@ -147,6 +147,7 @@ ClangdTestFindReferences::ClangdTestFindReferences()
 void ClangdTestFindReferences::initTestCase()
 {
     ClangdTest::initTestCase();
+    CppTools::codeModelSettings()->setCategorizeFindReferences(true);
     connect(client(), &ClangdClient::foundReferences, this,
             [this](const QList<SearchResultItem> &results) {
         if (results.isEmpty())

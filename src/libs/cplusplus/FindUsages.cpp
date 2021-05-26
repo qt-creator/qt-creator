@@ -45,13 +45,15 @@
 
 using namespace CPlusPlus;
 
-FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot)
+FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc,
+                       const Snapshot &snapshot, bool categorize)
     : ASTVisitor(doc->translationUnit()),
       _doc(doc),
       _snapshot(snapshot),
       _context(doc, snapshot),
       _originalSource(originalSource),
-      _source(_doc->utf8Source())
+      _source(_doc->utf8Source()),
+      _categorize(categorize)
 {
     _snapshot.insert(_doc);
     typeofExpression.init(_doc, _snapshot, _context.bindings());
@@ -465,6 +467,8 @@ private:
 
 Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
 {
+    if (!_categorize)
+        return Usage::Type::Other;
     return GetUsageType(this, ASTPath(_doc)(line, column), tokenIndex).getUsageType();
 }
 

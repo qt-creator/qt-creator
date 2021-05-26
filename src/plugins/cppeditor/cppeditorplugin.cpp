@@ -56,8 +56,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpphoverhandler.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
@@ -80,6 +82,13 @@ namespace CppEditor {
 namespace Internal {
 
 enum { QUICKFIX_INTERVAL = 20 };
+
+static CppEditorWidget *currentCppEditorWidget()
+{
+    if (IEditor *currentEditor = EditorManager::currentEditor())
+        return qobject_cast<CppEditorWidget*>(currentEditor->widget());
+    return nullptr;
+}
 
 //////////////////////////// CppEditorFactory /////////////////////////////
 
@@ -123,6 +132,7 @@ public:
     void inspectCppCodeModel();
 
     QAction *m_reparseExternallyChangedFiles = nullptr;
+    QAction *m_findRefsCategorizedAction = nullptr;
     QAction *m_openTypeHierarchyAction = nullptr;
     QAction *m_openIncludeHierarchyAction = nullptr;
 
@@ -241,6 +251,19 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
+    d->m_findRefsCategorizedAction = new QAction(tr("Find References With Access Type"), this);
+    cmd = ActionManager::registerAction(d->m_findRefsCategorizedAction,
+                                        "CppEditor.FindRefsCategorized", context);
+    connect(d->m_findRefsCategorizedAction, &QAction::triggered, this, [] {
+        if (const auto w = currentCppEditorWidget()) {
+            codeModelSettings()->setCategorizeFindReferences(true);
+            w->findUsages();
+            codeModelSettings()->setCategorizeFindReferences(false);
+        }
+    });
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
+    cppToolsMenu->addAction(cmd);
+
     d->m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = ActionManager::registerAction(d->m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
@@ -311,13 +334,6 @@ void CppEditorPlugin::extensionsInitialized()
             creatorTheme()->imageFile(Theme::IconOverlayCppHeader, ":/cppeditor/images/qt_h.png"),
             CppTools::Constants::CPP_HEADER_MIMETYPE);
     }
-}
-
-static CppEditorWidget *currentCppEditorWidget()
-{
-    if (IEditor *currentEditor = EditorManager::currentEditor())
-        return qobject_cast<CppEditorWidget*>(currentEditor->widget());
-    return nullptr;
 }
 
 void CppEditorPlugin::switchDeclarationDefinition()

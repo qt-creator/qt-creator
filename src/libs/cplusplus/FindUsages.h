@@ -56,7 +56,8 @@ public:
 class CPLUSPLUS_EXPORT FindUsages: protected ASTVisitor
 {
 public:
-    FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot);
+    FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot,
+               bool categorize);
     FindUsages(const LookupContext &context);
 
     void operator()(Symbol *symbol);
@@ -302,6 +303,7 @@ private:
     QSet<unsigned> _processed;
     TypeOfExpression typeofExpression;
     Scope *_currentScope = nullptr;
+    const bool _categorize = false;
     class GetUsageType;
 };
 

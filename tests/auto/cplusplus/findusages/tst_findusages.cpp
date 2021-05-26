@@ -175,7 +175,7 @@ void tst_FindUsages::inlineMethod()
     QVERIFY(arg);
     QCOMPARE(arg->identifier()->chars(), "arg");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -210,7 +210,7 @@ void tst_FindUsages::lambdaCaptureByValue()
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "test");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -245,7 +245,7 @@ void tst_FindUsages::lambdaCaptureByReference()
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "test");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -279,7 +279,7 @@ void tst_FindUsages::shadowedNames_1()
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "a");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -314,7 +314,7 @@ void tst_FindUsages::shadowedNames_2()
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "a");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -363,7 +363,7 @@ void tst_FindUsages::staticVariables()
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "Foo");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 5);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -398,7 +398,7 @@ void foo2(int b=bar()){}    // 3rd result
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(s);
 
     QCOMPARE(find.usages().size(), 3);
@@ -465,7 +465,7 @@ struct Struct{
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
 
     find(memberFunctionFoo);
     QCOMPARE(find.usages().size(), 2);
@@ -539,7 +539,7 @@ int main() {
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 7);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -598,7 +598,7 @@ int main()
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 7);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -663,7 +663,7 @@ void tst_FindUsages::objc_args()
     Argument *arg = methodImpl->argumentAt(0)->asArgument();
     QCOMPARE(arg->identifier()->chars(), "arg");
 
-    FindUsages findUsages(objcSource, doc, snapshot);
+    FindUsages findUsages(objcSource, doc, snapshot, true);
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
@@ -701,7 +701,7 @@ void tst_FindUsages::qproperty_1()
     QCOMPARE(setX_method->identifier()->chars(), "setX");
     QCOMPARE(setX_method->argumentCount(), 1);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(setX_method);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Other);
@@ -747,7 +747,7 @@ void tst_FindUsages::instantiateTemplateWithNestedClass()
     QVERIFY(barDeclaration);
     QCOMPARE(barDeclaration->name()->identifier()->chars(), "bar");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(barDeclaration);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -793,7 +793,7 @@ void tst_FindUsages::operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG90
     QVERIFY(fooDeclaration);
     QCOMPARE(fooDeclaration->name()->identifier()->chars(), "foo");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(fooDeclaration);
 
     QCOMPARE(findUsages.usages().size(), 2);
@@ -838,7 +838,7 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG8963()
     QVERIFY(isNotIntDeclaration);
     QCOMPARE(isNotIntDeclaration->name()->identifier()->chars(), "isNotInt");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(isNotIntDeclaration);
 
     QCOMPARE(findUsages.usages().size(), 2);
@@ -881,7 +881,7 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG11859()
     QVERIFY(fooAsMemberOfAnonymousStruct);
     QCOMPARE(fooAsMemberOfAnonymousStruct->name()->identifier()->chars(), "Foo");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(fooAsStruct);
     QCOMPARE(findUsages.references().size(), 1);
     QCOMPARE(findUsages.usages().size(), 1);
@@ -927,7 +927,7 @@ void tst_FindUsages::using_insideGlobalNamespace()
     Class *structSymbol = nsSymbol->memberAt(0)->asClass();
     QVERIFY(structSymbol);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(structSymbol);
 
     QCOMPARE(findUsages.usages().size(), 3);
@@ -973,7 +973,7 @@ void tst_FindUsages::using_insideNamespace()
     Class *structSymbol = nsSymbol->memberAt(0)->asClass();
     QVERIFY(structSymbol);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(structSymbol);
 
     QCOMPARE(findUsages.usages().size(), 3);
@@ -1016,7 +1016,7 @@ void tst_FindUsages::using_insideFunction()
     Class *structSymbol = nsSymbol->memberAt(0)->asClass();
     QVERIFY(structSymbol);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(structSymbol);
 
     QCOMPARE(findUsages.usages().size(), 3);
@@ -1064,7 +1064,7 @@ void tst_FindUsages::operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005(
     QVERIFY(fooDeclaration);
     QCOMPARE(fooDeclaration->name()->identifier()->chars(), "foo");
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(fooDeclaration);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -1101,7 +1101,7 @@ void tst_FindUsages::templateClassParameters()
     TypenameArgument *templArgument = templateClassTS->templateParameterAt(0)->asTypenameArgument();
     QVERIFY(templArgument);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(templArgument);
     QCOMPARE(findUsages.usages().size(), 5);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -1147,7 +1147,7 @@ void tst_FindUsages::templateClass_className()
     QVERIFY(classTS);
     QCOMPARE(classTS->memberCount(), 2);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(classTS);
     QCOMPARE(findUsages.usages().size(), 7);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -1187,7 +1187,7 @@ void tst_FindUsages::templateFunctionParameters()
     TypenameArgument *templArgument = templateFunctionTS->templateParameterAt(0)->asTypenameArgument();
     QVERIFY(templArgument);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(templArgument);
     QCOMPARE(findUsages.usages().size(), 4);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -1221,7 +1221,7 @@ void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
     QCOMPARE(funcTempl->memberCount(), 2);
     Function *func = funcTempl->memberAt(1)->asFunction();
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(func);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -1262,7 +1262,7 @@ void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
     QCOMPARE(ns->memberCount(), 1);
     Template *templateClass = ns->memberAt(0)->asTemplate();
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(templateClass);
     QCOMPARE(findUsages.usages().size(), 3);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
@@ -1291,7 +1291,7 @@ void tst_FindUsages::unicodeIdentifier()
     Declaration *declaration = doc->globalSymbolAt(0)->asDeclaration();
     QVERIFY(declaration);
 
-    FindUsages findUsages(src, doc, snapshot);
+    FindUsages findUsages(src, doc, snapshot, true);
     findUsages(declaration);
     const QList<Usage> usages = findUsages.usages();
     QCOMPARE(usages.size(), 2);
@@ -1323,7 +1323,7 @@ void tst_FindUsages::inAlignas()
     QVERIFY(c);
     QCOMPARE(c->name()->identifier()->chars(), "One");
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(c);
     QCOMPARE(find.usages().size(), 2);
     QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
@@ -1366,7 +1366,7 @@ void tst_FindUsages::memberAccessAsTemplate()
         QVERIFY(c);
         QCOMPARE(c->name()->identifier()->chars(), "Foo");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
         find(c);
         QCOMPARE(find.usages().size(), 2);
         QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
@@ -1387,7 +1387,7 @@ void tst_FindUsages::memberAccessAsTemplate()
         QVERIFY(f);
         QCOMPARE(f->name()->identifier()->chars(), "templateFunc");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
         find(f);
         QCOMPARE(find.usages().size(), 2);
         QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
@@ -1430,7 +1430,7 @@ void tst_FindUsages::variadicFunctionTemplate()
         QVERIFY(v);
         QCOMPARE(v->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
         find(v);
         QCOMPARE(find.usages().size(), 4);
         QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -1481,7 +1481,7 @@ void tst_FindUsages::typeTemplateParameterWithDefault()
         QVERIFY(sv);
         QCOMPARE(sv->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
         find(xv);
         QCOMPARE(find.usages().size(), 2);
         QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -1525,7 +1525,7 @@ void tst_FindUsages::resolveOrder_for_templateFunction_vs_function()
         QVERIFY(xv);
         QCOMPARE(xv->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
         find(xv);
         QCOMPARE(find.usages().size(), 2);
         QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -1567,7 +1567,7 @@ void tst_FindUsages::templateArrowOperator_with_defaultType()
         QVERIFY(sv);
         QCOMPARE(sv->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
         find(sv);
         QCOMPARE(find.usages().size(), 3);
         QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -1639,7 +1639,7 @@ void tst_FindUsages::templateSpecialization_with_IntArgument()
         QCOMPARE(sv[1]->name()->identifier()->chars(), "value");
         QCOMPARE(sv[2]->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
 
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
@@ -1726,7 +1726,7 @@ void tst_FindUsages::templateSpecialization_with_BoolArgument()
         QCOMPARE(sv[0]->name()->identifier()->chars(), "value");
         QCOMPARE(sv[1]->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
 
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
@@ -1802,7 +1802,7 @@ void tst_FindUsages::templatePartialSpecialization()
         QCOMPARE(sv[0]->name()->identifier()->chars(), "value");
         QCOMPARE(sv[1]->name()->identifier()->chars(), "value");
 
-        FindUsages find(src, doc, snapshot);
+        FindUsages find(src, doc, snapshot, true);
 
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
@@ -1858,7 +1858,7 @@ int main()
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
 
     Class *s[3];
     Declaration *sv[3];
@@ -1923,7 +1923,7 @@ int main(){
     QVERIFY(sv);
     QCOMPARE(sv->name()->identifier()->chars(), "value");
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
@@ -1968,7 +1968,7 @@ int main(){
     QVERIFY(sv);
     QCOMPARE(sv->name()->identifier()->chars(), "value");
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -2008,7 +2008,7 @@ int main(){}
     QVERIFY(sv);
     QCOMPARE(sv->name()->identifier()->chars(), "value");
 
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
@@ -2121,7 +2121,7 @@ int main()
     QCOMPARE(sv->name()->identifier()->chars(), "value");
 
     // Access to struct member
-    FindUsages find(src, doc, snapshot);
+    FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 31);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
