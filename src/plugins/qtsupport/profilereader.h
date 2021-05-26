@@ -61,10 +61,8 @@ private:
     QStringList m_messages;
 };
 
-class QTSUPPORT_EXPORT ProFileReader : public QObject, public ProMessageHandler, public QMakeParser, public ProFileEvaluator
+class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public QMakeParser, public ProFileEvaluator
 {
-    Q_OBJECT
-
 public:
     ProFileReader(QMakeGlobals *option, QMakeVfs *vfs);
     ~ProFileReader() override;
