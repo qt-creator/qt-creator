@@ -84,6 +84,8 @@ public:
     QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
     void runProcess(Utils::QtcProcess &process) const override;
 
+    Utils::Environment systemEnvironment() const override;
+
     const DockerDeviceData &data() const;
 
     void tryCreateLocalFileAccess() const;

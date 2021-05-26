@@ -294,6 +294,8 @@ public:
     QList<ToolChain *> autoDetectToolChains();
     void autoDetectCMake();
 
+    void fetchSystemEnviroment();
+
     DockerDevice *q;
     DockerDeviceData m_data;
 
@@ -302,6 +304,8 @@ public:
     QString m_container;
     QString m_mergedDir;
     QFileSystemWatcher m_mergedDirWatcher;
+
+    Environment m_cachedEnviroment;
 };
 
 DockerDevice::DockerDevice(const DockerDeviceData &data)
@@ -728,6 +732,26 @@ void DockerDevice::runProcess(QtcProcess &process) const
 
     process.setCommand(cmd);
     process.start();
+}
+
+Environment DockerDevice::systemEnvironment() const
+{
+    if (d->m_cachedEnviroment.size() == 0)
+        d->fetchSystemEnviroment();
+
+    QTC_CHECK(d->m_cachedEnviroment.size() != 0);
+    return d->m_cachedEnviroment;
+}
+
+void DockerDevicePrivate::fetchSystemEnviroment()
+{
+    SynchronousProcess proc;
+    proc.setCommand({"env", {}});
+
+    proc.runBlocking();
+
+    const QString remoteOutput = proc.stdOut();
+    m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
 }
 
 int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
