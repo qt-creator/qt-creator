@@ -407,8 +407,8 @@ static QString pathHelper(const QString &rel)
 FilePath ICore::resourcePath(const QString &rel)
 {
     return FilePath::fromString(
-        QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH +
-                        pathHelper(rel)));
+               QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH))
+           / rel;
 }
 
 /*!
@@ -490,9 +490,9 @@ QString ICore::userPluginPath()
  */
 FilePath ICore::libexecPath(const QString &rel)
 {
-    return FilePath::fromString(
-        QDir::cleanPath(QApplication::applicationDirPath()
-                        + pathHelper(RELATIVE_LIBEXEC_PATH) + pathHelper(rel)));
+    return FilePath::fromString(QDir::cleanPath(QApplication::applicationDirPath()
+                                                + pathHelper(RELATIVE_LIBEXEC_PATH)))
+           / rel;
 }
 
 FilePath ICore::crashReportsPath()
