@@ -43,11 +43,7 @@ CppProjectUpdater::CppProjectUpdater()
             &QFutureWatcher<ProjectInfo>::finished,
             this,
             &CppProjectUpdater::onProjectInfoGenerated);
-}
-
-CppProjectUpdater::~CppProjectUpdater()
-{
-    cancelAndWaitForFinished();
+    m_futureSynchronizer.setCancelOnWait(true);
 }
 
 void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo)
@@ -63,30 +59,21 @@ void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &project
             this, &CppProjectUpdater::onToolChainRemoved);
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    m_generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo> &futureInterface) {
+    auto generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo> &futureInterface) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
         Internal::ProjectInfoGenerator generator(futureInterface, fullProjectUpdateInfo);
         futureInterface.reportResult(generator.generate());
     });
-    m_generateFutureWatcher.setFuture(m_generateFuture);
+    m_generateFutureWatcher.setFuture(generateFuture);
+    m_futureSynchronizer.addFuture(generateFuture);
 }
 
 void CppProjectUpdater::cancel()
 {
     m_generateFutureWatcher.setFuture({});
-    m_generateFuture.cancel();
-    m_updateFuture.cancel();
-}
-
-void CppProjectUpdater::cancelAndWaitForFinished()
-{
-    cancel();
-    if (m_generateFuture.isRunning())
-        m_generateFuture.waitForFinished();
-    if (m_updateFuture.isRunning())
-        m_updateFuture.waitForFinished();
+    m_futureSynchronizer.cancelAllFutures();
 }
 
 void CppProjectUpdater::onToolChainRemoved(ProjectExplorer::ToolChain *t)
@@ -106,8 +93,9 @@ void CppProjectUpdater::onProjectInfoGenerated()
     if (m_generateFutureWatcher.isCanceled() || m_generateFutureWatcher.future().resultCount() < 1)
         return;
 
-    m_updateFuture = CppModelManager::instance()->updateProjectInfo(
+    auto updateFuture = CppModelManager::instance()->updateProjectInfo(
         m_generateFutureWatcher.result());
+    m_futureSynchronizer.addFuture(updateFuture);
 }
 
 CppProjectUpdaterFactory::CppProjectUpdaterFactory()

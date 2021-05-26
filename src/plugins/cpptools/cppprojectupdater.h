@@ -29,6 +29,8 @@
 #include "cpptools_global.h"
 #include "projectinfo.h"
 
+#include <utils/futuresynchronizer.h>
+
 #include <QFutureWatcher>
 
 namespace CppTools {
@@ -52,23 +54,19 @@ class CPPTOOLS_EXPORT CppProjectUpdater final : public QObject, public CppProjec
 
 public:
     CppProjectUpdater();
-    ~CppProjectUpdater() override;
 
     void update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo) override;
     void cancel() override;
 
 private:
-    void cancelAndWaitForFinished();
-
     void onToolChainRemoved(ProjectExplorer::ToolChain *);
     void onProjectInfoGenerated();
 
 private:
     ProjectExplorer::ProjectUpdateInfo m_projectUpdateInfo;
 
-    QFuture<ProjectInfo> m_generateFuture;
-    QFuture<void> m_updateFuture;
     QFutureWatcher<ProjectInfo> m_generateFutureWatcher;
+    Utils::FutureSynchronizer m_futureSynchronizer;
 };
 
 } // namespace CppTools
