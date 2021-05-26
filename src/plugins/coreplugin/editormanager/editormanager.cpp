@@ -789,23 +789,10 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << filePath << editorId.name();
 
-    QString fn = filePath.toString();
-    QFileInfo fi(fn);
-    int lineNumber = -1;
-    int columnNumber = -1;
-    if ((flags & EditorManager::CanContainLineAndColumnNumber) && !fi.exists()) {
-        Link link = Link::fromString(fn, true);
-        fn = Utils::FileUtils::normalizePathName(link.targetFilePath.toString());
-        lineNumber = link.targetLine;
-        columnNumber = link.targetColumn;
-    } else {
-        fn = Utils::FileUtils::normalizePathName(fn);
-    }
-
+    const QString fn = Utils::FileUtils::normalizePathName(filePath.toString());
     if (fn.isEmpty())
         return nullptr;
-    if (fn != filePath.toString())
-        fi.setFile(fn);
+    const QFileInfo fi(fn);
 
     if (newEditor)
         *newEditor = false;
@@ -824,10 +811,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                 }
             }
         }
-        editor = activateEditor(view, editor, flags);
-        if (editor && flags & EditorManager::CanContainLineAndColumnNumber)
-            editor->gotoLine(lineNumber, columnNumber);
-        return editor;
+        return activateEditor(view, editor, flags);
     }
 
     QString realFn = autoSaveName(fn);
@@ -946,9 +930,6 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     IEditor *result = activateEditor(view, editor, flags);
     if (editor == result)
         restoreEditorState(editor);
-
-    if (flags & EditorManager::CanContainLineAndColumnNumber)
-        editor->gotoLine(lineNumber, columnNumber);
 
     return result;
 }
@@ -3090,6 +3071,9 @@ IEditor *EditorManager::openEditor(const FilePath &filePath, Id editorId,
 IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
+    QFileInfo fi(fileName);
+    if ((flags & CanContainLineAndColumnNumber) && !fi.exists())
+        return openEditorAt(Link::fromString(fileName, true), editorId, flags, newEditor);
     return openEditor(FilePath::fromString(fileName), editorId, flags, newEditor);
 }
 
