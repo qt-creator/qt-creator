@@ -27,8 +27,8 @@
 
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
-#include "modelnodecontextmenu_helper.h"
 #include "formatoperation.h"
+#include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
 #include "rewritingexception.h"
 #include <bindingproperty.h>
@@ -36,6 +36,7 @@
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
+#include <theme.h>
 
 #include <formeditortoolbutton.h>
 
@@ -46,11 +47,11 @@
 #include <listmodeleditor/listmodeleditordialog.h>
 #include <listmodeleditor/listmodeleditormodel.h>
 
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QGraphicsLinearLayout>
@@ -992,40 +993,55 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new SeperatorDesignerAction(editCategory, 220));
 
-    addDesignerAction(new ModelNodeAction(
-                          resetPositionCommandId,
-                          resetPositionDisplayName,
-                          Utils::Icon({{":/utils/images/pan.png", Utils::Theme::IconsBaseColor},
-                                      {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
-                          resetPositionTooltip,
-                          editCategory,
-                          QKeySequence("Ctrl+d"),
-                          200,
-                          &resetPosition,
-                          &selectionNotEmptyAndHasXorYProperty));
+    addDesignerAction(
+        new ModelNodeAction(resetPositionCommandId,
+                            resetPositionDisplayName,
+                            Utils::Icon({{":/utils/images/pan.png", Utils::Theme::IconsBaseColor},
+                                         {":/utils/images/iconoverlay_reset.png",
+                                          Utils::Theme::IconsStopToolBarColor}})
+                                .icon(),
+                            resetPositionTooltip,
+                            editCategory,
+                            QKeySequence("Ctrl+d"),
+                            200,
+                            &resetPosition,
+                            &selectionNotEmptyAndHasXorYProperty));
 
-    addDesignerAction(new ModelNodeAction(
-                          copyFormatCommandId,
-                          copyFormatDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          copyFormatTooltip,
-                          editCategory,
-                          QKeySequence(),
-                          120,
-                          &copyFormat,
-                          &propertiesCopyable));
+    const QString fontName = "qtds_propertyIconFont.ttf";
+    const QColor iconColorNormal(Theme::getColor(Theme::IconsBaseColor));
+    const QIcon pasteIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                    Theme::getIconUnicode(
+                                                                        Theme::Icon::pasteStyle),
+                                                                    28,
+                                                                    28,
+                                                                    iconColorNormal);
 
-    addDesignerAction(new ModelNodeAction(
-                          applyFormatCommandId,
-                          applyFormatDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          applyFormatTooltip,
-                          editCategory,
-                          QKeySequence(),
-                          120,
-                          &applyFormat,
-                          &propertiesApplyable));
+    const QIcon copyIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                   Theme::getIconUnicode(
+                                                                       Theme::Icon::copyStyle),
+                                                                   28,
+                                                                   28,
+                                                                   iconColorNormal);
 
+    addDesignerAction(new ModelNodeAction(copyFormatCommandId,
+                                          copyFormatDisplayName,
+                                          copyIcon,
+                                          copyFormatTooltip,
+                                          editCategory,
+                                          QKeySequence(),
+                                          120,
+                                          &copyFormat,
+                                          &propertiesCopyable));
+
+    addDesignerAction(new ModelNodeAction(applyFormatCommandId,
+                                          applyFormatDisplayName,
+                                          pasteIcon,
+                                          applyFormatTooltip,
+                                          editCategory,
+                                          QKeySequence(),
+                                          120,
+                                          &applyFormat,
+                                          &propertiesApplyable));
 
     addDesignerAction(new ModelNodeAction(
                           resetSizeCommandId,
