@@ -103,7 +103,7 @@ QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
         const int firstNoneSpace = TextEditor::TabSettings::firstNonSpace(line);
         const int lineIndentColumn = tabSettings.indentationColumn(line) + int(depth);
         result.append(tabSettings.indentationString(0, lineIndentColumn, 0));
-        result.append(line.midRef(firstNoneSpace));
+        result.append(line.mid(firstNoneSpace));
     }
     return result;
 }
