@@ -1312,28 +1312,28 @@ void BaseQtVersionPrivate::updateVersionInfo()
     }
     m_qmakeIsExecutable = true;
 
-    m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX")).onDevice(m_qmakeCommand);
+    auto fileProperty = [this](const QByteArray &name) {
+        return FilePath::fromUserInput(qmakeProperty(name)).onDevice(m_qmakeCommand);
+    };
 
-    m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS")).onDevice(m_qmakeCommand);
-    m_data.libExecPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBEXECS")).onDevice(m_qmakeCommand);
-    m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION")).onDevice(m_qmakeCommand);
-    m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA")).onDevice(m_qmakeCommand);
-    m_data.demosPath = FilePath::fromString(
-        QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath()).onDevice(m_qmakeCommand);
-    m_data.docsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DOCS")).onDevice(m_qmakeCommand);
-    m_data.examplesPath = FilePath::fromString(
-        QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath()).onDevice(m_qmakeCommand);
-    m_data.headerPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS")).onDevice(m_qmakeCommand);
-    m_data.importsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_IMPORTS")).onDevice(m_qmakeCommand);
-    m_data.libraryPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBS")).onDevice(m_qmakeCommand);
-    m_data.pluginPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS")).onDevice(m_qmakeCommand);
-    m_data.qmlPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_QML")).onDevice(m_qmakeCommand);
-    m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS")).onDevice(m_qmakeCommand);
-
-    m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS")).onDevice(m_qmakeCommand);
-    m_data.hostLibexecPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_LIBEXECS")).onDevice(m_qmakeCommand);
-    m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA")).onDevice(m_qmakeCommand);
-    m_data.hostPrefixPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_PREFIX")).onDevice(m_qmakeCommand);
+    m_data.prefix = fileProperty("QT_INSTALL_PREFIX");
+    m_data.binPath = fileProperty("QT_INSTALL_BINS");
+    m_data.libExecPath = fileProperty("QT_INSTALL_LIBEXECS");
+    m_data.configurationPath = fileProperty("QT_INSTALL_CONFIGURATION");
+    m_data.dataPath = fileProperty("QT_INSTALL_DATA");
+    m_data.demosPath = fileProperty("QT_INSTALL_DEMOS");
+    m_data.docsPath = fileProperty("QT_INSTALL_DOCS");
+    m_data.examplesPath = fileProperty("QT_INSTALL_EXAMPLES");
+    m_data.headerPath = fileProperty("QT_INSTALL_HEADERS");
+    m_data.importsPath = fileProperty("QT_INSTALL_IMPORTS");
+    m_data.libraryPath = fileProperty("QT_INSTALL_LIBS");
+    m_data.pluginPath = fileProperty("QT_INSTALL_PLUGINS");
+    m_data.qmlPath = fileProperty("QT_INSTALL_QML");
+    m_data.translationsPath = fileProperty("QT_INSTALL_TRANSLATIONS");
+    m_data.hostBinPath = fileProperty("QT_HOST_BINS");
+    m_data.hostLibexecPath = fileProperty("QT_HOST_LIBEXECS");
+    m_data.hostDataPath = fileProperty("QT_HOST_DATA");
+    m_data.hostPrefixPath = fileProperty("QT_HOST_PREFIX");
 
     // Now check for a qt that is configured with a prefix but not installed
     if (!m_data.hostBinPath.isReadableDir())
