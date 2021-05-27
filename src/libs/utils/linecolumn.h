@@ -25,21 +25,24 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include "optional.h"
 
 #include <QMetaType>
 
 namespace Utils {
 
-class LineColumn
+class QTCREATOR_UTILS_EXPORT LineColumn
 {
 public:
     constexpr LineColumn() = default;
     constexpr
     LineColumn(int line, int column)
         : line(line),
-          column(column)
+        column(column)
     {}
+
 
     bool isValid() const
     {
@@ -55,6 +58,8 @@ public:
     {
         return !(first == second);
     }
+
+    static LineColumn extractFromFileName(const QString &fileName, int &postfixPos);
 
 public:
     int line = -1;

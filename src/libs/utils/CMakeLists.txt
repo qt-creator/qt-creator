@@ -77,7 +77,7 @@ add_qtc_library(Utils
     json.cpp json.h
     jsontreeitem.cpp jsontreeitem.h
     layoutbuilder.cpp layoutbuilder.h
-    linecolumn.h
+    linecolumn.cpp linecolumn.h
     link.cpp link.h
     listmodel.h
     listutils.h

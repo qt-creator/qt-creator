@@ -23,32 +23,46 @@
 **
 ****************************************************************************/
 
-#include "link.h"
-
 #include "linecolumn.h"
+
+#include <QRegularExpression>
 
 namespace Utils {
 
 /*!
-    Returns the Link to \a fileName.
-    If \a canContainLineNumber is true the line number, and column number components
-    are extracted from \a fileName and the found \a postfix is set.
+    Returns the line and column of a \a fileName and sets the \a postfixPos if
+    it can find a positional postfix.
 
     The following patterns are supported: \c {filepath.txt:19},
     \c{filepath.txt:19:12}, \c {filepath.txt+19},
     \c {filepath.txt+19+12}, and \c {filepath.txt(19)}.
 */
-Link Link::fromString(const QString &fileName, bool canContainLineNumber, QString *postfix)
+
+LineColumn LineColumn::extractFromFileName(const QString &fileName, int &postfixPos)
 {
-    if (!canContainLineNumber)
-        return {Utils::FilePath::fromString(fileName)};
-    int postfixPos = -1;
-    const LineColumn lineColumn = LineColumn::extractFromFileName(fileName, postfixPos);
-    if (postfix && postfixPos >= 0)
-        *postfix = fileName.mid(postfixPos);
-    return {Utils::FilePath::fromString(fileName.left(postfixPos - 1)),
-            lineColumn.line,
-            lineColumn.column};
+    static const auto regexp = QRegularExpression("[:+](\\d+)?([:+](\\d+)?)?$");
+    // (10) MSVC-style
+    static const auto vsRegexp = QRegularExpression("[(]((\\d+)[)]?)?$");
+    const QRegularExpressionMatch match = regexp.match(fileName);
+    QString filePath = fileName;
+    LineColumn lineColumn;
+    if (match.hasMatch()) {
+        postfixPos = match.capturedStart(0);
+        filePath = fileName.left(match.capturedStart(0));
+        lineColumn.line = 0; // for the case that there's only a : at the end
+        if (match.lastCapturedIndex() > 0) {
+            lineColumn.line = match.captured(1).toInt();
+            if (match.lastCapturedIndex() > 2) // index 2 includes the + or : for the column number
+                lineColumn.column = match.captured(3).toInt() - 1; //column is 0 based, despite line being 1 based
+        }
+    } else {
+        const QRegularExpressionMatch vsMatch = vsRegexp.match(fileName);
+        postfixPos = match.capturedStart(0);
+        filePath = fileName.left(vsMatch.capturedStart(0));
+        if (vsMatch.lastCapturedIndex() > 1) // index 1 includes closing )
+            lineColumn.line = vsMatch.captured(2).toInt();
+    }
+    return lineColumn;
 }
 
 } // namespace Utils

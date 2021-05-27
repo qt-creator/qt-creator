@@ -144,6 +144,7 @@ SOURCES += \
     $$PWD/futuresynchronizer.cpp \
     $$PWD/qtcsettings.cpp \
     $$PWD/link.cpp \
+    $$PWD/linecolumn.cpp \
 
 HEADERS += \
     $$PWD/environmentfwd.h \

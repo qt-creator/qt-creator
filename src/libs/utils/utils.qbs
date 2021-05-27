@@ -161,6 +161,7 @@ Project {
             "jsontreeitem.h",
             "layoutbuilder.cpp",
             "layoutbuilder.h",
+            "linecolumn.cpp",
             "linecolumn.h",
             "link.cpp",
             "link.h",
