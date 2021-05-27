@@ -586,7 +586,7 @@ endfunction()
 
 function(extend_qtc_test target_name)
   if (NOT (target_name IN_LIST __QTC_TESTS))
-    message(FATAL_ERROR "extend_qtc_test: Unknown test target \"${name}\"")
+    message(FATAL_ERROR "extend_qtc_test: Unknown test target \"${target_name}\"")
   endif()
   extend_qtc_target(${target_name} ${ARGN})
 endfunction()
