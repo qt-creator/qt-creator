@@ -48,6 +48,6 @@ Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::P
     filterEntry.extraInfo = info->symbolScope().isEmpty()
         ? info->shortNativeFilePath()
         : info->symbolScope();
-    filterEntry.fileName = info->fileName();
+    filterEntry.filePath = Utils::FilePath::fromString(info->fileName());
     return filterEntry;
 }

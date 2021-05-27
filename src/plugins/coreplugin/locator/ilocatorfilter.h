@@ -27,6 +27,7 @@
 
 #include <coreplugin/core_global.h>
 
+#include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
 
@@ -91,8 +92,8 @@ struct LocatorFilterEntry
     QVariant internalData;
     /* icon to display along with the entry */
     Utils::optional<QIcon> displayIcon;
-    /* file name, if the entry is related to a file, is used e.g. for resolving a file icon */
-    QString fileName;
+    /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */
+    Utils::FilePath filePath;
     /* highlighting support */
     HighlightInfo highlightInfo{0, 0};
 

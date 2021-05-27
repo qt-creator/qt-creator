@@ -180,7 +180,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         if (match.hasMatch()) {
             QFileInfo fi(path.toString());
             LocatorFilterEntry filterEntry(this, fi.fileName(), QString(path.toString() + postfix));
-            filterEntry.fileName = path.toString();
+            filterEntry.filePath = path;
             filterEntry.extraInfo = FilePath::fromFileInfo(fi).shortNativePath();
 
             const MatchLevel matchLevel = matchLevelFor(match, matchText);
@@ -230,19 +230,19 @@ void BaseFileFilter::accept(LocatorFilterEntry selection,
 
 void BaseFileFilter::openEditorAt(const LocatorFilterEntry& selection)
 {
-    const FilePath selectedPath = FilePath::fromString(selection.fileName);
     const FilePath locatorText = FilePath::fromVariant(selection.internalData);
-    const int postfixLength = locatorText.fileName().length() - selectedPath.fileName().length();
+    const int postfixLength = locatorText.fileName().length() - selection.filePath.fileName().length();
     if (postfixLength > 0) {
         const QString postfix = selection.internalData.toString().right(postfixLength);
         int postfixPos = -1;
         const LineColumn lineColumn = LineColumn::extractFromFileName(postfix, postfixPos);
         if (postfixPos >= 0) {
-            EditorManager::openEditorAt(Link(selectedPath, lineColumn.line, lineColumn.column));
+            const Link link(selection.filePath, lineColumn.line, lineColumn.column);
+            EditorManager::openEditorAt(link);
             return;
         }
     }
-    EditorManager::openEditor(selectedPath);
+    EditorManager::openEditor(selection.filePath);
 }
 
 /*!

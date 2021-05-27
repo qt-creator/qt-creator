@@ -645,7 +645,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
                     classes << (entry.extraInfo + "::" + entry.displayName);
                 if (m_completion == Completion::Namespaces) {
                     if (!project
-                            || entry.fileName.startsWith(project->projectDirectory().toString())) {
+                            || entry.filePath.startsWith(project->projectDirectory().toString())) {
                         namespaces << entry.extraInfo;
                     }
                 }

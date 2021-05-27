@@ -80,8 +80,8 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
         const QRegularExpressionMatch match = regexp.match(displayName);
         if (match.hasMatch()) {
             LocatorFilterEntry filterEntry(this, displayName, QString(fileName + postfix));
-            filterEntry.extraInfo = FilePath::fromString(fileName).shortNativePath();
-            filterEntry.fileName = fileName;
+            filterEntry.filePath = FilePath::fromString(fileName);
+            filterEntry.extraInfo = filterEntry.filePath.shortNativePath();
             filterEntry.highlightInfo = highlightInfo(match);
             if (match.capturedStart() == 0)
                 betterEntries.append(filterEntry);

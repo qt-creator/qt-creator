@@ -209,8 +209,8 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         if (index.column() == DisplayNameColumn) {
             LocatorFilterEntry &entry = mEntries[index.row()];
-            if (!entry.displayIcon && !entry.fileName.isEmpty())
-                entry.displayIcon = FileIconProvider::icon(QFileInfo(entry.fileName));
+            if (!entry.displayIcon && !entry.filePath.isEmpty())
+                entry.displayIcon = FileIconProvider::icon(entry.filePath.toFileInfo());
             return entry.displayIcon ? entry.displayIcon.value() : QIcon();
         }
         break;

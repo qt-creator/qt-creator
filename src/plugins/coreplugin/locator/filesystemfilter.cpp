@@ -123,7 +123,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
             const MatchLevel level = matchLevelFor(match, dir);
             const QString fullPath = dirInfo.filePath(dir);
             LocatorFilterEntry filterEntry(this, dir, QVariant());
-            filterEntry.fileName = fullPath;
+            filterEntry.filePath = FilePath::fromString(fullPath);
             filterEntry.highlightInfo = highlightInfo(match);
 
             entries[int(level)].append(filterEntry);
@@ -144,7 +144,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
             const MatchLevel level = matchLevelFor(match, file);
             const QString fullPath = dirInfo.filePath(file);
             LocatorFilterEntry filterEntry(this, file, QString(fullPath + postfix));
-            filterEntry.fileName = fullPath;
+            filterEntry.filePath = FilePath::fromString(fullPath);
             filterEntry.highlightInfo = highlightInfo(match);
 
             entries[int(level)].append(filterEntry);
@@ -171,8 +171,7 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
                               int *selectionLength) const
 {
     Q_UNUSED(selectionLength)
-    QString fileName = selection.fileName;
-    QFileInfo info(fileName);
+    QFileInfo info = selection.filePath.toFileInfo();
     if (info.isDir()) {
         const QString value = shortcutString() + ' '
                 + QDir::toNativeSeparators(info.absoluteFilePath() + '/');
