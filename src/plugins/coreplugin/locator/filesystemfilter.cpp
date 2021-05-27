@@ -130,7 +130,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     }
     // file names can match with +linenumber or :linenumber
     QString postfix;
-    Link link = Link::fromString(entry, true, &postfix);
+    Link link = Link::fromString(entryFileName, true, &postfix);
     regExp = createRegExp(link.targetFilePath.toString(), caseSensitivity_);
     if (!regExp.isValid())
         return {};
