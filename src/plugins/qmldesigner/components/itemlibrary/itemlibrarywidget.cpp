@@ -148,6 +148,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
 
     // create header widget
     m_headerWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_headerWidget->setMinimumHeight(75);
+    m_headerWidget->setMinimumWidth(100);
     Theme::setupTheme(m_headerWidget->engine());
     m_headerWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_headerWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));

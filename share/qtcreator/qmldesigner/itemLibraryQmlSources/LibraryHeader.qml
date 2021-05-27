@@ -32,8 +32,6 @@ import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
-    width: 200
-    height: 75
 
     function setTab(index)
     {
