@@ -41,75 +41,78 @@
             \li {4,1} \b {\l{All Topics}}
         \row
             \li \inlineimage front-gs.png
-            \li \inlineimage front-projects.png
             \li \inlineimage front-ui.png
+            \li \inlineimage studio-3d-scenes.png
             \li \inlineimage studio-animation.png
         \row
-        \li \b {\l{Getting Started}}
+        \li \b {\l{Getting Started}} (REWRITE)
             \list
-                \li \l{Exporting and Importing}
-                \li \l{User Interface}
-                \li \l{Design Views}
-                \li \l{Tutorials}
-                \li \l{Qt Quick Best Practices}
+                \li \l Installation
+                \li \l{User Interface}{Interface Overview}
+                \li \l{Creating Projects}{Projects}
+                \li \l{Use Cases} (NEW)
+                \li \l{Concepts and Terms}
+                \li \l{Examples and Tutorials}
+                \li \l{Supported Platforms}
             \endlist
-            \li \b {\l{Managing Projects}}
-                \list
-                    \li \l{Creating Projects}
-                    \li \l{Using Git}
-                    \li \l{Converting UI Projects to Applications}
-                \endlist
-            \li \b {\l{Creating UIs}}
-                \list
-                    \li \l{Designing Application Flows}
-                    \li \l{Creating Components}
-                    \li \l{Specifying Component Properties}
-                    \li \l{Positioning Components}
-                    \li \l{Annotating Designs}
-                \endlist
-        \li \b {\l{Adding Dynamics}}
+        \li \b {\l{Wireframing}} (NEW)
             \list
-                \li \l{Creating Animations}
-                \li \l{Adding Connections}
-                \li \l{Adding States}
+                \li \l{Creating UIs}{Creating 2D and 3D UIs}
+                \li \l{Creating Components}{Components}
+                \li \l{Specifying Component Properties}
+                \li \l{Positioning Components}{Scalable Layouts}
+                \li \l{Annotating Designs}
+            \endlist
+        \li \b {\l{Prototyping}} (NEW)
+            \list
+                \li Creating UI Logic
+                \li \l{Simulating Data Input}{Simulating Complex Experiences}
+                \li \l{Adding Dynamics}{Dynamic Behaviors}
+                \li \l{Previewing}{Validating with Target Hardware}
+                \li \l{Exporting and Importing}{Asset Creation with Other Tools}
+            \endlist
+        \li \b {\l{Motion Design}} (NEW)
+            \list
+                \li Introduction to Animation Techniques (NEW))
+                \li \l{Production Quality} (NEW)
+                \li \l{Importing for Content Creation Tools}
+                \li \l{Optimizing for Target Hardware} (NEW)
             \endlist
         \row
-            \li \inlineimage studio-3d-scenes.png
             \li \inlineimage front-preview.png
             \li \inlineimage front-advanced.png
+            \li \inlineimage front-projects.png
             \li \inlineimage front-help.png
         \row
-            \li \b {\l{Editing 3D Scenes}}
-                \list
-                    \li \l{3D Editor}
-                    \li \l{Adding 3D Views}
-                    \li \l{Using 3D Components}
-                \endlist
-            \li \b {\l{Previewing}}
-                \list
-                    \li \l{Previewing on Desktop}
-                    \li \l{Previewing on Devices}
-                    \li \l{Previewing in Browsers}
-                \endlist
-            \li \b {\l{Advanced Topics}}
-                \list
-                    \li \l{Supported Platforms}
-                    \li \l{Keyboard Shortcuts}
-                    \li \l{Coding}
-                    \li \l{Simulating Data Input}
-                    \li \l{Debugging and Profiling}
-                \endlist
-            \li \b {\l{Help}}
-                \list
-                    \li \l{Examples and Tutorials}
-                    \li \l{Using the Help Mode}
-                    \li \l{Frequently Asked Questions}
-                    \li \l{Concepts and Terms}
-                \endlist
+        \li \b {\l{Implementing Applications}} (NEW)
+            \list
+                \li Using Flows in Production (NEW)
+                \li \l{Coding}{Cross-Platform Development} (NEW)
+                \li \l{Debugging and Profiling}
+                \li \l{Designer-Developer Workflow} (NEW)
+            \endlist
+        \li \b {\l{Advanced Topics}{Advanced Designer Topics}} (NEW)
+            \list
+                \li Extending Component Functionality (NEW)
+                \li \l{UI Files}
+                \li \l {Managing Data Collection}
+            \endlist
+        \li \b {\l{Developer Topics}} (NEW)
+            \list
+                \li \l{Using Git}
+                \li \l{Converting UI Projects to Applications}
+                \li \l{Using External Tools}
+            \endlist
+        \li \b {\l Help}
+            \list
+                \li \l{Using the Help Mode}
+                \li \l{Frequently Asked Questions}
+                \li \l{How-To}
+            \endlist
         \row
             \li {4,1} \note To report bugs and suggestions to the
                 \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
-                select \uicontrol {Help > Report Bug}.
+                select \uicontrol {Help > Report Bug} in QDS.
                 To copy and paste detailed information about your system to the
                 bug report, select \uicontrol Help >
                 \uicontrol {System Information}.

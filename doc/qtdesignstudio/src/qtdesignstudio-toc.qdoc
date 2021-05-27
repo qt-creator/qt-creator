@@ -27,45 +27,11 @@
     \page qtdesignstudio-toc.html
 
     \title All Topics
-
     \list
-        \li \l{Getting Started}
+        \li \l{Getting Started} (REWRITE)
             \list
-                \l {Exporting and Importing}
-                    \list
-                        \li \l{Exporting from Design Tools}
-                            \list
-                                \li \l{Exporting Designs from Adobe Illustrator}
-                                \li \l{Exporting Designs from Adobe Photoshop}
-                                    \list
-                                        \li \l{Setting Up Qt Bridge for Adobe Photoshop}
-                                        \li \l{Using Qt Bridge for Adobe Photoshop}
-                                    \endlist
-                                \li \l{Exporting Designs from Sketch}
-                                    \list
-                                        \li \l{Setting Up Qt Bridge for Sketch}
-                                        \li \l{Using Qt Bridge for Sketch}
-                                    \endlist
-                                \li \l{Exporting Designs from Figma}
-                                    \list
-                                        \li \l{Setting Up Qt Bridge for Figma}
-                                        \li \l{Using Qt Bridge for Figma}
-                                    \endlist
-                                \li \l{Exporting 3D Assets}
-                                    \list
-                                        \li \l{Exporting from Blender}
-                                        \li \l{Exporting from Maya}
-                                        \li \l{Exporting from Qt 3D Studio}
-                                    \endlist
-                            \endlist
-                        \li \l{Importing Designs}
-                            \list
-                                \li \l{Importing 2D Assets}
-                                \li \l{Importing 3D Assets}
-                            \endlist
-                        \li \l{Exporting Components}
-                    \endlist
-                \li \l{User Interface}
+                \li \l Installation (NEW)
+                \li \l{User Interface}{Interface Overview}
                     \list
                         \li \l{Selecting Modes}
                         \li \l{Design Views}
@@ -87,151 +53,220 @@
                            \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
+                        \li \l{Keyboard Shortcuts}
                     \endlist
-                \li \l{Tutorials}
-                \li \l{Qt Quick Best Practices}
+                \li \l{Creating Projects}{Projects}
+                \li \l{Use Cases} (NEW)
+                \li \l{Concepts and Terms}
+                \li \l{Examples and Tutorials}
                     \list
-                         \li \l{Creating Optimized 3D Scenes}
+                        \li \l{Tutorials}
+                        \li \l{Qt Quick Best Practices}
+                            \list
+                                \li \l{Creating Optimized 3D Scenes}
+                            \endlist
+                    \endlist
+                \li \l{Supported Platforms}
+            \endlist
+        \li \l{Wireframing} (NEW)
+            \list
+                \li \l {Creating UIs}{Creating 2D and 3D UIs}
+                    \list
+                        \li \l{Designing Application Flows}
+                            \list
+                                \li \l{Adding Flow Views}
+                                \li \l{Adding Flow Items}
+                                \li \l{Adding Action Areas and Transitions}
+                                \li \l{Applying Effects to Transitions}
+                                \li \l{Simulating Events}
+                                \li \l{Simulating Conditions}
+                                \li \l{Applying States in Flows}
+                                \li \l{Reacting to External Events}
+                             \endlist
+                    \endlist
+                \li \l {Creating Components}{Components} (NEW) (grid?)
+                    \list
+                        \li \l{Component Types}{Preset Components}
+                            \list
+                                \li \l{Shapes}
+                                \li \l{Text}
+                                \li \l{Images}
+                                \li \l{User Interaction Methods}
+                                \li \l{UI Controls}
+                                \li \l{Lists and Other Data Models}
+                                \li \l{2D Effects}
+                                \li \l{Logic Helpers}
+                                \li \l Animations
+                                \li \l{Setting Scene Environment}{Scene Environment}
+                                \li \l{Adding 3D Views}{3D Views}
+                                \li \l{Setting Group Properties}{Group}
+                                \li \l{Adding 3D Models}{3D Models}
+                                \li \l{Using Materials and Shaders}{Materials and Shaders}
+                                \li \l{Attaching Textures to Materials}{Textures}
+                                \li \l{Using 3D Materials}{3D Materials}
+                                \li \l{Applying 3D Effects}{3D Effects}
+                                \li \l{Using Custom Shaders}{Custom Shaders}
+                                \li \l{Using Lights}{Lights}
+                                \li \l{Using Scene Camera}{Cameras}
+                            \endlist
+                        \li \l {Creating Your Own Components}{Creating Custom Components}
+                            \list
+                                \li \l{Creating Buttons}
+                                \li \l{Creating Scalable Buttons and Borders}
+                                \li \l{Creating Custom Effects and Materials}
+                            \endlist
+                        \li \l{Specifying Component Properties}
+                        \li \l{Positioning Components}{Scalable Layouts}
+                        \li \l{Annotating Designs}
                     \endlist
             \endlist
-        \li \l{Managing Projects}
+        \li \l{Prototyping} (NEW)
             \list
-                \li \l{Creating Projects}
+                \li Creating UI Logic
+                \li \l{Simulating Data Input}{Simulating Complex Experiences}
+                    \list
+                        \li \l{Loading Placeholder Data}
+                        \li \l{Simulating Application Logic}
+                        \li \l{Simulating Dynamic Systems}
+                        \li \l{Using QML Modules with Plugins}
+                    \endlist
+                \li \l{Adding Dynamics}{Dynamic Behaviors}
+                    \list
+                        \li \l{Creating Animations}
+                            \list
+                                \li \l{Editing Easing Curves}
+                            \endlist
+                        \li \l{Adding Connections}
+                            \list
+                                \li\l{Connecting Components to Signals}
+                                \li\l{Adding Bindings Between Properties}
+                                \li\l{Specifying Dynamic Properties}
+                            \endlist
+                        \li \l{Adding States}
+                    \endlist
+                \li \l{Previewing}{Validating with Target Hardware}
+                    \list
+                        \li \l{Previewing on Desktop}
+                        \li \l{Previewing on Devices}
+                        \li \l{Previewing in Browsers}
+                    \endlist
+                \li \l {Exporting and Importing}{Asset Creation with Other Tools}
+                    \list
+                        \li \l{Exporting from Design Tools}
+                        \li \l{Exporting 2D Assets} (NEW)
+                                \list
+                                    \li \l{Exporting Designs from Adobe Illustrator}
+                                    \li \l{Exporting Designs from Adobe Photoshop}
+                                        \list
+                                            \li \l{Setting Up Qt Bridge for Adobe Photoshop}
+                                            \li \l{Using Qt Bridge for Adobe Photoshop}
+                                        \endlist
+                                    \li \l{Exporting Designs from Sketch}
+                                        \list
+                                            \li \l{Setting Up Qt Bridge for Sketch}
+                                            \li \l{Using Qt Bridge for Sketch}
+                                        \endlist
+                                    \li \l{Exporting Designs from Figma}
+                                        \list
+                                            \li \l{Setting Up Qt Bridge for Figma}
+                                            \li \l{Using Qt Bridge for Figma}
+                                        \endlist
+                                \endlist
+                        \li \l {Exporting 3D Assets}
+                            \list
+                                \li \l{Exporting from Blender}
+                                \li \l{Exporting from Maya}
+                                \li \l{Exporting from Qt 3D Studio}
+                            \endlist
+                        \li \l{Importing Designs}
+                            \list
+                                \li \l{Importing 2D Assets}
+                                    \list
+                                        \li \l{Using Custom Fonts}
+                                    \endlist
+                                \li \l{Importing 3D Assets}
+                            \endlist
+                        \li \l{Exporting Components}
+                        \li \l{To and from Qt Creator} (designer-developer workflow)
+                    \endlist
+            \endlist
+        \li \l{Motion Design} (NEW)
+            \list
+                \li Introduction to Animation Techniques (NEW))
+                \li \l{Production Quality} (NEW)
+                    \list
+                        \li \l{Detailed Motion Design} (NEW)
+                    \endlist
+                \li \l{Optimizing for Target Hardware} (NEW)
+            \endlist
+        \li \l{Implementing Applications} (NEW)
+            \list
+                \li Using Flows in Production (NEW)
+                \li \l{Coding}{Cross-Platform Development} (NEW)
+                    \list
+                        \li \l{Writing Code}
+                            \list
+                                \li \l{Working in Edit Mode}
+                                    \list
+                                        \li \l{Working with Sidebars}
+                                        \li \l{Browsing Project Contents}
+                                        \li \l{Viewing Output}
+                                    \endlist
+                                \li \l{Semantic Highlighting}
+                                \li \l{Checking Code Syntax}
+                                \li \l{Completing Code}
+                                \li \l{Indenting Text or Code}
+                                \li \l{Using Qt Quick Toolbars}
+                                \li \l{Comparing Files}
+                            \endlist
+                        \li \l{Finding}
+                            \list
+                                \li \l{Finding and Replacing}
+                                \li \l{Searching with the Locator}
+                            \endlist
+                        \li \l{Refactoring}
+                        \li \l{Applying Refactoring Actions}
+                        \li \l{Configuring the Editor}
+                            \list
+                                \li \l{Specifying Text Editor Settings}
+                            \endlist
+                    \endlist
+                \li \l{Debugging and Profiling}
+                    \list
+                        \li \l{Debugging Qt Quick Projects}
+                        \li \l{Debugging a Qt Quick Example Application}
+                    \endlist
+                \li \l{Designer-Developer Workflow} (NEW)
+                    \list
+                        \li \l{Reusable Prototypes and Full UI Implementation} (NEW)
+                        \li \l{Optimizing Specification and Implementation} (NEW)
+                        \li \l{Parallel Development} (NEW)
+                        \li \l{One Toolchain} (NEW)
+                    \endlist
+            \endlist
+        \li \l{Advanced Topics}{Advanced Designer Topics} (NEW)
+            \list
+                \li Extending Component Functionality (NEW)
+                \li \l{UI Files}
+                \li \l{Managing Data Collection}
+                    \list
+                        \li \l {Collecting Usage Statistics}
+                        \li \l {Collecting User Feedback}
+                        \li \l {Reporting Crashes}
+                    \endlist
+            \endlist
+        \li \l{Developer Topics} (NEW)
+            \list
                 \li \l{Using Git}
                 \li \l{Converting UI Projects to Applications}
+                \li \l{Using External Tools}
             \endlist
-        \li \l{Creating UIs}
+        \li \l Help
             \list
-                \li \l{Designing Application Flows}
-                    \list
-                        \li \l{Adding Flow Views}
-                        \li \l{Adding Flow Items}
-                        \li \l{Adding Action Areas and Transitions}
-                        \li \l{Applying Effects to Transitions}
-                        \li \l{Simulating Events}
-                        \li \l{Simulating Conditions}
-                        \li \l{Applying States in Flows}
-                        \li \l{Reacting to External Events}
-                    \endlist
-                \li \l{Creating Components}
-                \list
-                    \li \l{Shapes}
-                    \li \l{Text}
-                    \li \l{Images}
-                    \li \l{UI Controls}
-                    \li \l{User Interaction Methods}
-                    \li \l{Lists and Other Data Models}
-                    \li \l{2D Effects}
-                    \li \l{Logic Helpers}
-                    \li \l Animations
-                    \li \l{Creating Buttons}
-                    \li \l{Creating Scalable Buttons and Borders}
-                \endlist
-                \li \l{Specifying Component Properties}
-                \li \l{Positioning Components}
-                \li \l{Using Custom Fonts}
-                \li \l{Annotating Designs}
-                \li \l{UI Files}
-           \endlist
-       \li \l {Adding Dynamics}
-            \list
-                \li \l{Creating Animations}
-                \list
-                    \li \l{Editing Easing Curves}
-                \endlist
-                \li \l{Adding Connections}
-                \list
-                    \li\l{Connecting Components to Signals}
-                    \li\l{Adding Bindings Between Properties}
-                    \li\l{Specifying Dynamic Properties}
-                \endlist
-                \li \l{Adding States}
+                \li \l{Using the Help Mode}
+                \li \l{Frequently Asked Questions}
+                \li \l{How To}
             \endlist
-        \li \l{Editing 3D Scenes}
-                \list
-                    \li \l{Adding 3D Views}
-                    \li \l{Using 3D Components}
-                    \list
-                       \li \l{Setting Group Properties}
-                       \li \l{Adding 3D Models}
-                       \li \l{Using Materials and Shaders}
-                       \li \l{Attaching Textures to Materials}
-                       \li \l{Using 3D Materials}
-                       \li \l{Applying 3D Effects}
-                       \li \l{Using Custom Shaders}
-                       \li \l{Creating Custom Effects and Materials}
-                       \li \l{Using Lights}
-                       \li \l{Using Scene Camera}
-                       \li \l{Setting Scene Environment}
-                    \endlist
-               \endlist
-        \li \l{Previewing}
-            \list
-                \li \l{Previewing on Desktop}
-                \li \l{Previewing on Devices}
-                \li \l{Previewing in Browsers}
-            \endlist
-        \li \l{Advanced Topics}
-        \list
-            \li \l{Supported Platforms}
-            \li \l{Keyboard Shortcuts}
-            \li \l{Coding}
-            \list
-                \li \l{Writing Code}
-                    \list
-                        \li \l{Working in Edit Mode}
-                            \list
-                                \li \l{Working with Sidebars}
-                                \li \l{Browsing Project Contents}
-                                \li \l{Viewing Output}
-                            \endlist
-                        \li \l{Semantic Highlighting}
-                        \li \l{Checking Code Syntax}
-                        \li \l{Completing Code}
-                        \li \l{Indenting Text or Code}
-                        \li \l{Using Qt Quick Toolbars}
-                        \li \l{Comparing Files}
-                    \endlist
-                \li \l{Finding}
-                    \list
-                        \li \l{Finding and Replacing}
-                        \li \l{Searching with the Locator}
-                    \endlist
-                \li \l{Refactoring}
-                \li \l{Applying Refactoring Actions}
-                \li \l{Configuring the Editor}
-                    \list
-                        \li \l{Specifying Text Editor Settings}
-                    \endlist
-                \endlist
-            \li \l{Simulating Data Input}
-            \list
-                \li \l{Loading Placeholder Data}
-                \li \l{Simulating Application Logic}
-                \li \l{Simulating Dynamic Systems}
-                \li \l{Using QML Modules with Plugins}
-            \endlist
-            \li \l{Debugging and Profiling}
-                \list
-                    \li \l{Debugging Qt Quick Projects}
-                    \li \l{Debugging a Qt Quick Example Application}
-                    \li \l{Profiling QML Applications}
-                \endlist
-            \li \l{Using External Tools}
-            \li \l{Managing Data Collection}
-                \list
-                    \li \l {Collecting Usage Statistics}
-                    \li \l {Collecting User Feedback}
-                    \li \l {Reporting Crashes}
-                \endlist
-        \endlist
-        \li \l{Help}
-        \list
-            \li \l{Examples and Tutorials}
-            \li \l{Using the Help Mode}
-            \li \l{Frequently Asked Questions}
-            \li \l{Concepts and Terms}
-        \endlist
         \li \l{Technical Support}
         \li \l{Acknowledgements}
     \endlist
