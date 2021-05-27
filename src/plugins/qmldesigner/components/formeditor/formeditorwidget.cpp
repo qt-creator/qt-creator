@@ -576,6 +576,9 @@ void FormEditorWidget::showEvent(QShowEvent *event)
         m_formEditorView->cleanupToolsAndScene();
         m_formEditorView->setupFormEditorWidget();
         m_formEditorView->resetToSelectionTool();
+        QmlItemNode rootNode = m_formEditorView->rootModelNode();
+        if (rootNode.isValid())
+            setRootItemRect(rootNode.instanceBoundingRect());
     }
 }
 
