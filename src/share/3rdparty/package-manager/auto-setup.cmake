@@ -79,6 +79,8 @@ if (conanfile_txt AND NOT QT_CREATOR_SKIP_CONAN_SETUP)
     execute_process(COMMAND ${CMAKE_COMMAND}
       -S "${CMAKE_BINARY_DIR}/conan-dependencies/"
       -B "${CMAKE_BINARY_DIR}/conan-dependencies/build"
+      -C "${CMAKE_BINARY_DIR}/qtcsettings.cmake"
+      -D "CMAKE_TOOLCHAIN_FILE=${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake"
       -G ${CMAKE_GENERATOR}
       -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
       RESULT_VARIABLE result
