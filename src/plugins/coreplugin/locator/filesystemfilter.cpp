@@ -25,6 +25,7 @@
 
 #include "filesystemfilter.h"
 
+#include "basefilefilter.h"
 #include "locatorwidget.h"
 
 #include <coreplugin/coreconstants.h>
@@ -207,11 +208,7 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
                 file.close();
                 VcsManager::promptToAdd(QFileInfo(targetFile).absolutePath(), { targetFile });
             }
-            const QFileInfo fileInfo(targetFile);
-            const QString cleanedFilePath = QDir::cleanPath(fileInfo.absoluteFilePath());
-            EditorManager::openEditor(cleanedFilePath,
-                                      Id(),
-                                      EditorManager::CanContainLineAndColumnNumber);
+            BaseFileFilter::openEditorAt(selection);
         }, Qt::QueuedConnection);
     }
 }

@@ -28,6 +28,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/linecolumn.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
 
@@ -224,8 +225,24 @@ void BaseFileFilter::accept(LocatorFilterEntry selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::CanContainLineAndColumnNumber);
+    openEditorAt(selection);
+}
+
+void BaseFileFilter::openEditorAt(const LocatorFilterEntry& selection)
+{
+    const FilePath selectedPath = FilePath::fromString(selection.fileName);
+    const FilePath locatorText = FilePath::fromVariant(selection.internalData);
+    const int postfixLength = locatorText.fileName().length() - selectedPath.fileName().length();
+    if (postfixLength > 0) {
+        const QString postfix = selection.internalData.toString().right(postfixLength);
+        int postfixPos = -1;
+        const LineColumn lineColumn = LineColumn::extractFromFileName(postfix, postfixPos);
+        if (postfixPos >= 0) {
+            EditorManager::openEditorAt(Link(selectedPath, lineColumn.line, lineColumn.column));
+            return;
+        }
+    }
+    EditorManager::openEditor(selectedPath);
 }
 
 /*!

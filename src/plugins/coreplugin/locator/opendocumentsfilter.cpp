@@ -27,8 +27,10 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/locator/basefilefilter.h>
 #include <utils/fileutils.h>
 #include <utils/link.h>
+#include <utils/linecolumn.h>
 
 #include <QAbstractItemModel>
 #include <QFileInfo>
@@ -124,6 +126,5 @@ void OpenDocumentsFilter::accept(LocatorFilterEntry selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::CanContainLineAndColumnNumber);
+    BaseFileFilter::openEditorAt(selection);
 }

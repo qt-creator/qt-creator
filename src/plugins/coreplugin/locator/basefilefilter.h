@@ -70,6 +70,7 @@ public:
                                          const QString &entry) override;
     void accept(LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
+    static void openEditorAt(const LocatorFilterEntry &selection);
 
 protected:
     void setFileIterator(Iterator *iterator);
