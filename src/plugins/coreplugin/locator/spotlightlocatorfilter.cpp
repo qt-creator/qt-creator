@@ -37,6 +37,7 @@
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
@@ -73,7 +74,7 @@ public:
 private:
     void ensureNext();
 
-    std::unique_ptr<QProcess> m_process;
+    std::unique_ptr<QtcProcess> m_process;
     QMutex m_mutex;
     QWaitCondition m_waitForItems;
     QList<FilePath> m_queue;
@@ -87,11 +88,10 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
     , m_finished(false)
 {
     QTC_ASSERT(!command.isEmpty(), return );
-    m_process.reset(new QProcess);
-    m_process->setProgram(
-        Utils::Environment::systemEnvironment().searchInPath(command.first()).toString());
-    m_process->setArguments(command.mid(1));
-    m_process->setProcessEnvironment(Utils::Environment::systemEnvironment().toProcessEnvironment());
+    m_process.reset(new QtcProcess);
+    m_process->setCommand({Environment::systemEnvironment().searchInPath(command.first()),
+                           command.mid(1)});
+    m_process->setEnvironment(Utils::Environment::systemEnvironment());
     QObject::connect(m_process.get(),
                      QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                      [this] { scheduleKillProcess(); });
@@ -111,7 +111,8 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
             scheduleKillProcess();
         m_waitForItems.wakeAll();
     });
-    m_process->start(QIODevice::ReadOnly);
+    m_process->setOpenMode(QIODevice::ReadOnly);
+    m_process->start();
 }
 
 SpotlightIterator::~SpotlightIterator()
