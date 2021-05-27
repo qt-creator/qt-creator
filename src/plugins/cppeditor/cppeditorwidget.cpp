@@ -278,6 +278,15 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
                 d->m_cppEditorDocument->parseContextModel().areMultipleAvailable());
 }
 
+void CppEditorWidget::setProposals(const TextEditor::IAssistProposal *immediateProposal,
+                                   const TextEditor::IAssistProposal *finalProposal)
+{
+    QTC_ASSERT(inTestMode, return);
+#ifdef WITH_TESTS
+    emit proposalsReady(immediateProposal, finalProposal);
+#endif
+}
+
 CppEditorWidget::~CppEditorWidget() = default;
 
 CppEditorDocument *CppEditorWidget::cppEditorDocument() const

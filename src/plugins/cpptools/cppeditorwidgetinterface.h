@@ -31,7 +31,10 @@
 
 #include <QString>
 
-namespace TextEditor { class IAssistProvider; }
+namespace TextEditor {
+class IAssistProposal;
+class IAssistProvider;
+}
 
 namespace CppTools {
 
@@ -46,6 +49,11 @@ public:
 
     virtual void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
                                               TextEditor::IAssistProvider *provider) = 0;
+
+    virtual void setProposals(const TextEditor::IAssistProposal *immediateProposal,
+                              const TextEditor::IAssistProposal *finalProposal) = 0;
+
+    bool inTestMode = false;
 };
 
 } // namespace CppTools

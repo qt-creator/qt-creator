@@ -256,7 +256,7 @@ public:
 
     F2TestCase(CppEditorAction action,
                const QList<TestDocumentPtr> &testFiles,
-               const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
+               OverrideItemList expectedVirtualFunctionProposal = OverrideItemList());
 
 private:
     static TestDocumentPtr testFileWithInitialCursorMarker(const QList<TestDocumentPtr> &testFiles);
@@ -269,7 +269,7 @@ private:
 /// It can be the same document.
 F2TestCase::F2TestCase(CppEditorAction action,
                        const QList<TestDocumentPtr> &testFiles,
-                       const OverrideItemList &expectedVirtualFunctionProposal)
+                       OverrideItemList expectedVirtualFunctionProposal)
 {
     QVERIFY(succeededSoFar());
 
@@ -287,10 +287,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
     const QString tag = QLatin1String(QTest::currentDataTag());
     const bool useClangd = CppTools::codeModelSettings()->useClangd();
     if (useClangd) {
-        if (curTestName == "test_FollowSymbolUnderCursor_virtualFunctionCall"
-                || curTestName == "test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments") {
-            QSKIP("TODO: Add test infrastructure for this");
-        }
         if (curTestName == "test_FollowSymbolUnderCursor_QObject_connect"
                 || curTestName == "test_FollowSymbolUnderCursor_QObject_oldStyleConnect") {
             QSKIP("TODO: Implement fall-back");
@@ -398,7 +394,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         if (!builtinFollowSymbol) {
             if (curTestName == "test_FollowSymbolUnderCursor_QTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
-
+            widget->inTestMode = true;
             widget->openLinkUnderCursor();
             break;
         }
@@ -432,8 +428,43 @@ F2TestCase::F2TestCase(CppEditorAction action,
     if (useClangd) {
         QEXPECT_FAIL("infiniteLoopLocalTypedef_QTCREATORBUG-11999",
                      "clangd bug: Go to definition does not return", Abort);
-        QVERIFY(CppTools::Tests::waitForSignalOrTimeout(EditorManager::instance(),
-                                                        &EditorManager::linkOpened, 10000));
+        if (expectedVirtualFunctionProposal.size() <= 1) {
+            QVERIFY(CppTools::Tests::waitForSignalOrTimeout(EditorManager::instance(),
+                                                            &EditorManager::linkOpened, 10000));
+        } else {
+            QTimer t;
+            QEventLoop l;
+            t.setSingleShot(true);
+            QObject::connect(&t, &QTimer::timeout, &l, &QEventLoop::quit);
+            const IAssistProposal *immediateProposal = nullptr;
+            const IAssistProposal *finalProposal = nullptr;
+            QObject::connect(initialTestFile->m_editorWidget, &CppEditorWidget::proposalsReady,
+                             [&](const IAssistProposal *i, const IAssistProposal *f) {
+                immediateProposal = i;
+                finalProposal = f;
+                l.quit();
+            });
+            t.start(10000);
+            l.exec();
+            QEXPECT_FAIL("possibleOverrides2",
+                         "FIXME: clangd behaves differently with cursor at end of function name",
+                         Abort);
+            QEXPECT_FAIL("QTCREATORBUG-10294_cursorIsAtTheEndOfVirtualFunctionName",
+                         "FIXME: clangd behaves differently with cursor at end of function name",
+                         Abort);
+            QEXPECT_FAIL("noSiblings_references", "FIXME: clangd traverses only first subclass level",
+                         Abort);
+            QEXPECT_FAIL("noSiblings_pointers", "FIXME: clangd traverses only first subclass level",
+                         Abort);
+            QEXPECT_FAIL("noSiblings_noBaseExpression",
+                         "FIXME: clangd traverses only first subclass level", Abort);
+            QVERIFY(immediateProposal);
+            QVERIFY(finalProposal);
+            immediateVirtualSymbolResults = VirtualFunctionTestAssistProvider::itemList(
+                        immediateProposal->model());
+            finalVirtualSymbolResults = VirtualFunctionTestAssistProvider::itemList(
+                        finalProposal->model());
+        }
     } else {
         QCoreApplication::processEvents();
     }
@@ -445,8 +476,14 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     QCOMPARE(currentTextEditor->document()->filePath().toString(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
-    currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
-                                       &expectedLine, &expectedColumn);
+    if (useClangd && expectedVirtualFunctionProposal.size() == 1) {
+        expectedLine = expectedVirtualFunctionProposal.first().line;
+        expectedColumn = -1;
+        expectedVirtualFunctionProposal.clear();
+    } else {
+        currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
+                                           &expectedLine, &expectedColumn);
+    }
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
 
@@ -456,16 +493,42 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
 
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
-    QCOMPARE(currentTextEditor->currentColumn(), expectedColumn);
+    if (expectedColumn != -1)
+        QCOMPARE(currentTextEditor->currentColumn(), expectedColumn);
 
 //    qDebug() << immediateVirtualSymbolResults;
 //    qDebug() << finalVirtualSymbolResults;
     OverrideItemList expectedImmediate;
     if (!expectedVirtualFunctionProposal.isEmpty()) {
-        expectedImmediate << expectedVirtualFunctionProposal.first();
-        expectedImmediate << OverrideItem(QLatin1String("...searching overrides"));
+        bool offerBaseDecl = true;
+        if (useClangd) {
+            if (tag == "allOverrides from base declaration") {
+                expectedVirtualFunctionProposal.removeFirst();
+                offerBaseDecl = false;
+            }
+        }
+        if (offerBaseDecl) {
+            OverrideItem first = expectedVirtualFunctionProposal.first();
+            if (useClangd)
+                first.text = "<base declaration>";
+            expectedImmediate << first;
+        }
+        expectedImmediate << OverrideItem(QLatin1String("collecting overrides ..."));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
+    if (useClangd) {
+        QEXPECT_FAIL("allOverrides", "FIXME: clangd traverses only first subclass level", Abort);
+        QEXPECT_FAIL("possibleOverrides1", "FIXME: clangd traverses only first subclass level",
+                     Abort);
+        QEXPECT_FAIL("allOverrides from base declaration",
+                     "FIXME: clangd traverses only first subclass level", Abort);
+        QEXPECT_FAIL("itemOrder", "FIXME: clangd traverses only first subclass level", Abort);
+    }
+    QCOMPARE(finalVirtualSymbolResults.size(), expectedVirtualFunctionProposal.size());
+    if (useClangd) {
+         QEXPECT_FAIL("possibleOverrides2", "FIXME: clangd sometimes goes to decl instead of def",
+                      Abort);
+    }
     QCOMPARE(finalVirtualSymbolResults, expectedVirtualFunctionProposal);
 }
 

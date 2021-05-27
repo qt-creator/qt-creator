@@ -113,7 +113,7 @@ public:
 
         auto *hintItem = new VirtualFunctionProposalItem(Utils::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
-                                                      "...searching overrides"));
+                                                      "collecting overrides ..."));
         hintItem->setOrder(-1000);
 
         QList<AssistProposalItemInterface *> items;

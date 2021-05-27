@@ -146,6 +146,20 @@ public:
         return role() == "declaration" && kind() == "CXXMethod" && arcanaContains("virtual pure");
     }
 
+    bool mightBeAmbiguousVirtualCall() const
+    {
+        if (!isMemberFunctionCall())
+            return false;
+        const Utils::optional<QList<AstNode>> childList = children();
+        if (!childList)
+            return true;
+        for (const AstNode &c : qAsConst(*childList)) {
+            if (c.detailIs("UncheckedDerivedToBase"))
+                return false;
+        }
+        return true;
+    }
+
     QString type() const
     {
         const Utils::optional<QString> arcanaString = arcana();
@@ -410,6 +424,8 @@ private:
 
     TextEditor::IAssistProposal *immediateProposal(const TextEditor::AssistInterface *) override;
 
+    TextEditor::IAssistProposal *immediateProposalImpl() const;
+
     ClangdClient::Private *m_data = nullptr;
 };
 
@@ -451,6 +467,15 @@ public:
         openedFiles.clear();
     }
 
+    bool isEditorWidgetStillAlive() const
+    {
+        return Utils::anyOf(EditorManager::visibleEditors(), [this](IEditor *editor) {
+            const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+            return textEditor && dynamic_cast<CppTools::CppEditorWidgetInterface *>(
+                    textEditor->editorWidget()) == editorWidget;
+        });
+    }
+
     ClangdClient * const q;
     const quint64 id;
     const QTextCursor cursor;
@@ -463,6 +488,7 @@ public:
 
     Utils::Link defLink;
     AstNode cursorNode;
+    AstNode defLinkNode;
     SymbolDataList symbolsToDisplay;
     std::set<Utils::FilePath> openedFiles;
     VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
@@ -881,7 +907,7 @@ void ClangdClient::followSymbol(
                                     Range(cursor)));
     astRequest.setResponseCallback([this, id = d->followSymbolData->id](
                                    const AstRequest::Response &response) {
-        qCDebug(clangdLog) << "received ast response";
+        qCDebug(clangdLog) << "received ast response for cursor";
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
         const auto result = response.result();
@@ -903,7 +929,7 @@ void ClangdClient::Private::handleGotoDefinitionResult()
     qCDebug(clangdLog) << "handling go to definition result";
 
     // No dis-ambiguation necessary. Call back with the link and finish.
-    if (!followSymbolData->cursorNode.isMemberFunctionCall()
+    if (!followSymbolData->cursorNode.mightBeAmbiguousVirtualCall()
             && !followSymbolData->cursorNode.isPureVirtualDeclaration()) {
         followSymbolData->callback(followSymbolData->defLink);
         followSymbolData.reset();
@@ -951,13 +977,9 @@ void ClangdClient::Private::handleGotoImplementationResult(
     // Step 3: We found more than one possible target.
     //         Make a symbol info request for each link to get the class names.
     //         This is the expensive part, so we must start the code assist procedure now.
-    const bool textEditorWidgetStillAlive = Utils::anyOf(EditorManager::visibleEditors(),
-                                                         [this](IEditor *editor) {
-        const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-        return textEditor && dynamic_cast<CppTools::CppEditorWidgetInterface *>(
-                textEditor->editorWidget()) == followSymbolData->editorWidget;
-    });
-    if (textEditorWidgetStillAlive) {
+    //         Also get the AST for the base declaration, so we can find out whether it's
+    //         pure virtual and mark it accordingly.
+    if (followSymbolData->isEditorWidgetStillAlive()) {
         followSymbolData->editorWidget->invokeTextEditorWidgetAssist(
                     TextEditor::FollowSymbol, &followSymbolData->virtualFuncAssistProvider);
     }
@@ -989,13 +1011,35 @@ void ClangdClient::Private::handleGotoImplementationResult(
                 }
             }
             followSymbolData->pendingSymbolInfoRequests.removeOne(reqId);
-            if (followSymbolData->pendingSymbolInfoRequests.isEmpty())
+            if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
+                    && followSymbolData->defLinkNode.isValid()) {
                 handleDocumentInfoResults();
+            }
         });
         followSymbolData->pendingSymbolInfoRequests << req.id();
         qCDebug(clangdLog) << "sending symbol info request";
         q->sendContent(req);
     }
+
+    const DocumentUri defLinkUri
+            = DocumentUri::fromFilePath(followSymbolData->defLink.targetFilePath);
+    const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
+                              followSymbolData->defLink.targetColumn);
+    AstRequest astRequest(AstParams(TextDocumentIdentifier(defLinkUri),
+                                    Range(defLinkPos, defLinkPos)));
+    astRequest.setResponseCallback([this, id = followSymbolData->id](
+                                   const AstRequest::Response &response) {
+        qCDebug(clangdLog) << "received ast response for def link";
+        if (!followSymbolData || followSymbolData->id != id)
+            return;
+        const auto result = response.result();
+        if (result)
+            followSymbolData->defLinkNode = *result;
+        if (followSymbolData->pendingSymbolInfoRequests.isEmpty())
+            handleDocumentInfoResults();
+    });
+    qCDebug(clangdLog) << "sending ast request for def link";
+    q->sendContent(astRequest);
 }
 
 void ClangdClient::Private::handleDocumentInfoResults()
@@ -1034,12 +1078,24 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
     for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
         const auto item = new CppTools::VirtualFunctionProposalItem(
                     symbol.second, m_data->followSymbolData->openInSplit);
-        item->setText(symbol.first);
+        QString text = symbol.first;
+        if (m_data->followSymbolData->defLink == symbol.second
+                && m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()) {
+            text += " = 0";
+        }
+        item->setText(text);
         items << item;
     }
-    setAsyncProposalAvailable(new CppTools::VirtualFunctionProposal(
-                                  m_data->followSymbolData->cursor.position(),
-                                  items, m_data->followSymbolData->openInSplit));
+    const auto finalProposal = new CppTools::VirtualFunctionProposal(
+                m_data->followSymbolData->cursor.position(),
+                items, m_data->followSymbolData->openInSplit);
+    if (m_data->followSymbolData->isEditorWidgetStillAlive()
+            && m_data->followSymbolData->editorWidget->inTestMode) {
+        m_data->followSymbolData->editorWidget->setProposals(immediateProposalImpl(),
+                                                             finalProposal);
+    } else {
+        setAsyncProposalAvailable(finalProposal);
+    }
 
     m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
     m_data->followSymbolData.reset();
@@ -1048,6 +1104,16 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
 
 TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::immediateProposal(
         const TextEditor::AssistInterface *)
+{
+    if (m_data->followSymbolData->isEditorWidgetStillAlive()
+            && m_data->followSymbolData->editorWidget->inTestMode) {
+        return nullptr;
+    }
+    return immediateProposalImpl();
+}
+
+TextEditor::IAssistProposal *
+ClangdClient::VirtualFunctionAssistProcessor::immediateProposalImpl() const
 {
     QTC_ASSERT(m_data && m_data->followSymbolData, return nullptr);
 

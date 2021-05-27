@@ -98,6 +98,12 @@ public:
     static const QList<QTextEdit::ExtraSelection>
     unselectLeadingWhitespace(const QList<QTextEdit::ExtraSelection> &selections);
 
+#ifdef WITH_TESTS
+signals:
+    void proposalsReady(const TextEditor::IAssistProposal *immediateProposal,
+                        const TextEditor::IAssistProposal *finalProposal);
+#endif
+
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;
@@ -135,6 +141,9 @@ private:
 
     void finalizeInitialization() override;
     void finalizeInitializationAfterDuplication(TextEditorWidget *other) override;
+
+    void setProposals(const TextEditor::IAssistProposal *immediateProposal,
+                      const TextEditor::IAssistProposal *finalProposal) override;
 
     unsigned documentRevision() const;
 
