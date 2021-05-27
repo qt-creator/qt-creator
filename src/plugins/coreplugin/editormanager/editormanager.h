@@ -80,12 +80,11 @@ public:
         DoNotChangeCurrentEditor = 1,
         IgnoreNavigationHistory = 2,
         DoNotMakeVisible = 4,
-        CanContainLineAndColumnNumber = 8,
-        OpenInOtherSplit = 16,
-        DoNotSwitchToDesignMode = 32,
-        DoNotSwitchToEditMode = 64,
-        SwitchSplitIfAlreadyVisible = 128,
-        DoNotRaise = 256
+        OpenInOtherSplit = 8,
+        DoNotSwitchToDesignMode = 16,
+        DoNotSwitchToEditMode = 32,
+        SwitchSplitIfAlreadyVisible = 64,
+        DoNotRaise = 128
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 

@@ -243,9 +243,6 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
            opened editor.
     \value DoNotMakeVisible
            Does not force the editor to become visible.
-    \value CanContainLineAndColumnNumber
-           If the file path contains line and column numbers, opens
-           the file in an editor and jumps to the line and column.
     \value OpenInOtherSplit
            Opens the document in another split of the window.
     \value DoNotSwitchToDesignMode
@@ -3072,8 +3069,6 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
     QFileInfo fi(fileName);
-    if ((flags & CanContainLineAndColumnNumber) && !fi.exists())
-        return openEditorAt(Link::fromString(fileName, true), editorId, flags, newEditor);
     return openEditor(FilePath::fromString(fileName), editorId, flags, newEditor);
 }
 

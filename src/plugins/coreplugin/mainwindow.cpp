@@ -900,26 +900,30 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
                 if (flags & ICore::SwitchMode)
                     ModeManager::activateMode(Id(Constants::MODE_EDIT));
             }
-        } else {
+        } else if (flags & (ICore::SwitchSplitIfAlreadyVisible | ICore::CanContainLineAndColumnNumbers)
+                   || !res) {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
-            if (flags & ICore::CanContainLineAndColumnNumbers)
-                emFlags |=  EditorManager::CanContainLineAndColumnNumber;
             if (flags & ICore::SwitchSplitIfAlreadyVisible)
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;
-            if (emFlags != EditorManager::NoFlags || !res) {
-                IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
-                if (!editor) {
-                    if (flags & ICore::StopOnLoadFail)
-                        return res;
-                } else if (!res) {
-                    res = editor->document();
-                }
+            IEditor *editor = nullptr;
+            if (flags & ICore::CanContainLineAndColumnNumbers) {
+                const Link &link = Link::fromString(absoluteFilePath, true);
+                editor = EditorManager::openEditorAt(link, {}, emFlags);
             } else {
-                auto *factory = IEditorFactory::preferredEditorFactories(absoluteFilePath).value(0);
-                DocumentModelPrivate::addSuspendedDocument(absoluteFilePath,
-                                                           {},
-                                                           factory ? factory->id() : Id());
+                const FilePath &filePath = FilePath::fromString(absoluteFilePath);
+                editor = EditorManager::openEditor(filePath, {}, emFlags);
             }
+            if (!editor) {
+                if (flags & ICore::StopOnLoadFail)
+                    return res;
+            } else if (!res) {
+                res = editor->document();
+            }
+        } else {
+            auto *factory = IEditorFactory::preferredEditorFactories(absoluteFilePath).value(0);
+            DocumentModelPrivate::addSuspendedDocument(absoluteFilePath,
+                                                       {},
+                                                       factory ? factory->id() : Id());
         }
     }
     return res;
