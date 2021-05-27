@@ -508,6 +508,10 @@ jobs:
 
         set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
+        if ("${{ runner.os }}" STREQUAL "Linux")
+          set(ENV{QT_QPA_PLATFORM} "offscreen")
+        endif()
+
         execute_process(
           COMMAND ctest -j ${N} --timeout 5
           WORKING_DIRECTORY build/build
