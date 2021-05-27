@@ -2437,45 +2437,45 @@ public:
                                          const CppTools::WorkingCopy &workingCopy) :
         m_snapshot(s), m_workingCopy(workingCopy) {}
 
-    unsigned fixLineNumber(const QString &fileName, unsigned lineNumber) const;
+    unsigned fixLineNumber(const Utils::FilePath &filePath, unsigned lineNumber) const;
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
     CppTools::WorkingCopy m_workingCopy;
 };
 
-static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
+static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePath,
                                                   const CppTools::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
     QByteArray src;
-    if (workingCopy.contains(fileName)) {
-        src = workingCopy.source(fileName);
-    } else {
-        FileReader reader;
-        if (reader.fetch(Utils::FilePath::fromString(fileName))) // ### FIXME error reporting
-            src = QString::fromLocal8Bit(reader.data()).toUtf8();
-    }
+    if (workingCopy.contains(filePath))
+        src = workingCopy.source(filePath);
+    else
+        src = QString::fromLocal8Bit(filePath.fileContents()).toUtf8();
 
-    CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, fileName);
+    CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, filePath.toString());
     doc->parse();
     return doc;
 }
 
-unsigned BreakpointCorrectionContext::fixLineNumber(const QString &fileName,
+unsigned BreakpointCorrectionContext::fixLineNumber(const Utils::FilePath &filePath,
                                                     unsigned lineNumber) const
 {
-    const CPlusPlus::Document::Ptr doc = getParsedDocument(fileName, m_workingCopy, m_snapshot);
+    const CPlusPlus::Document::Ptr doc = getParsedDocument(filePath,
+                                                           m_workingCopy,
+                                                           m_snapshot);
     CPlusPlus::FindCdbBreakpoint findVisitor(doc->translationUnit());
     const unsigned correctedLine = findVisitor(lineNumber);
     if (!correctedLine) {
         qWarning("Unable to find breakpoint location for %s:%d",
-                 qPrintable(QDir::toNativeSeparators(fileName)), lineNumber);
+                 qPrintable(filePath.toUserOutput()),
+                 lineNumber);
         return lineNumber;
     }
     if (debug)
         qDebug("Code model: Breakpoint line %u -> %u in %s",
-               lineNumber, correctedLine, qPrintable(fileName));
+               lineNumber, correctedLine, qPrintable(filePath.toString()));
     return correctedLine;
 }
 
@@ -2490,7 +2490,7 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     if (!m_autoBreakPointCorrection
             && parameters.type == BreakpointByFileAndLine
             && debuggerSettings()->cdbBreakPointCorrection.value()) {
-        response.lineNumber = int(lineCorrection->fixLineNumber(parameters.fileName.toString(),
+        response.lineNumber = int(lineCorrection->fixLineNumber(parameters.fileName,
                                                                 unsigned(parameters.lineNumber)));
         QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
