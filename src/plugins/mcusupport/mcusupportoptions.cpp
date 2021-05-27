@@ -643,7 +643,8 @@ static void setKitToolchains(Kit *k, const McuToolChainPackage *tcPackage)
 {
     // No Green Hills toolchain, because support for it is missing.
     if (tcPackage->type() == McuToolChainPackage::TypeUnsupported
-        || tcPackage->type() == McuToolChainPackage::TypeGHS)
+        || tcPackage->type() == McuToolChainPackage::TypeGHS
+        || tcPackage->type() == McuToolChainPackage::TypeGHSArm)
         return;
 
     ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
@@ -660,6 +661,7 @@ static void setKitDebugger(Kit *k, const McuToolChainPackage *tcPackage)
             // No Green Hills and IAR debugger, because support for it is missing.
             || tcPackage->type() == McuToolChainPackage::TypeUnsupported
             || tcPackage->type() == McuToolChainPackage::TypeGHS
+            || tcPackage->type() == McuToolChainPackage::TypeGHSArm
             || tcPackage->type() == McuToolChainPackage::TypeIAR)
         return;
 
@@ -719,7 +721,8 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const QString
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
     // CMake ToolChain file for ghs handles CMAKE_*_COMPILER autonomously
-    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeGHS) {
+    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeGHS &&
+            mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeGHSArm) {
         config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
         config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
     }
