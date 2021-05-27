@@ -76,6 +76,7 @@ ResultsTreeView::ResultsTreeView(QWidget *parent)
     : Utils::TreeView(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
+    setFrameStyle(NoFrame);
 }
 
 void ResultsTreeView::keyPressEvent(QKeyEvent *event)
