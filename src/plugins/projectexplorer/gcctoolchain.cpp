@@ -89,7 +89,7 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
     cpp.setTimeoutS(10);
     cpp.setCommand({gcc, arguments});
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
+    if (cpp.result() != QtcProcess::FinishedWithSuccess || cpp.exitCode() != 0) {
         Core::MessageManager::writeFlashing({"Compiler feature detection failure!",
                                              cpp.exitMessage(),
                                              QString::fromUtf8(cpp.allRawOutput())});

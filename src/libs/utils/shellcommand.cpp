@@ -280,7 +280,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
         stdOut += proc.stdOut();
         stdErr += proc.stdErr();
         d->m_lastExecExitCode = proc.exitCode();
-        d->m_lastExecSuccess = proc.result() == QtcProcess::Finished;
+        d->m_lastExecSuccess = proc.result() == QtcProcess::FinishedWithSuccess;
         if (!d->m_lastExecSuccess)
             break;
     }
@@ -334,7 +334,7 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
-        if (proc.result() == QtcProcess::Finished) {
+        if (proc.result() == QtcProcess::FinishedWithSuccess) {
             if (d->m_flags & ShowSuccessMessage)
                 emit proxy->appendMessage(proc.exitMessage());
         } else if (!(d->m_flags & SuppressFailMessage)) {

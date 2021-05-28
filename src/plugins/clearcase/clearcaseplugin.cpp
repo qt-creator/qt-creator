@@ -1675,7 +1675,7 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
     command.setCodec(outputCodec);
     command.runCommand(proc, {executable, arguments});
 
-    response.error = proc.result() != QtcProcess::Finished;
+    response.error = proc.result() != QtcProcess::FinishedWithSuccess;
     if (response.error)
         response.message = proc.exitMessage();
     response.stdErr = proc.stdErr();
@@ -2361,7 +2361,7 @@ QString ClearCasePluginPrivate::runExtDiff(const QString &workingDir, const QStr
     process.setCommand(diff);
     process.setProcessUserEventWhileRunning();
     process.runBlocking();
-    if (process.result() != QtcProcess::Finished)
+    if (process.result() != QtcProcess::FinishedWithSuccess)
         return QString();
     return process.allOutput();
 }

@@ -94,7 +94,7 @@ bool SubversionClient::doCommit(const QString &repositoryRoot,
     SynchronousProcess proc;
     vcsSynchronousExec(proc, repositoryRoot, args << svnExtraOptions << escapeFiles(files),
                        VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
-    return proc.result() == QtcProcess::Finished;
+    return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
 void SubversionClient::commit(const QString &repositoryRoot,
@@ -153,7 +153,7 @@ QString SubversionClient::synchronousTopic(const QString &repository) const
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
     SynchronousProcess proc;
     vcsFullySynchronousExec(proc, repository, {svnVersionBinary, args});
-    if (proc.result() != QtcProcess::Finished)
+    if (proc.result() != QtcProcess::FinishedWithSuccess)
         return QString();
 
     return proc.stdOut().trimmed();

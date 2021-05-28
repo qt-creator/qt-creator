@@ -422,7 +422,7 @@ QString PluginManager::systemInformation()
     SynchronousProcess qtDiagProc;
     qtDiagProc.setCommand(qtDiag);
     qtDiagProc.runBlocking();
-    if (qtDiagProc.result() == QtcProcess::Finished)
+    if (qtDiagProc.result() == QtcProcess::FinishedWithSuccess)
         result += qtDiagProc.allOutput() + "\n";
     result += "Plugin information:\n\n";
     auto longestSpec = std::max_element(d->pluginSpecs.cbegin(), d->pluginSpecs.cend(),

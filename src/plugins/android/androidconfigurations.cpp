@@ -161,7 +161,7 @@ namespace {
                 proc.setTimeoutS(30);
                 proc.setCommand({executable, {shell}});
                 proc.runBlocking();
-                if (proc.result() != QtcProcess::Finished)
+                if (proc.result() != QtcProcess::FinishedWithSuccess)
                     return true;
                 return !proc.allOutput().contains("x86-64");
             }
@@ -565,7 +565,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
     CommandLine cmd{adbToolPath, {"devices"}};
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::Finished) {
+    if (adbProc.result() != QtcProcess::FinishedWithSuccess) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration", "Could not run: %1")
                 .arg(cmd.toUserOutput());
@@ -634,7 +634,7 @@ QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QStr
     adbProc.setTimeoutS(10);
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::Finished)
+    if (adbProc.result() != QtcProcess::FinishedWithSuccess)
         return QString();
 
     return adbProc.allOutput();
@@ -732,7 +732,7 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
     adbProc.setTimeoutS(10);
     adbProc.setCommand({adbToolPath, arguments});
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::Finished)
+    if (adbProc.result() != QtcProcess::FinishedWithSuccess)
         return result;
 
     QString output = adbProc.allOutput().trimmed();
@@ -755,7 +755,7 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
         abiProc.setTimeoutS(10);
         abiProc.setCommand({adbToolPath, arguments});
         abiProc.runBlocking();
-        if (abiProc.result() != QtcProcess::Finished)
+        if (abiProc.result() != QtcProcess::FinishedWithSuccess)
             return result;
 
         QString abi = abiProc.allOutput().trimmed();

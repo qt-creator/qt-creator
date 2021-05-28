@@ -223,7 +223,7 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
         return m_exitCodeInterpreter(exitCode);
 
     // default:
-    return exitCode ? QtcProcess::FinishedError : QtcProcess::Finished;
+    return exitCode ? QtcProcess::FinishedWithError : QtcProcess::FinishedWithSuccess;
 }
 
 } // Internal
@@ -775,9 +775,9 @@ QString QtcProcess::exitMessage()
 {
     const QString fullCmd = commandLine().toUserOutput();
     switch (result()) {
-    case Finished:
+    case FinishedWithSuccess:
         return QtcProcess::tr("The command \"%1\" finished successfully.").arg(fullCmd);
-    case FinishedError:
+    case FinishedWithError:
         return QtcProcess::tr("The command \"%1\" terminated with exit code %2.")
             .arg(fullCmd).arg(exitCode());
     case TerminatedAbnormally:
@@ -971,7 +971,7 @@ void SynchronousProcess::runBlocking()
 
         waitForFinished();
 
-        d->m_result = QtcProcess::Finished;
+        d->m_result = QtcProcess::FinishedWithSuccess;
         d->m_exitCode = exitCode();
         return;
     };

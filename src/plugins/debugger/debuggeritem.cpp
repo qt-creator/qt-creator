@@ -188,7 +188,7 @@ void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
     proc.setEnvironment(sysEnv);
     proc.setCommand({m_command, {version}});
     proc.runBlocking();
-    if (proc.result() != QtcProcess::Finished) {
+    if (proc.result() != QtcProcess::FinishedWithSuccess) {
         m_engineType = NoEngineType;
         return;
     }

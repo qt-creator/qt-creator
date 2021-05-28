@@ -88,7 +88,7 @@ static QString pythonName(const FilePath &pythonPath)
         pythonProcess.setTimeoutS(2);
         pythonProcess.setCommand({pythonPath, {"--version"}});
         pythonProcess.runBlocking();
-        if (pythonProcess.result() != QtcProcess::Finished)
+        if (pythonProcess.result() != QtcProcess::FinishedWithSuccess)
             return {};
         name = pythonProcess.allOutput().trimmed();
         nameForPython[pythonPath] = name;

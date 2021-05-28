@@ -1282,10 +1282,10 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     response.stdErr = process.stdErr();
     response.stdOut = process.stdOut();
     switch (process.result()) {
-    case QtcProcess::Finished:
+    case QtcProcess::FinishedWithSuccess:
         response.error = false;
         break;
-    case QtcProcess::FinishedError:
+    case QtcProcess::FinishedWithError:
         response.message = msgExitCode(process.exitCode());
         response.error = !(flags & IgnoreExitCode);
         break;

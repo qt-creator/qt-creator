@@ -160,7 +160,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     proc.runBlocking();
     if (output)
         *output = proc.allOutput();
-    return proc.result() == QtcProcess::Finished;
+    return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
 /*!
@@ -207,7 +207,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                                       "The operation requires user interaction. "
                                                       "Use the \"sdkmanager\" command-line tool.");
     } else {
-        output.success = proc.result() == QtcProcess::Finished;
+        output.success = proc.result() == QtcProcess::FinishedWithSuccess;
     }
 }
 

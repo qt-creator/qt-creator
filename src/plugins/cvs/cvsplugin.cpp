@@ -204,8 +204,8 @@ public:
     {
         if (cmd == DiffCommand) {
             return [](int code) {
-                return (code < 0 || code > 2) ? QtcProcess::FinishedError
-                                              : QtcProcess::Finished;
+                return (code < 0 || code > 2) ? QtcProcess::FinishedWithError
+                                              : QtcProcess::FinishedWithSuccess;
             };
         }
         return {};
@@ -1458,10 +1458,10 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
     response.stdErr = proc.stdErr();
     response.stdOut = proc.stdOut();
     switch (proc.result()) {
-    case QtcProcess::Finished:
+    case QtcProcess::FinishedWithSuccess:
         response.result = CvsResponse::Ok;
         break;
-    case QtcProcess::FinishedError:
+    case QtcProcess::FinishedWithError:
         response.result = CvsResponse::NonNullExitCode;
         break;
     case QtcProcess::TerminatedAbnormally:

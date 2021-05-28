@@ -283,19 +283,19 @@ TextEditor::Keywords CMakeTool::keywords()
     if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
         SynchronousProcess proc;
         runCMake(proc, {"--help-command-list"}, 5);
-        if (proc.result() == QtcProcess::Finished)
+        if (proc.result() == QtcProcess::FinishedWithSuccess)
             m_introspection->m_functions = proc.stdOut().split('\n');
 
         runCMake(proc, {"--help-commands"}, 5);
-        if (proc.result() == QtcProcess::Finished)
+        if (proc.result() == QtcProcess::FinishedWithSuccess)
             parseFunctionDetailsOutput(proc.stdOut());
 
         runCMake(proc, {"--help-property-list"}, 5);
-        if (proc.result() == QtcProcess::Finished)
+        if (proc.result() == QtcProcess::FinishedWithSuccess)
             m_introspection->m_variables = parseVariableOutput(proc.stdOut());
 
         runCMake(proc, {"--help-variable-list"}, 5);
-        if (proc.result() == QtcProcess::Finished) {
+        if (proc.result() == QtcProcess::FinishedWithSuccess) {
             m_introspection->m_variables.append(parseVariableOutput(proc.stdOut()));
             m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
             Utils::sort(m_introspection->m_variables);
@@ -485,7 +485,7 @@ void CMakeTool::fetchFromCapabilities() const
     SynchronousProcess cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
-    if (cmake.result() == QtcProcess::Finished) {
+    if (cmake.result() == QtcProcess::FinishedWithSuccess) {
         m_introspection->m_didRun = true;
         parseFromCapabilities(cmake.stdOut());
     } else {

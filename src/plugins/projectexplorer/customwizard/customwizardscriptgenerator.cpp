@@ -115,7 +115,7 @@ static bool
     process.setCommand(cmd);
     process.setProcessUserEventWhileRunning();
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::Finished) {
+    if (process.result() != Utils::QtcProcess::FinishedWithSuccess) {
         *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty()) {

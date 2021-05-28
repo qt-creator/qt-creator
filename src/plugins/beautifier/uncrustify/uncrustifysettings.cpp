@@ -152,7 +152,7 @@ void UncrustifySettings::createDocumentationFile() const
     process.setTimeoutS(2);
     process.setCommand({command(), {"--show-config"}});
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::Finished)
+    if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
         return;
 
     QFile file(documentationFilePath());

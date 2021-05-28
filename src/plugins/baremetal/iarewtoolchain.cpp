@@ -113,7 +113,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
 
     cpp.setCommand(cmd);
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::Finished || cpp.exitCode() != 0) {
+    if (cpp.result() != QtcProcess::FinishedWithSuccess || cpp.exitCode() != 0) {
         qWarning() << cpp.exitMessage();
         return {};
     }

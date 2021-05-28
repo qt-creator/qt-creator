@@ -89,7 +89,7 @@ static bool runCommand(const CommandLine &command, QString *stdOutput, QString *
         *stdOutput = p.stdOut();
     if (allOutput)
         *allOutput = p.allOutput();
-    return p.result() == QtcProcess::Finished;
+    return p.result() == QtcProcess::FinishedWithSuccess;
 }
 
 static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutput = nullptr)

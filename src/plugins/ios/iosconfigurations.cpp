@@ -237,7 +237,7 @@ static QByteArray decodeProvisioningProfile(const QString &path)
     // path is assumed to be valid file path to .mobileprovision
     p.setCommand({"openssl", {"smime", "-inform", "der", "-verify", "-in", path}});
     p.runBlocking();
-    if (p.result() != Utils::QtcProcess::Finished)
+    if (p.result() != Utils::QtcProcess::FinishedWithSuccess)
         qCDebug(iosCommonLog) << "Reading signed provisioning file failed" << path;
     return p.stdOut().toLatin1();
 }

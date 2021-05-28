@@ -203,8 +203,8 @@ public:
         case QtcProcess::Hang:
             m_fi.reportCanceled();
             break;
-        case QtcProcess::Finished:
-        case QtcProcess::FinishedError:
+        case QtcProcess::FinishedWithSuccess:
+        case QtcProcess::FinishedWithError:
             // When no results are found, git-grep exits with non-zero status.
             // Do not consider this as an error.
             break;

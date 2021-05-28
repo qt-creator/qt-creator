@@ -61,16 +61,21 @@ public:
     ~QtcProcess();
 
     enum Result {
-        // Finished with return code 0
-        Finished,
-        // Finished with return code != 0
-        FinishedError,
+        // Finished successfully. Unless an ExitCodeInterpreter is set
+        // this corresponds to a return code 0.
+        FinishedWithSuccess,
+        Finished = FinishedWithSuccess, // FIXME: Kept to ease downstream transition
+        // Finished unsuccessfully. Unless an ExitCodeInterpreter is set
+        // this corresponds to a return code different from 0.
+        FinishedWithError,
+        FinishedError = FinishedWithError, // FIXME: Kept to ease downstream transition
         // Process terminated abnormally (kill)
         TerminatedAbnormally,
         // Executable could not be started
         StartFailed,
         // Hang, no output after time out
-        Hang };
+        Hang
+    };
 
     void setEnvironment(const Environment &env);
     const Environment &environment() const;

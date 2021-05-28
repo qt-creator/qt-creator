@@ -86,7 +86,7 @@ static int updateVersionHelper(const Utils::FilePath &command)
     Utils::SynchronousProcess process;
     process.setCommand({command, {"--version"}});
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::Finished)
+    if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
         return 0;
 
     // Astyle prints the version on stdout or stderr, depending on platform
@@ -184,7 +184,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     process.setTimeoutS(2);
     process.setCommand({command(), {"-h"}});
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::Finished)
+    if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
         return;
 
     QFile file(documentationFilePath());

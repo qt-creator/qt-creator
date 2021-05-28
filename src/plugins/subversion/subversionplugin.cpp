@@ -1029,7 +1029,7 @@ SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
     SynchronousProcess proc;
     m_client->vcsFullySynchronousExec(proc, workingDir, arguments, flags, timeOutS, outputCodec);
 
-    response.error = proc.result() != QtcProcess::Finished;
+    response.error = proc.result() != QtcProcess::FinishedWithSuccess;
     if (response.error)
         response.message = proc.exitMessage();
     response.stdErr = proc.stdErr();

@@ -72,7 +72,7 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
-    if (proc.result() == Utils::QtcProcess::Finished) {
+    if (proc.result() == Utils::QtcProcess::FinishedWithSuccess) {
         if (output)
             *output = proc.allOutput();
         return true;
@@ -204,7 +204,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     proc.setTimeoutS(5);
     proc.setCommand(command);
     proc.runBlocking();
-    return proc.result() == QtcProcess::Finished && proc.exitCode() == 0;
+    return proc.result() == QtcProcess::FinishedWithSuccess && proc.exitCode() == 0;
 }
 
 static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
@@ -354,7 +354,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::Finished)
+    if (adbProc.result() != QtcProcess::FinishedWithSuccess)
         return false;
     QString value = adbProc.allOutput().trimmed();
     return value == "stopped";
