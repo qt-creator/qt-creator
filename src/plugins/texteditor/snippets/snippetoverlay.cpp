@@ -77,8 +77,9 @@ void SnippetOverlay::updateEquivalentSelections(const QTextCursor &cursor)
     }
 }
 
-void SnippetOverlay::mangle()
+void SnippetOverlay::accept()
 {
+    hide();
     for (int i = 0; i < m_selections.size(); ++i) {
         if (NameMangler *mangler = m_selections[i].mangler) {
             QTextCursor cursor = cursorForIndex(i);
@@ -91,6 +92,7 @@ void SnippetOverlay::mangle()
             }
         }
     }
+    clear();
 }
 
 bool SnippetOverlay::hasCursorInSelection(const QTextCursor &cursor) const

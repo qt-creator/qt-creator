@@ -2276,9 +2276,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (e->key() == Qt::Key_Escape
                 && d->m_snippetOverlay->isVisible()) {
             e->accept();
-            d->m_snippetOverlay->hide();
-            d->m_snippetOverlay->mangle();
-            d->m_snippetOverlay->clear();
+            d->m_snippetOverlay->accept();
             QTextCursor cursor = textCursor();
             cursor.clearSelection();
             setTextCursor(cursor);
@@ -2321,9 +2319,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
         if (d->m_snippetOverlay->isVisible()) {
             e->accept();
-            d->m_snippetOverlay->hide();
-            d->m_snippetOverlay->mangle();
-            d->m_snippetOverlay->clear();
+            d->m_snippetOverlay->accept();
             QTextCursor cursor = textCursor();
             cursor.movePosition(QTextCursor::EndOfBlock);
             setTextCursor(cursor);
@@ -2738,8 +2734,7 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     cursor.removeSelectedText();
     const int startCursorPosition = cursor.position();
 
-    d->m_snippetOverlay->mangle();
-    d->m_snippetOverlay->clear();
+    d->m_snippetOverlay->accept();
 
     QList<PositionedPart> positionedParts;
     for (const ParsedSnippet::Part &part : qAsConst(data.parts)) {
@@ -2783,13 +2778,10 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     cursor = d->m_snippetOverlay->firstSelectionCursor();
     if (!cursor.isNull()) {
         setTextCursor(cursor);
-        if (d->m_snippetOverlay->isFinalSelection(cursor)) {
-            d->m_snippetOverlay->mangle();
-            d->m_snippetOverlay->clear();
-            d->m_snippetOverlay->setVisible(false);
-        } else {
+        if (d->m_snippetOverlay->isFinalSelection(cursor))
+            d->m_snippetOverlay->accept();
+        else
             d->m_snippetOverlay->setVisible(true);
-        }
     }
 }
 
@@ -3485,9 +3477,7 @@ bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
     if (!m_snippetOverlay->hasCursorInSelection(start)
         || !m_snippetOverlay->hasCursorInSelection(end)
         || m_snippetOverlay->hasFirstSelectionBeginMoved()) {
-        m_snippetOverlay->setVisible(false);
-        m_snippetOverlay->mangle();
-        m_snippetOverlay->clear();
+        m_snippetOverlay->accept();
         return false;
     }
     return true;
@@ -3500,11 +3490,8 @@ void TextEditorWidgetPrivate::snippetTabOrBacktab(bool forward)
     QTextCursor cursor = forward ? m_snippetOverlay->nextSelectionCursor(q->textCursor())
                                  : m_snippetOverlay->previousSelectionCursor(q->textCursor());
     q->setTextCursor(cursor);
-    if (m_snippetOverlay->isFinalSelection(cursor)) {
-        m_snippetOverlay->setVisible(false);
-        m_snippetOverlay->mangle();
-        m_snippetOverlay->clear();
-    }
+    if (m_snippetOverlay->isFinalSelection(cursor))
+        m_snippetOverlay->accept();
 }
 
 // Calculate global position for a tooltip considering the left extra area.
@@ -6143,11 +6130,9 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
             cursor.deletePreviousChar();
             handled = true;
         } else {
-            if (cursorWithinSnippet) {
-                m_snippetOverlay->mangle();
-                m_snippetOverlay->clear();
-                cursorWithinSnippet = false;
-            }
+            if (cursorWithinSnippet)
+                m_snippetOverlay->accept();
+            cursorWithinSnippet = false;
             int previousIndent = 0;
             const int indent = tabSettings.columnAt(blockText, positionInBlock);
             for (QTextBlock previousNonEmptyBlock = currentBlock.previous();
@@ -6176,11 +6161,9 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                 cursor.beginEditBlock();
             cursor.deletePreviousChar();
         } else {
-            if (cursorWithinSnippet) {
-                m_snippetOverlay->mangle();
-                m_snippetOverlay->clear();
-                cursorWithinSnippet = false;
-            }
+            if (cursorWithinSnippet)
+                m_snippetOverlay->accept();
+            cursorWithinSnippet = false;
             q->unindent();
         }
         handled = true;
@@ -7753,12 +7736,8 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
         return;
     }
 
-    if (d->m_snippetOverlay->isVisible() && (text.contains(QLatin1Char('\n'))
-                                             || text.contains(QLatin1Char('\t')))) {
-        d->m_snippetOverlay->hide();
-        d->m_snippetOverlay->mangle();
-        d->m_snippetOverlay->clear();
-    }
+    if (d->m_snippetOverlay->isVisible() && (text.contains('\n') || text.contains('\t')))
+        d->m_snippetOverlay->accept();
 
     const TypingSettings &tps = d->m_document->typingSettings();
     QTextCursor cursor = textCursor();
@@ -8517,11 +8496,8 @@ QTextBlock TextEditorWidget::blockForVerticalOffset(int offset) const
 
 void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
-    if (kind == QuickFix && d->m_snippetOverlay->isVisible()) {
-        d->m_snippetOverlay->setVisible(false);
-        d->m_snippetOverlay->mangle();
-        d->m_snippetOverlay->clear();
-    }
+    if (kind == QuickFix && d->m_snippetOverlay->isVisible())
+        d->m_snippetOverlay->accept();
 
     bool previousMode = overwriteMode();
     setOverwriteMode(false);

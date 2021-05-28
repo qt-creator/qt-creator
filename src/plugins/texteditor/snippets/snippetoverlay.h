@@ -49,7 +49,7 @@ public:
     void setFinalSelection(const QTextCursor &cursor, const QColor &color);
 
     void updateEquivalentSelections(const QTextCursor &cursor);
-    void mangle();
+    void accept();
 
     bool hasCursorInSelection(const QTextCursor &cursor) const;
 
