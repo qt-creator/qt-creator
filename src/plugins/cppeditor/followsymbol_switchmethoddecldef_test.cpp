@@ -505,7 +505,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
     if (useClangd) {
-        QEXPECT_FAIL("allOverrides from base declaration", "FIXME: too many results", Abort);
         QEXPECT_FAIL("noSiblings_references", "FIXME: too many results", Abort);
         QEXPECT_FAIL("noSiblings_pointers", "FIXME: too many results", Abort);
         QEXPECT_FAIL("noSiblings_noBaseExpression", "FIXME: too many results", Abort);

@@ -1158,7 +1158,11 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
     QList<TextEditor::AssistProposalItemInterface *> items;
     for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
         Utils::Link link = symbol.second;
-        const bool isOriginalLink = m_data->followSymbolData->defLink == symbol.second;
+        const bool isOriginalLink = m_data->followSymbolData->defLink == link;
+        if (isOriginalLink && m_data->followSymbolData->defLinkNode.range()
+                .contains(Position(m_data->followSymbolData->cursor))) {
+            continue;
+        }
         if (!isOriginalLink) {
             const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
             if (defLink.hasValidTarget())
