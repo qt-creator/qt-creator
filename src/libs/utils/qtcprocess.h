@@ -179,8 +179,6 @@ signals:
 
     void readyReadStandardOutput();
     void readyReadStandardError();
-    void readyRead();
-
 
 private:
     friend class SynchronousProcess;
