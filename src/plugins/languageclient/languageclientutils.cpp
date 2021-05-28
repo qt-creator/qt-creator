@@ -97,7 +97,7 @@ bool applyTextEdits(const DocumentUri &uri, const QList<TextEdit> &edits)
         return true;
     RefactoringChanges changes;
     RefactoringFilePtr file;
-    file = changes.file(uri.toFilePath().toString());
+    file = changes.file(uri.toFilePath());
     file->setChangeSet(editsToChangeSet(edits, file->document()));
     return file->apply();
 }

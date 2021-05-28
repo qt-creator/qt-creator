@@ -172,7 +172,8 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     // parse the target file to get the linked decl/def
     const QString targetFileName = QString::fromUtf8(
                 target->fileName(), target->fileNameLength());
-    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(targetFileName);
+    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(
+        Utils::FilePath::fromString(targetFileName));
     if (!targetFile->isValid())
         return noResult;
 
@@ -220,7 +221,8 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // find the start/end offsets
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->fileName());
+    CppRefactoringFilePtr sourceFile = refactoringChanges.file(
+        Utils::FilePath::fromString(doc->fileName()));
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
@@ -280,7 +282,7 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
 
     // first verify the interesting region of the target file is unchanged
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
+    CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->filePath());
     if (!newTargetFile->isValid())
         return;
     const int targetStart = newTargetFile->position(targetLine, targetColumn);

@@ -109,9 +109,10 @@ public:
     RefactoringChanges() {}
     virtual ~RefactoringChanges() {}
 
-    RefactoringFilePtr file(const QString &filePath) const
+    RefactoringFilePtr file(const Utils::FilePath &filePath) const
     {
-        return RefactoringFilePtr(new RefactoringFile(std::unique_ptr<QTextDocument>(new QTextDocument(readFile(filePath)))));
+        return RefactoringFilePtr(new RefactoringFile(
+            std::unique_ptr<QTextDocument>(new QTextDocument(readFile(filePath.toString())))));
     }
 };
 

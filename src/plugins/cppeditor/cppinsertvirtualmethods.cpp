@@ -786,8 +786,8 @@ public:
         printer.showTemplateParameters = true;
         Utils::ChangeSet headerChangeSet;
         const CppRefactoringChanges refactoring(snapshot());
-        const QString filename = currentFile()->fileName();
-        const CppRefactoringFilePtr headerFile = refactoring.file(filename);
+        const Utils::FilePath filePath = currentFile()->filePath();
+        const CppRefactoringFilePtr headerFile = refactoring.file(filePath);
         const LookupContext targetContext(headerFile->cppDocument(), snapshot());
 
         const Class *targetClass = m_classAST->symbol;
@@ -905,7 +905,8 @@ public:
             if (!clazz)
                 return;
 
-            CppRefactoringFilePtr implementationFile = refactoring.file(m_cppFileName);
+            CppRefactoringFilePtr implementationFile = refactoring.file(
+                Utils::FilePath::fromString(m_cppFileName));
             Utils::ChangeSet implementationChangeSet;
             const int insertPos = qMax(0, implementationFile->document()->characterCount() - 1);
 

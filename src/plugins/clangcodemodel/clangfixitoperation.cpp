@@ -78,7 +78,8 @@ void ClangFixItOperation::perform()
         const QString filePath = i.key();
         const QVector<ClangBackEnd::FixItContainer> fixits = i.value();
 
-        RefactoringFilePtr refactoringFile = refactoringChanges.file(filePath);
+        RefactoringFilePtr refactoringFile = refactoringChanges.file(
+            Utils::FilePath::fromString(filePath));
         refactoringFiles.append(refactoringFile);
 
         applyFixitsToFile(*refactoringFile, fixits);

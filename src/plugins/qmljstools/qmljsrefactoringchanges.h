@@ -56,7 +56,8 @@ public:
     bool isCursorOn(QmlJS::SourceLocation loc) const;
 
 protected:
-    QmlJSRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+    QmlJSRefactoringFile(const Utils::FilePath &filePath,
+                         const QSharedPointer<TextEditor::RefactoringChangesData> &data);
     QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
 
     QmlJSRefactoringChangesData *data() const;
@@ -76,7 +77,7 @@ public:
 
     static QmlJSRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                         const QmlJS::Document::Ptr &document);
-    QmlJSRefactoringFilePtr file(const QString &fileName) const;
+    QmlJSRefactoringFilePtr file(const Utils::FilePath &filePath) const;
 
     const QmlJS::Snapshot &snapshot() const;
 

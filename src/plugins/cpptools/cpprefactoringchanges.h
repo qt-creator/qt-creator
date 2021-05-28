@@ -67,8 +67,8 @@ public:
     QString textOf(const CPlusPlus::AST *ast) const;
 
 protected:
-    CppRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
-    CppRefactoringFile(QTextDocument *document, const QString &fileName);
+    CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+    CppRefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
     explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
     CppRefactoringChangesData *data() const;
@@ -86,9 +86,9 @@ public:
 
     static CppRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                       const CPlusPlus::Document::Ptr &document);
-    CppRefactoringFilePtr file(const QString &fileName) const;
+    CppRefactoringFilePtr file(const Utils::FilePath &filePath) const;
     // safe to use from non-gui threads
-    CppRefactoringFileConstPtr fileNoEditor(const QString &fileName) const;
+    CppRefactoringFileConstPtr fileNoEditor(const Utils::FilePath &filePath) const;
 
     const CPlusPlus::Snapshot &snapshot() const;
 

@@ -47,13 +47,13 @@ namespace CppTools {
 
 class CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
-    static std::unique_ptr<TextEditor::Indenter> createIndenter(const QString &fileName,
+    static std::unique_ptr<TextEditor::Indenter> createIndenter(const Utils::FilePath &filePath,
                                                                 QTextDocument *textDocument)
     {
         TextEditor::ICodeStylePreferencesFactory *factory
             = TextEditor::TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
         std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter(textDocument));
-        indenter->setFileName(Utils::FilePath::fromString(fileName));
+        indenter->setFileName(filePath);
         return indenter;
     }
 
@@ -65,34 +65,36 @@ public:
     {}
 
     void indentSelection(const QTextCursor &selection,
-                         const QString &fileName,
+                         const Utils::FilePath &filePath,
                          const TextEditor::TextDocument *textDocument) const override
     {
         if (textDocument) { // use the indenter from the textDocument if there is one, can be ClangFormat
             textDocument->indenter()->indent(selection, QChar::Null, textDocument->tabSettings());
         } else {
-            const auto &tabSettings = ProjectExplorer::actualTabSettings(fileName, textDocument);
-            auto indenter = createIndenter(fileName, selection.document());
+            const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath.toString(),
+                                                                         textDocument);
+            auto indenter = createIndenter(filePath, selection.document());
             indenter->indent(selection, QChar::Null, tabSettings);
         }
     }
 
     void reindentSelection(const QTextCursor &selection,
-                           const QString &fileName,
+                           const Utils::FilePath &filePath,
                            const TextEditor::TextDocument *textDocument) const override
     {
         if (textDocument) { // use the indenter from the textDocument if there is one, can be ClangFormat
             textDocument->indenter()->reindent(selection, textDocument->tabSettings());
         } else {
-            const auto &tabSettings = ProjectExplorer::actualTabSettings(fileName, textDocument);
-            auto indenter = createIndenter(fileName, selection.document());
+            const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath.toString(),
+                                                                         textDocument);
+            auto indenter = createIndenter(filePath, selection.document());
             indenter->reindent(selection, tabSettings);
         }
     }
 
-    void fileChanged(const QString &fileName) override
+    void fileChanged(const Utils::FilePath &filePath) override
     {
-        m_modelManager->updateSourceFiles(QSet<QString>() << fileName);
+        m_modelManager->updateSourceFiles({filePath.toString()});
     }
 
     Snapshot m_snapshot;
@@ -118,18 +120,19 @@ CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *
     return result;
 }
 
-CppRefactoringFilePtr CppRefactoringChanges::file(const QString &fileName) const
+CppRefactoringFilePtr CppRefactoringChanges::file(const Utils::FilePath &filePath) const
 {
-    CppRefactoringFilePtr result(new CppRefactoringFile(fileName, m_data));
+    CppRefactoringFilePtr result(new CppRefactoringFile(filePath, m_data));
     return result;
 }
 
-CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const QString &fileName) const
+CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const Utils::FilePath &filePath) const
 {
     QTextDocument *document = nullptr;
+    const QString fileName = filePath.toString();
     if (data()->m_workingCopy.contains(fileName))
         document = new QTextDocument(QString::fromUtf8(data()->m_workingCopy.source(fileName)));
-    CppRefactoringFilePtr result(new CppRefactoringFile(document, fileName));
+    CppRefactoringFilePtr result(new CppRefactoringFile(document, filePath));
     result->m_data = m_data;
 
     return result;
@@ -140,15 +143,15 @@ const Snapshot &CppRefactoringChanges::snapshot() const
     return data()->m_snapshot;
 }
 
-CppRefactoringFile::CppRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
-    : RefactoringFile(fileName, data)
+CppRefactoringFile::CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
+    : RefactoringFile(filePath, data)
 {
     const Snapshot &snapshot = this->data()->m_snapshot;
-    m_cppDocument = snapshot.document(fileName);
+    m_cppDocument = snapshot.document(filePath.toString());
 }
 
-CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const QString &fileName)
-    : RefactoringFile(document, fileName)
+CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const Utils::FilePath &filePath)
+    : RefactoringFile(document, filePath)
 { }
 
 CppRefactoringFile::CppRefactoringFile(TextEditor::TextEditorWidget *editor)
@@ -160,7 +163,7 @@ Document::Ptr CppRefactoringFile::cppDocument() const
     if (!m_cppDocument || !m_cppDocument->translationUnit() ||
             !m_cppDocument->translationUnit()->ast()) {
         const QByteArray source = document()->toPlainText().toUtf8();
-        const QString name = fileName();
+        const QString name = filePath().toString();
         const Snapshot &snapshot = data()->m_snapshot;
 
         m_cppDocument = snapshot.preprocessedDocument(source, name);

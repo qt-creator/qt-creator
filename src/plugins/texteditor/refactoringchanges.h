@@ -25,14 +25,15 @@
 
 #pragma once
 
-#include <utils/changeset.h>
-#include <utils/textfileformat.h>
 #include <texteditor/texteditor_global.h>
+#include <utils/changeset.h>
+#include <utils/fileutils.h>
+#include <utils/textfileformat.h>
 
 #include <QList>
-#include <QString>
-#include <QSharedPointer>
 #include <QPair>
+#include <QSharedPointer>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -54,7 +55,6 @@ class TEXTEDITOR_EXPORT RefactoringFile
 public:
     using Range = Utils::ChangeSet::Range;
 
-public:
     virtual ~RefactoringFile();
 
     bool isValid() const;
@@ -62,7 +62,7 @@ public:
     const QTextDocument *document() const;
     // mustn't use the cursor to change the document
     const QTextCursor cursor() const;
-    QString fileName() const;
+    Utils::FilePath filePath() const;
     TextEditorWidget *editor() const;
 
     // converts 1-based line and column into 0-based source offset
@@ -84,10 +84,11 @@ public:
 protected:
     // users may only get const access to RefactoringFiles created through
     // this constructor, because it can't be used to apply changes
-    RefactoringFile(QTextDocument *document, const QString &fileName);
+    RefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
 
     RefactoringFile(TextEditorWidget *editor);
-    RefactoringFile(const QString &fileName, const QSharedPointer<RefactoringChangesData> &data);
+    RefactoringFile(const Utils::FilePath &filePath,
+                    const QSharedPointer<RefactoringChangesData> &data);
 
     QTextDocument *mutableDocument() const;
     // derived classes may want to clear language specific extra data
@@ -96,8 +97,7 @@ protected:
     enum IndentType {Indent, Reindent};
     void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
 
-protected:
-    QString m_fileName;
+    Utils::FilePath m_filePath;
     QSharedPointer<RefactoringChangesData> m_data;
     mutable Utils::TextFileFormat m_textFileFormat;
     mutable QTextDocument *m_document = nullptr;
@@ -122,22 +122,27 @@ class TEXTEDITOR_EXPORT RefactoringChanges
 public:
     using Range = Utils::ChangeSet::Range;
 
-public:
     RefactoringChanges();
     virtual ~RefactoringChanges();
 
     static RefactoringFilePtr file(TextEditorWidget *editor);
-    RefactoringFilePtr file(const QString &fileName) const;
-    bool createFile(const QString &fileName, const QString &contents, bool reindent = true, bool openEditor = true) const;
-    bool removeFile(const QString &fileName) const;
+    RefactoringFilePtr file(const Utils::FilePath &filePath) const;
+    bool createFile(const Utils::FilePath &filePath,
+                    const QString &contents,
+                    bool reindent = true,
+                    bool openEditor = true) const;
+    bool removeFile(const Utils::FilePath &filePath) const;
 
 protected:
     explicit RefactoringChanges(RefactoringChangesData *data);
 
-    static TextEditorWidget *openEditor(const QString &fileName, bool activate, int line, int column);
-    static RefactoringSelections rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
+    static TextEditorWidget *openEditor(const Utils::FilePath &filePath,
+                                        bool activate,
+                                        int line,
+                                        int column);
+    static RefactoringSelections rangesToSelections(QTextDocument *document,
+                                                    const QList<Range> &ranges);
 
-protected:
     QSharedPointer<RefactoringChangesData> m_data;
 
     friend class RefactoringFile;
@@ -152,12 +157,12 @@ public:
     virtual ~RefactoringChangesData();
 
     virtual void indentSelection(const QTextCursor &selection,
-                                 const QString &fileName,
+                                 const Utils::FilePath &filePath,
                                  const TextDocument *textEditor) const;
     virtual void reindentSelection(const QTextCursor &selection,
-                                   const QString &fileName,
+                                   const Utils::FilePath &filePath,
                                    const TextDocument *textEditor) const;
-    virtual void fileChanged(const QString &fileName);
+    virtual void fileChanged(const Utils::FilePath &filePath);
 };
 
 } // namespace TextEditor

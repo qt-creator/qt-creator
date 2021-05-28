@@ -47,7 +47,7 @@ public:
     {}
 
     void indentSelection(const QTextCursor &selection,
-                         const QString &fileName,
+                         const Utils::FilePath &filePath,
                          const TextEditor::TextDocument *textDocument) const override
     {
         // ### shares code with QmlJSTextEditor::indent
@@ -57,7 +57,7 @@ public:
         const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
 
         const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(fileName, textDocument);
+            ProjectExplorer::actualTabSettings(filePath.toString(), textDocument);
         CreatorCodeFormatter codeFormatter(tabSettings);
         codeFormatter.updateStateUntil(block);
         do {
@@ -78,19 +78,19 @@ public:
     }
 
     void reindentSelection(const QTextCursor &selection,
-                           const QString &fileName,
+                           const Utils::FilePath &filePath,
                            const TextEditor::TextDocument *textDocument) const override
     {
         const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(fileName, textDocument);
+            ProjectExplorer::actualTabSettings(filePath.toString(), textDocument);
 
         QmlJSEditor::Internal::Indenter indenter(selection.document());
         indenter.reindent(selection, tabSettings);
     }
 
-    void fileChanged(const QString &fileName) override
+    void fileChanged(const Utils::FilePath &filePath) override
     {
-        m_modelManager->updateSourceFiles(QStringList(fileName), true);
+        m_modelManager->updateSourceFiles({filePath.toString()}, true);
     }
 
     ModelManagerInterface *m_modelManager;
@@ -103,9 +103,9 @@ QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelMan
 {
 }
 
-QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(const QString &fileName) const
+QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(const Utils::FilePath &filePath) const
 {
-    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(fileName, m_data));
+    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data));
 }
 
 QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(
@@ -124,12 +124,13 @@ QmlJSRefactoringChangesData *QmlJSRefactoringChanges::data() const
     return static_cast<QmlJSRefactoringChangesData *>(m_data.data());
 }
 
-QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
-    : RefactoringFile(fileName, data)
+QmlJSRefactoringFile::QmlJSRefactoringFile(
+    const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
+    : RefactoringFile(filePath, data)
 {
     // the RefactoringFile is invalid if its not for a file with qml or js code
-    if (ModelManagerInterface::guessLanguageOfFile(fileName) == Dialect::NoLanguage)
-        m_fileName.clear();
+    if (ModelManagerInterface::guessLanguageOfFile(filePath.toString()) == Dialect::NoLanguage)
+        m_filePath.clear();
 }
 
 QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, Document::Ptr document)
@@ -137,14 +138,14 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor,
     , m_qmljsDocument(document)
 {
     if (document)
-        m_fileName = document->fileName();
+        m_filePath = Utils::FilePath::fromString(document->fileName());
 }
 
 Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
 {
     if (!m_qmljsDocument) {
         const QString source = document()->toPlainText();
-        const QString name = fileName();
+        const QString name = filePath().toString();
         const Snapshot &snapshot = data()->m_snapshot;
 
         Document::MutablePtr newDoc = snapshot.documentFromSource(source, name,

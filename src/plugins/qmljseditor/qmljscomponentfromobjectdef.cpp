@@ -187,7 +187,8 @@ public:
         // stop if we can't create the new file
         const bool reindent = true;
         const bool openEditor = false;
-        if (!refactoring.createFile(newFileName, newComponentSource, reindent, openEditor))
+        const Utils::FilePath newFilePath = Utils::FilePath::fromString(newFileName);
+        if (!refactoring.createFile(newFilePath, newComponentSource, reindent, openEditor))
             return;
 
         if (path == QFileInfo(currentFileName).path()) {
@@ -264,7 +265,7 @@ void performComponentFromObjectDef(const QString &fileName, QmlJS::AST::UiObject
 {
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
                                         QmlJS::ModelManagerInterface::instance()->snapshot());
-    QmlJSRefactoringFilePtr current = refactoring.file(fileName);
+    QmlJSRefactoringFilePtr current = refactoring.file(Utils::FilePath::fromString(fileName));
 
     QmlJSQuickFixInterface interface;
     Operation operation(interface, objDef);

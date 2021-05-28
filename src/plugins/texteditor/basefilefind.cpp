@@ -519,7 +519,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         const QList<SearchResultItem> changeItems = it.value();
 
         ChangeSet changeSet;
-        RefactoringFilePtr file = refactoring.file(fileName);
+        RefactoringFilePtr file = refactoring.file(FilePath::fromString(fileName));
         QSet<QPair<int, int> > processed;
         for (const SearchResultItem &item : changeItems) {
             const QPair<int, int> &p = qMakePair(item.mainRange().begin.line,

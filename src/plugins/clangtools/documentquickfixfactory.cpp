@@ -70,7 +70,7 @@ void ClangToolQuickFixOperation::perform()
             continue;
         TextEditor::RefactoringFilePtr &refactoringFile = refactoringFiles[step.location.filePath];
         if (refactoringFile.isNull())
-            refactoringFile = changes.file(step.location.filePath);
+            refactoringFile = changes.file(Utils::FilePath::fromString(step.location.filePath));
         Utils::ChangeSet changeSet = refactoringFile->changeSet();
         Range range = toRange(refactoringFile->document(), {step.ranges.first(), step.ranges.last()});
         changeSet.replace(range, step.message);
