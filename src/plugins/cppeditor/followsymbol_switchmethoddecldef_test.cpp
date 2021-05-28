@@ -452,12 +452,9 @@ F2TestCase::F2TestCase(CppEditorAction action,
             QEXPECT_FAIL("QTCREATORBUG-10294_cursorIsAtTheEndOfVirtualFunctionName",
                          "FIXME: clangd behaves differently with cursor at end of function name",
                          Abort);
-            QEXPECT_FAIL("noSiblings_references", "FIXME: clangd traverses only first subclass level",
-                         Abort);
-            QEXPECT_FAIL("noSiblings_pointers", "FIXME: clangd traverses only first subclass level",
-                         Abort);
-            QEXPECT_FAIL("noSiblings_noBaseExpression",
-                         "FIXME: clangd traverses only first subclass level", Abort);
+            QEXPECT_FAIL("noSiblings_references", "FIXME: check why this fails", Abort);
+            QEXPECT_FAIL("noSiblings_pointers", "FIXME: check why this fails", Abort);
+            QEXPECT_FAIL("noSiblings_noBaseExpression", "FIXME: check why this fails", Abort);
             QVERIFY(immediateProposal);
             QVERIFY(finalProposal);
             immediateVirtualSymbolResults = VirtualFunctionTestAssistProvider::itemList(
@@ -516,18 +513,16 @@ F2TestCase::F2TestCase(CppEditorAction action,
         expectedImmediate << OverrideItem(QLatin1String("collecting overrides ..."));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
-    if (useClangd) {
-        QEXPECT_FAIL("allOverrides", "FIXME: clangd traverses only first subclass level", Abort);
-        QEXPECT_FAIL("possibleOverrides1", "FIXME: clangd traverses only first subclass level",
-                     Abort);
-        QEXPECT_FAIL("allOverrides from base declaration",
-                     "FIXME: clangd traverses only first subclass level", Abort);
-        QEXPECT_FAIL("itemOrder", "FIXME: clangd traverses only first subclass level", Abort);
-    }
+    if (useClangd)
+        QEXPECT_FAIL("allOverrides from base declaration", "FIXME: check why this fails", Abort);
     QCOMPARE(finalVirtualSymbolResults.size(), expectedVirtualFunctionProposal.size());
     if (useClangd) {
-         QEXPECT_FAIL("possibleOverrides2", "FIXME: clangd sometimes goes to decl instead of def",
-                      Abort);
+        QEXPECT_FAIL("allOverrides", "FIXME: clangd sometimes goes to decl instead of def", Abort);
+        QEXPECT_FAIL("possibleOverrides1", "FIXME: clangd sometimes goes to decl instead of def",
+                     Abort);
+        QEXPECT_FAIL("possibleOverrides2", "FIXME: clangd sometimes goes to decl instead of def",
+                     Abort);
+        QEXPECT_FAIL("itemOrder", "FIXME: sort items", Abort);
     }
     QCOMPARE(finalVirtualSymbolResults, expectedVirtualFunctionProposal);
 }

@@ -146,6 +146,11 @@ public:
         return role() == "declaration" && kind() == "CXXMethod" && arcanaContains("virtual pure");
     }
 
+    bool isPureVirtualDefinition() const
+    {
+        return role() == "declaration" && kind() == "CXXMethod" && arcanaContains("' pure");
+    }
+
     bool mightBeAmbiguousVirtualCall() const
     {
         if (!isMemberFunctionCall())
@@ -458,6 +463,8 @@ public:
             virtualFuncAssistProcessor->cancel();
         for (const MessageId &id : qAsConst(pendingSymbolInfoRequests))
             q->cancelRequest(id);
+        for (const MessageId &id : qAsConst(pendingGotoImplRequests))
+            q->cancelRequest(id);
     }
 
     void closeTempDocuments()
@@ -484,9 +491,11 @@ public:
     const Utils::ProcessLinkCallback callback;
     VirtualFunctionAssistProvider virtualFuncAssistProvider;
     QList<MessageId> pendingSymbolInfoRequests;
+    QList<MessageId> pendingGotoImplRequests;
     const bool openInSplit;
 
     Utils::Link defLink;
+    QList<Utils::Link> allLinks;
     AstNode cursorNode;
     AstNode defLinkNode;
     SymbolDataList symbolsToDisplay;
@@ -512,6 +521,7 @@ public:
     void finishSearch(const ReferencesData &refData, bool canceled);
 
     void handleGotoDefinitionResult();
+    void sendGotoImplementationRequest(const Utils::Link &link);
     void handleGotoImplementationResult(const GotoImplementationRequest::Response &response);
     void handleDocumentInfoResults();
     void closeTempDocuments();
@@ -570,6 +580,7 @@ ClangdClient::~ClangdClient()
     if (d->followSymbolData) {
         d->followSymbolData->openedFiles.clear();
         d->followSymbolData->pendingSymbolInfoRequests.clear();
+        d->followSymbolData->pendingGotoImplRequests.clear();
     }
     delete d;
 }
@@ -939,52 +950,72 @@ void ClangdClient::Private::handleGotoDefinitionResult()
     // Step 2: Get all possible overrides via "Go to Implementation".
     // Note that we have to do this for all member function calls, because
     // we cannot tell here whether the member function is virtual.
-    const TextDocumentIdentifier documentId(followSymbolData->uri);
-    const Position pos(followSymbolData->cursor);
-    GotoImplementationRequest req(TextDocumentPositionParams(documentId, pos));
-    req.setResponseCallback([this, id = followSymbolData->id](
+    followSymbolData->allLinks << followSymbolData->defLink;
+    sendGotoImplementationRequest(followSymbolData->defLink);
+}
+
+void ClangdClient::Private::sendGotoImplementationRequest(const Utils::Link &link)
+{
+    const Position position(link.targetLine - 1, link.targetColumn);
+    const TextDocumentIdentifier documentId(DocumentUri::fromFilePath(link.targetFilePath));
+    GotoImplementationRequest req(TextDocumentPositionParams(documentId, position));
+    req.setResponseCallback([this, id = followSymbolData->id, reqId = req.id()](
                             const GotoImplementationRequest::Response &response) {
+        qCDebug(clangdLog) << "received go to implementation reply";
         if (!followSymbolData || id != followSymbolData->id)
             return;
+        followSymbolData->pendingGotoImplRequests.removeOne(reqId);
         handleGotoImplementationResult(response);
     });
     q->sendContent(req);
+    followSymbolData->pendingGotoImplRequests << req.id();
+    qCDebug(clangdLog) << "sending go to implementation request" << link.targetLine;
 }
 
 void ClangdClient::Private::handleGotoImplementationResult(
         const GotoImplementationRequest::Response &response)
 {
-    if (!response.result()) {
-        followSymbolData->callback(followSymbolData->defLink);
+    if (const Utils::optional<GotoResult> &result = response.result()) {
+        QList<Utils::Link> newLinks;
+        if (const auto ploc = Utils::get_if<Location>(&*result))
+            newLinks = {ploc->toLink()};
+        if (const auto plloc = Utils::get_if<QList<Location>>(&*result))
+            newLinks = Utils::transform(*plloc, &Location::toLink);
+        for (const Utils::Link &link : qAsConst(newLinks)) {
+            if (!followSymbolData->allLinks.contains(link)) {
+                followSymbolData->allLinks << link;
+
+                // We must do this recursively, because clangd reports only the first
+                // level of overrides.
+                sendGotoImplementationRequest(link);
+            }
+        }
+    }
+
+    // We didn't find any further candidates, so jump to the original definition link.
+    if (followSymbolData->allLinks.size() == 1
+            && followSymbolData->pendingGotoImplRequests.isEmpty()) {
+        followSymbolData->callback(followSymbolData->allLinks.first());
         followSymbolData.reset();
         return;
     }
 
-    QList<Utils::Link> links;
-    const GotoResult result = response.result().value();
-    if (const auto ploc = Utils::get_if<Location>(&result))
-        links = {ploc->toLink()};
-    if (const auto plloc = Utils::get_if<QList<Location>>(&result))
-        links = Utils::transform(*plloc, [](const Location &loc) { return loc.toLink(); });
-    if (!links.contains(followSymbolData->defLink))
-        links.prepend(followSymbolData->defLink);
-    if (links.size() == 1) {
-        followSymbolData->callback(links.first());
-        followSymbolData.reset();
-        return;
-    }
-
-    // Step 3: We found more than one possible target.
-    //         Make a symbol info request for each link to get the class names.
-    //         This is the expensive part, so we must start the code assist procedure now.
-    //         Also get the AST for the base declaration, so we can find out whether it's
-    //         pure virtual and mark it accordingly.
-    if (followSymbolData->isEditorWidgetStillAlive()) {
+    // As soon as we know that there is more than one candidate, we start the code assist
+    // procedure, to let the user know that things are happening.
+    if (followSymbolData->allLinks.size() > 1 && !followSymbolData->virtualFuncAssistProcessor
+            && followSymbolData->isEditorWidgetStillAlive()) {
         followSymbolData->editorWidget->invokeTextEditorWidgetAssist(
                     TextEditor::FollowSymbol, &followSymbolData->virtualFuncAssistProvider);
     }
 
-    for (const Utils::Link &link : links) {
+    if (!followSymbolData->pendingGotoImplRequests.isEmpty())
+        return;
+
+    // Step 3: We are done looking for overrides, and we found at least one.
+    //         Make a symbol info request for each link to get the class names.
+    //         Also get the AST for the base declaration, so we can find out whether it's
+    //         pure virtual and mark it accordingly.
+    for (const Utils::Link &link : qAsConst(followSymbolData->allLinks)) {
         if (!q->documentForFilePath(link.targetFilePath)
                 && followSymbolData->openedFiles.insert(link.targetFilePath).second) {
             q->openExtraFile(link.targetFilePath);
@@ -1080,7 +1111,8 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
                     symbol.second, m_data->followSymbolData->openInSplit);
         QString text = symbol.first;
         if (m_data->followSymbolData->defLink == symbol.second
-                && m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()) {
+                && (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
+                    || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition())) {
             text += " = 0";
         }
         item->setText(text);
