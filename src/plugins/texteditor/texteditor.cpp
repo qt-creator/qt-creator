@@ -8701,9 +8701,7 @@ void TextEditorLinkLabel::mouseReleaseEvent(QMouseEvent *event)
     if (!m_link.hasValidTarget())
         return;
 
-    EditorManager::openEditorAt(m_link.targetFilePath.toString(),
-                                m_link.targetLine,
-                                m_link.targetColumn);
+    EditorManager::openEditorAt(m_link);
 }
 
 //
