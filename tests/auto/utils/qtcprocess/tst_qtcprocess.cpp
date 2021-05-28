@@ -810,6 +810,7 @@ void tst_QtcProcess::exitCode()
 
         QVERIFY(finished);
         QCOMPARE(qtcP.exitCode(), exitCode);
+        QCOMPARE(qtcP.exitCode() == 0, qtcP.result() == QtcProcess::FinishedWithSuccess);
     }
     {
         SynchronousProcess sP;
@@ -818,6 +819,7 @@ void tst_QtcProcess::exitCode()
         sP.runBlocking();
 
         QCOMPARE(sP.exitCode(), exitCode);
+        QCOMPARE(sP.exitCode() == 0, sP.result() == QtcProcess::FinishedWithSuccess);
     }
 }
 
