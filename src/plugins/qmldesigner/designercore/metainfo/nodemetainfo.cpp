@@ -1543,6 +1543,12 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
     } else if (typeName == "alias") {
         // TODO: The QML compiler resolves the alias type. We probably should do the same.
         return variant;
+    } else if (typeName == "<cpp>.double") {
+        return variant.toDouble();
+    } else if (typeName == "<cpp>.float") {
+        return variant.toFloat();
+    } else if (typeName == "<cpp>.int") {
+        return variant.toInt();
     } else if (copyVariant.convert(typeId)) {
         return copyVariant;
     }
