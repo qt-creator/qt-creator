@@ -5,7 +5,6 @@ HEADERS += itemlibraryview.h \
            $$PWD/itemlibraryiconimageprovider.h \
            itemlibrarywidget.h \
            itemlibrarymodel.h \
-           itemlibraryresourceview.h \
            itemlibraryimageprovider.h \
            itemlibraryitem.h \
            itemlibrarycategory.h \
@@ -15,7 +14,11 @@ HEADERS += itemlibraryview.h \
            itemlibraryaddimportmodel.h \
            itemlibraryassetimportdialog.h \
            itemlibraryassetimporter.h \
-           customfilesystemmodel.h \
+           itemlibraryassetsdir.h \
+           itemlibraryassetsdirsmodel.h \
+           itemlibraryassetsfilesmodel.h \
+           itemlibraryassetsiconprovider.h \
+           itemlibraryassetsmodel.h \
            assetimportupdatedialog.h \
            assetimportupdatetreeitem.h \
            assetimportupdatetreeitemdelegate.h \
@@ -26,7 +29,6 @@ SOURCES += itemlibraryview.cpp \
            $$PWD/itemlibraryiconimageprovider.cpp \
            itemlibrarywidget.cpp \
            itemlibrarymodel.cpp \
-           itemlibraryresourceview.cpp \
            itemlibraryimageprovider.cpp \
            itemlibraryitem.cpp \
            itemlibrarycategory.cpp \
@@ -36,7 +38,11 @@ SOURCES += itemlibraryview.cpp \
            itemlibraryaddimportmodel.cpp \
            itemlibraryassetimportdialog.cpp \
            itemlibraryassetimporter.cpp \
-           customfilesystemmodel.cpp \
+           itemlibraryassetsdir.cpp \
+           itemlibraryassetsdirsmodel.cpp \
+           itemlibraryassetsfilesmodel.cpp \
+           itemlibraryassetsiconprovider.cpp \
+           itemlibraryassetsmodel.cpp \
            assetimportupdatedialog.cpp \
            assetimportupdatetreeitem.cpp \
            assetimportupdatetreeitemdelegate.cpp \
