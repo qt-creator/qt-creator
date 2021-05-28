@@ -446,9 +446,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
             });
             t.start(10000);
             l.exec();
-            QEXPECT_FAIL("noSiblings_references", "FIXME: check why this fails", Abort);
-            QEXPECT_FAIL("noSiblings_pointers", "FIXME: check why this fails", Abort);
-            QEXPECT_FAIL("noSiblings_noBaseExpression", "FIXME: check why this fails", Abort);
             QVERIFY(immediateProposal);
             QVERIFY(finalProposal);
             immediateVirtualSymbolResults = VirtualFunctionTestAssistProvider::itemList(
@@ -507,8 +504,12 @@ F2TestCase::F2TestCase(CppEditorAction action,
         expectedImmediate << OverrideItem(QLatin1String("collecting overrides ..."));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
-    if (useClangd)
-        QEXPECT_FAIL("allOverrides from base declaration", "FIXME: check why this fails", Abort);
+    if (useClangd) {
+        QEXPECT_FAIL("allOverrides from base declaration", "FIXME: too many results", Abort);
+        QEXPECT_FAIL("noSiblings_references", "FIXME: too many results", Abort);
+        QEXPECT_FAIL("noSiblings_pointers", "FIXME: too many results", Abort);
+        QEXPECT_FAIL("noSiblings_noBaseExpression", "FIXME: too many results", Abort);
+    }
     QCOMPARE(finalVirtualSymbolResults.size(), expectedVirtualFunctionProposal.size());
     QCOMPARE(finalVirtualSymbolResults, expectedVirtualFunctionProposal);
 }

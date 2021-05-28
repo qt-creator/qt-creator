@@ -156,11 +156,15 @@ public:
     {
         if (!isMemberFunctionCall())
             return false;
-        const Utils::optional<QList<AstNode>> childList = children();
-        if (!childList)
-            return true;
-        for (const AstNode &c : qAsConst(*childList)) {
-            if (c.detailIs("UncheckedDerivedToBase"))
+        bool hasBaseCast = false;
+        bool hasRecordType = false;
+        const QList<AstNode> childList = children().value_or(QList<AstNode>());
+        for (const AstNode &c : childList) {
+            if (!hasBaseCast && c.detailIs("UncheckedDerivedToBase"))
+                hasBaseCast = true;
+            if (!hasRecordType && c.role() == "specifier" && c.kind() == "TypeSpec")
+                hasRecordType = true;
+            if (hasBaseCast && hasRecordType)
                 return false;
         }
         return true;
