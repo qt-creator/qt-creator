@@ -269,11 +269,11 @@ void CMakeBuildSystem::triggerParsing()
     if (m_waitingForScan) {
         qCDebug(cmakeBuildSystemLog) << "Starting TreeScanner";
         QTC_CHECK(m_treeScanner.isFinished());
-        m_treeScanner.asyncScanForFiles(projectDirectory());
-        Core::ProgressManager::addTask(m_treeScanner.future(),
-                                       tr("Scan \"%1\" project tree")
-                                           .arg(project()->displayName()),
-                                       "CMake.Scan.Tree");
+        if (m_treeScanner.asyncScanForFiles(projectDirectory()))
+            Core::ProgressManager::addTask(m_treeScanner.future(),
+                                           tr("Scan \"%1\" project tree")
+                                               .arg(project()->displayName()),
+                                           "CMake.Scan.Tree");
     }
 
     QTC_ASSERT(m_parameters.isValid(), return );
