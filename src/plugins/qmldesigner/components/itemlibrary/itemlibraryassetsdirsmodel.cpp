@@ -26,6 +26,7 @@
 #include "itemlibraryassetsdirsmodel.h"
 #include "itemlibraryassetsmodel.h"
 
+#include <QDebug>
 #include <QMetaProperty>
 
 namespace QmlDesigner {

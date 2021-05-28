@@ -31,6 +31,7 @@
 #include <theme.h>
 #include <hdrimage.h>
 
+#include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 #include <QFont>

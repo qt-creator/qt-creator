@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "itemlibraryassetsfilesmodel.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ItemLibraryAssetsFilesModel::ItemLibraryAssetsFilesModel(QObject *parent)
