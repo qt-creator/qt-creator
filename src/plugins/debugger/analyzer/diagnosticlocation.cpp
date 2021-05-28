@@ -29,7 +29,7 @@ namespace Debugger {
 
 DiagnosticLocation::DiagnosticLocation() = default;
 
-DiagnosticLocation::DiagnosticLocation(const QString &filePath, int line, int column)
+DiagnosticLocation::DiagnosticLocation(const Utils::FilePath &filePath, int line, int column)
     : filePath(filePath), line(line), column(column)
 {
 }

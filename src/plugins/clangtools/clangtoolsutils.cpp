@@ -115,7 +115,7 @@ QString createDiagnosticToolTipString(
             if (!steps.second.isEmpty())
                 steps.second += "<br>";
             steps.second += QString("%1:%2: %3")
-                    .arg(step.location.filePath,
+                    .arg(step.location.filePath.toUserOutput(),
                          lineColumnString(step.location),
                          step.message);
         }
@@ -147,7 +147,7 @@ QString createDiagnosticToolTipString(
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location)
 {
-    return location.filePath + QLatin1Char(':') + QString::number(location.line)
+    return location.filePath.toUserOutput() + QLatin1Char(':') + QString::number(location.line)
             + QLatin1Char(':') + QString::number(location.column);
 }
 

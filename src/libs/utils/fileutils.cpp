@@ -1277,14 +1277,14 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     return res;
 }
 
-FilePath FilePath::pathAppended(const QString &str) const
+FilePath FilePath::pathAppended(const QString &path) const
 {
     FilePath fn = *this;
-    if (str.isEmpty())
+    if (path.isEmpty())
         return fn;
     if (!fn.m_data.isEmpty() && !fn.m_data.endsWith(QLatin1Char('/')))
         fn.m_data.append('/');
-    fn.m_data.append(str);
+    fn.m_data.append(path);
     return fn;
 }
 

@@ -39,7 +39,7 @@ namespace ClangTools {
 namespace Internal {
 
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
-    : TextEditor::TextMark(Utils::FilePath::fromString(diagnostic.location.filePath),
+    : TextEditor::TextMark(diagnostic.location.filePath,
                            diagnostic.location.line,
                            Utils::Id(Constants::DIAGNOSTIC_MARK_ID))
     , m_diagnostic(diagnostic)

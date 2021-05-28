@@ -66,7 +66,7 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
             const auto loc = index.model()->data(index, DetailedErrorView::LocationRole)
                     .value<DiagnosticLocation>();
             if (loc.isValid())
-                Core::EditorManager::openEditorAt(loc.filePath, loc.line, loc.column - 1);
+                Core::EditorManager::openEditorAt(Utils::Link(loc.filePath, loc.line, loc.column - 1));
         }
     });
 
@@ -123,12 +123,12 @@ QVariant DetailedErrorView::locationData(int role, const DiagnosticLocation &loc
         return QVariant::fromValue(location);
     case Qt::DisplayRole:
         return location.isValid() ? QString::fromLatin1("%1:%2:%3")
-                               .arg(QFileInfo(location.filePath).fileName())
+                               .arg(location.filePath.fileName())
                                .arg(location.line)
                                .arg(location.column)
                          : QString();
     case Qt::ToolTipRole:
-        return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath);
+        return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath.toUserOutput());
     case Qt::FontRole: {
         QFont font = QApplication::font();
         font.setUnderline(true);

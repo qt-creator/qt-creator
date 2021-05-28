@@ -27,6 +27,8 @@
 
 #include <debugger/debugger_global.h>
 
+#include <utils/fileutils.h>
+
 #include <QDebug>
 #include <QMetaType>
 #include <QString>
@@ -37,11 +39,11 @@ class DEBUGGER_EXPORT DiagnosticLocation
 {
 public:
     DiagnosticLocation();
-    DiagnosticLocation(const QString &filePath, int line, int column);
+    DiagnosticLocation(const Utils::FilePath &filePath, int line, int column);
 
     bool isValid() const;
 
-    QString filePath;
+    Utils::FilePath filePath;
 
     // Both values start at 1.
     int line = 0;

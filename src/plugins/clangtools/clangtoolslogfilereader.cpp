@@ -155,16 +155,16 @@ public:
              int extraOffset = 0)
         : m_node(node)
         , m_fileCache(fileCache)
-        , m_filePath(QDir::cleanPath(asString(node["FilePath"])))
+        , m_filePath(Utils::FilePath::fromUserInput(asString(node["FilePath"])))
         , m_fileOffsetKey(fileOffsetKey)
         , m_extraOffset(extraOffset)
     {}
 
-    QString filePath() const { return m_filePath; }
+    Utils::FilePath filePath() const { return m_filePath; }
 
     Debugger::DiagnosticLocation toDiagnosticLocation() const
     {
-        FileCache::Item &cacheItem = m_fileCache.item(m_filePath);
+        FileCache::Item &cacheItem = m_fileCache.item(m_filePath.toString());
         const QByteArray fileContents = cacheItem.fileContents();
 
         const char *data = fileContents.data();
@@ -205,7 +205,7 @@ public:
 private:
     const YAML::Node &m_node;
     FileCache &m_fileCache;
-    QString m_filePath;
+    Utils::FilePath m_filePath;
     const char *m_fileOffsetKey = nullptr;
     int m_extraOffset = 0;
 };
@@ -232,10 +232,8 @@ Diagnostics readExportedDiagnostics(const Utils::FilePath &logFilePath,
             Location loc(node, fileCache);
             if (loc.filePath().isEmpty())
                 continue;
-            if (acceptFromFilePath
-                   && !acceptFromFilePath(Utils::FilePath::fromString(loc.filePath()))) {
+            if (acceptFromFilePath && !acceptFromFilePath(loc.filePath()))
                 continue;
-            }
 
             Diagnostic diag;
             diag.location = loc.toDiagnosticLocation();

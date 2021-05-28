@@ -54,11 +54,11 @@ class ClangToolsDiagnosticModel;
 class FilePathItem : public Utils::TreeItem
 {
 public:
-    FilePathItem(const QString &filePath);
+    FilePathItem(const Utils::FilePath &filePath);
     QVariant data(int column, int role) const override;
 
 private:
-    const QString m_filePath;
+    const Utils::FilePath m_filePath;
 };
 
 class DiagnosticMark;
@@ -139,7 +139,7 @@ private:
     void clearAndSetupCache();
 
 private:
-    QHash<QString, FilePathItem *> m_filePathToItem;
+    QHash<Utils::FilePath, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
     std::unique_ptr<QFileSystemWatcher> m_filesWatcher;

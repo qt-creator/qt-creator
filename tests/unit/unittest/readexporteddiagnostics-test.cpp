@@ -112,19 +112,21 @@ static QString appendYamlSuffix(const char *filePathFragment)
 
 TEST_F(ReadExportedDiagnostics, Tidy)
 {
-    const QString sourceFile = TESTDATA "tidy.modernize-use-nullptr.cpp";
+    const Utils::FilePath sourceFile = Utils::FilePath::fromString(
+        TESTDATA "tidy.modernize-use-nullptr.cpp");
     const QString exportedFile = createFile(appendYamlSuffix(TESTDATA "tidy.modernize-use-nullptr"),
-                                            sourceFile);
+                                            sourceFile.toString());
     Diagnostic expectedDiag;
     expectedDiag.name = "modernize-use-nullptr";
     expectedDiag.location = {sourceFile, 2, 25};
     expectedDiag.description = "use nullptr [modernize-use-nullptr]";
     expectedDiag.type = "warning";
     expectedDiag.hasFixits = true;
-    expectedDiag.explainingSteps = {ExplainingStep{"nullptr",
-                                                   expectedDiag.location,
-                                                   {expectedDiag.location, {sourceFile, 2, 26}},
-                                                   true}};
+    expectedDiag.explainingSteps = {
+        ExplainingStep{"nullptr",
+                       expectedDiag.location,
+                       {expectedDiag.location, {sourceFile, 2, 26}},
+                       true}};
 
     Diagnostics diags = readExportedDiagnostics(Utils::FilePath::fromString(exportedFile),
                                                 {},
@@ -151,9 +153,10 @@ TEST_F(ReadExportedDiagnostics, AcceptDiagsFromFilePaths_None)
 // Diagnostics from clang (static) analyzer passed through via clang-tidy
 TEST_F(ReadExportedDiagnostics, Tidy_ClangAnalyzer)
 {
-    const QString sourceFile = TESTDATA "clang-analyzer.dividezero.cpp";
+    const Utils::FilePath sourceFile = Utils::FilePath::fromString(TESTDATA
+                                                                   "clang-analyzer.dividezero.cpp");
     const QString exportedFile = createFile(appendYamlSuffix(TESTDATA "clang-analyzer.dividezero"),
-                                            sourceFile);
+                                            sourceFile.toString());
     Diagnostic expectedDiag;
     expectedDiag.name = "clang-analyzer-core.DivideZero";
     expectedDiag.location = {sourceFile, 4, 15};
@@ -188,8 +191,9 @@ TEST_F(ReadExportedDiagnostics, Tidy_ClangAnalyzer)
 
 TEST_F(ReadExportedDiagnostics, Clazy)
 {
-    const QString sourceFile = TESTDATA "clazy.qgetenv.cpp";
-    const QString exportedFile = createFile(appendYamlSuffix(TESTDATA "clazy.qgetenv"), sourceFile);
+    const Utils::FilePath sourceFile = Utils::FilePath::fromString(TESTDATA "clazy.qgetenv.cpp");
+    const QString exportedFile = createFile(appendYamlSuffix(TESTDATA "clazy.qgetenv"),
+                                            sourceFile.toString());
     Diagnostic expectedDiag;
     expectedDiag.name = "clazy-qgetenv";
     expectedDiag.location = {sourceFile, 7, 5};

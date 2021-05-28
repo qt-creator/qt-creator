@@ -68,9 +68,10 @@ void ClangToolQuickFixOperation::perform()
     for (const ExplainingStep &step : m_diagnostic.explainingSteps) {
         if (!step.isFixIt)
             continue;
-        TextEditor::RefactoringFilePtr &refactoringFile = refactoringFiles[step.location.filePath];
+        TextEditor::RefactoringFilePtr &refactoringFile
+            = refactoringFiles[step.location.filePath.toString()];
         if (refactoringFile.isNull())
-            refactoringFile = changes.file(Utils::FilePath::fromString(step.location.filePath));
+            refactoringFile = changes.file(step.location.filePath);
         Utils::ChangeSet changeSet = refactoringFile->changeSet();
         Range range = toRange(refactoringFile->document(), {step.ranges.first(), step.ranges.last()});
         changeSet.replace(range, step.message);

@@ -222,7 +222,7 @@ void DiagnosticView::suppressCurrentDiagnostic()
             diags << diag;
             continue;
         }
-        Utils::FilePath filePath = Utils::FilePath::fromString(diag.location.filePath);
+        Utils::FilePath filePath = diag.location.filePath;
         const Utils::FilePath relativeFilePath
                 = filePath.relativeChildPath(project->projectDirectory());
         if (!relativeFilePath.isEmpty())
@@ -402,7 +402,7 @@ void DiagnosticView::openEditorForCurrentIndex()
     const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
     const auto loc = v.value<Debugger::DiagnosticLocation>();
     if (loc.isValid())
-        Core::EditorManager::openEditorAt(loc.filePath, loc.line, loc.column - 1);
+        Core::EditorManager::openEditorAt(Utils::Link(loc.filePath, loc.line, loc.column - 1));
 }
 
 } // namespace Internal

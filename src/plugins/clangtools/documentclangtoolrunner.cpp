@@ -264,7 +264,7 @@ void DocumentClangToolRunner::runNext()
 
 static void updateLocation(Debugger::DiagnosticLocation &location)
 {
-    location.filePath = vfso().originalFilePath(Utils::FilePath::fromString(location.filePath)).toString();
+    location.filePath = vfso().originalFilePath(location.filePath);
 }
 
 void DocumentClangToolRunner::onSuccess()
@@ -364,10 +364,9 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
     auto equalsSuppressed = [this, &diagnostic](const SuppressedDiagnostic &suppressed) {
         if (suppressed.description != diagnostic.description)
             return false;
-        QString filePath = suppressed.filePath.toString();
-        QFileInfo fi(filePath);
-        if (fi.isRelative())
-            filePath = m_lastProjectDirectory.toString() + QLatin1Char('/') + filePath;
+        Utils::FilePath filePath = suppressed.filePath;
+        if (filePath.toFileInfo().isRelative())
+            filePath = m_lastProjectDirectory.pathAppended(filePath.toString());
         return filePath == diagnostic.location.filePath;
     };
     return Utils::anyOf(m_suppressed, equalsSuppressed);

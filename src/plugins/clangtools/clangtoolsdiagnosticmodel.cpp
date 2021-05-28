@@ -47,7 +47,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.model", QtWarningMsg)
 namespace ClangTools {
 namespace Internal {
 
-FilePathItem::FilePathItem(const QString &filePath)
+FilePathItem::FilePathItem(const Utils::FilePath &filePath)
     : m_filePath(filePath)
 {}
 
@@ -56,11 +56,11 @@ QVariant FilePathItem::data(int column, int role) const
     if (column == DiagnosticView::DiagnosticColumn) {
         switch (role) {
         case Qt::DisplayRole:
-            return m_filePath;
+            return m_filePath.toUserOutput();
         case Qt::DecorationRole:
-            return Core::FileIconProvider::icon(QFileInfo(m_filePath));
+            return Core::FileIconProvider::icon(m_filePath.toFileInfo());
         case Debugger::DetailedErrorView::FullTextRole:
-            return m_filePath;
+            return m_filePath.toUserOutput();
         default:
             return QVariant();
         }
@@ -119,12 +119,12 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, b
         }
 
         // Create file path item if necessary
-        const QString filePath = d.location.filePath;
+        const Utils::FilePath &filePath = d.location.filePath;
         FilePathItem *&filePathItem = m_filePathToItem[filePath];
         if (!filePathItem) {
             filePathItem = new FilePathItem(filePath);
             rootItem()->appendChild(filePathItem);
-            addWatchedPath(d.location.filePath);
+            addWatchedPath(filePath.toString());
         }
 
         // Add to file path item
@@ -184,7 +184,7 @@ void ClangToolsDiagnosticModel::clearAndSetupCache()
 void ClangToolsDiagnosticModel::onFileChanged(const QString &path)
 {
     forItemsAtLevel<2>([&](DiagnosticItem *item){
-        if (item->diagnostic().location.filePath == path)
+        if (item->diagnostic().location.filePath == Utils::FilePath::fromString(path))
             item->setFixItStatus(FixitStatus::Invalidated);
     });
     removeWatchedPath(path);
@@ -238,7 +238,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
 
 static QString createLocationString(const Debugger::DiagnosticLocation &location)
 {
-    const QString filePath = location.filePath;
+    const QString filePath = location.filePath.toUserOutput();
     const QString lineNumber = QString::number(location.line);
     const QString fileAndLine = filePath + QLatin1Char(':') + lineNumber;
     return QLatin1String("in ") + fileAndLine;
@@ -262,7 +262,7 @@ static QString createExplainingStepString(const ExplainingStep &explainingStep, 
 
 static QString fullText(const Diagnostic &diagnostic)
 {
-    QString text = diagnostic.location.filePath + QLatin1Char(':');
+    QString text = diagnostic.location.filePath.toUserOutput() + QLatin1Char(':');
     text += lineColumnString(diagnostic.location) + QLatin1String(": ");
     if (!diagnostic.category.isEmpty())
         text += diagnostic.category + QLatin1String(": ");
@@ -452,7 +452,9 @@ QVariant ExplainingStepItem::data(int column, int role) const
             return QVariant::fromValue(m_step.location);
         case Debugger::DetailedErrorView::FullTextRole: {
             return QString("%1:%2: %3")
-                .arg(m_step.location.filePath, lineColumnString(m_step.location), m_step.message);
+                .arg(m_step.location.filePath.toUserOutput(),
+                     lineColumnString(m_step.location),
+                     m_step.message);
         }
         case ClangToolsDiagnosticModel::TextRole:
             return m_step.message;
@@ -461,11 +463,12 @@ QVariant ExplainingStepItem::data(int column, int role) const
         case ClangToolsDiagnosticModel::DocumentationUrlRole:
             return parent()->data(column, role);
         case Qt::DisplayRole: {
-            const QString mainFilePath = static_cast<DiagnosticItem *>(parent())->diagnostic().location.filePath;
+            const Utils::FilePath mainFilePath
+                = static_cast<DiagnosticItem *>(parent())->diagnostic().location.filePath;
             const QString locationString
                 = m_step.location.filePath == mainFilePath
                       ? lineColumnString(m_step.location)
-                      : QString("%1:%2").arg(QFileInfo(m_step.location.filePath).fileName(),
+                      : QString("%1:%2").arg(m_step.location.filePath.fileName(),
                                              lineColumnString(m_step.location));
 
             if (m_step.isFixIt) {
@@ -645,10 +648,9 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
         foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
             if (d.description != diag.description)
                 continue;
-            QString filePath = d.filePath.toString();
-            QFileInfo fi(filePath);
-            if (fi.isRelative())
-                filePath = m_lastProjectDirectory.toString() + QLatin1Char('/') + filePath;
+            Utils::FilePath filePath = d.filePath;
+            if (d.filePath.toFileInfo().isRelative())
+                filePath = m_lastProjectDirectory.pathAppended(filePath.toString());
             if (filePath == diag.location.filePath) {
                 diagnosticItem->setTextMarkVisible(false);
                 return false;

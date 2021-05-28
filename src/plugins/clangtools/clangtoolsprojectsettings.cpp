@@ -232,7 +232,7 @@ ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
 }
 
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)
-    : filePath(Utils::FilePath::fromString(diag.location.filePath))
+    : filePath(diag.location.filePath)
     , description(diag.description)
     , uniquifier(diag.explainingSteps.count())
 {

@@ -79,7 +79,7 @@ QVariant DiagnosticItem::data(int column, int role) const
     if (column == DiagnosticsModel::DiagnosticColumn) {
         switch (role) {
         case DetailedErrorView::LocationRole: {
-            const auto location = DiagnosticLocation(m_diagnostic.fileName.toString(),
+            const auto location = DiagnosticLocation(m_diagnostic.fileName,
                                                      m_diagnostic.lineNumber,
                                                      0);
             return QVariant::fromValue(location);
@@ -92,7 +92,7 @@ QVariant DiagnosticItem::data(int column, int role) const
             return getIcon(m_diagnostic.severity);
         case Debugger::DetailedErrorView::FullTextRole:
             return QString("%1:%2: %3")
-                .arg(m_diagnostic.fileName.toString())
+                .arg(m_diagnostic.fileName.toUserOutput())
                 .arg(m_diagnostic.lineNumber)
                 .arg(m_diagnostic.message);
         default:

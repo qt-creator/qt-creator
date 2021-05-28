@@ -175,7 +175,9 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
 
 static QVariant locationData(int role, const Frame &frame)
 {
-    const Debugger::DiagnosticLocation location(frame.filePath(), frame.line(), 0);
+    const Debugger::DiagnosticLocation location(Utils::FilePath::fromString(frame.filePath()),
+                                                frame.line(),
+                                                0);
     return Debugger::DetailedErrorView::locationData(role, location);
 }
 

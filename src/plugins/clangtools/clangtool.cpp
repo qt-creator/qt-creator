@@ -209,7 +209,7 @@ public:
     ApplyFixIts(const QVector<DiagnosticItem *> &diagnosticItems)
     {
         for (DiagnosticItem *diagnosticItem : diagnosticItems) {
-            const QString &filePath = diagnosticItem->diagnostic().location.filePath;
+            const Utils::FilePath &filePath = diagnosticItem->diagnostic().location.filePath;
             QTC_ASSERT(!filePath.isEmpty(), continue);
 
             // Get or create refactoring file
@@ -245,14 +245,14 @@ public:
 
             const Debugger::DiagnosticLocation start = step.ranges.first();
             const Debugger::DiagnosticLocation end = step.ranges.last();
-            const int startPos = file.position(start.filePath, start.line, start.column);
-            const int endPos = file.position(start.filePath, end.line, end.column);
+            const int startPos = file.position(start.filePath.toString(), start.line, start.column);
+            const int endPos = file.position(start.filePath.toString(), end.line, end.column);
 
             auto op = new ReplacementOperation;
             op->pos = startPos;
             op->length = endPos - startPos;
             op->text = step.message;
-            op->fileName = start.filePath;
+            op->fileName = start.filePath.toString();
             op->apply = apply;
 
             replacements += op;
@@ -322,7 +322,7 @@ public:
     }
 
 private:
-    QMap<QString, RefactoringFileInfo> m_refactoringFileInfos;
+    QMap<Utils::FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
 static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &projectParts)
@@ -1119,7 +1119,7 @@ QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
         using CppTools::ProjectFile;
-        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath));
+        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath.toString()));
     });
 }
 
