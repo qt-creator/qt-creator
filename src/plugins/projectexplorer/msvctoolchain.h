@@ -57,7 +57,8 @@ class MsvcToolChain : public ToolChain
 
 public:
     enum Type { WindowsSDK, VS };
-    enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86 };
+    enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86,
+                    x86_arm64, amd64_arm64 };
 
     explicit MsvcToolChain(Utils::Id typeId);
     ~MsvcToolChain() override;

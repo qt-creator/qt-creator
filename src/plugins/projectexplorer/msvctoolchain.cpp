@@ -103,7 +103,9 @@ const MsvcPlatform platforms[]
        {MsvcToolChain::arm, "arm", "/bin/arm", "vcvarsarm.bat"},
        {MsvcToolChain::x86_arm, "x86_arm", "/bin/x86_arm", "vcvarsx86_arm.bat"},
        {MsvcToolChain::amd64_arm, "amd64_arm", "/bin/amd64_arm", "vcvarsamd64_arm.bat"},
-       {MsvcToolChain::amd64_x86, "amd64_x86", "/bin/amd64_x86", "vcvarsamd64_x86.bat"}};
+       {MsvcToolChain::amd64_x86, "amd64_x86", "/bin/amd64_x86", "vcvarsamd64_x86.bat"},
+       {MsvcToolChain::x86_arm64, "x86_arm64", "/bin/x86_arm64", "vcvarsx86_arm64.bat"},
+       {MsvcToolChain::amd64_arm64, "amd64_arm64", "/bin/amd64_arm64", "vcvarsamd64_arm64.bat"}};
 
 static QList<const MsvcToolChain *> g_availableMsvcToolchains;
 
@@ -128,12 +130,13 @@ static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
     switch (Utils::HostOsInfo::hostArchitecture()) {
     case Utils::HostOsInfo::HostArchitectureAMD64:
         if (platform == MsvcToolChain::amd64 || platform == MsvcToolChain::amd64_arm
-            || platform == MsvcToolChain::amd64_x86)
+            || platform == MsvcToolChain::amd64_x86 || platform == MsvcToolChain::amd64_arm64)
             return true;
         Q_FALLTHROUGH(); // all x86 toolchains are also working on an amd64 host
     case Utils::HostOsInfo::HostArchitectureX86:
         return platform == MsvcToolChain::x86 || platform == MsvcToolChain::x86_amd64
-               || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm;
+               || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm
+               || platform == MsvcToolChain::x86_arm64;
     case Utils::HostOsInfo::HostArchitectureArm:
         return platform == MsvcToolChain::arm;
     case Utils::HostOsInfo::HostArchitectureItanium:
@@ -364,6 +367,8 @@ static unsigned char wordWidthForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
     case ProjectExplorer::Internal::MsvcToolChain::ia64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64_arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_arm64:
         return 64;
     }
 
@@ -381,6 +386,8 @@ static Abi::Architecture archForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::arm:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64_arm64:
         return Abi::ArmArchitecture;
     case ProjectExplorer::Internal::MsvcToolChain::ia64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
@@ -899,6 +906,7 @@ QStringList MsvcToolChain::suggestedMkspecList() const
     case Abi::WindowsMsvc2019Flavor:
         return {"win32-msvc",
                 "win32-msvc2019",
+                "win32-arm64-msvc",
                 "winrt-arm-msvc2019",
                 "winrt-x86-msvc2019",
                 "winrt-x64-msvc2019"};
@@ -1272,10 +1280,10 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_varsBatArchCombo->addItem("arm", MsvcToolChain::arm);
     m_varsBatArchCombo->addItem("x86_amd64", MsvcToolChain::x86_amd64);
     m_varsBatArchCombo->addItem("x86_arm", MsvcToolChain::x86_arm);
-//    m_varsBatArchCombo->addItem("x86_arm64", MsvcToolChain::x86_arm64);
+    m_varsBatArchCombo->addItem("x86_arm64", MsvcToolChain::x86_arm64);
     m_varsBatArchCombo->addItem("amd64_x86", MsvcToolChain::amd64_x86);
     m_varsBatArchCombo->addItem("amd64_arm", MsvcToolChain::amd64_arm);
-//    m_varsBatArchCombo->addItem("amd64_arm64", MsvcToolChain::amd64_arm64);
+    m_varsBatArchCombo->addItem("amd64_arm64", MsvcToolChain::amd64_arm64);
     m_varsBatArchCombo->addItem("ia64", MsvcToolChain::ia64);
     m_varsBatArchCombo->addItem("x86_ia64", MsvcToolChain::x86_ia64);
     m_varsBatArgumentsEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -1826,7 +1834,9 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
     const Entry entries[] = {{" (x86)", "x86", Abi::X86Architecture, Abi::PEFormat, 32},
                              {" (x64)", "amd64", Abi::X86Architecture, Abi::PEFormat, 64},
                              {" (x86_arm)", "x86_arm", Abi::ArmArchitecture, Abi::PEFormat, 32},
-                             {" (x64_arm)", "amd64_arm", Abi::ArmArchitecture, Abi::PEFormat, 64}};
+                             {" (x64_arm)", "amd64_arm", Abi::ArmArchitecture, Abi::PEFormat, 32},
+                             {" (x86_arm64)", "x86_arm64", Abi::ArmArchitecture, Abi::PEFormat, 64},
+                             {" (x64_arm64)", "amd64_arm64", Abi::ArmArchitecture, Abi::PEFormat, 64}};
 
     const QString name = "Microsoft Visual C++ Build Tools";
     const QString vcVarsBat = windowsProgramFilesDir() + '/' + name + "/vcbuildtools.bat";
@@ -1915,6 +1925,8 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                                                  MsvcToolChain::arm,
                                                  MsvcToolChain::x86_arm,
                                                  MsvcToolChain::amd64_arm,
+                                                 MsvcToolChain::x86_arm64,
+                                                 MsvcToolChain::amd64_arm64,
                                                  MsvcToolChain::ia64,
                                                  MsvcToolChain::x86_ia64};
 

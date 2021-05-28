@@ -240,6 +240,10 @@ static Abis parseCoffHeader(const QByteArray &data)
         arch = Abi::ArmArchitecture;
         width = 32;
         break;
+    case 0xaa64: // ARM64
+        arch = Abi::ArmArchitecture;
+        width = 64;
+        break;
     case 0x8664: // x86_64
         arch = Abi::X86Architecture;
         width = 64;
