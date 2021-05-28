@@ -1162,10 +1162,12 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
         const auto item = new CppTools::VirtualFunctionProposalItem(
                     link, m_data->followSymbolData->openInSplit);
         QString text = symbol.first;
-        if (isOriginalLink
-                && (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
-                    || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition())) {
-            text += " = 0";
+        if (isOriginalLink) {
+            item->setOrder(1000); // Ensure base declaration is on top.
+            if (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
+                    || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition()) {
+                text += " = 0";
+            }
         }
         item->setText(text);
         items << item;

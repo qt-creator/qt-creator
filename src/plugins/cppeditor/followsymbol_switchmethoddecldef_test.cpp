@@ -516,8 +516,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
     if (useClangd)
         QEXPECT_FAIL("allOverrides from base declaration", "FIXME: check why this fails", Abort);
     QCOMPARE(finalVirtualSymbolResults.size(), expectedVirtualFunctionProposal.size());
-    if (useClangd)
-        QEXPECT_FAIL("itemOrder", "FIXME: sort items", Abort);
     QCOMPARE(finalVirtualSymbolResults, expectedVirtualFunctionProposal);
 }
 
