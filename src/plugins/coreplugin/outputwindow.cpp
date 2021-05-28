@@ -148,9 +148,8 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
             Core::ICore::settings()->setValueWithDefault(d->settingsKey, fontZoom(), 0.f);
     });
 
-    connect(outputFormatter(), &OutputFormatter::openInEditorRequested, this,
-            [](const Utils::FilePath &fp, int line, int column) {
-        EditorManager::openEditorAt(fp.toString(), line, column);
+    connect(outputFormatter(), &OutputFormatter::openInEditorRequested, this, [](const Link &link) {
+        EditorManager::openEditorAt(link);
     });
 
     connect(verticalScrollBar(), &QAbstractSlider::actionTriggered,

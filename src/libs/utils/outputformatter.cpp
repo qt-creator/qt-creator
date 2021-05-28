@@ -28,6 +28,7 @@
 #include "algorithm.h"
 #include "ansiescapecodehandler.h"
 #include "fileinprojectfinder.h"
+#include "link.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
 #include "theme/theme.h"
@@ -72,15 +73,14 @@ bool OutputLineParser::isLinkTarget(const QString &target)
     return target.startsWith(*linkPrefix());
 }
 
-void OutputLineParser::parseLinkTarget(const QString &target, FilePath &filePath, int &line,
-                                       int &column)
+Link OutputLineParser::parseLinkTarget(const QString &target)
 {
     const QStringList parts = target.mid(linkPrefix()->length()).split(*linkSep());
     if (parts.isEmpty())
-        return;
-    filePath = FilePath::fromString(parts.first());
-    line = parts.length() > 1 ? parts.at(1).toInt() : 0;
-    column = parts.length() > 2 ? parts.at(2).toInt() : 0;
+        return {};
+    return Link(FilePath::fromString(parts.first()),
+                parts.length() > 1 ? parts.at(1).toInt() : 0,
+                parts.length() > 2 ? parts.at(2).toInt() : 0);
 }
 
 // The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
@@ -528,12 +528,10 @@ bool OutputFormatter::handleFileLink(const QString &href)
 {
     if (!OutputLineParser::isLinkTarget(href))
         return false;
-    FilePath filePath;
-    int line;
-    int column;
-    OutputLineParser::parseLinkTarget(href, filePath, line, column);
-    QTC_ASSERT(!filePath.isEmpty(), return false);
-    emit openInEditorRequested(filePath, line, column);
+
+    Link link = OutputLineParser::parseLinkTarget(href);
+    QTC_ASSERT(!link.targetFilePath.isEmpty(), return false);
+    emit openInEditorRequested(link);
     return true;
 }
 

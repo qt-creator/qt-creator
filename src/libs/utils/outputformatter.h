@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace Utils {
 class FileInProjectFinder;
 class FormattedText;
+class Link;
 
 class QTCREATOR_UTILS_EXPORT OutputLineParser : public QObject
 {
@@ -72,7 +73,7 @@ public:
     };
 
     static bool isLinkTarget(const QString &target);
-    static void parseLinkTarget(const QString &target, FilePath &filePath, int &line, int &column);
+    static Utils::Link parseLinkTarget(const QString &target);
 
     void addSearchDir(const Utils::FilePath &dir);
     void dropSearchDir(const Utils::FilePath &dir);
@@ -172,7 +173,7 @@ private:
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 
 signals:
-    void openInEditorRequested(const FilePath &filePath, int line, int column);
+    void openInEditorRequested(const Utils::Link &link);
 
 private:
     void doAppendMessage(const QString &text, OutputFormat format);

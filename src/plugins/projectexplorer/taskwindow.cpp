@@ -52,6 +52,8 @@
 #include <QToolButton>
 #include <QScrollBar>
 
+using namespace Utils;
+
 namespace {
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
 const char SESSION_FILTER_CATEGORIES[] = "TaskWindow.Categories";
@@ -86,13 +88,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
 
-    class Location {
-    public:
-        Utils::FilePath file;
-        int line;
-        int column;
-    };
-    Location locationForPos(const QPoint &pos);
+    Utils::Link locationForPos(const QPoint &pos);
 
     bool m_linksActive = true;
     Qt::MouseButton m_mouseButtonPressed = Qt::NoButton;
@@ -229,9 +225,9 @@ void TaskView::mousePressEvent(QMouseEvent *e)
 void TaskView::mouseReleaseEvent(QMouseEvent *e)
 {
     if (m_linksActive && m_mouseButtonPressed == Qt::LeftButton) {
-        const Location loc = locationForPos(e->pos());
-        if (!loc.file.isEmpty()) {
-            Core::EditorManager::openEditorAt(loc.file.toString(), loc.line, loc.column, {},
+        const Link loc = locationForPos(e->pos());
+        if (!loc.targetFilePath.isEmpty()) {
+            Core::EditorManager::openEditorAt(loc, {},
                                               Core::EditorManager::SwitchSplitIfAlreadyVisible);
         }
     }
@@ -248,23 +244,20 @@ void TaskView::mouseMoveEvent(QMouseEvent *e)
     if (m_mouseButtonPressed != Qt::NoButton)
         m_linksActive = false;
 
-    viewport()->setCursor(m_linksActive && !locationForPos(e->pos()).file.isEmpty()
+    viewport()->setCursor(m_linksActive && !locationForPos(e->pos()).targetFilePath.isEmpty()
                           ? Qt::PointingHandCursor : Qt::ArrowCursor);
     ListView::mouseMoveEvent(e);
 }
 
-TaskView::Location TaskView::locationForPos(const QPoint &pos)
+Link TaskView::locationForPos(const QPoint &pos)
 {
     const auto delegate = qobject_cast<TaskDelegate *>(itemDelegate(indexAt(pos)));
     if (!delegate)
         return {};
-    Utils::OutputFormatter formatter;
-    Location loc;
-    connect(&formatter, &Utils::OutputFormatter::openInEditorRequested, this,
-            [&loc](const Utils::FilePath &fp, int line, int column) {
-        loc.file = fp;
-        loc.line = line;
-        loc.column = column;
+    OutputFormatter formatter;
+    Link loc;
+    connect(&formatter, &OutputFormatter::openInEditorRequested, this, [&loc](const Link &link) {
+        loc = link;
     });
 
     const QString href = delegate->hrefForPos(pos);
