@@ -9,10 +9,14 @@ add_qtc_test(tst_debugger_disassembler
 
 option(WITH_DEBUGGER_DUMPERS "Include tests for debugger pretty printers" ON)
 if (WITH_DEBUGGER_DUMPERS)
+  get_target_property(qmake_binary Qt5::qmake IMPORTED_LOCATION)
+
   add_qtc_test(tst_debugger_dumpers
     TIMEOUT 0
     DEPENDS Qt5::Network Utils
-    DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+    DEFINES
+      DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+      DEFAULT_QMAKE_BINARY="${qmake_binary}"
     INCLUDES
       "${DEBUGGERDIR}"
     SOURCES

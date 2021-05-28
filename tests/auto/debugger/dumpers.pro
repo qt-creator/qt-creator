@@ -64,8 +64,10 @@ HEADERS += \
 
 !isEmpty(vcproj) {
     DEFINES += DUMPERDIR=\"$$DUMPERDIR\"
+    DEFINES += DEFAULT_QMAKE_BINARY=\"qmake\"
 } else {
     DEFINES += DUMPERDIR=\\\"$$DUMPERDIR\\\"
+    DEFINES += DEFAULT_QMAKE_BINARY=\\\"qmake\\\"
 }
 
 INCLUDEPATH += $$DEBUGGERDIR

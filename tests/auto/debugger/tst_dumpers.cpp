@@ -1189,7 +1189,7 @@ void tst_Dumpers::initTestCase()
 
     m_qmakeBinary = QDir::fromNativeSeparators(QString::fromLocal8Bit(qgetenv("QTC_QMAKE_PATH_FOR_TEST")));
     if (m_qmakeBinary.isEmpty())
-        m_qmakeBinary = "qmake";
+        m_qmakeBinary = DEFAULT_QMAKE_BINARY;
     if (qEnvironmentVariableIntValue("QTC_USE_CMAKE_FOR_TEST"))
         m_buildSystem = BuildSystem::CMake;
 
