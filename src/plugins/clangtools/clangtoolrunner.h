@@ -73,7 +73,7 @@ protected:
 
 private:
     void onProcessOutput();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onProcessFinished();
     void onProcessError(QProcess::ProcessError error);
 
     QString commandlineAndOutput() const;
@@ -81,7 +81,6 @@ private:
 private:
     QString m_outputDirPath;
     Utils::QtcProcess *m_process = nullptr;
-    QByteArray m_processOutput;
 
     QString m_name;
     QString m_executable;
