@@ -89,7 +89,7 @@ protected:
 private:
     void readError();
     void readOutput();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onProcessFinished();
 };
 
 } // namespace LanguageClient

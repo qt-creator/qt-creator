@@ -112,7 +112,7 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const override;
 
-    void handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleLldbFinished();
     void handleLldbError(QProcess::ProcessError error);
     void readLldbStandardOutput();
     void readLldbStandardError();

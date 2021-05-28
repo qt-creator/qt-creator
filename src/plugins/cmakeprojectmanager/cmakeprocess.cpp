@@ -183,7 +183,7 @@ void CMakeProcess::processStandardError()
     });
 }
 
-void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
+void CMakeProcess::handleProcessFinished()
 {
     QTC_ASSERT(m_process && m_future, return);
 
@@ -192,8 +192,9 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     processStandardOutput();
     processStandardError();
 
+    const int code = m_process->exitCode();
     QString msg;
-    if (status != QProcess::NormalExit) {
+    if (m_process->exitStatus() != QProcess::NormalExit) {
         if (m_processWasCanceled) {
             msg = tr("CMake process was canceled by the user.");
         } else {

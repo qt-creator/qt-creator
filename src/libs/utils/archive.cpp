@@ -224,7 +224,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         archive->m_process,
         &QtcProcess::finished,
         archive,
-        [archive](int, QProcess::ExitStatus) {
+        [archive] {
             if (!archive->m_process)
                 return;
             archive->finished(archive->m_process->result() == QtcProcess::FinishedWithSuccess);

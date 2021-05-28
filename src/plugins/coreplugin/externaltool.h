@@ -135,7 +135,7 @@ public:
 
 private:
     void started();
-    void finished(int exitCode, QProcess::ExitStatus status);
+    void finished();
     void error(QProcess::ProcessError error);
     void readStandardOutput();
     void readStandardError();

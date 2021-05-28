@@ -55,7 +55,7 @@ public:
 
 signals:
     void started();
-    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void finished();
     void error(QProcess::ProcessError error);
 
 private:
@@ -63,7 +63,7 @@ private:
 
     void onProcessReadyReadStdOut();
     void onProcessReadyReadStdErr();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onProcessFinished();
     void onProcessError(QProcess::ProcessError processError);
 
     void startWinRtRunner(const RunConf &conf);

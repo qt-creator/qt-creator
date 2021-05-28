@@ -61,7 +61,7 @@ private:
     void readOutput();
     void readError();
     void handleStarted();
-    void handleFinished(int);
+    void handleFinished();
 
     CppcheckTool &m_tool;
     Utils::QtcProcess *m_process = nullptr;

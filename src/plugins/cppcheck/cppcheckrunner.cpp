@@ -170,7 +170,7 @@ void CppcheckRunner::handleStarted()
     m_tool.startParsing();
 }
 
-void CppcheckRunner::handleFinished(int)
+void CppcheckRunner::handleFinished()
 {
     if (m_process->error() != QProcess::FailedToStart) {
         m_tool.finishParsing();

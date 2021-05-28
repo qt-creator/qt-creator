@@ -55,7 +55,7 @@ public:
                 QString *newText, int *selectionStart, int *selectionLength) const override;
 
 private:
-    void finished(int exitCode, QProcess::ExitStatus status);
+    void finished();
     void readStandardOutput();
     void readStandardError();
     void runHeadCommand();

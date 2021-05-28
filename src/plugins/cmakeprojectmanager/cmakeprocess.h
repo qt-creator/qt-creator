@@ -64,12 +64,13 @@ public:
     void processStandardError();
 
     int lastExitCode() const { return m_lastExitCode; }
+
 signals:
     void started();
     void finished();
 
 private:
-    void handleProcessFinished(int code, QProcess::ExitStatus status);
+    void handleProcessFinished();
     void checkForCancelled();
 
     std::unique_ptr<Utils::QtcProcess> m_process;

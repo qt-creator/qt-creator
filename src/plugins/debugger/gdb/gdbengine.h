@@ -111,7 +111,7 @@ private: ////////// General Interface //////////
     // The engine is still running just fine, but it failed to acquire a debuggee.
     void notifyInferiorSetupFailedHelper(const QString &msg);
 
-    void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleGdbFinished();
     void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();

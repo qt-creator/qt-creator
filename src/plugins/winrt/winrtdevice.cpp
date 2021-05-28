@@ -179,8 +179,10 @@ void WinRtDeviceFactory::onProcessError()
         tr("Error while executing winrtrunner: %1").arg(m_process->errorString()));
 }
 
-void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void WinRtDeviceFactory::onProcessFinished()
 {
+    int exitCode = m_process->exitCode();
+    QProcess::ExitStatus exitStatus = m_process->exitStatus();
     qCDebug(winrtDeviceLog) << __FUNCTION__ << "Exit code:" << exitCode <<"\tExit status:"
                             << exitStatus;
     if (exitStatus == QProcess::CrashExit) {

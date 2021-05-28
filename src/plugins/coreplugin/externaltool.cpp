@@ -679,9 +679,9 @@ void ExternalToolRunner::started()
     m_process->closeWriteChannel();
 }
 
-void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
+void ExternalToolRunner::finished()
 {
-    if (status == QProcess::NormalExit && exitCode == 0
+    if (m_process->result() == QtcProcess::FinishedWithSuccess
             &&  (m_tool->outputHandling() == ExternalTool::ReplaceSelection
                  || m_tool->errorHandling() == ExternalTool::ReplaceSelection)) {
         ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);

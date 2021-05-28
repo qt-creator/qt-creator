@@ -107,7 +107,7 @@ private:
     };
 
     void processError(QProcess::ProcessError);
-    void processFinished(int exitCode, QProcess::ExitStatus);
+    void processFinished();
     void processReadyReadStandardError();
     void processReadyReadStandardOutput();
 
@@ -176,14 +176,14 @@ void FetchContext::start()
     m_process.closeWriteChannel();
 }
 
-void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
+void FetchContext::processFinished()
 {
-    if (es != QProcess::NormalExit) {
+    if (m_process.exitStatus() != QProcess::NormalExit) {
         handleError(tr("%1 crashed.").arg(m_git.toUserOutput()));
         return;
     }
-    if (exitCode) {
-        handleError(tr("%1 returned %2.").arg(m_git.toUserOutput()).arg(exitCode));
+    if (m_process.exitCode()) {
+        handleError(tr("%1 returned %2.").arg(m_git.toUserOutput()).arg(m_process.exitCode()));
         return;
     }
     if (m_state == FetchState) {

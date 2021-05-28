@@ -292,15 +292,16 @@ private:
                 .arg(m_killTimer.isActive() ? tr("user") : tr("time out")));
     }
 
-    void installFinished(int exitCode, QProcess::ExitStatus exitStatus)
+    void installFinished()
     {
         m_future.reportFinished();
-        if (exitStatus == QProcess::NormalExit && exitCode == 0) {
+        if (m_process.result() == QtcProcess::FinishedWithSuccess) {
             if (Client *client = registerLanguageServer(m_python))
                 LanguageClientManager::openDocumentWithClient(m_document, client);
         } else {
             Core::MessageManager::writeFlashing(
-                tr("Installing the Python language server failed with exit code %1").arg(exitCode));
+                tr("Installing the Python language server failed with exit code %1")
+                    .arg(m_process.exitCode()));
         }
         deleteLater();
     }

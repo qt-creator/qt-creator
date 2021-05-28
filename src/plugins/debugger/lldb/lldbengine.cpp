@@ -820,9 +820,9 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
     }
 }
 
-void LldbEngine::handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void LldbEngine::handleLldbFinished()
 {
-    notifyDebuggerProcessFinished(exitCode, exitStatus, "LLDB");
+    notifyDebuggerProcessFinished(m_lldbProc.exitCode(), m_lldbProc.exitStatus(), "LLDB");
 }
 
 void LldbEngine::readLldbStandardError()

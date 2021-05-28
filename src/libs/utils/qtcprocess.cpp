@@ -192,6 +192,7 @@ public:
     QTimer m_timer;
     QEventLoop m_eventLoop;
     QtcProcess::Result m_result = QtcProcess::StartFailed;
+    QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     int m_exitCode = -1;
     FilePath m_binary;
     ChannelBuffer m_stdOut;
@@ -1079,13 +1080,14 @@ void QtcProcessPrivate::slotTimeout()
     }
 }
 
-void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus e)
+void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << exitCode << e;
+        qDebug() << Q_FUNC_INFO << exitCode << status;
     m_hangTimerCount = 0;
+    m_exitStatus = status;
 
-    switch (e) {
+    switch (status) {
     case QProcess::NormalExit:
         m_result = interpretExitCode(exitCode);
         m_exitCode = exitCode;
@@ -1098,7 +1100,7 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus e)
         break;
     }
     m_eventLoop.quit();
-    emit q->finished(m_exitCode, e);
+    emit q->finished();
 }
 
 void QtcProcessPrivate::slotError(QProcess::ProcessError e)

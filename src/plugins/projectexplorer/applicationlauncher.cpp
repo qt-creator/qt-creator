@@ -138,8 +138,9 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
             this, &ApplicationLauncherPrivate::readLocalStandardOutput);
     connect(&m_guiProcess, &QtcProcess::errorOccurred,
             this, &ApplicationLauncherPrivate::localGuiProcessError);
-    connect(&m_guiProcess, &QtcProcess::finished,
-            this, &ApplicationLauncherPrivate::localProcessDone);
+    connect(&m_guiProcess, &QtcProcess::finished, this, [this] {
+        localProcessDone(m_guiProcess.exitCode(), m_guiProcess.exitStatus());
+    });
     connect(&m_guiProcess, &QtcProcess::started,
             this, &ApplicationLauncherPrivate::handleProcessStarted);
     connect(&m_guiProcess, &QtcProcess::errorOccurred,
@@ -151,8 +152,9 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
             this, &ApplicationLauncherPrivate::handleProcessStarted);
     connect(&m_consoleProcess, &ConsoleProcess::processError,
             this, &ApplicationLauncherPrivate::localConsoleProcessError);
-    connect(&m_consoleProcess, &ConsoleProcess::processStopped,
-            this, &ApplicationLauncherPrivate::localProcessDone);
+    connect(&m_consoleProcess, &ConsoleProcess::processStopped, this, [this] {
+        localProcessDone(m_consoleProcess.exitCode(), m_consoleProcess.exitStatus());
+    });
     connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,
             q, &ApplicationLauncher::error);
 

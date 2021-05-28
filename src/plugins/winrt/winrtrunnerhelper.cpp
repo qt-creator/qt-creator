@@ -144,13 +144,13 @@ void WinRtRunnerHelper::onProcessReadyReadStdErr()
     appendMessage(QString::fromLocal8Bit(m_process->readAllStandardError()), Utils::StdErrFormat);
 }
 
-void WinRtRunnerHelper::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void WinRtRunnerHelper::onProcessFinished()
 {
     QTC_ASSERT(m_process, return);
     m_process->disconnect();
     m_process->deleteLater();
     m_process = nullptr;
-    emit finished(exitCode, exitStatus);
+    emit finished();
 }
 
 void WinRtRunnerHelper::onProcessError(QProcess::ProcessError processError)

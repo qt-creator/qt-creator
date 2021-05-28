@@ -246,7 +246,7 @@ signals:
 
 private:
     void processError(QProcess::ProcessError);
-    void processFinished(int exitCode, QProcess::ExitStatus);
+    void processFinished();
     void timeout();
 
     void errorTermination(const QString &msg);
@@ -351,16 +351,16 @@ void QueryContext::processError(QProcess::ProcessError e)
         VcsOutputWindow::appendError(msg);
 }
 
-void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
+void QueryContext::processFinished()
 {
     if (m_timer.isActive())
         m_timer.stop();
     emit errorText(m_error);
-    if (es != QProcess::NormalExit) {
+    if (m_process.exitStatus() != QProcess::NormalExit) {
         errorTermination(tr("%1 crashed.").arg(m_binary));
         return;
-    } else if (exitCode) {
-        errorTermination(tr("%1 returned %2.").arg(m_binary).arg(exitCode));
+    } else if (m_process.exitCode()) {
+        errorTermination(tr("%1 returned %2.").arg(m_binary).arg(m_process.exitCode()));
         return;
     }
     emit resultRetrieved(m_output);

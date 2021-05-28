@@ -67,7 +67,7 @@ public:
 
 private:
     void onProcessError();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onProcessFinished();
 
     static bool allPrerequisitesLoaded();
     QString findRunnerFilePath() const;

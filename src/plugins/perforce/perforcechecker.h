@@ -59,7 +59,7 @@ signals:
 
 private:
     void slotError(QProcess::ProcessError error);
-    void slotFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void slotFinished();
     void slotTimeOut();
 
     void emitFailed(const QString &);

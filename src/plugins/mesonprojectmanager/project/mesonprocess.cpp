@@ -166,7 +166,9 @@ void MesonProcess::setupProcess(const Command &command,
     if (m_process)
         disconnect(m_process.get());
     m_process = std::make_unique<Utils::QtcProcess>();
-    connect(m_process.get(), &QtcProcess::finished, this, &MesonProcess::handleProcessFinished);
+    connect(m_process.get(), &QtcProcess::finished, this, [this] {
+        handleProcessFinished(m_process->exitCode(), m_process->exitStatus());
+    });
     connect(m_process.get(), &QtcProcess::errorOccurred, this, &MesonProcess::handleProcessError);
     if (!captureStdo) {
         connect(m_process.get(),

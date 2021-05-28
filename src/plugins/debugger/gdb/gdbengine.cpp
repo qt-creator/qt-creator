@@ -4085,12 +4085,12 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     }
 }
 
-void GdbEngine::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void GdbEngine::handleGdbFinished()
 {
     if (m_commandTimer.isActive())
         m_commandTimer.stop();
 
-    notifyDebuggerProcessFinished(exitCode, exitStatus, "GDB");
+    notifyDebuggerProcessFinished(m_gdbProc.exitCode(), m_gdbProc.exitStatus(), "GDB");
 }
 
 void GdbEngine::abortDebuggerProcess()

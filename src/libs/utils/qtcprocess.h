@@ -173,7 +173,7 @@ public:
 
 signals:
     void started();
-    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void finished();
     void errorOccurred(QProcess::ProcessError error);
     void stateChanged(QProcess::ProcessState state);
 

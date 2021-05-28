@@ -130,11 +130,11 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
     p->runHeadCommand();
 }
 
-void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
+void ExecuteFilter::finished()
 {
     const QString commandName = headCommand();
     QString message;
-    if (status == QProcess::NormalExit && exitCode == 0)
+    if (m_process->result() == QtcProcess::FinishedWithSuccess)
         message = tr("Command \"%1\" finished.").arg(commandName);
     else
         message = tr("Command \"%1\" failed.").arg(commandName);

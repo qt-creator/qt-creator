@@ -133,19 +133,19 @@ void PerforceChecker::slotError(QProcess::ProcessError error)
     }
 }
 
-void PerforceChecker::slotFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void PerforceChecker::slotFinished()
 {
     if (m_timedOut)
         return;
-    switch (exitStatus) {
+    switch (m_process.exitStatus()) {
     case QProcess::CrashExit:
         emitFailed(tr("\"%1\" crashed.").arg(QDir::toNativeSeparators(m_binary)));
         break;
     case QProcess::NormalExit:
-        if (exitCode) {
+        if (m_process.exitCode()) {
             const QString stdErr = QString::fromLocal8Bit(m_process.readAllStandardError());
             emitFailed(tr("\"%1\" terminated with exit code %2: %3").
-                       arg(QDir::toNativeSeparators(m_binary)).arg(exitCode).arg(stdErr));
+                   arg(QDir::toNativeSeparators(m_binary)).arg(m_process.exitCode()).arg(stdErr));
         } else {
             parseOutput(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
         }

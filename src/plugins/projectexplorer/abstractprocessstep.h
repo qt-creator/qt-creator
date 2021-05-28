@@ -76,7 +76,7 @@ protected:
 private:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
-    void slotProcessFinished(int, QProcess::ExitStatus);
+    void slotProcessFinished();
 
     class Private;
     Private *d;

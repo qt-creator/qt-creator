@@ -401,7 +401,7 @@ void AbstractProcessStep::finish(bool success)
     emit finished(success);
 }
 
-void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
+void AbstractProcessStep::slotProcessFinished()
 {
     QtcProcess *process = d->m_process.get();
     if (!process) // Happens when the process was canceled and handed over to the Reaper.
