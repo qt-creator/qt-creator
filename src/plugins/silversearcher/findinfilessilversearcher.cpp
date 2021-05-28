@@ -163,6 +163,7 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
     , m_path("ag")
     , m_toolName("SilverSearcher")
 {
+    m_futureSynchronizer.setCancelOnWait(true);
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -180,10 +181,6 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
         label->setStyleSheet("QLabel { color : red; }");
         layout->addWidget(label);
     }
-}
-
-FindInFilesSilverSearcher::~FindInFilesSilverSearcher()
-{
 }
 
 QVariant FindInFilesSilverSearcher::parameters() const
@@ -216,7 +213,9 @@ void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
 QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
         const FileFindParameters &parameters, BaseFileFind * /*baseFileFind*/)
 {
-    return Utils::runAsync(runSilverSeacher, parameters);
+    auto future = Utils::runAsync(runSilverSeacher, parameters);
+    m_futureSynchronizer.addFuture(future);
+    return future;
 }
 
 IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/,

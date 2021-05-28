@@ -238,6 +238,7 @@ static bool isGitDirectory(const QString &path)
 GitGrep::GitGrep(GitClient *client)
     : m_client(client)
 {
+    m_futureSynchronizer.setCancelOnWait(true);
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -307,7 +308,9 @@ void GitGrep::writeSettings(QSettings *settings) const
 QFuture<FileSearchResultList> GitGrep::executeSearch(const TextEditor::FileFindParameters &parameters,
         TextEditor::BaseFileFind * /*baseFileFind*/)
 {
-    return Utils::runAsync(GitGrepRunner::run, parameters);
+    auto future = Utils::runAsync(GitGrepRunner::run, parameters);
+    m_futureSynchronizer.addFuture(future);
+    return future;
 }
 
 IEditor *GitGrep::openEditor(const SearchResultItem &item,

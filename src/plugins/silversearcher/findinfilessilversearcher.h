@@ -27,6 +27,7 @@
 
 #include <coreplugin/find/ifindsupport.h>
 #include <texteditor/basefilefind.h>
+#include <utils/futuresynchronizer.h>
 
 #include <utils/fileutils.h>
 
@@ -44,7 +45,6 @@ class FindInFilesSilverSearcher : public TextEditor::SearchEngine
 
 public:
     explicit FindInFilesSilverSearcher(QObject *parent);
-    ~FindInFilesSilverSearcher() override;
 
     // TextEditor::FileFindExtension
     QString title() const override;
@@ -66,6 +66,7 @@ private:
     QPointer<QLineEdit> m_searchOptionsLineEdit;
     QString m_path;
     QString m_toolName;
+    Utils::FutureSynchronizer m_futureSynchronizer;
 };
 
 } // namespace SilverSearcher
