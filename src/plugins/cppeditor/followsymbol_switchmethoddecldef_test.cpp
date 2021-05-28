@@ -446,12 +446,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
             });
             t.start(10000);
             l.exec();
-            QEXPECT_FAIL("possibleOverrides2",
-                         "FIXME: clangd behaves differently with cursor at end of function name",
-                         Abort);
-            QEXPECT_FAIL("QTCREATORBUG-10294_cursorIsAtTheEndOfVirtualFunctionName",
-                         "FIXME: clangd behaves differently with cursor at end of function name",
-                         Abort);
             QEXPECT_FAIL("noSiblings_references", "FIXME: check why this fails", Abort);
             QEXPECT_FAIL("noSiblings_pointers", "FIXME: check why this fails", Abort);
             QEXPECT_FAIL("noSiblings_noBaseExpression", "FIXME: check why this fails", Abort);

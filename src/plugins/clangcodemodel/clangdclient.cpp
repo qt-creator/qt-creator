@@ -138,7 +138,8 @@ public:
 
     bool isMemberFunctionCall() const
     {
-        return role() == "expression" && kind() == "Member" && arcanaContains("member function");
+        return role() == "expression" && (kind() == "CXXMemberCall"
+                || (kind() == "Member" && arcanaContains("member function")));
     }
 
     bool isPureVirtualDeclaration() const
