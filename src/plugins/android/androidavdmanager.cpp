@@ -378,7 +378,5 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
     return false;
 }
 
-static QStringList avdErrorPaths;
-
 } // namespace Internal
 } // namespace Android

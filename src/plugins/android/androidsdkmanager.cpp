@@ -61,9 +61,10 @@ const char commonArgsKey[] = "Common Arguments:";
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
 
-const QRegularExpression assertionReg("(\\(\\s*y\\s*[\\/\\\\]\\s*n\\s*\\)\\s*)(?<mark>[\\:\\?])",
-                                      QRegularExpression::CaseInsensitiveOption |
-                                      QRegularExpression::MultilineOption);
+Q_GLOBAL_STATIC_WITH_ARGS(QRegularExpression, assertionReg,
+                          ("(\\(\\s*y\\s*[\\/\\\\]\\s*n\\s*\\)\\s*)(?<mark>[\\:\\?])",
+                           QRegularExpression::CaseInsensitiveOption
+                           | QRegularExpression::MultilineOption))
 
 using namespace Utils;
 using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
@@ -118,7 +119,7 @@ int parseProgress(const QString &out, bool &foundAssertion)
                 progress = -1;
         }
         if (!foundAssertion)
-            foundAssertion = assertionReg.match(line).hasMatch();
+            foundAssertion = assertionReg->match(line).hasMatch();
     }
     return progress;
 }
@@ -320,20 +321,21 @@ private:
     QHash<AndroidSdkPackage *, int> m_systemImages;
 };
 
-const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
-    {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker,     "Available Updates:"},
-    {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
-    {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
-    {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
-    {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
-    {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      "cmdline-tools"},
-    {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
-    {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
-    {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
-    {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
-};
+using MarkerTagsType = std::map<SdkManagerOutputParser::MarkerTag, const char *>;
+Q_GLOBAL_STATIC_WITH_ARGS(MarkerTagsType, markerTags, ({
+        {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
+        {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
+        {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker,     "Available Updates:"},
+        {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
+        {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
+        {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
+        {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
+        {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      "cmdline-tools"},
+        {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
+        {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
+        {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
+        {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
+}));
 
 AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):
     m_d(new AndroidSdkManagerPrivate(*this, config))
@@ -496,7 +498,8 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
     };
 
     QRegularExpression delimiters("[\\n\\r]");
-    for (const QString &outputLine : output.split(delimiters)) {
+    const auto lines = output.split(delimiters);
+    for (const QString &outputLine : lines) {
 
         // NOTE: we don't want to parse Dependencies part as it does not add value
         if (outputLine.startsWith("        "))
@@ -646,7 +649,7 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         break;
 
     default:
-        qCDebug(sdkManagerLog) << "Unhandled package: " << markerTags.at(packageMarker);
+        qCDebug(sdkManagerLog) << "Unhandled package: " << markerTags->at(packageMarker);
         break;
     }
 
@@ -660,7 +663,7 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
             package->setState(AndroidSdkPackage::Available);
             break;
         default:
-            qCDebug(sdkManagerLog) << "Invalid section marker: " << markerTags.at(m_currentSection);
+            qCDebug(sdkManagerLog) << "Invalid section marker: " << markerTags->at(m_currentSection);
             break;
         }
     }
@@ -864,7 +867,7 @@ SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QSt
     if (line.isEmpty())
         return EmptyMarker;
 
-    for (auto pair: markerTags) {
+    for (auto pair : *markerTags) {
         if (line.startsWith(QLatin1String(pair.second)))
             return pair.first;
     }
@@ -1115,7 +1118,7 @@ bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notif
                                                SdkCmdFutureInterface &fi)
 {
     m_licenseTextCache.append(output);
-    QRegularExpressionMatch assertionMatch = assertionReg.match(m_licenseTextCache);
+    QRegularExpressionMatch assertionMatch = assertionReg->match(m_licenseTextCache);
     if (assertionMatch.hasMatch()) {
         if (notify) {
             result.stdOutput = m_licenseTextCache;
@@ -1143,7 +1146,8 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
     QString output;
     sdkManagerCommand(m_config, QStringList("--help"), &output);
     bool foundTag = false;
-    for (const QString& line : output.split('\n')) {
+    const auto lines = output.split('\n');
+    for (const QString& line : lines) {
         if (fi.isCanceled())
             break;
         if (foundTag)

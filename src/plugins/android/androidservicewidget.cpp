@@ -148,7 +148,7 @@ void AndroidServiceWidget::AndroidServiceModel::addService()
     service.setNewService(true);
     m_services.push_back(service);
     endInsertRows();
-    invalidDataChanged();
+    emit invalidDataChanged();
 }
 
 void AndroidServiceWidget::AndroidServiceModel::removeService(int row)
@@ -298,11 +298,11 @@ bool AndroidServiceWidget::AndroidServiceModel::setData(const QModelIndex &index
             m_services[index.row()].setRunInExternalProcess((value == Qt::Checked) ? true : false);
         else if (index.column() == 3)
             m_services[index.row()].setRunInExternalLibrary((value == Qt::Checked) ? true : false);
-        dataChanged(createIndex(index.row(), 0), createIndex(index.row(), 5));
+        emit dataChanged(createIndex(index.row(), 0), createIndex(index.row(), 5));
         if (m_services[index.row()].isValid())
-            validDataChanged();
+            emit validDataChanged();
         else
-            invalidDataChanged();
+            emit invalidDataChanged();
     } else if (role == Qt::EditRole) {
         if (index.column() == 0) {
             QString className = value.toString();
@@ -317,11 +317,11 @@ bool AndroidServiceWidget::AndroidServiceModel::setData(const QModelIndex &index
         } else if (index.column() == 5) {
             m_services[index.row()].setServiceArguments(value.toString());
         }
-        dataChanged(index, index);
+        emit dataChanged(index, index);
         if (m_services[index.row()].isValid())
-            validDataChanged();
+            emit validDataChanged();
         else
-            invalidDataChanged();
+            emit invalidDataChanged();
     }
     return true;
 }
@@ -357,9 +357,9 @@ AndroidServiceWidget::AndroidServiceWidget(QWidget *parent) : QWidget(parent),
             m_removeButton->setEnabled(true);
     });
     connect(m_model.data(), &AndroidServiceWidget::AndroidServiceModel::validDataChanged,
-            [this] {servicesModified();});
+            [this] { emit servicesModified(); });
     connect(m_model.data(), &AndroidServiceWidget::AndroidServiceModel::invalidDataChanged,
-            [this] {servicesInvalid();});
+            [this] { emit servicesInvalid(); });
 }
 
 AndroidServiceWidget::~AndroidServiceWidget()
@@ -394,7 +394,7 @@ void AndroidServiceWidget::removeService()
     for (const auto &x : selections) {
         m_model->removeService(x.row());
         m_removeButton->setEnabled(false);
-        servicesModified();
+        emit servicesModified();
         break;
     }
 }

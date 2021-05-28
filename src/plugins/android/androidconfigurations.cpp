@@ -342,15 +342,16 @@ void AndroidConfig::parseDependenciesJson()
     };
 
     if (jsonObject.contains(SpecificQtVersionsKey) && jsonObject[SpecificQtVersionsKey].isArray()) {
-        QJsonArray versionsArray = jsonObject[SpecificQtVersionsKey].toArray();
-        for (const QJsonValueRef &item : versionsArray) {
+        const QJsonArray versionsArray = jsonObject[SpecificQtVersionsKey].toArray();
+        for (const QJsonValue &item : versionsArray) {
             QJsonObject itemObj = item.toObject();
             SdkForQtVersions specificVersion;
-
             specificVersion.ndkPath = itemObj[NdkPathKey].toString();
-            for (const QJsonValueRef &pkg : itemObj[SdkEssentialPkgsKey].toArray())
+            const auto pkgs = itemObj[SdkEssentialPkgsKey].toArray();
+            for (const QJsonValue &pkg : pkgs)
                 specificVersion.essentialPackages.append(pkg.toString());
-            for (const QJsonValueRef &pkg : itemObj[VersionsKey].toArray())
+            const auto versions = itemObj[VersionsKey].toArray();
+            for (const QJsonValue &pkg : versions)
                 specificVersion.versions.append(fillQtVersionsRange(pkg.toString()));
 
             if (itemObj[VersionsKey].toArray().first().toString() == DefaultVersionKey)
@@ -816,7 +817,8 @@ QVersionNumber AndroidConfig::buildToolsVersion() const
     //TODO: return version according to qt version
     QVersionNumber maxVersion;
     QDir buildToolsDir(m_sdkLocation.pathAppended("build-tools").toString());
-    for (const QFileInfo &file: buildToolsDir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot))
+    const auto files = buildToolsDir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
+    for (const QFileInfo &file: files)
         maxVersion = qMax(maxVersion, QVersionNumber::fromString(file.fileName()));
     return maxVersion;
 }
@@ -904,7 +906,8 @@ QStringList AndroidConfig::allEssentials() const
 bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
 {
     QStringList essentialPkgs(allEssentials());
-    for (const AndroidSdkPackage *pkg : sdkManager->installedSdkPackages()) {
+    const auto installedPkgs = sdkManager->installedSdkPackages();
+    for (const AndroidSdkPackage *pkg : installedPkgs) {
         if (essentialPkgs.contains(pkg->sdkStylePath()))
             essentialPkgs.removeOne(pkg->sdkStylePath());
         if (essentialPkgs.isEmpty())
@@ -1175,7 +1178,7 @@ void AndroidConfigurations::removeOldToolChains()
 
 void AndroidConfigurations::removeUnusedDebuggers()
 {
-    QList<FilePath> uniqueNdks;
+    QVector<FilePath> uniqueNdks;
     const QList<QtSupport::BaseQtVersion *> qtVersions
         = QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
               return v->type() == Constants::ANDROIDQT;
@@ -1187,7 +1190,9 @@ void AndroidConfigurations::removeUnusedDebuggers()
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(Utils::transform(currentConfig().getCustomNdkList(), FilePath::fromString));
+
+    uniqueNdks.append(Utils::transform(currentConfig().getCustomNdkList(),
+                                       FilePath::fromString).toVector());
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {

@@ -298,8 +298,8 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         validateJdk();
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
-        QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages,
-                                        &m_sdkManager, false));
+        QTimer::singleShot(0, &m_sdkManager, std::bind(&AndroidSdkManager::reloadPackages,
+                                                       &m_sdkManager, false));
         validateOpenSsl();
         m_isInitialReloadDone = true;
     }
@@ -308,12 +308,14 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
 void AndroidSettingsWidget::updateNdkList()
 {
     m_ui.ndkListWidget->clear();
-    for (const Ndk *ndk : m_sdkManager.installedNdkPackages()) {
+    const auto installedPkgs = m_sdkManager.installedNdkPackages();
+    for (const Ndk *ndk : installedPkgs) {
         m_ui.ndkListWidget->addItem(new QListWidgetItem(Icons::LOCKED.icon(),
                                                         ndk->installedLocation().toString()));
     }
 
-    for (const QString &ndk : m_androidConfig.getCustomNdkList()) {
+    const auto customNdks = m_androidConfig.getCustomNdkList();
+    for (const QString &ndk : customNdks) {
         if (m_androidConfig.isValidNdk(ndk)) {
             m_ui.ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk));
         } else {
@@ -730,6 +732,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     connect(gitCloner,
             QOverload<int, QtcProcess::ExitStatus>::of(&QtcProcess::finished),
+            m_ui.openSslPathChooser,
             [=](int exitCode, QProcess::ExitStatus exitStatus) {
                 openSslProgressDialog->close();
                 validateOpenSsl();

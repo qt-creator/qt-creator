@@ -47,18 +47,21 @@ namespace Internal {
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static const QHash<QString, Abi> ClangTargets = {
-    {"arm-linux-androideabi",
-     Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32)},
-    {"i686-linux-android",
-     Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32)},
-    {"x86_64-linux-android",
-     Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)},
-    {"aarch64-linux-android",
-     Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}};
+using ClangTargetsType = QHash<QString, Abi>;
+Q_GLOBAL_STATIC_WITH_ARGS(ClangTargetsType, ClangTargets, ({
+        {"arm-linux-androideabi",
+         Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32)},
+        {"i686-linux-android",
+         Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32)},
+        {"x86_64-linux-android",
+         Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)},
+        {"aarch64-linux-android",
+         Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}}
+));
 
-static const QList<Utils::Id> LanguageIds = {ProjectExplorer::Constants::CXX_LANGUAGE_ID,
-                                            ProjectExplorer::Constants::C_LANGUAGE_ID};
+Q_GLOBAL_STATIC_WITH_ARGS(QList<Utils::Id>, LanguageIds, (
+                              {ProjectExplorer::Constants::CXX_LANGUAGE_ID,
+                               ProjectExplorer::Constants::C_LANGUAGE_ID}))
 
 static ToolChain *findToolChain(Utils::FilePath &compilerPath, Utils::Id lang, const QString &target,
                                 const ToolChainList &alreadyKnown)
@@ -66,7 +69,7 @@ static ToolChain *findToolChain(Utils::FilePath &compilerPath, Utils::Id lang, c
     ToolChain * tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
         return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->language() == lang
-                && tc->targetAbi() == ClangTargets[target]
+                && tc->targetAbi() == ClangTargets->value(target)
                 && tc->compilerCommand() == compilerPath;
     });
     return tc;
@@ -148,7 +151,7 @@ FilePath AndroidToolChain::makeCommand(const Environment &env) const
 
 GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 {
-    for (auto itr = ClangTargets.constBegin();itr != ClangTargets.constEnd(); ++itr) {
+    for (auto itr = ClangTargets->constBegin(); itr != ClangTargets->constEnd(); ++itr) {
         if (itr.value() == targetAbi())
             return GccToolChain::DetectedAbisResult({targetAbi()}, itr.key());
     }
@@ -216,7 +219,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
             continue;
         }
 
-        for (const Utils::Id &lang : LanguageIds) {
+        for (const Utils::Id &lang : *LanguageIds) {
             FilePath compilerCommand = clangPath;
             if (lang == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
                 compilerCommand = clangPlusPlusPath(clangPath);
@@ -227,8 +230,8 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
                 continue;
             }
 
-            auto targetItr = ClangTargets.constBegin();
-            while (targetItr != ClangTargets.constEnd()) {
+            auto targetItr = ClangTargets->constBegin();
+            while (targetItr != ClangTargets->constEnd()) {
                 const Abi &abi = targetItr.value();
                 const QString target = targetItr.key();
                 ToolChain *tc = findToolChain(compilerCommand, lang, target, alreadyKnown);
@@ -249,7 +252,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
                     atc->setNdkLocation(ndkLocation);
                     atc->setOriginalTargetTriple(target);
                     atc->setLanguage(lang);
-                    atc->setTargetAbi(ClangTargets[target]);
+                    atc->setTargetAbi(ClangTargets->value(target));
                     atc->setPlatformCodeGenFlags({"-target", target});
                     atc->setPlatformLinkerFlags({"-target", target});
                     atc->setDisplayName(displayName);

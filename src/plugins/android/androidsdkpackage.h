@@ -68,7 +68,8 @@ public:
         AnyValidState = Installed | Available
     };
 
-    AndroidSdkPackage(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    AndroidSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                      QObject *parent = nullptr);
     ~AndroidSdkPackage() override = default;
 
     virtual bool isValid() const = 0;
@@ -107,7 +108,7 @@ class SystemImage : public AndroidSdkPackage
 {
     Q_OBJECT
 public:
-    SystemImage(QVersionNumber revision, QString sdkStylePathStr, QString abi,
+    SystemImage(const QVersionNumber &revision, const QString &sdkStylePathStr, const QString &abi,
                 SdkPlatform *platform = nullptr);
 
 // AndroidSdkPackage Overrides
@@ -132,7 +133,7 @@ class SdkPlatform : public AndroidSdkPackage
 {
     Q_OBJECT
 public:
-    SdkPlatform(QVersionNumber revision, QString sdkStylePathStr, int api,
+    SdkPlatform(const QVersionNumber &revision, const QString &sdkStylePathStr, int api,
                 QObject *parent = nullptr);
 
     ~SdkPlatform() override;
@@ -158,7 +159,8 @@ using SdkPlatformList = QList<SdkPlatform*>;
 class BuildTools : public AndroidSdkPackage
 {
 public:
-    BuildTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+               QObject *parent = nullptr);
 
 // AndroidSdkPackage Overrides
 public:
@@ -169,7 +171,8 @@ public:
 class PlatformTools : public AndroidSdkPackage
 {
 public:
-    PlatformTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                  QObject *parent = nullptr);
 
 // AndroidSdkPackage Overrides
 public:
@@ -180,7 +183,8 @@ public:
 class EmulatorTools : public AndroidSdkPackage
 {
 public:
-    EmulatorTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                  QObject *parent = nullptr);
 
 // AndroidSdkPackage Overrides
 public:
@@ -191,7 +195,8 @@ public:
 class SdkTools : public AndroidSdkPackage
 {
 public:
-    SdkTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+             QObject *parent = nullptr);
 
 // AndroidSdkPackage Overrides
 public:
@@ -202,7 +207,7 @@ public:
 class Ndk : public AndroidSdkPackage
 {
 public:
-    Ndk(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr, QObject *parent = nullptr);
 
     // AndroidSdkPackage Overrides
     bool isValid() const override;
@@ -213,7 +218,8 @@ using NdkList = QList<Ndk *>;
 class ExtraTools : public AndroidSdkPackage
 {
 public:
-    ExtraTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+               QObject *parent = nullptr);
 
 // AndroidSdkPackage Overrides
 public:
@@ -224,7 +230,8 @@ public:
 class GenericSdkPackage : public AndroidSdkPackage
 {
 public:
-    GenericSdkPackage(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+    GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                      QObject *parent = nullptr);
 
 // AndroidSdkPackage Overrides
 public:

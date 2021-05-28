@@ -160,10 +160,14 @@ void AndroidPackageInstallationStep::doRun()
                 dir.mkpath(assetsDebugDir);
 
             QFile file(assetsDebugDir + "debugger.command");
-            if (file.open(QIODevice::WriteOnly))
-                qCDebug(packageInstallationStepLog, "Successful added %s to the package.", qPrintable(file.fileName()));
-            else
-                qCDebug(packageInstallationStepLog, "Cound't add %s to the package. The QML debugger might not work properly.", qPrintable(file.fileName()));
+            if (file.open(QIODevice::WriteOnly)) {
+                qCDebug(packageInstallationStepLog, "Successful added %s to the package.",
+                        qPrintable(file.fileName()));
+            } else {
+                qCDebug(packageInstallationStepLog,
+                        "Cound't add %s to the package. The QML debugger might not work properly.",
+                        qPrintable(file.fileName()));
+            }
         }
     }
 }

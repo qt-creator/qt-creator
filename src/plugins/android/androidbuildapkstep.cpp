@@ -93,7 +93,6 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtWarningMsg)
 
-const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char VerboseOutputKey[] = "VerboseOutput";
@@ -518,7 +517,7 @@ bool AndroidBuildApkStep::init()
         return false;
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
-    if (sdkToolsVersion >= gradleScriptRevokedSdkVersion
+    if (sdkToolsVersion >= QVersionNumber(25, 3, 0)
         || AndroidConfigurations::currentConfig().isCmdlineSdkToolsInstalled()) {
         if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
             const QString error

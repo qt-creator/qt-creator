@@ -46,19 +46,19 @@ namespace Android {
 namespace Internal {
 
 namespace {
-const QString extraExtraExtraHighDpiImagePath = QLatin1String("/res/drawable-xxxhdpi/");
-const QString extraExtraHighDpiImagePath = QLatin1String("/res/drawable-xxhdpi/");
-const QString extraHighDpiImagePath = QLatin1String("/res/drawable-xhdpi/");
-const QString highDpiImagePath = QLatin1String("/res/drawable-hdpi/");
-const QString mediumDpiImagePath = QLatin1String("/res/drawable-mdpi/");
-const QString lowDpiImagePath = QLatin1String("/res/drawable-ldpi/");
-const QString splashscreenName = QLatin1String("splashscreen");
-const QString splashscreenPortraitName = QLatin1String("splashscreen_port");
-const QString splashscreenLandscapeName = QLatin1String("splashscreen_land");
-const QString splashscreenFileName = QLatin1String("logo");
-const QString splashscreenPortraitFileName = QLatin1String("logo_port");
-const QString splashscreenLandscapeFileName = QLatin1String("logo_land");
-const QString imageSuffix = QLatin1String(".png");
+const char extraExtraExtraHighDpiImagePath[] = "/res/drawable-xxxhdpi/";
+const char extraExtraHighDpiImagePath[] = "/res/drawable-xxhdpi/";
+const char extraHighDpiImagePath[] = "/res/drawable-xhdpi/";
+const char highDpiImagePath[] = "/res/drawable-hdpi/";
+const char mediumDpiImagePath[] = "/res/drawable-mdpi/";
+const char lowDpiImagePath[] = "/res/drawable-ldpi/";
+const char splashscreenName[] = "splashscreen";
+const char splashscreenPortraitName[] = "splashscreen_port";
+const char splashscreenLandscapeName[] = "splashscreen_land";
+const char splashscreenFileName[] = "logo";
+const char splashscreenPortraitFileName[] = "logo_port";
+const char splashscreenLandscapeFileName[] = "logo_land";
+const char imageSuffix[] = ".png";
 const QString fileDialogImageFiles = QString(QWidget::tr("Images (*.png *.jpg)"));
 const QSize lowDpiImageSize{200, 320};
 const QSize mediumDpiImageSize{320, 480};
@@ -295,12 +295,16 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
     noSplashscreenWidget->setLayout(noSplashscreenLayout);
     addWidget(noSplashscreenWidget);
 
+    const auto splashFileName = QString(splashscreenFileName).append(imageSuffix);
+    const auto portraitSplashFileName = QString(splashscreenPortraitFileName).append(imageSuffix);
+    const auto landscapeSplashFileName = QString(splashscreenLandscapeFileName).append(imageSuffix);
+
     for (auto &&imageWidget : m_imageWidgets)
-        imageWidget->setImageFileName(splashscreenFileName + imageSuffix);
+        imageWidget->setImageFileName(splashFileName);
     for (auto &&imageWidget : m_portraitImageWidgets)
-        imageWidget->setImageFileName(splashscreenPortraitFileName + imageSuffix);
+        imageWidget->setImageFileName(portraitSplashFileName);
     for (auto &&imageWidget : m_landscapeImageWidgets)
-        imageWidget->setImageFileName(splashscreenLandscapeFileName + imageSuffix);
+        imageWidget->setImageFileName(landscapeSplashFileName);
 
     for (auto &&imageWidget : m_imageWidgets) {
         connect(imageWidget, &SplashScreenWidget::imageChanged, [this]() {

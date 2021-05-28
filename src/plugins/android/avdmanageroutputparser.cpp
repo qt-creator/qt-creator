@@ -144,7 +144,8 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
         return AvdResult();
     };
 
-    for (const QString &line : output.split('\n')) {
+    const auto lines = output.split('\n');
+    for (const QString &line : lines) {
         if (line.startsWith("---------") || line.isEmpty()) {
             const AvdResult result = parseAvdInfo(avdInfo);
             if (auto info = Utils::get_if<AndroidDeviceInfo>(&result))

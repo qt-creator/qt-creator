@@ -127,7 +127,7 @@ void AndroidManifestEditorIconWidget::setIcon(const QIcon &icon)
 void AndroidManifestEditorIconWidget::clearIcon()
 {
     removeIcon();
-    iconRemoved();
+    emit iconRemoved();
 }
 
 void AndroidManifestEditorIconWidget::loadIcon()
@@ -170,7 +170,7 @@ void AndroidManifestEditorIconWidget::selectIcon()
     if (file.isEmpty())
         return;
     setIconFromPath(file);
-    iconSelected(file, this);
+    emit iconSelected(file, this);
 }
 
 void AndroidManifestEditorIconWidget::removeIcon()

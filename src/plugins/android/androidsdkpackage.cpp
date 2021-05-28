@@ -28,7 +28,7 @@
 
 namespace Android {
 
-AndroidSdkPackage::AndroidSdkPackage(QVersionNumber version, QString sdkStylePathStr,
+AndroidSdkPackage::AndroidSdkPackage(const QVersionNumber &version, const QString &sdkStylePathStr,
                                      QObject *parent) :
     QObject(parent),
     m_revision(version),
@@ -101,8 +101,8 @@ void AndroidSdkPackage::updatePackageDetails()
 
 }
 
-SystemImage::SystemImage(QVersionNumber version, QString sdkStylePathStr, QString abi,
-                         SdkPlatform *platform):
+SystemImage::SystemImage(const QVersionNumber &version, const QString &sdkStylePathStr,
+                         const QString &abi, SdkPlatform *platform):
     AndroidSdkPackage(version, sdkStylePathStr, platform),
     m_platform(platform),
     m_abiName(abi)
@@ -144,7 +144,8 @@ void SystemImage::setApiLevel(const int apiLevel)
     m_apiLevel = apiLevel;
 }
 
-SdkPlatform::SdkPlatform(QVersionNumber version, QString sdkStylePathStr, int api, QObject *parent) :
+SdkPlatform::SdkPlatform(const QVersionNumber &version, const QString &sdkStylePathStr,
+                         int api, QObject *parent) :
     AndroidSdkPackage(version, sdkStylePathStr, parent),
     m_apiLevel(api)
 {
@@ -216,8 +217,9 @@ SystemImageList SdkPlatform::systemImages(PackageState state) const
     });
 }
 
-BuildTools::BuildTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+BuildTools::BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                       QObject *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 }
 
@@ -231,8 +233,8 @@ AndroidSdkPackage::PackageType BuildTools::type() const
     return AndroidSdkPackage::BuildToolsPackage;
 }
 
-SdkTools::SdkTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+SdkTools::SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr, QObject *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 
 }
@@ -247,8 +249,9 @@ AndroidSdkPackage::PackageType SdkTools::type() const
     return AndroidSdkPackage::SdkToolsPackage;
 }
 
-PlatformTools::PlatformTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+PlatformTools::PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                             QObject *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 
 }
@@ -263,8 +266,9 @@ AndroidSdkPackage::PackageType PlatformTools::type() const
     return AndroidSdkPackage::PlatformToolsPackage;
 }
 
-EmulatorTools::EmulatorTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+EmulatorTools::EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                             QObject *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 
 }
@@ -279,8 +283,9 @@ AndroidSdkPackage::PackageType EmulatorTools::type() const
     return AndroidSdkPackage::EmulatorToolsPackage;
 }
 
-ExtraTools::ExtraTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent) :
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+ExtraTools::ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                       QObject *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 }
 
@@ -294,8 +299,8 @@ AndroidSdkPackage::PackageType ExtraTools::type() const
     return AndroidSdkPackage::ExtraToolsPackage;
 }
 
-Ndk::Ndk(QVersionNumber revision, QString sdkStylePathStr, QObject *parent) :
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+Ndk::Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr, QObject *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 }
 
@@ -309,8 +314,9 @@ AndroidSdkPackage::PackageType Ndk::type() const
     return AndroidSdkPackage::NDKPackage;
 }
 
-GenericSdkPackage::GenericSdkPackage(QVersionNumber revision, QString sdkStylePathStr, QObject  *parent) :
-    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+GenericSdkPackage::GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr,
+                                     QObject  *parent)
+    : AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {
 }
 

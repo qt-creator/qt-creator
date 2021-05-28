@@ -142,7 +142,8 @@ void AvdDialog::parseDeviceDefinitionsList()
 
     QStringList avdDeviceInfo;
 
-    for (const QString &line : output.split('\n')) {
+    const auto lines = output.split('\n');
+    for (const QString &line : lines) {
         if (line.startsWith("---------") || line.isEmpty()) {
             DeviceDefinitionStruct deviceDefinition;
             for (const QString &line : avdDeviceInfo) {

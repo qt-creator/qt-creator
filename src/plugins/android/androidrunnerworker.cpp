@@ -75,26 +75,9 @@ using namespace Utils;
 namespace Android {
 namespace Internal {
 
-static const QString pidScript = "pidof -s '%1'";
-static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
-                                                "do cat <$p/cmdline && echo :${p##*/}; done");
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 
-static const QRegularExpression regExpLogcat{"^[0-9\\-]*" // date
-                                             "\\s+"
-                                             "[0-9\\-:.]*"// time
-                                             "\\s*"
-                                             "(\\d*)"     // pid           1. capture
-                                             "\\s+"
-                                             "\\d*"       // unknown
-                                             "\\s+"
-                                             "(\\w)"      // message type  2. capture
-                                             "\\s+"
-                                             "(.*): "     // source        3. capture
-                                             "(.*)"       // message       4. capture
-                                             "[\\n\\r]*$"};
 static int APP_START_TIMEOUT = 45000;
-
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
                             int msecs = APP_START_TIMEOUT)
 {
@@ -128,6 +111,9 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
     if (packageName.isEmpty())
         return;
 
+    static const QString pidScript = "pidof -s '%1'";
+    static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
+                                                    "do cat <$p/cmdline && echo :${p##*/}; done");
     QStringList args = {selector};
     FilePath adbPath = AndroidConfigurations::currentConfig().adbToolPath();
     args.append("shell");
@@ -305,7 +291,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST).toStringList())
+    const auto data = runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST).toStringList();
+    for (const QString &shellCmd : data)
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
@@ -314,7 +301,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST).toStringList())
+    const auto data2 = runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST).toStringList();
+    for (const QString &shellCmd : data)
         m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     m_debugServerPath = debugServer(m_useLldb, target).toString();
@@ -472,6 +460,21 @@ void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buff
                 break;
             }
         }
+
+        static const QRegularExpression regExpLogcat{"^[0-9\\-]*" // date
+                                                     "\\s+"
+                                                     "[0-9\\-:.]*"// time
+                                                     "\\s*"
+                                                     "(\\d*)"     // pid           1. capture
+                                                     "\\s+"
+                                                     "\\d*"       // unknown
+                                                     "\\s+"
+                                                     "(\\w)"      // message type  2. capture
+                                                     "\\s+"
+                                                     "(.*): "     // source        3. capture
+                                                     "(.*)"       // message       4. capture
+                                                     "[\\n\\r]*$"};
+
         const QRegularExpressionMatch match = regExpLogcat.match(line);
         if (match.hasMatch()) {
             // Android M
@@ -767,7 +770,8 @@ void AndroidRunnerWorker::handleJdbSettled()
         for (int i= 0; i < 5 && m_jdbProcess->state() == QProcess::Running; ++i) {
             m_jdbProcess->waitForReadyRead(500);
             QByteArray lines = m_jdbProcess->readAll();
-            for (const auto &line: lines.split('\n')) {
+            const auto linesList =  lines.split('\n');
+            for (const auto &line : linesList) {
                 auto msg = line.trimmed();
                 if (msg.startsWith(">"))
                     return true;
@@ -802,7 +806,8 @@ void AndroidRunnerWorker::removeForwardPort(const QString &port)
     SdkToolResult result = AndroidManager::runAdbCommand({"forward", "--list"});
 
     QString string = result.stdOut();
-    for (const QString &line : string.split('\n')) {
+    const auto lines = string.split('\n');
+    for (const QString &line : lines) {
         if (line.contains(port)) {
             found = true;
             break;
