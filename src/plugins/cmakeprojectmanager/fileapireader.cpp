@@ -336,6 +336,28 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
 }
 
+void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
+{
+    const FilePath buildDir = m_parameters.workDirectory;
+    QTC_ASSERT(buildDir.exists(), return );
+
+    const FilePath settingsFile = buildDir.pathAppended("qtcsettings.cmake");
+
+    QByteArray contents;
+    contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
+    contents.append(
+        transform(CMakeConfigItem::itemsFromArguments(configurationArguments),
+            [](const CMakeConfigItem &item) {
+                return item.toCMakeSetLine(nullptr);
+            })
+            .join('\n')
+            .toUtf8());
+
+    QFile file(settingsFile.toString());
+    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return );
+    file.write(contents);
+}
+
 void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: START CMAKE STATE.";
@@ -347,6 +369,7 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     makeBackupConfiguration(true);
+    writeConfigurationIntoBuildDirectory(configurationArguments);
     m_cmakeProcess->run(m_parameters, configurationArguments);
 }
 

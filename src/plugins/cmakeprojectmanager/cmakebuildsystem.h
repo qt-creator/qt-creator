@@ -158,8 +158,6 @@ private:
 
     void runCTest();
 
-    void writeConfigurationIntoBuildDirectory();
-
     ProjectExplorer::TreeScanner m_treeScanner;
     QHash<QString, bool> m_mimeBinaryCache;
     QList<const ProjectExplorer::FileNode *> m_allFiles;

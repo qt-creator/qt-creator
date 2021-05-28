@@ -200,7 +200,7 @@ QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 
 QString CMakeConfigItem::expandedValue(const Utils::MacroExpander *expander) const
 {
-    return expander->expand(QString::fromUtf8(value));
+    return expander ? expander->expand(QString::fromUtf8(value)) : QString::fromUtf8(value);
 }
 
 std::function<bool (const CMakeConfigItem &a, const CMakeConfigItem &b)> CMakeConfigItem::sortOperator()
