@@ -51,4 +51,11 @@ Link Link::fromString(const QString &fileName, bool canContainLineNumber, QStrin
             lineColumn.column};
 }
 
+uint qHash(const Link &l)
+{
+    QString s = l.targetFilePath.toString();
+    return qHash(s.append(':').append(QString::number(l.targetLine)).append(':')
+                 .append(QString::number(l.targetColumn)));
+}
+
 } // namespace Utils

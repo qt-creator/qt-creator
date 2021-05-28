@@ -465,6 +465,8 @@ public:
             q->cancelRequest(id);
         for (const MessageId &id : qAsConst(pendingGotoImplRequests))
             q->cancelRequest(id);
+        for (const MessageId &id : qAsConst(pendingGotoDefRequests))
+            q->cancelRequest(id);
     }
 
     void closeTempDocuments()
@@ -492,10 +494,12 @@ public:
     VirtualFunctionAssistProvider virtualFuncAssistProvider;
     QList<MessageId> pendingSymbolInfoRequests;
     QList<MessageId> pendingGotoImplRequests;
+    QList<MessageId> pendingGotoDefRequests;
     const bool openInSplit;
 
     Utils::Link defLink;
     QList<Utils::Link> allLinks;
+    QHash<Utils::Link, Utils::Link> declDefMap;
     AstNode cursorNode;
     AstNode defLinkNode;
     SymbolDataList symbolsToDisplay;
@@ -581,6 +585,7 @@ ClangdClient::~ClangdClient()
         d->followSymbolData->openedFiles.clear();
         d->followSymbolData->pendingSymbolInfoRequests.clear();
         d->followSymbolData->pendingGotoImplRequests.clear();
+        d->followSymbolData->pendingGotoDefRequests.clear();
     }
     delete d;
 }
@@ -1015,6 +1020,8 @@ void ClangdClient::Private::handleGotoImplementationResult(
     //         Make a symbol info request for each link to get the class names.
     //         Also get the AST for the base declaration, so we can find out whether it's
     //         pure virtual and mark it accordingly.
+    //         In addition, we need to follow all override links, because for these, clangd
+    //         gives us the declaration instead of the definition.
     for (const Utils::Link &link : qAsConst(followSymbolData->allLinks)) {
         if (!q->documentForFilePath(link.targetFilePath)
                 && followSymbolData->openedFiles.insert(link.targetFilePath).second) {
@@ -1022,8 +1029,9 @@ void ClangdClient::Private::handleGotoImplementationResult(
         }
         const TextDocumentIdentifier doc(DocumentUri::fromFilePath(link.targetFilePath));
         const Position pos(link.targetLine - 1, link.targetColumn);
-        SymbolInfoRequest req(TextDocumentPositionParams(doc, pos));
-        req.setResponseCallback([this, link, id = followSymbolData->id, reqId = req.id()](
+        const TextDocumentPositionParams params(doc, pos);
+        SymbolInfoRequest symReq(params);
+        symReq.setResponseCallback([this, link, id = followSymbolData->id, reqId = symReq.id()](
                                 const SymbolInfoRequest::Response &response) {
             qCDebug(clangdLog) << "handling symbol info reply"
                                << link.targetFilePath.toUserOutput() << link.targetLine;
@@ -1043,13 +1051,48 @@ void ClangdClient::Private::handleGotoImplementationResult(
             }
             followSymbolData->pendingSymbolInfoRequests.removeOne(reqId);
             if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
+                    && followSymbolData->pendingGotoDefRequests.isEmpty()
                     && followSymbolData->defLinkNode.isValid()) {
                 handleDocumentInfoResults();
             }
         });
-        followSymbolData->pendingSymbolInfoRequests << req.id();
+        followSymbolData->pendingSymbolInfoRequests << symReq.id();
         qCDebug(clangdLog) << "sending symbol info request";
-        q->sendContent(req);
+        q->sendContent(symReq);
+
+        if (link == followSymbolData->defLink)
+            continue;
+
+        GotoDefinitionRequest defReq(params);
+        defReq.setResponseCallback([this, link, id = followSymbolData->id, reqId = defReq.id()]
+                (const GotoDefinitionRequest::Response &response) {
+            qCDebug(clangdLog) << "handling additional go to definition reply for"
+                               << link.targetFilePath << link.targetLine;
+            if (!followSymbolData || id != followSymbolData->id)
+                return;
+            Utils::Link newLink;
+            if (Utils::optional<GotoResult> _result = response.result()) {
+                const GotoResult result = _result.value();
+                if (const auto ploc = Utils::get_if<Location>(&result)) {
+                    newLink = ploc->toLink();
+                } else if (const auto plloc = Utils::get_if<QList<Location>>(&result)) {
+                    if (!plloc->isEmpty())
+                        newLink = plloc->value(0).toLink();
+                }
+            }
+            qCDebug(clangdLog) << "def link is" << newLink.targetFilePath << newLink.targetLine;
+            followSymbolData->declDefMap.insert(link, newLink);
+            followSymbolData->pendingGotoDefRequests.removeOne(reqId);
+            if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
+                    && followSymbolData->pendingGotoDefRequests.isEmpty()
+                    && followSymbolData->defLinkNode.isValid()) {
+                handleDocumentInfoResults();
+            }
+        });
+        followSymbolData->pendingGotoDefRequests << defReq.id();
+        qCDebug(clangdLog) << "sending additional go to definition request"
+                           << link.targetFilePath << link.targetLine;
+        q->sendContent(defReq);
     }
 
     const DocumentUri defLinkUri
@@ -1066,8 +1109,10 @@ void ClangdClient::Private::handleGotoImplementationResult(
         const auto result = response.result();
         if (result)
             followSymbolData->defLinkNode = *result;
-        if (followSymbolData->pendingSymbolInfoRequests.isEmpty())
+        if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
+                && followSymbolData->pendingGotoDefRequests.isEmpty()) {
             handleDocumentInfoResults();
+        }
     });
     qCDebug(clangdLog) << "sending ast request for def link";
     q->sendContent(astRequest);
@@ -1107,10 +1152,17 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
 {
     QList<TextEditor::AssistProposalItemInterface *> items;
     for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
+        Utils::Link link = symbol.second;
+        const bool isOriginalLink = m_data->followSymbolData->defLink == symbol.second;
+        if (!isOriginalLink) {
+            const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
+            if (defLink.hasValidTarget())
+                link = defLink;
+        }
         const auto item = new CppTools::VirtualFunctionProposalItem(
-                    symbol.second, m_data->followSymbolData->openInSplit);
+                    link, m_data->followSymbolData->openInSplit);
         QString text = symbol.first;
-        if (m_data->followSymbolData->defLink == symbol.second
+        if (isOriginalLink
                 && (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
                     || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition())) {
             text += " = 0";

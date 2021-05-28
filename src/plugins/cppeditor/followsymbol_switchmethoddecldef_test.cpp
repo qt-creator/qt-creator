@@ -516,14 +516,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
     if (useClangd)
         QEXPECT_FAIL("allOverrides from base declaration", "FIXME: check why this fails", Abort);
     QCOMPARE(finalVirtualSymbolResults.size(), expectedVirtualFunctionProposal.size());
-    if (useClangd) {
-        QEXPECT_FAIL("allOverrides", "FIXME: clangd sometimes goes to decl instead of def", Abort);
-        QEXPECT_FAIL("possibleOverrides1", "FIXME: clangd sometimes goes to decl instead of def",
-                     Abort);
-        QEXPECT_FAIL("possibleOverrides2", "FIXME: clangd sometimes goes to decl instead of def",
-                     Abort);
+    if (useClangd)
         QEXPECT_FAIL("itemOrder", "FIXME: sort items", Abort);
-    }
     QCOMPARE(finalVirtualSymbolResults, expectedVirtualFunctionProposal);
 }
 

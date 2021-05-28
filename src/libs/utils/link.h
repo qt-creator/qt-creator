@@ -62,6 +62,7 @@ public:
                 && linkTextStart == other.linkTextStart
                 && linkTextEnd == other.linkTextEnd;
     }
+    bool operator!=(const Link &other) const { return !(*this == other); }
 
     int linkTextStart = -1;
     int linkTextEnd = -1;
@@ -70,6 +71,8 @@ public:
     int targetLine;
     int targetColumn;
 };
+
+uint QTCREATOR_UTILS_EXPORT qHash(const Link &l);
 
 using ProcessLinkCallback = std::function<void(const Link &)>;
 
