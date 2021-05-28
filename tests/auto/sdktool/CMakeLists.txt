@@ -1,5 +1,6 @@
+qtc_output_binary_dir(_output_binary_dir)
 add_qtc_test(tst_sdktool
   DEPENDS Utils
-  DEFINES SDKTOOL_DIR="${IDE_LIBEXEC_PATH}"
+  DEFINES SDKTOOL_DIR="${_output_binary_dir}/${IDE_LIBEXEC_PATH}"
   SOURCES tst_sdktool.cpp
 )
