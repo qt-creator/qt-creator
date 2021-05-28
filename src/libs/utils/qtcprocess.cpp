@@ -779,11 +779,6 @@ QString QtcProcess::exitMessage()
     return QString();
 }
 
-QIODevice *QtcProcess::ioDevice()
-{
-    return d->m_process;
-}
-
 QByteArray QtcProcess::allRawOutput() const
 {
     if (!d->m_stdOut.rawData.isEmpty() && !d->m_stdErr.rawData.isEmpty()) {

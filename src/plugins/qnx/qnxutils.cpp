@@ -127,10 +127,9 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
         return items;
 
     // parsing process output
-    QTextStream str(process.ioDevice());
-    while (!str.atEnd()) {
-        QString line = str.readLine();
-        int equalIndex = line.indexOf(QLatin1Char('='));
+    const QString output = process.stdOut();
+    for (const QString &line : output.split('\n')) {
+        int equalIndex = line.indexOf('=');
         if (equalIndex < 0)
             continue;
         QString var = line.left(equalIndex);

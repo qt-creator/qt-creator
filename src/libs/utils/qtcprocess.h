@@ -170,8 +170,6 @@ public:
     void closeWriteChannel();
     void close();
 
-    QIODevice *ioDevice(); // FIXME: Remove.
-
 signals:
     void started();
     void finished(int exitCode, QProcess::ExitStatus exitStatus);
