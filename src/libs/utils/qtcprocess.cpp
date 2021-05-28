@@ -827,11 +827,6 @@ QByteArray QtcProcess::rawStdOut() const
     return d->m_stdOut.rawData;
 }
 
-QByteArray QtcProcess::rawStdErr() const
-{
-    return d->m_stdErr.rawData;
-}
-
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
 {
     QDebug nsp = str.nospace();

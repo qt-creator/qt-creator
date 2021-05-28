@@ -132,7 +132,6 @@ public:
     QString stdErr() const;
 
     QByteArray rawStdOut() const;
-    QByteArray rawStdErr() const;
 
     int exitCode() const;
 
