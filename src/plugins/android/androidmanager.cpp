@@ -539,7 +539,7 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
     proc.setCommand(cmd);
     proc.setProcessUserEventWhileRunning();
     proc.runBlocking();
-    return proc.result() == QtcProcess::FinishedWithSuccess && proc.exitCode() == 0;
+    return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
 bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd)
@@ -557,7 +557,7 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
     proc.setProcessUserEventWhileRunning();
     proc.runBlocking();
-    return proc.result() == QtcProcess::FinishedWithSuccess && proc.exitCode() == 0;
+    return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
 bool AndroidManager::checkCertificateExists(const QString &keystorePath,
@@ -572,7 +572,7 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
     proc.setProcessUserEventWhileRunning();
     proc.runBlocking();
-    return proc.result() == QtcProcess::FinishedWithSuccess && proc.exitCode() == 0;
+    return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
 using GradleProperties = QMap<QByteArray, QByteArray>;

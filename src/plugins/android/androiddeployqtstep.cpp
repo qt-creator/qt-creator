@@ -485,7 +485,7 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
     buildProc.setCommand(command);
     buildProc.setProcessUserEventWhileRunning();
     buildProc.runBlocking();
-    if (buildProc.result() != QtcProcess::FinishedWithSuccess || buildProc.exitCode() != 0) {
+    if (buildProc.result() != QtcProcess::FinishedWithSuccess) {
         const QString error = buildProc.exitMessage();
         emit addOutput(error, OutputFormat::ErrorMessage);
         TaskHub::addTask(DeploymentTask(Task::Error, error));

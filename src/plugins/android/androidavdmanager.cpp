@@ -204,7 +204,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     proc.setTimeoutS(5);
     proc.setCommand(command);
     proc.runBlocking();
-    return proc.result() == QtcProcess::FinishedWithSuccess && proc.exitCode() == 0;
+    return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
 static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
