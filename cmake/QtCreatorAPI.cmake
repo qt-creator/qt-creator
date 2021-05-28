@@ -588,7 +588,9 @@ function(extend_qtc_test target_name)
   if (NOT (target_name IN_LIST __QTC_TESTS))
     message(FATAL_ERROR "extend_qtc_test: Unknown test target \"${target_name}\"")
   endif()
-  extend_qtc_target(${target_name} ${ARGN})
+  if (TARGET ${target_name})
+    extend_qtc_target(${target_name} ${ARGN})
+  endif()
 endfunction()
 
 function(add_qtc_executable name)
@@ -782,6 +784,12 @@ endfunction()
 function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST" "TIMEOUT" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC" ${ARGN})
 
+  if ($_arg_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
+  endif()
+
+  update_cached_list(__QTC_TESTS "${name}")
+
   foreach(dependency ${_arg_DEPENDS})
     if (NOT TARGET ${dependency} AND NOT _arg_GTEST)
       if (WITH_DEBUG_CMAKE)
@@ -790,12 +798,6 @@ function(add_qtc_test name)
       return()
     endif()
   endforeach()
-
-  if ($_arg_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
-  endif()
-
-  update_cached_list(__QTC_TESTS "${name}")
 
   set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
