@@ -93,7 +93,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
     cpp.setCommand({compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()}});
 
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::FinishedWithSuccess || cpp.exitCode() != 0) {
+    if (cpp.result() != QtcProcess::FinishedWithSuccess) {
         qWarning() << cpp.exitMessage();
         return {};
     }
@@ -114,7 +114,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
     cpp.setCommand({compiler, {compilerTargetFlag(abi), "--print-search-dirs"}});
 
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::FinishedWithSuccess || cpp.exitCode() != 0) {
+    if (cpp.result() != QtcProcess::FinishedWithSuccess) {
         qWarning() << cpp.exitMessage();
         return {};
     }
