@@ -45,8 +45,9 @@ Utils::optional<MarkupOrString> CompletionItem::documentation() const
 Utils::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextFormat() const
 {
     Utils::optional<int> value = optionalValue<int>(insertTextFormatKey);
-    return value.has_value() ? Utils::nullopt
-            : Utils::make_optional(CompletionItem::InsertTextFormat(value.value()));
+    return value.has_value()
+            ? Utils::make_optional(CompletionItem::InsertTextFormat(value.value()))
+            : Utils::nullopt;
 }
 
 bool CompletionItem::isValid(ErrorHierarchy *error) const
