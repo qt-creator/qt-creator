@@ -41,6 +41,7 @@
 #include <utils/infolabel.h>
 #include <utils/listmodel.h>
 #include <utils/pathchooser.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -116,6 +117,8 @@ private:
 
     SummaryWidget *m_androidSummary = nullptr;
     SummaryWidget *m_openSslSummary = nullptr;
+
+    ProgressIndicator *m_androidProgress = nullptr;
 };
 
 enum AndroidValidation {
@@ -196,9 +199,21 @@ public:
         updateUi();
     }
 
+    void setInProgressText(const QString &text)
+    {
+        m_detailsWidget->setIcon({});
+        m_detailsWidget->setSummaryText(QString("%1...").arg(text));
+        m_detailsWidget->setState(DetailsWidget::Collapsed);
+    }
+
     void setSetupOk(bool ok)
     {
         m_detailsWidget->setState(ok ? DetailsWidget::Collapsed : DetailsWidget::Expanded);
+    }
+
+    void setState(DetailsWidget::State state)
+    {
+        m_detailsWidget->setState(state);
     }
 
 private:
@@ -286,6 +301,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_ui.androidOpenSSLSettingsGroupBox->setEnabled(false);
         m_ui.CreateKitCheckBox->setEnabled(false);
         m_ui.managerTabWidget->tabBar()->setEnabled(false);
+        m_androidSummary->setState(DetailsWidget::Collapsed);
+        m_androidProgress->hide();
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdkFinished, [this] {
         m_ui.androidSettingsGroupBox->setEnabled(true);
@@ -319,6 +336,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_androidSummary = new SummaryWidget(androidValidationPoints, tr("Android settings are OK."),
                                          tr("Android settings have errors."),
                                          m_ui.androidDetailsWidget);
+    m_androidProgress = new Utils::ProgressIndicator(ProgressIndicatorSize::Medium, this);
+    m_androidProgress->attachToWidget(m_ui.androidDetailsWidget);
+    m_androidProgress->hide();
 
     QMap<int, QString> openSslValidationPoints;
     openSslValidationPoints[OpenSslPathExistsRow] = tr("OpenSSL path exists.");
@@ -400,6 +420,12 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     // Validate SDK again after any change in SDK packages.
     connect(&m_sdkManager, &AndroidSdkManager::packageReloadFinished,
             this, &AndroidSettingsWidget::validateSdk);
+    connect(&m_sdkManager, &AndroidSdkManager::packageReloadFinished,
+            m_androidProgress, &ProgressIndicator::hide);
+    connect(&m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this]() {
+        m_androidSummary->setInProgressText("Retrieving packages information");
+        m_androidProgress->show();
+    });
     connect(m_ui.sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
     connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, [this](const QString &error) {
