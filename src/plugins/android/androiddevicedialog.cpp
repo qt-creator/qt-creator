@@ -44,6 +44,8 @@ using namespace Android::Internal;
 namespace Android {
 namespace Internal {
 
+QVector<AndroidDeviceInfo> AndroidDeviceDialog::m_connectedDevices = {};
+
 // yeah, writing tree models is fun!
 class AndroidDeviceModelNode
 {
@@ -481,26 +483,30 @@ AndroidDeviceDialog::~AndroidDeviceDialog()
     delete m_ui;
 }
 
-AndroidDeviceInfo AndroidDeviceDialog::device()
+AndroidDeviceInfo AndroidDeviceDialog::defaultDeviceInfo(const QString &serialNumber)
 {
+    AndroidDeviceDialog::updateConnectedDevicesList();
+
+    if (serialNumber.isEmpty())
+        return {};
+
+    return Utils::findOrDefault(m_connectedDevices, [serialNumber](const AndroidDeviceInfo &info) {
+           return info.serialNumber == serialNumber || info.avdname == serialNumber;
+    });
+}
+
+AndroidDeviceInfo AndroidDeviceDialog::showAndGetSelectedDevice()
+{
+    auto dev = defaultDeviceInfo(m_defaultDevice);
+    if (dev.isValid())
+        return dev;
+
     refreshDeviceList();
-
-    if (!m_defaultDevice.isEmpty()) {
-        auto device = std::find_if(m_connectedDevices.cbegin(),
-                                   m_connectedDevices.cend(),
-                                   [this](const AndroidDeviceInfo &info) {
-            return info.serialNumber == m_defaultDevice ||
-                    info.avdname == m_defaultDevice;
-        });
-
-        if (device != m_connectedDevices.cend())
-            return *device;
-        m_defaultDevice.clear();
-    }
 
     if (exec() == QDialog::Accepted)
         return m_model->device(m_ui->deviceView->currentIndex());
-    return AndroidDeviceInfo();
+
+    return {};
 }
 
 bool AndroidDeviceDialog::saveDeviceSelection() const
@@ -508,11 +514,16 @@ bool AndroidDeviceDialog::saveDeviceSelection() const
     return m_ui->defaultDeviceCheckBox->isChecked();
 }
 
+void AndroidDeviceDialog::updateConnectedDevicesList()
+{
+    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig()
+                                                         .adbToolPath());
+}
+
 void AndroidDeviceDialog::refreshDeviceList()
 {
     m_ui->refreshDevicesButton->setEnabled(false);
     m_progressIndicator->show();
-    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath());
     m_futureWatcherRefreshDevices.setFuture(m_avdManager->avdList());
 }
 

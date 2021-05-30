@@ -56,7 +56,8 @@ public:
                                  const QString &serialNumber, QWidget *parent = nullptr);
     ~AndroidDeviceDialog() override;
 
-    AndroidDeviceInfo device();
+    AndroidDeviceInfo showAndGetSelectedDevice();
+    static AndroidDeviceInfo defaultDeviceInfo(const QString &serialNumber);
 
     bool saveDeviceSelection() const;
 
@@ -68,6 +69,7 @@ private:
     void devicesRefreshed();
     void enableOkayButton();
     void defaultDeviceClear();
+    static void updateConnectedDevicesList();
 
     AndroidDeviceModel *m_model;
     Ui::AndroidDeviceDialog *m_ui;
@@ -76,8 +78,8 @@ private:
     QStringList m_abis;
     QString m_avdNameFromAdd;
     QString m_defaultDevice;
+    static QVector<AndroidDeviceInfo> m_connectedDevices;
     std::unique_ptr<AndroidAvdManager> m_avdManager;
-    QVector<AndroidDeviceInfo> m_connectedDevices;
     QFutureWatcher<CreateAvdInfo> m_futureWatcherAddDevice;
     QFutureWatcher<AndroidDeviceInfoList> m_futureWatcherRefreshDevices;
 };
