@@ -43,9 +43,17 @@ public:
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                   CppTools::SymbolFinder *symbolFinder,
                   bool inNextSplit) override;
+
+    void switchDeclDef(const CppTools::CursorInEditor &data,
+                       Utils::ProcessLinkCallback &&processLinkCallback,
+                       const CPlusPlus::Snapshot &snapshot,
+                       const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                       CppTools::SymbolFinder *symbolFinder) override;
+
 private:
     using FutureSymbolWatcher = QFutureWatcher<CppTools::SymbolInfo>;
     std::unique_ptr<FutureSymbolWatcher> m_watcher;
+
 };
 
 } // namespace Internal

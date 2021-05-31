@@ -218,6 +218,7 @@ public:
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
     static RefactoringEngineInterface *builtinRefactoringEngine();
+    static FollowSymbolInterface &builtinFollowSymbol();
 
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);

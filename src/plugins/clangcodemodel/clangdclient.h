@@ -61,6 +61,11 @@ public:
             bool resolveTarget,
             bool openInSplit);
 
+    void switchDeclDef(TextEditor::TextDocument *document,
+            const QTextCursor &cursor,
+            CppTools::CppEditorWidgetInterface *editorWidget,
+            Utils::ProcessLinkCallback &&callback);
+
     void enableTesting();
 
 signals:

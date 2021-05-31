@@ -251,5 +251,23 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     m_watcher->setFuture(infoFuture);
 }
 
+void ClangFollowSymbol::switchDeclDef(const CppTools::CursorInEditor &data,
+                                      Utils::ProcessLinkCallback &&processLinkCallback,
+                                      const CPlusPlus::Snapshot &snapshot,
+                                      const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                                      CppTools::SymbolFinder *symbolFinder)
+{
+    ClangdClient * const client
+            = ClangModelManagerSupport::instance()->clientForFile(data.filePath());
+    if (client && client->isFullyIndexed() && client->versionNumber() >= QVersionNumber(13)) {
+        client->switchDeclDef(data.textDocument(), data.cursor(), data.editorWidget(),
+                              std::move(processLinkCallback));
+        return;
+    }
+    CppTools::CppModelManager::builtinFollowSymbol().switchDeclDef(
+                data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
+                symbolFinder);
+}
+
 } // namespace Internal
 } // namespace ClangCodeModel

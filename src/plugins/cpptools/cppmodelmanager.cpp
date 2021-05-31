@@ -472,6 +472,11 @@ RefactoringEngineInterface *CppModelManager::builtinRefactoringEngine()
     return instance()->d->m_refactoringEngines.value(RefactoringEngineType::BuiltIn);
 }
 
+FollowSymbolInterface &CppModelManager::builtinFollowSymbol()
+{
+    return instance()->d->m_builtinModelManagerSupport->followSymbolInterface();
+}
+
 template<class FilterClass>
 static void setFilter(std::unique_ptr<FilterClass> &filter,
                       std::unique_ptr<FilterClass> &&newFilter)

@@ -796,6 +796,83 @@ void FollowSymbolUnderCursor::findLink(
     processLinkCallback(Link());
 }
 
+void FollowSymbolUnderCursor::switchDeclDef(
+        const CursorInEditor &data,
+        Utils::ProcessLinkCallback &&processLinkCallback,
+        const CPlusPlus::Snapshot &snapshot,
+        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+        SymbolFinder *symbolFinder)
+{
+    if (!documentFromSemanticInfo) {
+        processLinkCallback({});
+        return;
+    }
+
+    // Find function declaration or definition under cursor
+    Function *functionDefinitionSymbol = nullptr;
+    Symbol *functionDeclarationSymbol = nullptr;
+    Symbol *declarationSymbol = nullptr;
+
+    ASTPath astPathFinder(documentFromSemanticInfo);
+    const QList<AST *> astPath = astPathFinder(data.cursor());
+
+    for (AST *ast : astPath) {
+        if (FunctionDefinitionAST *functionDefinitionAST = ast->asFunctionDefinition()) {
+            if ((functionDefinitionSymbol = functionDefinitionAST->symbol))
+                break; // Function definition found!
+        } else if (SimpleDeclarationAST *simpleDeclaration = ast->asSimpleDeclaration()) {
+            if (List<Symbol *> *symbols = simpleDeclaration->symbols) {
+                if (Symbol *symbol = symbols->value) {
+                    if (symbol->isDeclaration()) {
+                        declarationSymbol = symbol;
+                        if (symbol->type()->isFunctionType()) {
+                            functionDeclarationSymbol = symbol;
+                            break; // Function declaration found!
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Link to function definition/declaration
+    Utils::Link symbolLink;
+    if (functionDeclarationSymbol) {
+        Symbol *symbol = symbolFinder->findMatchingDefinition(functionDeclarationSymbol, snapshot);
+        if (symbol)
+            symbolLink = symbol->toLink();
+    } else if (declarationSymbol) {
+        Symbol *symbol = symbolFinder->findMatchingVarDefinition(declarationSymbol, snapshot);
+        if (symbol)
+            symbolLink = symbol->toLink();
+    } else if (functionDefinitionSymbol) {
+        LookupContext context(documentFromSemanticInfo, snapshot);
+        ClassOrNamespace *binding = context.lookupType(functionDefinitionSymbol);
+        const QList<LookupItem> declarations
+            = context.lookup(functionDefinitionSymbol->name(),
+                             functionDefinitionSymbol->enclosingScope());
+
+        QList<Symbol *> best;
+        foreach (const LookupItem &r, declarations) {
+            if (Symbol *decl = r.declaration()) {
+                if (Function *funTy = decl->type()->asFunctionType()) {
+                    if (funTy->match(functionDefinitionSymbol)) {
+                        if (decl != functionDefinitionSymbol && binding == r.binding())
+                            best.prepend(decl);
+                        else
+                            best.append(decl);
+                    }
+                }
+            }
+        }
+
+        if (best.isEmpty())
+            return;
+        symbolLink = best.first()->toLink();
+    }
+    processLinkCallback(symbolLink);
+}
+
 QSharedPointer<VirtualFunctionAssistProvider> FollowSymbolUnderCursor::virtualFunctionAssistProvider()
 {
     return m_virtualFunctionAssistProvider;

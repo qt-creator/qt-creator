@@ -711,78 +711,15 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     if (!d->m_modelManager)
         return;
 
-    if (!d->m_lastSemanticInfo.doc)
-        return;
-
-    // Find function declaration or definition under cursor
-    Function *functionDefinitionSymbol = nullptr;
-    Symbol *functionDeclarationSymbol = nullptr;
-    Symbol *declarationSymbol = nullptr;
-
-    ASTPath astPathFinder(d->m_lastSemanticInfo.doc);
-    const QList<AST *> astPath = astPathFinder(textCursor());
-
-    for (AST *ast : astPath) {
-        if (FunctionDefinitionAST *functionDefinitionAST = ast->asFunctionDefinition()) {
-            if ((functionDefinitionSymbol = functionDefinitionAST->symbol))
-                break; // Function definition found!
-        } else if (SimpleDeclarationAST *simpleDeclaration = ast->asSimpleDeclaration()) {
-            if (List<Symbol *> *symbols = simpleDeclaration->symbols) {
-                if (Symbol *symbol = symbols->value) {
-                    if (symbol->isDeclaration()) {
-                        declarationSymbol = symbol;
-                        if (symbol->type()->isFunctionType()) {
-                            functionDeclarationSymbol = symbol;
-                            break; // Function declaration found!
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Link to function definition/declaration
-    Utils::Link symbolLink;
-    if (functionDeclarationSymbol) {
-        Symbol *symbol = d->m_modelManager->symbolFinder()
-                ->findMatchingDefinition(functionDeclarationSymbol, d->m_modelManager->snapshot());
-        if (symbol)
-            symbolLink = symbol->toLink();
-    } else if (declarationSymbol) {
-        Symbol *symbol = d->m_modelManager->symbolFinder()
-                ->findMatchingVarDefinition(declarationSymbol, d->m_modelManager->snapshot());
-        if (symbol)
-            symbolLink = symbol->toLink();
-    } else if (functionDefinitionSymbol) {
-        const Snapshot snapshot = d->m_modelManager->snapshot();
-        LookupContext context(d->m_lastSemanticInfo.doc, snapshot);
-        ClassOrNamespace *binding = context.lookupType(functionDefinitionSymbol);
-        const QList<LookupItem> declarations
-            = context.lookup(functionDefinitionSymbol->name(),
-                             functionDefinitionSymbol->enclosingScope());
-
-        QList<Symbol *> best;
-        foreach (const LookupItem &r, declarations) {
-            if (Symbol *decl = r.declaration()) {
-                if (Function *funTy = decl->type()->asFunctionType()) {
-                    if (funTy->match(functionDefinitionSymbol)) {
-                        if (decl != functionDefinitionSymbol && binding == r.binding())
-                            best.prepend(decl);
-                        else
-                            best.append(decl);
-                    }
-                }
-            }
-        }
-
-        if (best.isEmpty())
-            return;
-        symbolLink = best.first()->toLink();
-    }
-
-    // Open Editor at link position
-    if (symbolLink.hasValidTarget())
-        openLink(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
+    const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
+    auto callback = [self = QPointer(this),
+            split = inNextSplit != alwaysOpenLinksInNextSplit()](const Link &link) {
+        if (self && link.hasValidTarget())
+            self->openLink(link, split);
+    };
+    followSymbolInterface().switchDeclDef(cursor, std::move(callback),
+                                          d->m_modelManager->snapshot(), d->m_lastSemanticInfo.doc,
+                                          d->m_modelManager->symbolFinder());
 }
 
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,

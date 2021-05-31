@@ -297,14 +297,12 @@ F2TestCase::F2TestCase(CppEditorAction action,
             QSKIP("fuzzy matching is not supposed to work with clangd"); // TODO: Implement fallback as we do with libclang
         if (tag == "baseClassFunctionIntroducedByUsingDeclaration")
             QSKIP("clangd points to the using declaration");
-        if (tag == "classDestructor")
+        if (tag == "classDestructor" || tag == "fromDestructorDefinitionSymbol"
+                || tag == "fromDestructorBody") {
             QSKIP("clangd wants the cursor before the ~ character");
+        }
         if (curTestName == "test_FollowSymbolUnderCursor_classOperator_inOp")
             QSKIP("clangd goes to operator name first");
-        if (tag == "fromFunctionBody" || tag == "fromReturnType"
-                || tag == "conversionOperatorDecl2Def") {
-            QSKIP("TODO: explicit decl/def switch not yet supported with clangd");
-        }
     }
 
     // Write files to disk
@@ -415,7 +413,9 @@ F2TestCase::F2TestCase(CppEditorAction action,
         break;
     }
     case SwitchBetweenMethodDeclarationDefinitionAction:
-        if (CppTools::codeModelSettings()->useClangd())
+        // Some test cases were erroneously added as decl/def, but they are really
+        // follow symbol functionality (in commit a0764603d0).
+        if (useClangd && tag.endsWith("Var"))
             initialTestFile->m_editorWidget->openLinkUnderCursor();
         else
             CppEditorPlugin::instance()->switchDeclarationDefinition();
@@ -622,6 +622,126 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
         "    return @1 + 1;\n"
         "}\n"                   // Line 10
     );
+
+    QTest::newRow("fromConstructorDeclarationSymbol") << _(
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    C();\n"
+        "    int @function();\n"  // Line 5
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "\n"
+        "C::C()\n"
+        "{\n"
+        "}\n"                   // Line 5
+        "\n"
+        "int C::$function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"                   // Line 10
+        );
+
+    QTest::newRow("fromConstructorDefinitionSymbol") << _(
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    $C();\n"
+        "    int function();\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "\n"
+        "C::@C()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        "int C::function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"
+        );
+
+    QTest::newRow("fromConstructorBody") << _(
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    $C();\n"
+        "    int function();\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "\n"
+        "C::C()\n"
+        "{@\n"
+        "}\n"                   // Line 5
+        "\n"
+        "int C::function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"                   // Line 10
+        );
+
+    QTest::newRow("fromDestructorDeclarationSymbol") << _(
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    @C();\n"
+        "    int function();\n"  // Line 5
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "\n"
+        "C::$C()\n"
+        "{\n"
+        "}\n"                   // Line 5
+        "\n"
+        "int C::function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"                   // Line 10
+        );
+
+    QTest::newRow("fromDestructorDefinitionSymbol") << _(
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    ~$C();\n"
+        "    int function();\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "\n"
+        "C::@~C()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        "int C::function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"
+        );
+
+    QTest::newRow("fromDestructorBody") << _(
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    ~$C();\n"
+        "    int function();\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "\n"
+        "C::~C()\n"
+        "{@\n"
+        "}\n"                   // Line 5
+        "\n"
+        "int C::function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"                   // Line 10
+        );
 
     QTest::newRow("fromReturnType") << _(
         "class C\n"

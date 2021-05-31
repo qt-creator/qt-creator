@@ -49,6 +49,11 @@ public:
                           const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                           SymbolFinder *symbolFinder,
                           bool inNextSplit) = 0;
+    virtual void switchDeclDef(const CursorInEditor &data,
+                               Utils::ProcessLinkCallback &&processLinkCallback,
+                               const CPlusPlus::Snapshot &snapshot,
+                               const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                               SymbolFinder *symbolFinder) = 0;
 };
 
 } // namespace CppTools

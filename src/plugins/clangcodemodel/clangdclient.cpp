@@ -230,7 +230,8 @@ public:
     void print(int indent = 0) const
     {
         (qDebug().noquote() << QByteArray(indent, ' ')).quote() << role() << kind()
-                 << detail().value_or(QString()) << arcana().value_or(QString());
+                 << detail().value_or(QString()) << arcana().value_or(QString())
+                 << range();
         for (const AstNode &c : children().value_or(QList<AstNode>()))
             c.print(indent + 2);
     }
@@ -512,6 +513,58 @@ public:
     VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
 };
 
+class SwitchDeclDefData {
+public:
+    SwitchDeclDefData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
+                      CppTools::CppEditorWidgetInterface *editorWidget,
+                      Utils::ProcessLinkCallback &&callback)
+        : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
+          cursor(cursor), editorWidget(editorWidget), callback(std::move(callback)) {}
+
+    Utils::optional<AstNode> getFunctionNode() const
+    {
+        QTC_ASSERT(ast, return {});
+
+        const QList<AstNode> path = getAstPath(*ast, Range(cursor));
+        for (auto it = path.rbegin(); it != path.rend(); ++it) {
+            if (it->role() == "declaration"
+                    && (it->kind() == "CXXMethod" || it->kind() == "CXXConversion"
+                        || it->kind() == "CXXConstructor" || it->kind() == "CXXDestructor")) {
+                return *it;
+            }
+        }
+        return {};
+    }
+
+    QTextCursor cursorForFunctionName(const AstNode &functionNode) const
+    {
+        QTC_ASSERT(docSymbols, return {});
+
+        const auto symbolList = Utils::get_if<QList<DocumentSymbol>>(&*docSymbols);
+        if (!symbolList)
+            return {};
+        const Range &astRange = functionNode.range();
+        QList symbolsToCheck = *symbolList;
+        while (!symbolsToCheck.isEmpty()) {
+            const DocumentSymbol symbol = symbolsToCheck.takeFirst();
+            if (symbol.range() == astRange)
+                return symbol.selectionRange().start().toTextCursor(document->document());
+            if (symbol.range().contains(astRange))
+                symbolsToCheck << symbol.children().value_or(QList<DocumentSymbol>());
+        }
+        return {};
+    }
+
+    const quint64 id;
+    const QPointer<TextEditor::TextDocument> document;
+    const DocumentUri uri;
+    const QTextCursor cursor;
+    CppTools::CppEditorWidgetInterface * const editorWidget;
+    Utils::ProcessLinkCallback callback;
+    Utils::optional<DocumentSymbolsResult> docSymbols;
+    Utils::optional<AstNode> ast;
+};
+
 
 class ClangdClient::Private
 {
@@ -535,12 +588,16 @@ public:
     void handleDocumentInfoResults();
     void closeTempDocuments();
 
+    void handleDeclDefSwitchReplies();
+
     ClangdClient * const q;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
+    Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<QVersionNumber> versionNumber;
     quint64 nextFindUsagesKey = 0;
     quint64 nextFollowSymbolId = 0;
+    quint64 nextSwitchDeclDefId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
 };
@@ -555,7 +612,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setSupportedLanguage(langFilter);
     LanguageServerProtocol::ClientCapabilities caps = Client::defaultClientCapabilities();
     caps.clearExperimental();
-    caps.clearTextDocument();
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
@@ -579,6 +635,15 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         for (quint64 key : d->runningFindUsages.keys())
             d->reportAllSearchResultsAndFinish(d->runningFindUsages[key]);
         QTC_CHECK(d->runningFindUsages.isEmpty());
+    });
+
+    connect(documentSymbolCache(), &DocumentSymbolCache::gotSymbols, this,
+            [this](const DocumentUri &uri, const DocumentSymbolsResult &symbols) {
+        if (!d->switchDeclDefData || d->switchDeclDefData->uri != uri)
+            return;
+        d->switchDeclDefData->docSymbols = symbols;
+        if (d->switchDeclDefData->ast)
+            d->handleDeclDefSwitchReplies();
     });
 
     start();
@@ -943,6 +1008,42 @@ void ClangdClient::followSymbol(
     sendContent(astRequest);
 }
 
+void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                                 CppTools::CppEditorWidgetInterface *editorWidget,
+                                 Utils::ProcessLinkCallback &&callback)
+{
+    QTC_ASSERT(documentOpen(document), openDocument(document));
+
+    qCDebug(clangdLog) << "switch decl/dev requested" << document->filePath()
+                       << cursor.blockNumber() << cursor.positionInBlock();
+    d->switchDeclDefData.emplace(++d->nextSwitchDeclDefId, document, cursor, editorWidget,
+                                 std::move(callback));
+
+    // Retrieve AST and document symbols.
+    AstParams astParams;
+    astParams.setTextDocument(TextDocumentIdentifier(d->switchDeclDefData->uri));
+    AstRequest astRequest(astParams);
+    astRequest.setResponseCallback([this, id = d->switchDeclDefData->id]
+                                   (const AstRequest::Response &response) {
+        qCDebug(clangdLog) << "received ast for decl/def switch";
+        if (!d->switchDeclDefData || d->switchDeclDefData->id != id
+                || !d->switchDeclDefData->document)
+            return;
+        const auto result = response.result();
+        if (!result) {
+            d->switchDeclDefData.reset();
+            return;
+        }
+        d->switchDeclDefData->ast = *result;
+        if (d->switchDeclDefData->docSymbols)
+            d->handleDeclDefSwitchReplies();
+
+    });
+    sendContent(astRequest);
+    documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri);
+
+}
+
 void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
@@ -1142,6 +1243,35 @@ void ClangdClient::Private::handleDocumentInfoResults()
                && followSymbolData->virtualFuncAssistProcessor->running(),
                followSymbolData.reset(); return);
     followSymbolData->virtualFuncAssistProcessor->finalize();
+}
+
+void ClangdClient::Private::handleDeclDefSwitchReplies()
+{
+    if (!switchDeclDefData->document) {
+        switchDeclDefData.reset();
+        return;
+    }
+
+    // Find the function declaration or definition associated with the cursor.
+    // For instance, the cursor could be somwehere inside a function body or
+    // on a function return type, or ...
+    if (clangdLog().isDebugEnabled())
+        switchDeclDefData->ast->print(0);
+    const Utils::optional<AstNode> functionNode = switchDeclDefData->getFunctionNode();
+    if (!functionNode) {
+        switchDeclDefData.reset();
+        return;
+    }
+
+    // Unfortunately, the AST does not contain the location of the actual function name symbol,
+    // so we have to look for it in the document symbols.
+    const QTextCursor funcNameCursor = switchDeclDefData->cursorForFunctionName(*functionNode);
+    if (!funcNameCursor.isNull()) {
+        q->followSymbol(switchDeclDefData->document.data(), funcNameCursor,
+                        switchDeclDefData->editorWidget, std::move(switchDeclDefData->callback),
+                        true, false);
+    }
+    switchDeclDefData.reset();
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()

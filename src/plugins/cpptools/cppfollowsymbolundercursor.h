@@ -44,6 +44,12 @@ public:
                   CppTools::SymbolFinder *symbolFinder,
                   bool inNextSplit) override;
 
+    void switchDeclDef(const CursorInEditor &data,
+                       Utils::ProcessLinkCallback &&processLinkCallback,
+                       const CPlusPlus::Snapshot &snapshot,
+                       const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                       SymbolFinder *symbolFinder) override;
+
     QSharedPointer<VirtualFunctionAssistProvider> virtualFunctionAssistProvider();
     void setVirtualFunctionAssistProvider(
             const QSharedPointer<VirtualFunctionAssistProvider> &provider);
