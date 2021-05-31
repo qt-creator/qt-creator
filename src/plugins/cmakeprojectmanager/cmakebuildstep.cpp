@@ -32,18 +32,15 @@
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
 
-#include <android/androidconstants.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 
@@ -478,30 +475,6 @@ QWidget *CMakeBuildStep::createConfigWidget()
             this, updateDetails);
 
     connect(this, &CMakeBuildStep::buildTargetsChanged, widget, updateDetails);
-
-    // For Qt 6 for Android: Make sure to add "<target>_prepare_apk_dir" if only
-    // "all" target is selected. This copies the build shared libs to android-build
-    // folder, partially the same as done in AndroidPackageInstallationStep for
-    // qmake install step.
-    const Kit *k = target()->kit();
-    if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
-        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
-        if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
-            QMetaObject::Connection *const connection = new QMetaObject::Connection;
-            *connection = connect(this, &CMakeBuildStep::buildTargetsChanged, widget, [this, connection]() {
-                const QString mainTarget = activeRunConfigTarget();
-                if (!mainTarget.isEmpty()) {
-                    QStringList targets{buildTargets()};
-                    if (targets == QStringList{allTarget()}) {
-                        targets.append(QString("%1_prepare_apk_dir").arg(mainTarget));
-                        setBuildTargets({targets});
-                        QObject::disconnect(*connection);
-                        delete connection;
-                    }
-                }
-            });
-        }
-    }
 
     return widget;
 }
