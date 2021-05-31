@@ -812,9 +812,11 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         } else {
             QString importUri = toString(import->importUri);
             if (version.isEmpty())
-                version = "2.15";
-            const Import newImport =
-                    Import::createLibraryImport(importUri, version, as, m_rewriterView->importDirectories());
+                version = getHighestPossibleImport(importUri);
+            const Import newImport = Import::createLibraryImport(importUri,
+                                                                 version,
+                                                                 as,
+                                                                 m_rewriterView->importDirectories());
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
@@ -869,8 +871,6 @@ static bool isBlacklistImport(const ImportKey &importKey, Model *model)
             || importKey.libraryQualifiedPath() == QStringLiteral("QtBluetooth")
             || importKey.libraryQualifiedPath() ==  QStringLiteral("Enginio")
 
-            // Don't show Quick X.X imports
-            || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick"))
             || filterByMetaInfo(importKey, model);
 }
 
@@ -932,8 +932,9 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
 
 void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
 {
-    QHash<QString, ImportKey> filteredPossibleImportKeys =
-            filterPossibleImportKeys(snapshot.importDependencies()->libraryImports(viewContext), m_rewriterView->model());
+    m_possibleImportKeys = snapshot.importDependencies()->libraryImports(viewContext);
+    QHash<QString, ImportKey> filteredPossibleImportKeys
+        = filterPossibleImportKeys(m_possibleImportKeys, m_rewriterView->model());
 
     const QmlJS::Imports *imports = m_scopeChain->context()->imports(m_document.data());
     if (imports)
@@ -968,8 +969,10 @@ void TextToModelMerger::setupUsedImports()
 
      for (const QmlJS::Import &import : allImports) {
          QString version = import.info.version().toString();
-         if (version.isEmpty())
-             version = "2.15";
+
+         if (!import.info.version().isValid())
+             version = getHighestPossibleImport(import.info.name());
+
          if (!import.info.name().isEmpty() && usedImportsSet.contains(import.info.name())) {
             if (import.info.type() == ImportType::Library)
                 usedImports.append(
@@ -1062,8 +1065,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         qCInfo(rewriterBenchmark) << "linked:" << time.elapsed();
         collectLinkErrors(&errors, ctxt);
 
-        setupImports(m_document, differenceHandler);
         setupPossibleImports(snapshot, m_vContext);
+        setupImports(m_document, differenceHandler);
 
         qCInfo(rewriterBenchmark) << "imports setup:" << time.elapsed();
 
@@ -2265,4 +2268,20 @@ QString TextToModelMerger::textAt(const Document::Ptr &doc,
                                   const SourceLocation &to)
 {
     return doc->source().mid(from.offset, to.end() - from.begin());
+}
+
+QString TextToModelMerger::getHighestPossibleImport(const QString &importName) const
+{
+    QString version = "2.15";
+    int maj = -1;
+    const auto imports = m_possibleImportKeys.values();
+    for (const ImportKey &import : imports) {
+        if (importName == import.libraryQualifiedPath()) {
+            if (import.majorVersion > maj) {
+                version = QString("%1.%2").arg(import.majorVersion).arg(import.minorVersion);
+                maj = import.majorVersion;
+            }
+        }
+    }
+    return version;
 }

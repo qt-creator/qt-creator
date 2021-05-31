@@ -153,6 +153,8 @@ private:
                           const QmlJS::SourceLocation &from,
                           const QmlJS::SourceLocation &to);
 
+    QString getHighestPossibleImport(const QString &importName) const;
+
 private:
     RewriterView *m_rewriterView;
     bool m_isActive;
@@ -163,6 +165,7 @@ private:
     QSet<ModelNode> m_setupCustomParserList;
     QmlJS::ViewerContext m_vContext;
     QSet<QPair<QString, QString> > m_qrcMapping;
+    QSet<QmlJS::ImportKey> m_possibleImportKeys;
 };
 
 class DifferenceHandler
