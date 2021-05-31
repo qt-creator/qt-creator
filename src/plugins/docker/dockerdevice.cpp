@@ -619,7 +619,7 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
         LOG("Executable? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const QString path = filePath.toUrl().path();
+    const QString path = filePath.path();
     const CommandLine cmd("test", {"-x", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
@@ -635,7 +635,7 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
         LOG("ReadableFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const QString path = filePath.toUrl().path();
+    const QString path = filePath.path();
     const CommandLine cmd("test", {"-r", path, "-a", "-f", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
@@ -651,7 +651,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
         LOG("ReadableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const QString path = filePath.toUrl().path();
+    const QString path = filePath.path();
     const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
@@ -667,7 +667,7 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
         LOG("WritableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const QString path = filePath.toUrl().path();
+    const QString path = filePath.path();
     const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
@@ -683,7 +683,7 @@ bool DockerDevice::createDirectory(const FilePath &filePath) const
         LOG("CreateDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const QString path = filePath.toUrl().path();
+    const QString path = filePath.path();
     const CommandLine cmd("mkdir", {"-p", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
