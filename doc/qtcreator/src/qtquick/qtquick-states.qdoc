@@ -34,49 +34,35 @@
 
     \title Adding States
 
-    UIs are designed to present different UI configurations in different
-    scenarios, or to modify their appearances in response to user
-    interaction. Often, there are a set of changes that are made concurrently,
-    such that the UI could be seen to be internally changing from one
-    \e state to another.
-
-    This applies generally to UIs regardless of their complexity. A photo
-    viewer may initially present images in a grid, and when an image is clicked,
-    change to a detailed state where the individual image is expanded and the
-    interface is changed to present new options for image editing. At the other
-    end of the scale, when a button is pressed, it may change to a
-    \e pressed state in which its color and position are modified so that it
-    appears to be pressed down.
-
-    Any component can change between different states to apply sets of
-    changes that modify the properties of relevant components. Each state can
-    present a different configuration that can, for example:
-
-    \list
-        \li Show some UI components and hide others.
-        \li Present different available actions to the user.
-        \li Start, stop, or pause animations.
-        \li Execute some script required in the new state.
-        \li Change a property value for a particular component.
-        \li Show a different view.
-    \endlist
-
-    You can animate transitions between states in \l{Transition Editor}.
-
-    \section1 Creating States
-
-    You can create states in the \l States view, by selecting
-    \uicontrol {Create New State}.
+    You can define states for components and component instances in the
+    \l States view by selecting \uicontrol {Create New State}.
 
     \image qmldesigner-transitions.png "States view"
 
     Click the new state to switch to it in \l {Form Editor}, and then modify the
-    properties of components in \l Properties.
+    values of the properties of components or component instances in
+    \l Properties.
 
-    For example, to change the appearance of a button, you can hide the button
-    image and show another image in its place. Or, to add movement to the view,
-    you can change the position of a component in \uicontrol {Form Editor}
-    and then add animation to the change between the states.
+    For example, to change the appearance of a button, you can define states in
+    the button component to hide the button image and show another image in its
+    place or to change the button background or text color. When you use
+    instances of the button in other components, you can define states to
+    create different screens by hiding or showing button component instances.
+    The preset \l Button control in \l Library > \uicontrol Components
+    > \uicontrol {Qt Quick Controls} > \uicontrol Controls has predefined
+    \e normal and \e down states.
+
+    \if defined(qtdesignstudio)
+    This also applies to the custom button component that you can create
+    by using a \l{Creating Custom Controls}{wizard template}. For more
+    information about editing the states within the button component and
+    hiding and showing buttons to create several screens, see
+    \l{Log In UI - Part 1} and \l{Log In UI - Part 3}.
+    \endif
+
+    To add motion to a screen, you can change the position of a component
+    instance in \uicontrol {Form Editor} and then add animation to the change
+    between the states.
 
     The properties that you change in a state are highlighted with blue color.
     In \l{Text Editor}, you can see the changes recorded as changes
@@ -159,6 +145,10 @@
     \badcode
     when: control.pressed || control.checked && !control.hovered
     \endcode
+
+    If you are not familiar with writing expressions, you can use preset
+    \l{Logic Helpers}{logic helpers} from \l Library > \uicontrol Components
+    > \uicontrol {Qt Quick Studio Logic Helper}.
 
     \section1 Using States
 

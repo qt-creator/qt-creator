@@ -1,0 +1,313 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-animation-overview.html
+    \previouspage qtquick-motion-design.html
+
+    \title Introduction to Animation Techniques
+
+    \QDS supports the following types of animation techniques that are suitable
+    for different purposes:
+
+    \list
+        \li Common motion design techniques for 2D and 3D
+        \li Screen-to-screen or state-to-state animations
+        \li Data-driven UI logic animations
+    \endlist
+
+    \section1 Common Motion Design Techniques
+
+    The following table summarizes common motion design techniques for 2D and
+    3D and their typical use cases.
+
+    \table
+    \header
+        \li Technique
+        \li Use Case
+    \row
+        \li \l{Timeline}{Timeline animation}
+        \li Linear interpolation through intermediate values at specified
+            keyframes instead of immediately changing to the target value.
+    \row
+        \li \l{Editing Easing Curves}{Easing curves} attached to keyframes
+        \li Nonlinear interpolation between keyframes to make components
+            appear to pick up speed, slow down, or bounce back at the end
+            of the animation.
+    \row
+        \li \l{Curve Editor}{Animation curves} attached to keyframes
+        \li Complex 3D animations that require several keyframes so it becomes
+            necessary to visualize the value and the interpolation of a keyframe
+            simultaneously.
+    \endtable
+
+    \section2 Timeline and Keyframe Based Animation
+
+    Timeline animation is based on \e keyframes. In \QC, keyframes determine the
+    value of the property of a \l{glossary_component}{component} at a certain
+    time. Animating properties enables their values to move through intermediate
+    values instead of immediately changing to the target value.
+
+    For example, you can set the y position property of a rectangle to 0 at the
+    start of your animation and to 100 at the end of the animation. When the
+    animation is run, the rectangle moves from position 0 to 100 on the y axis.
+    In the middle of the animation, the y property has the value of 50 since
+    keyframes are interpolated linearly by default.
+
+    \section2 Easing Curves
+
+    Sometimes you don't want linear movement but would rather like the rectangle
+    to move faster at the beginning and slower at the end of the animation. To
+    achieve this effect, you could insert a large number of keyframes between
+    the start frame and the end frame. To avoid this effort, you can specify
+    \e {easing curves} for nonlinear interpolation between keyframes. The
+    easing curves can make components appear to pick up speed, slow down, or
+    bounce back at the end of the animation.
+
+    \section2 Animation Curves
+
+    While easing curves work well for most simple UI animations, more complex
+    3D animations require several keyframes so it becomes necessary to visualize
+    the value and the interpolation of a keyframe simultaneously. The
+    \l {Curve Editor} visualizes the whole animation of a property at once and
+    shows the effective values of a keyframe together with the interpolation
+    between keyframes. It can also show animations of different properties
+    simultaneously so that you can see the animation for the x position
+    and the animation for the y position side-by-side.
+
+    \section1 Screen-to-Screen or State-to-State Animations
+
+    The following table summarizes techniques used for navigating between
+    screens and UI states.
+
+    \table
+    \header
+        \li Technique
+        \li Use Case
+    \if defined(qtdesignstudio)
+    \row
+        \li \l{Designing Application Flows}{Application flows}
+        \li An interactive prototype that can be clicked through to simulate
+            the user experience of the application.
+    \endif
+    \row
+        \li \l{Transition Editor}{Transitions between states}
+        \li Transitions between different states of the UI using a transition
+            timeline that is based on keyframes. You can apply easing curves
+            to the keyframes.
+    \endtable
+
+    \if defined(qtdesignstudio)
+    \section2 Application Flows
+
+    You can design an application in the form of a \e {schematic diagram}
+    that shows all the significant components of the application UI and their
+    interconnections by means of symbols. This results in an interactive
+    prototype that can be clicked through to simulate the user experience of
+    the application. Code is created in the background and can be used
+    as the base of the production version of the application.
+
+    For more information, see \l{Designing Application Flows}.
+    \endif
+
+    \section2 Transitions Between States
+
+    UIs are designed to present different UI configurations in different
+    scenarios, or to modify their appearances in response to user
+    interaction. Often, several changes are made concurrently so that the
+    UI can be seen to be internally changing from one \e state to another.
+
+    This applies generally to UIs regardless of their complexity. A photo
+    viewer may initially present images in a grid, and when an image is clicked,
+    change to a detailed state where the individual image is expanded and the
+    interface is changed to present new options for image editing. At the other
+    end of the scale, when a button is pressed, it may change to a
+    \e pressed state in which its color and position are modified so that it
+    appears to be pressed down.
+
+    Any component can change between different states to apply sets of
+    changes that modify the properties of relevant components. Each state can
+    present a different configuration that can, for example:
+
+    \list
+        \li Show some UI components and hide others.
+        \li Present different available actions to the user.
+        \li Start, stop, or pause animations.
+        \li Execute some script required in the new state.
+        \li Change a property value for a particular component.
+        \li Show a different view.
+    \endlist
+
+    State changes introduce abrupt motion that you can make visually appealing
+    by using \e transitions. Transitions are animation types that interpolate
+    property changes caused by state changes.
+
+    In \l {Transition Editor}, you can set the start frame, end frame,
+    and duration for the transition of each property. You can also set
+    an \l{Editing Easing Curves}{easing curve} for each animation and
+    the maximum duration of the whole transition.
+
+    \section1 Data-Driven UI Logic Animations
+
+    The following table summarizes techniques used for animating the UI logic
+    by using real or mock data from a backend.
+
+    \table
+    \header
+        \li Technique
+        \li Use Case
+    \row
+        \li Data-driven timeline animation
+        \li Using real or mock data from a backend to control motion.
+    \row
+        \li Programmatic property animation
+        \li Interpolating property values programmatically to create smooth
+            transitions.
+    \endtable
+
+    \section2 Data-Driven Timeline Animation
+
+    You can connect property values to data backends to drive timeline
+    animation. You can fetch data from various sources, such as data models,
+    JavaScript files, and backend services. You can also connect your UI to
+    Simulink to load live data from a Simulink simulation.
+
+    You can connect these data sources to the current frame of a timeline,
+    creating animation when the backend changes the current frame property.
+
+    For example, you could connect the speed value from a backend to a
+    tachometer dial in a cluster. As the speed value is increased or
+    decreased from the backend, it moves the needle animation from one
+    end of the timeline to the other.
+
+    For more information, see \l{Simulating Data Input}.
+
+    \section2 Programmatic Animation
+
+    You can control property animation programmatically. Property animations
+    are created by binding \l{Animations}{Animation} components to property
+    values of component instances to gradually change the properties values
+    over time. The property animations apply smooth movement by interpolating
+    values between property value changes. They provide timing controls and
+    enable different interpolations through easing curves.
+
+    Developers can control the execution of property animations by using the
+    \c start(), \c stop(), \c resume(), \c pause(), \c restart(), and
+    \c complete() functions.
+
+    You can create instances of preset animation components available in
+    \l Library > \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol Animation to create \l{Animations}{animations} depending on
+    the type of the property that is to be animated and the behavior that
+    you want.
+
+    \table
+    \header
+        \li Animation Type
+        \li Use Case
+    \row
+        \li Property animation
+        \li Applying animation when the value of a property changes. Color
+            and number animations are property animation types for specific
+            purposes.
+    \row
+        \li Property action
+        \li Setting non-animated property values during an animation.
+    \row
+        \li Color animation
+        \li Applying animation when a color value changes.
+    \row
+        \li Number animation
+        \li Applying animation when a numerical value changes.
+    \row
+        \li Parallel animation
+        \li Running animations in parallel.
+    \row
+        \li Sequential Animation
+        \li Running animations sequentially.
+    \row
+        \li Pause animation
+        \li Creating a step in a sequential animation where nothing happens for
+            a specified duration.
+    \row
+        \li Script action
+        \li Executing JavaScript during an animation.
+    \endtable
+
+    \section3 Property Animation and Action
+
+    A property animation is applied when the value of a property changes.
+
+    To immediately change a property value during an animation without
+    animating the property change, use a property action instead. This
+    is useful for setting non-animated property values during an animation.
+
+    For example, you can use a sequential animation that contains two property
+    actions around a number animation to set the value of the opacity property
+    of an \l{Images}{Image} to \c 0.5, animate the width of the image, and then
+    set the opacity back to \c 1.
+
+    \section3 Color Animation
+
+    A color animation is a specialized property animation that defines an
+    animation to be applied when a color value changes.
+
+    For example, you can apply animation to the color property of a \l Rectangle
+    to change its value from its current color to another color over a period
+    of time specified in milliseconds.
+
+    \section3 Number Animation
+
+    A number animation is a specialized property animation that defines an
+    animation to be applied when a numerical value changes.
+
+    For example, you can apply animation to the x property of a \l Rectangle
+    to make it appear to move from its current position on the x axis to another
+    position over a period of time specified in milliseconds.
+
+    \section3 Parallel and Sequential Animation
+
+    Animations can run in parallel or in sequence. Parallel animations will
+    play a group of animations at the same time while sequential animations
+    play a group of animations in order, one after the other.
+
+    For example, a banner component may have several icons or slogans to
+    display, one after the other. The opacity property could change to
+    \c 1.0 denoting an opaque object. Using a sequential animation, the
+    opacity animations will play after the preceding animation finishes,
+    whereas a parallel animation will play the animations at the same time.
+
+    Once individual animations are placed into a group of parallel or sequential
+    animations, they can no longer be started and stopped independently. The
+    sequential or parallel animations must be started and stopped as a group.
+
+    \section3 Pause Animation
+
+    When used in a sequential animation, a pause animation is a step when
+    nothing happens, for a specified duration.
+
+    For example, you could specify a 500-millisecond animation sequence, with
+    a 100-millisecond pause between two animations.
+*/

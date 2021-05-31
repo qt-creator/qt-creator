@@ -30,13 +30,6 @@
 
     \title Designing Application Flows
 
-    You can design an application in the form of a \e {schematic diagram}
-    that shows all significant components of the application UI and their
-    interconnections by means of symbols. This results in an interactive
-    prototype that can be clicked through to simulate the user experience of
-    the application. Code is created in the background and can be used
-    as the base of the production version of the application.
-
     \image studio-flow-view.png "Application flow in Form Editor"
 
     In \QDS, a \e {flow view} represents a schematic diagram. It consists of

@@ -30,60 +30,6 @@
 
     \title Creating Animations
 
-    Animation is based on \e keyframes. In \QC, keyframes determine the value
-    of the property of a \l{glossary_component}{component} at a certain time.
-    Animating properties enables their values to move through intermediate
-    values instead of immediately changing to the target value.
-
-    For example, you can set the y position property of a rectangle to 0 at the
-    start of your animation and to 100 at the end of the animation. When the
-    animation is run, the rectangle moves from position 0 to 100 on the y axis.
-    In the middle of the animation, the y property has the value of 50 since
-    keyframes are interpolated linearly by default.
-
-    Sometimes you don't want linear movement but would rather like the rectangle
-    to move faster at the beginning and slower at the end of the animation.
-    To achieve this effect, you could insert a lot of keyframes between the
-    start frame and the end frame. To avoid this effort, you can use the
-    \l{Editing Easing Curves}{Easing Curve Editor} to specify \e {easing curves}
-    for nonlinear interpolation between keyframes. The easing curves can make
-    components appear to pick up speed, slow down, or bounce back at the end of
-    the animation.
-
-    While easing curves work well for most simple UI animations, more complex
-    3D animations require several keyframes so it becomes necessary to visualize
-    the value and the interpolation of a keyframe simultaneously. The
-    \l {Curve Editor} visualizes the whole animation of a property at once and
-    shows the effective values of a keyframe together with the interpolation
-    between keyframes. It can also show animations of different properties
-    simultaneously so that you can see the animation for the x position
-    side-by-side with the animation of the y position.
-
-    You can declare various UI states as \l{Adding States}{states}, which
-    are specified as changes from a base state and can be a useful way of
-    organizing your UI logic. You can \l{Binding Animations to States}
-    {bind animations to states} to run an animation when a state is applied.
-
-    Each component in a scene or a project can have its own timeline and its own
-    set of states. We recommend that you place your timelines inside the
-    components and precompose them. Each component's timeline runs independently
-    of the rest of the scene, allowing for time-independent animations.
-    Additionally, separate states allow common functionality to be factored out
-    and reused across the scene. Do note, however, that adding states and
-    timelines to your components will increase the file size and runtime memory
-    requirements of your UI.
-
-    The following video shows how to animate component properties using the
-    timeline and keyframe based editor in the \l Timeline view:
-
-    \youtube V3Po15bNErw
-
-    \if defined(qtcreator)
-    To be able to create timelines, you also need the \l {Qt Quick Timeline}
-    add-on module, which you can install with Qt 5.14, and later. For more
-    information about adding the module to an older Qt version, see
-    \l{Adding Qt Quick Timeline Module to Qt Installations}.
-    \endif
 
     \section1 Creating Timelines
 
