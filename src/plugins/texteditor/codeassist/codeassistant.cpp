@@ -252,11 +252,14 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         break;
     }
     case IAssistProvider::Asynchronous: {
-        processor->setAsyncCompletionAvailableHandler([this, reason, processor](IAssistProposal *newProposal) {
-            // do not delete this processor directly since this function is called from within the processor
-            QMetaObject::invokeMethod(QCoreApplication::instance(), [processor]() {
-                delete processor;
-            }, Qt::QueuedConnection);
+        processor->setAsyncCompletionAvailableHandler([this, reason, processor](
+                IAssistProposal *newProposal) {
+            if (!processor->running()) {
+                // do not delete this processor directly since this function is called from within the processor
+                QMetaObject::invokeMethod(QCoreApplication::instance(), [processor]() {
+                    delete processor;
+                }, Qt::QueuedConnection);
+            }
             if (processor != m_asyncProcessor)
                 return;
             invalidateCurrentRequestData();
@@ -266,7 +269,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                 requestProposal(reason, m_assistKind, m_requestProvider);
             } else {
                 displayProposal(newProposal, reason);
-                emit q->finished();
+                if (processor && processor->running())
+                    m_asyncProcessor = processor;
+                else
+                    emit q->finished();
             }
         });
 
@@ -565,6 +571,9 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
                 destroyContext();
             else if (!keyText.isEmpty() && !m_receivedContentWhileWaiting)
                 m_receivedContentWhileWaiting = true;
+        } else if (type == QEvent::KeyRelease
+                   && static_cast<QKeyEvent *>(e)->key() == Qt::Key_Escape) {
+            destroyContext();
         }
     }
 

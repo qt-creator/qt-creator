@@ -46,8 +46,9 @@ public:
     void setAsyncProposalAvailable(IAssistProposal *proposal);
 
     // Internal, used by CodeAssist
-    using AsyncCompletionsAvailableHandler = std::function<void (IAssistProposal *proposal)>;
-    void setAsyncCompletionAvailableHandler(const AsyncCompletionsAvailableHandler &finalizer);
+    using AsyncCompletionsAvailableHandler
+        = std::function<void (IAssistProposal *proposal)>;
+    void setAsyncCompletionAvailableHandler(const AsyncCompletionsAvailableHandler &handler);
 
     virtual bool running() { return false; }
     virtual bool needsRestart() const { return false; }

@@ -61,8 +61,9 @@ public:
         bool gotResults = false;
 
         processor->setAsyncCompletionAvailableHandler(
-                    [this, &gotResults] (TextEditor::IAssistProposal *proposal) {
+                    [this, processor, &gotResults] (TextEditor::IAssistProposal *proposal) {
             QTC_ASSERT(proposal, return);
+            QTC_CHECK(!processor->running());
             proposalModel = proposal->model();
             delete proposal;
             gotResults = true;

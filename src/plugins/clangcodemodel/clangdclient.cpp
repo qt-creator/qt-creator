@@ -425,6 +425,7 @@ public:
     void cancel() override;
     bool running() override { return m_data; }
 
+    void update();
     void finalize();
 
 private:
@@ -433,9 +434,17 @@ private:
         return nullptr;
     }
 
-    TextEditor::IAssistProposal *immediateProposal(const TextEditor::AssistInterface *) override;
+    TextEditor::IAssistProposal *immediateProposal(const TextEditor::AssistInterface *) override
+    {
+        return createProposal(false);
+    }
+
+    void resetData();
 
     TextEditor::IAssistProposal *immediateProposalImpl() const;
+    TextEditor::IAssistProposal *createProposal(bool final) const;
+    CppTools::VirtualFunctionProposalItem *createEntry(const QString &name,
+                                                       const Utils::Link &link) const;
 
     ClangdClient::Private *m_data = nullptr;
 };
@@ -511,6 +520,7 @@ public:
     SymbolDataList symbolsToDisplay;
     std::set<Utils::FilePath> openedFiles;
     VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
+    bool finished = false;
 };
 
 class SwitchDeclDefData {
@@ -1156,6 +1166,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
                 }
             }
             followSymbolData->pendingSymbolInfoRequests.removeOne(reqId);
+            followSymbolData->virtualFuncAssistProcessor->update();
             if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
                     && followSymbolData->pendingGotoDefRequests.isEmpty()
                     && followSymbolData->defLinkNode.isValid()) {
@@ -1276,6 +1287,33 @@ void ClangdClient::Private::handleDeclDefSwitchReplies()
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()
 {
+    resetData();
+}
+
+void ClangdClient::VirtualFunctionAssistProcessor::update()
+{
+    if (!m_data->followSymbolData->isEditorWidgetStillAlive())
+        return;
+    setAsyncProposalAvailable(createProposal(false));
+}
+
+void ClangdClient::VirtualFunctionAssistProcessor::finalize()
+{
+    if (!m_data->followSymbolData->isEditorWidgetStillAlive())
+        return;
+    const auto proposal = createProposal(true);
+    if (m_data->followSymbolData->editorWidget->inTestMode) {
+        m_data->followSymbolData->symbolsToDisplay.clear();
+        const auto immediateProposal = createProposal(false);
+        m_data->followSymbolData->editorWidget->setProposals(immediateProposal, proposal);
+    } else {
+        setAsyncProposalAvailable(proposal);
+    }
+    resetData();
+}
+
+void ClangdClient::VirtualFunctionAssistProcessor::resetData()
+{
     if (!m_data)
         return;
     m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
@@ -1283,77 +1321,58 @@ void ClangdClient::VirtualFunctionAssistProcessor::cancel()
     m_data = nullptr;
 }
 
-void ClangdClient::VirtualFunctionAssistProcessor::finalize()
-{
-    QList<TextEditor::AssistProposalItemInterface *> items;
-    for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
-        Utils::Link link = symbol.second;
-        const bool isOriginalLink = m_data->followSymbolData->defLink == link;
-        if (isOriginalLink && m_data->followSymbolData->defLinkNode.range()
-                .contains(Position(m_data->followSymbolData->cursor))) {
-            continue;
-        }
-        if (!isOriginalLink) {
-            const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
-            if (defLink.hasValidTarget())
-                link = defLink;
-        }
-        const auto item = new CppTools::VirtualFunctionProposalItem(
-                    link, m_data->followSymbolData->openInSplit);
-        QString text = symbol.first;
-        if (isOriginalLink) {
-            item->setOrder(1000); // Ensure base declaration is on top.
-            if (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
-                    || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition()) {
-                text += " = 0";
-            }
-        }
-        item->setText(text);
-        items << item;
-    }
-    const auto finalProposal = new CppTools::VirtualFunctionProposal(
-                m_data->followSymbolData->cursor.position(),
-                items, m_data->followSymbolData->openInSplit);
-    if (m_data->followSymbolData->isEditorWidgetStillAlive()
-            && m_data->followSymbolData->editorWidget->inTestMode) {
-        m_data->followSymbolData->editorWidget->setProposals(immediateProposalImpl(),
-                                                             finalProposal);
-    } else {
-        setAsyncProposalAvailable(finalProposal);
-    }
-
-    m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
-    m_data->followSymbolData.reset();
-    m_data = nullptr;
-}
-
-TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::immediateProposal(
-        const TextEditor::AssistInterface *)
-{
-    if (m_data->followSymbolData->isEditorWidgetStillAlive()
-            && m_data->followSymbolData->editorWidget->inTestMode) {
-        return nullptr;
-    }
-    return immediateProposalImpl();
-}
-
-TextEditor::IAssistProposal *
-ClangdClient::VirtualFunctionAssistProcessor::immediateProposalImpl() const
+TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::createProposal(bool final) const
 {
     QTC_ASSERT(m_data && m_data->followSymbolData, return nullptr);
 
     QList<TextEditor::AssistProposalItemInterface *> items;
-    if (!m_data->followSymbolData->cursorNode.isPureVirtualDeclaration()) {
-        const auto defLinkItem = new CppTools::VirtualFunctionProposalItem(
-                    m_data->followSymbolData->defLink, m_data->followSymbolData->openInSplit);
-        defLinkItem->setText(ClangdClient::tr("<base declaration>"));
-        items << defLinkItem;
+    bool needsBaseDeclEntry = !m_data->followSymbolData->defLinkNode.range()
+            .contains(Position(m_data->followSymbolData->cursor));
+    for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
+        Utils::Link link = symbol.second;
+        if (m_data->followSymbolData->defLink == link) {
+            if (!needsBaseDeclEntry)
+                continue;
+            needsBaseDeclEntry = false;
+        } else {
+            const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
+            if (defLink.hasValidTarget())
+                link = defLink;
+        }
+        items << createEntry(symbol.first, link);
     }
-    const auto infoItem = new CppTools::VirtualFunctionProposalItem({}, false);
-    infoItem->setText(ClangdClient::tr("collecting overrides ..."));
-    items << infoItem;
-    return new CppTools::VirtualFunctionProposal(m_data->followSymbolData->cursor.position(),
-                                                 items, m_data->followSymbolData->openInSplit);
+    if (needsBaseDeclEntry)
+        items << createEntry({}, m_data->followSymbolData->defLink);
+    if (!final) {
+        const auto infoItem = new CppTools::VirtualFunctionProposalItem({}, false);
+        infoItem->setText(ClangdClient::tr("collecting overrides ..."));
+        infoItem->setOrder(-1);
+        items << infoItem;
+    }
+
+    return new CppTools::VirtualFunctionProposal(
+                m_data->followSymbolData->cursor.position(),
+                items, m_data->followSymbolData->openInSplit);
+}
+
+CppTools::VirtualFunctionProposalItem *
+ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
+                                                          const Utils::Link &link) const
+{
+    const auto item = new CppTools::VirtualFunctionProposalItem(
+                link, m_data->followSymbolData->openInSplit);
+    QString text = name;
+    if (link == m_data->followSymbolData->defLink) {
+        item->setOrder(1000); // Ensure base declaration is on top.
+        if (text.isEmpty()) {
+            text = ClangdClient::tr("<base declaration>");
+        } else if (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
+                   || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition()) {
+            text += " = 0";
+        }
+    }
+    item->setText(text);
+    return item;
 }
 
 TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor() const

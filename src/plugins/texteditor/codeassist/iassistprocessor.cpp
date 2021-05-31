@@ -47,9 +47,9 @@ void IAssistProcessor::setAsyncProposalAvailable(IAssistProposal *proposal)
 }
 
 void IAssistProcessor::setAsyncCompletionAvailableHandler(
-        const IAssistProcessor::AsyncCompletionsAvailableHandler &finalizer)
+        const IAssistProcessor::AsyncCompletionsAvailableHandler &handler)
 {
-    m_asyncCompletionsAvailableHandler = finalizer;
+    m_asyncCompletionsAvailableHandler = handler;
 }
 
 /*!
