@@ -176,4 +176,7 @@
     remove the crash report data.
 
     \image studio-crashpad-checkbox.png "Checkbox for enabling crash reporting"
+
+    \note Crashpad is currently only supported on Windows and \macos.
+
 */
