@@ -65,4 +65,10 @@ public:
     }
 };
 
+class TypeHasInvalidSourceId : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The source id is invalid!"; }
+};
+
 } // namespace QmlDesigner

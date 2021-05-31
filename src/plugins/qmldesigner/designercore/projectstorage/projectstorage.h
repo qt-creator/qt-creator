@@ -63,8 +63,12 @@ public:
         TypeIds updatedTypeIds;
         updatedTypeIds.reserve(types.size());
 
-        for (auto &&type : types)
+        for (auto &&type : types) {
+            if (!type.sourceId)
+                throw TypeHasInvalidSourceId{};
+
             updatedTypeIds.push_back(syncType(type));
+        }
 
         deleteNotUpdatedTypes(updatedTypeIds, sourceIds);
 
@@ -262,8 +266,17 @@ private:
             return &sourceId;
         });
 
-        deleteNotUpdatedTypesInSourcesStatement.write(Utils::span(sourceIdValues),
-                                                      Utils::span(updatedTypeIdValues));
+        auto removedTypeIds = selectNotUpdatedTypesInSourcesStatement.template range<TypeId>(
+            Utils::span(sourceIdValues), Utils::span(updatedTypeIdValues));
+
+        for (TypeId typeId : removedTypeIds) {
+            resetTypeStatement.write(&typeId);
+            deleteExportTypesByTypeIdStatement.write(&typeId);
+            deleteEnumerationDeclarationByTypeIdStatement.write(&typeId);
+            deletePropertyDeclarationByTypeIdStatement.write(&typeId);
+            deleteFunctionDeclarationByTypeIdStatement.write(&typeId);
+            deleteSignalDeclarationByTypeIdStatement.write(&typeId);
+        }
     }
 
     void upsertExportedType(Utils::SmallStringView qualifiedName, Storage::Version version, TypeId typeId)
@@ -689,7 +702,6 @@ private:
                                       Sqlite::ForeignKeyAction::Restrict,
                                       Sqlite::ForeignKeyAction::Restrict,
                                       Sqlite::Enforment::Deferred);
-            table.addColumn("defaultProperty");
 
             table.addUniqueIndex({nameColumn});
 
@@ -864,9 +876,21 @@ public:
         "SELECT name, typeId, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId),"
         "accessSemantics, ifnull(sourceId, -1) FROM types AS outerTypes",
         database};
-    WriteStatement deleteNotUpdatedTypesInSourcesStatement{
-        "DELETE FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN carray(?2)) OR sourceId "
-        "IS NULL",
+    ReadStatement<1> selectNotUpdatedTypesInSourcesStatement{
+        "SELECT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN carray(?2))",
+        database};
+    WriteStatement deleteExportTypesByTypeIdStatement{"DELETE FROM exportedTypes WHERE typeId=?",
+                                                      database};
+    WriteStatement deleteEnumerationDeclarationByTypeIdStatement{
+        "DELETE FROM enumerationDeclarations WHERE typeId=?", database};
+    WriteStatement deletePropertyDeclarationByTypeIdStatement{
+        "DELETE FROM propertyDeclarations WHERE typeId=?", database};
+    WriteStatement deleteFunctionDeclarationByTypeIdStatement{
+        "DELETE FROM functionDeclarations WHERE typeId=?", database};
+    WriteStatement deleteSignalDeclarationByTypeIdStatement{
+        "DELETE FROM signalDeclarations WHERE typeId=?", database};
+    WriteStatement resetTypeStatement{
+        "UPDATE types SET accessSemantics=NULL, sourceId=NULL, prototypeId=NULL WHERE typeId=?",
         database};
     mutable ReadStatement<3> selectPropertyDeclarationsByTypeIdStatement{
         "SELECT name, (SELECT name FROM types WHERE typeId=propertyDeclarations.propertyTypeId),"

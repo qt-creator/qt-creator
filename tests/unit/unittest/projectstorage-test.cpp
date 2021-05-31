@@ -82,6 +82,19 @@ MATCHER_P4(IsStorageType,
            && type.accessSemantics == accessSemantics && type.sourceId == sourceId;
 }
 
+MATCHER_P3(IsStorageTypeWithInvalidSourceId,
+           typeName,
+           prototype,
+           accessSemantics,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::Type{typeName, prototype, accessSemantics, SourceId{}}))
+{
+    const Storage::Type &type = arg;
+
+    return type.typeName == typeName && type.prototype == prototype
+           && type.accessSemantics == accessSemantics && !type.sourceId.isValid();
+}
+
 MATCHER_P2(IsExportedType,
            qualifiedTypeName,
            version,
@@ -413,16 +426,6 @@ TEST_F(ProjectStorage,
     EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceContextId("/other/unknow/path");
-}
-
-TEST_F(ProjectStorage, SynchronizeTypesCalls)
-{
-    InSequence s;
-
-    EXPECT_CALL(databaseMock, immediateBegin());
-    EXPECT_CALL(databaseMock, commit());
-
-    storage.synchronizeTypes({}, {});
 }
 
 TEST_F(ProjectStorage, FetchTypeByTypeIdCalls)
@@ -1271,8 +1274,9 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesInsertTypeIntoPrototypeChain)
                                              IsExportedType("QtQuick.Item", Storage::Version{5, 15}))))));
 }
 
-TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForMissingPrototype)
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesDontThrowsForMissingPrototype)
 {
+    sourceId1 = sourcePathCache.sourceId(path1);
     Storage::Types types{
         Storage::Type{"QQuickItem",
                       "QObject",
@@ -1280,19 +1284,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForMissingPrototype)
                       sourceId1,
                       {Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 15}}}}};
 
-    ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1}), Sqlite::ConstraintPreventsModification);
+    ASSERT_NO_THROW(storage.synchronizeTypes(types, {sourceId1}));
 }
 
-TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForWrongPrototypeChange)
-{
-    Storage::Types types{createTypes()};
-    storage.synchronizeTypes(types, {sourceId1, sourceId2});
-    types[0].prototype = "QQuickObject";
-
-    ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1}), Sqlite::ConstraintPreventsModification);
-}
-
-TEST_F(ProjectStorageSlowTest, DontAddTypeWithInvalidSourceId)
+TEST_F(ProjectStorageSlowTest, TypeWithInvalidSourceIdThrows)
 {
     Storage::Types types{
         Storage::Type{"QQuickItem",
@@ -1301,9 +1296,51 @@ TEST_F(ProjectStorageSlowTest, DontAddTypeWithInvalidSourceId)
                       SourceId{},
                       {Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 15}}}}};
 
-    storage.synchronizeTypes(types, {});
+    ASSERT_THROW(storage.synchronizeTypes(types, {}), QmlDesigner::TypeHasInvalidSourceId);
+}
 
-    ASSERT_THAT(storage.fetchTypes(), IsEmpty());
+TEST_F(ProjectStorageSlowTest, ResetsTypeIfTypeIsRemoved)
+{
+    Storage::Types types{createTypes()};
+    types[1].enumerationDeclarations = types[0].enumerationDeclarations;
+    types[1].propertyDeclarations = types[0].propertyDeclarations;
+    types[1].functionDeclarations = types[0].functionDeclarations;
+    types[1].signalDeclarations = types[0].signalDeclarations;
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types.pop_back();
+
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageTypeWithInvalidSourceId("QObject", "", TypeAccessSemantics::Invalid),
+                          Field(&Storage::Type::exportedTypes, IsEmpty()),
+                          Field(&Storage::Type::enumerationDeclarations, IsEmpty()),
+                          Field(&Storage::Type::propertyDeclarations, IsEmpty()),
+                          Field(&Storage::Type::functionDeclarations, IsEmpty()),
+                          Field(&Storage::Type::signalDeclarations, IsEmpty()))));
+}
+
+TEST_F(ProjectStorageSlowTest, DontResetsTypeIfSourceIdIsNotSynchronized)
+{
+    Storage::Types types{createTypes()};
+    types[1].enumerationDeclarations = types[0].enumerationDeclarations;
+    types[1].propertyDeclarations = types[0].propertyDeclarations;
+    types[1].functionDeclarations = types[0].functionDeclarations;
+    types[1].signalDeclarations = types[0].signalDeclarations;
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types.pop_back();
+
+    storage.synchronizeTypes(types, {sourceId1});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Reference, sourceId2),
+                               Field(&Storage::Type::exportedTypes, Not(IsEmpty())),
+                               Field(&Storage::Type::exportedTypes, Not(IsEmpty())),
+                               Field(&Storage::Type::enumerationDeclarations, Not(IsEmpty())),
+                               Field(&Storage::Type::propertyDeclarations, Not(IsEmpty())),
+                               Field(&Storage::Type::functionDeclarations, Not(IsEmpty())),
+                               Field(&Storage::Type::signalDeclarations, Not(IsEmpty())))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarations)
