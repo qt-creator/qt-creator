@@ -57,6 +57,7 @@ public:
     UTILS_DELETE_MOVE_AND_COPY(AssistProposalItemInterface)
 
     virtual QString text() const = 0;
+    virtual QString filterText() const { return text(); }
     virtual bool implicitlyApplies() const = 0;
     virtual bool prematurelyApplies(const QChar &typedCharacter) const = 0;
     virtual void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const = 0;

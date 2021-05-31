@@ -61,6 +61,7 @@ public:
 
     // AssistProposalItemInterface interface
     QString text() const override;
+    QString filterText() const override;
     bool implicitlyApplies() const override;
     bool prematurelyApplies(const QChar &typedCharacter) const override;
     void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
@@ -80,6 +81,7 @@ private:
     CompletionItem m_item;
     mutable QChar m_triggeredCommitCharacter;
     mutable QString m_sortText;
+    mutable QString m_filterText;
 };
 
 LanguageClientCompletionItem::LanguageClientCompletionItem(CompletionItem item)
@@ -202,6 +204,15 @@ const QString &LanguageClientCompletionItem::sortText() const
     return m_sortText;
 }
 
+QString LanguageClientCompletionItem::filterText() const
+{
+    if (m_filterText.isEmpty()) {
+        const Utils::optional<QString> filterText = m_item.filterText();
+        m_filterText = filterText.has_value() ? filterText.value() : m_item.label();
+    }
+    return m_filterText;
+}
+
 bool LanguageClientCompletionItem::operator <(const LanguageClientCompletionItem &other) const
 {
     return sortText() < other.sortText();
@@ -292,6 +303,7 @@ private:
     Utils::optional<MessageId> m_currentRequest;
     QMetaObject::Connection m_postponedUpdateConnection;
     int m_pos = -1;
+    int m_basePos = -1;
 };
 
 LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client)
@@ -317,14 +329,13 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
 {
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
+    m_basePos = m_pos;
+    auto isIdentifierChar = [](const QChar &c) { return c.isLetterOrNumber() || c == '_'; };
+    while (m_basePos > 0 && isIdentifierChar(interface->characterAt(m_basePos - 1)))
+        --m_basePos;
     if (interface->reason() == IdleEditor) {
         // Trigger an automatic completion request only when we are on a word with at least n "identifier" characters
-        const QRegularExpression regexp("^[_a-zA-Z0-9]+$");
-        auto hasMatch = [&regexp](const QString &txt) { return regexp.match(txt).hasMatch(); };
-        int delta = 0;
-        while (m_pos - delta > 0 && hasMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
-            ++delta;
-        if (delta < TextEditorSettings::completionSettings().m_characterThreshold)
+        if (m_pos - m_basePos < TextEditorSettings::completionSettings().m_characterThreshold)
             return nullptr;
         if (m_client->documentUpdatePostponed(interface->filePath())) {
             m_postponedUpdateConnection
@@ -416,7 +427,8 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     model->loadContent(Utils::transform(items, [](const CompletionItem &item){
         return static_cast<AssistProposalItemInterface *>(new LanguageClientCompletionItem(item));
     }));
-    LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_pos, model);
+    LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_basePos,
+                                                                                      model);
     proposal->m_document = m_document;
     proposal->m_pos = m_pos;
     proposal->setFragile(true);
