@@ -144,6 +144,8 @@
         "QtQuick.Templates 2.2",
         "QtQuick.Templates 2.5",
         "QtQuick.Templates 2.12",
+        "QtQuick.Timeline 1.0",
+        "QtQuick.Timeline 1.1",
         "QtQuick.Window 2.0",
         "QtQuick.Window 2.1",
         "QtQuick.Window 2.2",
