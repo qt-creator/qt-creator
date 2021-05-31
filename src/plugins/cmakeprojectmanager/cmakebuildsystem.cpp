@@ -904,7 +904,8 @@ FilePath CMakeBuildSystem::workDirectory(const BuildDirParameters &parameters)
 
 void CMakeBuildSystem::stopParsingAndClearState()
 {
-    qCDebug(cmakeBuildSystemLog) << "stopping parsing run!";
+    qCDebug(cmakeBuildSystemLog) << cmakeBuildConfiguration()->displayName()
+                                 << "stopping parsing run!";
     m_reader.stop();
     m_reader.resetData();
 }
