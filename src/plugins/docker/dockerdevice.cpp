@@ -363,34 +363,34 @@ const DockerDeviceData &DockerDevice::data() const
 
 BaseQtVersion *DockerDevicePrivate::autoDetectQtVersion() const
 {
-   QString error;
-   QString source = "docker:" + m_data.imageId;
-   const QStringList candidates = {"/usr/local/bin/qmake", "/usr/bin/qmake"};
-   for (const QString &candidate : candidates) {
-       const FilePath qmake = q->mapToGlobalPath(FilePath::fromString(candidate));
-       if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, source, &error)) {
+    QString error;
+    QString source = "docker:" + m_data.imageId;
+    const QStringList candidates = {"/usr/local/bin/qmake", "/usr/bin/qmake"};
+    for (const QString &candidate : candidates) {
+        const FilePath qmake = q->mapToGlobalPath(FilePath::fromString(candidate));
+        if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, source, &error)) {
             QtVersionManager::addVersion(qtVersion);
             return qtVersion;
-       }
-   }
-   return nullptr;
+        }
+    }
+    return nullptr;
 }
 
 QList<ToolChain *> DockerDevicePrivate::autoDetectToolChains()
 {
-   const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
+    const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
-   QList<ToolChain *> toolChains;
-   for (ToolChainFactory *factory : factories) {
+    QList<ToolChain *> toolChains;
+    for (ToolChainFactory *factory : factories) {
         const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, q->sharedFromThis());
         for (ToolChain *toolChain : newToolChains) {
             LOG("Found ToolChain: " << toolChain->compilerCommand().toUserOutput());
             ToolChainManager::registerToolChain(toolChain);
             toolChains.append(toolChain);
         }
-   }
+    }
 
-   return toolChains;
+    return toolChains;
 }
 
 void DockerDevicePrivate::autoDetectCMake()
@@ -399,19 +399,19 @@ void DockerDevicePrivate::autoDetectCMake()
     if (!cmakeManager)
         return;
 
-   QString error;
-   QString source = "docker:" + m_data.imageId;
-   const QStringList candidates = {"/usr/local/bin/cmake", "/usr/bin/cmake"};
-   for (const QString &candidate : candidates) {
-       const FilePath cmake = q->mapToGlobalPath(FilePath::fromString(candidate));
-       QTC_CHECK(q->hasLocalFileAccess());
-       if (cmake.isExecutableFile()) {
-           const bool res = QMetaObject::invokeMethod(cmakeManager,
-                                                      "registerCMakeByPath",
-                                                      Q_ARG(Utils::FilePath, cmake));
-           QTC_CHECK(res);
-       }
-   }
+    QString error;
+    QString source = "docker:" + m_data.imageId;
+    const QStringList candidates = {"/usr/local/bin/cmake", "/usr/bin/cmake"};
+    for (const QString &candidate : candidates) {
+        const FilePath cmake = q->mapToGlobalPath(FilePath::fromString(candidate));
+        QTC_CHECK(q->hasLocalFileAccess());
+        if (cmake.isExecutableFile()) {
+            const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                                       "registerCMakeByPath",
+                                                       Q_ARG(Utils::FilePath, cmake));
+            QTC_CHECK(res);
+        }
+    }
 }
 
 void DockerDevicePrivate::setupKit()
@@ -465,12 +465,12 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     m_shell = new QtcProcess;
     // FIXME: Make mounts flexible
     m_shell->setCommand({"docker", {"run", "-i", "--cidfile=" + tempFileName,
-                                       "-v", "/opt:/opt",
-                                       "-v", "/data:/data",
-                                       "-e", "DISPLAY=:0",
-                                       "-e", "XAUTHORITY=/.Xauthority",
-                                       "--net", "host",
-                                       m_data.imageId, "/bin/sh"}});
+                                    "-v", "/opt:/opt",
+                                    "-v", "/data:/data",
+                                    "-e", "DISPLAY=:0",
+                                    "-e", "XAUTHORITY=/.Xauthority",
+                                    "--net", "host",
+                                    m_data.imageId, "/bin/sh"}});
     LOG("RUNNING: " << m_shell->commandLine().toUserOutput());
     m_shell->start();
     m_shell->waitForStarted();
@@ -515,7 +515,7 @@ FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
     QString path = filePath.path();
     if (path.startsWith('/'))
         return FilePath::fromString(d->m_mergedDir + path);
-     return FilePath::fromString(d->m_mergedDir + '/' + path);
+    return FilePath::fromString(d->m_mergedDir + '/' + path);
 }
 
 FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
