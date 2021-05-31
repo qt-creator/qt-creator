@@ -293,12 +293,11 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
 
 FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 {
-    if (fileNameWithVariables.needsDevice()) {
-        QUrl url = fileNameWithVariables.toUrl();
-        url.setPath(expand(url.path()));
-        return FilePath::fromUrl(url);
-    }
-    return FilePath::fromString(expand(fileNameWithVariables.toString()));
+    FilePath result = fileNameWithVariables;
+    result.setPath(expand(result.path()));
+    result.setHost(expand(result.host()));
+    result.setScheme(expand(result.scheme()));
+    return result;
 }
 
 QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
