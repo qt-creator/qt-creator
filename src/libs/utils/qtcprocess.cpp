@@ -220,6 +220,12 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 #endif
 }
 
+void QtcProcess::start(const QString &cmd, const QStringList &args)
+{
+    setCommand({cmd, args});
+    start();
+}
+
 void QtcProcess::start()
 {
     QTC_CHECK(d->m_writeData.isEmpty()); // FIXME: Use it.

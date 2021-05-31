@@ -83,6 +83,7 @@ public:
     void setDisableUnixTerminal();
 
     void start();
+    void start(const QString &cmd, const QStringList &args = {});
     void terminate();
     void interrupt();
 
