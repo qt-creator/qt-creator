@@ -175,7 +175,11 @@ void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    return QQuickDesignerSupportItems::createPrimitive(typeName, QTypeRevision::fromVersion(majorNumber, minorNumber), context);
+
+    QTypeRevision revision = QTypeRevision::zero();
+    if (majorNumber > 0)
+        revision = QTypeRevision::fromVersion(majorNumber, minorNumber);
+    return QQuickDesignerSupportItems::createPrimitive(typeName, revision, context);
 #else
     return QQuickDesignerSupportItems::createPrimitive(typeName, majorNumber, minorNumber, context);
 #endif

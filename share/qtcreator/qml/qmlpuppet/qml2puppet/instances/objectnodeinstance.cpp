@@ -684,6 +684,8 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
         object = QmlPrivateGate::createComponent(mockHash.value(typeName), context);
     else if (majorNumber != -1 && minorNumber != -1)
         object = QmlPrivateGate::createPrimitive(polishTypeName, majorNumber, minorNumber, context);
+    else
+        object = QmlPrivateGate::createPrimitive(polishTypeName, 0, 0, context);
 
     /* Let's try to create the primitive from source, since with incomplete meta info this might be a pure
      * QML type. This is the case for example if a C++ type is mocked up with a QML file.
