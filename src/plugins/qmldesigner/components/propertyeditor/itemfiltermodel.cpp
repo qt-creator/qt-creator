@@ -92,7 +92,7 @@ QVariant ItemFilterModel::modelNodeBackend() const
 
 void ItemFilterModel::setupModel()
 {
-    if (!m_modelNode.isValid())
+    if (!m_modelNode.isValid() || !m_modelNode.view()->isAttached())
         return;
 
     m_lock = true;

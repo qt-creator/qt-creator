@@ -259,7 +259,8 @@
     \if defined(qtdesignstudio)
     \section1 Animating Shapes
 
-    You can use the Studio components to animate the following shapes:
+    You can use the \uicontrol {Qt Quick Studio Components} to animate the
+    following shapes:
 
     \list
         \li \l Arc

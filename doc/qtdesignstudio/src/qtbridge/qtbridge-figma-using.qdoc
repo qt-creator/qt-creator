@@ -128,7 +128,7 @@
                     Figma rectangles are exported as \l{basic-rectangle}
                     {Rectangle} components. Figma vectors are exported as
                     \l{SVG Path Item} components from the \l{Shapes}
-                    {Studio Components} module.
+                    {Qt Quick Studio Components} module.
                 \li \uicontrol Merged merges the selected groups and layers
                     into one component.
                 \li \uicontrol Skipped completely skips the selected layer.
@@ -153,7 +153,7 @@
             contain the components in this field. For example, to use components
             from version 2.3 of the Qt Quick Controls module, you need the
             import statement \c {QtQuick.Controls 2.3} and to use version 1.0
-            Studio Components, you need the import statement
+            Qt Quick Studio Components, you need the import statement
             \c {QtQuick.Studio.Components 1.0}. You can add components from all
             the available modules in \QDS later. You can also import a module as
             an \e alias.
@@ -178,7 +178,7 @@
     You can export assets in the selected format (JPG, PNG, or SVG).
 
     By default, vectors are exported as \l{SVG Path Item} components from the
-    Studio Components module. This might not work for layers that have
+    Qt Quick Studio Components module. This might not work for layers that have
     particular effects applied to them. In that case, the layers are exported
     as images.
 
@@ -195,7 +195,7 @@
     \row
         \li \uicontrol {Export as shapes}
         \li Exports vectors as components of the type \l{SVG Path Item} from the
-            Studio Components module.
+            Qt Quick Studio Components module.
     \row
         \li \uicontrol {Reset plugin data}
         \li Resets all settings for all layers and groups (also in the

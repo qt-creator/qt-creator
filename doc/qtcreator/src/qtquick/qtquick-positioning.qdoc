@@ -432,30 +432,49 @@
 
     \section2 Organizing Components
 
-    The following table lists the UI controls that you can use to
-    organize components in UIs (since Qt 5.7). They are available in
-    \l Library > \uicontrol Components > \uicontrol {Qt Quick Controls}.
+    You can use the \uicontrol Frame and \uicontrol {Group Box} controls to
+    draw frames around groups of controls.
+    \if defined(qtdesignstudio)
+    If you don't want a frame, use the \uicontrol Group component instead.
+    \endif
+
+
+    The following table lists the UI controls that you can use to organize
+    components in UIs (since Qt 5.7). The \e Location column indicates the
+    location of the component in \l Library > \uicontrol Components.
 
     \table
     \header
         \li Icon
         \li Name
+        \li Location
         \li Purpose
     \row
         \li \inlineimage icons/frame-icon16.png
         \li \l [QtQuickControls]{Frame}
+        \li Qt Quick Controls
         \li A visual frame around a group of controls.
+    \if defined(qtdesignstudio)
+    \row
+        \li \inlineimage icons/group-16px.png
+        \li Group
+        \li Qt Quick Studio Components
+        \li Enables handling the selected components as a group.
+    \endif
     \row
         \li \inlineimage icons/groupbox-icon16.png
         \li \l [QtQuickControls]{GroupBox}{Group Box}
+        \li Qt Quick Controls
         \li A titled visual frame around a group of controls.
     \row
         \li \inlineimage icons/page-icon16.png
         \li \l [QtQuickControls]{Page}
+        \li Qt Quick Controls
         \li A styled page control with support for a header and footer.
     \row
         \li \inlineimage icons/pane-icon16.png
         \li \l [QtQuickControls]{Pane}
+        \li Qt Quick Controls
         \li A background that matches the application style and theme.
     \endtable
 */

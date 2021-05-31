@@ -85,7 +85,7 @@
 
     \QDS offers predefined sets of UI controls that you can modify according
     to your needs. You can export your own controls as components, Qt Quick
-    Controls, or Studio Components. The position and dimensions of your control
+    Controls, or Qt Quick Studio Components. The position and dimensions of your control
     are preserved.
 
     However, if you want your UI controls, such as check boxes, to look exactly

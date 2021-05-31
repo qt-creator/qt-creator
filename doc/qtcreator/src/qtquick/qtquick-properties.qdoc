@@ -200,9 +200,9 @@
     \section2 Setting Gradient Properties
 
     Select the arrow below the gradient button to set gradient properties
-    for \l{Shapes}{Studio Components}.
+    for \l{Shapes}{Qt Quick Studio Components}.
 
-    \image qtquick-designer-gradient-types.png "Gradients supported by Studio Components"
+    \image qtquick-designer-gradient-types.png "Gradients supported by Qt Quick Studio Components"
 
     \section3 Linear Gradients
 

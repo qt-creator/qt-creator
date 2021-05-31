@@ -38,6 +38,8 @@
 #include <QObject>
 #include <QDateTime>
 
+#include <memory>
+
 namespace ProjectExplorer {
 class ProjectNode;
 }
@@ -105,7 +107,7 @@ private:
     bool m_usesAllCapsTargets = false;
     int m_lastCMakeExitCode = 0;
 
-    Utils::optional<QFuture<FileApiQtcData *>> m_future;
+    Utils::optional<QFuture<std::shared_ptr<FileApiQtcData>>> m_future;
 
     // Update related:
     bool m_isParsing = false;

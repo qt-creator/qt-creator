@@ -239,7 +239,7 @@
     \row
         \li \inlineimage icons/item-svg-16px.png
         \li \l{SVG Path Item}
-        \li Studio Components
+        \li Qt Quick Studio Components
         \li
         \li An SVG path data string that is used to draw a path as a line.
     \endif

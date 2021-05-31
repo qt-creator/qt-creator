@@ -101,9 +101,9 @@
     \section2 Studio Rectangle
 
     If you want to modify each corner of the rectangle independently
-    or use a dashed border, select the Rectangle component in the
-    \uicontrol {Studio Components} tab of \uicontrol Library instead
-    of the basic rectangle component.
+    or use a dashed border, create an instance of \uicontrol Library
+    > \uicontrol Components > \uicontrol {Qt Quick Studio Components}
+    > \uicontrol Rectangle instead of the basic rectangle component.
 
     By setting the values of properties in the \uicontrol {Corner Radiuses}
     group, you can draw each corner independently. By using radius values
@@ -222,12 +222,28 @@
     gradient. The fill color property values are set in the same way as for
     a rectangle. The border property values are described in \l{Strokes}.
 
+    \section1 Flipable
+
+    A Flipable component can be visibly \e flipped between its front and back
+    sides, like a card. The front and back sides are specified by using any
+    two components inside the Flipable component. The component with the
+    higher z-order is the front side. The \uicontrol {Opacity front} and
+    \uicontrol {Opacity back} properties are used to hide and show either the
+    front or back side of the item at a time.
+
+    \image studio-flipable.png
+
+    The \uicontrol {Flip angle} property is used to animate the angle
+    of the component to produce the flipping effect. The value of the
+    \uicontrol {Rotation axis} property determine whether the component
+    is rotated around the x-axis or the y-axis.
+
     \section1 Summary of Shapes
 
     The following table lists the components that you can use to draw shapes.
-    The \e Location column contains the tab name where you can find the
-    component in \l Library > \uicontrol Components. The \e MCU column
-    indicates which components are supported on MCUs.
+    The \e Location column indicates the location of the component in
+    \l Library > \uicontrol Components. The \e MCU column indicates which
+    components are supported on MCUs.
 
     \table
     \header
@@ -239,21 +255,28 @@
     \row
         \li \inlineimage icons/item-arc-16px.png
         \li \l Arc
-        \li Studio Components
+        \li Qt Quick Studio Components
         \li
         \li An arc that begins and ends at given positions.
     \row
         \li \inlineimage icons/custom-border-16px.png
         \li \l Border
-        \li Studio Components
+        \li Qt Quick Studio Components
         \li
         \li A line with four segments that you can show and shape individually.
     \row
         \li \inlineimage icons/item-pie-16px.png
         \li \l Pie
-        \li Studio Components
+        \li Qt Quick Studio Components
         \li
         \li A pie slice or a pie with a slice missing from it.
+    \row
+        \li \inlineimage icons/item-flippable-16px.png
+        \li \l Flipable
+        \li Qt Quick Studio Components
+        \li
+        \li A component that can be visibly \e flipped between its front and
+         back sides, like a card.
     \row
         \li \inlineimage rect-icon16.png
         \li \l Rectangle
@@ -265,7 +288,7 @@
     \row
         \li \inlineimage icons/custom-rectangle-16px.png
         \li \l{Studio Rectangle}{Rectangle}
-        \li Studio Components
+        \li Qt Quick Studio Components
         \li
         \li An extended rectangle that is painted with a solid fill color or
             linear, conical, or radial gradients, and corners that you can
@@ -273,7 +296,7 @@
     \row
         \li \inlineimage icons/item-triangle-16px.png
         \li \l Triangle
-        \li Studio Components
+        \li Qt Quick Studio Components
         \li
         \li A triangle with different dimensions and shapes that is
             enclosed in an invisible rectangle.

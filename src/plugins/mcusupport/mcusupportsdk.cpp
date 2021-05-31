@@ -241,10 +241,14 @@ static McuPackage *createRGLPackage()
 static McuPackage *createStm32CubeProgrammerPackage()
 {
     QString defaultPath = QDir::homePath();
+    const QString cubePath = "/STMicroelectronics/STM32Cube/STM32CubeProgrammer/";
     if (Utils::HostOsInfo::isWindowsHost()) {
-        const QString programPath =
-                findInProgramFiles("/STMicroelectronics/STM32Cube/STM32CubeProgrammer/");
+        const QString programPath = findInProgramFiles(cubePath);
         if (!programPath.isEmpty())
+            defaultPath = programPath;
+    } else {
+        const QString programPath = QDir::homePath() + cubePath;
+        if (QFileInfo::exists(programPath))
             defaultPath = programPath;
     }
     auto result = new McuPackage(
