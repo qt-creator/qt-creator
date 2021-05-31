@@ -73,6 +73,7 @@ public:
     std::function<bool(const FilePath &)> isReadableFile;
     std::function<bool(const FilePath &)> isReadableDir;
     std::function<bool(const FilePath &)> isWritableDir;
+    std::function<bool(const FilePath &)> ensureWritableDir;
     std::function<bool(const FilePath &)> createDir;
     std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
@@ -117,6 +118,7 @@ public:
 
     bool isWritablePath() const { return isWritableDir(); } // Remove.
     bool isWritableDir() const;
+    bool ensureWritableDir() const;
     bool isExecutableFile() const;
     bool isReadableFile() const;
     bool isReadableDir() const;

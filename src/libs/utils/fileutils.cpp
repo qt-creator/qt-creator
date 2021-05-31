@@ -793,6 +793,18 @@ bool FilePath::isWritableDir() const
     return exists() && fi.isDir() && fi.isWritable();
 }
 
+bool FilePath::ensureWritableDir() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.ensureWritableDir, return false);
+        return s_deviceHooks.ensureWritableDir(*this);
+    }
+    const QFileInfo fi{m_data};
+    if (exists() && fi.isDir() && fi.isWritable())
+        return true;
+    return QDir().mkpath(m_data);
+}
+
 bool FilePath::isExecutableFile() const
 {
     if (needsDevice()) {
