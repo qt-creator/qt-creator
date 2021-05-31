@@ -30,7 +30,6 @@
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
 #include <utils/aspects.h>
-#include <utils/qtcprocess.h>
 
 namespace Docker {
 namespace Internal {
@@ -107,6 +106,7 @@ private:
 
     class DockerDevicePrivate *d = nullptr;
     friend class DockerDeviceSetupWizard;
+    friend class DockerDeviceWidget;
 };
 
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
