@@ -97,7 +97,16 @@ int DeviceManager::deviceCount() const
 
 void DeviceManager::replaceInstance()
 {
+    const QList<Id> newIds =
+        Utils::transform(DeviceManagerPrivate::clonedInstance->d->devices, &IDevice::id);
+
+    for (IDevice::Ptr dev : m_instance->d->devices) {
+        if (!newIds.contains(dev->id()))
+            dev->aboutToBeRemoved();
+    }
+
     copy(DeviceManagerPrivate::clonedInstance, instance(), false);
+
     emit instance()->deviceListReplaced();
     emit instance()->updated();
 }

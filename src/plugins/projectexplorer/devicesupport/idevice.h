@@ -250,6 +250,8 @@ public:
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
 
+    virtual void aboutToBeRemoved() const {}
+
 protected:
     IDevice();
 

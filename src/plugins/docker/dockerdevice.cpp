@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
@@ -137,6 +138,22 @@ void DockerDeviceProcess::start(const Runnable &runnable)
             this, &DeviceProcess::readyReadStandardError);
     connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
     dockerDevice->runProcess(m_process);
+}
+
+void DockerDevice::aboutToBeRemoved() const
+{
+    for (Kit *kit : KitManager::kits()) {
+        if (kit->autoDetectionSource() == id().toString())
+            KitManager::deregisterKit(kit);
+    };
+    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+        if (qtVersion->autodetectionSource() == id().toString())
+            QtVersionManager::removeVersion(qtVersion);
+    };
+    //        for (ToolChain *toolChain : ToolChainManager::toolChains()) {
+    //            if (toolChain->autoDetectionSource() == id.toString())
+    //                // FIXME: Implement
+    //        };
 }
 
 void DockerDeviceProcess::interrupt()
@@ -363,11 +380,10 @@ const DockerDeviceData &DockerDevice::data() const
 BaseQtVersion *DockerDevicePrivate::autoDetectQtVersion() const
 {
     QString error;
-    QString source = "docker:" + m_data.imageId;
     const QStringList candidates = {"/usr/local/bin/qmake", "/usr/bin/qmake"};
     for (const QString &candidate : candidates) {
         const FilePath qmake = q->mapToGlobalPath(FilePath::fromString(candidate));
-        if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, source, &error)) {
+        if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_data.id(), &error)) {
             QtVersionManager::addVersion(qtVersion);
             return qtVersion;
         }
@@ -399,7 +415,6 @@ void DockerDevicePrivate::autoDetectCMake()
         return;
 
     QString error;
-    QString source = "docker:" + m_data.imageId;
     const QStringList candidates = {"/usr/local/bin/cmake", "/usr/bin/cmake"};
     for (const QString &candidate : candidates) {
         const FilePath cmake = q->mapToGlobalPath(FilePath::fromString(candidate));
@@ -425,7 +440,7 @@ void DockerDevicePrivate::setupKit()
 
     const auto initializeKit = [this, toolChains, qt](Kit *k) {
         k->setAutoDetected(false);
-        k->setAutoDetectionSource("DockerDevice:" + m_data.imageId);
+        k->setAutoDetectionSource(m_data.id());
         k->setUnexpandedDisplayName("%{Device:Name}");
 
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);

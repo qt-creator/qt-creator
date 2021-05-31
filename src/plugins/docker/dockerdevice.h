@@ -38,6 +38,8 @@ namespace Internal {
 class DockerDeviceData
 {
 public:
+    QString id() const { return "docker:" + imageId; }
+
     QString imageId;
     QString repo;
     QString tag;
@@ -99,6 +101,8 @@ public:
 private:
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
+
+    void aboutToBeRemoved() const final;
 
     class DockerDevicePrivate *d = nullptr;
     friend class DockerDeviceSetupWizard;
