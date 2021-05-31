@@ -18,7 +18,6 @@ Project {
         "languageserverprotocol/languageserverprotocol.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
-        "qtcprocess/qtcprocess.qbs",
         "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
         "ssh/ssh.qbs",

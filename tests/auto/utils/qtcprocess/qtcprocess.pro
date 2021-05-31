@@ -1,5 +1,5 @@
 QTC_LIB_DEPENDS += utils
-include(../qttest.pri)
+include(../../qttest.pri)
 
 win32:DEFINES += _CRT_SECURE_NO_WARNINGS
 

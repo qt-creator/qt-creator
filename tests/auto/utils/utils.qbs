@@ -7,6 +7,7 @@ Project {
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
         "persistentsettings/persistentsettings.qbs",
+        "qtcprocess/qtcprocess.qbs",
         "settings/settings.qbs",
         "stringutils/stringutils.qbs",
         "templateengine/templateengine.qbs",

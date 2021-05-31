@@ -5,6 +5,7 @@ SUBDIRS = \
     ansiescapecodehandler \
     fuzzymatcher \
     persistentsettings \
+    qtcprocess \
     settings \
     stringutils \
     templateengine \
