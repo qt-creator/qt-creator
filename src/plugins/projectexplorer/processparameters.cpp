@@ -100,11 +100,11 @@ void ProcessParameters::setWorkingDirectory(const FilePath &workingDirectory)
 FilePath ProcessParameters::effectiveWorkingDirectory() const
 {
     if (m_effectiveWorkingDirectory.isEmpty()) {
-        QString wds = m_workingDirectory.toString();
+        m_effectiveWorkingDirectory = m_workingDirectory;
+        QString path = m_workingDirectory.path();
         if (m_macroExpander)
-            wds = m_macroExpander->expand(wds);
-        m_effectiveWorkingDirectory
-                = FilePath::fromString(QDir::cleanPath(m_environment.expandVariables(wds)));
+            path = m_macroExpander->expand(path);
+        m_effectiveWorkingDirectory.setPath(QDir::cleanPath(m_environment.expandVariables(path)));
     }
     return m_effectiveWorkingDirectory;
 }
