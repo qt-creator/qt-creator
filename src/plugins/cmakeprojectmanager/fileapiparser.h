@@ -27,6 +27,8 @@
 
 #include "cmakeconfigitem.h"
 
+#include "fileapidataextractor.h"
+
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectmacro.h>
 
@@ -34,6 +36,7 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
+#include <QFutureInterface>
 #include <QString>
 #include <QVector>
 
@@ -247,7 +250,9 @@ class FileApiParser
 {
     Q_DECLARE_TR_FUNCTIONS(FileApiParser)
 public:
-    static FileApiData parseData(const QFileInfo &replyFileInfo, const QString& cmakeBuildType,
+    static FileApiData parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
+                                 const QFileInfo &replyFileInfo,
+                                 const QString &cmakeBuildType,
                                  QString &errorMessage);
 
     static bool setupCMakeFileApi(const Utils::FilePath &buildDirectory,

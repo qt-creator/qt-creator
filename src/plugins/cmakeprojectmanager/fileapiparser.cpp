@@ -870,7 +870,9 @@ static QStringList uniqueTargetFiles(const Configuration &config)
     return files;
 }
 
-FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, const QString &cmakeBuildType,
+FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
+                                     const QFileInfo &replyFileInfo,
+                                     const QString &cmakeBuildType,
                                      QString &errorMessage)
 {
     QTC_CHECK(errorMessage.isEmpty());
@@ -878,16 +880,29 @@ FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, const QStri
 
     FileApiData result;
 
+    const auto cancelCheck = [&fi, &errorMessage]() -> bool {
+        if (fi.isCanceled()) {
+            errorMessage = FileApiParser::tr("CMake parsing was cancelled.");
+            return true;
+        }
+        return false;
+    };
+
     result.replyFile = readReplyFile(replyFileInfo, errorMessage);
+    if (cancelCheck())
+        return {};
     result.cache = readCacheFile(result.replyFile.jsonFile("cache", replyDir), errorMessage);
+    if (cancelCheck())
+        return {};
     result.cmakeFiles = readCMakeFilesFile(result.replyFile.jsonFile("cmakeFiles", replyDir),
                                            errorMessage);
+    if (cancelCheck())
+        return {};
     auto codeModels = readCodemodelFile(result.replyFile.jsonFile("codemodel", replyDir),
                                          errorMessage);
 
     if (codeModels.size() == 0) {
         errorMessage = "No CMake configuration found!";
-        qWarning() << errorMessage;
         return result;
     }
 
@@ -911,14 +926,17 @@ FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, const QStri
                            .arg(cmakeBuildType)
                            .arg(buildTypes.join(", "));
         }
-        qWarning() << errorMessage;
         return result;
     }
     result.codemodel = std::move(*it);
+    if (cancelCheck())
+        return {};
 
     const QStringList targetFiles = uniqueTargetFiles(result.codemodel);
 
     for (const QString &targetFile : targetFiles) {
+        if (cancelCheck())
+            return {};
         QString targetErrorMessage;
         TargetDetails td = readTargetFile(replyDir.absoluteFilePath(targetFile), targetErrorMessage);
         if (targetErrorMessage.isEmpty()) {

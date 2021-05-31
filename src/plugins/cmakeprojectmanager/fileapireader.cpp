@@ -265,11 +265,14 @@ void FileApiReader::endState(const QFileInfo &replyFi)
     m_lastReplyTimestamp = replyFi.lastModified();
 
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                        [replyFi, sourceDirectory, buildDirectory, topCmakeFile, cmakeBuildType]() {
+                        [replyFi, sourceDirectory, buildDirectory, topCmakeFile, cmakeBuildType](
+                            QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi) {
                             auto result = std::make_shared<FileApiQtcData>();
-                            FileApiData data = FileApiParser::parseData(replyFi, cmakeBuildType, result->errorMessage);
+                            FileApiData data = FileApiParser::parseData(fi,
+                                                                        replyFi,
+                                                                        cmakeBuildType,
+                                                                        result->errorMessage);
                             if (!result->errorMessage.isEmpty()) {
-                                qWarning() << result->errorMessage;
                                 *result = generateFallbackData(topCmakeFile,
                                                                sourceDirectory,
                                                                buildDirectory,
@@ -281,7 +284,7 @@ void FileApiReader::endState(const QFileInfo &replyFi)
                                 qWarning() << result->errorMessage;
                             }
 
-                            return result;
+                            fi.reportResult(result);
                         });
     onResultReady(m_future.value(),
                   this,
