@@ -22,7 +22,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-namespace Utils { struct Link; }
+namespace Utils { class Link; }
 
 namespace CPlusPlus {
 

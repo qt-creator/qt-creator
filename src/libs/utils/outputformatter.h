@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 namespace Utils {
 class FileInProjectFinder;
 class FormattedText;
-struct Link;
+class Link;
 
 class QTCREATOR_UTILS_EXPORT OutputLineParser : public QObject
 {

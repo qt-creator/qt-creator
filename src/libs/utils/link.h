@@ -35,8 +35,9 @@
 
 namespace Utils {
 
-struct QTCREATOR_UTILS_EXPORT Link
+class QTCREATOR_UTILS_EXPORT Link
 {
+public:
     Link(const Utils::FilePath &filePath = Utils::FilePath(), int line = 0, int column = 0)
         : targetFilePath(filePath)
         , targetLine(line)

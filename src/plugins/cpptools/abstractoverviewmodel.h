@@ -38,7 +38,7 @@ namespace CPlusPlus { class Document; }
 
 namespace Utils {
 class LineColumn;
-struct Link;
+class Link;
 }
 
 namespace CppTools {
