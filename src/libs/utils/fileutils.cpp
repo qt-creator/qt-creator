@@ -782,14 +782,12 @@ bool FilePath::exists() const
     return !isEmpty() && QFileInfo::exists(m_data);
 }
 
-
-
 /// \returns a bool indicating whether a path is writable.
 bool FilePath::isWritableDir() const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.isWritableDir, return false);
-        return s_deviceHooks.isReadableFile(*this);
+        return s_deviceHooks.isWritableDir(*this);
     }
     const QFileInfo fi{m_data};
     return exists() && fi.isDir() && fi.isWritable();
