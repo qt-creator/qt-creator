@@ -17,5 +17,6 @@ RUN apt-get update \
     qt5-qmake \
     g++ \
     gdb \
+    ninja-build \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
