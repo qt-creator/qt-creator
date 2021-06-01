@@ -32,6 +32,10 @@
 
 #include <memory>
 
+namespace Core {
+class OutputWindow;
+}
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -63,6 +67,8 @@ public:
     ~ProjectWindow() override;
 
     void activateProjectPanel(Utils::Id panelId);
+
+    Core::OutputWindow *buildSystemOutput() const;
 
 private:
     void hideEvent(QHideEvent *event) override;

@@ -40,11 +40,12 @@
 #include "targetsettingspanel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/outputwindow.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -472,6 +473,21 @@ public:
 
         auto selectorDock = q->addDockForWidget(selectorView, true);
         q->addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
+
+        m_buildSystemOutput = new OutputWindow(Context("ProjectsMode.BuildSystemOutput"),
+                                               "ProjectsMode.BuildSystemOutput.Zoom");
+        m_buildSystemOutput->setReadOnly(true);
+        auto output = new QWidget;
+        output->setObjectName("BuildSystemOutput");
+        output->setWindowTitle(ProjectWindow::tr("Build System Output"));
+        auto outputLayout = new QVBoxLayout;
+        output->setLayout(outputLayout);
+        outputLayout->setContentsMargins(0, 0, 0, 0);
+        outputLayout->setSpacing(0);
+        outputLayout->addWidget(new StyledBar(output));
+        outputLayout->addWidget(m_buildSystemOutput);
+        auto outputDock = q->addDockForWidget(output, true);
+        q->addDockWidget(Qt::RightDockWidgetArea, outputDock);
     }
 
     void updatePanel()
@@ -642,6 +658,7 @@ public:
     SelectorTree *m_selectorTree;
     QPushButton *m_importBuild;
     QPushButton *m_manageKits;
+    OutputWindow *m_buildSystemOutput;
 };
 
 //
@@ -653,19 +670,6 @@ ProjectWindow::ProjectWindow()
 {
     setBackgroundRole(QPalette::Base);
 
-    // The empty space on the right side of the project mode window.
-    auto rightSpace = new QWidget;
-    rightSpace->setAutoFillBackground(true);
-    rightSpace->setObjectName("ProjectModeRightSpace"); // Needed for dock widget state saving
-    rightSpace->setWindowTitle("dummy");
-
-    auto rightSpaceLayout = new QVBoxLayout(rightSpace);
-    rightSpaceLayout->setContentsMargins(0, 0, 0, 0);
-    rightSpaceLayout->addWidget(new StyledBar(rightSpace)); // The black blob on top
-    rightSpaceLayout->addStretch();
-
-    addDockWidget(Qt::RightDockWidgetArea, addDockForWidget(rightSpace, true));
-
     // Request custom context menu but do not provide any to avoid
     // the creation of the dock window selection menu.
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -674,6 +678,11 @@ ProjectWindow::ProjectWindow()
 void ProjectWindow::activateProjectPanel(Utils::Id panelId)
 {
     d->activateProjectPanel(panelId);
+}
+
+OutputWindow *ProjectWindow::buildSystemOutput() const
+{
+    return d->m_buildSystemOutput;
 }
 
 void ProjectWindow::hideEvent(QHideEvent *event)

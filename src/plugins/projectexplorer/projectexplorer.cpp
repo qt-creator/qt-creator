@@ -4086,6 +4086,11 @@ void ProjectExplorerPlugin::updateRunActions()
     dd->doUpdateRunActions();
 }
 
+OutputWindow *ProjectExplorerPlugin::buildSystemOutput()
+{
+    return dd->m_proWindow->buildSystemOutput();
+}
+
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
 {
     return dd->recentProjects();

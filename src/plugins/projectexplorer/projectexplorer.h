@@ -40,6 +40,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IMode;
+class OutputWindow;
 } // namespace Core
 
 namespace Utils {
@@ -185,6 +186,8 @@ public:
     static void removeFromRecentProjects(const QString &fileName, const QString &displayName);
 
     static void updateRunActions();
+
+    static Core::OutputWindow *buildSystemOutput();
 
 signals:
     void finishedInitialization();

@@ -26,10 +26,13 @@
 #include "buildsystem.h"
 
 #include "buildconfiguration.h"
+#include "projectexplorer.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
 #include "target.h"
 
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/outputwindow.h>
 #include <projectexplorer/buildaspects.h>
 
 #include <utils/qtcassert.h>
@@ -349,6 +352,21 @@ QVariant BuildSystem::extraData(const QString &buildKey, Utils::Id dataKey) cons
     const ProjectNode *node = d->m_target->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return {});
     return node->data(dataKey);
+}
+
+void BuildSystem::startNewBuildSystemOutput(const QString &message)
+{
+    Core::OutputWindow *outputArea = ProjectExplorerPlugin::buildSystemOutput();
+    outputArea->grayOutOldContent();
+    outputArea->appendMessage(message + '\n', Utils::GeneralMessageFormat);
+    Core::MessageManager::writeFlashing(message);
+}
+
+void BuildSystem::appendBuildSystemOutput(const QString &message)
+{
+    Core::OutputWindow *outputArea = ProjectExplorerPlugin::buildSystemOutput();
+    outputArea->appendMessage(message + '\n', Utils::GeneralMessageFormat);
+    Core::MessageManager::writeSilently(message);
 }
 
 QString BuildSystem::disabledReason(const QString &buildKey) const

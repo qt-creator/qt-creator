@@ -141,6 +141,9 @@ public:
     void setExtraData(const QString &buildKey, Utils::Id dataKey, const QVariant &data);
     QVariant extraData(const QString &buildKey, Utils::Id dataKey) const;
 
+    static void startNewBuildSystemOutput(const QString &message);
+    static void appendBuildSystemOutput(const QString &message);
+
 public:
     // FIXME: Make this private and the BuildSystem a friend
     ParseGuard guardParsingRun() { return ParseGuard(this); }
