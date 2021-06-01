@@ -60,7 +60,7 @@ public:
         : version{version}
     {}
 
-    explicit operator bool() { return version >= 0; }
+    explicit operator bool() const { return version >= 0; }
 
     friend bool operator==(VersionNumber first, VersionNumber second) noexcept
     {
@@ -431,5 +431,85 @@ public:
 };
 
 using Types = std::vector<Type>;
+
+class BasicImport
+{
+public:
+    explicit BasicImport(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
+        : name{name}
+        , version{version}
+    {}
+
+    explicit BasicImport(Utils::SmallStringView name, int version)
+        : name{name}
+        , version{version}
+    {}
+
+    friend bool operator==(const BasicImport &first, const BasicImport &second)
+    {
+        return first.name == second.name && first.version == second.version;
+    }
+
+public:
+    Utils::PathString name;
+    VersionNumber version;
+};
+
+using BasicImports = std::vector<BasicImport>;
+
+class Import : public BasicImport
+{
+public:
+    explicit Import(Utils::SmallStringView name,
+                    VersionNumber version = VersionNumber{},
+                    SourceId sourceId = SourceId{},
+                    BasicImports importDependencies = {})
+        : BasicImport(name, version)
+        , importDependencies{std::move(importDependencies)}
+        , sourceId{sourceId}
+    {}
+
+    explicit Import(Utils::SmallStringView name, int version, int sourceId)
+        : BasicImport(name, version)
+        , sourceId{sourceId}
+    {}
+
+    friend bool operator==(const Import &first, const Import &second)
+    {
+        return static_cast<const BasicImport &>(first) == static_cast<const BasicImport &>(second)
+               && first.sourceId == second.sourceId
+               && first.importDependencies == second.importDependencies;
+    }
+
+public:
+    BasicImports importDependencies;
+    SourceId sourceId;
+    ImportId importId;
+};
+
+using Imports = std::vector<Import>;
+
+class ImportView
+{
+public:
+    explicit ImportView(Utils::SmallStringView name, int version, int sourceId, long long importId)
+        : name{name}
+        , version{version}
+        , sourceId{sourceId}
+        , importId{importId}
+    {}
+
+    friend bool operator==(const ImportView &first, const ImportView &second)
+    {
+        return first.name == second.name
+               && first.version == second.version & first.sourceId == second.sourceId;
+    }
+
+public:
+    Utils::SmallStringView name;
+    VersionNumber version;
+    SourceId sourceId;
+    ImportId importId;
+};
 
 } // namespace QmlDesigner::Storage

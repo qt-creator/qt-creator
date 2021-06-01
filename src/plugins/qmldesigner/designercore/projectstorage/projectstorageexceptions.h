@@ -71,4 +71,10 @@ public:
     const char *what() const noexcept override { return "The source id is invalid!"; }
 };
 
+class ImportDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The simport does not exist!"; }
+};
+
 } // namespace QmlDesigner

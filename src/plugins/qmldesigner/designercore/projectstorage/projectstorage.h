@@ -75,6 +75,16 @@ public:
         transaction.commit();
     }
 
+    void synchronizeImports(Storage::Imports imports)
+    {
+        Sqlite::ImmediateTransaction transaction{database};
+
+        synchronizeImportsAndUpdatesImportIds(imports);
+        synchronizeImportDependencies(createSortedImportDependecies(imports));
+
+        transaction.commit();
+    }
+
     TypeId upsertType(Utils::SmallStringView name,
                       TypeId prototypeId,
                       Storage::TypeAccessSemantics accessSemantics,
@@ -255,7 +265,149 @@ public:
         return writeSourceId(sourceContextId, sourceName);
     }
 
+    auto fetchAllImports() const
+    {
+        Storage::Imports imports;
+        imports.reserve(128);
+
+        auto callback = [&](Utils::SmallStringView name, int version, int sourceId, long long importId) {
+            auto &lastImport = imports.emplace_back(name,
+                                                    Storage::VersionNumber{version},
+                                                    SourceId{sourceId});
+
+            lastImport.importDependencies = selectImportsForThatDependentOnThisImportIdStatement
+                                                .template values<Storage::BasicImport>(6, importId);
+
+            return Sqlite::CallbackControl::Continue;
+        };
+
+        selectAllImportsStatement.readCallbackWithTransaction(callback);
+
+        return imports;
+    }
+
 private:
+    struct ImportDependency
+    {
+        ImportDependency(ImportId id, ImportId dependencyId)
+            : id{id}
+            , dependencyId{dependencyId}
+        {}
+
+        ImportDependency(long long id, long long dependencyId)
+            : id{id}
+            , dependencyId{dependencyId}
+        {}
+
+        ImportId id;
+        ImportId dependencyId;
+
+        friend bool operator<(ImportDependency first, ImportDependency second)
+        {
+            return std::tie(first.id, first.dependencyId) < std::tie(second.id, second.dependencyId);
+        }
+
+        friend bool operator==(ImportDependency first, ImportDependency second)
+        {
+            return first.id == second.id && first.dependencyId == second.dependencyId;
+        }
+    };
+
+    void synchronizeImportsAndUpdatesImportIds(Storage::Imports &imports)
+    {
+        auto compareKey = [](auto &&first, auto &&second) {
+            auto nameCompare = Sqlite::compare(first.name, second.name);
+
+            if (nameCompare != 0)
+                return nameCompare;
+
+            return first.version.version - second.version.version;
+        };
+
+        std::sort(imports.begin(), imports.end(), [&](auto &&first, auto &&second) {
+            return compareKey(first, second) < 0;
+        });
+
+        auto range = selectAllImportsStatement.template range<Storage::ImportView>();
+
+        auto insert = [&](Storage::Import &import) {
+            import.importId = insertImportStatement.template value<ImportId>(import.name,
+                                                                             import.version.version,
+                                                                             &import.sourceId);
+        };
+
+        auto update = [&](const Storage::ImportView &importView, Storage::Import &import) {
+            if (importView.sourceId.id != import.sourceId.id)
+                updateImportStatement.write(&importView.importId, &import.sourceId);
+            import.importId = importView.importId;
+        };
+
+        auto remove = [&](const Storage::ImportView &importView) {
+            deleteImportStatement.write(&importView.importId);
+        };
+
+        Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
+    }
+
+    std::vector<ImportDependency> createSortedImportDependecies(const Storage::Imports &imports) const
+    {
+        std::vector<ImportDependency> importDependecies;
+        importDependecies.reserve(imports.size() * 5);
+
+        for (const Storage::Import &import : imports) {
+            for (const Storage::BasicImport &importDependency : import.importDependencies) {
+                auto importIdForDependency = fetchImportId(importDependency);
+
+                if (!importIdForDependency)
+                    throw ImportDoesNotExists{};
+
+                importDependecies.emplace_back(import.importId, importIdForDependency);
+            }
+        }
+
+        std::sort(importDependecies.begin(), importDependecies.end());
+        importDependecies.erase(std::unique(importDependecies.begin(), importDependecies.end()),
+                                importDependecies.end());
+
+        return importDependecies;
+    }
+
+    void synchronizeImportDependencies(const std::vector<ImportDependency> &importDependecies)
+    {
+        auto compareKey = [](ImportDependency first, ImportDependency second) {
+            auto idCompare = first.id.id - second.id.id;
+
+            if (idCompare != 0)
+                return idCompare;
+
+            return first.dependencyId.id - second.dependencyId.id;
+        };
+
+        auto range = selectAllImportDependenciesStatement.template range<ImportDependency>();
+
+        auto insert = [&](ImportDependency dependency) {
+            insertImportDependencyStatement.write(&dependency.id, &dependency.dependencyId);
+        };
+
+        auto update = [](ImportDependency, ImportDependency) {};
+
+        auto remove = [&](ImportDependency dependency) {
+            deleteImportDependencyStatement.write(&dependency.id, &dependency.dependencyId);
+        };
+
+        Sqlite::insertUpdateDelete(range, importDependecies, compareKey, insert, update, remove);
+    }
+
+    ImportId fetchImportId(const Storage::BasicImport &import) const
+    {
+        if (import.version) {
+            return selectImportIdByNameAndVersionStatement
+                .template value<ImportId>(import.name, import.version.version);
+        }
+
+        return selectImportIdByNameStatement.template value<ImportId>(import.name);
+    }
+
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds, const SourceIds &sourceIds)
     {
         auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
@@ -638,6 +790,8 @@ private:
             if (!isInitialized) {
                 Sqlite::ExclusiveTransaction transaction{database};
 
+                createImportsTable(database);
+                createImportDependeciesTable(database);
                 createSourceContextsTable(database);
                 createSourcesTable(database);
                 createTypesTable(database);
@@ -788,6 +942,35 @@ private:
             table.addColumn("signature");
 
             table.addUniqueIndex({typeIdColumn, nameColumn});
+
+            table.initialize(database);
+        }
+
+        void createImportsTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setName("imports");
+            table.addColumn("importId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            auto &nameColumn = table.addColumn("name");
+            auto &versionColumn = table.addColumn("version");
+            table.addColumn("sourceId");
+
+            table.addUniqueIndex({nameColumn, versionColumn});
+
+            table.initialize(database);
+        }
+
+        void createImportDependeciesTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setUseWithoutRowId(true);
+            table.setName("importDependencies");
+            auto &importIdColumn = table.addColumn("importId");
+            auto &parentImportIdColumn = table.addColumn("parentImportId");
+
+            table.addPrimaryKeyContraint({importIdColumn, parentImportIdColumn});
 
             table.initialize(database);
         }
@@ -974,6 +1157,28 @@ public:
         database};
     WriteStatement deleteEnumerationDeclarationStatement{
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
+    mutable ReadWriteStatement<1> insertImportStatement{
+        "INSERT INTO imports(name, version, sourceId) VALUES(?1, ?2, ?3) RETURNING importId",
+        database};
+    WriteStatement updateImportStatement{"UPDATE imports SET sourceId=?2 WHERE importId=?1", database};
+    WriteStatement deleteImportStatement{"DELETE FROM imports WHERE importId=?", database};
+    mutable ReadStatement<1> selectImportIdByNameStatement{
+        "SELECT importId FROM imports WHERE name=? ORDER BY version DESC LIMIT 1", database};
+    mutable ReadStatement<1> selectImportIdByNameAndVersionStatement{
+        "SELECT importId FROM imports WHERE name=? AND version=?", database};
+    mutable ReadStatement<4> selectAllImportsStatement{
+        "SELECT name, version, sourceId, importId FROM imports ORDER BY name, version", database};
+    WriteStatement insertImportDependencyStatement{
+        "INSERT INTO importDependencies(importId, parentImportId) VALUES(?1, ?2)", database};
+    WriteStatement deleteImportDependencyStatement{
+        "DELETE FROM importDependencies WHERE importId=?1 AND parentImportId=?2", database};
+    mutable ReadStatement<2> selectAllImportDependenciesStatement{
+        "SELECT importId, parentImportId FROM importDependencies ORDER BY importId, parentImportId",
+        database};
+    mutable ReadStatement<2> selectImportsForThatDependentOnThisImportIdStatement{
+        "SELECT name, version FROM importDependencies JOIN imports ON "
+        "importDependencies.parentImportId = imports.importId WHERE importDependencies.importId=?",
+        database};
 };
 
 } // namespace QmlDesigner
