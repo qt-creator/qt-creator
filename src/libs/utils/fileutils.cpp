@@ -254,6 +254,10 @@ FilePath FileUtils::resolveSymlinks(const FilePath &path)
 */
 FilePath FilePath::canonicalPath() const
 {
+    if (needsDevice()) {
+        // FIXME: Not a full solution, but it stays on the right device.
+        return *this;
+    }
     const QString result = toFileInfo().canonicalFilePath();
     if (result.isEmpty())
         return *this;
