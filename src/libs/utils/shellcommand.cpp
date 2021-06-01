@@ -85,7 +85,6 @@ public:
 
     ~ShellCommandPrivate() { delete m_progressParser; }
 
-    std::function<OutputProxy *()> m_proxyFactory = []() { return new OutputProxy; };
     QString m_displayName;
     const QString m_defaultWorkingDirectory;
     const Environment m_environment;
@@ -318,33 +317,30 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
         return;
     }
 
-    QSharedPointer<OutputProxy> proxy(d->m_proxyFactory());
-
     if (!(d->m_flags & SuppressCommandLogging))
-        emit proxy->appendCommand(dir, command);
+        appendCommand(dir, command);
 
     proc.setCommand(command);
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
-        runFullySynchronous(proc, proxy, dir);
+        runFullySynchronous(proc, dir);
     } else {
-        runSynchronous(proc, proxy, dir);
+        runSynchronous(proc, dir);
     }
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
         if (proc.result() == QtcProcess::FinishedWithSuccess) {
             if (d->m_flags & ShowSuccessMessage)
-                emit proxy->appendMessage(proc.exitMessage());
+                appendMessage(proc.exitMessage());
         } else if (!(d->m_flags & SuppressFailMessage)) {
-            emit proxy->appendError(proc.exitMessage());
+            appendError(proc.exitMessage());
         }
     }
 }
 
 void ShellCommand::runFullySynchronous(SynchronousProcess &process,
-                                       QSharedPointer<OutputProxy> proxy,
                                        const QString &workingDirectory)
 {
     // Set up process
@@ -364,20 +360,19 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
     if (!d->m_aborted) {
         const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
-            emit proxy->append(stdErr);
+            append(stdErr);
 
         const QString stdOut = process.stdOut();
         if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
             if (d->m_flags & SilentOutput)
-                emit proxy->appendSilently(stdOut);
+                appendSilently(stdOut);
             else
-                emit proxy->append(stdOut);
+                append(stdOut);
         }
     }
 }
 
 void ShellCommand::runSynchronous(SynchronousProcess &process,
-                                  QSharedPointer<OutputProxy> proxy,
                                   const QString &workingDirectory)
 {
     connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::stopProcess);
@@ -393,11 +388,11 @@ void ShellCommand::runSynchronous(SynchronousProcess &process,
     if (d->m_flags & MergeOutputChannels) {
         process.setProcessChannelMode(QProcess::MergedChannels);
     } else if (d->m_progressiveOutput || !(d->m_flags & SuppressStdErr)) {
-        process.setStdErrCallback([this, proxy](const QString &text) {
+        process.setStdErrCallback([this](const QString &text) {
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
             if (!(d->m_flags & SuppressStdErr))
-                emit proxy->appendError(text);
+                appendError(text);
             if (d->m_progressiveOutput)
                 emit stdErrText(text);
         });
@@ -405,11 +400,11 @@ void ShellCommand::runSynchronous(SynchronousProcess &process,
 
     // connect stdout to the output window if desired
     if (d->m_progressParser || d->m_progressiveOutput || (d->m_flags & ShowStdOut)) {
-        process.setStdOutCallback([this, proxy](const QString &text) {
+        process.setStdOutCallback([this](const QString &text) {
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
             if (d->m_flags & ShowStdOut)
-                emit proxy->append(text);
+                append(text);
             if (d->m_progressiveOutput) {
                 emit stdOutText(text);
                 d->m_hadOutput = true;
@@ -461,11 +456,6 @@ bool ShellCommand::hasProgressParser() const
 void ShellCommand::setProgressiveOutput(bool progressive)
 {
     d->m_progressiveOutput = progressive;
-}
-
-void ShellCommand::setOutputProxyFactory(const std::function<OutputProxy *()> &factory)
-{
-    d->m_proxyFactory = factory;
 }
 
 void ShellCommand::setDisableUnixTerminal()

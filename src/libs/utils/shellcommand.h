@@ -29,8 +29,6 @@
 
 #include "qtcprocess.h"
 
-#include <functional>
-
 QT_BEGIN_NAMESPACE
 class QMutex;
 class QVariant;
@@ -60,22 +58,6 @@ private:
     QFutureInterface<void> *m_future;
     QMutex *m_futureMutex = nullptr;
     friend class ShellCommand;
-};
-
-// Users of this class can either be in the GUI thread or in other threads.
-// Use Qt::AutoConnection to always append in the GUI thread (directly or queued)
-class QTCREATOR_UTILS_EXPORT OutputProxy : public QObject
-{
-    Q_OBJECT
-
-    friend class ShellCommand;
-
-signals:
-    void append(const QString &text);
-    void appendSilently(const QString &text);
-    void appendError(const QString &text);
-    void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command);
-    void appendMessage(const QString &text);
 };
 
 class QTCREATOR_UTILS_EXPORT ShellCommand : public QObject
@@ -136,7 +118,6 @@ public:
     bool hasProgressParser() const;
     void setProgressiveOutput(bool progressive);
 
-    void setOutputProxyFactory(const std::function<OutputProxy *()> &factory);
     void setDisableUnixTerminal();
 
     // This is called once per job in a thread.
@@ -162,16 +143,24 @@ protected:
     int timeoutS() const;
     QString workDirectory(const QString &wd) const;
 
+    // Below methods are called directly from other threads
+    virtual void append(const QString &text) { Q_UNUSED(text) }
+    virtual void appendSilently(const QString &text) { Q_UNUSED(text) }
+    virtual void appendError(const QString &text) { Q_UNUSED(text) }
+    virtual void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command) {
+        Q_UNUSED(workingDirectory)
+        Q_UNUSED(command)
+    }
+    virtual void appendMessage(const QString &text) { Q_UNUSED(text) }
+
 private:
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
     void runFullySynchronous(SynchronousProcess &proc,
-                             QSharedPointer<OutputProxy> proxy,
                              const QString &workingDirectory);
     // Run with an event loop. Signals will be delivered.
     void runSynchronous(SynchronousProcess &proc,
-                        QSharedPointer<OutputProxy> proxy,
                         const QString &workingDirectory);
 
     class Internal::ShellCommandPrivate *const d;

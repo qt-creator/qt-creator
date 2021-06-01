@@ -31,6 +31,8 @@
 
 namespace VcsBase {
 
+class VcsOutputWindow;
+
 class VCSBASE_EXPORT VcsCommand : public Core::ShellCommand
 {
     Q_OBJECT
@@ -49,12 +51,20 @@ public:
                     const Utils::CommandLine &command,
                     const QString &workDirectory = {}) override;
 
+protected:
+    void append(const QString &text) override;
+    void appendSilently(const QString &text) override;
+    void appendError(const QString &text) override;
+    void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command) override;
+    void appendMessage(const QString &text) override;
+
 private:
     void emitRepositoryChanged(const QString &workingDirectory);
 
     void coreAboutToClose() override;
 
     bool m_preventRepositoryChanged;
+    VcsOutputWindow *m_outputWindow = nullptr;
 };
 
 } // namespace VcsBase
