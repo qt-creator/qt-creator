@@ -203,7 +203,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
             [this] { return displayName(); });
     m_expander.registerFileVariables("RunConfig:Executable",
                                      tr("The run configuration's executable."),
-                                     [this] { return commandLine().executable().toString(); });
+                                     [this] { return commandLine().executable(); });
 
 
     m_commandLineGetter = [this] {

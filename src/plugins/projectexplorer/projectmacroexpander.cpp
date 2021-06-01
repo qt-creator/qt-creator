@@ -36,10 +36,10 @@ ProjectMacroExpander::ProjectMacroExpander(const Utils::FilePath &mainFilePath, 
     // TODO: Remove "Current" variants in ~4.16
     registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
                      QCoreApplication::translate("ProjectExplorer", "Main file of current project"),
-                     [mainFilePath] { return mainFilePath.toString(); }, false);
+                     [mainFilePath] { return mainFilePath; }, false);
     registerFileVariables("Project",
                      QCoreApplication::translate("ProjectExplorer", "Main file of the project"),
-                     [mainFilePath] { return mainFilePath.toString(); });
+                     [mainFilePath] { return mainFilePath; });
     registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
                      QCoreApplication::translate("ProjectExplorer", "Name of current project"),
                      [projectName] { return projectName; }, false);

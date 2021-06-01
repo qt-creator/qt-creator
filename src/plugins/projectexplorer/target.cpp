@@ -180,10 +180,10 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
         }, false);
     d->m_macroExpander.registerFileVariables("CurrentRun:Executable",
         tr("The currently active run configuration's executable (if applicable)."),
-        [this]() -> QString {
+        [this]() -> FilePath {
             if (RunConfiguration * const rc = activeRunConfiguration())
-                return rc->commandLine().executable().toString();
-            return QString();
+                return rc->commandLine().executable();
+            return FilePath();
         }, false);
     d->m_macroExpander.registerPrefix("CurrentRun:Env", tr("Variables in the current run environment."),
                              [this](const QString &var) {

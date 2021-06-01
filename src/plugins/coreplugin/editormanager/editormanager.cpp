@@ -704,9 +704,9 @@ void EditorManagerPrivate::init()
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
 
     globalMacroExpander()->registerFileVariables(kCurrentDocumentPrefix, tr("Current document"),
-        []() -> QString {
+        [] {
             IDocument *document = EditorManager::currentDocument();
-            return document ? document->filePath().toString() : QString();
+            return document ? document->filePath() : FilePath();
         });
 
     globalMacroExpander()->registerIntVariable(kCurrentDocumentXPos,

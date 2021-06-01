@@ -65,6 +65,7 @@ public:
     using PrefixFunction = std::function<QString(QString)>;
     using ResolverFunction = std::function<bool(QString, QString *)>;
     using StringFunction = std::function<QString()>;
+    using FileFunction = std::function<FilePath()>;
     using IntFunction = std::function<int()>;
 
     void registerPrefix(const QByteArray &prefix,
@@ -78,7 +79,7 @@ public:
         const QString &description, const IntFunction &value);
 
     void registerFileVariables(const QByteArray &prefix,
-        const QString &heading, const StringFunction &value,
+        const QString &heading, const FileFunction &value,
         bool visibleInChooser = true);
 
     void registerExtraResolver(const ResolverFunction &value);

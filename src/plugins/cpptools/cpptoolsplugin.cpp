@@ -201,7 +201,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
                                []() { return CppToolsPlugin::licenseTemplate(); });
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
                                     tr("The configured path to the license template"),
-                                    []() { return CppToolsPlugin::licenseTemplatePath().toString(); });
+                                    []() { return CppToolsPlugin::licenseTemplatePath(); });
 
     expander->registerVariable(
                 "Cpp:PragmaOnce",

@@ -297,10 +297,10 @@ void CMakeKitAspect::addToMacroExpander(Kit *k, Utils::MacroExpander *expander) 
 {
     QTC_ASSERT(k, return);
     expander->registerFileVariables("CMake:Executable", tr("Path to the cmake executable"),
-                                    [k]() -> QString {
-                                        CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-                                        return tool ? tool->cmakeExecutable().toString() : QString();
-    });
+        [k] {
+            CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+            return tool ? tool->cmakeExecutable() : Utils::FilePath();
+        });
 }
 
 QSet<Utils::Id> CMakeKitAspect::availableFeatures(const Kit *k) const

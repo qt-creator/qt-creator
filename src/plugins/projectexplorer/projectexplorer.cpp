@@ -1779,19 +1779,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file."),
-        []() -> QString {
-            Utils::FilePath projectFilePath;
+        []() -> FilePath {
+            FilePath projectFilePath;
             if (Project *project = ProjectTree::currentProject())
                 projectFilePath = project->projectFilePath();
-            return projectFilePath.toString();
+            return projectFilePath;
         }, false);
     expander->registerFileVariables("CurrentDocument:Project",
         tr("Main file of the project the current document belongs to."),
-        []() -> QString {
-            Utils::FilePath projectFilePath;
+        []() -> FilePath {
+            FilePath projectFilePath;
             if (Project *project = ProjectTree::currentProject())
                 projectFilePath = project->projectFilePath();
-            return projectFilePath.toString();
+            return projectFilePath;
         }, false);
 
     expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
@@ -1850,9 +1850,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return {};
         });
     expander->registerFileVariables("ActiveProject", tr("Active project's main file."),
-        []() -> QString {
+        []() -> FilePath {
             if (const Project * const project = SessionManager::startupProject())
-                return project->projectFilePath().toString();
+                return project->projectFilePath();
             return {};
         });
     expander->registerVariable("ActiveProject:Kit:Name",
@@ -1909,10 +1909,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
     expander->registerFileVariables("ActiveProject:RunConfig:Executable",
         tr("The executable of the active project's active run configuration."),
-        []() -> QString {
+        []() -> FilePath {
             if (const RunConfiguration * const rc = activeRunConfiguration())
-                return rc->commandLine().executable().toString();
-            return QString();
+                return rc->commandLine().executable();
+            return {};
         });
     const char activeRunEnvVar[] = "ActiveProject:RunConfig:Env";
     Utils::EnvironmentProvider::addProvider(
@@ -1944,7 +1944,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     });
 
     const auto fileHandler = [] {
-        return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString();
+        return SessionManager::sessionNameToFileName(SessionManager::activeSession());
     };
     expander->registerFileVariables("Session", tr("File where current session is saved."),
                                     fileHandler);

@@ -598,7 +598,7 @@ void DebuggerRunTool::start()
 
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", tr("Debugged executable"),
-                [this] { return m_runParameters.inferior.executable.toString(); }
+                [this] { return m_runParameters.inferior.executable; }
     );
 
     runControl()->setDisplayName(m_runParameters.displayName);

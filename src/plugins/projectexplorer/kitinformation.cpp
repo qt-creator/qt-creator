@@ -167,8 +167,8 @@ void SysRootKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expand
 {
     QTC_ASSERT(kit, return);
 
-    expander->registerFileVariables("SysRoot", tr("Sys Root"), [kit]() -> QString {
-        return SysRootKitAspect::sysRoot(kit).toString();
+    expander->registerFileVariables("SysRoot", tr("Sys Root"), [kit] {
+        return SysRootKitAspect::sysRoot(kit);
     });
 }
 
