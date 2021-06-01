@@ -296,6 +296,10 @@ void CMakeBuildSystem::triggerParsing()
         reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
     }
 
+    // The code model will be updated after the CMake run. There is no need to have an
+    // active code model updater when the next one will be triggered.
+    m_cppCodeModelUpdater->cancel();
+
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
     m_reader.parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                    reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION,
