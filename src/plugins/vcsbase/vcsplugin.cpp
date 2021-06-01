@@ -45,6 +45,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/futuresynchronizer.h>
 #include <utils/macroexpander.h>
 
 #include <QDebug>
@@ -60,6 +61,7 @@ class VcsPluginPrivate
 public:
     CommonOptionsPage m_settingsPage;
     QStandardItemModel *m_nickNameModel = nullptr;
+    Utils::FutureSynchronizer m_synchronizer;
 };
 
 static VcsPlugin *m_instance = nullptr;
@@ -71,6 +73,7 @@ VcsPlugin::VcsPlugin()
 
 VcsPlugin::~VcsPlugin()
 {
+    d->m_synchronizer.waitForFinished();
     VcsOutputWindow::destroy();
     m_instance = nullptr;
     delete d;
@@ -82,6 +85,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(errorMessage)
 
     d = new VcsPluginPrivate;
+    d->m_synchronizer.setCancelOnWait(true);
 
     EditorManager::addCloseEditorListener([this](IEditor *editor) -> bool {
         bool result = true;
@@ -138,6 +142,11 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 VcsPlugin *VcsPlugin::instance()
 {
     return m_instance;
+}
+
+void VcsPlugin::addFuture(const QFuture<void> &future)
+{
+    m_instance->d->m_synchronizer.addFuture(future);
 }
 
 CommonVcsSettings &VcsPlugin::settings() const

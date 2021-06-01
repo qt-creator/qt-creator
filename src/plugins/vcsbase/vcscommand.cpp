@@ -26,6 +26,7 @@
 #include "vcscommand.h"
 #include "vcsbaseplugin.h"
 #include "vcsoutputwindow.h"
+#include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
@@ -76,6 +77,12 @@ void VcsCommand::runCommand(SynchronousProcess &proc,
 {
     ShellCommand::runCommand(proc, command, workingDirectory);
     emitRepositoryChanged(workingDirectory);
+}
+
+void VcsCommand::addTask(QFuture<void> &future)
+{
+    Core::ShellCommand::addTask(future);
+    Internal::VcsPlugin::addFuture(future);
 }
 
 void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)

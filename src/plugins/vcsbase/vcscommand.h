@@ -51,6 +51,9 @@ public:
                     const Utils::CommandLine &command,
                     const QString &workDirectory = {}) override;
 
+protected:
+    void addTask(QFuture<void> &future) override;
+
 private:
     void emitRepositoryChanged(const QString &workingDirectory);
 

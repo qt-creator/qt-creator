@@ -27,6 +27,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <QFuture>
+
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 QT_END_NAMESPACE
@@ -51,6 +53,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     static VcsPlugin *instance();
+    static void addFuture(const QFuture<void> &future);
 
     CommonVcsSettings &settings() const;
 
