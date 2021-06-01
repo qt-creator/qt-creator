@@ -25,6 +25,7 @@
 
 #include "clangdclient.h"
 
+#include <clangsupport/sourcelocationscontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
@@ -71,10 +72,11 @@ class AstParams : public JsonObject
 {
 public:
     AstParams() {}
-    AstParams(const TextDocumentIdentifier &document, const Range &range)
+    AstParams(const TextDocumentIdentifier &document, const Range &range = {})
     {
         setTextDocument(document);
-        setRange(range);
+        if (range.isValid())
+            setRange(range);
     }
 
     using JsonObject::JsonObject;
@@ -575,6 +577,28 @@ public:
     Utils::optional<AstNode> ast;
 };
 
+class LocalRefsData {
+public:
+    LocalRefsData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
+                      CppTools::RefactoringEngineInterface::RenameCallback &&callback)
+        : id(id), document(doc), cursor(cursor), callback(std::move(callback)),
+          uri(DocumentUri::fromFilePath(doc->filePath())), revision(doc->document()->revision())
+    {}
+
+    ~LocalRefsData()
+    {
+        if (callback)
+            callback({}, {}, revision);
+    }
+
+    const quint64 id;
+    const QPointer<TextEditor::TextDocument> document;
+    const QTextCursor cursor;
+    CppTools::RefactoringEngineInterface::RenameCallback callback;
+    const DocumentUri uri;
+    const int revision;
+};
+
 
 class ClangdClient::Private
 {
@@ -600,14 +624,18 @@ public:
 
     void handleDeclDefSwitchReplies();
 
+    QString searchTermFromCursor(const QTextCursor &cursor) const;
+
     ClangdClient * const q;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
+    Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
     quint64 nextFindUsagesKey = 0;
     quint64 nextFollowSymbolId = 0;
     quint64 nextSwitchDeclDefId = 0;
+    quint64 nextLocalRefsId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
 };
@@ -694,9 +722,8 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                               const Utils::optional<QString> &replacement)
 {
-    QTextCursor termCursor(cursor);
-    termCursor.select(QTextCursor::WordUnderCursor);
-    const QString searchTerm = termCursor.selectedText(); // TODO: This will be wrong for e.g. operators. Use a Symbol info request to get the real symbol string.
+    // TODO: This will be wrong for e.g. operators. Use a Symbol info request to get the real symbol string.
+    const QString searchTerm = d->searchTermFromCursor(cursor);
     if (searchTerm.isEmpty())
         return;
 
@@ -1054,6 +1081,94 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
 
 }
 
+void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+        CppTools::RefactoringEngineInterface::RenameCallback &&callback)
+{
+    QTC_ASSERT(documentOpen(document), openDocument(document));
+
+    qCDebug(clangdLog) << "local references requested" << document->filePath()
+                       << (cursor.blockNumber() + 1) << (cursor.positionInBlock() + 1);
+
+    d->localRefsData.emplace(++d->nextLocalRefsId, document, cursor, std::move(callback));
+    const QString searchTerm = d->searchTermFromCursor(cursor);
+    if (searchTerm.isEmpty()) {
+        d->localRefsData.reset();
+        return;
+    }
+
+    // Step 1: Go to definition
+    const auto gotoDefCallback = [this, id = d->localRefsData->id](const Utils::Link &link) {
+        qCDebug(clangdLog) << "received go to definition response" << link.targetFilePath
+                           << link.targetLine << (link.targetColumn + 1);
+        if (!d->localRefsData || id != d->localRefsData->id)
+            return;
+        if (!link.hasValidTarget()) {
+            d->localRefsData.reset();
+            return;
+        }
+
+        // Step 2: Get AST and check whether it's a local variable.
+        AstRequest astRequest(AstParams(TextDocumentIdentifier(d->localRefsData->uri)));
+        astRequest.setResponseCallback([this, link, id](const AstRequest::Response &response) {
+            qCDebug(clangdLog) << "received ast response";
+            if (!d->localRefsData || id != d->localRefsData->id)
+                return;
+            const auto result = response.result();
+            if (!result || !d->localRefsData->document) {
+                d->localRefsData.reset();
+                return;
+            }
+
+            const Position linkPos(link.targetLine - 1, link.targetColumn);
+            const QList<AstNode> astPath = getAstPath(*result, Range(linkPos, linkPos));
+            bool isVar = false;
+            for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
+                if (it->role() == "declaration" && it->kind() == "Function") {
+                    if (!isVar)
+                        break;
+
+                    // Step 3: Find references.
+                    qCDebug(clangdLog) << "finding references for local var";
+                    symbolSupport().findUsages(d->localRefsData->document,
+                                               d->localRefsData->cursor,
+                                               [this, id](const QList<Location> &locations) {
+                        qCDebug(clangdLog) << "found" << locations.size() << "local references";
+                        if (!d->localRefsData || id != d->localRefsData->id)
+                            return;
+                        ClangBackEnd::SourceLocationsContainer container;
+                        for (const Location &loc : locations) {
+                            container.insertSourceLocation({}, loc.range().start().line() + 1,
+                                                           loc.range().start().character() + 1);
+                        }
+
+                        // The callback only uses the symbol length, so we just create a dummy.
+                        // Note that the calculation will be wrong for identifiers with
+                        // embedded newlines, but we've never supported that.
+                        QString symbol;
+                        if (!locations.isEmpty()) {
+                            const Range r = locations.first().range();
+                            symbol = QString(r.end().character() - r.start().character(), 'x');
+                        }
+                        d->localRefsData->callback(symbol, container, d->localRefsData->revision);
+                        d->localRefsData->callback = {};
+                        d->localRefsData.reset();
+                    });
+                    return;
+                }
+                if (!isVar && it->role() == "declaration"
+                        && (it->kind() == "Var" || it->kind() == "ParmVar")) {
+                    isVar = true;
+                }
+            }
+            d->localRefsData.reset();
+        });
+        qCDebug(clangdLog) << "sending ast request for link";
+        sendContent(astRequest);
+
+    };
+    symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
+}
+
 void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
@@ -1283,6 +1398,13 @@ void ClangdClient::Private::handleDeclDefSwitchReplies()
                         true, false);
     }
     switchDeclDefData.reset();
+}
+
+QString ClangdClient::Private::searchTermFromCursor(const QTextCursor &cursor) const
+{
+    QTextCursor termCursor(cursor);
+    termCursor.select(QTextCursor::WordUnderCursor);
+    return termCursor.selectedText();
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()

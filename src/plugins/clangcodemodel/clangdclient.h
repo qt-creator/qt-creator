@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cpptools/refactoringengineinterface.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
 #include <utils/optional.h>
@@ -65,6 +66,9 @@ public:
             const QTextCursor &cursor,
             CppTools::CppEditorWidgetInterface *editorWidget,
             Utils::ProcessLinkCallback &&callback);
+
+    void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                         CppTools::RefactoringEngineInterface::RenameCallback &&callback);
 
     void enableTesting();
 

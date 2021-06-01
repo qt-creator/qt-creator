@@ -207,6 +207,7 @@ QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
         new Tests::ClangCodeCompletionTest,
         new Tests::ClangdTestFindReferences,
         new Tests::ClangdTestFollowSymbol,
+        new Tests::ClangdTestLocalReferences,
     };
 }
 #endif

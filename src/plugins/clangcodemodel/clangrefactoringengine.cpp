@@ -42,6 +42,14 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
                                            CppTools::ProjectPart *,
                                            RenameCallback &&renameSymbolsCallback)
 {
+    ClangdClient * const client
+            = ClangModelManagerSupport::instance()->clientForFile(data.filePath());
+    if (client && client->reachable()) {
+        client->findLocalUsages(data.textDocument(), data.cursor(),
+                                std::move(renameSymbolsCallback));
+        return;
+    }
+
     ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(
         data.filePath().toString());
     const int startRevision = data.cursor().document()->revision();

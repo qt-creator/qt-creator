@@ -691,7 +691,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
     viewport()->setCursor(Qt::BusyCursor);
     d->m_modelManager->startLocalRenaming(CppTools::CursorInEditor{textCursor(),
                                                                    textDocument()->filePath(),
-                                                                   this},
+                                                                   this, textDocument()},
                                           projPart,
                                           std::move(renameSymbols));
 }

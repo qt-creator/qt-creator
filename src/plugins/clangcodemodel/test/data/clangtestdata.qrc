@@ -37,5 +37,7 @@
         <file>follow-symbol/follow-symbol.pro</file>
         <file>follow-symbol/header.h</file>
         <file>follow-symbol/main.cpp</file>
+        <file>local-references/local-references.pro</file>
+        <file>local-references/references.cpp</file>
     </qresource>
 </RCC>

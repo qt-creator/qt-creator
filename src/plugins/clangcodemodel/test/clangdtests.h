@@ -104,6 +104,17 @@ private slots:
     void test();
 };
 
+class ClangdTestLocalReferences : public ClangdTest
+{
+    Q_OBJECT
+public:
+    ClangdTestLocalReferences();
+
+private slots:
+    void test_data();
+    void test();
+};
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel

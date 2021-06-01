@@ -30,6 +30,7 @@
 #include "../clangdclient.h"
 #include "../clangmodelmanagersupport.h"
 
+#include <clangsupport/sourcelocationscontainer.h>
 #include <cplusplus/FindUsages.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -46,6 +47,8 @@
 #include <QScopedPointer>
 #include <QTimer>
 #include <QtTest>
+
+#include <tuple>
 
 using namespace CPlusPlus;
 using namespace Core;
@@ -119,8 +122,10 @@ void ClangdTest::initTestCase()
         QSKIP("clangd is too old");
 
     // Wait for index to build.
-    if (!m_client->isFullyIndexed())
-        QVERIFY(waitForSignalOrTimeout(m_client, &ClangdClient::indexingFinished, timeOutInMs()));
+    if (!m_client->isFullyIndexed()) {
+        QVERIFY(waitForSignalOrTimeout(m_client, &ClangdClient::indexingFinished,
+                                       clangdIndexingTimeout()));
+    }
     QVERIFY(m_client->isFullyIndexed());
 
     // Open cpp documents.
@@ -359,6 +364,127 @@ void ClangdTestFollowSymbol::test()
     QCOMPARE(actualLink.targetColumn + 1, targetColumn);
 }
 
+
+ClangdTestLocalReferences::ClangdTestLocalReferences()
+{
+    setProjectFileName("local-references.pro");
+    setSourceFileNames({"references.cpp"});
+    setMinimumVersion(13);
+}
+
+using Range = std::tuple<int, int, int>;
+
+// We currently only support local variables, but if and when clangd implements
+// the linkedEditingRange request, we can change the expected values for
+// the file-scope test cases from empty ranges to the actual locations.
+void ClangdTestLocalReferences::test_data()
+{
+    QTest::addColumn<int>("sourceLine");
+    QTest::addColumn<int>("sourceColumn");
+    QTest::addColumn<QList<Range>>("expectedRanges");
+
+    QTest::newRow("cursor not on identifier") << 3 << 5 << QList<Range>();
+    QTest::newRow("local variable, one use") << 3 << 9 << QList<Range>{{3, 9, 3}};
+    QTest::newRow("local variable, two uses") << 10 << 9
+                                              << QList<Range>{{10, 9, 3}, {11, 12, 3}};
+    QTest::newRow("class name") << 16 << 7 << QList<Range>()
+            /* QList<Range>{{16, 7, 3}, {19, 5, 3}} */;
+    QTest::newRow("namespace") << 24 << 11 << QList<Range>()
+            /* QList<Range>{{24, 11, 1}, {25, 11, 1}, {26, 1, 1}} */;
+    QTest::newRow("class name via using") << 30 << 21 << QList<Range>()
+            /* QList<Range>{{30, 21, 3}, {31, 10, 3}} */;
+    QTest::newRow("forward-declared class") << 35 << 7 << QList<Range>()
+            /* QList<Range>{{35, 7, 3}, {36, 14, 3}} */;
+    QTest::newRow("class name and new expression") << 40 << 7 << QList<Range>()
+            /* QList<Range>{{40, 7, 3}, {43, 9, 3}} */;
+    QTest::newRow("instantiated template object") << 52 << 19
+                                                  << QList<Range>{{52, 19, 3}, {53, 5, 3}};
+    QTest::newRow("variable in template") << 62 << 13 << QList<Range>()
+            /* QList<Range>{{62, 13, 3}, {63, 11, 3}} */;
+    QTest::newRow("member in template") << 67 << 7 << QList<Range>()
+            /* QList<Range>{{64, 16, 3}, {67, 7, 3}} */;
+    QTest::newRow("template type") << 58 << 19 << QList<Range>()
+            /* QList<Range>{{58, 19, 1}, {60, 5, 1}, {67, 5, 1}} */;
+    QTest::newRow("template parameter member access") << 76 << 9 << QList<Range>();
+    QTest::newRow("constructor as type") << 82 << 5 << QList<Range>()
+            /* QList<Range>{{81, 8, 3}, {82, 5, 3}, {83, 6, 3}} */;
+    QTest::newRow("freestanding overloads") << 88 << 5 << QList<Range>()
+            /* QList<Range>{{88, 5, 3}, {89, 5, 3}} */;
+    QTest::newRow("member function overloads") << 94 << 9 << QList<Range>()
+            /* QList<Range>{{94, 9, 3}, {95, 9, 3}} */;
+    QTest::newRow("function and function template") << 100 << 26 << QList<Range>()
+            /* QList<Range>{{100, 26, 3}, {101, 5, 3}} */;
+    QTest::newRow("function and function template as member") << 106 << 30 << QList<Range>()
+            /* QList<Range>{{106, 30, 3}, {107, 9, 3}} */;
+    QTest::newRow("enum type") << 112 << 6 << QList<Range>()
+            /* QList<Range>{{112, 6, 2}, {113, 8, 2}} */;
+    QTest::newRow("captured lambda var") << 122 << 15
+                                         << QList<Range>{{122, 15, 3}, {122, 33, 3}};
+    QTest::newRow("lambda initializer") << 122 << 19
+                                         << QList<Range>{{121, 19, 3}, {122, 19, 3}};
+    QTest::newRow("template specialization") << 127 << 25 << QList<Range>()
+            /* QList<Range>{{127, 5, 3}, {128, 25, 3}, {129, 18, 3}} */;
+    QTest::newRow("dependent name") << 133 << 34 << QList<Range>()
+            /* QList<Range>{{133, 34, 3} */;
+    QTest::newRow("function call and definition") << 140 << 5 << QList<Range>()
+            /* QList<Range>{{140, 5, 3}, {142, 25, 3}} */;
+    QTest::newRow("object-like macro") << 147 << 9 << QList<Range>()
+            /* QList<Range>{{147, 9, 3}, {150, 12, 3}} */;
+    QTest::newRow("function-like macro") << 155 << 9 << QList<Range>()
+            /* QList<Range>{{155, 9, 3}, {158, 12, 3}} */;
+    QTest::newRow("argument to function-like macro") << 156 << 27
+            << QList<Range>{{156, 27, 3}, {158, 16, 3}};
+    QTest::newRow("overloaded bracket operator argument") << 172 << 7
+            << QList<Range>{{171, 7, 1}, {172, 7, 1}, {172, 12, 1},
+                     {173, 7, 1}, {173, 10, 1}};
+    QTest::newRow("overloaded call operator second argument") << 173 << 10
+            << QList<Range>{{171, 7, 1}, {172, 7, 1}, {172, 12, 1},
+                     {173, 7, 1}, {173, 10, 1}};
+    QTest::newRow("overloaded operators arguments from outside") << 171 << 7
+            << QList<Range>{{171, 7, 1}, {172, 7, 1}, {172, 12, 1},
+                     {173, 7, 1}, {173, 10, 1}};
+}
+
+void ClangdTestLocalReferences::test()
+{
+    QFETCH(int, sourceLine);
+    QFETCH(int, sourceColumn);
+    QFETCH(QList<Range>, expectedRanges);
+
+    TextEditor::TextDocument * const doc = document("references.cpp");
+    QVERIFY(doc);
+
+    QTimer timer;
+    timer.setSingleShot(true);
+    QEventLoop loop;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    QList<Range> actualRanges;
+    const auto handler = [&actualRanges, &loop](const QString &symbol,
+            const ClangBackEnd::SourceLocationsContainer &container, int) {
+        for (const ClangBackEnd::SourceLocationContainer &c
+             : container.m_sourceLocationContainers) {
+            actualRanges << Range(c.line, c.column, symbol.length());
+        }
+        loop.quit();
+    };
+
+    QTextCursor cursor(doc->document());
+    const int pos = Utils::Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    cursor.setPosition(pos);
+    client()->findLocalUsages(doc, cursor, std::move(handler));
+    timer.start(10000);
+    loop.exec();
+    QEXPECT_FAIL("cursor not on identifier", "clangd bug: go to definition does not return", Abort);
+    QEXPECT_FAIL("template parameter member access",
+                 "clangd bug: go to definition does not return", Abort);
+    QVERIFY(timer.isActive());
+    timer.stop();
+
+    QCOMPARE(actualRanges, expectedRanges);
+}
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel
+
+Q_DECLARE_METATYPE(ClangCodeModel::Internal::Tests::Range)
