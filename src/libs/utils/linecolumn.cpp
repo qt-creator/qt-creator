@@ -57,7 +57,7 @@ LineColumn LineColumn::extractFromFileName(const QString &fileName, int &postfix
         }
     } else {
         const QRegularExpressionMatch vsMatch = vsRegexp.match(fileName);
-        postfixPos = match.capturedStart(0);
+        postfixPos = vsMatch.capturedStart(0);
         filePath = fileName.left(vsMatch.capturedStart(0));
         if (vsMatch.lastCapturedIndex() > 1) // index 1 includes closing )
             lineColumn.line = vsMatch.captured(2).toInt();
