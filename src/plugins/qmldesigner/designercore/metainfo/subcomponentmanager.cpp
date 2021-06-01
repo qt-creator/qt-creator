@@ -318,7 +318,7 @@ void SubComponentManager::unregisterQmlFile(const QFileInfo &fileInfo, const QSt
 void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                           bool addToLibrary)
 {
-    if (!model())
+    if (!addToLibrary || !model() || fileInfo.path().contains(QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER)))
         return;
 
     QString componentName = fileInfo.baseName();
@@ -335,22 +335,19 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
     if (debug)
         qDebug() << "SubComponentManager" << __FUNCTION__ << componentName;
 
-    if (addToLibrary) {
-        // Add file components to the library
-        ItemLibraryEntry itemLibraryEntry;
-        itemLibraryEntry.setType(componentName.toUtf8());
-        itemLibraryEntry.setName(baseComponentName);
+    // Add file components to the library
+    ItemLibraryEntry itemLibraryEntry;
+    itemLibraryEntry.setType(componentName.toUtf8());
+    itemLibraryEntry.setName(baseComponentName);
 #ifndef QMLDESIGNER_TEST
-        itemLibraryEntry.setCategory(ItemLibraryImport::userComponentsTitle());
+    itemLibraryEntry.setCategory(ItemLibraryImport::userComponentsTitle());
 #endif
-        itemLibraryEntry.setCustomComponentSource(fileInfo.absoluteFilePath());
-        if (!qualifier.isEmpty()) {
-            itemLibraryEntry.setRequiredImport(fixedQualifier);
-        }
+    itemLibraryEntry.setCustomComponentSource(fileInfo.absoluteFilePath());
+    if (!qualifier.isEmpty())
+        itemLibraryEntry.setRequiredImport(fixedQualifier);
 
-        if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
-            model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
-    }
+    if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
+        model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
 }
 
 Model *SubComponentManager::model() const
