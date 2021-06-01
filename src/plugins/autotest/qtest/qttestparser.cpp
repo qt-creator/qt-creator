@@ -292,12 +292,12 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureIn
     }
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    TestCases testCases(testCases(modelManager, fileName));
+    TestCases testCaseList(testCases(modelManager, fileName));
     bool reported = false;
     // we might be in a reparse without the original entry point with the QTest::qExec()
-    if (testCases.isEmpty() && !oldTestCases.empty())
-        testCases.append(oldTestCases);
-    for (const TestCase &testCase : testCases) {
+    if (testCaseList.isEmpty() && !oldTestCases.empty())
+        testCaseList.append(oldTestCases);
+    for (const TestCase &testCase : testCaseList) {
         if (!testCase.name.isEmpty()) {
             TestCaseData data;
             Utils::optional<bool> earlyReturn = fillTestCaseData(testCase.name, doc, data);
