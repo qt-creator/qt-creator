@@ -192,6 +192,7 @@ static ClientCapabilities generateClientCapabilities()
          SymbolKind::EnumMember, SymbolKind::Struct,       SymbolKind::Event,
          SymbolKind::Operator,   SymbolKind::TypeParameter});
     symbolCapabilities.setSymbolKind(symbolKindCapabilities);
+    symbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
     documentCapabilities.setDocumentSymbol(symbolCapabilities);
 
     TextDocumentClientCapabilities::SemanticHighlightingCapabilities semanticHighlight;

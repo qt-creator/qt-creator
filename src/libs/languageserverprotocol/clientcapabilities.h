@@ -149,6 +149,12 @@ public:
     { return optionalValue<SymbolKindCapabilities>(symbolKindKey); }
     void setSymbolKind(const SymbolKindCapabilities &symbolKind) { insert(symbolKindKey, symbolKind); }
     void clearSymbolKind() { remove(symbolKindKey); }
+
+    Utils::optional<bool> hierarchicalDocumentSymbolSupport() const
+    { return optionalValue<bool>(hierarchicalDocumentSymbolSupportKey); }
+    void setHierarchicalDocumentSymbolSupport(bool hierarchicalDocumentSymbolSupport)
+    { insert(hierarchicalDocumentSymbolSupportKey, hierarchicalDocumentSymbolSupport); }
+    void clearHierachicalDocumentSymbolSupport() { remove(hierarchicalDocumentSymbolSupportKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentClientCapabilities : public JsonObject

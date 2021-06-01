@@ -116,6 +116,7 @@ constexpr char fullKey[] = "full";
 constexpr char greenKey[] = "green";
 constexpr char headerFieldSeparator[] = ": ";
 constexpr char headerSeparator[] = "\r\n";
+constexpr char hierarchicalDocumentSymbolSupportKey[] = "hierarchicalDocumentSymbolSupport";
 constexpr char hoverKey[] = "hover";
 constexpr char hoverProviderKey[] = "hoverProvider";
 constexpr char idKey[] = "id";
