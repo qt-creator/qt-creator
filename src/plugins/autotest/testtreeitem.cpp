@@ -130,19 +130,23 @@ bool ITestTreeItem::lessThan(const ITestTreeItem *other, ITestTreeItem::SortMode
     case Alphabetically:
         if (lhs == rhs)
             return index().row() > other->index().row();
-        return lhs > rhs;
+        return lhs.compare(rhs, Qt::CaseInsensitive) > 0;
     case Naturally: {
-        if (type() == GroupNode && other->type() == GroupNode)
-            return filePath() > other->filePath();
+        if (type() == GroupNode && other->type() == GroupNode) {
+            return filePath().toString().compare(other->filePath().toString(),
+                                                 Qt::CaseInsensitive) > 0;
+        }
 
         const Utils::Link &leftLink = data(0, LinkRole).value<Utils::Link>();
         const Utils::Link &rightLink = other->data(0, LinkRole).value<Utils::Link>();
-        if (leftLink.targetFilePath == rightLink.targetFilePath) {
+        const int comparison = leftLink.targetFilePath.toString().compare(
+                    rightLink.targetFilePath.toString(), Qt::CaseInsensitive);
+        if (comparison == 0) {
             return leftLink.targetLine == rightLink.targetLine
                     ? leftLink.targetColumn > rightLink.targetColumn
                     : leftLink.targetLine > rightLink.targetLine;
         }
-        return leftLink.targetFilePath > rightLink.targetFilePath;
+        return comparison > 0;
     }
     }
     return true;

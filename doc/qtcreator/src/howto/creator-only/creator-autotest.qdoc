@@ -367,9 +367,9 @@
     Cleanup Functions} or \uicontrol {Show Data Functions}. Double-click a
     function in the list to open its source code in the code editor.
 
-    The test cases are listed in alphabetic order. To list them in the order in
-    which they are defined in the source code, select \inlineimage leafsort.png
-    (\uicontrol {Sort Naturally}).
+    The test cases are listed in alphabetic, case insensitive order. To list
+    them in the order in which they are defined in the source code,
+    select \inlineimage leafsort.png (\uicontrol {Sort Naturally}).
 
     \section2 Running and Debugging Tests from Code Editor
 
