@@ -832,7 +832,10 @@ void FilePath::setHost(const QString &host)
 /// FilePath exists.
 bool FilePath::exists() const
 {
-    QTC_ASSERT(!needsDevice(), return false);
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.exists, return false);
+        return s_deviceHooks.exists(*this);
+    }
     return !isEmpty() && QFileInfo::exists(m_data);
 }
 

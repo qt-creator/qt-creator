@@ -75,6 +75,7 @@ public:
     std::function<bool(const FilePath &)> isWritableDir;
     std::function<bool(const FilePath &)> ensureWritableDir;
     std::function<bool(const FilePath &)> createDir;
+    std::function<bool(const FilePath &)> exists;
     std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
 };

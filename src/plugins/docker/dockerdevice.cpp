@@ -688,6 +688,22 @@ bool DockerDevice::createDirectory(const FilePath &filePath) const
     return exitCode == 0;
 }
 
+bool DockerDevice::exists(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.exists();
+        LOG("Exists? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("test", {"-e", path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
 QList<FilePath> DockerDevice::directoryEntries(const FilePath &filePath,
                                                const QStringList &nameFilters,
                                                QDir::Filters filters) const

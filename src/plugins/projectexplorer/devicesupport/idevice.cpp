@@ -259,6 +259,13 @@ bool IDevice::createDirectory(const Utils::FilePath &filePath) const
     return false;
 }
 
+bool IDevice::exists(const Utils::FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
                                           const QStringList &nameFilters,
                                           QDir::Filters filters) const
