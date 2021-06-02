@@ -36,18 +36,6 @@
 
     \list
 
-        \li \l {Creating Projects}
-
-            You must add your exported files to a new project that you create
-            in \QDS. Setting up a new project in \QDS is aided by a wizard that
-            guides you step-by-step through the project creation process,
-            creates the necessary files, and specifies settings depending
-            on the choices you make.
-
-            You can use wizards to create projects for the desktop or embedded
-            Linux and Android devices. In addition, you can add individual QML
-            files, components, and JavaScript files to your projects.
-
         \li \l{Using Git}
 
             You can add the project files to the Git version control, so that

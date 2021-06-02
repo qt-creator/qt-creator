@@ -25,10 +25,10 @@
 
 /*!
     \group gstutorials
-    \previouspage creator-project-managing-sessions.html
-    \nextpage studio-qtquick-best-practices.html
+    \previouspage studio-installation.html
+    \nextpage creator-quick-tour.html
 
-    \title Tutorials
+    \title Your First UI
 
     \image loginui4.gif "Log In UI"
 

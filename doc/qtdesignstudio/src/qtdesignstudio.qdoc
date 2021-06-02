@@ -48,12 +48,12 @@
         \li \b {\l{Getting Started}}
             \list
                 \li \l{Installation}
-                \li \l{User Interface}{Interface Overview}
-                \li \l{Creating Projects}{Projects}
-                \li \l{Use Cases} (NEW)
+                \li \l{Your First UI}
+                \li \l{User Interface}
+                \li \l{Creating Projects}
+                \li \l{Use Cases}
                 \li \l{Concepts and Terms}
                 \li \l{Examples and Tutorials}
-                \li \l{Supported Platforms}
             \endlist
         \li \b {\l{Wireframing}} (NEW)
             \list
@@ -107,7 +107,7 @@
             \list
                 \li \l{Using the Help Mode}
                 \li \l{Frequently Asked Questions}
-                \li \l{How-To}
+                \li \l{Supported Platforms}
             \endlist
         \row
             \li {4,1} \note To report bugs and suggestions to the

@@ -31,12 +31,6 @@
     \title Help
 
     \list
-        \li \l{Examples and Tutorials}
-
-            A set of examples available in the Welcome mode illustrates how
-            to use \QDS features such as the timeline. If you would rather
-            be shown things than read about them, you can watch our extensive
-            video tutorials.
 
         \li \l{Using the Help Mode}
 
@@ -49,9 +43,7 @@
 
             Contains answers to some frequently asked questions about \QDS.
 
-        \li \l{Concepts and Terms}
 
-            Describes main \QDS concepts and terms.
 
     \endlist
 

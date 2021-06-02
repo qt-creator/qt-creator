@@ -26,23 +26,25 @@
 /*!
     \page studio-installation.html
     \previouspage studio-getting-started.html
-    \nextpage creator-quick-tour.html
+    \nextpage {Your First UI}
 
     \title Installation
 
     You can install \QDS either using a stand-alone installation package or the
     Qt online installer. The installers copy all the modules and tools you need
     to design UIs and preview them on the desktop to your computer and configure
-    them for you.
+    them for you. \QDS is available for Linux, \macOS, and Windows operating
+    systems. For more information, see \l{Supported Platforms}.
 
     To begin, create a \l{Qt Account}. This account gives you access to a web
     portal to manage your licenses and download the standalone \QDS package or
     the Qt online installer. Alternatively, you can download an evaluation
     package \l{https://www.qt.io/product/ui-design-tools}{here}.
 
-    After the installation, you can start exploring \QDS by opening
-    \l{Examples and Tutorials}{examples}, following \l{Tutorials}{tutorials},
-    watching videos, and reading this manual.
+    After the installation, you can start exploring \QDS by following
+    tutorials to \l{Your First UI}{create your first UI}, opening
+    \l{Examples and Tutorials}{examples}, watching videos, and reading
+    this manual.
 
     \section1 Stand-Alone Installation
 

@@ -30,34 +30,52 @@
 
     \title Getting Started
 
-    The following topics contain information that you'll need to get started
-    with \QDS:
+    \table
+        \row
+            \li \image front-gs.png
+            \li When you install \QDS, everything you need to start wireframing
+                and prototyping UIs is installed and set up for you. You can
+                move directly to learning about how to use the different \QDS
+                views and menus and how to create a project that will contain
+                your UI. Then, you can open examples and follow tutorials to
+                create your first wireframe, prototype, and production-ready
+                UI.
+    \endtable
 
     \list
         \li \l {Installation}
 
             \QDS is available either as a standalone installation package or
             as an option in the Qt online installer.
-        \li \l {Exporting and Importing}
+        \li \l {Your First UI}
 
-            Describes how to export designs containing 2D and 3D assets into
-            files that you can import to projects in \QDS, how to import them,
-            and how to export them from \QDS back to the metadata format.
+            Follow a set of hands-on tutorials that build on each other to
+            design your first animated UI using preset and custom components.
         \li \l {User Interface}
 
             Describes the parts and basic features of \QDS.
-        \li \l{Design Views}
+        \li \l {Creating Projects}
 
-            Describes the views and basic features of the Design mode.
-            This is where you'll do most of your work.
-        \li \l {Tutorials}
+            To wireframe or prototype an application, you need a project.
+            Setting up a new project in \QDS is aided by a wizard that
+            guides you step-by-step through the project creation process,
+            creates the necessary files, and specifies settings depending
+            on the choices you make.
 
-            Describes how to use \QDS to create a simple animated UI with some
-            basic UI components, such as pages, buttons, and fields. Some of
-            the buttons can be used for moving between the pages.
-        \li \l {Qt Quick Best Practices}
+            You can use wizards to create projects for the desktop or embedded
+            Linux and Android devices. In addition, you can add individual QML
+            files, components, and JavaScript files to your projects.
+        \li \l {Use Cases}
 
-            Describes how to create UIs that work efficiently on the intended
-            platforms.
+            Describes the main use cases of \QDS at a general level.
+        \li \l{Concepts and Terms}
+
+            Describes main \QDS concepts and terms.
+        \li \l{Examples and Tutorials}
+
+            A set of examples available in the \uicontrol Welcome mode
+            illustrates how to use \QDS features such as the timeline.
+            If you would rather be shown things than read about them,
+            you can watch our extensive video tutorials.
      \endlist
 */

@@ -47,11 +47,6 @@
 
             You can install and run \QC on several operating systems to design
             UIs for multiple desktop, embedded, and mobile device platforms.
-        \li \l{Keyboard Shortcuts}
-
-            \QDS provides various keyboard shortcuts to speed up your
-            development process. You can change the keyboard shortcuts,
-            as well as import and export keyboard shortcut mapping schemes.
         \li \l{Coding}
 
             You can use the code editor in the \uicontrol {Text Editor} view or

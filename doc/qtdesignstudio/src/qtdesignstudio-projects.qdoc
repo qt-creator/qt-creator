@@ -24,11 +24,15 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-projects-managing.html
     \page studio-projects.html
-    \nextpage creator-vcs-git.html
+    \previouspage creator-keyboard-shortcuts.html
+    \nextpage studio-use-cases.html
 
     \title Creating Projects
+
+    One of the major advantages of \QDS is that it allows a team of designers
+    and developers to share a project across different development platforms
+    with a common tool for design, development, profiling, and debugging.
 
     Creating a project enables you to:
 

@@ -33,7 +33,7 @@
     \page creator-project-managing-sessions.html
     \if defined(qtdesignstudio)
     \previouspage creator-project-managing-workspaces.html
-    \nextpage {Tutorials}
+    \nextpage creator-keyboard-shortcuts.html
     \else
     \previouspage creator-sharing-project-settings.html
     \nextpage creator-design-mode.html

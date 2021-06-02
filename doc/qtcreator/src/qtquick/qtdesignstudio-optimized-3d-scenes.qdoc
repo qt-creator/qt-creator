@@ -27,7 +27,7 @@
     \page studio-optimized-3d-scenes.html
     \previouspage studio-qtquick-best-practices.html
     \if defined(qtdesignstudio)
-    \nextpage studio-projects-managing.html
+    \nextpage studio-platforms.html
     \else
     \nextpage creator-coding.html
     \endif

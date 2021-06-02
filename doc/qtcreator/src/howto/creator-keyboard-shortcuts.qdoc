@@ -32,8 +32,8 @@
 /*!
     \page creator-keyboard-shortcuts.html
     \if defined(qtdesignstudio)
-    \previouspage studio-platforms.html
-    \nextpage creator-coding.html
+    \previouspage creator-project-managing-sessions.html
+    \nextpage studio-projects.html
     \else
     \previouspage creator-cli.html
     \nextpage creator-editor-external.html

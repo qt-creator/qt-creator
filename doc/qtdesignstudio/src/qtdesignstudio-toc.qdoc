@@ -31,7 +31,8 @@
         \li \l{Getting Started}
             \list
                 \li \l{Installation}
-                \li \l{User Interface}{Interface Overview}
+                \li \l{Your First UI}
+                \li \l{User Interface}
                     \list
                         \li \l{Selecting Modes}
                         \li \l{Design Views}
@@ -55,18 +56,16 @@
                         \li \l{Managing Sessions}
                         \li \l{Keyboard Shortcuts}
                     \endlist
-                \li \l{Creating Projects}{Projects}
-                \li \l{Use Cases} (NEW)
+                \li \l{Creating Projects}
+                \li \l{Use Cases}
                 \li \l{Concepts and Terms}
                 \li \l{Examples and Tutorials}
                     \list
-                        \li \l{Tutorials}
                         \li \l{Qt Quick Best Practices}
                             \list
                                 \li \l{Creating Optimized 3D Scenes}
                             \endlist
                     \endlist
-                \li \l{Supported Platforms}
             \endlist
         \li \l{Wireframing} (NEW)
             \list
@@ -265,7 +264,7 @@
             \list
                 \li \l{Using the Help Mode}
                 \li \l{Frequently Asked Questions}
-                \li \l{How To}
+                \li \l{Supported Platforms}
             \endlist
         \li \l{Technical Support}
         \li \l{Acknowledgements}

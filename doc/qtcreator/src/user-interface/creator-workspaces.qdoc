@@ -26,7 +26,11 @@
 /*!
     \page creator-project-managing-workspaces.html
     \previouspage creator-open-documents-view.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-project-managing-sessions.html
+    \else
     \nextpage creator-output-panes.html
+    \endif
 
     \title Managing Workspaces
 

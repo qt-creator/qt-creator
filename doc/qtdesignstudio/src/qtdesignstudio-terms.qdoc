@@ -25,8 +25,8 @@
 
 /*!
     \page studio-terms.html
-    \previouspage studio-faq.html
-    \nextpage technical-support.html
+    \previouspage studio-use-cases.html
+    \nextpage {Examples and Tutorials}
 
     \title Concepts and Terms
 
@@ -100,7 +100,7 @@
     \target glossary-project
 
     A project is a container for the \e components and \e assets that you
-    use in your UI. You can \ e package the UI and preview or run it on
+    use in your UI. You can \e package the UI and preview or run it on
     different operating systems on the desktop or a \l{glossary-device}{device}.
 
     You use templates to create different types of projects according to your
