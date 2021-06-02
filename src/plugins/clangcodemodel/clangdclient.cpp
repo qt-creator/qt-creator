@@ -632,10 +632,7 @@ public:
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
-    quint64 nextFindUsagesKey = 0;
-    quint64 nextFollowSymbolId = 0;
-    quint64 nextSwitchDeclDefId = 0;
-    quint64 nextLocalRefsId = 0;
+    quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
 };
@@ -728,7 +725,7 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
         return;
 
     ReferencesData refData;
-    refData.key = d->nextFindUsagesKey++;
+    refData.key = d->nextJobId++;
     if (replacement) {
         ReplacementData replacementData;
         replacementData.oldSymbolName = searchTerm;
@@ -1005,7 +1002,7 @@ void ClangdClient::followSymbol(
 
     qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
                        << cursor.blockNumber() << cursor.positionInBlock();
-    d->followSymbolData.emplace(this, ++d->nextFollowSymbolId, cursor, editorWidget,
+    d->followSymbolData.emplace(this, ++d->nextJobId, cursor, editorWidget,
                                 DocumentUri::fromFilePath(document->filePath()),
                                 std::move(callback), openInSplit);
 
@@ -1053,7 +1050,7 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
 
     qCDebug(clangdLog) << "switch decl/dev requested" << document->filePath()
                        << cursor.blockNumber() << cursor.positionInBlock();
-    d->switchDeclDefData.emplace(++d->nextSwitchDeclDefId, document, cursor, editorWidget,
+    d->switchDeclDefData.emplace(++d->nextJobId, document, cursor, editorWidget,
                                  std::move(callback));
 
     // Retrieve AST and document symbols.
@@ -1089,7 +1086,7 @@ void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTe
     qCDebug(clangdLog) << "local references requested" << document->filePath()
                        << (cursor.blockNumber() + 1) << (cursor.positionInBlock() + 1);
 
-    d->localRefsData.emplace(++d->nextLocalRefsId, document, cursor, std::move(callback));
+    d->localRefsData.emplace(++d->nextJobId, document, cursor, std::move(callback));
     const QString searchTerm = d->searchTermFromCursor(cursor);
     if (searchTerm.isEmpty()) {
         d->localRefsData.reset();
