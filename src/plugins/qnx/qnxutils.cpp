@@ -123,7 +123,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
         return items;
     }
 
-    if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+    if (process.result() != QtcProcess::FinishedWithSuccess)
         return items;
 
     // parsing process output

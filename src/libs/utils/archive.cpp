@@ -227,8 +227,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         [archive](int, QProcess::ExitStatus) {
             if (!archive->m_process)
                 return;
-            archive->finished(archive->m_process->exitStatus() == QProcess::NormalExit
-                              && archive->m_process->exitCode() == 0);
+            archive->finished(archive->m_process->result() == QtcProcess::FinishedWithSuccess);
             archive->m_process->deleteLater();
             archive->m_process = nullptr;
             archive->deleteLater();

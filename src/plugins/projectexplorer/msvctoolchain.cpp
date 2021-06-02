@@ -630,7 +630,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     arguments << toProcess << QLatin1String("/EP") << saver.filePath().toUserOutput();
     cpp.setCommand({binary, arguments});
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::FinishedWithSuccess || cpp.exitCode() != 0)
+    if (cpp.result() != QtcProcess::FinishedWithSuccess)
         return predefinedMacros;
 
     const QStringList output = Utils::filtered(cpp.stdOut().split('\n'),
@@ -1506,7 +1506,7 @@ static QVersionNumber clangClVersion(const QString &clangClPath)
     SynchronousProcess clangClProcess;
     clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();
-    if (clangClProcess.result() != QtcProcess::FinishedWithSuccess || clangClProcess.exitCode() != 0)
+    if (clangClProcess.result() != QtcProcess::FinishedWithSuccess)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
                                               QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
@@ -1732,7 +1732,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     arguments.append("-");
     cpp.setCommand({compilerCommand(), arguments});
     cpp.runBlocking();
-    if (cpp.result() != Utils::QtcProcess::FinishedWithSuccess || cpp.exitCode() != 0) {
+    if (cpp.result() != Utils::QtcProcess::FinishedWithSuccess) {
         // Show the warning but still parse the output.
         QTC_CHECK(false && "clang-cl exited with non-zero code.");
     }
