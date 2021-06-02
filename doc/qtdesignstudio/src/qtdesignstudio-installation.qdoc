@@ -1,0 +1,69 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the documentation of the Qt Design Studio.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-installation.html
+    \previouspage studio-getting-started.html
+    \nextpage creator-quick-tour.html
+
+    \title Installation
+
+    You can install \QDS either using a stand-alone installation package or the
+    Qt online installer. The installers copy all the modules and tools you need
+    to design UIs and preview them on the desktop to your computer and configure
+    them for you.
+
+    To begin, create a \l{Qt Account}. This account gives you access to a web
+    portal to manage your licenses and download the standalone \QDS package or
+    the Qt online installer. Alternatively, you can download an evaluation
+    package \l{https://www.qt.io/product/ui-design-tools}{here}.
+
+    After the installation, you can start exploring \QDS by opening
+    \l{Examples and Tutorials}{examples}, following \l{Tutorials}{tutorials},
+    watching videos, and reading this manual.
+
+    \section1 Stand-Alone Installation
+
+    You can download the \QDS installer for your operating system (\macos,
+    Linux, or Windows) from your Qt Account. Start the installation as you
+    would for any other software, and follow the instructions of the
+    installer to complete it.
+
+    \section1 Using Qt Online Installer
+
+    You can download the Qt online installer for your operating system
+    from your Qt Account.
+
+    \list 1
+        \li Start the Qt online installer.
+        \li Select \uicontrol {Design Tools}.
+            \image studio-installation.png "Design Tools selected in Qt online installer"
+        \li Select \uicontrol Next and follow the instructions of the
+            installer to complete the installation.
+    \endlist
+
+    For more information about the installation process, see
+    \l{Getting Started with Qt}.
+*/

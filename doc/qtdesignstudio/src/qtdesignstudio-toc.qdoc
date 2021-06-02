@@ -28,9 +28,9 @@
 
     \title All Topics
     \list
-        \li \l{Getting Started} (REWRITE)
+        \li \l{Getting Started}
             \list
-                \li \l Installation (NEW)
+                \li \l{Installation}
                 \li \l{User Interface}{Interface Overview}
                     \list
                         \li \l{Selecting Modes}

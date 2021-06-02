@@ -26,7 +26,7 @@
 /*!
     \previouspage index.html
     \page studio-getting-started.html
-    \nextpage studio-exporting-and-importing.html
+    \nextpage studio-installation.html
 
     \title Getting Started
 
@@ -34,6 +34,10 @@
     with \QDS:
 
     \list
+        \li \l {Installation}
+
+            \QDS is available either as a standalone installation package or
+            as an option in the Qt online installer.
         \li \l {Exporting and Importing}
 
             Describes how to export designs containing 2D and 3D assets into

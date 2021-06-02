@@ -45,9 +45,9 @@
             \li \inlineimage studio-3d-scenes.png
             \li \inlineimage studio-animation.png
         \row
-        \li \b {\l{Getting Started}} (REWRITE)
+        \li \b {\l{Getting Started}}
             \list
-                \li \l Installation
+                \li \l{Installation}
                 \li \l{User Interface}{Interface Overview}
                 \li \l{Creating Projects}{Projects}
                 \li \l{Use Cases} (NEW)
