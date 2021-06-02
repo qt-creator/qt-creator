@@ -91,6 +91,8 @@ void DiagnosticManager::hideDiagnostics(TextDocument *doc)
     if (!doc)
         return;
 
+    if (m_hideHandler)
+        m_hideHandler();
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
         editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
     qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextMark::category, m_clientId)));
@@ -127,6 +129,12 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
             const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
             const QString tooltip = tr("Copy to Clipboard");
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
+                extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
+                if (m_textMarkCreator) {
+                    doc->addMark(m_textMarkCreator(filePath, diagnostic));
+                    continue;
+                }
+
                 QAction *action = new QAction();
                 action->setIcon(icon);
                 action->setToolTip(tooltip);
@@ -137,7 +145,6 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
                 mark->setActions({action});
 
                 doc->addMark(mark);
-                extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
             }
         }
 
@@ -166,6 +173,28 @@ QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,
     return Utils::filtered(it->diagnostics, [range = Range(cursor)](const Diagnostic &diagnostic) {
         return diagnostic.range().overlaps(range);
     });
+}
+
+bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+                                      const TextDocument *doc,
+                                      const LanguageServerProtocol::Diagnostic &diag) const
+{
+    if (!doc)
+        return false;
+    const auto it = m_diagnostics.find(uri);
+    if (it == m_diagnostics.end())
+        return {};
+    const int revision = doc->document()->revision();
+    if (revision != it->version.value_or(revision))
+        return false;
+    return it->diagnostics.contains(diag);
+}
+
+void DiagnosticManager::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
+                                               const HideDiagnosticsHandler &removalHandler)
+{
+    m_textMarkCreator = textMarkCreator;
+    m_hideHandler = removalHandler;
 }
 
 } // namespace LanguageClient

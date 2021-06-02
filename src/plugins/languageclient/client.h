@@ -170,6 +170,10 @@ public:
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
         const LanguageServerProtocol::DocumentUri &uri,
         const QTextCursor &cursor) const;
+    bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+                       const LanguageServerProtocol::Diagnostic &diag) const;
+    void setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
+                                const HideDiagnosticsHandler &hideHandler);
 
     // logging
     void log(const QString &message) const;
@@ -189,6 +193,7 @@ protected:
     void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                                   const QString &message);
     void handleMessage(const LanguageServerProtocol::BaseMessage &message);
+    virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
 
 private:
     void handleResponse(const LanguageServerProtocol::MessageId &id, const QByteArray &content,
@@ -196,7 +201,6 @@ private:
     void handleMethod(const QString &method, const LanguageServerProtocol::MessageId &id,
                       const LanguageServerProtocol::IContent *content);
 
-    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     void handleSemanticHighlight(const LanguageServerProtocol::SemanticHighlightingParams &params);
 
     void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);

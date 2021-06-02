@@ -25,6 +25,9 @@
 
 #include "clangdclient.h"
 
+#include "clangdiagnosticmanager.h"
+#include "clangtextmark.h"
+
 #include <clangsupport/sourcelocationscontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultitem.h>
@@ -37,6 +40,7 @@
 #include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/cppvirtualfunctionproposalitem.h>
 #include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientutils.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
@@ -604,6 +608,23 @@ public:
     const int revision;
 };
 
+class DiagnosticsCapabilities : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    void enableCategorySupport() { insert("categorySupport", true); }
+    void enableCodeActionsInline() {insert("codeActionsInline", true);}
+};
+
+class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
+{
+public:
+    using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
+
+
+    void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
+    { insert("publishDiagnostics", caps); }
+};
 
 class ClangdClient::Private
 {
@@ -650,12 +671,30 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-csrc",
             "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
     setSupportedLanguage(langFilter);
-    LanguageServerProtocol::ClientCapabilities caps = Client::defaultClientCapabilities();
+    setActivateDocumentAutomatically(true);
+    ClientCapabilities caps = Client::defaultClientCapabilities();
+    Utils::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
+    if (textCaps) {
+        ClangdTextDocumentClientCapabilities clangdTextCaps(*textCaps);
+        clangdTextCaps.clearCompletion();
+        clangdTextCaps.clearDocumentHighlight();
+        DiagnosticsCapabilities diagnostics;
+        diagnostics.enableCategorySupport();
+        diagnostics.enableCodeActionsInline();
+        clangdTextCaps.setPublishDiagnostics(diagnostics);
+        caps.setTextDocument(clangdTextCaps);
+    }
     caps.clearExperimental();
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
+
+    const auto textMarkCreator = [this](const Utils::FilePath &filePath,
+            const Diagnostic &diag) { return new ClangdTextMark(filePath, diag, this); };
+    const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
+    setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
+
     connect(this, &Client::workDone, this, [this, project](const ProgressToken &token) {
         const QString * const val = Utils::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
@@ -790,6 +829,17 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
 }
 
 void ClangdClient::enableTesting() { d->isTesting = true; }
+
+void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
+{
+    const DocumentUri &uri = params.uri();
+    Client::handleDiagnostics(params);
+    for (const Diagnostic &diagnostic : params.diagnostics()) {
+        const ClangdDiagnostic clangdDiagnostic(diagnostic);
+        for (const CodeAction &action : clangdDiagnostic.codeActions().value_or(QList<CodeAction>{}))
+            LanguageClient::updateCodeActionRefactoringMarker(this, action, uri);
+    }
+}
 
 QVersionNumber ClangdClient::versionNumber() const
 {
@@ -1504,6 +1554,16 @@ TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::creat
 {
     return m_data->followSymbolData->virtualFuncAssistProcessor
             = new VirtualFunctionAssistProcessor(m_data);
+}
+
+Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
+{
+    return optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
+}
+
+QString ClangdDiagnostic::category() const
+{
+    return typedValue<QString>("category");
 }
 
 } // namespace Internal

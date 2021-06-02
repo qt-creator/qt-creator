@@ -298,7 +298,8 @@ void ClangDiagnosticManager::generateFixItAvailableMarkers()
     addFixItAvailableMarker(m_errorDiagnostics, lineNumbersWithFixItMarker);
 }
 
-static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool isChild = false)
+void ClangDiagnosticManager::addTask(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                                     bool isChild)
 {
     using namespace ProjectExplorer;
     using ::Utils::FilePath;

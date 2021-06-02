@@ -188,6 +188,9 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(
         const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
         uint documentRevision)
 {
+    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+        return;
+
     if (documentRevision == revision()) {
         if (m_invalidationState == InvalidationState::Scheduled)
             m_invalidationState = InvalidationState::Canceled;
@@ -489,7 +492,7 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         vbox->setSpacing(2);
 
         vbox->addWidget(ClangDiagnosticWidget::createWidget({firstHeaderErrorDiagnostic},
-                                                            ClangDiagnosticWidget::InfoBar));
+                                                            ClangDiagnosticWidget::InfoBar, {}));
 
         auto widget = new QWidget;
         widget->setLayout(vbox);

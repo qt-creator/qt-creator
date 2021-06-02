@@ -26,6 +26,7 @@
 #include "clangtextmark.h"
 
 #include "clangconstants.h"
+#include "clangdclient.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
@@ -47,10 +48,13 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QLayout>
+#include <QPointer>
 #include <QString>
 
 using namespace CppTools;
 using namespace ClangCodeModel::Internal;
+using namespace LanguageClient;
+using namespace LanguageServerProtocol;
 using namespace Utils;
 
 namespace ClangCodeModel {
@@ -272,10 +276,13 @@ void ClangTextMark::updateIcon(bool valid)
 
 bool ClangTextMark::addToolTipContent(QLayout *target) const
 {
-
+    const auto canApplyFixIt = [diag = m_diagnostic, diagMgr = m_diagMgr, c = color()] {
+        return c != Utils::Theme::Color::IconsDisabledColor
+                && !diagMgr->diagnosticsInvalidated()
+                && diagMgr->diagnosticsWithFixIts().contains(diag);
+    };
     QWidget *widget = ClangDiagnosticWidget::createWidget(
-                {m_diagnostic}, ClangDiagnosticWidget::ToolTip,
-                color() == Utils::Theme::Color::IconsDisabledColor ? nullptr : m_diagMgr);
+                {m_diagnostic}, ClangDiagnosticWidget::ToolTip, canApplyFixIt);
     target->addWidget(widget);
 
     return true;
@@ -285,6 +292,114 @@ void ClangTextMark::removedFromEditor()
 {
     QTC_ASSERT(m_removedFromEditorHandler, return);
     m_removedFromEditorHandler(this);
+}
+
+ClangBackEnd::DiagnosticSeverity convertSeverity(DiagnosticSeverity src)
+{
+    if (src == DiagnosticSeverity::Error)
+        return ClangBackEnd::DiagnosticSeverity::Error;
+    if (src == DiagnosticSeverity::Warning)
+        return ClangBackEnd::DiagnosticSeverity::Warning;
+    return ClangBackEnd::DiagnosticSeverity::Note;
+}
+
+ClangBackEnd::SourceRangeContainer convertRange(const FilePath &filePath, const Range &src)
+{
+    const ClangBackEnd::SourceLocationContainer start(filePath.toString(), src.start().line() + 1,
+                                                      src.start().character() + 1);
+    const ClangBackEnd::SourceLocationContainer end(filePath.toString(), src.end().line() + 1,
+                                                      src.end().character() + 1);
+    return ClangBackEnd::SourceRangeContainer(start, end);
+}
+
+ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
+                                                    const FilePath &filePath)
+{
+    ClangBackEnd::DiagnosticContainer target;
+    target.ranges.append(convertRange(filePath, src.range()));
+    target.location = target.ranges.first().start;
+    target.text = src.message();
+    target.category = src.category();
+    if (src.severity())
+        target.severity = convertSeverity(*src.severity());
+    const Diagnostic::Code code = src.code().value_or(Diagnostic::Code());
+    const QString * const codeString = Utils::get_if<QString>(&code);
+    if (codeString && codeString->startsWith("-W"))
+        target.enableOption = *codeString;
+    for (const CodeAction &codeAction : src.codeActions().value_or(QList<CodeAction>())) {
+        const Utils::optional<WorkspaceEdit> edit = codeAction.edit();
+        if (!edit)
+            continue;
+        const Utils::optional<WorkspaceEdit::Changes> changes = edit->changes();
+        if (!changes)
+            continue;
+        for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
+            for (const TextEdit &textEdit : it.value()) {
+                target.fixIts << ClangBackEnd::FixItContainer(textEdit.newText(),
+                        convertRange(it.key().toFilePath(), textEdit.range()));
+            }
+        }
+    }
+    return target;
+}
+
+ClangdTextMark::ClangdTextMark(const FilePath &filePath,
+                               const Diagnostic &diagnostic,
+                               const Client *client)
+    : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
+    , m_lspDiagnostic(diagnostic)
+    , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
+    , m_client(client)
+{
+    setSettingsPage(CppTools::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+
+    const bool isError = diagnostic.severity()
+            && *diagnostic.severity() == DiagnosticSeverity::Error;
+    setDefaultToolTip(isError ? tr("Code Model Error") : tr("Code Model Warning"));
+    setPriority(isError ? TextEditor::TextMark::HighPriority
+                        : TextEditor::TextMark::NormalPriority);
+    setIcon(isError ? Icons::CODEMODEL_ERROR.icon() : Icons::CODEMODEL_WARNING.icon());
+    setLineAnnotation(diagnostic.message());
+    setColor(isError ? Theme::CodeModel_Error_TextMarkColor
+                     : Theme::CodeModel_Warning_TextMarkColor);
+
+    // Copy to clipboard action
+    QVector<QAction *> actions;
+    QAction *action = new QAction();
+    action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
+    action->setToolTip(tr("Clang Code Model Marks", "Copy to Clipboard"));
+    QObject::connect(action, &QAction::triggered, [diag = m_diagnostic]() {
+        const QString text = ClangDiagnosticWidget::createText({diag},
+                                                               ClangDiagnosticWidget::InfoBar);
+        QApplication::clipboard()->setText(text, QClipboard::Clipboard);
+    });
+    actions << action;
+
+    // Remove diagnostic warning action
+    ProjectExplorer::Project *project = projectForCurrentEditor();
+    if (project && isDiagnosticConfigChangable(project, m_diagnostic)) {
+        action = new QAction();
+        action->setIcon(Icons::BROKEN.icon());
+        action->setToolTip(tr("Disable Diagnostic in Current Project"));
+        QObject::connect(action, &QAction::triggered, [diag = m_diagnostic]() {
+            disableDiagnosticInCurrentProjectConfig(diag);
+        });
+        actions << action;
+    }
+
+    setActions(actions);
+
+    ClangDiagnosticManager::addTask(m_diagnostic);
+}
+
+bool ClangdTextMark::addToolTipContent(QLayout *target) const
+{
+    const auto canApplyFixIt = [c = QPointer(m_client), diag = m_lspDiagnostic, fp = fileName()] {
+        return c && c->reachable() && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
+    };
+    target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},
+        ClangDiagnosticWidget::ToolTip, canApplyFixIt));
+    return true;
 }
 
 } // namespace Internal

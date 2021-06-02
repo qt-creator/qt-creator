@@ -28,9 +28,13 @@
 #include <clangsupport_global.h>
 #include <clangsupport/diagnosticcontainer.h>
 
+#include <languageserverprotocol/lsptypes.h>
+
 #include <texteditor/textmark.h>
 
 #include <functional>
+
+namespace LanguageClient { class Client; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -58,6 +62,22 @@ private:
     ClangBackEnd::DiagnosticContainer m_diagnostic;
     RemovedFromEditorHandler m_removedFromEditorHandler;
     const ClangDiagnosticManager * const m_diagMgr;
+};
+
+class ClangdTextMark : public TextEditor::TextMark
+{
+    Q_DECLARE_TR_FUNCTIONS(ClangdTextMark)
+public:
+    ClangdTextMark(const ::Utils::FilePath &filePath,
+                   const LanguageServerProtocol::Diagnostic &diagnostic,
+                   const LanguageClient::Client *client);
+
+private:
+    bool addToolTipContent(QLayout *target) const override;
+
+    const LanguageServerProtocol::Diagnostic m_lspDiagnostic;
+    const ClangBackEnd::DiagnosticContainer m_diagnostic;
+    const LanguageClient::Client * const m_client;
 };
 
 } // namespace Internal

@@ -991,6 +991,18 @@ QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const QTextCurso
     return m_diagnosticManager.diagnosticsAt(uri, cursor);
 }
 
+bool Client::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+                           const LanguageServerProtocol::Diagnostic &diag) const
+{
+    return m_diagnosticManager.hasDiagnostic(uri, documentForFilePath(uri.toFilePath()), diag);
+}
+
+void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
+                                    const HideDiagnosticsHandler &hideHandler)
+{
+    m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler);
+}
+
 void Client::start()
 {
     if (m_clientInterface->start())

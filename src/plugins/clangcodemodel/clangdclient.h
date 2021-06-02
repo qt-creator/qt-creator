@@ -78,11 +78,21 @@ signals:
     void findUsagesDone();
 
 private:
+    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+
     class Private;
     class FollowSymbolData;
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
     Private * const d;
+};
+
+class ClangdDiagnostic : public LanguageServerProtocol::Diagnostic
+{
+public:
+    using Diagnostic::Diagnostic;
+    Utils::optional<QList<LanguageServerProtocol::CodeAction>> codeActions() const;
+    QString category() const;
 };
 
 } // namespace Internal
