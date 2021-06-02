@@ -436,6 +436,9 @@ QList<Declaration *> SymbolFinder::findMatchingDeclaration(const LookupContext &
                                                            Function *functionType)
 {
     QList<Declaration *> result;
+    if (!functionType)
+        return result;
+
     QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
     findMatchingDeclaration(context, functionType, &typeMatch, &argumentCountMatch, &nameMatch);
     result.append(typeMatch);
