@@ -576,12 +576,14 @@ QString ICore::clazyStandaloneExecutable(const QString &clangBinDirectory)
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
-    QString isAppleString;
+    QString platformSpecific;
 #if defined(__apple_build_version__) // Apple clang has other version numbers
-    isAppleString = QLatin1String(" (Apple)");
+    platformSpecific = QLatin1String(" (Apple)");
+#elif defined(Q_CC_MSVC)
+    platformSpecific = QLatin1String(" (clang-cl)");
 #endif
     return QLatin1String("Clang " ) + QString::number(__clang_major__) + QLatin1Char('.')
-            + QString::number(__clang_minor__) + isAppleString;
+            + QString::number(__clang_minor__) + platformSpecific;
 #elif defined(Q_CC_GNU)
     return QLatin1String("GCC " ) + QLatin1String(__VERSION__);
 #elif defined(Q_CC_MSVC)
