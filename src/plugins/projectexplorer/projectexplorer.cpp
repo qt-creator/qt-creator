@@ -198,6 +198,7 @@ const char NEWPROJECT[]           = "ProjectExplorer.NewProject";
 const char LOAD[]                 = "ProjectExplorer.Load";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
 const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
+const char UNLOADOTHERSCM[]       = "ProjectExplorer.UnloadOthersCM";
 const char CLEARSESSION[]         = "ProjectExplorer.ClearSession";
 const char BUILDALLCONFIGS[]      = "ProjectExplorer.BuildProjectForAllConfigs";
 const char BUILDPROJECTONLY[]     = "ProjectExplorer.BuildProjectOnly";
@@ -423,6 +424,7 @@ public:
     void loadAction();
     void handleUnloadProject();
     void unloadProjectContextMenu();
+    void unloadOtherProjectsContextMenu();
     void closeAllProjects();
     void showSessionManager();
     void updateSessionMenu();
@@ -487,6 +489,7 @@ public:
     QAction *m_loadAction;
     Utils::ParameterAction *m_unloadAction;
     Utils::ParameterAction *m_unloadActionContextMenu;
+    Utils::ParameterAction *m_unloadOthersActionContextMenu;
     QAction *m_closeAllProjects;
     QAction *m_buildProjectOnlyAction;
     Utils::ParameterAction *m_buildProjectForAllConfigsAction;
@@ -1387,6 +1390,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDescription(dd->m_unloadActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
+    dd->m_unloadOthersActionContextMenu = new Utils::ParameterAction(tr("Close Other Projects"), tr("Close All Projects Except \"%1\""),
+                                                              Utils::ParameterAction::EnabledWithParameter, this);
+    cmd = ActionManager::registerAction(dd->m_unloadOthersActionContextMenu, Constants::UNLOADOTHERSCM);
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDescription(dd->m_unloadOthersActionContextMenu->text());
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+
     // file properties action
     dd->m_filePropertiesAction = new QAction(tr("Properties..."), this);
     cmd = ActionManager::registerAction(dd->m_filePropertiesAction, Constants::FILEPROPERTIES,
@@ -1712,6 +1722,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::handleUnloadProject);
     connect(dd->m_unloadActionContextMenu, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::unloadProjectContextMenu);
+    connect(dd->m_unloadOthersActionContextMenu, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::unloadOtherProjectsContextMenu);
     connect(dd->m_closeAllProjects, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::closeAllProjects);
     connect(dd->m_addNewFileAction, &QAction::triggered,
@@ -1985,6 +1997,20 @@ void ProjectExplorerPluginPrivate::unloadProjectContextMenu()
 {
     if (Project *p = ProjectTree::currentProject())
         ProjectExplorerPlugin::unloadProject(p);
+}
+
+void ProjectExplorerPluginPrivate::unloadOtherProjectsContextMenu()
+{
+    if (Project *currentProject = ProjectTree::currentProject()) {
+        const QList<Project *> projects = SessionManager::projects();
+        QTC_ASSERT(!projects.isEmpty(), return);
+
+        for (Project *p : projects) {
+            if (p == currentProject)
+                continue;
+            ProjectExplorerPlugin::unloadProject(p);
+        }
+    }
 }
 
 void ProjectExplorerPluginPrivate::handleUnloadProject()
@@ -2663,6 +2689,7 @@ void ProjectExplorerPluginPrivate::updateActions()
 
     m_unloadAction->setParameter(projectName);
     m_unloadActionContextMenu->setParameter(projectNameContextMenu);
+    m_unloadOthersActionContextMenu->setParameter(projectNameContextMenu);
     m_closeProjectFilesActionFileMenu->setParameter(projectName);
     m_closeProjectFilesActionContextMenu->setParameter(projectNameContextMenu);
 
@@ -2738,6 +2765,7 @@ void ProjectExplorerPluginPrivate::updateActions()
     m_unloadAction->setVisible(SessionManager::projects().size() <= 1);
     m_unloadAction->setEnabled(SessionManager::projects().size() == 1);
     m_unloadActionContextMenu->setEnabled(SessionManager::hasProjects());
+    m_unloadOthersActionContextMenu->setVisible(SessionManager::projects().size() >= 2);
     m_closeProjectFilesActionFileMenu->setVisible(SessionManager::projects().size() <= 1);
     m_closeProjectFilesActionFileMenu->setEnabled(SessionManager::projects().size() == 1);
     m_closeProjectFilesActionContextMenu->setEnabled(SessionManager::hasProjects());
