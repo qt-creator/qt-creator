@@ -67,7 +67,7 @@ static bool compilerExists(const FilePath &compilerPath)
 
 static QString cppLanguageOption(const FilePath &compiler)
 {
-    const QString baseName = compiler.toFileInfo().baseName();
+    const QString baseName = compiler.baseName();
     if (baseName == "iccarm" || baseName == "iccrl78"
             || baseName == "iccrh850" || baseName == "iccrx"
             || baseName == "iccriscv") {

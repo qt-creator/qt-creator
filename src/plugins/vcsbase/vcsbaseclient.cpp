@@ -604,9 +604,8 @@ void VcsBaseClient::commit(const QString &repositoryRoot,
 
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    return vcsBinary().toFileInfo().baseName() +
-            QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
-            FilePath::fromString(sourceId).fileName();
+    return vcsBinary().baseName() + QLatin1Char(' ') + vcsCmd + QLatin1Char(' ')
+           + FilePath::fromString(sourceId).fileName();
 }
 
 void VcsBaseClient::statusParser(const QString &text)

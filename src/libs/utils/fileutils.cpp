@@ -603,7 +603,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
                 = {"CON", "PRN", "AUX", "NUL",
                    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
-        const QString fn = filePath.toFileInfo().baseName().toUpper();
+        const QString fn = filePath.baseName().toUpper();
         if (reservedNames.contains(fn)) {
             m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.")
                                 .arg(filePath.toString());
@@ -759,6 +759,12 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
     if (i > 0 && m_data.lastIndexOf(slash, i) != -1)
         return m_data.mid(component);
     return m_data;
+}
+
+QString FilePath::baseName() const
+{
+    const QString &name = fileName();
+    return name.left(name.indexOf('.'));
 }
 
 void FilePath::setScheme(const QString &scheme)

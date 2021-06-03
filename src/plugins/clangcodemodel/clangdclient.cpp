@@ -792,7 +792,7 @@ void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
         if (refData.search->supportsReplace()) {
             const bool fileInSession = SessionManager::projectForFile(file);
             item.setSelectForReplacement(fileInSession);
-            if (fileInSession && file.toFileInfo().baseName().compare(
+            if (fileInSession && file.baseName().compare(
                         refData.replacementData->oldSymbolName,
                         Qt::CaseInsensitive) == 0) {
                 refData.replacementData->fileRenameCandidates << file; // TODO: We want to do this only for types. Use SymbolInformation once we have it.

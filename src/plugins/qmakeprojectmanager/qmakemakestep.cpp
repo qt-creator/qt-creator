@@ -176,9 +176,8 @@ bool QmakeMakeStep::init()
             relObjectsDir.clear();
         if (!relObjectsDir.isEmpty())
             relObjectsDir += '/';
-        QString objectFile = relObjectsDir +
-                bc->fileNodeBuild()->filePath().toFileInfo().baseName() +
-                subProFile->objectExtension();
+        QString objectFile = relObjectsDir + bc->fileNodeBuild()->filePath().baseName()
+                             + subProFile->objectExtension();
         makeCmd.addArg(objectFile);
     }
 

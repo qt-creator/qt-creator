@@ -1968,7 +1968,7 @@ TargetInformation QmakeProFile::targetInformation(QtSupport::ProFileReader *read
     // Target
     result.target = readerBuildPass->value(QLatin1String("TARGET"));
     if (result.target.isEmpty())
-        result.target = projectFilePath.toFileInfo().baseName();
+        result.target = projectFilePath.baseName();
 
     result.valid = true;
 

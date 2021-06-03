@@ -86,8 +86,7 @@ QString EBlinkGdbServerProvider::defaultResetCommands()
 QString EBlinkGdbServerProvider::scriptFileWoExt() const
 {
     // Server starts only without extension in scriptname
-    return m_deviceScript.toFileInfo().absolutePath() +
-        QDir::separator() + m_deviceScript.toFileInfo().baseName();
+    return m_deviceScript.absolutePath().pathAppended(m_deviceScript.baseName()).toString();
 }
 
 QString EBlinkGdbServerProvider::channelString() const

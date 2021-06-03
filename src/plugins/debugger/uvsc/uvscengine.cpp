@@ -375,7 +375,7 @@ void UvscEngine::insertBreakpoint(const Breakpoint &bp)
     if (requested.type == BreakpointByFileAndLine) {
         // Add target executable name.
         const DebuggerRunParameters &rp = runParameters();
-        QString exe = rp.inferior.executable.toFileInfo().baseName();
+        QString exe = rp.inferior.executable.baseName();
         exe.replace('-', '_');
         expression += "\\\\" + exe;
         // Add file name.

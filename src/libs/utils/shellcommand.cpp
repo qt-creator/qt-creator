@@ -138,7 +138,7 @@ QString ShellCommand::displayName() const
         return d->m_displayName;
     if (!d->m_jobs.isEmpty()) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(0);
-        QString result = job.command.executable().toFileInfo().baseName();
+        QString result = job.command.executable().baseName();
         if (!result.isEmpty())
             result[0] = result.at(0).toTitleCase();
         else

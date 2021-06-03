@@ -649,7 +649,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     const Utils::FilePath currentDesignDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
     const QString fileName = currentDesignDocument.toString();
-    const QString typeName = currentDesignDocument.toFileInfo().baseName();
+    const QString typeName = currentDesignDocument.baseName();
 
     QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().constFirst()));
 
