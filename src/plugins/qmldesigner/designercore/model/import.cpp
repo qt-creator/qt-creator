@@ -97,6 +97,18 @@ bool Import::isSameModule(const Import &other) const
         return file() == other.file();
 }
 
+int Import::majorVersion() const
+{
+    return majorFromVersion(m_version);
+}
+
+int Import::majorFromVersion(const QString &version)
+{
+    if (version.isEmpty())
+        return -1;
+    return version.split('.').first().toInt();
+}
+
 uint qHash(const Import &import)
 {
     return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());

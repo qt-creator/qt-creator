@@ -60,6 +60,9 @@ public:
     bool operator==(const Import &other) const;
     bool isSameModule(const Import &other) const;
 
+    int majorVersion() const;
+    static int majorFromVersion(const QString &version);
+
 private:
     Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths);
 
