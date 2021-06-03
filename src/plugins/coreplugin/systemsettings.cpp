@@ -353,7 +353,7 @@ void SystemSettingsWidget::showHelpDialog(const QString &title, const QString &h
 #ifdef ENABLE_CRASHPAD
 void SystemSettingsWidget::updateClearCrashWidgets()
 {
-    QDir crashReportsDir(ICore::crashReportsPath());
+    QDir crashReportsDir(ICore::crashReportsPath().toDir());
     crashReportsDir.setFilter(QDir::Files);
     qint64 size = 0;
     const QStringList crashFiles = crashReportsDir.entryList();
