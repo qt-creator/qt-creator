@@ -700,16 +700,6 @@ QByteArray QtcProcess::readAllStandardError()
     return buf;
 }
 
-QByteArray QtcProcess::readAll()
-{
-    return d->m_process->readAll();
-}
-
-QByteArray QtcProcess::readLine()
-{
-    return d->m_process->readLine();
-}
-
 QProcess::ExitStatus QtcProcess::exitStatus() const
 {
     return d->m_process->exitStatus();
@@ -733,16 +723,6 @@ void QtcProcess::closeWriteChannel()
 void QtcProcess::close()
 {
     d->m_process->close();
-}
-
-void QtcProcess::setReadChannel(QProcess::ProcessChannel channel)
-{
-    d->m_process->setReadChannel(channel);
-}
-
-bool QtcProcess::canReadLine() const
-{
-    return d->m_process->canReadLine();
 }
 
 QString QtcProcess::locateBinary(const QString &binary)

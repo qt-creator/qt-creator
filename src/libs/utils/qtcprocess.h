@@ -161,8 +161,6 @@ public:
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
-    QByteArray readAll();
-    QByteArray readLine();
 
     QProcess::ExitStatus exitStatus() const;
 
@@ -171,8 +169,6 @@ public:
     qint64 write(const QByteArray &input);
     void closeWriteChannel();
     void close();
-    void setReadChannel(QProcess::ProcessChannel channel);
-    bool canReadLine() const;
 
     QIODevice *ioDevice(); // FIXME: Remove.
 

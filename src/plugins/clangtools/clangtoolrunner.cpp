@@ -174,7 +174,7 @@ void ClangToolRunner::onProcessError(QProcess::ProcessError error)
 
 void ClangToolRunner::onProcessOutput()
 {
-    m_processOutput.append(m_process->readAll());
+    m_processOutput.append(m_process->readAllStandardOutput());
 }
 
 QString ClangToolRunner::commandlineAndOutput() const

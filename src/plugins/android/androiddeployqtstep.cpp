@@ -527,12 +527,17 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
 
 void AndroidDeployQtStep::processReadyReadStdOutput(DeployErrorCode &errorCode)
 {
-    m_process->setReadChannel(QProcess::StandardOutput);
-    while (m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_process->readLine());
+    const QByteArray output = m_process->readAllStandardOutput();
+    int start = 0;
+    int end;
+
+    do {
+        end = output.indexOf('\n', start);
+        QString line = QString::fromLocal8Bit(output.mid(start, end - start));
         errorCode |= parseDeployErrors(line);
         stdOutput(line);
-    }
+        start = end + 1;
+    } while (end >= 0);
 }
 
 void AndroidDeployQtStep::stdOutput(const QString &line)
@@ -542,12 +547,17 @@ void AndroidDeployQtStep::stdOutput(const QString &line)
 
 void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
 {
-    m_process->setReadChannel(QProcess::StandardError);
-    while (m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_process->readLine());
+    const QByteArray output = m_process->readAllStandardError();
+    int start = 0;
+    int end;
+
+    do {
+        end = output.indexOf('\n', start);
+        QString line = QString::fromLocal8Bit(output.mid(start, end - start));
         errorCode |= parseDeployErrors(line);
         stdError(line);
-    }
+        start = end + 1;
+    } while (end >= 0);
 }
 
 void AndroidDeployQtStep::stdError(const QString &line)
