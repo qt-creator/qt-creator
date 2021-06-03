@@ -704,7 +704,7 @@ void TextDocument::setFilePath(const Utils::FilePath &newName)
 {
     if (newName == filePath())
         return;
-    IDocument::setFilePath(Utils::FilePath::fromUserInput(newName.toFileInfo().absoluteFilePath()));
+    IDocument::setFilePath(newName.absoluteFilePath());
 }
 
 bool TextDocument::isModified() const

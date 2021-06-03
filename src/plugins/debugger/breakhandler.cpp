@@ -1839,7 +1839,7 @@ FilePath BreakpointItem::markerFileName() const
 {
     // Some heuristics to find a "good" file name.
     if (m_parameters.fileName.exists())
-        return FilePath::fromString(m_parameters.fileName.toFileInfo().absoluteFilePath());
+        return m_parameters.fileName.absoluteFilePath();
 
     const FilePath origFileName = requestedParameters().fileName;
     if (m_parameters.fileName.endsWith(origFileName.fileName()))
@@ -2306,7 +2306,7 @@ FilePath GlobalBreakpointItem::markerFileName() const
 {
     // Some heuristics to find a "good" file name.
     if (m_params.fileName.exists())
-        return FilePath::fromString(m_params.fileName.toFileInfo().absoluteFilePath());
+        return m_params.fileName.absoluteFilePath();
     return m_params.fileName;
 }
 
