@@ -38,9 +38,7 @@ ProgressManager::ProgressManager()
 
 ProgressManager::~ProgressManager()
 {
-    const QList<ProgressToken> &tokens = m_progress.keys();
-    for (const ProgressToken &token : tokens)
-        endProgress(token);
+    reset();
 }
 
 void ProgressManager::handleProgress(const LanguageServerProtocol::ProgressParams &params)
@@ -59,6 +57,13 @@ void ProgressManager::setTitleForToken(const LanguageServerProtocol::ProgressTok
                                          const QString &message)
 {
     m_titles.insert(token, message);
+}
+
+void ProgressManager::reset()
+{
+    const QList<ProgressToken> &tokens = m_progress.keys();
+    for (const ProgressToken &token : tokens)
+        endProgress(token);
 }
 
 bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params)

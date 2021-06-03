@@ -1019,6 +1019,7 @@ bool Client::reset()
     m_runningAssistProcessors.clear();
     qDeleteAll(m_documentHighlightsTimer);
     m_documentHighlightsTimer.clear();
+    m_progressManager.reset();
     return true;
 }
 
