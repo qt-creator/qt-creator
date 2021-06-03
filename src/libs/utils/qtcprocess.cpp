@@ -137,7 +137,7 @@ public:
         connect(m_process, &QProcess::started,
                 q, &QtcProcess::started);
         connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                q, &QtcProcess::finished);
+                this, &QtcProcessPrivate::slotFinished);
         connect(m_process, &QProcess::errorOccurred,
                 q, &QtcProcess::errorOccurred);
         connect(m_process, &QProcess::stateChanged,
@@ -888,8 +888,6 @@ SynchronousProcess::SynchronousProcess()
 
     d->m_timer.setInterval(1000);
     connect(&d->m_timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
-    connect(d->m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            d, &QtcProcessPrivate::slotFinished);
     connect(d->m_process, &QProcess::errorOccurred, d, &QtcProcessPrivate::slotError);
 }
 
@@ -953,9 +951,6 @@ void SynchronousProcess::runBlocking()
         QtcProcess::start();
 
         waitForFinished();
-
-        d->m_result = QtcProcess::FinishedWithSuccess;
-        d->m_exitCode = exitCode();
         return;
     };
 
@@ -1016,13 +1011,6 @@ void SynchronousProcess::runBlocking()
         if (state() != QProcess::NotRunning)
             return;
 
-        d->m_exitCode = exitCode();
-        if (d->m_result == QtcProcess::StartFailed) {
-            if (exitStatus() != QProcess::NormalExit)
-                d->m_result = QtcProcess::TerminatedAbnormally;
-            else
-                d->m_result = d->interpretExitCode(d->m_exitCode);
-        }
         d->m_stdOut.append(d->m_process->readAllStandardOutput());
         d->m_stdErr.append(d->m_process->readAllStandardError());
     }
@@ -1079,6 +1067,7 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus e)
         break;
     }
     m_eventLoop.quit();
+    emit q->finished(m_exitCode, e);
 }
 
 void QtcProcessPrivate::slotError(QProcess::ProcessError e)
