@@ -26,6 +26,14 @@
 
 namespace CPlusPlus {
 
+// clang-cl needs an export for the subclass, while msvc fails to build in debug mode if
+// the export is present.
+#if defined(Q_CC_CLANG) && defined(Q_CC_MSVC)
+#define CPLUSPLUS_EXPORT_SUBCLASS CPLUSPLUS_EXPORT
+#else
+#define CPLUSPLUS_EXPORT_SUBCLASS
+#endif
+
 template <typename Tptr>
 class CPLUSPLUS_EXPORT List: public Managed
 {
@@ -76,7 +84,7 @@ public:
     Tptr value;
     List *next;
 
-    class CPLUSPLUS_EXPORT ListIterator
+    class CPLUSPLUS_EXPORT_SUBCLASS ListIterator
     {
         List<Tptr> *iter;
 
