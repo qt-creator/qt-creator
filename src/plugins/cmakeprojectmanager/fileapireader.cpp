@@ -312,8 +312,8 @@ void FileApiReader::endState(const QFileInfo &replyFi)
 
 void FileApiReader::makeBackupConfiguration(bool store)
 {
-    FilePath reply = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply");
-    FilePath replyPrev = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply.prev");
+    FilePath reply = m_parameters.workDirectory.pathAppended(".cmake/api/v1/reply");
+    FilePath replyPrev = m_parameters.workDirectory.pathAppended(".cmake/api/v1/reply.prev");
     if (!store)
         std::swap(reply, replyPrev);
 
@@ -327,8 +327,8 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     }
 
-    FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
-    FilePath cmakeCacheTxtPrev = m_parameters.buildDirectory.pathAppended("CMakeCache.txt.prev");
+    FilePath cmakeCacheTxt = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
+    FilePath cmakeCacheTxtPrev = m_parameters.workDirectory.pathAppended("CMakeCache.txt.prev");
     if (!store)
         std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
 
