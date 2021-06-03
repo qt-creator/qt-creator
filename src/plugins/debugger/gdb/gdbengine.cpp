@@ -3802,7 +3802,7 @@ void GdbEngine::setupEngine()
     CHECK_STATE(EngineSetupRequested);
     showMessage("TRYING TO START ADAPTER");
 
-    if (isRemoteEngine() && HostOsInfo::isWindowsHost())
+    if (isRemoteEngine())
         m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
 
     const DebuggerRunParameters &rp = runParameters();

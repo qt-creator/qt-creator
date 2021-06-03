@@ -1043,8 +1043,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     licenseCommand.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;
     licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
-    if (Utils::HostOsInfo::isWindowsHost())
-        licenseCommand.setUseCtrlCStub(true);
+    licenseCommand.setUseCtrlCStub(true);
     licenseCommand.start();
     QTextCodec *codec = QTextCodec::codecForLocale();
     int inputCounter = 0, steps = -1;

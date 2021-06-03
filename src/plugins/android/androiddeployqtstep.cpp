@@ -287,13 +287,11 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         cmd.addArgs({"install", "-r", m_apkPath.toString()});
     }
 
-    m_process = new Utils::QtcProcess;
+    m_process = new QtcProcess;
     m_process->setCommand(cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
     m_process->setEnvironment(m_environment);
-
-    if (Utils::HostOsInfo::isWindowsHost())
-        m_process->setUseCtrlCStub(true);
+    m_process->setUseCtrlCStub(true);
 
     DeployErrorCode deployError = NoError;
     connect(m_process, &Utils::QtcProcess::readyReadStandardOutput,
