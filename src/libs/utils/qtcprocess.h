@@ -173,7 +173,6 @@ public:
     void close();
     void setReadChannel(QProcess::ProcessChannel channel);
     bool canReadLine() const;
-    bool atEnd() const;
 
     QIODevice *ioDevice(); // FIXME: Remove.
 

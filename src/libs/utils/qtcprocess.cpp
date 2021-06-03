@@ -745,11 +745,6 @@ bool QtcProcess::canReadLine() const
     return d->m_process->canReadLine();
 }
 
-bool QtcProcess::atEnd() const
-{
-    return d->m_process->atEnd();
-}
-
 QString QtcProcess::locateBinary(const QString &binary)
 {
     const QByteArray path = qgetenv("PATH");

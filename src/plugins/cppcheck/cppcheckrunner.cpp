@@ -163,14 +163,14 @@ void CppcheckRunner::readOutput()
     if (!m_isRunning) // workaround for QTBUG-30929
         handleStarted();
 
-    m_process->setReadChannel(QProcess::StandardOutput);
-
-    while (!m_process->atEnd() && m_process->canReadLine()) {
-        QString line = QString::fromUtf8(m_process->readLine());
-        if (line.endsWith('\n'))
-            line.chop(1);
-        m_tool.parseOutputLine(line);
-    }
+    const QByteArray output = m_process->readAllStandardOutput();
+    int start = 0;
+    int end;
+    do {
+        end = output.indexOf('\n', start);
+        m_tool.parseOutputLine(QString::fromUtf8(output.mid(start, end - start)));
+        start = end + 1;
+    } while (end >= 0);
 }
 
 void CppcheckRunner::readError()
@@ -178,14 +178,14 @@ void CppcheckRunner::readError()
     if (!m_isRunning) // workaround for QTBUG-30929
         handleStarted();
 
-    m_process->setReadChannel(QProcess::StandardError);
-
-    while (!m_process->atEnd() && m_process->canReadLine()) {
-        QString line = QString::fromUtf8(m_process->readLine());
-        if (line.endsWith('\n'))
-            line.chop(1);
-        m_tool.parseErrorLine(line);
-    }
+    const QByteArray output = m_process->readAllStandardError();
+    int start = 0;
+    int end;
+    do {
+        end = output.indexOf('\n', start);
+        m_tool.parseErrorLine(QString::fromUtf8(output.mid(start, end - start)));
+        start = end + 1;
+    } while (end >= 0);
 }
 
 void CppcheckRunner::handleStarted()
