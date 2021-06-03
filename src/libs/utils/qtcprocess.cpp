@@ -98,7 +98,7 @@ public:
     ProcessHelper()
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
-        setChildProcessModifier([this] { d->setupChildProcess_impl(); });
+        setChildProcessModifier([this] { setupChildProcess_impl(); });
 #endif
     }
 
