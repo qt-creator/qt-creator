@@ -107,9 +107,8 @@ void ProgressManager::reportProgress(const ProgressToken &token,
         }
     }
     if (progress.futureInterface) {
-        const Utils::optional<int> &progressValue = report.percentage();
-        if (progressValue.has_value())
-            progress.futureInterface->setProgressValue(*progressValue);
+        if (const Utils::optional<double> &percentage = report.percentage(); percentage.has_value())
+            progress.futureInterface->setProgressValue(*percentage);
     }
 }
 

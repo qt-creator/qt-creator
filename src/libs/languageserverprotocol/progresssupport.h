@@ -76,8 +76,12 @@ public:
      * The value should be steadily rising. Clients are free to ignore values
      * that are not following this rule.
      */
-    Utils::optional<int> percentage() const { return optionalValue<int>(percentageKey); }
-    void setPercentage(int percentage) { insert(percentageKey, percentage); }
+
+    // Allthough percentage is defined as an uint by the protocol some server
+    // return a double here. Be less strict and also use a double.
+    // CAUTION: the range is still 0 - 100 and not 0 - 1
+    Utils::optional<double> percentage() const { return optionalValue<double>(percentageKey); }
+    void setPercentage(double percentage) { insert(percentageKey, percentage); }
     void clearPercentage() { remove(percentageKey); }
 };
 
