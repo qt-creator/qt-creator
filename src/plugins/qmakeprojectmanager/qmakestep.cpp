@@ -216,7 +216,9 @@ bool QMakeStep::init()
     m_qmakeCommand = CommandLine{qtVersion->qmakeCommand(), allArguments(qtVersion), CommandLine::Raw};
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
 
-    QString makefile = workingDirectory.toString() + '/';
+    // The Makefile is used by qmake and make on the build device, from that
+    // perspective it is local.
+    QString makefile = workingDirectory.path() + '/';
 
     if (qmakeBc->subNodeBuild()) {
         QmakeProFileNode *pro = qmakeBc->subNodeBuild();
