@@ -378,10 +378,10 @@ CommandLine CMakeBuildStep::cmakeCommand() const
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
 
-    Utils::CommandLine cmd(tool ? tool->cmakeExecutable() : Utils::FilePath(), {});
+    CommandLine cmd(tool ? tool->cmakeExecutable() : FilePath(), {});
     QString buildDirectory = ".";
     if (buildConfiguration())
-        buildDirectory = buildConfiguration()->buildDirectory().toString();
+        buildDirectory = buildConfiguration()->buildDirectory().path();
     cmd.addArgs({"--build", buildDirectory});
 
     cmd.addArg("--target");
