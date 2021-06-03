@@ -76,7 +76,7 @@ public:
     Tptr value;
     List *next;
 
-    class ListIterator
+    class CPLUSPLUS_EXPORT ListIterator
     {
         List<Tptr> *iter;
 
@@ -91,8 +91,8 @@ public:
                 iter = iter->next;
             return *this;
         }
-        bool operator==(ListIterator other) { return iter == other.iter; }
-        bool operator!=(ListIterator other) { return iter != other.iter; }
+        bool operator==(const ListIterator &other) { return iter == other.iter; }
+        bool operator!=(const ListIterator &other) { return iter != other.iter; }
     };
     ListIterator begin() { return {this}; }
     ListIterator end() { return {nullptr}; }
