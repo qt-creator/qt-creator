@@ -385,7 +385,7 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
 template<auto Type, typename InternalIntergerType>
 std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntergerType> &id)
 {
-    return out << "(" << &id << ")";
+    return out << "id=" << &id;
 }
 
 namespace Cache {

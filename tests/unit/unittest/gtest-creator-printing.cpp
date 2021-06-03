@@ -1666,9 +1666,9 @@ std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
-    return out << "(\"" << type.typeName << "\", \"" << type.prototype << "\", "
-               << type.accessSemantics << ", source: " << type.sourceId << ", "
-               << type.exportedTypes << ", " << type.propertyDeclarations << ", "
+    return out << "(import: " << type.importId << ", \"" << type.typeName << "\", \""
+               << type.prototype << "\", " << type.accessSemantics << ", source: " << type.sourceId
+               << ", " << type.exportedTypes << ", " << type.propertyDeclarations << ", "
                << type.functionDeclarations << ", " << type.signalDeclarations << ")";
 }
 

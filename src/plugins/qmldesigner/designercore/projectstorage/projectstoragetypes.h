@@ -371,7 +371,8 @@ class Type
 {
 public:
     explicit Type() = default;
-    explicit Type(Utils::SmallStringView typeName,
+    explicit Type(ImportId importId,
+                  Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   TypeAccessSemantics accessSemantics,
                   SourceId sourceId,
@@ -391,9 +392,11 @@ public:
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
+        , importId{importId}
     {}
 
-    explicit Type(Utils::SmallStringView typeName,
+    explicit Type(long long importId,
+                  Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
                   int sourceId)
@@ -401,9 +404,12 @@ public:
         , prototype{prototype}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
+        , importId{importId}
+
     {}
 
-    explicit Type(Utils::SmallStringView typeName,
+    explicit Type(long long importId,
+                  Utils::SmallStringView typeName,
                   long long typeId,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
@@ -413,6 +419,7 @@ public:
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
+        , importId{importId}
     {}
 
 public:
@@ -427,6 +434,7 @@ public:
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;
+    ImportId importId;
     bool isCreatable = false;
 };
 

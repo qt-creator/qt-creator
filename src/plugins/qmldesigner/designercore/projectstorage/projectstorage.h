@@ -67,8 +67,11 @@ public:
             if (!type.sourceId)
                 throw TypeHasInvalidSourceId{};
 
-            updatedTypeIds.push_back(syncType(type));
+            updatedTypeIds.push_back(declareType(type));
         }
+
+        for (auto &&type : types)
+            syncType(type);
 
         deleteNotUpdatedTypes(updatedTypeIds, sourceIds);
 
@@ -85,27 +88,18 @@ public:
         transaction.commit();
     }
 
-    TypeId upsertType(Utils::SmallStringView name,
-                      TypeId prototypeId,
-                      Storage::TypeAccessSemantics accessSemantics,
-                      const Storage::ExportedTypes &exportedTypes)
+    ImportIds fetchImportIds(const Storage::Imports &imports)
     {
-        Sqlite::ImmediateTransaction transaction{database};
+        ImportIds importIds;
 
-        auto typeId = upsertTypeStatement.template value<TypeId>(name,
-                                                                 static_cast<int>(accessSemantics),
-                                                                 &prototypeId);
+        Sqlite::DeferredTransaction transaction{database};
 
-        for (auto &&exportedType : exportedTypes) {
-            upsertExportedTypesStatement.write(exportedType.qualifiedTypeName,
-                                               exportedType.version.major.version,
-                                               exportedType.version.minor.version,
-                                               &typeId);
-        }
+        for (auto &&import : imports)
+            importIds.push_back(fetchImportId(import));
 
         transaction.commit();
 
-        return typeId;
+        return importIds;
     }
 
     PropertyDeclarationId upsertPropertyDeclaration(TypeId typeId,
@@ -344,6 +338,7 @@ private:
 
         auto remove = [&](const Storage::ImportView &importView) {
             deleteImportStatement.write(&importView.importId);
+            deleteTypesForImportId(importView.importId);
         };
 
         Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
@@ -408,6 +403,16 @@ private:
         return selectImportIdByNameStatement.template value<ImportId>(import.name);
     }
 
+    void deleteType(TypeId typeId)
+    {
+        deleteExportTypesByTypeIdStatement.write(&typeId);
+        deleteEnumerationDeclarationByTypeIdStatement.write(&typeId);
+        deletePropertyDeclarationByTypeIdStatement.write(&typeId);
+        deleteFunctionDeclarationByTypeIdStatement.write(&typeId);
+        deleteSignalDeclarationByTypeIdStatement.write(&typeId);
+        deleteTypeStatement.write(&typeId);
+    }
+
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds, const SourceIds &sourceIds)
     {
         auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
@@ -418,17 +423,24 @@ private:
             return &sourceId;
         });
 
-        auto removedTypeIds = selectNotUpdatedTypesInSourcesStatement.template range<TypeId>(
-            Utils::span(sourceIdValues), Utils::span(updatedTypeIdValues));
+        auto callback = [&](long long typeId) {
+            deleteType(TypeId{typeId});
+            return Sqlite::CallbackControl::Continue;
+        };
 
-        for (TypeId typeId : removedTypeIds) {
-            resetTypeStatement.write(&typeId);
-            deleteExportTypesByTypeIdStatement.write(&typeId);
-            deleteEnumerationDeclarationByTypeIdStatement.write(&typeId);
-            deletePropertyDeclarationByTypeIdStatement.write(&typeId);
-            deleteFunctionDeclarationByTypeIdStatement.write(&typeId);
-            deleteSignalDeclarationByTypeIdStatement.write(&typeId);
-        }
+        selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
+                                                             Utils::span(sourceIdValues),
+                                                             Utils::span(updatedTypeIdValues));
+    }
+
+    void deleteTypesForImportId(ImportId importId)
+    {
+        auto callback = [&](long long typeId) {
+            deleteType(TypeId{typeId});
+            return Sqlite::CallbackControl::Continue;
+        };
+
+        selectTypeIdsForImportIdStatement.readCallback(callback, &importId);
     }
 
     void upsertExportedType(Utils::SmallStringView qualifiedName, Storage::Version version, TypeId typeId)
@@ -654,14 +666,23 @@ private:
         Sqlite::insertUpdateDelete(range, enumerationDeclarations, compareKey, insert, update, remove);
     }
 
-    TypeId syncType(Storage::Type &type)
+    TypeId declareType(Storage::Type &type)
     {
+        type.typeId = upsertTypeStatement.template value<TypeId>(&type.importId,
+                                                                 type.typeName,
+                                                                 static_cast<int>(type.accessSemantics),
+                                                                 &type.sourceId);
+
+        return type.typeId;
+    }
+
+    void syncType(Storage::Type &type)
+    {
+        auto typeId = type.typeId;
+
         auto prototypeId = fetchTypeIdByName(type.prototype);
 
-        auto typeId = upsertTypeStatement.template value<TypeId>(type.typeName,
-                                                                 static_cast<int>(type.accessSemantics),
-                                                                 &prototypeId,
-                                                                 &type.sourceId);
+        updatePrototypeStatement.write(&typeId, &prototypeId);
 
         for (const auto &exportedType : type.exportedTypes)
             upsertExportedType(exportedType.qualifiedTypeName, exportedType.version, typeId);
@@ -670,8 +691,6 @@ private:
         synchronizeFunctionDeclarations(typeId, type.functionDeclarations);
         synchronizeSignalDeclarations(typeId, type.signalDeclarations);
         synchronizeEnumerationDeclarations(typeId, type.enumerationDeclarations);
-
-        return typeId;
     }
 
     TypeId fetchTypeIdByName(Utils::SmallStringView name)
@@ -679,12 +698,7 @@ private:
         if (name.isEmpty())
             return TypeId{};
 
-        auto typeId = selectTypeIdByNameStatement.template value<TypeId>(name);
-
-        if (!typeId)
-            return insertTypeStatement.template value<TypeId>(name);
-
-        return typeId;
+        return selectTypeIdByNameStatement.template value<TypeId>(name);
     }
 
     SourceContextId readSourceContextId(Utils::SmallStringView sourceContextPath)
@@ -794,9 +808,8 @@ private:
                 createImportDependeciesTable(database);
                 createSourceContextsTable(database);
                 createSourcesTable(database);
-                createTypesTable(database);
+                createTypesAndePropertyDeclarationsTables(database);
                 createExportedTypesTable(database);
-                createPropertyDeclarationsTable(database);
                 createEnumerationsTable(database);
                 createFunctionsTable(database);
                 createSignalsTable(database);
@@ -840,44 +853,46 @@ private:
             table.initialize(database);
         }
 
-        void createTypesTable(Database &database)
+        void createTypesAndePropertyDeclarationsTables(Database &database)
         {
-            Sqlite::Table table;
-            table.setUseIfNotExists(true);
-            table.setName("types");
-            auto &typeIdColumn = table.addColumn("typeId",
-                                                 Sqlite::ColumnType::Integer,
-                                                 {Sqlite::PrimaryKey{}});
-            auto &nameColumn = table.addColumn("name");
-            table.addColumn("accessSemantics");
-            table.addColumn("sourceId");
-            table.addForeignKeyColumn("prototypeId",
-                                      typeIdColumn,
-                                      Sqlite::ForeignKeyAction::Restrict,
-                                      Sqlite::ForeignKeyAction::Restrict,
-                                      Sqlite::Enforment::Deferred);
+            Sqlite::Table typesTable;
+            typesTable.setUseIfNotExists(true);
+            typesTable.setName("types");
+            typesTable.addColumn("typeId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            auto &importIdColumn = typesTable.addColumn("importId");
+            auto &typesNameColumn = typesTable.addColumn("name");
+            typesTable.addColumn("accessSemantics");
+            typesTable.addColumn("sourceId");
+            typesTable.addForeignKeyColumn("prototypeId",
+                                           typesTable,
+                                           Sqlite::ForeignKeyAction::NoAction,
+                                           Sqlite::ForeignKeyAction::Restrict,
+                                           Sqlite::Enforment::Deferred);
 
-            table.addUniqueIndex({nameColumn});
+            typesTable.addUniqueIndex({importIdColumn, typesNameColumn});
 
-            table.initialize(database);
-        }
+            typesTable.initialize(database);
 
-        void createPropertyDeclarationsTable(Database &database)
-        {
-            Sqlite::Table table;
-            table.setUseIfNotExists(true);
-            table.setName("propertyDeclarations");
-            table.addColumn("propertyDeclarationId",
-                            Sqlite::ColumnType::Integer,
-                            {Sqlite::PrimaryKey{}});
-            auto &typeIdColumn = table.addColumn("typeId");
-            auto &nameColumn = table.addColumn("name");
-            table.addColumn("propertyTypeId");
-            table.addColumn("propertyTraits");
+            {
+                Sqlite::Table propertyDeclarationTable;
+                propertyDeclarationTable.setUseIfNotExists(true);
+                propertyDeclarationTable.setName("propertyDeclarations");
+                propertyDeclarationTable.addColumn("propertyDeclarationId",
+                                                   Sqlite::ColumnType::Integer,
+                                                   {Sqlite::PrimaryKey{}});
+                auto &typeIdColumn = propertyDeclarationTable.addColumn("typeId");
+                auto &nameColumn = propertyDeclarationTable.addColumn("name");
+                propertyDeclarationTable.addForeignKeyColumn("propertyTypeId",
+                                                             typesTable,
+                                                             Sqlite::ForeignKeyAction::NoAction,
+                                                             Sqlite::ForeignKeyAction::Restrict,
+                                                             Sqlite::Enforment::Deferred);
+                propertyDeclarationTable.addColumn("propertyTraits");
 
-            table.addUniqueIndex({typeIdColumn, nameColumn});
+                propertyDeclarationTable.addUniqueIndex({typeIdColumn, nameColumn});
 
-            table.initialize(database);
+                propertyDeclarationTable.initialize(database);
+            }
         }
 
         void createExportedTypesTable(Database &database)
@@ -980,11 +995,13 @@ public:
     Database &database;
     Initializer initializer;
     ReadWriteStatement<1> upsertTypeStatement{
-        "INSERT INTO types(name,  accessSemantics, prototypeId, sourceId) VALUES(?1, ?2, "
-        "nullif(?3, -1), nullif(?4, -1)) ON "
+        "INSERT INTO types(importId, name,  accessSemantics, sourceId) VALUES(?1, ?2, "
+        "?3, nullif(?4, -1)) ON "
         "CONFLICT DO UPDATE SET prototypeId=excluded.prototypeId, "
         "accessSemantics=excluded.accessSemantics, sourceId=excluded.sourceId RETURNING typeId",
         database};
+    WriteStatement updatePrototypeStatement{
+        "UPDATE types SET prototypeId=nullif(?2, -1) WHERE typeId=?1", database};
     mutable ReadStatement<1> selectTypeIdByQualifiedNameStatement{
         "SELECT typeId FROM exportedTypes WHERE qualifiedName=?1 AND majorVersion=?2 AND "
         "minorVersion<=?3 ORDER BY minorVersion DESC LIMIT 1",
@@ -1044,20 +1061,19 @@ public:
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    ReadWriteStatement<1> insertTypeStatement{"INSERT INTO types(name) VALUES(?) RETURNING typeId",
-                                              database};
     mutable ReadStatement<1> selectTypeIdByNameStatement{"SELECT typeId FROM types WHERE name=?",
                                                          database};
-    mutable ReadStatement<4> selectTypeByTypeIdStatement{
-        "SELECT name, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId), "
+    mutable ReadStatement<5> selectTypeByTypeIdStatement{
+        "SELECT importId, name, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId), "
         "accessSemantics, ifnull(sourceId, -1) FROM types AS outerTypes WHERE typeId=?",
         database};
     mutable ReadStatement<3> selectExportedTypesByTypeIdStatement{
         "SELECT qualifiedName, majorVersion, minorVersion FROM exportedTypes WHERE typeId=?",
         database};
-    mutable ReadStatement<5> selectTypesStatement{
-        "SELECT name, typeId, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId),"
-        "accessSemantics, ifnull(sourceId, -1) FROM types AS outerTypes",
+    mutable ReadStatement<6> selectTypesStatement{
+        "SELECT importId, name, typeId, (SELECT name FROM types WHERE "
+        "typeId=outerTypes.prototypeId), accessSemantics, ifnull(sourceId, -1) FROM types AS "
+        "outerTypes",
         database};
     ReadStatement<1> selectNotUpdatedTypesInSourcesStatement{
         "SELECT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN carray(?2))",
@@ -1072,9 +1088,7 @@ public:
         "DELETE FROM functionDeclarations WHERE typeId=?", database};
     WriteStatement deleteSignalDeclarationByTypeIdStatement{
         "DELETE FROM signalDeclarations WHERE typeId=?", database};
-    WriteStatement resetTypeStatement{
-        "UPDATE types SET accessSemantics=NULL, sourceId=NULL, prototypeId=NULL WHERE typeId=?",
-        database};
+    WriteStatement deleteTypeStatement{"DELETE FROM types  WHERE typeId=?", database};
     mutable ReadStatement<3> selectPropertyDeclarationsByTypeIdStatement{
         "SELECT name, (SELECT name FROM types WHERE typeId=propertyDeclarations.propertyTypeId),"
         "propertyTraits FROM propertyDeclarations WHERE typeId=?",
@@ -1179,6 +1193,8 @@ public:
         "SELECT name, version FROM importDependencies JOIN imports ON "
         "importDependencies.parentImportId = imports.importId WHERE importDependencies.importId=?",
         database};
+    mutable ReadStatement<1> selectTypeIdsForImportIdStatement{
+        "SELECT typeId FROM types WHERE importId=?", database};
 };
 
 } // namespace QmlDesigner
