@@ -93,7 +93,7 @@ public:
     QPair<QString, QByteArray> getAssetTypeAndData(const QFileInfo &fi) const;
 
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
-    Q_INVOKABLE void startDragAsset(const QString &assetPath);
+    Q_INVOKABLE void startDragAsset(const QString &assetPath, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
     Q_INVOKABLE void addImportForItem(const QString &importUrl);
     Q_INVOKABLE void handleTabChanged(int index);
@@ -143,6 +143,8 @@ private:
     AsynchronousImageCache &m_imageCache;
     QPointer<Model> m_model;
     QVariant m_itemToDrag;
+    QString m_assetToDrag;
+    QPair<QString, QByteArray> m_assetToDragTypeAndData;
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;

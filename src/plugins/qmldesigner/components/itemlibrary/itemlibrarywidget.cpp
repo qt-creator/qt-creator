@@ -115,9 +115,24 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
                 m_itemToDrag = {};
             }
+        } else if (!m_assetToDrag.isEmpty()) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
+                auto drag = new QDrag(this);
+                drag->setPixmap(m_assetsIconProvider->requestPixmap(m_assetToDrag, nullptr, {128, 128}));
+                QMimeData *mimeData = new QMimeData;
+                mimeData->setData("application/vnd.bauhaus.libraryresource", m_assetToDrag.toUtf8());
+                mimeData->setData(m_assetToDragTypeAndData.first, m_assetToDragTypeAndData.second);
+                drag->setMimeData(mimeData);
+                drag->exec();
+                drag->deleteLater();
+
+                m_assetToDrag.clear();
+            }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_itemToDrag = {};
+        m_assetToDrag.clear();
     }
 
     return QObject::eventFilter(obj, event);
@@ -186,6 +201,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
                                                       new Internal::ItemLibraryImageProvider);
     Theme::setupTheme(m_itemViewQuickWidget->engine());
     m_itemViewQuickWidget->installEventFilter(this);
+    m_assetsWidget->installEventFilter(this);
 
     m_fontPreviewTooltipBackend = std::make_unique<PreviewTooltipBackend>(asynchronousFontImageCache);
     // Note: Though the text specified here appears in UI, it shouldn't be translated, as it's
@@ -449,27 +465,22 @@ void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPo
 {
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
-    // This doesn't completely eliminate the bug but makes it significantly harder to produce.
     m_itemToDrag = itemLibEntry;
     m_dragStartPoint = mousePos.toPoint();
 }
 
-void ItemLibraryWidget::startDragAsset(const QString &assetPath)
+void ItemLibraryWidget::startDragAsset(const QString &assetPath, const QPointF &mousePos)
 {
     QFileInfo fileInfo(assetPath);
-    QPair<QString, QByteArray> typeAndData = getAssetTypeAndData(fileInfo);
+    m_assetToDragTypeAndData = getAssetTypeAndData(fileInfo);
 
-    if (typeAndData.first.isEmpty())
+    if (m_assetToDragTypeAndData.first.isEmpty())
         return;
 
-    auto drag = new QDrag(this);
-    drag->setPixmap(m_assetsIconProvider->requestPixmap(assetPath, nullptr, {128, 128}));
-    QMimeData *mimeData = new QMimeData;
-    mimeData->setData(QLatin1String("application/vnd.bauhaus.libraryresource"),
-                      fileInfo.absoluteFilePath().toUtf8());
-    mimeData->setData(typeAndData.first, typeAndData.second);
-    drag->setMimeData(mimeData);
-    drag->exec();
+    // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
+    // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
+    m_assetToDrag = fileInfo.absoluteFilePath();
+    m_dragStartPoint = mousePos.toPoint();
 }
 
 QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QFileInfo &fi) const

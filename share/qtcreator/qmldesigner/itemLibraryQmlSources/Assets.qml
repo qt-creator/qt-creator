@@ -154,7 +154,7 @@ Item {
                         onPressed: {
                             forceActiveFocus()
                             if (mouse.button === Qt.LeftButton)
-                                rootView.startDragAsset(filePath)
+                                rootView.startDragAsset(filePath, mapToGlobal(mouse.x, mouse.y))
                             else
                                 print("TODO: impl context menu")
                         }
