@@ -285,7 +285,8 @@ static bool runBuildProcess(QtcProcess &proc,
         *errorMessage =
                 QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Error running \"%1\" in %2: %3").
-                                            arg(cmd, proc.workingDirectory(), *errorMessage);
+                                            arg(cmd, proc.workingDirectory().toUserOutput(),
+                                                *errorMessage);
         qWarning("%s", qPrintable(*errorMessage));
     }
     return rc;

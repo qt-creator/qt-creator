@@ -289,7 +289,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 
     m_process = new Utils::QtcProcess;
     m_process->setCommand(cmd);
-    m_process->setWorkingDirectory(m_workingDirectory.toString());
+    m_process->setWorkingDirectory(m_workingDirectory);
     m_process->setEnvironment(m_environment);
 
     if (Utils::HostOsInfo::isWindowsHost())

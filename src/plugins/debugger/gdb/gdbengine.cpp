@@ -3856,9 +3856,10 @@ void GdbEngine::setupEngine()
     if (!m_gdbProc.waitForStarted()) {
         handleGdbStartFailed();
         QString msg;
-        QString wd = m_gdbProc.workingDirectory();
-        if (!QFileInfo(wd).isDir())
-            msg = failedToStartMessage() + ' ' + tr("The working directory \"%1\" is not usable.").arg(wd);
+        FilePath wd = m_gdbProc.workingDirectory();
+        if (!wd.isReadableDir())
+            msg = failedToStartMessage() + ' ' + tr("The working directory \"%1\" is not usable.")
+                .arg(wd.toUserOutput());
         else
             msg = RunWorker::userMessageForProcessError(QProcess::FailedToStart, rp.debugger.executable);
         handleAdapterStartFailed(msg);

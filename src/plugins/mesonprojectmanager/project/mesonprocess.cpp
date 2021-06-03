@@ -180,7 +180,7 @@ void MesonProcess::setupProcess(const Command &command,
                 &MesonProcess::processStandardError);
     }
 
-    m_process->setWorkingDirectory(command.workDir().toString());
+    m_process->setWorkingDirectory(command.workDir());
     m_process->setEnvironment(env);
     Core::MessageManager::writeFlashing(
         tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));

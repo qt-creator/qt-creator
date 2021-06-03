@@ -220,13 +220,12 @@ void AbstractProcessStep::doRun()
 
     d->m_process.reset(new QtcProcess());
     d->m_process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
-    if (!wd.needsDevice()) // FIXME: Make QtcProcess take FilePath as working directory.
-        d->m_process->setWorkingDirectory(wd.toString());
+    d->m_process->setWorkingDirectory(wd);
     // Enforce PWD in the environment because some build tools use that.
     // PWD can be different from getcwd in case of symbolic links (getcwd resolves symlinks).
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
     Environment envWithPwd = d->m_param.environment();
-    envWithPwd.set("PWD", d->m_process->workingDirectory());
+    envWithPwd.set("PWD", d->m_process->workingDirectory().path());
     d->m_process->setEnvironment(envWithPwd);
     d->m_process->setCommand(effectiveCommand);
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)

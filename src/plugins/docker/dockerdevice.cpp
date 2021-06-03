@@ -718,16 +718,16 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, int limit) const
 
 void DockerDevice::runProcess(QtcProcess &process) const
 {
-    const QString origWd = process.workingDirectory();
+    const FilePath workingDir = process.workingDirectory();
     const CommandLine origCmd = process.commandLine();
 
     CommandLine cmd{"docker", {"exec"}};
-    cmd.addArgs({"-w", process.workingDirectory()});
+    cmd.addArgs({"-w", workingDir.path()});
     cmd.addArg(d->m_container);
     cmd.addArg(origCmd.executable().path()); // Cut off the docker://.../ bits.
     cmd.addArgs(origCmd.splitArguments(osType()));
 
-    LOG("Run" << cmd.toUserOutput());
+    LOG("Run" << cmd.toUserOutput() << " in " << workingDir.toUserOutput());
 
     process.setCommand(cmd);
     process.start();

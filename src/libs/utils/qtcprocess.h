@@ -83,8 +83,9 @@ public:
     void setCommand(const CommandLine &cmdLine);
     const CommandLine &commandLine() const;
 
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &dir);
+    FilePath workingDirectory() const;
+    void setWorkingDirectory(const FilePath &dir);
+    void setWorkingDirectory(const QString &dir); // FIXME: Kept to ease downstream transition
 
     void setUseCtrlCStub(bool enabled);
     void setLowPriority();

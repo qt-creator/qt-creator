@@ -103,7 +103,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     m_cancelTimer.start();
 
-    process->setWorkingDirectory(workDirectory.toString());
+    process->setWorkingDirectory(workDirectory);
     process->setEnvironment(parameters.environment);
 
     connect(process.get(), &QtcProcess::readyReadStandardOutput,

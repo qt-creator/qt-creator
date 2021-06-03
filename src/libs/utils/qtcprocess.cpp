@@ -170,6 +170,7 @@ public:
     QtcProcess *q;
     ProcessHelper *m_process;
     CommandLine m_commandLine;
+    FilePath m_workingDirectory;
     Environment m_environment;
     QByteArray m_writeData;
     bool m_haveEnv = false;
@@ -263,6 +264,9 @@ const Environment &QtcProcess::environment() const
 
 void QtcProcess::setCommand(const CommandLine &cmdLine)
 {
+    if (d->m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
+        QTC_CHECK(d->m_workingDirectory.host() == cmdLine.executable().host());
+    }
     d->m_commandLine  = cmdLine;
 }
 
@@ -271,14 +275,22 @@ const CommandLine &QtcProcess::commandLine() const
     return d->m_commandLine;
 }
 
-QString QtcProcess::workingDirectory() const
+FilePath QtcProcess::workingDirectory() const
 {
-    return d->m_process->workingDirectory();
+    return d->m_workingDirectory;
+}
+
+void QtcProcess::setWorkingDirectory(const FilePath &dir)
+{
+    if (dir.needsDevice() && d->m_commandLine.executable().needsDevice()) {
+        QTC_CHECK(dir.host() == d->m_commandLine.executable().host());
+    }
+    d->m_workingDirectory = dir;
 }
 
 void QtcProcess::setWorkingDirectory(const QString &dir)
 {
-    d->m_process->setWorkingDirectory(dir);
+    setWorkingDirectory(FilePath::fromString(dir));
 }
 
 void QtcProcess::setUseCtrlCStub(bool enabled)
@@ -322,7 +334,8 @@ void QtcProcess::start()
         env = Environment::systemEnvironment();
     }
 
-    const QString &workDir = workingDirectory();
+    const QString workDir = d->m_workingDirectory.path();
+
     QString command;
     ProcessArgs arguments;
     bool success = ProcessArgs::prepareCommand(d->m_commandLine.executable().toString(),
