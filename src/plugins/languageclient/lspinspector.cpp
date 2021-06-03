@@ -474,16 +474,20 @@ void LspInspectorWidget::addMessage(const QString &clientName, const LspLogMessa
 {
     if (m_clients->findItems(clientName, Qt::MatchExactly).isEmpty())
         m_clients->addItem(clientName);
-    if (clientName == m_clients->currentItem()->text())
+    if (const QListWidgetItem *currentItem = m_clients->currentItem();
+        currentItem && currentItem->text() == clientName) {
         m_log->addMessage(message);
+    }
 }
 
 void LspInspectorWidget::updateCapabilities(const QString &clientName)
 {
     if (m_clients->findItems(clientName, Qt::MatchExactly).isEmpty())
         m_clients->addItem(clientName);
-    if (clientName != m_clients->currentItem()->text())
+    if (const QListWidgetItem *currentItem = m_clients->currentItem();
+        currentItem && clientName == currentItem->text()) {
         m_capabilities->setCapabilities(m_inspector->capabilities(clientName));
+    }
 }
 
 void LspInspectorWidget::currentClientChanged(const QString &clientName)
