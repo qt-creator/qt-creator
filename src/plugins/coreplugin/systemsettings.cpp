@@ -161,7 +161,7 @@ public:
 
         updateClearCrashWidgets();
         connect(m_ui.clearCrashReportsButton, &QPushButton::clicked, this, [&] {
-            QDir crashReportsDir(ICore::crashReportsPath());
+            QDir crashReportsDir = ICore::crashReportsPath().toDir();
             crashReportsDir.setFilter(QDir::Files);
             const QStringList crashFiles = crashReportsDir.entryList();
             for (QString file : crashFiles)
