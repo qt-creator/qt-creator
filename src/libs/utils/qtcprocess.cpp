@@ -880,7 +880,7 @@ Utils::optional<QString> ChannelBuffer::takeFirstLine()
 
     const QString line = QString::fromUtf8(rawData.left(firstLineEnd));
     rawData.remove(0, firstLineEnd + 1);
-    return Utils::make_optional<QString>(line);
+    return line;
 }
 
 void ChannelBuffer::append(const QByteArray &text)
