@@ -224,7 +224,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
             if (reply == QMessageBox::Yes) {
                 for (Node * const n : candidateNodes) {
                     QString targetFilePath = orgFileInfo.absolutePath() + '/'
-                            + newFilePath.toFileInfo().completeBaseName();
+                                             + newFilePath.completeBaseName();
                     const QString suffix = n->filePath().toFileInfo().suffix();
                     if (!suffix.isEmpty())
                         targetFilePath.append('.').append(suffix);

@@ -105,7 +105,7 @@ FilePath QmakeBuildConfiguration::shadowBuildDirectory(const FilePath &proFilePa
     if (proFilePath.isEmpty())
         return {};
 
-    const QString projectName = proFilePath.toFileInfo().completeBaseName();
+    const QString projectName = proFilePath.completeBaseName();
     ProjectMacroExpander expander(proFilePath, projectName, k, suffix, buildType);
     FilePath projectDir = Project::projectDirectory(proFilePath);
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());

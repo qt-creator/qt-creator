@@ -761,10 +761,26 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
     return m_data;
 }
 
+/// \returns the base name of the file without the path.
+///
+/// The base name consists of all characters in the file up to
+/// (but not including) the first '.' character.
+
 QString FilePath::baseName() const
 {
     const QString &name = fileName();
     return name.left(name.indexOf('.'));
+}
+
+/// \returns the complete base name of the file without the path.
+///
+/// The complete base name consists of all characters in the file up to
+/// (but not including) the last '.' character
+
+QString FilePath::completeBaseName() const
+{
+    const QString &name = fileName();
+    return name.left(name.lastIndexOf('.'));
 }
 
 void FilePath::setScheme(const QString &scheme)

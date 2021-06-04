@@ -96,7 +96,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 {
     setId(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
 
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });

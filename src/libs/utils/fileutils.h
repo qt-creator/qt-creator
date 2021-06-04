@@ -103,7 +103,9 @@ public:
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;
+
     QString baseName() const;
+    QString completeBaseName() const;
 
     QString scheme() const { return m_scheme; }
     void setScheme(const QString &scheme);

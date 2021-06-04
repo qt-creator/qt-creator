@@ -38,7 +38,7 @@ namespace Internal {
 QmlProjectNode::QmlProjectNode(Project *project)
     : ProjectNode(project->projectDirectory())
 {
-    setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
+    setDisplayName(project->projectFilePath().completeBaseName());
 
     setIcon(DirectoryIcon(":/projectexplorer/images/fileoverlay_qml.png"));
 }

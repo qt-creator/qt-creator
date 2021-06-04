@@ -504,9 +504,8 @@ static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
     if (type == ReplType::Unmodified || !isPython)
         return {};
     const auto import = type == ReplType::Import
-                            ? QString("import %1").arg(pythonFile.toFileInfo().completeBaseName())
-                            : QString("from %1 import *")
-                                  .arg(pythonFile.toFileInfo().completeBaseName());
+                            ? QString("import %1").arg(pythonFile.completeBaseName())
+                            : QString("from %1 import *").arg(pythonFile.completeBaseName());
     return {"-c", QString("%1; print('Running \"%1\"')").arg(import)};
 }
 

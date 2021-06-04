@@ -213,7 +213,7 @@ QbsProjectNode *QbsNodeTreeBuilder::buildTree(const QString &projectName,
     if (root->displayName().isEmpty())
         root->setDisplayName(projectName);
     if (root->displayName().isEmpty())
-        root->setDisplayName(projectFile.toFileInfo().completeBaseName());
+        root->setDisplayName(projectFile.completeBaseName());
 
     auto buildSystemFiles = std::make_unique<FolderNode>(projectDir);
     buildSystemFiles->setDisplayName(QCoreApplication::translate("QbsProjectNode", "Qbs files"));

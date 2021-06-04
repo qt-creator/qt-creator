@@ -1022,7 +1022,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
 
 QList<ToolChain *> GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
 {
-    const QString fileName = tcd.compilerPath.toFileInfo().completeBaseName();
+    const QString fileName = tcd.compilerPath.completeBaseName();
     if ((tcd.language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
                                                   || fileName.endsWith("gcc")
                                                   || fileName == "cc"))
@@ -1806,7 +1806,7 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &a
 
 QList<ToolChain *> MingwToolChainFactory::detectForImport(const ToolChainDescription &tcd)
 {
-    const QString fileName = tcd.compilerPath.toFileInfo().completeBaseName();
+    const QString fileName = tcd.compilerPath.completeBaseName();
     if ((tcd.language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
                                                       || fileName.endsWith("gcc")))
             || (tcd.language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")

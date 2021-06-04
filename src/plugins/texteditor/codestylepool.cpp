@@ -235,7 +235,7 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FilePath &fileN
     reader.load(fileName);
     QVariantMap m = reader.restoreValues();
     if (m.contains(QLatin1String(codeStyleDataKey))) {
-        const QByteArray id = fileName.toFileInfo().completeBaseName().toUtf8();
+        const QByteArray id = fileName.completeBaseName().toUtf8();
         const QString displayName = reader.restoreValue(QLatin1String(displayNameKey)).toString();
         const QVariantMap map = reader.restoreValue(QLatin1String(codeStyleDataKey)).toMap();
         if (d->m_factory) {

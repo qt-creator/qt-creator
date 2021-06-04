@@ -195,7 +195,7 @@ GenericProject::GenericProject(const Utils::FilePath &fileName)
 {
     setId(Constants::GENERICPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator([](Target *t) { return new GenericBuildSystem(t); });
 }
 
@@ -475,7 +475,7 @@ void GenericBuildSystem::refresh(RefreshOptions options)
 
     if (options & Files) {
         auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
-        newRoot->setDisplayName(projectFilePath().toFileInfo().completeBaseName());
+        newRoot->setDisplayName(projectFilePath().completeBaseName());
 
         // find the common base directory of all source files
         FilePath baseDir = findCommonSourceRoot();

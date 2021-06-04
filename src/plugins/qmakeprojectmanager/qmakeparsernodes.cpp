@@ -165,7 +165,7 @@ FilePath QmakePriFile::directoryPath() const
 
 QString QmakePriFile::displayName() const
 {
-    return filePath().toFileInfo().completeBaseName();
+    return filePath().completeBaseName();
 }
 
 QmakePriFile *QmakePriFile::parent() const
@@ -2068,13 +2068,13 @@ FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,
         if (location.isEmpty())
             return { };
         location = location.pathAppended("ui_"
-                                         + sourceFile.toFileInfo().completeBaseName()
+                                         + sourceFile.completeBaseName()
                                          + singleVariableValue(Variable::HeaderExtension));
         return { Utils::FilePath::fromString(QDir::cleanPath(location.toString())) };
     } else if (sourceFileType == FileType::StateChart) {
         if (buildDir.isEmpty())
             return { };
-        const FilePath location = buildDir.pathAppended(sourceFile.toFileInfo().completeBaseName());
+        const FilePath location = buildDir.pathAppended(sourceFile.completeBaseName());
         return {
             location.stringAppended(singleVariableValue(Variable::HeaderExtension)),
             location.stringAppended(singleVariableValue(Variable::CppExtension))

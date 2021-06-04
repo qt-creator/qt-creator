@@ -174,7 +174,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
     setCanBuildProducts();
     setHasMakeInstallEquivalent(true);
 }
@@ -1162,7 +1162,7 @@ void QmakeBuildSystem::updateBuildSystemData()
         bti.targetFilePath = FilePath::fromString(executableFor(node->proFile()));
         bti.projectFilePath = node->filePath();
         bti.workingDirectory = FilePath::fromString(workingDir);
-        bti.displayName = bti.projectFilePath.toFileInfo().completeBaseName();
+        bti.displayName = bti.projectFilePath.completeBaseName();
         const FilePath relativePathInProject
                 = bti.projectFilePath.relativeChildPath(projectDirectory());
         if (!relativePathInProject.isEmpty()) {

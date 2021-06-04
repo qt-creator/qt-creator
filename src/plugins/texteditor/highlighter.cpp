@@ -132,7 +132,7 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
         // cmake configure_file input filenames without the .in extension
         if (filePath.endsWith(".in")) {
             definitions = definitionsForFileName(
-                Utils::FilePath::fromString(filePath.toFileInfo().completeBaseName()));
+                Utils::FilePath::fromString(filePath.completeBaseName()));
         }
     }
     if (definitions.isEmpty()) {

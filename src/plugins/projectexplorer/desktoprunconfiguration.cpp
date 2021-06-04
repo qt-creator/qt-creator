@@ -118,7 +118,7 @@ void DesktopRunConfiguration::updateTargetInformation()
         if (profile.isEmpty())
             setDefaultDisplayName(tr("Qt Run Configuration"));
         else
-            setDefaultDisplayName(profile.toFileInfo().completeBaseName());
+            setDefaultDisplayName(profile.completeBaseName());
 
         aspect<EnvironmentAspect>()->environmentChanged();
 

@@ -64,7 +64,7 @@ static FilePath defaultBuildDirectory(const FilePath &projectFilePath, const Kit
                                       const QString &bcName,
                                       BuildConfiguration::BuildType buildType)
 {
-    const QString projectName = projectFilePath.toFileInfo().completeBaseName();
+    const QString projectName = projectFilePath.completeBaseName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
     FilePath projectDir = Project::projectDirectory(projectFilePath);
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());

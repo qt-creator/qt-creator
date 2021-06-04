@@ -1788,8 +1788,7 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath,
     return result;
 }
 
-static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
-                                                const QString &name,
+static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown, const QString &name,
                                                 const Abi &abi,
                                                 const QString &varsBat,
                                                 const QString &varsBatArg)

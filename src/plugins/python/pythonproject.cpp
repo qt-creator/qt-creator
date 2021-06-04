@@ -205,7 +205,7 @@ public:
     PythonProjectNode(const Utils::FilePath &path)
         : ProjectNode(path)
     {
-        setDisplayName(path.toFileInfo().completeBaseName());
+        setDisplayName(path.completeBaseName());
         setAddFileFilter("*.py");
     }
 };
@@ -215,7 +215,7 @@ PythonProject::PythonProject(const FilePath &fileName)
 {
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
 
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });

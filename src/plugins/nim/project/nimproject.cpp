@@ -41,7 +41,7 @@ namespace Nim {
 NimProject::NimProject(const FilePath &fileName) : Project(Constants::C_NIM_MIMETYPE, fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 

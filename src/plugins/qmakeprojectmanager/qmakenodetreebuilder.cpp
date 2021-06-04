@@ -197,7 +197,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
                     auto topLevel = std::make_unique<ResourceEditor::ResourceTopLevelNode>
                                      (file.first, vfolder->filePath(), contents);
                     topLevel->setEnabled(file.second == FileOrigin::ExactParse);
-                    const QString baseName = file.first.toFileInfo().completeBaseName();
+                    const QString baseName = file.first.completeBaseName();
                     topLevel->setIsGenerated(baseName.startsWith("qmake_")
                             || baseName.endsWith("_qmlcache"));
                     vfolder->addNode(std::move(topLevel));

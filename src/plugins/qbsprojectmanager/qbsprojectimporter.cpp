@@ -88,7 +88,7 @@ QbsProjectImporter::QbsProjectImporter(const FilePath &path) : QtProjectImporter
 
 static FilePath buildDir(const FilePath &projectFilePath, const Kit *k)
 {
-    const QString projectName = projectFilePath.toFileInfo().completeBaseName();
+    const QString projectName = projectFilePath.completeBaseName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, QString(),
                                   BuildConfiguration::Unknown);
     const FilePath projectDir = Project::projectDirectory(projectFilePath);
@@ -222,7 +222,7 @@ const QList<BuildInfo> QbsProjectImporter::buildInfoList(void *directoryData) co
 {
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
     BuildInfo info;
-    info.displayName = bgData->bgFilePath.toFileInfo().completeBaseName();
+    info.displayName = bgData->bgFilePath.completeBaseName();
     info.buildType = bgData->buildVariant == "debug"
             ? BuildConfiguration::Debug : BuildConfiguration::Release;
     info.buildDirectory = bgData->bgFilePath.parentDir().parentDir();

@@ -477,7 +477,7 @@ const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
     const auto filter = [&fi](const Node *n) {
         return n->asFileNode()
                 && n->filePath().toFileInfo().dir() == fi.dir()
-                && n->filePath().toFileInfo().completeBaseName() == fi.completeBaseName()
+                && n->filePath().completeBaseName() == fi.completeBaseName()
                 && n->filePath().toString() != fi.filePath();
     };
     return productNode->findNodes(filter);

@@ -38,7 +38,7 @@ NimbleProject::NimbleProject(const Utils::FilePath &fileName)
     : ProjectExplorer::Project(Constants::C_NIMBLE_MIMETYPE, fileName)
 {
     setId(Constants::C_NIMBLEPROJECT_ID);
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setBuildSystemCreator([] (Target *t) { return new NimbleBuildSystem(t); });

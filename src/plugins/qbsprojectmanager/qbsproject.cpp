@@ -123,7 +123,7 @@ QbsProject::QbsProject(const FilePath &fileName)
     setId(Constants::PROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setCanBuildProducts();
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    setDisplayName(fileName.completeBaseName());
 }
 
 QbsProject::~QbsProject()
