@@ -150,7 +150,7 @@ void ItemLibraryAssetsModel::refresh()
 
 void ItemLibraryAssetsModel::setRootPath(const QString &path)
 {
-    static const QStringList supportedTopLevelDirs {"images", "sounds", "fonts", "assets"};
+    static const QStringList supportedTopLevelDirs {"images", "sounds", "fonts", "assets", "shaders"};
 
     m_fileSystemWatcher->removeDirectories(m_fileSystemWatcher->directories());
     m_fileSystemWatcher->removeFiles(m_fileSystemWatcher->files());
