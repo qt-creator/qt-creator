@@ -353,11 +353,15 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
         const QJsonArray array = val.toArray();
         ResultArray result;
         for (const QJsonValue &val : array) {
-            Command command(val);
-            if (command.isValid())
-                result << command;
-            else
-                result << CodeAction(val);
+            if (val.toObject().value(commandKey).isString()) {
+                const Command command(val);
+                if (command.isValid())
+                    result << command;
+            } else {
+                const CodeAction action(val);
+                if (action.isValid())
+                    result << action;
+            }
         }
         emplace<ResultArray>(result);
         return;
