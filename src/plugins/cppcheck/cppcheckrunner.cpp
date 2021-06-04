@@ -49,10 +49,13 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) :
         m_maxArgumentsLength = std::max(argMax.toInt(), m_maxArgumentsLength);
     }
 
-    connect(m_process, &QtcProcess::readyReadStandardOutput,
-            this, &CppcheckRunner::readOutput);
-    connect(m_process, &QtcProcess::readyReadStandardOutput,
-            this, &CppcheckRunner::readError);
+    m_process->setStdOutLineCallback([this](const QString &line) {
+        m_tool.parseOutputLine(line);
+    });
+    m_process->setStdErrLineCallback([this](const QString &line) {
+       m_tool.parseErrorLine(line);
+    });
+
     connect(m_process, &QtcProcess::started,
             this, &CppcheckRunner::handleStarted);
     connect(m_process, &QtcProcess::finished,
@@ -158,36 +161,6 @@ void CppcheckRunner::checkQueued()
     m_process->start();
 }
 
-void CppcheckRunner::readOutput()
-{
-    if (!m_isRunning) // workaround for QTBUG-30929
-        handleStarted();
-
-    const QByteArray output = m_process->readAllStandardOutput();
-    int start = 0;
-    int end;
-    do {
-        end = output.indexOf('\n', start);
-        m_tool.parseOutputLine(QString::fromUtf8(output.mid(start, end - start)));
-        start = end + 1;
-    } while (end >= 0);
-}
-
-void CppcheckRunner::readError()
-{
-    if (!m_isRunning) // workaround for QTBUG-30929
-        handleStarted();
-
-    const QByteArray output = m_process->readAllStandardError();
-    int start = 0;
-    int end;
-    do {
-        end = output.indexOf('\n', start);
-        m_tool.parseErrorLine(QString::fromUtf8(output.mid(start, end - start)));
-        start = end + 1;
-    } while (end >= 0);
-}
-
 void CppcheckRunner::handleStarted()
 {
     if (m_isRunning)
@@ -200,8 +173,6 @@ void CppcheckRunner::handleStarted()
 void CppcheckRunner::handleFinished(int)
 {
     if (m_process->error() != QProcess::FailedToStart) {
-        readOutput();
-        readError();
         m_tool.finishParsing();
     } else {
         const QString message = tr("Cppcheck failed to start: \"%1\".").arg(currentCommand());
