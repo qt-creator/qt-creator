@@ -108,7 +108,9 @@ public:
     void setWriteData(const QByteArray &writeData);
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
+    void setStdOutLineCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
+    void setStdErrLineCallback(const std::function<void(const QString &)> &callback);
 
     static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 

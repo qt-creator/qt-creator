@@ -82,6 +82,7 @@ public:
     void clearForRun();
 
     QString linesRead();
+    Utils::optional<QString> takeFirstLine();
     void append(const QByteArray &text);
 
     QByteArray rawData;
@@ -90,6 +91,7 @@ public:
     std::unique_ptr<QTextCodec::ConverterState> codecState;
     int rawDataPos = 0;
     std::function<void(const QString &lines)> outputCallback;
+    std::function<void(const QString &line)> outputLineCallback;
 };
 
 class ProcessHelper : public QProcess
@@ -739,9 +741,12 @@ QString QtcProcess::locateBinary(const QString &binary)
     event loop that blocks only user input events. Thus, it allows for the GUI to
     repaint and append output to log windows.
 
-    The callbacks set with setStdOutCallBack(), setStdErrCallback() are called
+    The callbacks set with setStdOutCallback(), setStdErrCallback() are called
     with complete lines based on the '\\n' marker.
     They would typically be used for log windows.
+
+    Alternatively you can used setStdOutLineCallback() and setStdErrLineCallback()
+    to process the output line by line.
 
     There is a timeout handling that takes effect after the last data have been
     read from stdout/stdin (as opposed to waitForFinished(), which measures time
@@ -866,6 +871,18 @@ QString ChannelBuffer::linesRead()
     return lines;
 }
 
+// Check for first complete line inside the rawData and return it, removing the line from the buffer
+Utils::optional<QString> ChannelBuffer::takeFirstLine()
+{
+    const int firstLineEnd = qMax(rawData.indexOf('\n'), rawData.indexOf('r'));
+    if (firstLineEnd == -1)
+        return Utils::nullopt;
+
+    const QString line = QString::fromUtf8(rawData.left(firstLineEnd));
+    rawData.remove(0, firstLineEnd + 1);
+    return Utils::make_optional<QString>(line);
+}
+
 void ChannelBuffer::append(const QByteArray &text)
 {
     if (text.isEmpty())
@@ -877,6 +894,14 @@ void ChannelBuffer::append(const QByteArray &text)
         const QString lines = linesRead();
         if (!lines.isEmpty())
             outputCallback(lines);
+    }
+    if (outputLineCallback) {
+        do {
+            const Utils::optional<QString> line = takeFirstLine();
+            if (!line.has_value())
+                break;
+            outputLineCallback(line.value());
+        } while (true);
     }
 }
 
@@ -1022,10 +1047,20 @@ void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &
     d->m_stdOut.outputCallback = callback;
 }
 
+void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &)> &callback)
+{
+    d->m_stdOut.outputLineCallback = callback;
+}
+
 void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
 {
     QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdErr.outputCallback = callback;
+}
+
+void QtcProcess::setStdErrLineCallback(const std::function<void (const QString &)> &callback)
+{
+    d->m_stdErr.outputLineCallback = callback;
 }
 
 void QtcProcessPrivate::slotTimeout()
