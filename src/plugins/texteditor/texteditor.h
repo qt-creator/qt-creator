@@ -491,6 +491,10 @@ public:
     void addHoverHandler(BaseHoverHandler *handler);
     void removeHoverHandler(BaseHoverHandler *handler);
 
+#ifdef WITH_TESTS
+    void processTooltipRequest(const QTextCursor &c);
+#endif
+
 signals:
     void assistFinished(); // Used in tests.
     void readOnlyChanged();

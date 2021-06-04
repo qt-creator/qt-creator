@@ -26,6 +26,7 @@
 #include "clanghoverhandler.h"
 
 #include "clangeditordocumentprocessor.h"
+#include "clangmodelmanagersupport.h"
 
 #include <coreplugin/helpmanager.h>
 #include <cpptools/cppmodelmanager.h>
@@ -97,6 +98,12 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                       int pos,
                                       BaseHoverHandler::ReportPriority report)
 {
+    if (ClangModelManagerSupport::instance()
+            ->clientForFile(editorWidget->textDocument()->filePath())) {
+        report(Priority_None);
+        return;
+    }
+
     // Reset
     m_futureWatcher.reset();
     m_cursorPosition = -1;

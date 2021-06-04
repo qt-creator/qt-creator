@@ -115,6 +115,17 @@ private slots:
     void test();
 };
 
+class ClangdTestTooltips : public ClangdTest
+{
+    Q_OBJECT
+public:
+    ClangdTestTooltips();
+
+private slots:
+    void test_data();
+    void test();
+};
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel

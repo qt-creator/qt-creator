@@ -51,6 +51,18 @@ void HoverHandler::abort()
     if (m_client && m_client->reachable() && m_currentRequest.has_value())
         m_client->cancelRequest(*m_currentRequest);
     m_currentRequest.reset();
+    m_response = {};
+}
+
+void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
+                               const Core::HelpItem &help)
+{
+    if (msgId == m_response.id()) {
+        setContent(m_response.result().value().content());
+        m_response = {};
+        setLastHelpItemIdentified(help);
+        m_report(priority());
+    }
 }
 
 void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
@@ -64,10 +76,11 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         report(Priority_None);
         return;
     }
-    auto uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
+    m_uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
+    m_response = {};
     QTextCursor tc = editorWidget->textCursor();
     tc.setPosition(pos);
-    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(uri, tc);
+    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(m_uri, tc);
     if (!diagnostics.isEmpty()) {
         const QStringList messages = Utils::transform(diagnostics, &Diagnostic::message);
         setToolTip(messages.join('\n'));
@@ -101,7 +114,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     m_report = report;
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(pos);
-    HoverRequest request((TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor))));
+    HoverRequest request((TextDocumentPositionParams(TextDocumentIdentifier(m_uri), Position(cursor))));
     m_currentRequest = request.id();
     request.setResponseCallback(
         [this](const HoverRequest::Response &response) { handleResponse(response); });
@@ -115,8 +128,14 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response)
         if (m_client)
             m_client->log(error.value());
     }
-    if (Utils::optional<Hover> result = response.result())
+    if (Utils::optional<Hover> result = response.result()) {
+        if (m_helpItemProvider) {
+            m_response = response;
+            m_helpItemProvider(response, m_uri);
+            return;
+        }
         setContent(result.value().content());
+    }
     m_report(priority());
 }
 

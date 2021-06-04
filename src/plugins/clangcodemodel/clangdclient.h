@@ -70,12 +70,17 @@ public:
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                          CppTools::RefactoringEngineInterface::RenameCallback &&callback);
 
+    void gatherHelpItemForTooltip(
+            const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
+            const LanguageServerProtocol::DocumentUri &uri);
+
     void enableTesting();
 
 signals:
     void indexingFinished();
     void foundReferences(const QList<Core::SearchResultItem> &items);
     void findUsagesDone();
+    void helpItemGathered(const Core::HelpItem &helpItem);
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;

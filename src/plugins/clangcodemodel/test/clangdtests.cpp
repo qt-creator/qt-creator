@@ -492,6 +492,145 @@ void ClangdTestLocalReferences::test()
     QCOMPARE(actualRanges, expectedRanges);
 }
 
+
+// This tests our help item construction, not the actual tooltip contents. Those come
+// pre-formatted from clangd.
+ClangdTestTooltips::ClangdTestTooltips()
+{
+    setProjectFileName("tooltips.pro");
+    setSourceFileNames({"tooltips.cpp"});
+}
+
+void ClangdTestTooltips::test_data()
+{
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<QStringList>("expectedIds");
+    QTest::addColumn<QString>("expectedMark");
+    QTest::addColumn<int>("expectedCategory");
+
+    QTest::newRow("LocalParameterVariableConstRefCustomType") << 12 << 12
+            << QStringList("Foo") << QString("Foo") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("LocalNonParameterVariableConstRefCustomType") << 14 << 5
+            << QStringList("Foo") << QString("Foo") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("MemberVariableBuiltinType") << 12 << 16
+            << QStringList() << QString() << int(HelpItem::Unknown);
+    QTest::newRow("MemberFunctionCall") << 21 << 9
+            << QStringList{"Bar::mem", "mem"} << QString("mem()") << int(HelpItem::Function);
+    QTest::newRow("TemplateFunctionCall") << 30 << 5
+            << QStringList{"t"} << QString("t(int)") << int(HelpItem::Function);
+    QTest::newRow("Enum") << 49 << 12
+            << QStringList{"EnumType"} << QString("EnumType") << int(HelpItem::Enum);
+    QTest::newRow("Enumerator") << 49 << 22
+            << QStringList{"Custom"} << QString("EnumType") << int(HelpItem::Enum);
+    QTest::newRow("TemplateTypeFromParameter") << 55 << 25
+            << QStringList{"Baz"} << QString("Baz") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("TemplateTypeFromNonParameter") << 56 << 19
+            << QStringList{"Baz"} << QString("Baz") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("IncludeDirective") << 59 << 11 << QStringList{"tooltipinfo.h"}
+            << QString("tooltipinfo.h") << int(HelpItem::Brief);
+    QTest::newRow("MacroUse") << 66 << 5 << QStringList{"MACRO_FROM_MAINFILE"}
+            << QString("MACRO_FROM_MAINFILE") << int(HelpItem::Macro);
+    QTest::newRow("TypeNameIntroducedByUsingDirectiveQualified") << 77 << 5
+            << QStringList{"N::Muu", "Muu"} << QString("Muu") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("TypeNameIntroducedByUsingDirectiveResolvedAndQualified") << 82 << 5
+            << QStringList{"N::Muu", "Muu"} << QString("Muu") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("TypeNameIntroducedByUsingDeclarationQualified") << 87 << 5
+            << QStringList{"N::Muu", "Muu"} << QString("Muu") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("Namespace") << 106 << 11
+            << QStringList{"X"} << QString("X") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("NamespaceQualified") << 107 << 11
+            << QStringList{"X::Y", "Y"} << QString("Y") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("TypeName_ResolveTypeDef") << 122 << 5 << QStringList{"PtrFromTypeDef"}
+            << QString("PtrFromTypeDef") << int(HelpItem::Typedef);
+    QTest::newRow("TypeName_ResolveAlias") << 123 << 5 << QStringList{"PtrFromTypeAlias"}
+            << QString("PtrFromTypeAlias") << int(HelpItem::Typedef);
+    QTest::newRow("TypeName_ResolveTemplateTypeAlias") << 124 << 5
+            << QStringList{"PtrFromTemplateTypeAlias"} << QString("PtrFromTemplateTypeAlias")
+            << int(HelpItem::Typedef);
+    QTest::newRow("TemplateClassReference") << 134 << 5
+            << QStringList{"Zii"} << QString("Zii") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("TemplateClassQualified") << 135 << 5
+            << QStringList{"U::Yii", "Yii"} << QString("Yii") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("ResolveNamespaceAliasForType") << 144 << 8
+            << QStringList{"A::X", "X"} << QString("X") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("ResolveNamespaceAlias") << 144 << 5
+            << QStringList{"B"} << QString("B") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("QualificationForTemplateClassInClassInNamespace") << 153 << 16
+            << QStringList{"N::Outer::Inner", "Outer::Inner", "Inner"} << QString("Inner")
+            << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("Function") << 165 << 5 << QStringList{"f"} << QString("f()")
+            << int(HelpItem::Function);
+    QTest::newRow("Function_QualifiedName") << 166 << 8
+            << QStringList{"R::f", "f"} << QString("f()") << int(HelpItem::Function);
+    QTest::newRow("FunctionWithParameter") << 167 << 5 << QStringList{"f"} << QString("f(int)")
+            << int(HelpItem::Function);
+    QTest::newRow("FunctionWithDefaultValue") << 168 << 5
+            << QStringList{"z"} << QString("z(int)") << int(HelpItem::Function);
+    QTest::newRow("PointerToPointerToClass") << 200 << 12
+            << QStringList{"Nuu"} << QString("Nuu") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("AutoTypeEnum") << 177 << 10
+            << QStringList{"EnumType"} << QString("EnumType") << int(HelpItem::Enum);
+    QTest::newRow("AutoTypeClass") << 178 << 10
+            << QStringList{"Bar"} << QString("Bar") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("AutoTypeTemplate") << 179 << 10
+            << QStringList{"Zii"} << QString("Zii") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("Function_DefaultConstructor") << 193 << 5
+            << QStringList{"Con"} << QString("Con") << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("Function_ExplicitDefaultConstructor") << 194 << 5
+            << QStringList{"ExplicitCon"} << QString("ExplicitCon")
+            << int(HelpItem::ClassOrNamespace);
+    QTest::newRow("Function_CustomConstructor") << 195 << 5
+            << QStringList{"ExplicitCon"} << QString("ExplicitCon")
+            << int(HelpItem::ClassOrNamespace);
+}
+
+void ClangdTestTooltips::test()
+{
+    QFETCH(int, line);
+    QFETCH(int, column);
+    QFETCH(QStringList, expectedIds);
+    QFETCH(QString, expectedMark);
+    QFETCH(int, expectedCategory);
+
+    TextEditor::TextDocument * const doc = document("tooltips.cpp");
+    QVERIFY(doc);
+    const auto editor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
+    QVERIFY(editor);
+    QCOMPARE(editor->document(), doc);
+    QVERIFY(editor->editorWidget());
+
+    QSKIP("IncludeDirective", "FIXME: clangd sends empty or no hover data for includes", Abort);
+
+    QTimer timer;
+    timer.setSingleShot(true);
+    QEventLoop loop;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    HelpItem helpItem;
+    const auto handler = [&helpItem, &loop](const HelpItem &h) {
+        helpItem = h;
+        loop.quit();
+    };
+    connect(client(), &ClangdClient::helpItemGathered, handler);
+
+    QTextCursor cursor(doc->document());
+    const int pos = Utils::Text::positionInText(doc->document(), line, column);
+    cursor.setPosition(pos);
+    editor->editorWidget()->processTooltipRequest(cursor);
+
+    timer.start(10000);
+    loop.exec();
+    QVERIFY(timer.isActive());
+    timer.stop();
+
+    QEXPECT_FAIL("TypeName_ResolveTemplateTypeAlias", "typedef already resolved in AST", Abort);
+    QCOMPARE(int(helpItem.category()), expectedCategory);
+    QEXPECT_FAIL("TemplateClassQualified", "Additional look-up needed?", Abort);
+    QEXPECT_FAIL("AutoTypeTemplate", "Additional look-up needed?", Abort);
+    QCOMPARE(helpItem.helpIds(), expectedIds);
+    QCOMPARE(helpItem.docMark(), expectedMark);
+}
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel

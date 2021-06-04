@@ -176,18 +176,50 @@ public:
         return true;
     }
 
+    bool isNamespace() const { return role() == "declaration" && kind() == "Namespace"; }
+
     QString type() const
     {
         const Utils::optional<QString> arcanaString = arcana();
         if (!arcanaString)
             return {};
-        const int quote1Offset = arcanaString->indexOf('\'');
+        return typeFromPos(*arcanaString, 0);
+    }
+
+    QString typeFromPos(const QString &s, int pos) const
+    {
+        const int quote1Offset = s.indexOf('\'', pos);
         if (quote1Offset == -1)
             return {};
-        const int quote2Offset = arcanaString->indexOf('\'', quote1Offset + 1);
+        const int quote2Offset = s.indexOf('\'', quote1Offset + 1);
         if (quote2Offset == -1)
             return {};
-        return arcanaString->mid(quote1Offset + 1, quote2Offset - quote1Offset - 1);
+        if (s.mid(quote2Offset + 1, 2) == ":'")
+            return typeFromPos(s, quote2Offset + 2);
+        return s.mid(quote1Offset + 1, quote2Offset - quote1Offset - 1);
+    }
+
+    HelpItem::Category qdocCategoryForDeclaration(HelpItem::Category fallback)
+    {
+        const auto childList = children();
+        if (!childList || childList->size() < 2)
+            return fallback;
+        const AstNode c1 = childList->first();
+        if (c1.role() != "type" || c1.kind() != "Auto")
+            return fallback;
+        QList<AstNode> typeCandidates = {childList->at(1)};
+        while (!typeCandidates.isEmpty()) {
+            const AstNode n = typeCandidates.takeFirst();
+            if (n.role() == "type") {
+                if (n.kind() == "Enum")
+                    return HelpItem::Enum;
+                if (n.kind() == "Record")
+                    return HelpItem::ClassOrNamespace;
+                return fallback;
+            }
+            typeCandidates << n.children().value_or(QList<AstNode>());
+        }
+        return fallback;
     }
 
     // Returns true <=> the type is "recursively const".
@@ -652,6 +684,10 @@ public:
 
     QString searchTermFromCursor(const QTextCursor &cursor) const;
 
+    void setHelpItemForTooltip(const MessageId &token, const QString &fqn = {},
+                               HelpItem::Category category = HelpItem::Unknown,
+                               const QString &type = {});
+
     ClangdClient * const q;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
@@ -694,6 +730,11 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
             const Diagnostic &diag) { return new ClangdTextMark(filePath, diag, this); };
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
+
+    hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
+                                               const DocumentUri &uri) {
+        gatherHelpItemForTooltip(response, uri);
+    });
 
     connect(this, &Client::workDone, this, [this, project](const ProgressToken &token) {
         const QString * const val = Utils::get_if<QString>(&token);
@@ -1226,6 +1267,154 @@ void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTe
     symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
 }
 
+void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,
+                                            const DocumentUri &uri)
+{
+    // Macros aren't locatable via the AST, so parse the formatted string.
+    if (const Utils::optional<Hover> result = hoverResponse.result()) {
+        const HoverContent content = result->content();
+        const MarkupContent * const markup = Utils::get_if<MarkupContent>(&content);
+        if (markup) {
+            const QString markupString = markup->content();
+            static const QString magicMacroPrefix = "### macro `";
+            if (markupString.startsWith(magicMacroPrefix)) {
+                const int nameStart = magicMacroPrefix.length();
+                const int closingQuoteIndex = markupString.indexOf('`', nameStart);
+                if (closingQuoteIndex != -1) {
+                    const QString macroName = markupString.mid(nameStart,
+                                                               closingQuoteIndex - nameStart);
+                    d->setHelpItemForTooltip(hoverResponse.id(), macroName, HelpItem::Macro);
+                    return;
+                }
+            }
+        }
+    }
+
+    AstRequest req((AstParams(TextDocumentIdentifier(uri))));
+    req.setResponseCallback([this, uri, hoverResponse](const AstRequest::Response &response) {
+        const MessageId id = hoverResponse.id();
+        const AstNode ast = response.result().value_or(AstNode());
+        const Range range = hoverResponse.result()->range().value_or(Range());
+        const QList<AstNode> path = getAstPath(ast, range);
+        if (path.isEmpty()) {
+            d->setHelpItemForTooltip(id);
+            return;
+        }
+        AstNode node = path.last();
+        if (node.role() == "expression" && node.kind() == "ImplicitCast") {
+            const Utils::optional<QList<AstNode>> children = node.children();
+            if (children && !children->isEmpty())
+                node = children->first();
+        }
+        while (node.kind() == "Qualified") {
+            const Utils::optional<QList<AstNode>> children = node.children();
+            if (children && !children->isEmpty())
+                node = children->first();
+        }
+        if (clangdLog().isDebugEnabled())
+            node.print(0);
+
+        QString type = node.type();
+        const auto stripTemplatePartOffType = [&type] {
+            const int angleBracketIndex = type.indexOf('<');
+            if (angleBracketIndex != -1)
+                type = type.left(angleBracketIndex);
+        };
+
+        const bool isMemberFunction = node.role() == "expression" && node.kind() == "Member"
+                && (node.arcanaContains("member function") || type.contains('('));
+        const bool isFunction = node.role() == "expression" && node.kind() == "DeclRef"
+                && type.contains('(');
+        if (isMemberFunction || isFunction) {
+            const TextDocumentPositionParams params(TextDocumentIdentifier(uri), range.start());
+            SymbolInfoRequest symReq(params);
+            symReq.setResponseCallback([this, id, type, isFunction]
+                                       (const SymbolInfoRequest::Response &response) {
+                qCDebug(clangdLog) << "handling symbol info reply";
+                QString fqn;
+                if (const auto result = response.result()) {
+                    if (const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value())) {
+                        if (!list->isEmpty()) {
+                           const SymbolDetails &sd = list->first();
+                           fqn = sd.containerName() + sd.name();
+                        }
+                    }
+                }
+
+                // Unfortunately, the arcana string contains the signature only for
+                // free functions, so we can't distinguish member function overloads.
+                // But since HtmlDocExtractor::getFunctionDescription() is always called
+                // with mainOverload = true, such information would get ignored anyway.
+                d->setHelpItemForTooltip(id, fqn, HelpItem::Function, isFunction ? type : "()");
+            });
+            sendContent(symReq);
+            return;
+        }
+        if ((node.role() == "expression" && node.kind() == "DeclRef")
+                || (node.role() == "declaration"
+                    && (node.kind() == "Var" || node.kind() == "ParmVar"
+                        || node.kind() == "Field"))) {
+            if (node.arcanaContains("EnumConstant")) {
+                d->setHelpItemForTooltip(id, node.detail().value_or(QString()),
+                                         HelpItem::Enum, type);
+                return;
+            }
+            stripTemplatePartOffType();
+            type.remove("&").remove("*").remove("const ").remove(" const")
+                    .remove("volatile ").remove(" volatile");
+            type = type.simplified();
+            if (type != "int" && !type.contains(" int")
+                    && type != "char" && !type.contains(" char")
+                    && type != "double" && !type.contains(" double")
+                    && type != "float" && type != "bool") {
+                d->setHelpItemForTooltip(id, type, node.qdocCategoryForDeclaration(
+                                             HelpItem::ClassOrNamespace));
+            } else {
+                d->setHelpItemForTooltip(id);
+            }
+            return;
+        }
+        if (node.isNamespace()) {
+            QString ns = node.detail().value_or(QString());
+            for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
+                if (it->isNamespace()) {
+                    const QString name = it->detail().value_or(QString());
+                    if (!name.isEmpty())
+                        ns.prepend("::").prepend(name);
+                }
+            }
+            d->setHelpItemForTooltip(hoverResponse.id(), ns, HelpItem::ClassOrNamespace);
+            return;
+        }
+        if (node.role() == "type") {
+            if (node.kind() == "Enum") {
+                d->setHelpItemForTooltip(id, node.detail().value_or(QString()), HelpItem::Enum);
+            } else if (node.kind() == "Record" || node.kind() == "TemplateSpecialization") {
+                stripTemplatePartOffType();
+                d->setHelpItemForTooltip(id, type, HelpItem::ClassOrNamespace);
+            } else if (node.kind() == "Typedef") {
+                d->setHelpItemForTooltip(id, type, HelpItem::Typedef);
+            } else {
+                d->setHelpItemForTooltip(id);
+            }
+            return;
+        }
+        if (node.role() == "expression" && node.kind() == "CXXConstruct") {
+            const QString name = node.detail().value_or(QString());
+            if (!name.isEmpty())
+                type = name;
+            d->setHelpItemForTooltip(id, type, HelpItem::ClassOrNamespace);
+        }
+        if (node.role() == "specifier" && node.kind() == "NamespaceAlias") {
+            d->setHelpItemForTooltip(id, node.detail().value_or(QString()).chopped(2),
+                                     HelpItem::ClassOrNamespace);
+            return;
+        }
+        d->setHelpItemForTooltip(id);
+    });
+    sendContent(req);
+}
+
 void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
@@ -1466,6 +1655,36 @@ QString ClangdClient::Private::searchTermFromCursor(const QTextCursor &cursor) c
     QTextCursor termCursor(cursor);
     termCursor.select(QTextCursor::WordUnderCursor);
     return termCursor.selectedText();
+}
+
+void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token, const QString &fqn,
+                                                  HelpItem::Category category,
+                                                  const QString &type)
+{
+    QStringList helpIds;
+    QString mark;
+    if (!fqn.isEmpty()) {
+        helpIds << fqn;
+        int sepSearchStart = 0;
+        while (true) {
+            sepSearchStart = fqn.indexOf("::", sepSearchStart);
+            if (sepSearchStart == -1)
+                break;
+            sepSearchStart += 2;
+            helpIds << fqn.mid(sepSearchStart);
+        }
+        mark = helpIds.last();
+        if (category == HelpItem::Function)
+            mark += type.mid(type.indexOf('('));
+    }
+    if (category == HelpItem::Enum && !type.isEmpty())
+        mark = type;
+
+    HelpItem helpItem(helpIds, mark, category);
+    if (isTesting)
+        emit q->helpItemGathered(helpItem);
+    else
+        q->hoverHandler()->setHelpItem(token, helpItem);
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()
