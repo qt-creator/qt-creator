@@ -294,10 +294,15 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
     m_process->setUseCtrlCStub(true);
 
     DeployErrorCode deployError = NoError;
-    connect(m_process, &Utils::QtcProcess::readyReadStandardOutput,
-            std::bind(&AndroidDeployQtStep::processReadyReadStdOutput, this, std::ref(deployError)));
-    connect(m_process, &Utils::QtcProcess::readyReadStandardError,
-            std::bind(&AndroidDeployQtStep::processReadyReadStdError, this, std::ref(deployError)));
+
+    m_process->setStdOutLineCallback([this, &deployError](const QString &line) {
+        deployError |= parseDeployErrors(line);
+        stdOutput(line);
+    });
+    m_process->setStdErrLineCallback([this, &deployError](const QString &line) {
+        deployError |= parseDeployErrors(line);
+        stdError(line);
+    });
 
     m_process->start();
 
@@ -523,39 +528,9 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
     return widget;
 }
 
-void AndroidDeployQtStep::processReadyReadStdOutput(DeployErrorCode &errorCode)
-{
-    const QByteArray output = m_process->readAllStandardOutput();
-    int start = 0;
-    int end;
-
-    do {
-        end = output.indexOf('\n', start);
-        QString line = QString::fromLocal8Bit(output.mid(start, end - start));
-        errorCode |= parseDeployErrors(line);
-        stdOutput(line);
-        start = end + 1;
-    } while (end >= 0);
-}
-
 void AndroidDeployQtStep::stdOutput(const QString &line)
 {
     emit addOutput(line, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
-}
-
-void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
-{
-    const QByteArray output = m_process->readAllStandardError();
-    int start = 0;
-    int end;
-
-    do {
-        end = output.indexOf('\n', start);
-        QString line = QString::fromLocal8Bit(output.mid(start, end - start));
-        errorCode |= parseDeployErrors(line);
-        stdError(line);
-        start = end + 1;
-    } while (end >= 0);
 }
 
 void AndroidDeployQtStep::stdError(const QString &line)
@@ -575,7 +550,8 @@ void AndroidDeployQtStep::stdError(const QString &line)
         TaskHub::addTask(DeploymentTask(Task::Error, newOutput));
 }
 
-AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QString &deployOutputLine) const
+AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(
+        const QString &deployOutputLine) const
 {
     DeployErrorCode errorCode = NoError;
 

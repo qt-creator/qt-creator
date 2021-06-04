@@ -81,7 +81,7 @@ private:
     void stdOutput(const QString &line);
     void processReadyReadStdError(DeployErrorCode &errorCode);
     void stdError(const QString &line);
-    DeployErrorCode parseDeployErrors(QString &deployOutputLine) const;
+    DeployErrorCode parseDeployErrors(const QString &deployOutputLine) const;
 
     friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) { e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
     friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) { return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
