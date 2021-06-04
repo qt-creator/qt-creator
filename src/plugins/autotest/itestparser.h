@@ -33,6 +33,10 @@
 
 #include <QFutureInterface>
 
+QT_BEGIN_NAMESPACE
+class QRegularExpression;
+QT_END_NAMESPACE
+
 namespace Autotest {
 
 class ITestFramework;
@@ -85,6 +89,12 @@ public:
 
     CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName);
 
+    static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
+                                          const Utils::FilePath &filePath,
+                                          const QString &headerFilePath);
+    static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
+                                          const Utils::FilePath &filePath,
+                                          const QRegularExpression &headerFileRegex);
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;
     CppTools::WorkingCopy m_workingCopy;

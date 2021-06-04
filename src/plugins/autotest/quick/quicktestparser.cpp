@@ -87,6 +87,14 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
                 return true;
         }
     }
+
+    for (const QString &prefix : expectedHeaderPrefixes) {
+        if (CppParser::precompiledHeaderContains(snapshot,
+                                                 Utils::FilePath::fromString(doc->fileName()),
+                                                 QString("%1/quicktest.h").arg(prefix))) {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -115,6 +123,7 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
 QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) const
 {
     const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
+    const Utils::FilePath filePath = Utils::FilePath::fromString(doc->fileName());
 
     for (const CPlusPlus::Document::MacroUse &macro : macros) {
         if (!macro.isFunctionLike())
@@ -122,22 +131,45 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
         const QByteArray name = macro.macro().name();
         if (QuickTestUtils::isQuickTestMacro(name)) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(getFileContent(Utils::FilePath::fromString(doc->fileName()))
+            return QLatin1String(getFileContent(filePath)
                                  .mid(int(arg.bytesBegin()), int(arg.bytesEnd() - arg.bytesBegin())));
         }
     }
 
+
+    const QByteArray &fileContent = getFileContent(filePath);
     // check for using quick_test_main() directly
-    const QString fileName = doc->fileName();
-    const QByteArray &fileContent = getFileContent(Utils::FilePath::fromString(fileName));
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
+    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
     if (document.isNull())
         return QString();
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     QuickTestAstVisitor astVisitor(document, m_cppSnapshot);
     astVisitor.accept(ast);
-    return astVisitor.testBaseName();
+    if (!astVisitor.testBaseName().isEmpty())
+        return astVisitor.testBaseName();
+
+    // check for precompiled headers
+    static QStringList expectedHeaderPrefixes
+            = Utils::HostOsInfo::isMacHost()
+            ? QStringList({"QtQuickTest.framework/Headers", "QtQuickTest"})
+            : QStringList({"QtQuickTest"});
+    bool pchIncludes = false;
+    for (const QString &prefix : expectedHeaderPrefixes) {
+        if (CppParser::precompiledHeaderContains(m_cppSnapshot, filePath,
+                                                 QString("%1/quicktest.h").arg(prefix))) {
+            pchIncludes = true;
+            break;
+        }
+    }
+
+    if (pchIncludes) {
+        const QRegularExpression regex("\\bQUICK_TEST_(MAIN|OPENGL_MAIN|MAIN_WITH_SETUP)");
+        const QRegularExpressionMatch match = regex.match(QString::fromUtf8(fileContent));
+        if (match.hasMatch())
+            return match.captured(); // we do not care for the name, just return something non-empty
+    }
+    return {};
 }
 
 QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QString &srcDir)

@@ -32,6 +32,9 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectpart.h>
 
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
 namespace Autotest {
 namespace Internal {
 
@@ -69,7 +72,9 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    return false;
+    return CppParser::precompiledHeaderContains(snapshot,
+                                                Utils::FilePath::fromString(doc->fileName()),
+                                                gtestH);
 }
 
 static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
@@ -91,12 +96,18 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInt
                                   const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
-    if (doc.isNull() || !includesGTest(doc, m_cppSnapshot) || !hasGTestNames(doc))
+    if (doc.isNull() || !includesGTest(doc, m_cppSnapshot))
         return false;
 
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QString &filePath = doc->fileName();
     const QByteArray &fileContent = getFileContent(fileName);
+    if (!hasGTestNames(doc)) {
+        const QRegularExpression regex("\\b(TEST(_[FP])?|TYPED_TEST(_P)?|(GTEST_TEST))");
+        if (!regex.match(QString::fromUtf8(fileContent)).hasMatch())
+            return false;
+    }
+
+    const QString &filePath = doc->fileName();
+    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();

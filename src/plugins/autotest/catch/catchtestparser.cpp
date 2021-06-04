@@ -86,6 +86,12 @@ static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
         }
     }
 
+    for (const QString &catchHeader : catchHeaders) {
+        if (CppParser::precompiledHeaderContains(snapshot,
+                                                 Utils::FilePath::fromString(doc->fileName()),
+                                                 catchHeader))
+            return true;
+    }
     return false;
 }
 
@@ -109,12 +115,23 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
                                       const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
-    if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot) || !hasCatchNames(doc))
+    if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot))
         return false;
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
     const QByteArray &fileContent = getFileContent(fileName);
+
+    if (!hasCatchNames(doc)) {
+        const QRegularExpression regex("\\b(SCENARIO|(TEMPLATE_(PRODUCT_)?)?TEST_CASE(_METHOD)?|"
+                                       "TEMPLATE_TEST_CASE(_METHOD)?_SIG|"
+                                       "TEMPLATE_PRODUCT_TEST_CASE(_METHOD)?_SIG|"
+                                       "TEMPLATE_LIST_TEST_CASE_METHOD|METHOD_AS_TEST_CASE|"
+                                       "REGISTER_TEST_CASE)");
+        if (!regex.match(QString::fromUtf8(fileContent)).hasMatch())
+            return false;
+    }
+
 
     const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing

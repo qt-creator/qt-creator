@@ -28,6 +28,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <utils/textfileformat.h>
+#include <utils/algorithm.h>
+
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 namespace Autotest {
 
@@ -67,6 +71,39 @@ QByteArray CppParser::getFileContent(const Utils::FilePath &filePath) const
     }
     fileContent.replace("\r\n", "\n");
     return fileContent;
+}
+
+bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
+                               const Utils::FilePath &filePath,
+                               const std::function<bool(const QString &)> &checker)
+{
+    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    if (projectParts.isEmpty())
+        return false;
+    const QStringList precompiledHeaders = projectParts.first()->precompiledHeaders;
+    auto headerContains = [&](const QString &header){
+        return Utils::anyOf(snapshot.allIncludesForDocument(header), checker);
+    };
+    return Utils::anyOf(precompiledHeaders, headerContains);
+}
+
+bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
+                                          const Utils::FilePath &filePath,
+                                          const QString &headerFilePath)
+{
+    return Autotest::precompiledHeaderContains(snapshot, filePath, [&](const QString &include) {
+        return include.endsWith(headerFilePath);
+    });
+}
+
+bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
+                                          const Utils::FilePath &filePath,
+                                          const QRegularExpression &headerFileRegex)
+{
+    return Autotest::precompiledHeaderContains(snapshot, filePath, [&](const QString &include) {
+        return headerFileRegex.match(include).hasMatch();
+    });
 }
 
 void CppParser::release()

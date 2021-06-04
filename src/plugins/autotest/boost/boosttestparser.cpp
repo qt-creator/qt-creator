@@ -84,7 +84,9 @@ static bool includesBoostTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    return false;
+    return CppParser::precompiledHeaderContains(snapshot,
+                                                Utils::FilePath::fromString(doc->fileName()),
+                                                boostTestHpp);
 }
 
 static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)

@@ -32,6 +32,8 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <utils/algorithm.h>
 
+#include <QRegularExpressionMatchIterator>
+
 namespace Autotest {
 namespace Internal {
 
@@ -78,6 +80,14 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
             return true;
         }
     }
+
+    for (const QString &prefix : expectedHeaderPrefixes) {
+        if (CppParser::precompiledHeaderContains(snapshot,
+                                                 Utils::FilePath::fromString(doc->fileName()),
+                                                 QString("%1/qtest.h").arg(prefix))) {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -120,7 +130,19 @@ TestCases QtTestParser::testCases(const CppTools::CppModelManager *modelManager,
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     TestAstVisitor astVisitor(document, m_cppSnapshot);
     astVisitor.accept(ast);
-    return astVisitor.testCases();
+    if (!astVisitor.testCases().isEmpty())
+        return astVisitor.testCases();
+
+    // check pch usage - might give false positives, but we can't do better without cost
+    TestCases result;
+    const QRegularExpression regex("\\bQTEST_(APPLESS_|GUILESS_)?MAIN"
+                                   "\\s*\\(\\s*([[:alnum:]]+)\\s*\\)");
+    QRegularExpressionMatchIterator it = regex.globalMatch(QString::fromUtf8(fileContent));
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        result.append({match.captured(2), false});
+    }
+    return result;
 }
 
 static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
