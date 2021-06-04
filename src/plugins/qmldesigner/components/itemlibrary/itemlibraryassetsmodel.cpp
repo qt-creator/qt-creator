@@ -39,9 +39,6 @@
 #include <QMetaProperty>
 #include <QPainter>
 #include <QRawFont>
-#include "qmldesignerplugin.h"
-#include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
 #include <utils/stylehelper.h>
 #include <utils/filesystemwatcher.h>
 
@@ -155,14 +152,8 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
     m_fileSystemWatcher->removeDirectories(m_fileSystemWatcher->directories());
     m_fileSystemWatcher->removeFiles(m_fileSystemWatcher->files());
 
-    DesignDocument *currDesignDoc = QmlDesignerPlugin::instance()->currentDesignDocument();
-    if (!currDesignDoc) // happens sometimes on QDS shutdown
-        return;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(currDesignDoc->fileName());
-    QString projectName = project ? project->displayName() : "";
-
     std::function<bool(ItemLibraryAssetsDir *, int)> parseDirRecursive;
-    parseDirRecursive = [this, &parseDirRecursive, &projectName](ItemLibraryAssetsDir *currAssetsDir, int currDepth) {
+    parseDirRecursive = [this, &parseDirRecursive](ItemLibraryAssetsDir *currAssetsDir, int currDepth) {
         m_fileSystemWatcher->addDirectory(currAssetsDir->dirPath(), Utils::FileSystemWatcher::WatchAllChanges);
 
         QDir dir(currAssetsDir->dirPath());
@@ -186,10 +177,8 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
 
         while (itDirs.hasNext()) {
             QDir subDir = itDirs.next();
-            if (subDir.isEmpty() || projectName == subDir.dirName()
-                || (currDepth == 1 && !supportedTopLevelDirs.contains(subDir.dirName()))) {
+            if (currDepth == 1 && !supportedTopLevelDirs.contains(subDir.dirName()))
                 continue;
-            }
 
             ItemLibraryAssetsDir *assetsDir = new ItemLibraryAssetsDir(subDir.path(), currDepth, loadExpandedState(subDir.path()), currAssetsDir);
             currAssetsDir->addDir(assetsDir);
