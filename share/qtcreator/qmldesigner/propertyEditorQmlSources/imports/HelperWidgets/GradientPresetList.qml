@@ -25,19 +25,22 @@
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs 1.3
+import Qt.labs.platform 1.1
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
-Dialog {
+
+HelperWindow {
     id: dialogWindow
     width: 1200
     height: 650
     title: qsTr("Gradient Picker")
 
     signal saved
+    signal applied
+    signal accepted
     property alias gradientData: gradientPickerData
 
 
@@ -61,8 +64,6 @@ Dialog {
 
     GradientPresetDefaultListModel { id: defaultPresetListModel }
     GradientPresetCustomListModel { id: customPresetListModel }
-
-    standardButtons: Dialog.NoButton
 
     Rectangle {
         anchors.fill: parent
@@ -117,7 +118,7 @@ Dialog {
                         id: deleteDialog
                         visible: false
                         modality: Qt.WindowModal
-                        standardButtons: Dialog.No | Dialog.Yes
+                         buttons: StandardButton.No | StandardButton.Yes
                         title: qsTr("Delete preset?")
                         text: qsTr("Are you sure you want to delete this preset?")
                         onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId)
@@ -129,9 +130,9 @@ Dialog {
                 Layout.alignment: Qt.AlignBottom | Qt.AlignRight
                 Layout.topMargin: 5
 
-                Button { id: buttonClose; text: qsTr("Close"); onClicked: { dialogWindow.reject(); } }
+                Button { id: buttonClose; text: qsTr("Close"); onClicked: { dialogWindow.hide(); } }
                 Button { id: buttonSave; text: qsTr("Save"); onClicked: { dialogWindow.saved(); } }
-                Button { id: buttonApply; text: qsTr("Apply"); onClicked: { dialogWindow.apply(); } }
+                Button { id: buttonApply; text: qsTr("Apply"); onClicked: { dialogWindow.applied(); dialogWindow.hide(); } }
             }
         }
     }

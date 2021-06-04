@@ -26,7 +26,6 @@
 import QtQuick 2.1
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
-import QtQuick.Dialogs 1.3
 import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
 
@@ -559,11 +558,12 @@ Column {
                         }
                     }
 
-                    onApply: {
+                    onApplied : {
                         if (presetList.gradientData.stopsCount > 0) {
                             applyPreset();
                         }
                     }
+
 
                     onSaved: {
                         gradientLine.savePreset();
@@ -588,7 +588,7 @@ Column {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        presetList.open()
+                        presetList.show()
                     }
                 }
             }
