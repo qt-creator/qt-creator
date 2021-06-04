@@ -102,6 +102,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(pos);
     HoverRequest request((TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor))));
+    m_currentRequest = request.id();
     request.setResponseCallback(
         [this](const HoverRequest::Response &response) { handleResponse(response); });
     m_client->sendContent(request);
