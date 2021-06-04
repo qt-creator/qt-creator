@@ -40,7 +40,6 @@ class QQuick3DAreaLight : public QQuick3DAbstractLight
     Q_PROPERTY(float height READ height WRITE setHeight NOTIFY heightChanged)
 
 public:
-    QQuick3DAreaLight() : QQuick3DAbstractLight() {}
     ~QQuick3DAreaLight() override {}
 
     float width() const;
