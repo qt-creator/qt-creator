@@ -550,8 +550,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
 {
     setName(tr("clangd"));
     LanguageFilter langFilter;
-    langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-c++hdr", "text/x-c++src",
-            "text/x-objc++src", "text/x-objcsrc"};
+    langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-csrc",
+            "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
     setSupportedLanguage(langFilter);
     LanguageServerProtocol::ClientCapabilities caps = Client::defaultClientCapabilities();
     caps.clearExperimental();
