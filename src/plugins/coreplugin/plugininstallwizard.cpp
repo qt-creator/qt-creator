@@ -79,7 +79,7 @@ static QStringList libraryNameFilter()
 static bool hasLibSuffix(const FilePath &path)
 {
     return (HostOsInfo::isWindowsHost() && path.endsWith(".dll"))
-           || (HostOsInfo::isLinuxHost() && path.toFileInfo().completeSuffix().startsWith(".so"))
+           || (HostOsInfo::isLinuxHost() && path.completeSuffix().startsWith(".so"))
            || (HostOsInfo::isMacHost() && path.endsWith(".dylib"));
 }
 

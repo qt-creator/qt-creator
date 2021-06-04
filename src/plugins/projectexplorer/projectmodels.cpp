@@ -212,7 +212,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     // The base name of the file was changed. Go look for other files with the same base name
     // and offer to rename them as well.
-    if (orgFilePath != newFilePath && orgFileInfo.suffix() == newFilePath.toFileInfo().suffix()) {
+    if (orgFilePath != newFilePath && orgFileInfo.suffix() == newFilePath.suffix()) {
         const QList<Node *> candidateNodes = ProjectTree::siblingsWithSameBaseName(node);
         if (!candidateNodes.isEmpty()) {
             const QMessageBox::StandardButton reply = QMessageBox::question(
@@ -225,7 +225,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
                 for (Node * const n : candidateNodes) {
                     QString targetFilePath = orgFileInfo.absolutePath() + '/'
                                              + newFilePath.completeBaseName();
-                    const QString suffix = n->filePath().toFileInfo().suffix();
+                    const QString suffix = n->filePath().suffix();
                     if (!suffix.isEmpty())
                         targetFilePath.append('.').append(suffix);
                     toRename.emplace_back(std::make_tuple(n, n->filePath(),

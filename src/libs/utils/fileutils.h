@@ -106,6 +106,8 @@ public:
 
     QString baseName() const;
     QString completeBaseName() const;
+    QString suffix() const;
+    QString completeSuffix() const;
 
     QString scheme() const { return m_scheme; }
     void setScheme(const QString &scheme);

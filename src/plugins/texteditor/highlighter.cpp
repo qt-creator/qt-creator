@@ -172,7 +172,7 @@ Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FilePa
         = highlightRepository()->definitionsForFileName(fileName.fileName()).toList();
 
     if (definitions.size() > 1) {
-        const QString &fileExtension = fileName.toFileInfo().completeSuffix();
+        const QString &fileExtension = fileName.completeSuffix();
         const Definition &rememberedDefinition
             = fileExtension.isEmpty()
                   ? definitionForSetting(kDefinitionForFilePath,
@@ -192,7 +192,7 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
     if (!definition.isValid())
         return;
     const QString &mimeType = document->mimeType();
-    const QString &fileExtension = document->filePath().toFileInfo().completeSuffix();
+    const QString &fileExtension = document->filePath().completeSuffix();
     const QString &path = document->filePath().toFileInfo().canonicalFilePath();
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);

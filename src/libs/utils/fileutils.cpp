@@ -787,6 +787,34 @@ QString FilePath::completeBaseName() const
     return name.left(name.lastIndexOf('.'));
 }
 
+/// \returns the suffix (extension) of the file.
+///
+/// The suffix consists of all characters in the file after
+/// (but not including) the last '.'.
+
+QString FilePath::suffix() const
+{
+    const QString &name = fileName();
+    const int index = name.lastIndexOf('.');
+    if (index >= 0)
+        return name.mid(index + 1);
+    return {};
+}
+
+/// \returns the complete suffix (extension) of the file.
+///
+/// The complete suffix consists of all characters in the file after
+/// (but not including) the first '.'.
+
+QString FilePath::completeSuffix() const
+{
+    const QString &name = fileName();
+    const int index = name.indexOf('.');
+    if (index >= 0)
+        return name.mid(index + 1);
+    return {};
+}
+
 void FilePath::setScheme(const QString &scheme)
 {
     QTC_CHECK(!scheme.contains('/'));

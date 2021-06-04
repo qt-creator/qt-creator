@@ -861,8 +861,7 @@ bool singleSelectedAndUiFile(const SelectionContext &context)
     if (!designDocument)
         return false;
 
-    return designDocument->fileName().toFileInfo().completeSuffix()
-            == QLatin1String("ui.qml");
+    return designDocument->fileName().completeSuffix() == QLatin1String("ui.qml");
 }
 
 bool lowerAvailable(const SelectionContext &selectionState)

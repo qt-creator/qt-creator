@@ -470,7 +470,7 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode,
     if (!mimeType.isValid())
         return QString();
     foreach (ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
-        if (mimeType.suffixes().contains(fileNode->filePath().toFileInfo().completeSuffix()))
+        if (mimeType.suffixes().contains(fileNode->filePath().completeSuffix()))
             return fileNode->filePath().toString();
     }
     foreach (ProjectExplorer::FolderNode *subFolderNode, folderNode->folderNodes()) {
