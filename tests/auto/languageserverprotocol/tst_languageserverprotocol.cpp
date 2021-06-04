@@ -38,6 +38,7 @@ Q_DECLARE_METATYPE(QTextCodec *)
 Q_DECLARE_METATYPE(BaseMessage)
 Q_DECLARE_METATYPE(JsonRpcMessage)
 Q_DECLARE_METATYPE(DocumentUri)
+Q_DECLARE_METATYPE(Range)
 
 class tst_LanguageServerProtocol : public QObject
 {
@@ -62,6 +63,9 @@ private slots:
 
     void documentUri_data();
     void documentUri();
+
+    void range_data();
+    void range();
 
 private:
     QByteArray defaultMimeType;
@@ -535,6 +539,62 @@ void tst_LanguageServerProtocol::documentUri()
     QCOMPARE(uri.isValid(), isValid);
     QCOMPARE(uri.toFilePath(), fileName);
     QCOMPARE(uri.toString(), string);
+}
+
+void tst_LanguageServerProtocol::range_data()
+{
+    QTest::addColumn<Range>("r1");
+    QTest::addColumn<Range>("r2");
+    QTest::addColumn<bool>("overlaps");
+    QTest::addColumn<bool>("r1Containsr2");
+    QTest::addColumn<bool>("r2Containsr1");
+
+    auto pos = [](int pos) { return Position(0, pos); };
+
+    QTest::newRow("both ranges empty")
+        << Range(pos(0), pos(0)) << Range(pos(0), pos(0)) << false << true << true;
+    QTest::newRow("equal ranges")
+        << Range(pos(0), pos(1)) << Range(pos(0), pos(1)) << true << true << true;
+    QTest::newRow("r1 before r2")
+        << Range(pos(0), pos(1)) << Range(pos(2), pos(3)) << false << false << false;
+    QTest::newRow("r1 adjacent before r2")
+        << Range(pos(0), pos(1)) << Range(pos(1), pos(2)) << false << false << false;
+    QTest::newRow("r1 starts before r2 overlapping")
+        << Range(pos(0), pos(2)) << Range(pos(1), pos(3)) << true << false << false;
+    QTest::newRow("empty r1 on r2 start")
+        << Range(pos(0), pos(0)) << Range(pos(0), pos(1)) << false << false << true;
+    QTest::newRow("r1 inside r2 equal start")
+        << Range(pos(0), pos(1)) << Range(pos(0), pos(2)) << true << false << true;
+    QTest::newRow("r1 inside r2 equal start")
+        << Range(pos(0), pos(1)) << Range(pos(0), pos(2)) << true << false << true;
+    QTest::newRow("empty r1 inside r2")
+        << Range(pos(1), pos(1)) << Range(pos(0), pos(2)) << true << false << true;
+    QTest::newRow("r1 completely inside r2")
+        << Range(pos(1), pos(2)) << Range(pos(0), pos(3)) << true << false << true;
+    QTest::newRow("r1 inside r2 equal end")
+        << Range(pos(1), pos(2)) << Range(pos(0), pos(2)) << true << false << true;
+    QTest::newRow("r1 ends after r2 overlapping")
+        << Range(pos(1), pos(3)) << Range(pos(0), pos(2)) << true << false << false;
+    QTest::newRow("empty r1 on r2 end")
+        << Range(pos(1), pos(1)) << Range(pos(0), pos(1)) << false << false << true;
+    QTest::newRow("r1 adjacent after r2")
+        << Range(pos(1), pos(2)) << Range(pos(0), pos(1)) << false << false << false;
+    QTest::newRow("r1 behind r2")
+        << Range(pos(2), pos(3)) << Range(pos(0), pos(1)) << false << false << false;
+}
+
+void tst_LanguageServerProtocol::range()
+{
+    QFETCH(Range, r1);
+    QFETCH(Range, r2);
+    QFETCH(bool, overlaps);
+    QFETCH(bool, r1Containsr2);
+    QFETCH(bool, r2Containsr1);
+
+    QVERIFY(r1.overlaps(r2) == r2.overlaps(r1));
+    QCOMPARE(r1.overlaps(r2), overlaps);
+    QCOMPARE(r1.contains(r2), r1Containsr2);
+    QCOMPARE(r2.contains(r1), r2Containsr1);
 }
 
 QTEST_MAIN(tst_LanguageServerProtocol)

@@ -323,7 +323,7 @@ bool Range::contains(const Range &other) const
 
 bool Range::overlaps(const Range &range) const
 {
-    return contains(range.start()) || contains(range.end());
+    return end() > range.start() && start() < range.end();
 }
 
 bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeType &mimeType) const
