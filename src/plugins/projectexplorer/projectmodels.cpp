@@ -219,7 +219,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
                         Core::ICore::dialogParent(), tr("Rename More Files?"),
                         tr("Would you like to rename these files as well?\n    %1")
                         .arg(transform<QStringList>(candidateNodes, [](const Node *n) {
-                                 return n->filePath().toFileInfo().fileName();
+                                 return n->filePath().fileName();
                              }).join("\n    ")));
             if (reply == QMessageBox::Yes) {
                 for (Node * const n : candidateNodes) {

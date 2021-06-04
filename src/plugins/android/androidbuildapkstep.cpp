@@ -782,7 +782,7 @@ void AndroidBuildApkStep::doRun()
             }
             deploySettings["target-architecture"] = androidAbis.first();
         } else {
-            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toFileInfo().fileName();
+            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.fileName();
             QJsonObject architectures;
 
             // Copy targets to android build folder
