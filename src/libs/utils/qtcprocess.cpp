@@ -288,6 +288,7 @@ void QtcProcess::setWorkingDirectory(const FilePath &dir)
         QTC_CHECK(dir.host() == d->m_commandLine.executable().host());
     }
     d->m_workingDirectory = dir;
+    d->m_process->setWorkingDirectory(dir.toString());
 }
 
 void QtcProcess::setWorkingDirectory(const QString &dir)
