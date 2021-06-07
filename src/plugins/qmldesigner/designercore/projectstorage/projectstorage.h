@@ -117,11 +117,27 @@ public:
             .template valueWithTransaction<PropertyDeclarationId>(&typeId, name);
     }
 
-    TypeId fetchTypeIdByQualifiedNameAndVersion(Utils::SmallStringView name,
-                                                Storage::Version version = Storage::Version{})
+    TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const
     {
-        return selectTypeIdByQualifiedNameStatement.template valueWithTransaction<TypeId>(
-            name, version.major.version, version.minor.version);
+        return selectTypeIdByExportedNameStatement.template valueWithTransaction<TypeId>(name);
+    }
+
+    TypeId fetchTypeIdByImportIdsAndExportedName(const ImportIds &importsIds,
+                                                 Utils::SmallStringView name) const
+    {
+        std::vector<ImportId::DatabaseType> ids;
+        ids.resize(importsIds.size());
+
+        std::memcpy(ids.data(), importsIds.data(), ids.size() * sizeof(ImportId::DatabaseType));
+
+        return selectTypeIdByImportIdsAndExportedNameStatement
+            .template valueWithTransaction<TypeId>(Utils::span{ids}, name);
+    }
+
+    TypeId fetchTypeIdByName(ImportId importId, Utils::SmallStringView name)
+    {
+        return selectTypeIdByImportIdAndNameStatement.template valueWithTransaction<TypeId>(&importId,
+                                                                                            name);
     }
 
     Storage::Type fetchTypeByTypeId(TypeId typeId)
@@ -443,12 +459,9 @@ private:
         selectTypeIdsForImportIdStatement.readCallback(callback, &importId);
     }
 
-    void upsertExportedType(Utils::SmallStringView qualifiedName, Storage::Version version, TypeId typeId)
+    void upsertExportedType(ImportId importId, Utils::SmallStringView name, TypeId typeId)
     {
-        upsertExportedTypesStatement.write(qualifiedName,
-                                           version.major.version,
-                                           version.minor.version,
-                                           &typeId);
+        upsertExportedTypesStatement.write(&importId, name, &typeId);
     }
 
     void synchronizePropertyDeclarations(TypeId typeId,
@@ -469,7 +482,7 @@ private:
         };
 
         auto insert = [&](const Storage::PropertyDeclaration &value) {
-            auto propertyTypeId = fetchTypeIdByName(value.typeName);
+            auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName);
 
             insertPropertyDeclarationStatement.write(&typeId,
                                                      value.name,
@@ -479,7 +492,7 @@ private:
 
         auto update = [&](const Storage::PropertyDeclarationView &view,
                           const Storage::PropertyDeclaration &value) {
-            auto propertyTypeId = fetchTypeIdByName(value.typeName);
+            auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName);
 
             if (view.traits == value.traits && propertyTypeId == view.typeId)
                 return;
@@ -680,12 +693,12 @@ private:
     {
         auto typeId = type.typeId;
 
-        auto prototypeId = fetchTypeIdByName(type.prototype);
+        auto prototypeId = fetchTypeIdByNameUngarded(type.prototype);
 
         updatePrototypeStatement.write(&typeId, &prototypeId);
 
         for (const auto &exportedType : type.exportedTypes)
-            upsertExportedType(exportedType.qualifiedTypeName, exportedType.version, typeId);
+            upsertExportedType(type.importId, exportedType.qualifiedTypeName, typeId);
 
         synchronizePropertyDeclarations(typeId, type.propertyDeclarations);
         synchronizeFunctionDeclarations(typeId, type.functionDeclarations);
@@ -693,7 +706,7 @@ private:
         synchronizeEnumerationDeclarations(typeId, type.enumerationDeclarations);
     }
 
-    TypeId fetchTypeIdByName(Utils::SmallStringView name)
+    TypeId fetchTypeIdByNameUngarded(Utils::SmallStringView name)
     {
         if (name.isEmpty())
             return TypeId{};
@@ -901,12 +914,11 @@ private:
             table.setUseIfNotExists(true);
             table.setUseWithoutRowId(true);
             table.setName("exportedTypes");
-            auto &qualifiedNameColumn = table.addColumn("qualifiedName");
+            auto &importIdColumn = table.addColumn("importId");
+            auto &nameColumn = table.addColumn("name");
             table.addColumn("typeId");
-            auto &majorVersionColumn = table.addColumn("majorVersion");
-            auto &minorVersionColumn = table.addColumn("minorVersion");
 
-            table.addPrimaryKeyContraint({qualifiedNameColumn, majorVersionColumn, minorVersionColumn});
+            table.addPrimaryKeyContraint({importIdColumn, nameColumn});
 
             table.initialize(database);
         }
@@ -1002,10 +1014,8 @@ public:
         database};
     WriteStatement updatePrototypeStatement{
         "UPDATE types SET prototypeId=nullif(?2, -1) WHERE typeId=?1", database};
-    mutable ReadStatement<1> selectTypeIdByQualifiedNameStatement{
-        "SELECT typeId FROM exportedTypes WHERE qualifiedName=?1 AND majorVersion=?2 AND "
-        "minorVersion<=?3 ORDER BY minorVersion DESC LIMIT 1",
-        database};
+    mutable ReadStatement<1> selectTypeIdByExportedNameStatement{
+        "SELECT typeId FROM exportedTypes WHERE name=?1", database};
     mutable ReadStatement<1> selectPrototypeIdStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("
@@ -1029,12 +1039,9 @@ public:
         "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 LIMIT 1",
         database};
-    WriteStatement upsertExportedTypesStatement{
-        "INSERT INTO exportedTypes(qualifiedName, majorVersion, minorVersion, typeId) VALUES(?1, "
-        "?2, ?3, ?4) ON CONFLICT DO NOTHING",
-        database};
-    mutable ReadStatement<1> selectAccessSemanticsStatement{
-        "SELECT typeId FROM exportedTypes WHERE qualifiedName=?", database};
+    WriteStatement upsertExportedTypesStatement{"INSERT INTO exportedTypes(importId, name, typeId) "
+                                                "VALUES(?1, ?2, ?3) ON CONFLICT DO NOTHING",
+                                                database};
     mutable ReadStatement<1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("
@@ -1067,9 +1074,8 @@ public:
         "SELECT importId, name, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId), "
         "accessSemantics, ifnull(sourceId, -1) FROM types AS outerTypes WHERE typeId=?",
         database};
-    mutable ReadStatement<3> selectExportedTypesByTypeIdStatement{
-        "SELECT qualifiedName, majorVersion, minorVersion FROM exportedTypes WHERE typeId=?",
-        database};
+    mutable ReadStatement<1> selectExportedTypesByTypeIdStatement{
+        "SELECT name FROM exportedTypes WHERE typeId=?", database};
     mutable ReadStatement<6> selectTypesStatement{
         "SELECT importId, name, typeId, (SELECT name FROM types WHERE "
         "typeId=outerTypes.prototypeId), accessSemantics, ifnull(sourceId, -1) FROM types AS "
@@ -1195,6 +1201,10 @@ public:
         database};
     mutable ReadStatement<1> selectTypeIdsForImportIdStatement{
         "SELECT typeId FROM types WHERE importId=?", database};
+    mutable ReadStatement<1> selectTypeIdByImportIdAndNameStatement{
+        "SELECT typeId FROM types WHERE importId=?1 and name=?2", database};
+    mutable ReadStatement<1> selectTypeIdByImportIdsAndExportedNameStatement{
+        "SELECT typeId FROM exportedTypes WHERE importId IN carray(?1) AND name=?2", database};
 };
 
 } // namespace QmlDesigner

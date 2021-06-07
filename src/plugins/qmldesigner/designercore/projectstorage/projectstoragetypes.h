@@ -105,19 +105,12 @@ class ExportedType
 {
 public:
     explicit ExportedType() = default;
-    explicit ExportedType(Utils::SmallStringView qualifiedTypeName, Version version = Version{})
+    explicit ExportedType(Utils::SmallStringView qualifiedTypeName)
         : qualifiedTypeName{qualifiedTypeName}
-        , version{version}
-    {}
-
-    explicit ExportedType(Utils::SmallStringView qualifiedTypeName, int majorVersion, int minorVersion)
-        : qualifiedTypeName{qualifiedTypeName}
-        , version{majorVersion, minorVersion}
     {}
 
 public:
     Utils::SmallString qualifiedTypeName;
-    Version version;
 };
 
 using ExportedTypes = std::vector<ExportedType>;

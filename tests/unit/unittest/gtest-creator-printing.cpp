@@ -1661,7 +1661,7 @@ std::ostream &operator<<(std::ostream &out, Version version)
 
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.qualifiedTypeName << "\", " << exportedType.version << ")";
+    return out << "(\"" << exportedType.qualifiedTypeName << "\")";
 }
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
