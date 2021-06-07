@@ -338,10 +338,14 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 
 void AbstractProcessStep::processStartupFailed()
 {
-    emit addOutput(tr("Could not start process \"%1\" %2")
+    emit addOutput(tr("Could not start process \"%1\" %2.")
                    .arg(d->m_param.effectiveCommand().toUserOutput(),
                         d->m_param.prettyArguments()),
-                   BuildStep::OutputFormat::ErrorMessage);
+                   OutputFormat::ErrorMessage);
+
+    QString err = d->m_process ? d->m_process->errorString() : QString();
+    if (!err.isEmpty())
+        emit addOutput(err, OutputFormat::ErrorMessage);
 }
 
 /*!
