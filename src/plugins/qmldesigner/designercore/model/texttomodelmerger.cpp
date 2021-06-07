@@ -2142,7 +2142,7 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
     for (const Import &import : m_rewriterView->model()->imports()) {
         if (import.isLibraryImport() && import.url() == "QtQuick3D") {
             const QString version = getHighestPossibleImport(import.url());
-            if (Import::majorFromVersion(version) > import.majorVersion()) {
+            if (!import.version().isEmpty() && Import::majorFromVersion(version) > import.majorVersion()) {
                 errors->append(DocumentMessage(
                     QObject::tr(
                         "The selected version of the Qt Quick 3D module is not supported with the selected Qt version.")

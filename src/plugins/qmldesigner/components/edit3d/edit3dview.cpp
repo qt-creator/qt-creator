@@ -316,7 +316,14 @@ void Edit3DView::addQuick3DImport()
         const QList<Import> imports = model()->possibleImports();
         for (const auto &import : imports) {
             if (import.url() == "QtQuick3D") {
-                model()->changeImports({import}, {});
+                if (!import.version().isEmpty() && import.majorVersion() >= 6) {
+                    // Prefer empty version number in Qt6 and beyond
+                    model()->changeImports({Import::createLibraryImport(
+                                                import.url(), {}, import.alias(),
+                                                import.importPaths())}, {});
+                } else {
+                    model()->changeImports({import}, {});
+                }
 
                 // Subcomponent manager update needed to make item library entries appear
                 QmlDesignerPlugin::instance()->currentDesignDocument()
