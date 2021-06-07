@@ -102,6 +102,12 @@ public:
         return importIds;
     }
 
+    ImportIds fetchImportDependencyIds(ImportIds importIds) const
+    {
+        return fetchImportDependencyIdsStatement.template valuesWithTransaction<ImportId>(
+            16, static_cast<void *>(importIds.data()), static_cast<long long>(importIds.size()));
+    }
+
     PropertyDeclarationId upsertPropertyDeclaration(TypeId typeId,
                                                     Utils::SmallStringView name,
                                                     TypeId propertyTypeId)
@@ -122,16 +128,10 @@ public:
         return selectTypeIdByExportedNameStatement.template valueWithTransaction<TypeId>(name);
     }
 
-    TypeId fetchTypeIdByImportIdsAndExportedName(const ImportIds &importsIds,
-                                                 Utils::SmallStringView name) const
+    TypeId fetchTypeIdByImportIdsAndExportedName(ImportIds importIds, Utils::SmallStringView name) const
     {
-        std::vector<ImportId::DatabaseType> ids;
-        ids.resize(importsIds.size());
-
-        std::memcpy(ids.data(), importsIds.data(), ids.size() * sizeof(ImportId::DatabaseType));
-
-        return selectTypeIdByImportIdsAndExportedNameStatement
-            .template valueWithTransaction<TypeId>(Utils::span{ids}, name);
+        return selectTypeIdByImportIdsAndExportedNameStatement.template valueWithTransaction<TypeId>(
+            static_cast<void *>(importIds.data()), static_cast<long long>(importIds.size()), name);
     }
 
     TypeId fetchTypeIdByName(ImportId importId, Utils::SmallStringView name)
@@ -465,7 +465,8 @@ private:
     }
 
     void synchronizePropertyDeclarations(TypeId typeId,
-                                         Storage::PropertyDeclarations &propertyDeclarations)
+                                         Storage::PropertyDeclarations &propertyDeclarations,
+                                         ImportIds &importIds)
     {
         std::sort(propertyDeclarations.begin(),
                   propertyDeclarations.end(),
@@ -482,7 +483,7 @@ private:
         };
 
         auto insert = [&](const Storage::PropertyDeclaration &value) {
-            auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName);
+            auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName, importIds);
 
             insertPropertyDeclarationStatement.write(&typeId,
                                                      value.name,
@@ -492,7 +493,7 @@ private:
 
         auto update = [&](const Storage::PropertyDeclarationView &view,
                           const Storage::PropertyDeclaration &value) {
-            auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName);
+            auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName, importIds);
 
             if (view.traits == value.traits && propertyTypeId == view.typeId)
                 return;
@@ -686,6 +687,9 @@ private:
                                                                  static_cast<int>(type.accessSemantics),
                                                                  &type.sourceId);
 
+        for (const auto &exportedType : type.exportedTypes)
+            upsertExportedType(type.importId, exportedType.name, type.typeId);
+
         return type.typeId;
     }
 
@@ -693,25 +697,55 @@ private:
     {
         auto typeId = type.typeId;
 
-        auto prototypeId = fetchTypeIdByNameUngarded(type.prototype);
+        auto prototypeId = fetchTypeIdByNameUngarded(type.prototype, type.importIds);
 
         updatePrototypeStatement.write(&typeId, &prototypeId);
 
-        for (const auto &exportedType : type.exportedTypes)
-            upsertExportedType(type.importId, exportedType.qualifiedTypeName, typeId);
-
-        synchronizePropertyDeclarations(typeId, type.propertyDeclarations);
+        synchronizePropertyDeclarations(typeId, type.propertyDeclarations, type.importIds);
         synchronizeFunctionDeclarations(typeId, type.functionDeclarations);
         synchronizeSignalDeclarations(typeId, type.signalDeclarations);
         synchronizeEnumerationDeclarations(typeId, type.enumerationDeclarations);
     }
 
-    TypeId fetchTypeIdByNameUngarded(Utils::SmallStringView name)
+    TypeId fetchTypeIdByNameUngarded(const Storage::TypeName &name, ImportIds &importIds)
     {
-        if (name.isEmpty())
+        if (Utils::visit([](auto &&type) -> bool { return type.name.isEmpty(); }, name))
             return TypeId{};
 
-        return selectTypeIdByNameStatement.template value<TypeId>(name);
+        struct Inspect
+        {
+            TypeId operator()(const Storage::NativeType &nativeType)
+            {
+                return storage.selectTypeIdByImportIdsAndNameStatement
+                    .template value<TypeId>(static_cast<void *>(importIds.data()),
+                                            static_cast<long long>(importIds.size()),
+                                            nativeType.name);
+            }
+
+            TypeId operator()(const Storage::ExportedType &exportedType)
+            {
+                return storage.selectTypeIdByImportIdsAndExportedNameStatement
+                    .template value<TypeId>(static_cast<void *>(importIds.data()),
+                                            static_cast<long long>(importIds.size()),
+                                            exportedType.name);
+            }
+
+            TypeId operator()(const Storage::ExplicitExportedType &exportedType)
+            {
+                return storage.selectTypeIdByImportIdAndExportedNameStatement
+                    .template value<TypeId>(&exportedType.importId, exportedType.name);
+            }
+
+            ProjectStorage &storage;
+            ImportIds &importIds;
+        };
+
+        auto typeId = Utils::visit(Inspect{*this, importIds}, name);
+
+        if (typeId)
+            return typeId;
+
+        throw TypeNameDoesNotExists{};
     }
 
     SourceContextId readSourceContextId(Utils::SmallStringView sourceContextPath)
@@ -879,8 +913,7 @@ private:
             typesTable.addForeignKeyColumn("prototypeId",
                                            typesTable,
                                            Sqlite::ForeignKeyAction::NoAction,
-                                           Sqlite::ForeignKeyAction::Restrict,
-                                           Sqlite::Enforment::Deferred);
+                                           Sqlite::ForeignKeyAction::Restrict);
 
             typesTable.addUniqueIndex({importIdColumn, typesNameColumn});
 
@@ -898,8 +931,7 @@ private:
                 propertyDeclarationTable.addForeignKeyColumn("propertyTypeId",
                                                              typesTable,
                                                              Sqlite::ForeignKeyAction::NoAction,
-                                                             Sqlite::ForeignKeyAction::Restrict,
-                                                             Sqlite::Enforment::Deferred);
+                                                             Sqlite::ForeignKeyAction::Restrict);
                 propertyDeclarationTable.addColumn("propertyTraits");
 
                 propertyDeclarationTable.addUniqueIndex({typeIdColumn, nameColumn});
@@ -1068,8 +1100,8 @@ public:
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    mutable ReadStatement<1> selectTypeIdByNameStatement{"SELECT typeId FROM types WHERE name=?",
-                                                         database};
+    mutable ReadStatement<1> selectTypeIdByImportIdsAndNameStatement{
+        "SELECT typeId FROM types WHERE importId IN carray(?1, ?2, 'int64') AND name=?3", database};
     mutable ReadStatement<5> selectTypeByTypeIdStatement{
         "SELECT importId, name, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId), "
         "accessSemantics, ifnull(sourceId, -1) FROM types AS outerTypes WHERE typeId=?",
@@ -1204,7 +1236,18 @@ public:
     mutable ReadStatement<1> selectTypeIdByImportIdAndNameStatement{
         "SELECT typeId FROM types WHERE importId=?1 and name=?2", database};
     mutable ReadStatement<1> selectTypeIdByImportIdsAndExportedNameStatement{
-        "SELECT typeId FROM exportedTypes WHERE importId IN carray(?1) AND name=?2", database};
+        "SELECT typeId FROM exportedTypes WHERE importId IN carray(?1, ?2, 'int64') AND name=?3",
+        database};
+    mutable ReadStatement<1> selectTypeIdByImportIdAndExportedNameStatement{
+        "SELECT typeId FROM exportedTypes WHERE importId=?1 AND name=?2", database};
+    mutable ReadStatement<1> fetchImportDependencyIdsStatement{
+        "WITH RECURSIVE "
+        "  importIds(importId) AS ("
+        "      SELECT value FROM carray(?1, ?2, 'int64') "
+        "    UNION "
+        "      SELECT parentImportId FROM importDependencies JOIN importIds USING(importId)) "
+        "SELECT importId FROM importIds",
+        database};
 };
 
 } // namespace QmlDesigner

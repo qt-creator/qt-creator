@@ -26,8 +26,9 @@
 #pragma once
 
 #include <utils/cpplanguage_details.h>
-#include <utils/smallstringio.h>
 #include <utils/optional.h>
+#include <utils/smallstringio.h>
+#include <utils/variant.h>
 
 #include <clangsupport_global.h>
 
@@ -82,8 +83,8 @@ std::ostream &operator<<(std::ostream &out, const Utils::LanguageVersion &langua
 std::ostream &operator<<(std::ostream &out, const Utils::LanguageExtension &languageExtension);
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
 
-template <typename Type>
-std::ostream &operator<<(std::ostream &out, const Utils::optional<Type> &optional)
+template<typename Type>
+std::ostream &operator<<(std::ostream &out, const optional<Type> &optional)
 {
     if (optional)
         return out << "optional " << optional.value();
@@ -91,10 +92,16 @@ std::ostream &operator<<(std::ostream &out, const Utils::optional<Type> &optiona
         return out << "empty optional()";
 }
 
-template <typename Type>
-void PrintTo(const Utils::optional<Type> &optional, ::std::ostream *os)
+template<typename Type>
+void PrintTo(const optional<Type> &optional, ::std::ostream *os)
 {
     *os << optional;
+}
+
+template<typename... Type>
+std::ostream &operator<<(std::ostream &out, const variant<Type...> &variant)
+{
+    return Utils::visit([&](auto &&value) -> std::ostream & { return out << value; }, variant);
 }
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
@@ -230,6 +237,9 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
 namespace Storage {
 class Type;
 class ExportedType;
+class NativeType;
+class ExplicitExportedType;
+using TypeName = Utils::variant<NativeType, ExportedType, ExplicitExportedType>;
 class Version;
 class VersionNumber;
 enum class TypeAccessSemantics : int;
@@ -248,6 +258,8 @@ std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
 std::ostream &operator<<(std::ostream &out, Version version);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
+std::ostream &operator<<(std::ostream &out, const NativeType &nativeType);
+std::ostream &operator<<(std::ostream &out, const ExplicitExportedType &exportedType);
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration);
 std::ostream &operator<<(std::ostream &out, DeclarationTraits traits);
 std::ostream &operator<<(std::ostream &out, const FunctionDeclaration &functionDeclaration);

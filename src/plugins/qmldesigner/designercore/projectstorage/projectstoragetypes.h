@@ -28,6 +28,7 @@
 #include "projectstorageids.h"
 
 #include <utils/smallstring.h>
+#include <utils/variant.h>
 
 #include <vector>
 
@@ -105,15 +106,43 @@ class ExportedType
 {
 public:
     explicit ExportedType() = default;
-    explicit ExportedType(Utils::SmallStringView qualifiedTypeName)
-        : qualifiedTypeName{qualifiedTypeName}
+    explicit ExportedType(Utils::SmallStringView name)
+        : name{name}
     {}
 
 public:
-    Utils::SmallString qualifiedTypeName;
+    Utils::SmallString name;
+};
+
+class ExplicitExportedType
+{
+public:
+    explicit ExplicitExportedType() = default;
+    explicit ExplicitExportedType(Utils::SmallStringView name, ImportId importId)
+        : name{name}
+        , importId{importId}
+    {}
+
+public:
+    Utils::SmallString name;
+    ImportId importId;
 };
 
 using ExportedTypes = std::vector<ExportedType>;
+
+class NativeType
+{
+public:
+    explicit NativeType() = default;
+    explicit NativeType(Utils::SmallStringView name)
+        : name{name}
+    {}
+
+public:
+    Utils::SmallString name;
+};
+
+using TypeName = Utils::variant<NativeType, ExportedType, ExplicitExportedType>;
 
 class EnumeratorDeclaration
 {
@@ -316,23 +345,21 @@ class PropertyDeclaration
 {
 public:
     explicit PropertyDeclaration() = default;
-    explicit PropertyDeclaration(Utils::SmallStringView name,
-                                 Utils::SmallStringView typeName,
-                                 DeclarationTraits traits)
+    explicit PropertyDeclaration(Utils::SmallStringView name, TypeName typeName, DeclarationTraits traits)
         : name{name}
-        , typeName{typeName}
+        , typeName{std::move(typeName)}
         , traits{traits}
     {}
 
     explicit PropertyDeclaration(Utils::SmallStringView name, Utils::SmallStringView typeName, int traits)
         : name{name}
-        , typeName{typeName}
+        , typeName{NativeType{typeName}}
         , traits{static_cast<DeclarationTraits>(traits)}
     {}
 
 public:
     Utils::SmallString name;
-    Utils::SmallString typeName;
+    TypeName typeName;
     DeclarationTraits traits = {};
     TypeId typeId;
 };
@@ -366,9 +393,10 @@ public:
     explicit Type() = default;
     explicit Type(ImportId importId,
                   Utils::SmallStringView typeName,
-                  Utils::SmallStringView prototype,
+                  TypeName prototype,
                   TypeAccessSemantics accessSemantics,
                   SourceId sourceId,
+                  ImportIds importIds = {},
                   ExportedTypes exportedTypes = {},
                   PropertyDeclarations propertyDeclarations = {},
                   FunctionDeclarations functionDeclarations = {},
@@ -376,7 +404,8 @@ public:
                   EnumerationDeclarations enumerationDeclarations = {},
                   TypeId typeId = TypeId{})
         : typeName{typeName}
-        , prototype{prototype}
+        , prototype{std::move(prototype)}
+        , importIds{std::move(importIds)}
         , exportedTypes{std::move(exportedTypes)}
         , propertyDeclarations{std::move(propertyDeclarations)}
         , functionDeclarations{std::move(functionDeclarations)}
@@ -394,7 +423,7 @@ public:
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
-        , prototype{prototype}
+        , prototype{NativeType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , importId{importId}
@@ -408,7 +437,7 @@ public:
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
-        , prototype{prototype}
+        , prototype{NativeType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
@@ -417,8 +446,9 @@ public:
 
 public:
     Utils::SmallString typeName;
-    Utils::SmallString prototype;
+    TypeName prototype;
     Utils::SmallString attachedType;
+    ImportIds importIds;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
     FunctionDeclarations functionDeclarations;

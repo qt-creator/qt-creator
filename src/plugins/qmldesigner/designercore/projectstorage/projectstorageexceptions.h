@@ -74,7 +74,13 @@ public:
 class ImportDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The simport does not exist!"; }
+    const char *what() const noexcept override { return "The import does not exist!"; }
+};
+
+class TypeNameDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The type name does not exist!"; }
 };
 
 } // namespace QmlDesigner

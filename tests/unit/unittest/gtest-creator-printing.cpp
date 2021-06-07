@@ -1022,19 +1022,33 @@ std::ostream &operator<<(std::ostream &out, Version version)
 
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.qualifiedTypeName << "\")";
+    return out << "(\"" << exportedType.name << "\")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ExplicitExportedType &exportedType)
+{
+    return out << "(\"" << exportedType.name << "\"" << exportedType.importId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
+{
+    return out << "(\"" << nativeType.name << "\")";
 }
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
-    return out << "(import: " << type.importId << ", \"" << type.typeName << "\", \""
-               << type.prototype << "\", " << type.accessSemantics << ", source: " << type.sourceId
-               << ", " << type.exportedTypes << ", " << type.propertyDeclarations << ", "
-               << type.functionDeclarations << ", " << type.signalDeclarations << ")";
+    using Utils::operator<<;
+    return out << "(import: " << type.importId << ", typename: \"" << type.typeName
+               << "\", prototype: \"" << type.prototype << "\", " << type.accessSemantics
+               << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
+               << ", properties: " << type.propertyDeclarations
+               << ", functions: " << type.functionDeclarations
+               << ", signals: " << type.signalDeclarations << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)
 {
+    using Utils::operator<<;
     return out << "(\"" << propertyDeclaration.name << "\", \"" << propertyDeclaration.typeName
                << "\", " << propertyDeclaration.traits << ", " << propertyDeclaration.typeId << ")";
 }
