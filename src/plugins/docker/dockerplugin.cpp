@@ -45,19 +45,19 @@ namespace Internal {
 class DockerPluginPrivate
 {
 public:
-    DockerSettings settings;
-    DockerOptionsPage optionsPage{&settings};
+//    DockerSettings settings;
+//    DockerOptionsPage optionsPage{&settings};
 
     DockerDeviceFactory deviceFactory;
-    DockerContainerRunConfigurationFactory containerRunConfigFactory;
+//    DockerContainerRunConfigurationFactory containerRunConfigFactory;
 
-    RunWorkerFactory containerRunWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {containerRunConfigFactory.runConfigurationId()}
-    };
+//    RunWorkerFactory containerRunWorkerFactory{
+//        RunWorkerFactory::make<SimpleTargetRunner>(),
+//        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+//        {containerRunConfigFactory.runConfigurationId()}
+//    };
 
-    DockerBuildStepFactory buildStepFactory;
+//    DockerBuildStepFactory buildStepFactory;
 };
 
 DockerPlugin::~DockerPlugin()
