@@ -25,7 +25,7 @@
 
 //! [creating studio components]
 
-    \section2 Creating Custom Controls
+    \section1 Creating Custom Controls
 
     You can use project wizard templates to create stylable UI controls based
     on the components in the Qt Quick Controls module:

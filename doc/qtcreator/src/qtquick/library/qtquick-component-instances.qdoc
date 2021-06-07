@@ -1,0 +1,71 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-component-instances.html
+    \previouspage studio-3d-scene-environment.html
+    \nextpage quick-components-creating.html
+
+    \title Creating Component Instances
+
+    \QDS comes with \e {preset components} that you can use in your UI by
+    creating instances of them.
+
+    \image qmldesigner-editing-components.png "Creating Component Instances"
+
+    To create component instances and edit their properties:
+
+    \list 1
+        \li Drag-and-drop components from \uicontrol Library (1) to
+            \l Navigator (2), \l {Form Editor} (3), or \l {3D Editor} (4).
+            This creates instances of the components in the current
+            component file.
+        \li Select component instances in \uicontrol Navigator to edit the
+            values of their properties in \uicontrol Properties.
+            \image qmldesigner-properties-view.png "Properties view"
+            For more information, see \l {Specifying Component Properties}.
+        \li To change the appearance and behavior of the component instances
+            in ways that are not supported in \QDS by default, you can define
+            custom properties in \l {Connection View} > \uicontrol {Properties}.
+            \image qmldesigner-dynamicprops.png "Connection View Properties tab"
+            For more information, see \l{Specifying Dynamic Properties}.
+        \li To enable users to interact with the component instances, connect
+            the instances to signals in \uicontrol {Connection View} >
+            \uicontrol Connections. For example, you can specify what happens
+            when a component instance is clicked. For more information, see
+            \l{Connecting Components to Signals}.
+            \image qmldesigner-connections.png "Connection View Connections tab"
+        \li To dynamically change the behavior of a component instance when
+            another component instance changes, create bindings between them in
+            \uicontrol {Connection View} > \uicontrol Bindings.
+            For more information, see \l{Adding Bindings Between Properties}.
+            \image qmldesigner-bindings.png "Connection View Bindings tab"
+        \li Add states to apply sets of changes to the property values of one
+            or several component instances in the \uicontrol States view.
+            For more information, see \l{Adding States}.
+        \li Animate the properties of component instances in the \uicontrol
+            Timeline view. For more information, see \l{Creating Animations}.
+    \endlist
+*/

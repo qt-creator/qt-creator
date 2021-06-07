@@ -23,12 +23,6 @@
 **
 ****************************************************************************/
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
     \page quick-components.html
     \if defined(qtdesignstudio)
@@ -36,9 +30,9 @@
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif
-    \nextpage quick-shapes.html
+    \nextpage quick-preset-components.html
 
-    \title Creating Components
+    \title Components
 
     A \e component is a reusable building block for a UI.
 
@@ -50,7 +44,7 @@
     Some of the preset components represent simple shapes, text, or images,
     while others represent complex UI controls with full functionality, such
     as spin boxes or sliders. You can also add instances of preset
-    \l {Using 3D Components}{3D components} to your UIs.
+    \l {3D Components}{3D components} to your UIs.
 
     To build your own components, you can modify the \e properties of the
     component instances and combine them.
@@ -60,7 +54,7 @@
     in \e Button.ui.qml. Typically, the visual appearance of a component
     is defined in a \e {UI file} (ui.qml). To create component files,
     you can use \l{Creating Components from Scratch}{wizard templates}, or
-    \l{Moving Component Instances into Separate Files}
+    \l{Turning Component Instances into Custom Components}
     {move component instances into separate component files}.
 
     Select \l Library > \uicontrol Components to view the preset components that
@@ -70,160 +64,41 @@
 
     \image qtquick-components-tab.png "Components in Library"
 
-    \note Use as few components as possible. To minimize the number of
-    components, use \l{Adding Property Aliases}{alias properties} and
-    \l{Adding States}{states} to create the differences in your component
-    instances. Using component instances instead of duplicating the components
-    reduces the time needed to load and build the application, as well as the
-    size of the application package.
-
-    \section1 Creating Component Instances
-
-    \image qmldesigner-editing-components.png "Creating Component Instances"
-
-    \list 1
-        \li Drag-and-drop components from \uicontrol Library (1) to
-            \l Navigator (2), \l {Form Editor} (3), or \l {3D Editor} (4).
-            This creates instances of the components in the current
-            component file.
-        \li Select component instances in \uicontrol Navigator to edit the
-            values of their properties in \uicontrol Properties.
-            \image qmldesigner-properties-view.png "Properties view"
-            For more information, see \l {Specifying Component Properties}.
-        \li To change the appearance and behavior of the component instances
-            in ways that are not supported in \QDS by default, you can define
-            custom properties in \l {Connection View} > \uicontrol {Properties}.
-            \image qmldesigner-dynamicprops.png "Connection View Properties tab"
-            For more information, see \l{Specifying Dynamic Properties}.
-        \li To enable users to interact with the component instances, connect
-            the instances to signals in \uicontrol {Connection View} >
-            \uicontrol Connections. For example, you can specify what happens
-            when a component instance is clicked. For more information, see
-            \l{Connecting Components to Signals}.
-            \image qmldesigner-connections.png "Connection View Connections tab"
-        \li To dynamically change the behavior of a component instance when
-            another component instance changes, create bindings between them in
-            \uicontrol {Connection View} > \uicontrol Bindings.
-            For more information, see \l{Adding Bindings Between Properties}.
-            \image qmldesigner-bindings.png "Connection View Bindings tab"
-        \li Add states to apply sets of changes to the property values of one
-            or several component instances in the \uicontrol States view.
-            For more information, see \l{Adding States}.
-        \li Animate the properties of component instances in the \uicontrol
-            Timeline view. For more information, see \l{Creating Animations}.
-    \endlist
-
-    \section1 Creating Your Own Components
-
-    You can either use project wizard templates to create custom components and
-    controls or move component instances into separate files to turn them into
-    new components that you can create instances of. You can then use the
-    instances of the new components in other components.
-
-    \section2 Creating Components from Scratch
-
-    To use wizard templates to create custom components:
-
-    \list 1
-
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \if defined(qtcreator)
-            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
-            \else
-            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
-            \endif
-            \uicontrol Choose to create a new .qml file.
-
-            \note Components are listed in the \uicontrol {My Components}
-            tab in the \uicontrol Library view only if the filename begins with
-            a capital letter.
-
-        \li Click \uicontrol Design to open the component file (ui.qml) in
-            \uicontrol {Form Editor}.
-
-        \li Drag-and-drop a component from \uicontrol Library to
-            \uicontrol Navigator or \uicontrol {Form Editor}.
-
-        \li Edit component properties in the \uicontrol Properties view.
-            \image qmldesigner-custom-component-properties.png
-
-            The available properties depend on the component type. You can
-            \l{Specifying Dynamic Properties}{add properties for
-            components} in \uicontrol {Connection View} > \uicontrol Properties.
-
-        \li To change the appearance and behavior of the component instances
-            in ways that are not supported in \QDS by default, you can define
-            custom properties in \uicontrol {Connection View} >
-            \uicontrol {Properties}.
-
-    \endlist
-
-    The following sections contain more information about how to use
-    \uicontrol {Form Editor} to edit 2D content and \uicontrol {3D Editor}
-    to edit 3D scenes, as well as examples of how to create UI controls
-    using instances of basic components:
+    Read more about components:
 
     \list
-
-        \li \l{Form Editor}
-
-        \li \l{3D Editor}
-
-        \li \l{Creating Buttons}
-
-        \li \l{Creating Scalable Buttons and Borders}
-
+        \li \l {Preset Components}
+        \li \l {Creating Component Instances}
+        \li \l {Creating Custom Components}
     \endlist
 
-    \if defined(qtdesignstudio)
-    \include qtdesignstudio-components.qdocinc creating studio components
-    \endif
+    \section1 Using Components Economically
 
-    \section2 Moving Component Instances into Separate Files
+    It is important to understand the performance costs associated with using
+    components.
 
-    An alternative way of creating reusable components is to move component
-    instances into separate component files (.ui.qml). Right-click a component
-    instance in \uicontrol Navigator or \uicontrol {Form Editor}, and select
-    \uicontrol {Move Component into Separate File} in the context menu.
+    To use components efficiently and economically:
 
-    \image qtcreator-move-component-into-separate-file.png
-
-    Give the new component a name, and select whether properties are set for
-    the new component or for the original one.
-
-    When you select \uicontrol OK, a new component file is created and an
-    instance of the component is added to the code in the current component
-    file. The look of your UI in \uicontrol {Form Editor} does not change.
-
-    To open the new component file for editing the properties that you want
-    to change for all instances of the component, right-click the component,
-    and then select \uicontrol {Go into Component} in the context menu. For
-    additional ways of opening base components, see \l{Moving Within Components}.
-
-    For an example of creating a reusable custom component, see
-    \if defined(qtcreator)
-    \l{Creating a Mobile Application}.
-    \else
-    \l{Progress Bar}.
-    \endif
-
-    Custom components are listed in \uicontrol Library > \uicontrol Components
-    > \uicontrol {My Components}, and you can use instances of them to build
-    more components.
-
-    \include qtquick-mcu-support.qdocinc mcu qtquick components
-
-    \section1 Merging Files with Templates
-
-    You can merge the current component file against an existing second
-    component file using the second file in a way similar to using a CSS
-    stylesheet.
-
-    To use this experimental feature, right-click a component in the
-    \uicontrol Navigator or \uicontrol {Form Editor} view and select
-    \uicontrol {Merge File with Template} in the context menu.
-
-    \image qmldesigner-merge-with-template.png "Merge with Template dialog"
-
-    In the \uicontrol Template field, select the file to use as a template.
+    \list
+        \li Componentize your design by packaging your resources into reusable
+            components that can be conveniently recombined to suit the needs of
+            your UI.
+        \li Use as few components as necessary. To minimize the number of
+            components, use \l{Adding Property Aliases}{alias properties} and
+            \l{Adding States}{states} to create the differences in your
+            component instances. We recommend reusing components
+            instead of duplicating them, so the components do not need to be
+            processed as completely new component types. This reduces loading
+            and compilation time as well as the size of the binary.
+        \li Any content that is data-driven should be
+            \l {Using UI Files}{exported as a public property} of the
+            relevant component. For example, a speedometer should have an \c int
+            or \c real property for speed to which the UI is bound.
+        \li Separate UI from the application logic. Designers should work with
+            the \l{UI Files}{UI files} (.ui.qml), while developers should work
+            on the corresponding implementation files (.qml) to define their
+            programmatic behaviors or JavaScript. This enables iteration from
+            both the design and development side of the process without the the
+            risk of overwriting each other's work.
+    \endlist
 */

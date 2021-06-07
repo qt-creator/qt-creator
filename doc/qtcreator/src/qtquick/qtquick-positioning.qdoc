@@ -26,9 +26,13 @@
 /*!
     \page qtquick-positioning.html
     \previouspage qtquick-properties.html
+    \if defined(qtdesignstudio)
+    \nextpage qtquick-annotations.html
+    \else
     \nextpage qtquick-fonts.html
+    \endif
 
-    \title Positioning Components
+    \title Scalable Layouts
 
     The position of a \l{glossary-component}{component} in a UI can be either
     absolute or relative to other components. The visual components exist at a

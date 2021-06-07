@@ -1,0 +1,109 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-preset-components.html
+    \previouspage quick-components.html
+    \nextpage quick-shapes.html
+
+    \title Preset Components
+
+    To use preset components, add the modules that contain them to your project
+    by selecting \l Library > \uicontrol Components > \inlineimage plus.png
+    . For more information, see \l{Adding and Removing Modules}. You can then
+    create instances of the components by dragging-and-dropping them from
+    \uicontrol Library to \l {Form Editor}, \l {3D Editor}, or \l Navigator.
+
+    To edit the appearance of a component instance, select it in
+    \uicontrol {Form Editor}, \uicontrol {3D Editor}, or \uicontrol Navigator
+    and set its properties in the \l Properties view.
+
+    For more information about creating your own components, see
+    \l{Creating Custom Components}.
+
+    \section1 2D Components
+
+    \list
+        \li \l Shapes
+        \li \l Text
+        \li \l Images
+        \li \l {User Interaction Methods}
+        \li \l {UI Controls}
+        \li \l {Lists and Other Data Models}
+        \if defined(qtdesignstudio)
+        \li \l {2D Effects}
+        \li \l {Logic Helpers}
+        \endif
+        \li \l Animations
+    \endlist
+
+    \section1 3D Components
+
+    You can use \l{3D Editor} in the \uicontrol Design mode to edit files you
+    created using 3D graphics applications and stored in one of the supported
+    formats. You cannot create 3D models or other assets in the editor, but you
+    can \l{Importing 3D Assets}{import} the assets you need and work with them
+    to create scenes and states, as well as the transitions between them.
+
+        \list
+        \li \l {3D Views}
+        \li \l {Group}
+        \li \l {3D Models}
+        \li \l {Materials and Shaders}
+        \li \l {Textures}
+        \li \l {3D Materials}
+        \li \l {3D Effects}
+        \li \l {Custom Shaders}
+        \li \l {Custom Effects and Materials}
+        \li \l {Lights}
+        \li \l {Cameras}
+        \li \l {Scene Environment}
+     \endlist
+
+    When you import 3D scenes from files that you exported from 3D graphics
+    tools, you also import the camera, light, model, and materials as 3D
+    components. If your scene did not contain them, you can add predefined
+    3D components to it and edit their properties to fit your needs.
+
+    \note Using 3D components will affect the performance of your UI. Do not
+    use 3D components if the same results can be achieved using 2D components.
+
+    \section2 Videos About 3D Components
+
+    The following video shows you how to add the components included in the
+    \uicontrol {Qt Quick 3D} module, such as 3D models, cameras, and lights,
+    to your scene:
+
+    \youtube u3kZJjlk3CY
+
+    The following video shows you how to use the custom shader utilities, 3D
+    effects, and materials:
+
+    \youtube bMXeeQw6BYs
+
+    The following video shows you how to combine 2D and 3D components:
+
+    \youtube w1yhDl93YI0
+*/

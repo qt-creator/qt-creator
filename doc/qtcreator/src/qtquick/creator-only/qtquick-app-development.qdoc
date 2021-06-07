@@ -47,7 +47,7 @@
             You can use several different editors and views in the
             Design mode to develop Qt Quick applications.
 
-        \li \l {Creating UIs}
+        \li \l {Wireframing}
 
             Qt Quick enables you to build UIs around the behavior of
             \e components and how they connect with one another. You
@@ -60,15 +60,6 @@
             You can animate the properties of UI components and create
             connections between them to enable them to communicate with
             each other.
-
-        \li \l {Editing 3D Scenes}
-
-            You can use the 3D editor in the Design mode to edit files you
-            created using 3D graphics applications and stored in one of the
-            supported formats. You cannot create 3D models or other assets
-            in the editor, but you can import the assets you need and work
-            with them to create scenes and states, as well as the
-            transitions between them.
 
     \endlist
 

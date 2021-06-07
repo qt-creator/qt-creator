@@ -117,27 +117,47 @@
                         \li \l{Curve Editor}
                         \li \l{Text Editor}
                     \endlist
-                \li \l {Creating UIs}
+                \li \l {Wireframing}
                     \list
-                        \li \l {Creating Components}
+                    \li \l {Components}
                         \list
-                            \li \l{Shapes}
-                            \li \l{Text}
-                            \li \l{Images}
-                            \li \l{UI Controls}
-                            \li \l{User Interaction Methods}
-                            \li \l{Lists and Other Data Models}
-                            \li \l{Animations}
-                            \li \l{Creating Buttons}
-                            \li \l{Creating Scalable Buttons and Borders}
+                            \li \l {Preset Components}
+                            \list
+                                \li \l{Shapes}
+                                \li \l{Text}
+                                \li \l{Images}
+                                \li \l{UI Controls}
+                                \li \l{User Interaction Methods}
+                                \li \l{Lists and Other Data Models}
+                                \li \l{Animations}
+                                \li \l{3D Views}
+                                \li \l{Group}
+                                \li \l{3D Models}
+                                \li \l{Materials and Shaders}
+                                \li \l{Textures}
+                                \li \l{3D Materials}
+                                \li \l{3D Effects}
+                                \li \l{Custom Shaders}
+                                \li \l{Custom Effects and Materials}
+                                \li \l{Lights}
+                                \li \l{Cameras}
+                                \li \l{Scene Environment}
+                            \endlist
+                        \li \l {Creating Component Instances}
+                        \li \l {Creating Custom Components}
+                            \list
+                                \li \l{Creating Buttons}
+                                \li \l{Creating Scalable Buttons and Borders}
+                            \endlist
                         \endlist
+                        \li \l{Creating Optimized 3D Scenes}
                         \li \l{Specifying Component Properties}
-                        \li \l{Positioning Components}
+                        \li \l{Scalable Layouts}
                         \li \l{Using Custom Fonts}
                         \li \l{Annotating Designs}
                         \li \l{Loading Placeholder Data}
                         \li \l{UI Files}
-                   \endlist
+                    \endlist
                 \li \l {Adding Dynamics}
                     \list
                         \li \l{Creating Animations}
@@ -189,10 +209,6 @@
             \li \l {Best Practices}
             \list
                 \li \l{Optimizing Applications for Mobile Devices}
-                \li \l{Qt Quick Best Practices}
-                    \list
-                        \li \l{Creating Optimized 3D Scenes}
-                    \endlist
             \endlist
         \endlist
         \li \l{Coding}

@@ -72,13 +72,13 @@
         \li \l{3D Editor}
         \li Provides an editor for files you created using 3D graphics
             applications and stored in one of the supported formats.
-        \li \l{Editing 3D Scenes}
+        \li \l{3D Editor}
    \row
         \li \l Library
         \li Contains the building blocks that you can use to design
             applications: preset components, your own components, and
             assets.
-        \li \l {Creating Components}
+        \li \l{Components}
     \row
         \li \l Navigator
         \li Displays the composition of the current component file as
@@ -272,7 +272,7 @@
             component in the list to open it in \uicontrol {Form Editor} and
             \uicontrol Navigator.
         \li
-        \li \l{Creating Components}
+        \li \l{Components}
     \row
         \li Workspace
         \li Displays the currently selected workspace. To switch to another

@@ -102,7 +102,7 @@
     by selecting \uicontrol File > \uicontrol {New File or Project} >
     \uicontrol {Qt Quick Files}. While designing the screens, you can
     move reusable components into separate files. For more information,
-    see \l{Creating Components}.
+    see \l{Components}.
 
     \section1 Creating a Progress Indicator
 

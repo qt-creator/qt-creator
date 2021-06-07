@@ -30,7 +30,7 @@
     \previouspage studio-3d-node.html
     \nextpage studio-3d-materials.html
 
-    \title Adding 3D Models
+    \title 3D Models
 
     \QDS \l Library features some built-in primitive 3D models. This allows you
     to add cubes, cones, cylinders, and planes (rectangles) to your scene.
@@ -38,7 +38,7 @@
     \image studio-3d-models.png
 
     A Model component loads mesh data from a file. You can modify how the
-    component is shaded by adding \l{Using 3D Materials}{materials} to the model.
+    component is shaded by adding \l{3D Materials}{materials} to the model.
 
     You can drag-and-drop a model from \uicontrol Library > \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \l {3D Editor} or
@@ -86,5 +86,5 @@
     material. Select the material from the list in the \uicontrol {Materials}
     field. Select the \inlineimage plus.png
     button to add materials to the list. For more information about materials,
-    see \l {Using Materials and Shaders}.
+    see \l {Materials and Shaders}.
 */

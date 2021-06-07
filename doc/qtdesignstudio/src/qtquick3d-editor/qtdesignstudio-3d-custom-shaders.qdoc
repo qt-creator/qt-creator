@@ -30,7 +30,7 @@
     \previouspage studio-3d-effects.html
     \nextpage studio-3d-custom-effects-materials.html
 
-    \title Using Custom Shaders
+    \title Custom Shaders
 
     You can use the 3D shader utilities and commands available in \l Library
     > \uicontrol Components > \uicontrol QtQuick3D > \uicontrol
@@ -52,7 +52,7 @@
     \l {Adding and Removing Modules}.
 
     For more information on using the shaders, see
-    \l {Creating Custom Effects and Materials}.
+    \l {Custom Effects and Materials}.
 
     See the following tables for available shader utilities and commands.
 
@@ -90,8 +90,8 @@
             \uicontrol {Always Dirty} properties. The \uicontrol Passes property
             contains a list of render passes implemented by the material.
             The \uicontrol {Shader Info} specifies the shader info of the
-            material. For more information, see \l {Creating Custom Effects and
-            Materials}.
+            material. For more information, see
+            \l {Custom Effects and Materials}.
 
     \row
         \li \l Effect
@@ -99,7 +99,7 @@
 
             The \uicontrol Passes property contains a list of render passes
             implemented by the effect. For more information, see
-            \l {Creating Custom Effects and Materials}.
+            \l {Custom Effects and Materials}.
 
     \row
         \li \l Pass

@@ -26,20 +26,28 @@
 /*!
     \page quick-uis.html
     \if defined(qtdesignstudio)
-    \previouspage creator-exporting-qml.html
+    \previouspage {Examples and Tutorials}
     \nextpage studio-app-flows.html
     \else
     \previouspage qtquick-text-editor.html
     \nextpage quick-components.html
     \endif
 
-    \title Creating UIs
+    \title Wireframing
 
-    \if defined(qtdesignstudio)
-    When you install \QDS, everything you'll need to design UIs and to preview
-    them on the desktop or embedded Linux devices is automatically installed
-    and configured correctly for you.
-    \endif
+    \table
+        \row
+            \li \image front-ui.png
+            \li Plan your UI properly. Know what elements, such as screens,
+                components, and states, you need. Create a descriptive wireframe
+                and acquire a detailed UI specification before you start to make
+                the process of creating the UI more efficient.
+                \QC enables you to turn your UI concept into a wireframe with
+                a scalable layout where all your screens and controls are in
+                place. You can present your wireframe to developers and other
+                stakeholders for discussion, review, and approval before
+                continuing into the prototyping phase.
+    \endtable
 
     In \QC, you build UIs around the behavior of \l{glossary-component}
     {components} and how they connect with one another. You can use preset
@@ -49,11 +57,12 @@
     set of predefined properties, some of which control things that are
     visible to users, while others are used behind the scene.
 
-    When you drag-and-drop the preset components from the \uicontrol Library
-    view to the \l {Form Editor} or \l Navigator view and change them to your
-    liking by modifying their properties in the \l Properties view, the
-    application code is generated for you accordingly. For more information
-    about the code, open the developer documentation by pressing \key F1.
+    You drag-and-drop the preset components from the \uicontrol Library view
+    to the \l {Form Editor}, \l{3D Editor}, or \l Navigator view to create
+    instances of them. You then change the instances to your liking by modifying
+    their properties in the \l Properties view. The application code is
+    generated for you accordingly. For more information about the code, open
+    the developer documentation by pressing \key F1.
 
     \list
 
@@ -67,12 +76,13 @@
             the user experience of the application.
         \endif
 
-        \li \l {Creating Components}
+        \li \l {Components}
 
-            You can enhance imported designs by customizing preset
-            components or design custom forms and shapes directly as
-            components. You can import visual assets in various formats,
-            such as PNG, JPG, and SVG for use in the components.
+            \QDS comes with \e {preset components} that you can use in
+            wireframes and prototypes by creating instances of them.
+            To build your own components, you can modify the \e properties
+            of the component instances and combine them. You can import
+            designs and assets from other tools as components.
 
         \li \l {Specifying Component Properties}
 
@@ -80,10 +90,10 @@
             its appearance and behavior. All components have a set of predefined
             properties. Some properties, such as position, size, and visibility,
             are common to all components, whereas others are specific to the
-            component. You can specify properties for your components in the
-            \l Properties view.
+            component. You can specify values for properties of component
+            instances in the \l Properties view.
 
-        \li \l {Positioning Components}
+        \li \l {Scalable Layouts}
 
             The position of a component in a UI can be either absolute
             or relative to other components. While manual positioning
@@ -91,9 +101,11 @@
             methods, such as anchors, layouts, positioners, and property
             bindings, for dynamic UIs.
 
+        \if defined(qtcreator)
         \li \l {Using Custom Fonts}
 
             You can load custom fonts to \QC and use them in your designs.
+        \endif
 
         \li \l {Annotating Designs}
 
@@ -107,19 +119,13 @@
             you can test grid, list, or path views, even though you don't
             have access to real data.
 
-        \endif
-
-    \if defined(qtdesignstudio)
-    \endlist
-
-    \section1 Related Topics
-
-    \list
-    \endif
-            \li \l{UI Files}
+        \li \l{UI Files}
 
             Some of the wizards create projects that contain UI files
             (.ui.qml). You should always edit UI files in \l{Form Editor}
             and \l Properties, to avoid breaking the code.
+
+        \endif
+
     \endlist
 */

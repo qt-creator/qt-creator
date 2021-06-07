@@ -121,7 +121,7 @@
     \image qmldesigner-form-editor-move-cursor.png "Move cursor in Form Editor view"
 
     For more information about alternative ways of positioning component
-    instances in UIs, see \l{Positioning Components}.
+    instances in UIs, see \l{Scalable Layouts}.
 
     \section1 Resizing 2D Components
 

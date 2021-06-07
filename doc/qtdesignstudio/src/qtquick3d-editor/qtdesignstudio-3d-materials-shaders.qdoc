@@ -30,7 +30,7 @@
     \previouspage studio-3d-model.html
     \nextpage studio-3d-texture.html
 
-    \title Using Materials and Shaders
+    \title Materials and Shaders
 
     \image studio-qtquick-3d-material.png "Material attached to model in Design mode"
 
@@ -48,7 +48,7 @@
     \list
         \li Default material
         \li Principled material
-        \li \l{Creating Custom Effects and Materials}{Custom material}
+        \li \l{Custom Effects and Materials}{Custom material}
         \li Texture
     \endlist
 
@@ -60,7 +60,7 @@
 
     You can use the \l Texture component to apply textures to materials. It
     defines an image and how the image is mapped to meshes in a 3D scene. For
-    more information, see \l {Attaching Textures to Materials}.
+    more information, see \l {Textures}.
 
     You can modify material properties in the \uicontrol Properties view, as
     instructed in the following sections. The availability of the properties

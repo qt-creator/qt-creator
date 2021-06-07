@@ -30,7 +30,7 @@
     \previouspage studio-3d-custom-effects-materials.html
     \nextpage studio-3d-camera.html
 
-    \title Using Lights
+    \title Lights
 
     Light components are the primary source of lighting in a \QDS scene.
     As a secondary light source, you can use \l{Using Image-based Lighting}

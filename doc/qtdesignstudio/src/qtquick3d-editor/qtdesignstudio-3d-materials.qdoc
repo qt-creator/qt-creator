@@ -30,10 +30,10 @@
     \previouspage studio-3d-texture.html
     \nextpage studio-3d-effects.html
 
-    \title Using 3D Materials
+    \title 3D Materials
 
     \QDS provides a set of pregenerated Qt Quick 3D materials that can be used
-    to create good-looking \l {Adding 3D Models}{models} quickly and easily.
+    to create good-looking \l {3D Models}{models} quickly and easily.
 
     To apply a 3D material to a component, you should first delete the default
     material and then drag-and-drop a new material from \l Library >
@@ -64,8 +64,8 @@
     You can use the \l {CustomMaterial}{Custom Material} component available in
     \uicontrol {Qt Quick 3D Effects} > \uicontrol {Custom Shader Utils} as
     the base component for creating custom materials used to shade models. For
-    more information, see \l {Creating Custom Effects and Materials} and
-    \l {Using Custom Shaders}.
+    more information, see \l {Custom Effects and Materials} and
+    \l {Custom Shaders}.
 
     \section1 Metal Materials
 

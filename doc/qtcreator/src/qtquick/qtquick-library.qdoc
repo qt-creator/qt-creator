@@ -69,11 +69,21 @@
         \li \l {Logic Helpers}
         \endif
         \li \l Animations
-        \li \l{Using 3D Components}{3D Components}
+        \li \l{3D Views}
+        \li \l{Group}
+        \li \l{3D Models}
+        \li \l{Materials and Shaders}
+        \li \l{Textures}
+        \li \l{3D Materials}
+        \li \l{3D Effects}
+        \li \l{Custom Shaders}
+        \li \l{Lights}
+        \li \l{Cameras}
+        \li \l{Scene Environment}
     \endlist
 
     For more information about creating your own components, see
-    \l{Creating Components}.
+    \l{Creating Custom Components}.
 
     \section2 Adding and Removing Modules
 

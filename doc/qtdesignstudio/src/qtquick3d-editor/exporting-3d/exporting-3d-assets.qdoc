@@ -29,9 +29,9 @@
 /*!
     \page exporting-3d-assets.html
     \if defined(qtdesignstudio)
-    \previouspage qtbridge-figma-using.html
+    \previouspage
     \else
-    \previouspage studio-3d.html
+    \previouspage quick-states.html
     \endif
     \nextpage exporting-from-blender.html
 

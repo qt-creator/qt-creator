@@ -1,0 +1,157 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-components-creating.html
+    \previouspage quick-component-instances.html
+    \nextpage quick-buttons.html
+
+    \title Creating Custom Components
+
+    You can either use project wizard templates to create custom components and
+    controls or move component instances into separate files to turn them into
+    new components that you can create instances of. You can then use the
+    instances of the new components in other components.
+
+    \image qtquick-components-custom.png "Custom components in My Components"
+
+    Custom components are stored in \l Library > \uicontrol Components >
+    \uicontrol {My Components}. You can create instances of custom components
+    by dragging-and-dropping them from \uicontrol Library to \l {Form Editor},
+    \l {3D Editor}, or \l Navigator.
+
+    \section1 Creating Components from Scratch
+
+    To use wizard templates to create custom components:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \if defined(qtcreator)
+            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \else
+            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+            \endif
+            \uicontrol Choose to create a new .qml file.
+            \note Components are listed in \uicontrol Library >
+            \uicontrol Components > \uicontrol {My Components} only
+            if the filename begins with a capital letter.
+        \li Click \uicontrol Design to open the component file (ui.qml) in
+            \uicontrol {Form Editor}.
+        \li Drag-and-drop a component from \uicontrol Library to
+            \uicontrol Navigator or \uicontrol {Form Editor}.
+        \li Edit component properties in the \uicontrol Properties view.
+            \image qmldesigner-custom-component-properties.png
+            The available properties depend on the component type. You can
+            \l{Specifying Dynamic Properties}{add properties for
+            components} in \uicontrol {Connection View} > \uicontrol Properties.
+        \li To change the appearance and behavior of the component instances
+            in ways that are not supported in \QDS by default, you can define
+            custom properties in \uicontrol {Connection View} >
+            \uicontrol {Properties}.
+
+    \endlist
+
+    The following sections contain more information about how to use
+    \uicontrol {Form Editor} to edit 2D content and \uicontrol {3D Editor}
+    to edit 3D scenes, as well as examples of how to create UI controls
+    using instances of basic components:
+
+    \list
+        \li \l{Form Editor}
+        \li \l{3D Editor}
+        \li \l{Creating Buttons}
+        \li \l{Creating Scalable Buttons and Borders}
+    \endlist
+
+    \section1 Naming Conventions
+
+    Establish naming conventions to keep the components in your UI organized.
+    Name your components accurately and give them suitable IDs. Particularly,
+    check and modify the default names of the components you export from design
+    tools to create reliable and self-explanatory names that follow the naming
+    conventions you have established.
+
+    For example, a button symbol might have the ID \e myButton_symbol and the
+    different layers might have it as a prefix with the states appended, thus
+    producing IDs such as \e myButton_symbol_default. To prepare for additional
+    mouse areas later in the project, you could use similar IDs for them, such
+    as \e myButton_symbol_hotspot. When you use the button as instances in a
+    screen, you would give each of these instances a unique ID that relates to
+    that screen. For example, \e myButton_myMenu_home, \e myButton_myMenu_profile,
+    and \e myButton_myMenu_settings
+
+    \if defined(qtdesignstudio)
+    \include qtdesignstudio-components.qdocinc creating studio components
+    \endif
+
+    \section1 Turning Component Instances into Custom Components
+
+    An alternative way of creating reusable components is to turn
+    component instances into custom components by moving them into
+    separate component files (.ui.qml). Right-click a component instance
+    in \uicontrol Navigator or \uicontrol {Form Editor}, and select
+    \uicontrol {Move Component into Separate File} in the context menu.
+
+    \image qtcreator-move-component-into-separate-file.png
+
+    Give the new component a name, and select whether properties are set for
+    the new component or for the original one.
+
+    When you select \uicontrol OK, a new component file is created and an
+    instance of the component is added to the code in the current component
+    file. The look of your UI in \uicontrol {Form Editor} does not change.
+
+    To open the new component file for editing the properties that you want
+    to change for all instances of the component, right-click the component,
+    and then select \uicontrol {Go into Component} in the context menu. For
+    additional ways of opening base components, see \l{Moving Within Components}.
+
+    For an example of creating a reusable custom component, see
+    \if defined(qtcreator)
+    \l{Creating a Mobile Application}.
+    \else
+    \l{Progress Bar}.
+    \endif
+
+    Custom components are listed in \uicontrol Library > \uicontrol Components
+    > \uicontrol {My Components}, and you can use instances of them to build
+    more components.
+
+    \include qtquick-mcu-support.qdocinc mcu qtquick components
+
+    \section1 Merging Files with Templates
+
+    You can merge the current component file against an existing second
+    component file using the second file in a way similar to using a CSS
+    stylesheet.
+
+    To use this experimental feature, right-click a component in the
+    \uicontrol Navigator or \uicontrol {Form Editor} view and select
+    \uicontrol {Merge File with Template} in the context menu.
+
+    \image qmldesigner-merge-with-template.png "Merge with Template dialog"
+
+    In the \uicontrol Template field, select the file to use as a template.
+*/

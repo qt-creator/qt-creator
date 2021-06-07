@@ -30,9 +30,9 @@
     \previouspage studio-3d-custom-shaders.html
     \nextpage studio-3d-lights.html
 
-    \title Creating Custom Effects and Materials
+    \title Custom Effects and Materials
 
-    The \l{Applying 3D Effects}{Qt Quick 3D Effects} and \l{Using 3D Materials}
+    The \l{3D Effects}{Qt Quick 3D Effects} and \l{3D Materials}
     {Qt Quick 3D Materials} modules contain a set of ready-made effects and
     materials that you can apply to 3D models. If the ready-made effects and
     materials don't meet your needs, you can create custom effects and
@@ -57,7 +57,7 @@
     component in \uicontrol Library > \uicontrol {QtQuick3D Materials} >
     \uicontrol {Qt Quick 3D Custom Shader Utils}. For more information about the
     shader utilities and commands and their properties, see
-    \l {Using Custom Shaders}.
+    \l {Custom Shaders}.
 
     \note You must create the actual shader source files with some other tool
     and copy them to your project folder. You can then specify the source file

@@ -60,32 +60,23 @@
                 \li \l{Use Cases}
                 \li \l{Concepts and Terms}
                 \li \l{Examples and Tutorials}
-                    \list
-                        \li \l{Qt Quick Best Practices}
-                            \list
-                                \li \l{Creating Optimized 3D Scenes}
-                            \endlist
-                    \endlist
             \endlist
-        \li \l{Wireframing} (NEW)
+        \li \l{Wireframing}
             \list
-                \li \l {Creating UIs}{Creating 2D and 3D UIs}
+                \li \l{Designing Application Flows}
                     \list
-                        \li \l{Designing Application Flows}
-                            \list
-                                \li \l{Adding Flow Views}
-                                \li \l{Adding Flow Items}
-                                \li \l{Adding Action Areas and Transitions}
-                                \li \l{Applying Effects to Transitions}
-                                \li \l{Simulating Events}
-                                \li \l{Simulating Conditions}
-                                \li \l{Applying States in Flows}
-                                \li \l{Reacting to External Events}
-                             \endlist
+                        \li \l{Adding Flow Views}
+                        \li \l{Adding Flow Items}
+                        \li \l{Adding Action Areas and Transitions}
+                        \li \l{Applying Effects to Transitions}
+                        \li \l{Simulating Events}
+                        \li \l{Simulating Conditions}
+                        \li \l{Applying States in Flows}
+                        \li \l{Reacting to External Events}
                     \endlist
-                \li \l {Creating Components}{Components} (NEW) (grid?)
+                \li \l {Components}
                     \list
-                        \li \l{Component Types}{Preset Components}
+                        \li \l{Preset Components}
                             \list
                                 \li \l{Shapes}
                                 \li \l{Text}
@@ -96,28 +87,29 @@
                                 \li \l{2D Effects}
                                 \li \l{Logic Helpers}
                                 \li \l Animations
-                                \li \l{Setting Scene Environment}{Scene Environment}
-                                \li \l{Adding 3D Views}{3D Views}
-                                \li \l{Setting Group Properties}{Group}
-                                \li \l{Adding 3D Models}{3D Models}
-                                \li \l{Using Materials and Shaders}{Materials and Shaders}
-                                \li \l{Attaching Textures to Materials}{Textures}
-                                \li \l{Using 3D Materials}{3D Materials}
-                                \li \l{Applying 3D Effects}{3D Effects}
-                                \li \l{Using Custom Shaders}{Custom Shaders}
-                                \li \l{Using Lights}{Lights}
-                                \li \l{Using Scene Camera}{Cameras}
+                                \li \l{3D Views}
+                                \li \l{Group}
+                                \li \l{3D Models}
+                                \li \l{Materials and Shaders}
+                                \li \l{Textures}
+                                \li \l{3D Materials}
+                                \li \l{3D Effects}
+                                \li \l{Custom Shaders}
+                                \li \l{Custom Effects and Materials}
+                                \li \l{Lights}
+                                \li \l{Cameras}
+                                \li \l{Scene Environment}
                             \endlist
-                        \li \l {Creating Your Own Components}{Creating Custom Components}
+                        \li \l {Creating Component Instances}
+                        \li \l {Creating Custom Components}
                             \list
                                 \li \l{Creating Buttons}
                                 \li \l{Creating Scalable Buttons and Borders}
-                                \li \l{Creating Custom Effects and Materials}
                             \endlist
-                        \li \l{Specifying Component Properties}
-                        \li \l{Positioning Components}{Scalable Layouts}
-                        \li \l{Annotating Designs}
                     \endlist
+                \li \l{Specifying Component Properties}
+                \li \l{Scalable Layouts}
+                \li \l{Annotating Designs}
             \endlist
         \li \l{Prototyping} (NEW)
             \list
@@ -200,6 +192,7 @@
             \endlist
         \li \l{Implementing Applications} (NEW)
             \list
+                \li\l{Creating Optimized 3D Scenes}
                 \li Using Flows in Production (NEW)
                 \li \l{Coding}{Cross-Platform Development} (NEW)
                     \list

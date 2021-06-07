@@ -175,7 +175,7 @@
 
     If you are building your UI from scratch in \QDS, you must first add
     components to the flow items to create the screens as you would any
-    components. For more information, see \l {Creating Components}. The
+    components. For more information, see \l {Components}. The
     flow items that you attach the components to are listed under
     \uicontrol {My Components}.
 

@@ -28,13 +28,9 @@
 /*!
     \page studio-3d-scene-environment.html
     \previouspage studio-3d-camera.html
-    \if defined (qtdesignstudio)
-    \nextpage creator-live-preview.html
-    \else
-    \nextpage qtquick-iso-icon-browser.html
-    \endif
+    \nextpage quick-component-instances.html
 
-    \title Setting Scene Environment
+    \title Scene Environment
 
     You can use the SceneEnvironment type to specify how the scene is rendered
     globally. You can specify settings for antialiasing, scene background,
@@ -134,13 +130,13 @@
     \note Large distances between the clipping planes of your camera may cause
     problems with ambient occlusion. If you are seeing odd banding in ambient
     occlusion, try adjusting the value in the \uicontrol {Clip far} field in
-    the \l{Using Scene Camera}{scene camera} properties.
+    the \l{Cameras}{scene camera} properties.
 
     \section1 Using Image-based Lighting
 
     In the material properties, you can specify an image (preferably
     a high-dynamic range image) to use to light the scene, either
-    instead of or in addition to \l{Using Lights}{scene lights}. In the
+    instead of or in addition to \l{Lights}{scene lights}. In the
     \uicontrol {Probe brightness} field, you can modify the amount of
     light emitted by the light probe.
 

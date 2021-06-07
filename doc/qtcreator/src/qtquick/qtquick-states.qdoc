@@ -27,10 +27,11 @@
     \page quick-states.html
     \if defined(qtdesignstudio)
     \previouspage quick-property-bindings.html
+    \nextpage creator-live-preview.html
     \else
-    \previouspage quick-connections-backend.html
+    \previouspage qtbridge-figma-using.html
+    \nextpage exporting-3d-assets.html
     \endif
-    \nextpage studio-3d.html
 
     \title Adding States
 

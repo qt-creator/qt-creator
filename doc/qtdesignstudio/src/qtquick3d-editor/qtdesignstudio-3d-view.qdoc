@@ -24,20 +24,20 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-3d-editor.html
     \page studio-3d-view.html
-    \nextpage studio-3d-components.html
+    \previouspage quick-animations.html
+    \nextpage studio-3d-node.html
 
-    \title Adding 3D Views
+    \title 3D Views
 
     To create a Qt Quick 3D UI project, we recommend using a \uicontrol
     {Qt Quick 3D Application Template} wizard template that adds the
-    \l {Using 3D Components}{Qt Quick 3D} components to \l Library >
+    \l {3D Components}{Qt Quick 3D} components to \l Library >
     \uicontrol Components and contains a 3D view. A 3D view component includes a
-    \l {Setting Scene Environment}{scene environment} as well as a scene
-    \l {Using Lights}{light}, \l {Using Scene Camera}{camera}, and
-    \l {Adding 3D Models}{model}. A default \l {Using Materials and Shaders}{material}
-    is attached to the model. You can attach \l {Attaching Textures to Materials}{textures}
+    \l {Scene Environment}{scene environment} as well as a scene
+    \l {Lights}{light}, \l {Cameras}{camera}, and
+    \l {3D Models}{model}. A default \l {Materials and Shaders}{material}
+    is attached to the model. You can attach \l {Textures}{textures}
     to materials. For more information about creating projects, see \l{Creating Projects}.
 
     To add a 3D view to some other kind of a project, you first need to add the

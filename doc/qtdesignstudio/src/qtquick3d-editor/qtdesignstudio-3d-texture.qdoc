@@ -30,7 +30,7 @@
     \previouspage studio-3d-materials.html
     \nextpage studio-3d-materials-types.html
 
-    \title Attaching Textures to Materials
+    \title Textures
 
     You can use the \uicontrol Texture component to attach textures to materials.
     You specify an image to use as the source file for the \uicontrol Texture,

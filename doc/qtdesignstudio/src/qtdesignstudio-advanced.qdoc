@@ -47,6 +47,11 @@
 
             You can install and run \QC on several operating systems to design
             UIs for multiple desktop, embedded, and mobile device platforms.
+        \li \l{UI Files}
+
+            Some of the wizards create projects that contain UI files
+            (.ui.qml). You should always edit UI files in \l{Form Editor}
+            and \l Properties, to avoid breaking the code.
         \li \l{Coding}
 
             You can use the code editor in the \uicontrol {Text Editor} view or

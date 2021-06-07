@@ -134,7 +134,7 @@
 
     The QML types supported by \QDS are listed in the \uicontrol {Components}
     tab in the \l {Library} in the Design mode of \QDS. For more
-    information, see \l{Creating Components}.
+    information, see \l{Components}.
 
     You can also specify values for the properties of the component or create
     \l{Property Aliases}{property aliases} to fetch the values from other

@@ -25,12 +25,12 @@
 
 /*!
     \page qtquick-annotations.html
-    \previouspage qtquick-fonts.html
     \if defined(qtdesignstudio)
-    \nextpage creator-quick-ui-forms.html
+    \previouspage qtquick-positioning.html
     \else
-    \nextpage qtquick-placeholder-data.html
+    \previouspage qtquick-fonts.html
     \endif
+    \nextpage qtquick-placeholder-data.html
 
     \title Annotating Designs
 

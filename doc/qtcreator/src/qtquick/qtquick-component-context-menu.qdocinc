@@ -77,7 +77,7 @@
         \li \l{Merging Files with Templates}
     \row
         \li Move Component Instances into Separate Files
-        \li \l{Moving Component Instances into Separate Files}
+        \li \l{Turning Component Instances into Custom Components}
     \row
         \li Add New Signal Handler
         \li \l{Adding Signal Handlers}

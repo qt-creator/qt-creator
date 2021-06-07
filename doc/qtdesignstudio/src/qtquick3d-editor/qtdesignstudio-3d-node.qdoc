@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-3d-components.html
     \page studio-3d-node.html
+    \previouspage quick-animations.html
     \nextpage studio-3d-model.html
 
-    \title Setting Group Properties
+    \title Group
 
     The \uicontrol Group component is a \uicontrol Node component that can be
     used to wrap other objects for the purpose of grouping them. This allows you

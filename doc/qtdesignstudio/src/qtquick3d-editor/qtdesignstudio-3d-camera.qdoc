@@ -30,12 +30,12 @@
     \previouspage studio-3d-lights.html
     \nextpage studio-3d-scene-environment.html
 
-    \title Using Scene Camera
+    \title Cameras
 
     A camera is always necessary to view the content of a 3D scene. A camera
     defines how to project the content of a 3D scene into a 2D coordinate space,
     which can then be used on a 2D surface. When a camera is present in the
-    scene, it can be used to direct what is displayed in a \l {Adding 3D Views}
+    scene, it can be used to direct what is displayed in a \l {3D Views}
     {3D view}.
 
      \image studio-qtquick-3d-components.png "Qt Quick 3D components in Library"

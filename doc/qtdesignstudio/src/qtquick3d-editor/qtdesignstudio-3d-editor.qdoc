@@ -40,9 +40,9 @@
     the scene.
 
     When you import 3D scenes from files that you exported from 3D graphics
-    tools, you also import a \l{Using Scene Camera}{scene camera},
-    \l{Using Lights}{light}, \l{Adding 3D Models}{model}, and
-    \l {Using Materials and Shaders}{materials}. If your scene did not contain
+    tools, you also import a \l{Cameras}{scene camera},
+    \l{Lights}{light}, \l{3D Models}{model}, and
+    \l {Materials and Shaders}{materials}. If your scene did not contain
     them, you can add the corresponding \l {Using 3D Components}{Qt Quick 3D}
     components from \l Library > \uicontrol Components > \inlineimage plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
@@ -120,7 +120,7 @@
     cameras are available in \uicontrol Library > \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
     about using cameras in the scene, the available camera types, and their
-    properties, see \l{Using Scene Camera}.
+    properties, see \l{Cameras}.
 
     \section1 Using Global and Local Orientation
 
@@ -151,7 +151,7 @@
     or press \key U.
 
     For more information about the available scene light types and their
-    properties, see \l{Using Lights}.
+    properties, see \l{Lights}.
 
     \section1 Selecting Components
 

@@ -76,13 +76,15 @@
     in Button.ui.qml. Typically, the visual appearance of a component is
     defined in a \e {UI file}. To create component files, you can use
     \l{Creating Components from Scratch}{wizard templates}, or
-    \l{Moving Component Instances into Separate Files}
+    \l{Turning Component Instances into Custom Components}
     {move component instances into separate component files}.
 
     Read more about components:
 
     \list
-        \li \l{Creating Components}
+        \li \l {Preset Components}
+        \li \l {Creating Component Instances}
+        \li \l {Creating Custom Components}
     \endlist
 
     \section1 Device

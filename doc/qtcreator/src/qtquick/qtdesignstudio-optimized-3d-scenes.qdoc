@@ -25,12 +25,8 @@
 
 /*!
     \page studio-optimized-3d-scenes.html
-    \previouspage studio-qtquick-best-practices.html
-    \if defined(qtdesignstudio)
-    \nextpage studio-platforms.html
-    \else
-    \nextpage creator-coding.html
-    \endif
+    \previouspage quick-scalable-image.html
+    \nextpage qtquick-properties.html
 
     \title Creating Optimized 3D Scenes
 

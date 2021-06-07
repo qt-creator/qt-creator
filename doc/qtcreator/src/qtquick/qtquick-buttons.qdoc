@@ -31,7 +31,7 @@
 
 /*!
     \page quick-buttons.html
-    \previouspage quick-animations.html
+    \previouspage quick-components-creating.html
     \nextpage quick-scalable-image.html
 
     \title Creating Buttons
@@ -128,7 +128,11 @@
 /*!
     \previouspage quick-buttons.html
     \page quick-scalable-image.html
+    \if defined(qtdesignstudio)
     \nextpage qtquick-properties.html
+    \else
+    \nextpage studio-optimized-3d-scenes.html
+    \endif
 
     \title Creating Scalable Buttons and Borders
 
@@ -275,7 +279,7 @@
     and set the button text for each button instance, for example.
 
     For more information about positioning buttons on screens, see
-    \l{Positioning Components}.
+    \l{Scalable Layouts}.
 
     \image qmldesigner-borderimage.png "Button preview as part of a screen"
 */
