@@ -26,7 +26,6 @@
 #pragma once
 
 #include <texteditor/basefilefind.h>
-#include <utils/futuresynchronizer.h>
 
 #include <QCoreApplication>
 
@@ -63,7 +62,6 @@ private:
     QWidget *m_widget;
     Utils::FancyLineEdit *m_treeLineEdit;
     QCheckBox *m_recurseSubmodules = nullptr;
-    Utils::FutureSynchronizer m_futureSynchronizer;
 };
 
 } // namespace Internal

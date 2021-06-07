@@ -27,18 +27,19 @@
 #include "textdocument.h"
 
 #include <aggregation/aggregate.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/ifindsupport.h>
-#include <texteditor/texteditor.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/refactoringchanges.h>
+#include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -111,8 +112,11 @@ public:
 class BaseFileFindPrivate
 {
 public:
+    BaseFileFindPrivate() { m_futureSynchronizer.setCancelOnWait(true); }
+
     QPointer<IFindSupport> m_currentFindSupport;
 
+    Utils::FutureSynchronizer m_futureSynchronizer;
     QLabel *m_resultLabel = nullptr;
     // models in native path format
     QStringListModel m_filterStrings;
@@ -308,8 +312,10 @@ void BaseFileFind::runSearch(SearchResult *search)
     connect(watcher, &QFutureWatcherBase::finished, search, [watcher, search]() {
         search->finishSearch(watcher->isCanceled());
     });
-    watcher->setFuture(executeSearch(parameters));
-    FutureProgress *progress = ProgressManager::addTask(QFuture<void>(watcher->future()),
+    QFuture<FileSearchResultList> future = executeSearch(parameters);
+    watcher->setFuture(future);
+    d->m_futureSynchronizer.addFuture(future);
+    FutureProgress *progress = ProgressManager::addTask(QFuture<void>(future),
                                                         tr("Searching"),
                                                         Constants::TASK_SEARCH);
     connect(search, &SearchResult::countChanged, progress, [progress](int c) {
