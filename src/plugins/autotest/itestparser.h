@@ -95,6 +95,7 @@ public:
     static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                           const Utils::FilePath &filePath,
                                           const QRegularExpression &headerFileRegex);
+
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;
     CppTools::WorkingCopy m_workingCopy;
