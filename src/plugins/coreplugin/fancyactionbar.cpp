@@ -86,6 +86,42 @@ bool FancyToolButton::event(QEvent *e)
     return QToolButton::event(e);
 }
 
+static int findSplitPos(const QString &text, const QFontMetrics &fontMetrics, qreal availableWidth)
+{
+    if (text.length() == 0)
+        return -1;
+    int splitPos = -1;
+    int lastWhiteSpace;
+    int firstWhiteSpace = text.length();
+    do {
+        // search backwards for ranges of whitespaces
+        // search first whitespace (backwards)
+        lastWhiteSpace = firstWhiteSpace - 1; // start before last blob (or at end of text)
+        while (lastWhiteSpace >= 0) {
+            if (text.at(lastWhiteSpace).isSpace())
+                break;
+            --lastWhiteSpace;
+        }
+        // search last whitespace (backwards)
+        firstWhiteSpace = lastWhiteSpace;
+        while (firstWhiteSpace > 0) {
+            if (!text.at(firstWhiteSpace - 1).isSpace())
+                break;
+            --firstWhiteSpace;
+        }
+        // if the text after the whitespace range fits into the available width, that's a great
+        // position for splitting, but look if we can fit more
+        if (firstWhiteSpace != -1) {
+            if (fontMetrics.horizontalAdvance(text.mid(lastWhiteSpace + 1)) <= availableWidth)
+                splitPos = lastWhiteSpace + 1;
+            else
+                break;
+        }
+    } while (firstWhiteSpace > 0
+             && fontMetrics.horizontalAdvance(text.left(firstWhiteSpace)) > availableWidth);
+    return splitPos;
+}
+
 static QVector<QString> splitInTwoLines(const QString &text,
                                         const QFontMetrics &fontMetrics,
                                         qreal availableWidth)
@@ -95,21 +131,7 @@ static QVector<QString> splitInTwoLines(const QString &text,
     // to put them in the second line. First line is drawn with ellipsis,
     // second line gets ellipsis if it couldn't split off full words.
     QVector<QString> splitLines(2);
-    const QRegularExpression rx(QLatin1String("\\s+"));
-    int splitPos = -1;
-    int nextSplitPos = text.length();
-    do {
-        int offset = nextSplitPos - text.length() - 1;
-        nextSplitPos = text.lastIndexOf(rx, offset);
-        if (nextSplitPos != -1) {
-            const QRegularExpressionMatch match = rx.match(text, offset);
-            int splitCandidate = nextSplitPos + match.capturedLength();
-            if (fontMetrics.horizontalAdvance(text.mid(splitCandidate)) <= availableWidth)
-                splitPos = splitCandidate;
-            else
-                break;
-        }
-    } while (nextSplitPos > 0 && fontMetrics.horizontalAdvance(text.left(nextSplitPos)) > availableWidth);
+    const int splitPos = findSplitPos(text, fontMetrics, availableWidth);
     // check if we could split at white space at all
     if (splitPos < 0) {
         splitLines[0] = fontMetrics.elidedText(text, Qt::ElideRight, int(availableWidth));

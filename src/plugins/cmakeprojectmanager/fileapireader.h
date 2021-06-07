@@ -93,6 +93,8 @@ private:
     void replyDirectoryHasChanged(const QString &directory) const;
     void makeBackupConfiguration(bool store);
 
+    void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
+
     std::unique_ptr<CMakeProcess> m_cmakeProcess;
 
     // cmake data:
