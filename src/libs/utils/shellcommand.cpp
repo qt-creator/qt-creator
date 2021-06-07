@@ -318,7 +318,7 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
     }
 
     if (!(d->m_flags & SuppressCommandLogging))
-        appendCommand(dir, command);
+        emit appendCommand(dir, command);
 
     proc.setCommand(command);
     if ((d->m_flags & FullySynchronously)
@@ -333,9 +333,9 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
         // Success/Fail message in appropriate window?
         if (proc.result() == QtcProcess::FinishedWithSuccess) {
             if (d->m_flags & ShowSuccessMessage)
-                appendMessage(proc.exitMessage());
+                emit appendMessage(proc.exitMessage());
         } else if (!(d->m_flags & SuppressFailMessage)) {
-            appendError(proc.exitMessage());
+            emit appendError(proc.exitMessage());
         }
     }
 }
@@ -360,14 +360,14 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
     if (!d->m_aborted) {
         const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
-            append(stdErr);
+            emit append(stdErr);
 
         const QString stdOut = process.stdOut();
         if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
             if (d->m_flags & SilentOutput)
-                appendSilently(stdOut);
+                emit appendSilently(stdOut);
             else
-                append(stdOut);
+                emit append(stdOut);
         }
     }
 }

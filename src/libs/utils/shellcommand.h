@@ -138,20 +138,16 @@ signals:
 
     void terminate(); // Internal
 
+    void append(const QString &text);
+    void appendSilently(const QString &text);
+    void appendError(const QString &text);
+    void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command);
+    void appendMessage(const QString &text);
+
 protected:
     virtual void addTask(QFuture<void> &future);
     int timeoutS() const;
     QString workDirectory(const QString &wd) const;
-
-    // Below methods are called directly from other threads
-    virtual void append(const QString &text) { Q_UNUSED(text) }
-    virtual void appendSilently(const QString &text) { Q_UNUSED(text) }
-    virtual void appendError(const QString &text) { Q_UNUSED(text) }
-    virtual void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command) {
-        Q_UNUSED(workingDirectory)
-        Q_UNUSED(command)
-    }
-    virtual void appendMessage(const QString &text) { Q_UNUSED(text) }
 
 private:
     void run(QFutureInterface<void> &future);

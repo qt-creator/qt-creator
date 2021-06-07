@@ -42,7 +42,6 @@ VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &envir
 {
     VcsOutputWindow::setRepository(workingDirectory);
     setDisableUnixTerminal();
-    m_outputWindow = VcsOutputWindow::instance();
     m_sshPrompt = VcsBase::sshPrompt();
 
     connect(this, &VcsCommand::started, this, [this] {
@@ -53,6 +52,15 @@ VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &envir
         if (flags() & ExpectRepoChanges)
             Utils::GlobalFileChangeBlocker::instance()->forceBlocked(false);
     });
+
+    VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
+    connect(this, &ShellCommand::append, outputWindow, [outputWindow](const QString &t) {
+        outputWindow->append(t);
+    });
+    connect(this, &ShellCommand::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
+    connect(this, &ShellCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
+    connect(this, &ShellCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
+    connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
 }
 
 const Environment VcsCommand::processEnvironment() const
@@ -68,41 +76,6 @@ void VcsCommand::runCommand(SynchronousProcess &proc,
 {
     ShellCommand::runCommand(proc, command, workingDirectory);
     emitRepositoryChanged(workingDirectory);
-}
-
-void VcsCommand::append(const QString &text)
-{
-    QMetaObject::invokeMethod(m_outputWindow, [this, text] {
-        m_outputWindow->append(text);
-    });
-}
-
-void VcsCommand::appendSilently(const QString &text)
-{
-    QMetaObject::invokeMethod(m_outputWindow, [this, text] {
-        m_outputWindow->appendSilently(text);
-    });
-}
-
-void VcsCommand::appendError(const QString &text)
-{
-    QMetaObject::invokeMethod(m_outputWindow, [this, text] {
-        m_outputWindow->appendError(text);
-    });
-}
-
-void VcsCommand::appendCommand(const QString &workingDirectory, const Utils::CommandLine &command)
-{
-    QMetaObject::invokeMethod(m_outputWindow, [this, workingDirectory, command] {
-        m_outputWindow->appendCommand(workingDirectory, command);
-    });
-}
-
-void VcsCommand::appendMessage(const QString &text)
-{
-    QMetaObject::invokeMethod(m_outputWindow, [this, text] {
-        m_outputWindow->appendMessage(text);
-    });
 }
 
 void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)

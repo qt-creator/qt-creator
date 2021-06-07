@@ -51,13 +51,6 @@ public:
                     const Utils::CommandLine &command,
                     const QString &workDirectory = {}) override;
 
-protected:
-    void append(const QString &text) override;
-    void appendSilently(const QString &text) override;
-    void appendError(const QString &text) override;
-    void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command) override;
-    void appendMessage(const QString &text) override;
-
 private:
     void emitRepositoryChanged(const QString &workingDirectory);
 
@@ -65,7 +58,6 @@ private:
 
     QString m_sshPrompt;
     bool m_preventRepositoryChanged;
-    VcsOutputWindow *m_outputWindow = nullptr;
 };
 
 } // namespace VcsBase
