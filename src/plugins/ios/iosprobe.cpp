@@ -68,7 +68,6 @@ void XcodeProbe::detectDeveloperPaths()
     Utils::SynchronousProcess selectedXcode;
     selectedXcode.setTimeoutS(5);
     selectedXcode.setCommand({"/usr/bin/xcode-select", {"--print-path"}});
-    selectedXcode.setProcessUserEventWhileRunning();
     selectedXcode.runBlocking();
     if (selectedXcode.result() != QtcProcess::FinishedWithSuccess)
         qCWarning(probeLog)

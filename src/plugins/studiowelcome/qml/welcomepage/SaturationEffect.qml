@@ -24,14 +24,18 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtGraphicalEffects 1.0
 
 Item {
     id: root
 
     property real desaturation: 1.0
-    layer.enabled: true
-    layer.effect: Desaturate {
-        desaturation: root.desaturation
+
+    Rectangle {
+        z: 10
+        anchors.fill: parent
+        color: "#2d2e30"
+        anchors.margins: -16
+
+        opacity: root.desaturation * 0.6
     }
 }
