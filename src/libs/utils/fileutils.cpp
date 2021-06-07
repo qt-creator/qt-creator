@@ -28,6 +28,7 @@
 
 #include "algorithm.h"
 #include "commandline.h"
+#include "environment.h"
 #include "qtcassert.h"
 
 #include <QDataStream>
@@ -1275,6 +1276,26 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     res.m_host = deviceTemplate.m_host;
     res.m_scheme = deviceTemplate.m_scheme;
     return res;
+}
+
+/*!
+    Searched a binary corresponding to this object in the PATH of
+    the device implied by this object's scheme and host.
+
+    Example usage:
+    \code
+        binary = FilePath::fromUrl("docker://123/./make);
+        fullPath = binary.onDeviceSearchInPath();
+        assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
+    \endcode
+*/
+FilePath FilePath::onDeviceSearchInPath() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.searchInPath, return {});
+        return s_deviceHooks.searchInPath(*this);
+    }
+    return Environment::systemEnvironment().searchInPath(path());
 }
 
 FilePath FilePath::pathAppended(const QString &path) const

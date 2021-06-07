@@ -81,6 +81,7 @@ public:
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
     bool exists(const Utils::FilePath &filePath) const override;
+    Utils::FilePath searchInPath(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
                                             QDir::Filters filters) const override;

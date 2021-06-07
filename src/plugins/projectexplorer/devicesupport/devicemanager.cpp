@@ -416,6 +416,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->exists(filePath);
     };
 
+    deviceHooks.searchInPath = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return FilePath{});
+        return device->searchInPath(filePath);
+    };
+
     deviceHooks.dirEntries = [](const FilePath &filePath,
             const QStringList &nameFilters, QDir::Filters filters) {
         auto device = DeviceManager::deviceForPath(filePath);

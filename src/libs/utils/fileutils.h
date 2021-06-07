@@ -76,6 +76,7 @@ public:
     std::function<bool(const FilePath &)> ensureWritableDir;
     std::function<bool(const FilePath &)> createDir;
     std::function<bool(const FilePath &)> exists;
+    std::function<FilePath(const FilePath &)> searchInPath;
     std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
 };
@@ -179,6 +180,8 @@ public:
     QUrl toUrl() const;
 
     static void setDeviceFileHooks(const DeviceFileHooks &hooks);
+
+    FilePath onDeviceSearchInPath() const;
 
 private:
     friend class ::tst_fileutils;

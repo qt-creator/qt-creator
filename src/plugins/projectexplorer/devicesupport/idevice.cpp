@@ -266,6 +266,11 @@ bool IDevice::exists(const Utils::FilePath &filePath) const
     return false;
 }
 
+FilePath IDevice::searchInPath(const FilePath &filePath) const
+{
+    return Environment::systemEnvironment().searchInPath(filePath.path());
+}
+
 QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
                                           const QStringList &nameFilters,
                                           QDir::Filters filters) const

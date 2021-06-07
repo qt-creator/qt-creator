@@ -243,6 +243,7 @@ public:
     virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;
     virtual bool createDirectory(const Utils::FilePath &filePath) const;
     virtual bool exists(const Utils::FilePath &filePath) const;
+    virtual Utils::FilePath searchInPath(const Utils::FilePath &filePath) const;
     virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                                     const QStringList &nameFilters,
                                                     QDir::Filters filters) const;
