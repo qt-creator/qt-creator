@@ -96,7 +96,7 @@ static QObject *createFormatter(QQmlEngine *engine, QJSEngine *scriptEngine)
 void TimeFormatter::setupTimeFormatter()
 {
     static const int typeIndex = qmlRegisterSingletonType<TimeFormatter>(
-                "TimelineTimeFormatter", 1, 0, "TimeFormatter", createFormatter);
+                "QtCreator.Tracing", 1, 0, "TimeFormatter", createFormatter);
     Q_UNUSED(typeIndex)
 }
 

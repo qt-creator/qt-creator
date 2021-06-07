@@ -42,12 +42,12 @@ PerfProfilerTraceView::PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *
 {
     setObjectName(QLatin1String("PerfProfilerTraceView"));
 
-    qmlRegisterType<Timeline::TimelineRenderer>("TimelineRenderer", 1, 0, "TimelineRenderer");
-    qmlRegisterType<Timeline::TimelineOverviewRenderer>("TimelineOverviewRenderer", 1, 0,
+    qmlRegisterType<Timeline::TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
+    qmlRegisterType<Timeline::TimelineOverviewRenderer>("QtCreator.Tracing", 1, 0,
                                                         "TimelineOverviewRenderer");
-    qmlRegisterType<Timeline::TimelineZoomControl>();
-    qmlRegisterType<Timeline::TimelineModel>();
-    qmlRegisterType<Timeline::TimelineNotesModel>();
+    qmlRegisterAnonymousType<Timeline::TimelineZoomControl>("QtCreator.Tracing", 1);
+    qmlRegisterAnonymousType<Timeline::TimelineModel>("QtCreator.Tracing", 1);
+    qmlRegisterAnonymousType<Timeline::TimelineNotesModel>("QtCreator.Tracing", 1);
 
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

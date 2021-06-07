@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-import FlameGraph 1.0
-import TimelineTheme 1.0
+import QtCreator.Tracing 1.0
 
 import QtQml 2.2
 import QtQuick 2.9

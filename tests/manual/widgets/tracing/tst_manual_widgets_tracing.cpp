@@ -125,12 +125,12 @@ public:
     {
         setResizeMode(QQuickView::SizeRootObjectToView);
 
-        qmlRegisterType<TimelineRenderer>("TimelineRenderer", 1, 0, "TimelineRenderer");
+        qmlRegisterType<TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
         qmlRegisterType<TimelineOverviewRenderer>(
-                    "TimelineOverviewRenderer", 1, 0, "TimelineOverviewRenderer");
-        qmlRegisterAnonymousType<TimelineZoomControl>("TimelineZoomControl", 1);
-        qmlRegisterAnonymousType<TimelineModel>("TimelineModel", 1);
-        qmlRegisterAnonymousType<TimelineNotesModel>("TimelineNotesModel", 1);
+                    "QtCreator.Tracing", 1, 0, "TimelineOverviewRenderer");
+        qmlRegisterAnonymousType<TimelineZoomControl>("QtCreator.Tracing", 1);
+        qmlRegisterAnonymousType<TimelineModel>("QtCreator.Tracing", 1);
+        qmlRegisterAnonymousType<TimelineNotesModel>("QtCreator.Tracing", 1);
 
         TimelineTheme::setupTheme(engine());
         TimeFormatter::setupTimeFormatter();

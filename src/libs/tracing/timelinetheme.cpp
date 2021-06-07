@@ -112,7 +112,7 @@ static QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 
 void TimelineTheme::setupTheme(QQmlEngine *engine)
 {
-    static const int typeIndex = qmlRegisterSingletonType<Utils::Theme>("TimelineTheme", 1, 0,
+    static const int typeIndex = qmlRegisterSingletonType<Utils::Theme>("QtCreator.Tracing", 1, 0,
                                                                         "Theme", singletonProvider);
     Q_UNUSED(typeIndex)
     engine->addImageProvider(QLatin1String("icons"), new TimelineImageIconProvider);

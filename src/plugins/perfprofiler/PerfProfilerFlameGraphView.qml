@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import PerfProfilerFlameGraphModel 1.0
+import QtCreator.PerfProfiler 1.0
 import "../tracing/"
 
 FlameGraphView {

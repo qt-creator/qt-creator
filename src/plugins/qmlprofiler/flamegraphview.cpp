@@ -46,12 +46,10 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     setObjectName("QmlProfiler.FlameGraph.Dock");
     setWindowTitle(tr("Flame Graph"));
 
-    qmlRegisterType<FlameGraph::FlameGraph>("FlameGraph", 1, 0, "FlameGraph");
-    qmlRegisterUncreatableType<FlameGraphModel>("QmlProfilerFlameGraphModel", 1, 0,
+    qmlRegisterType<FlameGraph::FlameGraph>("QtCreator.Tracing", 1, 0, "FlameGraph");
+    qmlRegisterUncreatableType<FlameGraphModel>("QtCreator.QmlProfiler", 1, 0,
                                                 "QmlProfilerFlameGraphModel",
                                                 QLatin1String("use the context property"));
-    qmlRegisterUncreatableType<QAbstractItemModel>("AbstractItemModel", 1, 0, "AbstractItemModel",
-                                                   QLatin1String("only for Qt 5.4"));
 
     Timeline::TimelineTheme::setupTheme(m_content->engine());
 

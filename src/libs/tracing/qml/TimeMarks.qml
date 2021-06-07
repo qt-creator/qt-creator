@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import TimelineTheme 1.0
+import QtCreator.Tracing 1.0
 
 Item {
     id: timeMarks

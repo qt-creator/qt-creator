@@ -27,7 +27,7 @@ import QtQuick 2.1
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-import TimelineTheme 1.0
+import QtCreator.Tracing 1.0
 
 ToolBar {
     id: buttons

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import TestFlameGraphModel 1.0
+import QtCreator.TstTracingFlameGraphView 1.0
 import "../tracing/"
 
 FlameGraphView {

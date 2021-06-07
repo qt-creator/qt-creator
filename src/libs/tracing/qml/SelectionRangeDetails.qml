@@ -26,8 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 2.0
 
-import TimelineTheme 1.0
-import TimelineTimeFormatter 1.0
+import QtCreator.Tracing 1.0
 
 Item {
     id: selectionRangeDetails

@@ -127,9 +127,9 @@ private:
 void tst_FlameGraphView::initTestCase()
 {
     model.fill();
-    qmlRegisterType<FlameGraph::FlameGraph>("FlameGraph", 1, 0, "FlameGraph");
+    qmlRegisterType<FlameGraph::FlameGraph>("QtCreator.Tracing", 1, 0, "FlameGraph");
     qmlRegisterUncreatableType<TestFlameGraphModel>(
-                "TestFlameGraphModel", 1, 0, "TestFlameGraphModel",
+                "QtCreator.TstTracingFlameGraphView", 1, 0, "TestFlameGraphModel",
                 QLatin1String("use the context property"));
 
 
