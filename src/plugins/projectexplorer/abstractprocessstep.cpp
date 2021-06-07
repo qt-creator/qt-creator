@@ -402,10 +402,9 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
     QtcProcess *process = d->m_process.get();
     if (!process) // Happens when the process was canceled and handed over to the Reaper.
         process = qobject_cast<QtcProcess *>(sender()); // The process was canceled!
-    if (process) {
-        stdError(d->stderrStream->toUnicode(process->readAllStandardError()));
-        stdOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()));
-    }
+    QTC_ASSERT(process, return);
+    stdError(d->stderrStream->toUnicode(process->readAllStandardError()));
+    stdOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()));
     d->cleanUp(process);
 }
 
