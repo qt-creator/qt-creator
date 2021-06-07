@@ -71,17 +71,17 @@ namespace {
 
 const char GitGrepRef[] = "GitGrepRef";
 
-class GitGrepRunner : public QObject
+class GitGrepRunner
 {
     using FutureInterfaceType = QFutureInterface<FileSearchResultList>;
 
 public:
-    GitGrepRunner(FutureInterfaceType &fi,
-                  const TextEditor::FileFindParameters &parameters) :
-        m_fi(fi),
-        m_parameters(parameters)
+    GitGrepRunner(const TextEditor::FileFindParameters &parameters)
+        : m_parameters(parameters)
     {
         m_directory = parameters.additionalParameters.toString();
+        m_command.reset(GitClient::instance()->createCommand(m_directory));
+        m_vcsBinary = GitClient::instance()->vcsBinary();
     }
 
     struct Match
@@ -144,19 +144,20 @@ public:
         }
     }
 
-    void read(const QString &text)
+    void read(FutureInterfaceType &fi, const QString &text)
     {
         FileSearchResultList resultList;
         QString t = text;
         QTextStream stream(&t);
-        while (!stream.atEnd() && !m_fi.isCanceled())
+        while (!stream.atEnd() && !fi.isCanceled())
             processLine(stream.readLine(), &resultList);
         if (!resultList.isEmpty())
-            m_fi.reportResult(resultList);
+            fi.reportResult(resultList);
     }
 
-    void exec()
+    void operator()(FutureInterfaceType &fi)
     {
+        Core::ProgressTimer progress(fi, 5);
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
             "-c", "color.grep=always",
@@ -186,22 +187,25 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        QScopedPointer<VcsCommand> command(GitClient::instance()->createCommand(m_directory));
-        command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
-        command->setProgressiveOutput(true);
+        m_command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
+        m_command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
-        connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
-                command.data(), &VcsCommand::cancel);
-        watcher.setFuture(m_fi.future());
-        connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
+        QObject::connect(&watcher,
+                         &QFutureWatcher<FileSearchResultList>::canceled,
+                         m_command.get(),
+                         &VcsCommand::cancel);
+        watcher.setFuture(fi.future());
+        QObject::connect(m_command.get(),
+                         &VcsCommand::stdOutText,
+                         [this, &fi](const QString &text) { read(fi, text); });
         SynchronousProcess proc;
         proc.setTimeoutS(0);
-        command->runCommand(proc, {GitClient::instance()->vcsBinary(), arguments});
+        m_command->runCommand(proc, {m_vcsBinary, arguments});
         switch (proc.result()) {
         case QtcProcess::TerminatedAbnormally:
         case QtcProcess::StartFailed:
         case QtcProcess::Hang:
-            m_fi.reportCanceled();
+            fi.reportCanceled();
             break;
         case QtcProcess::FinishedWithSuccess:
         case QtcProcess::FinishedWithError:
@@ -211,19 +215,12 @@ public:
         }
     }
 
-    static void run(QFutureInterface<FileSearchResultList> &fi,
-                    TextEditor::FileFindParameters parameters)
-    {
-        GitGrepRunner runner(fi, parameters);
-        Core::ProgressTimer progress(fi, 5);
-        runner.exec();
-    }
-
 private:
-    FutureInterfaceType m_fi;
+    FilePath m_vcsBinary;
     QString m_directory;
     QString m_ref;
-    const TextEditor::FileFindParameters &m_parameters;
+    TextEditor::FileFindParameters m_parameters;
+    std::unique_ptr<VcsCommand> m_command;
 };
 
 } // namespace
@@ -308,7 +305,7 @@ void GitGrep::writeSettings(QSettings *settings) const
 QFuture<FileSearchResultList> GitGrep::executeSearch(const TextEditor::FileFindParameters &parameters,
         TextEditor::BaseFileFind * /*baseFileFind*/)
 {
-    auto future = Utils::runAsync(GitGrepRunner::run, parameters);
+    auto future = Utils::runAsync(GitGrepRunner(parameters));
     m_futureSynchronizer.addFuture(future);
     return future;
 }

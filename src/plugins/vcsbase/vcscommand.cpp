@@ -43,6 +43,7 @@ VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &envir
     VcsOutputWindow::setRepository(workingDirectory);
     setDisableUnixTerminal();
     m_outputWindow = VcsOutputWindow::instance();
+    m_sshPrompt = VcsBase::sshPrompt();
 
     connect(this, &VcsCommand::started, this, [this] {
         if (flags() & ExpectRepoChanges)
@@ -57,7 +58,7 @@ VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &envir
 const Environment VcsCommand::processEnvironment() const
 {
     Environment env = Core::ShellCommand::processEnvironment();
-    VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale, VcsBase::sshPrompt());
+    VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale, m_sshPrompt);
     return env;
 }
 

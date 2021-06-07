@@ -63,6 +63,7 @@ private:
 
     void coreAboutToClose() override;
 
+    QString m_sshPrompt;
     bool m_preventRepositoryChanged;
     VcsOutputWindow *m_outputWindow = nullptr;
 };
