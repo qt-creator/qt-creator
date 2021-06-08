@@ -315,7 +315,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     QFuture<FileSearchResultList> future = executeSearch(parameters);
     watcher->setFuture(future);
     d->m_futureSynchronizer.addFuture(future);
-    FutureProgress *progress = ProgressManager::addTask(QFuture<void>(future),
+    FutureProgress *progress = ProgressManager::addTask(future,
                                                         tr("Searching"),
                                                         Constants::TASK_SEARCH);
     connect(search, &SearchResult::countChanged, progress, [progress](int c) {
