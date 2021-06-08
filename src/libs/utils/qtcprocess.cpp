@@ -780,7 +780,7 @@ QString QtcProcess::exitMessage()
         return QtcProcess::tr("The command \"%1\" could not be started.").arg(fullCmd);
     case Hang:
         return QtcProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
-            .arg(fullCmd).arg(d->m_hangTimerCount);
+            .arg(fullCmd).arg(d->m_maxHangTimerCount);
     }
     return QString();
 }
