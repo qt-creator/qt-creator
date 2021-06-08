@@ -187,9 +187,7 @@ QSet<FilePath> FileApiReader::projectFilesToWatch() const
 QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
     Q_UNUSED(errorMessage)
 
-    auto result = std::move(m_buildTargets);
-    m_buildTargets.clear();
-    return result;
+    return std::exchange(m_buildTargets, {});
 }
 
 CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
@@ -197,9 +195,7 @@ CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
     if (m_lastCMakeExitCode != 0)
         errorMessage = tr("CMake returned error code: %1").arg(m_lastCMakeExitCode);
 
-    CMakeConfig cache = m_cache;
-    m_cache.clear();
-    return cache;
+    return std::exchange(m_cache, {});
 }
 
 QString FileApiReader::ctestPath() const
@@ -227,16 +223,14 @@ std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
         addHeaderNodes(m_rootProjectNode.get(), m_knownHeaders, allFiles);
     }
     addFileSystemNodes(m_rootProjectNode.get(), allFiles);
-    return std::move(m_rootProjectNode);
+    return std::exchange(m_rootProjectNode, {});
 }
 
 RawProjectParts FileApiReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    RawProjectParts result = std::move(m_projectParts);
-    m_projectParts.clear();
-    return result;
+    return std::exchange(m_projectParts, {});
 }
 
 void FileApiReader::startState()
