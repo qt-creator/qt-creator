@@ -83,7 +83,7 @@ public:
     void setPromptDialogFilter(const QString &filter);
     QString promptDialogFilter() const;
 
-    void setInitialBrowsePathBackup(const QString &path);
+    void setInitialBrowsePathBackup(const FilePath &path);
 
     bool isValid() const;
     QString errorMessage() const;

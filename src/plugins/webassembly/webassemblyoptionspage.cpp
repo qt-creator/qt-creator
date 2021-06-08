@@ -83,7 +83,7 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
         layout->addWidget(instruction);
         m_emSdkPathChooser = new PathChooser(this);
         m_emSdkPathChooser->setExpectedKind(PathChooser::Directory);
-        m_emSdkPathChooser->setInitialBrowsePathBackup(QDir::homePath());
+        m_emSdkPathChooser->setInitialBrowsePathBackup(FileUtils::homePath());
         m_emSdkPathChooser->setFilePath(WebAssemblyEmSdk::registeredEmSdk());
         connect(m_emSdkPathChooser, &PathChooser::pathChanged, [this](){ updateStatus(); });
         layout->addWidget(m_emSdkPathChooser);

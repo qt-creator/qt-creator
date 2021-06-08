@@ -64,7 +64,8 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
             m_configPath->setValidationFunction([=](Utils::FancyLineEdit *edit, QString *errorMessage) {
                 return edit->text().isEmpty() || m_configPath->defaultValidationFunction()(edit, errorMessage);
             });
-            m_configPath->setInitialBrowsePathBackup(QFileInfo(project->fileName()).absolutePath());
+            m_configPath->setInitialBrowsePathBackup(
+                Utils::FilePath::fromString(project->fileName()).absolutePath());
             addRow(tr("Config path:"), m_configPath, "configpath");
             connect(m_configPath, &Utils::PathChooser::pathChanged,
                     this, &ExtPropertiesMView::onConfigPathChanged);

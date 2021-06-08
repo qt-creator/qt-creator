@@ -191,7 +191,7 @@ bool UnstartedAppWatcherDialog::event(QEvent *e)
 
 void UnstartedAppWatcherDialog::selectExecutable()
 {
-    QString path;
+    Utils::FilePath path;
 
     Project *project = ProjectTree::currentProject();
     Target *activeTarget = project ? project->activeTarget() : nullptr;
@@ -200,16 +200,15 @@ void UnstartedAppWatcherDialog::selectExecutable()
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
             const Runnable runnable = runConfig->runnable();
             if (isLocal(runConfig))
-                path = runnable.executable.toFileInfo().path();
+                path = runnable.executable.parentDir();
         }
     }
 
     if (path.isEmpty()) {
-        if (activeTarget && activeTarget->activeBuildConfiguration()) {
-            path = activeTarget->activeBuildConfiguration()->buildDirectory().toString();
-        } else if (project) {
-            path = project->projectDirectory().toString();
-        }
+        if (activeTarget && activeTarget->activeBuildConfiguration())
+            path = activeTarget->activeBuildConfiguration()->buildDirectory();
+        else if (project)
+            path = project->projectDirectory();
     }
     m_pathChooser->setInitialBrowsePathBackup(path);
 }

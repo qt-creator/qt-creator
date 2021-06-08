@@ -188,7 +188,7 @@ public:
     PathChooser::Kind m_acceptingKind = PathChooser::ExistingDirectory;
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
-    QString m_initialBrowsePathOverride;
+    FilePath m_initialBrowsePathOverride;
     QString m_defaultValue;
     FilePath m_baseDirectory;
     Environment m_environment;
@@ -381,22 +381,16 @@ void PathChooser::slotBrowse()
 {
     emit beforeBrowsing();
 
-    QString predefined = filePath().toString();
-    QFileInfo fi(predefined);
+    FilePath predefined = filePath();
 
-    if (!predefined.isEmpty() && !fi.isDir()) {
-        predefined = fi.path();
-        fi.setFile(predefined);
+    if (!predefined.isEmpty() && !predefined.isDir()) {
+        predefined = predefined.parentDir();
     }
 
-    if ((predefined.isEmpty() || !fi.isDir())
-            && !d->m_initialBrowsePathOverride.isNull()) {
+    if ((predefined.isEmpty() || !predefined.isDir()) && !d->m_initialBrowsePathOverride.isEmpty()) {
         predefined = d->m_initialBrowsePathOverride;
-        fi.setFile(predefined);
-        if (!fi.isDir()) {
+        if (!predefined.isDir())
             predefined.clear();
-            fi.setFile(QString());
-        }
     }
 
     // Prompt for a file/dir
@@ -405,32 +399,32 @@ void PathChooser::slotBrowse()
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
         newPath = QFileDialog::getExistingDirectory(this,
-                makeDialogTitle(tr("Choose Directory")), predefined);
+                makeDialogTitle(tr("Choose Directory")), predefined.toUserOutput());
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
         newPath = QFileDialog::getOpenFileName(this,
-                makeDialogTitle(tr("Choose Executable")), predefined,
+                makeDialogTitle(tr("Choose Executable")), predefined.toUserOutput(),
                 d->m_dialogFilter);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
         newPath = QFileDialog::getOpenFileName(this,
-                makeDialogTitle(tr("Choose File")), predefined,
+                makeDialogTitle(tr("Choose File")), predefined.toUserOutput(),
                 d->m_dialogFilter);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
         newPath = QFileDialog::getSaveFileName(this,
-                makeDialogTitle(tr("Choose File")), predefined,
+                makeDialogTitle(tr("Choose File")), predefined.toUserOutput(),
                 d->m_dialogFilter);
         break;
     case PathChooser::Any: {
         QFileDialog dialog(this);
         dialog.setFileMode(QFileDialog::AnyFile);
         dialog.setWindowTitle(makeDialogTitle(tr("Choose File")));
-        if (fi.exists())
-            dialog.setDirectory(fi.absolutePath());
+        if (predefined.exists())
+            dialog.setDirectory(predefined.absolutePath().toDir());
         // FIXME: fix QFileDialog so that it filters properly: lib*.a
         dialog.setNameFilter(d->m_dialogFilter);
         if (dialog.exec() == QDialog::Accepted) {
@@ -457,7 +451,6 @@ void PathChooser::slotBrowse()
             newPath.truncate(newPath.size() - 1);
         setPath(newPath);
     }
-
     emit browsingFinished();
     triggerChanged();
 }
@@ -679,7 +672,7 @@ QString PathChooser::promptDialogFilter() const
     return d->m_dialogFilter;
 }
 
-void PathChooser::setInitialBrowsePathBackup(const QString &path)
+void PathChooser::setInitialBrowsePathBackup(const FilePath &path)
 {
     d->m_initialBrowsePathOverride = path;
 }

@@ -225,7 +225,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     keystoreLocationChooser->setExpectedKind(PathChooser::File);
     keystoreLocationChooser->lineEdit()->setReadOnly(true);
     keystoreLocationChooser->setPath(m_step->keystorePath().toUserOutput());
-    keystoreLocationChooser->setInitialBrowsePathBackup(QDir::homePath());
+    keystoreLocationChooser->setInitialBrowsePathBackup(FileUtils::homePath());
     keystoreLocationChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
     keystoreLocationChooser->setPromptDialogTitle(tr("Select Keystore File"));
     connect(keystoreLocationChooser, &PathChooser::pathChanged, this, [this](const QString &path) {

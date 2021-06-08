@@ -1439,7 +1439,7 @@ QString DocumentManager::fileDialogInitialDirectory()
 {
     IDocument *doc = EditorManager::currentDocument();
     if (doc && !doc->isTemporary() && !doc->filePath().isEmpty())
-        return doc->filePath().toFileInfo().absolutePath();
+        return doc->filePath().absolutePath().path();
     if (!d->m_defaultLocationForNewFiles.isEmpty())
         return d->m_defaultLocationForNewFiles;
     return d->m_lastVisitedDirectory;
