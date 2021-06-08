@@ -214,7 +214,7 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
 
     m_future->reportFinished();
 
-    emit finished(code, status);
+    emit finished();
 
     const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
     BuildSystem::appendBuildSystemOutput(elapsedTime);

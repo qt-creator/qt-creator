@@ -88,7 +88,7 @@ private:
     void startState();
     void endState(const QFileInfo &replyFi);
     void startCMakeState(const QStringList &configurationArguments);
-    void cmakeFinishedState(int code, QProcess::ExitStatus status);
+    void cmakeFinishedState();
 
     void replyDirectoryHasChanged(const QString &directory) const;
     void makeBackupConfiguration(bool store);

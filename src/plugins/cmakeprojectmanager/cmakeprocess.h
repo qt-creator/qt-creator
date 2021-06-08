@@ -41,7 +41,8 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProcess : public QObject {
+class CMakeProcess : public QObject
+{
     Q_OBJECT
 
 public:
@@ -65,7 +66,7 @@ public:
     int lastExitCode() const { return m_lastExitCode; }
 signals:
     void started();
-    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void finished();
 
 private:
     void handleProcessFinished(int code, QProcess::ExitStatus status);
