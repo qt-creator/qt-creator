@@ -171,6 +171,7 @@ public:
     bool isEmpty() const;
 
     uint hash(uint seed) const;
+    QDateTime lastModified() const;
 
     // NOTE: Most FilePath operations on FilePath created from URL currently
     // do not work. Among the working are .toVariant() and .toUrl().

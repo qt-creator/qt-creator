@@ -1302,6 +1302,12 @@ uint FilePath::hash(uint seed) const
     return qHash(m_data, seed);
 }
 
+QDateTime FilePath::lastModified() const
+{
+    QTC_CHECK(!needsDevice());
+    return toFileInfo().lastModified();
+}
+
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toString();
