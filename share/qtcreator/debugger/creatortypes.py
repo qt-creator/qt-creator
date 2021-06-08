@@ -230,7 +230,7 @@ def qdump__Utils__FilePath(d, value):
         scheme, host, path = d.split("{@QString}{@QString}{@QString}", value)
         scheme_enc = d.encodeString(scheme)
         host_enc = d.encodeString(host)
-        path_enc = d.encodeString(path)
+        elided, path_enc = d.encodeStringHelper(path, d.displayStringLimit)
         val = ""
         slash = "2F00"
         dot = "2E00"
@@ -240,7 +240,7 @@ def qdump__Utils__FilePath(d, value):
             if not path_enc.startswith(slash):
                 val += slash + dot + slash
         val += path_enc
-        d.putValue(val, "utf16")
+        d.putValue(val, "utf16", elided=elided)
     d.putPlainChildren(value)
 
 
