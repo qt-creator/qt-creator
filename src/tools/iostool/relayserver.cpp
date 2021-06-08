@@ -31,6 +31,7 @@
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #include <fcntl.h>
+#include <cerrno>
 #endif
 
 // avoid utils dependency
