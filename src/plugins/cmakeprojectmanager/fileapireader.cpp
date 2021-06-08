@@ -371,6 +371,10 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
     connect(m_cmakeProcess.get(), &CMakeProcess::finished, this, &FileApiReader::cmakeFinishedState);
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
+    // Reset watcher:
+    m_watcher.removeFiles(m_watcher.files());
+    m_watcher.removeDirectories(m_watcher.directories());
+
     makeBackupConfiguration(true);
     writeConfigurationIntoBuildDirectory(configurationArguments);
     m_cmakeProcess->run(m_parameters, configurationArguments);
@@ -388,6 +392,8 @@ void FileApiReader::cmakeFinishedState(int code, QProcess::ExitStatus status)
 
     if (m_lastCMakeExitCode != 0)
         makeBackupConfiguration(false);
+
+    FileApiParser::setupCMakeFileApi(m_parameters.workDirectory, m_watcher);
 
     endState(FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory));
 }
