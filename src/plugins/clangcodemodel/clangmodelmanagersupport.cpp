@@ -171,6 +171,11 @@ std::unique_ptr<CppTools::AbstractOverviewModel> ClangModelManagerSupport::creat
     return std::make_unique<OverviewModel>();
 }
 
+bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *document) const
+{
+    return !clientForFile(document->filePath());
+}
+
 CppTools::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
@@ -344,7 +349,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
 }
 
 ClangdClient *ClangModelManagerSupport::clientForProject(
-        const ProjectExplorer::Project *project)
+        const ProjectExplorer::Project *project) const
 {
     const QList<Client *> clients = Utils::filtered(
                 LanguageClientManager::clientsForProject(project),
@@ -357,7 +362,7 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
     return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
-ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file)
+ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file) const
 {
     return clientForProject(ProjectExplorer::SessionManager::projectForFile(file));
 }

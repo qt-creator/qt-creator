@@ -28,6 +28,7 @@
 #include "cppeditor.h"
 #include <cpptools/cppeditoroutline.h>
 
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppoverviewmodel.h>
 
 #include <texteditor/textdocument.h>
@@ -212,7 +213,10 @@ bool CppOutlineWidget::syncCursor()
 
 bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    return qobject_cast<CppEditor*>(editor);
+    const auto cppEditor = qobject_cast<CppEditor*>(editor);
+    if (!cppEditor)
+        return false;
+    return CppTools::CppModelManager::supportsOutline(cppEditor->textDocument());
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)

@@ -1310,6 +1310,11 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor)
     return editor->context().contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 }
 
+bool CppModelManager::supportsOutline(const TextEditor::TextDocument *document)
+{
+    return instance()->d->m_activeModelManagerSupport->supportsOutline(document);
+}
+
 bool CppModelManager::isClangCodeModelActive() const
 {
     return d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;

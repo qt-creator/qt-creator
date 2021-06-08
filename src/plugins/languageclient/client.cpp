@@ -1003,6 +1003,16 @@ void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
     m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler);
 }
 
+void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
+{
+    m_symbolStringifier = stringifier;
+}
+
+SymbolStringifier Client::symbolStringifier() const
+{
+    return m_symbolStringifier;
+}
+
 void Client::start()
 {
     if (m_clientInterface->start())

@@ -732,6 +732,31 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
 
+    static const auto symbolStringifier = [](SymbolKind kind, const QString &name,
+            const QString &detail) -> QString
+    {
+        switch (kind) {
+        case LanguageServerProtocol::SymbolKind::Constructor:
+            return name + detail;
+        case LanguageServerProtocol::SymbolKind::Method:
+        case LanguageServerProtocol::SymbolKind::Function: {
+            const int parenOffset = detail.indexOf(" (");
+            if (parenOffset == -1)
+                return name;
+            return name + detail.mid(parenOffset + 1) + " -> " + detail.mid(0, parenOffset);
+        }
+        case LanguageServerProtocol::SymbolKind::Variable:
+        case LanguageServerProtocol::SymbolKind::Field:
+        case LanguageServerProtocol::SymbolKind::Constant:
+            if (detail.isEmpty())
+                return name;
+            return name + " -> " + detail;
+        default:
+            return name;
+        }
+    };
+    setSymbolStringifier(symbolStringifier);
+
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const DocumentUri &uri) {
         gatherHelpItemForTooltip(response, uri);

@@ -118,7 +118,7 @@ public:
     QPointer<CppModelManager> m_modelManager;
 
     CppEditorDocument *m_cppEditorDocument;
-    CppEditorOutline *m_cppEditorOutline;
+    CppEditorOutline *m_cppEditorOutline = nullptr;
 
     QTimer m_updateFunctionDeclDefLinkTimer;
     SemanticInfo m_lastSemanticInfo;
@@ -139,7 +139,6 @@ public:
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : m_modelManager(CppModelManager::instance())
     , m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
-    , m_cppEditorOutline(new CppEditorOutline(q))
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_localRenaming(q)
     , m_useSelectionsUpdater(q)
@@ -160,8 +159,11 @@ void CppEditorWidget::finalizeInitialization()
 
     // clang-format off
     // function combo box sorting
-    connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,
-            outline(), &CppEditorOutline::setSorted);
+    if (CppModelManager::supportsOutline(d->m_cppEditorDocument)) {
+        d->m_cppEditorOutline = new CppEditorOutline(this);
+        connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,
+                outline(), &CppEditorOutline::setSorted);
+    }
 
     connect(d->m_cppEditorDocument, &CppEditorDocument::codeWarningsUpdated,
             this, &CppEditorWidget::onCodeWarningsUpdated);
@@ -195,8 +197,10 @@ void CppEditorWidget::finalizeInitialization()
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
-    connect(this, &QPlainTextEdit::cursorPositionChanged,
-            d->m_cppEditorOutline, &CppEditorOutline::updateIndex);
+    if (d->m_cppEditorOutline) {
+        connect(this, &QPlainTextEdit::cursorPositionChanged,
+                d->m_cppEditorOutline, &CppEditorOutline::updateIndex);
+    }
 
     connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged, this,
             [this](bool customSettings) {
@@ -232,7 +236,8 @@ void CppEditorWidget::finalizeInitialization()
     });
 
     // Toolbar: Outline/Overview combo box
-    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
+    if (d->m_cppEditorOutline)
+        insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 
     // clang-format on
     // Toolbar: '#' Button
@@ -266,7 +271,8 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
 
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
         updateSemanticInfo(cppEditorWidget->semanticInfo());
-    d->m_cppEditorOutline->update();
+    if (d->m_cppEditorOutline)
+        d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
 
@@ -325,7 +331,8 @@ void CppEditorWidget::selectAll()
 
 void CppEditorWidget::onCppDocumentUpdated()
 {
-    d->m_cppEditorOutline->update();
+    if (d->m_cppEditorOutline)
+        d->m_cppEditorOutline->update();
 }
 
 void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,

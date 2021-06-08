@@ -174,6 +174,8 @@ public:
                        const LanguageServerProtocol::Diagnostic &diag) const;
     void setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
                                 const HideDiagnosticsHandler &hideHandler);
+    void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
+    LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
 
     // logging
     void log(const QString &message) const;
@@ -270,6 +272,7 @@ private:
     SemanticTokenSupport m_tokentSupport;
     QString m_serverName;
     QString m_serverVersion;
+    LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
     bool m_locatorsEnabled = true;
 };
 
