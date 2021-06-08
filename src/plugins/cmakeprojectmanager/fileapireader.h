@@ -86,7 +86,7 @@ signals:
 
 private:
     void startState();
-    void endState(const QFileInfo &replyFi);
+    void endState(const Utils::FilePath &replyFilePath);
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState();
 

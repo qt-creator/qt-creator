@@ -91,11 +91,13 @@ static std::pair<QString, QString> nameValue(const QJsonObject &obj)
     return std::make_pair(obj.value("name").toString(), obj.value("value").toString());
 }
 
-static QJsonDocument readJsonFile(const QString &path)
+static QJsonDocument readJsonFile(const FilePath &filePath)
 {
-    qCDebug(cmakeFileApi) << "readJsonFile:" << path;
+    qCDebug(cmakeFileApi) << "readJsonFile:" << filePath;
 
-    QFile file(path);
+    QTC_CHECK(!filePath.needsDevice());
+
+    QFile file(filePath.path());
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
 
@@ -116,9 +118,9 @@ std::vector<int> indexList(const QJsonValue &v)
 
 // Reply file:
 
-static ReplyFileContents readReplyFile(const QFileInfo &fi, QString &errorMessage)
+static ReplyFileContents readReplyFile(const FilePath &filePath, QString &errorMessage)
 {
-    const QJsonDocument document = readJsonFile(fi.filePath());
+    const QJsonDocument document = readJsonFile(filePath);
     static const QString msg = QCoreApplication::translate("CMakeProjectManager::Internal",
                                                            "Invalid reply file created by CMake.");
 
@@ -176,7 +178,7 @@ static ReplyFileContents readReplyFile(const QFileInfo &fi, QString &errorMessag
 
 // Cache file:
 
-static CMakeConfig readCacheFile(const QString &cacheFile, QString &errorMessage)
+static CMakeConfig readCacheFile(const FilePath &cacheFile, QString &errorMessage)
 {
     CMakeConfig result;
 
@@ -222,7 +224,7 @@ static CMakeConfig readCacheFile(const QString &cacheFile, QString &errorMessage
 
 // CMake Files:
 
-std::vector<CMakeFileInfo> readCMakeFilesFile(const QString &cmakeFilesFile, QString &errorMessage)
+static std::vector<CMakeFileInfo> readCMakeFilesFile(const FilePath &cmakeFilesFile, QString &errorMessage)
 {
     std::vector<CMakeFileInfo> result;
 
@@ -492,7 +494,7 @@ static std::vector<Configuration> extractConfigurations(const QJsonArray &config
     return result;
 }
 
-static std::vector<Configuration> readCodemodelFile(const QString &codemodelFile,
+static std::vector<Configuration> readCodemodelFile(const FilePath &codemodelFile,
                                                     QString &errorMessage)
 {
     const QJsonDocument doc = readJsonFile(codemodelFile);
@@ -509,7 +511,7 @@ static std::vector<Configuration> readCodemodelFile(const QString &codemodelFile
 
 // TargetDetails:
 
-std::vector<FileApiDetails::FragmentInfo> extractFragments(const QJsonObject &obj)
+static std::vector<FileApiDetails::FragmentInfo> extractFragments(const QJsonObject &obj)
 {
     const QJsonArray fragments = obj.value("commandFragments").toArray();
     return transform<std::vector>(fragments, [](const QJsonValue &v) {
@@ -519,7 +521,7 @@ std::vector<FileApiDetails::FragmentInfo> extractFragments(const QJsonObject &ob
     });
 }
 
-TargetDetails extractTargetDetails(const QJsonObject &root, QString &errorMessage)
+static TargetDetails extractTargetDetails(const QJsonObject &root, QString &errorMessage)
 {
     TargetDetails t;
     t.name = root.value("name").toString();
@@ -676,7 +678,7 @@ TargetDetails extractTargetDetails(const QJsonObject &root, QString &errorMessag
     return t;
 }
 
-int validateBacktraceGraph(const TargetDetails &t)
+static int validateBacktraceGraph(const TargetDetails &t)
 {
     const int backtraceFilesCount = static_cast<int>(t.backtraceGraph.files.size());
     const int backtraceCommandsCount = static_cast<int>(t.backtraceGraph.commands.size());
@@ -710,7 +712,7 @@ int validateBacktraceGraph(const TargetDetails &t)
     return backtraceNodeCount;
 }
 
-bool validateTargetDetails(const TargetDetails &t)
+static bool validateTargetDetails(const TargetDetails &t)
 {
     // The part filled in by the codemodel file has already been covered!
 
@@ -789,7 +791,7 @@ bool validateTargetDetails(const TargetDetails &t)
     return true;
 }
 
-TargetDetails readTargetFile(const QString &targetFile, QString &errorMessage)
+static TargetDetails readTargetFile(const FilePath &targetFile, QString &errorMessage)
 {
     const QJsonDocument doc = readJsonFile(targetFile);
     const QJsonObject root = doc.object();
@@ -807,13 +809,13 @@ TargetDetails readTargetFile(const QString &targetFile, QString &errorMessage)
 // ReplyFileContents:
 // --------------------------------------------------------------------
 
-QString FileApiDetails::ReplyFileContents::jsonFile(const QString &kind, const QDir &replyDir) const
+FilePath FileApiDetails::ReplyFileContents::jsonFile(const QString &kind, const FilePath &replyDir) const
 {
     const auto ro = findOrDefault(replies, equal(&ReplyObject::kind, kind));
     if (ro.file.isEmpty())
-        return QString();
+        return {};
     else
-        return replyDir.absoluteFilePath(ro.file);
+        return (replyDir / ro.file).absoluteFilePath();
 }
 
 // --------------------------------------------------------------------
@@ -839,8 +841,9 @@ bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::Fil
     QTC_ASSERT(queryDir.exists(), );
 
     bool failedBefore = false;
-    for (const QString &filePath : cmakeQueryFilePaths(buildDirectory)) {
-        QFile f(filePath);
+    for (const FilePath &filePath : cmakeQueryFilePaths(buildDirectory)) {
+        QTC_CHECK(!filePath.needsDevice());
+        QFile f(filePath.path());
         if (!f.exists()) {
             f.open(QFile::WriteOnly);
             f.close();
@@ -871,12 +874,13 @@ static QStringList uniqueTargetFiles(const Configuration &config)
 }
 
 FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
-                                     const QFileInfo &replyFileInfo,
+                                     const FilePath &replyFilePath,
                                      const QString &cmakeBuildType,
                                      QString &errorMessage)
 {
     QTC_CHECK(errorMessage.isEmpty());
-    const QDir replyDir = replyFileInfo.dir();
+    QTC_CHECK(!replyFilePath.needsDevice());
+    const FilePath replyDir = replyFilePath.parentDir();
 
     FileApiData result;
 
@@ -888,7 +892,7 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
         return false;
     };
 
-    result.replyFile = readReplyFile(replyFileInfo, errorMessage);
+    result.replyFile = readReplyFile(replyFilePath, errorMessage);
     if (cancelCheck())
         return {};
     result.cache = readCacheFile(result.replyFile.jsonFile("cache", replyDir), errorMessage);
@@ -938,7 +942,7 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
         if (cancelCheck())
             return {};
         QString targetErrorMessage;
-        TargetDetails td = readTargetFile(replyDir.absoluteFilePath(targetFile), targetErrorMessage);
+        TargetDetails td = readTargetFile((replyDir / targetFile).absoluteFilePath(), targetErrorMessage);
         if (targetErrorMessage.isEmpty()) {
             result.targetDetails.emplace_back(std::move(td));
         } else {
@@ -951,23 +955,27 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
     return result;
 }
 
-QFileInfo FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
+FilePath FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
 {
-    QDir replyDir(cmakeReplyDirectory(buildDirectory).toString());
+    QTC_CHECK(!buildDirectory.needsDevice());
+    QDir replyDir(cmakeReplyDirectory(buildDirectory).path());
     if (!replyDir.exists())
         return {};
 
     const QFileInfoList fis = replyDir.entryInfoList(QStringList("index-*.json"),
                                                      QDir::Files,
                                                      QDir::Name);
-    return fis.isEmpty() ? QFileInfo() : fis.last();
+    const QFileInfo fi = fis.isEmpty() ? QFileInfo() : fis.last();
+    return FilePath::fromFileInfo(fi);
 }
 
-QStringList FileApiParser::cmakeQueryFilePaths(const Utils::FilePath &buildDirectory)
+FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
 {
-    QDir queryDir(QDir::cleanPath(buildDirectory.pathAppended(CMAKE_RELATIVE_QUERY_PATH).toString()));
-    return transform(CMAKE_QUERY_FILENAMES,
-                     [&queryDir](const QString &name) { return queryDir.absoluteFilePath(name); });
+    QTC_CHECK(!buildDirectory.needsDevice());
+    QDir queryDir(QDir::cleanPath(buildDirectory.pathAppended(CMAKE_RELATIVE_QUERY_PATH).path()));
+    return transform(CMAKE_QUERY_FILENAMES, [&queryDir](const QString &name) {
+        return FilePath::fromString(queryDir.absoluteFilePath(name));
+    });
 }
 
 } // namespace Internal

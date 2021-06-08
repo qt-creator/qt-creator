@@ -66,7 +66,7 @@ public:
 
     QVector<ReplyObject> replies;
 
-    QString jsonFile(const QString &kind, const QDir &replyDir) const;
+    Utils::FilePath jsonFile(const QString &kind, const Utils::FilePath &replyDir) const;
 };
 
 class CMakeFileInfo
@@ -251,16 +251,16 @@ class FileApiParser
     Q_DECLARE_TR_FUNCTIONS(FileApiParser)
 public:
     static FileApiData parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
-                                 const QFileInfo &replyFileInfo,
+                                 const Utils::FilePath &replyFilePath,
                                  const QString &cmakeBuildType,
                                  QString &errorMessage);
 
     static bool setupCMakeFileApi(const Utils::FilePath &buildDirectory,
                                   Utils::FileSystemWatcher &watcher);
 
-    static QStringList cmakeQueryFilePaths(const Utils::FilePath &buildDirectory);
+    static Utils::FilePaths cmakeQueryFilePaths(const Utils::FilePath &buildDirectory);
 
-    static QFileInfo scanForCMakeReplyFile(const Utils::FilePath &buildDirectory);
+    static Utils::FilePath scanForCMakeReplyFile(const Utils::FilePath &buildDirectory);
 };
 
 } // namespace Internal
