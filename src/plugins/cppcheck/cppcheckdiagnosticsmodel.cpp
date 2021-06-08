@@ -47,7 +47,7 @@ QVariant FilePathItem::data(int column, int role) const
         case Qt::DisplayRole:
             return m_filePath;
         case Qt::DecorationRole:
-            return Core::FileIconProvider::icon(QFileInfo(m_filePath));
+            return Core::FileIconProvider::icon(Utils::FilePath::fromString(m_filePath));
         case Debugger::DetailedErrorView::FullTextRole:
             return m_filePath;
         default:

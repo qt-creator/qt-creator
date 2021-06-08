@@ -30,6 +30,8 @@
 #include <QStyle>
 #include <QFileIconProvider>
 
+namespace Utils { class FilePath; }
+
 namespace Core {
 
 namespace FileIconProvider {
@@ -38,7 +40,7 @@ namespace FileIconProvider {
 CORE_EXPORT QFileIconProvider *iconProvider();
 
 // Access to individual items
-CORE_EXPORT QIcon icon(const QFileInfo &info);
+CORE_EXPORT QIcon icon(const Utils::FilePath &filePath);
 CORE_EXPORT QIcon icon(QFileIconProvider::IconType type);
 
 // Register additional overlay icons

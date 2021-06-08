@@ -68,18 +68,17 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     foreach (IDocument *document, items) {
         QString visibleName;
         QString directory;
-        QString fileName = document->filePath().toString();
-        if (fileName.isEmpty()) {
+        Utils::FilePath filePath = document->filePath();
+        if (filePath.isEmpty()) {
             visibleName = document->fallbackSaveAsFileName();
         } else {
-            QFileInfo info = QFileInfo(fileName);
-            directory = info.absolutePath();
-            visibleName = info.fileName();
+            directory = filePath.absolutePath().toUserOutput();
+            visibleName = filePath.fileName();
         }
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
                                                     << visibleName << QDir::toNativeSeparators(directory));
-        if (!fileName.isEmpty())
-            item->setIcon(0, FileIconProvider::icon(QFileInfo(fileName)));
+        if (!filePath.isEmpty())
+            item->setIcon(0, FileIconProvider::icon(filePath));
         item->setData(0, Qt::UserRole, QVariant::fromValue(document));
     }
 

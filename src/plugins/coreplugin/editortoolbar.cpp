@@ -417,7 +417,7 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
     if (document->filePath().isEmpty())
         d->m_dragHandle->setIcon(QIcon());
     else
-        d->m_dragHandle->setIcon(FileIconProvider::icon(document->filePath().toFileInfo()));
+        d->m_dragHandle->setIcon(FileIconProvider::icon(document->filePath()));
 
     d->m_editorList->setToolTip(document->filePath().isEmpty()
                                 ? document->displayName()

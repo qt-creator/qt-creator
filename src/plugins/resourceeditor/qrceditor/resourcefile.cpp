@@ -798,7 +798,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 if (iconFileExtension(path))
                     file->icon = QIcon(path);
                 else
-                    file->icon = Core::FileIconProvider::icon(QFileInfo(path));
+                    file->icon = Core::FileIconProvider::icon(Utils::FilePath::fromString(path));
             }
             if (!file->icon.isNull())
                 result = file->icon;

@@ -414,21 +414,20 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
     QString vcsMakeWritableTextForAll;
     bool useMakeWritable = false;
     for (const FilePath &filePath : filePaths) {
-        const QFileInfo info = filePath.toFileInfo();
-        const QString visibleName = info.fileName();
-        const QString directory = info.absolutePath();
+        const QString visibleName = filePath.fileName();
+        const FilePath directory = filePath.absolutePath();
 
         // Setup a default entry with filename folder and make writable radio button.
         auto item = new QTreeWidgetItem(ui.treeWidget);
         item->setText(FileName, visibleName);
-        item->setIcon(FileName, FileIconProvider::icon(info));
-        item->setText(Folder, Utils::FilePath::fromString(directory).shortNativePath());
+        item->setIcon(FileName, FileIconProvider::icon(filePath));
+        item->setText(Folder, directory.shortNativePath());
         auto radioButtonGroup = new QButtonGroup;
 
         // Add a button for opening the file with a version control system
         // if the file is managed by an version control system which allows opening files.
         IVersionControl *versionControlForFile =
-                VcsManager::findVersionControlForDirectory(directory);
+                VcsManager::findVersionControlForDirectory(directory.toString());
         const bool fileManagedByVCS = versionControlForFile
                 && versionControlForFile->openSupportMode(filePath.toString()) != IVersionControl::NoOpen;
         if (fileManagedByVCS) {

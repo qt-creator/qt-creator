@@ -197,9 +197,9 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
         case Qt::ToolTipRole:
             return m_filePath;
         case Qt::DecorationRole:
-            return FileIconProvider::icon(QFileInfo(m_filePath));
+            return FileIconProvider::icon(FilePath::fromString(m_filePath));
         case LinkRole:
-            return QVariant::fromValue(Utils::Link(Utils::FilePath::fromString(m_filePath), m_line));
+            return QVariant::fromValue(Link(FilePath::fromString(m_filePath), m_line));
     }
 
     return QVariant();

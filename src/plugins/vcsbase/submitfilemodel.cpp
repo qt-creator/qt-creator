@@ -26,6 +26,7 @@
 #include "submitfilemodel.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
@@ -88,8 +89,8 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     // For some reason, Windows (at least) requires a valid (existing) file path to the icon, so
     // the repository root is needed here.
     // Note: for "overlaid" icons in Core::FileIconProvider a valid file path is not required
-    const QFileInfo fi(repositoryRoot + QLatin1Char('/') + fileName);
-    fileItem->setIcon(Core::FileIconProvider::icon(fi));
+    fileItem->setIcon(Core::FileIconProvider::icon(
+        Utils::FilePath::fromString(repositoryRoot).pathAppended(fileName)));
     const QList<QStandardItem *> row{statusItem, fileItem};
     if (statusHint != SubmitFileModel::FileStatusUnknown) {
         const QBrush textForeground = fileStatusTextForeground(statusHint);
