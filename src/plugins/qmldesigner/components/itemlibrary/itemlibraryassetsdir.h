@@ -59,6 +59,8 @@ public:
     QObject *filesModel() const;
     QObject *dirsModel() const;
 
+    QList<ItemLibraryAssetsDir *> childAssetsDirs() const;
+
     void addDir(ItemLibraryAssetsDir *assetsDir);
     void addFile(const QString &filePath);
 

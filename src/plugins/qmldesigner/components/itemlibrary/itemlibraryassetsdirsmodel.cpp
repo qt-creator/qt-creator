@@ -87,4 +87,9 @@ void ItemLibraryAssetsDirsModel::addDir(ItemLibraryAssetsDir *assetsDir)
     m_dirs.append(assetsDir);
 }
 
+const QList<ItemLibraryAssetsDir *> ItemLibraryAssetsDirsModel::assetsDirs() const
+{
+    return m_dirs;
+}
+
 } // namespace QmlDesigner

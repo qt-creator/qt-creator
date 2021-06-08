@@ -44,6 +44,8 @@ public:
 
     void addDir(ItemLibraryAssetsDir *assetsDir);
 
+    const QList<ItemLibraryAssetsDir *> assetsDirs() const;
+
 private:
     QList<ItemLibraryAssetsDir *> m_dirs;
     QHash<int, QByteArray> m_roleNames;

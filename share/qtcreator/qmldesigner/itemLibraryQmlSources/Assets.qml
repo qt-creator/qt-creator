@@ -61,9 +61,31 @@ Item {
         }
     }
 
+    // called from C++ to close context menu on focus out
+    function closeContextMenu()
+    {
+        contextMenu.close()
+    }
+
     ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
         id: assetsView
         anchors.fill: parent
+
+        Item {
+            StudioControls.Menu {
+                id: contextMenu
+
+                StudioControls.MenuItem {
+                    text: qsTr("Expand All")
+                    onTriggered: assetsModel.toggleExpandAll(true)
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Collapse All")
+                    onTriggered: assetsModel.toggleExpandAll(false)
+                }
+            }
+        }
 
         Column {
             spacing: 2
@@ -91,6 +113,9 @@ Item {
                     expandOnClick: false
                     onToggleExpand: {
                         dirExpanded = !dirExpanded
+                    }
+                    onShowContextMenu: {
+                        contextMenu.popup()
                     }
 
                     Column {

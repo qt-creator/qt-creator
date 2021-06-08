@@ -54,6 +54,25 @@ bool ItemLibraryAssetsModel::loadExpandedState(const QString &sectionName)
     return m_expandedStateHash.value(sectionName, true);
 }
 
+void ItemLibraryAssetsModel::toggleExpandAll(bool expand)
+{
+    std::function<void(ItemLibraryAssetsDir *)> expandDirRecursive;
+    expandDirRecursive = [&](ItemLibraryAssetsDir *currAssetsDir) {
+        if (currAssetsDir->dirDepth() > 0) {
+            currAssetsDir->setDirExpanded(expand);
+            saveExpandedState(expand, currAssetsDir->dirPath());
+        }
+
+        const QList<ItemLibraryAssetsDir *> childDirs = currAssetsDir->childAssetsDirs();
+        for (const auto childDir : childDirs)
+            expandDirRecursive(childDir);
+    };
+
+    beginResetModel();
+    expandDirRecursive(m_assetsDir);
+    endResetModel();
+}
+
 const QStringList &ItemLibraryAssetsModel::supportedImageSuffixes()
 {
     static QStringList retList;

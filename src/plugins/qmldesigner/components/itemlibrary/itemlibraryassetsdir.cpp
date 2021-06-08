@@ -70,6 +70,14 @@ QObject *ItemLibraryAssetsDir::dirsModel() const
     return m_dirsModel;
 }
 
+QList<ItemLibraryAssetsDir *> ItemLibraryAssetsDir::childAssetsDirs() const
+{
+    if (m_dirsModel)
+        return m_dirsModel->assetsDirs();
+
+    return {};
+}
+
 void ItemLibraryAssetsDir::addDir(ItemLibraryAssetsDir *assetsDir)
 {
     if (!m_dirsModel)

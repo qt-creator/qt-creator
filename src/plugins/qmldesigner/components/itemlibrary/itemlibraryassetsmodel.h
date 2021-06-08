@@ -72,6 +72,8 @@ public:
     static void saveExpandedState(bool expanded, const QString &sectionName);
     static bool loadExpandedState(const QString &sectionName);
 
+    Q_INVOKABLE void toggleExpandAll(bool expand);
+
 private:
     SynchronousImageCache &m_fontImageCache;
     QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
