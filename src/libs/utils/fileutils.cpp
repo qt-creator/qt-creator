@@ -291,7 +291,7 @@ bool FilePath::isEmpty() const
 QString FilePath::shortNativePath() const
 {
     if (HostOsInfo::isAnyUnixHost()) {
-        const FilePath home = FilePath::fromString(QDir::cleanPath(QDir::homePath()));
+        const FilePath home = FileUtils::homePath();
         if (isChildOf(home)) {
             return QLatin1Char('~') + QDir::separator()
                 + QDir::toNativeSeparators(relativeChildPath(home).toString());
@@ -466,6 +466,11 @@ QByteArray FileUtils::fileId(const FilePath &fileName)
     result += QByteArray::number(quint64(statResult.st_ino));
 #endif
     return result;
+}
+
+FilePath FileUtils::homePath()
+{
+    return FilePath::fromString(QDir::cleanPath(QDir::homePath()));
 }
 
 QByteArray FileReader::fetchQrc(const QString &fileName)
@@ -1048,7 +1053,7 @@ FilePath FilePath::fromUserInput(const QString &filePath)
 {
     QString clean = QDir::fromNativeSeparators(filePath);
     if (clean.startsWith(QLatin1String("~/")))
-        clean = QDir::homePath() + clean.mid(1);
+        return FileUtils::homePath().pathAppended(clean.mid(2));
     return FilePath::fromString(clean);
 }
 

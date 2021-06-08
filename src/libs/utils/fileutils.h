@@ -238,6 +238,7 @@ public:
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static QByteArray fileId(const FilePath &fileName);
+    static FilePath homePath();
 };
 
 template<typename T>
