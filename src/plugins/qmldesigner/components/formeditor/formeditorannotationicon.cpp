@@ -219,7 +219,7 @@ void FormEditorAnnotationIcon::contextMenuEvent(QGraphicsSceneContextMenuEvent *
 void FormEditorAnnotationIcon::drawReader()
 {
     if (!childItems().isEmpty()) {
-        for (QGraphicsItem *item : childItems()) {
+        for (QGraphicsItem * const item  : childItems()) {
             item->show();
         }
     }
@@ -230,11 +230,9 @@ void FormEditorAnnotationIcon::drawReader()
 
 void FormEditorAnnotationIcon::hideReader()
 {
-    if (!childItems().isEmpty()) {
-        for (QGraphicsItem *item : childItems()) {
+    if (!childItems().isEmpty())
+        for (QGraphicsItem * const item : childItems())
             item->hide();
-        }
-    }
 }
 
 void FormEditorAnnotationIcon::quickResetReader()
@@ -251,21 +249,31 @@ void FormEditorAnnotationIcon::resetReader()
 
 void FormEditorAnnotationIcon::createReader()
 {
-    const qreal width = 290;
-    const qreal height = 200;
-    const qreal offset = 5;
+    const qreal width = 290.;
+    const qreal height = 30.;
+    const qreal offset = 5.;
 
-    const QRectF titleRect(0, 0, width, 30);
-    const QPointF cornerPosition(m_iconW + offset, 0);
 
-    QGraphicsItem *titleBubble = createTitleBubble(titleRect, m_customId, this);
-    titleBubble->setPos(cornerPosition);
+    QPointF cornerPosition(m_iconW + offset, 0);
+    qreal nextYAfterTitle = 40.;
+
+    if (!m_customId.isEmpty()) {
+        const QRectF titleRect(0., 0., width, height);
+
+        QGraphicsItem *titleBubble = createTitleBubble(titleRect, m_customId, this);
+        titleBubble->setPos(cornerPosition);
+
+        nextYAfterTitle = (titleRect.height() + (offset*2));
+    }
+    else {
+        nextYAfterTitle = 0.;
+    }
 
     if (m_annotation.hasComments()) {
         QList<QGraphicsItem*> comments;
 
-        QPointF commentPosition(cornerPosition.x(), 40);
-        QRectF commentRect(0, 0, width, height);
+        QPointF commentPosition(cornerPosition.x(), nextYAfterTitle);
+        QRectF commentRect(0., 0., width, height);
 
         for (const Comment &comment : m_annotation.comments()) {
             QGraphicsItem *commentBubble = createCommentBubble(commentRect, comment.title(),
@@ -275,12 +283,12 @@ void FormEditorAnnotationIcon::createReader()
         }
 
 
-        const qreal maxHeight = 650;
-        const QPointF commentsStartPosition(cornerPosition.x(), cornerPosition.y() + titleRect.height() + (offset*2));
+        const qreal maxHeight = 650.;
+        const QPointF commentsStartPosition(cornerPosition.x(), cornerPosition.y() + nextYAfterTitle);
         QPointF newPos(commentsStartPosition);
         qreal columnHeight = commentsStartPosition.y();
 
-        for (QGraphicsItem *comment : comments) {
+        for (QGraphicsItem * const comment : comments) {
 
             comment->setPos(newPos); //first place comment in its new position, then calculate position for next comment
 
@@ -288,7 +296,7 @@ void FormEditorAnnotationIcon::createReader()
             const qreal itemWidth = comment->boundingRect().width();
 
             const qreal possibleHeight = columnHeight + offset + itemHeight;
-            qreal newX = 0;
+            qreal newX = 0.;
 
             if ((itemWidth > (width + penWidth)) || (possibleHeight > maxHeight)) {
                 //move coords to the new column
@@ -323,50 +331,85 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
     font.setBold(true);
 
     QGraphicsRectItem *frameItem = new QGraphicsRectItem(rect, parent);
+    const qreal frameX = frameItem->x();
+    qreal nextY = 0.;
 
-    QGraphicsTextItem *titleItem = new QGraphicsTextItem(frameItem);
-    titleItem->setPlainText(title);
-    titleItem->setFont(font);
-    titleItem->setDefaultTextColor(textColor);
-    titleItem->setTextWidth(rect.width());
-    titleItem->update();
+    const qreal offset = 5.; //used only in text block
+    qreal titleHeight = 0.;
+    qreal authorHeight = 0.;
+    qreal textHeight = 0.;
+    qreal dateHeight = 0.;
 
-    QGraphicsTextItem *authorItem = new QGraphicsTextItem(frameItem);
-    authorItem->setPlainText(tr("By: ") + author);
-    authorItem->setDefaultTextColor(textColor);
-    authorItem->setTextWidth(rect.width());
-    authorItem->setPos(titleItem->x(), titleItem->boundingRect().height() + titleItem->y());
-    authorItem->update();
+    if (!title.isEmpty()) {
+        QGraphicsTextItem *titleItem = new QGraphicsTextItem(frameItem);
+        titleItem->setPlainText(title);
+        titleItem->setFont(font);
+        titleItem->setDefaultTextColor(textColor);
+        titleItem->setTextWidth(rect.width());
+        titleItem->update();
 
-    QGraphicsTextItem *textItem = new QGraphicsTextItem(frameItem);
-    textItem->setHtml(text);
-    textItem->setDefaultTextColor(textColor);
-    textItem->setTextWidth(rect.width());
-    textItem->setPos(authorItem->x(), authorItem->boundingRect().height() + authorItem->y() + 5);
-    textItem->update();
-
-    if (textItem->boundingRect().width() > textItem->textWidth()) {
-        textItem->setTextWidth(textItem->boundingRect().width());
-        textItem->update();
-
-        rect.setWidth(textItem->boundingRect().width());
+        titleHeight = titleItem->boundingRect().height();
+        nextY = titleHeight + titleItem->y();
     }
 
-    const qreal contentRect = titleItem->boundingRect().height()
-            + authorItem->boundingRect().height()
-            + textItem->boundingRect().height();
+    if (!author.isEmpty()) {
+        QGraphicsTextItem *authorItem = new QGraphicsTextItem(frameItem);
+        authorItem->setPlainText(tr("By: ") + author);
+        authorItem->setDefaultTextColor(textColor);
+        authorItem->setTextWidth(rect.width());
+        authorItem->setPos(frameX, nextY);
+        authorItem->update();
 
-    if ((contentRect + 60) > rect.height())
-        rect.setHeight(contentRect+60);
+        authorHeight = authorItem->boundingRect().height();
+        nextY = authorHeight + authorItem->y();
+    }
+
+    if (!text.isEmpty()) {
+        QGraphicsTextItem *textItem = new QGraphicsTextItem(frameItem);
+        textItem->setHtml(text);
+
+        //we can receive rich text qstr with html header, but without content
+        if (textItem->toPlainText().isEmpty()) {
+            delete textItem;
+        }
+        else {
+            if (!title.isEmpty() || !author.isEmpty()) {
+                nextY += offset;
+                textHeight += offset;
+            }
+            textItem->setDefaultTextColor(textColor);
+            textItem->setTextWidth(rect.width());
+            textItem->setPos(frameX, nextY);
+            textItem->update();
+
+            if (textItem->boundingRect().width() > textItem->textWidth()) {
+                textItem->setTextWidth(textItem->boundingRect().width());
+                textItem->update();
+                rect.setWidth(textItem->boundingRect().width());
+            }
+
+            textHeight += textItem->boundingRect().height() + offset;
+            nextY = textHeight + textItem->y();
+        }
+    }
+
+    if (!date.isEmpty()) {
+        QGraphicsTextItem *dateItem = new QGraphicsTextItem(frameItem);
+        dateItem->setPlainText(tr("Edited: ") + date);
+        dateItem->setDefaultTextColor(textColor);
+        dateItem->setTextWidth(rect.width());
+        dateItem->setPos(frameX, nextY);
+        dateItem->update();
+
+        dateHeight = dateItem->boundingRect().height();
+
+//        nextY = dateHeight + dateItem->y();
+    }
+
+    const qreal contentRect = titleHeight + authorHeight + textHeight + dateHeight;
+    rect.setHeight(contentRect);
 
     frameItem->setRect(rect);
-
-    QGraphicsTextItem *dateItem = new QGraphicsTextItem(frameItem);
-    dateItem->setPlainText(tr("Edited: ") + date);
-    dateItem->setDefaultTextColor(textColor);
-    dateItem->setTextWidth(rect.width());
-    dateItem->setPos(frameItem->boundingRect().bottomLeft() + QPointF(0, -30));
-    dateItem->update();
 
     QPen pen;
     pen.setCosmetic(true);
