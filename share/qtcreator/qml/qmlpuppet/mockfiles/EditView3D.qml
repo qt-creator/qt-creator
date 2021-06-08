@@ -604,8 +604,12 @@ Item {
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onPropertyValueCommit: viewRoot.commitObjectProperty([targetNode], [propName])
-            onPropertyValueChange: viewRoot.changeObjectProperty([targetNode], [propName])
+            onPropertyValueCommit: (propName)=> {
+                viewRoot.commitObjectProperty([targetNode], [propName]);
+            }
+            onPropertyValueChange: (propName)=> {
+                viewRoot.changeObjectProperty([targetNode], [propName]);
+            }
         }
 
         AutoScaleHelper {
@@ -682,7 +686,7 @@ Item {
                 property point pressPoint
                 property bool initialMoveBlock: false
 
-                onPressed: {
+                onPressed: (mouse)=> {
                     if (viewRoot.editView) {
                         var pickResult = viewRoot.editView.pick(mouse.x, mouse.y);
                         handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
@@ -703,7 +707,7 @@ Item {
                         }
                     }
                 }
-                onPositionChanged: {
+                onPositionChanged: (mouse)=> {
                     if (freeDraggerArea) {
                         if (initialMoveBlock && Math.abs(pressPoint.x - mouse.x) + Math.abs(pressPoint.y - mouse.y) > 10) {
                             // Don't force press event at actual press, as that puts the gizmo
@@ -728,8 +732,12 @@ Item {
                     }
                 }
 
-                onReleased: handleRelease(mouse)
-                onCanceled: handleRelease(mouse)
+                onReleased: (mouse)=> {
+                    handleRelease(mouse);
+                }
+                onCanceled: (mouse)=> {
+                    handleRelease(mouse);
+                }
             }
 
             DropArea {

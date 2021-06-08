@@ -67,18 +67,18 @@ DirectionalDraggable {
         handleRoot.currentMousePos = screenPos;
     }
 
-    onPressed: {
+    onPressed: (mouseArea, screenPos)=> {
         _startScale = autoScaler.relativeScale * baseScale;
         _startValue = propValue;
         updateValue(0, screenPos);
     }
 
-    onDragged: {
+    onDragged: (mouseArea, sceneRelativeDistance, relativeDistance, screenPos)=> {
         updateValue(relativeDistance, screenPos);
         handleRoot.valueChange();
     }
 
-    onReleased: {
+    onReleased: (mouseArea, sceneRelativeDistance, relativeDistance, screenPos)=> {
         updateValue(relativeDistance, screenPos);
         handleRoot.valueCommit();
     }

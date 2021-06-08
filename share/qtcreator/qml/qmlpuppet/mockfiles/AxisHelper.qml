@@ -113,11 +113,11 @@ View3D {
             }
         }
 
-        onPositionChanged: {
+        onPositionChanged: (mouse)=> {
             pick(mouse);
         }
 
-        onPressed: {
+        onPressed: (mouse)=> {
             pick(mouse);
             if (pickObj) {
                 axisHelperView.editCameraCtrl.focusObject(axisHelperView.selectedNode,

@@ -79,6 +79,7 @@ QSSGRenderGraphObject *LightGeometry::updateSpatialNode(QSSGRenderGraphObject *n
     if (m_lightType == LightType::Invalid)
         return node;
 
+    setStride(12); // Silence a warning
     node = QQuick3DGeometry::updateSpatialNode(node);
     QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
 

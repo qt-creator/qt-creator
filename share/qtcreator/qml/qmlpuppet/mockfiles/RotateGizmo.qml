@@ -279,9 +279,15 @@ Node {
             active: rotateGizmo.visible && !rotateGizmo.blocked
             dragHelper: rotateGizmo.dragHelper
 
-            onPressed: freeRotator.handlePressed(screenPos)
-            onDragged: freeRotator.handleDragged(screenPos)
-            onReleased: freeRotator.handleReleased(screenPos)
+            onPressed: (planePos, screenPos)=> {
+                freeRotator.handlePressed(screenPos);
+            }
+            onDragged: (planePos, screenPos)=> {
+                freeRotator.handleDragged(screenPos);
+            }
+            onReleased: (planePos, screenPos)=> {
+                freeRotator.handleReleased(screenPos);
+            }
         }
     }
 }

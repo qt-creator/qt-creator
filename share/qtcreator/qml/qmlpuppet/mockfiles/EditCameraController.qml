@@ -132,7 +132,7 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         hoverEnabled: false
         anchors.fill: parent
-        onPositionChanged: {
+        onPositionChanged: (mouse)=> {
             if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier && cameraCtrl._dragging) {
                 var currentPoint = Qt.vector3d(mouse.x, mouse.y, 0);
                 if (cameraCtrl._button == Qt.LeftButton) {
@@ -150,7 +150,7 @@ Item {
                 }
             }
         }
-        onPressed: {
+        onPressed: (mouse)=> {
             if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier) {
                 cameraCtrl._dragging = true;
                 cameraCtrl._startRotation = cameraCtrl.camera.eulerRotation;
@@ -173,7 +173,7 @@ Item {
         onReleased: handleRelease()
         onCanceled: handleRelease()
 
-        onWheel: {
+        onWheel: (wheel)=> {
             if (cameraCtrl.camera) {
                 // Empirically determined divisor for nice zoom
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);

@@ -55,7 +55,7 @@ DirectionalDraggable {
         _startScale = targetNode.scale;
     }
 
-    onDragged: {
+    onDragged: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
         targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
                                                  axis, Qt.vector3d(0, 0, 0));
         if (targetNode == multiSelectionNode)
@@ -63,7 +63,7 @@ DirectionalDraggable {
         scaleChange();
     }
 
-    onReleased: {
+    onReleased: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
         targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
                                                  axis, Qt.vector3d(0, 0, 0));
         if (targetNode == multiSelectionNode)

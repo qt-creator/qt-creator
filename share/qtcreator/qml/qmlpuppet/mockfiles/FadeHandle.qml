@@ -98,7 +98,7 @@ DirectionalDraggable {
         handleRoot.currentMousePos = screenPos;
     }
 
-    onPressed: {
+    onPressed: (mouseArea, screenPos)=> {
         _startScale = autoScaler.relativeScale * baseScale * dragScale;
         _startFadeScale = fadeScale;
         _l = targetNode.linearFade;
@@ -116,12 +116,12 @@ DirectionalDraggable {
         updateFade(0, screenPos);
     }
 
-    onDragged: {
+    onDragged: (mouseArea, sceneRelativeDistance, relativeDistance, screenPos)=> {
         updateFade(relativeDistance, screenPos);
         handleRoot.valueChange(_currentProp);
     }
 
-    onReleased: {
+    onReleased: (mouseArea, sceneRelativeDistance, relativeDistance, screenPos)=> {
         updateFade(relativeDistance, screenPos);
         handleRoot.valueCommit(_currentProp);
     }

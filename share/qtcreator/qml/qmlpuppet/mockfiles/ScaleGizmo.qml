@@ -208,7 +208,7 @@ Node {
                                    scaler * _startScale.z);
             }
 
-            onPressed: {
+            onPressed: (planePos, screenPos)=> {
                 if (!scaleGizmo.targetNode)
                     return;
 
@@ -221,7 +221,7 @@ Node {
                                           scaleGizmo.targetNode.scale.z);
                 _startScreenPos = screenPos;
             }
-            onDragged: {
+            onDragged: (planePos, screenPos)=> {
                 if (!scaleGizmo.targetNode)
                     return;
                 scaleGizmo.targetNode.scale = localScale(screenPos);
@@ -229,7 +229,7 @@ Node {
                     _generalHelper.scaleMultiSelection(false);
                 scaleGizmo.scaleChange();
             }
-            onReleased: {
+            onReleased: (planePos, screenPos)=> {
                 if (!scaleGizmo.targetNode)
                     return;
 

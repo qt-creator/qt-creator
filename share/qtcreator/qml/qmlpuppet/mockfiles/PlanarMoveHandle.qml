@@ -48,14 +48,14 @@ PlanarDraggable {
             _generalHelper.restartMultiSelection();
     }
 
-    onDragged: {
+    onDragged: (mouseArea, sceneRelativeDistance)=> {
         targetNode.position = localPos(sceneRelativeDistance);
         if (targetNode == multiSelectionNode)
             _generalHelper.moveMultiSelection(false);
         positionMove();
     }
 
-    onReleased: {
+    onReleased: (mouseArea, sceneRelativeDistance)=> {
         targetNode.position = localPos(sceneRelativeDistance);
         if (targetNode == multiSelectionNode)
             _generalHelper.moveMultiSelection(true);

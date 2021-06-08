@@ -81,7 +81,7 @@ Item {
                 MouseArea {
                     id: iconMouseArea
                     anchors.fill: parent
-                    onPressed: {
+                    onPressed: (mouse)=> {
                         // Ignore singleselection mouse presses when we have single object selected
                         // so that the icon gizmo doesn't hijack mouse clicks meant for other gizmos
                         if (iconGizmo.selected && !(mouse.modifiers & Qt.ControlModifier)
@@ -90,8 +90,10 @@ Item {
                         }
                     }
 
-                    onClicked: iconGizmo.clicked(iconGizmo.targetNode,
-                                                 mouse.modifiers & Qt.ControlModifier)
+                    onClicked: (mouse)=> {
+                        iconGizmo.clicked(iconGizmo.targetNode,
+                                          mouse.modifiers & Qt.ControlModifier);
+                    }
                     hoverEnabled: iconGizmo.highlightOnHover && !iconGizmo.selected
                     acceptedButtons: Qt.LeftButton
 

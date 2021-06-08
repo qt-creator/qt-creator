@@ -151,8 +151,14 @@ Model {
         minAngle: 0.05
         dragHelper: rotateRing.dragHelper
 
-        onPressed: rotateRing.handlePressed(screenPos, angle)
-        onDragged: rotateRing.handleDragged(screenPos)
-        onReleased: rotateRing.handleReleased(screenPos)
+        onPressed: (planePos, screenPos, angle)=> {
+            rotateRing.handlePressed(screenPos, angle);
+        }
+        onDragged: (planePos, screenPos)=> {
+            rotateRing.handleDragged(screenPos);
+        }
+        onReleased: (planePos, screenPos)=> {
+            rotateRing.handleReleased(screenPos);
+        }
     }
 }

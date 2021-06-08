@@ -105,9 +105,15 @@ Model {
         active: rootModel.active
         dragHelper: rootModel.dragHelper
 
-        onPressed: rootModel.handlePressed(mouseArea, planePos)
-        onDragged: rootModel.handleDragged(mouseArea, planePos)
-        onReleased: rootModel.handleReleased(mouseArea, planePos)
+        onPressed: (planePos)=> {
+            rootModel.handlePressed(mouseArea, planePos);
+        }
+        onDragged: (planePos)=> {
+            rootModel.handleDragged(mouseArea, planePos);
+        }
+        onReleased: (planePos)=> {
+            rootModel.handleReleased(mouseArea, planePos);
+        }
     }
 }
 

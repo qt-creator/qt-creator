@@ -106,9 +106,15 @@ Model {
         dragHelper: rootModel.dragHelper
         priority: 5
 
-        onPressed: rootModel.handlePressed(mouseAreaYZ, planePos, screenPos)
-        onDragged: rootModel.handleDragged(mouseAreaYZ, planePos, screenPos)
-        onReleased: rootModel.handleReleased(mouseAreaYZ, planePos, screenPos)
+        onPressed: (planePos, screenPos)=> {
+            rootModel.handlePressed(mouseAreaYZ, planePos, screenPos);
+        }
+        onDragged: (planePos, screenPos)=> {
+            rootModel.handleDragged(mouseAreaYZ, planePos, screenPos);
+        }
+        onReleased: (planePos, screenPos)=> {
+            rootModel.handleReleased(mouseAreaYZ, planePos, screenPos);
+        }
     }
 
     MouseArea3D {
@@ -124,9 +130,15 @@ Model {
         dragHelper: rootModel.dragHelper
         priority: 5
 
-        onPressed: rootModel.handlePressed(mouseAreaXZ, planePos, screenPos)
-        onDragged: rootModel.handleDragged(mouseAreaXZ, planePos, screenPos)
-        onReleased: rootModel.handleReleased(mouseAreaXZ, planePos, screenPos)
+        onPressed: (planePos, screenPos)=> {
+            rootModel.handlePressed(mouseAreaXZ, planePos, screenPos);
+        }
+        onDragged: (planePos, screenPos)=> {
+            rootModel.handleDragged(mouseAreaXZ, planePos, screenPos);
+        }
+        onReleased: (planePos, screenPos)=> {
+            rootModel.handleReleased(mouseAreaXZ, planePos, screenPos);
+        }
     }
 }
 

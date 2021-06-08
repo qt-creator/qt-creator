@@ -46,7 +46,7 @@ PlanarDraggable {
         _startScale = targetNode.scale;
     }
 
-    onDragged: {
+    onDragged: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
         targetNode.scale = mouseArea.getNewScale(_startScale, relativeDistance.times(scale.x),
                                                  axisX, axisY);
         if (targetNode == multiSelectionNode)
@@ -54,7 +54,7 @@ PlanarDraggable {
         scaleChange();
     }
 
-    onReleased: {
+    onReleased: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
         targetNode.scale = mouseArea.getNewScale(_startScale, relativeDistance.times(scale.x),
                                                  axisX, axisY);
         if (targetNode == multiSelectionNode)

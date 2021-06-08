@@ -105,6 +105,7 @@ void GridGeometry::setIsCenterLine(bool enabled)
 
 QSSGRenderGraphObject *GridGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
 {
+    setStride(12); // Silence a warning
     node = QQuick3DGeometry::updateSpatialNode(node);
     QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
     geometry->clear();

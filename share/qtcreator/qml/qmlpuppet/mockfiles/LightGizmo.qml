@@ -109,8 +109,12 @@ Node {
                 lightGizmo.currentMousePos = currentMousePos;
                 lightGizmo.currentLabel = currentLabel;
             }
-            onValueChange: lightGizmo.propertyValueChange(propName)
-            onValueCommit: lightGizmo.propertyValueCommit(propName)
+            onValueChange: (propName)=> {
+                lightGizmo.propertyValueChange(propName);
+            }
+            onValueCommit: (propName)=> {
+                lightGizmo.propertyValueCommit(propName);
+            }
         }
     }
 
@@ -223,8 +227,12 @@ Node {
                     lightGizmo.currentMousePos = currentMousePos;
                     lightGizmo.currentLabel = currentLabel;
                 }
-                onValueChange: lightGizmo.propertyValueChange(propName)
-                onValueCommit: lightGizmo.propertyValueCommit(propName)
+                onValueChange: (propName)=> {
+                    lightGizmo.propertyValueChange(propName);
+                }
+                onValueCommit: (propName)=> {
+                    lightGizmo.propertyValueCommit(propName);
+                }
             }
         }
         Node {
@@ -322,17 +330,17 @@ Node {
                 targetNode.brightness = currentValue;
             }
 
-            onPressed: {
+            onPressed: (mouseArea, screenPos)=> {
                 _startBrightness = targetNode.brightness;
                 updateBrightness(0, screenPos);
             }
 
-            onDragged: {
+            onDragged: (mouseArea, sceneRelativeDistance, relativeDistance, screenPos)=> {
                 updateBrightness(relativeDistance, screenPos);
                 lightGizmo.propertyValueChange("brightness");
             }
 
-            onReleased: {
+            onReleased: (mouseArea, sceneRelativeDistance, relativeDistance, screenPos)=> {
                 updateBrightness(relativeDistance, screenPos);
                 lightGizmo.propertyValueCommit("brightness");
             }

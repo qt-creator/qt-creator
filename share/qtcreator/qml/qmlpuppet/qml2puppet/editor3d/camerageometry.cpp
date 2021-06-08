@@ -148,6 +148,7 @@ QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *
         m_camera->mapToViewport({}, m_viewPortRect.width(), m_viewPortRect.height());
     }
 
+    setStride(12); // Silence a warning
     node = QQuick3DGeometry::updateSpatialNode(node);
     QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
 
