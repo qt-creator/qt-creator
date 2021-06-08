@@ -53,7 +53,7 @@ public:
         KeepLinks
     };
 
-    using RecentFile = QPair<QString, Utils::Id>;
+    using RecentFile = QPair<Utils::FilePath, Utils::Id>;
 
     static DocumentManager *instance();
 
@@ -69,7 +69,7 @@ public:
     static void unexpectFileChange(const QString &fileName);
 
     // recent files
-    static void addToRecentFiles(const QString &fileName, Utils::Id editorId = {});
+    static void addToRecentFiles(const Utils::FilePath &filePath, Utils::Id editorId = {});
     Q_SLOT void clearRecentFiles();
     static QList<RecentFile> recentFiles();
 

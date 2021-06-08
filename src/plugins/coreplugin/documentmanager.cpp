@@ -1336,22 +1336,22 @@ void DocumentManager::checkForReload()
 }
 
 /*!
-    Adds the \a fileName to the list of recent files. Associates the file to
+    Adds the \a filePath to the list of recent files. Associates the file to
     be reopened with the editor that has the specified \a editorId, if possible.
     \a editorId defaults to the empty ID, which lets \QC figure out
     the best editor itself.
 */
-void DocumentManager::addToRecentFiles(const QString &fileName, Id editorId)
+void DocumentManager::addToRecentFiles(const Utils::FilePath &filePath, Id editorId)
 {
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return;
-    const QString fileKey = filePathKey(fileName, KeepLinks);
+    const QString fileKey = filePathKey(filePath.toString(), KeepLinks);
     Utils::erase(d->m_recentFiles, [fileKey](const RecentFile &file) {
-        return fileKey == filePathKey(file.first, DocumentManager::KeepLinks);
+        return fileKey == filePathKey(file.first.toString(), DocumentManager::KeepLinks);
     });
     while (d->m_recentFiles.count() >= EditorManagerPrivate::maxRecentFiles())
         d->m_recentFiles.removeLast();
-    d->m_recentFiles.prepend(RecentFile(fileName, editorId));
+    d->m_recentFiles.prepend(RecentFile(filePath, editorId));
 }
 
 /*!
@@ -1373,10 +1373,10 @@ QList<DocumentManager::RecentFile> DocumentManager::recentFiles()
 
 void DocumentManager::saveSettings()
 {
-    QStringList recentFiles;
+    QVariantList recentFiles;
     QStringList recentEditorIds;
     foreach (const RecentFile &file, d->m_recentFiles) {
-        recentFiles.append(file.first);
+        recentFiles.append(file.first.toVariant());
         recentEditorIds.append(file.second.toString());
     }
 
@@ -1400,18 +1400,17 @@ void readSettings()
     QSettings *s = ICore::settings();
     d->m_recentFiles.clear();
     s->beginGroup(QLatin1String(settingsGroupC));
-    const QStringList recentFiles = s->value(QLatin1String(filesKeyC)).toStringList();
+    const QVariantList recentFiles = s->value(QLatin1String(filesKeyC)).toList();
     const QStringList recentEditorIds = s->value(QLatin1String(editorsKeyC)).toStringList();
     s->endGroup();
     // clean non-existing files
     for (int i = 0, n = recentFiles.size(); i < n; ++i) {
-        const QString &fileName = recentFiles.at(i);
         QString editorId;
         if (i < recentEditorIds.size()) // guard against old or weird settings
             editorId = recentEditorIds.at(i);
-        if (QFileInfo(fileName).isFile())
-            d->m_recentFiles.append(DocumentManager::RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
-                                               Id::fromString(editorId)));
+        const Utils::FilePath &filePath = FilePath::fromVariant(recentFiles.at(i));
+        if (filePath.exists() && !filePath.isDir())
+            d->m_recentFiles.append({filePath, Id::fromString(editorId)});
     }
 
     s->beginGroup(QLatin1String(directoryGroupC));

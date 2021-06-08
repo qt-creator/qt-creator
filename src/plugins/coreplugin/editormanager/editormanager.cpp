@@ -1445,8 +1445,7 @@ void EditorManagerPrivate::addEditor(IEditor *editor)
         const bool addWatcher = !isTemporary;
         DocumentManager::addDocument(document, addWatcher);
         if (!isTemporary)
-            DocumentManager::addToRecentFiles(document->filePath().toString(),
-                                              document->id());
+            DocumentManager::addToRecentFiles(document->filePath(), document->id());
         emit m_instance->documentOpened(document);
     }
     emit m_instance->editorOpened(editor);
@@ -1983,7 +1982,7 @@ void EditorManagerPrivate::addDocumentToRecentFiles(IDocument *document)
     DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
     if (!entry)
         return;
-    DocumentManager::addToRecentFiles(document->filePath().toString(), entry->id());
+    DocumentManager::addToRecentFiles(document->filePath(), entry->id());
 }
 
 void EditorManagerPrivate::updateAutoSave()
