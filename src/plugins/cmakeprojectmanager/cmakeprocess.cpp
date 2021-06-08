@@ -89,7 +89,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     const Utils::FilePath workDirectory = parameters.workDirectory;
     QTC_ASSERT(workDirectory.exists(), return);
 
-    const QString srcDir = parameters.sourceDirectory.toString();
+    const QString srcDir = parameters.sourceDirectory.path();
 
     const auto parser = new CMakeParser;
     parser->setSourceDirectory(srcDir);
@@ -113,7 +113,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
-    Utils::CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, QString("-B"), workDirectory.toString()}) + arguments);
+    CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, "-B", workDirectory.path()}) + arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
