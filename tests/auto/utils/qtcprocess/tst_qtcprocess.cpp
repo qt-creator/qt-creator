@@ -37,6 +37,15 @@ using namespace Utils;
 const char kExitCodeSubProcessCode[] = "QTC_TST_QTCPROCESS_EXITCODE_CODE";
 const char kRunBlockingStdOutSubProcessMagicWord[] = "42";
 const char kRunBlockingStdOutSubProcessWithEndl[] = "QTC_TST_QTCPROCESS_RUNBLOCKINGSTDOUT_WITHENDL";
+const char kLineCallback[] = "QTC_TST_QTCPROCESS_LINECALLBACK";
+
+Q_GLOBAL_STATIC_WITH_ARGS(const QStringList, lineCallbackData,
+                          ({
+                               "This is the first line\r",
+                               "Here comes the second one\r",
+                               "Let's also have a third one\r",
+                               "Actually four are better\r",
+                           }))
 
 static void exitCodeSubProcessMain()
 {
@@ -54,6 +63,13 @@ static void blockingStdOutSubProcessMain()
     if (qEnvironmentVariable(kRunBlockingStdOutSubProcessWithEndl) == "true")
         std::cout << std::endl;
     QThread::msleep(5000);
+    exit(0);
+}
+
+static void lineCallbackMain()
+{
+    for (const QString &line : *lineCallbackData())
+        std::cerr << qPrintable(line);
     exit(0);
 }
 
@@ -102,6 +118,7 @@ private slots:
     void exitCode();
     void runBlockingStdOut_data();
     void runBlockingStdOut();
+    void lineCallback();
 
 private:
     void iteratorEditsHelper(OsType osType);
@@ -121,6 +138,8 @@ void tst_QtcProcess::initTestCase()
         exitCodeSubProcessMain();
     if (qEnvironmentVariableIsSet(kRunBlockingStdOutSubProcessWithEndl))
         blockingStdOutSubProcessMain();
+    if (qEnvironmentVariableIsSet(kLineCallback))
+        lineCallbackMain();
 
     homeStr = QLatin1String("@HOME@");
     home = QDir::homePath();
@@ -871,6 +890,23 @@ void tst_QtcProcess::runBlockingStdOut()
     QVERIFY2(readLastLine, "Last line was read.");
 }
 
+void tst_QtcProcess::lineCallback()
+{
+    QtcProcess process;
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    process.setCommand(CommandLine(binary, args));
+    Environment env = Environment::systemEnvironment();
+    env.set(kLineCallback, "Yes");
+    process.setEnvironment(env);
+    int lineNumber = 0;
+    process.setStdErrLineCallback([&lineNumber](const QString &actual) {
+        const QString expected = lineCallbackData()->at(lineNumber++).trimmed();
+        QCOMPARE(actual, expected);
+    });
+    process.start();
+    process.waitForFinished();
+}
 QTEST_MAIN(tst_QtcProcess)
 
 #include "tst_qtcprocess.moc"

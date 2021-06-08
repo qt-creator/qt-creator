@@ -875,7 +875,7 @@ QString ChannelBuffer::linesRead()
 // Check for first complete line inside the rawData and return it, removing the line from the buffer
 Utils::optional<QString> ChannelBuffer::takeFirstLine()
 {
-    const int firstLineEnd = qMax(rawData.indexOf('\n'), rawData.indexOf('r'));
+    const int firstLineEnd = qMax(rawData.indexOf('\n'), rawData.indexOf('\r'));
     if (firstLineEnd == -1)
         return Utils::nullopt;
 
