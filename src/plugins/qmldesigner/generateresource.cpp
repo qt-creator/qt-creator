@@ -30,6 +30,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -47,14 +48,94 @@
 #include <utils/qtcprocess.h>
 
 #include <QAction>
-#include <QTemporaryFile>
-#include <QMap>
-#include <QProcess>
 #include <QByteArray>
-#include <QObject>
+#include <QCheckBox>
 #include <QDebug>
+#include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QGridLayout>
+#include <QHeaderView>
+#include <QMap>
+#include <QObject>
+#include <QProcess>
+#include <QTemporaryFile>
+#include <QXmlStreamReader>
 
 namespace QmlDesigner {
+
+QTableWidget* GenerateResource::createFilesTable(const QStringList &fileNames)
+{
+    auto table = new QTableWidget(0, 1);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    QStringList labels(QCoreApplication::translate("AddImageToResources","File Name"));
+    table->setHorizontalHeaderLabels(labels);
+    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    table->verticalHeader()->hide();
+    table->setShowGrid(false);
+
+    for (const QString &filePath : fileNames) {
+        auto checkboxItem = new QTableWidgetItem();
+        checkboxItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        checkboxItem->setCheckState(Qt::Checked);
+        checkboxItem->setText(filePath);
+
+        int row = table->rowCount();
+        table->insertRow(row);
+        table->setItem(row, 0, checkboxItem);
+    }
+
+    return table;
+}
+
+QStringList GenerateResource::getFileList(const QStringList &fileNames)
+{
+    QStringList result;
+    QDialog *dialog = new QDialog(Core::ICore::dialogParent());
+    dialog->setMinimumWidth(480);
+
+    dialog->setModal(true);
+    dialog->setWindowTitle(QCoreApplication::translate("AddImageToResources","Add Resources"));
+    QTableWidget *table = createFilesTable(fileNames);
+
+    table->setParent(dialog);
+    auto mainLayout = new QGridLayout(dialog);
+    mainLayout->addWidget(table, 0, 0, 1, 4);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                       | QDialogButtonBox::Cancel);
+
+    mainLayout->addWidget(buttonBox, 3, 2, 1, 2);
+
+    QObject::connect(buttonBox, &QDialogButtonBox::accepted, dialog, [dialog](){
+        dialog->accept();
+        dialog->deleteLater();
+    });
+
+    QObject::connect(buttonBox, &QDialogButtonBox::rejected, dialog, [dialog](){
+        dialog->reject();
+        dialog->deleteLater();
+    });
+
+    QObject::connect(dialog, &QDialog::accepted, [&result, &table](){
+        QStringList fileList;
+        QString file;
+
+        for (int i = 0; i < table->rowCount(); ++i){
+            if (table->item(i,0)->checkState()){
+                file = table->item(i,0)->text();
+                fileList.append(file);
+            }
+        }
+
+        result = fileList;
+    });
+
+    dialog->exec();
+
+    return result;
+}
+
 void GenerateResource::generateMenuEntry()
 {
     Core::ActionContainer *buildMenu =
@@ -107,9 +188,94 @@ void GenerateResource::generateMenuEntry()
         rccProcess.setWorkingDirectory(projectPath);
 
         const QStringList arguments1 = {"--project", "--output", temp.fileName()};
-        const QStringList arguments2 = {"--binary", "--output", resourceFileName, temp.fileName()};
 
-        for (const auto &arguments : {arguments1, arguments2}) {
+        for (const auto &arguments : {arguments1}) {
+            rccProcess.setCommand({rccBinary, arguments});
+            rccProcess.start();
+            if (!rccProcess.waitForStarted()) {
+                Core::MessageManager::writeDisrupting(
+                    QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                "Unable to generate resource file: %1")
+                        .arg(resourceFileName));
+                return;
+            }
+            QByteArray stdOut;
+            QByteArray stdErr;
+            if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
+                rccProcess.stopProcess();
+                Core::MessageManager::writeDisrupting(
+                    QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                "A timeout occurred running \"%1\"")
+                        .arg(rccBinary + " " + arguments.join(" ")));
+                return;
+            }
+            if (!stdOut.trimmed().isEmpty()) {
+                Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
+            }
+            if (!stdErr.trimmed().isEmpty())
+                Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
+
+            if (rccProcess.exitStatus() != QProcess::NormalExit) {
+                Core::MessageManager::writeDisrupting(
+                    QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
+                        .arg(rccBinary + " " + arguments.join(" ")));
+                return;
+            }
+            if (rccProcess.exitCode() != 0) {
+                Core::MessageManager::writeDisrupting(
+                    QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                "\"%1\" failed (exit code %2).")
+                        .arg(rccBinary + " " + arguments.join(" "))
+                        .arg(rccProcess.exitCode()));
+                return;
+            }
+
+        }
+
+        if (!temp.open())
+            return;
+
+        QXmlStreamReader reader(&temp);
+        QStringList fileList = {};
+        QByteArray firstLine = temp.readLine();
+
+        while (!reader.atEnd()) {
+            const auto token = reader.readNext();
+
+            if (token != QXmlStreamReader::StartElement)
+                continue;
+
+            if (reader.name() == QLatin1String("file")) {
+                QString fileName = reader.readElementText().trimmed();
+                if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX")))
+                    fileList.append(fileName);
+            }
+        }
+
+        temp.close();
+        QStringList modifiedList = getFileList(fileList);
+        QTemporaryFile tempFile(projectPath + "/XXXXXXX.create.modifiedresource.qrc");
+
+        if (!tempFile.open())
+            return;
+
+        QXmlStreamWriter writer(&tempFile);
+        writer.setAutoFormatting(true);
+        writer.setAutoFormattingIndent(0);
+
+        tempFile.write(firstLine.trimmed());
+        writer.writeStartElement("qresource");
+
+        for (int i = 0; i < modifiedList.count(); ++i)
+            writer.writeTextElement("file", modifiedList.at(i).trimmed());
+
+        writer.writeEndElement();
+        tempFile.write("\n</RCC>\n");
+        tempFile.close();
+
+        const QStringList arguments2 = {"--binary", "--output", resourceFileName, tempFile.fileName()};
+
+        for (const auto &arguments : {arguments2}) {
             rccProcess.setCommand({rccBinary, arguments});
             rccProcess.start();
             if (!rccProcess.waitForStarted()) {

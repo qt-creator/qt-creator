@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #pragma once
-
+#include <QTableWidget>
 
 namespace QmlDesigner {
 namespace GenerateResource {
     void generateMenuEntry();
+    QStringList getFileList(const QStringList &);
+    QTableWidget* createFilesTable(const QStringList &);
 }
 } // namespace QmlDesigner
