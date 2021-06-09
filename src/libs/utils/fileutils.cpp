@@ -997,6 +997,13 @@ FilePath FilePath::absoluteFilePath() const
     return result;
 }
 
+FilePath FilePath::absoluteFilePath(const FilePath &tail) const
+{
+    if (FileUtils::isRelativePath(tail.m_data))
+        return pathAppended(tail.m_data);
+    return tail;
+}
+
 /// Constructs an absolute FilePath from this path which
 /// is interpreted as being relative to \a anchor.
 FilePath FilePath::absoluteFromRelativePath(const FilePath &anchor) const

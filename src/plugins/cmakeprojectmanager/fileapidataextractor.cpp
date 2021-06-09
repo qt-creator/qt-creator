@@ -192,18 +192,15 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                                              const FilePath &buildDirectory)
 {
     QDir sourceDir(sourceDirectory.toString());
-    QDir buildDir(buildDirectory.toString());
 
-    const QList<CMakeBuildTarget> result = transform<QList>(
-        input.targetDetails, [&sourceDir, &buildDir](const TargetDetails &t) -> CMakeBuildTarget {
-            const auto currentBuildDir = QDir(buildDir.absoluteFilePath(t.buildDir.toString()));
+    const QList<CMakeBuildTarget> result = transform<QList>(input.targetDetails,
+        [&sourceDir, &sourceDirectory, &buildDirectory](const TargetDetails &t) {
+            const FilePath currentBuildDir = buildDirectory.absoluteFilePath(t.buildDir);
 
             CMakeBuildTarget ct;
             ct.title = t.name;
-            ct.executable = t.artifacts.isEmpty()
-                                ? FilePath()
-                                : FilePath::fromString(QDir::cleanPath(
-                                    buildDir.absoluteFilePath(t.artifacts.at(0).toString())));
+            if (!t.artifacts.isEmpty())
+                ct.executable = buildDirectory.absoluteFilePath(t.artifacts.at(0));
             TargetType type = UtilityType;
             if (t.type == "EXECUTABLE")
                 type = ExecutableType;
@@ -217,10 +214,9 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                 type = UtilityType;
             ct.targetType = type;
             ct.workingDirectory = ct.executable.isEmpty()
-                                      ? FilePath::fromString(currentBuildDir.absolutePath())
+                                      ? currentBuildDir.absolutePath()
                                       : ct.executable.parentDir();
-            ct.sourceDirectory = FilePath::fromString(
-                QDir::cleanPath(sourceDir.absoluteFilePath(t.sourceDir.toString())));
+            ct.sourceDirectory = sourceDirectory.absoluteFilePath(t.sourceDir);
 
             ct.backtrace = extractBacktraceInformation(t.backtraceGraph, sourceDir, t.backtrace, 0);
 
@@ -271,8 +267,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                         if (part.startsWith("-"))
                             continue;
 
-                        FilePath tmp = FilePath::fromString(
-                            currentBuildDir.absoluteFilePath(QDir::fromNativeSeparators(part)));
+                        FilePath tmp = currentBuildDir.absoluteFilePath(FilePath::fromUserInput(part));
 
                         if (f.role == "libraries")
                             tmp = tmp.parentDir();

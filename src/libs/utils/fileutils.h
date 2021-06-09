@@ -137,6 +137,7 @@ public:
     FilePath parentDir() const;
     FilePath absolutePath() const;
     FilePath absoluteFilePath() const;
+    FilePath absoluteFilePath(const FilePath &tail) const;
     FilePath absoluteFromRelativePath(const FilePath &anchor) const;
 
     bool operator==(const FilePath &other) const;
