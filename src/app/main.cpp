@@ -698,8 +698,12 @@ int main(int argc, char **argv)
     }
     restarter.setArguments(options.preAppArguments + PluginManager::argumentsForRestart()
                            + lastSessionArgument());
+    // if settingspath is not provided we need to pass on the settings in use
+    const QString settingspath = options.preAppArguments.contains(QLatin1String(SETTINGS_OPTION))
+            ? QString() : options.settingsPath;
     const PluginManager::ProcessData processData = { restarter.executable(),
-            options.preAppArguments + PluginManager::argumentsForRestart(), restarter.workingPath() };
+            options.preAppArguments + PluginManager::argumentsForRestart(), restarter.workingPath(),
+            settingspath};
     PluginManager::setCreatorProcessData(processData);
 
     const PluginSpecSet plugins = PluginManager::plugins();

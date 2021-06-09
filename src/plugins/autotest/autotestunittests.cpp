@@ -310,7 +310,10 @@ void AutoTestUnitTests::testCodeParserBoostTest_data()
 void AutoTestUnitTests::testStringTable()
 {
     const PluginManager::ProcessData data = PluginManager::creatorProcessData();
-    QCOMPARE(QProcess::execute(data.m_executable, data.m_args + QStringList({ "-scenario", "TestStringTable" })), 0);
+    QStringList additionalArgs{ "-scenario", "TestStringTable" };
+    if (!data.m_args.contains("-settingspath") && !data.m_settingsPath.isEmpty())
+        additionalArgs << "-settingspath" << data.m_settingsPath;
+    QCOMPARE(QProcess::execute(data.m_executable, data.m_args + additionalArgs), 0);
 }
 
 } // namespace Internal

@@ -137,6 +137,7 @@ public:
         QString m_executable;
         QStringList m_args;
         QString m_workingPath;
+        QString m_settingsPath;
     };
 
     static void setCreatorProcessData(const ProcessData &data);
