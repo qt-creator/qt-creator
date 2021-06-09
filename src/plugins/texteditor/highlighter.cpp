@@ -176,7 +176,7 @@ Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FilePa
         const Definition &rememberedDefinition
             = fileExtension.isEmpty()
                   ? definitionForSetting(kDefinitionForFilePath,
-                                         fileName.toFileInfo().canonicalFilePath())
+                                         fileName.absoluteFilePath().toString())
                   : definitionForSetting(kDefinitionForExtension, fileExtension);
         if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
             definitions = {rememberedDefinition};
@@ -192,11 +192,11 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
     if (!definition.isValid())
         return;
     const QString &mimeType = document->mimeType();
-    const QString &fileExtension = document->filePath().completeSuffix();
-    const QString &path = document->filePath().toFileInfo().canonicalFilePath();
+    const Utils::FilePath &path = document->filePath();
+    const QString &fileExtension = path.completeSuffix();
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
-    const Definitions &fileNameDefinitions = definitionsForFileName(document->filePath());
+    const Definitions &fileNameDefinitions = definitionsForFileName(path);
     if (fileNameDefinitions.contains(definition)) {
         if (!fileExtension.isEmpty()) {
             const QString id(kDefinitionForExtension);
@@ -206,7 +206,7 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
         } else if (!path.isEmpty()) {
             const QString id(kDefinitionForFilePath);
             QMap<QString, QVariant> map = settings->value(id).toMap();
-            map.insert(document->filePath().toFileInfo().absoluteFilePath(), definition.name());
+            map.insert(path.absoluteFilePath().toString(), definition.name());
             settings->setValue(id, map);
         }
     } else if (!mimeType.isEmpty()) {
