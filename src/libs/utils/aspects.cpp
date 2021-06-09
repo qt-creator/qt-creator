@@ -958,13 +958,6 @@ void StringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
         d->m_pathChooserDisplay->setExpectedKind(expectedKind);
 }
 
-void StringAspect::setFileDialogOnly(bool requireFileDialog)
-{
-    d->m_fileDialogOnly = requireFileDialog;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setFileDialogOnly(requireFileDialog);
-}
-
 void StringAspect::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
@@ -1060,7 +1053,6 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
-        d->m_pathChooserDisplay->setFileDialogOnly(d->m_fileDialogOnly);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());

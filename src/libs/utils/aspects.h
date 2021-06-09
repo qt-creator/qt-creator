@@ -298,7 +298,6 @@ public:
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
-    void setFileDialogOnly(bool requireFileDialog);
     void setEnvironment(const Utils::Environment &env);
     void setBaseFileName(const Utils::FilePath &baseFileName);
     void setUndoRedoEnabled(bool readOnly);

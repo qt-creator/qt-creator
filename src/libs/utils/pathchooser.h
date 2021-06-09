@@ -138,9 +138,6 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool b);
 
-    bool isFileDialogOnly() const;
-    void setFileDialogOnly(bool b);
-
     void triggerChanged();
 
     // global handler for adding context menus to ALL pathchooser
@@ -164,7 +161,6 @@ private:
     QString makeDialogTitle(const QString &title);
     void slotBrowse();
     void contextMenuRequested(const QPoint &pos);
-    void updateReadOnlyStateOfSubwidgets();
 
 signals:
     void validChanged(bool validState);
