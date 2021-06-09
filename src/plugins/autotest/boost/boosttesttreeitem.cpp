@@ -144,8 +144,8 @@ bool BoostTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *BoostTestTreeItem::createParentGroupNode() const
 {
-    const QFileInfo base = filePath().absolutePath().toFileInfo();
-    return new BoostTestTreeItem(framework(), base.baseName(), filePath().absolutePath(), TestTreeItem::GroupNode);
+    const Utils::FilePath &absPath = filePath().absolutePath();
+    return new BoostTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
 QString BoostTestTreeItem::prependWithParentsSuitePaths(const QString &testName) const

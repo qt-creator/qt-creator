@@ -408,8 +408,8 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *QtTestTreeItem::createParentGroupNode() const
 {
-    const QFileInfo base = filePath().absolutePath().toFileInfo();
-    return new QtTestTreeItem(framework(), base.baseName(), filePath().absolutePath(), TestTreeItem::GroupNode);
+    const Utils::FilePath &absPath = filePath().absolutePath();
+    return new QtTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
 bool QtTestTreeItem::isGroupable() const

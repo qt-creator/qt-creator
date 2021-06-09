@@ -375,8 +375,8 @@ bool QuickTestTreeItem::removeOnSweepIfEmpty() const
 
 TestTreeItem *QuickTestTreeItem::createParentGroupNode() const
 {
-    const QFileInfo base = filePath().absolutePath().toFileInfo();
-    return new QuickTestTreeItem(framework(), base.baseName(), filePath().absolutePath(), TestTreeItem::GroupNode);
+    const Utils::FilePath &absPath = filePath().absolutePath();
+    return new QuickTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
 bool QuickTestTreeItem::isGroupable() const

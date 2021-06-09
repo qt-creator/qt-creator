@@ -464,9 +464,8 @@ bool GTestTreeItem::modify(const TestParseResult *result)
 TestTreeItem *GTestTreeItem::createParentGroupNode() const
 {
     if (GTestFramework::groupMode() == GTest::Constants::Directory) {
-        const QFileInfo base = filePath().absolutePath().toFileInfo();
-        return new GTestTreeItem(framework(), base.baseName(), filePath().absolutePath(),
-                                 TestTreeItem::GroupNode);
+        const Utils::FilePath &absPath = filePath().absolutePath();
+        return new GTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
     } else { // GTestFilter
         QTC_ASSERT(childCount(), return nullptr); // paranoia
         const TestTreeItem *firstChild = childItem(0);

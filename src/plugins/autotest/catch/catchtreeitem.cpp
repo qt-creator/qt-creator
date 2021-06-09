@@ -139,8 +139,8 @@ bool CatchTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *CatchTreeItem::createParentGroupNode() const
 {
-    const QFileInfo base(filePath().toFileInfo().absolutePath());
-    return new CatchTreeItem(framework(), base.baseName(), filePath(), TestTreeItem::GroupNode);
+    const Utils::FilePath absPath = filePath().absolutePath();
+    return new CatchTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
 bool CatchTreeItem::canProvideTestConfiguration() const

@@ -268,21 +268,22 @@ void AutoTestUnitTests::testCodeParserBoostTest()
 
     QCOMPARE(m_model->boostTestNamesCount(), 5);
 
-    QString basePath;
-    if (auto project = projectInfo.project())
-        basePath = project->projectFilePath().toFileInfo().absolutePath();
+
+    auto project = projectInfo.project();
+    QVERIFY(project);
+    const Utils::FilePath basePath = project->projectFilePath().absolutePath();
     QVERIFY(!basePath.isEmpty());
 
     QMap<QString, int> expectedSuitesAndTests;
 
     auto pathConstructor = [basePath, extension](const QString &name, const QString &subPath) {
-        return QString(name + '|' + basePath + subPath + extension);
+        return QString(name + '|' + basePath.pathAppended(subPath + extension).toString());
     };
-    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "/tests/deco/deco"), 2); // decorators w/o suite
-    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "/tests/fix/fix"), 2); // fixtures
-    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "/tests/params/params"), 3); // functions
-    expectedSuitesAndTests.insert(pathConstructor("Suite1", "/tests/deco/deco"), 4);
-    expectedSuitesAndTests.insert(pathConstructor("SuiteOuter", "/tests/deco/deco"), 5); // 2 sub suites + 3 tests
+    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/deco/deco"), 2); // decorators w/o suite
+    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/fix/fix"), 2); // fixtures
+    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "tests/params/params"), 3); // functions
+    expectedSuitesAndTests.insert(pathConstructor("Suite1", "tests/deco/deco"), 4);
+    expectedSuitesAndTests.insert(pathConstructor("SuiteOuter", "tests/deco/deco"), 5); // 2 sub suites + 3 tests
 
     QMap<QString, int> foundNamesAndSets = m_model->boostTestSuitesAndTests();
     QCOMPARE(expectedSuitesAndTests.size(), foundNamesAndSets.size());

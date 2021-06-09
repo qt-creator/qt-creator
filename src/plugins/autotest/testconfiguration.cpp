@@ -84,7 +84,6 @@ Utils::FilePath ITestConfiguration::executableFilePath() const
     if (!hasExecutable())
         return {};
 
-    QFileInfo commandFileInfo = m_runnable.executable.toFileInfo();
     if (m_runnable.executable.isExecutableFile() && m_runnable.executable.path() != ".") {
         return m_runnable.executable.absoluteFilePath();
     } else if (m_runnable.executable.path() == "."){
