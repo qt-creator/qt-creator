@@ -174,6 +174,7 @@ public:
                        const LanguageServerProtocol::Diagnostic &diag) const;
     void setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
                                 const HideDiagnosticsHandler &hideHandler);
+    void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
 
@@ -225,6 +226,8 @@ private:
     void requestSemanticTokens(TextEditor::TextEditorWidget *widget);
     void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
     void rehighlight();
+
+    virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,

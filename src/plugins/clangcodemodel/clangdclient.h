@@ -83,9 +83,11 @@ signals:
     void foundReferences(const QList<Core::SearchResultItem> &items);
     void findUsagesDone();
     void helpItemGathered(const Core::HelpItem &helpItem);
+    void highlightingResultsReady(const TextEditor::HighlightingResults &results);
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+    void handleDocumentClosed(TextEditor::TextDocument *doc) override;
 
     class Private;
     class FollowSymbolData;

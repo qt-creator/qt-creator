@@ -426,9 +426,12 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     deactivateDocument(document);
     const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     m_highlights[uri].clear();
-    if (m_openedDocument.remove(document) != 0 && m_state == Initialized) {
-        DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
-        sendContent(DidCloseTextDocumentNotification(params));
+    if (m_openedDocument.remove(document) != 0) {
+        handleDocumentClosed(document);
+        if (m_state == Initialized) {
+            DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
+            sendContent(DidCloseTextDocumentNotification(params));
+        }
     }
 }
 
@@ -1001,6 +1004,11 @@ void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
                                     const HideDiagnosticsHandler &hideHandler)
 {
     m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler);
+}
+
+void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
+{
+    m_tokentSupport.setTokensHandler(handler);
 }
 
 void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)

@@ -35,12 +35,14 @@
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/semantichighlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/algorithm.h>
+#include <utils/textutils.h>
 
 #include <QEventLoop>
 #include <QFileInfo>
@@ -54,6 +56,7 @@ using namespace CPlusPlus;
 using namespace Core;
 using namespace CppTools::Tests;
 using namespace ProjectExplorer;
+using namespace TextEditor;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -601,7 +604,7 @@ void ClangdTestTooltips::test()
     QCOMPARE(editor->document(), doc);
     QVERIFY(editor->editorWidget());
 
-    if (QLatin1String(QTest::currentDataTag()) == "IncludeDirective")
+    if (QLatin1String(QTest::currentDataTag()) == QLatin1String("IncludeDirective"))
         QSKIP("FIXME: clangd sends empty or no hover data for includes");
 
     QTimer timer;
@@ -631,6 +634,689 @@ void ClangdTestTooltips::test()
     QEXPECT_FAIL("AutoTypeTemplate", "Additional look-up needed?", Abort);
     QCOMPARE(helpItem.helpIds(), expectedIds);
     QCOMPARE(helpItem.docMark(), expectedMark);
+}
+
+ClangdTestHighlighting::ClangdTestHighlighting()
+{
+    setProjectFileName("highlighting.pro");
+    setSourceFileNames({"highlighting.cpp"});
+    setMinimumVersion(13);
+}
+
+void ClangdTestHighlighting::initTestCase()
+{
+    ClangdTest::initTestCase();
+
+    QTimer timer;
+    timer.setSingleShot(true);
+    QEventLoop loop;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    const auto handler = [this, &loop](const TextEditor::HighlightingResults &results) {
+        m_results = results;
+        loop.quit();
+    };
+    connect(client(), &ClangdClient::highlightingResultsReady, handler);
+    timer.start(10000);
+    loop.exec();
+    QVERIFY(timer.isActive());
+    QVERIFY(!m_results.isEmpty());
+}
+
+void ClangdTestHighlighting::test_data()
+{
+    QTest::addColumn<int>("firstLine");
+    QTest::addColumn<int>("startColumn");
+    QTest::addColumn<int>("lastLine");
+    QTest::addColumn<int>("endColumn");
+    QTest::addColumn<QList<int>>("expectedStyles");
+    QTest::addColumn<int>("expectedKind");
+
+    QTest::newRow("string literal") << 1 << 24 << 1 << 34 << QList<int>{C_STRING} << 0;
+    QTest::newRow("UTF-8 string literal") << 2 << 24 << 2 << 36 << QList<int>{C_STRING} << 0;
+    QTest::newRow("raw string literal") << 3 << 24 << 4 << 9 << QList<int>{C_STRING} << 0;
+    QTest::newRow("character literal") << 5 << 24 << 5 << 27 << QList<int>{C_STRING} << 0;
+    QTest::newRow("integer literal") << 23 << 24 << 23 << 25 << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("float literal") << 24 << 24 << 24 << 28 << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("function definition") << 45 << 5 << 45 << 13
+        << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
+    QTest::newRow("member function definition") << 52 << 10 << 52 << 24
+        << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
+    QTest::newRow("virtual member function definition outside of class body")
+        << 586 << 17 << 586 << 32
+        << QList<int>{C_VIRTUAL_METHOD, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
+    QTest::newRow("virtual member function definition inside class body")
+        << 589 << 16 << 589 << 41
+        << QList<int>{C_VIRTUAL_METHOD, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
+    QTest::newRow("function declaration") << 55 << 5 << 55 << 24
+        << QList<int>{C_FUNCTION, C_DECLARATION} << 0;
+    QTest::newRow("member function declaration") << 59 << 10 << 59 << 24
+        << QList<int>{C_FUNCTION, C_DECLARATION} << 0;
+    QTest::newRow("member function call") << 104 << 9 << 104 << 32
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("function call") << 64 << 5 << 64 << 13 << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("type conversion function (struct)") << 68 << 14 << 68 << 17
+        << QList<int>{C_TYPE, C_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("type conversion function (built-in)") << 69 << 14 << 69 << 17
+        << QList<int>{C_PRIMITIVE_TYPE, C_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("type reference") << 74 << 5 << 74 << 8 << QList<int>{C_TYPE} << 0;
+    QTest::newRow("local variable declaration") << 79 << 9 << 79 << 12
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("local variable reference") << 81 << 5 << 81 << 8 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("function parameter declaration") << 84 << 41 << 84 << 44
+        << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
+    QTest::newRow("function parameter reference") << 86 << 5 << 86 << 8
+        << QList<int>{C_PARAMETER} << 0;
+    QTest::newRow("member declaration") << 90 << 9 << 90 << 20
+        << QList<int>{C_FIELD, C_DECLARATION} << 0;
+    QTest::newRow("member reference") << 94 << 9 << 94 << 20 << QList<int>{C_FIELD} << 0;
+    QTest::newRow("static member function declaration") << 110 << 10 << 110 << 22
+        << QList<int>{C_FUNCTION, C_DECLARATION} << 0;
+    QTest::newRow("static member function call") << 114 << 15 << 114 << 27
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("enum declaration") << 118 << 6 << 118 << 17
+        << QList<int>{C_TYPE, C_ENUMERATION, C_DECLARATION} << 0;
+    QTest::newRow("enumerator declaration") << 120 << 5 << 120 << 15
+        << QList<int>{C_ENUMERATION, C_DECLARATION} << 0;
+    QTest::newRow("enum in variable declaration") << 125 << 5 << 125 << 16
+        << QList<int>{C_TYPE, C_ENUMERATION} << 0;
+    QTest::newRow("enum variable declaration") << 125 << 17 << 125 << 28
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("enum variable reference") << 127 << 5 << 127 << 16 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("enumerator reference") << 127 << 19 << 127 << 29
+        << QList<int>{C_ENUMERATION} << 0;
+    QTest::newRow("forward declaration") << 130 << 7 << 130 << 23
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("constructor declaration") << 134 << 5 << 134 << 10
+        << QList<int>{C_FUNCTION, C_DECLARATION} << 0;
+    QTest::newRow("destructor declaration") << 135 << 6 << 135 << 11
+        << QList<int>{C_FUNCTION, C_DECLARATION} << 0;
+    QTest::newRow("reference to forward-declared class") << 138 << 1 << 138 << 17
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("class in variable declaration") << 140 << 5 << 140 << 10
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("class variable declaration") << 140 << 11 << 140 << 31
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("union declaration") << 145 << 7 << 145 << 12
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("union in global variable declaration") << 150 << 1 << 150 << 6
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("global variable declaration") << 150 << 7 << 150 << 32
+        << QList<int>{C_GLOBAL, C_DECLARATION} << 0;
+    QTest::newRow("struct declaration") << 50 << 8 << 50 << 11
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("namespace declaration") << 160 << 11 << 160 << 20
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("namespace alias declaration") << 164 << 11 << 164 << 25
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("struct in namespaced using declaration") << 165 << 18 << 165 << 35
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("namespace reference") << 166 << 1 << 166 << 10 << QList<int>{C_TYPE} << 0;
+    QTest::newRow("namespaced struct in global variable declaration") << 166 << 12 << 166 << 29
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("virtual function declaration") << 170 << 18 << 170 << 33
+        << QList<int>{C_VIRTUAL_METHOD, C_DECLARATION} << 0;
+    QTest::newRow("virtual function call via pointer") << 192 << 33 << 192 << 48
+        << QList<int>{C_VIRTUAL_METHOD} << 0;
+    QTest::newRow("final virtual function call via pointer") << 202 << 38 << 202 << 58
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("non-final virtual function call via pointer") << 207 << 41 << 207 << 61
+        << QList<int>{C_VIRTUAL_METHOD} << 0;
+    QTest::newRow("operator+ declaration") << 220 << 18 << 220 << 19
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator+ call") << 224 << 36 << 224 << 37
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator+= call") << 226 << 24 << 226 << 26
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator* member declaration") << 604 << 18 << 604 << 19
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator* non-member declaration") << 607 << 14 << 607 << 15
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator* member call") << 613 << 7 << 613 << 8
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator* non-member call") << 614 << 7 << 614 << 8
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator<<= member declaration") << 618 << 19 << 618 << 22
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator<<= call") << 629 << 12 << 629 << 15
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("integer literal 2") << 629 << 16 << 629 << 17 << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("operator(int) member declaration (opening paren") << 619 << 19 << 619 << 20
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator(int) member declaration (closing paren") << 619 << 20 << 619 << 21
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator(int) call (opening parenthesis)") << 632 << 12 << 632 << 13
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator(int) call (argument)") << 632 << 13 << 632 << 14
+        << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("operator(int) call (closing parenthesis)") << 632 << 14 << 632 << 15
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator[] member declaration (opening bracket") << 620 << 18 << 620 << 19
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator[] member declaration (closing bracket") << 620 << 20 << 620 << 21
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator[] call (opening bracket)") << 633 << 12 << 633 << 13
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator[] call (argument)") << 633 << 13 << 633 << 14
+        << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("operator[] call (closing bracket)") << 633 << 14 << 633 << 15
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator new member declaration") << 621 << 20 << 621 << 23
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator new member call") << 635 << 22 << 635 << 25
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator delete member declaration") << 622 << 19 << 622 << 25
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator delete member call") << 636 << 5 << 636 << 11
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("var after operator delete member call") << 636 << 12 << 636 << 19
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("operator new[] member declaration (keyword)") << 623 << 20 << 623 << 23
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator new[] member declaration (opening bracket)") << 623 << 23 << 623 << 24
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator new[] member declaration (closing bracket)") << 623 << 24 << 623 << 25
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator new[] member call (keyword") << 637 << 19 << 637 << 22
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator new[] member call (type argument)") << 637 << 23 << 637 << 28
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("operator new[] member call (opening bracket)") << 637 << 28 << 637 << 29
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator new[] member call (size argument)") << 637 << 29 << 637 << 31
+        << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("operator new[] member call (closing bracket)") << 637 << 31 << 637 << 32
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator delete[] member declaration (keyword)") << 624 << 19 << 624 << 25
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator delete[] member declaration (opening bracket)")
+        << 624 << 25 << 624 << 26
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator delete[] member declaration (closing bracket)")
+        << 624 << 26 << 624 << 27
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator delete[] member call (keyword") << 638 << 5 << 638 << 11
+        << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator delete[] member call (opening bracket)") << 638 << 12 << 638 << 13
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator delete[] member call (closing bracket)") << 638 << 13 << 638 << 14
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator new built-in call") << 634 << 14 << 634 << 17
+        << QList<int>{C_KEYWORD, C_OPERATOR} << 0;
+    QTest::newRow("operator() member declaration (opening paren") << 654 << 20 << 654 << 21
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator() member declaration (closing paren") << 654 << 21 << 654 << 22
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator() call (opening parenthesis)") << 662 << 11 << 662 << 12
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator() call (closing parenthesis)") << 662 << 12 << 662 << 13
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator* member declaration (2)") << 655 << 17 << 655 << 18
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator* member call (2)") << 663 << 5 << 663 << 6
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("operator= member declaration") << 656 << 20 << 656 << 21
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
+    QTest::newRow("operator= call") << 664 << 12 << 664 << 13
+        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
+    QTest::newRow("ternary operator (question mark)") << 668 << 18 << 668 << 19
+        << QList<int>{C_PUNCTUATION, C_OPERATOR} << int(CppTools::SemanticHighlighter::TernaryIf);
+    QTest::newRow("ternary operator (colon)") << 668 << 23 << 668 << 24
+        << QList<int>{C_PUNCTUATION, C_OPERATOR} << int(CppTools::SemanticHighlighter::TernaryElse);
+    QTest::newRow("opening angle bracket in function template declaration")
+        << 247 << 10 << 247 << 11
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("closing angle bracket in function template declaration")
+        << 247 << 18 << 247 << 19
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("opening angle bracket in class template declaration") << 261 << 10 << 261 << 11
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("closing angle bracket in class template declaration") << 261 << 18 << 261 << 19
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("macro definition") << 231 << 9 << 231 << 31
+        << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
+    QTest::newRow("function-like macro definition") << 232 << 9 << 232 << 24
+        << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
+    QTest::newRow("function-like macro call") << 236 << 5 << 236 << 20
+        << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("function-like macro call argument 1") << 236 << 21 << 236 << 22
+        << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("function-like macro call argument 2") << 236 << 24 << 236 << 25
+        << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("function template call") << 254 << 5 << 254 << 21 << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("template type parameter") << 265 << 17 << 265 << 38
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("template parameter default argument") << 265 << 41 << 265 << 44
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("template non-type parameter") << 265 << 50 << 265 << 74
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("template non-type parameter default argument") << 265 << 77 << 265 << 78
+        << QList<int>{C_NUMBER} << 0;
+    QTest::newRow("template template parameter") << 265 << 103 << 265 << 128
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("template template parameter default argument") << 265 << 131 << 265 << 142
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("outer opening angle bracket in nested template declaration")
+        << 265 << 10 << 265 << 11
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("inner opening angle bracket in nested template declaration")
+        << 265 << 89 << 265 << 90
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("inner closing angle bracket in nested template declaration")
+        << 265 << 95 << 265 << 96
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("outer closing angle bracket in nested template declaration")
+        << 265 << 142 << 265 << 143
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("function template declaration") << 266 << 6 << 266 << 22
+        << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
+    QTest::newRow("template type parameter reference") << 268 << 5 << 268 << 26
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("local var declaration of template parameter type") << 268 << 27 << 268 << 57
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("reference to non-type template parameter") << 269 << 46 << 269 << 70
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("local var declaration initialized with non-type template parameter")
+        << 269 << 10 << 269 << 43
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("template template parameter reference") << 270 << 5 << 270 << 30
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("template type parameter reference in template instantiation")
+        << 270 << 31 << 270 << 52
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("local var declaration of template template parameter type")
+        << 270 << 54 << 270 << 88
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("local variable declaration as argument to function-like macro call")
+        << 302 << 18 << 302 << 23
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("local variable as argument to function-like macro call")
+        << 302 << 25 << 302 << 34
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("class member as argument to function-like macro call")
+        << 310 << 29 << 310 << 38
+        << QList<int>{C_FIELD} << 0;
+    QTest::newRow("enum declaration with underlying type") << 316 << 6 << 316 << 21
+        << QList<int>{C_TYPE, C_ENUMERATION, C_DECLARATION} << 0;
+    QTest::newRow("type in static_cast") << 328 << 23 << 328 << 33
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("opening angle bracket in static_cast") << 328 << 16 << 328 << 17
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("closing angle bracket in static_cast") << 328 << 39 << 328 << 40
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("type in reinterpret_cast") << 329 << 28 << 329 << 38
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("integer alias declaration") << 333 << 7 << 333 << 25
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("integer alias in declaration") << 341 << 5 << 341 << 17
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("recursive integer alias in declaration") << 342 << 5 << 342 << 23
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("integer typedef in declaration") << 343 << 5 << 343 << 19
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("call to function pointer alias") << 344 << 5 << 344 << 13
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("friend class declaration") << 350 << 18 << 350 << 27
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("friend class reference") << 351 << 34 << 351 << 43
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("function parameter of friend class type") << 351 << 45 << 351 << 50
+        << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
+    QTest::newRow("constructor member initialization") << 358 << 9 << 358 << 15
+        << QList<int>{C_FIELD} << 0;
+    QTest::newRow("call to function template") << 372 << 5 << 372 << 25
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("class template declaration") << 377 << 7 << 377 << 20
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("class template instantiation (name)") << 384 << 5 << 384 << 18
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("class template instantiation (opening angle bracket)") << 384 << 18 << 384 << 19
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("class template instantiation (closing angle bracket)") << 384 << 22 << 384 << 23
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("namespace in declaration") << 413 << 4 << 413 << 26 << QList<int>{C_TYPE} << 0;
+    QTest::newRow("namespaced class in declaration") << 413 << 28 << 413 << 41
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("class as template argument in declaration") << 413 << 42 << 413 << 52
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("local variable declaration of template instance type") << 413 << 54 << 413 << 77
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("local typedef declaration") << 418 << 17 << 418 << 35
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("local typedef in variable declaration") << 419 << 5 << 419 << 23
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("non-const reference argument") << 455 << 31 << 455 << 32
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("const reference argument") << 464 << 28 << 464 << 29
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("rvalue reference argument") << 473 << 48 << 473 << 49
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("non-const pointer argument") << 482 << 29 << 482 << 30
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("pointer to const argument") << 490 << 28 << 490 << 29
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("const pointer argument") << 491 << 26 << 491 << 27
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const reference via member function call as output argument (object)")
+        << 580 << 29 << 580 << 30
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const reference via member function call as output argument (function)")
+        << 580 << 31 << 580 << 37
+        << QList<int>{C_FUNCTION, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("value argument") << 501 << 57 << 501 << 58
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("non-const ref argument as second arg") << 501 << 61 << 501 << 62
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const ref argument from function parameter") << 506 << 31 << 506 << 40
+        << QList<int>{C_PARAMETER, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const pointer argument expression") << 513 << 30 << 513 << 31
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const ref argument from qualified member (object)") << 525 << 31 << 525 << 39
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const ref argument from qualified member (member)") << 525 << 40 << 525 << 46
+        << QList<int>{C_FIELD, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const ref argument to constructor") << 540 << 47 << 540 << 55
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("non-const ref argument to member initialization") << 546 << 15 << 546 << 18
+        << QList<int>{C_PARAMETER, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("typedef as underlying type in enum declaration") << 424 << 21 << 424 << 39
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("argument to user-defined subscript operator") << 434 << 12 << 434 << 17
+        << QList<int>{C_PARAMETER} << 0;
+    QTest::newRow("partial class template specialization") << 553 << 25 << 553 << 28
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("using declaration for function") << 556 << 10 << 556 << 13
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("variable in operator() call") << 566 << 7 << 566 << 10
+        << QList<int>{C_PARAMETER} << 0;
+    QTest::newRow("using declaration for function template") << 584 << 10 << 584 << 16
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("Q_PROPERTY (macro name)") << 599 << 5 << 599 << 15
+        << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("Q_PROPERTY (property name)") << 599 << 52 << 599 << 56
+        << QList<int>{C_FIELD} << 0;
+    QTest::newRow("Q_PROPERTY (getter)") << 599 << 62 << 599 << 69
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("Q_PROPERTY (notifier)") << 599 << 91 << 599 << 102
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("Q_PROPERTY (type)") << 600 << 22 << 600 << 29
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("multi-line Q_PROPERTY (macro name)") << 704 << 5 << 704 << 15
+        << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("multi-line Q_PROPERTY (property name)") << 718 << 13 << 718 << 17
+        << QList<int>{C_FIELD} << 0;
+    QTest::newRow("multi-line Q_PROPERTY (getter)") << 722 << 13 << 722 << 20
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("multi-line Q_PROPERTY (notifier)") << 730 << 13 << 730 << 24
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("old-style signal (macro)") << 672 << 5 << 672 << 11
+        << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("old-style signal (signal)") << 672 << 12 << 672 << 21
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("old-style signal (signal parameter)") << 672 << 22 << 672 << 29
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("old-style slot (macro)") << 673 << 5 << 673 << 9
+        << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("old-style slot (slot)") << 673 << 10 << 673 << 19
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("old-style slot (slot parameter)") << 673 << 20 << 673 << 27
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("old-style signal with complex parameter (macro)") << 674 << 5 << 674 << 11
+        << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("old-style signal with complex parameter (signal)") << 674 << 12 << 674 << 21
+        << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("old-style signal with complex parameter (signal parameter part 1)")
+        << 674 << 22 << 674 << 29
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("old-style signal with complex parameter (signal parameter part 2)")
+        << 674 << 32 << 674 << 37
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("old-style signal with complex parameter (signal parameter part 3)")
+        << 674 << 39 << 674 << 46
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("constructor parameter") << 681 << 64 << 681 << 88
+        << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
+    QTest::newRow("non-const ref argument to constructor (2)") << 686 << 42 << 686 << 45
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("local variable captured by lambda") << 442 << 24 << 442 << 27
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("static protected member") << 693 << 16 << 693 << 30
+        << QList<int>{C_FIELD, C_DECLARATION} << 0;
+    QTest::newRow("static private member") << 696 << 16 << 696 << 28
+        << QList<int>{C_FIELD, C_DECLARATION} << 0;
+    QTest::newRow("alias template declaration (opening angle bracket)") << 700 << 10 << 700 << 11
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("alias template declaration (closing angle bracket)") << 700 << 16 << 700 << 17
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("alias template declaration (new type)") << 700 << 24 << 700 << 28
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("alias template declaration (base type)") << 700 << 31 << 700 << 32
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("alias template declaration (base type opening angle bracket)")
+        << 700 << 32 << 700 << 33
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("alias template declaration (base type closing angle bracket)")
+        << 700 << 37 << 700 << 38
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("alias template instantiation (type)") << 701 << 1 << 701 << 5
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("alias template instantiation (opening angle bracket)") << 701 << 5 << 701 << 6
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("alias template instantiation (closing angle bracket)") << 701 << 7 << 701 << 8
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("function template specialization (opening angle bracket 1)")
+        << 802 << 9 << 802 << 10
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("function template specialization (closing angle bracket 1)")
+        << 802 << 10 << 802 << 11
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("function template specialization (function name)")
+        << 802 << 17 << 802 << 29
+        << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
+    QTest::newRow("function template specialization (opening angle bracket 2)")
+        << 802 << 29 << 802 << 30
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("function template specialization (closing angle bracket 2)")
+        << 802 << 33 << 802 << 34
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("class template specialization (opening angle bracket 1)")
+        << 804 << 9 << 804 << 10
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("class template specialization (closing angle bracket 1)")
+        << 804 << 10 << 804 << 11
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("class template specialization (class name)")
+        << 804 << 18 << 804 << 21
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("class template specialization (opening angle bracket 2)")
+        << 804 << 21 << 804 << 22
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("class template specialization (closing angle bracket 2)")
+        << 804 << 25 << 804 << 26
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("structured binding (var 1)") << 737 << 17 << 737 << 18
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("structured binding (var 2)") << 737 << 20 << 737 << 21
+        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+    QTest::newRow("local var via indirect macro") << 746 << 20 << 746 << 30
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("global variable in multi-dimensional array") << 752 << 13 << 752 << 23
+        << QList<int>{C_GLOBAL} << 0;
+    QTest::newRow("reference to global variable") << 764 << 5 << 764 << 14
+        << QList<int>{C_GLOBAL} << 0;
+    QTest::newRow("nested template instantiation (namespace 1)") << 773 << 8 << 773 << 11
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("nested template instantiation (type 1)") << 773 << 13 << 773 << 19
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("nested template instantiation (opening angle bracket 1)")
+        << 773 << 19 << 773 << 20
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("nested template instantiation (namespace 2)") << 773 << 20 << 773 << 23
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("nested template instantiation (type 2)") << 773 << 25 << 773 << 29
+        << QList<int>{C_TYPE} << 0;
+    QTest::newRow("nested template instantiation (opening angle bracket 2)")
+        << 773 << 29 << 773 << 30
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("nested template instantiation (closing angle bracket 1)")
+        << 773 << 38 << 773 << 39
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("nested template instantiation (closing angle bracket 2)")
+        << 773 << 39 << 773 << 40
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("nested template instantiation (variable)") << 773 << 41 << 773 << 43
+        << QList<int>{C_GLOBAL, C_DECLARATION} << 0;
+    QTest::newRow("doubly nested template instantiation (opening angle bracket 1)")
+        << 806 << 12 << 806 << 13
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("doubly nested template instantiation (opening angle bracket 2)")
+        << 806 << 24 << 806 << 25
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("doubly nested template instantiation (opening angle bracket 3)")
+        << 806 << 36 << 806 << 37
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("doubly nested template instantiation (closing angle bracket 1)")
+        << 806 << 40 << 806 << 41
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("doubly nested template instantiation (closing angle bracket 2)")
+        << 806 << 41 << 806 << 42
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("doubly nested template instantiation (closing angle bracket 3)")
+        << 806 << 42 << 806 << 43
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 1)")
+        << 808 << 13 << 808 << 14
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 2)")
+        << 808 << 27 << 808 << 28
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 3)")
+        << 808 << 39 << 808 << 40
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 4)")
+        << 809 << 12 << 809 << 13
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+    QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 1)")
+        << 810 << 1 << 810 << 2
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 2)")
+        << 810 << 2 << 810 << 3
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 3)")
+        << 811 << 2 << 811 << 3
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 4)")
+        << 812 << 3 << 812 << 4
+        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("cyrillic string") << 792 << 24 << 792 << 27 << QList<int>{C_STRING} << 0;
+    QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
+        << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
+    QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
+        << QList<int>{C_DISABLED_CODE} << 0;
+}
+
+void ClangdTestHighlighting::test()
+{
+    QFETCH(int, firstLine);
+    QFETCH(int, startColumn);
+    QFETCH(int, lastLine);
+    QFETCH(int, endColumn);
+    QFETCH(QList<int>, expectedStyles);
+    QFETCH(int, expectedKind);
+
+    const TextEditor::TextDocument * const doc = document("highlighting.cpp");
+    QVERIFY(doc);
+    const int startPos = Utils::Text::positionInText(doc->document(), firstLine, startColumn);
+    const int endPos = Utils::Text::positionInText(doc->document(), lastLine, endColumn);
+
+    const auto lessThan = [=](const TextEditor::HighlightingResult &r, int) {
+        return Utils::Text::positionInText(doc->document(), r.line, r.column) < startPos;
+    };
+    const auto findResults = [=] {
+        TextEditor::HighlightingResults results;
+        auto it = std::lower_bound(m_results.cbegin(), m_results.cend(), 0, lessThan);
+        if (it == m_results.cend())
+            return results;
+        while (it != m_results.cend()) {
+            const int resultEndPos = Utils::Text::positionInText(doc->document(), it->line,
+                                                                 it->column) + it->length;
+            if (resultEndPos > endPos)
+                break;
+            results << *it++;
+        }
+        return results;
+    };
+    const TextEditor::HighlightingResults results = findResults();
+
+    QEXPECT_FAIL("typedef as underlying type in enum declaration",
+                 "FIXME: clangd does not report this symbol",
+                 Abort);
+    QEXPECT_FAIL("Q_PROPERTY (property name)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("Q_PROPERTY (getter)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("Q_PROPERTY (notifier)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("Q_PROPERTY (type)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("multi-line Q_PROPERTY (property name)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("multi-line Q_PROPERTY (getter)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("multi-line Q_PROPERTY (notifier)", "FIXME: How to do this?", Abort);
+    QEXPECT_FAIL("old-style signal (signal)", "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style signal (signal parameter)",
+                 "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style slot (slot)", "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style slot (slot parameter)",
+                 "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style signal with complex parameter (signal)",
+                 "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style signal with complex parameter (signal parameter part 1)",
+                 "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style signal with complex parameter (signal parameter part 2)",
+                 "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("old-style signal with complex parameter (signal parameter part 3)",
+                 "check if and how we want to support this", Abort);
+    QEXPECT_FAIL("alias template instantiation (type)", "FIXME: clangd doesn't report this", Abort);
+    QEXPECT_FAIL("alias template instantiation (opening angle bracket)",
+                 "FIXME: This construct does not appear in the AST", Abort);
+    QEXPECT_FAIL("alias template instantiation (closing angle bracket)",
+                 "FIXME: This construct does not appear in the AST", Abort);
+    QEXPECT_FAIL("function template specialization (opening angle bracket 1)",
+                 "specialization appears as a normal function in the AST", Abort);
+    QEXPECT_FAIL("function template specialization (closing angle bracket 1)",
+                 "specialization appears as a normal function in the AST", Abort);
+    QEXPECT_FAIL("function template specialization (opening angle bracket 2)",
+                 "specialization appears as a normal function in the AST", Abort);
+    QEXPECT_FAIL("function template specialization (closing angle bracket 2)",
+                 "specialization appears as a normal function in the AST", Abort);
+
+    QCOMPARE(results.length(), 1);
+
+    const TextEditor::HighlightingResult result = results.first();
+    QCOMPARE(result.line, firstLine);
+    QCOMPARE(result.column, startColumn);
+    QCOMPARE(result.length, endPos - startPos);
+    QList<int> actualStyles;
+    if (result.useTextSyles) {
+        actualStyles << result.textStyles.mainStyle;
+        for (const TextEditor::TextStyle s : result.textStyles.mixinStyles)
+            actualStyles << s;
+    }
+    QEXPECT_FAIL("virtual member function definition outside of class body",
+                 "FIXME: send virtual info in clangd", Continue);
+    QEXPECT_FAIL("virtual function call via pointer",
+                 "FIXME: send virtual info in clangd", Continue);
+    QEXPECT_FAIL("non-final virtual function call via pointer",
+                 "FIXME: send virtual info in clangd", Continue);
+    QEXPECT_FAIL("template non-type parameter",
+                 "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
+                 Continue);
+    QEXPECT_FAIL("reference to non-type template parameter",
+                 "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
+                 Continue);
+    QEXPECT_FAIL("non-const reference via member function call as output argument (function)",
+                 "Without punctuation and comment tokens from clangd, it's not possible "
+                 "to highlight entire expressions. But do we really want this? What about nested "
+                 "calls where the inner arguments are const?",
+                 Continue);
+
+    QCOMPARE(actualStyles, expectedStyles);
+    QCOMPARE(result.kind, expectedKind);
 }
 
 } // namespace Tests

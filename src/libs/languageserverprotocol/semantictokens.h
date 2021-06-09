@@ -38,7 +38,9 @@ struct LANGUAGESERVERPROTOCOL_EXPORT SemanticToken
     int deltaLine = 0;
     int deltaStart = 0;
     int length = 0;
+    int tokenIndex = 0;
     int tokenType = 0;
+    int rawTokenModifiers = 0;
     int tokenModifiers = 0;
 };
 

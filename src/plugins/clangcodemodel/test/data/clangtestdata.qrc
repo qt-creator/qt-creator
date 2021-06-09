@@ -41,5 +41,7 @@
         <file>local-references/references.cpp</file>
         <file>tooltips/tooltips.cpp</file>
         <file>tooltips/tooltips.pro</file>
+        <file>highlighting/highlighting.cpp</file>
+        <file>highlighting/highlighting.pro</file>
     </qresource>
 </RCC>

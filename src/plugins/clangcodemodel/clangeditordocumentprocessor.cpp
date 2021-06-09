@@ -137,6 +137,8 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
     };
     if (!Utils::contains(Core::EditorManager::visibleEditors(), matchesEditor))
         return;
+    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+        return;
 
     m_semanticHighlighter.updateFormatMapFromFontSettings();
     if (m_projectPart)
@@ -254,6 +256,8 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
         uint documentRevision)
 {
+    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+        return;
     if (documentRevision == revision()) {
         const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);

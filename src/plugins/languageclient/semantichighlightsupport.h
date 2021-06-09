@@ -34,8 +34,22 @@
 
 #include <QTextCharFormat>
 
+#include <functional>
+
 namespace LanguageClient {
 class Client;
+
+class LANGUAGECLIENT_EXPORT ExpandedSemanticToken
+{
+public:
+    int line = -1;
+    int column = -1;
+    int length = -1;
+    QString type;
+    QStringList modifiers;
+};
+using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *doc,
+                                                 const QList<ExpandedSemanticToken> &)>;
 
 namespace SemanticHighligtingSupport {
 
@@ -66,6 +80,8 @@ public:
     // mixin capabilities need to be extended to be able to support more
 //    void setAdditionalTokenModifierStyles(const QHash<int, TextEditor::TextStyle> &modifierStyles);
 
+    void setTokensHandler(const SemanticTokensHandler &handler) { m_tokensHandler = handler; }
+
 private:
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
         TextEditor::TextDocument *document) const;
@@ -87,6 +103,9 @@ private:
 //    QHash<int, TextEditor::TextStyle> m_additionalModifierStyles;
     QMap<QString, int> m_tokenTypesMap;
     QMap<QString, int> m_tokenModifiersMap;
+    SemanticTokensHandler m_tokensHandler;
+    QStringList m_tokenTypeStrings;
+    QStringList m_tokenModifierStrings;
 };
 
 } // namespace LanguageClient
