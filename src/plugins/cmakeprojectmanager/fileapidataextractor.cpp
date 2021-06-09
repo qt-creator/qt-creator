@@ -243,7 +243,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                 }
             }
             for (const InstallDestination &id : t.installDestination) {
-                ct.includeDefinitions.append(
+                ct.installDefinitions.append(
                     extractBacktraceInformation(t.backtraceGraph, sourceDir, id.backtrace, 500));
             }
 
