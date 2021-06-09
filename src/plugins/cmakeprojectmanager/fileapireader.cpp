@@ -77,13 +77,13 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
 
     // Update:
     m_parameters = p;
-    qCDebug(cmakeFileApiMode) << "Work directory:" << m_parameters.workDirectory.toUserOutput();
+    qCDebug(cmakeFileApiMode) << "Work directory:" << m_parameters.buildDirectory.toUserOutput();
 
     // Reset watcher:
     m_watcher.removeFiles(m_watcher.files());
     m_watcher.removeDirectories(m_watcher.directories());
 
-    FileApiParser::setupCMakeFileApi(m_parameters.workDirectory, m_watcher);
+    FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory, m_watcher);
 
     resetData();
 }
@@ -116,7 +116,7 @@ void FileApiReader::parse(bool forceCMakeRun,
                                                         : QStringList());
     qCDebug(cmakeFileApiMode) << "Parameters request these CMake arguments:" << args;
 
-    const FilePath replyFile = FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory);
+    const FilePath replyFile = FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory);
     // Only need to update when one of the following conditions is met:
     //  * The user forces the cmake run,
     //  * The user provided arguments,
@@ -130,7 +130,7 @@ void FileApiReader::parse(bool forceCMakeRun,
                                    && anyOf(m_cmakeFiles, [&replyFile](const FilePath &f) {
                                           return f.lastModified() > replyFile.lastModified();
                                       });
-    const bool queryFileChanged = anyOf(FileApiParser::cmakeQueryFilePaths(m_parameters.workDirectory),
+    const bool queryFileChanged = anyOf(FileApiParser::cmakeQueryFilePaths(m_parameters.buildDirectory),
                                         [&replyFile](const FilePath &qf) {
                                             return qf.lastModified() > replyFile.lastModified();
                                         });
@@ -249,7 +249,7 @@ void FileApiReader::endState(const FilePath &replyFilePath)
     QTC_ASSERT(!m_future.has_value(), return );
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
-    const FilePath buildDirectory = m_parameters.workDirectory;
+    const FilePath buildDirectory = m_parameters.buildDirectory;
     const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? *m_cmakeFiles.begin() : FilePath{};
     const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
 
@@ -304,8 +304,8 @@ void FileApiReader::endState(const FilePath &replyFilePath)
 
 void FileApiReader::makeBackupConfiguration(bool store)
 {
-    FilePath reply = m_parameters.workDirectory.pathAppended(".cmake/api/v1/reply");
-    FilePath replyPrev = m_parameters.workDirectory.pathAppended(".cmake/api/v1/reply.prev");
+    FilePath reply = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply");
+    FilePath replyPrev = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply.prev");
     if (!store)
         std::swap(reply, replyPrev);
 
@@ -319,8 +319,8 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     }
 
-    FilePath cmakeCacheTxt = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
-    FilePath cmakeCacheTxtPrev = m_parameters.workDirectory.pathAppended("CMakeCache.txt.prev");
+    FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
+    FilePath cmakeCacheTxtPrev = m_parameters.buildDirectory.pathAppended("CMakeCache.txt.prev");
     if (!store)
         std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
 
@@ -333,7 +333,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
 {
-    const FilePath buildDir = m_parameters.workDirectory;
+    const FilePath buildDir = m_parameters.buildDirectory;
     QTC_ASSERT(buildDir.exists(), buildDir.ensureWritableDir());
     if (!buildDir.exists())
         buildDir.ensureWritableDir();
@@ -384,9 +384,9 @@ void FileApiReader::cmakeFinishedState()
     if (m_lastCMakeExitCode != 0)
         makeBackupConfiguration(false);
 
-    FileApiParser::setupCMakeFileApi(m_parameters.workDirectory, m_watcher);
+    FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory, m_watcher);
 
-    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory));
+    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory));
 }
 
 void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
@@ -394,7 +394,7 @@ void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
     if (m_isParsing)
         return; // This has been triggered by ourselves, ignore.
 
-    const FilePath reply = FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory);
+    const FilePath reply = FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory);
     const FilePath dir = reply.absolutePath();
     if (dir.isEmpty())
         return; // CMake started to fill the result dir, but has not written a result file yet

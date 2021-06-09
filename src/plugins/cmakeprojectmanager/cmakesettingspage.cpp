@@ -77,7 +77,6 @@ public:
                              const FilePath &executable,
                              const FilePath &qchFile,
                              const bool autoRun,
-                             const bool autoCreate,
                              const bool isAutoDetected);
     void addCMakeTool(const CMakeTool *item, bool changed);
     TreeItem *autoGroupItem() const;
@@ -87,8 +86,7 @@ public:
                          const QString &displayName,
                          const FilePath &executable,
                          const FilePath &qchFile,
-                         bool autoRun,
-                         bool autoCreate);
+                         bool autoRun);
     void removeCMakeTool(const Utils::Id &id);
     void apply();
 
@@ -112,7 +110,6 @@ public:
         , m_executable(item->filePath())
         , m_qchFile(item->qchFilePath())
         , m_isAutoRun(item->isAutoRun())
-        , m_autoCreateBuildDirectory(item->autoCreateBuildDirectory())
         , m_autodetected(item->isAutoDetected())
         , m_isSupported(item->hasFileApi())
         , m_changed(changed)
@@ -124,14 +121,12 @@ public:
                       const FilePath &executable,
                       const FilePath &qchFile,
                       bool autoRun,
-                      bool autoCreate,
                       bool autodetected)
         : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
         , m_name(name)
         , m_executable(executable)
         , m_qchFile(qchFile)
         , m_isAutoRun(autoRun)
-        , m_autoCreateBuildDirectory(autoCreate)
         , m_autodetected(autodetected)
     {
         updateErrorFlags();
@@ -229,7 +224,6 @@ public:
     bool m_pathExists = false;
     bool m_pathIsFile = false;
     bool m_pathIsExecutable = false;
-    bool m_autoCreateBuildDirectory = false;
     bool m_autodetected = false;
     bool m_isSupported = false;
     bool m_changed = true;
@@ -259,10 +253,9 @@ QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name,
                                              const FilePath &executable,
                                              const FilePath &qchFile,
                                              const bool autoRun,
-                                             const bool autoCreate,
                                              const bool isAutoDetected)
 {
-    auto item = new CMakeToolTreeItem(name, executable, qchFile, autoRun, autoCreate, isAutoDetected);
+    auto item = new CMakeToolTreeItem(name, executable, qchFile, autoRun, isAutoDetected);
     if (isAutoDetected)
         autoGroupItem()->appendChild(item);
     else
@@ -317,8 +310,7 @@ void CMakeToolItemModel::updateCMakeTool(const Utils::Id &id,
                                          const QString &displayName,
                                          const FilePath &executable,
                                          const FilePath &qchFile,
-                                         bool autoRun,
-                                         bool autoCreate)
+                                         bool autoRun)
 {
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return );
@@ -327,7 +319,6 @@ void CMakeToolItemModel::updateCMakeTool(const Utils::Id &id,
     treeItem->m_executable = executable;
     treeItem->m_qchFile = qchFile;
     treeItem->m_isAutoRun = autoRun;
-    treeItem->m_autoCreateBuildDirectory = autoCreate;
 
     treeItem->updateErrorFlags();
 
@@ -369,7 +360,6 @@ void CMakeToolItemModel::apply()
             cmake->setFilePath(item->m_executable);
             cmake->setQchFilePath(item->m_qchFile);
             cmake->setAutorun(item->m_isAutoRun);
-            cmake->setAutoCreateBuildDirectory(item->m_autoCreateBuildDirectory);
         } else {
             toRegister.append(item);
         }
@@ -438,7 +428,6 @@ private:
     CMakeToolItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
     QCheckBox *m_autoRunCheckBox;
-    QCheckBox *m_autoCreateBuildDirectoryCheckBox;
     PathChooser *m_binaryChooser;
     PathChooser *m_qchFileChooser;
     Utils::Id m_id;
@@ -467,17 +456,12 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_autoRunCheckBox->setText(tr("Autorun CMake"));
     m_autoRunCheckBox->setToolTip(tr("Automatically run CMake after changes to CMake project files."));
 
-    m_autoCreateBuildDirectoryCheckBox = new QCheckBox;
-    m_autoCreateBuildDirectoryCheckBox->setText(tr("Auto-create build directories"));
-    m_autoCreateBuildDirectoryCheckBox->setToolTip(tr("Automatically create build directories for CMake projects."));
-
     auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(tr("Help file:")), m_qchFileChooser);
     formLayout->addRow(m_autoRunCheckBox);
-    formLayout->addRow(m_autoCreateBuildDirectoryCheckBox);
 
     connect(m_binaryChooser, &PathChooser::rawPathChanged, this, [this]() {
         updateQchFilePath();
@@ -488,8 +472,6 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     connect(m_displayNameLineEdit, &QLineEdit::textChanged, this, &CMakeToolItemConfigWidget::store);
     connect(m_autoRunCheckBox, &QCheckBox::toggled,
             this, &CMakeToolItemConfigWidget::store);
-    connect(m_autoCreateBuildDirectoryCheckBox, &QCheckBox::toggled,
-            this, &CMakeToolItemConfigWidget::store);
 }
 
 void CMakeToolItemConfigWidget::store() const
@@ -499,8 +481,7 @@ void CMakeToolItemConfigWidget::store() const
                                  m_displayNameLineEdit->text(),
                                  m_binaryChooser->filePath(),
                                  m_qchFileChooser->filePath(),
-                                 m_autoRunCheckBox->checkState() == Qt::Checked,
-                                 m_autoCreateBuildDirectoryCheckBox->checkState() == Qt::Checked);
+                                 m_autoRunCheckBox->checkState() == Qt::Checked);
 }
 
 void CMakeToolItemConfigWidget::updateQchFilePath()
@@ -530,7 +511,6 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_qchFileChooser->setFilePath(item->m_qchFile);
 
     m_autoRunCheckBox->setChecked(item->m_isAutoRun);
-    m_autoCreateBuildDirectoryCheckBox->setChecked(item->m_autoCreateBuildDirectory);
 
     m_id = item->m_id;
     m_loadingItem = false;
@@ -641,7 +621,6 @@ void CMakeToolConfigWidget::cloneCMakeTool()
                                                m_currentItem->m_executable,
                                                m_currentItem->m_qchFile,
                                                m_currentItem->m_isAutoRun,
-                                               m_currentItem->m_autoCreateBuildDirectory,
                                                false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
@@ -653,7 +632,6 @@ void CMakeToolConfigWidget::addCMakeTool()
                                                FilePath(),
                                                FilePath(),
                                                true,
-                                               false,
                                                false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);

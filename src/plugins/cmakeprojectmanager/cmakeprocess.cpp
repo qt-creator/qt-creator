@@ -86,8 +86,8 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     CMakeTool *cmake = parameters.cmakeTool();
     QTC_ASSERT(parameters.isValid() && cmake, return);
 
-    const Utils::FilePath workDirectory = parameters.workDirectory;
-    QTC_ASSERT(workDirectory.exists(), return);
+    const Utils::FilePath buildDirectory = parameters.buildDirectory;
+    QTC_ASSERT(buildDirectory.exists(), return);
 
     const QString srcDir = parameters.sourceDirectory.path();
 
@@ -103,7 +103,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     m_cancelTimer.start();
 
-    process->setWorkingDirectory(workDirectory);
+    process->setWorkingDirectory(buildDirectory);
     process->setEnvironment(parameters.environment);
 
     connect(process.get(), &QtcProcess::readyReadStandardOutput,
@@ -113,12 +113,12 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
-    CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, "-B", workDirectory.path()}) + arguments);
+    CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, "-B", buildDirectory.path()}) + arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     BuildSystem::startNewBuildSystemOutput(
-        tr("Running %1 in %2.").arg(commandLine.toUserOutput()).arg(workDirectory.toUserOutput()));
+        tr("Running %1 in %2.").arg(commandLine.toUserOutput()).arg(buildDirectory.toUserOutput()));
 
     auto future = std::make_unique<QFutureInterface<void>>();
     future->setProgressRange(0, 1);

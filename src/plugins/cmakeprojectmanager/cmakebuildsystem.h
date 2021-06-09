@@ -149,7 +149,7 @@ private:
 
     void wireUpConnections();
 
-    Utils::FilePath workDirectory(const BuildDirParameters &parameters);
+    Utils::FilePath buildDirectory(const BuildDirParameters &parameters);
     void stopParsingAndClearState();
     void becameDirty();
 
@@ -175,8 +175,6 @@ private:
     // Parsing state:
     BuildDirParameters m_parameters;
     int m_reparseParameters = REPARSE_DEFAULT;
-    mutable std::unordered_map<Utils::FilePath, std::unique_ptr<Utils::TemporaryDirectory>>
-        m_buildDirToTempDir;
     FileApiReader m_reader;
     mutable bool m_isHandlingError = false;
 

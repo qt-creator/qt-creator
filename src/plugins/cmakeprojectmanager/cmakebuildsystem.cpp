@@ -273,7 +273,7 @@ void CMakeBuildSystem::triggerParsing()
     qCDebug(cmakeBuildSystemLog) << "Parse called with flags:"
                                  << reparseParametersString(reparseParameters);
 
-    const QString cache = m_parameters.workDirectory.pathAppended("CMakeCache.txt").toString();
+    const QString cache = m_parameters.buildDirectory.pathAppended("CMakeCache.txt").toString();
     if (!QFileInfo::exists(cache)) {
         reparseParameters |= REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
         qCDebug(cmakeBuildSystemLog)
@@ -402,7 +402,7 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     QTC_ASSERT(parameters.isValid(), return );
 
     m_parameters = parameters;
-    m_parameters.workDirectory = workDirectory(parameters);
+    m_parameters.buildDirectory = buildDirectory(parameters);
     updateReparseParameters(reparseParameters);
 
     m_reader.setParameters(m_parameters);
@@ -479,30 +479,26 @@ bool CMakeBuildSystem::persistCMakeState()
     BuildDirParameters parameters(cmakeBuildConfiguration());
     QTC_ASSERT(parameters.isValid(), return false);
 
-    parameters.workDirectory = workDirectory(parameters);
+    const bool hadBuildDirectory = parameters.buildDirectory.exists();
+    parameters.buildDirectory = buildDirectory(parameters);
 
     int reparseFlags = REPARSE_DEFAULT;
     qCDebug(cmakeBuildSystemLog) << "Checking whether build system needs to be persisted:"
-                                 << "workdir:" << parameters.workDirectory
                                  << "buildDir:" << parameters.buildDirectory
                                  << "Has extraargs:" << !parameters.extraCMakeArguments.isEmpty();
 
-    if (parameters.workDirectory == parameters.buildDirectory
+    if (parameters.buildDirectory == parameters.buildDirectory
         && mustApplyExtraArguments(parameters)) {
         reparseFlags = REPARSE_FORCE_EXTRA_CONFIGURATION;
         qCDebug(cmakeBuildSystemLog) << "   -> must run CMake with extra arguments.";
     }
-    if (parameters.workDirectory != parameters.buildDirectory
-        && buildConfiguration()->createBuildDirectory()) {
+    if (!hadBuildDirectory) {
         reparseFlags = REPARSE_FORCE_INITIAL_CONFIGURATION;
         qCDebug(cmakeBuildSystemLog) << "   -> must run CMake with initial arguments.";
     }
 
     if (reparseFlags == REPARSE_DEFAULT)
         return false;
-
-    if (reparseFlags == REPARSE_FORCE_INITIAL_CONFIGURATION)
-        parameters.workDirectory.clear();
 
     qCDebug(cmakeBuildSystemLog) << "Requesting parse to persist CMake State";
     setParametersAndRequestParse(parameters,
@@ -518,11 +514,11 @@ void CMakeBuildSystem::clearCMakeCache()
     stopParsingAndClearState();
 
     const QList<FilePath> pathsToDelete = {
-        m_parameters.workDirectory / "CMakeCache.txt",
-        m_parameters.workDirectory / "CMakeCache.txt.prev",
-        m_parameters.workDirectory / "CMakeFiles",
-        m_parameters.workDirectory / ".cmake/api/v1/reply",
-        m_parameters.workDirectory / ".cmake/api/v1/reply.prev"
+        m_parameters.buildDirectory / "CMakeCache.txt",
+        m_parameters.buildDirectory / "CMakeCache.txt.prev",
+        m_parameters.buildDirectory / "CMakeFiles",
+        m_parameters.buildDirectory / ".cmake/api/v1/reply",
+        m_parameters.buildDirectory / ".cmake/api/v1/reply.prev"
     };
 
     for (const FilePath &path : pathsToDelete) {
@@ -740,7 +736,7 @@ void CMakeBuildSystem::handleParsingSucceeded()
         m_buildTargets = Utils::transform(CMakeBuildStep::specialTargets(m_reader.usesAllCapsTargets()), [this](const QString &t) {
             CMakeBuildTarget result;
             result.title = t;
-            result.workingDirectory = m_parameters.workDirectory;
+            result.workingDirectory = m_parameters.buildDirectory;
             result.sourceDirectory = m_parameters.sourceDirectory;
             return result;
         });
@@ -863,40 +859,15 @@ void CMakeBuildSystem::wireUpConnections()
     }
 }
 
-FilePath CMakeBuildSystem::workDirectory(const BuildDirParameters &parameters)
+FilePath CMakeBuildSystem::buildDirectory(const BuildDirParameters &parameters)
 {
     const FilePath bdir = parameters.buildDirectory;
-    const CMakeTool *cmake = parameters.cmakeTool();
 
-    // use the build directory if it already exists anyhow
-    if (bdir.exists()) {
-        m_buildDirToTempDir.erase(bdir);
-        return bdir;
-    }
+    if (!cmakeBuildConfiguration()->createBuildDirectory())
+        handleParsingFailed(
+            tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
 
-    // use the build directory if the cmake tool settings are set to automatically create them,
-    // or if the configuration was changed by the user
-    if ((cmake && cmake->autoCreateBuildDirectory()) || !parameters.extraCMakeArguments.isEmpty()) {
-        if (!cmakeBuildConfiguration()->createBuildDirectory())
-            handleParsingFailed(
-                tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
-        return bdir;
-    }
-
-    auto tmpDirIt = m_buildDirToTempDir.find(bdir);
-    if (tmpDirIt == m_buildDirToTempDir.end()) {
-        auto ret = m_buildDirToTempDir.emplace(
-            std::make_pair(bdir, std::make_unique<TemporaryDirectory>("qtc-cmake-XXXXXXXX")));
-        QTC_ASSERT(ret.second, return bdir);
-        tmpDirIt = ret.first;
-
-        if (!tmpDirIt->second->isValid()) {
-            handleParsingFailed(tr("Failed to create temporary directory \"%1\".")
-                                    .arg(QDir::toNativeSeparators(tmpDirIt->second->path())));
-            return bdir;
-        }
-    }
-    return FilePath::fromString(tmpDirIt->second->path());
+    return bdir;
 }
 
 void CMakeBuildSystem::stopParsingAndClearState()
@@ -941,7 +912,7 @@ void CMakeBuildSystem::runCTest()
     QTC_ASSERT(parameters.isValid(), return);
 
     const CommandLine cmd { m_ctestPath, { "-N", "--show-only=json-v1" } };
-    const QString workingDirectory = workDirectory(parameters).toString();
+    const QString workingDirectory = buildDirectory(parameters).toString();
     const QStringList environment = cmakeBuildConfiguration()->environment().toStringList();
 
     auto future = Utils::runAsync([cmd, workingDirectory, environment]

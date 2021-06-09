@@ -83,7 +83,6 @@ public:
     QVariantMap toMap () const;
 
     void setAutorun(bool autoRun);
-    void setAutoCreateBuildDirectory(bool autoBuildDir);
 
     void setFilePath(const Utils::FilePath &executable);
     Utils::FilePath filePath() const;

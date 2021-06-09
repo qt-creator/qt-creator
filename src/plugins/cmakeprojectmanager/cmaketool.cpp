@@ -50,6 +50,7 @@ const char CMAKE_INFORMATION_COMMAND[] = "Binary";
 const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
 const char CMAKE_INFORMATION_QCH_FILE_PATH[] = "QchFile";
+// obsolete since Qt Creator 5. Kept for backward compatibility
 const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_READERTYPE[] = "ReaderType";
@@ -172,15 +173,6 @@ void CMakeTool::setAutorun(bool autoRun)
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
-void CMakeTool::setAutoCreateBuildDirectory(bool autoBuildDir)
-{
-    if (m_autoCreateBuildDirectory == autoBuildDir)
-        return;
-
-    m_autoCreateBuildDirectory = autoBuildDir;
-    CMakeToolManager::notifyAboutUpdate(this);
-}
-
 bool CMakeTool::isValid() const
 {
     if (!m_id.isValid() || !m_introspection)
@@ -263,11 +255,6 @@ FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 bool CMakeTool::isAutoRun() const
 {
     return m_isAutoRun;
-}
-
-bool CMakeTool::autoCreateBuildDirectory() const
-{
-    return m_autoCreateBuildDirectory;
 }
 
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
