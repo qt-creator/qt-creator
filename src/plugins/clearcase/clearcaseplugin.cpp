@@ -1100,7 +1100,7 @@ bool ClearCasePluginPrivate::vcsUndoCheckOut(const QString &workingDir, const QS
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDir << fileName << keep;
 
-    FileChangeBlocker fcb(fileName);
+    FileChangeBlocker fcb(FilePath::fromString(fileName));
 
     // revert
     QStringList args(QLatin1String("uncheckout"));
@@ -1175,7 +1175,7 @@ void ClearCasePluginPrivate::undoHijackCurrent()
         keep = unhijackUi.chkKeep->isChecked();
     }
 
-    FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
 
     // revert
     if (vcsUndoHijack(state.currentFileTopLevel(), fileName, keep))
@@ -1760,7 +1760,7 @@ bool ClearCasePluginPrivate::vcsOpen(const QString &workingDir, const QString &f
         if (m_viewData.isUcm && !vcsSetActivity(topLevel, title, coDialog.activity()))
             return false;
 
-        FileChangeBlocker fcb(absPath);
+        FileChangeBlocker fcb(FilePath::fromString(absPath));
         QStringList args(QLatin1String("checkout"));
 
         const QString comment = coDialog.comment();
@@ -1886,7 +1886,8 @@ bool ClearCasePluginPrivate::vcsCheckIn(const QString &messageFile, const QStrin
     args << files;
     QList<FCBPointer> blockers;
     foreach (const QString &fileName, files) {
-        FCBPointer fcb(new FileChangeBlocker(QFileInfo(m_checkInView, fileName).canonicalFilePath()));
+        FCBPointer fcb(new FileChangeBlocker(
+            FilePath::fromString(QFileInfo(m_checkInView, fileName).canonicalFilePath())));
         blockers.append(fcb);
     }
     const ClearCaseResponse response =

@@ -1118,7 +1118,7 @@ void GitPluginPrivate::undoFileChanges(bool revertStaging)
     }
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(Utils::FilePath::fromString(state.currentFile()));
     m_gitClient.revert({state.currentFile()}, revertStaging);
 }
 

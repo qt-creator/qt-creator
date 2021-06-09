@@ -723,7 +723,7 @@ void SubversionPluginPrivate::revertCurrentFile()
         return;
 
 
-    FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
 
     // revert
     args.clear();

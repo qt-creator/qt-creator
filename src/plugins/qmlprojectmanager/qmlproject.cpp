@@ -529,7 +529,7 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
 
             // make sure to change it also in the qmlproject file
             const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
-            Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath.toString());
+            Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
             const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
             TextEditor::TextDocument *document = nullptr;
             if (!editors.isEmpty()) {

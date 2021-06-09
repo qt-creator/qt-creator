@@ -522,7 +522,7 @@ RemovedFilesFromProject ResourceFolderNode::removeFiles(const QStringList &fileP
         file.removeFile(index, j);
         --j;
     }
-    FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
+    FileChangeBlocker changeGuard(m_topLevelNode->filePath());
     file.save();
 
     return RemovedFilesFromProject::Ok;
@@ -561,7 +561,7 @@ bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newF
     for (int j = 0; j < file.fileCount(index); ++j) {
         if (file.file(index, j) == filePath) {
             file.replaceFile(index, j, newFilePath);
-            FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
+            FileChangeBlocker changeGuard(m_topLevelNode->filePath());
             file.save();
             return true;
         }

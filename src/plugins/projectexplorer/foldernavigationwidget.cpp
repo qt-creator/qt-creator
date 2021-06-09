@@ -540,18 +540,17 @@ void FolderNavigationWidget::removeCurrentItem()
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     if (!current.isValid() || m_fileSystemModel->isDir(current))
         return;
-    const QString filePath = m_fileSystemModel->filePath(current);
-    Utils::RemoveFileDialog dialog(filePath, Core::ICore::dialogParent());
+    const Utils::FilePath filePath = Utils::FilePath::fromString(m_fileSystemModel->filePath(current));
+    Utils::RemoveFileDialog dialog(filePath.toString(), Core::ICore::dialogParent());
     dialog.setDeleteFileVisible(false);
     if (dialog.exec() == QDialog::Accepted) {
-        const QVector<FolderNode *> folderNodes = removableFolderNodes(
-            Utils::FilePath::fromString(filePath));
+        const QVector<FolderNode *> folderNodes = removableFolderNodes(filePath);
         const QVector<FolderNode *> failedNodes = Utils::filtered(folderNodes,
                 [filePath](FolderNode *folder) {
-                    return folder->removeFiles({filePath}) != RemovedFilesFromProject::Ok;
+                    return folder->removeFiles({filePath.toString()}) != RemovedFilesFromProject::Ok;
         });
         Core::FileChangeBlocker changeGuard(filePath);
-        Core::FileUtils::removeFile(filePath, true /*delete from disk*/);
+        Core::FileUtils::removeFiles({filePath}, true /*delete from disk*/);
         if (!failedNodes.isEmpty()) {
             const QString projects = projectNames(failedNodes).join(", ");
             const QString errorMessage

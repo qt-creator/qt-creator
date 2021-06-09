@@ -154,7 +154,7 @@ private:
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
     QString m_processOutput;
-    QString m_expectedFileName;
+    Utils::FilePath m_expectedFilePath;
     bool m_hasError;
     QString m_errorString;
 };

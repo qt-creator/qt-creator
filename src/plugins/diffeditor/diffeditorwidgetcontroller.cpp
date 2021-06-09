@@ -162,7 +162,9 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
     const QString workingDirectory = m_document->baseDirectory().isEmpty()
             ? QFileInfo(fileName).absolutePath()
             : m_document->baseDirectory();
-    const QString absFileName = QFileInfo(workingDirectory + '/' + QFileInfo(fileName).fileName()).absoluteFilePath();
+    const Utils::FilePath absFilePath = Utils::FilePath::fromString(workingDirectory)
+                                            .pathAppended(QFileInfo(fileName).fileName())
+                                            .absoluteFilePath();
 
     if (patchBehaviour == DiffFileInfo::PatchFile) {
         const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
@@ -172,13 +174,13 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
         if (patch.isEmpty())
             return;
 
-        FileChangeBlocker fileChangeBlocker(absFileName);
+        FileChangeBlocker fileChangeBlocker(absFilePath);
         if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
                                 workingDirectory, strip, revert))
             m_document->reload();
     } else { // PatchEditor
         auto textDocument = qobject_cast<TextEditor::TextDocument *>(
-            DocumentModel::documentForFilePath(Utils::FilePath::fromString(absFileName)));
+            DocumentModel::documentForFilePath(absFilePath));
         if (!textDocument)
             return;
 

@@ -302,9 +302,10 @@ bool GenericBuildSystem::saveRawFileList(const QStringList &rawFileList)
 
 bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &fileName)
 {
-    FileChangeBlocker changeGuard(fileName);
+    const FilePath filePath = FilePath::fromString(fileName);
+    FileChangeBlocker changeGuard(filePath);
     // Make sure we can open the file for writing
-    Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
+    Utils::FileSaver saver(filePath, QIODevice::Text);
     if (!saver.hasError()) {
         QTextStream stream(saver.file());
         for (const QString &filePath : rawList)

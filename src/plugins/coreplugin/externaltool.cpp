@@ -644,12 +644,12 @@ void ExternalToolRunner::run()
     }
     if (m_tool->modifiesCurrentDocument()) {
         if (IDocument *document = EditorManager::currentDocument()) {
-            m_expectedFileName = document->filePath().toString();
+            m_expectedFilePath = document->filePath();
             if (!DocumentManager::saveModifiedDocument(document)) {
                 deleteLater();
                 return;
             }
-            DocumentManager::expectFileChange(m_expectedFileName);
+            DocumentManager::expectFileChange(m_expectedFilePath);
         }
     }
     m_process = new QtcProcess(this);
@@ -687,7 +687,7 @@ void ExternalToolRunner::finished()
         ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
     }
     if (m_tool->modifiesCurrentDocument())
-        DocumentManager::unexpectFileChange(m_expectedFileName);
+        DocumentManager::unexpectFileChange(m_expectedFilePath);
     const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
                            ? QOverload<const QString &>::of(MessageManager::writeFlashing)
                            : QOverload<const QString &>::of(MessageManager::writeSilently);
@@ -698,7 +698,7 @@ void ExternalToolRunner::finished()
 void ExternalToolRunner::error(QProcess::ProcessError error)
 {
     if (m_tool->modifiesCurrentDocument())
-        DocumentManager::unexpectFileChange(m_expectedFileName);
+        DocumentManager::unexpectFileChange(m_expectedFilePath);
     // TODO inform about errors
     Q_UNUSED(error)
     deleteLater();

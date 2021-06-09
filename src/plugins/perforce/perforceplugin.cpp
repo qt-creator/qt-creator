@@ -626,7 +626,7 @@ void PerforcePluginPrivate::revertCurrentFile()
     if (doNotRevert)
         return;
 
-    FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
     args.clear();
     args << QLatin1String("revert") << state.relativeCurrentFile();
     PerforceResponse result2 = runP4Cmd(state.currentFileTopLevel(), args,

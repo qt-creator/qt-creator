@@ -379,7 +379,7 @@ bool RefactoringFile::apply()
                 QTC_ASSERT(!m_filePath.isEmpty(), return false);
                 QString error;
                 // suppress "file has changed" warnings if the file is open in a read-only editor
-                Core::FileChangeBlocker block(m_filePath.toString());
+                Core::FileChangeBlocker block(m_filePath);
                 if (!m_textFileFormat.writeFile(m_filePath,
                                                 doc->toPlainText(),
                                                 &error)) {

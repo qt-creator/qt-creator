@@ -3754,7 +3754,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     FilePaths pathList;
     for (const NodeAndPath &file : qAsConst(filesToRemove)) {
         pathList << file.second;
-        changeGuards.emplace_back(std::make_unique<FileChangeBlocker>(file.second.toString()));
+        changeGuards.emplace_back(std::make_unique<FileChangeBlocker>(file.second));
     }
 
     Core::FileUtils::removeFiles(pathList, deleteFile);
@@ -3826,7 +3826,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
 
     folderNode->deleteFiles(QStringList(filePath));
 
-    FileChangeBlocker changeGuard(filePath);
+    FileChangeBlocker changeGuard(currentNode->filePath());
     if (IVersionControl *vc =
             VcsManager::findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
         vc->vcsDelete(filePath);

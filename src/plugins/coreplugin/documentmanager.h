@@ -65,8 +65,8 @@ public:
 
     static void renamedFile(const QString &from, const QString &to);
 
-    static void expectFileChange(const QString &fileName);
-    static void unexpectFileChange(const QString &fileName);
+    static void expectFileChange(const Utils::FilePath &filePath);
+    static void unexpectFileChange(const Utils::FilePath &filePath);
 
     // recent files
     static void addToRecentFiles(const Utils::FilePath &filePath, Utils::Id editorId = {});
@@ -172,10 +172,10 @@ private:
 class CORE_EXPORT FileChangeBlocker
 {
 public:
-    explicit FileChangeBlocker(const QString &fileName);
+    explicit FileChangeBlocker(const Utils::FilePath &filePath);
     ~FileChangeBlocker();
 private:
-    const QString m_fileName;
+    const Utils::FilePath m_filePath;
     Q_DISABLE_COPY(FileChangeBlocker)
 };
 

@@ -694,7 +694,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
             }
             filesToAdd << targetFile;
             filesToRemove << sourceFile;
-            Core::FileChangeBlocker changeGuard(sourceFile);
+            Core::FileChangeBlocker changeGuard(FilePath::fromString(sourceFile));
             if (sourceVcs.vcs && sourceVcs.vcs->supportsOperation(
                         Core::IVersionControl::DeleteOperation)
                     && !sourceVcs.vcs->vcsDelete(sourceFile)) {

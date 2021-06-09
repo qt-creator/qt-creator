@@ -908,7 +908,7 @@ void CvsPluginPrivate::revertCurrentFile()
                             tr("The file has been changed. Do you want to revert it?")))
         return;
 
-    FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
 
     // revert
     args.clear();

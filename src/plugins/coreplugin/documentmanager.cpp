@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
@@ -177,7 +178,7 @@ public:
     QSet<QString> m_changedFiles; // watched file paths collected from file watcher notifications
     QList<IDocument *> m_documentsWithoutWatch;
     QMap<IDocument *, QStringList> m_documentsWithWatch; // document -> list of filePathKeys
-    QSet<QString> m_expectedFileNames; // set of file names without normalization
+    QSet<Utils::FilePath> m_expectedFileNames; // set of file paths without normalization
 
     QList<DocumentManager::RecentFile> m_recentFiles;
 
@@ -633,11 +634,11 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
 
     \sa unexpectFileChange()
 */
-void DocumentManager::expectFileChange(const QString &fileName)
+void DocumentManager::expectFileChange(const Utils::FilePath &filePath)
 {
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return;
-    d->m_expectedFileNames.insert(fileName);
+    d->m_expectedFileNames.insert(filePath);
 }
 
 /* only called from unblock and unexpect file change functions */
@@ -657,16 +658,17 @@ static void updateExpectedState(const QString &filePathKey)
 
     \sa expectFileChange()
 */
-void DocumentManager::unexpectFileChange(const QString &fileName)
+void DocumentManager::unexpectFileChange(const FilePath &filePath)
 {
     // We are updating the expected time of the file
     // And in changedFile we'll check if the modification time
     // is the same as the saved one here
     // If so then it's a expected change
 
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return;
-    d->m_expectedFileNames.remove(fileName);
+    d->m_expectedFileNames.remove(filePath);
+    const QString &fileName = filePath.toString();
     const QString cleanAbsFilePath = cleanAbsoluteFilePath(fileName, KeepLinks);
     updateExpectedState(filePathKey(fileName, KeepLinks));
     const QString resolvedCleanAbsFilePath = cleanAbsoluteFilePath(fileName, ResolveLinks);
@@ -766,7 +768,7 @@ bool DocumentManager::saveDocument(IDocument *document,
 {
     bool ret = true;
     const Utils::FilePath &savePath = filePath.isEmpty() ? document->filePath() : filePath;
-    expectFileChange(savePath.toString()); // This only matters to other IDocuments which refer to this file
+    expectFileChange(savePath); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
     QString errorString;
@@ -787,7 +789,7 @@ bool DocumentManager::saveDocument(IDocument *document,
     }
 
     addDocument(document, addWatcher);
-    unexpectFileChange(savePath.toString());
+    unexpectFileChange(savePath);
     m_instance->updateSaveAll();
     return ret;
 }
@@ -1147,7 +1149,8 @@ void DocumentManager::checkForReload()
     // if the resolved names are different when unexpectFileChange is called
     // we would end up with never-unexpected file names
     QSet<QString> expectedFileKeys;
-    foreach (const QString &fileName, d->m_expectedFileNames) {
+    foreach (const Utils::FilePath &filePath, d->m_expectedFileNames) {
+        const QString &fileName = filePath.toString();
         const QString cleanAbsFilePath = cleanAbsoluteFilePath(fileName, KeepLinks);
         expectedFileKeys.insert(filePathKey(fileName, KeepLinks));
         const QString resolvedCleanAbsFilePath = cleanAbsoluteFilePath(fileName, ResolveLinks);
@@ -1575,15 +1578,15 @@ void DocumentManager::registerSaveAllAction()
     IDocument object in the destructor, set modifiedReload() to \c true.
 */
 
-FileChangeBlocker::FileChangeBlocker(const QString &fileName)
-    : m_fileName(fileName)
+FileChangeBlocker::FileChangeBlocker(const FilePath &filePath)
+    : m_filePath(filePath)
 {
-    DocumentManager::expectFileChange(fileName);
+    DocumentManager::expectFileChange(filePath);
 }
 
 FileChangeBlocker::~FileChangeBlocker()
 {
-    DocumentManager::unexpectFileChange(m_fileName);
+    DocumentManager::unexpectFileChange(m_filePath);
 }
 
 } // namespace Core

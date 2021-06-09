@@ -930,7 +930,7 @@ void QmakePriFile::save(const QStringList &lines)
 {
     {
         QTC_ASSERT(m_textFormat.codec, return);
-        FileChangeBlocker changeGuard(filePath().toString());
+        FileChangeBlocker changeGuard(filePath());
         QString errorMsg;
         if (!m_textFormat.writeFile(filePath(), lines.join('\n'), &errorMsg)) {
             QMessageBox::critical(Core::ICore::dialogParent(), QCoreApplication::translate(
