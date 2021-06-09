@@ -357,13 +357,20 @@ namespace ADS
         save();
         saveStartupWorkspace();
 
+        // Using a temporal vector since the destructor of
+        // FloatingDockWidgetContainer alters d->m_floatingWidgets.
+        std::vector<FloatingDockContainer *> aboutToDeletes;
         for (auto floatingWidget : qAsConst(d->m_floatingWidgets)) {
-            /* There have been crashes with partially destructed widgets in
-               m_floatingWidgets. Those do not have a parent. */
-            if (floatingWidget && floatingWidget->parent() == this)
-                delete floatingWidget.data();
+            if (floatingWidget)
+                aboutToDeletes.push_back(floatingWidget);
         }
+
+        for (auto del : aboutToDeletes) {
+            delete del;
+        }
+
         d->m_floatingWidgets.clear();
+
         delete d;
     }
 
