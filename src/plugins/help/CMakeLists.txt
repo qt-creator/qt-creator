@@ -49,7 +49,7 @@ extend_qtc_plugin(Help
     macwebkithelpviewer.mm
 )
 
-find_package(Qt5WebEngineWidgets QUIET)
+find_package(Qt5 COMPONENTS WebEngineWidgets QUIET)
 extend_qtc_plugin(Help
   CONDITION TARGET Qt5::WebEngineWidgets
   FEATURE_INFO "QtWebEngine help viewer"
