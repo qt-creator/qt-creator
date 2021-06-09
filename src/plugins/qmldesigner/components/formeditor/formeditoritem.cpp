@@ -2046,7 +2046,7 @@ void FormEditorFlowDecisionItem::updateGeometry()
 
                 QRectF textRect(0, 0, 100, 20);
 
-                Qt::Corner corner = Qt::TopLeftCorner;
+                Qt::Corner corner = Qt::TopRightCorner;
                 if (qmlItemNode().modelNode().hasAuxiliaryData("dialogLabelPosition"))
                    corner = qmlItemNode().modelNode().auxiliaryData("dialogLabelPosition").value<Qt::Corner>();
 
@@ -2191,7 +2191,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
             QRectF textRect(0, 0, 100, 20);
 
-            Qt::Corner corner = Qt::TopLeftCorner;
+            Qt::Corner corner = Qt::TopRightCorner;
             if (qmlItemNode().modelNode().hasAuxiliaryData("dialogLabelPosition"))
                corner = qmlItemNode().modelNode().auxiliaryData("dialogLabelPosition").value<Qt::Corner>();
 

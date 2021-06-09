@@ -857,6 +857,7 @@ function(qtc_copy_to_builddir custom_target_name)
   set(timestampFiles)
 
   qtc_output_binary_dir(_output_binary_dir)
+  set(allFiles ${_arg_FILES})
 
   foreach(srcFile ${_arg_FILES})
     string(MAKE_C_IDENTIFIER "${srcFile}" destinationTimestampFilePart)
@@ -891,6 +892,7 @@ function(qtc_copy_to_builddir custom_target_name)
     endif()
 
     file(GLOB_RECURSE filesToCopy "${srcDirectory}/*")
+    list(APPEND allFiles ${filesToCopy})
     add_custom_command(OUTPUT "${destinationTimestampFileName}"
       COMMAND "${CMAKE_COMMAND}" -E copy_directory "${srcDirectory}" "${destinationDirectory}"
       COMMAND "${CMAKE_COMMAND}" -E touch "${destinationTimestampFileName}"
@@ -901,7 +903,8 @@ function(qtc_copy_to_builddir custom_target_name)
     )
   endforeach()
 
-  add_custom_target("${custom_target_name}" ALL DEPENDS ${timestampFiles})
+  add_custom_target("${custom_target_name}" ALL DEPENDS ${timestampFiles}
+    SOURCES ${allFiles})
 endfunction()
 
 function(qtc_add_resources target resourceName)

@@ -312,8 +312,8 @@ void FileApiReader::endState(const QFileInfo &replyFi)
 
 void FileApiReader::makeBackupConfiguration(bool store)
 {
-    FilePath reply = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply");
-    FilePath replyPrev = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply.prev");
+    FilePath reply = m_parameters.workDirectory.pathAppended(".cmake/api/v1/reply");
+    FilePath replyPrev = m_parameters.workDirectory.pathAppended(".cmake/api/v1/reply.prev");
     if (!store)
         std::swap(reply, replyPrev);
 
@@ -327,8 +327,8 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     }
 
-    FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
-    FilePath cmakeCacheTxtPrev = m_parameters.buildDirectory.pathAppended("CMakeCache.txt.prev");
+    FilePath cmakeCacheTxt = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
+    FilePath cmakeCacheTxtPrev = m_parameters.workDirectory.pathAppended("CMakeCache.txt.prev");
     if (!store)
         std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
 
@@ -371,6 +371,10 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
     connect(m_cmakeProcess.get(), &CMakeProcess::finished, this, &FileApiReader::cmakeFinishedState);
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
+    // Reset watcher:
+    m_watcher.removeFiles(m_watcher.files());
+    m_watcher.removeDirectories(m_watcher.directories());
+
     makeBackupConfiguration(true);
     writeConfigurationIntoBuildDirectory(configurationArguments);
     m_cmakeProcess->run(m_parameters, configurationArguments);
@@ -385,6 +389,8 @@ void FileApiReader::cmakeFinishedState()
 
     if (m_lastCMakeExitCode != 0)
         makeBackupConfiguration(false);
+
+    FileApiParser::setupCMakeFileApi(m_parameters.workDirectory, m_watcher);
 
     endState(FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory));
 }

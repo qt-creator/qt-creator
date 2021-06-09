@@ -112,6 +112,7 @@ private:
     Utils::FilePaths m_exportFiles;
     unsigned int m_totalFileCount = 0;
     Utils::FilePath m_exportPath;
+    QString m_exportFile;
     bool m_perComponentExport = false;
     std::vector<std::unique_ptr<Component>> m_components;
     QHash<QString, QString> m_componentUuidCache;
