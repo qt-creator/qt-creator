@@ -29,6 +29,7 @@
 #include "timelinerenderpass.h"
 #include <QVariant>
 #include <QColor>
+#include <QtQml/qqml.h>
 
 #include <memory>
 
@@ -53,6 +54,9 @@ class TRACING_EXPORT TimelineModel : public QObject
     Q_PROPERTY(QVariantList labels READ labels NOTIFY labelsChanged)
     Q_PROPERTY(int count READ count NOTIFY contentChanged)
     Q_PROPERTY(int defaultRowHeight READ defaultRowHeight CONSTANT)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    QML_ANONYMOUS
+#endif // Qt >= 6.2
 
 public:
     class TimelineModelPrivate;

@@ -44,12 +44,14 @@ CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerToo
 {
     setObjectName(QLatin1String("CtfVisualizerTraceView"));
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
     qmlRegisterType<Timeline::TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
     qmlRegisterType<Timeline::TimelineOverviewRenderer>("QtCreator.Tracing", 1, 0,
                                                         "TimelineOverviewRenderer");
     qmlRegisterAnonymousType<Timeline::TimelineZoomControl>("QtCreator.Tracing", 1);
     qmlRegisterAnonymousType<Timeline::TimelineModel>("QtCreator.Tracing", 1);
     qmlRegisterAnonymousType<Timeline::TimelineNotesModel>("QtCreator.Tracing", 1);
+#endif // Qt < 6.2
 
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -64,7 +66,7 @@ CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerToo
                                       tool->modelAggregator());
     rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                       tool->zoomControl());
-    setSource(QUrl(QLatin1String("qrc:/tracing/MainView.qml")));
+    setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
 
     // Avoid ugly warnings when reading from null properties in QML.
     connect(tool->modelAggregator(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });

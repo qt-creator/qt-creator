@@ -247,11 +247,11 @@ NotesMaterialShader::NotesMaterialShader()
     : QSGMaterialShader()
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/tracing/notes.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/tracing/notes.frag"));
+    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/QtCreator/Tracing/notes.vert"));
+    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/QtCreator/Tracing/notes.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/tracing/notes.vert");
-    setShaderFileName(FragmentStage, ":/tracing/notes.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes.vert");
+    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes.frag");
 #endif // < Qt 6
 }
 

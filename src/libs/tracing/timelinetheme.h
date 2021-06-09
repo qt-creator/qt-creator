@@ -27,12 +27,24 @@
 
 #include "tracing_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QQmlEngine)
+#include <utils/theme/theme.h>
+
+#include <QObject>
+#include <QtQml/qqml.h>
 
 namespace Timeline {
 
-class TRACING_EXPORT TimelineTheme {
+class TRACING_EXPORT TimelineTheme : public Utils::Theme
+{
+    Q_OBJECT
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    QML_NAMED_ELEMENT(Theme)
+    QML_SINGLETON
+#endif // Qt >= 6.2
+
 public:
+    explicit TimelineTheme(QObject *parent = nullptr);
+
     static void setupTheme(QQmlEngine* engine);
 };
 

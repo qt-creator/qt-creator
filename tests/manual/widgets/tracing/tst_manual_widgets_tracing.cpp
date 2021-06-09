@@ -125,12 +125,14 @@ public:
     {
         setResizeMode(QQuickView::SizeRootObjectToView);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
         qmlRegisterType<TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
         qmlRegisterType<TimelineOverviewRenderer>(
                     "QtCreator.Tracing", 1, 0, "TimelineOverviewRenderer");
         qmlRegisterAnonymousType<TimelineZoomControl>("QtCreator.Tracing", 1);
         qmlRegisterAnonymousType<TimelineModel>("QtCreator.Tracing", 1);
         qmlRegisterAnonymousType<TimelineNotesModel>("QtCreator.Tracing", 1);
+#endif // Qt < 6.2
 
         TimelineTheme::setupTheme(engine());
         TimeFormatter::setupTimeFormatter();
@@ -145,7 +147,7 @@ public:
         m_zoomControl = new TimelineZoomControl(this);
         m_zoomControl->setTrace(0, oneMs * 1000); // Total timeline length
         rootContext()->setContextProperty("zoomControl", m_zoomControl);
-        setSource(QUrl(QLatin1String("qrc:/tracing/MainView.qml")));
+        setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
 
         // Zoom onto first timeline third. Needs to be done after loading setSource.
         m_zoomControl->setRange(0, oneMs * 1000 / 3.0);

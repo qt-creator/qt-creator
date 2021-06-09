@@ -28,8 +28,9 @@
 #include "tracing_global.h"
 #include "flamegraphattached.h"
 
-#include <QQuickItem>
 #include <QAbstractItemModel>
+#include <QQuickItem>
+#include <QtQml/qqml.h>
 
 namespace FlameGraph {
 
@@ -48,6 +49,9 @@ class TRACING_EXPORT FlameGraph : public QQuickItem
     Q_PROPERTY(bool zoomed READ isZoomed NOTIFY rootChanged)
     Q_PROPERTY(int selectedTypeId READ selectedTypeId WRITE setSelectedTypeId
                NOTIFY selectedTypeIdChanged)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    QML_ELEMENT
+#endif // Qt >= 6.2
 
 public:
     FlameGraph(QQuickItem *parent = nullptr);

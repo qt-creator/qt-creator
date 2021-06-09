@@ -27,6 +27,7 @@
 #include "tracing_global.h"
 #include <QString>
 #include <QObject>
+#include <QtQml/qqml.h>
 #include <limits>
 
 namespace Timeline {
@@ -35,6 +36,11 @@ QString TRACING_EXPORT formatTime(qint64 timestamp,
 
 class TRACING_EXPORT TimeFormatter : public QObject {
     Q_OBJECT
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    QML_ELEMENT
+    QML_SINGLETON
+#endif // Qt >= 6.2
+
 public:
     Q_INVOKABLE QString format(qint64 timestamp, qint64 reference)
     {

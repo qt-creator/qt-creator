@@ -42,12 +42,14 @@ PerfProfilerTraceView::PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *
 {
     setObjectName(QLatin1String("PerfProfilerTraceView"));
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
     qmlRegisterType<Timeline::TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
     qmlRegisterType<Timeline::TimelineOverviewRenderer>("QtCreator.Tracing", 1, 0,
                                                         "TimelineOverviewRenderer");
     qmlRegisterAnonymousType<Timeline::TimelineZoomControl>("QtCreator.Tracing", 1);
     qmlRegisterAnonymousType<Timeline::TimelineModel>("QtCreator.Tracing", 1);
     qmlRegisterAnonymousType<Timeline::TimelineNotesModel>("QtCreator.Tracing", 1);
+#endif // Qt < 6.2
 
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -62,7 +64,7 @@ PerfProfilerTraceView::PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *
                                       tool->modelManager());
     rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                       tool->zoomControl());
-    setSource(QUrl(QLatin1String("qrc:/tracing/MainView.qml")));
+    setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
 
     // Avoid ugly warnings when reading from null properties in QML.
     connect(tool->modelManager(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });

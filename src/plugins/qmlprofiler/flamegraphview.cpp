@@ -46,7 +46,9 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     setObjectName("QmlProfiler.FlameGraph.Dock");
     setWindowTitle(tr("Flame Graph"));
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
     qmlRegisterType<FlameGraph::FlameGraph>("QtCreator.Tracing", 1, 0, "FlameGraph");
+#endif // Qt < 6.2
     qmlRegisterUncreatableType<FlameGraphModel>("QtCreator.QmlProfiler", 1, 0,
                                                 "QmlProfilerFlameGraphModel",
                                                 QLatin1String("use the context property"));

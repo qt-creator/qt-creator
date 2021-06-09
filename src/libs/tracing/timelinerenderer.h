@@ -31,13 +31,16 @@
 #include "timelineabstractrenderer.h"
 
 #include <QSGTransformNode>
-#include <QQuickItem>
+#include <QtQml/qqml.h>
 
 namespace Timeline {
 
 class TRACING_EXPORT TimelineRenderer : public TimelineAbstractRenderer
 {
     Q_OBJECT
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    QML_ELEMENT
+#endif // Qt >= 6.2
 
 public:
     explicit TimelineRenderer(QQuickItem *parent = nullptr);

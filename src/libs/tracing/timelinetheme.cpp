@@ -67,23 +67,23 @@ public:
         else if (iconName == QLatin1String("zoom"))
             icon = Utils::Icons::ZOOM_TOOLBAR;
         else if (iconName == QLatin1String("rangeselection"))
-            icon = Utils::Icon({{QLatin1String(":/tracing/ico_rangeselection.png"),
+            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_rangeselection.png"),
                                  Utils::Theme::IconsBaseColor}});
         else if (iconName == QLatin1String("rangeselected"))
-            icon = Utils::Icon({{QLatin1String(":/tracing/ico_rangeselected.png"),
+            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_rangeselected.png"),
                                  Utils::Theme::IconsBaseColor}});
         else if (iconName == QLatin1String("selectionmode"))
-            icon = Utils::Icon({{QLatin1String(":/tracing/ico_selectionmode.png"),
+            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_selectionmode.png"),
                                  Utils::Theme::IconsBaseColor}});
         else if (iconName == QLatin1String("edit"))
-            icon = Utils::Icon({{QLatin1String(":/tracing/ico_edit.png"),
+            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_edit.png"),
                                  Utils::Theme::IconsBaseColor}});
         else if (iconName == QLatin1String("lock_open"))
             icon = Utils::Icons::UNLOCKED_TOOLBAR;
         else if (iconName == QLatin1String("lock_closed"))
             icon = Utils::Icons::LOCKED_TOOLBAR;
         else if (iconName == QLatin1String("range_handle"))
-            icon = Utils::Icon({{QLatin1String(":/tracing/range_handle.png"),
+            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/range_handle.png"),
                                  Utils::Theme::IconsBaseColor}});
         else if (iconName == QLatin1String("note"))
             icon = Utils::Icons::INFO_TOOLBAR;
@@ -103,18 +103,19 @@ public:
     }
 };
 
-static QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+TimelineTheme::TimelineTheme(QObject *parent)
+    : Utils::Theme(Utils::creatorTheme(), parent)
 {
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-    return Utils::proxyTheme();
 }
 
 void TimelineTheme::setupTheme(QQmlEngine *engine)
 {
-    static const int typeIndex = qmlRegisterSingletonType<Utils::Theme>("QtCreator.Tracing", 1, 0,
-                                                                        "Theme", singletonProvider);
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+    static const int typeIndex = qmlRegisterSingletonType<Utils::Theme>(
+                "QtCreator.Tracing", 1, 0, "Theme",
+                [](QQmlEngine *, QJSEngine *){ return Utils::proxyTheme(); });
     Q_UNUSED(typeIndex)
+#endif // Qt < 6.2
     engine->addImageProvider(QLatin1String("icons"), new TimelineImageIconProvider);
 }
 

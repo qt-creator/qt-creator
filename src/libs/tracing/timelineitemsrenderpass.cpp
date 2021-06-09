@@ -461,11 +461,13 @@ TimelineItemsMaterialShader::TimelineItemsMaterialShader()
     : QSGMaterialShader()
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/tracing/timelineitems.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/tracing/timelineitems.frag"));
+    setShaderSourceFile(QOpenGLShader::Vertex,
+                        QStringLiteral(":/QtCreator/Tracing/timelineitems.vert"));
+    setShaderSourceFile(QOpenGLShader::Fragment,
+                        QStringLiteral(":/QtCreator/Tracing/timelineitems.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/tracing/timelineitems.vert");
-    setShaderFileName(FragmentStage, ":/tracing/timelineitems.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/Tracing/timelineitems.vert");
+    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/timelineitems.frag");
 #endif // < Qt 6
 }
 

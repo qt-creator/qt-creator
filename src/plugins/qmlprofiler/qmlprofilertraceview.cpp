@@ -122,12 +122,14 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
     qmlRegisterType<Timeline::TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
     qmlRegisterType<Timeline::TimelineOverviewRenderer>("QtCreator.Tracing", 1, 0,
                                                         "TimelineOverviewRenderer");
     qmlRegisterAnonymousType<Timeline::TimelineZoomControl>("QtCreator.Tracing", 1);
     qmlRegisterAnonymousType<Timeline::TimelineModel>("QtCreator.Tracing", 1);
     qmlRegisterAnonymousType<Timeline::TimelineNotesModel>("QtCreator.Tracing", 1);
+#endif // Qt < 6.2
 
     d->m_mainView = new QQuickWidget(this);
     d->m_mainView->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -171,7 +173,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
                                                      d->m_modelProxy);
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                                      d->m_zoomControl);
-    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/tracing/MainView.qml")));
+    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
 
     connect(d->m_modelProxy, &Timeline::TimelineModelAggregator::updateCursorPosition,
             this, &QmlProfilerTraceView::updateCursorPosition);

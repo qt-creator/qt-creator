@@ -86,18 +86,14 @@ QString formatTime(qint64 timestamp, qint64 reference)
     }
 }
 
-static QObject *createFormatter(QQmlEngine *engine, QJSEngine *scriptEngine)
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-    return new TimeFormatter;
-}
-
 void TimeFormatter::setupTimeFormatter()
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
     static const int typeIndex = qmlRegisterSingletonType<TimeFormatter>(
-                "QtCreator.Tracing", 1, 0, "TimeFormatter", createFormatter);
+                "QtCreator.Tracing", 1, 0, "TimeFormatter",
+                [](QQmlEngine *, QJSEngine *){ return new TimeFormatter; });
     Q_UNUSED(typeIndex)
+#endif // Qt < 6.2
 }
 
 }
