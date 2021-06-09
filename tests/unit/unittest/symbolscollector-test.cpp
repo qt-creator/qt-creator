@@ -131,9 +131,6 @@ MATCHER_P(HasSymbolTag, symbolTag,
 class SymbolsCollector : public testing::Test
 {
 protected:
-    SymbolsCollector() { setFilePathCache(&filePathCache); }
-    ~SymbolsCollector() { setFilePathCache({}); }
-
     FilePathId filePathId(Utils::SmallStringView filePath) const
     {
         return filePathCache.filePathId(ClangBackEnd::FilePathView{filePath});

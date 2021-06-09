@@ -28,6 +28,7 @@
 #include "googletest.h"
 
 #include <pchmanagerclientinterface.h>
+#include <progressmessage.h>
 
 class MockPchManagerClient : public ClangBackEnd::PchManagerClientInterface
 {

@@ -53,10 +53,6 @@ namespace {
 class SourceRangeExtractor : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-    void TearDown() override;
-
-protected:
     TestClangTool clangTool{{TESTDATA_DIR "/sourcerangeextractor_location.cpp"}, "", {"cc"}};
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;
     const clang::SourceManager &sourceManager{clangTool.sourceManager()};
@@ -177,16 +173,6 @@ TEST_F(SourceRangeExtractorSlowTest, EpandText)
     auto expandedText = ::SourceRangeExtractor::getExpandedText(text, 15, 25);
 
     ASSERT_THAT(expandedText, Eq("second line\nthird line"));
-}
-
-void SourceRangeExtractor::SetUp()
-{
-    TestGlobal::setSourceManager(&sourceManager);
-}
-
-void SourceRangeExtractor::TearDown()
-{
-    TestGlobal::setSourceManager(nullptr);
 }
 }
 

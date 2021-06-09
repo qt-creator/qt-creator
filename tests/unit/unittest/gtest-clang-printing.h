@@ -29,27 +29,6 @@
 
 #include <gtest/gtest-printers.h>
 
-namespace llvm {
-
-class StringRef;
-
-std::ostream &operator<<(std::ostream &out, const StringRef stringReference);
-}
-
-namespace clang {
-class FullSourceLoc;
-class SourceRange;
-class SourceManager;
-
-void PrintTo(const FullSourceLoc &sourceLocation, ::std::ostream *os);
-void PrintTo(const SourceRange &sourceLocation, ::std::ostream *os);
-
-}
-
-namespace TestGlobal {
-void setSourceManager(const clang::SourceManager *sourceManager);
-}
-
 namespace ClangBackEnd {
 class TokenInfo;
 template<typename T>

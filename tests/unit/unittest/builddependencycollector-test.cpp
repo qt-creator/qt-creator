@@ -92,8 +92,6 @@ class BuildDependencyCollector : public ::testing::Test
 protected:
     BuildDependencyCollector()
     {
-        setFilePathCache(&filePathCache);
-
         collector.addFiles({id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
                             id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp")},
                            {"cc",
@@ -113,8 +111,6 @@ protected:
         collector.setExcludedFilePaths(Utils::clone(excludePaths));
         emptyCollector.setExcludedFilePaths(Utils::clone(excludePaths));
     }
-
-    ~BuildDependencyCollector() { setFilePathCache(nullptr); }
 
     FilePathId id(const Utils::SmallStringView &path) const
     {

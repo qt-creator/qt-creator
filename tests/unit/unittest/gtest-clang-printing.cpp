@@ -27,10 +27,6 @@
 #include "gtest-std-printing.h"
 
 #ifdef CLANG_UNIT_TESTS
-#include <clang/Basic/FileManager.h>
-#include <clang/Basic/SourceLocation.h>
-#include <clang/Basic/SourceManager.h>
-
 #include <clangdocumentsuspenderresumer.h>
 #include <clangreferencescollector.h>
 #include <filepathview.h>
@@ -41,53 +37,6 @@
 
 #include <gtest/gtest-printers.h>
 
-namespace TestGlobal {
-
-const clang::SourceManager *globalSourceManager = nullptr;
-
-void setSourceManager(const clang::SourceManager *sourceManager)
-{
-    globalSourceManager = sourceManager;
-}
-
-}
-
-namespace llvm {
-std::ostream &operator<<(std::ostream &out, const StringRef stringReference)
-{
-    out.write(stringReference.data(), std::streamsize(stringReference.size()));
-
-    return out;
-}
-}
-
-namespace clang {
-
-void PrintTo(const FullSourceLoc &sourceLocation, ::std::ostream *os)
-{
-    auto &&sourceManager = sourceLocation.getManager();
-    auto fileName = sourceManager.getFileEntryForID(sourceLocation.getFileID())->getName();
-
-    *os << "(\""
-        << fileName << ", "
-        << sourceLocation.getSpellingLineNumber() << ", "
-        << sourceLocation.getSpellingColumnNumber() << ")";
-}
-
-void PrintTo(const SourceRange &sourceRange, ::std::ostream *os)
-{
-    if (TestGlobal::globalSourceManager) {
-        *os << "("
-            << sourceRange.getBegin().printToString(*TestGlobal::globalSourceManager) << ", "
-            << sourceRange.getEnd().printToString(*TestGlobal::globalSourceManager) << ")";
-    } else {
-        *os << "("
-            << sourceRange.getBegin().getRawEncoding() << ", "
-            << sourceRange.getEnd().getRawEncoding() << ")";
-    }
-}
-
-}
 
 namespace ClangBackEnd {
 std::ostream &operator<<(std::ostream &os, const TokenInfo &tokenInfo)
