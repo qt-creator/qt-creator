@@ -1053,22 +1053,22 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
                << "\", " << propertyDeclaration.traits << ", " << propertyDeclaration.typeId << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, DeclarationTraits traits)
+std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
 {
     const char *padding = "";
 
     out << "(";
-    if (traits & DeclarationTraits::IsReadOnly) {
+    if (traits & PropertyDeclarationTraits::IsReadOnly) {
         out << "readonly";
         padding = ", ";
     }
 
-    if (traits & DeclarationTraits::IsPointer) {
+    if (traits & PropertyDeclarationTraits::IsPointer) {
         out << padding << "pointer";
         padding = ", ";
     }
 
-    if (traits & DeclarationTraits::IsList)
+    if (traits & PropertyDeclarationTraits::IsList)
         out << padding << "list";
 
     return out << ")";

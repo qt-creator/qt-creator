@@ -83,4 +83,10 @@ public:
     const char *what() const noexcept override { return "The type name does not exist!"; }
 };
 
+class PropertyNameDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The property name does not exist!"; }
+};
+
 } // namespace QmlDesigner

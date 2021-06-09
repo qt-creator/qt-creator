@@ -73,6 +73,9 @@ public:
         for (auto &&type : types)
             syncType(type);
 
+        for (auto &&type : types)
+            synchronizeAliasPropertyDeclarations(type);
+
         deleteNotUpdatedTypes(updatedTypeIds, sourceIds);
 
         transaction.commit();
@@ -119,7 +122,7 @@ public:
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
                                                                   Utils::SmallStringView name)
     {
-        return selectPropertyDeclarationByTypeIdAndNameStatement
+        return selectPropertyDeclarationIdByTypeIdAndNameStatement
             .template valueWithTransaction<PropertyDeclarationId>(&typeId, name);
     }
 
@@ -485,7 +488,7 @@ private:
         auto insert = [&](const Storage::PropertyDeclaration &value) {
             auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName, importIds);
 
-            insertPropertyDeclarationStatement.write(&typeId,
+            upsertPropertyDeclarationStatement.write(&typeId,
                                                      value.name,
                                                      &propertyTypeId,
                                                      static_cast<int>(value.traits));
@@ -510,6 +513,56 @@ private:
         Sqlite::insertUpdateDelete(range, propertyDeclarations, compareKey, insert, update, remove);
     }
 
+    void synchronizeAliasPropertyDeclarations(Storage::Type &type)
+    {
+        auto &aliasDeclarations = type.aliasDeclarations;
+        TypeId typeId = type.typeId;
+        ImportIds &importIds = type.importIds;
+
+        std::sort(aliasDeclarations.begin(), aliasDeclarations.end(), [](auto &&first, auto &&second) {
+            return Sqlite::compare(first.name, second.name) < 0;
+        });
+
+        auto range = selectPropertyDeclarationsWithAliasForTypeIdStatement
+                         .template range<Storage::AliasPropertyDeclarationView>(&typeId);
+
+        auto compareKey = [](const Storage::AliasPropertyDeclarationView &view,
+                             const Storage::AliasPropertyDeclaration &value) {
+            return Sqlite::compare(view.name, value.name);
+        };
+
+        auto insert = [&](const Storage::AliasPropertyDeclaration &value) {
+            auto [aliasTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeNameAndName(
+                value.aliasTypeName, value.aliasPropertyName, importIds);
+
+            insertPropertyDeclarationWithAliasStatement.write(&typeId,
+                                                              value.name,
+                                                              &aliasTypeId,
+                                                              propertyTraits,
+                                                              &aliasId);
+        };
+
+        auto update = [&](const Storage::AliasPropertyDeclarationView &view,
+                          const Storage::AliasPropertyDeclaration &value) {
+            auto [aliasTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeNameAndName(
+                value.aliasTypeName, value.aliasPropertyName, importIds);
+
+            if (view.aliasId == aliasId)
+                return;
+
+            updatePropertyDeclarationWithAliasStatement.write(&view.id,
+                                                              &aliasTypeId,
+                                                              propertyTraits,
+                                                              &aliasId);
+        };
+
+        auto remove = [&](const Storage::AliasPropertyDeclarationView &view) {
+            deletePropertyDeclarationStatement.write(&view.id);
+        };
+
+        Sqlite::insertUpdateDelete(range, aliasDeclarations, compareKey, insert, update, remove);
+    }
+
     Utils::PathString createJson(const Storage::ParameterDeclarations &parameters)
     {
         Utils::PathString json;
@@ -524,7 +577,7 @@ private:
             json.append(parameter.name);
             json.append("\",\"tn\":\"");
             json.append(parameter.typeName);
-            if (parameter.traits == Storage::DeclarationTraits::Non) {
+            if (parameter.traits == Storage::PropertyDeclarationTraits::Non) {
                 json.append("\"}");
             } else {
                 json.append("\",\"tr\":");
@@ -748,6 +801,22 @@ private:
         throw TypeNameDoesNotExists{};
     }
 
+    using PropertyDeclarationViewTuple = std::tuple<TypeId, PropertyDeclarationId, long long>;
+
+    PropertyDeclarationViewTuple fetchPropertyDeclarationByTypeNameAndName(
+        const Storage::TypeName &typeName, Utils::SmallStringView name, ImportIds &importIds)
+    {
+        TypeId typeId = fetchTypeIdByNameUngarded(typeName, importIds);
+
+        auto propertyDeclaration = selectPropertyDeclarationByTypeIdAndNameStatement
+                                       .template value<PropertyDeclarationViewTuple>(&typeId, name);
+
+        if (auto id = std::get<PropertyDeclarationId>(propertyDeclaration); id)
+            return propertyDeclaration;
+
+        throw PropertyNameDoesNotExists{};
+    }
+
     SourceContextId readSourceContextId(Utils::SmallStringView sourceContextPath)
     {
         return selectSourceContextIdFromSourceContextsBySourceContextPathStatement
@@ -933,6 +1002,7 @@ private:
                                                              Sqlite::ForeignKeyAction::NoAction,
                                                              Sqlite::ForeignKeyAction::Restrict);
                 propertyDeclarationTable.addColumn("propertyTraits");
+                propertyDeclarationTable.addColumn("aliasPropertyDeclarationId");
 
                 propertyDeclarationTable.addUniqueIndex({typeIdColumn, nameColumn});
 
@@ -1056,19 +1126,23 @@ public:
         "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId)) "
         "SELECT typeId FROM typeSelection WHERE typeId=?2 LIMIT 1",
         database};
-    ReadWriteStatement<1> upsertPropertyDeclarationStatement{
-        "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits) "
-        "VALUES(?1, ?2, ?3, nullif(?4, 0)) ON CONFLICT DO UPDATE SET typeId=excluded.typeId, "
-        "name=excluded.name, propertyTypeId=excluded.propertyTypeId, "
-        "propertyTraits=excluded.propertyTraits  RETURNING propertyDeclarationId",
-        database};
-    mutable ReadStatement<1> selectPropertyDeclarationByTypeIdAndNameStatement{
+    mutable ReadStatement<1> selectPropertyDeclarationIdByTypeIdAndNameStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("
         "      VALUES(?1) "
         "    UNION ALL "
         "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId)) "
         "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
+        "  WHERE name=?2 LIMIT 1",
+        database};
+    mutable ReadStatement<3> selectPropertyDeclarationByTypeIdAndNameStatement{
+        "WITH RECURSIVE "
+        "  typeSelection(typeId) AS ("
+        "      VALUES(?1) "
+        "    UNION ALL "
+        "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId)) "
+        "SELECT typeId, propertyDeclarationId, propertyTraits FROM propertyDeclarations JOIN "
+        "typeSelection USING(typeId) "
         "  WHERE name=?2 LIMIT 1",
         database};
     WriteStatement upsertExportedTypesStatement{"INSERT INTO exportedTypes(importId, name, typeId) "
@@ -1133,11 +1207,13 @@ public:
         database};
     ReadStatement<4> selectPropertyDeclarationsForTypeIdStatement{
         "SELECT name, propertyTraits, propertyTypeId, propertyDeclarationId FROM "
-        "propertyDeclarations WHERE typeId=? ORDER BY name",
+        "propertyDeclarations WHERE typeId=? AND aliasPropertyDeclarationId IS NULL ORDER BY "
+        "name",
         database};
-    WriteStatement insertPropertyDeclarationStatement{
+    WriteStatement upsertPropertyDeclarationStatement{
         "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits) "
-        "VALUES(?1, ?2, ?3, ?4) ",
+        "VALUES(?1, ?2, ?3, ?4) ON CONFLICT DO UPDATE SET propertyTypeId=excluded.propertyTypeId, "
+        "propertyTraits=excluded.propertyTraits, aliasPropertyDeclarationId=NULL",
         database};
     WriteStatement updatePropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3 WHERE "
@@ -1145,6 +1221,18 @@ public:
         database};
     WriteStatement deletePropertyDeclarationStatement{
         "DELETE FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
+    ReadStatement<3> selectPropertyDeclarationsWithAliasForTypeIdStatement{
+        "SELECT name, propertyDeclarationId, aliasPropertyDeclarationId FROM propertyDeclarations "
+        "WHERE typeId=? AND aliasPropertyDeclarationId IS NOT NULL ORDER BY name",
+        database};
+    WriteStatement insertPropertyDeclarationWithAliasStatement{
+        "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits, "
+        "aliasPropertyDeclarationId) VALUES(?1, ?2, ?3, ?4, ?5) ",
+        database};
+    WriteStatement updatePropertyDeclarationWithAliasStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
+        "aliasPropertyDeclarationId=?4 WHERE propertyDeclarationId=?1",
+        database};
     mutable ReadStatement<4> selectFunctionDeclarationsForTypeIdStatement{
         "SELECT name, returnTypeName, signature, functionDeclarationId FROM "
         "functionDeclarations WHERE typeId=? ORDER BY name",

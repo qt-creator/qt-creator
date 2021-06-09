@@ -36,19 +36,20 @@ namespace QmlDesigner::Storage {
 
 enum class TypeAccessSemantics : int { Invalid, Reference, Value, Sequence, IsEnum = 1 << 8 };
 
-enum class DeclarationTraits : unsigned int {
+enum class PropertyDeclarationTraits : unsigned int {
     Non = 0,
     IsReadOnly = 1 << 0,
     IsPointer = 1 << 1,
     IsList = 1 << 2
 };
 
-constexpr DeclarationTraits operator|(DeclarationTraits first, DeclarationTraits second)
+constexpr PropertyDeclarationTraits operator|(PropertyDeclarationTraits first,
+                                              PropertyDeclarationTraits second)
 {
-    return static_cast<DeclarationTraits>(static_cast<int>(first) | static_cast<int>(second));
+    return static_cast<PropertyDeclarationTraits>(static_cast<int>(first) | static_cast<int>(second));
 }
 
-constexpr bool operator&(DeclarationTraits first, DeclarationTraits second)
+constexpr bool operator&(PropertyDeclarationTraits first, PropertyDeclarationTraits second)
 {
     return static_cast<int>(first) & static_cast<int>(second);
 }
@@ -219,7 +220,7 @@ public:
     explicit ParameterDeclaration() = default;
     explicit ParameterDeclaration(Utils::SmallStringView name,
                                   Utils::SmallStringView typeName,
-                                  DeclarationTraits traits = {})
+                                  PropertyDeclarationTraits traits = {})
         : name{name}
         , typeName{typeName}
         , traits{traits}
@@ -228,7 +229,7 @@ public:
     explicit ParameterDeclaration(Utils::SmallStringView name, Utils::SmallStringView typeName, int traits)
         : name{name}
         , typeName{typeName}
-        , traits{static_cast<DeclarationTraits>(traits)}
+        , traits{static_cast<PropertyDeclarationTraits>(traits)}
     {}
 
     friend bool operator==(const ParameterDeclaration &first, const ParameterDeclaration &second)
@@ -240,7 +241,7 @@ public:
 public:
     Utils::SmallString name;
     Utils::SmallString typeName;
-    DeclarationTraits traits = {};
+    PropertyDeclarationTraits traits = {};
 };
 
 using ParameterDeclarations = std::vector<ParameterDeclaration>;
@@ -345,7 +346,9 @@ class PropertyDeclaration
 {
 public:
     explicit PropertyDeclaration() = default;
-    explicit PropertyDeclaration(Utils::SmallStringView name, TypeName typeName, DeclarationTraits traits)
+    explicit PropertyDeclaration(Utils::SmallStringView name,
+                                 TypeName typeName,
+                                 PropertyDeclarationTraits traits)
         : name{name}
         , typeName{std::move(typeName)}
         , traits{traits}
@@ -354,13 +357,13 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name, Utils::SmallStringView typeName, int traits)
         : name{name}
         , typeName{NativeType{typeName}}
-        , traits{static_cast<DeclarationTraits>(traits)}
+        , traits{static_cast<PropertyDeclarationTraits>(traits)}
     {}
 
 public:
     Utils::SmallString name;
     TypeName typeName;
-    DeclarationTraits traits = {};
+    PropertyDeclarationTraits traits = {};
     TypeId typeId;
 };
 
@@ -374,7 +377,7 @@ public:
                                      long long typeId,
                                      long long id)
         : name{name}
-        , traits{static_cast<DeclarationTraits>(traits)}
+        , traits{static_cast<PropertyDeclarationTraits>(traits)}
         , typeId{typeId}
         , id{id}
 
@@ -382,9 +385,43 @@ public:
 
 public:
     Utils::SmallStringView name;
-    DeclarationTraits traits = {};
+    PropertyDeclarationTraits traits = {};
     TypeId typeId;
     PropertyDeclarationId id;
+};
+
+class AliasPropertyDeclaration
+{
+public:
+    explicit AliasPropertyDeclaration(Utils::SmallStringView name,
+                                      TypeName aliasTypeName,
+                                      Utils::SmallStringView aliasPropertyName)
+        : name{name}
+        , aliasTypeName{std::move(aliasTypeName)}
+        , aliasPropertyName{aliasPropertyName}
+    {}
+
+public:
+    Utils::SmallString name;
+    TypeName aliasTypeName;
+    Utils::SmallString aliasPropertyName;
+};
+
+using AliasDeclarations = std::vector<AliasPropertyDeclaration>;
+
+class AliasPropertyDeclarationView
+{
+public:
+    explicit AliasPropertyDeclarationView(Utils::SmallStringView name, long long id, long long aliasId)
+        : name{name}
+        , id{id}
+        , aliasId{aliasId}
+    {}
+
+public:
+    Utils::SmallString name;
+    PropertyDeclarationId id;
+    PropertyDeclarationId aliasId;
 };
 
 class Type
@@ -402,6 +439,7 @@ public:
                   FunctionDeclarations functionDeclarations = {},
                   SignalDeclarations signalDeclarations = {},
                   EnumerationDeclarations enumerationDeclarations = {},
+                  AliasDeclarations aliasDeclarations = {},
                   TypeId typeId = TypeId{})
         : typeName{typeName}
         , prototype{std::move(prototype)}
@@ -411,6 +449,7 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
+        , aliasDeclarations{std::move(aliasDeclarations)}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
@@ -454,6 +493,7 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
+    AliasDeclarations aliasDeclarations;
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;

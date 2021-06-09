@@ -195,8 +195,6 @@ protected:
     ProjectStorageMock storage{databaseMock, true};
     ReadWriteStatement<1> &upsertTypeStatement = storage.upsertTypeStatement;
     ReadStatement<1> &selectTypeIdByExportedNameStatement = storage.selectTypeIdByExportedNameStatement;
-    ReadWriteStatement<1> &upsertPropertyDeclarationStatement = storage.upsertPropertyDeclarationStatement;
-    ReadStatement<1> &selectPropertyDeclarationByTypeIdAndNameStatement = storage.selectPropertyDeclarationByTypeIdAndNameStatement;
     WriteStatement &upsertExportedTypesStatement = storage.upsertExportedTypesStatement;
     ReadStatement<1> &selectSourceContextIdFromSourceContextsBySourceContextPathStatement
         = storage.selectSourceContextIdFromSourceContextsBySourceContextPathStatement;
@@ -423,7 +421,7 @@ TEST_F(ProjectStorage, FetchTypeByTypeIdCalls)
 TEST_F(ProjectStorage, FetchTypesCalls)
 {
     InSequence s;
-    Storage::Type type{ImportId{}, {}, {}, {}, SourceId{}, {}, {}, {}, {}, {}, {}, TypeId{55}};
+    Storage::Type type{ImportId{}, {}, {}, {}, SourceId{}, {}, {}, {}, {}, {}, {}, {}, TypeId{55}};
     Storage::Types types{type};
 
     EXPECT_CALL(databaseMock, deferredBegin());
@@ -481,24 +479,28 @@ protected:
                 {Storage::ExportedType{"Item"}},
                 {Storage::PropertyDeclaration{"data",
                                               Storage::NativeType{"QObject"},
-                                              Storage::DeclarationTraits::IsList},
+                                              Storage::PropertyDeclarationTraits::IsList},
                  Storage::PropertyDeclaration{"children",
                                               Storage::ExportedType{"Item"},
-                                              Storage::DeclarationTraits::IsList
-                                                  | Storage::DeclarationTraits::IsReadOnly}},
+                                              Storage::PropertyDeclarationTraits::IsList
+                                                  | Storage::PropertyDeclarationTraits::IsReadOnly}},
                 {Storage::FunctionDeclaration{"execute", "", {Storage::ParameterDeclaration{"arg", ""}}},
                  Storage::FunctionDeclaration{
                      "values",
                      "Vector3D",
                      {Storage::ParameterDeclaration{"arg1", "int"},
-                      Storage::ParameterDeclaration{"arg2", "QObject", Storage::DeclarationTraits::IsPointer},
+                      Storage::ParameterDeclaration{"arg2",
+                                                    "QObject",
+                                                    Storage::PropertyDeclarationTraits::IsPointer},
                       Storage::ParameterDeclaration{"arg3", "string"}}}},
                 {Storage::SignalDeclaration{"execute", {Storage::ParameterDeclaration{"arg", ""}}},
-                 Storage::SignalDeclaration{"values",
-                                            {Storage::ParameterDeclaration{"arg1", "int"},
-                                             Storage::ParameterDeclaration{
-                                                 "arg2", "QObject", Storage::DeclarationTraits::IsPointer},
-                                             Storage::ParameterDeclaration{"arg3", "string"}}}},
+                 Storage::SignalDeclaration{
+                     "values",
+                     {Storage::ParameterDeclaration{"arg1", "int"},
+                      Storage::ParameterDeclaration{"arg2",
+                                                    "QObject",
+                                                    Storage::PropertyDeclarationTraits::IsPointer},
+                      Storage::ParameterDeclaration{"arg3", "string"}}}},
                 {Storage::EnumerationDeclaration{"Enum",
                                                  {Storage::EnumeratorDeclaration{"Foo"},
                                                   Storage::EnumeratorDeclaration{"Bar", 32}}},
@@ -512,6 +514,34 @@ protected:
                           sourceId2,
                           importIds,
                           {Storage::ExportedType{"Object"}, Storage::ExportedType{"Obj"}}}};
+    }
+
+    auto createTypesWithAliases()
+    {
+        auto types = createTypes();
+
+        types[1].propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"objects",
+                                         Storage::NativeType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList});
+
+        types.push_back(Storage::Type{importId2,
+                                      "QAliasItem",
+                                      Storage::NativeType{"QQuickItem"},
+                                      TypeAccessSemantics::Reference,
+                                      sourceId1,
+                                      importIds,
+                                      {Storage::ExportedType{"AliasItem"}}});
+        types.back().propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"data",
+                                         Storage::NativeType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList});
+        types.back().aliasDeclarations.push_back(
+            Storage::AliasPropertyDeclaration{"items", Storage::NativeType{"QQuickItem"}, "children"});
+        types.back().aliasDeclarations.push_back(
+            Storage::AliasPropertyDeclaration{"objects", Storage::NativeType{"QQuickItem"}, "objects"});
+
+        return types;
     }
 
     auto createImports()
@@ -1089,21 +1119,22 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarations)
     storage.synchronizeTypes(types, {});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QObject"},
-                                                    Storage::DeclarationTraits::IsList),
-                              IsPropertyDeclaration("children",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+                Contains(
+                    AllOf(IsStorageType(importId2,
+                                        "QQuickItem",
+                                        Storage::NativeType{"QObject"},
+                                        TypeAccessSemantics::Reference,
+                                        sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("data",
+                                                          Storage::NativeType{"QObject"},
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "children",
+                                        Storage::NativeType{"QQuickItem"},
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest,
@@ -1141,21 +1172,22 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarationExplicitTyp
     storage.synchronizeTypes(types, {});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QQuickObject"},
-                                                    Storage::DeclarationTraits::IsList),
-                              IsPropertyDeclaration("children",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+                Contains(
+                    AllOf(IsStorageType(importId2,
+                                        "QQuickItem",
+                                        Storage::NativeType{"QObject"},
+                                        TypeAccessSemantics::Reference,
+                                        sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("data",
+                                                          Storage::NativeType{"QQuickObject"},
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "children",
+                                        Storage::NativeType{"QQuickItem"},
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesPropertyDeclarationType)
@@ -1167,74 +1199,77 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesPropertyDeclarationType)
     storage.synchronizeTypes(types, {});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList),
-                              IsPropertyDeclaration("children",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+                Contains(
+                    AllOf(IsStorageType(importId2,
+                                        "QQuickItem",
+                                        Storage::NativeType{"QObject"},
+                                        TypeAccessSemantics::Reference,
+                                        sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("data",
+                                                          Storage::NativeType{"QQuickItem"},
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "children",
+                                        Storage::NativeType{"QQuickItem"},
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraits)
 {
     Storage::Types types{createTypes()};
     storage.synchronizeTypes(types, {});
-    types[0].propertyDeclarations[0].traits = Storage::DeclarationTraits::IsPointer;
+    types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
 
     storage.synchronizeTypes(types, {});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QObject"},
-                                                    Storage::DeclarationTraits::IsPointer),
-                              IsPropertyDeclaration("children",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+                Contains(
+                    AllOf(IsStorageType(importId2,
+                                        "QQuickItem",
+                                        Storage::NativeType{"QObject"},
+                                        TypeAccessSemantics::Reference,
+                                        sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("data",
+                                                          Storage::NativeType{"QObject"},
+                                                          Storage::PropertyDeclarationTraits::IsPointer),
+                                    IsPropertyDeclaration(
+                                        "children",
+                                        Storage::NativeType{"QQuickItem"},
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraitsAndType)
 {
     Storage::Types types{createTypes()};
     storage.synchronizeTypes(types, {});
-    types[0].propertyDeclarations[0].traits = Storage::DeclarationTraits::IsPointer;
+    types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
     types[0].propertyDeclarations[0].typeName = Storage::NativeType{"QQuickItem"};
 
     storage.synchronizeTypes(types, {});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsPointer),
-                              IsPropertyDeclaration("children",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+                Contains(
+                    AllOf(IsStorageType(importId2,
+                                        "QQuickItem",
+                                        Storage::NativeType{"QObject"},
+                                        TypeAccessSemantics::Reference,
+                                        sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("data",
+                                                          Storage::NativeType{"QQuickItem"},
+                                                          Storage::PropertyDeclarationTraits::IsPointer),
+                                    IsPropertyDeclaration(
+                                        "children",
+                                        Storage::NativeType{"QQuickItem"},
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesAPropertyDeclaration)
@@ -1252,10 +1287,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesAPropertyDeclaration)
                                              TypeAccessSemantics::Reference,
                                              sourceId1),
                                Field(&Storage::Type::propertyDeclarations,
-                                     UnorderedElementsAre(
-                                         IsPropertyDeclaration("data",
-                                                               Storage::NativeType{"QObject"},
-                                                               Storage::DeclarationTraits::IsList))))));
+                                     UnorderedElementsAre(IsPropertyDeclaration(
+                                         "data",
+                                         Storage::NativeType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsAPropertyDeclaration)
@@ -1265,29 +1300,30 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsAPropertyDeclaration)
     types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"object",
                                      Storage::NativeType{"QObject"},
-                                     Storage::DeclarationTraits::IsPointer});
+                                     Storage::PropertyDeclarationTraits::IsPointer});
 
     storage.synchronizeTypes(types, {});
 
-    ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("object",
-                                                    Storage::NativeType{"QObject"},
-                                                    Storage::DeclarationTraits::IsPointer),
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QObject"},
-                                                    Storage::DeclarationTraits::IsList),
-                              IsPropertyDeclaration("children",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(AllOf(
+            IsStorageType(importId2,
+                          "QQuickItem",
+                          Storage::NativeType{"QObject"},
+                          TypeAccessSemantics::Reference,
+                          sourceId1),
+            Field(&Storage::Type::propertyDeclarations,
+                  UnorderedElementsAre(
+                      IsPropertyDeclaration("object",
+                                            Storage::NativeType{"QObject"},
+                                            Storage::PropertyDeclarationTraits::IsPointer),
+                      IsPropertyDeclaration("data",
+                                            Storage::NativeType{"QObject"},
+                                            Storage::PropertyDeclarationTraits::IsList),
+                      IsPropertyDeclaration("children",
+                                            Storage::NativeType{"QQuickItem"},
+                                            Storage::PropertyDeclarationTraits::IsList
+                                                | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRenameAPropertyDeclaration)
@@ -1299,21 +1335,22 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRenameAPropertyDeclaration)
     storage.synchronizeTypes(types, {});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(
-                    IsStorageType(importId2,
-                                  "QQuickItem",
-                                  Storage::NativeType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1),
-                    Field(&Storage::Type::propertyDeclarations,
-                          UnorderedElementsAre(
-                              IsPropertyDeclaration("data",
-                                                    Storage::NativeType{"QObject"},
-                                                    Storage::DeclarationTraits::IsList),
-                              IsPropertyDeclaration("objects",
-                                                    Storage::NativeType{"QQuickItem"},
-                                                    Storage::DeclarationTraits::IsList
-                                                        | Storage::DeclarationTraits::IsReadOnly))))));
+                Contains(
+                    AllOf(IsStorageType(importId2,
+                                        "QQuickItem",
+                                        Storage::NativeType{"QObject"},
+                                        TypeAccessSemantics::Reference,
+                                        sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("data",
+                                                          Storage::NativeType{"QObject"},
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        Storage::NativeType{"QQuickItem"},
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
 TEST_F(ProjectStorageSlowTest, UsingNonExistingNativePropertyTypeThrows)
@@ -1502,7 +1539,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeP
 {
     Storage::Types types{createTypes()};
     storage.synchronizeTypes(types, {});
-    types[0].functionDeclarations[1].parameters[0].traits = QmlDesigner::Storage::DeclarationTraits::IsList;
+    types[0].functionDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
 
     storage.synchronizeTypes(types, {});
 
@@ -1672,7 +1709,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangePar
 {
     Storage::Types types{createTypes()};
     storage.synchronizeTypes(types, {});
-    types[0].signalDeclarations[1].parameters[0].traits = QmlDesigner::Storage::DeclarationTraits::IsList;
+    types[0].signalDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
 
     storage.synchronizeTypes(types, {});
 
@@ -2288,6 +2325,244 @@ TEST_F(ProjectStorageSlowTest, FetchImportDepencencyIdsForRootDepencency)
     auto importIds = storage.fetchImportDependencyIds({importId1});
 
     ASSERT_THAT(importIds, ElementsAre(importId1));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarations)
+{
+    Storage::Types types{createTypesWithAliases()};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(importId2,
+                                  "QAliasItem",
+                                  Storage::NativeType{"QQuickItem"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId1),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    Storage::NativeType{"QQuickItem"},
+                                                    Storage::PropertyDeclarationTraits::IsList
+                                                        | Storage::PropertyDeclarationTraits::IsReadOnly),
+                              IsPropertyDeclaration("objects",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList),
+                              IsPropertyDeclaration("data",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsAgain)
+{
+    Storage::Types types{createTypesWithAliases()};
+    storage.synchronizeTypes(types, {});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(importId2,
+                                  "QAliasItem",
+                                  Storage::NativeType{"QQuickItem"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId1),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    Storage::NativeType{"QQuickItem"},
+                                                    Storage::PropertyDeclarationTraits::IsList
+                                                        | Storage::PropertyDeclarationTraits::IsReadOnly),
+                              IsPropertyDeclaration("objects",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList),
+                              IsPropertyDeclaration("data",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveAliasDeclarations)
+{
+    Storage::Types types{createTypesWithAliases()};
+    storage.synchronizeTypes(types, {});
+    types[2].aliasDeclarations.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(importId2,
+                                  "QAliasItem",
+                                  Storage::NativeType{"QQuickItem"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId1),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    Storage::NativeType{"QQuickItem"},
+                                                    Storage::PropertyDeclarationTraits::IsList
+                                                        | Storage::PropertyDeclarationTraits::IsReadOnly),
+                              IsPropertyDeclaration("data",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsThrowsForWrongTypeName)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types[2].aliasDeclarations[0].aliasTypeName = Storage::NativeType{"QQuickItemWrong"};
+
+    ASSERT_THROW(storage.synchronizeTypes(types, {}), QmlDesigner::TypeNameDoesNotExists);
+}
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropertyName)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types[2].aliasDeclarations[0].aliasPropertyName = "childrenWrong";
+
+    ASSERT_THROW(storage.synchronizeTypes(types, {}), QmlDesigner::PropertyNameDoesNotExists);
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsTypeName)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types.push_back(Storage::Type{importId1,
+                                  "QObject2",
+                                  Storage::NativeType{},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId2,
+                                  importIds,
+                                  {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
+    types[3].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects",
+                                     Storage::NativeType{"QObject"},
+                                     Storage::PropertyDeclarationTraits::IsList});
+    storage.synchronizeTypes(types, {});
+    types[2].aliasDeclarations[1].aliasTypeName = Storage::ExportedType{"Obj2"};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(importId2,
+                                  "QAliasItem",
+                                  Storage::NativeType{"QQuickItem"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId1),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    Storage::NativeType{"QQuickItem"},
+                                                    Storage::PropertyDeclarationTraits::IsList
+                                                        | Storage::PropertyDeclarationTraits::IsReadOnly),
+                              IsPropertyDeclaration("objects",
+                                                    Storage::NativeType{"QObject2"},
+                                                    Storage::PropertyDeclarationTraits::IsList),
+                              IsPropertyDeclaration("data",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsPropertyName)
+{
+    Storage::Types types{createTypesWithAliases()};
+    storage.synchronizeTypes(types, {});
+    types[2].aliasDeclarations[1].aliasPropertyName = "children";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType(importId2,
+                                "QAliasItem",
+                                Storage::NativeType{"QQuickItem"},
+                                TypeAccessSemantics::Reference,
+                                sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("items",
+                                                  Storage::NativeType{"QQuickItem"},
+                                                  Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly),
+                            IsPropertyDeclaration("objects",
+                                                  Storage::NativeType{"QQuickItem"},
+                                                  Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly),
+                            IsPropertyDeclaration("data",
+                                                  Storage::NativeType{"QObject"},
+                                                  Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsToPropertyDeclaration)
+{
+    Storage::Types types{createTypesWithAliases()};
+    storage.synchronizeTypes(types, {});
+    types[2].aliasDeclarations.pop_back();
+    types[2].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects",
+                                     Storage::NativeType{"QQuickItem"},
+                                     Storage::PropertyDeclarationTraits::IsList
+                                         | Storage::PropertyDeclarationTraits::IsReadOnly});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType(importId2,
+                                "QAliasItem",
+                                Storage::NativeType{"QQuickItem"},
+                                TypeAccessSemantics::Reference,
+                                sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("items",
+                                                  Storage::NativeType{"QQuickItem"},
+                                                  Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly),
+                            IsPropertyDeclaration("objects",
+                                                  Storage::NativeType{"QQuickItem"},
+                                                  Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly),
+                            IsPropertyDeclaration("data",
+                                                  Storage::NativeType{"QObject"},
+                                                  Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangePropertyDeclarationsToAliasDeclaration)
+{
+    Storage::Types types{createTypesWithAliases()};
+    auto typesChanged = types;
+    typesChanged[2].aliasDeclarations.pop_back();
+    typesChanged[2].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects",
+                                     Storage::NativeType{"QQuickItem"},
+                                     Storage::PropertyDeclarationTraits::IsList
+                                         | Storage::PropertyDeclarationTraits::IsReadOnly});
+    storage.synchronizeTypes(typesChanged, {});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(importId2,
+                                  "QAliasItem",
+                                  Storage::NativeType{"QQuickItem"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId1),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    Storage::NativeType{"QQuickItem"},
+                                                    Storage::PropertyDeclarationTraits::IsList
+                                                        | Storage::PropertyDeclarationTraits::IsReadOnly),
+                              IsPropertyDeclaration("objects",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList),
+                              IsPropertyDeclaration("data",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
 }
 
 } // namespace
