@@ -954,7 +954,7 @@ bool FilePath::needsDevice() const
 /// \returns \a FilePath with the last segment removed.
 FilePath FilePath::parentDir() const
 {
-    const QString basePath = toString();
+    const QString basePath = path();
     if (basePath.isEmpty())
         return FilePath();
 
@@ -966,7 +966,9 @@ FilePath FilePath::parentDir() const
     const QString parent = QDir::cleanPath(path);
     QTC_ASSERT(parent != path, return FilePath());
 
-    return FilePath::fromString(parent);
+    FilePath result = *this;
+    result.setPath(parent);
+    return result;
 }
 
 FilePath FilePath::absolutePath() const
