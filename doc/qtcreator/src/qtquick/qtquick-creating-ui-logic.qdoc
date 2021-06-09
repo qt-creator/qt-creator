@@ -1,0 +1,146 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-creating-ui-logic.html
+    \previouspage qtquick-prototyping.html
+    \nextpage studio-simulation-overview.html
+
+    \title Creating UI Logic
+
+    Turn your wireframe into an interactive prototype by adding UI logic that
+    enables your components to apply actions or react to mock data from backend
+    systems to simulate complex experiences.
+
+    Create connections between the UI components to enable them to communicate
+    with each other. For example, how should the appearance of a button change
+    on a mouse click and which action should the UI perform in response to the
+    \e signal that is emitted upon the mouse click.
+
+    You can create connections between UI components by binding their
+    properties together. This way, when the value of a property changes in a
+    parent component, it can be automatically changed in all the child
+    components by emitting a signal that indicates a change in the value.
+
+    To reference a property of a component from another component, you can
+    create \l{Adding Property Aliases}{property aliases} that hold a reference
+    to another property. Unlike an ordinary property definition, which
+    allocates a new, unique storage space for the property, a property
+    alias connects the newly declared property (called the
+    \e {aliasing property}) as a direct reference to an existing property
+    (the \e {aliased property}). Any content that is data-driven should be
+    exported as a public property of the relevant component. For example,
+    a speedometer should have a property for speed to which the UI is bound.
+
+    You can declare various \l{Adding States}{UI states} that describe how
+    property values change from a base state. States can be a useful way of
+    organizing your UI logic. You can associate transitions with components
+    to define how their properties will animate when they change due to a
+    state change.
+
+    \if defined(qtdesignstudio)
+    The \l{Log In UI - Part 3} example illustrates using states to create
+    two UI screens and signals emitted by buttons to apply the states.
+    The button components also switch states when they are pressed down.
+
+    \image loginui3.gif "Clicking buttons to switch between screens"
+    \endif
+
+    Using property aliases and states to create the differences in your
+    component instances enables you to reuse components instead of duplicating
+    them. Thus, the components do not need to be processed as completely new
+    component types. This reduces the loading and compilation time as well as
+    the package size of the final application.
+
+    The preset \l{UI Controls}{UI controls} have default properties and states
+    that you can modify. If you need additional properties, you can turn
+    instances of the controls into custom components and specify new properties
+    for them.
+
+    \if defined(qtdesignstudio)
+    To have your UI perform certain operations, you might need to write
+    JavaScript expressions for conditions or convert numbers to strings.
+    To make this easier, \QDS provides preset components called
+    \l{Logic Helpers}{logic helpers}. They are invisible components that
+    you can use in connection with controls, such as a \l {slider-control}
+    {Slider} or \l {Check Box}.
+
+    Logic helpers are available for binding property values using the boolean
+    AND, NOT, and OR operators, as well as for mapping numbers and numerical
+    ranges. In addition, you can synchronize the property values of two
+    components bi-directionally.
+
+    The logic helper example uses property binding, states, and logic helpers
+    to implement the UI logic.
+
+    \image studio-logic-helper-combining-example.gif "Logic helper example application"
+    \endif
+
+    The following table summarizes some typical use cases with links to more
+    information.
+
+    \table
+    \header
+        \li To Learn About
+        \li Go To
+    \row
+        \li Responding to application events
+        \li \l{Connecting Components to Signals}
+    \row
+        \li Formatting connections
+        \li \l{Adding Actions and Assignments}
+    \row
+        \li Dynamically changing the behavior of a component
+        \li \l{Adding Bindings Between Properties}
+    \row
+        \li Formatting property bindings
+        \li \l{Setting Bindings}
+    \row
+        \li Referencing a property of a component from another component
+        \li \l{Adding Property Aliases}
+    \row
+        \li Referencing a state from within a specific component
+        \li \l{Adding States}
+    \row
+        \li Switching to a state when a particular property changes
+        \li \l{Applying States}
+    \row
+        \li Using preset UI controls that have default properties and states
+        \li \l{UI Controls}
+    \if defined(qtdesignstudio)
+    \row
+        \li Creating conditional conditions
+        \li \l{Logic Helpers}
+    \endif
+    \row
+        \li Adding custom properties for a particular component type
+        \li \l{Specifying Dynamic Properties}
+    \omit
+    \row
+        \li Adding properties for controlling states
+        \li TODO
+    \endomit
+    \endtable
+*/
