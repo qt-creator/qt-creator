@@ -37,7 +37,7 @@ QSGGeometryNode *createSelectionNode(QSGMaterial *material)
     selectionNode->setFlag(QSGNode::OwnsMaterial, false);
     QSGGeometry *geometry = new QSGGeometry(OpaqueColoredPoint2DWithSize::attributes(), 4);
     Q_ASSERT(geometry->vertexData());
-    geometry->setDrawingMode(GL_TRIANGLE_STRIP);
+    geometry->setDrawingMode(QSGGeometry::DrawTriangleStrip);
     OpaqueColoredPoint2DWithSize *v = OpaqueColoredPoint2DWithSize::fromVertexData(geometry);
     for (int i = 0; i < 4; ++i)
         v[i].set(0, 0, 0, 0, 0, 0, 0, 0, 0);

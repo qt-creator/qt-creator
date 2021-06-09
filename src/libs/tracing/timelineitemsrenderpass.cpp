@@ -259,16 +259,16 @@ OpaqueColoredPoint2DWithSize *OpaqueColoredPoint2DWithSize::fromVertexData(QSGGe
     const QSGGeometry::Attribute *attributes = geometry->attributes();
     Q_ASSERT(attributes[0].position == 0);
     Q_ASSERT(attributes[0].tupleSize == 2);
-    Q_ASSERT(attributes[0].type == GL_FLOAT);
+    Q_ASSERT(attributes[0].type == QSGGeometry::FloatType);
     Q_ASSERT(attributes[1].position == 1);
     Q_ASSERT(attributes[1].tupleSize == 2);
-    Q_ASSERT(attributes[1].type == GL_FLOAT);
+    Q_ASSERT(attributes[1].type == QSGGeometry::FloatType);
     Q_ASSERT(attributes[2].position == 2);
     Q_ASSERT(attributes[2].tupleSize == 1);
-    Q_ASSERT(attributes[2].type == GL_FLOAT);
+    Q_ASSERT(attributes[2].type == QSGGeometry::FloatType);
     Q_ASSERT(attributes[3].position == 3);
     Q_ASSERT(attributes[3].tupleSize == 4);
-    Q_ASSERT(attributes[3].type == GL_UNSIGNED_BYTE);
+    Q_ASSERT(attributes[3].type == QSGGeometry::UnsignedByteType);
     Q_UNUSED(attributes)
     return static_cast<OpaqueColoredPoint2DWithSize *>(geometry->vertexData());
 }
@@ -358,10 +358,10 @@ static qint64 endTime(const TimelineModel *model, const TimelineRenderState *par
 const QSGGeometry::AttributeSet &OpaqueColoredPoint2DWithSize::attributes()
 {
     static QSGGeometry::Attribute data[] = {
-        QSGGeometry::Attribute::create(0, 2, GL_FLOAT, true),
-        QSGGeometry::Attribute::create(1, 2, GL_FLOAT),
-        QSGGeometry::Attribute::create(2, 1, GL_FLOAT),
-        QSGGeometry::Attribute::create(3, 4, GL_UNSIGNED_BYTE)
+        QSGGeometry::Attribute::create(0, 2, QSGGeometry::FloatType, true),
+        QSGGeometry::Attribute::create(1, 2, QSGGeometry::FloatType),
+        QSGGeometry::Attribute::create(2, 1, QSGGeometry::FloatType),
+        QSGGeometry::Attribute::create(3, 4, QSGGeometry::UnsignedByteType)
     };
     static QSGGeometry::AttributeSet attrs = {
         4,
@@ -436,12 +436,19 @@ class TimelineItemsMaterialShader : public QSGMaterialShader
 public:
     TimelineItemsMaterialShader();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void updateState(const RenderState &state, QSGMaterial *newEffect,
                      QSGMaterial *oldEffect) override;
     char const *const *attributeNames() const override;
+#else // < Qt 6
+    bool updateUniformData(RenderState &state, QSGMaterial *newEffect,
+                           QSGMaterial *oldEffect) override;
+#endif // < Qt 6
 
 private:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void initialize() override;
+#endif // < Qt 6
 
     int m_matrix_id;
     int m_scale_id;
@@ -453,10 +460,16 @@ private:
 TimelineItemsMaterialShader::TimelineItemsMaterialShader()
     : QSGMaterialShader()
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/tracing/timelineitems.vert"));
     setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/tracing/timelineitems.frag"));
+#else // < Qt 6
+    setShaderFileName(VertexStage, ":/tracing/timelineitems.vert");
+    setShaderFileName(FragmentStage, ":/tracing/timelineitems.frag");
+#endif // < Qt 6
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void TimelineItemsMaterialShader::updateState(const RenderState &state, QSGMaterial *newMaterial,
                                               QSGMaterial *)
 {
@@ -469,7 +482,19 @@ void TimelineItemsMaterialShader::updateState(const RenderState &state, QSGMater
         program()->setUniformValue(m_z_range_id, GLfloat(1.0));
     }
 }
+#else // < Qt 6
+bool TimelineItemsMaterialShader::updateUniformData(RenderState &state,
+                                                    QSGMaterial *newMaterial, QSGMaterial *)
+{
+    // TODO: Make this work
+    if (state.isMatrixDirty()) {
+        TimelineItemsMaterial *material = static_cast<TimelineItemsMaterial *>(newMaterial);
+    }
+    return state.isMatrixDirty();
+}
+#endif // < Qt 6
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 char const *const *TimelineItemsMaterialShader::attributeNames() const
 {
     static const char *const attr[] = {"vertexCoord", "rectSize", "selectionId", "vertexColor", nullptr};
@@ -484,7 +509,7 @@ void TimelineItemsMaterialShader::initialize()
     m_selected_item_id = program()->uniformLocation("selectedItem");
     m_z_range_id = program()->uniformLocation("_qt_zRange");
 }
-
+#endif // < Qt 6
 
 TimelineItemsMaterial::TimelineItemsMaterial() : m_selectedItem(-1)
 {
@@ -527,10 +552,19 @@ QSGMaterialType *TimelineItemsMaterial::type() const
     return &type;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 QSGMaterialShader *TimelineItemsMaterial::createShader() const
 {
     return new TimelineItemsMaterialShader;
 }
+#else // < Qt 6
+QSGMaterialShader *TimelineItemsMaterial::createShader(
+        QSGRendererInterface::RenderMode renderMode) const
+{
+    Q_UNUSED(renderMode);
+    return new TimelineItemsMaterialShader;
+}
+#endif // < Qt 6
 
 TimelineItemsRenderPassState::TimelineItemsRenderPassState(const TimelineModel *model) :
     m_indexFrom(std::numeric_limits<int>::max()), m_indexTo(-1)

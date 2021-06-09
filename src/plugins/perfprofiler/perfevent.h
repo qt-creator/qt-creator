@@ -31,6 +31,7 @@
 #include <tracing/traceevent.h>
 #include <utils/qtcassert.h>
 
+#include <QVariant>
 #include <QVector>
 #include <QDataStream>
 

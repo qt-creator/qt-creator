@@ -152,7 +152,7 @@ void QmlProfilerTraceFile::loadQtd(QIODevice *device)
 
     while (validVersion && !stream.atEnd() && !stream.hasError() && !isCanceled()) {
         QXmlStreamReader::TokenType token = stream.readNext();
-        const QStringRef elementName = stream.name();
+        const QStringView elementName = stream.name();
         switch (token) {
         case QXmlStreamReader::StartDocument :  continue;
         case QXmlStreamReader::StartElement : {
@@ -327,7 +327,7 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
     while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
         QXmlStreamReader::TokenType token = stream.readNext();
-        const QStringRef elementName = stream.name();
+        const QStringView elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
@@ -503,7 +503,7 @@ void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
     while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
         QXmlStreamReader::TokenType token = stream.readNext();
-        const QStringRef elementName = stream.name();
+        const QStringView elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
@@ -588,7 +588,7 @@ void QmlProfilerTraceFile::loadNotes(QXmlStreamReader &stream)
     while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
         QXmlStreamReader::TokenType token = stream.readNext();
-        const QStringRef elementName = stream.name();
+        const QStringView elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {

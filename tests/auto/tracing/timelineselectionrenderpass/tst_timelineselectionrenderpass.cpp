@@ -84,7 +84,7 @@ void compareSelectionNode(QSGNode *node, const QRectF &rect, int selectionId)
     QSGGeometryNode *geometryNode = static_cast<QSGGeometryNode *>(node);
     QSGGeometry *geometry = geometryNode->geometry();
     QCOMPARE(geometry->vertexCount(), 4);
-    QCOMPARE(geometry->drawingMode(), (GLenum)GL_TRIANGLE_STRIP);
+    QCOMPARE(geometry->drawingMode(), QSGGeometry::DrawTriangleStrip);
     OpaqueColoredPoint2DWithSize *data =
             static_cast<OpaqueColoredPoint2DWithSize *>(geometry->vertexData());
     float *lowerLeft = reinterpret_cast<float *>(data);

@@ -100,7 +100,9 @@ public:
     {
         for (int i = 0; i < d->colors.count(); ++i) {
             d->colors[i] = QPair<QColor, QString>(
-                        QColor::fromRgb(qrand() % 256, qrand() % 256, qrand() % 256),
+                        QColor::fromRgb(QRandomGenerator::global()->bounded(256),
+                                        QRandomGenerator::global()->bounded(256),
+                                        QRandomGenerator::global()->bounded(256)),
                         QString::number(i));
         }
     }

@@ -111,11 +111,18 @@ void tst_TimelineItemsRenderPass::update()
     QCOMPARE(node->geometry()->vertexCount(), 30);
     QVERIFY(material2 != 0);
     QCOMPARE(material1->type(), material2->type());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSGMaterialShader *shader1 = material1->createShader();
     QVERIFY(shader1 != 0);
     QSGMaterialShader *shader2 = material2->createShader();
     QVERIFY(shader2 != 0);
     QCOMPARE(shader1->attributeNames(), shader2->attributeNames());
+#else // < Qt 6
+    QSGMaterialShader *shader1 = material1->createShader(QSGRendererInterface::RenderMode2D);
+    QVERIFY(shader1 != 0);
+    QSGMaterialShader *shader2 = material2->createShader(QSGRendererInterface::RenderMode2D);
+    QVERIFY(shader2 != 0);
+#endif // < Qt 6
 
     delete shader1;
     delete shader2;

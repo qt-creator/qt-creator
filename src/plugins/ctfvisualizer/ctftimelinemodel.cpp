@@ -250,7 +250,7 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
                                        int selectionId)
 {
     int nestingLevel = m_openEventIds.size();
-    m_maxStackSize = std::max(m_maxStackSize, m_openEventIds.size() + 1);
+    m_maxStackSize = std::max(qsizetype(m_maxStackSize), qsizetype(m_openEventIds.size() + 1));
     int index = 0;
     qint64 duration = -1;
     if (eventPhase == CtfEventTypeBegin) {

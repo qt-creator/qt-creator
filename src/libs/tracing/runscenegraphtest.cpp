@@ -29,8 +29,11 @@
 #include <QString>
 #include <QOpenGLContext>
 #include <QOffscreenSurface>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QSGEngine>
 #include <QSGAbstractRenderer>
+#endif // < Qt 6
 
 namespace Timeline {
 
@@ -59,6 +62,7 @@ void runSceneGraphTest(QSGNode *node)
 
     QVERIFY(context.makeCurrent(&surface));
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSGEngine engine;
     QSGRootNode root;
     root.appendChildNode(node);
@@ -74,6 +78,7 @@ void runSceneGraphTest(QSGNode *node)
 
     // Unfortunately we cannot check the results of the rendering. But at least we know the shaders
     // have not crashed here.
+#endif // < Qt 6
 
     context.doneCurrent();
 }
