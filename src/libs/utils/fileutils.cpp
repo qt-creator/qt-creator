@@ -168,25 +168,30 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgt
 
 /*!
   Copies a file specified by \a srcFilePath to \a tgtFilePath only if \a srcFilePath is different
-  (file size and last modification time).
+  (file contents and last modification time).
 
   Returns whether the operation succeeded.
 */
 
 bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
 {
-    if (QFile::exists(tgtFilePath.toString())) {
-        const QFileInfo srcFileInfo = srcFilePath.toFileInfo();
-        const QFileInfo tgtFileInfo = tgtFilePath.toFileInfo();
-        if (srcFileInfo.lastModified() == tgtFileInfo.lastModified() &&
-            srcFileInfo.size() == tgtFileInfo.size()) {
-            return true;
-        } else {
-            QFile::remove(tgtFilePath.toString());
+    QTC_ASSERT(srcFilePath.exists(), return false);
+    QTC_ASSERT(srcFilePath.scheme() == tgtFilePath.scheme(), return false);
+    QTC_ASSERT(srcFilePath.host() == tgtFilePath.host(), return false);
+
+    if (tgtFilePath.exists()) {
+        const QDateTime srcModified = srcFilePath.lastModified();
+        const QDateTime tgtModified = tgtFilePath.lastModified();
+        if (srcModified == tgtModified) {
+            const QByteArray srcContents = srcFilePath.fileContents();
+            const QByteArray tgtContents = srcFilePath.fileContents();
+            if (srcContents == tgtContents)
+                return true;
         }
+        tgtFilePath.removeFile();
     }
 
-    return QFile::copy(srcFilePath.toString(), tgtFilePath.toString());
+    return srcFilePath.copyFile(tgtFilePath);
 }
 
 /*!
