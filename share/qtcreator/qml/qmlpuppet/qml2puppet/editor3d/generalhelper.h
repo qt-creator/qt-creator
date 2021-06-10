@@ -119,6 +119,7 @@ protected:
 
 private:
     void handlePendingToolStateUpdate();
+    QVector3D pivotScenePosition(QQuick3DNode *node) const;
 
     QTimer m_overlayUpdateTimer;
     QTimer m_toolStateUpdateTimer;

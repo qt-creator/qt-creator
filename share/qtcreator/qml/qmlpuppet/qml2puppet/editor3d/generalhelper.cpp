@@ -41,6 +41,7 @@
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
+#include <QtQuick3DUtils/private/qssgutils_p.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmath.h>
@@ -403,11 +404,8 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
 
 void GeneralHelper::resetMultiSelectionNode()
 {
-    for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it) {
-        it.value() = {it.key()->scenePosition(),
-                      it.key()->scale(),
-                      it.key()->rotation()};
-    }
+    for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it)
+        it.value() = {pivotScenePosition(it.key()), it.key()->scale(), it.key()->rotation()};
 
     m_multiSelNodeData = {};
     if (!m_multiSelDataMap.isEmpty()) {
@@ -568,6 +566,25 @@ void GeneralHelper::handlePendingToolStateUpdate()
         ++sceneIt;
     }
     m_toolStatesPending.clear();
+}
+
+// Calculate scene position of the node's pivot point, which in practice is just the position
+// of the node without applying the pivot offset.
+QVector3D GeneralHelper::pivotScenePosition(QQuick3DNode *node) const
+{
+    if (!node)
+        return {};
+
+    QQuick3DNode *parent = node->parentNode();
+    if (!parent)
+        return node->position();
+
+    QMatrix4x4 localTransform;
+    localTransform.translate(node->position());
+
+    const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
+
+    return mat44::getPosition(sceneTransform);
 }
 
 }
