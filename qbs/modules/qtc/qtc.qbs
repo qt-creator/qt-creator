@@ -3,10 +3,10 @@ import qbs.Environment
 import qbs.FileInfo
 
 Module {
-    property string qtcreator_display_version: '4.15.1'
+    property string qtcreator_display_version: '4.15.2'
     property string ide_version_major: '4'
     property string ide_version_minor: '15'
-    property string ide_version_release: '1'
+    property string ide_version_release: '2'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
