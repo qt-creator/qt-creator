@@ -163,6 +163,7 @@ public:
     FilePath stringAppended(const QString &str) const;
     FilePath resolvePath(const QString &fileName) const;
     FilePath resolveSymlinkTarget() const;
+    FilePath cleanPath() const;
 
     FilePath canonicalPath() const;
 

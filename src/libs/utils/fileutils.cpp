@@ -392,6 +392,13 @@ FilePath FilePath::resolveSymlinkTarget() const
     return *this;
 }
 
+FilePath FilePath::cleanPath() const
+{
+    FilePath result = *this;
+    result.setPath(QDir::cleanPath(result.path()));
+    return result;
+}
+
 FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)
 {
     FilePath newCommonPath = oldCommonPath;
