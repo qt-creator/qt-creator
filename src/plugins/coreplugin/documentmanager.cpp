@@ -300,9 +300,9 @@ DocumentManager *DocumentManager::instance()
     return m_instance;
 }
 
-/* only called from addFileInfo(IDocument *) */
-static void addFileInfo(IDocument *document, const QString &filePath,
-                        const QString &filePathKey, bool isLink)
+/* Only called from addFileInfo(IDocument *). Adds the document & state to various caches/lists,
+   but does not actually add a watcher. */
+static void addFileInfo(IDocument *document, const QString &filePath, const QString &filePathKey)
 {
     FileStateItem state;
     if (!filePath.isEmpty()) {
@@ -316,43 +316,51 @@ static void addFileInfo(IDocument *document, const QString &filePath,
             state.watchedFilePath = filePath;
             d->m_states.insert(filePathKey, state);
         }
-        // Add or update watcher on file path
-        // This is also used to update the watcher in case of saved (==replaced) files or
-        // update link targets, even if there are multiple documents registered for it
-        const QString watchedFilePath = d->m_states.value(filePathKey).watchedFilePath;
-        qCDebug(log) << "adding (" << (isLink ? "link" : "full") << ") watch for"
-                     << watchedFilePath;
-        QFileSystemWatcher *watcher = nullptr;
-        if (isLink)
-            watcher = d->linkWatcher();
-        else
-            watcher = d->fileWatcher();
-        watcher->addPath(watchedFilePath);
-
         d->m_states[filePathKey].lastUpdatedState.insert(document, state);
     }
     d->m_documentsWithWatch[document].append(filePathKey); // inserts a new QStringList if not already there
 }
 
-/* Adds the IDocument's file and possibly it's final link target to both m_states
+/* Adds the IDocuments' file and possibly it's final link target to both m_states
    (if it's file name is not empty), and the m_filesWithWatch list,
    and adds a file watcher for each if not already done.
    (The added file names are guaranteed to be absolute and cleaned.) */
-static void addFileInfo(IDocument *document)
+static void addFileInfos(const QList<IDocument *> &documents)
 {
-    const QString documentFilePath = document->filePath().toString();
-    const QString filePath = DocumentManager::cleanAbsoluteFilePath(
-                documentFilePath, DocumentManager::KeepLinks);
-    const QString filePathKey = DocumentManager::filePathKey(
-                documentFilePath, DocumentManager::KeepLinks);
-    const QString resolvedFilePath = DocumentManager::cleanAbsoluteFilePath(
-                documentFilePath, DocumentManager::ResolveLinks);
-    const QString resolvedFilePathKey = DocumentManager::filePathKey(
-                documentFilePath, DocumentManager::ResolveLinks);
-    const bool isLink = filePath != resolvedFilePath;
-    addFileInfo(document, filePath, filePathKey, isLink);
-    if (isLink)
-        addFileInfo(document, resolvedFilePath, resolvedFilePathKey, false);
+    QStringList pathsToWatch;
+    QStringList linkPathsToWatch;
+    for (IDocument *document : documents) {
+        const QString documentFilePath = document->filePath().toString();
+        const QString filePath = DocumentManager::cleanAbsoluteFilePath(documentFilePath,
+                                                                        DocumentManager::KeepLinks);
+        const QString filePathKey = DocumentManager::filePathKey(documentFilePath,
+                                                                 DocumentManager::KeepLinks);
+        const QString resolvedFilePath
+            = DocumentManager::cleanAbsoluteFilePath(documentFilePath,
+                                                     DocumentManager::ResolveLinks);
+        const QString resolvedFilePathKey
+            = DocumentManager::filePathKey(documentFilePath, DocumentManager::ResolveLinks);
+        const bool isLink = filePath != resolvedFilePath;
+        addFileInfo(document, filePath, filePathKey);
+        if (isLink) {
+            addFileInfo(document, resolvedFilePath, resolvedFilePathKey);
+            linkPathsToWatch.append(d->m_states.value(filePathKey).watchedFilePath);
+            pathsToWatch.append(d->m_states.value(resolvedFilePathKey).watchedFilePath);
+        } else {
+            pathsToWatch.append(d->m_states.value(filePathKey).watchedFilePath);
+        }
+    }
+    // Add or update watcher on file path
+    // This is also used to update the watcher in case of saved (==replaced) files or
+    // update link targets, even if there are multiple documents registered for it
+    if (!pathsToWatch.isEmpty()) {
+        qCDebug(log) << "adding full watch for" << pathsToWatch;
+        d->fileWatcher()->addPaths(pathsToWatch);
+    }
+    if (!linkPathsToWatch.isEmpty()) {
+        qCDebug(log) << "adding link watch for" << linkPathsToWatch;
+        d->linkWatcher()->addPaths(linkPathsToWatch);
+    }
 }
 
 /*!
@@ -378,16 +386,17 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
         return;
     }
 
-    foreach (IDocument *document, documents) {
-        if (document && !d->m_documentsWithWatch.contains(document)) {
-            connect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
-            connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
-            connect(document, &IDocument::filePathChanged,
-                    m_instance, &DocumentManager::filePathChanged);
-            connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
-            addFileInfo(document);
-        }
+    const QList<IDocument *> documentsToWatch = Utils::filtered(documents, [](IDocument *document) {
+        return document && !d->m_documentsWithWatch.contains(document);
+    });
+    for (IDocument *document : documentsToWatch) {
+        connect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
+        connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
+        connect(document, &IDocument::filePathChanged,
+                m_instance, &DocumentManager::filePathChanged);
+        connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
     }
+    addFileInfos(documentsToWatch);
 }
 
 
@@ -483,7 +492,7 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
         d->m_blockedIDocument = document;
         removeFileInfo(document);
         document->setFilePath(FilePath::fromString(to));
-        addFileInfo(document);
+        addFileInfos({document});
         d->m_blockedIDocument = nullptr;
     }
     emit m_instance->allDocumentsRenamed(from, to);
@@ -558,7 +567,7 @@ void DocumentManager::checkForNewFileName()
     // Maybe the name has changed or file has been deleted and created again ...
     // This also updates the state to the on disk state
     removeFileInfo(document);
-    addFileInfo(document);
+    addFileInfos({document});
 }
 
 /*!
@@ -1193,7 +1202,7 @@ void DocumentManager::checkForReload()
         // doesn't matter, because in that case we then reload the new version of the file already
         // anyhow.
         removeFileInfo(document);
-        addFileInfo(document);
+        addFileInfos({document});
 
         bool success = true;
         QString errorString;

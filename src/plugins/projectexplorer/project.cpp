@@ -150,7 +150,6 @@ ProjectDocument::ProjectDocument(const QString &mimeType,
 
     setFilePath(fileName);
     setMimeType(mimeType);
-    Core::DocumentManager::addDocument(this);
 }
 
 Core::IDocument::ReloadBehavior
@@ -223,6 +222,7 @@ Project::Project(const QString &mimeType,
     : d(new ProjectPrivate)
 {
     d->m_document = std::make_unique<ProjectDocument>(mimeType, fileName, this);
+    Core::DocumentManager::addDocument(d->m_document.get());
 
     d->m_macroExpander.setDisplayName(tr("Project"));
     d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
@@ -389,16 +389,19 @@ void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentP
         for (const auto &doc : qAsConst(d->m_extraProjectDocuments))
             docUpdater(doc.get());
     }
+    QList<Core::IDocument *> toRegister;
     for (const Utils::FilePath &p : toAdd) {
         if (docGenerator) {
             std::unique_ptr<Core::IDocument> doc = docGenerator(p);
             QTC_ASSERT(doc, continue);
             d->m_extraProjectDocuments.push_back(std::move(doc));
         } else {
-            d->m_extraProjectDocuments.emplace_back(std::make_unique<ProjectDocument>(
-                                                        d->m_document->mimeType(), p, this));
+            auto document = std::make_unique<ProjectDocument>(d->m_document->mimeType(), p, this);
+            toRegister.append(document.get());
+            d->m_extraProjectDocuments.emplace_back(std::move(document));
         }
     }
+    Core::DocumentManager::addDocuments(toRegister);
 }
 
 void Project::updateExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
