@@ -372,7 +372,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configView->expandAll();
     }
 
-    connect(bc->target(), &Target::parsingFinished, this, [this, stretcher] {
+    connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, [this, stretcher] {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configView->expandAll();
         m_configView->setEnabled(true);
