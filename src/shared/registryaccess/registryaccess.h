@@ -49,7 +49,7 @@ static const WCHAR *autoRegistryValueNameC = L"Auto";
 
 static inline QString wCharToQString(const WCHAR *w)
 {
-    return QString::fromUtf16(reinterpret_cast<const ushort *>(w));
+    return QString::fromUtf16(reinterpret_cast<const char16_t *>(w));
 }
 
 QString msgFunctionFailed(const char *f, unsigned long error);

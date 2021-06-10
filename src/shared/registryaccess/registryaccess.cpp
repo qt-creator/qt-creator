@@ -35,7 +35,7 @@ namespace RegistryAccess {
 static QString winErrorMessage(unsigned long error)
 {
     QString rc = QString::fromLatin1("#%1: ").arg(error);
-    ushort *lpMsgBuf;
+    char16_t *lpMsgBuf;
 
     const int len = FormatMessage(
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -90,7 +90,7 @@ bool registryReadStringKey(HKEY handle, // HKEY_LOCAL_MACHINE, etc.
         return false;
     data += '\0';
     data += '\0';
-    *s = QString::fromUtf16(reinterpret_cast<const unsigned short*>(data.data()));
+    *s = QString::fromUtf16(reinterpret_cast<const char16_t *>(data.data()));
     return true;
 }
 
