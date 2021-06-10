@@ -25,13 +25,8 @@
 
 /*!
     \page creator-exporting-qml.html
-    \if defined(qtdesignstudio)
     \previouspage studio-importing-3d.html
-    \nextpage quick-uis.html
-    \else
-    \previouspage quick-converting-ui-projects.html
-    \nextpage creator-using-qt-designer.html
-    \endif
+    \nextpage qtquick-motion-design.html
 
     \title Exporting Components
 

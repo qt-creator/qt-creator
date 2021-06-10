@@ -29,13 +29,24 @@
 /*!
     \page exporting-3d-assets.html
     \if defined(qtdesignstudio)
-    \previouspage
+    \previouspage figmaqtbridge.html
     \else
     \previouspage quick-states.html
     \endif
     \nextpage exporting-from-blender.html
 
     \title Exporting 3D Assets
+
+    \if defined(qtcreator)
+    \table
+    \row
+        \li \inlineimage blender-logo.png
+        \li \inlineimage maya-logo.png
+    \row
+        \li \l{Exporting from Blender}{Blender}
+        \li \l{Exporting from Maya}{Maya}
+    \endtable
+    \endif
 
     You can import files you created using 3D graphics applications and exported
     to several widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf,

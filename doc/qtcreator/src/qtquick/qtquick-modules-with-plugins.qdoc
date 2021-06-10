@@ -33,11 +33,10 @@
     \page creator-qml-modules-with-plugins.html
     \if defined(qtdesignstudio)
     \previouspage studio-simulink.html
-    \nextpage studio-debugging.html
     \else
-    \previouspage qtquick-iso-icon-browser.html
-    \nextpage quick-converting-ui-projects.html
+    \previouspage qtquick-placeholder-data.html
     \endif
+    \nextpage qtquick-adding-dynamics.html
 
     \title Using QML Modules with Plugins
 

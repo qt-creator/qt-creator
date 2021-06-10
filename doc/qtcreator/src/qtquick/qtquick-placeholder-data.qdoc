@@ -25,12 +25,12 @@
 
 /*!
     \page qtquick-placeholder-data.html
-    \if defined(qtdesignstudio)
+
     \previouspage studio-simulation-overview.html
+    \if defined(qtdesignstudio)
     \nextpage studio-javascript.html
     \else
-    \previouspage qtquick-annotations.html
-    \nextpage creator-quick-ui-forms.html
+    \nextpage creator-qml-modules-with-plugins.html
     \endif
 
     \title Loading Placeholder Data

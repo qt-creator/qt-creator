@@ -27,10 +27,11 @@
     \page qtquick-annotations.html
     \if defined(qtdesignstudio)
     \previouspage qtquick-positioning.html
+    \nextpage qtquick-prototyping.html
     \else
     \previouspage qtquick-fonts.html
+    \nextpage qtquick-ui-forms.html
     \endif
-    \nextpage qtquick-placeholder-data.html
 
     \title Annotating Designs
 

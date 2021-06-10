@@ -33,10 +33,11 @@
     \page creator-quick-ui-forms.html
     \if defined(qtdesignstudio)
     \previouspage qtquick-annotations.html
+    \nextpage creator-telemetry.html
     \else
-    \previouspage qtquick-placeholder-data.html
+    \previouspage qtquick-annotations.html
+    \nextpage qtquick-prototyping.html
     \endif
-    \nextpage qtquick-adding-dynamics.html
 
     \title UI Files
 

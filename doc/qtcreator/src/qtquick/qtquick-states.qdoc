@@ -26,10 +26,10 @@
 /*!
     \page quick-states.html
     \if defined(qtdesignstudio)
-    \previouspage quick-property-bindings.html
+    \previouspage quick-dynamic-properties.html
     \nextpage creator-live-preview.html
     \else
-    \previouspage qtbridge-figma-using.html
+    \previouspage quick-connections-backend.html
     \nextpage exporting-3d-assets.html
     \endif
 

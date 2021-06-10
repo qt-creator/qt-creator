@@ -25,22 +25,16 @@
 
 /*!
     \page qtquick-adding-dynamics.html
-    \previouspage creator-quick-ui-forms.html
-    \nextpage studio-timeline.html
+    \previouspage creator-qml-modules-with-plugins.html
+    \nextpage qmldesigner-connections.html
 
-    \title Adding Dynamics
+    \title Dynamic Behaviors
 
-    You can animate the properties of UI components and create connections
-    between them to enable them to communicate with each other.
+    Create connections between components to enable them to communicate with
+    each other. The connections can be triggered by signals that are emitted
+    when the values of other components or the UI state change.
 
     \list
-        \li \l {Creating Animations}
-
-            You can use a timeline and keyframe based editor in the
-            \uicontrol Timeline view to animate the properties of UI
-            components. Animating properties enables their values to
-            move through intermediate values at specified keyframes
-            instead of immediately changing to the target value.
          \li \l {Adding Connections}
 
             You can create connections between the UI components and

@@ -27,7 +27,7 @@
     \previouspage creator-live-preview-devices.html
     \page qt-design-viewer.html
     \if defined(qtdesignstudio)
-    \nextpage studio-advanced.html
+    \nextpage studio-exporting-and-importing.html
     \else
     \nextpage creator-building-targets.html
     \endif

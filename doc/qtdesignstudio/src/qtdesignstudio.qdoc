@@ -63,19 +63,21 @@
                 \li \l{Scalable Layouts}
                 \li \l{Annotating Designs}
             \endlist
-        \li \b {\l{Prototyping}} (NEW)
+        \li \b {\l{Prototyping}}
             \list
-                \li Creating UI Logic
-                \li \l{Simulating Data Input}{Simulating Complex Experiences}
-                \li \l{Adding Dynamics}{Dynamic Behaviors}
-                \li \l{Previewing}{Validating with Target Hardware}
-                \li \l{Exporting and Importing}{Asset Creation with Other Tools}
+                \li \l{Creating UI Logic}
+                \li \l{Simulating Complex Experiences}
+                \li \l{Dynamic Behaviors}
+                \li \l{Validating with Target Hardware}
+                \li \l{Asset Creation with Other Tools}
             \endlist
         \li \b {\l{Motion Design}}
             \list
                 \li \l{Introduction to Animation Techniques}
+                \li \l{Creating Animations}
+                \li \l{Editing Easing Curves}
                 \li \l{Production Quality} (NEW)
-                \li \l{Importing for Content Creation Tools}
+                \li \l{Importing from Content Creation Tools}
                 \li \l{Optimizing for Target Hardware} (NEW)
             \endlist
         \row
@@ -112,7 +114,7 @@
         \row
             \li {4,1} \note To report bugs and suggestions to the
                 \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
-                select \uicontrol {Help > Report Bug} in QDS.
+                select \uicontrol {Help > Report Bug} in \QDS.
                 To copy and paste detailed information about your system to the
                 bug report, select \uicontrol Help >
                 \uicontrol {System Information}.

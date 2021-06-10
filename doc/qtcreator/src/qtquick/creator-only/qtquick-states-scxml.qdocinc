@@ -39,9 +39,10 @@
 
     \image qmldesigner-states-when-condition.png
 
-    If you add animation to the states, you can \l{Previewing}{preview}
-    or \l{Running on Multiple Platforms}{run} the application to test
-    the animation.
+    If you add animation to the states, you can
+    \l{Validating with Target Hardware}{preview}
+    or \l{Running on Multiple Platforms}{run}
+    the application to test the animation.
 
 //! [scxml state machines]
 */

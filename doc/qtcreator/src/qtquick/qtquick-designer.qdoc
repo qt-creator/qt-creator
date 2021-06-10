@@ -188,7 +188,7 @@
             or the entire UI. The changes you make to the UI are instantly
             visible to you in the preview.
         \li \key Alt+P (\key Opt+P on \macos)
-        \li \l{Previewing}
+        \li \l{Validating with Target Hardware}
     \row
         \li Preview size
         \li Displays the size of the preview dialog as a percentage. You can

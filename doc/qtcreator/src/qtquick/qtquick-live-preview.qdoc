@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -24,17 +24,13 @@
 ****************************************************************************/
 
 /*!
-    \if defined(qtdesignstudio)
-    \previouspage studio-3d-camera.html
-    \else
-    \previouspage creator-building-running.html
-    \endif
     \page creator-live-preview.html
+    \previouspage quick-states.html
     \nextpage creator-live-preview-desktop.html
 
-    \title Previewing
+    \title Validating with Target Hardware
 
-    You can use the QML live preview to preview a QML file or the entire
+    You can use the live preview feature to preview a UI file or the entire
     UI on the desktop, as well as on Android and embedded Linux
     devices. The changes you make to the UI are instantly visible
     to you in the preview.

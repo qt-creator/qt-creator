@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-getting-started.html
+    \previouspage qt-design-viewer.html
     \page studio-exporting-and-importing.html
     \nextpage qtbridge-overview.html
 
-    \title Exporting and Importing
+    \title Asset Creation with Other Tools
 
     Typically, you as a designer would design a UI using imaging and design
     tools, such as Adobe Photoshop, Sketch, Figma, Blender, or Maya, and then
@@ -66,8 +66,8 @@
         \li Animate your design in \l {Transition Editor} or \l Timeline
             and \l {Curve Editor}.
         \li Create interactions in \l States and \l {Connection View}.
-        \li \l{Previewing}{Preview} your design in real time, on the desktop
-            or on a mobile or an embedded device.
+        \li \l{Validating with Target Hardware}{Preview} your design in
+            real time, on the desktop or on a mobile or an embedded device.
         \li Optionally, export your components back into the metadata format
             that you can import back into the design tool by using \QB. You
             can continue to iterate your design this way until it is ready.
