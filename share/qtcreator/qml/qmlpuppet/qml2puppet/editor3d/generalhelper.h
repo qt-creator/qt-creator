@@ -94,6 +94,7 @@ public:
 
     Q_INVOKABLE void setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
                                               const QVariantList &selectedList);
+    Q_INVOKABLE void resetMultiSelectionNode();
     Q_INVOKABLE void restartMultiSelection();
     Q_INVOKABLE QVariantList multiSelectionTargets() const;
     Q_INVOKABLE void moveMultiSelection(bool commit);

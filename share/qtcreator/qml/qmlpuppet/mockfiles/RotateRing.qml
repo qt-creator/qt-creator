@@ -131,6 +131,9 @@ Model {
         rotateCommit();
         currentAngle = 0;
         currentMousePos = screenPos;
+
+        if (targetNode == multiSelectionNode)
+            _generalHelper.resetMultiSelectionNode();
     }
 
     MouseArea3D {

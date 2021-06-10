@@ -391,22 +391,17 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
                                                     [this]() {
                 // Reposition the multiselection root node if scene transform of any multiselected
                 // node changes outside of drag (i.e. changes originating from creator side)
-                if (!m_blockMultiSelectionNodePositioning) {
-                    QVector3D newPos;
-                    for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it)
-                        newPos += it.key()->scenePosition();
-                    newPos /= m_multiSelDataMap.size();
-                    m_multiSelectRootNode->setPosition(newPos);
-                }
+                if (!m_blockMultiSelectionNodePositioning)
+                    resetMultiSelectionNode();
             }));
         }
     }
 
-    restartMultiSelection();
+    resetMultiSelectionNode();
     m_blockMultiSelectionNodePositioning = false;
 }
 
-void GeneralHelper::restartMultiSelection()
+void GeneralHelper::resetMultiSelectionNode()
 {
     for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it) {
         it.value() = {it.key()->scenePosition(),
@@ -423,6 +418,11 @@ void GeneralHelper::restartMultiSelection()
     m_multiSelectRootNode->setPosition(m_multiSelNodeData.startScenePos);
     m_multiSelectRootNode->setRotation({});
     m_multiSelectRootNode->setScale({1.f, 1.f, 1.f});
+}
+
+void GeneralHelper::restartMultiSelection()
+{
+    resetMultiSelectionNode();
     m_blockMultiSelectionNodePositioning = true;
 }
 

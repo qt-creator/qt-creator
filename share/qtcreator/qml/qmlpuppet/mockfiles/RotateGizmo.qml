@@ -260,6 +260,9 @@ Node {
 
             rotateGizmo.rotateCommit();
             dragging = false;
+
+            if (targetNode == multiSelectionNode)
+                _generalHelper.resetMultiSelectionNode();
         }
 
         MouseArea3D {
