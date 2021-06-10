@@ -254,7 +254,9 @@ void addModifiers(int key,
     if (tokenModifiers.isEmpty())
         return;
     int modifier = tokenModifiers.takeLast();
-    auto addModifier = [&](TextStyle style){
+    if (modifier < 0)
+        return;
+    auto addModifier = [&](TextStyle style) {
         if (key & modifier) // already there don't add twice
             return;
         key = key | modifier;

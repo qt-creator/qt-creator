@@ -80,8 +80,11 @@ static int convertModifiers(int modifiersData, const QList<int> &tokenModifiers)
 {
     int result = 0;
     for (int i = 0; i < tokenModifiers.size() && modifiersData > 0; ++i) {
-        if (modifiersData & 0x1)
-            result |= tokenModifiers[i];
+        if (modifiersData & 0x1) {
+            const int modifier = tokenModifiers[i];
+            if (modifier > 0)
+                result |= modifier;
+        }
         modifiersData = modifiersData >> 1;
     }
     return result;
