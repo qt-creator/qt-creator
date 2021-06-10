@@ -48,6 +48,8 @@
 
 namespace QmlDesigner {
 
+static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
+
 bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Item"))
@@ -260,6 +262,19 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     return {};
 }
 
+static QString imagePlaceHolderPath(Model *model)
+{
+    QFileInfo info(model->projectUrl().toLocalFile() +  "/images/place_holder.png");
+
+    if (info.exists()) {
+        const QDir dir(QFileInfo(model->fileUrl().toLocalFile()).absoluteDir());
+        return dir.relativeFilePath(info.filePath());
+    }
+
+
+    return QString::fromLatin1(imagePlaceHolder);
+}
+
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const Position &position,
@@ -287,6 +302,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                     propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else if (property.type() == "enum")  {
                     propertyEnumList.append(PropertyBindingEntry(property.name(), property.value().toString()));
+                } else if (property.value().toString() == QString::fromLatin1(imagePlaceHolder)) {
+                    propertyPairList.append({property.name(), imagePlaceHolderPath(view->model()) });
                 } else {
                     propertyPairList.append({property.name(), property.value()});
                 }
