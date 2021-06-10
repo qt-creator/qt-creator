@@ -81,6 +81,7 @@ public:
     static Model *create(TypeName type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = nullptr);
 
     QUrl fileUrl() const;
+    QUrl projectUrl() const;
     void setFileUrl(const QUrl &url);
 
     const MetaInfo metaInfo() const;

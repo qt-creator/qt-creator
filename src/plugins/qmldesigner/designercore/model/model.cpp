@@ -57,6 +57,12 @@
 #include "textmodifier.h"
 #include "variantproperty.h"
 
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
+#include <viewmanager.h>
+#include <designdocument.h>
+#endif
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
@@ -1565,6 +1571,16 @@ void Model::clearMetaInfoCache()
 QUrl Model::fileUrl() const
 {
     return d->fileUrl();
+}
+
+QUrl Model::projectUrl() const
+{
+#ifndef QMLDESIGNER_TEST
+DesignDocument *document = QmlDesignerPlugin::instance()->viewManager().currentDesignDocument();
+if (document)
+    return QUrl::fromLocalFile(document->projectFolder().toString());
+#endif
+    return {};
 }
 
 /*!
