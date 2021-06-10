@@ -160,7 +160,7 @@ private:
 
 Interpreter InterpreterAspect::currentInterpreter() const
 {
-    return m_comboBox ? m_interpreters.value(m_comboBox->currentIndex()) : Interpreter();
+    return Utils::findOrDefault(m_interpreters, Utils::equal(&Interpreter::id, m_currentId));
 }
 
 void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreters)
