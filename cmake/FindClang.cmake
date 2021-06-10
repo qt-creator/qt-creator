@@ -44,7 +44,7 @@ if (WIN32 AND TARGET clangTooling)
   unset(CMAKE_TRY_COMPILE_CONFIGURATION)
   unset(CMAKE_REQUIRED_INCLUDES)
   unset(CMAKE_REQUIRED_LIBRARIES)
-else()
+elseif(TARGET clangTooling)
   set(QTC_CLANG_BUILDMODE_MATCH ON)
 endif()
 
