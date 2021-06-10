@@ -297,6 +297,7 @@ void SemanticTokenSupport::updateFormatHash()
         case parameterToken: style = C_PARAMETER; break;
         case variableToken: style = C_LOCAL; break;
         case functionToken: style = C_FUNCTION; break;
+        case methodToken: style = C_FUNCTION; break;
         case macroToken: style = C_PREPROCESSOR; break;
         case keywordToken: style = C_KEYWORD; break;
         case commentToken: style = C_COMMENT; break;
