@@ -196,11 +196,40 @@
     \section1 Adding Property Aliases
 
     A \e {property alias} is a property that you can use from outside the
-    component.
+    component. When you view the code in \l {Text Editor}, a property alias
+    declaration looks like an ordinary property definition, except that it
+    requires the \e alias keyword instead of a \l{Supported Property Types}
+    {property type}, and the right-hand-side of the property declaration must
+    be a valid alias reference:
+
+    \badcode
+    property alias <name>: <alias reference>
+    \endcode
+
+    For example, the following alias refers to a button component instance
+    within an item component instance:
+
+    \badcode
+    property alias button: item.button
+    \endcode
+
+    A valid alias reference:
+
+    \list
+        \li Can only point to a component instance or property within
+            the component where the property alias is declared.
+        \li Cannot contain arbitrary JavaScript expressions.
+        \li Cannot point to components of another type than the component
+            where the property alias is declared.
+        \li Must be defined when the alias is first declared.
+        \li Cannot point to attached properties.
+        \li Cannot point to properties of nested component instances
+            below the third level.
+    \endlist
 
     You can use the \inlineimage export_unchecked.png
-    (\uicontrol Export) button in \uicontrol Navigator
-    to export a component as an alias.
+    (\uicontrol Export) button in \uicontrol Navigator to export
+    a component as a property alias with a valid alias reference.
 
     \image qmldesigner-export-item.png
 
