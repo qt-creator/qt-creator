@@ -799,31 +799,26 @@ function(add_qtc_test name)
     endif()
   endforeach()
 
-  set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
-
-  # relax cast requirements for tests
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
-
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
-  add_executable(${name} ${_arg_SOURCES})
-
-  extend_qtc_target(${name}
-    DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
-    INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
-    DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${default_defines_copy}
+  add_qtc_executable(${name}
+    SOURCES ${_arg_SOURCES}
+    DEPENDS ${_arg_DEPENDS}
+    INCLUDES ${_arg_INCLUDES}
+    DEFINES ${_arg_DEFINES}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
+    ALLOW_ASCII_CASTS
   )
 
+  if (NOT TARGET ${name})
+      return()
+  endif()
+
   set_target_properties(${name} PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
   )
-  enable_pch(${name})
 
   if (NOT _arg_GTEST)
     add_test(NAME ${name} COMMAND ${name})
