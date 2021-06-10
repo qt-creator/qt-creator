@@ -71,6 +71,9 @@ public:
         }
 
         for (auto &&type : types)
+            synchronizeAliasPropertyDeclarationsRemoval(type);
+
+        for (auto &&type : types)
             syncType(type);
 
         for (auto &&type : types)
@@ -109,14 +112,6 @@ public:
     {
         return fetchImportDependencyIdsStatement.template valuesWithTransaction<ImportId>(
             16, static_cast<void *>(importIds.data()), static_cast<long long>(importIds.size()));
-    }
-
-    PropertyDeclarationId upsertPropertyDeclaration(TypeId typeId,
-                                                    Utils::SmallStringView name,
-                                                    TypeId propertyTypeId)
-    {
-        return upsertPropertyDeclarationStatement
-            .template valueWithTransaction<PropertyDeclarationId>(&typeId, name, &propertyTypeId, 0);
     }
 
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
@@ -488,7 +483,7 @@ private:
         auto insert = [&](const Storage::PropertyDeclaration &value) {
             auto propertyTypeId = fetchTypeIdByNameUngarded(value.typeName, importIds);
 
-            upsertPropertyDeclarationStatement.write(&typeId,
+            insertPropertyDeclarationStatement.write(&typeId,
                                                      value.name,
                                                      &propertyTypeId,
                                                      static_cast<int>(value.traits));
@@ -511,6 +506,35 @@ private:
         };
 
         Sqlite::insertUpdateDelete(range, propertyDeclarations, compareKey, insert, update, remove);
+    }
+
+    void synchronizeAliasPropertyDeclarationsRemoval(Storage::Type &type)
+    {
+        auto &aliasDeclarations = type.aliasDeclarations;
+        TypeId typeId = type.typeId;
+
+        std::sort(aliasDeclarations.begin(), aliasDeclarations.end(), [](auto &&first, auto &&second) {
+            return Sqlite::compare(first.name, second.name) < 0;
+        });
+
+        auto range = selectPropertyDeclarationsWithAliasForTypeIdStatement
+                         .template range<Storage::AliasPropertyDeclarationView>(&typeId);
+
+        auto compareKey = [](const Storage::AliasPropertyDeclarationView &view,
+                             const Storage::AliasPropertyDeclaration &value) {
+            return Sqlite::compare(view.name, value.name);
+        };
+
+        auto insert = [&](const Storage::AliasPropertyDeclaration &) {};
+
+        auto update = [&](const Storage::AliasPropertyDeclarationView &,
+                          const Storage::AliasPropertyDeclaration &) {};
+
+        auto remove = [&](const Storage::AliasPropertyDeclarationView &view) {
+            deletePropertyDeclarationStatement.write(&view.id);
+        };
+
+        Sqlite::insertUpdateDelete(range, aliasDeclarations, compareKey, insert, update, remove);
     }
 
     void synchronizeAliasPropertyDeclarations(Storage::Type &type)
@@ -556,9 +580,7 @@ private:
                                                               &aliasId);
         };
 
-        auto remove = [&](const Storage::AliasPropertyDeclarationView &view) {
-            deletePropertyDeclarationStatement.write(&view.id);
-        };
+        auto remove = [&](const Storage::AliasPropertyDeclarationView &) {};
 
         Sqlite::insertUpdateDelete(range, aliasDeclarations, compareKey, insert, update, remove);
     }
@@ -1002,9 +1024,15 @@ private:
                                                              Sqlite::ForeignKeyAction::NoAction,
                                                              Sqlite::ForeignKeyAction::Restrict);
                 propertyDeclarationTable.addColumn("propertyTraits");
-                propertyDeclarationTable.addColumn("aliasPropertyDeclarationId");
+                auto &aliasPropertyDeclarationIdColumn = propertyDeclarationTable.addForeignKeyColumn(
+                    "aliasPropertyDeclarationId",
+                    propertyDeclarationTable,
+                    Sqlite::ForeignKeyAction::NoAction,
+                    Sqlite::ForeignKeyAction::Restrict);
 
                 propertyDeclarationTable.addUniqueIndex({typeIdColumn, nameColumn});
+                propertyDeclarationTable.addIndex({aliasPropertyDeclarationIdColumn},
+                                                  "aliasPropertyDeclarationId IS NOT NULL");
 
                 propertyDeclarationTable.initialize(database);
             }
@@ -1141,8 +1169,8 @@ public:
         "      VALUES(?1) "
         "    UNION ALL "
         "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId)) "
-        "SELECT typeId, propertyDeclarationId, propertyTraits FROM propertyDeclarations JOIN "
-        "typeSelection USING(typeId) "
+        "SELECT propertyTypeId, propertyDeclarationId, propertyTraits FROM propertyDeclarations "
+        "    JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 LIMIT 1",
         database};
     WriteStatement upsertExportedTypesStatement{"INSERT INTO exportedTypes(importId, name, typeId) "
@@ -1210,14 +1238,13 @@ public:
         "propertyDeclarations WHERE typeId=? AND aliasPropertyDeclarationId IS NULL ORDER BY "
         "name",
         database};
-    WriteStatement upsertPropertyDeclarationStatement{
+    WriteStatement insertPropertyDeclarationStatement{
         "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits) "
-        "VALUES(?1, ?2, ?3, ?4) ON CONFLICT DO UPDATE SET propertyTypeId=excluded.propertyTypeId, "
-        "propertyTraits=excluded.propertyTraits, aliasPropertyDeclarationId=NULL",
+        "VALUES(?1, ?2, ?3, ?4)",
         database};
     WriteStatement updatePropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3 WHERE "
-        "propertyDeclarationId=?1",
+        "propertyDeclarationId=?1 OR aliasPropertyDeclarationId=?1",
         database};
     WriteStatement deletePropertyDeclarationStatement{
         "DELETE FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
