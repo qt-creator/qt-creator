@@ -100,6 +100,8 @@ public:
 
     bool isQtForMCUsProject() const;
 
+    Utils::FilePath projectFolder() const;
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);

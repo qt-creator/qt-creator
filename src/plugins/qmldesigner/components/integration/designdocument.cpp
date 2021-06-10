@@ -279,6 +279,15 @@ bool DesignDocument::isQtForMCUsProject() const
     return false;
 }
 
+Utils::FilePath DesignDocument::projectFolder() const
+{
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
+
+    if (currentProject)
+        return currentProject->projectDirectory();
+    return {};
+}
+
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
     m_inFileComponentTextModifier.reset(textModifer);
