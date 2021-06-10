@@ -73,4 +73,15 @@ TEST(Index, UniqueIndex)
 
     ASSERT_THAT(sqlStatement, Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
 }
+
+TEST(Index, Condition)
+{
+    Index index{"tableName", {"column1"}, IndexType::Normal, "column1 IS NOT NULL"};
+
+    auto sqlStatement = index.sqlStatement();
+
+    ASSERT_THAT(sqlStatement,
+                Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1) WHERE "
+                   "column1 IS NOT NULL"));
+}
 }

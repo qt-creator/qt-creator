@@ -134,20 +134,21 @@ public:
         m_tableConstraints.emplace_back(TablePrimaryKey{std::move(columnNames)});
     }
 
-    Index &addIndex(const SqliteColumnConstReferences &columns)
+    Index &addIndex(const SqliteColumnConstReferences &columns, Utils::SmallStringView condition = {})
     {
-        m_sqliteIndices.emplace_back(m_tableName.clone(), sqliteColumnNames(columns));
-
-        return m_sqliteIndices.back();
+        return m_sqliteIndices.emplace_back(m_tableName,
+                                            sqliteColumnNames(columns),
+                                            IndexType::Normal,
+                                            condition);
     }
 
-    Index &addUniqueIndex(const SqliteColumnConstReferences &columns)
+    Index &addUniqueIndex(const SqliteColumnConstReferences &columns,
+                          Utils::SmallStringView condition = {})
     {
-        m_sqliteIndices.emplace_back(m_tableName.clone(),
-                                     sqliteColumnNames(columns),
-                                     IndexType::Unique);
-
-        return m_sqliteIndices.back();
+        return m_sqliteIndices.emplace_back(m_tableName,
+                                            sqliteColumnNames(columns),
+                                            IndexType::Unique,
+                                            condition);
     }
 
     const SqliteColumns &columns() const

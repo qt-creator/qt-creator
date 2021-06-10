@@ -43,14 +43,16 @@ enum class IndexType
 class Index
 {
 public:
-    Index(Utils::SmallString &&tableName,
+    Index(Utils::SmallStringView tableName,
           Utils::SmallStringVector &&columnNames,
-          IndexType indexType=IndexType::Normal)
-        : m_tableName(std::move(tableName)),
-          m_columnNames(std::move(columnNames)),
-          m_indexType(indexType)
-    {
-    }
+          IndexType indexType = IndexType::Normal,
+          Utils::SmallStringView condition = {})
+        : m_tableName(std::move(tableName))
+        , m_columnNames(std::move(columnNames))
+        , m_indexType(indexType)
+        , m_condition{condition}
+
+    {}
 
     Utils::SmallString sqlStatement() const
     {
@@ -67,7 +69,9 @@ public:
                                          m_tableName,
                                          "(",
                                          m_columnNames.join(", "),
-                                         ")"});
+                                         ")",
+                                         m_condition.hasContent() ? " WHERE " : "",
+                                         m_condition});
     }
 
     void checkTableName() const
@@ -86,6 +90,7 @@ private:
     Utils::SmallString m_tableName;
     Utils::SmallStringVector m_columnNames;
     IndexType m_indexType;
+    Utils::SmallString m_condition;
 };
 
 using SqliteIndices = std::vector<Index>;
