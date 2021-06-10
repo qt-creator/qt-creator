@@ -510,10 +510,18 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     //LOG(proc2.commandLine().toUserOutput());
     proc.start();
     proc.waitForFinished();
-    const QByteArray out = proc.readAllStandardOutput();
-    m_mergedDir = QString::fromUtf8(out).trimmed();
+    const QString out = proc.stdOut();
+    m_mergedDir = out.trimmed();
     if (m_mergedDir.endsWith('/'))
         m_mergedDir.chop(1);
+
+    if (!QFileInfo(m_mergedDir).isWritable()) {
+        MessageManager::writeFlashing(
+            tr("Local write access to Docker container %1 unavailable through directory \"%2\".")
+                .arg(m_container, m_mergedDir)
+                    + '\n' + tr("Output: %1").arg(out)
+                    + '\n' + tr("Error: %1").arg(proc.stdErr()));
+    }
 
     m_mergedDirWatcher.addPath(m_mergedDir);
 }
