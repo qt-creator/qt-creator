@@ -1550,6 +1550,14 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     if (!editor)
         return;
 
+    if (m_editorToHandler.contains(editor)) {
+        // We get here via the call from the duplicated handler in case
+        // it was triggered by triggerAction(Core::Constants::SPLIT).
+        // On the other hand, we need the path from there to support the
+        // case of manual calls to IEditor::duplicate().
+        return;
+    }
+
     QWidget *widget = editor->widget();
     if (!widget)
         return;
