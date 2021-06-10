@@ -951,14 +951,19 @@ void CMakeBuildSystem::runCTest()
                     ++counter;
                     const QJsonObject test = testVal.toObject();
                     QTC_ASSERT(!test.isEmpty(), continue);
+                    int file = -1;
+                    int line = -1;
                     const int bt = test.value("backtrace").toInt(-1);
-                    QTC_ASSERT(bt != -1, continue);
+                    // we may have no real backtrace due to different registering
+                    if (bt != -1) {
                     const QJsonObject btRef = nodes.at(bt).toObject();
-                    int file = btRef.value("file").toInt(-1);
-                    int line = btRef.value("line").toInt(-1);
-                    QTC_ASSERT(file != -1 && line != -1, continue);
-                    m_testNames.append({ test.value("name").toString(), counter,
-                                         FilePath::fromString(cmakelists.at(file).toString()), line });
+                        file = btRef.value("file").toInt(-1);
+                        line = btRef.value("line").toInt(-1);
+                    }
+                    // we may have no CMakeLists.txt file reference due to different registering
+                    const FilePath cmakeFile = file != -1
+                            ? FilePath::fromString(cmakelists.at(file).toString()) : FilePath();
+                    m_testNames.append({ test.value("name").toString(), counter, cmakeFile, line });
                 }
             }
         }
