@@ -194,10 +194,6 @@ add_qtc_test(unittest GTEST
     mockimagecachestorage.h
 )
 
-if (NOT TARGET unittest)
-    return()
-endif()
-
 function(extend_qtc_test_with_target_sources target)
   cmake_parse_arguments(_arg "" "" "DEFINES;INCLUDES" ${ARGN})
 
