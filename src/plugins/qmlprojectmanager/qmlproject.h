@@ -58,7 +58,7 @@ public:
     bool deleteFiles(ProjectExplorer::Node *context,
                      const QStringList &filePaths) override;
     bool renameFile(ProjectExplorer::Node *context,
-                    const QString &filePath, const QString &newFilePath) override;
+                    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
 
     QmlProject *qmlProject() const;
 

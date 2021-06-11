@@ -63,7 +63,7 @@ public:
     static bool removeDocument(IDocument *document);
     static QList<IDocument *> modifiedDocuments();
 
-    static void renamedFile(const QString &from, const QString &to);
+    static void renamedFile(const Utils::FilePath &from, const Utils::FilePath &to);
 
     static void expectFileChange(const Utils::FilePath &filePath);
     static void unexpectFileChange(const Utils::FilePath &filePath);
@@ -148,9 +148,11 @@ signals:
        lead to any editors to reload or any other editor manager actions. */
     void filesChangedInternally(const QStringList &files);
     /// emitted if all documents changed their name e.g. due to the file changing on disk
-    void allDocumentsRenamed(const QString &from, const QString &to);
+    void allDocumentsRenamed(const Utils::FilePath &from, const Utils::FilePath &to);
     /// emitted if one document changed its name e.g. due to save as
-    void documentRenamed(Core::IDocument *document, const QString &from, const QString &to);
+    void documentRenamed(Core::IDocument *document,
+                         const Utils::FilePath &from,
+                         const Utils::FilePath &to);
     void projectsDirectoryChanged(const Utils::FilePath &directory);
 
 private:

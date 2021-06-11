@@ -306,8 +306,9 @@ public:
     virtual RemovedFilesFromProject removeFiles(const QStringList &filePaths,
                                                 QStringList *notRemoved = nullptr);
     virtual bool deleteFiles(const QStringList &filePaths);
-    virtual bool canRenameFile(const QString &filePath, const QString &newFilePath);
-    virtual bool renameFile(const QString &filePath, const QString &newFilePath);
+    virtual bool canRenameFile(const Utils::FilePath &oldFilePath,
+                               const Utils::FilePath &newFilePath);
+    virtual bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
     virtual bool addDependencies(const QStringList &dependencies);
 
     class AddNewInformation
@@ -383,8 +384,8 @@ public:
     RemovedFilesFromProject removeFiles(const QStringList &filePaths,
                                         QStringList *notRemoved = nullptr) final;
     bool deleteFiles(const QStringList &filePaths) final;
-    bool canRenameFile(const QString &filePath, const QString &newFilePath) final;
-    bool renameFile(const QString &filePath, const QString &newFilePath) final;
+    bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
+    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
     bool addDependencies(const QStringList &dependencies) final;
     bool supportsAction(ProjectAction action, const Node *node) const final;
 

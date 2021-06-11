@@ -823,19 +823,19 @@ bool FolderNode::deleteFiles(const QStringList &filePaths)
     return false;
 }
 
-bool FolderNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+bool FolderNode::canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
 {
     ProjectNode *pn = managingProject();
     if (pn)
-        return pn->canRenameFile(filePath, newFilePath);
+        return pn->canRenameFile(oldFilePath, newFilePath);
     return false;
 }
 
-bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
+bool FolderNode::renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
 {
     ProjectNode *pn = managingProject();
     if (pn)
-        return pn->renameFile(filePath, newFilePath);
+        return pn->renameFile(oldFilePath, newFilePath);
     return false;
 }
 
@@ -965,17 +965,17 @@ bool ProjectNode::deleteFiles(const QStringList &filePaths)
     return false;
 }
 
-bool ProjectNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+bool ProjectNode::canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
 {
     if (BuildSystem *bs = buildSystem())
-        return bs->canRenameFile(this, filePath, newFilePath);
+        return bs->canRenameFile(this, oldFilePath, newFilePath);
     return true;
 }
 
-bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
+bool ProjectNode::renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
 {
     if (BuildSystem *bs = buildSystem())
-        return bs->renameFile(this, filePath, newFilePath);
+        return bs->renameFile(this, oldFilePath, newFilePath);
     return false;
 }
 

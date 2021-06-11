@@ -165,8 +165,8 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr);
     bool deleteFiles(const QStringList &filePaths);
-    bool canRenameFile(const QString &filePath, const QString &newFilePath);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
+    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
     bool addDependencies(const QStringList &dependencies);
 
     bool setProVariable(const QString &var, const QStringList &values,
@@ -203,7 +203,7 @@ protected:
     };
 
     enum class Change { Save, TestOnly };
-    bool renameFile(const QString &oldName, const QString &newName, Change mode);
+    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath, Change mode);
     void changeFiles(const QString &mimeType,
                      const QStringList &filePaths,
                      QStringList *notChanged,

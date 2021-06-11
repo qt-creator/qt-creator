@@ -382,7 +382,8 @@ bool ResourceFile::renameFile(const QString &fileName, const QString &newFileNam
     if (entries.at(0)->exists()) {
         foreach (File *file, entries)
             file->setExists(true);
-        success = Core::FileUtils::renameFile(entries.at(0)->name, newFileName);
+        success = Core::FileUtils::renameFile(Utils::FilePath::fromString(entries.at(0)->name),
+                                              Utils::FilePath::fromString(newFileName));
     }
 
     if (success) {

@@ -1450,30 +1450,29 @@ QSet<QString> CppModelManager::internalTargets(const Utils::FilePath &filePath) 
     return targets;
 }
 
-void CppModelManager::renameIncludes(const QString &oldFileName, const QString &newFileName)
+void CppModelManager::renameIncludes(const Utils::FilePath &oldFilePath,
+                                     const Utils::FilePath &newFilePath)
 {
-    if (oldFileName.isEmpty() || newFileName.isEmpty())
+    if (oldFilePath.isEmpty() || newFilePath.isEmpty())
         return;
 
-    const QFileInfo oldFileInfo(oldFileName);
-    const QFileInfo newFileInfo(newFileName);
-
     // We just want to handle renamings so return when the file was actually moved.
-    if (oldFileInfo.absoluteDir() != newFileInfo.absoluteDir())
+    if (oldFilePath.absolutePath() != newFilePath.absolutePath())
         return;
 
     const TextEditor::RefactoringChanges changes;
 
-    foreach (Snapshot::IncludeLocation loc, snapshot().includeLocationsOfDocument(oldFileName)) {
+    foreach (Snapshot::IncludeLocation loc,
+             snapshot().includeLocationsOfDocument(oldFilePath.toString())) {
         TextEditor::RefactoringFilePtr file = changes.file(
             Utils::FilePath::fromString(loc.first->fileName()));
         const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
-        const int replaceStart = block.text().indexOf(oldFileInfo.fileName());
+        const int replaceStart = block.text().indexOf(oldFilePath.fileName());
         if (replaceStart > -1) {
             Utils::ChangeSet changeSet;
             changeSet.replace(block.position() + replaceStart,
-                              block.position() + replaceStart + oldFileInfo.fileName().length(),
-                              newFileInfo.fileName());
+                              block.position() + replaceStart + oldFilePath.fileName().length(),
+                              newFilePath.fileName());
             file->setChangeSet(changeSet);
             file->apply();
         }

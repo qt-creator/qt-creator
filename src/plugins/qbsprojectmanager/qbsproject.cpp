@@ -286,19 +286,27 @@ RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const QString
     return BuildSystem::removeFiles(context, filePaths, notRemoved);
 }
 
-bool QbsBuildSystem::renameFile(Node *context, const QString &filePath, const QString &newFilePath)
+bool QbsBuildSystem::renameFile(Node *context,
+                                const FilePath &oldFilePath,
+                                const FilePath &newFilePath)
 {
     if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
         QTC_ASSERT(prdNode, return false);
-        return renameFileInProduct(filePath, newFilePath, prdNode->productData(), n->groupData());
+        return renameFileInProduct(oldFilePath.toString(),
+                                   newFilePath.toString(),
+                                   prdNode->productData(),
+                                   n->groupData());
     }
 
     if (auto *n = dynamic_cast<QbsProductNode *>(context)) {
-        return renameFileInProduct(filePath, newFilePath, n->productData(), n->mainGroup());
+        return renameFileInProduct(oldFilePath.toString(),
+                                   newFilePath.toString(),
+                                   n->productData(),
+                                   n->mainGroup());
     }
 
-    return BuildSystem::renameFile(context, filePath, newFilePath);
+    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
 }
 
 QVariant QbsBuildSystem::additionalData(Id id) const

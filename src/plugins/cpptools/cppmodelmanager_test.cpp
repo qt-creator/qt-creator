@@ -1035,7 +1035,9 @@ void CppToolsPlugin::test_modelmanager_renameIncludes()
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << oldHeader);
 
     // Renaming the header
-    QVERIFY(Core::FileUtils::renameFile(oldHeader, newHeader, Core::HandleIncludeGuards::Yes));
+    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(oldHeader),
+                                        Utils::FilePath::fromString(newHeader),
+                                        Core::HandleIncludeGuards::Yes));
 
     // Update the c++ model manager again and check for the new includes
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
@@ -1103,12 +1105,14 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
     QVERIFY(modelManager->workingCopy().contains(mainFile));
 
     // Test the renaming of a header file where a pragma once guard is present
-    QVERIFY(Core::FileUtils::renameFile(headerWithPragmaOnce, renamedHeaderWithPragmaOnce,
+    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(headerWithPragmaOnce),
+                                        Utils::FilePath::fromString(renamedHeaderWithPragmaOnce),
                                         Core::HandleIncludeGuards::Yes));
 
     // Test the renaming the header with include guard:
     // The contents should match the foobar2000.h in the testdata_project2 project
-    QVERIFY(Core::FileUtils::renameFile(headerWithNormalGuard, renamedHeaderWithNormalGuard,
+    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(headerWithNormalGuard),
+                                        Utils::FilePath::fromString(renamedHeaderWithNormalGuard),
                                         Core::HandleIncludeGuards::Yes));
 
     const MyTestDataDir testDir2(_("testdata_project2"));
@@ -1125,8 +1129,10 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
 
     // Test the renaming the header with underscore pre/suffixed include guard:
     // The contents should match the foobar2000.h in the testdata_project2 project
-    QVERIFY(Core::FileUtils::renameFile(headerWithUnderscoredGuard, renamedHeaderWithUnderscoredGuard,
-                                        Core::HandleIncludeGuards::Yes));
+    QVERIFY(
+        Core::FileUtils::renameFile(Utils::FilePath::fromString(headerWithUnderscoredGuard),
+                                    Utils::FilePath::fromString(renamedHeaderWithUnderscoredGuard),
+                                    Core::HandleIncludeGuards::Yes));
 
     QFile foobar4000Header(testDir2.file("foobar4000.h"));
     QVERIFY(foobar4000Header.open(QFile::ReadOnly | QFile::Text));
@@ -1146,7 +1152,8 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
     auto originalMalformedGuardContents = renamedHeader.readAll();
     renamedHeader.close();
 
-    QVERIFY(Core::FileUtils::renameFile(headerWithMalformedGuard, renamedHeaderWithMalformedGuard,
+    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(headerWithMalformedGuard),
+                                        Utils::FilePath::fromString(renamedHeaderWithMalformedGuard),
                                         Core::HandleIncludeGuards::Yes));
 
     renamedHeader.setFileName(renamedHeaderWithMalformedGuard);

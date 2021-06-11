@@ -619,25 +619,25 @@ bool QmakePriFile::deleteFiles(const QStringList &filePaths)
     return true;
 }
 
-bool QmakePriFile::canRenameFile(const QString &filePath, const QString &newFilePath)
+bool QmakePriFile::canRenameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (newFilePath.isEmpty())
         return false;
 
-    bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
+    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toString());
     if (changeProFileOptional)
         return true;
 
-    return renameFile(filePath, newFilePath, Change::TestOnly);
+    return renameFile(oldFilePath, newFilePath, Change::TestOnly);
 }
 
-bool QmakePriFile::renameFile(const QString &filePath, const QString &newFilePath)
+bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (newFilePath.isEmpty())
         return false;
 
-    bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
-    if (renameFile(filePath, newFilePath, Change::Save))
+    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toString());
+    if (renameFile(oldFilePath, newFilePath, Change::Save))
         return true;
     return changeProFileOptional;
 }
@@ -798,7 +798,7 @@ bool QmakePriFile::prepareForChange()
     return saveModifiedEditors() && ensureWriteableProFile(filePath().toString());
 }
 
-bool QmakePriFile::renameFile(const QString &oldName, const QString &newName, Change mode)
+bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath, Change mode)
 {
     if (!prepareForChange())
         return false;
@@ -812,14 +812,12 @@ bool QmakePriFile::renameFile(const QString &oldName, const QString &newName, Ch
 
     QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toString());
     ProWriter::VarLocations removedLocations;
-    const QStringList notChanged = ProWriter::removeFiles(
-                includeFile,
-                &lines,
-                priFileDir,
-                QStringList(oldName),
-                varNamesForRemoving(),
-                &removedLocations
-                );
+    const QStringList notChanged = ProWriter::removeFiles(includeFile,
+                                                          &lines,
+                                                          priFileDir,
+                                                          {oldFilePath.toString()},
+                                                          varNamesForRemoving(),
+                                                          &removedLocations);
 
     includeFile->deref();
     if (!notChanged.isEmpty())
@@ -828,7 +826,7 @@ bool QmakePriFile::renameFile(const QString &oldName, const QString &newName, Ch
 
     int endLine = lines.count();
     reverseForeach(removedLocations,
-                   [this, &newName, &lines, &endLine](const ProWriter::VarLocation &loc) {
+                   [this, &newFilePath, &lines, &endLine](const ProWriter::VarLocation &loc) {
         QStringList currentLines = lines.mid(loc.second, endLine - loc.second);
         const QString currentContents = currentLines.join('\n');
 
@@ -841,7 +839,11 @@ bool QmakePriFile::renameFile(const QString &oldName, const QString &newName, Ch
                                                        QMakeParser::FullGrammar);
         QTC_ASSERT(proFile, return); // The file should still be valid after what we did.
 
-        ProWriter::addFiles(proFile, &currentLines, {newName}, loc.first, continuationIndent());
+        ProWriter::addFiles(proFile,
+                            &currentLines,
+                            {newFilePath.toString()},
+                            loc.first,
+                            continuationIndent());
         lines = lines.mid(0, loc.second) + currentLines + lines.mid(endLine);
         endLine = loc.second;
         proFile->deref();

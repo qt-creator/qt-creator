@@ -521,11 +521,11 @@ bool QmlBuildSystem::deleteFiles(Node *context, const QStringList &filePaths)
     return BuildSystem::deleteFiles(context, filePaths);
 }
 
-bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const QString &newFilePath)
+bool QmlBuildSystem::renameFile(Node * context, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (dynamic_cast<QmlProjectNode *>(context)) {
-        if (filePath.endsWith(mainFile())) {
-            setMainFile(newFilePath);
+        if (oldFilePath.endsWith(mainFile())) {
+            setMainFile(newFilePath.toString());
 
             // make sure to change it also in the qmlproject file
             const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
@@ -549,12 +549,12 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
             }
 
             // find the mainFile and do the file name with brackets in a capture group and mask the . with \.
-            QString originalFileName = QFileInfo(filePath).fileName();
+            QString originalFileName = oldFilePath.fileName();
             originalFileName.replace(".", "\\.");
             const QRegularExpression expression(QString("mainFile:\\s*\"(%1)\"").arg(originalFileName));
             const QRegularExpressionMatch match = expression.match(fileContent);
 
-            fileContent.replace(match.capturedStart(1), match.capturedLength(1), QFileInfo(newFilePath).fileName());
+            fileContent.replace(match.capturedStart(1), match.capturedLength(1), newFilePath.fileName());
 
             if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
                 qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
@@ -565,7 +565,7 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
         return true;
     }
 
-    return BuildSystem::renameFile(context, filePath, newFilePath);
+    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
 }
 
 } // namespace QmlProjectManager

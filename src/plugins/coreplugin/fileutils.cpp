@@ -194,41 +194,33 @@ void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
     }
 }
 
-static inline bool fileSystemRenameFile(const QString &orgFilePath,
-                                        const QString &newFilePath)
-{
-    // QTBUG-3570 is also valid for Qt 5 but QAbstractFileEngine is now in a private header file and
-    // the symbol is not exported.
-    return QFile::rename(orgFilePath, newFilePath);
-}
-
-bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePath,
+bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFilePath,
                            HandleIncludeGuards handleGuards)
 {
     if (orgFilePath == newFilePath)
         return false;
 
-    QString dir = QFileInfo(orgFilePath).absolutePath();
-    IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir);
+    FilePath dir = orgFilePath.absolutePath();
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir.toString());
 
     bool result = false;
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))
-        result = vc->vcsMove(orgFilePath, newFilePath);
+        result = vc->vcsMove(orgFilePath.toString(), newFilePath.toString());
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
-        result = fileSystemRenameFile(orgFilePath, newFilePath);
+        result = Utils::FileUtils::renameFile(orgFilePath, newFilePath);
     if (result) {
         // yeah we moved, tell the filemanager about it
         DocumentManager::renamedFile(orgFilePath, newFilePath);
     }
 
     if (result && handleGuards == HandleIncludeGuards::Yes) {
-        QFileInfo fi(orgFilePath);
-        bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath, fi.baseName());
+        bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toString(),
+                                                                    orgFilePath.baseName());
         if (!headerUpdateSuccess) {
             Core::MessageManager::writeDisrupting(
                 QCoreApplication::translate("Core::FileUtils",
                                             "Failed to rename the include guard in file \"%1\".")
-                    .arg(newFilePath));
+                    .arg(newFilePath.toUserOutput()));
         }
     }
 

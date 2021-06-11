@@ -66,7 +66,9 @@ public:
     bool addFiles(Node *, const QStringList &filePaths, QStringList *) override;
     RemovedFilesFromProject removeFiles(Node *, const QStringList &filePaths, QStringList *) override;
     bool deleteFiles(Node *, const QStringList &) override;
-    bool renameFile(Node *, const QString &filePath, const QString &newFilePath) override;
+    bool renameFile(Node *,
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath) override;
 
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const QString &fileName);
@@ -378,16 +380,16 @@ bool PythonBuildSystem::deleteFiles(Node *, const QStringList &)
     return true;
 }
 
-bool PythonBuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+bool PythonBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     QStringList newList = m_rawFileList;
 
-    const QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+    const QHash<QString, QString>::iterator i = m_rawListEntries.find(oldFilePath.toString());
     if (i != m_rawListEntries.end()) {
         const int index = newList.indexOf(i.value());
         if (index != -1) {
             const QDir baseDir(projectDirectory().toString());
-            newList.replace(index, baseDir.relativeFilePath(newFilePath));
+            newList.replace(index, baseDir.relativeFilePath(newFilePath.toString()));
         }
     }
 

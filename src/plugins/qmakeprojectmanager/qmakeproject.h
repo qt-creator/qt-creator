@@ -98,9 +98,11 @@ public:
     bool deleteFiles(ProjectExplorer::Node *context,
                      const QStringList &filePaths) override;
     bool canRenameFile(ProjectExplorer::Node *context,
-                       const QString &filePath, const QString &newFilePath) override;
+                       const Utils::FilePath &oldFilePath,
+                       const Utils::FilePath &newFilePath) override;
     bool renameFile(ProjectExplorer::Node *context,
-                    const QString &filePath, const QString &newFilePath) override;
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath) override;
     bool addDependencies(ProjectExplorer::Node *context,
                          const QStringList &dependencies) override;
     void triggerParsing() final;

@@ -136,7 +136,9 @@ public:
     }
 
     RemovedFilesFromProject removeFiles(Node *, const QStringList &filePaths, QStringList *) final;
-    bool renameFile(Node *, const QString &filePath, const QString &newFilePath) final;
+    bool renameFile(Node *,
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath) final;
     bool addFiles(Node *, const QStringList &filePaths, QStringList *) final;
 
     FilePath filesFilePath() const { return ::FilePath::fromString(m_filesFileName); }
@@ -391,17 +393,17 @@ bool GenericBuildSystem::setFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
-bool GenericBuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+bool GenericBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     QStringList newList = m_rawFileList;
 
-    QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+    QHash<QString, QString>::iterator i = m_rawListEntries.find(oldFilePath.toString());
     if (i != m_rawListEntries.end()) {
         int index = newList.indexOf(i.value());
         if (index != -1) {
             QDir baseDir(projectDirectory().toString());
             newList.removeAt(index);
-            insertSorted(&newList, baseDir.relativeFilePath(newFilePath));
+            insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
         }
     }
 

@@ -241,7 +241,7 @@ public:
 
     QSet<QString> internalTargets(const Utils::FilePath &filePath) const;
 
-    void renameIncludes(const QString &oldFileName, const QString &newFileName);
+    void renameIncludes(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
 
     // for VcsBaseSubmitEditor
     Q_INVOKABLE QSet<QString> symbolsInFiles(const QSet<Utils::FilePath> &files) const;

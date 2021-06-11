@@ -531,9 +531,9 @@ public:
     void editorAboutToClose(Core::IEditor *);
     void currentEditorAboutToChange(Core::IEditor *);
 
-    void allDocumentsRenamed(const QString &oldName, const QString &newName);
-    void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
-    void renameFileNameInEditors(const QString &oldName, const QString &newName);
+    void allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath);
+    void documentRenamed(Core::IDocument *document, const FilePath &oldPath, const FilePath &newPath);
+    void renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath);
 
     void setUseFakeVim(bool on);
     void setUseFakeVimInternal(bool on);
@@ -1881,23 +1881,23 @@ void FakeVimPluginPrivate::currentEditorAboutToChange(IEditor *editor)
         handler->enterCommandMode();
 }
 
-void FakeVimPluginPrivate::allDocumentsRenamed(const QString &oldName, const QString &newName)
+void FakeVimPluginPrivate::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)
 {
-    renameFileNameInEditors(oldName, newName);
-    FakeVimHandler::updateGlobalMarksFilenames(oldName, newName);
+    renameFileNameInEditors(oldPath, newPath);
+    FakeVimHandler::updateGlobalMarksFilenames(oldPath.toString(), newPath.toString());
 }
 
 void FakeVimPluginPrivate::documentRenamed(
-        IDocument *, const QString &oldName, const QString &newName)
+        IDocument *, const FilePath &oldPath, const FilePath &newPath)
 {
-    renameFileNameInEditors(oldName, newName);
+    renameFileNameInEditors(oldPath, newPath);
 }
 
-void FakeVimPluginPrivate::renameFileNameInEditors(const QString &oldName, const QString &newName)
+void FakeVimPluginPrivate::renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath)
 {
     foreach (FakeVimHandler *handler, m_editorToHandler.values()) {
-        if (handler->currentFileName() == oldName)
-            handler->setCurrentFileName(newName);
+        if (handler->currentFileName() == oldPath.toString())
+            handler->setCurrentFileName(newPath.toString());
     }
 }
 

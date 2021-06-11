@@ -59,8 +59,10 @@ private:
     TextMarkRegistry(QObject *parent);
     static TextMarkRegistry* instance();
     void editorOpened(Core::IEditor *editor);
-    void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
-    void allDocumentsRenamed(const QString &oldName, const QString &newName);
+    void documentRenamed(Core::IDocument *document,
+                         const FilePath &oldPath,
+                         const FilePath &newPath);
+    void allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath);
 
     QHash<Utils::FilePath, QSet<TextMark *> > m_marks;
 };
@@ -448,42 +450,39 @@ void TextMarkRegistry::editorOpened(IEditor *editor)
         document->addMark(mark);
 }
 
-void TextMarkRegistry::documentRenamed(IDocument *document, const
-                                           QString &oldName, const QString &newName)
+void TextMarkRegistry::documentRenamed(IDocument *document,
+                                       const FilePath &oldPath,
+                                       const FilePath &newPath)
 {
     auto baseTextDocument = qobject_cast<TextDocument *>(document);
     if (!baseTextDocument)
         return;
-    FilePath oldFileName = FilePath::fromString(oldName);
-    FilePath newFileName = FilePath::fromString(newName);
-    if (!m_marks.contains(oldFileName))
+    if (!m_marks.contains(oldPath))
         return;
 
     QSet<TextMark *> toBeMoved;
     foreach (TextMark *mark, baseTextDocument->marks())
         toBeMoved.insert(mark);
 
-    m_marks[oldFileName].subtract(toBeMoved);
-    m_marks[newFileName].unite(toBeMoved);
+    m_marks[oldPath].subtract(toBeMoved);
+    m_marks[newPath].unite(toBeMoved);
 
     foreach (TextMark *mark, toBeMoved)
-        mark->updateFileName(newFileName);
+        mark->updateFileName(newPath);
 }
 
-void TextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString &newName)
+void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)
 {
-    FilePath oldFileName = FilePath::fromString(oldName);
-    FilePath newFileName = FilePath::fromString(newName);
-    if (!m_marks.contains(oldFileName))
+    if (!m_marks.contains(oldPath))
         return;
 
-    QSet<TextMark *> oldFileNameMarks = m_marks.value(oldFileName);
+    QSet<TextMark *> oldFileNameMarks = m_marks.value(oldPath);
 
-    m_marks[newFileName].unite(oldFileNameMarks);
-    m_marks[oldFileName].clear();
+    m_marks[newPath].unite(oldFileNameMarks);
+    m_marks[oldPath].clear();
 
     foreach (TextMark *mark, oldFileNameMarks)
-        mark->updateFileName(newFileName);
+        mark->updateFileName(newPath);
 }
 
 QHash<AnnotationColors::SourceColors, AnnotationColors> AnnotationColors::m_colorCache;

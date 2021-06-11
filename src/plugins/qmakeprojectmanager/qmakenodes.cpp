@@ -264,24 +264,28 @@ bool QmakeBuildSystem::deleteFiles(Node *context, const QStringList &filePaths)
     return BuildSystem::deleteFiles(context, filePaths);
 }
 
-bool QmakeBuildSystem::canRenameFile(Node *context, const QString &filePath, const QString &newFilePath)
+bool QmakeBuildSystem::canRenameFile(Node *context,
+                                     const FilePath &oldFilePath,
+                                     const FilePath &newFilePath)
 {
     if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
         QmakePriFile *pri = n->priFile();
-        return pri ? pri->canRenameFile(filePath, newFilePath) : false;
+        return pri ? pri->canRenameFile(oldFilePath, newFilePath) : false;
     }
 
-    return BuildSystem::canRenameFile(context, filePath, newFilePath);
+    return BuildSystem::canRenameFile(context, oldFilePath, newFilePath);
 }
 
-bool QmakeBuildSystem::renameFile(Node *context, const QString &filePath, const QString &newFilePath)
+bool QmakeBuildSystem::renameFile(Node *context,
+                                  const FilePath &oldFilePath,
+                                  const FilePath &newFilePath)
 {
     if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
         QmakePriFile *pri = n->priFile();
-        return pri ? pri->renameFile(filePath, newFilePath) : false;
+        return pri ? pri->renameFile(oldFilePath, newFilePath) : false;
     }
 
-    return BuildSystem::renameFile(context, filePath, newFilePath);
+    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
 }
 
 bool QmakeBuildSystem::addDependencies(Node *context, const QStringList &dependencies)

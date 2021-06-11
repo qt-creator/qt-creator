@@ -73,8 +73,8 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
                                                          QStringList *notRemoved) override;
-    bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
+    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
 
     bool renamePrefix(const QString &prefix, const QString &lang);
 

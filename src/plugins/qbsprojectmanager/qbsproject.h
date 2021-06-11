@@ -90,7 +90,7 @@ public:
                                                          const QStringList &filePaths,
                                                          QStringList *notRemoved = nullptr) final;
     bool renameFile(ProjectExplorer::Node *context,
-                    const QString &filePath, const QString &newFilePath) final;
+                    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
 
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;

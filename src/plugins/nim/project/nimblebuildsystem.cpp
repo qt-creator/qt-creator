@@ -262,9 +262,9 @@ bool NimbleBuildSystem::deleteFiles(Node *, const QStringList &)
     return true;
 }
 
-bool NimbleBuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+bool NimbleBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    return m_projectScanner.renameFile(filePath, newFilePath);
+    return m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString());
 }
 
 } // Nim

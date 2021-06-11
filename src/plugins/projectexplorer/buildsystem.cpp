@@ -221,16 +221,16 @@ bool BuildSystem::deleteFiles(Node *, const QStringList &filePaths)
     return false;
 }
 
-bool BuildSystem::canRenameFile(Node *, const QString &filePath, const QString &newFilePath)
+bool BuildSystem::canRenameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    Q_UNUSED(filePath)
+    Q_UNUSED(oldFilePath)
     Q_UNUSED(newFilePath)
     return true;
 }
 
-bool BuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+bool BuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    Q_UNUSED(filePath)
+    Q_UNUSED(oldFilePath)
     Q_UNUSED(newFilePath)
     return false;
 }

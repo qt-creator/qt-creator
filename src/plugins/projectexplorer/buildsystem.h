@@ -90,8 +90,12 @@ public:
     virtual RemovedFilesFromProject removeFiles(Node *context, const QStringList &filePaths,
                                                 QStringList *notRemoved = nullptr);
     virtual bool deleteFiles(Node *context, const QStringList &filePaths);
-    virtual bool canRenameFile(Node *context, const QString &filePath, const QString &newFilePath);
-    virtual bool renameFile(Node *context, const QString &filePath, const QString &newFilePath);
+    virtual bool canRenameFile(Node *context,
+                               const Utils::FilePath &oldFilePath,
+                               const Utils::FilePath &newFilePath);
+    virtual bool renameFile(Node *context,
+                            const Utils::FilePath &oldFilePath,
+                            const Utils::FilePath &newFilePath);
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
 

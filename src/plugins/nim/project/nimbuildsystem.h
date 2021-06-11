@@ -86,7 +86,7 @@ public:
                                                          QStringList *) override;
     bool deleteFiles(ProjectExplorer::Node *, const QStringList &) final;
     bool renameFile(ProjectExplorer::Node *,
-                    const QString &filePath, const QString &newFilePath) final;
+                    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
 
     void triggerParsing() override;
 

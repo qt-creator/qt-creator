@@ -238,9 +238,9 @@ bool NimBuildSystem::deleteFiles(Node *, const QStringList &)
     return true;
 }
 
-bool NimBuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+bool NimBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    return m_projectScanner.renameFile(filePath, newFilePath);
+    return m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString());
 }
 
 } // namespace Nim

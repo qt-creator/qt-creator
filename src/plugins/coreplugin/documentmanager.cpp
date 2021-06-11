@@ -476,15 +476,15 @@ static void dump()
     permission information to avoid annoying the user with \e {the file has
     been removed} popups.
 */
-void DocumentManager::renamedFile(const QString &from, const QString &to)
+void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::FilePath &to)
 {
-    const QString &fromKey = filePathKey(from, KeepLinks);
+    const Utils::FilePath &fromKey = filePathKey(from, KeepLinks);
 
     // gather the list of IDocuments
     QList<IDocument *> documentsToRename;
     for (auto it = d->m_documentsWithWatch.cbegin(), end = d->m_documentsWithWatch.cend();
             it != end; ++it) {
-        if (it.value().contains(fromKey))
+        if (it.value().contains(fromKey.toString()))
             documentsToRename.append(it.key());
     }
 
@@ -492,7 +492,7 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
     foreach (IDocument *document, documentsToRename) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
-        document->setFilePath(FilePath::fromString(to));
+        document->setFilePath(to);
         addFileInfos({document});
         d->m_blockedIDocument = nullptr;
     }
@@ -505,7 +505,7 @@ void DocumentManager::filePathChanged(const FilePath &oldName, const FilePath &n
     QTC_ASSERT(doc, return);
     if (doc == d->m_blockedIDocument)
         return;
-    emit m_instance->documentRenamed(doc, oldName.toString(), newName.toString());
+    emit m_instance->documentRenamed(doc, oldName, newName);
 }
 
 void DocumentManager::updateSaveAll()

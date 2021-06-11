@@ -204,7 +204,7 @@ static QVector<FolderNode *> renamableFolderNodes(const Utils::FilePath &before,
         if (node->asFileNode()
                 && node->filePath() == before
                 && node->parentFolderNode()
-                && node->parentFolderNode()->canRenameFile(before.toString(), after.toString())) {
+                && node->parentFolderNode()->canRenameFile(before, after)) {
             folderNodes.append(node->parentFolderNode());
         }
     });
@@ -225,9 +225,9 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
                    && role == Qt::EditRole && value.canConvert<QString>(),
                return false);
     const QString afterFileName = value.toString();
-    const QString beforeFilePath = filePath(index);
-    const QString parentPath = filePath(parent(index));
-    const QString afterFilePath = parentPath + '/' + afterFileName;
+    const Utils::FilePath beforeFilePath = Utils::FilePath::fromString(filePath(index));
+    const Utils::FilePath parentPath = Utils::FilePath::fromString(filePath(parent(index)));
+    const Utils::FilePath afterFilePath = parentPath.pathAppended(afterFileName);
     if (beforeFilePath == afterFilePath)
         return false;
     // need to rename through file system model, which takes care of not changing our selection
@@ -235,9 +235,8 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
     // for files we can do more than just rename on disk, for directories the user is on his/her own
     if (success && fileInfo(index).isFile()) {
         Core::DocumentManager::renamedFile(beforeFilePath, afterFilePath);
-        const QVector<FolderNode *> folderNodes
-            = renamableFolderNodes(Utils::FilePath::fromString(beforeFilePath),
-                                   Utils::FilePath::fromString(afterFilePath));
+        const QVector<FolderNode *> folderNodes = renamableFolderNodes(beforeFilePath,
+                                                                       afterFilePath);
         QVector<FolderNode *> failedNodes;
         for (FolderNode *folder : folderNodes) {
             if (!folder->renameFile(beforeFilePath, afterFilePath))
@@ -248,7 +247,7 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
             const QString errorMessage
                 = FolderNavigationWidget::tr("The file \"%1\" was renamed to \"%2\", "
                      "but the following projects could not be automatically changed: %3")
-                      .arg(beforeFilePath, afterFilePath, projects);
+                      .arg(beforeFilePath.toUserOutput(), afterFilePath.toUserOutput(), projects);
             QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      ProjectExplorerPlugin::tr("Project Editing Failed"),
