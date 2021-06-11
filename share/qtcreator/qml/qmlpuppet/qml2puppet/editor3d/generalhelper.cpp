@@ -405,7 +405,8 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
 void GeneralHelper::resetMultiSelectionNode()
 {
     for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it)
-        it.value() = {pivotScenePosition(it.key()), it.key()->scale(), it.key()->rotation()};
+        it.value() = {pivotScenePosition(it.key()), it.key()->scale(),
+                      it.key()->rotation(), it.key()->sceneRotation()};
 
     m_multiSelNodeData = {};
     if (!m_multiSelDataMap.isEmpty()) {
@@ -448,16 +449,9 @@ void GeneralHelper::scaleMultiSelection(bool commit)
     // Offset the multiselected nodes in global space according to scale factor and scale them by
     // the same factor.
 
-    // TODO: The math below breaks down with negative scaling, so don't allow it for now
-    const QVector3D sceneScale = m_multiSelectRootNode->sceneScale();
-    QVector3D fixedSceneScale = sceneScale;
-    for (int i = 0; i < 3; ++i) {
-        if (sceneScale[i] < 0.f)
-            fixedSceneScale[i] = -sceneScale[i];
-    }
-
+    const QVector3D sceneScale = m_multiSelectRootNode->scale();
     const QVector3D unitVector {1.f, 1.f, 1.f};
-    const QVector3D diffScale = (fixedSceneScale - unitVector);
+    const QVector3D diffScale = sceneScale - unitVector;
 
     for (auto it = m_multiSelDataMap.constBegin(); it != m_multiSelDataMap.constEnd(); ++it) {
         const QVector3D newGlobalPos = m_multiSelNodeData.startScenePos
@@ -468,7 +462,7 @@ void GeneralHelper::scaleMultiSelection(bool commit)
         it.key()->setPosition(parentMat * newGlobalPos);
 
         QMatrix4x4 mat;
-        mat.rotate(it.key()->sceneRotation());
+        mat.rotate(it.value().startSceneRot);
 
         auto scaleDim = [&](int dim) -> QVector3D {
             QVector3D dimScale;
@@ -477,7 +471,7 @@ void GeneralHelper::scaleMultiSelection(bool commit)
             dimScale = (mat.inverted() * dimScale).normalized() * diffScaleDim;
             for (int i = 0; i < 3; ++i)
                 dimScale[i] = qAbs(dimScale[i]);
-            if (fixedSceneScale[dim] < 1.0f)
+            if (sceneScale[dim] < 1.0f)
                 dimScale = -dimScale;
             return dimScale;
         };

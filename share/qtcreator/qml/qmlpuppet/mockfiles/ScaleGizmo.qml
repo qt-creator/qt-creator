@@ -201,8 +201,6 @@ Node {
                 var scaler = 1.0 + (yDelta * 0.025);
                 if (scaler === 0)
                     scaler = 0.0001;
-                if (scaler < 0)
-                    scaler = -scaler;
                 return Qt.vector3d(scaler * _startScale.x,
                                    scaler * _startScale.y,
                                    scaler * _startScale.z);

@@ -132,6 +132,7 @@ private:
         QVector3D startScenePos;
         QVector3D startScale;
         QQuaternion startRot;
+        QQuaternion startSceneRot;
     };
 
     QHash<QQuick3DNode *, MultiSelData> m_multiSelDataMap;
