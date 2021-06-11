@@ -935,7 +935,7 @@ void CMakeBuildSystem::runCTest()
         process.setWorkingDirectory(workingDirectory);
         process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
 
-        if (!process.waitForStarted(1000) || !process.waitForFinished(1000)) {
+        if (!process.waitForStarted(1000) || !process.waitForFinished()) {
             if (process.state() == QProcess::NotRunning)
                 return;
             process.terminate();
