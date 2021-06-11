@@ -64,8 +64,6 @@ FileApiReader::FileApiReader()
 
 FileApiReader::~FileApiReader()
 {
-    if (isParsing())
-        emit errorOccurred(tr("Parsing has been canceled."));
     stop();
     resetData();
 }
