@@ -1248,7 +1248,7 @@ void GitClient::archive(const QString &workingDirectory, QString commit)
         return;
     QString extension = filters.value(selectedFilter);
     QFileInfo archive(archiveName);
-    if (archive.completeSuffix() != extension) {
+    if (extension != "." + archive.completeSuffix()) {
         archive = QFileInfo(archive.filePath() + extension);
     }
 
