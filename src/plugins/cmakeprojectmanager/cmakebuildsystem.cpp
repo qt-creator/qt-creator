@@ -960,7 +960,16 @@ void CMakeBuildSystem::runCTest()
                     const int bt = test.value("backtrace").toInt(-1);
                     // we may have no real backtrace due to different registering
                     if (bt != -1) {
-                    const QJsonObject btRef = nodes.at(bt).toObject();
+                        QSet<int> seen;
+                        std::function<QJsonObject(int)> findAncestor = [&](int index){
+                            const QJsonObject node = nodes.at(index).toObject();
+                            const int parent = node.value("parent").toInt(-1);
+                            if (seen.contains(parent) || parent < 0)
+                                return node;
+                            seen << parent;
+                            return findAncestor(parent);
+                        };
+                        const QJsonObject btRef = findAncestor(bt);
                         file = btRef.value("file").toInt(-1);
                         line = btRef.value("line").toInt(-1);
                     }
