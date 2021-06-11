@@ -78,6 +78,7 @@ public:
     // helper functions
     static QString cleanAbsoluteFilePath(const QString &filePath, ResolveMode resolveMode);
     static QString filePathKey(const QString &filePath, ResolveMode resolveMode);
+    static Utils::FilePath filePathKey(const Utils::FilePath &filePath, ResolveMode resolveMode);
 
     static bool saveDocument(IDocument *document,
                              const Utils::FilePath &filePath = Utils::FilePath(),

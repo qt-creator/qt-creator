@@ -97,7 +97,7 @@ public:
 
     QList<DocumentModel::Entry *> m_entries;
     QMap<IDocument *, QList<IEditor *> > m_editors;
-    QHash<QString, DocumentModel::Entry *> m_entryByFixedPath;
+    QHash<Utils::FilePath, DocumentModel::Entry *> m_entryByFixedPath;
 };
 
 } // Internal

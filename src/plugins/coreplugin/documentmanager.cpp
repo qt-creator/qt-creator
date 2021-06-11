@@ -599,6 +599,13 @@ QString DocumentManager::filePathKey(const QString &filePath, ResolveMode resolv
     return s;
 }
 
+FilePath DocumentManager::filePathKey(const Utils::FilePath &filePath, ResolveMode resolveMode)
+{
+    if (resolveMode == ResolveLinks)
+        return filePath.canonicalPath().absoluteFilePath();
+    return filePath.absoluteFilePath();
+}
+
 /*!
     Returns the list of IDocuments that have been modified.
 */
