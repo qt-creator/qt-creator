@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.9
-import QtQuick.Controls 2.3
+import QtQuick.Templates 2.3
 import welcome 1.0
 import StudioFonts 1.0
 
@@ -35,9 +35,15 @@ Button {
     property color defaultColor: Constants.textDefaultColor
     property color checkedColor: Constants.textDefaultColor
 
+    text: "test"
+
+    implicitWidth: background.width
+    implicitHeight: background.height
+
     contentItem: Text {
         id: textButton
         text: button.text
+
         color: checked ? button.checkedColor :
                          button.hovered ? button.hoverColor :
                                           button.defaultColor
@@ -47,5 +53,7 @@ Button {
     }
 
     background: Item {
+        width: textButton.implicitWidth
+        height: textButton.implicitHeight
     }
 }
