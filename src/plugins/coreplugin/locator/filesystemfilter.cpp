@@ -152,7 +152,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     }
 
     // "create and open" functionality
-    const QString fullFilePath = dirInfo.filePath(link.targetFilePath.fileName());
+    const QString fullFilePath = dirInfo.filePath(entryFileName);
     const bool containsWildcard = entry.contains('?') || entry.contains('*');
     if (!containsWildcard && !QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this,
