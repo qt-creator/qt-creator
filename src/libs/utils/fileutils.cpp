@@ -485,6 +485,13 @@ FilePath FileUtils::homePath()
     return FilePath::fromString(QDir::cleanPath(QDir::homePath()));
 }
 
+bool FileUtils::renameFile(const FilePath &srcFilePath, const FilePath &tgtFilePath)
+{
+    QTC_ASSERT(!srcFilePath.needsDevice(), return false);
+    QTC_ASSERT(srcFilePath.scheme() == tgtFilePath.scheme(), return false);
+    return QFile::rename(srcFilePath.path(), tgtFilePath.path());
+}
+
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
     QTC_ASSERT(fileName.startsWith(':'), return QByteArray());

@@ -248,6 +248,7 @@ public:
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static QByteArray fileId(const FilePath &fileName);
     static FilePath homePath();
+    static bool renameFile(const FilePath &srcFilePath, const FilePath &tgtFilePath);
 };
 
 template<typename T>
