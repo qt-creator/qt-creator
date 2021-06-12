@@ -57,6 +57,7 @@ void MainWindow::test()
     qDebug() << "Async: " << cmd << args;
     process.setStdOutCallback([this](const QString &s) { append(s); });
     process.setStdErrCallback([this](const QString &s) { append(s); });
-    process.run({cmd, args});
+    process.setCommand({cmd, args});
+    process.runBlocking();
     qDebug() << process;
 }
