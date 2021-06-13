@@ -29,6 +29,8 @@
 
 #include <vector>
 
+#include "clangsupport_global.h"
+
 QT_BEGIN_NAMESPACE
 class QDataStream;
 class QIODevice;
@@ -38,7 +40,7 @@ namespace ClangBackEnd {
 
 class MessageEnvelop;
 
-class ReadMessageBlock
+class CLANGSUPPORT_EXPORT ReadMessageBlock
 {
 public:
     ReadMessageBlock(QIODevice *ioDevice = nullptr);

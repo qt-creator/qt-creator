@@ -14,7 +14,9 @@ if (NOT Googletest_FOUND)
 endif()
 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+elseif (MINGW)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
 endif()
 
 add_qtc_test(unittest GTEST
@@ -31,7 +33,7 @@ add_qtc_test(unittest GTEST
     QT_RESTRICTED_CAST_FROM_ASCII
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
-    QTC_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/share/qtcreator"
+    QTC_RESOURCE_DIR="${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator"
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
     ECHOSERVER="$<TARGET_FILE_DIR:echo>/echo"
     CPPTOOLS_JSON="${CMAKE_CURRENT_BINARY_DIR}/CppTools.json"
@@ -139,23 +141,22 @@ function(extend_qtc_test_with_target_sources target)
   )
 endfunction()
 
-foreach(clang_tools_library clangbackend_lib)
-  extend_qtc_test_with_target_sources(${clang_tools_library}
-    DEFINES
-      CLANGSUPPORT_BUILD_LIB
-    INCLUDES
-      $<TARGET_PROPERTY:ClangSupport,INTERFACE_INCLUDE_DIRECTORIES>
-   )
-endforeach()
+if (NOT TARGET clangbackend_lib)
+  add_subdirectory(../../../src/tools/clangbackend/source ${CMAKE_CURRENT_BINARY_DIR}/clangbackend)
+endif()
+extend_qtc_test(unittest DEPENDS clangbackend_lib)
 
-extend_qtc_test_with_target_sources(Sqlite)
-
-extend_qtc_test(unittest DEFINES _HAVE_SQLITE_CONFIG_H)
+if (NOT TARGET Sqlite)
+  add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
+endif()
+extend_qtc_test_with_target_sources(Sqlite
+  DEFINES _HAVE_SQLITE_CONFIG_H
+)
 
 if (APPLE)
-extend_qtc_test(unittest DEFINES _BSD_SOURCE)
+  extend_qtc_test(unittest DEFINES _BSD_SOURCE)
 elseif (UNIX)
-extend_qtc_test(unittest DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
+  extend_qtc_test(unittest DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
 endif()
 
 # Do not work on the source directory data
@@ -166,7 +167,7 @@ add_custom_command(TARGET unittest POST_BUILD
 )
 
 # create fake CppTools.json for the mime type definitions
-file(READ "${PROJECT_SOURCE_DIR}/src/plugins/cpptools/CppTools.json.in" plugin_json_in)
+file(READ "../../../src/plugins/cpptools/CppTools.json.in" plugin_json_in)
 string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
 string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})
 string(REPLACE "$$QTCREATOR_VERSION" "${IDE_VERSION}" plugin_json_in ${plugin_json_in})
@@ -253,6 +254,7 @@ finalize_qtc_gtest(unittest ".c$")
 # Path needs to be before CppTools
 target_include_directories(unittest
   PRIVATE
+    BEFORE ../../../src/tools/clangbackend/source
     BEFORE ../../../src/plugins
 )
 
@@ -329,17 +331,21 @@ extend_qtc_test(unittest
     "${QmlDesignerDir}/designercore/include/model.h"
 )
 
-extend_qtc_test_with_target_sources(Utils DEFINES QTCREATOR_UTILS_STATIC_LIB "QTC_REL_TOOLS_PATH=\"${RELATIVE_LIBEXEC_PATH}\"")
-extend_qtc_test(unittest
-  CONDITION APPLE
-  DEPENDS ${FWFoundation} ${FWAppKit}
-)
-extend_qtc_test_with_target_sources(CPlusPlus DEFINES CPLUSPLUS_BUILD_STATIC_LIB)
-extend_qtc_test_with_target_sources(3rd_cplusplus DEFINES CPLUSPLUS_BUILD_LIB)
-extend_qtc_test_with_target_sources(ClangSupport DEFINES CLANGSUPPORT_BUILD_LIB)
+if (NOT TARGET Utils)
+  add_subdirectory(../../../src/libs/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
+endif()
+if (NOT TARGET CPlusPlus)
+  add_subdirectory(../../../src/libs/3rdparty/cplusplus ${CMAKE_CURRENT_BINARY_DIR}/3rd_cplusplus)
+  add_subdirectory(../../../src/libs/cplusplus ${CMAKE_CURRENT_BINARY_DIR}/cplusplus)
+endif()
+if (NOT TARGET ClangSupport)
+  add_subdirectory(../../../src/libs/clangsupport ${CMAKE_CURRENT_BINARY_DIR}/clangsupport)
+endif()
+
+extend_qtc_test(unittest DEPENDS Utils CPlusPlus ClangSupport)
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX_FROM_TARGET ClangCodeModel
+  SOURCES_PREFIX ../../../src/plugins/clangcodemodel
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
@@ -365,7 +371,7 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX_FROM_TARGET Core
+  SOURCES_PREFIX ../../../src/plugins/coreplugin
   DEFINES CORE_STATIC_LIBRARY
   SOURCES
     coreicons.cpp coreicons.h
@@ -374,7 +380,7 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX_FROM_TARGET CppTools
+  SOURCES_PREFIX ../../../src/plugins/cpptools
   DEFINES CPPTOOLS_STATIC_LIBRARY
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
@@ -389,15 +395,16 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX_FROM_TARGET ProjectExplorer
+  SOURCES_PREFIX ../../../src/plugins/projectexplorer
   DEFINES PROJECTEXPLORER_STATIC_LIBRARY
   SOURCES
     projectmacro.cpp projectmacro.h
 )
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX_FROM_TARGET ClangFormat
-  DEFINES CLANGPCHMANAGER_STATIC_LIB
+  SOURCES_PREFIX ../../../src/plugins/clangformat
+  CONDITION TARGET libclang
+  DEPENDS ${CLANG_TOOLING_LIBS}
   SOURCES
     clangformatconstants.h
     clangformatbaseindenter.cpp clangformatbaseindenter.h

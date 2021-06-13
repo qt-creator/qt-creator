@@ -28,6 +28,8 @@
 #include <QByteArray>
 #include <QtGlobal>
 
+#include "clangsupport_global.h"
+
 QT_BEGIN_NAMESPACE
 class QVariant;
 class QDataStream;
@@ -39,7 +41,7 @@ namespace ClangBackEnd {
 
 class MessageEnvelop;
 
-class WriteMessageBlock
+class CLANGSUPPORT_EXPORT WriteMessageBlock
 {
 public:
     WriteMessageBlock(QIODevice *ioDevice = nullptr);

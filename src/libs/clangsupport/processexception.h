@@ -29,9 +29,11 @@
 
 #include <exception>
 
+#include "clangsupport_global.h"
+
 namespace ClangBackEnd {
 
-class ProcessException : public std::exception
+class CLANGSUPPORT_EXPORT ProcessException : public std::exception
 {
 public:
     ProcessException() = default;

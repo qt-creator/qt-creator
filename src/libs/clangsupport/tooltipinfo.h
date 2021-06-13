@@ -30,6 +30,8 @@
 
 #include <QVariant>
 
+#include "clangsupport_global.h"
+
 namespace ClangBackEnd {
 
 class ToolTipInfo
@@ -106,6 +108,6 @@ public:
 QDebug operator<<(QDebug debug, const ToolTipInfo &message);
 std::ostream &operator<<(std::ostream &os, const ToolTipInfo &message);
 
-const char *qdocCategoryToString(ToolTipInfo::QdocCategory category);
+CLANGSUPPORT_EXPORT const char *qdocCategoryToString(ToolTipInfo::QdocCategory category);
 
 } // namespace ClangBackEnd
