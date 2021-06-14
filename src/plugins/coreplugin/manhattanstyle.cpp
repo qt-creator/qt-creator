@@ -282,15 +282,17 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setContentsMargins(0, 0, 0, 0);
 
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
+        // So that text isn't cutoff in line-edits, comboboxes... etc.
+        const int height = qMax(StyleHelper::navigationWidgetHeight(), QApplication::fontMetrics().height());
         if (qobject_cast<QToolButton*>(widget) || qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
-            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(height - 2);
         } else if (qobject_cast<QLabel*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
         } else if (widget->property("panelwidget_singlerow").toBool()) {
-            widget->setFixedHeight(StyleHelper::navigationWidgetHeight());
+            widget->setFixedHeight(height);
         } else if (qobject_cast<QStatusBar*>(widget)) {
-            widget->setFixedHeight(StyleHelper::navigationWidgetHeight() + 2);
+            widget->setFixedHeight(height + 2);
         } else if (qobject_cast<QComboBox*>(widget)) {
             const bool isLightColored = lightColored(widget);
             QPalette palette = panelPalette(widget->palette(), isLightColored);
@@ -298,7 +300,7 @@ void ManhattanStyle::polish(QWidget *widget)
                 palette.setBrush(QPalette::All, QPalette::WindowText,
                                  creatorTheme()->color(Theme::ComboBoxTextColor));
             widget->setPalette(palette);
-            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(height - 2);
             widget->setAttribute(Qt::WA_Hover);
         }
     }
