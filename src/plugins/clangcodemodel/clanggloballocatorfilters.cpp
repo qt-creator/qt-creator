@@ -53,6 +53,7 @@ public:
         setDisplayName({});
         setDefaultShortcutString({});
         setEnabled(false);
+        setHidden(true);
     }
 };
 
@@ -65,6 +66,7 @@ public:
         setDisplayName({});
         setDefaultShortcutString({});
         setEnabled(false);
+        setHidden(true);
     }
 };
 
@@ -79,6 +81,7 @@ public:
         setDisplayName({});
         setDefaultShortcutString({});
         setEnabled(false);
+        setHidden(true);
     }
 };
 
@@ -90,6 +93,7 @@ public:
         setDisplayName({});
         setDefaultShortcutString({});
         setEnabled(false);
+        setHidden(true);
     }
 };
 
@@ -103,6 +107,7 @@ public:
         setDisplayName({});
         setDefaultShortcutString({});
         setEnabled(false);
+        setHidden(true);
     }
 };
 
@@ -115,6 +120,7 @@ public:
         setDisplayName({});
         setDefaultShortcutString({});
         setEnabled(false);
+        setHidden(true);
     }
 };
 
