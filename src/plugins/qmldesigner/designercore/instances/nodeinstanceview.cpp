@@ -1860,6 +1860,9 @@ void NodeInstanceView::updateWatcher(const QString &path)
 
 void NodeInstanceView::updateRotationBlocks()
 {
+    if (!model())
+        return;
+
     QList<ModelNode> qml3DNodes;
     QSet<ModelNode> rotationKeyframeTargets;
     bool groupsResolved = false;
