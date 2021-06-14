@@ -78,15 +78,16 @@ ChangeSet editsToChangeSet(const QList<TextEdit> &edits, const QTextDocument *do
     return changeSet;
 }
 
-bool applyTextDocumentEdit(const TextDocumentEdit &edit)
+bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
 {
     const QList<TextEdit> &edits = edit.edits();
     if (edits.isEmpty())
         return true;
     const DocumentUri &uri = edit.textDocument().uri();
-    if (TextDocument* doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
+    const FilePath &filePath = uri.toFilePath();
+    if (TextDocument* doc = TextDocument::textDocumentForFilePath(filePath)) {
         LanguageClientValue<int> version = edit.textDocument().version();
-        if (!version.isNull() && version.value(0) < doc->document()->revision())
+        if (!version.isNull() && version.value(0) < client->documentVersion(filePath))
             return false;
     }
     return applyTextEdits(uri, edits);
@@ -120,14 +121,14 @@ void applyTextEdit(TextDocumentManipulatorInterface &manipulator,
     }
 }
 
-bool applyWorkspaceEdit(const WorkspaceEdit &edit)
+bool applyWorkspaceEdit(const Client *client, const WorkspaceEdit &edit)
 {
     bool result = true;
     const QList<TextDocumentEdit> &documentChanges
         = edit.documentChanges().value_or(QList<TextDocumentEdit>());
     if (!documentChanges.isEmpty()) {
         for (const TextDocumentEdit &documentChange : documentChanges)
-            result |= applyTextDocumentEdit(documentChange);
+            result |= applyTextDocumentEdit(client, documentChange);
     } else {
         const WorkspaceEdit::Changes &changes = edit.changes().value_or(WorkspaceEdit::Changes());
         for (auto it = changes.cbegin(); it != changes.cend(); ++it)
@@ -164,8 +165,8 @@ void updateCodeActionRefactoringMarker(Client *client,
         marker.tooltip = action.title();
     if (action.edit().has_value()) {
         WorkspaceEdit edit = action.edit().value();
-        marker.callback = [edit](const TextEditorWidget *) {
-            applyWorkspaceEdit(edit);
+        marker.callback = [client, edit](const TextEditorWidget *) {
+            applyWorkspaceEdit(client, edit);
         };
         if (diagnostics.isEmpty()) {
             QList<TextEdit> edits;

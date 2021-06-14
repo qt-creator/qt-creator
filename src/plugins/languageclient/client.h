@@ -145,6 +145,7 @@ public:
                                  int charsAdded);
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
+    int documentVersion(const Utils::FilePath &filePath) const;
 
     // workspace control
     virtual void setCurrentProject(ProjectExplorer::Project *project);
@@ -231,6 +232,7 @@ private:
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
+    QMap<Utils::FilePath, int> m_documentVersions;
     QMap<TextEditor::TextDocument *,
          QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
         m_documentsToUpdate;

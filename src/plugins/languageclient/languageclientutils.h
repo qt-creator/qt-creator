@@ -46,9 +46,9 @@ class Client;
 
 Utils::ChangeSet editsToChangeSet(const QList<LanguageServerProtocol::TextEdit> &edits,
                                   const QTextDocument *doc);
-bool LANGUAGECLIENT_EXPORT applyWorkspaceEdit(const LanguageServerProtocol::WorkspaceEdit &edit);
+bool LANGUAGECLIENT_EXPORT applyWorkspaceEdit(const Client *client, const LanguageServerProtocol::WorkspaceEdit &edit);
 bool LANGUAGECLIENT_EXPORT
-applyTextDocumentEdit(const LanguageServerProtocol::TextDocumentEdit &edit);
+applyTextDocumentEdit(const Client *client, const LanguageServerProtocol::TextDocumentEdit &edit);
 bool LANGUAGECLIENT_EXPORT applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
                                           const QList<LanguageServerProtocol::TextEdit> &edits);
 void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,

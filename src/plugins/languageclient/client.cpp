@@ -385,7 +385,9 @@ void Client::openDocument(TextEditor::TextDocument *document)
     item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
     item.setUri(DocumentUri::fromFilePath(filePath));
     item.setText(document->plainText());
-    item.setVersion(document->document()->revision());
+    if (!m_documentVersions.contains(filePath))
+        m_documentVersions[filePath] = 0;
+    item.setVersion(m_documentVersions[filePath]);
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
 
     const Client *currentClient = LanguageClientManager::clientForDocument(document);
@@ -547,8 +549,9 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
 
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
-    auto uri = DocumentUri::fromFilePath(document->filePath());
-    m_diagnosticManager.showDiagnostics(uri);
+    const FilePath &filePath = document->filePath();
+    auto uri = DocumentUri::fromFilePath(filePath);
+    m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(filePath));
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
     m_tokentSupport.updateSemanticTokens(document);
     // only replace the assist provider if the language server support it
@@ -1020,6 +1023,7 @@ bool Client::reset()
     qDeleteAll(m_documentHighlightsTimer);
     m_documentHighlightsTimer.clear();
     m_progressManager.reset();
+    m_documentVersions.clear();
     return true;
 }
 
@@ -1143,10 +1147,11 @@ void Client::sendPostponedDocumentUpdates()
 
     const QList<TextEditor::TextDocument *> documents = m_documentsToUpdate.keys();
     for (auto document : documents) {
-        const auto uri = DocumentUri::fromFilePath(document->filePath());
+        const FilePath &filePath = document->filePath();
+        const auto uri = DocumentUri::fromFilePath(filePath);
         m_highlights[uri].clear();
         VersionedTextDocumentIdentifier docId(uri);
-        docId.setVersion(document->document()->revision());
+        docId.setVersion(++m_documentVersions[filePath]);
         DidChangeTextDocumentParams params;
         params.setTextDocument(docId);
         params.setContentChanges(m_documentsToUpdate.take(document));
@@ -1233,7 +1238,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
     } else if (method == ApplyWorkspaceEditRequest::methodName) {
         auto params = dynamic_cast<const ApplyWorkspaceEditRequest *>(content)->params().value_or(ApplyWorkspaceEditParams());
         if (params.isValid())
-            applyWorkspaceEdit(params.edit());
+            applyWorkspaceEdit(this, params.edit());
         else
             logError(params);
     } else if (method == WorkSpaceFolderRequest::methodName) {
@@ -1280,7 +1285,7 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     const QList<Diagnostic> &diagnostics = params.diagnostics();
     m_diagnosticManager.setDiagnostics(uri, diagnostics, params.version());
     if (LanguageClientManager::clientForUri(uri) == this) {
-        m_diagnosticManager.showDiagnostics(uri);
+        m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(uri.toFilePath()));
         requestCodeActions(uri, diagnostics);
     }
 }
@@ -1303,7 +1308,7 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
         uri.toFilePath());
 
     if (!doc || LanguageClientManager::clientForDocument(doc) != this
-        || (!version.isNull() && doc->document()->revision() != version.value())) {
+        || (!version.isNull() && m_documentVersions.value(uri.toFilePath()) != version.value())) {
         return;
     }
 
@@ -1331,6 +1336,11 @@ bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
     return Utils::contains(m_documentsToUpdate.keys(), [fileName](const TextEditor::TextDocument *doc) {
         return doc->filePath() == fileName;
     });
+}
+
+int Client::documentVersion(const Utils::FilePath &filePath) const
+{
+    return m_documentVersions.value(filePath);
 }
 
 void Client::initializeCallback(const InitializeRequest::Response &initResponse)

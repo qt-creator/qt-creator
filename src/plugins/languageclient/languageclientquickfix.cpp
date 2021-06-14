@@ -50,7 +50,7 @@ public:
     void perform() override
     {
         if (Utils::optional<WorkspaceEdit> edit = m_action.edit()) {
-            applyWorkspaceEdit(*edit);
+            applyWorkspaceEdit(m_client, *edit);
         } else if (Utils::optional<Command> command = m_action.command()) {
             if (m_client)
                 m_client->executeCommand(*command);

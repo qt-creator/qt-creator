@@ -222,7 +222,7 @@ void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
                 continue;
             LanguageServerProtocol::WorkspaceEdit edit(argument.toObject());
             if (edit.isValid())
-                LanguageClient::applyWorkspaceEdit(edit);
+                LanguageClient::applyWorkspaceEdit(this, edit);
         }
     } else {
         Client::executeCommand(command);

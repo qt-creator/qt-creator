@@ -117,14 +117,13 @@ static QTextEdit::ExtraSelection toDiagnosticsSelections(const Diagnostic &diagn
     return QTextEdit::ExtraSelection{cursor, fontSettings.toTextCharFormat(style)};
 }
 
-void DiagnosticManager::showDiagnostics(const DocumentUri &uri)
+void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
 {
     const FilePath &filePath = uri.toFilePath();
     if (TextDocument *doc = TextDocument::textDocumentForFilePath(filePath)) {
         QList<QTextEdit::ExtraSelection> extraSelections;
         const VersionedDiagnostics &versionedDiagnostics =  m_diagnostics.value(uri);
-        const int docRevision = doc->document()->revision();
-        if (versionedDiagnostics.version.value_or(docRevision) == docRevision) {
+        if (versionedDiagnostics.version.value_or(version) == version) {
             const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
             const QString tooltip = tr("Copy to Clipboard");
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {

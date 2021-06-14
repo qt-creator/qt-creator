@@ -47,7 +47,7 @@ public:
                         const Utils::optional<int> &version);
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
 
-    void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
+    void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri, int version);
     void hideDiagnostics(TextEditor::TextDocument *doc);
 
     void clearDiagnostics();
