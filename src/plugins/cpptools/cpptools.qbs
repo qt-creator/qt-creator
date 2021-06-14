@@ -8,6 +8,7 @@ Project {
         Depends { name: "Qt.widgets" }
         Depends { name: "Qt.testlib"; condition: project.withAutotests }
         Depends { name: "CPlusPlus" }
+        Depends { name: "ClangSupport" }
         Depends { name: "Utils" }
 
         Depends { name: "Core" }

@@ -169,22 +169,6 @@ enum class MessageType : quint8 {
 
     RequestCompletionsMessage,
     CompletionsMessage,
-
-    SourceLocationsForRenamingMessage,
-    RequestSourceLocationsForRenamingMessage,
-
-    RequestSourceRangesAndDiagnosticsForQueryMessage,
-    RequestSourceRangesForQueryMessage,
-    SourceRangesAndDiagnosticsForQueryMessage,
-    SourceRangesForQueryMessage,
-
-    CancelMessage,
-    UpdateProjectPartsMessage,
-    RemoveProjectPartsMessage,
-    PrecompiledHeadersUpdatedMessage,
-    UpdateGeneratedFilesMessage,
-    RemoveGeneratedFilesMessage,
-    ProgressMessage
 };
 
 template<MessageType messageEnumeration>

@@ -28,6 +28,7 @@
 
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
+#include "sourcelocationscontainer.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <languageclient/languageclientsymbolsupport.h>
@@ -74,10 +75,9 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
         const QString symbolName = cursor.selectedText();
         ClangBackEnd::SourceLocationsContainer container;
         for (auto& use : info.useRanges) {
-            container.insertSourceLocation(ClangBackEnd::FilePathId(),
+            container.insertSourceLocation({},
                                            use.line,
-                                           use.column,
-                                           use.length);
+                                           use.column);
         }
         renameSymbolsCallback(symbolName, container, data.cursor().document()->revision());
     });

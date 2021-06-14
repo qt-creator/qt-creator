@@ -608,7 +608,7 @@ ProjectPart *CppEditorWidget::projectPart() const
 
 namespace {
 
-using ClangBackEnd::V2::SourceLocationContainer;
+using ClangBackEnd::SourceLocationContainer;
 using Utils::Text::selectAt;
 
 QTextCharFormat occurrencesTextCharFormat()

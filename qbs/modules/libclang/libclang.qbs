@@ -64,7 +64,6 @@ Module {
         return incl != llvmIncludeDir;
     })
     property stringList llvmToolingCxxFlags: clangProbe.llvmToolingCxxFlags
-    property bool toolingEnabled: Environment.getEnv("QTC_ENABLE_CLANG_REFACTORING")
 
     validate: {
         if (!clangProbe.found) {

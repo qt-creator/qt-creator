@@ -111,7 +111,6 @@ void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 } // namespace Utils
 
 namespace ClangBackEnd {
-class CancelMessage;
 class AliveMessage;
 class CompletionsMessage;
 class EchoMessage;
@@ -150,7 +149,6 @@ struct ExtraInfo;
 class TokenInfoContainer;
 class UnsavedFilesRemovedMessage;
 
-std::ostream &operator<<(std::ostream &out, const CancelMessage &message);
 std::ostream &operator<<(std::ostream &out, const AliveMessage &message);
 std::ostream &operator<<(std::ostream &out, const CompletionsMessage &message);
 std::ostream &operator<<(std::ostream &out, const EchoMessage &message);

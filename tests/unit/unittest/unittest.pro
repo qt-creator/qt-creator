@@ -54,19 +54,12 @@ QMAKE_SUBSTITUTES += cpptoolsjson
 DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
 
 SOURCES += \
-    clangindexingsettingsmanager-test.cpp \
-    clangpathwatcher-test.cpp \
-    clangqueryexamplehighlightmarker-test.cpp \
-    clangqueryhighlightmarker-test.cpp \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess-test.cpp \
     cppprojectfilecategorizer-test.cpp \
     cppprojectinfogenerator-test.cpp \
     cppprojectpartchooser-test.cpp \
-    directorypathcompressor-test.cpp \
     fakeprocess.cpp \
-    filepath-test.cpp \
-    filepathview-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
     asynchronousimagecache-test.cpp \
@@ -80,64 +73,25 @@ SOURCES += \
     lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
     listmodeleditor-test.cpp \
-    locatorfilter-test.cpp \
     mimedatabase-utilities.cpp \
-    pchmanagerclientserverinprocess-test.cpp \
-    pchmanagerclient-test.cpp \
-    pchmanagerserver-test.cpp \
-    preprocessormacrocollector-test.cpp \
     processevents-utilities.cpp \
-    projectpartsmanager-test.cpp \
-    projectpartsstorage-test.cpp \
-    projectupdater-test.cpp \
     readandwritemessageblock-test.cpp \
     sizedarray-test.cpp \
     smallstring-test.cpp \
-    sourcerangefilter-test.cpp \
     spydummy.cpp \
     sqlitesessions-test.cpp \
     sqlitevalue-test.cpp \
-    symbolindexer-test.cpp \
-    symbolsfindfilter-test.cpp \
-    stringcache-test.cpp \
     eventspy.cpp \
     unittests-main.cpp \
     utf8-test.cpp \
-    symbolstorage-test.cpp \
-    symbolquery-test.cpp \
     sqliteindex-test.cpp \
     sqlitetransaction-test.cpp \
-    refactoringdatabaseinitializer-test.cpp \
-    filepathcache-test.cpp \
-    filepathstorage-test.cpp \
-    filepathstoragesqlitestatementfactory-test.cpp \
     processcreator-test.cpp \
-    nativefilepath-test.cpp \
-    nativefilepathview-test.cpp \
     mocktimer.cpp \
-    projectpartartefact-test.cpp \
-    filestatuscache-test.cpp \
-    precompiledheaderstorage-test.cpp \
-    generatedfiles-test.cpp \
-    sourcesmanager-test.cpp \
-    symbolindexertaskqueue-test.cpp \
-    refactoringprojectupdater-test.cpp \
-    processormanager-test.cpp \
     task.cpp \
-    taskscheduler-test.cpp \
     compileroptionsbuilder-test.cpp \
-    progresscounter-test.cpp \
-    pchtaskgenerator-test.cpp \
     compilationdatabaseutils-test.cpp \
-    builddependenciesprovider-test.cpp \
-    builddependenciesstorage-test.cpp \
-    usedmacrofilter-test.cpp \
-    pchtasksmerger-test.cpp \
-    pchtaskqueue-test.cpp \
-    commandlinebuilder-test.cpp \
     headerpathfilter-test.cpp \
-    toolchainargumentscache-test.cpp \
-    modifiedtimechecker-test.cpp \
     sqlitecolumn-test.cpp \
     sqlitedatabasebackend-test.cpp \
     sqlitedatabase-test.cpp \
@@ -216,23 +170,6 @@ SOURCES += \
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     gtest-llvm-printing.cpp \
-    clangquerygatherer-test.cpp \
-    clangqueryprojectfindfilter-test.cpp \
-    clangquery-test.cpp \
-    pchcreator-test.cpp \
-    refactoringclientserverinprocess-test.cpp \
-    refactoringclient-test.cpp \
-    refactoringcompilationdatabase-test.cpp \
-    refactoringserver-test.cpp \
-    sourcerangeextractor-test.cpp \
-    symbolindexing-test.cpp \
-    symbolscollector-test.cpp \
-    testclangtool.cpp \
-    usedmacrocollector-test.cpp \
-    builddependencycollector-test.cpp
-
-!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += refactoringengine-test.cpp
-
 }
 
 !isEmpty(CLANGFORMAT_LIBS) {
@@ -262,63 +199,28 @@ HEADERS += \
     mimedatabase-utilities.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
-    mockclangpathwatcher.h \
-    mockclangpathwatchernotifier.h \
     mockfilesystem.h \
     mockimagecachegenerator.h \
     mockimagecachestorage.h \
     mocklistmodeleditorview.h \
-    mockpchcreator.h \
-    mockpchmanagerclient.h \
-    mockpchmanagernotifier.h \
-    mockpchmanagerserver.h \
-    mockprojectpartsmanager.h \
-    mockprojectpartsstorage.h \
     mockqfilesystemwatcher.h \
-    mocksearch.h \
-    mocksearchhandle.h \
-    mocksearchresult.h \
     mocksyntaxhighligher.h \
     mocktimestampprovider.h \
     notification.h \
     processevents-utilities.h \
     sourcerangecontainer-matcher.h \
     spydummy.h \
-    testenvironment.h \
-    mocksymbolscollector.h \
-    mocksymbolstorage.h \
     google-using-declarations.h \
-    mocksymbolindexing.h \
     sqliteteststatement.h \
     mockmutex.h \
-    mockfilepathstorage.h \
-    mockfilepathcaching.h \
     mocksqlitestatement.h \
     unittest-utility-functions.h \
-    mocksymbolquery.h \
     rundocumentparse-utility.h \
     mocktimer.h \
     mocksqlitetransactionbackend.h \
-    mockprojectpartprovider.h \
-    mockprecompiledheaderstorage.h \
-    mockeditormanager.h \
-    mocksymbolindexertaskqueue.h \
     mockcppmodelmanager.h \
-    mockgeneratedfiles.h \
     mockqueue.h \
-    mockprojectpartqueue.h \
-    mockprocessor.h \
-    mockprocessormanager.h \
-    mocktaskscheduler.h \
-    mockprogressmanager.h \
     mockfutureinterface.h \
-    mockbuilddependenciesprovider.h \
-    mockmodifiedtimechecker.h \
-    mockbuilddependenciesstorage.h \
-    mockbuilddependencygenerator.h \
-    mockpchtasksmerger.h \
-    mockpchtaskqueue.h \
-    mockpchtaskgenerator.h \
     ../mockup/qmldesigner/designercore/include/nodeinstanceview.h \
     ../mockup/qmldesigner/designercore/include/rewriterview.h \
     ../mockup/qmldesigner/designercore/include/itemlibraryitem.h\
@@ -338,13 +240,6 @@ HEADERS += \
     clangcompareoperators.h \
     diagnosticcontainer-matcher.h \
     gtest-clang-printing.h
-}
-
-!isEmpty(LIBTOOLING_LIBS) {
-HEADERS += \
-    mockrefactoringclient.h \
-    mockrefactoringserver.h \
-    testclangtool.h
 }
 
 OTHER_FILES += $$files(data/*) $$files(data/include/*)

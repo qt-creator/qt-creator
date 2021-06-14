@@ -29,7 +29,6 @@
 #ifdef CLANG_UNIT_TESTS
 #include <clangdocumentsuspenderresumer.h>
 #include <clangreferencescollector.h>
-#include <filepathview.h>
 #include <fulltokeninfo.h>
 #include <tokenprocessor.h>
 

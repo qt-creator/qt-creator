@@ -38,11 +38,11 @@
 #include <modelnode.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/sourcepathcachetypes.h>
-#include <sourcelocations.h>
 #include <sqlitesessionchangeset.h>
 #include <sqlitevalue.h>
 #include <tooltipinfo.h>
 #include <utils/fileutils.h>
+#include <utils/linecolumn.h>
 #include <variantproperty.h>
 #include <qmldesigner/designercore/imagecache/imagecachestorageinterface.h>
 
@@ -462,11 +462,6 @@ std::ostream &operator<<(std::ostream &os, const DocumentsOpenedMessage &message
 }
 
 std::ostream &operator<<(std::ostream &os, const EndMessage &/*message*/)
-{
-    return os << "()";
-}
-
-std::ostream &operator<<(std::ostream &os, const CancelMessage &/*message*/)
 {
     return os << "()";
 }

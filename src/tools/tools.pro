@@ -27,12 +27,6 @@ mac {
 
 SUBDIRS += clangbackend
 
-QTC_ENABLE_CLANG_REFACTORING=$$(QTC_ENABLE_CLANG_REFACTORING)
-!isEmpty(QTC_ENABLE_CLANG_REFACTORING) {
-    SUBDIRS += clangrefactoringbackend
-    SUBDIRS += clangpchmanagerbackend
-}
-
 isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)
 !isEmpty(BUILD_CPLUSPLUS_TOOLS) {
     SUBDIRS += cplusplus-ast2png \

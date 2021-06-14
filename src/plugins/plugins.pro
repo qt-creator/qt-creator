@@ -118,12 +118,6 @@ exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
 SUBDIRS += \
     clangcodemodel
 
-QTC_ENABLE_CLANG_REFACTORING=$$(QTC_ENABLE_CLANG_REFACTORING)
-!isEmpty(QTC_ENABLE_CLANG_REFACTORING) {
-    SUBDIRS += clangrefactoring
-    SUBDIRS += clangpchmanager
-}
-
 isEmpty(IDE_PACKAGE_MODE) {
     SUBDIRS += \
         helloworld

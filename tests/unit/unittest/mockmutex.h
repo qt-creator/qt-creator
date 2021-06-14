@@ -27,8 +27,6 @@
 
 #include "googletest.h"
 
-#include <stringcache.h>
-
 class MockMutex
 {
 public:
@@ -40,7 +38,7 @@ public:
     MOCK_METHOD0(unlock_shared, void ());
 };
 
-class MockMutexNonLocking : public ClangBackEnd::NonLockingMutex
+class MockMutexNonLocking
 {
 public:
     using MutexType = MockMutexNonLocking;

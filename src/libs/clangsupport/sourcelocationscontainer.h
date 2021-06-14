@@ -25,21 +25,21 @@
 
 #pragma once
 
-#include "sourcelocationcontainerv2.h"
+#include "sourcelocationcontainer.h"
 
 #include <utils/smallstringio.h>
 
 namespace ClangBackEnd {
 
-class SourceLocationsContainer
+class CLANGSUPPORT_EXPORT SourceLocationsContainer
 {
 public:
     SourceLocationsContainer() = default;
-    SourceLocationsContainer(std::vector<V2::SourceLocationContainer> &&sourceLocationContainers)
+    SourceLocationsContainer(std::vector<SourceLocationContainer> &&sourceLocationContainers)
         : m_sourceLocationContainers(std::move(sourceLocationContainers))
     {}
 
-    const std::vector<V2::SourceLocationContainer> &sourceLocationContainers() const
+    const std::vector<SourceLocationContainer> &sourceLocationContainers() const
     {
         return m_sourceLocationContainers;
     }
@@ -49,9 +49,9 @@ public:
         return !m_sourceLocationContainers.empty();
     }
 
-    void insertSourceLocation(FilePathId filePathId, uint line, uint column, uint offset)
+    void insertSourceLocation(const Utf8String &filePath, int line, int column)
     {
-        m_sourceLocationContainers.emplace_back(filePathId, line, column, offset);
+        m_sourceLocationContainers.emplace_back(filePath, line, column);
     }
 
     void reserve(std::size_t size)
@@ -83,7 +83,7 @@ public:
         return *this;
     }
 
-    std::vector<V2::SourceLocationContainer> m_sourceLocationContainers;
+    std::vector<SourceLocationContainer> m_sourceLocationContainers;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsContainer &container);

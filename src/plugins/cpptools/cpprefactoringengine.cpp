@@ -30,6 +30,7 @@
 #include "cpptoolsreuse.h"
 #include "cppfollowsymbolundercursor.h"
 
+#include <clangsupport/sourcelocationscontainer.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>

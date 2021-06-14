@@ -5,6 +5,7 @@ QtcPlugin {
     name: "CppEditor"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "ClangSupport" }
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
 

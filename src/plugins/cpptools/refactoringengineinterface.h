@@ -32,14 +32,15 @@
 #include <utils/link.h>
 #include <utils/fileutils.h>
 
-#include <clangsupport/sourcelocationscontainer.h>
-#include <clangsupport/refactoringclientinterface.h>
-
 #include <cplusplus/CppDocument.h>
 
 namespace TextEditor {
 class TextEditorWidget;
 } // namespace TextEditor
+
+namespace ClangBackEnd {
+class SourceLocationsContainer;
+}
 
 namespace CppTools {
 
@@ -56,7 +57,9 @@ enum class CallType
 class CPPTOOLS_EXPORT RefactoringEngineInterface
 {
 public:
-    using RenameCallback = ClangBackEnd::RefactoringClientInterface::RenameCallback;
+    using RenameCallback = std::function<void(const QString &,
+                                              const ClangBackEnd::SourceLocationsContainer &,
+                                              int)>;
     using Link = Utils::Link;
 
     virtual ~RefactoringEngineInterface() = default;

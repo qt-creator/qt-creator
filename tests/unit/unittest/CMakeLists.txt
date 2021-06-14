@@ -37,15 +37,8 @@ add_qtc_test(unittest GTEST
     CPPTOOLS_JSON="${CMAKE_CURRENT_BINARY_DIR}/CppTools.json"
   SOURCES
     abstractviewmock.h
-    builddependenciesprovider-test.cpp
-    builddependenciesstorage-test.cpp
-    clangindexingsettingsmanager-test.cpp
-    clangpathwatcher-test.cpp
-    clangqueryexamplehighlightmarker-test.cpp
-    clangqueryhighlightmarker-test.cpp
     clientserverinprocess-test.cpp
     clientserveroutsideprocess-test.cpp
-    commandlinebuilder-test.cpp
     compare-operators.h
     compileroptionsbuilder-test.cpp
     conditionally-disabled-tests.h
@@ -56,14 +49,7 @@ add_qtc_test(unittest GTEST
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h
     fakeprocess.cpp fakeprocess.h
-    filepathcache-test.cpp
-    filepathstoragesqlitestatementfactory-test.cpp
-    filepathstorage-test.cpp
-    filepath-test.cpp
-    filepathview-test.cpp
-    filestatuscache-test.cpp
     filesystem-utilities.h
-    generatedfiles-test.cpp
     googletest.h
     google-using-declarations.h
     gtest-creator-printing.cpp gtest-creator-printing.h
@@ -73,102 +59,36 @@ add_qtc_test(unittest GTEST
     headerpathfilter-test.cpp
     highlightingresultreporter-test.cpp
     lineprefixer-test.cpp
-    locatorfilter-test.cpp
     matchingtext-test.cpp
     mimedatabase-utilities.cpp mimedatabase-utilities.h
-    mockbuilddependenciesprovider.h
-    mockbuilddependenciesstorage.h
-    mockbuilddependencygenerator.h
     mockclangcodemodelclient.h
     mockclangcodemodelserver.h
-    mockclangpathwatcher.h
-    mockclangpathwatchernotifier.h
     mockcppmodelmanager.h
-    mockeditormanager.h
-    mockfilepathcaching.h
-    mockfilepathstorage.h
     mockfutureinterface.h
-    mockgeneratedfiles.h
-    mockmodifiedtimechecker.h
     mockmutex.h
-    mockpchcreator.h
-    mockpchmanagerclient.h
-    mockpchmanagernotifier.h
-    mockpchmanagerserver.h
-    mockpchtaskgenerator.h
-    mockpchtaskqueue.h
-    mockpchtasksmerger.h
-    mockprecompiledheaderstorage.h
-    mockprocessor.h
-    mockprocessormanager.h
-    mockprogressmanager.h
-    mockprojectpartprovider.h
-    mockprojectpartqueue.h
-    mockprojectpartsmanager.h
-    mockprojectpartsstorage.h
     mockqfilesystemwatcher.h
     mockqueue.h
-    mocksearch.h
-    mocksearchhandle.h
-    mocksearchresult.h
     mocksqlitestatement.h
     mocksqlitetransactionbackend.h
-    mocksymbolindexertaskqueue.h
-    mocksymbolindexing.h
-    mocksymbolquery.h
-    mocksymbolscollector.h
-    mocksymbolstorage.h
     mocksyntaxhighligher.h
-    mocktaskscheduler.h
     mocktimer.cpp mocktimer.h
-    modifiedtimechecker-test.cpp
-    nativefilepath-test.cpp
-    nativefilepathview-test.cpp
     nodelistproperty-test.cpp
-    pchmanagerclientserverinprocess-test.cpp
-    pchmanagerclient-test.cpp
-    pchmanagerserver-test.cpp
-    pchtaskgenerator-test.cpp
-    pchtaskqueue-test.cpp
-    pchtasksmerger-test.cpp
-    precompiledheaderstorage-test.cpp
-    preprocessormacrocollector-test.cpp
     processcreator-test.cpp
     processevents-utilities.cpp processevents-utilities.h
-    processormanager-test.cpp
-    progresscounter-test.cpp
-    projectpartartefact-test.cpp
-    projectpartsmanager-test.cpp
-    projectpartsstorage-test.cpp
-    projectupdater-test.cpp
     readandwritemessageblock-test.cpp
-    refactoringdatabaseinitializer-test.cpp
-    refactoringprojectupdater-test.cpp
     rundocumentparse-utility.h
     sizedarray-test.cpp
     smallstring-test.cpp
     sourcerangecontainer-matcher.h
-    sourcerangefilter-test.cpp
-    sourcesmanager-test.cpp
     spydummy.cpp spydummy.h
     sqlitealgorithms-test.cpp
     sqliteindex-test.cpp
     sqliteteststatement.h
     sqlitetransaction-test.cpp
-    stringcache-test.cpp
-    symbolindexertaskqueue-test.cpp
-    symbolindexer-test.cpp
-    symbolquery-test.cpp
-    symbolsfindfilter-test.cpp
-    symbolstorage-test.cpp
     task.cpp
-    taskscheduler-test.cpp
-    testenvironment.h
     tokenprocessor-test.cpp
-    toolchainargumentscache-test.cpp
     unittests-main.cpp
     unittest-utility-functions.h
-    usedmacrofilter-test.cpp
     utf8-test.cpp
     sqlitecolumn-test.cpp
     sqlitedatabasebackend-test.cpp
@@ -219,7 +139,7 @@ function(extend_qtc_test_with_target_sources target)
   )
 endfunction()
 
-foreach(clang_tools_library clangrefactoringbackend_lib clangbackend_lib clangpchmanagerbackend_lib)
+foreach(clang_tools_library clangbackend_lib)
   extend_qtc_test_with_target_sources(${clang_tools_library}
     DEFINES
       CLANGSUPPORT_BUILD_LIB
@@ -258,6 +178,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CppTools.json" ${plugin_json_in})
 extend_qtc_test(unittest
   CONDITION TARGET libclang
   INCLUDES "${CLANG_INCLUDE_DIRS}"
+  DEFINES CLANG_UNIT_TESTS
   DEPENDS libclang
   SOURCES
     activationsequencecontextprocessor-test.cpp
@@ -298,6 +219,7 @@ extend_qtc_test(unittest
     diagnosticset-test.cpp
     diagnostic-test.cpp
     fixit-test.cpp
+    gtest-clang-printing.cpp gtest-clang-printing.h
     senddocumenttracker-test.cpp
     skippedsourceranges-test.cpp
     sourcelocation-test.cpp
@@ -305,38 +227,11 @@ extend_qtc_test(unittest
     token-test.cpp
     translationunitupdater-test.cpp
     unsavedfiles-test.cpp
-    unsavedfile-test.cpp
     utf8positionfromlinecolumn-test.cpp
     chunksreportedmonitor.h
     clangasyncjob-base.h
     clangcompareoperators.h
     diagnosticcontainer-matcher.h
-)
-
-extend_qtc_test(unittest
-  CONDITION TARGET clangTooling
-  DEFINES CLANG_UNIT_TESTS
-  DEPENDS clangTooling clangIndex clangQuery
-  SOURCES
-    gtest-llvm-printing.cpp
-    clangquerygatherer-test.cpp
-    clangqueryprojectfindfilter-test.cpp
-    clangquery-test.cpp
-    gtest-clang-printing.cpp gtest-clang-printing.h
-    pchcreator-test.cpp
-    refactoringclientserverinprocess-test.cpp
-    refactoringclient-test.cpp
-    refactoringcompilationdatabase-test.cpp
-    refactoringengine-test.cpp
-    refactoringserver-test.cpp
-    sourcerangeextractor-test.cpp
-    symbolindexing-test.cpp
-    symbolscollector-test.cpp
-    testclangtool.cpp testclangtool.h
-    usedmacrocollector-test.cpp
-    builddependencycollector-test.cpp
-    mockrefactoringclient.h
-    mockrefactoringserver.h
 )
 
 extend_qtc_test(unittest
@@ -358,8 +253,6 @@ finalize_qtc_gtest(unittest ".c$")
 # Path needs to be before CppTools
 target_include_directories(unittest
   PRIVATE
-    BEFORE $<TARGET_PROPERTY:clangrefactoringbackend_lib,INTERFACE_INCLUDE_DIRECTORIES>
-    BEFORE ../../../src/plugins/clangrefactoring
     BEFORE ../../../src/plugins
 )
 
@@ -500,46 +393,6 @@ extend_qtc_test(unittest
   DEFINES PROJECTEXPLORER_STATIC_LIBRARY
   SOURCES
     projectmacro.cpp projectmacro.h
-)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/clangrefactoring
-  SOURCES
-    clangqueryexamplehighlighter.cpp clangqueryexamplehighlighter.h
-    clangqueryexamplehighlightmarker.h
-    clangqueryhighlighter.cpp clangqueryhighlighter.h
-    clangqueryhighlightmarker.h
-    clangqueryprojectsfindfilter.cpp clangqueryprojectsfindfilter.h
-    projectpartutilities.cpp projectpartutilities.h
-    refactoringclient.cpp refactoringclient.h
-    refactoringconnectionclient.cpp refactoringconnectionclient.h
-    refactoringengine.cpp refactoringengine.h
-    refactoringprojectupdater.cpp refactoringprojectupdater.h
-    searchinterface.h
-    searchhandle.cpp searchhandle.h
-    clangsymbolsfindfilter.cpp clangsymbolsfindfilter.h
-    symbolqueryinterface.h
-    symbol.h
-    projectpartproviderinterface.h
-    editormanagerinterface.h
-    locatorfilter.cpp locatorfilter.h
-)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/clangpchmanager
-  DEFINES CLANGPCHMANAGER_STATIC_LIB
-  SOURCES
-    clangindexingprojectsettings.cpp clangindexingprojectsettings.h
-    clangindexingsettingsmanager.cpp clangindexingsettingsmanager.h
-    pchmanagerclient.h pchmanagerclient.cpp
-    pchmanagernotifierinterface.h pchmanagernotifierinterface.cpp
-    pchmanagerconnectionclient.h pchmanagerconnectionclient.cpp
-    clangpchmanager_global.h
-    preprocessormacrocollector.cpp preprocessormacrocollector.h
-    projectupdater.h projectupdater.cpp
-    pchmanagerprojectupdater.h pchmanagerprojectupdater.cpp
-    progressmanager.h
-    progressmanagerinterface.h
 )
 
 extend_qtc_test(unittest

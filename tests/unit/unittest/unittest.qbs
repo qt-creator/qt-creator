@@ -84,7 +84,6 @@ Project {
                         "QT_RESTRICTED_CAST_FROM_ASCII",
                         "QT_USE_FAST_OPERATOR_PLUS",
                         "QT_USE_FAST_CONCATENATION",
-                        "CLANGPCHMANAGER_STATIC_LIB",
                         "CLANGSUPPORT_BUILD_STATIC_LIB",
                         "CLANGTOOLS_STATIC_LIBRARY",
                         "CPPTOOLS_STATIC_LIBRARY",
@@ -102,8 +101,6 @@ Project {
                     ];
             if (libclang.present) {
                 defines.push("CLANG_UNIT_TESTS");
-                if (libclang.toolingEnabled)
-                    defines = defines.concat(libclang.llvmToolingDefines);
             }
             return defines;
         }
@@ -124,8 +121,6 @@ Project {
             }
             if (qbs.toolchain.contains("gcc"))
                 flags.push("-Wno-unused-parameter");
-            if (libclang.present && libclang.toolingEnabled)
-                flags = flags.concat(libclang.llvmToolingCxxFlags);
             return flags;
         }
         cpp.cxxLanguageVersion: "c++17"
@@ -133,8 +128,6 @@ Project {
             var libs = [];
             if (libclang.present) {
                 libs = libs.concat(libclang.llvmLibs);
-                if (libclang.toolingEnabled)
-                    libs = libs.concat(libclang.llvmToolingLibs);
                 if (libclang.llvmFormattingLibs.length
                         && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)) {
                     libs = libs.concat(libclang.llvmFormattingLibs);
@@ -151,17 +144,11 @@ Project {
                         "../../../src/libs/clangsupport",
                         "../../../src/plugins",
                         "../../../src/plugins/clangcodemodel",
-                        "../../../src/plugins/clangpchmanager",
-                        "../../../src/plugins/clangrefactoring",
                         "../../../src/tools/clangbackend/source",
-                        "../../../src/tools/clangpchmanagerbackend/source",
-                        "../../../src/tools/clangrefactoringbackend/source",
                         "../../../share/qtcreator/qml/qmlpuppet/types",
                     ];
             if (libclang.present) {
                 paths.push(libclang.llvmIncludeDir);
-                if (libclang.toolingEnabled)
-                    paths = paths.concat(libclang.llvmToolingIncludes);
             }
             return paths;
         }
@@ -182,15 +169,8 @@ Project {
         }
 
         files: [
-            "builddependenciesprovider-test.cpp",
-            "builddependenciesstorage-test.cpp",
-            "clangindexingsettingsmanager-test.cpp",
-            "clangpathwatcher-test.cpp",
-            "clangqueryexamplehighlightmarker-test.cpp",
-            "clangqueryhighlightmarker-test.cpp",
             "clientserverinprocess-test.cpp",
             "clientserveroutsideprocess-test.cpp",
-            "commandlinebuilder-test.cpp",
             "compare-operators.h",
             "compilationdatabaseutils-test.cpp",
             "compileroptionsbuilder-test.cpp",
@@ -199,21 +179,13 @@ Project {
             "cppprojectinfogenerator-test.cpp",
             "cppprojectpartchooser-test.cpp",
             "createtablesqlstatementbuilder-test.cpp",
-            "directorypathcompressor-test.cpp",
             "dummyclangipcclient.h",
             "dynamicastmatcherdiagnosticcontainer-matcher.h",
             "eventspy.cpp",
             "eventspy.h",
             "fakeprocess.cpp",
             "fakeprocess.h",
-            "filepath-test.cpp",
-            "filepathcache-test.cpp",
-            "filepathstorage-test.cpp",
-            "filepathstoragesqlitestatementfactory-test.cpp",
-            "filepathview-test.cpp",
-            "filestatuscache-test.cpp",
             "filesystem-utilities.h",
-            "generatedfiles-test.cpp",
             "google-using-declarations.h",
             "googletest.h",
             "gtest-creator-printing.cpp",
@@ -223,86 +195,29 @@ Project {
             "gtest-qt-printing.h",
             "headerpathfilter-test.cpp",
             "lineprefixer-test.cpp",
-            "locatorfilter-test.cpp",
             "matchingtext-test.cpp",
             "mimedatabase-utilities.cpp",
             "mimedatabase-utilities.h",
-            "mockbuilddependenciesprovider.h",
-            "mockbuilddependenciesstorage.h",
-            "mockbuilddependencygenerator.h",
             "mockclangcodemodelclient.h",
             "mockclangcodemodelserver.h",
-            "mockclangpathwatcher.h",
-            "mockclangpathwatchernotifier.h",
             "mockcppmodelmanager.h",
-            "mockeditormanager.h",
-            "mockfilepathcaching.h",
-            "mockfilepathstorage.h",
-            "mockfilesystem.h",
             "mockfutureinterface.h",
-            "mockgeneratedfiles.h",
-            "mockmodifiedtimechecker.h",
             "mockmutex.h",
-            "mockpchcreator.h",
-            "mockpchmanagerclient.h",
-            "mockpchmanagernotifier.h",
-            "mockpchmanagerserver.h",
-            "mockpchtaskgenerator.h",
-            "mockpchtaskqueue.h",
-            "mockpchtasksmerger.h",
-            "mockprecompiledheaderstorage.h",
-            "mockprocessor.h",
-            "mockprocessormanager.h",
-            "mockprogressmanager.h",
-            "mockprojectpartprovider.h",
-            "mockprojectpartqueue.h",
-            "mockprojectpartsmanager.h",
-            "mockprojectpartsstorage.h",
             "mockqfilesystemwatcher.h",
             "mockqueue.h",
-            "mocksearch.h",
-            "mocksearchhandle.h",
-            "mocksearchresult.h",
             "mocksqlitestatement.h",
             "mocksqlitetransactionbackend.h",
-            "mocksymbolindexertaskqueue.h",
-            "mocksymbolindexing.h",
-            "mocksymbolquery.h",
-            "mocksymbolscollector.h",
-            "mocksymbolstorage.h",
             "mocksyntaxhighligher.h",
-            "mocktaskscheduler.h",
             "mocktimer.cpp",
             "mocktimer.h",
-            "modifiedtimechecker-test.cpp",
-            "nativefilepath-test.cpp",
-            "nativefilepathview-test.cpp",
-            "pchmanagerclient-test.cpp",
-            "pchmanagerclientserverinprocess-test.cpp",
-            "pchmanagerserver-test.cpp",
-            "pchtaskgenerator-test.cpp",
-            "pchtaskqueue-test.cpp",
-            "pchtasksmerger-test.cpp",
-            "precompiledheaderstorage-test.cpp",
-            "preprocessormacrocollector-test.cpp",
             "processcreator-test.cpp",
             "processevents-utilities.cpp",
             "processevents-utilities.h",
-            "processormanager-test.cpp",
-            "progresscounter-test.cpp",
-            "projectpartartefact-test.cpp",
-            "projectpartsmanager-test.cpp",
-            "projectpartsstorage-test.cpp",
-            "projectupdater-test.cpp",
             "readandwritemessageblock-test.cpp",
-            "refactoringdatabaseinitializer-test.cpp",
-            "refactoringprojectupdater-test.cpp",
             "rundocumentparse-utility.h",
             "sizedarray-test.cpp",
             "smallstring-test.cpp",
             "sourcerangecontainer-matcher.h",
-            "sourcerangefilter-test.cpp",
-            "sourcesmanager-test.cpp",
             "spydummy.cpp",
             "spydummy.h",
             "sqlitecolumn-test.cpp",
@@ -320,19 +235,9 @@ Project {
             "sqlitewritestatementmock.cpp",
             "sqlitewritestatementmock.h",
             "sqlstatementbuilder-test.cpp",
-            "stringcache-test.cpp",
-            "symbolindexer-test.cpp",
-            "symbolindexertaskqueue-test.cpp",
-            "symbolquery-test.cpp",
-            "symbolsfindfilter-test.cpp",
-            "symbolstorage-test.cpp",
             "task.cpp",
-            "taskscheduler-test.cpp",
-            "testenvironment.h",
-            "toolchainargumentscache-test.cpp",
             "unittest-utility-functions.h",
             "unittests-main.cpp",
-            "usedmacrofilter-test.cpp",
             "utf8-test.cpp",
         ]
 
@@ -398,34 +303,6 @@ Project {
         }
 
         Group {
-            name: "clang tooling tests"
-            condition: libclang.present && libclang.toolingEnabled
-            files: [
-                "builddependencycollector-test.cpp",
-                "clangdocumentsuspenderresumer-test.cpp",
-                "clangquery-test.cpp",
-                "clangquerygatherer-test.cpp",
-                "clangqueryprojectfindfilter-test.cpp",
-                "clangreferencescollector-test.cpp",
-                "gtest-llvm-printing.cpp",
-                "mockrefactoringclient.h",
-                "mockrefactoringserver.h",
-                "pchcreator-test.cpp",
-                "refactoringclient-test.cpp",
-                "refactoringclientserverinprocess-test.cpp",
-                "refactoringcompilationdatabase-test.cpp",
-                "refactoringengine-test.cpp",
-                "refactoringserver-test.cpp",
-                "sourcerangeextractor-test.cpp",
-                "symbolindexing-test.cpp",
-                "symbolscollector-test.cpp",
-                "testclangtool.cpp",
-                "testclangtool.h",
-                "usedmacrocollector-test.cpp",
-            ]
-        }
-
-        Group {
             name: "ClangFormat tests"
             condition: libclang.present
                        && libclang.llvmFormattingLibs.length
@@ -452,155 +329,6 @@ Project {
             name: "json.in file"
             files: "../../../src/plugins/cpptools/CppTools.json.in"
             fileTags: "pluginJsonIn"
-        }
-
-        Group {
-            name: "sources from pchmanager"
-            prefix: "../../../src/plugins/clangpchmanager/"
-            files: [
-                "clangindexingprojectsettings.cpp",
-                "clangindexingprojectsettings.h",
-                "clangindexingsettingsmanager.cpp",
-                "clangindexingsettingsmanager.h",
-                "clangpchmanager_global.h",
-                "pchmanagerclient.cpp",
-                "pchmanagerclient.h",
-                "pchmanagerconnectionclient.cpp",
-                "pchmanagerconnectionclient.h",
-                "pchmanagernotifierinterface.cpp",
-                "pchmanagernotifierinterface.h",
-                "pchmanagerprojectupdater.cpp",
-                "pchmanagerprojectupdater.h",
-                "preprocessormacrocollector.cpp",
-                "preprocessormacrocollector.h",
-                "progressmanager.h",
-                "progressmanagerinterface.h",
-                "projectupdater.cpp",
-                "projectupdater.h",
-            ]
-        }
-
-        Group {
-            name: "sources from pchmanager backend"
-            prefix: "../../../src/tools/clangpchmanagerbackend/source/"
-            files: [
-                "builddependenciesprovider.cpp",
-                "builddependenciesprovider.h",
-                "builddependenciesproviderinterface.h",
-                "builddependenciesstorage.h",
-                "builddependenciesstorageinterface.h",
-                "builddependency.h",
-                "builddependencygeneratorinterface.h",
-                "clangpchmanagerbackend_global.h",
-                "generatepchactionfactory.h",
-                "pchcreatorinterface.h",
-                "pchmanagerserver.cpp",
-                "pchmanagerserver.h",
-                "pchnotcreatederror.h",
-                "pchtask.h",
-                "pchtaskgenerator.cpp",
-                "pchtaskgenerator.h",
-                "pchtaskgeneratorinterface.h",
-                "pchtaskqueue.cpp",
-                "pchtaskqueue.h",
-                "pchtaskqueueinterface.h",
-                "pchtasksmerger.cpp",
-                "pchtasksmerger.h",
-                "pchtasksmergerinterface.h",
-                "precompiledheaderstorage.h",
-                "precompiledheaderstorageinterface.h",
-                "processorinterface.h",
-                "processormanagerinterface.h",
-                "projectpartsmanager.cpp",
-                "projectpartsmanager.h",
-                "projectpartsmanagerinterface.h",
-                "queueinterface.h",
-                "taskscheduler.h",
-                "taskschedulerinterface.h",
-                "toolchainargumentscache.h",
-                "usedmacrofilter.h",
-            ]
-
-            Group {
-                name: "tooling sources from pchmanager backend"
-                condition: libclang.toolingEnabled
-                files: [
-                    "builddependencycollector.cpp",
-                    "builddependencycollector.h",
-                    "collectbuilddependencyaction.h",
-                    "collectbuilddependencypreprocessorcallbacks.h",
-                    "collectbuilddependencytoolaction.h",
-                    "collectusedmacroactionfactory.h",
-                    "collectusedmacrosaction.h",
-                    "collectusedmacrosandsourcespreprocessorcallbacks.h",
-                    "pchcreator.cpp",
-                    "pchcreator.h",
-                    "processormanager.h",
-                    "usedmacrosandsourcescollector.cpp",
-                    "usedmacrosandsourcescollector.h",
-                ]
-            }
-        }
-
-        Group {
-            name: "sources from clangrefactoring backend"
-            prefix: "../../../src/tools/clangrefactoringbackend/source/"
-            files: [
-                "clangrefactoringbackend_global.h",
-                "collectmacrospreprocessorcallbacks.h",
-                "projectpartentry.h",
-                "sourcedependency.h",
-                "sourcelocationentry.h",
-                "sourcerangefilter.cpp",
-                "sourcerangefilter.h",
-                "sourcesmanager.h",
-                "symbolentry.h",
-                "symbolindexer.cpp",
-                "symbolindexer.h",
-                "symbolindexertask.h",
-                "symbolindexertaskqueue.h",
-                "symbolindexertaskqueueinterface.h",
-                "symbolindexing.h",
-                "symbolindexinginterface.h",
-                "symbolscollectorinterface.h",
-                "symbolstorage.h",
-                "symbolstorageinterface.h",
-                "usedmacro.h",
-            ]
-
-            Group {
-                name: "tooling sources from clangrefactoring backend"
-                condition: libclang.toolingEnabled
-                files: [
-                    "clangquery.cpp",
-                    "clangquery.h",
-                    "clangquerygatherer.cpp",
-                    "clangquerygatherer.h",
-                    "clangtool.cpp",
-                    "clangtool.h",
-                    "collectmacrossourcefilecallbacks.cpp",
-                    "collectmacrossourcefilecallbacks.h",
-                    "collectsymbolsaction.cpp",
-                    "collectsymbolsaction.h",
-                    "indexdataconsumer.cpp",
-                    "indexdataconsumer.h",
-                    "locationsourcefilecallbacks.cpp",
-                    "locationsourcefilecallbacks.h",
-                    "macropreprocessorcallbacks.cpp",
-                    "macropreprocessorcallbacks.h",
-                    "refactoringcompilationdatabase.cpp",
-                    "refactoringcompilationdatabase.h",
-                    "refactoringserver.cpp",
-                    "refactoringserver.h",
-                    "sourcelocationsutils.h",
-                    "sourcerangeextractor.cpp",
-                    "sourcerangeextractor.h",
-                    "symbolindexing.cpp",
-                    "symbolscollector.cpp",
-                    "symbolscollector.h",
-                    "symbolsvisitorbase.h",
-                ]
-            }
         }
 
         Group {
@@ -805,42 +533,6 @@ Project {
             files: [
                 "projectmacro.cpp",
                 "projectmacro.h",
-            ]
-        }
-
-        Group {
-            name: "sources from ClangRefactoring"
-            prefix: "../../../src/plugins/clangrefactoring/"
-            files: [
-                "clangqueryexamplehighlighter.cpp",
-                "clangqueryexamplehighlighter.h",
-                "clangqueryexamplehighlightmarker.h",
-                "clangqueryhighlighter.cpp",
-                "clangqueryhighlighter.h",
-                "clangqueryhighlightmarker.h",
-                "clangqueryprojectsfindfilter.cpp",
-                "clangqueryprojectsfindfilter.h",
-                "clangsymbolsfindfilter.cpp",
-                "clangsymbolsfindfilter.h",
-                "editormanagerinterface.h",
-                "locatorfilter.cpp",
-                "locatorfilter.h",
-                "projectpartproviderinterface.h",
-                "projectpartutilities.cpp",
-                "projectpartutilities.h",
-                "refactoringclient.cpp",
-                "refactoringclient.h",
-                "refactoringconnectionclient.cpp",
-                "refactoringconnectionclient.h",
-                "refactoringengine.cpp",
-                "refactoringengine.h",
-                "refactoringprojectupdater.cpp",
-                "refactoringprojectupdater.h",
-                "searchhandle.cpp",
-                "searchhandle.h",
-                "searchinterface.h",
-                "symbol.h",
-                "symbolqueryinterface.h",
             ]
         }
 
