@@ -59,10 +59,6 @@ public:
     void reportFinished(); // None of the progress related functions will work after this!
     void setProgressValue(int p);
 
-    // Process stdout/stderr:
-    void processStandardOutput();
-    void processStandardError();
-
     int lastExitCode() const { return m_lastExitCode; }
 
 signals:
