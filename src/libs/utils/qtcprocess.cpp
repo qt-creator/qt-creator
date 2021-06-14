@@ -81,17 +81,17 @@ class ChannelBuffer
 public:
     void clearForRun();
 
-    QString linesRead();
-    Utils::optional<QString> takeFirstLine();
+    void handleRest();
     void append(const QByteArray &text);
 
     QByteArray rawData;
     QString incompleteLineBuffer; // lines not yet signaled
     QTextCodec *codec = nullptr; // Not owner
     std::unique_ptr<QTextCodec::ConverterState> codecState;
-    int rawDataPos = 0;
     std::function<void(const QString &lines)> outputCallback;
-    std::function<void(const QString &line)> outputLineCallback;
+
+    bool emitSingleLines = true;
+    bool keepRawData = true;
 };
 
 class ProcessHelper : public QProcess
@@ -194,7 +194,6 @@ public:
     QtcProcess::Result m_result = QtcProcess::StartFailed;
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     int m_exitCode = -1;
-    FilePath m_binary;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
     ExitCodeInterpreter m_exitCodeInterpreter;
@@ -218,7 +217,6 @@ void QtcProcessPrivate::clearForRun()
     m_result = QtcProcess::StartFailed;
     m_exitCode = -1;
     m_startFailure = false;
-    m_binary = {};
 }
 
 QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
@@ -316,6 +314,8 @@ void QtcProcess::start(const QString &cmd, const QStringList &args)
 
 void QtcProcess::start()
 {
+    d->clearForRun();
+
     QTC_CHECK(d->m_writeData.isEmpty()); // FIXME: Use it.
 
     if (d->m_commandLine.executable().needsDevice()) {
@@ -729,6 +729,23 @@ void QtcProcess::close()
     d->m_process->close();
 }
 
+void QtcProcess::beginFeed()
+{
+    d->clearForRun();
+}
+
+void QtcProcess::endFeed()
+{
+    d->slotFinished(0, QProcess::NormalExit);
+}
+
+void QtcProcess::feedStdOut(const QByteArray &data)
+{
+    d->m_stdOut.append(data);
+    d->m_hangTimerCount = 0;
+    emit readyReadStandardOutput();
+}
+
 QString QtcProcess::locateBinary(const QString &binary)
 {
     const QByteArray path = qgetenv("PATH");
@@ -788,6 +805,8 @@ QString QtcProcess::exitMessage()
 
 QByteArray QtcProcess::allRawOutput() const
 {
+    QTC_CHECK(d->m_stdOut.keepRawData);
+    QTC_CHECK(d->m_stdErr.keepRawData);
     if (!d->m_stdOut.rawData.isEmpty() && !d->m_stdErr.rawData.isEmpty()) {
         QByteArray result = d->m_stdOut.rawData;
         if (!result.endsWith('\n'))
@@ -800,6 +819,8 @@ QByteArray QtcProcess::allRawOutput() const
 
 QString QtcProcess::allOutput() const
 {
+    QTC_CHECK(d->m_stdOut.keepRawData);
+    QTC_CHECK(d->m_stdErr.keepRawData);
     const QString out = stdOut();
     const QString err = stdErr();
 
@@ -815,16 +836,19 @@ QString QtcProcess::allOutput() const
 
 QString QtcProcess::stdOut() const
 {
+    QTC_CHECK(d->m_stdOut.keepRawData);
     return normalizeNewlines(d->m_codec->toUnicode(d->m_stdOut.rawData));
 }
 
 QString QtcProcess::stdErr() const
 {
+    QTC_CHECK(d->m_stdErr.keepRawData);
     return normalizeNewlines(d->m_codec->toUnicode(d->m_stdErr.rawData));
 }
 
 QByteArray QtcProcess::rawStdOut() const
 {
+    QTC_CHECK(d->m_stdOut.keepRawData);
     return d->m_stdOut.rawData;
 }
 
@@ -839,7 +863,6 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
 
 void ChannelBuffer::clearForRun()
 {
-    rawDataPos = 0;
     rawData.clear();
     codecState.reset(new QTextCodec::ConverterState);
     incompleteLineBuffer.clear();
@@ -847,61 +870,66 @@ void ChannelBuffer::clearForRun()
 
 /* Check for complete lines read from the device and return them, moving the
  * buffer position. */
-QString ChannelBuffer::linesRead()
-{
-    // Convert and append the new input to the buffer of incomplete lines
-    const char *start = rawData.constData() + rawDataPos;
-    const int len = rawData.size() - rawDataPos;
-    incompleteLineBuffer.append(codec->toUnicode(start, len, codecState.get()));
-    rawDataPos = rawData.size();
-
-    // Any completed lines in the incompleteLineBuffer?
-    const int lastLineIndex = qMax(incompleteLineBuffer.lastIndexOf('\n'),
-                                   incompleteLineBuffer.lastIndexOf('\r'));
-    if (lastLineIndex == -1)
-        return QString();
-
-    // Get completed lines and remove them from the incompleteLinesBuffer:
-    const QString lines = QtcProcess::normalizeNewlines(incompleteLineBuffer.left(lastLineIndex + 1));
-    incompleteLineBuffer = incompleteLineBuffer.mid(lastLineIndex + 1);
-
-    return lines;
-}
-
-// Check for first complete line inside the rawData and return it, removing the line from the buffer
-Utils::optional<QString> ChannelBuffer::takeFirstLine()
-{
-    const int firstLineEnd = qMax(rawData.indexOf('\n'), rawData.indexOf('\r'));
-    if (firstLineEnd == -1)
-        return Utils::nullopt;
-
-    const QString line = QString::fromUtf8(rawData.left(firstLineEnd));
-    rawData.remove(0, firstLineEnd + 1);
-    return line;
-}
-
 void ChannelBuffer::append(const QByteArray &text)
 {
     if (text.isEmpty())
         return;
-    rawData += text;
 
-    // Buffered. Emit complete lines?
-    if (outputCallback) {
-        const QString lines = linesRead();
-        if (!lines.isEmpty())
-            outputCallback(lines);
-    }
-    if (outputLineCallback) {
-        do {
-            const Utils::optional<QString> line = takeFirstLine();
-            if (!line.has_value())
-                break;
-            outputLineCallback(line.value());
-        } while (true);
-    }
+    if (keepRawData)
+        rawData += text;
+
+    // Line-wise operation below:
+    if (!outputCallback)
+        return;
+
+    // Convert and append the new input to the buffer of incomplete lines
+    incompleteLineBuffer.append(codec->toUnicode(text.constData(), text.size(), codecState.get()));
+
+    do {
+        // Any completed lines in the incompleteLineBuffer?
+        int pos = -1;
+        if (emitSingleLines) {
+            const int posn = incompleteLineBuffer.indexOf('\n');
+            const int posr = incompleteLineBuffer.indexOf('\r');
+            if (posn != -1) {
+                if (posr != -1) {
+                    if (posn == posr + 1)
+                        pos = posn; // \r followed by \n -> line end, use the \n.
+                    else
+                        pos = qMin(posr, posn); // free floating \r and \n: Use the first one.
+                } else {
+                    pos = posn;
+                }
+            } else {
+                pos = posr; // Make sure internal '\r' triggers a line output
+            }
+        } else {
+            pos = qMax(incompleteLineBuffer.lastIndexOf('\n'),
+                       incompleteLineBuffer.lastIndexOf('\r'));
+        }
+
+        if (pos == -1)
+            break;
+
+        // Get completed lines and remove them from the incompleteLinesBuffer:
+        const QString line = QtcProcess::normalizeNewlines(incompleteLineBuffer.left(pos + 1));
+        incompleteLineBuffer = incompleteLineBuffer.mid(pos + 1);
+
+        QTC_ASSERT(outputCallback, return);
+        outputCallback(line);
+
+        if (!emitSingleLines)
+            break;
+    } while (true);
 }
 
+void ChannelBuffer::handleRest()
+{
+    if (outputCallback && !incompleteLineBuffer.isEmpty()) {
+        outputCallback(incompleteLineBuffer);
+        incompleteLineBuffer.clear();
+    }
+}
 
 // ----------- SynchronousProcess
 SynchronousProcess::SynchronousProcess()
@@ -980,10 +1008,6 @@ void SynchronousProcess::runBlocking()
         << " process user events: " << d->m_processUserEvents;
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
-    d->clearForRun();
-
-    d->m_binary = d->m_commandLine.executable();
-
     if (d->m_processUserEvents) {
         if (!d->m_writeData.isEmpty()) {
             connect(d->m_process, &QProcess::started, this, [this] {
@@ -1042,22 +1066,31 @@ void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &
 {
     QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdOut.outputCallback = callback;
+    d->m_stdOut.emitSingleLines = false;
+    d->m_stdOut.emitSingleLines = false;
+    d->m_stdOut.keepRawData = false;
 }
 
 void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &)> &callback)
 {
-    d->m_stdOut.outputLineCallback = callback;
+    d->m_stdOut.outputCallback = callback;
+    d->m_stdOut.emitSingleLines = true;
+    d->m_stdOut.keepRawData = false;
 }
 
 void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
 {
     QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdErr.outputCallback = callback;
+    d->m_stdErr.emitSingleLines = false;
+    d->m_stdErr.keepRawData = false;
 }
 
 void QtcProcess::setStdErrLineCallback(const std::function<void (const QString &)> &callback)
 {
-    d->m_stdErr.outputLineCallback = callback;
+    d->m_stdErr.outputCallback = callback;
+    d->m_stdErr.emitSingleLines = true;
+    d->m_stdErr.keepRawData = false;
 }
 
 void QtcProcessPrivate::slotTimeout()
@@ -1066,7 +1099,8 @@ void QtcProcessPrivate::slotTimeout()
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         m_waitingForUser = true;
-        const bool terminate = !m_timeOutMessageBoxEnabled || askToKill(m_binary.toString());
+        const bool terminate = !m_timeOutMessageBoxEnabled
+            || askToKill(m_commandLine.executable().toString());
         m_waitingForUser = false;
         if (terminate) {
             q->stopProcess();
@@ -1100,6 +1134,10 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
         break;
     }
     m_eventLoop.quit();
+
+    m_stdOut.handleRest();
+    m_stdErr.handleRest();
+
     emit q->finished();
 }
 

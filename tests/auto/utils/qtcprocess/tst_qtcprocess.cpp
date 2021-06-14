@@ -23,14 +23,23 @@
 **
 ****************************************************************************/
 
-#include <utils/qtcprocess.h>
-#include <utils/hostosinfo.h>
-#include <utils/stringutils.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
+#include <utils/porting.h>
+#include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
+#include <QRegularExpression>
 #include <QtTest>
 
 #include <iostream>
+#include <fstream>
+
+#ifdef Q_OS_WIN
+  #include <io.h>
+  #include <fcntl.h>
+#endif
+
 
 using namespace Utils;
 
@@ -39,13 +48,13 @@ const char kRunBlockingStdOutSubProcessMagicWord[] = "42";
 const char kRunBlockingStdOutSubProcessWithEndl[] = "QTC_TST_QTCPROCESS_RUNBLOCKINGSTDOUT_WITHENDL";
 const char kLineCallback[] = "QTC_TST_QTCPROCESS_LINECALLBACK";
 
-Q_GLOBAL_STATIC_WITH_ARGS(const QStringList, lineCallbackData,
-                          ({
-                               "This is the first line\r",
-                               "Here comes the second one\r",
-                               "Let's also have a third one\r",
-                               "Actually four are better\r",
-                           }))
+// Expect ending lines detected at '|':
+const char lineCallbackData[] =
+       "This is the first line\r\n|"
+       "Here comes the second one\r\n|"
+       "And a line without LF\n|"
+       "Rebasing (1/10)\r| <delay> Rebasing (2/10)\r| <delay> ...\r\n|"
+       "And no end";
 
 static void exitCodeSubProcessMain()
 {
@@ -68,8 +77,11 @@ static void blockingStdOutSubProcessMain()
 
 static void lineCallbackMain()
 {
-    for (const QString &line : *lineCallbackData())
-        std::cerr << qPrintable(line);
+#ifdef Q_OS_WIN
+    // Prevent \r\n -> \r\r\n translation.
+    setmode(fileno(stderr), O_BINARY);
+#endif
+    fprintf(stderr, "%s", QByteArray(lineCallbackData).replace('|', "").data());
     exit(0);
 }
 
@@ -119,6 +131,7 @@ private slots:
     void runBlockingStdOut_data();
     void runBlockingStdOut();
     void lineCallback();
+    void lineCallbackIntern();
 
 private:
     void iteratorEditsHelper(OsType osType);
@@ -885,8 +898,6 @@ void tst_QtcProcess::runBlockingStdOut()
     QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
     QVERIFY2(sp.result() != QtcProcess::Hang, "Process run did not time out.");
 
-    QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
-    QEXPECT_FAIL("Unterminated stdout lost: hanging", "", Continue);
     QVERIFY2(readLastLine, "Last line was read.");
 }
 
@@ -899,14 +910,34 @@ void tst_QtcProcess::lineCallback()
     Environment env = Environment::systemEnvironment();
     env.set(kLineCallback, "Yes");
     process.setEnvironment(env);
+    QStringList lines = QString(lineCallbackData).split('|');
     int lineNumber = 0;
-    process.setStdErrLineCallback([&lineNumber](const QString &actual) {
-        const QString expected = lineCallbackData()->at(lineNumber++).trimmed();
+    process.setStdErrLineCallback([lines, &lineNumber](const QString &actual) {
+        QString expected = lines.at(lineNumber++);
+        expected.replace("\r\n", "\n");
         QCOMPARE(actual, expected);
     });
     process.start();
     process.waitForFinished();
+    QCOMPARE(lineNumber, lines.size());
 }
+
+void tst_QtcProcess::lineCallbackIntern()
+{
+    QtcProcess process;
+    QStringList lines = QString(lineCallbackData).split('|');
+    int lineNumber = 0;
+    process.setStdOutLineCallback([lines, &lineNumber](const QString &actual) {
+        QString expected = lines.at(lineNumber++);
+        expected.replace("\r\n", "\n");
+        QCOMPARE(actual, expected);
+    });
+    process.beginFeed();
+    process.feedStdOut(QByteArray(lineCallbackData).replace('|', ""));
+    process.endFeed();
+    QCOMPARE(lineNumber, lines.size());
+}
+
 QTEST_MAIN(tst_QtcProcess)
 
 #include "tst_qtcprocess.moc"

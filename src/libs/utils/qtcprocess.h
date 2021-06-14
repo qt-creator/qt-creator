@@ -37,6 +37,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QDebug)
 
+class tst_QtcProcess;
+
 namespace Utils {
 
 class CommandLine;
@@ -185,6 +187,11 @@ private:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
 
     Internal::QtcProcessPrivate *d = nullptr;
+
+    friend tst_QtcProcess;
+    void beginFeed();
+    void feedStdOut(const QByteArray &data);
+    void endFeed();
 
     void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
     QProcessEnvironment processEnvironment() const = delete;
