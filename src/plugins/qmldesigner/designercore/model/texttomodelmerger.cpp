@@ -95,7 +95,8 @@ QStringList supportedVersionsList()
                                      "2.14",
                                      "2.15",
                                      "6.0",
-                                     "6.1"};
+                                     "6.1",
+                                     "6.2"};
     return list;
 }
 
