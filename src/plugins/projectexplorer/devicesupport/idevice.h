@@ -243,11 +243,14 @@ public:
     virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;
     virtual bool createDirectory(const Utils::FilePath &filePath) const;
     virtual bool exists(const Utils::FilePath &filePath) const;
+    virtual bool removeFile(const Utils::FilePath &filePath) const;
+    virtual bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
     virtual Utils::FilePath searchInPath(const Utils::FilePath &filePath) const;
     virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                                     const QStringList &nameFilters,
                                                     QDir::Filters filters) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
+    virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
 

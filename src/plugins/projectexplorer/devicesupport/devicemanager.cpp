@@ -39,6 +39,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
+#include <QDateTime>
 #include <QFileInfo>
 #include <QHash>
 #include <QList>
@@ -416,6 +417,18 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->exists(filePath);
     };
 
+    deviceHooks.removeFile = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->removeFile(filePath);
+    };
+
+    deviceHooks.copyFile = [](const FilePath &filePath, const FilePath &target) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->copyFile(filePath, target);
+    };
+
     deviceHooks.searchInPath = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return FilePath{});
@@ -433,6 +446,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return QByteArray());
         return device->fileContents(filePath, maxSize);
+    };
+
+    deviceHooks.lastModified = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return QDateTime());
+        return device->lastModified(filePath);
     };
 
     FilePath::setDeviceFileHooks(deviceHooks);

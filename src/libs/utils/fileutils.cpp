@@ -1346,8 +1346,29 @@ uint FilePath::hash(uint seed) const
 
 QDateTime FilePath::lastModified() const
 {
-    QTC_CHECK(!needsDevice());
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.lastModified, return {});
+        return s_deviceHooks.lastModified(*this);
+    }
     return toFileInfo().lastModified();
+}
+
+bool FilePath::removeFile() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.removeFile, return false);
+        return s_deviceHooks.removeFile(*this);
+    }
+    return QFile::remove(path());
+}
+
+bool FilePath::copyFile(const FilePath &target) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.copyFile, return false);
+        return s_deviceHooks.copyFile(*this, target);
+    }
+    return QFile::copy(path(), target.path());
 }
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)

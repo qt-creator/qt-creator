@@ -59,6 +59,7 @@
 #include <utils/treemodel.h>
 
 #include <QApplication>
+#include <QDateTime>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
@@ -786,6 +787,52 @@ bool DockerDevice::exists(const FilePath &filePath) const
     const CommandLine cmd("test", {"-e", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
+}
+
+bool DockerDevice::removeFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.removeFile();
+        LOG("Remove? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const CommandLine cmd("rm", {filePath.path()});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(handlesFile(target), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const FilePath localTarget = mapToLocalAccess(target);
+        const bool res = localAccess.copyFile(localTarget);
+        LOG("Copy " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
+        return res;
+    }
+    const CommandLine cmd("cp", {filePath.path(), target.path()});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+QDateTime DockerDevice::lastModified(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const QDateTime res = localAccess.lastModified();
+        LOG("Last modified? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    QTC_CHECK(false);
+    return {};
 }
 
 FilePath DockerDevice::searchInPath(const FilePath &filePath) const

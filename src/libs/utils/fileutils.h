@@ -76,9 +76,12 @@ public:
     std::function<bool(const FilePath &)> ensureWritableDir;
     std::function<bool(const FilePath &)> createDir;
     std::function<bool(const FilePath &)> exists;
+    std::function<bool(const FilePath &)> removeFile;
+    std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<FilePath(const FilePath &)> searchInPath;
     std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
+    std::function<QDateTime(const FilePath &)> lastModified;
 };
 
 class QTCREATOR_UTILS_EXPORT FilePath
@@ -155,6 +158,9 @@ public:
 
     bool isDir() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
+    QDateTime lastModified() const;
+    bool removeFile() const;
+    bool copyFile(const FilePath &target) const;
 
     Qt::CaseSensitivity caseSensitivity() const;
 
@@ -174,7 +180,6 @@ public:
     bool isEmpty() const;
 
     uint hash(uint seed) const;
-    QDateTime lastModified() const;
 
     // NOTE: Most FilePath operations on FilePath created from URL currently
     // do not work. Among the working are .toVariant() and .toUrl().

@@ -43,6 +43,7 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 
+#include <QDateTime>
 #include <QString>
 #include <QUuid>
 
@@ -252,16 +253,31 @@ bool IDevice::ensureWritableDirectory(const FilePath &filePath) const
     return createDirectory(filePath);
 }
 
-bool IDevice::createDirectory(const Utils::FilePath &filePath) const
+bool IDevice::createDirectory(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
     QTC_CHECK(false);
     return false;
 }
 
-bool IDevice::exists(const Utils::FilePath &filePath) const
+bool IDevice::exists(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::removeFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::copyFile(const FilePath &filePath, const FilePath &target) const
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(target);
     QTC_CHECK(false);
     return false;
 }
@@ -287,6 +303,12 @@ QByteArray IDevice::fileContents(const FilePath &filePath, int limit) const
     Q_UNUSED(filePath);
     Q_UNUSED(limit);
     QTC_CHECK(false);
+    return {};
+}
+
+QDateTime IDevice::lastModified(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
     return {};
 }
 

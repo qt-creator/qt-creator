@@ -80,11 +80,14 @@ public:
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
     bool exists(const Utils::FilePath &filePath) const override;
+    bool removeFile(const Utils::FilePath &filePath) const override;
+    bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     Utils::FilePath searchInPath(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
                                             QDir::Filters filters) const override;
     QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
+    QDateTime lastModified(const Utils::FilePath &filePath) const override;
     void runProcess(Utils::QtcProcess &process) const override;
 
     Utils::Environment systemEnvironment() const override;
