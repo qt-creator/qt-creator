@@ -34,23 +34,61 @@
 
     \list
         \li \l{glossary-asset}{Asset}
+        \li \l{glossary-binding}{Binding}
         \li \l{glossary-component}{Component}
+        \li \l{glossary-connection}{Connection}
         \li \l{glossary-device}{Device}
-        \li \l{glossary-Project}{Project}
+        \li \l{glossary-mode}{Mode}
+        \li \l{glossary-project}{Project}
+        \li \l{glossary-property}{Property}
+        \li \l{glossary-signal}{Signal}
+        \li \l{glossary-state}{State}
+        \li \l{glossary-transition}{Transition}
     \endlist
 
     \section1 Asset
     \target glossary-asset
 
     An \e asset is an image, font file, 3D model, or other supported file that
-    you add to your \e project.
+    you add to your \l{glossary-project}{project}.
 
-    Assets are packaged with \e components for delivery to users.
+    \image qtquick-assets-tab.png "Assets in Library"
+
+    Assets are packaged with \l{glossary-component}{components} for delivery
+    to users.
 
     Read more about assets:
 
     \list
         \li \l{Assets}
+    \endlist
+
+    \section1 Binding
+    \target glossary-binding
+
+    A \e binding is a declarative way of specifying the value of a
+    \l{glossary-property}{property}. Binding allows a property value
+    to be expressed as a JavaScript expression that defines the value
+    relative to other property values or data accessible in the
+    application. The property value is automatically updated if the
+    other properties or data values change.
+
+    At its simplest, a binding may be a reference to another property. For
+    example, the height of a \l{glossary-component}{component} can be bound
+    to the height of its parent, so that when the parent height changes, the
+    component height is adjusted automatically. Similarly, the opacity of a
+    component can be bound to the opacity of its parent component.
+
+    \image qtquick-connection-editor-assignment.png "Binding Editor"
+
+    Property bindings are created implicitly whenever a property is assigned a
+    JavaScript expression.
+
+    Read more about bindings:
+
+    \list
+        \li \l{Adding Bindings Between Properties}
+        \li \l{Setting Bindings}
     \endlist
 
     \section1 Component
@@ -62,14 +100,17 @@
     creating instances of them. These are similar to \e Symbols in Sketch or
     \e Prefab in Unity.
 
+    \image qtquick-components-tab.png "Preset components in Library"
+
     Some of the \l {Component Types}{preset components} represent simple shapes,
     text, or images, while others represent complex UI controls with full
     functionality, such as spin boxes or sliders. You can also add instances of
-    preset \l {Using 3D Components}{3D components} to your UIs. You can find all
+    preset \l {3D Components}{3D components} to your UIs. You can find all
     the preset components in \l Library.
 
     To build \l {Creating Component Instances}{your own components}, you can
-    modify the \e properties of the component instances and combine them.
+    modify the \l{glossary-property}{properties} of the component instances
+    and combine them.
 
     A component is specified within one file (with the file extension
     \e ui.qml or \e .qml). For example, a Button component may be defined
@@ -87,6 +128,24 @@
         \li \l {Creating Custom Components}
     \endlist
 
+    \section1 Connection
+    \target glossary-connection
+
+    A \e connection can be created between a \l{glossary-component}{component}
+    and \l{glossary-signal}{signal} to determine how the UI should react to
+    application events. Another way to create connections between components
+    is to create \l{glossary-binding}{bindings} between the values of their
+    \l{glossary-property}{properties}.
+
+    \image qmldesigner-connections.png "Connection View"
+
+    Read more about connections:
+
+    \list
+        \li \l{Connection View}
+        \li \l{Adding Connections}
+    \endlist
+
     \section1 Device
     \target glossary-device
 
@@ -98,17 +157,43 @@
         \li \l{Previewing on Devices}
     \endlist
 
+    \section1 Mode
+    \target glossary-mode
+
+    A \e mode adapts the \QDS UI to the different UI design
+    tasks at hand. Each mode has its own view that shows only the information
+    required for performing a particular task, and provides only the most
+    relevant features and functions related to it. As a result, the majority
+    of the \QDS window area is always dedicated to the actual task.
+
+    For a designer, the most important modes are \uicontrol Design for the
+    actual work, \uicontrol Welcome for opening examples and tutorials, and
+    \uicontrol Help for reading documentation. The other modes are mostly
+    needed for application development.
+
+    \image studio-design-mode.png "Design mode"
+
+    Read more about modes:
+
+    \list
+        \li \l{Selecting Modes}
+        \li \l{Design Views}
+    \endlist
+
     \section1 Project
     \target glossary-project
 
-    A project is a container for the \e components and \e assets that you
-    use in your UI. You can \e package the UI and preview or run it on
-    different operating systems on the desktop or a \l{glossary-device}{device}.
+    A project is a container for the \l{glossary-component}{components} and
+    \l{glossary-asset}{assets} that you use in your UI. You can \e package
+    the UI and preview or run it on different operating systems on the desktop
+    or a \l{glossary-device}{device}.
 
     You use templates to create different types of projects according to your
     needs. The templates add preset components to the project by default. For
     example, if you create a 3D project, preset 3D components are added to it.
     You can add more preset components in \uicontrol Library.
+
+    \image studio-project-wizards.png "New File or Project dialog"
 
     Read more about projects:
 
@@ -116,6 +201,94 @@
         \li \l{Creating Projects}
     \endlist
 
+    \section1 Property
+    \target glossary-property
+
+    A \e property is an attribute of a \l{glossary-component}{component}
+    that can be assigned a static value or bound to a dynamic expression.
+    A property's value can be read by other components. Generally, it can
+    also be modified by another component, unless a particular component
+    type has explicitly disallowed this for a specific property.
+
+    \image qtquick-item-properties-common.png "Properties view"
+
+    Read more about properties:
+
+    \list
+        \li \l{Properties}
+        \li \l{Preset Components}
+        \li \l{Specifying Component Properties}
+        \li \l{Adding Bindings Between Properties}
+        \li \l{Specifying Dynamic Properties}
+    \endlist
+
+    \section1 Signal
+    \target glossary-signal
+
+    A \e signal represents an application event, such as a user clicking a
+    button or the value of a \l{glossary-property}{property} of a
+    \l{glossary-component}{component} changing. The application needs this
+    information to perform actions or to relay it to other applications.
+
+    Components have predefined signals that are emitted when users interact with
+    the application. For example, the \l {Mouse Area} component has a \c clicked
+    signal that is emitted whenever the mouse is clicked within the area. Since
+    the signal name is \c clicked, the signal handler for receiving this signal
+    is named \c onClicked.
+
+    \image washingmachineui-connections.png "Connection View, Connections tab"
+
+    Further, a signal is automatically emitted when the value of a
+    \l{glossary-property}{property} changes.
+
+    Read more about signals:
+
+    \list
+        \li \l{Connecting Components to Signals}
+        \li \l{Mouse Area}
+    \endlist
+
+    \section1 State
+    \target glossary-state
+
+    The \e state of a particular visual \l{glossary-component}{component} is
+    the set of information that describes how and where the individual parts
+    of the component are displayed within it, and all the data associated with
+    that state. Most visual components in a UI will have a limited number of
+    states, each with well-defined \l{glossary-property}{properties}.
+
+    For example, an element in a list may be either selected or not, and if
+    selected, it may either be the currently active single selection or it may
+    be part of a selection group. Each of those states may have certain
+    associated visual appearance (neutral highlighted, expanded, and so forth).
+
+    Similarly, the appearance of a button can change to indicate a \e pressed
+    state.
+
+    \image studio-custom-button.gif "Button states"
+
+    Read more about states:
+
+    \list
+        \li \l{States}
+        \li \l{Adding States}
+    \endlist
+
+    \section1 Transition
+    \target glossary-transition
+
+    When a visual \l{glossary-component}{component} transitions from one
+    \l{glossary-state}{state} to another, its appearance changes. A
+    \e transition is an \e edge between two states. It may trigger other
+    events to occur, as other parts of the application may have behavior
+    that is triggered when a certain state is entered or left.
+
+    Read more about transitions:
+
+    \list
+        \li \l{Transition Editor}
+        \li \l{Animating Transitions Between States}
+    \endlist
     \omit
 
     ## The following terms might or might not come back, but for now, the
@@ -134,15 +307,6 @@
     \QDS groups run settings as kits to make cross-platform development easier.
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device} {device} to preview the UI on.
-
-    \section1 Mode
-    \target glossary-mode
-
-    Adapts the \QDS UI to the different UI design
-    tasks at hand. Each mode has its own view that shows only the information
-    required for performing a particular task, and provides only the most
-    relevant features and functions related to it. As a result, the majority
-    of the \QDS window area is always dedicated to the actual task.
 
    \section1 Run Configuration
     \target glossary-run-config
