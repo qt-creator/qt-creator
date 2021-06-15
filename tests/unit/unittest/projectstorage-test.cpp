@@ -82,7 +82,7 @@ MATCHER_P5(IsStorageType,
 
     return type.importId == importId && type.typeName == typeName
            && type.accessSemantics == accessSemantics && type.sourceId == sourceId
-           && std::visit([&](auto &&v) -> bool { return v.name == prototype.name; }, type.prototype);
+           && Utils::visit([&](auto &&v) -> bool { return v.name == prototype.name; }, type.prototype);
 }
 
 MATCHER_P4(IsStorageTypeWithInvalidSourceId,
@@ -118,7 +118,7 @@ MATCHER_P3(IsPropertyDeclaration,
     const Storage::PropertyDeclaration &propertyDeclaration = arg;
 
     return propertyDeclaration.name == name
-           && std::visit([&](auto &&v) -> bool { return v.name == typeName.name; },
+           && Utils::visit([&](auto &&v) -> bool { return v.name == typeName.name; },
                          propertyDeclaration.typeName)
            && propertyDeclaration.traits == traits;
 }
