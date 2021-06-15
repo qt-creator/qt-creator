@@ -192,10 +192,6 @@ Image {
         visible: true
         maskBlurSamples: 64
         maskBlurRadius: 32
-        gradientStopPosition4: 1.3
-        gradientStopPosition3: 0.9
-        gradientStopPosition2: 0.6
-        gradientStopPosition1: 0
 
         Splash_Image25d {
             id: animated_artwork
