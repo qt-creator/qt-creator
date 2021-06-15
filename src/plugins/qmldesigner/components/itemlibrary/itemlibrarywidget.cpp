@@ -117,24 +117,23 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
                 m_itemToDrag = {};
             }
-        } else if (!m_assetToDrag.isEmpty()) {
+        } else if (!m_assetsToDrag.isEmpty()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
                 auto drag = new QDrag(this);
-                drag->setPixmap(m_assetsIconProvider->requestPixmap(m_assetToDrag, nullptr, {128, 128}));
+                drag->setPixmap(m_assetsIconProvider->requestPixmap(m_assetsToDrag[0], nullptr, {128, 128}));
                 QMimeData *mimeData = new QMimeData;
-                mimeData->setData("application/vnd.bauhaus.libraryresource", m_assetToDrag.toUtf8());
-                mimeData->setData(m_assetToDragTypeAndData.first, m_assetToDragTypeAndData.second);
+                mimeData->setData("application/vnd.bauhaus.libraryresource", m_assetsToDrag.join(',').toUtf8());
                 drag->setMimeData(mimeData);
                 drag->exec();
                 drag->deleteLater();
 
-                m_assetToDrag.clear();
+                m_assetsToDrag.clear();
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_itemToDrag = {};
-        m_assetToDrag.clear();
+        m_assetsToDrag.clear();
     }
 
     return QObject::eventFilter(obj, event);
@@ -471,30 +470,24 @@ void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPo
     m_dragStartPoint = mousePos.toPoint();
 }
 
-void ItemLibraryWidget::startDragAsset(const QString &assetPath, const QPointF &mousePos)
+void ItemLibraryWidget::startDragAsset(const QStringList &assetPaths, const QPointF &mousePos)
 {
-    QFileInfo fileInfo(assetPath);
-    m_assetToDragTypeAndData = getAssetTypeAndData(fileInfo);
-
-    if (m_assetToDragTypeAndData.first.isEmpty())
-        return;
-
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
-    m_assetToDrag = fileInfo.absoluteFilePath();
+    m_assetsToDrag = assetPaths;
     m_dragStartPoint = mousePos.toPoint();
 }
 
-QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QFileInfo &fi) const
+QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QString &assetPath)
 {
-    QString suffix = "*." + fi.suffix().toLower();
+    QString suffix = "*." + assetPath.split('.').last().toLower();
     if (!suffix.isEmpty()) {
         if (ItemLibraryAssetsModel::supportedImageSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
             return {"application/vnd.bauhaus.libraryresource.image", suffix.toUtf8()};
         } else if (ItemLibraryAssetsModel::supportedFontSuffixes().contains(suffix)) {
             // Data: Font family name
-            QRawFont font(fi.absoluteFilePath(), 10);
+            QRawFont font(assetPath, 10);
             QString fontFamily = font.isValid() ? font.familyName() : "";
             return {"application/vnd.bauhaus.libraryresource.font", fontFamily.toUtf8()};
         } else if (ItemLibraryAssetsModel::supportedShaderSuffixes().contains(suffix)) {

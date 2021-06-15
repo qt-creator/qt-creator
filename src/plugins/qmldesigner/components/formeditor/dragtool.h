@@ -80,22 +80,23 @@ public:
 protected:
     void abort();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
-    void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
-    void createQmlItemNodeFromFont(const QString &fontFamily, const QmlItemNode &parentNode, const QPointF &scenePos);
-    FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = nullptr);
+    void createQmlItemNodeFromImage(const QString &imagePath, const QmlItemNode &parentNode, const QPointF &scenePos);
+    void createQmlItemNodeFromFont(const QString &fontPath, const QmlItemNode &parentNode, const QPointF &scenePos);
+    FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem *> &itemList,
+                                              const QList<FormEditorItem *> &currentItems = {});
     void begin(QPointF scenePos);
     void end();
     void end(Snapper::Snapping useSnapping);
     void move(const QPointF &scenePos, const QList<QGraphicsItem *> &itemList);
-    void createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList);
+    void createDragNodes(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList);
     void commitTransaction();
 
 private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
-    FormEditorItem *m_movingItem = nullptr;
+    QList<FormEditorItem *> m_movingItems;
     RewriterTransaction m_rewriterTransaction;
-    QmlItemNode m_dragNode;
+    QList<QmlItemNode> m_dragNodes;
     bool m_blockMove;
     QPointF m_startPoint;
     bool m_isAborted;

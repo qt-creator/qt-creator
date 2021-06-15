@@ -114,11 +114,16 @@ private:
                               int targetIndex, bool executeInTransaction = true);
     void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
-    void handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
-    void handleItemLibraryFontDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
-    void handleItemLibraryShaderDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
-    void handleItemLibrarySoundDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
-    void handleItemLibraryTexture3dDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    ModelNode handleItemLibraryImageDrop(const QString &imagePath, NodeAbstractProperty targetProperty,
+                                         const QModelIndex &rowModelIndex);
+    ModelNode handleItemLibraryFontDrop(const QString &fontFamily, NodeAbstractProperty targetProperty,
+                                        const QModelIndex &rowModelIndex);
+    ModelNode handleItemLibraryShaderDrop(const QString &shaderPath, bool isFragShader,
+                                          NodeAbstractProperty targetProperty, const QModelIndex &rowModelIndex);
+    ModelNode handleItemLibrarySoundDrop(const QString &soundPath, NodeAbstractProperty targetProperty,
+                                         const QModelIndex &rowModelIndex);
+    ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath, NodeAbstractProperty targetProperty,
+                                             const QModelIndex &rowModelIndex);
     bool dropAsImage3dTexture(const ModelNode &targetNode, const NodeAbstractProperty &targetProp,
                               const QString &imagePath, ModelNode &newNode);
     ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);

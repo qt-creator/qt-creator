@@ -161,6 +161,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
         propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
         propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
         propertyPairList.append({PropertyName("font.family"), QVariant(fontFamily)});
+        propertyPairList.append({PropertyName("font.pointSize"), 20});
         propertyPairList.append({PropertyName("text"), QVariant(fontFamily)});
 
         newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Text", metaInfo.majorVersion(),

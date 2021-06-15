@@ -32,6 +32,8 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Item {
+    property var selectedAssets: ({})
+
     DropArea {
         id: dropArea
 
@@ -142,7 +144,8 @@ Item {
                     width: assetsView.width -
                            (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
                     height: img.height
-                    color: mouseArea.containsMouse ? "#444444" : "transparent"
+                    color: selectedAssets[filePath] ? StudioTheme.Values.themeInteraction
+                                                  : (mouseArea.containsMouse ? "#444444" : "transparent")
 
                     Row {
                         spacing: 5
@@ -178,10 +181,32 @@ Item {
                         onPositionChanged: tooltipBackend.reposition()
                         onPressed: {
                             forceActiveFocus()
-                            if (mouse.button === Qt.LeftButton)
-                                rootView.startDragAsset(filePath, mapToGlobal(mouse.x, mouse.y))
-                            else
+                            if (mouse.button === Qt.LeftButton) {
+                                var ctrlDown = mouse.modifiers & Qt.ControlModifier
+                                if (!selectedAssets[filePath] && !ctrlDown)
+                                    selectedAssets = {}
+                                selectedAssets[filePath] = true
+                                selectedAssetsChanged()
+
+                                var selectedAssetsArr = []
+                                for (var assetPath in selectedAssets) {
+                                    if (selectedAssets[assetPath])
+                                        selectedAssetsArr.push(assetPath)
+                                }
+
+                                rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
+                            } else {
                                 print("TODO: impl context menu")
+                            }
+                        }
+
+                        onReleased: {
+                            if (mouse.button === Qt.LeftButton) {
+                                if (!(mouse.modifiers & Qt.ControlModifier))
+                                    selectedAssets = {}
+                                selectedAssets[filePath] = true
+                                selectedAssetsChanged()
+                            }
                         }
 
                         ToolTip {

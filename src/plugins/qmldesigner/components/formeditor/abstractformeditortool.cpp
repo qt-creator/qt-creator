@@ -27,6 +27,7 @@
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditorscene.h"
+#include "itemlibrarywidget.h"
 
 #include <modelnodecontextmenu.h>
 
@@ -234,9 +235,21 @@ void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/
 
 void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo"))
-            || event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource.image"))
-            || event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource.font"))) {
+    bool hasValidAssets = false;
+    if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+        const QStringList assetPaths = QString::fromUtf8(event->mimeData()
+                                ->data("application/vnd.bauhaus.libraryresource")).split(",");
+        for (const QString &assetPath : assetPaths) {
+            QString assetType = ItemLibraryWidget::getAssetTypeAndData(assetPath).first;
+            if (assetType == "application/vnd.bauhaus.libraryresource.image"
+                || assetType == "application/vnd.bauhaus.libraryresource.font") {
+                hasValidAssets = true;
+                break;
+            }
+        }
+    }
+
+    if (event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")) || hasValidAssets) {
         event->accept();
         view()->changeToDragTool();
         view()->currentTool()->dragEnterEvent(itemList, event);
