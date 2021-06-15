@@ -98,6 +98,8 @@ static QString pythonName(const FilePath &pythonPath)
 
 FilePath getPylsModulePath(CommandLine pylsCommand)
 {
+    static QMutex mutex; // protect the access to the cache
+    QMutexLocker locker(&mutex);
     static QMap<FilePath, FilePath> cache;
     const FilePath &modulePath = cache.value(pylsCommand.executable());
     if (!modulePath.isEmpty())
