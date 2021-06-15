@@ -126,16 +126,6 @@ Environment VcsBaseClientImpl::processEnvironment() const
     return environment;
 }
 
-QString VcsBaseClientImpl::commandOutputFromLocal8Bit(const QByteArray &a)
-{
-    return QtcProcess::normalizeNewlines(QString::fromLocal8Bit(a));
-}
-
-QStringList VcsBaseClientImpl::commandOutputLinesFromLocal8Bit(const QByteArray &a)
-{
-    return splitLines(commandOutputFromLocal8Bit(a));
-}
-
 QStringList VcsBaseClientImpl::splitLines(const QString &s)
 {
     const QChar newLine = QLatin1Char('\n');

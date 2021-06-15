@@ -90,10 +90,6 @@ public:
             const QString &workingDir, const QString &file, const QString &revision = QString(),
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) = 0;
 
-    // Return converted command output, remove '\r' read on Windows
-    static QString commandOutputFromLocal8Bit(const QByteArray &a);
-    // Return converted command output split into lines
-    static QStringList commandOutputLinesFromLocal8Bit(const QByteArray &a);
     static QStringList splitLines(const QString &s);
 
     static QString stripLastNewline(const QString &in);
