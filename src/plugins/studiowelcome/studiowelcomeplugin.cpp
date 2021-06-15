@@ -45,6 +45,7 @@
 #include <utils/infobar.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/hostosinfo.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -332,10 +333,11 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
 
     m_welcomeMode = new WelcomeMode;
 
-    QFontDatabase fonts;
-    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
-    QFont systemFont("Titillium Web", QApplication::font().pointSize());
-    QApplication::setFont(systemFont);
+    if (!Utils::HostOsInfo::isWindowsHost()) {
+        QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+        QFont systemFont("Titillium Web", QApplication::font().pointSize());
+        QApplication::setFont(systemFont);
+    }
 
     m_removeSplashTimer.setSingleShot(true);
     m_removeSplashTimer.setInterval(15000);
