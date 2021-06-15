@@ -326,19 +326,26 @@ bool Range::overlaps(const Range &range) const
     return end() > range.start() && start() < range.end();
 }
 
+QString expressionForGlob(QString globPattern)
+{
+    const QString anySubDir("qtc_anysubdir_id");
+    globPattern.replace("**/", anySubDir);
+    QString regexp = QRegularExpression::wildcardToRegularExpression(globPattern);
+    regexp.replace(anySubDir,"(.*[/\\\\])*");
+    regexp.replace("\\{", "(");
+    regexp.replace("\\}", ")");
+    regexp.replace(",", "|");
+    return regexp;
+}
+
 bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeType &mimeType) const
 {
-    if (Utils::optional<QString> _scheme = scheme()) {
-        if (_scheme.value() == fileName.toString())
-            return true;
-    }
     if (Utils::optional<QString> _pattern = pattern()) {
         QRegularExpression::PatternOption option = QRegularExpression::NoPatternOption;
-        if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+        if (fileName.caseSensitivity() == Qt::CaseInsensitive)
             option = QRegularExpression::CaseInsensitiveOption;
-        QRegularExpression regexp(QRegularExpression::wildcardToRegularExpression(_pattern.value()),
-                                  option);
-        if (regexp.match(fileName.toString()).hasMatch())
+        const QRegularExpression regexp(expressionForGlob(_pattern.value()), option);
+        if (regexp.isValid() && regexp.match(fileName.toString()).hasMatch())
             return true;
     }
     if (Utils::optional<QString> _lang = language()) {
