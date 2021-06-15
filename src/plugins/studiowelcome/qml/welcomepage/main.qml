@@ -48,7 +48,7 @@ Item {
             anchors.right: parent.right
             anchors.left: parent.left
 
-            ScrollView{
+            CustomScrollView {
                 ProjectsGrid {
                     model: ProjectModel {
                         id: projectModel
@@ -57,14 +57,14 @@ Item {
                 }
             }
 
-            ScrollView {
+            CustomScrollView {
                 ProjectsGrid {
                     model: ExamplesModel {}
                     onItemSelected: projectModel.openExample(item.projectName, item.qmlFileName, item.url)
                 }
             }
 
-            ScrollView{
+            CustomScrollView{
                 ProjectsGrid {
                     model: TutorialsModel {}
                     onItemSelected: Qt.openUrlExternally(item.url)
@@ -100,8 +100,6 @@ Item {
 
             MyTabButton {
                 text: qsTr("Recent Projects")
-                bottomPadding: 6
-                topPadding: 6.8
                 checked: true
                 onClicked: stackLayout.currentIndex = 0
             }
