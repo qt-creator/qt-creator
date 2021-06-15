@@ -14,6 +14,9 @@ instructions:
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
         variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_110-based
+      - type: EnvironmentVariable
+        variableName: MACOSX_DEPLOYMENT_TARGET
+        variableValue: 10.14
 
   - type: PrependToEnvironmentVariable
     variableName: PATH
