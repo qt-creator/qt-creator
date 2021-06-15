@@ -306,6 +306,14 @@ QByteArray IDevice::fileContents(const FilePath &filePath, int limit) const
     return {};
 }
 
+bool IDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(data);
+    QTC_CHECK(false);
+    return {};
+}
+
 QDateTime IDevice::lastModified(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);

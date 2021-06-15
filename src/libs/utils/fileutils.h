@@ -81,6 +81,7 @@ public:
     std::function<FilePath(const FilePath &)> searchInPath;
     std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
+    std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
 };
 
@@ -136,6 +137,7 @@ public:
     QList<FilePath> dirEntries(const QStringList &nameFilters, QDir::Filters filters) const;
     QList<FilePath> dirEntries(QDir::Filters filters) const;
     QByteArray fileContents(int maxSize = -1) const;
+    bool writeFileContents(const QByteArray &data) const;
 
     FilePath parentDir() const;
     FilePath absolutePath() const;

@@ -957,6 +957,19 @@ QByteArray FilePath::fileContents(int maxSize) const
     return f.readAll();
 }
 
+bool FilePath::writeFileContents(const QByteArray &data) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.writeFileContents, return {});
+        return s_deviceHooks.writeFileContents(*this, data);
+    }
+
+    QFile file(path());
+    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return false);
+    qint64 res = file.write(data);
+    return res == data.size();
+}
+
 bool FilePath::needsDevice() const
 {
     return !m_scheme.isEmpty();

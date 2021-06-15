@@ -881,6 +881,17 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, int limit) const
     return {};
 }
 
+bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess())
+        return mapToLocalAccess(filePath).writeFileContents(data);
+
+    QTC_CHECK(false); // FIXME: Implement
+    return {};
+}
+
 void DockerDevice::runProcess(QtcProcess &process) const
 {
     const FilePath workingDir = process.workingDirectory();
