@@ -76,7 +76,7 @@ MetaInfo {
             name: "StackLayout"
             category: "Qt Quick - Layouts"
             libraryIcon: ":/componentsplugin/images/stack-layouts-icon.png"
-            version: "1.3"
+            version: "1.0"
             requiredImport: "QtQuick.Layouts"
 
             Property { name: "width"; type: "int"; value: 100; }
