@@ -43,6 +43,8 @@ enum class PropertyDeclarationTraits : unsigned int {
     IsList = 1 << 2
 };
 
+enum class TypeNameKind { Native = 0, Exported = 1 };
+
 constexpr PropertyDeclarationTraits operator|(PropertyDeclarationTraits first,
                                               PropertyDeclarationTraits second)
 {
@@ -372,13 +374,12 @@ using PropertyDeclarations = std::vector<PropertyDeclaration>;
 class PropertyDeclarationView
 {
 public:
-    explicit PropertyDeclarationView(Utils::SmallStringView name,
-                                     int traits,
-                                     long long typeId,
-                                     long long id)
+    explicit PropertyDeclarationView(
+        Utils::SmallStringView name, int traits, long long typeId, long long typeNameId, long long id)
         : name{name}
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
         , typeId{typeId}
+        , typeNameId{typeNameId}
         , id{id}
 
     {}
@@ -387,6 +388,7 @@ public:
     Utils::SmallStringView name;
     PropertyDeclarationTraits traits = {};
     TypeId typeId;
+    TypeNameId typeNameId;
     PropertyDeclarationId id;
 };
 
@@ -419,7 +421,7 @@ public:
     {}
 
 public:
-    Utils::SmallString name;
+    Utils::SmallStringView name;
     PropertyDeclarationId id;
     PropertyDeclarationId aliasId;
 };
@@ -443,7 +445,6 @@ public:
                   TypeId typeId = TypeId{})
         : typeName{typeName}
         , prototype{std::move(prototype)}
-        , importIds{std::move(importIds)}
         , exportedTypes{std::move(exportedTypes)}
         , propertyDeclarations{std::move(propertyDeclarations)}
         , functionDeclarations{std::move(functionDeclarations)}
@@ -487,7 +488,6 @@ public:
     Utils::SmallString typeName;
     TypeName prototype;
     Utils::SmallString attachedType;
-    ImportIds importIds;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
     FunctionDeclarations functionDeclarations;
@@ -502,6 +502,22 @@ public:
 };
 
 using Types = std::vector<Type>;
+
+class Document
+{
+public:
+    explicit Document() = default;
+    explicit Document(SourceId sourceId, ImportIds importIds)
+        : importIds{std::move(importIds)}
+        , sourceId{sourceId}
+    {}
+
+public:
+    ImportIds importIds;
+    SourceId sourceId;
+};
+
+using Documents = std::vector<Document>;
 
 class BasicImport
 {

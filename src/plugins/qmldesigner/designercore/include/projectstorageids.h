@@ -83,7 +83,8 @@ enum class BasicIdType {
     FunctionDeclaration,
     SignalDeclaration,
     EnumerationDeclaration,
-    Import
+    Import,
+    TypeName
 };
 
 using TypeId = BasicId<BasicIdType::Type>;
@@ -109,5 +110,8 @@ using SourceIds = std::vector<SourceId>;
 
 using ImportId = BasicId<BasicIdType::Import>;
 using ImportIds = std::vector<ImportId>;
+
+using TypeNameId = BasicId<BasicIdType::TypeName>;
+using TypeNameIds = std::vector<TypeNameId>;
 
 } // namespace QmlDesigner
