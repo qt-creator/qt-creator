@@ -71,7 +71,7 @@ enum { syncDebug = 0 };
 
 enum { defaultMaxHangTimerCount = 10 };
 
-static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
+static Q_LOGGING_CATEGORY(processLog, "qtc.utils.qtcprocess", QtWarningMsg)
 
 static DeviceProcessHooks s_deviceHooks;
 
@@ -323,6 +323,11 @@ void QtcProcess::start()
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
         s_deviceHooks.startProcessHook(*this);
         return;
+    }
+
+    if (processLog().isDebugEnabled()) {
+        static int n = 0;
+        qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << d->m_commandLine.toUserOutput();
     }
 
     Environment env;
