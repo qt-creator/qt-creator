@@ -517,13 +517,13 @@ void DesignDocument::paste()
         // in case we copy and paste a selection we paste in the parent item
         if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.hasParentProperty()) {
             targetNode = targetNode.parentProperty().parentModelNode();
-        } else {
+        } else if (view.selectedModelNodes().isEmpty()) {
             // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene
             bool all3DNodes = std::find_if(selectedNodes.cbegin(), selectedNodes.cend(),
                                            [](const ModelNode &node) { return !node.isSubclassOf("QtQuick3D.Node"); })
                               == selectedNodes.cend();
             if (all3DNodes) {
-                int activeSceneId = rootModelNode().auxiliaryData("active3dScene").toInt();
+                int activeSceneId = rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
                 if (activeSceneId != -1) {
                     NodeListProperty sceneNodeProperty
                             = QmlVisualNode::findSceneNodeProperty(rootModelNode().view(), activeSceneId);
@@ -570,7 +570,7 @@ void DesignDocument::paste()
             } else {
                 // if selection is empty and this is a 3D Node, paste it under the active scene
                 if (pastedNode.isSubclassOf("QtQuick3D.Node")) {
-                    int activeSceneId = rootModelNode().auxiliaryData("active3dScene").toInt();
+                    int activeSceneId = rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
                     if (activeSceneId != -1) {
                         NodeListProperty sceneNodeProperty
                                 = QmlVisualNode::findSceneNodeProperty(rootModelNode().view(), activeSceneId);
