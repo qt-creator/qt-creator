@@ -168,12 +168,6 @@
 
                 \li \uicontrol {Open Documents} searches from all open files.
 
-                \if defined(qtcreator)
-                \li \uicontrol {Clang Query Project} explores the Clang abstract
-                     syntax tree (AST) using AST matcher expressions. For more
-                     information, see \l{Exploring Clang AST}.
-                 \endif
-
             \endlist
 
         \li In the \uicontrol {File pattern} field, specify file patterns to
@@ -250,33 +244,4 @@
             \uicontrol {Search engine} field.
 
     \endlist
-
-    \section1 Exploring Clang AST
-
-    You can use the experimental Clang Refactoring plugin to explore the Clang
-    AST using AST matcher expressions. For more information about constructing
-    matcher expressions, see
-    \l {http://clang.llvm.org/docs/LibASTMatchersReference.html}
-    {AST Matcher Reference}.
-
-    To explore the AST:
-
-    \list 1
-
-        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol C++
-            > \uicontrol {ClangRefactoring} to enable the plugin.
-
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-
-        \li When searching, select \uicontrol {Clang Query Project} in the
-            \uicontrol {Scope} field.
-
-        \li Enter an AST matcher expression in the \uicontrol {Search for}
-            field.
-
-    \endlist
-
-    You can view the results of the query as links to code positions in the
-    \uicontrol {Search Results} output pane.
-    \endif
 */
