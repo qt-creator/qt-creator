@@ -242,7 +242,7 @@ struct Attribute {
 };
 }
 
-static QList<Attribute> toAttributes(const QStringView &attributes)
+static QList<Attribute> toAttributes(QStringView attributes)
 {
     QList<Attribute> result;
     const QRegularExpression att("\\s+([a-zA-Z]+)\\s*=\\s*('.*?'|\".*?\")");
@@ -260,8 +260,8 @@ static QList<Attribute> toAttributes(const QStringView &attributes)
     return result;
 }
 
-static inline ParseState nextOpeningState(ParseState current, const QStringView &tagView,
-                                          const QStringView &attributesView)
+static inline ParseState nextOpeningState(ParseState current, QStringView tagView,
+                                          QStringView attributesView)
 {
     switch (current) {
     case OutSideTable:
@@ -300,7 +300,7 @@ static inline ParseState nextOpeningState(ParseState current, const QStringView 
     return ParseError;
 }
 
-static inline ParseState nextClosingState(ParseState current, const QStringView &element)
+static inline ParseState nextClosingState(ParseState current, QStringView element)
 {
     switch (current) {
     case OutSideTable:

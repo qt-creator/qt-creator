@@ -260,7 +260,7 @@ void GlslHighlighter::highlightLine(const QString &text, int position, int lengt
     }
 }
 
-bool GlslHighlighter::isPPKeyword(const QStringView &text) const
+bool GlslHighlighter::isPPKeyword(QStringView text) const
 {
     switch (text.length())
     {

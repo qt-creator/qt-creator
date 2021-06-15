@@ -334,7 +334,7 @@ void AbstractSettings::readDocumentation()
     QStringList keys;
     while (!(xml.atEnd() || xml.hasError())) {
         if (xml.readNext() == QXmlStreamReader::StartElement) {
-            const QStringView &name = xml.name();
+            QStringView name = xml.name();
             if (name == QLatin1String(Constants::DOCUMENTATION_XMLENTRY)) {
                 keys.clear();
             } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLKEY)) {

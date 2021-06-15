@@ -1039,7 +1039,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 }
                 QTC_CHECK(argumentSplitPos == arguments.size());
                 int tokenPart = splittedArguments.size();
-                for (const QStringView &part : qAsConst(splittedArguments))
+                for (QStringView part : qAsConst(splittedArguments))
                     str << prefix << " -t " << token << '.' << --tokenPart << ' ' << part << '\n';
             } else {
                 cmd = prefix;

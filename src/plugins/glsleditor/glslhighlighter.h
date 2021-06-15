@@ -40,7 +40,7 @@ public:
 protected:
     void highlightBlock(const QString &text) override;
     void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringView &text) const;
+    bool isPPKeyword(QStringView text) const;
 };
 
 } // namespace Internal

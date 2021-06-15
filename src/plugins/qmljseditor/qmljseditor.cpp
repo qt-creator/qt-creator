@@ -417,7 +417,7 @@ protected:
     {
         UiQualifiedId *id = qualifiedTypeNameId(member);
         if (id) {
-            const QStringView &name = id->name;
+            QStringView name = id->name;
             if (!name.isEmpty() && name.at(0).isUpper())
                 return true;
         }
@@ -435,7 +435,7 @@ protected:
             else if (script->qualifiedId->next)
                 return false;
 
-            const QStringView &propertyName = script->qualifiedId->name;
+            QStringView propertyName = script->qualifiedId->name;
 
             if (propertyName == QLatin1String("id"))
                 return true;

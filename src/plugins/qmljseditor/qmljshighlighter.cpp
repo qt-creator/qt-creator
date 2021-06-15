@@ -202,7 +202,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
     onBlockEnd(m_scanner.state());
 }
 
-bool QmlJSHighlighter::maybeQmlKeyword(const QStringView &text) const
+bool QmlJSHighlighter::maybeQmlKeyword(QStringView text) const
 {
     if (text.isEmpty())
         return false;
@@ -228,7 +228,7 @@ bool QmlJSHighlighter::maybeQmlKeyword(const QStringView &text) const
         return false;
 }
 
-bool QmlJSHighlighter::maybeQmlBuiltinType(const QStringView &text) const
+bool QmlJSHighlighter::maybeQmlBuiltinType(QStringView text) const
 {
     if (text.isEmpty())
         return false;

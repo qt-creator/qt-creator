@@ -108,7 +108,7 @@ static const char matchMaskAttributeC[] = "mask";
 */
 
 MimeTypeParserBase::ParseState MimeTypeParserBase::nextState(ParseState currentState,
-                                                             const QStringView &startElement)
+                                                             QStringView startElement)
 {
     switch (currentState) {
     case ParseBeginning:

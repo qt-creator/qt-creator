@@ -880,7 +880,7 @@ bool InternalCppCompletionAssistProcessor::accepts() const
                                && tokens.at(1).kind() == T_IDENTIFIER) {
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
-                        const QStringView &identifier = idToken.utf16charsEnd() > line.size()
+                        QStringView identifier = idToken.utf16charsEnd() > line.size()
                                                             ? QStringView(line).mid(
                                                                 idToken.utf16charsBegin())
                                                             : QStringView(line)

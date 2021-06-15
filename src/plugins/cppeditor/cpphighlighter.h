@@ -47,12 +47,12 @@ public:
 
 private:
     void highlightWord(QStringView word, int position, int length);
-    bool highlightRawStringLiteral(const QStringView &text, const CPlusPlus::Token &tk);
+    bool highlightRawStringLiteral(QStringView text, const CPlusPlus::Token &tk);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);
 
-    bool isPPKeyword(const QStringView &text) const;
+    bool isPPKeyword(QStringView text) const;
 
 private:
     CPlusPlus::LanguageFeatures m_languageFeatures = CPlusPlus::LanguageFeatures::defaultFeatures();

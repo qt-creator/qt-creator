@@ -318,12 +318,12 @@ class QML_PARSER_EXPORT UiQualifiedId: public Node
 public:
     QMLJS_DECLARE_AST_NODE(UiQualifiedId)
 
-    UiQualifiedId(const QStringView &name)
+    UiQualifiedId(QStringView name)
         : next(this)
         , name(name)
     { kind = K; }
 
-    UiQualifiedId(UiQualifiedId *previous, const QStringView &name)
+    UiQualifiedId(UiQualifiedId *previous, QStringView name)
         : name(name)
     {
         kind = K;
@@ -513,7 +513,7 @@ class QML_PARSER_EXPORT IdentifierExpression: public LeftHandSideExpression
 public:
     QMLJS_DECLARE_AST_NODE(IdentifierExpression)
 
-    IdentifierExpression(const QStringView &n)
+    IdentifierExpression(QStringView n)
         : name(n)
     {
         kind = K;
@@ -658,7 +658,7 @@ class QML_PARSER_EXPORT StringLiteral : public LeftHandSideExpression
 public:
     QMLJS_DECLARE_AST_NODE(StringLiteral)
 
-    StringLiteral(const QStringView &v)
+    StringLiteral(QStringView v)
         : value(v)
     {
         kind = K;
@@ -682,7 +682,7 @@ class QML_PARSER_EXPORT TemplateLiteral : public LeftHandSideExpression
 public:
     QMLJS_DECLARE_AST_NODE(TemplateLiteral)
 
-    TemplateLiteral(const QStringView &str, const QStringView &raw, ExpressionNode *e)
+    TemplateLiteral(QStringView str, QStringView raw, ExpressionNode *e)
         : value(str)
         , rawValue(raw)
         , expression(e)
@@ -712,7 +712,7 @@ class QML_PARSER_EXPORT RegExpLiteral: public LeftHandSideExpression
 public:
     QMLJS_DECLARE_AST_NODE(RegExpLiteral)
 
-    RegExpLiteral(const QStringView &p, int f)
+    RegExpLiteral(QStringView p, int f)
         : pattern(p)
         , flags(f)
     {
@@ -907,7 +907,7 @@ public:
         : initializer(i), type(t)
     { kind = K; }
 
-    PatternElement(const QStringView &n,
+    PatternElement(QStringView n,
                    TypeAnnotation *typeAnnotation = nullptr,
                    ExpressionNode *i = nullptr,
                    Type t = Binding)
@@ -1007,7 +1007,7 @@ public:
         : PatternElement(i, t), name(name)
     { kind = K; }
 
-    PatternProperty(PropertyName *name, const QStringView &n, ExpressionNode *i = nullptr)
+    PatternProperty(PropertyName *name, QStringView n, ExpressionNode *i = nullptr)
         : PatternElement(n, /*type annotation*/ nullptr, i)
         , name(name)
     { kind = K; }
@@ -1078,7 +1078,7 @@ class QML_PARSER_EXPORT IdentifierPropertyName: public PropertyName
 public:
     QMLJS_DECLARE_AST_NODE(IdentifierPropertyName)
 
-    IdentifierPropertyName(const QStringView &n)
+    IdentifierPropertyName(QStringView n)
         : id(n)
     {
         kind = K;
@@ -1097,7 +1097,7 @@ class QML_PARSER_EXPORT StringLiteralPropertyName: public PropertyName
 public:
     QMLJS_DECLARE_AST_NODE(StringLiteralPropertyName)
 
-    StringLiteralPropertyName(const QStringView &n)
+    StringLiteralPropertyName(QStringView n)
         : id(n)
     {
         kind = K;
@@ -1180,7 +1180,7 @@ class QML_PARSER_EXPORT FieldMemberExpression: public LeftHandSideExpression
 public:
     QMLJS_DECLARE_AST_NODE(FieldMemberExpression)
 
-    FieldMemberExpression(ExpressionNode *b, const QStringView &n)
+    FieldMemberExpression(ExpressionNode *b, QStringView n)
         : base(b)
         , name(n)
     {
@@ -1972,7 +1972,7 @@ class QML_PARSER_EXPORT ContinueStatement: public Statement
 public:
     QMLJS_DECLARE_AST_NODE(ContinueStatement)
 
-    ContinueStatement(const QStringView &l = QStringView())
+    ContinueStatement(QStringView l = QStringView())
         : label(l)
     {
         kind = K;
@@ -1998,7 +1998,7 @@ class QML_PARSER_EXPORT BreakStatement: public Statement
 public:
     QMLJS_DECLARE_AST_NODE(BreakStatement)
 
-    BreakStatement(const QStringView &l)
+    BreakStatement(QStringView l)
         : label(l)
     {
         kind = K;
@@ -2229,7 +2229,7 @@ class QML_PARSER_EXPORT LabelledStatement: public Statement
 public:
     QMLJS_DECLARE_AST_NODE(LabelledStatement)
 
-    LabelledStatement(const QStringView &l, Statement *stmt)
+    LabelledStatement(QStringView l, Statement *stmt)
         : label(l)
         , statement(stmt)
     {
@@ -2364,7 +2364,7 @@ class QML_PARSER_EXPORT FunctionExpression: public ExpressionNode
 public:
     QMLJS_DECLARE_AST_NODE(FunctionExpression)
 
-    FunctionExpression(const QStringView &n,
+    FunctionExpression(QStringView n,
                        FormalParameterList *f,
                        StatementList *b,
                        TypeAnnotation *typeAnnotation = nullptr)
@@ -2405,7 +2405,7 @@ class QML_PARSER_EXPORT FunctionDeclaration: public FunctionExpression
 public:
     QMLJS_DECLARE_AST_NODE(FunctionDeclaration)
 
-    FunctionDeclaration(const QStringView &n,
+    FunctionDeclaration(QStringView n,
                         FormalParameterList *f,
                         StatementList *b,
                         TypeAnnotation *typeAnnotation = nullptr)
@@ -2506,7 +2506,7 @@ class QML_PARSER_EXPORT ClassExpression : public ExpressionNode
 public:
     QMLJS_DECLARE_AST_NODE(ClassExpression)
 
-    ClassExpression(const QStringView &n, ExpressionNode *heritage, ClassElementList *elements)
+    ClassExpression(QStringView n, ExpressionNode *heritage, ClassElementList *elements)
         : name(n)
         , heritage(heritage)
         , elements(elements)
@@ -2538,7 +2538,7 @@ class QML_PARSER_EXPORT ClassDeclaration: public ClassExpression
 public:
     QMLJS_DECLARE_AST_NODE(ClassDeclaration)
 
-    ClassDeclaration(const QStringView &n, ExpressionNode *heritage, ClassElementList *elements)
+    ClassDeclaration(QStringView n, ExpressionNode *heritage, ClassElementList *elements)
         : ClassExpression(n, heritage, elements)
     {
         kind = K; }
@@ -2610,13 +2610,13 @@ class QML_PARSER_EXPORT ImportSpecifier: public Node
 public:
     QMLJS_DECLARE_AST_NODE(ImportSpecifier)
 
-    ImportSpecifier(const QStringView &importedBinding)
+    ImportSpecifier(QStringView importedBinding)
         : importedBinding(importedBinding)
     {
         kind = K;
     }
 
-    ImportSpecifier(const QStringView &identifier, const QStringView &importedBinding)
+    ImportSpecifier(QStringView identifier, QStringView importedBinding)
         : identifier(identifier)
         , importedBinding(importedBinding)
     {
@@ -2718,7 +2718,7 @@ class QML_PARSER_EXPORT NameSpaceImport: public Node
 public:
     QMLJS_DECLARE_AST_NODE(NameSpaceImport)
 
-    NameSpaceImport(const QStringView &importedBinding)
+    NameSpaceImport(QStringView importedBinding)
         : importedBinding(importedBinding)
     {
         kind = K;
@@ -2742,7 +2742,7 @@ class QML_PARSER_EXPORT ImportClause: public Node
 public:
     QMLJS_DECLARE_AST_NODE(ImportClause)
 
-    ImportClause(const QStringView &importedDefaultBinding)
+    ImportClause(QStringView importedDefaultBinding)
         : importedDefaultBinding(importedDefaultBinding)
     {
         kind = K;
@@ -2760,14 +2760,14 @@ public:
         kind = K;
     }
 
-    ImportClause(const QStringView &importedDefaultBinding, NameSpaceImport *nameSpaceImport)
+    ImportClause(QStringView importedDefaultBinding, NameSpaceImport *nameSpaceImport)
         : importedDefaultBinding(importedDefaultBinding)
         , nameSpaceImport(nameSpaceImport)
     {
         kind = K;
     }
 
-    ImportClause(const QStringView &importedDefaultBinding, NamedImports *namedImports)
+    ImportClause(QStringView importedDefaultBinding, NamedImports *namedImports)
         : importedDefaultBinding(importedDefaultBinding)
         , namedImports(namedImports)
     {
@@ -2793,7 +2793,7 @@ class QML_PARSER_EXPORT FromClause: public Node
 public:
     QMLJS_DECLARE_AST_NODE(FromClause)
 
-    FromClause(const QStringView &moduleSpecifier)
+    FromClause(QStringView moduleSpecifier)
         : moduleSpecifier(moduleSpecifier)
     {
         kind = K;
@@ -2824,7 +2824,7 @@ public:
         kind = K;
     }
 
-    ImportDeclaration(const QStringView &moduleSpecifier)
+    ImportDeclaration(QStringView moduleSpecifier)
         : moduleSpecifier(moduleSpecifier)
     {
         kind = K;
@@ -2851,14 +2851,14 @@ class QML_PARSER_EXPORT ExportSpecifier: public Node
 public:
     QMLJS_DECLARE_AST_NODE(ExportSpecifier)
 
-    ExportSpecifier(const QStringView &identifier)
+    ExportSpecifier(QStringView identifier)
         : identifier(identifier)
         , exportedIdentifier(identifier)
     {
         kind = K;
     }
 
-    ExportSpecifier(const QStringView &identifier, const QStringView &exportedIdentifier)
+    ExportSpecifier(QStringView identifier, QStringView exportedIdentifier)
         : identifier(identifier)
         , exportedIdentifier(exportedIdentifier)
     {
@@ -3047,7 +3047,7 @@ class QML_PARSER_EXPORT UiImport: public Node
 public:
     QMLJS_DECLARE_AST_NODE(UiImport)
 
-    UiImport(const QStringView &fileName)
+    UiImport(QStringView fileName)
         : fileName(fileName)
         , importUri(nullptr)
     { kind = K; }
@@ -3319,14 +3319,14 @@ class QML_PARSER_EXPORT UiParameterList: public Node
 public:
     QMLJS_DECLARE_AST_NODE(UiParameterList)
 
-    UiParameterList(UiQualifiedId *t, const QStringView &n)
+    UiParameterList(UiQualifiedId *t, QStringView n)
         : type(t)
         , name(n)
         , next(this)
     {
         kind = K; }
 
-    UiParameterList(UiParameterList *previous, UiQualifiedId *t, const QStringView &n)
+    UiParameterList(UiParameterList *previous, UiQualifiedId *t, QStringView n)
         : type(t)
         , name(n)
     {
@@ -3368,7 +3368,7 @@ class QML_PARSER_EXPORT UiPublicMember: public UiObjectMember
 public:
     QMLJS_DECLARE_AST_NODE(UiPublicMember)
 
-    UiPublicMember(UiQualifiedId *memberType, const QStringView &name)
+    UiPublicMember(UiQualifiedId *memberType, QStringView name)
         : type(Property)
         , memberType(memberType)
         , name(name)
@@ -3379,7 +3379,7 @@ public:
         , parameters(nullptr)
     { kind = K; }
 
-    UiPublicMember(UiQualifiedId *memberType, const QStringView &name, Statement *statement)
+    UiPublicMember(UiQualifiedId *memberType, QStringView name, Statement *statement)
         : type(Property)
         , memberType(memberType)
         , name(name)
@@ -3468,7 +3468,7 @@ class QML_PARSER_EXPORT UiInlineComponent: public UiObjectMember
 public:
     QMLJS_DECLARE_AST_NODE(UiInlineComponent)
 
-    UiInlineComponent(const QStringView &inlineComponentName, UiObjectDefinition *inlineComponent)
+    UiInlineComponent(QStringView inlineComponentName, UiObjectDefinition *inlineComponent)
         : name(inlineComponentName)
         , component(inlineComponent)
     { kind = K; }
@@ -3615,13 +3615,13 @@ class QML_PARSER_EXPORT UiEnumMemberList: public Node
 {
     QMLJS_DECLARE_AST_NODE(UiEnumMemberList)
 public:
-    UiEnumMemberList(const QStringView &member, double v = 0.0)
+    UiEnumMemberList(QStringView member, double v = 0.0)
         : next(this)
         , member(member)
         , value(v)
     { kind = K; }
 
-    UiEnumMemberList(UiEnumMemberList *previous, const QStringView &member)
+    UiEnumMemberList(UiEnumMemberList *previous, QStringView member)
         : member(member)
     {
         kind = K;
@@ -3630,7 +3630,7 @@ public:
         value = previous->value + 1;
     }
 
-    UiEnumMemberList(UiEnumMemberList *previous, const QStringView &member, double v)
+    UiEnumMemberList(UiEnumMemberList *previous, QStringView member, double v)
         : member(member)
         , value(v)
     {
@@ -3670,7 +3670,7 @@ class QML_PARSER_EXPORT UiEnumDeclaration: public UiObjectMember
 public:
     QMLJS_DECLARE_AST_NODE(UiEnumDeclaration)
 
-    UiEnumDeclaration(const QStringView &name, UiEnumMemberList *members)
+    UiEnumDeclaration(QStringView name, UiEnumMemberList *members)
         : name(name)
         , members(members)
     { kind = K; }

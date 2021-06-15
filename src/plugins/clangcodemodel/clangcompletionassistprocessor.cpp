@@ -454,7 +454,7 @@ bool ClangCompletionAssistProcessor::accepts() const
                                && tokens.at(1).kind() == T_IDENTIFIER) {
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
-                        const QStringView &identifier = Utils::midView(line,
+                        QStringView identifier = Utils::midView(line,
                                                                        idToken.utf16charsBegin(),
                                                                        idToken.utf16chars());
                         if (identifier == QLatin1String("include")

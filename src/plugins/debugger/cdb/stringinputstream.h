@@ -42,7 +42,7 @@ public:
     StringInputStream &operator<<(char a)              { m_target.append(a); return *this; }
     StringInputStream &operator<<(const char *a)       { m_target.append(QString::fromUtf8(a)); return *this; }
     StringInputStream &operator<<(const QString &a)    { m_target.append(a); return *this; }
-    StringInputStream &operator<<(const QStringView &a)
+    StringInputStream &operator<<(QStringView a)
     {
         m_target.append(a.toString());
         return *this;

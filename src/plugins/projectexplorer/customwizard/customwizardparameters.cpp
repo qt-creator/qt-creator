@@ -308,7 +308,7 @@ static inline QMap<QString, QString> attributesToStringMap(const QXmlStreamAttri
 }
 
 // Switch parser state depending on opening element name.
-static ParseState nextOpeningState(ParseState in, const QStringView &name)
+static ParseState nextOpeningState(ParseState in, QStringView name)
 {
     switch (in) {
     case ParseBeginning:
@@ -375,7 +375,7 @@ static ParseState nextOpeningState(ParseState in, const QStringView &name)
 }
 
 // Switch parser state depending on closing element name.
-static ParseState nextClosingState(ParseState in, const QStringView &name)
+static ParseState nextClosingState(ParseState in, QStringView name)
 {
     switch (in) {
     case ParseBeginning:

@@ -121,7 +121,7 @@ static bool shouldInsertNewline(const QTextCursor &tc)
     return false;
 }
 
-static bool isCompleteStringLiteral(const QStringView &text)
+static bool isCompleteStringLiteral(QStringView text)
 {
     if (text.length() < 2)
         return false;

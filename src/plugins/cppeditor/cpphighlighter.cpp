@@ -278,7 +278,7 @@ void CppHighlighter::setLanguageFeatures(const LanguageFeatures &languageFeature
     }
 }
 
-bool CppHighlighter::isPPKeyword(const QStringView &text) const
+bool CppHighlighter::isPPKeyword(QStringView text) const
 {
     switch (text.length())
     {
@@ -370,7 +370,7 @@ void CppHighlighter::highlightWord(QStringView word, int position, int length)
     }
 }
 
-bool CppHighlighter::highlightRawStringLiteral(const QStringView &_text, const Token &tk)
+bool CppHighlighter::highlightRawStringLiteral(QStringView _text, const Token &tk)
 {
     // Step one: Does the lexer think this is a raw string literal?
     switch (tk.kind()) {

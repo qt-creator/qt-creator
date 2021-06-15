@@ -33,7 +33,7 @@ QT_QML_BEGIN_NAMESPACE
 
 using namespace LanguageUtils;
 
-static int parseInt(const QStringView &str, bool *ok)
+static int parseInt(QStringView str, bool *ok)
 {
     int pos = 0;
     int number = 0;

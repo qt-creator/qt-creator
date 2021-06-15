@@ -1063,7 +1063,7 @@ void ObjectValue::setMember(const QString &name, const Value *value)
     m_members[name].value = value;
 }
 
-void ObjectValue::setMember(const QStringView &name, const Value *value)
+void ObjectValue::setMember(QStringView name, const Value *value)
 {
     m_members[name.toString()].value = value;
 }
