@@ -209,14 +209,16 @@ bool FileApiReader::usesAllCapsTargets() const
 }
 
 std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
-    const QList<const FileNode *> &allFiles, QString &errorMessage, bool includeHeaderNodes)
+    const ProjectExplorer::TreeScanner::Result &allFiles,
+    QString &errorMessage,
+    bool includeHeaderNodes)
 {
     Q_UNUSED(errorMessage)
 
     if (includeHeaderNodes) {
-        addHeaderNodes(m_rootProjectNode.get(), m_knownHeaders, allFiles);
+        addHeaderNodes(m_rootProjectNode.get(), m_knownHeaders, allFiles.allFiles);
     }
-    addFileSystemNodes(m_rootProjectNode.get(), allFiles);
+    addFileSystemNodes(m_rootProjectNode.get(), allFiles.folderNode);
     return std::exchange(m_rootProjectNode, {});
 }
 

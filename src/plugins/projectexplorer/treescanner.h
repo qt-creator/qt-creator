@@ -46,7 +46,11 @@ class PROJECTEXPLORER_EXPORT TreeScanner : public QObject
     Q_OBJECT
 
 public:
-    using Result = QList<ProjectExplorer::FileNode *>;
+    struct Result
+    {
+        std::shared_ptr<FolderNode> folderNode;
+        QList<FileNode *> allFiles;
+    };
     using Future = QFuture<Result>;
     using FutureWatcher = QFutureWatcher<Result>;
     using FutureInterface = QFutureInterface<Result>;

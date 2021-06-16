@@ -69,7 +69,8 @@ NimProjectScanner::NimProjectScanner(Project *project)
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         // Collect scanned nodes
         std::vector<std::unique_ptr<FileNode>> nodes;
-        for (FileNode *node : m_scanner.release()) {
+        const TreeScanner::Result scanResult = m_scanner.release();
+        for (FileNode *node : scanResult.allFiles) {
             if (!node->path().endsWith(".nim") && !node->path().endsWith(".nimble"))
                 node->setEnabled(false); // Disable files that do not end in .nim
             nodes.emplace_back(node);

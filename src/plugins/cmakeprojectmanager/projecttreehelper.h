@@ -66,9 +66,9 @@ CMakeTargetNode *createTargetNode(
 
 void addHeaderNodes(ProjectExplorer::ProjectNode *root,
                     QSet<Utils::FilePath> &seenHeaders,
-                    const QList<const ProjectExplorer::FileNode *> &allFiles);
+                    const QList<ProjectExplorer::FileNode *> &allFiles);
 
 void addFileSystemNodes(ProjectExplorer::ProjectNode *root,
-                        const QList<const ProjectExplorer::FileNode *> &allFiles);
+                        const std::shared_ptr<ProjectExplorer::FolderNode> &folderNode);
 } // namespace Internal
 } // namespace CMakeProjectManager

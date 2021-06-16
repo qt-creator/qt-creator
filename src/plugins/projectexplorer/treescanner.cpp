@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "treescanner.h"
+
 #include "projectexplorerconstants.h"
+#include "projectnodeshelper.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -145,11 +147,25 @@ FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Uti
     return Node::fileTypeForMimeType(mimeType);
 }
 
+static std::unique_ptr<FolderNode> createFolderNode(const Utils::FilePath &directory,
+                                                    const QList<FileNode *> &allFiles)
+{
+    auto fileSystemNode = std::make_unique<FolderNode>(directory);
+    for (const FileNode *fn : allFiles) {
+        if (!fn->filePath().isChildOf(directory))
+            continue;
+
+        std::unique_ptr<FileNode> node(fn->clone());
+        fileSystemNode->addNestedNode(std::move(node));
+    }
+    return fileSystemNode;
+}
+
 void TreeScanner::scanForFiles(FutureInterface &fi, const Utils::FilePath& directory,
                                const FileFilter &filter, const FileTypeFactory &factory)
 {
-    Result nodes = FileNode::scanForFiles(fi, directory,
-                [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
+    QList<FileNode *> nodes = ProjectExplorer::scanForFiles(fi, directory,
+                           [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
 
         // Skip some files during scan.
@@ -167,7 +183,9 @@ void TreeScanner::scanForFiles(FutureInterface &fi, const Utils::FilePath& direc
     Utils::sort(nodes, ProjectExplorer::Node::sortByPath);
 
     fi.setProgressValue(fi.progressMaximum());
-    fi.reportResult(nodes);
+    Result result{createFolderNode(directory, nodes), nodes};
+
+    fi.reportResult(result);
 }
 
 } // namespace ProjectExplorer

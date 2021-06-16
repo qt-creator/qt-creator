@@ -213,7 +213,7 @@ CMakeBuildSystem::~CMakeBuildSystem()
 
     delete m_cppCodeModelUpdater;
     qDeleteAll(m_extraCompilers);
-    qDeleteAll(m_allFiles);
+    qDeleteAll(m_allFiles.allFiles);
 }
 
 void CMakeBuildSystem::triggerParsing()
@@ -244,7 +244,7 @@ void CMakeBuildSystem::triggerParsing()
 
     qCDebug(cmakeBuildSystemLog) << "ParseGuard acquired.";
 
-    if (m_allFiles.isEmpty()) {
+    if (m_allFiles.allFiles.isEmpty()) {
         qCDebug(cmakeBuildSystemLog)
             << "No treescanner information available, forcing treescanner run.";
         updateReparseParameters(REPARSE_SCAN);
@@ -466,8 +466,8 @@ void CMakeBuildSystem::handleTreeScanningFinished()
 {
     QTC_CHECK(m_waitingForScan);
 
-    qDeleteAll(m_allFiles);
-    m_allFiles = Utils::transform(m_treeScanner.release(), [](const FileNode *fn) { return fn; });
+    qDeleteAll(m_allFiles.allFiles);
+    m_allFiles = m_treeScanner.release();
 
     m_waitingForScan = false;
 
@@ -528,7 +528,7 @@ void CMakeBuildSystem::clearCMakeCache()
 }
 
 std::unique_ptr<CMakeProjectNode> CMakeBuildSystem::generateProjectTree(
-    const QList<const FileNode *> &allFiles, bool includeHeaderNodes)
+    const TreeScanner::Result &allFiles, bool includeHeaderNodes)
 {
     QString errorMessage;
     auto root = m_reader.generateProjectTree(allFiles, errorMessage, includeHeaderNodes);
