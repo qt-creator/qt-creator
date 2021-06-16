@@ -240,7 +240,11 @@ FilePath BuildConfiguration::buildDirectory() const
 {
     QString path = environment().expandVariables(d->m_buildDirectoryAspect->value().trimmed());
     path = QDir::cleanPath(macroExpander()->expand(path));
-    return FilePath::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
+
+    const FilePath projectDir = target()->project()->projectDirectory();
+    const FilePath buildDir = projectDir.absoluteFilePath(FilePath::fromString(path));
+
+    return mapFromBuildDeviceToGlobalPath(buildDir);
 }
 
 FilePath BuildConfiguration::rawBuildDirectory() const
@@ -296,8 +300,7 @@ MacroExpander *BuildConfiguration::macroExpander() const
 
 bool BuildConfiguration::createBuildDirectory()
 {
-    QDir dir;
-    const auto result = dir.mkpath(buildDirectory().toString());
+    const bool result = buildDirectory().ensureWritableDir();
     buildDirectoryAspect()->validateInput();
     return result;
 }
