@@ -157,7 +157,11 @@ static clang::format::FormatStyle qtcStyle()
     style.SpaceBeforeParens = FormatStyle::SBPO_ControlStatements;
     style.SpaceInEmptyParentheses = false;
     style.SpacesBeforeTrailingComments = 1;
+#if LLVM_VERSION_MAJOR >= 13
+    style.SpacesInAngles = FormatStyle::SIAS_Never;
+#else
     style.SpacesInAngles = false;
+#endif
     style.SpacesInContainerLiterals = false;
     style.SpacesInCStyleCastParentheses = false;
     style.SpacesInParentheses = false;
