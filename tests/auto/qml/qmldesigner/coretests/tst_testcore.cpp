@@ -510,7 +510,7 @@ void tst_TestCore::testModelCreateRect()
 void tst_TestCore::testRewriterDynamicProperties()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  property int i\n"
@@ -646,7 +646,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 void tst_TestCore::testRewriterGroupedProperties()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Text {\n"
                                   "  font {\n"
@@ -683,7 +683,7 @@ void tst_TestCore::testRewriterGroupedProperties()
 
     rootModelNode.removeProperty("font.pointSize");
     const QLatin1String expected("\n"
-                                 "import QtQuick 1.1\n"
+                                 "import QtQuick 2.1\n"
                                  "\n"
                                  "Text {\n"
                                  "}\n");
@@ -694,49 +694,49 @@ void tst_TestCore::testRewriterGroupedProperties()
 void tst_TestCore::testRewriterPreserveOrder()
 {
     const QLatin1String qmlString1("\n"
-        "import QtQuick 1.1\n"
-        "\n"
-        "Rectangle {\n"
-            "width: 640\n"
-            "height: 480\n"
-            "\n"
-            "states: [\n"
-                "State {\n"
-                    "name: \"State1\"\n"
-                "}\n"
-            "]\n"
-            "\n"
-            "Rectangle {\n"
-                "id: rectangle1\n"
-                "x: 18\n"
-                "y: 19\n"
-                "width: 100\n"
-                "height: 100\n"
-            "}\n"
-        "}\n");
+                                   "import QtQuick 2.1\n"
+                                   "\n"
+                                   "Rectangle {\n"
+                                   "width: 640\n"
+                                   "height: 480\n"
+                                   "\n"
+                                   "states: [\n"
+                                   "State {\n"
+                                   "name: \"State1\"\n"
+                                   "}\n"
+                                   "]\n"
+                                   "\n"
+                                   "Rectangle {\n"
+                                   "id: rectangle1\n"
+                                   "x: 18\n"
+                                   "y: 19\n"
+                                   "width: 100\n"
+                                   "height: 100\n"
+                                   "}\n"
+                                   "}\n");
     const QLatin1String qmlString2("\n"
-        "import QtQuick 1.1\n"
-        "\n"
-        "Rectangle {\n"
-            "width: 640\n"
-            "height: 480\n"
-            "\n"
-            "Rectangle {\n"
-                "id: rectangle1\n"
-                "x: 18\n"
-                "y: 19\n"
-                "width: 100\n"
-                "height: 100\n"
-            "}\n"
-            "states: [\n"
-                "State {\n"
-                    "name: \"State1\"\n"
-                "}\n"
-            "]\n"
-            "\n"
-        "}\n");
+                                   "import QtQuick 2.1\n"
+                                   "\n"
+                                   "Rectangle {\n"
+                                   "width: 640\n"
+                                   "height: 480\n"
+                                   "\n"
+                                   "Rectangle {\n"
+                                   "id: rectangle1\n"
+                                   "x: 18\n"
+                                   "y: 19\n"
+                                   "width: 100\n"
+                                   "height: 100\n"
+                                   "}\n"
+                                   "states: [\n"
+                                   "State {\n"
+                                   "name: \"State1\"\n"
+                                   "}\n"
+                                   "]\n"
+                                   "\n"
+                                   "}\n");
 
-        {
+    {
         QPlainTextEdit textEdit;
         textEdit.setPlainText(qmlString2);
         NotIndentingTextEditModifier modifier(&textEdit);
@@ -810,7 +810,7 @@ void tst_TestCore::testRewriterPreserveOrder()
 void tst_TestCore::testRewriterActionCompression()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  id: root\n"
@@ -856,7 +856,7 @@ void tst_TestCore::testRewriterActionCompression()
     transaction.commit();
 
     const QLatin1String expected("\n"
-                                 "import QtQuick 1.1\n"
+                                 "import QtQuick 2.1\n"
                                  "\n"
                                  "Rectangle {\n"
                                  "  id: root\n"
@@ -923,7 +923,7 @@ void tst_TestCore::testRewriterImports()
 void tst_TestCore::testRewriterChangeImports()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {}\n");
 
@@ -950,16 +950,16 @@ void tst_TestCore::testRewriterChangeImports()
     model->changeImports(importList, QList<Import>());
 
     const QLatin1String qmlWithImport("\n"
-                                 "import QtQuick 1.1\n"
-                                 "import QtWebKit 1.0\n"
-                                 "\n"
-                                 "Rectangle {}\n");
+                                      "import QtQuick 2.1\n"
+                                      "import QtWebKit 1.0\n"
+                                      "\n"
+                                      "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithImport);
 
     model->changeImports(QList<Import>(), importList);
 
     QCOMPARE(model->imports().size(), 1);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
 
     QCOMPARE(textEdit.toPlainText(), qmlString);
 
@@ -973,14 +973,14 @@ void tst_TestCore::testRewriterChangeImports()
     model->changeImports(QList<Import>() << webkitImportAlias, QList<Import>() <<  webkitImport);
 
     const QLatin1String qmlWithAliasImport("\n"
-                                 "import QtQuick 1.1\n"
-                                 "import QtWebKit 1.0 as Web\n"
-                                 "\n"
-                                 "Rectangle {}\n");
+                                           "import QtQuick 2.1\n"
+                                           "import QtWebKit 1.0 as Web\n"
+                                           "\n"
+                                           "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
 
     model->changeImports(QList<Import>(), QList<Import>() << webkitImportAlias);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
 
     QCOMPARE(textEdit.toPlainText(), qmlString);
 
@@ -989,17 +989,17 @@ void tst_TestCore::testRewriterChangeImports()
     //
     textEdit.setPlainText(qmlWithImport);
     QCOMPARE(model->imports().size(), 2);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
     QCOMPARE(model->imports().last(), Import::createLibraryImport("QtWebKit", "1.0"));
 
     textEdit.setPlainText(qmlWithAliasImport);
     QCOMPARE(model->imports().size(), 2);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
     QCOMPARE(model->imports().last(), Import::createLibraryImport("QtWebKit", "1.0", "Web"));
 
     textEdit.setPlainText(qmlString);
     QCOMPARE(model->imports().size(), 1);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
 }
 
 void tst_TestCore::testRewriterUnicodeChars()
@@ -4120,41 +4120,41 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
 
 void tst_TestCore::loadQml()
 {
-char qmlString[] = "import QtQuick 2.1\n"
+    char qmlString[] = "import QtQuick 2.15\n"
                        "Rectangle {\n"
-                            "id: root;\n"
-                            "width: 200;\n"
-                            "height: 200;\n"
-                            "color: \"white\";\n"
-                            "Text {\n"
-                                "id: text1\n"
-                                "text: \"Hello World\"\n"
-                                "anchors.centerIn: parent\n"
-                                "Item {\n"
-                                    "id: item01\n"
-                                 "}\n"
-                            "}\n"
-                            "Rectangle {\n"
-                                "id: rectangle;\n"
-                                "gradient: Gradient {\n"
-                                    "GradientStop {\n"
-                                        "position: 0\n"
-                                        "color: \"white\"\n"
-                                     "}\n"
-                                     "GradientStop {\n"
-                                        "position: 1\n"
-                                        "color: \"black\"\n"
-                                     "}\n"
-                                "}\n"
-                            "}\n"
-                             "Text {\n"
-                                "text: \"text\"\n"
-                                "x: 66\n"
-                                "y: 43\n"
-                                "width: 80\n"
-                                "height: 20\n"
-                                "id: text2\n"
-                            "}\n"
+                       "id: root;\n"
+                       "width: 200;\n"
+                       "height: 200;\n"
+                       "color: \"white\";\n"
+                       "Text {\n"
+                       "id: text1\n"
+                       "text: \"Hello World\"\n"
+                       "anchors.centerIn: parent\n"
+                       "Item {\n"
+                       "id: item01\n"
+                       "}\n"
+                       "}\n"
+                       "Rectangle {\n"
+                       "id: rectangle;\n"
+                       "gradient: Gradient {\n"
+                       "GradientStop {\n"
+                       "position: 0\n"
+                       "color: \"white\"\n"
+                       "}\n"
+                       "GradientStop {\n"
+                       "position: 1\n"
+                       "color: \"black\"\n"
+                       "}\n"
+                       "}\n"
+                       "}\n"
+                       "Text {\n"
+                       "text: \"text\"\n"
+                       "x: 66\n"
+                       "y: 43\n"
+                       "width: 80\n"
+                       "height: 20\n"
+                       "id: text2\n"
+                       "}\n"
                        "}\n";
 
     QPlainTextEdit textEdit;
@@ -7731,25 +7731,23 @@ void tst_TestCore::testRewriterNodeReparenting()
     // reparent into the hierarchy
     rootNode.nodeListProperty("data").reparentHere(node1);
 
-    expected =  "\n"
-                "import QtQuick 2.1\n"
-                "\n"
-                "Rectangle {\n"
-                "  Item {\n"
-                "  }\n"
-                "\n"
-                "MouseArea {\n"
-                "    }\n"
-                "\n"
-                "    Rectangle {\n"
-                "        Item {\n"
-                "            Item {\n"
-                "            }\n"
-                "        }\n"
-                "    }\n"
-                "}";
-
-    QCOMPARE(textEdit.toPlainText(), expected);
+    expected = "\n"
+               "import QtQuick 2.1\n"
+               "\n"
+               "Rectangle {\n"
+               "  Item {\n"
+               "  }\n"
+               "\n"
+               "MouseArea {\n"
+               "    }\n"
+               "\n"
+               "    Rectangle {\n"
+               "        Item {\n"
+               "            Item {\n"
+               "            }\n"
+               "        }\n"
+               "    }\n"
+               "}";
 
     QCOMPARE(stripWhiteSpaces(textEdit.toPlainText()), stripWhiteSpaces(expected));
 
