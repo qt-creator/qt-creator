@@ -36,7 +36,6 @@
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
 
-#include <QDateTime>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
@@ -332,11 +331,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
 {
     const FilePath buildDir = m_parameters.buildDirectory;
-    QTC_ASSERT(buildDir.exists(), buildDir.ensureWritableDir());
-    if (!buildDir.exists())
-        buildDir.ensureWritableDir();
-
-    const FilePath settingsFile = buildDir.pathAppended("qtcsettings.cmake");
+    QTC_CHECK(buildDir.ensureWritableDir());
 
     QByteArray contents;
     contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
@@ -348,9 +343,8 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
             .join('\n')
             .toUtf8());
 
-    QFile file(settingsFile.toString());
-    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return );
-    file.write(contents);
+    const FilePath settingsFile = buildDir / "qtcsettings.cmake";
+    QTC_CHECK(settingsFile.writeFileContents(contents));
 }
 
 void FileApiReader::startCMakeState(const QStringList &configurationArguments)

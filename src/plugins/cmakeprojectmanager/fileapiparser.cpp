@@ -94,6 +94,7 @@ static std::pair<QString, QString> nameValue(const QJsonObject &obj)
 static QJsonDocument readJsonFile(const FilePath &filePath)
 {
     qCDebug(cmakeFileApi) << "readJsonFile:" << filePath;
+    QTC_ASSERT(!filePath.isEmpty(), return {});
 
     QTC_CHECK(!filePath.needsDevice());
 
@@ -824,21 +825,17 @@ FilePath FileApiDetails::ReplyFileContents::jsonFile(const QString &kind, const 
 
 bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::FileSystemWatcher &watcher)
 {
-    const QDir buildDir = QDir(buildDirectory.toString());
-    buildDir.mkpath(
-        QString::fromLatin1(CMAKE_RELATIVE_REPLY_PATH)); // So that we have a directory to watch!
+    // So that we have a directory to watch.
+    buildDirectory.pathAppended(CMAKE_RELATIVE_REPLY_PATH).ensureWritableDir();
 
-    const QString relativeQueryPath = QString::fromLatin1(CMAKE_RELATIVE_QUERY_PATH);
-    buildDir.mkpath(relativeQueryPath);
-
-    QDir queryDir = buildDir;
-    queryDir.cd(relativeQueryPath);
+    FilePath queryDir = buildDirectory.pathAppended(CMAKE_RELATIVE_QUERY_PATH);
+    queryDir.ensureWritableDir();
 
     if (!queryDir.exists()) {
         reportFileApiSetupFailure();
         return false;
     }
-    QTC_ASSERT(queryDir.exists(), );
+    QTC_ASSERT(queryDir.exists(), return false);
 
     bool failedBefore = false;
     for (const FilePath &filePath : cmakeQueryFilePaths(buildDirectory)) {
@@ -971,10 +968,9 @@ FilePath FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
 
 FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
 {
-    QTC_CHECK(!buildDirectory.needsDevice());
-    QDir queryDir(QDir::cleanPath(buildDirectory.pathAppended(CMAKE_RELATIVE_QUERY_PATH).path()));
+    FilePath queryDir = buildDirectory / CMAKE_RELATIVE_QUERY_PATH;
     return transform(CMAKE_QUERY_FILENAMES, [&queryDir](const QString &name) {
-        return FilePath::fromString(queryDir.absoluteFilePath(name));
+        return queryDir.absoluteFilePath(FilePath::fromString(name));
     });
 }
 
