@@ -4059,7 +4059,7 @@ void tst_TestCore::testAnchorsAndRewriting()
 
 void tst_TestCore::testAnchorsAndRewritingCenter()
 {
-      const QString qmlString("import QtQuick 2.1\n"
+    const QString qmlString("import QtQuick 2.15\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
