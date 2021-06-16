@@ -4170,14 +4170,24 @@ void tst_TestCore::loadQml()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
+
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setCheckSemanticErrors(true);
     testRewriterView->setTextModifier(&textModifier);
 
     model->attachView(testRewriterView.data());
 
+    while (testRewriterView->hasIncompleteTypeInformation()) {
+        QApplication::processEvents(QEventLoop::AllEvents, 1000);
+    }
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
+    QCOMPARE(rootModelNode.majorVersion(), 2);
+
     QCOMPARE(rootModelNode.id(), QString("root"));
     QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
     QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
