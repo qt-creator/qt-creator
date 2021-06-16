@@ -609,18 +609,22 @@ void CMakeBuildSystem::updateProjectData()
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
 
-            const FilePath buildDir = cmakeBuildConfiguration()->buildDirectory();
-            if (p->rootProjectNode()) {
+            if (QTC_GUARD(p->rootProjectNode())) {
                 const QString nodeName = p->rootProjectNode()->displayName();
                 p->setDisplayName(nodeName);
-            }
 
-            for (const CMakeBuildTarget &bt : qAsConst(m_buildTargets)) {
-                const QString buildKey = bt.title;
-                if (ProjectNode *node = p->findNodeForBuildKey(buildKey)) {
-                    if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))
-                        targetNode->setConfig(patchedConfig);
-                }
+                // set config on target nodes
+                const QSet<QString> buildKeys = Utils::transform<QSet>(m_buildTargets,
+                                                                       &CMakeBuildTarget::title);
+                p->rootProjectNode()->forEachProjectNode(
+                    [patchedConfig, buildKeys](const ProjectNode *node) {
+                        if (buildKeys.contains(node->buildKey())) {
+                            auto targetNode = const_cast<CMakeTargetNode *>(
+                                dynamic_cast<const CMakeTargetNode *>(node));
+                            if (QTC_GUARD(targetNode))
+                                targetNode->setConfig(patchedConfig);
+                        }
+                    });
             }
         }
     }
