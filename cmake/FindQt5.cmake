@@ -59,7 +59,7 @@ foreach(comp IN LISTS Qt5_FIND_COMPONENTS)
 endforeach()
 
 # alias Qt6::Core5Compat to Qt6Core5Compat to make consistent with Qt5 path
-if (TARGET Qt6::Core5Compat AND NOT TARGET Qt6CoreCompat)
+if (TARGET Qt6::Core5Compat AND NOT TARGET Qt6Core5Compat)
   add_library(Qt6Core5Compat ALIAS Qt6::Core5Compat)
 endif()
 
