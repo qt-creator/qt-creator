@@ -99,7 +99,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     m_objectIsTestStack.top() = true;
     const auto sourceLocation = ast->firstSourceLocation();
     QuickTestCaseSpec currentSpec;
-    currentSpec.m_locationAndType.m_name = m_currentDoc->fileName();
+    currentSpec.m_locationAndType.m_filePath = Utils::FilePath::fromString(m_currentDoc->fileName());
     currentSpec.m_locationAndType.m_line = sourceLocation.startLine;
     currentSpec.m_locationAndType.m_column = sourceLocation.startColumn - 1;
     currentSpec.m_locationAndType.m_type = TestTreeItem::TestCase;
@@ -139,10 +139,11 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
 
     const QString name = ast->name.toString();
     if (name.startsWith("test_") || name.startsWith("benchmark_") || name.endsWith("_data")
-        || specialFunctions.contains(name)) {
+            || specialFunctions.contains(name)) {
         const auto sourceLocation = ast->firstSourceLocation();
         TestCodeLocationAndType locationAndType;
-        locationAndType.m_name = m_currentDoc->fileName();
+        locationAndType.m_name = name;
+        locationAndType.m_filePath = Utils::FilePath::fromString(m_currentDoc->fileName());
         locationAndType.m_line = sourceLocation.startLine;
         locationAndType.m_column = sourceLocation.startColumn - 1;
         if (specialFunctions.contains(name))
@@ -152,16 +153,14 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else
             locationAndType.m_type = TestTreeItem::TestFunction;
 
-        const QString nameStr = name;
         // identical test functions inside the same file are not working - will fail at runtime
         if (!Utils::anyOf(m_caseParseStack.top().m_functions,
-                          [nameStr, locationAndType](const QuickTestFunctionSpec func) {
-                          return func.m_locationAndType.m_type == locationAndType.m_type
-                          && func.m_functionName == nameStr
-                          && func.m_locationAndType.m_name == locationAndType.m_name;
+                          [locationAndType](const TestCodeLocationAndType &func) {
+                          return func.m_type == locationAndType.m_type
+                          && func.m_name == locationAndType.m_name
+                          && func.m_filePath == locationAndType.m_filePath;
         })) {
-            m_caseParseStack.top().m_functions.append(
-                        QuickTestFunctionSpec{nameStr, locationAndType});
+            m_caseParseStack.top().m_functions.append(locationAndType);
         }
     }
     return false;

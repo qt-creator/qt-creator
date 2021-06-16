@@ -37,19 +37,12 @@
 namespace Autotest {
 namespace Internal {
 
-class QuickTestFunctionSpec
-{
-public:
-    QString m_functionName;
-    TestCodeLocationAndType m_locationAndType;
-};
-
 class QuickTestCaseSpec
 {
 public:
     QString m_caseName;
     TestCodeLocationAndType m_locationAndType;
-    QVector<QuickTestFunctionSpec> m_functions;
+    TestCodeLocationList m_functions;
 };
 
 class TestQmlVisitor : public QmlJS::AST::Visitor

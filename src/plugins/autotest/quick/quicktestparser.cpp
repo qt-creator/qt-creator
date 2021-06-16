@@ -235,7 +235,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
         parseResult->proFile = proFile;
         parseResult->itemType = TestTreeItem::TestCase;
         if (!testCaseName.isEmpty()) {
-            parseResult->fileName = Utils::FilePath::fromString(testCase.m_locationAndType.m_name);
+            parseResult->fileName = testCase.m_locationAndType.m_filePath;
             parseResult->name = testCaseName;
             parseResult->line = testCase.m_locationAndType.m_line;
             parseResult->column = testCase.m_locationAndType.m_column;
@@ -243,12 +243,12 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
 
         for (const auto &function : testCase.m_functions) {
             QuickTestParseResult *funcResult = new QuickTestParseResult(framework);
-            funcResult->name = function.m_functionName;
-            funcResult->displayName = function.m_functionName;
-            funcResult->itemType = function.m_locationAndType.m_type;
-            funcResult->fileName = Utils::FilePath::fromString(function.m_locationAndType.m_name);
-            funcResult->line = function.m_locationAndType.m_line;
-            funcResult->column = function.m_locationAndType.m_column;
+            funcResult->name = function.m_name;
+            funcResult->displayName = function.m_name;
+            funcResult->itemType = function.m_type;
+            funcResult->fileName = function.m_filePath;
+            funcResult->line = function.m_line;
+            funcResult->column = function.m_column;
             funcResult->proFile = proFile;
 
             parseResult->children.append(funcResult);

@@ -73,11 +73,13 @@ bool TestVisitor::visit(Class *symbol)
                 Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, m_snapshot, true);
                 if (functionDefinition && functionDefinition->fileId()) {
-                    locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
+                    locationAndType.m_filePath = Utils::FilePath::fromString(
+                                QString::fromUtf8(functionDefinition->fileName()));
                     locationAndType.m_line = functionDefinition->line();
                     locationAndType.m_column = functionDefinition->column() - 1;
                 } else { // if we cannot find the definition use declaration as fallback
-                    locationAndType.m_name = QString::fromUtf8(member->fileName());
+                    locationAndType.m_filePath = Utils::FilePath::fromString(
+                                QString::fromUtf8(member->fileName()));
                     locationAndType.m_line = member->line();
                     locationAndType.m_column = member->column() - 1;
                 }
@@ -88,7 +90,8 @@ bool TestVisitor::visit(Class *symbol)
                 else
                     locationAndType.m_type = TestTreeItem::TestFunction;
                 locationAndType.m_inherited = m_inherited;
-                m_privSlots.insert(className + "::" + name, locationAndType);
+                locationAndType.m_name = className + "::" + name;
+                m_privSlots.insert(locationAndType.m_name, locationAndType);
             }
         }
         for (int counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {

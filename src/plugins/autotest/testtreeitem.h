@@ -193,7 +193,8 @@ private:
 class TestCodeLocationAndType
 {
 public:
-    QString m_name;     // tag name for m_type == TestDataTag, file name for other values // FIXME
+    QString m_name;
+    Utils::FilePath m_filePath;
     int m_line = 0;
     int m_column = 0;
     TestTreeItem::Type m_type = TestTreeItem::Root;

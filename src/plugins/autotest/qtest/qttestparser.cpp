@@ -188,24 +188,25 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     return declaringDoc;
 }
 
-static QSet<QString> filesWithDataFunctionDefinitions(
+static QSet<Utils::FilePath> filesWithDataFunctionDefinitions(
             const QMap<QString, QtTestCodeLocationAndType> &testFunctions)
 {
-    QSet<QString> result;
+    QSet<Utils::FilePath> result;
     QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
     const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = testFunctions.end();
 
     for ( ; it != end; ++it) {
         const QString &key = it.key();
         if (key.endsWith("_data") && testFunctions.contains(key.left(key.size() - 5)))
-            result.insert(it.value().m_name);
+            result.insert(it.value().m_filePath);
     }
     return result;
 }
 
-QHash<QString, QtTestCodeLocationList> QtTestParser::checkForDataTags(const QString &fileName) const
+QHash<QString, QtTestCodeLocationList> QtTestParser::checkForDataTags(
+        const Utils::FilePath &fileName) const
 {
-    const QByteArray fileContent = getFileContent(Utils::FilePath::fromString(fileName));
+    const QByteArray fileContent = getFileContent(fileName);
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
@@ -367,9 +368,8 @@ Utils::optional<bool> QtTestParser::fillTestCaseData(
     if (data.testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))
         return true; // we did not handle it, but we do not expect any test defined there either
 
-    const QSet<QString> &files = filesWithDataFunctionDefinitions(data.testFunctions);
-
-    for (const QString &file : files)
+    const QSet<Utils::FilePath> &files = filesWithDataFunctionDefinitions(data.testFunctions);
+    for (const Utils::FilePath &file : files)
         Utils::addToHash(&(data.dataTags), checkForDataTags(file));
 
     data.fileName = Utils::FilePath::fromString(declaringDoc->fileName());
@@ -394,13 +394,11 @@ QtTestParseResult *QtTestParser::createParseResult(
 
     for ( ; it != end; ++it) {
         const QtTestCodeLocationAndType &location = it.value();
-        QString functionName = it.key();
-        functionName = functionName.mid(functionName.lastIndexOf(':') + 1);
         QtTestParseResult *func = new QtTestParseResult(framework());
         func->itemType = location.m_type;
-        func->name = testCaseName + "::" + functionName;
-        func->displayName = functionName;
-        func->fileName = Utils::FilePath::fromString(location.m_name);
+        func->name = location.m_name;
+        func->displayName = location.m_name.mid(location.m_name.lastIndexOf(':') + 1);
+        func->fileName = location.m_filePath;
         func->line = location.m_line;
         func->column = location.m_column;
         func->setInherited(location.m_inherited);

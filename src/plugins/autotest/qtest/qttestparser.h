@@ -64,7 +64,7 @@ public:
 private:
     TestCases testCases(const CppTools::CppModelManager *modelManager,
                         const Utils::FilePath &fileName) const;
-    QHash<QString, QtTestCodeLocationList> checkForDataTags(const QString &fileName) const;
+    QHash<QString, QtTestCodeLocationList> checkForDataTags(const Utils::FilePath &fileName) const;
     struct TestCaseData {
         Utils::FilePath fileName;
         int line = 0;
