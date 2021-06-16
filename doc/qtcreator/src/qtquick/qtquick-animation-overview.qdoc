@@ -210,8 +210,8 @@
     \section2 Programmatic Animation
 
     You can control property animation programmatically. Property animations
-    are created by binding \l{Animations}{Animation} components to property
-    values of component instances to gradually change the properties values
+    are created by binding \uicontrol Animation components to property
+    values of component instances to gradually change the property values
     over time. The property animations apply smooth movement by interpolating
     values between property value changes. They provide timing controls and
     enable different interpolations through easing curves.
@@ -222,95 +222,42 @@
 
     You can create instances of preset animation components available in
     \l Library > \uicontrol Components > \uicontrol {Default Components} >
-    \uicontrol Animation to create \l{Animations}{animations} depending on
-    the type of the property that is to be animated and the behavior that
-    you want.
+    \uicontrol Animation to create animations depending on the type of the
+    property and the behavior that you want.
+
+    For more information about \uicontrol Animation components and their
+    properties, see \l{Animations}.
 
     \table
     \header
-        \li Animation Type
+        \li Component
         \li Use Case
     \row
-        \li Property animation
+        \li \uicontrol {Property Animation}
         \li Applying animation when the value of a property changes. Color
             and number animations are property animation types for specific
             purposes.
     \row
-        \li Property action
+        \li \uicontrol {Property Action}
         \li Setting non-animated property values during an animation.
     \row
-        \li Color animation
+        \li \uicontrol {Color Animation}
         \li Applying animation when a color value changes.
     \row
-        \li Number animation
+        \li \uicontrol {Number Animation}
         \li Applying animation when a numerical value changes.
     \row
-        \li Parallel animation
+        \li \uicontrol {Parallel Animation}
         \li Running animations in parallel.
     \row
-        \li Sequential Animation
+        \li \uicontrol {Sequential Animation}
         \li Running animations sequentially.
     \row
-        \li Pause animation
+        \li \uicontrol {Pause Animation}
         \li Creating a step in a sequential animation where nothing happens for
             a specified duration.
     \row
-        \li Script action
+        \li \uicontrol {Script Action}
         \li Executing JavaScript during an animation.
     \endtable
-
-    \section3 Property Animation and Action
-
-    A property animation is applied when the value of a property changes.
-
-    To immediately change a property value during an animation without
-    animating the property change, use a property action instead. This
-    is useful for setting non-animated property values during an animation.
-
-    For example, you can use a sequential animation that contains two property
-    actions around a number animation to set the value of the opacity property
-    of an \l{Images}{Image} to \c 0.5, animate the width of the image, and then
-    set the opacity back to \c 1.
-
-    \section3 Color Animation
-
-    A color animation is a specialized property animation that defines an
-    animation to be applied when a color value changes.
-
-    For example, you can apply animation to the color property of a \l Rectangle
-    to change its value from its current color to another color over a period
-    of time specified in milliseconds.
-
-    \section3 Number Animation
-
-    A number animation is a specialized property animation that defines an
-    animation to be applied when a numerical value changes.
-
-    For example, you can apply animation to the x property of a \l Rectangle
-    to make it appear to move from its current position on the x axis to another
-    position over a period of time specified in milliseconds.
-
-    \section3 Parallel and Sequential Animation
-
-    Animations can run in parallel or in sequence. Parallel animations will
-    play a group of animations at the same time while sequential animations
-    play a group of animations in order, one after the other.
-
-    For example, a banner component may have several icons or slogans to
-    display, one after the other. The opacity property could change to
-    \c 1.0 denoting an opaque object. Using a sequential animation, the
-    opacity animations will play after the preceding animation finishes,
-    whereas a parallel animation will play the animations at the same time.
-
-    Once individual animations are placed into a group of parallel or sequential
-    animations, they can no longer be started and stopped independently. The
-    sequential or parallel animations must be started and stopped as a group.
-
-    \section3 Pause Animation
-
-    When used in a sequential animation, a pause animation is a step when
-    nothing happens, for a specified duration.
-
-    For example, you could specify a 500-millisecond animation sequence, with
-    a 100-millisecond pause between two animations.
 */

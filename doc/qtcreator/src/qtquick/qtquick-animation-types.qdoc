@@ -34,43 +34,207 @@
 
     \title Animations
 
-    To create an animation, use an appropriate animation type for the type of
-    the property that is to be animated, and apply the animation depending on
-    the type of behavior that is required.
+    To create an animation, use the appropriate animation type for the property
+    that is to be animated, and apply the animation depending on the type of
+    behavior that is required.
 
-    You can drag and drop the following components from \l Library >
+    You can drag-and-drop animation components from \l Library >
     \uicontrol Components > \uicontrol {Default Components} >
-    \uicontrol Animation to \l Navigator or \l {Form Editor}:
+    \uicontrol Animation to \l Navigator or \l {Form Editor} to
+    create instances of them.
 
-    \list
-        \li \l [QML] {ColorAnimation}{Color Animation} is a specialized
-            property animation that defines an animation to be applied when a
-            color value changes.
-        \li \l [QML] {NumberAnimation}{Number Animation} is a specialized
-            property animation that defines an animation to be applied when a
-            numerical value changes.
-        \li \l [QML] {ParallelAnimation}{Parallel Animation} enables
-            animations to be run in parallel.
-        \li \l [QML] {PauseAnimation}{Pause Animation} is used in a
-            sequential animation to create a step where nothing happens, for
+    You can achieve similar results by using different animation techniques.
+    For more information, see \l{Introduction to Animation Techniques}.
+
+    \section1 Applying Animation
+
+    A property animation is applied when the value of a property changes.
+    Color and number animations are property animation types for specific
+    purposes. Specify settings for animations in \l Properties >
+    \uicontrol {Animation Targets}.
+
+    \section2 Animating Color Changes
+
+    For example, you can apply animation to the value of the \uicontrol Color
+    property of an instance of a \l Rectangle component to change its value
+    from its current color to another color over a period of time specified in
+    milliseconds.
+
+    \image qtquick-color-animation.gif "Color animation"
+
+    First create an instance of the \uicontrol {Color Animation} component.
+    Select the component to animate in the \uicontrol Target field, and enter
+    the property to animate in the \uicontrol Property field. To animate several
+    properties, enter them into the \uicontrol Properties field separated by
+    commas.
+
+    \image qtquick-properties-coloranimation.png "Color Animation properties"
+
+    Select the original color in the \uicontrol {From color} field and the new
+    color in the \uicontrol {To color} field. Specify the duration of the
+    animation in the \uicontrol Duration field.
+
+    \section2 Animating Changes in Numerical Values
+
+    Similarly, to apply animation when a numerical value of a property changes,
+    create an instance of the \uicontrol {Number Animation} component.
+
+    \image qtquick-properties-numberanimation.png "Number Animation properties"
+
+    Select the original value in the \uicontrol From field and the new value in
+    the \uicontrol To field. Then specify the duration of the animation in the
+    \uicontrol Duration field.
+
+    For example, you can apply animation to the value of the \uicontrol X
+    property of a \l Rectangle instance to make it appear to move from its
+    current position on the x axis to another position over a period of time
+    specified in milliseconds. To make the component appear to move both on
+    the x and y axis, enter x and y into the \uicontrol Properties field
+    separated by a comma.
+
+    \image qtquick-number-animation.gif "Number animation"
+
+    \section2 Setting Non-Animated Properties
+
+    To immediately change a property value during an animation
+    without animating the property change, create an instance
+    of the \uicontrol {Property Action} component instead, and
+    set the value in the \uicontrol Value field. This is useful
+    for setting non-animated property values during an animation.
+
+    \image qtquick-properties-propertyaction.png "Property Action properties"
+
+    For example, you can create an instance of the
+    \uicontrol {Sequential Animation} component that contains two instances
+    of the \uicontrol {Property Action} component around an instance of the
+    \uicontrol {Number Animation} component. The first property action sets
+    the \uicontrol Opacity property of a \l{Rectangle} to \c 0.5, the number
+    animation changes the width of the image, and the second property action
+    sets the opacity back to \c 1.
+
+    \image qtquick-property-action.gif "Sequential property actions and number animation"
+
+    \section1 Playing Animations
+
+    Specify settings for playing animations in the \uicontrol Animation group.
+
+    \image qtquick-properties-animation.png "Animation properties"
+
+    To run animations automatically, select the \uicontrol Running
+    check box. Animations are run for the time you specify in the
+    \uicontrol Duration field.
+
+    You can connect the running property of an animation to a signal emitted
+    by a component to play the animation when users click a button, for
+    example. For more information, see \l{Connecting Components to Signals}.
+
+    To run animations several times in a loop, set the number of times they
+    should play in the \uicontrol Loops field. Set the value to -1 to have
+    the animation continuously repeat until it is explicitly stopped.
+
+    To specify that animations should run to completion when they are stopped,
+    select the \uicontrol {Run to end} check box. This behavior is most useful
+    when the \uicontrol Loops property is set, as the animation will finish
+    playing normally but not restart.
+
+    All animations defined for a component are run in parallel,
+    unless you include them in a \uicontrol {Parallel Animation} or
+    \uicontrol {Sequential Animation} component for managing them as a
+    group.
+
+    To pause animations, select the \inlineimage icons/pause-icon.png
+    (\uicontrol Paused) check box.
+
+    To attach an \l{Editing Easing Curves}{easing curve} to
+    the animation, select the \inlineimage curve_editor.png
+    (\uicontrol {Easing Curve Editor}) button in the
+    \uicontrol {Easing Curve} field.
+
+    \section2 Playing Groups of Animations
+
+    You can create several animations that can run in parallel or in sequence.
+    To manage a group of animations that will play at the same time, create an
+    instance of a \uicontrol {Parallel Animation} component and drag-and-drop
+    the other animations to it. To play the animations in the specified order,
+    one after the other, create an instance of a
+    \uicontrol {Sequential Animation} instead.
+
+    For example, a banner component may have several icons or slogans to
+    display, one after the other. The value of the \uicontrol Opacity property
+    could change to \c 1.0 denoting an opaque object. Using a sequential
+    animation, each opacity animation will play after the preceding animation
+    finishes, whereas using a parallel animation will play the animations at
+    the same time.
+
+    Once individual animations are placed into a group of parallel or sequential
+    animations, they can no longer be started and stopped independently. The
+    sequential or parallel animations must be started and stopped as a group.
+
+    When used in a \uicontrol {Sequential Animation}, a
+    \uicontrol {Pause Animation} is a step when nothing
+    happens, for a specified duration. To specify a pause
+    between two animations, select the \uicontrol Paused
+    check box and specify the duration of the pause in the
+    \uicontrol Duration field.
+
+    \section1 Performance Considerations
+
+    \QDS enables you to use fluidity and dynamic transitions as well as visual
+    effects to great effect in a UI. However, you need to take some care when
+    using some of the supported features because they can affect the
+    performance of the UI.
+
+    In general, animating a property will cause any bindings which reference
+    that property to be re-evaluated. Usually, this is what is desired, but in
+    some cases it may be better to disable the binding prior to performing
+    the animation and then reassign the binding once the animation has
+    completed.
+
+    Avoid running JavaScript during animation. For example, running a complex
+    JavaScript expression for each frame of an x property animation should be
+    avoided.
+
+    Take special care when creating instances of the \uicontrol {Script Action}
+    component because script animations are run in the main thread and can
+    therefore cause frames to be skipped if they take too long to complete.
+
+    \section1 Summary of Animation Components
+
+    The following table lists the components that you can use to animate
+    component properties programmatically. They are available in \l Library
+    > \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol Animation
+
+    \table
+    \header
+        \li Component
+        \li Use Case
+    \row
+        \li \uicontrol {Property Animation}
+        \li Applying animation when the value of a property changes. Color
+            and number animations are property animation types for specific
+            purposes.
+    \row
+        \li \uicontrol {Property Action}
+        \li Setting non-animated property values during an animation.
+    \row
+        \li \uicontrol {Color Animation}
+        \li Applying animation when a color value changes.
+    \row
+        \li \uicontrol {Number Animation}
+        \li Applying animation when a numerical value changes.
+    \row
+        \li \uicontrol {Parallel Animation}
+        \li Running animations in parallel.
+    \row
+        \li \uicontrol {Sequential Animation}
+        \li Running animations sequentially.
+    \row
+        \li \uicontrol {Pause Animation}
+        \li Creating a step in a sequential animation where nothing happens for
             a specified duration.
-        \li \l [QML] {PropertyAction}{Property Action} immediately changes
-             a property value during an animation, without animating the
-             property change.
-        \li \l [QML] {PropertyAnimation}{Property Animation} animates
-             changes in the value of a property.
-        \li \l [QML] {ScriptAction}{Script Action} defines scripts to be
-            run during an animation.
-        \li \l [QML] {SequentialAnimation}{Sequential Animation} enables
-            animations to be run sequentially.
-    \endlist
-
-    For more information about using the components, see
-    \l{Animation and Transitions in Qt Quick}.
-
-    For more information about animating properties in the \l Timeline
-    view, see \l{Creating Animations}. For more information about animating
-    property changes in states, see \l{Animating Transitions Between States}.
-
-//! [qtquick animation types]
+    \row
+        \li \uicontrol {Script Action}
+        \li Executing JavaScript during an animation.
+    \endtable
 */
