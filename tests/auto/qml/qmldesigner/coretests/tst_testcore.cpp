@@ -103,6 +103,17 @@ namespace QTest {
 
 QT_END_NAMESPACE
 
+static QString stripWhiteSpaces(const QString &str)
+{
+    QStringList list = str.split("\n", Qt::SkipEmptyParts);
+
+    QString result;
+    for (auto &str : list)
+        result.append(str.trimmed() + "\n");
+
+    return result;
+}
+
 QString resourcePath()
 {
     return QDir::cleanPath(QTCREATORDIR + QLatin1String(SHARE_PATH));
@@ -2595,13 +2606,13 @@ void tst_TestCore::testRewriterId()
     rootModelNode.nodeListProperty("data").reparentHere(newNode);
 
     const QLatin1String expected("import QtQuick 2.1\n"
-                                  "Rectangle {\n"
-                                  "Rectangle {\n"
-                                  "    id: testId\n"
-                                  "}\n"
-                                  "}\n");
+                                 "Rectangle {\n"
+                                 "Rectangle {\n"
+                                 "    id: testId\n"
+                                 "}\n"
+                                 "}\n");
 
-    QCOMPARE(textEdit.toPlainText(), expected);
+    QCOMPARE(stripWhiteSpaces(textEdit.toPlainText()), stripWhiteSpaces(expected));
 }
 
 void tst_TestCore::testRewriterNodeReparentingTransaction1()
@@ -3354,7 +3365,7 @@ void tst_TestCore::testRewriterForArrayMagic()
                                      "    }\n"
                                      "    ]\n"
                                      "}\n");
-        QCOMPARE(textEdit.toPlainText(), expected);
+        QCOMPARE(stripWhiteSpaces(textEdit.toPlainText()), stripWhiteSpaces(expected));
     } catch (Exception &e) {
         qDebug() << "Exception:" << e.description() << "at line" << e.line() << "in function" << e.function() << "in file" << e.file();
         QFAIL(qPrintable(e.description()));
@@ -3709,7 +3720,7 @@ void tst_TestCore::testCopyModelRewriter1()
         "    }\n"
         "}");
 
-    QCOMPARE(textEdit1.toPlainText(), expected);
+    QCOMPARE(stripWhiteSpaces(textEdit1.toPlainText()), stripWhiteSpaces(expected));
 }
 
 static QString readQmlFromFile(const QString& fileName)
@@ -3832,8 +3843,8 @@ void tst_TestCore::testMergeModelRewriter1()
     StylesheetMerger merger(templateView.data(), styleView.data());
     merger.merge();
 
-    QString trimmedActual = textEdit1.toPlainText().trimmed();
-    QString trimmedExpected = qmlExpectedString.trimmed();
+    QString trimmedActual = stripWhiteSpaces(textEdit1.toPlainText());
+    QString trimmedExpected = stripWhiteSpaces(qmlExpectedString);
 
     QCOMPARE(trimmedActual, trimmedExpected);
 }
@@ -3933,7 +3944,7 @@ void tst_TestCore::testCopyModelRewriter2()
     QVERIFY(rootNode2.isValid());
     QCOMPARE(rootNode2.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
 
-    QCOMPARE(textEdit2.toPlainText(), qmlString1);
+    QCOMPARE(stripWhiteSpaces(textEdit2.toPlainText()), stripWhiteSpaces(qmlString1));
 }
 
 void tst_TestCore::testSubComponentManager()
@@ -3993,7 +4004,7 @@ void tst_TestCore::testSubComponentManager()
 
 void tst_TestCore::testAnchorsAndRewriting()
 {
-        const QString qmlString("import QtQuick 2.1\n"
+    const QString qmlString("import QtQuick 2.15\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -4874,8 +4885,8 @@ void tst_TestCore::testGradientsRewriter()
                                   "Rectangle {\n"
                                   "gradient: Gradient {\n"
                                   "GradientStop {\n"
-                                  "    position: 0\n"
-                                  "    color: \"#ff0000\"\n"
+                                  "position: 0\n"
+                                  "color: \"#ff0000\"\n"
                                   "}\n"
                                   "}\n"
                                   "}\n"
@@ -4897,13 +4908,13 @@ void tst_TestCore::testGradientsRewriter()
                                   "Rectangle {\n"
                                   "gradient: Gradient {\n"
                                   "GradientStop {\n"
-                                  "    position: 0\n"
-                                  "    color: \"#ff0000\"\n"
+                                  "position: 0\n"
+                                  "color: \"#ff0000\"\n"
                                   "}\n"
                                   "\n"
                                   "GradientStop {\n"
-                                  "    position: 0.5\n"
-                                  "    color: \"#0000ff\"\n"
+                                  "position: 0.5\n"
+                                  "color: \"#0000ff\"\n"
                                   "}\n"
                                   "}\n"
                                   "}\n"
@@ -4942,7 +4953,7 @@ void tst_TestCore::testGradientsRewriter()
                                   "}\n"
                                   "}\n");
 
-    QCOMPARE(textEdit.toPlainText(), expected5);
+    QCOMPARE(stripWhiteSpaces(textEdit.toPlainText()), stripWhiteSpaces(expected5));
 
     gradientNode.removeProperty("stops");
 
@@ -7739,6 +7750,8 @@ void tst_TestCore::testRewriterNodeReparenting()
                 "}";
 
     QCOMPARE(textEdit.toPlainText(), expected);
+
+    QCOMPARE(stripWhiteSpaces(textEdit.toPlainText()), stripWhiteSpaces(expected));
 
     // reparent out of the hierarchy
     ModelNode node4 = view->createModelNode("QtQuick.Rectangle", 2, 0);
