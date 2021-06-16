@@ -900,7 +900,7 @@ void tst_TestCore::testRewriterImports()
     QVERIFY(import.isLibraryImport());
     QCOMPARE(import.url(), QString("QtQuick"));
     QVERIFY(import.hasVersion());
-    QCOMPARE(import.version(), QString("1.0"));
+    QCOMPARE(import.version(), QString("2.15"));
     QVERIFY(!import.hasAlias());
 
     // import "subitems"
