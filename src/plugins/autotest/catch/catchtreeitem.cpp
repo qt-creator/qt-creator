@@ -289,12 +289,11 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Ut
     if (!project || type() != Root)
         return result;
 
-    const QString filePath = fileName.toString();
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *item = childItem(row);
         QTC_ASSERT(item, continue);
 
-        if (childAt(row)->name() != filePath)
+        if (childAt(row)->filePath() != fileName)
             continue;
 
         CatchConfiguration *testConfig = nullptr;
