@@ -60,6 +60,7 @@ add_qtc_test(unittest GTEST
     gtest-std-printing.h
     headerpathfilter-test.cpp
     highlightingresultreporter-test.cpp
+    lastchangedrowid-test.cpp
     lineprefixer-test.cpp
     matchingtext-test.cpp
     mimedatabase-utilities.cpp mimedatabase-utilities.h
@@ -95,6 +96,7 @@ add_qtc_test(unittest GTEST
     sqlitecolumn-test.cpp
     sqlitedatabasebackend-test.cpp
     sqlitedatabase-test.cpp
+    sqlitesessions-test.cpp
     sqlitestatement-test.cpp
     sqlitetable-test.cpp
     sqlstatementbuilder-test.cpp
@@ -106,6 +108,7 @@ add_qtc_test(unittest GTEST
     imagecachestorage-test.cpp
     sqlitedatabasemock.h
     sqlitereadstatementmock.cpp sqlitereadstatementmock.h
+    sqlitereadwritestatementmock.cpp
     sqlitestatementmock.h
     sqlitetransactionbackendmock.h
     sqlitewritestatementmock.cpp sqlitewritestatementmock.h
@@ -221,25 +224,20 @@ extend_qtc_test(unittest
     diagnostic-test.cpp
     fixit-test.cpp
     gtest-clang-printing.cpp gtest-clang-printing.h
+    readexporteddiagnostics-test.cpp
     senddocumenttracker-test.cpp
     skippedsourceranges-test.cpp
     sourcelocation-test.cpp
     sourcerange-test.cpp
     token-test.cpp
     translationunitupdater-test.cpp
+    unsavedfile-test.cpp
     unsavedfiles-test.cpp
     utf8positionfromlinecolumn-test.cpp
     chunksreportedmonitor.h
     clangasyncjob-base.h
     clangcompareoperators.h
     diagnosticcontainer-matcher.h
-)
-
-extend_qtc_test(unittest
-  CONDITION TARGET ClangFormat
-  DEPENDS clangFormat
-  SOURCES
-    clangformat-test.cpp
 )
 
 extend_qtc_test(unittest
@@ -257,6 +255,8 @@ target_include_directories(unittest
     BEFORE ../../../src/tools/clangbackend/source
     BEFORE ../../../src/plugins
 )
+
+# QmlDesigner tests
 
 set(QmlDesignerDir ../../../src/plugins/qmldesigner)
 extend_qtc_test(unittest
@@ -277,6 +277,9 @@ extend_qtc_test(unittest
 extend_qtc_test(unittest
   SOURCES_PREFIX "${QmlDesignerDir}/designercore"
   SOURCES
+    ../../../../share/qtcreator/qml/qmlpuppet/interfaces/commondefines.h
+    ../components/listmodeleditor/listmodeleditormodel.cpp
+    ../components/listmodeleditor/listmodeleditormodel.h
     exceptions/exception.cpp
     exceptions/invalidargumentexception.cpp
     exceptions/invalididexception.cpp
@@ -290,46 +293,93 @@ extend_qtc_test(unittest
     exceptions/notimplementedexception.cpp
     exceptions/removebasestateexception.cpp
     exceptions/rewritingexception.cpp
-
-    model/abstractproperty.cpp include/abstractproperty.h
-    model/abstractview.cpp include/abstractview.h
-    model/annotation.cpp
-    model/bindingproperty.cpp include/bindingproperty.h
-    model/import.cpp include/import.h
-    model/internalproperty.cpp model/internalproperty.h
-    model/internalbindingproperty.cpp model/internalbindingproperty.h
-    model/internalnodeabstractproperty.cpp model/internalnodeabstractproperty.h
-    model/internalnodelistproperty.cpp model/internalnodelistproperty.h
-    model/internalnodeproperty.cpp model/internalnodeproperty.h
-    model/internalsignalhandlerproperty.cpp model/internalsignalhandlerproperty.h
-    model/internalnode.cpp model/internalnode_p.h
-    model/internalvariantproperty.cpp model/internalvariantproperty.h
-    model/model.cpp include/model.h model/model_p.h
-    model/modelnode.cpp include/modelnode.h
-    model/nodeabstractproperty.cpp include/nodeabstractproperty.h
-    model/nodelistproperty.cpp include/nodelistproperty.h
-    model/nodeproperty.cpp include/nodeproperty.h
-    model/signalhandlerproperty.cpp include/signalhandlerproperty.h
-    model/variantproperty.cpp include/variantproperty.h
-    rewritertransaction.cpp rewritertransaction.h
-    include/imagecacheauxiliarydata.h
-    imagecache/synchronousimagecache.cpp include/synchronousimagecache.h
-    imagecache/asynchronousimagecache.cpp include/asynchronousimagecache.h
-    include/asynchronousimagecacheinterface.h
+    imagecache/asynchronousimagecache.cpp
     imagecache/imagecachecollectorinterface.h
-    imagecache/imagecachegenerator.cpp imagecache/imagecachegenerator.h
+    imagecache/imagecachegenerator.cpp
+    imagecache/imagecachegenerator.h
     imagecache/imagecachegeneratorinterface.h
     imagecache/imagecachestorage.h
     imagecache/imagecachestorageinterface.h
+    imagecache/synchronousimagecache.cpp
     imagecache/timestampproviderinterface.h
-
+    include/abstractproperty.h
+    include/abstractview.h
+    include/asynchronousimagecache.h
+    include/asynchronousimagecacheinterface.h
+    include/bindingproperty.h
+    include/imagecacheauxiliarydata.h
+    include/import.h
+    include/model.h
+    include/modelnode.h
+    include/nodeabstractproperty.h
+    include/nodelistproperty.h
+    include/nodeproperty.h
+    include/projectstorageids.h
     include/qmldesignercorelib_global.h
-
+    include/signalhandlerproperty.h
+    include/synchronousimagecache.h
+    include/variantproperty.h
+    model/abstractproperty.cpp
+    model/abstractview.cpp
+    model/annotation.cpp
+    model/bindingproperty.cpp
+    model/import.cpp
+    model/internalbindingproperty.cpp
+    model/internalbindingproperty.h
+    model/internalnode.cpp
+    model/internalnode_p.h
+    model/internalnodeabstractproperty.cpp
+    model/internalnodeabstractproperty.h
+    model/internalnodelistproperty.cpp
+    model/internalnodelistproperty.h
+    model/internalnodeproperty.cpp
+    model/internalnodeproperty.h
+    model/internalproperty.cpp
+    model/internalproperty.h
+    model/internalsignalhandlerproperty.cpp
+    model/internalsignalhandlerproperty.h
+    model/internalvariantproperty.cpp
+    model/internalvariantproperty.h
+    model/model.cpp
+    model/model_p.h
+    model/modelnode.cpp
+    model/nodeabstractproperty.cpp
+    model/nodelistproperty.cpp
+    model/nodeproperty.cpp
+    model/signalhandlerproperty.cpp
+    model/variantproperty.cpp
+    projectstorage/projectstorage.h
+    projectstorage/projectstoragesqlitefunctionregistry.cpp
+    projectstorage/projectstoragesqlitefunctionregistry.h
+    projectstorage/projectstoragetypes.h
+    projectstorage/sourcepath.h
+    projectstorage/sourcepathcache.h
+    projectstorage/sourcepathcache.h
+    projectstorage/sourcepathcachetypes.h
+    projectstorage/sourcepathview.h
+    projectstorage/storagecache.h
+    projectstorage/storagecacheentry.h
+    projectstorage/storagecachefwd.h
+    rewritertransaction.cpp
+    rewritertransaction.h
   EXPLICIT_MOC
     "../mockup/qmldesigner/designercore/include/nodeinstanceview.h"
     "../mockup/qmldesigner/designercore/include/rewriterview.h"
     "${QmlDesignerDir}/designercore/include/model.h"
 )
+
+extend_qtc_test(unittest
+  SOURCES
+    listmodeleditor-test.cpp
+    projectstorage-test.cpp
+    projectstoragesqlitefunctionregistry-test.cpp
+    sourcepath-test.cpp
+    sourcepathcache-test.cpp
+    sourcepathview-test.cpp
+    storagecache-test.cpp
+)
+
+# QmlDesigner tests END
 
 if (NOT TARGET Utils)
   add_subdirectory(../../../src/libs/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
@@ -358,14 +408,34 @@ extend_qtc_test(unittest
     clangisdiagnosticrelatedtolocation.h
 )
 
+find_package(yaml-cpp QUIET MODULE)
+
 extend_qtc_test(unittest
-  SOURCES_PREFIX_FROM_TARGET CompilationDatabaseProjectManager
+  DEPENDS yaml-cpp
+  DEFINES CLANGTOOLS_STATIC_LIBRARY
+  SOURCES_PREFIX ../../../src/plugins/clangtools
+  SOURCES
+    clangtoolsdiagnostic.cpp
+    clangtoolsdiagnostic.h
+    clangtoolslogfilereader.cpp
+    clangtoolslogfilereader.h
+)
+
+extend_qtc_test(unittest
+  DEFINES DEBUGGER_STATIC_LIBRARY
+  SOURCES_PREFIX ../../../src/plugins/debugger
+  SOURCES
+    analyzer/diagnosticlocation.cpp
+    analyzer/diagnosticlocation.h
+)
+
+extend_qtc_test(unittest
+  SOURCES_PREFIX ../../../src/plugins/compilationdatabaseprojectmanager
   SOURCES
     compilationdatabaseutils.cpp compilationdatabaseutils.h
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET CompilationDatabaseProjectManager
   SOURCES
     compilationdatabaseutils-test.cpp
 )
@@ -408,4 +478,10 @@ extend_qtc_test(unittest
   SOURCES
     clangformatconstants.h
     clangformatbaseindenter.cpp clangformatbaseindenter.h
+)
+
+extend_qtc_test(unittest
+  CONDITION TARGET libclang
+  SOURCES
+    clangformat-test.cpp
 )

@@ -168,7 +168,7 @@ public:
 
             for (int columnIndex = 0; columnIndex < model.columnCount(); ++columnIndex)
                 row.push_back(
-                    model.data(model.index(rowIndex, columnIndex), Qt::BackgroundColorRole)
+                    model.data(model.index(rowIndex, columnIndex), Qt::BackgroundRole)
                         .value<QColor>());
 
             rows.push_back(row);

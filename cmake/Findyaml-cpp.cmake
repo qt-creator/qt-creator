@@ -17,7 +17,10 @@ if (yaml-cpp_FOUND)
   endif()
   set_target_properties(yaml-cpp PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${yaml_cpp_include_dir}")
 else()
-  set(YAML_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/libs/3rdparty/yaml-cpp)
+  if(TARGET yaml-cpp)
+    return()
+  endif()
+  set(YAML_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../src/libs/3rdparty/yaml-cpp)
   add_qtc_library(yaml-cpp
     DEFINES YAML_CPP_DLL yaml_cpp_EXPORTS
     INCLUDES ${YAML_SOURCE_DIR}/include

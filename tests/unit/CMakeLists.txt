@@ -32,7 +32,9 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(GOOGLETEST_DIR ${CMAKE_CURRENT_LIST_DIR}/unittest/3rdparty/googletest)
 
   find_package(Clang MODULE)
-  find_package(Qt5 COMPONENTS Core Widgets Network Qml Concurrent Test Xml MODULE)
+  find_package(Qt5
+    COMPONENTS
+      Gui Core Core5Compat Widgets Network Qml Concurrent Test Xml MODULE)
   find_package(Threads)
 endif()
 
