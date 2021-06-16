@@ -27,7 +27,7 @@
 #include "curvesegment.h"
 #include "graphicsscene.h"
 #include "keyframeitem.h"
-#include "utils.h"
+#include "curveeditorutils.h"
 
 #include <QPainter>
 

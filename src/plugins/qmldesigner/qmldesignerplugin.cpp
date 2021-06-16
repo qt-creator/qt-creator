@@ -43,6 +43,7 @@
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <transitioneditor/transitioneditorview.h>
+#include <eventlist/eventlistpluginview.h>
 #include <pathtool/pathtool.h>
 
 #include <qmljseditor/qmljseditor.h>
@@ -254,6 +255,10 @@ bool QmlDesignerPlugin::delayedInitialize()
 
         auto curveEditorView = new QmlDesigner::CurveEditorView;
         d->viewManager.registerViewTakingOwnership(curveEditorView);
+
+        auto eventlistView = new QmlDesigner::EventListPluginView;
+        d->viewManager.registerViewTakingOwnership(eventlistView);
+        eventlistView->registerActions();
     }
 
     auto transitionEditorView = new QmlDesigner::TransitionEditorView;

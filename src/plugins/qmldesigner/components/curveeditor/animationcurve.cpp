@@ -25,7 +25,7 @@
 
 #include "animationcurve.h"
 #include "curvesegment.h"
-#include "detail/utils.h"
+#include "detail/curveeditorutils.h"
 
 #include <QEasingCurve>
 #include <QLineF>

@@ -45,7 +45,7 @@ SOURCES += \
     $$PWD/detail/treeitemdelegate.cpp \
     $$PWD/detail/treemodel.cpp \
     $$PWD/detail/treeview.cpp \
-    $$PWD/detail/utils.cpp \
+    $$PWD/detail/curveeditorutils.cpp \
     $$PWD/detail/axis.cpp \
     $$PWD/keyframe.cpp \
     $$PWD/treeitem.cpp

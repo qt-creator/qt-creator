@@ -46,6 +46,7 @@ const char flowEffectCategory[] = "FlowEffect";
 const char flowConnectionCategory[] = "FlowConnection";
 const char stackedContainerCategory[] = "StackedContainer";
 const char genericToolBarCategory[] = "GenericToolBar";
+const char eventListCategory[] = "QmlEventList";
 
 const char toFrontCommandId[] = "ToFront";
 const char toBackCommandId[] = "ToBack";
@@ -209,6 +210,7 @@ const int priorityGroupCategory = 140;
 const int priorityPositionCategory = 130;
 const int priorityLayoutCategory = 120;
 const int priorityStackedContainerCategory = priorityLayoutCategory;
+const int priorityEventListCategory = 105;
 const int priorityTopLevelSeperator = 100;
 const int priorityCustomActions = 80;
 const int priorityRefactoring = 60;

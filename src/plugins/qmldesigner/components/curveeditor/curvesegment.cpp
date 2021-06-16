@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "curvesegment.h"
-#include "detail/utils.h"
+#include "detail/curveeditorutils.h"
 
 #include <utils/qtcassert.h>
 #include <QEasingCurve>

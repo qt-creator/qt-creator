@@ -29,7 +29,7 @@
 #include "curveitem.h"
 #include "navigation2d.h"
 #include "treeitem.h"
-#include "utils.h"
+#include "curveeditorutils.h"
 
 #include <theme.h>
 #include <utils/fileutils.h>

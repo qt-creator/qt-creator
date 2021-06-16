@@ -780,7 +780,27 @@ extend_qtc_plugin(QmlDesigner
     detail/treeitemdelegate.cpp detail/treeitemdelegate.h
     detail/treemodel.cpp detail/treemodel.h
     detail/treeview.cpp detail/treeview.h
-    detail/utils.cpp detail/utils.h
+    detail/curveeditorutils.cpp detail/curveeditorutils.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/eventlist
+  SOURCES
+    eventlistplugin.qrc
+    eventlistpluginview.cpp eventlistpluginview.h
+    assigneventdialog.cpp assigneventdialog.h
+    eventlist.cpp eventlist.h
+    eventlistactions.cpp eventlistactions.h
+    eventlistdelegate.cpp eventlistdelegate.h
+    eventlistdialog.cpp eventlistdialog.h
+    eventlistview.cpp eventlistview.h
+    eventlistutils.cpp eventlistutils.h
+    filterlinewidget.cpp filterlinewidget.h
+    nodelistdelegate.cpp nodelistdelegate.h
+    nodelistview.cpp nodelistview.h
+    nodeselectionmodel.cpp nodeselectionmodel.h
+    connectsignaldialog.cpp connectsignaldialog.h
+    shortcutwidget.cpp shortcutwidget.h
 )
 
 # Do the file comparison at the end, due to all the extend_qtc_plugin calls
