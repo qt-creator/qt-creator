@@ -815,7 +815,7 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
 
     // Cross-compilation settings:
     if (!isIos(k)) { // iOS handles this differently
-        const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
+        const QString sysRoot = SysRootKitAspect::sysRoot(k).path();
         if (!sysRoot.isEmpty()) {
             initialArgs.append(QString::fromLatin1("-DCMAKE_SYSROOT:PATH=%1").arg(sysRoot));
             if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
@@ -901,17 +901,13 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
             const auto &bs = buildSteps()->steps().constLast();
-            initialArgs.append(
-                QString::fromLatin1("-DANDROID_NATIVE_API_LEVEL:STRING=%1")
-                    .arg(bs->data(Android::Constants::AndroidNdkPlatform).toString()));
+            initialArgs.append("-DANDROID_NATIVE_API_LEVEL:STRING="
+                   + bs->data(Android::Constants::AndroidNdkPlatform).toString());
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
-            initialArgs.append(
-                QString::fromLatin1("-DANDROID_NDK:PATH=%1").arg(ndkLocation.toString()));
+            initialArgs.append("-DANDROID_NDK:PATH=" + ndkLocation.path());
 
-            initialArgs.append(
-                QString::fromLatin1("-DCMAKE_TOOLCHAIN_FILE:PATH=%1")
-                    .arg(
-                        ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toString()));
+            initialArgs.append("-DCMAKE_TOOLCHAIN_FILE:PATH="
+                   + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
 
             auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
             QString preferredAbi;
@@ -923,23 +919,18 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             } else {
                 preferredAbi = androidAbis.first();
             }
-            initialArgs.append(QString::fromLatin1("-DANDROID_ABI:STRING=%1").arg(preferredAbi));
-
-            initialArgs.append(QString::fromLatin1("-DANDROID_STL:STRING=c++_shared"));
-
-            initialArgs.append(
-                QString::fromLatin1("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}"));
+            initialArgs.append("-DANDROID_ABI:STRING=" + preferredAbi);
+            initialArgs.append("-DANDROID_STL:STRING=c++_shared");
+            initialArgs.append("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}");
 
             QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
 
             if (qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
-                initialArgs.append(
-                    QString::fromLatin1("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}"));
-
-                initialArgs.append(QString("-DANDROID_SDK_ROOT:PATH=%1").arg(sdkLocation.toString()));
+                initialArgs.append("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
+                initialArgs.append("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
             } else {
-                initialArgs.append(QString("-DANDROID_SDK:PATH=%1").arg(sdkLocation.toString()));
+                initialArgs.append("-DANDROID_SDK:PATH=" + sdkLocation.path());
             }
         }
 
