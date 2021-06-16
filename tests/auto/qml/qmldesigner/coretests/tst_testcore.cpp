@@ -2894,7 +2894,7 @@ void tst_TestCore::testRewriterComponentId()
 
     ModelNode component(rootModelNode.directSubModelNodes().first());
     QVERIFY(component.isValid());
-    QCOMPARE(component.type(),  QmlDesigner::TypeName("QtQml.Component"));
+    QCOMPARE(component.simplifiedTypeName(), QmlDesigner::TypeName("Component"));
     QCOMPARE(component.id(), QString("testComponent"));
 }
 
@@ -4286,7 +4286,7 @@ void tst_TestCore::testMetaInfoUncreatableType()
 
     NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
     QVERIFY(qObjectTypeInfo.isValid());
-    QCOMPARE(qObjectTypeInfo.typeName(), QmlDesigner::TypeName("QtQml.QtObject"));
+    QCOMPARE(qObjectTypeInfo.simplifiedTypeName(), QmlDesigner::TypeName("QtObject"));
 
     QCOMPARE(animationTypeInfo.superClasses().size(), 2);
 }
