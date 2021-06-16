@@ -112,6 +112,7 @@ public:
         , m_isAutoRun(item->isAutoRun())
         , m_autodetected(item->isAutoDetected())
         , m_isSupported(item->hasFileApi())
+        , m_versionDisplay(item->versionDisplay())
         , m_changed(changed)
     {
         updateErrorFlags();
@@ -145,8 +146,9 @@ public:
         m_isSupported = cmake.hasFileApi();
 
         m_tooltip = tr("Version: %1<br>Supports fileApi: %2")
-                        .arg(QString::fromUtf8(cmake.version().fullVersion))
+                        .arg(cmake.versionDisplay())
                         .arg(cmake.hasFileApi() ? tr("yes") : tr("no"));
+        m_versionDisplay = cmake.versionDisplay();
     }
 
     CMakeToolTreeItem() = default;
@@ -220,6 +222,7 @@ public:
     QString m_tooltip;
     FilePath m_executable;
     FilePath m_qchFile;
+    QString m_versionDisplay;
     bool m_isAutoRun = true;
     bool m_pathExists = false;
     bool m_pathIsFile = false;
@@ -430,6 +433,7 @@ private:
     QCheckBox *m_autoRunCheckBox;
     PathChooser *m_binaryChooser;
     PathChooser *m_qchFileChooser;
+    QLabel *m_versionLabel;
     Utils::Id m_id;
     bool m_loadingItem;
 };
@@ -452,6 +456,8 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_qchFileChooser->setPromptDialogFilter("*.qch");
     m_qchFileChooser->setPromptDialogTitle(tr("CMake .qch File"));
 
+    m_versionLabel = new QLabel(this);
+
     m_autoRunCheckBox = new QCheckBox;
     m_autoRunCheckBox->setText(tr("Autorun CMake"));
     m_autoRunCheckBox->setToolTip(tr("Automatically run CMake after changes to CMake project files."));
@@ -460,6 +466,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
+    formLayout->addRow(new QLabel(tr("Version:")), m_versionLabel);
     formLayout->addRow(new QLabel(tr("Help file:")), m_qchFileChooser);
     formLayout->addRow(m_autoRunCheckBox);
 
@@ -509,6 +516,8 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_qchFileChooser->setReadOnly(item->m_autodetected);
     m_qchFileChooser->setBaseDirectory(item->m_executable.parentDir());
     m_qchFileChooser->setFilePath(item->m_qchFile);
+
+    m_versionLabel->setText(item->m_versionDisplay);
 
     m_autoRunCheckBox->setChecked(item->m_isAutoRun);
 

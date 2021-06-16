@@ -304,6 +304,18 @@ CMakeTool::Version CMakeTool::version() const
     return m_introspection ? m_introspection->m_version : CMakeTool::Version();
 }
 
+QString CMakeTool::versionDisplay() const
+{
+    if (!m_introspection)
+        return CMakeToolManager::tr("Version not parseable");
+
+    const Version &version = m_introspection->m_version;
+    if (version.fullVersion.isEmpty())
+        return QString::fromUtf8(version.fullVersion);
+
+    return QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch);
+}
+
 bool CMakeTool::isAutoDetected() const
 {
     return m_isAutoDetected;

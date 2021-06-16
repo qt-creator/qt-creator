@@ -96,6 +96,7 @@ public:
     TextEditor::Keywords keywords();
     bool hasFileApi() const;
     Version version() const;
+    QString versionDisplay() const;
 
     bool isAutoDetected() const;
     QString displayName() const;
