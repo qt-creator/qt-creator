@@ -1035,23 +1035,47 @@ QList<ToolChain *> GccToolChainFactory::detectForImport(const ToolChainDescripti
     return QList<ToolChain *>();
 }
 
-QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
-        const QString &compilerName,
-        DetectVariants detectVariants,
-        const Id language,
-        const Id requiredTypeId,
-        const QList<ToolChain *> &alreadyKnown,
-        const IDevice::Ptr &device,
-        const ToolchainChecker &checker)
+
+static FilePaths findCompilerCandidates(const IDevice::Ptr &device,
+                                        const QString &compilerName,
+                                        bool detectVariants)
 {
-    Q_UNUSED(device)
+    const QFileInfo fi(compilerName);
+    if (device.isNull() && fi.isAbsolute() && fi.isFile())
+        return {FilePath::fromString(compilerName)};
+
+    QStringList nameFilters(compilerName);
+    if (detectVariants) {
+        nameFilters
+                << compilerName + "-[1-9]*" // "clang-8", "gcc-5"
+                << ("*-" + compilerName) // "avr-gcc", "avr32-gcc"
+                << ("*-" + compilerName + "-[1-9]*")// "avr-gcc-4.8.1", "avr32-gcc-4.4.7"
+                << ("*-*-*-" + compilerName) // "arm-none-eabi-gcc"
+                << ("*-*-*-" + compilerName + "-[1-9]*") // "arm-none-eabi-gcc-9.1.0"
+                << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
+                << ("*-*-*-*-" + compilerName
+                    + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
+    }
 
     FilePaths compilerPaths;
-    QFileInfo fi(compilerName);
-    if (fi.isAbsolute()) {
-        if (fi.isFile())
-            compilerPaths << FilePath::fromString(compilerName);
+
+    if (!device.isNull()) {
+        // FIXME: Merge with block below
+        FilePaths searchPaths = device->systemEnvironment().path();
+        for (const FilePath &deviceDir : qAsConst(searchPaths)) {
+            static const QRegularExpression regexp(binaryRegexp);
+            const FilePath globalDir = device->mapToGlobalPath(deviceDir);
+            const FilePaths fileNames = device->directoryEntries(globalDir, nameFilters,
+                                                                 QDir::Files | QDir::Executable);
+            for (const FilePath &fileName : fileNames) {
+                if (fileName.fileName() == compilerName)
+                    compilerPaths << fileName;
+                else if (regexp.match(fileName.path()).hasMatch())
+                    compilerPaths << fileName;
+            }
+        }
     } else {
+        // The normal, local host case.
         FilePaths searchPaths = Environment::systemEnvironment().path();
         searchPaths << gnuSearchPathsFromRegistry();
         searchPaths << atmelSearchPathsFromRegistry();
@@ -1066,18 +1090,6 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         for (const FilePath &dir : qAsConst(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
-            QStringList nameFilters(compilerName);
-            if (detectVariants == DetectVariants::Yes) {
-                nameFilters
-                        << compilerName + "-[1-9]*" // "clang-8", "gcc-5"
-                        << ("*-" + compilerName) // "avr-gcc", "avr32-gcc"
-                        << ("*-" + compilerName + "-[1-9]*")// "avr-gcc-4.8.1", "avr32-gcc-4.4.7"
-                        << ("*-*-*-" + compilerName) // "arm-none-eabi-gcc"
-                        << ("*-*-*-" + compilerName + "-[1-9]*") // "arm-none-eabi-gcc-9.1.0"
-                        << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
-                        << ("*-*-*-*-" + compilerName
-                            + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
-            }
             nameFilters = transform(nameFilters, [](const QString &baseName) {
                 return HostOsInfo::withExecutableSuffix(baseName);
             });
@@ -1092,6 +1104,21 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
             }
         }
     }
+
+    return compilerPaths;
+}
+
+QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
+        const QString &compilerName,
+        DetectVariants detectVariants,
+        const Id language,
+        const Id requiredTypeId,
+        const QList<ToolChain *> &alreadyKnown,
+        const IDevice::Ptr &device,
+        const ToolchainChecker &checker)
+{
+    const FilePaths compilerPaths =
+        findCompilerCandidates(device, compilerName, detectVariants == DetectVariants::Yes);
 
     QList<ToolChain *> existingCandidates
             = filtered(alreadyKnown, [requiredTypeId, language, &checker](const ToolChain *tc) {
