@@ -42,7 +42,7 @@ Item {
         enabled: true
         anchors.fill: parent
 
-        onEntered: {
+        onEntered: (drag)=> {
             files = []
             for (var i = 0; i < drag.urls.length; ++i) {
                 var url = drag.urls[i].toString();
@@ -179,7 +179,7 @@ Item {
                         onExited: tooltipBackend.hideTooltip()
                         onCanceled: tooltipBackend.hideTooltip()
                         onPositionChanged: tooltipBackend.reposition()
-                        onPressed: {
+                        onPressed: (mouse)=> {
                             forceActiveFocus()
                             if (mouse.button === Qt.LeftButton) {
                                 var ctrlDown = mouse.modifiers & Qt.ControlModifier
@@ -200,7 +200,7 @@ Item {
                             }
                         }
 
-                        onReleased: {
+                        onReleased: (mouse)=> {
                             if (mouse.button === Qt.LeftButton) {
                                 if (!(mouse.modifiers & Qt.ControlModifier))
                                     selectedAssets = {}
