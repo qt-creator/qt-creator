@@ -70,7 +70,7 @@ private:
     QStringList displayArguments() const override;
 
     bool m_scriptTarget = false;
-    QString m_makeFileToCheck;
+    FilePath m_makeFileToCheck;
     bool m_unalignedBuildDir;
     bool m_ignoredNonTopLevelBuild = false;
 };
@@ -136,14 +136,14 @@ bool QmakeMakeStep::init()
         if (makefile != "Makefile")
             makeCmd.addArgs({"-f", makefile});
 
-        m_makeFileToCheck = QDir(workingDirectory.toString()).filePath(makefile);
+        m_makeFileToCheck = workingDirectory / makefile;
     } else {
         QString makefile = bc->makefile();
         if (!makefile.isEmpty()) {
             makeCmd.addArgs({"-f", makefile});
-            m_makeFileToCheck = QDir(workingDirectory.toString()).filePath(makefile);
+            m_makeFileToCheck = workingDirectory / makefile;
         } else {
-            m_makeFileToCheck = QDir(workingDirectory.toString()).filePath("Makefile");
+            m_makeFileToCheck = workingDirectory / "Makefile";
         }
     }
 
@@ -231,7 +231,7 @@ void QmakeMakeStep::doRun()
         return;
     }
 
-    if (!QFileInfo::exists(m_makeFileToCheck)) {
+    if (!m_makeFileToCheck.exists()) {
         if (!ignoreReturnValue())
             emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
         const bool success = ignoreReturnValue();
