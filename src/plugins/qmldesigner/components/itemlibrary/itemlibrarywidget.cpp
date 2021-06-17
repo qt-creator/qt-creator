@@ -232,14 +232,16 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
         Q_UNUSED(changedDirPath)
         // TODO: find a clever way to only refresh the changed directory part of the model
 
-        m_assetsModel->refresh();
+        if (!QApplication::activeModalWidget()) {
+            m_assetsModel->refresh();
 
-        // reload assets qml so that an overridden file's image shows the new image
-        QTimer::singleShot(100, [this] {
-            const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
-            m_assetsWidget->engine()->clearComponentCache();
-            m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
-        });
+            // reload assets qml so that an overridden file's image shows the new image
+            QTimer::singleShot(100, this, [this] {
+                const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
+                m_assetsWidget->engine()->clearComponentCache();
+                m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
+            });
+        }
     });
 
     m_stackedWidget = new QStackedWidget(this);
