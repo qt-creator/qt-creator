@@ -49,9 +49,15 @@ extend_qtc_plugin(Help
     macwebkithelpviewer.mm
 )
 
+set(BUILD_HELPVIEWERBACKEND_QTWEBENGINE_DEFAULT YES)
+if (Qt6_FOUND)
+    set(BUILD_HELPVIEWERBACKEND_QTWEBENGINE_DEFAULT NO)
+endif ()
+
+option(BUILD_HELPVIEWERBACKEND_QTWEBENGINE "Build QtWebEngine based help viewer backend." ${BUILD_HELPVIEWERBACKEND_QTWEBENGINE_DEFAULT})
 find_package(Qt5 COMPONENTS WebEngineWidgets QUIET)
 extend_qtc_plugin(Help
-  CONDITION TARGET Qt5::WebEngineWidgets
+  CONDITION BUILD_HELVIEWERBACKEND_QTWEBENGINE AND TARGET Qt5::WebEngineWidgets
   FEATURE_INFO "QtWebEngine help viewer"
   DEPENDS Qt5::WebEngineWidgets
   DEFINES QTC_WEBENGINE_HELPVIEWER
