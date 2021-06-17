@@ -82,7 +82,8 @@
     changing color. To animate the label and indicator, we'll add timelines
     in the \l Timeline view.
 
-    For more information about using the timeline, see \l {Creating Animations}.
+    For more information about using the timeline, see
+    \l {Creating Timeline Animations}.
 
     \section2 Adding Color Animation
 

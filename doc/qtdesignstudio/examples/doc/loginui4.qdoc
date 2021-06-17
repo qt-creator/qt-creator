@@ -40,10 +40,11 @@
     some basic UI components, such as pages, buttons, and entry fields. Part 4
     describes how to use the timeline and states to animate UI components.
 
-    In Part 3, you learned how to use states to simulate page changes in a UI
-    and connections to provide user interaction with it. In Part 4, you will now
-    learn another way of animating the UI by creating \l{Creating Animations}
-    {timeline animations} that you bind to states.
+    In Part 3, you learned how to use states to simulate page changes
+    in a UI and connections to provide user interaction with it. In
+    Part 4, you will now learn another way of animating the UI by creating
+    \l{Creating Timeline Animations}{timeline animations} that you bind
+    to states.
 
     These instructions build on:
 
@@ -128,7 +129,7 @@
 
     \section2 Adding a Timeline and Animation Settings
 
-    You are now ready to add the \l{Creating Animations}{timeline}. You will
+    You are now ready to add the \l{Creating Timeline Animations}{timeline}. You will
     need two animations, one for moving into the registration page and another
     for returning to the login page. You can use the same animation for both
     cases, by running it either from the beginning to the end or from the
@@ -314,7 +315,7 @@
     All the properties and functions of the components from this module are
     available in the \uicontrol Design mode, and therefore it is enough to
     learn how to use \uicontrol Timeline, as described in
-    \l {Creating Animations}.
+    \l {Creating Timeline Animations}.
 
     \section1 Next Steps
 

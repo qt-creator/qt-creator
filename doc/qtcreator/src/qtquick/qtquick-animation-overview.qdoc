@@ -26,8 +26,11 @@
 /*!
     \page quick-animation-overview.html
     \previouspage qtquick-motion-design.html
+    \nextpage studio-timeline.html
 
     \title Introduction to Animation Techniques
+
+    \image timeline-rotation-animation.gif "Timeline animation of rotation and opacity"
 
     \QDS supports the following types of animation techniques that are suitable
     for different purposes:

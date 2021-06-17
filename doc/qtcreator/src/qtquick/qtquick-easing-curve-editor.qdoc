@@ -76,7 +76,7 @@
 
     For timeline animations, you can also use the more advanced
     \l {Curve Editor} that shows the interpolated values of an animated
-    property over the \l{Creating Animations}{animation} range.
+    property over the \l{Creating Timeline Animations}{animation} range.
 
     The animation curves present a more readable view of the animation by
     showing the effective values of the animated properties over the animation

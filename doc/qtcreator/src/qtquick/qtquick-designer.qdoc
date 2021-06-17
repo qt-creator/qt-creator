@@ -110,7 +110,7 @@
         \li \l Timeline
         \li Provides a timeline and keyframe based editor for animating
             the properties of components.
-        \li \l{Creating Animations}
+        \li \l{Creating Timeline Animations}
     \row
         \li \l{Curve Editor}
         \li Enables you to view and modify the whole animation curve by

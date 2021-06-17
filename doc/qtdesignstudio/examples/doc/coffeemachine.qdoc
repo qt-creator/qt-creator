@@ -141,7 +141,8 @@
     When we deselect the record button to stop recording the timeline, the
     new timeline appears in the view.
 
-    For more information about using the timeline, see \l {Creating Animations}.
+    For more information about using the timeline, see
+    \l {Creating Timeline Animations}.
 
     \section1 Using States to Move Between Screens
 

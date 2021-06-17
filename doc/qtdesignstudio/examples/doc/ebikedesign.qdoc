@@ -89,7 +89,8 @@
     to fade out the current screen when moving to another one and to make the
     speedometer grow and shrink in size depending on its current position.
 
-    For more information about using the timeline, see \l {Creating Animations}.
+    For more information about using the timeline, see
+    \l {Creating Timeline Animations}.
 
     \section1 Using States to Move Between Screens
 

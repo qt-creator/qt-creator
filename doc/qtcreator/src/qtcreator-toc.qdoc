@@ -150,7 +150,6 @@
                                 \li \l{Creating Scalable Buttons and Borders}
                             \endlist
                         \endlist
-                        \li \l{Creating Optimized 3D Scenes}
                         \li \l{Specifying Component Properties}
                         \li \l{Scalable Layouts}
                         \li \l{Using Custom Fonts}
@@ -187,9 +186,14 @@
                 \li \l{Motion Design}
                     \list
                         \li \l{Introduction to Animation Techniques}
-                        \li \l{Creating Animations}
+                        \li \l{Creating Timeline Animations}
                         \li \l{Editing Easing Curves}
-                    \endlist
+                        \li \l{Production Quality}
+                        \li \l{Optimizing Designs}
+                            \list
+                                \li \l{Creating Optimized 3D Scenes}
+                            \endlist
+                       \endlist
                 \li \l {Browsing ISO 7000 Icons}
                 \li \l {Converting UI Projects to Applications}
             \endlist

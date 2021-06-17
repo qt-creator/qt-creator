@@ -24,12 +24,15 @@
 ****************************************************************************/
 
 /*!
-    \previouspage qtquick-adding-dynamics.html
+    \previouspage quick-animation-overview.html
     \page studio-timeline.html
-    \nextpage qmldesigner-connections.html
+    \nextpage qtquick-editing-easing-curves.html
 
-    \title Creating Animations
+    \title Creating Timeline Animations
 
+    You can create timeline and keyframe based animations for linear
+    interpolation through intermediate values at specified keyframes
+    instead of immediately changing to the target value.
 
     \section1 Creating Timelines
 

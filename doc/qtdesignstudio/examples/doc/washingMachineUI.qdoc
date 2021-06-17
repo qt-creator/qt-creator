@@ -48,8 +48,9 @@
     Users select buttons to navigate between the screens.
     We use \l{Connecting Components to Signals}{connections} to determine which
     screen to open when users select a particular button and \l{Adding States}
-    {states} to show the screens. We use the \l{Creating Animations}{timeline}
-    to create progress indicators for buttons and the \e Running screen.
+    {states} to show the screens. We use the \l{Creating Timeline Animations}
+    {timeline} to create progress indicators for buttons and the \e Running
+    screen.
 
     In addition, all screens contain a small clock component that displays
     the current time. We implement a \e TimeDate JavaScript object to

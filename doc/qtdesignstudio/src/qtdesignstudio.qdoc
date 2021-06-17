@@ -74,11 +74,10 @@
         \li \b {\l{Motion Design}}
             \list
                 \li \l{Introduction to Animation Techniques}
-                \li \l{Creating Animations}
+                \li \l{Creating Timeline Animations}
                 \li \l{Editing Easing Curves}
-                \li \l{Production Quality} (NEW)
-                \li \l{Importing from Content Creation Tools}
-                \li \l{Optimizing for Target Hardware} (NEW)
+                \li \l{Production Quality}
+                \li \l{Optimizing Designs}
             \endlist
         \row
             \li \inlineimage front-preview.png

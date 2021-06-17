@@ -179,17 +179,16 @@
         \li \l{Motion Design}
             \list
                 \li \l{Introduction to Animation Techniques}
-                \li \l{Creating Animations}
+                \li \l{Creating Timeline Animations}
                 \li \l{Editing Easing Curves}
-                \li \l{Production Quality} (NEW)
+                \li \l{Production Quality}
+                \li \l{Optimizing Designs}
                     \list
-                        \li \l{Detailed Motion Design} (NEW)
+                        \li \l{Creating Optimized 3D Scenes}
                     \endlist
-                \li \l{Optimizing for Target Hardware} (NEW)
             \endlist
         \li \l{Implementing Applications} (NEW)
             \list
-                \li\l{Creating Optimized 3D Scenes}
                 \li Using Flows in Production (NEW)
                 \li \l{Coding}{Cross-Platform Development} (NEW)
                     \list
