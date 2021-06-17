@@ -1140,30 +1140,30 @@ void QmakeBuildSystem::updateBuildSystemData()
 
         const QStringList &config = node->variableValue(Variable::Config);
 
-        QString destDir = ti.destDir.toString();
-        QString workingDir;
+        FilePath destDir = ti.destDir;
+        FilePath workingDir;
         if (!destDir.isEmpty()) {
             bool workingDirIsBaseDir = false;
-            if (destDir == ti.buildTarget)
+            if (destDir.path() == ti.buildTarget)
                 workingDirIsBaseDir = true;
-            if (QDir::isRelativePath(destDir))
-                destDir = QDir::cleanPath(ti.buildDir.toString() + '/' + destDir);
+            if (QDir::isRelativePath(destDir.path()))
+                destDir = ti.buildDir / destDir.path();
 
             if (workingDirIsBaseDir)
-                workingDir = ti.buildDir.toString();
+                workingDir = ti.buildDir;
             else
                 workingDir = destDir;
         } else {
-            workingDir = ti.buildDir.toString();
+            workingDir = ti.buildDir;
         }
 
         if (HostOsInfo::isMacHost() && config.contains("app_bundle"))
-            workingDir += '/' + ti.target + ".app/Contents/MacOS";
+            workingDir = workingDir / (ti.target + ".app/Contents/MacOS");
 
         BuildTargetInfo bti;
         bti.targetFilePath = executableFor(node->proFile());
         bti.projectFilePath = node->filePath();
-        bti.workingDirectory = FilePath::fromString(workingDir);
+        bti.workingDirectory = workingDir;
         bti.displayName = bti.projectFilePath.completeBaseName();
         const FilePath relativePathInProject
                 = bti.projectFilePath.relativeChildPath(projectDirectory());
@@ -1189,7 +1189,7 @@ void QmakeBuildSystem::updateBuildSystemData()
             QmakeProFile *proFile = node->proFile();
             QTC_ASSERT(proFile, return);
             const QString proDirectory = buildDir(proFile->filePath()).toString();
-            foreach (QString dir, libDirectories) {
+            for (QString dir : libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
                 const QFileInfo fi(dir);
                 if (!fi.isAbsolute())
@@ -1261,8 +1261,8 @@ static FilePath destDirFor(const TargetInformation &ti)
 {
     if (ti.destDir.isEmpty())
         return ti.buildDir;
-    if (QDir::isRelativePath(ti.destDir.toString()))
-        return FilePath::fromString(QDir::cleanPath(ti.buildDir.toString() + '/' + ti.destDir.toString()));
+    if (QDir::isRelativePath(ti.destDir.path()))
+        return ti.buildDir / ti.destDir.path();
     return ti.destDir;
 }
 
@@ -1390,8 +1390,8 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
     // Suppress warnings on Apple machines where compilers in /usr/bin point into Xcode.
     // This will suppress some valid warnings, but avoids annoying Apple users with
     // spurious warnings all the time!
-    if (pair.first.toString().startsWith("/usr/bin/")
-            && pair.second.toString().contains("/Contents/Developer/Toolchains/")) {
+    if (pair.first.path().startsWith("/usr/bin/")
+            && pair.second.path().contains("/Contents/Developer/Toolchains/")) {
         return;
     }
     TaskHub::addTask(
