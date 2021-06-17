@@ -234,6 +234,10 @@ class DockerDevicePrivate : public QObject
 public:
     DockerDevicePrivate(DockerDevice *parent) : q(parent)
     {
+        // FIXME: Make mounts flexible
+        m_mounts.append("/opt");
+        m_mounts.append("/data");
+
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [](const QString &path) {
             Q_UNUSED(path)
             LOG("Container watcher change, file: " << path);
@@ -266,6 +270,7 @@ public:
     QPointer<QtcProcess> m_shell;
     QString m_container;
     QString m_mergedDir;
+    QStringList m_mounts;
     QFileSystemWatcher m_mergedDirWatcher;
 
     Environment m_cachedEnviroment;
@@ -538,18 +543,27 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         tempFileName = temp.fileName();
     }
 
-    m_shell = new QtcProcess;
-    // FIXME: Make mounts flexible
-    m_shell->setCommand({"docker", {"run", "-i", "--cidfile=" + tempFileName,
-                                    "-v", "/opt:/opt",
-                                    "-v", "/data:/data",
+    CommandLine dockerRun{"docker", {"run", "-i", "--cidfile=" + tempFileName,
                                     "-e", "DISPLAY=:0",
                                     "-e", "XAUTHORITY=/.Xauthority",
-                                    "--net", "host",
-                                    m_data.imageId, "/bin/sh"}});
-    LOG("RUNNING: " << m_shell->commandLine().toUserOutput());
+                                    "--net", "host"}};
+
+    for (const QString &mount : qAsConst(m_mounts))
+        dockerRun.addArgs({"-v", mount + ':' + mount});
+
+    dockerRun.addArg(m_data.imageId);
+    dockerRun.addArg("/bin/sh");
+
+    LOG("RUNNING: " << dockerRun.toUserOutput());
+    m_shell = new QtcProcess;
+    m_shell->setCommand(dockerRun);
     m_shell->start();
     m_shell->waitForStarted();
+
+    if (m_shell->state() != QProcess::Running) {
+        LOG("DOCKER SHELL FAILED");
+        return;
+    }
 
     LOG("CHECKING: " << tempFileName);
     for (int i = 0; i <= 10; ++i) {
@@ -557,7 +571,7 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         file.open(QIODevice::ReadOnly);
         m_container = QString::fromUtf8(file.readAll()).trimmed();
         if (!m_container.isEmpty()) {
-            LOG("Container: " << d->m_container);
+            LOG("Container: " << m_container);
             break;
         }
         if (i == 10) {
@@ -597,6 +611,10 @@ FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
 {
     QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
     QString path = filePath.path();
+    for (const QString &mount : qAsConst(d->m_mounts)) {
+        if (path.startsWith(mount + '/'))
+            return FilePath::fromString(path);
+    }
     if (path.startsWith('/'))
         return FilePath::fromString(d->m_mergedDir + path);
     return FilePath::fromString(d->m_mergedDir + '/' + path);
