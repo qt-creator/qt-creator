@@ -789,11 +789,13 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
 {
     const QDir srcDirRoot = QDir(projectDirectory().toString());
     const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
-    const QString buildConfigBuildDir = buildConfiguration()->buildDirectory().toString();
-    const QString buildDir = buildConfigBuildDir.isEmpty()
-                                 ? projectDirectory().toString()
+    const FilePath buildConfigBuildDir = buildConfiguration()->buildDirectory();
+    FilePath buildDir = buildConfigBuildDir.isEmpty()
+                                 ? projectDirectory()
                                  : buildConfigBuildDir;
-    return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
+    // FIXME: Convoluted.
+    buildDir.setPath(QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
+    return buildDir;
 }
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage, const FilePath &filePath)
