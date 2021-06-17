@@ -1,0 +1,72 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-optimizing-designs.html
+    \previouspage qtquick-production-quality-animation.html
+    \nextpage studio-optimized-3d-scenes.html
+
+    \title Optimizing Designs
+
+    You can test your UIs on the target devices to make sure you get the best
+    performance out of your animations. To solve performance problems, you
+    typically need to optimize the graphical assets used in the UI, such as
+    images, effects, or 3D scenes.
+
+    How to optimize UIs for different target devices:
+
+    \list
+        \li Minimize image size
+        \li Use transparency sparingly
+    \endlist
+
+    For more useful information for application developers, see
+    \l {Performance Considerations And Suggestions}.
+
+    For more information about optimizing 3D scenes, see
+    \l{Creating Optimized 3D Scenes}.
+
+    \section1 Minimizing Image Size
+
+    Images are a vital part of any user interface. Unfortunately, they are also
+    a big source of problems due to the time it takes to load them, the amount
+    of memory they consume, and the way in which they are used.
+
+    We recommend that you make image size as small as possible without
+    negatively affecting image quality.
+
+    For more information about how to use images efficiently in your UI, see
+    \l{Images}.
+
+    \section1 Avoid Transparency
+
+    Opaque content is generally a lot faster to draw than transparent because
+    the latter needs blending and the renderer can potentially optimize opaque
+    content better.
+
+    An image with one transparent pixel is treated as fully transparent, even
+    though it is mostly opaque. The same is true for a \l {Border Image} with
+    transparent edges.
+*/
