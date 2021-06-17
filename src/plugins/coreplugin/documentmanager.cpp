@@ -571,39 +571,15 @@ void DocumentManager::checkForNewFileName()
 }
 
 /*!
-    Returns a guaranteed cleaned absolute file path for \a filePath in portable form.
+    Returns a guaranteed cleaned absolute file path for \a filePath.
     Resolves symlinks if \a resolveMode is ResolveLinks.
 */
-QString DocumentManager::cleanAbsoluteFilePath(const QString &filePath, ResolveMode resolveMode)
-{
-    QFileInfo fi(QDir::fromNativeSeparators(filePath));
-    if (fi.exists() && resolveMode == ResolveLinks) {
-        // if the filePath is no link, we want this method to return the same for both ResolveModes
-        // so wrap with absoluteFilePath because that forces drive letters upper case
-        return QFileInfo(fi.canonicalFilePath()).absoluteFilePath();
-    }
-    return QDir::cleanPath(fi.absoluteFilePath());
-}
-
-/*!
-    Returns a representation of \a filePath that can be used as a key for maps.
-    It is a cleaned absolute file path in portable form, that is all lowercase
-    if the file system is case insensitive in the host OS settings.
-    Resolves symlinks if \a resolveMode is ResolveLinks.
-*/
-QString DocumentManager::filePathKey(const QString &filePath, ResolveMode resolveMode)
-{
-    QString s = cleanAbsoluteFilePath(filePath, resolveMode);
-    if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
-        s = s.toLower();
-    return s;
-}
-
 FilePath DocumentManager::filePathKey(const Utils::FilePath &filePath, ResolveMode resolveMode)
 {
+    const FilePath &result = filePath.absoluteFilePath().cleanPath();
     if (resolveMode == ResolveLinks)
-        return filePath.canonicalPath().absoluteFilePath();
-    return filePath.absoluteFilePath();
+        return result.canonicalPath();
+    return result;
 }
 
 /*!
