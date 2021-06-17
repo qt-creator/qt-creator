@@ -42,6 +42,11 @@ if (NOT Qt6_FOUND)
   endif()
   return()
 else()
+  # since Qt 6.2 DesignerComponents is called private
+  find_package(Qt6DesignerComponentsPrivate CONFIG QUIET)
+  if (TARGET Qt6::DesignerComponentsPrivate)
+    add_library(Qt5::DesignerComponents ALIAS Qt6::DesignerComponentsPrivate)
+  endif()
   find_package(Qt6 CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
 endif()
 
