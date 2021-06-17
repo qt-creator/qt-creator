@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "projectexplorer/runconfigurationaspects.h"
+#include "runconfigurationaspects.h"
+#include "runcontrol.h"
 
 namespace ProjectExplorer {
 
@@ -52,6 +53,12 @@ class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFact
 {
 public:
     CustomExecutableRunConfigurationFactory();
+};
+
+class CustomExecutableRunWorkerFactory : public RunWorkerFactory
+{
+public:
+    CustomExecutableRunWorkerFactory();
 };
 
 } // namespace ProjectExplorer

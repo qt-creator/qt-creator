@@ -141,11 +141,12 @@ private:
     const std::unique_ptr<Internal::RunWorkerPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT RunWorkerFactory final
+class PROJECTEXPLORER_EXPORT RunWorkerFactory
 {
 public:
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;
 
+    RunWorkerFactory();
     RunWorkerFactory(const WorkerCreator &producer,
                      const QList<Utils::Id> &runModes,
                      const QList<Utils::Id> &runConfigs = {},
@@ -164,6 +165,14 @@ public:
 
     // For debugging only.
     static void dumpAll();
+
+protected:
+    template <typename Worker>
+    void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
+    void setProducer(const WorkerCreator &producer);
+    void addSupportedRunMode(Utils::Id runMode);
+    void addSupportedRunConfig(Utils::Id runConfig);
+    void addSupportedDeviceType(Utils::Id deviceType);
 
 private:
     WorkerCreator m_producer;

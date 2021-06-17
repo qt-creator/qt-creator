@@ -631,11 +631,7 @@ public:
     CurrentProjectFind m_curretProjectFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
-    RunWorkerFactory m_customExecutableRunWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {Constants::NORMAL_RUN_MODE},
-        {m_customExecutableRunConfigFactory.runConfigurationId()}
-    };
+    CustomExecutableRunWorkerFactory m_customExecutableRunWorkerFactory;
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 

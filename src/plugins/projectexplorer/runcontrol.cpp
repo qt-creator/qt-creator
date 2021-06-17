@@ -80,6 +80,11 @@ static QList<RunWorkerFactory *> g_runWorkerFactories;
 static QSet<Utils::Id> g_runModes;
 static QSet<Utils::Id> g_runConfigs;
 
+RunWorkerFactory::RunWorkerFactory()
+{
+    g_runWorkerFactories.append(this);
+}
+
 RunWorkerFactory::RunWorkerFactory(const WorkerCreator &producer,
                                    const QList<Utils::Id> &runModes,
                                    const QList<Utils::Id> &runConfigs,
@@ -101,6 +106,26 @@ RunWorkerFactory::RunWorkerFactory(const WorkerCreator &producer,
 RunWorkerFactory::~RunWorkerFactory()
 {
     g_runWorkerFactories.removeOne(this);
+}
+
+void RunWorkerFactory::setProducer(const WorkerCreator &producer)
+{
+    m_producer = producer;
+}
+
+void RunWorkerFactory::addSupportedRunMode(Utils::Id runMode)
+{
+    m_supportedRunModes.append(runMode);
+}
+
+void RunWorkerFactory::addSupportedRunConfig(Utils::Id runConfig)
+{
+    m_supportedRunConfigurations.append(runConfig);
+}
+
+void RunWorkerFactory::addSupportedDeviceType(Utils::Id deviceType)
+{
+    m_supportedDeviceTypes.append(deviceType);
 }
 
 bool RunWorkerFactory::canRun(Utils::Id runMode,
