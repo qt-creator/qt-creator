@@ -1355,7 +1355,10 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
 
         // We don't increase/decrease m_qmakeGlobalsRefCnt here, because the outer profilereaders keep m_qmakeGlobals alive anyway
         auto bpReader = new QtSupport::ProFileReader(input.qmakeGlobals, input.qmakeVfs); // needs to access m_qmakeGlobals, m_qmakeVfs
-        bpReader->setOutputDir(input.buildDirectory.toString());
+
+        // FIXME: Currently intentional.
+        // Core parts of the ProParser hard-assert on non-local items.
+        bpReader->setOutputDir(input.buildDirectory.path());
         bpReader->setCumulative(cumulative);
         bpReader->setExtraVars(basevars);
         bpReader->setExtraConfigs(basecfgs);
