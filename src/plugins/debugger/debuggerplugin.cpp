@@ -709,7 +709,7 @@ public:
         RunWorkerFactory::make<DebuggerRunTool>(),
         {ProjectExplorer::Constants::DEBUG_RUN_MODE},
         {}, // All local run configs?
-        {PE::DESKTOP_DEVICE_TYPE}
+        {PE::DESKTOP_DEVICE_TYPE, "DockerDeviceType"}
     };
 
     // FIXME: Needed?
