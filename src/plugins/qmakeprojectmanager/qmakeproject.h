@@ -114,7 +114,7 @@ public:
     void buildFinished(bool success);
     void activeTargetWasChanged(ProjectExplorer::Target *);
 
-    QString executableFor(const QmakeProFile *file);
+    Utils::FilePath executableFor(const QmakeProFile *file);
 
     void updateCppCodeModel();
     void updateQmlJSCodeModel();

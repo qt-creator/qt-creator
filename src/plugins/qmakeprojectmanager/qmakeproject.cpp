@@ -1159,7 +1159,7 @@ void QmakeBuildSystem::updateBuildSystemData()
             workingDir += '/' + ti.target + ".app/Contents/MacOS";
 
         BuildTargetInfo bti;
-        bti.targetFilePath = FilePath::fromString(executableFor(node->proFile()));
+        bti.targetFilePath = executableFor(node->proFile());
         bti.projectFilePath = node->filePath();
         bti.workingDirectory = FilePath::fromString(workingDir);
         bti.displayName = bti.projectFilePath.completeBaseName();
@@ -1249,9 +1249,9 @@ void QmakeBuildSystem::collectData(const QmakeProFile *file, DeploymentData &dep
 
 void QmakeBuildSystem::collectApplicationData(const QmakeProFile *file, DeploymentData &deploymentData)
 {
-    QString executable = executableFor(file);
+    const FilePath executable = executableFor(file);
     if (!executable.isEmpty())
-        deploymentData.addFile(executable, file->installsList().targetPath,
+        deploymentData.addFile(executable.path(), file->installsList().targetPath,
                                DeployableFile::TypeExecutable);
 }
 
@@ -1413,16 +1413,16 @@ void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
-QString QmakeBuildSystem::executableFor(const QmakeProFile *file)
+FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
     const ToolChain *const tc = ToolChainKitAspect::cxxToolChain(kit());
     if (!tc)
-        return QString();
+        return {};
 
     TargetInformation ti = file->targetInformation();
     QString target;
 
-    QTC_ASSERT(file, return QString());
+    QTC_ASSERT(file, return {});
 
     if (tc->targetAbi().os() == Abi::DarwinOS
             && file->variableValue(Variable::Config).contains("app_bundle")) {
@@ -1434,7 +1434,7 @@ QString QmakeBuildSystem::executableFor(const QmakeProFile *file)
         else
             target = ti.target + extension;
     }
-    return QDir(destDirFor(ti).toString()).absoluteFilePath(target);
+    return (destDirFor(ti) / target).absoluteFilePath();
 }
 
 ProjectImporter *QmakeProject::projectImporter() const
