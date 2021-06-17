@@ -104,7 +104,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FilePath &sour
             this, &ExtraCompiler::onEditorAboutToClose);
 
     // Use existing target files, where possible. Otherwise run the compiler.
-    QDateTime sourceTime = d->source.toFileInfo().lastModified();
+    QDateTime sourceTime = d->source.lastModified();
     foreach (const Utils::FilePath &target, targets) {
         QFileInfo targetFileInfo(target.toFileInfo());
         if (!targetFileInfo.exists()) {
@@ -180,7 +180,7 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
 
     // This is mostly a fall back for the cases when the generator couldn't be run.
     // It pays special attention to the case where a source file was newly created
-    const QDateTime sourceTime = d->source.toFileInfo().lastModified();
+    const QDateTime sourceTime = d->source.lastModified();
     if (d->compileTime.isValid() && d->compileTime >= sourceTime)
         return;
 

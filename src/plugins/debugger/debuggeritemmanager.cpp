@@ -778,7 +778,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &de
             return titem->m_item.command() == command;
         };
         if (DebuggerTreeItem *existingItem = m_model->findItemAtLevel<2>(commandMatches)) {
-            if (command.toFileInfo().lastModified() != existingItem->m_item.lastModified())
+            if (command.lastModified() != existingItem->m_item.lastModified())
                 existingItem->m_item.reinitializeFromFile();
             continue;
         }

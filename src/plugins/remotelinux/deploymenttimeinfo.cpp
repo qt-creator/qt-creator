@@ -109,14 +109,14 @@ void DeploymentTimeInfo::saveDeploymentTimeStamp(const DeployableFile &deployabl
 {
     d->lastDeployed.insert(
                 d->parameters(deployableFile, kit),
-                { deployableFile.localFilePath().toFileInfo().lastModified(), remoteTimestamp });
+                { deployableFile.localFilePath().lastModified(), remoteTimestamp });
 }
 
 bool DeploymentTimeInfo::hasLocalFileChanged(const DeployableFile &deployableFile,
                                              const Kit *kit) const
 {
     const auto &lastDeployed = d->lastDeployed.value(d->parameters(deployableFile, kit));
-    const QDateTime lastModified = deployableFile.localFilePath().toFileInfo().lastModified();
+    const QDateTime lastModified = deployableFile.localFilePath().lastModified();
     return !lastDeployed.local.isValid() || lastModified != lastDeployed.local;
 }
 

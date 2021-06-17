@@ -279,7 +279,7 @@ void AndroidConfig::parseDependenciesJson()
         QFile::copy(sdkConfigFile.toString(), sdkConfigUserFile.toString());
     }
 
-    if (sdkConfigFile.toFileInfo().lastModified() > sdkConfigUserFile.toFileInfo().lastModified()) {
+    if (sdkConfigFile.lastModified() > sdkConfigUserFile.lastModified()) {
         const QString oldUserFile = (sdkConfigUserFile + ".old").toString();
         QFile::remove(oldUserFile);
         QFile::rename(sdkConfigUserFile.toString(), oldUserFile);

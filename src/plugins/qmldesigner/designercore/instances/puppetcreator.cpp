@@ -110,7 +110,7 @@ QDateTime PuppetCreator::qtLastModified() const
 {
     QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
     if (currentQtVersion)
-        return currentQtVersion->libraryPath().toFileInfo().lastModified();
+        return currentQtVersion->libraryPath().lastModified();
 
     return QDateTime();
 }

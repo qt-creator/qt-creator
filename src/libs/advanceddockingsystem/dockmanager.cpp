@@ -839,7 +839,7 @@ namespace ADS
         if (!fi.exists() || fi.copy(workspaceNameToFilePath(clone).toString())) {
             d->m_workspaces.insert(1, clone);
             d->m_workspaceDateTimes
-                .insert(clone, workspaceNameToFilePath(clone).toFileInfo().lastModified());
+                .insert(clone, workspaceNameToFilePath(clone).lastModified());
             emit workspaceListChanged();
             return true;
         }
@@ -918,7 +918,7 @@ namespace ADS
         } else {
             d->m_workspaces.insert(1, workspaceName);
             d->m_workspaceDateTimes.insert(workspaceName,
-                                           workspaceNameToFilePath(workspaceName).toFileInfo().lastModified());
+                                           workspaceNameToFilePath(workspaceName).lastModified());
             d->m_workspaceListDirty = true;
             // After importing the workspace, update the workspace list
             workspaces();

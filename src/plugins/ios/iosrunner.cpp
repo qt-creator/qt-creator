@@ -473,8 +473,8 @@ void IosDebugSupport::start()
         QString bundlePath = iosRunConfig->bundleDirectory().toString();
         bundlePath.chop(4);
         FilePath dsymPath = FilePath::fromString(bundlePath.append(".dSYM"));
-        if (dsymPath.exists() && dsymPath.toFileInfo().lastModified()
-                < QFileInfo(iosRunConfig->localExecutable().toUserOutput()).lastModified()) {
+        if (dsymPath.exists()
+                && dsymPath.lastModified() < iosRunConfig->localExecutable().lastModified()) {
             TaskHub::addTask(DeploymentTask(Task::Warning,
                      tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
                              .arg(dsymPath.toUserOutput())));
