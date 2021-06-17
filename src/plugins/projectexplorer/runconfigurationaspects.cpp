@@ -246,12 +246,14 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 */
 FilePath WorkingDirectoryAspect::workingDirectory(const MacroExpander *expander) const
 {
-    const Utils::Environment env = m_envAspect ? m_envAspect->environment()
-                                               : Utils::Environment::systemEnvironment();
-    QString workingDir = m_workingDirectory.toUserOutput();
+    const Environment env = m_envAspect ? m_envAspect->environment()
+                                        : Environment::systemEnvironment();
+    FilePath res = m_workingDirectory;
+    QString workingDir = m_workingDirectory.path();
     if (expander)
         workingDir = expander->expandProcessArgs(workingDir);
-    return FilePath::fromString(PathChooser::expandedDirectory(workingDir, env, QString()));
+    res.setPath(PathChooser::expandedDirectory(workingDir, env, QString()));
+    return res;
 }
 
 FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
