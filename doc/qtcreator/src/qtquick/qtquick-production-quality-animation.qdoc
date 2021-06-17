@@ -1,0 +1,91 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-production-quality-animation.html
+    \previouspage qtquick-editing-easing-curves.html
+    \nextpage qtquick-optimizing-designs.html
+
+    \title Production Quality
+
+    After the wireframing and prototyping phases, you can use previewing and
+    profiling tools to fine-tune your UI for production.
+
+    How to achieve production quality motion in UIs:
+
+    \list
+        \li Preview the UI to check the FPS refresh rate.
+        \li Profile the UI code to find causes for slowness, unresponsiveness,
+            and stuttering.
+    \endlist
+
+    \section1 FPS Refresh Rate
+
+    As a general rule, animators strive to allow the rendering engine to
+    achieve a consistent 60 frames-per-second (FPS) refresh rate. 60 FPS
+    means that there is approximately 16 milliseconds between each frame
+    in which processing can be done, which includes the processing required
+    to upload the draw primitives to the graphics hardware.
+
+    The frames-per-second (FPS) refresh rate of animations is displayed in the
+    \uicontrol FPS field on the \l{Summary of Main Toolbar Actions}{toolbar}
+    in the \uicontrol Design mode.
+
+    To improve the FPS rate, application developers should:
+
+    \list
+        \li Use asynchronous, event-driven programming wherever possible.
+        \li Use worker threads to do significant processing.
+        \li Never manually spin the event loop.
+        \li Never spend more than a couple of milliseconds per frame within
+            blocking functions to avoid skipped frames, which negatively
+            affect the user experience.
+    \endlist
+
+    For more information about previewing UIs on devices, see
+    \l{Validating with Target Hardware}.
+
+    \section1 Profiling UI Code
+
+    You can use \l{Profiling QML Applications}{QML Profiler} that is integrated
+    into \QC to find causes for typical performance problems in your UI. For
+    example, your UI might be slow, unresponsive, or stuttering. Typically, such
+    problems are caused by executing too much JavaScript in too few frames. All
+    JavaScript must return before the GUI thread can proceed, and frames are
+    delayed or dropped if the GUI thread is not ready.
+
+    In general, knowing where time is spent in a UI enables you to focus on
+    problem areas that actually exist, rather than problem areas that
+    potentially exist.
+
+    Determining which bindings are being run the most often or which functions
+    your application is spending the most time on enables you to decide whether
+    you need to optimize the problem areas, or redesign some implementation
+    details of your application so that the performance is improved. Attempting
+    to optimize code without profiling is likely to result in very minor rather
+    than significant performance improvements.
+
+    For more information, see \l{Profiling QML Applications}.
+*/
