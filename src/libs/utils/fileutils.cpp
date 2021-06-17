@@ -1378,6 +1378,15 @@ QDateTime FilePath::lastModified() const
     return toFileInfo().lastModified();
 }
 
+QFile::Permissions FilePath::permissions() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.permissions, return {});
+        return s_deviceHooks.permissions(*this);
+    }
+    return toFileInfo().permissions();
+}
+
 bool FilePath::removeFile() const
 {
     if (needsDevice()) {

@@ -320,6 +320,13 @@ QDateTime IDevice::lastModified(const FilePath &filePath) const
     return {};
 }
 
+QFileDevice::Permissions IDevice::permissions(const Utils::FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return {};
+}
+
 void IDevice::runProcess(QtcProcess &process) const
 {
     Q_UNUSED(process);

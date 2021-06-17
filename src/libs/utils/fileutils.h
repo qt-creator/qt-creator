@@ -83,6 +83,7 @@ public:
     std::function<QByteArray(const FilePath &, int)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
+    std::function<QFile::Permissions(const FilePath &)> permissions;
 };
 
 class QTCREATOR_UTILS_EXPORT FilePath
@@ -161,6 +162,7 @@ public:
     bool isDir() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
+    QFile::Permissions permissions() const;
     bool removeFile() const;
     bool copyFile(const FilePath &target) const;
 

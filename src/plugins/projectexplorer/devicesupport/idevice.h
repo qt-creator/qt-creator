@@ -252,6 +252,7 @@ public:
     virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
     virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
+    virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
 

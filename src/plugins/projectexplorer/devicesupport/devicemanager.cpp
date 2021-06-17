@@ -460,6 +460,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->lastModified(filePath);
     };
 
+    deviceHooks.permissions = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return QFile::Permissions());
+        return device->permissions(filePath);
+    };
+
     FilePath::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
