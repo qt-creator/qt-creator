@@ -547,9 +547,10 @@ void ToolChainKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expa
     expander->registerVariable("Compiler:Executable", tr("Path to the compiler executable"),
                                [kit] {
                                    const ToolChain *tc = cxxToolChain(kit);
-                                   return tc ? tc->compilerCommand().toString() : QString();
+                                   return tc ? tc->compilerCommand().path() : QString();
                                });
 
+    // After 4.2
     expander->registerPrefix("Compiler:Name", tr("Compiler for different languages"),
                              [kit](const QString &ls) {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
@@ -558,7 +559,7 @@ void ToolChainKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expa
     expander->registerPrefix("Compiler:Executable", tr("Compiler executable for different languages"),
                              [kit](const QString &ls) {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
-                                 return tc ? tc->compilerCommand().toString() : QString();
+                                 return tc ? tc->compilerCommand().path() : QString();
                              });
 }
 
