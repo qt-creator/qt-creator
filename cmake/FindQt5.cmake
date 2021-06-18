@@ -42,11 +42,16 @@ if (NOT Qt6_FOUND)
   endif()
   return()
 else()
-  # since Qt 6.2 DesignerComponents is called private
-  find_package(Qt6DesignerComponentsPrivate CONFIG QUIET)
-  if (TARGET Qt6::DesignerComponentsPrivate)
-    add_library(Qt5::DesignerComponents ALIAS Qt6::DesignerComponentsPrivate)
+  # since Qt 6.2 DesignerComponents is called DesignerComponentsPrivate
+  list(FIND Qt5_FIND_COMPONENTS DesignerComponents dcIndex)
+  if(dcIndex GREATER_EQUAL 0)
+    find_package(Qt6DesignerComponentsPrivate CONFIG QUIET)
+    if(TARGET Qt6::DesignerComponentsPrivate)
+      add_library(Qt5::DesignerComponents ALIAS Qt6::DesignerComponentsPrivate)
+      list(REMOVE_AT Qt5_FIND_COMPONENTS ${dcIndex})
+    endif()
   endif()
+
   find_package(Qt6 CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
 endif()
 
