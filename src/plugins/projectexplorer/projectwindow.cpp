@@ -40,6 +40,7 @@
 #include "targetsettingspanel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icontext.h>
@@ -54,6 +55,7 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -75,6 +77,50 @@ namespace ProjectExplorer {
 namespace Internal {
 
 class MiscSettingsGroupItem;
+
+const char kBuildSystemOutputContext[] = "ProjectsMode.BuildSystemOutput";
+
+class BuildSystemOutputWindow : public OutputWindow
+{
+public:
+    BuildSystemOutputWindow();
+
+    QWidget *toolBar();
+
+private:
+    QPointer<QWidget> m_toolBar;
+    QAction *m_clear;
+};
+
+BuildSystemOutputWindow::BuildSystemOutputWindow()
+    : OutputWindow(Context(kBuildSystemOutputContext), "ProjectsMode.BuildSystemOutput.Zoom")
+    , m_clear(new QAction)
+{
+    Command *clearCommand = ActionManager::command(Core::Constants::OUTPUTPANE_CLEAR);
+    m_clear->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+    m_clear->setText(clearCommand->action()->text());
+    ActionManager::registerAction(m_clear,
+                                  Core::Constants::OUTPUTPANE_CLEAR,
+                                  Context(kBuildSystemOutputContext));
+    connect(m_clear, &QAction::triggered, this, [this] { clear(); });
+}
+
+QWidget *BuildSystemOutputWindow::toolBar()
+{
+    if (!m_toolBar) {
+        m_toolBar = new StyledBar(this);
+        auto clearButton = new CommandButton(Core::Constants::OUTPUTPANE_CLEAR);
+        clearButton->setDefaultAction(m_clear);
+        clearButton->setToolTipBase(m_clear->text());
+        auto layout = new QHBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        m_toolBar->setLayout(layout);
+        layout->addWidget(clearButton);
+        layout->addStretch();
+    }
+    return m_toolBar;
+}
 
 // Standard third level for the generic case: i.e. all except for the Build/Run page
 class MiscSettingsPanelItem : public TreeItem // TypedTreeItem<TreeItem, MiscSettingsGroupItem>
@@ -474,8 +520,7 @@ public:
         auto selectorDock = q->addDockForWidget(selectorView, true);
         q->addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
 
-        m_buildSystemOutput = new OutputWindow(Context("ProjectsMode.BuildSystemOutput"),
-                                               "ProjectsMode.BuildSystemOutput.Zoom");
+        m_buildSystemOutput = new BuildSystemOutputWindow;
         m_buildSystemOutput->setReadOnly(true);
         auto output = new QWidget;
         output->setObjectName("BuildSystemOutput");
@@ -484,7 +529,7 @@ public:
         output->setLayout(outputLayout);
         outputLayout->setContentsMargins(0, 0, 0, 0);
         outputLayout->setSpacing(0);
-        outputLayout->addWidget(new StyledBar(output));
+        outputLayout->addWidget(m_buildSystemOutput->toolBar());
         outputLayout->addWidget(m_buildSystemOutput);
         auto outputDock = q->addDockForWidget(output, true);
         q->addDockWidget(Qt::RightDockWidgetArea, outputDock);
@@ -658,7 +703,7 @@ public:
     SelectorTree *m_selectorTree;
     QPushButton *m_importBuild;
     QPushButton *m_manageKits;
-    OutputWindow *m_buildSystemOutput;
+    BuildSystemOutputWindow *m_buildSystemOutput;
 };
 
 //

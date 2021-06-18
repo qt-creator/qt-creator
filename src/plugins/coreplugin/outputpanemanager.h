@@ -70,6 +70,7 @@ private:
     friend class OutputPaneManageButton;
 
     static void create();
+    static void initialize();
     static void destroy();
 
     explicit OutputPaneManager(QWidget *parent = nullptr);

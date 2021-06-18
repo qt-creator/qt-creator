@@ -403,20 +403,20 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     Command *cmd;
 
-    cmd = ActionManager::registerAction(m_clearAction, "Coreplugin.OutputPane.clear");
-    m_clearButton->setDefaultAction(cmd->action());
-    m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+    cmd = ActionManager::registerAction(m_clearAction, Constants::OUTPUTPANE_CLEAR);
+    m_clearButton->setDefaultAction(
+        ProxyAction::proxyActionWithIcon(m_clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F6")));
     m_prevToolButton->setDefaultAction(
-                ProxyAction::proxyActionWithIcon(cmd->action(), Utils::Icons::PREV_TOOLBAR.icon()));
+        ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::PREV_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
     m_nextToolButton->setDefaultAction(
-                ProxyAction::proxyActionWithIcon(cmd->action(), Utils::Icons::NEXT_TOOLBAR.icon()));
+        ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::NEXT_TOOLBAR.icon()));
     cmd->setDefaultKeySequence(QKeySequence(tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
@@ -429,8 +429,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minMaxButton->setDefaultAction(cmd->action());
 
     mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
+}
 
-    QFontMetrics titleFm = m_titleLabel->fontMetrics();
+void OutputPaneManager::initialize()
+{
+    ActionContainer *mpanes = ActionManager::actionContainer(Constants::M_VIEW_PANES);
+    QFontMetrics titleFm = m_instance->m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
     Utils::sort(g_outputPanes, [](const OutputPaneData &d1, const OutputPaneData &d2) {
@@ -443,29 +447,30 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     for (int i = 0; i != n; ++i) {
         OutputPaneData &data = g_outputPanes[i];
         IOutputPane *outPane = data.pane;
-        const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
+        const int idx = m_instance->m_outputWidgetPane->addWidget(outPane->outputWidget(m_instance));
         QTC_CHECK(idx == i);
 
-        connect(outPane, &IOutputPane::showPage, this, [this, idx](int flags) {
-            showPage(idx, flags);
+        connect(outPane, &IOutputPane::showPage, m_instance, [idx](int flags) {
+            m_instance->showPage(idx, flags);
         });
-        connect(outPane, &IOutputPane::hidePage, this, &OutputPaneManager::slotHide);
+        connect(outPane, &IOutputPane::hidePage, m_instance, &OutputPaneManager::slotHide);
 
-        connect(outPane, &IOutputPane::togglePage, this, [this, idx](int flags) {
-            if (OutputPanePlaceHolder::isCurrentVisible() && currentIndex() == idx)
-                slotHide();
+        connect(outPane, &IOutputPane::togglePage, m_instance, [idx](int flags) {
+            if (OutputPanePlaceHolder::isCurrentVisible() && m_instance->currentIndex() == idx)
+                m_instance->slotHide();
             else
-                showPage(idx, flags);
+                m_instance->showPage(idx, flags);
         });
 
-        connect(outPane, &IOutputPane::navigateStateUpdate, this, [this, idx, outPane] {
-            if (currentIndex() == idx) {
-                m_prevAction->setEnabled(outPane->canNavigate() && outPane->canPrevious());
-                m_nextAction->setEnabled(outPane->canNavigate() && outPane->canNext());
+        connect(outPane, &IOutputPane::navigateStateUpdate, m_instance, [idx, outPane] {
+            if (m_instance->currentIndex() == idx) {
+                m_instance->m_prevAction->setEnabled(outPane->canNavigate()
+                                                     && outPane->canPrevious());
+                m_instance->m_nextAction->setEnabled(outPane->canNavigate() && outPane->canNext());
             }
         });
 
-        QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
+        QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
         auto toolButtonsLayout = new QHBoxLayout;
         toolButtonsLayout->setContentsMargins(0, 0, 0, 0);
         toolButtonsLayout->setSpacing(0);
@@ -474,48 +479,55 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
         toolButtonsLayout->addStretch(5);
         toolButtonsContainer->setLayout(toolButtonsLayout);
 
-        m_opToolBarWidgets->addWidget(toolButtonsContainer);
+        m_instance->m_opToolBarWidgets->addWidget(toolButtonsContainer);
 
         minTitleWidth = qMax(minTitleWidth, titleFm.horizontalAdvance(outPane->displayName()));
 
         QString suffix = outPane->displayName().simplified();
         suffix.remove(QLatin1Char(' '));
         data.id = baseId.withSuffix(suffix);
-        data.action = new QAction(outPane->displayName(), this);
+        data.action = new QAction(outPane->displayName(), m_instance);
         Command *cmd = ActionManager::registerAction(data.action, data.id);
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
 
         cmd->setDefaultKeySequence(paneShortCut(shortcutNumber));
-        auto button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
+        auto button = new OutputPaneToggleButton(shortcutNumber,
+                                                 outPane->displayName(),
                                                  cmd->action());
         data.button = button;
 
         connect(outPane, &IOutputPane::flashButton, button, [button] { button->flash(); });
-        connect(outPane, &IOutputPane::setBadgeNumber,
-                button, &OutputPaneToggleButton::setIconBadgeNumber);
+        connect(outPane,
+                &IOutputPane::setBadgeNumber,
+                button,
+                &OutputPaneToggleButton::setIconBadgeNumber);
 
         ++shortcutNumber;
-        m_buttonsWidget->layout()->addWidget(data.button);
-        connect(data.button, &QAbstractButton::clicked, this, [this, i] {
-            buttonTriggered(i);
-         });
+        m_instance->m_buttonsWidget->layout()->addWidget(data.button);
+        connect(data.button, &QAbstractButton::clicked, m_instance, [i] {
+            m_instance->buttonTriggered(i);
+        });
 
         bool visible = outPane->priorityInStatusBar() != -1;
         data.button->setVisible(visible);
         data.buttonVisible = visible;
 
-        connect(data.action, &QAction::triggered, this, [this, i] {
-            shortcutTriggered(i);
+        connect(data.action, &QAction::triggered, m_instance, [i] {
+            m_instance->shortcutTriggered(i);
         });
     }
 
-    m_titleLabel->setMinimumWidth(minTitleWidth + m_titleLabel->contentsMargins().left()
-                                  + m_titleLabel->contentsMargins().right());
-    m_buttonsWidget->layout()->addWidget(m_manageButton);
-    connect(m_manageButton, &QAbstractButton::clicked, this, &OutputPaneManager::popupMenu);
+    m_instance->m_titleLabel->setMinimumWidth(
+        minTitleWidth + m_instance->m_titleLabel->contentsMargins().left()
+        + m_instance->m_titleLabel->contentsMargins().right());
+    m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
+    connect(m_instance->m_manageButton,
+            &QAbstractButton::clicked,
+            m_instance,
+            &OutputPaneManager::popupMenu);
 
-    readSettings();
+    m_instance->readSettings();
 }
 
 OutputPaneManager::~OutputPaneManager() = default;

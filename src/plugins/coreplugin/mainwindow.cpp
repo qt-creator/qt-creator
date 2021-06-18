@@ -299,6 +299,7 @@ void MainWindow::init()
 {
     m_progressManager->init(); // needs the status bar manager
     MessageManager::init();
+    OutputPaneManager::create();
 }
 
 void MainWindow::extensionsInitialized()
@@ -307,7 +308,7 @@ void MainWindow::extensionsInitialized()
     MimeTypeSettings::restoreSettings();
     m_windowSupport = new WindowSupport(this, Context("Core.MainWindow"));
     m_windowSupport->setCloseActionEnabled(false);
-    OutputPaneManager::create();
+    OutputPaneManager::initialize();
     VcsManager::extensionsInitialized();
     m_leftNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
     m_rightNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());

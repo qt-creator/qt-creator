@@ -136,6 +136,8 @@ const char ABOUT_PLUGINS[]         = "QtCreator.AboutPlugins";
 const char S_RETURNTOEDITOR[]      = "QtCreator.ReturnToEditor";
 const char SHOWINGRAPHICALSHELL[]  = "QtCreator.ShowInGraphicalShell";
 
+const char OUTPUTPANE_CLEAR[] = "Coreplugin.OutputPane.clear";
+
 // Default groups
 const char G_DEFAULT_ONE[]         = "QtCreator.Group.Default.One";
 const char G_DEFAULT_TWO[]         = "QtCreator.Group.Default.Two";
