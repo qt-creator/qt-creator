@@ -257,7 +257,7 @@ public:
     void autoDetect(QTextBrowser *log);
     void undoAutoDetect(QTextBrowser *log) const;
 
-    BaseQtVersion *autoDetectQtVersion(QTextBrowser *log) const;
+    QList<BaseQtVersion *> autoDetectQtVersions(QTextBrowser *log) const;
     QList<ToolChain *> autoDetectToolChains(QTextBrowser *log);
     void autoDetectCMake(QTextBrowser *log);
 
@@ -423,24 +423,34 @@ void DockerDevicePrivate::undoAutoDetect(QTextBrowser *log) const
     //        };
 
     if (log)
-        log->append(tr("Removal of auto-detected kit items finished."));
+        log->append(tr("Removal of previously auto-detected kit items finished.") + '\n');
 }
 
-BaseQtVersion *DockerDevicePrivate::autoDetectQtVersion(QTextBrowser *log) const
+QList<BaseQtVersion *> DockerDevicePrivate::autoDetectQtVersions(QTextBrowser *log) const
 {
+    QList<BaseQtVersion *> qtVersions;
+
     QString error;
-    const QStringList candidates = {"/usr/local/bin/qmake", "/usr/bin/qmake"};
-    log->append('\n' + tr("Searching Qt installation..."));
+    const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
+    if (log)
+        log->append('\n' + tr("Searching Qt installations..."));
     for (const QString &candidate : candidates) {
-        const FilePath qmake = q->mapToGlobalPath(FilePath::fromString(candidate));
-        if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_data.id(), &error)) {
-            QtVersionManager::addVersion(qtVersion);
+        if (log)
+            log->append(tr("Searching for %1 executable...").arg(candidate));
+        const FilePath qmake = q->searchInPath(FilePath::fromString(candidate));
+        if (qmake.isEmpty())
+            continue;
+        BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_data.id(), &error);
+        if (!qtVersion)
+            continue;
+        qtVersions.append(qtVersion);
+        QtVersionManager::addVersion(qtVersion);
+        if (log)
             log->append(tr("Found Qt: %1").arg(qtVersion->qmakeCommand().toUserOutput()));
-            return qtVersion;
-        }
     }
-    log->append(tr("No Qt installation found."));
-    return nullptr;
+    if (qtVersions.isEmpty() && log)
+        log->append(tr("No Qt installation found."));
+    return qtVersions;
 }
 
 QList<ToolChain *> DockerDevicePrivate::autoDetectToolChains(QTextBrowser *log)
@@ -498,11 +508,11 @@ void DockerDevicePrivate::autoDetect(QTextBrowser *log)
         log->append(tr("Starting auto-detection. This will take a while..."));
 
     QList<ToolChain *> toolChains = autoDetectToolChains(log);
-    BaseQtVersion *qt = autoDetectQtVersion(log);
+    QList<BaseQtVersion *> qtVersions = autoDetectQtVersions(log);
 
     autoDetectCMake(log);
 
-    const auto initializeKit = [this, toolChains, qt](Kit *k) {
+    const auto initializeKit = [this, toolChains, qtVersions](Kit *k) {
         k->setAutoDetected(false);
         k->setAutoDetectionSource(m_data.id());
         k->setUnexpandedDisplayName("%{Device:Name}");
@@ -511,7 +521,8 @@ void DockerDevicePrivate::autoDetect(QTextBrowser *log)
         DeviceKitAspect::setDevice(k, q->sharedFromThis());
         for (ToolChain *tc : toolChains)
             ToolChainKitAspect::setToolChain(k, tc);
-        QtSupport::QtKitAspect::setQtVersion(k, qt);
+        if (!qtVersions.isEmpty())
+            QtSupport::QtKitAspect::setQtVersion(k, qtVersions.at(0));
 
         k->setSticky(ToolChainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
@@ -520,7 +531,8 @@ void DockerDevicePrivate::autoDetect(QTextBrowser *log)
     };
 
     Kit *kit = KitManager::registerKit(initializeKit);
-    log->append('\n' + tr("Registered Kit %1").arg(kit->displayName()));
+    if (log)
+        log->append('\n' + tr("Registered Kit %1").arg(kit->displayName()));
 
     QApplication::restoreOverrideCursor();
 }
@@ -867,7 +879,7 @@ FilePath DockerDevice::searchInPath(const FilePath &filePath) const
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
     QTC_ASSERT(proc.exitCode() == 0, return filePath);
 
-    const QString output = proc.stdOut();
+    const QString output = proc.stdOut().trimmed();
     return mapToGlobalPath(FilePath::fromString(output));
 }
 
