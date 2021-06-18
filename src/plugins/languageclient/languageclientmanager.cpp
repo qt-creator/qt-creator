@@ -218,10 +218,12 @@ void LanguageClientManager::deleteClient(Client *client)
     managerInstance->m_clients.removeAll(client);
     for (QVector<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
-    if (managerInstance->m_shuttingDown)
+    if (managerInstance->m_shuttingDown) {
         delete client;
-    else
+    } else {
         client->deleteLater();
+        emit instance()->clientRemoved(client);
+    }
 }
 
 void LanguageClientManager::shutdown()

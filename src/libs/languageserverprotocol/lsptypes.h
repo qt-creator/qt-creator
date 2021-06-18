@@ -88,7 +88,7 @@ public:
     bool isValid() const override
     { return contains(lineKey) && contains(characterKey); }
 
-    int toPositionInDocument(QTextDocument *doc) const;
+    int toPositionInDocument(const QTextDocument *doc) const;
     QTextCursor toTextCursor(QTextDocument *doc) const;
 };
 

@@ -147,7 +147,7 @@ TEST(ActivationSequenceContextProcessor, TemplateFunctionLeftParen)
 TEST(ActivationSequenceContextProcessor, TemplateFunctionSecondParameter)
 {
     ClangCompletionAssistInterface interface("foo<X>(", 7);
-    int startOfname = ContextProcessor::findStartOfName(&interface,
+    int startOfname = ContextProcessor::findStartOfName(interface.textDocument(),
                                                         6,
                                                         ContextProcessor::NameCategory::Function);
 

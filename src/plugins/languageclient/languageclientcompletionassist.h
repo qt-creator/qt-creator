@@ -25,13 +25,29 @@
 
 #pragma once
 
+#include <languageserverprotocol/completion.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 
 #include <utils/optional.h>
 
+#include <functional>
+
+namespace TextEditor {
+class IAssistProposal;
+class TextDocumentManipulatorInterface;
+}
+
 namespace LanguageClient {
 
 class Client;
+
+using CompletionItemsTransformer = std::function<QList<LanguageServerProtocol::CompletionItem>(
+        const Utils::FilePath &, const QString &, int,
+        const QList<LanguageServerProtocol::CompletionItem> &)>;
+using CompletionApplyHelper = std::function<void(
+        const LanguageServerProtocol::CompletionItem &,
+        TextEditor::TextDocumentManipulatorInterface &, QChar)>;
+using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
 
 class LanguageClientCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
@@ -49,8 +65,17 @@ public:
 
     void setTriggerCharacters(const Utils::optional<QList<QString>> triggerChars);
 
+    void setItemsTransformer(const CompletionItemsTransformer &transformer);
+    void setApplyHelper(const CompletionApplyHelper &applyHelper);
+    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
+    void setSnippetsGroup(const QString &group) { m_snippetsGroup = group; }
+
 private:
     QList<QString> m_triggerChars;
+    CompletionItemsTransformer m_itemsTransformer;
+    CompletionApplyHelper m_applyHelper;
+    ProposalHandler m_proposalHandler;
+    QString m_snippetsGroup;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
 };

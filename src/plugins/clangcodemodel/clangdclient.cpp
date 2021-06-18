@@ -25,7 +25,9 @@
 
 #include "clangdclient.h"
 
+#include "clangcompletioncontextanalyzer.h"
 #include "clangdiagnosticmanager.h"
+#include "clangpreprocessorassistproposalitem.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
 
@@ -34,6 +36,11 @@
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
+#include <cplusplus/Icons.h>
+#include <cplusplus/MatchingText.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cppdoxygen.h>
 #include <cpptools/cppeditorwidgetinterface.h>
 #include <cpptools/cppfindreferences.h>
 #include <cpptools/cppmodelmanager.h>
@@ -50,6 +57,8 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistprovider.h>
+#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
@@ -676,6 +685,62 @@ public:
     { insert("publishDiagnostics", caps); }
 };
 
+class DoxygenAssistProcessor : public TextEditor::IAssistProcessor
+{
+public:
+    DoxygenAssistProcessor(int position, unsigned completionOperator,
+                           const ProposalHandler &handler)
+        : m_position(position), m_completionOperator(completionOperator), m_handler(handler) {}
+
+private:
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *) override
+    {
+        QList<TextEditor::AssistProposalItemInterface *> completions;
+        for (int i = 1; i < CppTools::T_DOXY_LAST_TAG; ++i) {
+            const auto item = new ClangPreprocessorAssistProposalItem;
+            item->setText(QLatin1String(CppTools::doxygenTagSpell(i)));
+            item->setIcon(CPlusPlus::Icons::keywordIcon());
+            item->setCompletionOperator(m_completionOperator);
+            completions.append(item);
+        }
+        TextEditor::GenericProposalModelPtr model(new TextEditor::GenericProposalModel);
+        model->loadContent(completions);
+        const auto proposal = new TextEditor::GenericProposal(m_position, model);
+        if (m_handler) {
+            m_handler(proposal);
+            return nullptr;
+        }
+        return proposal;
+    }
+
+    const int m_position;
+    const unsigned m_completionOperator;
+    const ProposalHandler m_handler;
+};
+
+class DoxygenAssistProvider : public TextEditor::IAssistProvider
+{
+public:
+    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
+
+    void setParameters(int position, unsigned completionOperator)
+    {
+        m_position = position;
+        m_completionOperator = completionOperator;
+    }
+
+private:
+    RunType runType() const override { return Synchronous; }
+    TextEditor::IAssistProcessor *createProcessor() const override
+    {
+        return new DoxygenAssistProcessor(m_position, m_completionOperator, m_proposalHandler);
+    }
+
+    ProposalHandler m_proposalHandler;
+    int m_position = 0;
+    unsigned m_completionOperator = 0;
+};
+
 class ClangdClient::Private
 {
 public:
@@ -711,8 +776,13 @@ public:
     void handleSemanticTokens(TextEditor::TextDocument *doc,
                               const QList<ExpandedSemanticToken> &tokens);
 
+    void applyCompletionItem(const CompletionItem &item,
+                             TextEditor::TextDocumentManipulatorInterface &manipulator,
+                             QChar typedChar);
+
     ClangdClient * const q;
     const CppTools::ClangdSettings::Data settings;
+    DoxygenAssistProvider doxygenAssistProvider;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
@@ -722,6 +792,16 @@ public:
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
+};
+
+class ClangdCompletionCapabilities : public TextDocumentClientCapabilities::CompletionCapabilities
+{
+public:
+    explicit ClangdCompletionCapabilities(const JsonObject &object)
+        : TextDocumentClientCapabilities::CompletionCapabilities(object)
+    {
+        insert("editsNearCursor", true); // For dot-to-arrow correction.
+    }
 };
 
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
@@ -745,12 +825,15 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     Utils::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
     if (textCaps) {
         ClangdTextDocumentClientCapabilities clangdTextCaps(*textCaps);
-        clangdTextCaps.clearCompletion();
         clangdTextCaps.clearDocumentHighlight();
         DiagnosticsCapabilities diagnostics;
         diagnostics.enableCategorySupport();
         diagnostics.enableCodeActionsInline();
         clangdTextCaps.setPublishDiagnostics(diagnostics);
+        Utils::optional<TextDocumentClientCapabilities::CompletionCapabilities> completionCaps
+                = textCaps->completion();
+        if (completionCaps)
+            clangdTextCaps.setCompletion(ClangdCompletionCapabilities(*completionCaps));
         caps.setTextDocument(clangdTextCaps);
     }
     caps.clearExperimental();
@@ -799,6 +882,34 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const DocumentUri &uri) {
         gatherHelpItemForTooltip(response, uri);
+    });
+    setCompletionItemsTransformer([](const Utils::FilePath &filePath, const QString &content,
+                                     int pos,  const QList<CompletionItem> &items) {
+        qCDebug(clangdLog) << "received" << items.count() << "completions";
+
+        // If there are signals among the candidates, we employ the built-in code model to find out
+        // whether the cursor was on the second argument of a (dis)connect() call.
+        // If so, we offer only signals, as nothing else makes sense in that context.
+        static const auto criterion = [](const CompletionItem &ci) {
+            const Utils::optional<MarkupOrString> doc = ci.documentation();
+            if (!doc)
+                return false;
+            QString docText;
+            if (Utils::holds_alternative<QString>(*doc))
+                docText = Utils::get<QString>(*doc);
+            else if (Utils::holds_alternative<MarkupContent>(*doc))
+                docText = Utils::get<MarkupContent>(*doc).content();
+            return docText.contains("Annotation: qt_signal");
+        };
+        if (pos != -1 && Utils::anyOf(items, criterion) && CppTools::CppModelManager::instance()
+                ->positionRequiresSignal(filePath.toString(), content.toUtf8(), pos)) {
+            return Utils::filtered(items, criterion);
+        }
+        return items;
+    });
+    setCompletionApplyHelper([this](const CompletionItem &item,
+            TextEditor::TextDocumentManipulatorInterface &manipulator, QChar typedChar) {
+        d->applyCompletionItem(item, manipulator, typedChar);
     });
 
     connect(this, &Client::workDone, this,
@@ -900,8 +1011,6 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
     sendContent(symReq);
 }
 
-void ClangdClient::enableTesting() { d->isTesting = true; }
-
 void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();
@@ -1001,6 +1110,55 @@ void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
         refData->search->disconnect(q);
         finishSearch(*refData, true);
     });
+}
+
+void ClangdClient::enableTesting()
+{
+    d->isTesting = true;
+    setCompletionProposalHandler([this](TextEditor::IAssistProposal *proposal) {
+        emit proposalReady(proposal);
+    });
+    setFunctionHintProposalHandler([this](TextEditor::IAssistProposal *proposal) {
+        emit proposalReady(proposal);
+    });
+    d->doxygenAssistProvider.setProposalHandler([this](TextEditor::IAssistProposal *proposal) {
+        QMetaObject::invokeMethod(this, [this, proposal] { emit proposalReady(proposal); },
+                                  Qt::QueuedConnection);
+    });
+}
+
+void ClangdClient::openEditorDocument(TextEditor::BaseTextEditor *editor)
+{
+    if (!documentOpen(editor->textDocument()))
+        openDocument(editor->textDocument());
+    const auto assistRequestHandler = [self = QPointer(this)](
+            TextEditor::TextEditorWidget *editorWidget, TextEditor::AssistKind kind,
+            TextEditor::IAssistProvider *provider) {
+        if (!self)
+            return false;
+        if (kind != TextEditor::Completion || provider)
+            return false;
+        ClangCompletionContextAnalyzer contextAnalyzer(editorWidget->document(),
+                                                       editorWidget->position(), false, {});
+        contextAnalyzer.analyze();
+        self->setSnippetsGroup(contextAnalyzer.addSnippets()
+                               ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID : QString());
+        switch (contextAnalyzer.completionAction()) {
+        case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
+            qCDebug(clangdLog) << "completion changed to function hint";
+            editorWidget->invokeAssist(TextEditor::FunctionHint, provider);
+            return true;
+        case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
+            self->d->doxygenAssistProvider.setParameters(contextAnalyzer.positionForProposal(),
+                                                         contextAnalyzer.completionOperator());
+            editorWidget->invokeAssist(kind, &self->d->doxygenAssistProvider);
+            return true;
+        default:
+            break;
+        }
+        return false;
+    };
+    editor->editorWidget()->setAssistRequestHandler(assistRequestHandler);
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
@@ -2414,7 +2572,7 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
 void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
                                                  const QList<ExpandedSemanticToken> &tokens)
 {
-    qCDebug(clangdLog()) << "handling LSP tokens" << tokens.size();
+    qCDebug(clangdLog()) << "handling LSP tokens" << doc->filePath() << tokens.size();
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
@@ -2437,8 +2595,8 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         if (isTesting) {
             const auto watcher = new QFutureWatcher<TextEditor::HighlightingResult>(q);
             connect(watcher, &QFutureWatcher<TextEditor::HighlightingResult>::finished,
-                    q, [this, watcher] {
-                emit q->highlightingResultsReady(watcher->future().results());
+                    q, [this, watcher, fp = doc->filePath()] {
+                emit q->highlightingResultsReady(watcher->future().results(), fp);
                 watcher->deleteLater();
             });
             watcher->setFuture(runner());
@@ -2455,6 +2613,125 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         it->second.run();
     });
     q->sendContent(astReq, SendDocUpdates::Ignore);
+}
+
+void ClangdClient::Private::applyCompletionItem(const CompletionItem &item,
+        TextEditor::TextDocumentManipulatorInterface &manipulator, QChar typedChar)
+{
+    const auto edit = item.textEdit();
+    if (!edit)
+        return;
+
+    const auto kind = static_cast<CompletionItemKind::Kind>(
+                item.kind().value_or(CompletionItemKind::Text));
+    if (kind != CompletionItemKind::Function && kind != CompletionItemKind::Method
+            && kind != CompletionItemKind::Constructor) {
+        applyTextEdit(manipulator, *edit, true);
+        return;
+    }
+
+    const QString rawInsertText = edit->newText();
+    const int firstParenOffset = rawInsertText.indexOf('(');
+    const int lastParenOffset = rawInsertText.lastIndexOf(')');
+    if (firstParenOffset == -1 || lastParenOffset == -1) {
+        applyTextEdit(manipulator, *edit, true);
+        return;
+    }
+
+    const QString detail = item.detail().value_or(QString());
+    const TextEditor::CompletionSettings &completionSettings
+            = TextEditor::TextEditorSettings::completionSettings();
+    QString textToBeInserted = rawInsertText.left(firstParenOffset);
+    QString extraCharacters;
+    int cursorOffset = 0;
+    bool setAutoCompleteSkipPos = false;
+    const QTextDocument * const doc = manipulator.textCursorAt(
+                manipulator.currentPosition()).document();
+    const Range range = edit->range();
+    const int rangeStart = range.start().toPositionInDocument(doc);
+    const int rangeLength = range.end().toPositionInDocument(doc) - rangeStart;
+
+    if (completionSettings.m_autoInsertBrackets) {
+        // If the user typed the opening parenthesis, they'll likely also type the closing one,
+        // in which case it would be annoying if we put the cursor after the already automatically
+        // inserted closing parenthesis.
+        const bool skipClosingParenthesis = typedChar != '(';
+        QTextCursor cursor = manipulator.textCursorAt(rangeStart);
+
+        bool abandonParen = false;
+        if (matchPreviousWord(manipulator, cursor, "&")) {
+            moveToPreviousWord(manipulator, cursor);
+            moveToPreviousChar(manipulator, cursor);
+            const QChar prevChar = manipulator.characterAt(cursor.position());
+            cursor.setPosition(rangeStart);
+            abandonParen = QString("(;,{}=").contains(prevChar);
+        }
+        if (!abandonParen)
+            abandonParen = isAtUsingDeclaration(manipulator, rangeStart);
+        if (!abandonParen && matchPreviousWord(manipulator, cursor, detail)) // function definition?
+            abandonParen = true;
+        if (!abandonParen) {
+            if (completionSettings.m_spaceAfterFunctionName)
+                extraCharacters += ' ';
+            extraCharacters += '(';
+            if (typedChar == '(')
+                typedChar = {};
+
+            // If the function doesn't return anything, automatically place the semicolon,
+            // unless we're doing a scope completion (then it might be function definition).
+            const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
+            bool endWithSemicolon = typedChar == ';';
+            const QChar semicolon = typedChar.isNull() ? QLatin1Char(';') : typedChar;
+            if (endWithSemicolon && characterAtCursor == semicolon) {
+                endWithSemicolon = false;
+                typedChar = {};
+            }
+
+            // If the function takes no arguments, automatically place the closing parenthesis
+            if (firstParenOffset + 1 == lastParenOffset && skipClosingParenthesis) {
+                extraCharacters += QLatin1Char(')');
+                if (endWithSemicolon) {
+                    extraCharacters += semicolon;
+                    typedChar = {};
+                }
+            } else {
+                const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
+                if (MatchingText::shouldInsertMatchingText(lookAhead)) {
+                    extraCharacters += ')';
+                    --cursorOffset;
+                    setAutoCompleteSkipPos = true;
+                    if (endWithSemicolon) {
+                        extraCharacters += semicolon;
+                        --cursorOffset;
+                        typedChar = {};
+                    }
+                }
+            }
+        }
+    }
+
+    // Append an unhandled typed character, adjusting cursor offset when it had been adjusted before
+    if (!typedChar.isNull()) {
+        extraCharacters += typedChar;
+        if (cursorOffset != 0)
+            --cursorOffset;
+    }
+
+    textToBeInserted += extraCharacters;
+
+    const bool isReplaced = manipulator.replace(rangeStart, rangeLength, textToBeInserted);
+    manipulator.setCursorPosition(rangeStart + textToBeInserted.length());
+    if (isReplaced) {
+        if (cursorOffset)
+            manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+        if (setAutoCompleteSkipPos)
+            manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+    }
+
+    if (auto additionalEdits = item.additionalTextEdits()) {
+        for (const auto &edit : *additionalEdits)
+            applyTextEdit(manipulator, edit);
+    }
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()

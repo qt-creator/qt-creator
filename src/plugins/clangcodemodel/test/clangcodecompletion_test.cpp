@@ -105,7 +105,7 @@ public:
     TestDocument(const QByteArray &fileName, CppTools::Tests::TemporaryDir *temporaryDir = nullptr)
     {
         QTC_ASSERT(!fileName.isEmpty(), return);
-        const QResource resource(qrcPath(fileName));
+        const QResource resource(qrcPath("completion/" + fileName));
         QTC_ASSERT(resource.isValid(), return);
         const QByteArray contents = QByteArray(reinterpret_cast<const char*>(resource.data()),
                                                resource.size());
@@ -534,7 +534,7 @@ void ClangCodeCompletionTest::testCompletePreprocessorKeywords()
 
 void ClangCodeCompletionTest::testCompleteIncludeDirective()
 {
-    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("exampleIncludeDir"));
+    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("completion/exampleIncludeDir"));
     ProjectLessCompletionTest t("includeDirectiveCompletion.cpp",
                                 QString(),
                                 QStringList(testDir.path()));

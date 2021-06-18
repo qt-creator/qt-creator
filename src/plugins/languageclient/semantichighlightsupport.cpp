@@ -386,8 +386,11 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         m_tokens[filePath] = *tokens;
     } else if (auto tokensDelta = Utils::get_if<SemanticTokensDelta>(&result)) {
         QList<SemanticTokensEdit> edits = tokensDelta->edits();
-        if (edits.isEmpty())
+        if (edits.isEmpty()) {
+            if (m_highlightOnEmptyDelta)
+                highlight(filePath);
             return;
+        }
 
         Utils::sort(edits, &SemanticTokensEdit::start);
 

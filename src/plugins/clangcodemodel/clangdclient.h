@@ -36,7 +36,7 @@
 namespace Core { class SearchResultItem; }
 namespace CppTools { class CppEditorWidgetInterface; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class TextDocument; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -51,6 +51,8 @@ public:
     bool isFullyIndexed() const;
     QVersionNumber versionNumber() const;
     CppTools::ClangdSettings::Data settingsData() const;
+
+    void openEditorDocument(TextEditor::BaseTextEditor *editor);
 
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);
@@ -83,7 +85,9 @@ signals:
     void foundReferences(const QList<Core::SearchResultItem> &items);
     void findUsagesDone();
     void helpItemGathered(const Core::HelpItem &helpItem);
-    void highlightingResultsReady(const TextEditor::HighlightingResults &results);
+    void highlightingResultsReady(const TextEditor::HighlightingResults &results,
+                                  const Utils::FilePath &file);
+    void proposalReady(TextEditor::IAssistProposal *proposal);
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;

@@ -41,7 +41,9 @@ namespace Internal {
 class ActivationSequenceContextProcessor
 {
 public:
-    ActivationSequenceContextProcessor(const ClangCompletionAssistInterface *assistInterface);
+    ActivationSequenceContextProcessor(QTextDocument *document, int position,
+                                       CPlusPlus::LanguageFeatures languageFeatures);
+    ActivationSequenceContextProcessor(const ClangCompletionAssistInterface *interface);
 
     CPlusPlus::Kind completionKind() const;
     int startOfNamePosition() const;   // e.g. points to 'b' in "foo.bar<CURSOR>"
@@ -50,10 +52,10 @@ public:
     const QTextCursor &textCursor_forTestOnly() const;
 
     enum class NameCategory { Function, NonFunction };
-    static int findStartOfName(const TextEditor::AssistInterface *assistInterface,
+    static int findStartOfName(const QTextDocument *document,
                                int startPosition,
                                NameCategory category = NameCategory::NonFunction);
-    static int skipPrecedingWhitespace(const TextEditor::AssistInterface *assistInterface,
+    static int skipPrecedingWhitespace(const QTextDocument *document,
                                        int startPosition);
 
 protected:
@@ -78,7 +80,8 @@ private:
     QVector<CPlusPlus::Token> m_tokens;
     QTextCursor m_textCursor;
     CPlusPlus::Token m_token;
-    const ClangCompletionAssistInterface *m_assistInterface;
+    QTextDocument * const m_document;
+    const CPlusPlus::LanguageFeatures m_languageFeatures;
     int m_tokenIndex;
     const int m_positionInDocument;
     int m_startOfNamePosition;

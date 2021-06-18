@@ -1007,8 +1007,8 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
 {
     if (kind == Completion || kind == FunctionHint) {
         CppCompletionAssistProvider * const cap = kind == Completion
-                ? cppEditorDocument()->completionAssistProvider()
-                : cppEditorDocument()->functionHintAssistProvider();
+                ? qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())
+                : qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->functionHintAssistProvider());
         if (cap) {
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
@@ -1019,6 +1019,8 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
                                               features,
                                               position(),
                                               reason);
+        } else {
+            return TextEditorWidget::createAssistInterface(kind, reason);
         }
     } else if (kind == QuickFix) {
         if (isSemanticInfoValid())

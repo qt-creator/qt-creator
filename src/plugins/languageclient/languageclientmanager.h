@@ -99,6 +99,7 @@ public:
     static void showInspector();
 
 signals:
+    void clientRemoved(Client *client);
     void shutdownFinished();
 
 private:

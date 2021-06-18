@@ -68,24 +68,33 @@ namespace Internal {
 ClangCompletionContextAnalyzer::ClangCompletionContextAnalyzer(
         const ClangCompletionAssistInterface *assistInterface,
         CPlusPlus::LanguageFeatures languageFeatures)
-    : m_interface(assistInterface)
-    , m_languageFeatures(languageFeatures)
+    : ClangCompletionContextAnalyzer(assistInterface->textDocument(), assistInterface->position(),
+                                     assistInterface->type() == CompletionType::FunctionHint,
+                                     languageFeatures)
+{
+}
+
+ClangCompletionContextAnalyzer::ClangCompletionContextAnalyzer(
+        QTextDocument *document, int position, bool isFunctionHint,
+        CPlusPlus::LanguageFeatures languageFeatures)
+    : m_document(document), m_position(position), m_isFunctionHint(isFunctionHint),
+      m_languageFeatures(languageFeatures)
 {
 }
 
 void ClangCompletionContextAnalyzer::analyze()
 {
-    QTC_ASSERT(m_interface, return);
+    QTC_ASSERT(m_document, return);
     setActionAndClangPosition(PassThroughToLibClang, -1);
 
-    ActivationSequenceContextProcessor activationSequenceContextProcessor(m_interface);
+    ActivationSequenceContextProcessor activationSequenceContextProcessor(
+                m_document, m_position, m_languageFeatures);
     m_completionOperator = activationSequenceContextProcessor.completionKind();
     int afterOperatorPosition = activationSequenceContextProcessor.startOfNamePosition();
     m_positionEndOfExpression = activationSequenceContextProcessor.operatorStartPosition();
     m_positionForProposal = activationSequenceContextProcessor.startOfNamePosition();
 
-    const bool actionIsSet = m_interface->type() != CompletionType::FunctionHint
-            && handleNonFunctionCall(afterOperatorPosition);
+    const bool actionIsSet = !m_isFunctionHint && handleNonFunctionCall(afterOperatorPosition);
     if (!actionIsSet) {
         handleCommaInFunctionCall();
         handleFunctionCall(afterOperatorPosition);
@@ -94,20 +103,20 @@ void ClangCompletionContextAnalyzer::analyze()
 
 int ClangCompletionContextAnalyzer::startOfFunctionCall(int endOfOperator) const
 {
-    int index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface,
+    int index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_document,
                                                                             endOfOperator);
-    QTextCursor textCursor(m_interface->textDocument());
+    QTextCursor textCursor(m_document);
     textCursor.setPosition(index);
 
     ExpressionUnderCursor euc(m_languageFeatures);
     index = euc.startOfFunctionCall(textCursor);
-    index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface, index);
+    index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_document, index);
     const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(
-        m_interface, index, ActivationSequenceContextProcessor::NameCategory::Function);
+        m_document, index, ActivationSequenceContextProcessor::NameCategory::Function);
     if (functionNameStart == -1)
         return -1;
 
-    QTextCursor functionNameSelector(m_interface->textDocument());
+    QTextCursor functionNameSelector(m_document);
     functionNameSelector.setPosition(functionNameStart);
     functionNameSelector.setPosition(index, QTextCursor::KeepAnchor);
     const QString functionName = functionNameSelector.selectedText().trimmed();
@@ -137,12 +146,12 @@ void ClangCompletionContextAnalyzer::handleCommaInFunctionCall()
 {
     if (m_completionOperator == T_COMMA) {
         ExpressionUnderCursor expressionUnderCursor(m_languageFeatures);
-        QTextCursor textCursor(m_interface->textDocument());
+        QTextCursor textCursor(m_document);
         textCursor.setPosition(m_positionEndOfExpression);
         const int start = expressionUnderCursor.startOfFunctionCall(textCursor);
         m_positionEndOfExpression = start;
         m_positionForProposal = start + 1; // After '(' of function call
-        if (m_interface->characterAt(start) == '(')
+        if (m_document->characterAt(start) == '(')
             m_completionOperator = T_LPAREN;
         else
             m_completionOperator = T_LBRACE;
@@ -151,7 +160,7 @@ void ClangCompletionContextAnalyzer::handleCommaInFunctionCall()
 
 void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPosition)
 {
-    if (m_interface->type() == CompletionType::FunctionHint) {
+    if (m_isFunctionHint) {
         const int functionNameStart = startOfFunctionCall(afterOperatorPosition);
         if (functionNameStart >= 0) {
             m_addSnippets = functionNameStart == afterOperatorPosition;
@@ -166,15 +175,20 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
 
     if (m_completionOperator == T_LPAREN || m_completionOperator == T_LBRACE) {
         ExpressionUnderCursor expressionUnderCursor(m_languageFeatures);
-        QTextCursor textCursor(m_interface->textDocument());
+        QTextCursor textCursor(m_document);
         textCursor.setPosition(m_positionEndOfExpression);
         const QString expression = expressionUnderCursor(textCursor);
+        const QString trimmedExpression = expression.trimmed();
+        const QChar lastExprChar = trimmedExpression.isEmpty()
+                ? QChar() : trimmedExpression.at(trimmedExpression.length() - 1);
+        const bool mightBeConstructorCall = lastExprChar != ')';
 
         if (expression.endsWith(QLatin1String("SIGNAL"))) {
             setActionAndClangPosition(CompleteSignal, afterOperatorPosition);
         } else if (expression.endsWith(QLatin1String("SLOT"))) {
             setActionAndClangPosition(CompleteSlot, afterOperatorPosition);
-        } else if (m_interface->position() != afterOperatorPosition) {
+        } else if (m_position != afterOperatorPosition
+                   || (m_completionOperator == T_LBRACE && !mightBeConstructorCall)) {
             // No function completion if cursor is not after '(' or ','
             m_addSnippets = true;
             m_positionForProposal = afterOperatorPosition;

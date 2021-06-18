@@ -30,16 +30,19 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/SimpleLexer.h>
+#include <utils/textutils.h>
 
 #include <QTextDocument>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(const ClangCompletionAssistInterface *assistInterface)
-    : m_textCursor(assistInterface->textDocument()),
-      m_assistInterface(assistInterface),
-      m_positionInDocument(assistInterface->position()),
+ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(
+        QTextDocument *document, int position, CPlusPlus::LanguageFeatures languageFeatures)
+    : m_textCursor(document),
+      m_document(document),
+      m_languageFeatures(languageFeatures),
+      m_positionInDocument(position),
       m_startOfNamePosition(m_positionInDocument),
       m_operatorStartPosition(m_positionInDocument)
 
@@ -47,6 +50,13 @@ ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(const Cla
     m_textCursor.setPosition(m_positionInDocument);
 
     process();
+}
+
+ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(
+        const ClangCompletionAssistInterface *interface)
+    : ActivationSequenceContextProcessor(interface->textDocument(), interface->position(),
+                                         interface->languageFeatures())
+{
 }
 
 CPlusPlus::Kind ActivationSequenceContextProcessor::completionKind() const
@@ -91,8 +101,9 @@ void ActivationSequenceContextProcessor::process()
 
 void ActivationSequenceContextProcessor::processActivationSequence()
 {
-    const int nonSpacePosition = skipPrecedingWhitespace(m_assistInterface, m_startOfNamePosition);
-    const auto activationSequence = m_assistInterface->textAt(nonSpacePosition - 3, 3);
+    const int nonSpacePosition = skipPrecedingWhitespace(m_document, m_startOfNamePosition);
+    const auto activationSequence = Utils::Text::textAt(QTextCursor(m_document),
+                                                        nonSpacePosition - 3, 3);
     ActivationSequenceProcessor activationSequenceProcessor(activationSequence,
                                                             nonSpacePosition,
                                                             true);
@@ -115,7 +126,7 @@ void ActivationSequenceContextProcessor::processStringLiteral()
 void ActivationSequenceContextProcessor::processComma()
 {
     if (m_completionKind == CPlusPlus::T_COMMA) {
-        CPlusPlus::ExpressionUnderCursor expressionUnderCursor(m_assistInterface->languageFeatures());
+        CPlusPlus::ExpressionUnderCursor expressionUnderCursor(m_languageFeatures);
         if (expressionUnderCursor.startOfFunctionCall(m_textCursor) == -1)
             m_completionKind = CPlusPlus::T_EOF_SYMBOL;
     }
@@ -124,7 +135,7 @@ void ActivationSequenceContextProcessor::processComma()
 void ActivationSequenceContextProcessor::generateTokens()
 {
     CPlusPlus::SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(m_assistInterface->languageFeatures());
+    tokenize.setLanguageFeatures(m_languageFeatures);
     tokenize.setSkipComments(false);
     auto state = CPlusPlus::BackwardsScanner::previousBlockState(m_textCursor.block());
     m_tokens = tokenize(m_textCursor.block().text(), state);
@@ -222,12 +233,11 @@ void ActivationSequenceContextProcessor::resetPositionsForEOFCompletionKind()
         m_operatorStartPosition = m_positionInDocument;
 }
 
-int ActivationSequenceContextProcessor::skipPrecedingWhitespace(
-        const TextEditor::AssistInterface *assistInterface,
-        int startPosition)
+int ActivationSequenceContextProcessor::skipPrecedingWhitespace(const QTextDocument *document,
+                                                                int startPosition)
 {
     int position = startPosition;
-    while (assistInterface->characterAt(position - 1).isSpace())
+    while (document->characterAt(position - 1).isSpace())
         --position;
     return position;
 }
@@ -241,7 +251,7 @@ static bool isValidIdentifierChar(const QChar &character)
 }
 
 int ActivationSequenceContextProcessor::findStartOfName(
-        const TextEditor::AssistInterface *assistInterface,
+        const QTextDocument *document,
         int startPosition,
         NameCategory category)
 {
@@ -249,32 +259,32 @@ int ActivationSequenceContextProcessor::findStartOfName(
     QChar character;
 
     if (category == NameCategory::Function
-            && position > 2 && assistInterface->characterAt(position - 1) == '>'
-            && assistInterface->characterAt(position - 2) != '-') {
+            && position > 2 && document->characterAt(position - 1) == '>'
+            && document->characterAt(position - 2) != '-') {
         uint unbalancedLessGreater = 1;
         --position;
         while (unbalancedLessGreater > 0 && position > 2) {
-            character = assistInterface->characterAt(--position);
+            character = document->characterAt(--position);
             // Do not count -> usage inside temlate argument list
             if (character == '<')
                 --unbalancedLessGreater;
-            else if (character == '>' && assistInterface->characterAt(position-1) != '-')
+            else if (character == '>' && document->characterAt(position-1) != '-')
                 ++unbalancedLessGreater;
         }
-        position = skipPrecedingWhitespace(assistInterface, position) - 1;
+        position = skipPrecedingWhitespace(document, position) - 1;
     }
 
     do {
-        character = assistInterface->characterAt(--position);
+        character = document->characterAt(--position);
     } while (isValidIdentifierChar(character));
 
-    int prevPosition = skipPrecedingWhitespace(assistInterface, position);
+    int prevPosition = skipPrecedingWhitespace(document, position);
     if (category == NameCategory::Function
-            && assistInterface->characterAt(prevPosition) == ':'
-            && assistInterface->characterAt(prevPosition - 1) == ':') {
+            && document->characterAt(prevPosition) == ':'
+            && document->characterAt(prevPosition - 1) == ':') {
         // Handle :: case - go recursive
-        prevPosition = skipPrecedingWhitespace(assistInterface, prevPosition - 2);
-        return findStartOfName(assistInterface, prevPosition + 1, category);
+        prevPosition = skipPrecedingWhitespace(document, prevPosition - 2);
+        return findStartOfName(document, prevPosition + 1, category);
     }
 
     return position + 1;
@@ -283,7 +293,7 @@ int ActivationSequenceContextProcessor::findStartOfName(
 void ActivationSequenceContextProcessor::goBackToStartOfName()
 {
     CPlusPlus::SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(m_assistInterface->languageFeatures());
+    tokenize.setLanguageFeatures(m_languageFeatures);
     tokenize.setSkipComments(false);
     const int state = CPlusPlus::BackwardsScanner::previousBlockState(m_textCursor.block());
     const CPlusPlus::Tokens tokens = tokenize(m_textCursor.block().text(), state);
@@ -297,7 +307,7 @@ void ActivationSequenceContextProcessor::goBackToStartOfName()
         m_startOfNamePosition = m_textCursor.block().position() + std::max(slashIndex, tokenStart)
                 + 1;
     } else {
-        m_startOfNamePosition = findStartOfName(m_assistInterface, m_positionInDocument);
+        m_startOfNamePosition = findStartOfName(m_document, m_positionInDocument);
     }
 
     if (m_startOfNamePosition != m_positionInDocument)

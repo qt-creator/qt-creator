@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,42 +23,14 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "mainwindow.h"
+#include <QApplication>
 
-#include <texteditor/codeassist/completionassistprovider.h>
-#include <utils/optional.h>
-
-namespace TextEditor { class IAssistProposal; }
-
-namespace LanguageClient {
-
-class Client;
-
-using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
-
-class FunctionHintAssistProvider : public TextEditor::CompletionAssistProvider
+int main(int argc, char *argv[])
 {
-    Q_OBJECT
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
-public:
-    explicit FunctionHintAssistProvider(Client *client);
-
-    TextEditor::IAssistProcessor *createProcessor() const override;
-    RunType runType() const override;
-
-    int activationCharSequenceLength() const override;
-    bool isActivationCharSequence(const QString &sequence) const override;
-    bool isContinuationChar(const QChar &c) const override;
-
-    void setTriggerCharacters(const Utils::optional<QList<QString>> &triggerChars);
-
-    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
-
-private:
-    QList<QString> m_triggerChars;
-    ProposalHandler m_proposalHandler;
-    int m_activationCharSequenceLength = 0;
-    Client *m_client = nullptr; // not owned
-};
-
-} // namespace LanguageClient
+    return a.exec();
+}

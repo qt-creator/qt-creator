@@ -276,7 +276,7 @@ Position::Position(const QTextCursor &cursor)
     : Position(cursor.blockNumber(), cursor.positionInBlock())
 { }
 
-int Position::toPositionInDocument(QTextDocument *doc) const
+int Position::toPositionInDocument(const QTextDocument *doc) const
 {
     const QTextBlock block = doc->findBlockByNumber(line());
     if (!block.isValid())

@@ -84,7 +84,8 @@ QString FunctionHintProposalModel::text(int index) const
 class FunctionHintProcessor : public IAssistProcessor
 {
 public:
-    explicit FunctionHintProcessor(Client *client) : m_client(client) {}
+    explicit FunctionHintProcessor(Client *client, const ProposalHandler &proposalHandler)
+        : m_client(client), m_proposalHandler(proposalHandler) {}
     IAssistProposal *perform(const AssistInterface *interface) override;
     bool running() override { return m_currentRequest.has_value(); }
     bool needsRestart() const override { return true; }
@@ -92,8 +93,10 @@ public:
 
 private:
     void handleSignatureResponse(const SignatureHelpRequest::Response &response);
+    void processProposal(TextEditor::IAssistProposal *proposal);
 
     QPointer<Client> m_client;
+    const ProposalHandler m_proposalHandler;
     Utils::optional<MessageId> m_currentRequest;
     int m_pos = -1;
 };
@@ -129,16 +132,24 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
     m_client->removeAssistProcessor(this);
     auto result = response.result().value_or(LanguageClientValue<SignatureHelp>());
     if (result.isNull()) {
-        setAsyncProposalAvailable(nullptr);
+        processProposal(nullptr);
         return;
     }
     const SignatureHelp &signatureHelp = result.value();
     if (signatureHelp.signatures().isEmpty()) {
-        setAsyncProposalAvailable(nullptr);
+        processProposal(nullptr);
     } else {
         FunctionHintProposalModelPtr model(new FunctionHintProposalModel(signatureHelp));
-        setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
+        processProposal(new FunctionHintProposal(m_pos, model));
     }
+}
+
+void FunctionHintProcessor::processProposal(IAssistProposal *proposal)
+{
+    if (m_proposalHandler)
+        m_proposalHandler(proposal);
+    else
+        setAsyncProposalAvailable(proposal);
 }
 
 FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
@@ -148,7 +159,7 @@ FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
 
 TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor() const
 {
-    return new FunctionHintProcessor(m_client);
+    return new FunctionHintProcessor(m_client, m_proposalHandler);
 }
 
 IAssistProvider::RunType FunctionHintAssistProvider::runType() const

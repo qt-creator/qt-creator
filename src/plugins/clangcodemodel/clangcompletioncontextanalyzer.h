@@ -29,6 +29,10 @@
 
 #include <QString>
 
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
+
 namespace TextEditor { class AssistInterface; }
 
 namespace ClangCodeModel {
@@ -41,6 +45,8 @@ class ClangCompletionContextAnalyzer
 public:
     ClangCompletionContextAnalyzer() = delete;
     ClangCompletionContextAnalyzer(const ClangCompletionAssistInterface *assistInterface,
+                                   CPlusPlus::LanguageFeatures languageFeatures);
+    ClangCompletionContextAnalyzer(QTextDocument *document, int position, bool isFunctionHint,
                                    CPlusPlus::LanguageFeatures languageFeatures);
     void analyze();
 
@@ -75,8 +81,10 @@ private:
     void handleFunctionCall(int endOfOperator);
 
 private:
-    const ClangCompletionAssistInterface *m_interface; // Not owned
-    const CPlusPlus::LanguageFeatures m_languageFeatures; // TODO: Get from assistInterface?!
+    QTextDocument * const m_document;
+    const int m_position;
+    const bool m_isFunctionHint;
+    const CPlusPlus::LanguageFeatures m_languageFeatures;
 
     // Results
     CompletionAction m_completionAction = PassThroughToLibClang;

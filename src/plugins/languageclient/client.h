@@ -183,12 +183,21 @@ public:
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
+    void setCompletionItemsTransformer(const CompletionItemsTransformer &transformer);
+    void setCompletionApplyHelper(const CompletionApplyHelper &applyHelper);
+    void setCompletionProposalHandler(const ProposalHandler &handler);
+    void setFunctionHintProposalHandler(const ProposalHandler &handler);
+    void setSnippetsGroup(const QString &group);
 
     // logging
     void log(const QString &message) const;
     template<typename Error>
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
     { log(responseError.toString()); }
+
+#ifdef WITH_TESTS
+    void forceHighlightingOnEmptyDelta();
+#endif
 
 signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);

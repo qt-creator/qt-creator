@@ -1017,6 +1017,13 @@ void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
     m_tokenSupport.setTokensHandler(handler);
 }
 
+#ifdef WITH_TESTS
+void Client::forceHighlightingOnEmptyDelta()
+{
+    m_tokenSupport.forceHighlightingOnEmptyDelta();
+}
+#endif
+
 void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
 {
     m_symbolStringifier = stringifier;
@@ -1025,6 +1032,46 @@ void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifie
 SymbolStringifier Client::symbolStringifier() const
 {
     return m_symbolStringifier;
+}
+
+void Client::setCompletionItemsTransformer(const CompletionItemsTransformer &transformer)
+{
+    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
+                m_clientProviders.completionAssistProvider)) {
+        provider->setItemsTransformer(transformer);
+    }
+}
+
+void Client::setCompletionApplyHelper(const CompletionApplyHelper &applyHelper)
+{
+    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
+                m_clientProviders.completionAssistProvider)) {
+        provider->setApplyHelper(applyHelper);
+    }
+}
+
+void Client::setCompletionProposalHandler(const ProposalHandler &handler)
+{
+    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
+                m_clientProviders.completionAssistProvider)) {
+        provider->setProposalHandler(handler);
+    }
+}
+
+void Client::setFunctionHintProposalHandler(const ProposalHandler &handler)
+{
+    if (const auto provider = qobject_cast<FunctionHintAssistProvider *>(
+                m_clientProviders.functionHintProvider)) {
+        provider->setProposalHandler(handler);
+    }
+}
+
+void Client::setSnippetsGroup(const QString &group)
+{
+    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
+                m_clientProviders.completionAssistProvider)) {
+        provider->setSnippetsGroup(group);
+    }
 }
 
 void Client::start()

@@ -27,11 +27,13 @@
 
 #include <cpptools/cpptoolstestcase.h>
 #include <coreplugin/find/searchresultitem.h>
+#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/semantichighlighter.h>
 #include <utils/fileutils.h>
 
 #include <QHash>
 #include <QObject>
+#include <QSet>
 #include <QStringList>
 
 namespace ProjectExplorer {
@@ -63,6 +65,8 @@ protected:
     TextEditor::TextDocument *document(const QString &fileName) const {
         return m_sourceDocuments.value(fileName);
     }
+    ProjectExplorer::Project *project() const { return m_project; }
+    void waitForNewClient(bool withIndex = true);
 
 protected slots:
     virtual void initTestCase();
@@ -140,6 +144,54 @@ private slots:
 
 private:
     TextEditor::HighlightingResults m_results;
+};
+
+class ClangdTestCompletion : public ClangdTest
+{
+    Q_OBJECT
+public:
+    ClangdTestCompletion();
+
+private slots:
+    void initTestCase() override;
+
+    void testCompleteDoxygenKeywords();
+    void testCompletePreprocessorKeywords();
+    void testCompleteIncludeDirective();
+
+    void testCompleteGlobals();
+    void testCompleteMembers();
+    void testCompleteMembersFromInside();
+    void testCompleteMembersFromOutside();
+    void testCompleteMembersFromFriend();
+    void testFunctionAddress();
+    void testFunctionHints();
+    void testFunctionHintsFiltered();
+    void testFunctionHintConstructor();
+    void testCompleteClassAndConstructor();
+
+    void testCompleteWithDotToArrowCorrection();
+    void testDontCompleteWithDotToArrowCorrectionForFloats();
+
+    void testCompleteCodeInGeneratedUiFile();
+
+    void testSignalCompletion_data();
+    void testSignalCompletion();
+
+    void testCompleteAfterProjectChange();
+
+private:
+    void startCollectingHighlightingInfo();
+    void getProposal(const QString &fileName, TextEditor::ProposalModelPtr &proposalModel,
+                     const QString &insertString = {}, int *cursorPos = nullptr);
+    static bool hasItem(TextEditor::ProposalModelPtr model, const QString &text,
+                        const QString &detail = {});
+    static bool hasSnippet(TextEditor::ProposalModelPtr model, const QString &text);
+    static int itemsWithText(TextEditor::ProposalModelPtr model, const QString &text);
+    static TextEditor::AssistProposalItemInterface *getItem(
+            TextEditor::ProposalModelPtr model, const QString &text, const QString &detail = {});
+
+    QSet<Utils::FilePath> m_documentsWithHighlighting;
 };
 
 } // namespace Tests

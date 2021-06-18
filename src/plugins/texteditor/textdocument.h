@@ -142,9 +142,9 @@ public:
 
     virtual void triggerPendingUpdates();
 
-    void setCompletionAssistProvider(CompletionAssistProvider *provider);
+    virtual void setCompletionAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *completionAssistProvider() const;
-    void setFunctionHintAssistProvider(CompletionAssistProvider *provider);
+    virtual void setFunctionHintAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *functionHintAssistProvider() const;
     void setQuickFixAssistProvider(IAssistProvider *provider) const;
     virtual IAssistProvider *quickFixAssistProvider() const;

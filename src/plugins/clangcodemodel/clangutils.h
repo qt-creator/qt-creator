@@ -42,6 +42,8 @@ class ClangDiagnosticConfig;
 class CppEditorDocumentHandle;
 }
 
+namespace TextEditor { class TextDocumentManipulatorInterface; }
+
 namespace ClangBackEnd { class TokenInfoContainer; }
 
 namespace ProjectExplorer { class Project; }
@@ -107,7 +109,7 @@ private:
 };
 
 template <class CharacterProvider>
-void moveToPreviousChar(CharacterProvider &provider, QTextCursor &cursor)
+void moveToPreviousChar(const CharacterProvider &provider, QTextCursor &cursor)
 {
     cursor.movePosition(QTextCursor::PreviousCharacter);
     while (provider.characterAt(cursor.position()).isSpace())
@@ -123,7 +125,7 @@ void moveToPreviousWord(CharacterProvider &provider, QTextCursor &cursor)
 }
 
 template <class CharacterProvider>
-bool matchPreviousWord(CharacterProvider &provider, QTextCursor cursor, QString pattern)
+bool matchPreviousWord(const CharacterProvider &provider, QTextCursor cursor, QString pattern)
 {
     cursor.movePosition(QTextCursor::PreviousWord);
     while (provider.characterAt(cursor.position()) == ':')
@@ -150,6 +152,12 @@ bool matchPreviousWord(CharacterProvider &provider, QTextCursor cursor, QString 
     }
     return pattern.isEmpty();
 }
+
+QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                   int startPosition);
+
+bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                          int basePosition);
 
 } // namespace Internal
 } // namespace Clang

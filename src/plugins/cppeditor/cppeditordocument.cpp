@@ -137,14 +137,28 @@ bool CppEditorDocument::isObjCEnabled() const
     return m_isObjCEnabled;
 }
 
-CppTools::CppCompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
+void CppEditorDocument::setCompletionAssistProvider(TextEditor::CompletionAssistProvider *provider)
 {
-    return m_completionAssistProvider;
+    TextDocument::setCompletionAssistProvider(provider);
+    m_completionAssistProvider = nullptr;
 }
 
-CppTools::CppCompletionAssistProvider *CppEditorDocument::functionHintAssistProvider() const
+void CppEditorDocument::setFunctionHintAssistProvider(TextEditor::CompletionAssistProvider *provider)
 {
-    return m_functionHintAssistProvider;
+    TextDocument::setFunctionHintAssistProvider(provider);
+    m_functionHintAssistProvider = nullptr;
+}
+
+CompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
+{
+    return m_completionAssistProvider
+            ? m_completionAssistProvider : TextDocument::completionAssistProvider();
+}
+
+CompletionAssistProvider *CppEditorDocument::functionHintAssistProvider() const
+{
+    return m_functionHintAssistProvider
+            ? m_functionHintAssistProvider : TextDocument::functionHintAssistProvider();
 }
 
 TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const

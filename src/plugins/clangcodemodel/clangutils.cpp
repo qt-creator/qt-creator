@@ -44,7 +44,9 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 
+#include <cplusplus/SimpleLexer.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -606,6 +608,42 @@ const QStringList optionsForProject(ProjectExplorer::Project *project)
     if (project)
         return getProjectSettings(project).commandLineOptions();
     return ClangProjectSettings::globalCommandLineOptions();
+}
+
+// 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;
+bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                          int basePosition)
+{
+    using namespace CPlusPlus;
+    SimpleLexer lexer;
+    lexer.setLanguageFeatures(LanguageFeatures::defaultFeatures());
+    const QString textToLex = textUntilPreviousStatement(manipulator, basePosition);
+    const Tokens tokens = lexer(textToLex);
+    if (tokens.empty())
+        return false;
+
+    // The nested-name-specifier always ends with "::", so check for this first.
+    const Token lastToken = tokens[tokens.size() - 1];
+    if (lastToken.kind() != T_COLON_COLON)
+        return false;
+
+    return contains(tokens, [](const Token &token) { return token.kind() == T_USING; });
+}
+
+QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                   int startPosition)
+{
+    static const QString stopCharacters(";{}#");
+
+    int endPosition = 0;
+    for (int i = startPosition; i >= 0 ; --i) {
+        if (stopCharacters.contains(manipulator.characterAt(i))) {
+            endPosition = i + 1;
+            break;
+        }
+    }
+
+    return manipulator.textAt(endPosition, startPosition - endPosition);
 }
 
 } // namespace Internal

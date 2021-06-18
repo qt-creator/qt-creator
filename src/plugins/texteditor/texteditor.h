@@ -288,6 +288,10 @@ public:
                               const TextMarks &marks,
                               const TextMark *mainTextMark = nullptr) const;
 
+    using AssistRequestHandler = std::function<bool(TextEditorWidget *editorWidget,
+            AssistKind assistKind, IAssistProvider *provider)>;
+    void setAssistRequestHandler(const AssistRequestHandler &handler);
+
     void invokeAssist(AssistKind assistKind, IAssistProvider *provider = nullptr);
 
     virtual TextEditor::AssistInterface *createAssistInterface(AssistKind assistKind,

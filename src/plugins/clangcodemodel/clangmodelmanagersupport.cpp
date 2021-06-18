@@ -334,8 +334,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                     continue;
                 if (fallbackClient && fallbackClient->documentOpen(editor->textDocument()))
                     fallbackClient->closeDocument(editor->textDocument());
-                if (!client->documentOpen(editor->textDocument()))
-                    client->openDocument(editor->textDocument());
+                client->openEditorDocument(editor);
                 ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
                 hasDocuments = true;
             }
@@ -429,8 +428,8 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
         //       instead. Is this feasible?
         ProjectExplorer::Project * const project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
-        if (Client * const client = clientForProject(project))
-            client->openDocument(textDocument);
+        if (ClangdClient * const client = clientForProject(project))
+            client->openEditorDocument(qobject_cast<TextEditor::BaseTextEditor *>(editor));
     }
 }
 

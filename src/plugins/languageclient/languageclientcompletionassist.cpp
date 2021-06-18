@@ -36,6 +36,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippet.h>
+#include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
@@ -58,7 +59,7 @@ namespace LanguageClient {
 class LanguageClientCompletionItem : public AssistProposalItemInterface
 {
 public:
-    LanguageClientCompletionItem(CompletionItem item);
+    LanguageClientCompletionItem(CompletionItem item, const CompletionApplyHelper &applyHelper);
 
     // AssistProposalItemInterface interface
     QString text() const override;
@@ -80,13 +81,15 @@ public:
 
 private:
     CompletionItem m_item;
+    const CompletionApplyHelper m_applyHelper;
     mutable QChar m_triggeredCommitCharacter;
     mutable QString m_sortText;
     mutable QString m_filterText;
 };
 
-LanguageClientCompletionItem::LanguageClientCompletionItem(CompletionItem item)
-    : m_item(std::move(item))
+LanguageClientCompletionItem::LanguageClientCompletionItem(CompletionItem item,
+                                                           const CompletionApplyHelper &applyHelper)
+    : m_item(std::move(item)), m_applyHelper(applyHelper)
 { }
 
 QString LanguageClientCompletionItem::text() const
@@ -107,10 +110,15 @@ bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacte
 void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
                                          int /*basePosition*/) const
 {
-    const int pos = manipulator.currentPosition();
+    if (m_applyHelper) {
+        m_applyHelper(m_item, manipulator, m_triggeredCommitCharacter);
+        return;
+    }
+
     if (auto edit = m_item.textEdit()) {
         applyTextEdit(manipulator, *edit, isSnippet());
     } else {
+        const int pos = manipulator.currentPosition();
         const QString textToInsert(m_item.insertText().value_or(text()));
         int length = 0;
         for (auto it = textToInsert.crbegin(), end = textToInsert.crend(); it != end; ++it) {
@@ -253,16 +261,22 @@ public:
     void sort(const QString &/*prefix*/) override;
     bool supportsPrefixExpansion() const override { return false; }
 
-    QList<LanguageClientCompletionItem *> items() const
-    { return Utils::static_container_cast<LanguageClientCompletionItem *>(m_currentItems); }
+    QList<AssistProposalItemInterface *> items() const { return m_currentItems; }
 };
 
 void LanguageClientCompletionModel::sort(const QString &/*prefix*/)
 {
     std::sort(m_currentItems.begin(), m_currentItems.end(),
               [] (AssistProposalItemInterface *a, AssistProposalItemInterface *b){
-        return *(dynamic_cast<LanguageClientCompletionItem *>(a)) < *(
-                    dynamic_cast<LanguageClientCompletionItem *>(b));
+        const auto lca = dynamic_cast<LanguageClientCompletionItem *>(a);
+        const auto lcb = dynamic_cast<LanguageClientCompletionItem *>(b);
+        if (!lca && !lcb)
+            return a->text() < b->text();
+        if (lca && lcb)
+            return *lca < *lcb;
+        if (lca && !lcb)
+            return true;
+        return false;
     });
 }
 
@@ -281,8 +295,10 @@ public:
             return false;
 
         return m_model->keepPerfectMatch(reason)
-                || !Utils::anyOf(m_model->items(), [this](LanguageClientCompletionItem *item){
-            return item->isPerfectMatch(m_pos, m_document);
+                || !Utils::anyOf(m_model->items(), [this](AssistProposalItemInterface *item){
+            if (const auto lcItem = dynamic_cast<LanguageClientCompletionItem *>(item))
+                return lcItem->isPerfectMatch(m_pos, m_document);
+            return false;
         });
     }
 
@@ -295,7 +311,11 @@ public:
 class LanguageClientCompletionAssistProcessor final : public IAssistProcessor
 {
 public:
-    LanguageClientCompletionAssistProcessor(Client *client);
+    LanguageClientCompletionAssistProcessor(Client *client,
+                                            const CompletionItemsTransformer &itemsTransformer,
+                                            const CompletionApplyHelper &applyHelper,
+                                            const ProposalHandler &proposalHandler,
+                                            const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
     IAssistProposal *perform(const AssistInterface *interface) override;
     bool running() override;
@@ -306,15 +326,23 @@ private:
     void handleCompletionResponse(const CompletionRequest::Response &response);
 
     QPointer<QTextDocument> m_document;
+    Utils::FilePath m_filePath;
     QPointer<Client> m_client;
     Utils::optional<MessageId> m_currentRequest;
     QMetaObject::Connection m_postponedUpdateConnection;
+    const CompletionItemsTransformer m_itemsTransformer;
+    const CompletionApplyHelper m_applyHelper;
+    const ProposalHandler m_proposalHandler;
+    const QString m_snippetsGroup;
     int m_pos = -1;
     int m_basePos = -1;
 };
 
-LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client)
-    : m_client(client)
+LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client,
+    const CompletionItemsTransformer &itemsTransformer, const CompletionApplyHelper &applyHelper,
+    const ProposalHandler &proposalHandler, const QString &snippetsGroup)
+    : m_client(client), m_itemsTransformer(itemsTransformer), m_applyHelper(applyHelper),
+      m_proposalHandler(proposalHandler), m_snippetsGroup(snippetsGroup)
 { }
 
 LanguageClientCompletionAssistProcessor::~LanguageClientCompletionAssistProcessor()
@@ -384,6 +412,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     m_client->addAssistProcessor(this);
     m_currentRequest = completionRequest.id();
     m_document = interface->textDocument();
+    m_filePath = interface->filePath();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
                               << " : request completions at " << m_pos
                               << " by " << assistReasonString(interface->reason());
@@ -430,17 +459,28 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     } else if (Utils::holds_alternative<QList<CompletionItem>>(*result)) {
         items = Utils::get<QList<CompletionItem>>(*result);
     }
+    if (m_itemsTransformer && m_document)
+        items = m_itemsTransformer(m_filePath, m_document->toPlainText(), m_basePos, items);
     auto model = new LanguageClientCompletionModel();
-    model->loadContent(Utils::transform(items, [](const CompletionItem &item){
-        return static_cast<AssistProposalItemInterface *>(new LanguageClientCompletionItem(item));
-    }));
+    auto proposalItems = Utils::transform<QList<AssistProposalItemInterface *>>(items,
+            [this](const CompletionItem &item) {
+                return new LanguageClientCompletionItem(item, m_applyHelper);
+    });
+    if (!m_snippetsGroup.isEmpty()) {
+        proposalItems << TextEditor::SnippetAssistCollector(
+                             m_snippetsGroup, QIcon(":/texteditor/images/snippet.png")).collect();
+    }
+    model->loadContent(proposalItems);
     LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_basePos,
                                                                                       model);
     proposal->m_document = m_document;
     proposal->m_pos = m_pos;
     proposal->setFragile(true);
     proposal->setSupportsPrefix(false);
-    setAsyncProposalAvailable(proposal);
+    if (m_proposalHandler)
+        m_proposalHandler(proposal);
+    else
+        setAsyncProposalAvailable(proposal);
     m_client->removeAssistProcessor(this);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
                               << items.count() << " completions handled";
@@ -453,7 +493,8 @@ LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(C
 
 IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor() const
 {
-    return new LanguageClientCompletionAssistProcessor(m_client);
+    return new LanguageClientCompletionAssistProcessor(m_client, m_itemsTransformer, m_applyHelper,
+                                                       m_proposalHandler, m_snippetsGroup);
 }
 
 IAssistProvider::RunType LanguageClientCompletionAssistProvider::runType() const
@@ -482,6 +523,18 @@ void LanguageClientCompletionAssistProvider::setTriggerCharacters(
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();
     }
+}
+
+void LanguageClientCompletionAssistProvider::setItemsTransformer(
+        const CompletionItemsTransformer &transformer)
+{
+    m_itemsTransformer = transformer;
+}
+
+void LanguageClientCompletionAssistProvider::setApplyHelper(
+        const CompletionApplyHelper &applyHelper)
+{
+    m_applyHelper = applyHelper;
 }
 
 } // namespace LanguageClient
