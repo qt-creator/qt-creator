@@ -403,7 +403,7 @@ class ProjectExplorerPluginPrivate : public QObject
 public:
     ProjectExplorerPluginPrivate();
 
-    void updateContextMenuActions();
+    void updateContextMenuActions(Node *currentNode);
     void updateLocationSubMenus();
     void executeRunConfiguration(RunConfiguration *, Utils::Id mode);
     QPair<bool, QString> buildSettingsEnabledForSession();
@@ -767,10 +767,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             });
 
     ProjectTree *tree = &dd->m_projectTree;
-    connect(tree, &ProjectTree::currentProjectChanged,
-            dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
-    connect(tree, &ProjectTree::nodeActionsChanged,
-            dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
+    connect(tree, &ProjectTree::currentProjectChanged, dd, [] {
+        dd->updateContextMenuActions(ProjectTree::currentNode());
+    });
+    connect(tree, &ProjectTree::nodeActionsChanged, dd, [] {
+        dd->updateContextMenuActions(ProjectTree::currentNode());
+    });
     connect(tree, &ProjectTree::currentNodeChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
     connect(tree, &ProjectTree::currentProjectChanged,
@@ -1763,8 +1765,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(this, &ProjectExplorerPlugin::settingsChanged,
             dd, &ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu);
 
-    connect(ICore::instance(), &ICore::newItemDialogStateChanged,
-            dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
+    connect(ICore::instance(), &ICore::newItemDialogStateChanged, dd, [] {
+        dd->updateContextMenuActions(ProjectTree::currentNode());
+    });
 
     dd->updateWelcomePage();
 
@@ -3257,7 +3260,7 @@ void ProjectExplorerPluginPrivate::invalidateProject(Project *project)
     updateActions();
 }
 
-void ProjectExplorerPluginPrivate::updateContextMenuActions()
+void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
 {
     m_addExistingFilesAction->setEnabled(false);
     m_addExistingDirectoryAction->setEnabled(false);
@@ -3293,8 +3296,6 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
     runMenu->menu()->menuAction()->setVisible(false);
-
-    const Node *currentNode = ProjectTree::currentNode();
 
     if (currentNode && currentNode->managingProject()) {
         ProjectNode *pn;

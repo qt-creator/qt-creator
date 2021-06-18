@@ -29,7 +29,10 @@
 #include <utils/id.h>
 #include <utils/parameteraction.h>
 
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer {
+class Target;
+class Node;
+} // namespace ProjectExplorer
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -72,7 +75,7 @@ private:
     void reparseCurrentProject();
     void reparseProject(QbsProject *project);
 
-    void updateContextActions();
+    void updateContextActions(ProjectExplorer::Node *node);
     void updateReparseQbsAction();
     void updateBuildActions();
 
