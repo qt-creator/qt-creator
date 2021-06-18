@@ -140,7 +140,7 @@ QJsonObject JsonRpcMessageHandler::toJsonObject(const QByteArray &_content,
     if (doc.isNull())
         parseError = tr("Could not parse JSON message \"%1\".").arg(error.errorString());
     else
-        parseError = tr("Expected a JSON object, but got a JSON \"%1\".").arg(docTypeName(doc));
+        parseError = tr("Expected a JSON object, but got a JSON \"%1\" value.").arg(docTypeName(doc));
     return QJsonObject();
 }
 
