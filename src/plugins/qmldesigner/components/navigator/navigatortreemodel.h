@@ -128,6 +128,7 @@ private:
                               const QString &imagePath, ModelNode &newNode);
     ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);
     QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
+    void addImport(const QString &importName);
 
     QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
