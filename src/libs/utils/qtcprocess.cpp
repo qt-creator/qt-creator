@@ -166,7 +166,7 @@ public:
     {
         m_stdErr.append(m_process->readAllStandardError());
         m_hangTimerCount = 0;
-        emit q->readyReadStandardOutput();
+        emit q->readyReadStandardError();
     }
 
     QtcProcess *q;
