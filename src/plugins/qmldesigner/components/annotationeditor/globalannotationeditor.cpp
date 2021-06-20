@@ -26,7 +26,8 @@
 #include "globalannotationeditor.h"
 
 #include "annotation.h"
-#include "globalannotationeditordialog.h"
+#include "annotationeditordialog.h"
+
 
 #include <coreplugin/icore.h>
 #include <QMessageBox>
@@ -41,15 +42,18 @@ GlobalAnnotationEditor::~GlobalAnnotationEditor() {}
 
 QWidget *GlobalAnnotationEditor::createWidget()
 {
-    auto* dialog = new GlobalAnnotationEditorDialog(Core::ICore::dialogParent(),
-                                                    this->m_modelNode.globalStatus());
+    auto *dialog = new AnnotationEditorDialog(Core::ICore::dialogParent());
+
+    dialog->setGlobal(true);
+    dialog->setStatus(m_modelNode.globalStatus());
+
     dialog->setAnnotation(this->m_modelNode.globalAnnotation());
     QObject::connect(dialog,
-                     &GlobalAnnotationEditorDialog::acceptedDialog,
+                     &AnnotationEditorDialog::acceptedDialog,
                      this,
                      &GlobalAnnotationEditor::acceptedClicked);
     QObject::connect(dialog,
-                     &GlobalAnnotationEditorDialog::rejected,
+                     &AnnotationEditorDialog::rejected,
                      this,
                      &GlobalAnnotationEditor::cancelClicked);
     return dialog;
@@ -73,7 +77,7 @@ void GlobalAnnotationEditor::removeFullAnnotation()
 
 void GlobalAnnotationEditor::acceptedClicked()
 {
-    if (const auto *dialog = qobject_cast<GlobalAnnotationEditorDialog *>(widget())) {
+    if (const auto *dialog = qobject_cast<AnnotationEditorDialog *>(widget())) {
         auto &node = this->m_modelNode;
         const Annotation annotation = dialog->annotation();
 
