@@ -126,6 +126,7 @@ public:
     static Dialect guessLanguageOfFile(const QString &fileName);
     static QStringList globPatternsForLanguages(const QList<Dialect> &languages);
     static ModelManagerInterface *instance();
+    static ModelManagerInterface *instanceForFuture(const QFuture<void> &future);
     static void writeWarning(const QString &msg);
     static WorkingCopy workingCopy();
 

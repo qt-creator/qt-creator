@@ -150,7 +150,9 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
     d->diagnosticMessages = nullptr;
     d->allDiagnosticMessages = nullptr;
 
-    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+    QFutureInterface<void> fi;
+    fi.reportStarted();
+    ModelManagerInterface *modelManager = ModelManagerInterface::instanceForFuture(fi.future());
     if (modelManager) {
         const ModelManagerInterface::CppDataHash cppDataHash = modelManager->cppData();
         {
@@ -176,6 +178,7 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
         }
         d->m_valueOwner->cppQmlTypes().setCppContextProperties(cppContextProperties);
     }
+    fi.reportFinished();
 }
 
 ContextPtr Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)

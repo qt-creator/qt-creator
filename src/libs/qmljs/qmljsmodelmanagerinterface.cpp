@@ -77,6 +77,7 @@ QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common", QtWarningMsg)
 */
 
 static ModelManagerInterface *g_instance = nullptr;
+static QMutex g_instanceMutex;
 static const char *qtQuickUISuffix = "ui.qml";
 
 static void maybeAddPath(ViewerContext &context, const QString &path)
@@ -134,6 +135,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
     updateImportPaths();
 
+    QMutexLocker locker(&g_instanceMutex);
     Q_ASSERT(! g_instance);
     g_instance = this;
 }
@@ -143,6 +145,8 @@ ModelManagerInterface::~ModelManagerInterface()
     joinAllThreads(true);
     m_cppQmlTypesUpdater.cancel();
     m_cppQmlTypesUpdater.waitForFinished();
+
+    QMutexLocker locker(&g_instanceMutex);
     Q_ASSERT(g_instance == this);
     g_instance = nullptr;
 }
@@ -199,6 +203,15 @@ ModelManagerInterface *ModelManagerInterface::instance()
     return g_instance;
 }
 
+// If the returned instance is not null, it's guaranteed that it will be valid at least as long
+// as the passed QFuture object isn't finished.
+ModelManagerInterface *ModelManagerInterface::instanceForFuture(const QFuture<void> &future)
+{
+    QMutexLocker locker(&g_instanceMutex);
+    if (g_instance)
+        g_instance->addFuture(future);
+    return g_instance;
+}
 void ModelManagerInterface::writeWarning(const QString &msg)
 {
     if (ModelManagerInterface *i = instance())
@@ -1250,8 +1263,9 @@ void ModelManagerInterface::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document
     if (!scan)
         doc->releaseSourceAndAST();
 
-    // delegate actual queuing to the gui thread
-    QMetaObject::invokeMethod(this, [=] { queueCppQmlTypeUpdate(doc, scan); });
+    QMutexLocker locker(&g_instanceMutex);
+    if (g_instance) // delegate actual queuing to the gui thread
+        QMetaObject::invokeMethod(g_instance, [=] { queueCppQmlTypeUpdate(doc, scan); });
 }
 
 void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
