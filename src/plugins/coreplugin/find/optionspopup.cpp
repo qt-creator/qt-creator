@@ -63,7 +63,8 @@ OptionsPopup::OptionsPopup(QWidget *parent, const QVector<Id> &commands)
         }
         layout->addWidget(checkBox);
     }
-    move(parent->mapToGlobal(QPoint(0, -sizeHint().height())));
+    const QPoint globalPos = parent->mapToGlobal(QPoint(0, -sizeHint().height()));
+    move(globalPos.x(), std::max(globalPos.y(), 0));
 }
 
 bool OptionsPopup::event(QEvent *ev)

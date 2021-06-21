@@ -43,6 +43,7 @@
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/find/optionspopup.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -79,6 +80,9 @@ namespace Internal {
 class MiscSettingsGroupItem;
 
 const char kBuildSystemOutputContext[] = "ProjectsMode.BuildSystemOutput";
+const char kRegExpActionId[] = "OutputFilter.RegularExpressions.BuildSystemOutput";
+const char kCaseSensitiveActionId[] = "OutputFilter.CaseSensitive.BuildSystemOutput";
+const char kInvertActionId[] = "OutputFilter.Invert.BuildSystemOutput";
 
 class BuildSystemOutputWindow : public OutputWindow
 {
@@ -88,8 +92,14 @@ public:
     QWidget *toolBar();
 
 private:
+    void updateFilter();
+
     QPointer<QWidget> m_toolBar;
+    QPointer<FancyLineEdit> m_filterOutputLineEdit;
     QAction *m_clear;
+    QAction *m_filterActionRegexp;
+    QAction *m_filterActionCaseSensitive;
+    QAction *m_invertFilterAction;
 };
 
 BuildSystemOutputWindow::BuildSystemOutputWindow()
@@ -103,6 +113,33 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
                                   Core::Constants::OUTPUTPANE_CLEAR,
                                   Context(kBuildSystemOutputContext));
     connect(m_clear, &QAction::triggered, this, [this] { clear(); });
+
+    m_filterActionRegexp = new QAction(this);
+    m_filterActionRegexp->setCheckable(true);
+    m_filterActionRegexp->setText(tr("Use Regular Expressions"));
+    connect(m_filterActionRegexp, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
+    Core::ActionManager::registerAction(m_filterActionRegexp,
+                                        kRegExpActionId,
+                                        Context(Constants::C_PROJECTEXPLORER));
+
+    m_filterActionCaseSensitive = new QAction(this);
+    m_filterActionCaseSensitive->setCheckable(true);
+    m_filterActionCaseSensitive->setText(tr("Case Sensitive"));
+    connect(m_filterActionCaseSensitive,
+            &QAction::toggled,
+            this,
+            &BuildSystemOutputWindow::updateFilter);
+    Core::ActionManager::registerAction(m_filterActionCaseSensitive,
+                                        kCaseSensitiveActionId,
+                                        Context(Constants::C_PROJECTEXPLORER));
+
+    m_invertFilterAction = new QAction(this);
+    m_invertFilterAction->setCheckable(true);
+    m_invertFilterAction->setText(tr("Show Non-matching Lines"));
+    connect(m_invertFilterAction, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
+    Core::ActionManager::registerAction(m_invertFilterAction,
+                                        kInvertActionId,
+                                        Context(Constants::C_PROJECTEXPLORER));
 }
 
 QWidget *BuildSystemOutputWindow::toolBar()
@@ -112,14 +149,48 @@ QWidget *BuildSystemOutputWindow::toolBar()
         auto clearButton = new CommandButton(Core::Constants::OUTPUTPANE_CLEAR);
         clearButton->setDefaultAction(m_clear);
         clearButton->setToolTipBase(m_clear->text());
+
+        m_filterOutputLineEdit = new FancyLineEdit;
+        m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
+        m_filterOutputLineEdit->setButtonIcon(FancyLineEdit::Left, Utils::Icons::MAGNIFIER.icon());
+        m_filterOutputLineEdit->setFiltering(true);
+        m_filterOutputLineEdit->setHistoryCompleter("ProjectsMode.BuildSystemOutput.Filter");
+        connect(m_filterOutputLineEdit,
+                &FancyLineEdit::textChanged,
+                this,
+                &BuildSystemOutputWindow::updateFilter);
+        connect(m_filterOutputLineEdit,
+                &FancyLineEdit::returnPressed,
+                this,
+                &BuildSystemOutputWindow::updateFilter);
+        connect(m_filterOutputLineEdit, &FancyLineEdit::leftButtonClicked, this, [this] {
+            auto popup = new Core::OptionsPopup(m_filterOutputLineEdit,
+                                                {kRegExpActionId,
+                                                 kCaseSensitiveActionId,
+                                                 kInvertActionId});
+            popup->show();
+        });
+
         auto layout = new QHBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         m_toolBar->setLayout(layout);
         layout->addWidget(clearButton);
+        layout->addWidget(m_filterOutputLineEdit);
         layout->addStretch();
     }
     return m_toolBar;
+}
+
+void BuildSystemOutputWindow::updateFilter()
+{
+    if (!m_filterOutputLineEdit)
+        return;
+    updateFilterProperties(m_filterOutputLineEdit->text(),
+                           m_filterActionCaseSensitive->isChecked() ? Qt::CaseSensitive
+                                                                    : Qt::CaseInsensitive,
+                           m_filterActionRegexp->isChecked(),
+                           m_invertFilterAction->isChecked());
 }
 
 // Standard third level for the generic case: i.e. all except for the Build/Run page
