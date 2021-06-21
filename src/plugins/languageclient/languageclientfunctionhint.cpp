@@ -57,7 +57,7 @@ private:
 
 QString FunctionHintProposalModel::text(int index) const
 {
-    if (index < 0 || m_sigis.signatures().size() >= index)
+    if (index < 0 || m_sigis.signatures().size() <= index)
         return {};
     return m_sigis.signatures().at(index).label();
 }
