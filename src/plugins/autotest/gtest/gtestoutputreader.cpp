@@ -64,6 +64,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression newTestSetStarts("^\\[ RUN      \\] (.*)$");
     static const QRegularExpression testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
     static const QRegularExpression testSetFail("^\\[  FAILED  \\] (.*) \\((\\d+ ms)\\)$");
+    static const QRegularExpression testDeath("^\\[  DEATH   \\] (.*)$");
     static const QRegularExpression testSetSkipped("^\\[  SKIPPED \\] (.*) \\((\\d+ ms)\\)$");
     static const QRegularExpression disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
     static const QRegularExpression iterations("^Repeating all tests "
@@ -182,6 +183,9 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
             testResult->setFileName(file);
         testResult->setDescription(match.captured(4));
         reportResult(testResult);
+    } else if (ExactMatch match = testDeath.match(line)) {
+        m_description.append(line);
+        m_description.append('\n');
     }
 }
 
