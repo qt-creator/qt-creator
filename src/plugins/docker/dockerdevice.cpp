@@ -946,6 +946,8 @@ void DockerDevice::runProcess(QtcProcess &process) const
 
     CommandLine cmd{"docker", {"exec"}};
     cmd.addArgs({"-w", workingDir.path()});
+    if (process.keepsWriteChannelOpen())
+        cmd.addArg("-i");
     cmd.addArg(d->m_container);
     cmd.addArg(origCmd.executable().path()); // Cut off the docker://.../ bits.
     cmd.addArgs(origCmd.splitArguments(osType()));

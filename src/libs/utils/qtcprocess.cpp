@@ -128,6 +128,7 @@ public:
 
     bool m_lowPriority = false;
     bool m_disableUnixTerminal = false;
+    bool m_keepStdInOpen = false;
 };
 
 class QtcProcessPrivate : public QObject
@@ -431,6 +432,16 @@ void QtcProcess::setLowPriority()
 void QtcProcess::setDisableUnixTerminal()
 {
     d->m_process->m_disableUnixTerminal = true;
+}
+
+void QtcProcess::setKeepWriteChannelOpen()
+{
+    d->m_process->m_keepStdInOpen = true;
+}
+
+bool QtcProcess::keepsWriteChannelOpen() const
+{
+    return d->m_process->m_keepStdInOpen;
 }
 
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)

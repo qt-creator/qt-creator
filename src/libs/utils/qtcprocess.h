@@ -173,6 +173,9 @@ public:
     void closeWriteChannel();
     void close();
 
+    void setKeepWriteChannelOpen();
+    bool keepsWriteChannelOpen() const;
+
 signals:
     void started();
     void finished();
