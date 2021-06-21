@@ -29,6 +29,7 @@
 #include <extensionsystem/iplugin.h>
 
 namespace ProjectExplorer { class RunControl; }
+namespace Utils { class FilePath; }
 
 namespace Debugger {
 namespace Internal {
@@ -56,6 +57,9 @@ private:
 
     // Called from GammaRayIntegration
     Q_SLOT void getEnginesState(QByteArray *json) const;
+
+    // Called from DockerDevice
+    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot);
 
     QVector<QObject *> createTestObjects() const override;
 };

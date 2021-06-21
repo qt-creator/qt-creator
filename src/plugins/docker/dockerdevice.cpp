@@ -260,6 +260,7 @@ public:
     QList<BaseQtVersion *> autoDetectQtVersions(QTextBrowser *log) const;
     QList<ToolChain *> autoDetectToolChains(QTextBrowser *log);
     void autoDetectCMake(QTextBrowser *log);
+    void autoDetectDebugger(QTextBrowser *log);
 
     void fetchSystemEnviroment();
 
@@ -496,6 +497,21 @@ void DockerDevicePrivate::autoDetectCMake(QTextBrowser *log)
     }
 }
 
+void DockerDevicePrivate::autoDetectDebugger(QTextBrowser *log)
+{
+    QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin");
+    if (!debuggerPlugin)
+        return;
+
+    if (log)
+        log->append('\n' + tr("Searching debuggers..."));
+    const FilePath deviceRoot = q->mapToGlobalPath({});
+    const bool res = QMetaObject::invokeMethod(debuggerPlugin,
+                                               "autoDetectDebuggersForDevice",
+                                               Q_ARG(Utils::FilePath, deviceRoot));
+    QTC_CHECK(res);
+}
+
 void DockerDevicePrivate::autoDetect(QTextBrowser *log)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -511,6 +527,7 @@ void DockerDevicePrivate::autoDetect(QTextBrowser *log)
     QList<BaseQtVersion *> qtVersions = autoDetectQtVersions(log);
 
     autoDetectCMake(log);
+    autoDetectDebugger(log);
 
     const auto initializeKit = [this, toolChains, qtVersions](Kit *k) {
         k->setAutoDetected(false);

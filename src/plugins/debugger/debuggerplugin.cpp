@@ -1731,6 +1731,11 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
     *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
 }
 
+void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePath &deviceRoot)
+{
+    dd->m_debuggerItemManager.autoDetectDebuggersForDevice(deviceRoot);
+}
+
 void DebuggerPluginPrivate::attachToQmlPort()
 {
     AttachToQmlPortDialog dlg(ICore::dialogParent());
