@@ -36,6 +36,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <projectexplorer/projecttree.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -230,6 +232,7 @@ QbsProjectNode *QbsNodeTreeBuilder::buildTree(const QString &projectName,
     }
     buildSystemFiles->compress();
     root->addNode(std::move(buildSystemFiles));
+    ProjectTree::applyTreeManager(root.get()); // QRC nodes
     return root.release();
 }
 

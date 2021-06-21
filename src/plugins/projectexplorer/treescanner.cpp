@@ -27,6 +27,7 @@
 
 #include "projectexplorerconstants.h"
 #include "projectnodeshelper.h"
+#include "projecttree.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -158,6 +159,7 @@ static std::unique_ptr<FolderNode> createFolderNode(const Utils::FilePath &direc
         std::unique_ptr<FileNode> node(fn->clone());
         fileSystemNode->addNestedNode(std::move(node));
     }
+    ProjectTree::applyTreeManager(fileSystemNode.get()); // QRC nodes
     return fileSystemNode;
 }
 

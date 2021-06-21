@@ -391,6 +391,11 @@ void ProjectTree::highlightProject(Project *project, const QString &message)
         projectTreeWidget->showMessage(project->rootProjectNode(), message);
 }
 
+/*!
+    Registers the function \a treeChange to be run on a (sub tree of the)
+    project tree when it is created. The function must be thread-safe, and
+    applying the function on the same tree a second time must be a no-op.
+*/
 void ProjectTree::registerTreeManager(const TreeManagerFunction &treeChange)
 {
     if (treeChange)

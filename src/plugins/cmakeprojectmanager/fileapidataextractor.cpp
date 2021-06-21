@@ -33,6 +33,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
+#include <projectexplorer/projecttree.h>
+
 #include <QDir>
 
 using namespace ProjectExplorer;
@@ -708,6 +710,7 @@ FileApiQtcData extractData(FileApiData &input,
     result.projectParts = generateRawProjectParts(data, sourceDirectory);
 
     auto pair = generateRootProjectNode(data, sourceDirectory, buildDirectory);
+    ProjectTree::applyTreeManager(pair.first.get()); // QRC nodes
     result.rootProjectNode = std::move(pair.first);
     result.knownHeaders = std::move(pair.second);
 
