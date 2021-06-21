@@ -472,9 +472,9 @@ void DockerDevicePrivate::autoDetectCMake(QTextBrowser *log)
 
     log->append('\n' + tr("Searching CMake binary..."));
     QString error;
-    const QStringList candidates = {"/usr/local/bin/cmake", "/usr/bin/cmake"};
+    const QStringList candidates = {"cmake"};
     for (const QString &candidate : candidates) {
-        const FilePath cmake = q->mapToGlobalPath(FilePath::fromString(candidate));
+        const FilePath cmake = q->searchInPath(FilePath::fromString(candidate));
         QTC_CHECK(q->hasLocalFileAccess());
         if (cmake.isExecutableFile()) {
             log->append(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
