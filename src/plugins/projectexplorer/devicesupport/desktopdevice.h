@@ -55,6 +55,9 @@ public:
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     bool handlesFile(const Utils::FilePath &filePath) const override;
+    QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
+                                            const QStringList &nameFilters,
+                                            QDir::Filters filters) const override;
 
 protected:
     DesktopDevice();

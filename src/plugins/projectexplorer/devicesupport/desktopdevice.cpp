@@ -178,4 +178,14 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
     return !filePath.needsDevice();
 }
 
+QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
+                                                const QStringList &nameFilters,
+                                                QDir::Filters filters) const
+{
+    QTC_CHECK(!filePath.needsDevice());
+    const QDir dir(filePath.path());
+    const QFileInfoList entryInfoList = dir.entryInfoList(nameFilters, filters);
+    return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
+}
+
 } // namespace ProjectExplorer
