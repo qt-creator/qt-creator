@@ -783,7 +783,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
+    const CommandLine cmd("test", {"-r", path, "-a", "-d", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
@@ -794,12 +794,12 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
     tryCreateLocalFileAccess();
     if (hasLocalFileAccess()) {
         const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isReadableDir();
+        const bool res = localAccess.isWritableDir();
         LOG("WritableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
+    const CommandLine cmd("test", {"-w", path, "-a", "-d", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
