@@ -1948,6 +1948,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         return SessionManager::activeSession();
     });
 
+    DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+
     return true;
 }
 
@@ -2062,8 +2064,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     dd->m_projectFilterString = filterStrings.join(filterSeparator);
 
     BuildManager::extensionsInitialized();
-
-    DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
     QSsh::SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
