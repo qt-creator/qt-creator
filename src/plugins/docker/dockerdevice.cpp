@@ -573,6 +573,7 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     }
 
     CommandLine dockerRun{"docker", {"run", "-i", "--cidfile=" + tempFileName,
+                                    "--rm",
                                     "-e", "DISPLAY=:0",
                                     "-e", "XAUTHORITY=/.Xauthority",
                                     "--net", "host"}};
