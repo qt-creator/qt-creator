@@ -425,6 +425,8 @@ private: ////////// General Interface //////////
     void setupInferior();
     void claimInitialBreakpoints();
 
+    bool usesOutputCollector() const;
+
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;

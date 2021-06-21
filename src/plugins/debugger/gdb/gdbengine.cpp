@@ -3808,7 +3808,7 @@ void GdbEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
     CommandLine gdbCommand{rp.debugger.executable};
 
-    if (isPlainEngine()) {
+    if (usesOutputCollector()) {
         if (!m_outputCollector.listen()) {
             handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
                                      .arg(m_outputCollector.errorString()));
@@ -4004,7 +4004,7 @@ void GdbEngine::setupEngine()
 
 void GdbEngine::handleGdbStartFailed()
 {
-    if (isPlainEngine())
+    if (usesOutputCollector())
         m_outputCollector.shutdown();
 }
 
@@ -4297,6 +4297,11 @@ bool GdbEngine::isLocalAttachEngine() const
 bool GdbEngine::isTermEngine() const
 {
     return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && terminal();
+}
+
+bool GdbEngine::usesOutputCollector() const
+{
+    return isPlainEngine() && !runParameters().debugger.executable.needsDevice();
 }
 
 void GdbEngine::claimInitialBreakpoints()
@@ -4645,7 +4650,7 @@ QChar GdbEngine::mixedDisasmFlag() const
 
 void GdbEngine::shutdownEngine()
 {
-    if (isPlainEngine()) {
+    if (usesOutputCollector()) {
         showMessage(QString("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
         m_outputCollector.shutdown();
     }
