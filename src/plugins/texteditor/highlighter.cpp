@@ -26,28 +26,31 @@
 #include "highlighter.h"
 
 #include "highlightersettings.h"
-#include "textdocumentlayout.h"
 #include "tabsettings.h"
-#include "texteditorsettings.h"
+#include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditorsettings.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/mimetypes/mimedatabase.h>
-#include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <DefinitionDownloader>
-#include <Format>
 #include <FoldingRegion>
+#include <Format>
 #include <Repository>
 #include <SyntaxHighlighter>
 
 #include <QDir>
+#include <QLoggingCategory>
 #include <QMetaEnum>
 
 using namespace TextEditor;
+
+static Q_LOGGING_CATEGORY(highlighterLog, "qtc.editor.highlighter", QtWarningMsg)
 
 static const char kDefinitionForMimeType[] = "definitionForMimeType";
 static const char kDefinitionForExtension[] = "definitionForExtension";
@@ -370,14 +373,22 @@ void Highlighter::applyFolding(int offset,
     const bool fromStart = TabSettings::firstNonSpace(text) == offset;
     const bool toEnd = (offset + length) == (text.length() - TabSettings::trailingWhitespaces(text));
     if (region.type() == KSyntaxHighlighting::FoldingRegion::Begin) {
-        TextDocumentLayout::changeBraceDepth(block, 1);
-        // if there is only a folding begin in the line move the current block into the fold
-        if (fromStart && toEnd) {
+        const int newBraceDepth = TextDocumentLayout::braceDepth(block) + 1;
+        TextDocumentLayout::setBraceDepth(block, newBraceDepth);
+        qCDebug(highlighterLog) << "Found folding start from '" << offset << "' to '" << length
+                                << "' resulting in the bracedepth '" << newBraceDepth << "' in :";
+        qCDebug(highlighterLog) << text;
+        // if there is only a folding begin marker in the line move the current block into the fold
+        if (fromStart && toEnd && length <= 1) {
             data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
             data->setFoldingStartIncluded(true);
         }
     } else if (region.type() == KSyntaxHighlighting::FoldingRegion::End) {
-        TextDocumentLayout::changeBraceDepth(block, -1);
+        const int newBraceDepth = qMax(0, TextDocumentLayout::braceDepth(block) - 1);
+        qCDebug(highlighterLog) << "Found folding end from '" << offset << "' to '" << length
+                                << "' resulting in the bracedepth '" << newBraceDepth << "' in :";
+        qCDebug(highlighterLog) << text;
+        TextDocumentLayout::setBraceDepth(block, newBraceDepth);
         // if the folding end is at the end of the line move the current block into the fold
         if (toEnd)
             data->setFoldingEndIncluded(true);
