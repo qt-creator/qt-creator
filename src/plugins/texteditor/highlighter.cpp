@@ -134,6 +134,8 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
             definitions = definitionsForFileName(
                 Utils::FilePath::fromString(filePath.completeBaseName()));
         }
+        if (filePath.fileName() == "qtquickcontrols2.conf")
+            definitions = definitionsForFileName(filePath.stringAppended(".ini"));
     }
     if (definitions.isEmpty()) {
         const Utils::MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
