@@ -75,7 +75,9 @@
             \macos, select \uicontrol Tools > \uicontrol Options >
             \uicontrol Environment > \uicontrol System.
         \li Search from the selected directory.
-        \li View file properties, such as MIME type, default editor, and size.
+        \li View file properties, such as name, path, MIME type, default editor,
+            line endings, indentation, owner, size, last read and modified
+            dates, and permissions.
         \li Create new files. For more information, see
             \l{Adding Files to Projects}.
         \li Rename or remove existing files.
