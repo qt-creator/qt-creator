@@ -142,13 +142,20 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
 ModelManagerInterface::~ModelManagerInterface()
 {
-    joinAllThreads(true);
+    Q_ASSERT(g_instance == this);
     m_cppQmlTypesUpdater.cancel();
     m_cppQmlTypesUpdater.waitForFinished();
 
-    QMutexLocker locker(&g_instanceMutex);
-    Q_ASSERT(g_instance == this);
-    g_instance = nullptr;
+    while (true) {
+        joinAllThreads(true);
+        // Keep these 2 mutexes in the same order as inside instanceForFuture()
+        QMutexLocker instanceLocker(&g_instanceMutex);
+        QMutexLocker futureLocker(&m_futuresMutex);
+        if (m_futureSynchronizer.isEmpty()) {
+            g_instance = nullptr;
+            return;
+        }
+    }
 }
 
 static QHash<QString, Dialect> defaultLanguageMapping()
@@ -655,6 +662,7 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
 
 bool ModelManagerInterface::isIdle() const
 {
+    QMutexLocker futureLocker(&m_futuresMutex);
     return m_futureSynchronizer.isEmpty();
 }
 
