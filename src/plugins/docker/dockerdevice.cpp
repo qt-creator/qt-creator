@@ -958,7 +958,8 @@ void DockerDevicePrivate::fetchSystemEnviroment()
     SynchronousProcess proc;
     proc.setCommand({"env", {}});
 
-    proc.runBlocking();
+    q->runProcess(proc); // FIXME: This only starts.
+    proc.waitForFinished();
 
     const QString remoteOutput = proc.stdOut();
     m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
