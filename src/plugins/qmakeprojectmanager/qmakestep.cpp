@@ -51,6 +51,8 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <ios/iosconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -609,6 +611,13 @@ void QMakeStep::separateDebugInfoChanged()
     askForRebuild(tr("Separate Debug Information"));
 }
 
+static bool isIos(const Kit *k)
+{
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    return deviceType == Ios::Constants::IOS_DEVICE_TYPE
+           || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
+}
+
 void QMakeStep::abisChanged()
 {
     m_selectedAbis.clear();
@@ -618,20 +627,42 @@ void QMakeStep::abisChanged()
             m_selectedAbis << item->text();
     }
 
-    if (isAndroidKit()) {
-        const QString prefix = "ANDROID_ABIS=";
-        QStringList args = m_extraArgs;
-        for (auto it = args.begin(); it != args.end(); ++it) {
-            if (it->startsWith(prefix)) {
-                args.erase(it);
-                break;
+    if (BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit())) {
+        if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
+            const QString prefix = "ANDROID_ABIS=";
+            QStringList args = m_extraArgs;
+            for (auto it = args.begin(); it != args.end(); ++it) {
+                if (it->startsWith(prefix)) {
+                    args.erase(it);
+                    break;
+                }
             }
-        }
-        if (!m_selectedAbis.isEmpty())
-            args << prefix + '"' + m_selectedAbis.join(' ') + '"';
-        setExtraArguments(args);
+            if (!m_selectedAbis.isEmpty())
+                args << prefix + '"' + m_selectedAbis.join(' ') + '"';
+            setExtraArguments(args);
 
-        buildSystem()->setProperty(Android::Constants::ANDROID_ABIS, m_selectedAbis);
+            buildSystem()->setProperty(Android::Constants::ANDROID_ABIS, m_selectedAbis);
+        } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit())) {
+            const QString prefix = "QMAKE_APPLE_DEVICE_ARCHS=";
+            QStringList args = m_extraArgs;
+            for (auto it = args.begin(); it != args.end(); ++it) {
+                if (it->startsWith(prefix)) {
+                    args.erase(it);
+                    break;
+                }
+            }
+            QStringList archs;
+            for (const QString &selectedAbi : qAsConst(m_selectedAbis)) {
+                const auto abi = Abi::abiFromTargetTriplet(selectedAbi);
+                if (abi.architecture() == Abi::X86Architecture)
+                    archs << "x86_64";
+                else if (abi.architecture() == Abi::ArmArchitecture)
+                    archs << "arm64";
+            }
+            if (!archs.isEmpty())
+                args << prefix + '"' + archs.join(' ') + '"';
+            setExtraArguments(args);
+        }
     }
 
     updateAbiWidgets();
@@ -668,18 +699,6 @@ void QMakeStep::askForRebuild(const QString &title)
     question->show();
 }
 
-bool QMakeStep::isAndroidKit() const
-{
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
-    if (!qtVersion)
-        return false;
-
-    const Abis abis = qtVersion->qtAbis();
-    return Utils::anyOf(abis, [](const Abi &abi) {
-        return abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
-    });
-}
-
 void QMakeStep::updateAbiWidgets()
 {
     if (!abisLabel)
@@ -698,15 +717,23 @@ void QMakeStep::updateAbiWidgets()
         abisListWidget->clear();
         QStringList selectedAbis = m_selectedAbis;
 
-        if (selectedAbis.isEmpty() && isAndroidKit()) {
-            // Prefer ARM for Android, prefer 32bit.
-            for (const Abi &abi : abis) {
-                if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
-                    selectedAbis.append(abi.param());
-            }
-            if (selectedAbis.isEmpty()) {
+        if (selectedAbis.isEmpty()) {
+            if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
+                // Prefer ARM for Android, prefer 32bit.
                 for (const Abi &abi : abis) {
-                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
+                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
+                        selectedAbis.append(abi.param());
+                }
+                if (selectedAbis.isEmpty()) {
+                    for (const Abi &abi : abis) {
+                        if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
+                            selectedAbis.append(abi.param());
+                    }
+                }
+            } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit()) && HostOsInfo::isRunningUnderRosetta()) {
+                // Automatically select arm64 when running under Rosetta
+                for (const Abi &abi : abis) {
+                    if (abi.architecture() == Abi::ArmArchitecture)
                         selectedAbis.append(abi.param());
                 }
             }
@@ -788,14 +815,6 @@ QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const Abi &targetAbi, const B
 QStringList QMakeStepConfig::toArguments() const
 {
     QStringList arguments;
-    if (archConfig == X86)
-        arguments << "CONFIG+=x86";
-    else if (archConfig == X86_64)
-        arguments << "CONFIG+=x86_64";
-    else if (archConfig == PowerPC)
-        arguments << "CONFIG+=ppc";
-    else if (archConfig == PowerPC64)
-        arguments << "CONFIG+=ppc64";
 
     // TODO: make that depend on the actual Qt version that is used
     if (osType == IphoneSimulator)

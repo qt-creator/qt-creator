@@ -35,6 +35,10 @@
 #include <qt_windows.h>
 #endif
 
+#ifdef Q_OS_MACOS
+#include <sys/sysctl.h>
+#endif
+
 using namespace Utils;
 
 Qt::CaseSensitivity HostOsInfo::m_overrideFileNameCaseSensitivity = Qt::CaseSensitive;
@@ -68,6 +72,17 @@ HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
 #else
     return HostOsInfo::HostArchitectureUnknown;
 #endif
+}
+
+bool HostOsInfo::isRunningUnderRosetta()
+{
+#ifdef Q_OS_MACOS
+    int translated = 0;
+    auto size = sizeof(translated);
+    if (sysctlbyname("sysctl.proc_translated", &translated, &size, nullptr, 0) == 0)
+        return translated;
+#endif
+    return false;
 }
 
 void HostOsInfo::setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity)

@@ -216,7 +216,11 @@ void LldbEngine::setupEngine()
     if (QFileInfo(runParameters().debugger.workingDirectory).isDir())
         m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
 
-    m_lldbProc.setCommand(CommandLine(lldbCmd));
+    if (HostOsInfo::isRunningUnderRosetta())
+        m_lldbProc.setCommand(CommandLine("/usr/bin/arch", {"-arm64", lldbCmd.toString()}));
+    else
+        m_lldbProc.setCommand(CommandLine(lldbCmd));
+
     m_lldbProc.start();
 
     if (!m_lldbProc.waitForStarted()) {

@@ -840,6 +840,20 @@ Abis BaseQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(d->qtCorePaths());
 }
 
+bool BaseQtVersion::hasAbi(ProjectExplorer::Abi::OS os, ProjectExplorer::Abi::OSFlavor flavor) const
+{
+    const Abis abis = qtAbis();
+    return Utils::anyOf(abis, [&](const Abi &abi) {
+        if (abi.os() != os)
+            return false;
+
+        if (flavor == Abi::UnknownFlavor)
+            return true;
+
+        return abi.osFlavor() == flavor;
+    });
+}
+
 bool BaseQtVersion::equals(BaseQtVersion *other)
 {
     if (d->m_qmakeCommand != other->d->m_qmakeCommand)

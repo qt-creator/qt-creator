@@ -185,7 +185,6 @@ private:
 
     void updateAbiWidgets();
     void updateEffectiveQMakeCall();
-    bool isAndroidKit() const;
 
     Utils::CommandLine m_qmakeCommand;
     Utils::CommandLine m_makeCommand;

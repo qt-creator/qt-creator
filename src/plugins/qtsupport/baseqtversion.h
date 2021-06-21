@@ -119,6 +119,7 @@ public:
     virtual QString toHtml(bool verbose) const;
 
     ProjectExplorer::Abis qtAbis() const;
+    bool hasAbi(ProjectExplorer::Abi::OS, ProjectExplorer::Abi::OSFlavor flavor = ProjectExplorer::Abi::UnknownFlavor) const;
 
     void applyProperties(QMakeGlobals *qmakeGlobals) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
