@@ -155,7 +155,7 @@
 
     The operating systems supported by \QC implement high dots-per-inch (DPI)
     scaling at varying levels. Therefore, \QC handles high DPI scaling
-    differently on different operating system:
+    differently on different operating systems:
 
     \list
         \li On \macos, high DPI scaling is forced, which means that \QC allows
