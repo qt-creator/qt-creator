@@ -188,4 +188,9 @@ QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
 }
 
+Environment DesktopDevice::systemEnvironment() const
+{
+    return Environment::systemEnvironment();
+}
+
 } // namespace ProjectExplorer

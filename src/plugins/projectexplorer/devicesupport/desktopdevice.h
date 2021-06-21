@@ -58,6 +58,8 @@ public:
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
                                             QDir::Filters filters) const override;
+    Utils::Environment systemEnvironment() const override;
+
 
 protected:
     DesktopDevice();
