@@ -59,6 +59,18 @@ namespace ClangCodeModel {
 namespace Internal {
 namespace Tests {
 
+using Range = std::tuple<int, int, int>;
+
+} // namespace Tests
+} // namespace Internal
+} // namespace ClangCodeModel
+
+Q_DECLARE_METATYPE(ClangCodeModel::Internal::Tests::Range)
+
+namespace ClangCodeModel {
+namespace Internal {
+namespace Tests {
+
 ClangdTest::~ClangdTest()
 {
     if (m_project)
@@ -372,8 +384,6 @@ ClangdTestLocalReferences::ClangdTestLocalReferences()
     setMinimumVersion(13);
 }
 
-using Range = std::tuple<int, int, int>;
-
 // We currently only support local variables, but if and when clangd implements
 // the linkedEditingRange request, we can change the expected values for
 // the file-scope test cases from empty ranges to the actual locations.
@@ -486,5 +496,3 @@ void ClangdTestLocalReferences::test()
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel
-
-Q_DECLARE_METATYPE(ClangCodeModel::Internal::Tests::Range)
