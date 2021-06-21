@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,19 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 SectionLayout {
-    property bool isInModel: backendValue.isInModel;
-    property bool isInSubState: backendValue.isInSubState;
-    property variant valueFromBackend: backendValue.value
+    id: root
+
     property variant backendValue: backendValues.Layout_alignment
+    property variant valueFromBackend: backendValue === undefined ? 0 : backendValue.value
+    property bool isInModel: backendValue === undefined ? false : backendValue.isInModel
+    property bool isInSubState: backendValue === undefined ? false : backendValue.isInSubState
     property bool blockAlignment: false
 
     onIsInModelChanged: evaluateAlignment()
@@ -40,66 +43,68 @@ SectionLayout {
     onBackendValueChanged: evaluateAlignment()
     onValueFromBackendChanged: evaluateAlignment()
 
-    property int spinBoxWidth: 82
-
     Connections {
         target: modelNodeBackend
-        onSelectionChanged: {
+        function onSelectionChanged() {
             evaluateAlignment()
         }
     }
 
-    id: root
-
     Component.onCompleted: evaluateAlignment()
 
     function indexOfVerticalAlignment() {
+        if (backendValue === undefined)
+            return 0
+
         if (backendValue.expression === undefined)
-            return 0;
+            return 0
 
         if (backendValue.expression.indexOf("AlignVCenter") !== -1)
-            return 0;
+            return 0
 
         if (backendValue.expression.indexOf("AlignTop") !== -1)
-            return 1;
+            return 1
 
         if (backendValue.expression.indexOf("AlignBottom") !== -1)
-            return 2;
+            return 2
 
         if (backendValue.expression.indexOf("AlignBaseline") !== -1)
-            return 3;
+            return 3
 
-        return 0;
+        return 0
     }
 
     function indexOfHorizontalAlignment() {
+        if (backendValue === undefined)
+            return 0
+
         if (backendValue.expression === undefined)
-            return 0;
+            return 0
 
         if (backendValue.expression.indexOf("AlignLeft") !== -1)
-            return 0;
+            return 0
 
         if (backendValue.expression.indexOf("AlignHCenter") !== -1)
-            return 1;
+            return 1
 
         if (backendValue.expression.indexOf("AlignRight") !== -1)
-            return 2;
+            return 2
 
-        return 0;
+        return 0
     }
 
     function evaluateAlignment() {
         blockAlignment = true
 
-        verticalAlignmentComboBox.currentIndex = indexOfVerticalAlignment();
-        horizontalAlignmentComboBox.currentIndex = indexOfHorizontalAlignment();
+        verticalAlignmentComboBox.currentIndex = indexOfVerticalAlignment()
+        horizontalAlignmentComboBox.currentIndex = indexOfHorizontalAlignment()
 
         blockAlignment = false
     }
 
     function composeExpressionString() {
         if (blockAlignment)
-            return;
+            return
 
         var expressionStr = "";
         if (horizontalAlignmentComboBox.currentIndex !== 0
@@ -112,21 +117,44 @@ SectionLayout {
         } else {
             expressionStr = "Qt.AlignLeft | Qt.AlignVCenter";
             backendValue.expression = expressionStr
-            backendValue.resetValue();
+            backendValue.resetValue()
         }
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Alignment")
         tooltip: qsTr("Alignment of a component within the cells it occupies.")
     }
 
     SecondColumnLayout {
         StudioControls.ComboBox {
-            ColorLogic {
-                id: colorLogic
+            id: horizontalAlignmentComboBox
+
+            property bool __isCompleted: false
+
+            implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
+            labelColor: horizontalAlignmentComboBox.currentIndex === 0 ? colorLogic.__defaultTextColor
+                                                                       : colorLogic.__changedTextColor
+            model: ["AlignLeft", "AlignHCenter", "AlignRight"]
+
+            actionIndicator.icon.color: extFuncLogic.color
+            actionIndicator.icon.text: extFuncLogic.glyph
+            actionIndicator.onClicked: extFuncLogic.show()
+            actionIndicator.forceVisible: extFuncLogic.menuVisible
+            actionIndicator.visible: true
+
+            onActivated: {
+                if (!horizontalAlignmentComboBox.__isCompleted)
+                    return
+
+                horizontalAlignmentComboBox.currentIndex = index
+                composeExpressionString()
             }
-            Layout.fillWidth: true
+
+            Component.onCompleted: horizontalAlignmentComboBox.__isCompleted = true
+
+            ColorLogic { id: colorLogic }
 
             ExtendedFunctionLogic {
                 id: extFuncLogic
@@ -136,42 +164,22 @@ SectionLayout {
                     verticalAlignmentComboBox.currentIndex = 0
                 }
             }
-
-            actionIndicator.icon.color: extFuncLogic.color
-            actionIndicator.icon.text: extFuncLogic.glyph
-            actionIndicator.onClicked: extFuncLogic.show()
-            actionIndicator.forceVisible: extFuncLogic.menuVisible
-            actionIndicator.visible: true
-
-            labelColor: horizontalAlignmentComboBox.currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
-
-            id: horizontalAlignmentComboBox
-
-            property bool __isCompleted: false
-
-            model: ["AlignLeft", "AlignHCenter", "AlignRight"]
-
-            onActivated: {
-                if (!horizontalAlignmentComboBox.__isCompleted)
-                    return;
-
-                horizontalAlignmentComboBox.currentIndex = index
-                composeExpressionString();
-            }
-
-            Component.onCompleted: {
-                horizontalAlignmentComboBox.__isCompleted = true;
-            }
         }
     }
 
-    Label {
-    }
+    PropertyLabel { text: "" }
 
     SecondColumnLayout {
         StudioControls.ComboBox {
             id: verticalAlignmentComboBox
-            Layout.fillWidth: true
+
+            property bool __isCompleted: false
+
+            implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
+            labelColor: verticalAlignmentComboBox.currentIndex === 0 ? colorLogic.__defaultTextColor
+                                                                     : colorLogic.__changedTextColor
+            model: ["AlignVCenter", "AlignTop", "AlignBottom", "AlignBaseline"]
 
             actionIndicator.icon.color: extFuncLogic.color
             actionIndicator.icon.text: extFuncLogic.glyph
@@ -179,206 +187,187 @@ SectionLayout {
             actionIndicator.forceVisible: extFuncLogic.menuVisible
             actionIndicator.visible: true
 
-            labelColor: verticalAlignmentComboBox.currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
-
-            property bool __isCompleted: false
-
-            model: ["AlignVCenter", "AlignTop", "AlignBottom", "AlignBaseline"]
-
             onActivated: {
                 if (!verticalAlignmentComboBox.__isCompleted)
-                    return;
+                    return
 
                 verticalAlignmentComboBox.currentIndex = index
-                composeExpressionString();
+                composeExpressionString()
             }
 
-            Component.onCompleted: {
-                verticalAlignmentComboBox.__isCompleted = true;
-            }
+            Component.onCompleted: verticalAlignmentComboBox.__isCompleted = true
         }
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Fill layout")
         tooltip: qsTr("Expands the component as much as possible within the given constraints.")
     }
 
     SecondColumnLayout {
         CheckBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_fillWidth
-            text: qsTr("Fill width")
-            Layout.fillWidth: true
+            text: qsTr("Width")
+        }
+
+        Spacer {
+            implicitWidth: StudioTheme.Values.twoControlColumnGap
         }
 
         CheckBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_fillHeight
-            text: qsTr("Fill height")
-            Layout.fillWidth: true
+            text: qsTr("Height")
         }
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Preferred size")
         tooltip: qsTr("Preferred size of a component in a layout. If the preferred height or width is -1, it is ignored.")
     }
 
     SecondColumnLayout {
-        Layout.fillWidth: true
-
-        Label {
-            text: "W"
-            width: 12
-        }
-
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_preferredWidth
             minimumValue: -1
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
 
-        Item {
-            width: 4
-            height: 4
-        }
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        Label {
-            text: "H"
-            width: 12
-        }
+        ControlLabel { text: qsTr("W") }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_preferredHeight
             minimumValue: -1
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+        ControlLabel { text: qsTr("H") }
+
+        ExpandingSpacer {}
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Minimum size")
         tooltip: qsTr("Minimum size of a component in a layout.")
     }
 
     SecondColumnLayout {
-        Layout.fillWidth: true
-
-        Label {
-            text: "W"
-            width: 12
-        }
-
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_minimumWidth
             minimumValue: 0
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
 
-        Item {
-            width: 4
-            height: 4
-        }
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        Label {
-            text: "H"
-            width: 12
-        }
+        ControlLabel { text: qsTr("W") }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_minimumHeight
             minimumValue: 0
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+        ControlLabel { text: qsTr("H") }
+
+        ExpandingSpacer {}
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Maximum size")
         tooltip: qsTr("Maximum size of a component in a layout.")
     }
 
     SecondColumnLayout {
-        Layout.fillWidth: true
-
-        Label {
-            text: "W"
-            width: 12
-        }
-
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_maximumWidth
             minimumValue: 0
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
 
-        Item {
-            width: 4
-            height: 4
-        }
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        Label {
-            text: "H"
-            width: 12
-        }
+        ControlLabel { text: qsTr("W") }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_maximumHeight
             minimumValue: 0
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+        ControlLabel { text: qsTr("H") }
+
+        ExpandingSpacer {}
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Row span")
         tooltip: qsTr("Row span of a component in a Grid Layout.")
     }
 
     SecondColumnLayout {
-        Layout.fillWidth: true
-
-        Item {
-            height: 4
-            width: 12
-        }
-
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_rowSpan
             minimumValue: 0
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
+
+        ExpandingSpacer {}
     }
 
-    Label {
+    PropertyLabel {
         text: qsTr("Column span")
         tooltip: qsTr("Column span of a component in a Grid Layout.")
     }
 
     SecondColumnLayout {
-        Layout.fillWidth: true
-
-        Item {
-            height: 4
-            width: 12
-        }
-
         SpinBox {
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
             backendValue: backendValues.Layout_columnSpan
             minimumValue: 0
             maximumValue: 0xffff
-            realDragRange: 5000
             decimals: 0
         }
+
+        ExpandingSpacer {}
     }
 }

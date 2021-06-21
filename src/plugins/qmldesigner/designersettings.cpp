@@ -77,7 +77,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, false);
     restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, true);
-    restoreValue(settings, DesignerSettingsKey::SIMPLE_COLOR_PALETTE_CONTENT, QStringList());
+    restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_RECENT, QStringList());
+    restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_FAVORITE, QStringList());
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
     restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, true);
 

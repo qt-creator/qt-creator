@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Section {
     caption: qsTr("Margin")
@@ -40,98 +41,118 @@ Section {
     property alias backendValueMargins: spinBoxMargins.backendValue
 
     SectionLayout {
-        Label {
-            text: qsTr("Vertical")
-        }
+        PropertyLabel { text: qsTr("Vertical") }
+
         SecondColumnLayout {
-            Label {
-                text: qsTr("Top")
-                tooltip: qsTr("The margin above the item.")
-                width: 42
-            }
             SpinBox {
                 id: spinBoxTopMargin
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
                 maximumValue: 10000
-                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.topMargin
-                Layout.fillWidth: true
-            }
-            Item {
-                width: 4
-                height: 4
             }
 
-            Label {
-                text: qsTr("Bottom")
-                tooltip: qsTr("The margin below the item.")
-                width: 42
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                iconColor: StudioTheme.Values.themeTextColor
+                tooltip: qsTr("The margin above the item.")
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
             SpinBox {
                 id: spinBoxBottomMargin
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
                 maximumValue: 10000
-                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.bottomMargin
-                Layout.fillWidth: true
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                iconColor: StudioTheme.Values.themeTextColor
+                rotation: 180
+                tooltip: qsTr("The margin below the item.")
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Horizontal")
-        }
+        PropertyLabel { text: qsTr("Horizontal") }
+
         SecondColumnLayout {
-            Label {
-                text: qsTr("Left")
-                tooltip: qsTr("The margin left of the item.")
-                width: 42
-            }
             SpinBox {
                 id: spinBoxLeftMargin
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
                 maximumValue: 10000
-                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.leftMargin
-                Layout.fillWidth: true
-            }
-            Item {
-                width: 4
-                height: 4
             }
 
-            Label {
-                text: qsTr("Right")
-                tooltip: qsTr("The margin right of the item.")
-                width: 42
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                iconColor: StudioTheme.Values.themeTextColor
+                rotation: 270
+                tooltip: qsTr("The margin left of the item.")
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
             SpinBox {
                 id: spinBoxRightMargin
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
                 maximumValue: 10000
-                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.rightMargin
-                Layout.fillWidth: true
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                iconColor: StudioTheme.Values.themeTextColor
+                rotation: 90
+                tooltip: qsTr("The margin right of the item.")
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Margins")
             tooltip: qsTr("The margins around the item.")
         }
+
         SecondColumnLayout {
             SpinBox {
                 id: spinBoxMargins
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
                 maximumValue: 10000
-                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.margins
-                Layout.fillWidth: true
             }
+
+            ExpandingSpacer {}
         }
     }
 }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,195 +23,193 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Border Image")
 
+        anchors.left: parent.left
+        anchors.right: parent.right
+
         SectionLayout {
-            Label {
-                text: qsTr("Source")
-            }
+            PropertyLabel { text: qsTr("Source") }
 
             SecondColumnLayout {
                 UrlChooser {
                     backendValue: backendValues.source
-                    implicitWidth: 180
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Border left")
+            PropertyLabel {
+                text: qsTr("Source size")
+                disabledState: !backendValues.sourceSize.isAvailable
             }
 
             SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.sourceSize_width
+                    minimumValue: -2000
+                    maximumValue: 2000
+                    decimals: 0
+                    enabled: backendValue.isAvailable
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel { text: qsTr("W") }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.sourceSize_height
+                    minimumValue: -2000
+                    maximumValue: 2000
+                    decimals: 0
+                    enabled: backendValue.isAvailable
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel { text: qsTr("H") }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+                LinkIndicator2D {}
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Tile mode H")
+                disabledState: !backendValues.horizontalTileMode.isAvailable
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.horizontalTileMode
+                    model: ["Stretch", "Repeat", "Round"]
+                    scope: "BorderImage"
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Tile mode V")
+                disabledState: !backendValues.verticalTileMode.isAvailable
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    model: ["Stretch", "Repeat", "Round"]
+                    backendValue: backendValues.verticalTileMode
+                    scope: "BorderImage"
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Border left") }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.border_left
                     minimumValue: -2000
                     maximumValue: 2000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Border right")
-            }
+            PropertyLabel { text: qsTr("Border right") }
 
             SecondColumnLayout {
-
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.border_right
                     minimumValue: -2000
                     maximumValue: 2000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Border top")
-            }
+            PropertyLabel { text: qsTr("Border top") }
 
             SecondColumnLayout {
-
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.border_top
                     minimumValue: -2000
                     maximumValue: 2000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Border bottom")
-            }
+            PropertyLabel { text: qsTr("Border bottom") }
 
             SecondColumnLayout {
-
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.border_bottom
                     minimumValue: -2000
                     maximumValue: 2000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-
-                }
-            }
-
-            Label {
-                text: qsTr("Horizontal tile mode")
-                disabledState: !backendValues.horizontalTileMode.isAvailable
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["Stretch", "Repeat", "Round"]
-                    backendValue: backendValues.horizontalTileMode
-                    implicitWidth: 180
-                    Layout.fillWidth: true
-                    scope: "BorderImage"
-                    enabled: backendValue.isAvailable
-                }
-            }
-
-            Label {
-                text: qsTr("Vertical tile mode")
-                disabledState: !backendValues.verticalTileMode.isAvailable
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["Stretch", "Repeat", "Round"]
-                    backendValue: backendValues.verticalTileMode
-                    implicitWidth: 180
-                    Layout.fillWidth: true
-                    scope: "BorderImage"
-                    enabled: backendValue.isAvailable
-                }
-            }
-
-
-            Label {
-                text: qsTr("Source size")
-                disabledState: !backendValues.sourceSize.isAvailable
-            }
-
-            SecondColumnLayout {
-                Label {
-                    text: "W"
-                    width: 12
-                    disabledStateSoft: !backendValues.sourceSize_width.isAvailable
-                }
-
-                SpinBox {
-                    backendValue: backendValues.sourceSize_width
-                    minimumValue: -2000
-                    maximumValue: 2000
-                    enabled: backendValue.isAvailable
-                    decimals: 0
-                }
-
-                Label {
-                    text: "H"
-                    width: 12
-                    disabledStateSoft: !backendValues.sourceSize_height.isAvailable
-                }
-
-                SpinBox {
-                    backendValue: backendValues.sourceSize_height
-                    minimumValue: -2000
-                    maximumValue: 2000
-                    enabled: backendValue.isAvailable
-                    decimals: 0
-                }
-
-                ExpandingSpacer {
-
-                }
-            }
-
-            Label {
-                text: qsTr("Mirror")
-                tooltip: qsTr("Specifies whether the image should be horizontally inverted.")
-                disabledState: !backendValues.mirror.isAvailable
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    enabled: backendValues.mirror.isAvailable
-                    text: backendValues.mirror.valueToString
-                    backendValue: backendValues.mirror
-                    implicitWidth: 180
-                }
                 ExpandingSpacer {}
             }
 
-            Label {
+           PropertyLabel {
+               text: qsTr("Mirror") // TODO remove Mirror checkbox when flipping is added to a global setion
+               tooltip: qsTr("Specifies whether the image should be horizontally inverted.")
+               disabledState: !backendValues.mirror.isAvailable
+           }
+
+           SecondColumnLayout {
+               CheckBox {
+                   text: backendValues.mirror.valueToString
+                   implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                  + StudioTheme.Values.actionIndicatorWidth
+                   backendValue: backendValues.mirror
+                   enabled: backendValue.isAvailable
+               }
+
+               ExpandingSpacer {}
+           }
+
+            PropertyLabel {
                 text: qsTr("Smooth")
                 tooltip: qsTr("Specifies whether the image is smoothly filtered when scaled or transformed.")
                 disabledState: !backendValues.smooth.isAvailable
@@ -219,15 +217,17 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    enabled: backendValues.smooth.isAvailable
                     text: backendValues.smooth.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.smooth
-                    implicitWidth: 180
+                    enabled: backendValue.isAvailable
                 }
+
                 ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Cache")
                 tooltip: qsTr("Specifies whether the image should be cached.")
                 disabledState: !backendValues.cache.isAvailable
@@ -235,15 +235,17 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    enabled: backendValues.cache.isAvailable
                     text: backendValues.cache.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.cache
-                    implicitWidth: 180
+                    enabled: backendValue.isAvailable
                 }
+
                 ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Asynchronous")
                 tooltip: qsTr("Specifies that images on the local filesystem should be loaded asynchronously in a separate thread.")
                 disabledState: !backendValues.asynchronous.isAvailable
@@ -251,11 +253,13 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    enabled: backendValues.asynchronous.isAvailable
                     text: backendValues.asynchronous.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.asynchronous
-                    implicitWidth: 180
+                    enabled: backendValue.isAvailable
                 }
+
                 ExpandingSpacer {}
             }
         }

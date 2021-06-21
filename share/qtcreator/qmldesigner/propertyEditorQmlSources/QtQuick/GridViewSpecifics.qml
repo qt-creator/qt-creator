@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.15
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
@@ -37,213 +39,230 @@ Column {
     }
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Grid View")
 
+        anchors.left: parent.left
+        anchors.right: parent.right
+
         SectionLayout {
-
-            Label {
-                text: qsTr("Cache")
-                tooltip: qsTr("Cache buffer")
-            }
-
-            SectionLayout {
-                SpinBox {
-                    backendValue: backendValues.cacheBuffer
-                    minimumValue: 0
-                    maximumValue: 1000
-                    decimals: 0
-                }
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
-                text: qsTr("Cell size")
-            }
+            PropertyLabel { text: qsTr("Cell size") }
 
             SecondColumnLayout {
-                Label {
-                    text: "W"
-                    width: 12
-                }
                 SpinBox {
-                    backendValue: backendValues.cellWidth
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.contentWidth
                     minimumValue: 0
-                    maximumValue: 1000
-                    decimals: 0
+                    maximumValue: 10000
                 }
 
-                Item {
-                    width: 4
-                    height: 4
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel { text: qsTr("W") }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.contentHeight
+                    minimumValue: 0
+                    maximumValue: 10000
                 }
 
-                Label {
-                    text: "H"
-                    width: 12
-                }
-                SpinBox {
-                    backendValue: backendValues.cellHeight
-                    minimumValue: 0
-                    maximumValue: 1000
-                    decimals: 0
-                }
-                ExpandingSpacer {
-                }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel { text: qsTr("H") }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+                LinkIndicator2D {}
+
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Flow")
-            }
+            PropertyLabel { text: qsTr("Flow") }
 
             SecondColumnLayout {
                 ComboBox {
-                    scope: "GridView"
-                    model: ["FlowLeftToRight", "FlowTopToBottom"]
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.flow
-                    Layout.fillWidth: true
+                    model: ["FlowLeftToRight", "FlowTopToBottom"]
+                    scope: "GridView"
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Navigation wraps")
-                tooltip: qsTr("Whether the grid wraps key navigation.")
-            }
-
-            SectionLayout {
-                CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.keyNavigationWraps
-                    text: backendValues.keyNavigationWraps.valueToString
-                }
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
-                text: qsTr("Layout direction")
-            }
+            PropertyLabel { text: qsTr("Layout direction") }
 
             SecondColumnLayout {
                 ComboBox {
-                    scope: "Qt"
-                    model: ["LeftToRight", "RightToLeft"]
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.layoutDirection
-                    Layout.fillWidth: true
+                    model: ["LeftToRight", "RightToLeft"]
+                    scope: "Qt"
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Snap mode")
                 tooltip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
             }
 
             SecondColumnLayout {
                 ComboBox {
-                    scope: "GridView"
-                    model: ["NoSnap", "SnapToRow", "SnapOneRow"]
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.snapMode
-                    Layout.fillWidth: true
+                    model: ["NoSnap", "SnapToRow", "SnapOneRow"]
+                    scope: "GridView"
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
+            PropertyLabel {
+                text: qsTr("Cache")
+                tooltip: qsTr("Cache buffer")
+                disabledState: !backendValues.cacheBuffer.isAvailable
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.cacheBuffer
+                    minimumValue: 0
+                    maximumValue: 1000
+                    decimals: 0
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Navigation wraps")
+                tooltip: qsTr("Whether the grid wraps key navigation.")
+                disabledState: !backendValues.keyNavigationWraps.isAvailable
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.keyNavigationWraps.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.keyNavigationWraps
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
         }
     }
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Grid View Highlight")
 
-        SectionLayout {
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-            Label {
+        SectionLayout {
+            PropertyLabel {
                 text: qsTr("Range")
                 tooltip: qsTr("Highlight range")
             }
 
             SecondColumnLayout {
                 ComboBox {
-                    scope: "GridView"
-                    model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.highlightRangeMode
-                    Layout.fillWidth: true
+                    model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
+                    scope: "GridView"
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Move duration")
                 tooltip: qsTr("Move animation duration of the highlight delegate.")
             }
 
             SectionLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.highlightMoveDuration
                     minimumValue: 0
                     maximumValue: 1000
                     decimals: 0
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Preferred begin")
                 tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
             }
 
             SectionLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.preferredHighlightBegin
                     minimumValue: 0
                     maximumValue: 1000
                     decimals: 0
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Preferred end")
                 tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
             }
 
             SectionLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.preferredHighlightEnd
                     minimumValue: 0
                     maximumValue: 1000
                     decimals: 0
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Follows current")
                 tooltip: qsTr("Whether the highlight is managed by the view.")
             }
 
             SectionLayout {
                 CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.highlightFollowsCurrentItem
                     text: backendValues.highlightFollowsCurrentItem.valueToString
+                    backendValue: backendValues.highlightFollowsCurrentItem
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
-                ExpandingSpacer {
-                }
-            }
 
+                ExpandingSpacer {}
+            }
         }
     }
 }

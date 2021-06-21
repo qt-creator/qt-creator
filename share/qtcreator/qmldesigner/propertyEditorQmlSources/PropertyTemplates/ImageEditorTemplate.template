@@ -1,57 +1,48 @@
-// Dummy comment to consume the first argument and suppress warnings %1
-
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: qsTr("Image")
+    leftPadding: 8
+    rightPadding: 0
+    caption: "%1" + " - " + qsTr("Image")
     expanded: false
-    level: 2
+    level: 1
 
     SectionLayout {
-        Label {
-            text: qsTr("Source")
-        }
+        PropertyLabel { text: qsTr("Source") }
 
         SecondColumnLayout {
             UrlChooser {
-                Layout.fillWidth: true
                 backendValue: backendValues.%2_source
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Fill mode")
-        }
+        PropertyLabel { text: qsTr("Fill mode") }
 
         SecondColumnLayout {
             ComboBox {
                 scope: "Image"
                 model: ["Stretch", "PreserveAspectFit", "PreserveAspectCrop", "Tile", "TileVertically", "TileHorizontally", "Pad"]
                 backendValue: backendValues.%2_fillMode
-                implicitWidth: 180
-                Layout.fillWidth: true
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Source size")
-            disabledState: !backendValues.%2_sourceSize.isAvailable
+            disabledState: !backendValues.%2_sourceSize_height.isAvailable
+                           && !backendValues.%2_sourceSize_width.isAvailable
         }
 
         SecondColumnLayout {
-            Label {
-                text: "W"
-                width: 12
-                disabledStateSoft: !backendValues.%2_sourceSize_width.isAvailable
-            }
-
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.%2_sourceSize_width
                 minimumValue: 0
                 maximumValue: 8192
@@ -59,18 +50,18 @@ Section {
                 enabled: backendValue.isAvailable
             }
 
-            Item {
-                width: 4
-                height: 4
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                text: qsTr("W")
+                //disabledStateSoft: !backendValues.%2_sourceSize_width.isAvailable
             }
 
-            Label {
-                text: "H"
-                width: 12
-                disabledStateSoft: !backendValues.%2_sourceSize_height.isAvailable
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.%2_sourceSize_height
                 minimumValue: 0
                 maximumValue: 8192
@@ -78,45 +69,47 @@ Section {
                 enabled: backendValue.isAvailable
             }
 
-            ExpandingSpacer {
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                text: qsTr("H")
+                //disabledStateSoft: !backendValues.%2_sourceSize_height.isAvailable
             }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Horizontal alignment")
-        }
+        PropertyLabel { text: qsTr("Alignment H") }
 
         SecondColumnLayout {
             ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 scope: "Image"
                 model: ["AlignLeft", "AlignRight", "AlignHCenter"]
                 backendValue: backendValues.%2_horizontalAlignment
-                implicitWidth: 180
-                Layout.fillWidth: true
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Vertical alignment")
-        }
+        PropertyLabel { text: qsTr("Alignment V") }
 
         SecondColumnLayout {
             ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 scope: "Image"
                 model: ["AlignTop", "AlignBottom", "AlignVCenter"]
                 backendValue: backendValues.%2_verticalAlignment
-                implicitWidth: 180
-                Layout.fillWidth: true
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Asynchronous")
             tooltip: qsTr("Loads images on the local filesystem asynchronously in a separate thread.")
             disabledState: !backendValues.%2_asynchronous.isAvailable
@@ -127,12 +120,14 @@ Section {
                 enabled: backendValues.%2_asynchronous.isAvailable
                 text: backendValues.%2_asynchronous.valueToString
                 backendValue: backendValues.%2_asynchronous
-                implicitWidth: 180
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
             ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Auto transform")
             tooltip: qsTr("Automatically applies image transformation metadata such as EXIF orientation.")
             disabledState: !backendValues.%2_autoTransform.isAvailable
@@ -143,12 +138,14 @@ Section {
                 enabled: backendValues.%2_autoTransform.isAvailable
                 text: backendValues.%2_autoTransform.valueToString
                 backendValue: backendValues.%2_autoTransform
-                implicitWidth: 180
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
             ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Cache")
             tooltip: qsTr("Caches the image.")
             disabledState: !backendValues.%2_cache.isAvailable
@@ -159,12 +156,14 @@ Section {
                 enabled: backendValues.%2_cache.isAvailable
                 text: backendValues.%2_cache.valueToString
                 backendValue: backendValues.%2_cache
-                implicitWidth: 180
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
             ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Mipmap")
             tooltip: qsTr("Uses mipmap filtering when the image is scaled or transformed.")
             disabledState: !backendValues.%2_mipmap.isAvailable
@@ -175,12 +174,14 @@ Section {
                 enabled: backendValues.%2_mipmap.isAvailable
                 text: backendValues.%2_mipmap.valueToString
                 backendValue: backendValues.%2_mipmap
-                implicitWidth: 180
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
             ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Mirror")
             tooltip: qsTr("Inverts the image horizontally.")
             disabledState: !backendValues.%2_mirror.isAvailable
@@ -191,12 +192,14 @@ Section {
                 enabled: backendValues.%2_mirror.isAvailable
                 text: backendValues.%2_mirror.valueToString
                 backendValue: backendValues.%2_mirror
-                implicitWidth: 180
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
             ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Smooth")
             tooltip: qsTr("Smoothly filters the image when it is scaled or transformed.")
             disabledState: !backendValues.%2_smooth.isAvailable
@@ -207,8 +210,10 @@ Section {
                 enabled: backendValues.%2_smooth.isAvailable
                 text: backendValues.%2_smooth.valueToString
                 backendValue: backendValues.%2_smooth
-                implicitWidth: 180
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
             ExpandingSpacer {}
         }
     }

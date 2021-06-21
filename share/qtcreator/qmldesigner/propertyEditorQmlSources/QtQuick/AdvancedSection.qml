@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Section {
     anchors.left: parent.left
@@ -33,182 +34,120 @@ Section {
     caption: qsTr("Advanced")
 
     SectionLayout {
-        columns: 2
-
-        Label {
-            text: qsTr("Origin")
-            disabledState: !backendValues.transformOrigin.isAvailable
-        }
-
-        OriginControl {
-            backendValue: backendValues.transformOrigin
-            enabled: backendValues.transformOrigin.isAvailable
-        }
-
-        Label {
-            text: qsTr("Scale")
-            disabledState: !backendValues.scale.isAvailable
-        }
-
-        SecondColumnLayout {
-            SpinBox {
-                sliderIndicatorVisible: true
-                backendValue: backendValues.scale
-                hasSlider: true
-                decimals: 2
-                stepSize: 0.1
-                minimumValue: -10
-                maximumValue: 10
-                Layout.preferredWidth: 140
-                enabled: backendValues.scale.isAvailable
-            }
-            ExpandingSpacer {
-            }
-        }
-        Label {
-            text: qsTr("Rotation")
-            disabledState: !backendValues.rotation.isAvailable
-        }
-        SecondColumnLayout {
-            SpinBox {
-                sliderIndicatorVisible: true
-                backendValue: backendValues.rotation
-                hasSlider: true
-                decimals: 2
-                minimumValue: -360
-                maximumValue: 360
-                Layout.preferredWidth: 140
-                enabled: backendValues.rotation.isAvailable
-            }
-            ExpandingSpacer {
-            }
-        }
-        Label {
-            text: "Z"
-        }
-        SecondColumnLayout {
-            SpinBox {
-                sliderIndicatorVisible: true
-                backendValue: backendValues.z
-                hasSlider: true
-                minimumValue: -100
-                maximumValue: 100
-                Layout.preferredWidth: 140
-            }
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("State")
-        }
-        SecondColumnLayout {
-
-            ComboBox {
-                Layout.fillWidth: true
-                backendValue: backendValues.state
-                model: allStateNames
-                valueType: ComboBox.String
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
+        PropertyLabel {
             visible: majorQtQuickVersion > 1
             text: qsTr("Enabled")
         }
+
         SecondColumnLayout {
             visible: majorQtQuickVersion > 1
+
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.enabled
-                text: qsTr("Accept mouse and keyboard events")
+                text: backendValues.enabled.valueToString
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: majorQtQuickVersion > 1
             text: qsTr("Smooth")
             disabledState: !backendValues.smooth.isAvailable
         }
+
         SecondColumnLayout {
             visible: majorQtQuickVersion > 1
+
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.smooth
-                text: qsTr("Smooth sampling active")
+                text: backendValues.smooth.valueToString
                 enabled: backendValues.smooth.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: majorQtQuickVersion > 1
             text: qsTr("Antialiasing")
             disabledState: !backendValues.antialiasing.isAvailable
         }
+
         SecondColumnLayout {
             visible: majorQtQuickVersion > 1
+
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.antialiasing
-                text: qsTr("Anti-aliasing active")
+                text: backendValues.antialiasing.valueToString
                 enabled: backendValues.antialiasing.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Focus")
             tooltip: qsTr("Sets focus on the component within the enclosing focus scope.")
             disabledState: !backendValues.focus.isAvailable
         }
+
         SecondColumnLayout {
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.focus
                 text: backendValues.focus.valueToString
                 enabled: backendValues.focus.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Active focus on tab")
+        PropertyLabel {
+            text: qsTr("Focus on Tab")
             tooltip: qsTr("Adds the component to the tab focus chain.")
             disabledState: !backendValues.activeFocusOnTab.isAvailable
         }
+
         SecondColumnLayout {
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.activeFocusOnTab
                 text: backendValues.activeFocusOnTab.valueToString
                 enabled: backendValues.activeFocusOnTab.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Baseline offset")
+        PropertyLabel {
+            text: qsTr("Baseline Offset")
             tooltip: qsTr("Position of the component's baseline in local coordinates.")
             disabledState: !backendValues.baselineOffset.isAvailable
         }
+
         SecondColumnLayout {
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 sliderIndicatorVisible: true
                 backendValue: backendValues.baselineOffset
                 hasSlider: true
                 decimals: 0
                 minimumValue: -1000
                 maximumValue: 1000
-                Layout.preferredWidth: 140
                 enabled: backendValues.baselineOffset.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
     }
 }

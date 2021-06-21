@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,30 +23,33 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 Item {
+    id: root
+
     width: 300
-    height: 60
+    height: StudioTheme.Values.colorEditorPopupLineHeight
 
     property color currentColor
     property alias model: repeater.model
 
     property bool hasGradient: gradientModel.hasGradient
 
-
     property alias gradientPropertyName: gradientModel.gradientPropertyName
     property alias gradientTypeName: gradientModel.gradientTypeName
 
     signal selectedNodeChanged
+    signal invalidated
 
     onHasGradientChanged: {
         colorLine.invalidate()
     }
 
     onCurrentColorChanged: {
-        gradientModel.setColor(colorLine.selectedIndex, currentColor)
+        gradientModel.setColor(colorLine.selectedIndex, root.currentColor)
         colorLine.invalidate()
     }
 
@@ -82,7 +85,7 @@ Item {
 
     Connections {
         target: modelNodeBackend
-        onSelectionChanged: {
+        function onSelectionChanged() {
             colorLine.invalidate()
             colorLine.select(0)
         }
@@ -102,40 +105,43 @@ Item {
             }
 
             if (repeater.model.count < index + 1)
-                return;
+                return
 
             repeater.itemAt(index).item.highlighted = true
             colorLine.selectedIndex = index
 
             gradientModel.lock()
-            currentColor = repeater.itemAt(index).item.color
+            root.currentColor = repeater.itemAt(index).item.color
             gradientModel.unlock()
-            selectedNodeChanged()
+            root.selectedNodeChanged()
         }
 
         function invalidate() {
-            var gradientString = "import QtQuick 2.0; Gradient {"
+            var gradientString = "import QtQuick 2.15; Gradient {"
 
             for (var i = 0; i < gradientModel.count; i++) {
                 gradientString += "GradientStop {}"
             }
             gradientString += "}"
 
-            var gradientObject = Qt.createQmlObject(gradientString, gradientRectangle, "test");
+            var gradientObject = Qt.createQmlObject(gradientString, gradientRectangle, "test")
 
             for (i = 0; i < gradientModel.count; i++) {
                 if (repeater.itemAt(i) !== null)
-                    repeater.itemAt(i).item.y = 20 //fixes corner case for dragging overlapped items
+                    repeater.itemAt(i).item.y = 20 // fixes corner case for dragging overlapped items
 
-                gradientObject.stops[i].color =  gradientModel.getColor(i)
+                gradientObject.stops[i].color = gradientModel.getColor(i)
                 gradientObject.stops[i].position = gradientModel.getPosition(i)
             }
 
-            gradientRectangle.gradient = gradientObject;
+            gradientRectangle.gradient = gradientObject
+
+            root.invalidated()
         }
 
         Column {
             anchors.fill: parent
+
             MouseArea {
                 height: 40
                 anchors.left: parent.left
@@ -144,14 +150,14 @@ Item {
 
                 onClicked: {
                     var currentPosition = mouseX / colorLine.effectiveWidth
-
-                    var newIndex = gradientModel.addStop(currentPosition, currentColor)
+                    var newIndex = gradientModel.addStop(currentPosition, root.currentColor)
 
                     if (newIndex > 0)
                         colorLine.select(newIndex)
 
                     colorLine.invalidate()
                 }
+
                 Item {
                     id: stack
                     anchors.fill: parent
@@ -160,10 +166,9 @@ Item {
                 Repeater {
                     id: repeater
                     model: GradientModel {
+                        id: gradientModel
                         anchorBackendProperty: anchorBackend
                         gradientPropertyName: "gradient"
-                        id: gradientModel
-
                     }
 
                     delegate: Loader {
@@ -195,15 +200,17 @@ Item {
             }
 
             Component.onCompleted: {
-                colorLine.select(0);
-                colorLine.invalidate();
+                colorLine.select(0)
+                colorLine.invalidate()
             }
 
             Item {
                 height: 16
                 anchors.left: parent.left
                 anchors.right: parent.right
+
                 Rectangle {
+                    id: gradientRectangle
                     smooth: true
                     x: 0
                     y: 16
@@ -212,7 +219,6 @@ Item {
                     border.width: 1
                     width: parent.height
                     height: parent.width
-                    id: gradientRectangle
                     gradient: Gradient {
                         id: gradient
                     }
@@ -229,34 +235,40 @@ Item {
 
     Component {
         id: component
+
         Item {
             id: gradientStopHandle
-            y: 20
-            width: 10
-            height: 20
 
             property alias color: rectangle.color
             property alias highlighted: canvas.highlighted
-
             property bool toolTipVisible: false
+            property bool readOnly: false
+            property int index: 0
+
+            y: 20
+            width: 10
+            height: 20
+            opacity: y < 20 ? y / 10 : 1
 
             function refreshToolTip(showToolTip) {
-                toolTipVisible = showToolTip;
+                gradientStopHandle.toolTipVisible = showToolTip
                 if (showToolTip) {
-                    var currentPoint = Qt.point(gradientStopHandleMouseArea.mouseX, gradientStopHandleMouseArea.mouseY);
-                    var fixedGradiantStopPosition = currentGradiantStopPosition();
-                    myTooltip.showText(gradientStopHandleMouseArea, currentPoint, fixedGradiantStopPosition.toFixed(3));
+                    var currentPoint = Qt.point(gradientStopHandleMouseArea.mouseX,
+                                                gradientStopHandleMouseArea.mouseY)
+                    var fixedGradiantStopPosition = currentGradiantStopPosition()
+                    myTooltip.showText(gradientStopHandleMouseArea,
+                                       currentPoint,
+                                       fixedGradiantStopPosition.toFixed(3))
                 } else {
                     myTooltip.hideText()
                 }
             }
+
             function currentGradiantStopPosition() {
-                return x / colorLine.effectiveWidth;
+                return gradientStopHandle.x / colorLine.effectiveWidth;
             }
 
-            onXChanged: {
-                refreshToolTip(toolTipVisible)
-            }
+            onXChanged: gradientStopHandle.refreshToolTip(gradientStopHandle.toolTipVisible)
 
             Rectangle {
                 id: rectangle
@@ -266,7 +278,6 @@ Item {
                 border.color: "gray"
                 border.width: 1
                 radius: 1
-
             }
 
             Canvas {
@@ -279,7 +290,7 @@ Item {
 
                 property bool highlighted: false
 
-                property color strokeStyle:  Qt.darker(fillStyle, 1.6)
+                property color strokeStyle: Qt.darker(fillStyle, 1.6)
                 property color fillStyle: highlighted ? "lightGray" : "gray"
 
                 onHighlightedChanged: requestPaint()
@@ -305,13 +316,7 @@ Item {
 
                     ctx.restore()
                 }
-
             }
-
-            property bool readOnly: false
-            property int index: 0
-
-            opacity: y < 20 ? y / 10 : 1
 
             Behavior on y {
                 PropertyAnimation {
@@ -324,45 +329,41 @@ Item {
                     duration: 100
                 }
             }
+
             MouseArea {
                 id: gradientStopHandleMouseArea
                 anchors.fill: parent
                 drag.target: parent
                 drag.minimumX: 0
                 drag.maximumX: colorLine.effectiveWidth
-                drag.minimumY: !readOnly ? 0 : 20
+                drag.minimumY: !gradientStopHandle.readOnly ? 0 : 20
                 drag.maximumY: 20
                 cursorShape: Qt.PointingHandCursor
+                hoverEnabled: true
 
                 // using pressed property instead of drag.active which was not working
-                onExited: {
-                    gradientStopHandle.refreshToolTip(pressed);
-                }
-                onCanceled: {
-                    gradientStopHandle.refreshToolTip(pressed);
-                }
-                hoverEnabled: true
+                onExited: gradientStopHandle.refreshToolTip(pressed)
+                onCanceled: gradientStopHandle.refreshToolTip(pressed)
 
                 Timer {
                     interval: 1000
                     running: gradientStopHandleMouseArea.containsMouse
-                    onTriggered: {
-                        gradientStopHandle.refreshToolTip(true);
-                    }
+                    onTriggered: gradientStopHandle.refreshToolTip(true)
                 }
 
                 onPressed: {
-                    colorLine.select(index);
-                    gradientStopHandle.refreshToolTip(true);
+                    colorLine.select(index)
+                    gradientStopHandle.refreshToolTip(true)
                 }
 
                 onReleased: {
                     if (drag.active) {
-                        gradientModel.setPosition(colorLine.selectedIndex, gradientStopHandle.currentGradiantStopPosition())
-                        gradientStopHandle.refreshToolTip(false);
+                        gradientModel.setPosition(colorLine.selectedIndex,
+                                                  gradientStopHandle.currentGradiantStopPosition())
+                        gradientStopHandle.refreshToolTip(false)
 
                         if (parent.y < 10) {
-                            if (!readOnly) {
+                            if (!gradientStopHandle.readOnly) {
                                 colorLine.select(index - 1)
                                 gradientModel.removeStop(index)
                             }

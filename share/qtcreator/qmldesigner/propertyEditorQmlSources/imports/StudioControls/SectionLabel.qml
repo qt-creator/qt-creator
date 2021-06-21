@@ -23,17 +23,13 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Templates 2.12 as T
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
 T.Label {
     id: label
-
-    //property alias tooltip: toolTipArea.tooltip
-    // workaround because PictureSpecifics.qml still use this
-    //property alias toolTip: toolTipArea.tooltip
 
     width: Math.max(Math.min(240, parent.width - 220), 90)
     color: StudioTheme.Values.themeTextColor
@@ -43,11 +39,4 @@ T.Label {
     Layout.preferredWidth: width
     Layout.minimumWidth: width
     Layout.maximumWidth: width
-/*
-    ToolTipArea {
-        id: toolTipArea
-        anchors.fill: parent
-        tooltip: label.text
-    }
-*/
 }

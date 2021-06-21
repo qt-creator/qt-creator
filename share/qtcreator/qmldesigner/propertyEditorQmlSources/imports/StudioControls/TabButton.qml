@@ -35,20 +35,21 @@ T.TabButton {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
-    padding: 1
+    padding: 4
 
     background: Rectangle {
         id: buttonBackground
-        color: myButton.checked ? StudioTheme.Values.themeTabActiveBackground
-                                : StudioTheme.Values.themeTabInactiveBackground
-        border.width: 0
+        color: myButton.checked ? StudioTheme.Values.themeInteraction
+                                : "transparent"
+        border.width: StudioTheme.Values.border
+        border.color: StudioTheme.Values.themeInteraction
     }
 
     contentItem: T.Label {
         id: buttonIcon
-        color: myButton.checked ? StudioTheme.Values.themeTabActiveText
-                                : StudioTheme.Values.themeTabInactiveText
-        font.weight: Font.Bold
+        color: myButton.checked ? StudioTheme.Values.themeControlBackground
+                                : StudioTheme.Values.themeInteraction
+        //font.weight: Font.Bold
         //font.family: StudioTheme.Constants.font.family
         font.pixelSize: StudioTheme.Values.myFontSize
         verticalAlignment: Text.AlignVCenter

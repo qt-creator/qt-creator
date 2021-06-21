@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,52 +23,171 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Layouts 1.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtGraphicalEffects 1.15 as Effects
+import QtQuick.Shapes 1.15
+import QtQuick.Templates 2.15 as T
 import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
+import QtQuickDesignerColorPalette 1.0
 
-Column {
+SecondColumnLayout {
     id: colorEditor
 
-    width: parent.width - 8
-
     property color color
-
     property bool supportGradient: false
-
-    property string caption: qsTr("Color")
-
     property variant backendValue
-
     property variant value: {
-        if (isVector3D)
-            return Qt.rgba(backendValue.value.x, backendValue.value.y, backendValue.value.z, 1);
+        if (colorEditor.isVector3D)
+            return Qt.rgba(colorEditor.backendValue.value.x,
+                           colorEditor.backendValue.value.y,
+                           colorEditor.backendValue.value.z,
+                           1)
         else
-            return backendValue.value;
+            return colorEditor.backendValue.value
     }
-
     property alias gradientPropertyName: gradientLine.gradientPropertyName
-
     property bool shapeGradients: false
-
-    property alias transparent: transparentButton.checked
-
     property color originalColor
-
     property bool isVector3D: false
 
     function isNotInGradientMode() {
-        return (buttonRow.checkedIndex === 0 || transparent)
+        return ceMode.currentValue === "Solid"
+    }
+
+    function hasLinearGradient() {
+        return ceMode.currentValue === "LinearGradient"
+    }
+
+    function hasConicalGradient() {
+        return ceMode.currentValue === "ConicalGradient"
+    }
+
+    function hasRadialGradient() {
+        return ceMode.currentValue === "RadialGradient"
     }
 
     function resetShapeColor() {
         colorEditor.backendValue.resetValue()
     }
 
-    onValueChanged: colorEditor.color = colorEditor.value
+    function updateThumbnail() {
+        if (!gradientLine.hasGradient)
+            return
 
+        if (!colorEditor.shapeGradients) {
+            var gradientString = "import QtQuick 2.15; Gradient {"
+            var orientation = gradientOrientation.currentValue === Gradient.Horizontal ? "Gradient.Horizontal"
+                                                                                       : "Gradient.Vertical"
+            gradientString += "orientation: " + orientation + ";"
+
+            for (var i = 0; i < gradientLine.model.count; i++)
+                gradientString += "GradientStop {}"
+
+            gradientString += "}"
+
+            var gradientObject = Qt.createQmlObject(gradientString, gradientThumbnail, "test")
+
+            for (i = 0; i < gradientLine.model.count; i++) {
+                gradientObject.stops[i].color = gradientLine.model.getColor(i)
+                gradientObject.stops[i].position = gradientLine.model.getPosition(i)
+            }
+
+            gradientThumbnail.gradient = gradientObject
+        } else {
+            var gradientStr = "import QtQuick 2.15; import QtQuick.Shapes 1.15; "
+                    + gradientLine.gradientTypeName + " {"
+
+            if (gradientLine.gradientTypeName === "LinearGradient") {
+                gradientStr += "x1: 0"
+                            + ";x2: " + shape.width
+                            + ";y1: 0"
+                            + ";y2: " + shape.height + ";"
+            } else if (gradientLine.gradientTypeName === "RadialGradient") {
+                gradientStr += "centerX: " + shape.width * 0.5
+                            + ";centerY: " + shape.height * 0.5
+                            + ";focalX: " + shape.width * 0.5
+                            + ";focalY: " + shape.height * 0.5
+                            + ";centerRadius: " + Math.min(shape.width, shape.height) * 0.5
+                            + ";focalRadius: 0" + ";"
+            } else if (gradientLine.gradientTypeName === "ConicalGradient") {
+                gradientStr += "centerX: " + shape.width * 0.5
+                            + ";centerY: " + shape.height * 0.5
+                            + ";angle: 0" + ";"
+            }
+
+            for (var j = 0; j < gradientLine.model.count; j++)
+                gradientStr += "GradientStop {}"
+
+            gradientStr += "}"
+
+            var gradientObj = Qt.createQmlObject(gradientStr, shapeGradientThumbnail, "test1")
+
+            for (j = 0; j < gradientLine.model.count; j++) {
+                gradientObj.stops[j].color = gradientLine.model.getColor(j)
+                gradientObj.stops[j].position = gradientLine.model.getPosition(j)
+            }
+
+            shapeGradientThumbnail.fillGradient = gradientObj
+        }
+    }
+
+    function createModel() {
+        // Build the color editor combobox model
+        ceMode.items.clear()
+        ceMode.items.append({
+            value: "Solid",
+            text: qsTr("Solid"),
+            test: true
+        })
+        ceMode.items.append({
+            value: "LinearGradient",
+            text: qsTr("Linear"),
+            test: colorEditor.supportGradient
+        })
+        ceMode.items.append({
+            value: "RadialGradient",
+            text: qsTr("Radial"),
+            test: colorEditor.supportGradient && colorEditor.shapeGradients
+        })
+        ceMode.items.append({
+            value: "ConicalGradient",
+            text: qsTr("Conical"),
+            test: colorEditor.supportGradient && colorEditor.shapeGradients
+        })
+    }
+
+    function determineActiveColorMode() {
+        if (colorEditor.supportGradient && gradientLine.hasGradient) {
+            if (colorEditor.shapeGradients) {
+                switch (gradientLine.gradientTypeName) {
+                case "LinearGradient":
+                    ceMode.currentIndex = ceMode.indexOfValue("LinearGradient")
+                    break
+                case "RadialGradient":
+                    ceMode.currentIndex = ceMode.indexOfValue("RadialGradient")
+                    break
+                case "ConicalGradient":
+                    ceMode.currentIndex = ceMode.indexOfValue("ConicalGradient")
+                    break
+                default:
+                    ceMode.currentIndex = ceMode.indexOfValue("LinearGradient")
+                }
+            } else {
+                ceMode.currentIndex = ceMode.indexOfValue("LinearGradient")
+            }
+            colorEditor.color = gradientLine.currentColor
+        } else {
+            ceMode.currentIndex = ceMode.indexOfValue("Solid")
+            colorEditor.color = colorEditor.value
+        }
+
+        colorEditor.originalColor = colorEditor.color
+    }
+
+    onValueChanged: colorEditor.color = colorEditor.value
     onBackendValueChanged: colorEditor.color = colorEditor.value
 
     Timer {
@@ -81,9 +200,9 @@ Column {
                 if (isVector3D) {
                     colorEditor.backendValue.value = Qt.vector3d(colorEditor.color.r,
                                                                  colorEditor.color.g,
-                                                                 colorEditor.color.b);
+                                                                 colorEditor.color.b)
                 } else {
-                    colorEditor.backendValue.value = colorEditor.color;
+                    colorEditor.backendValue.value = colorEditor.color
                 }
             }
         }
@@ -91,637 +210,973 @@ Column {
 
     onColorChanged: {
         if (!gradientLine.isInValidState)
-            return;
+            return
 
         if (colorEditor.supportGradient && gradientLine.hasGradient) {
-            textField.text = convertColorToString(color)
-            gradientLine.currentColor = color
+            var hexColor = convertColorToString(colorEditor.color)
+            hexTextField.text = hexColor
+            popupHexTextField.text = hexColor
+            gradientLine.currentColor = colorEditor.color
         }
 
-        if (isNotInGradientMode()) {
-            //Delay setting the color to keep ui responsive
-            colorEditorTimer.restart()
-        }
+        if (isNotInGradientMode())
+            colorEditorTimer.restart() // Delay setting the color to keep ui responsive
 
-        colorPalette.selectedColor = color
+        colorPalette.selectedColor = colorEditor.color
     }
 
-    ColorLine {
-        visible: {
-            return (colorEditor.supportGradient && isNotInGradientMode())
+    Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
+    Rectangle {
+        id: preview
+        implicitWidth: StudioTheme.Values.twoControlColumnWidth
+        implicitHeight: StudioTheme.Values.height
+        color: colorEditor.color
+        border.color: StudioTheme.Values.themeControlOutline
+        border.width: StudioTheme.Values.border
+
+        Effects.LinearGradient {
+            id: gradientThumbnail
+            anchors.fill: parent
+            anchors.margins: StudioTheme.Values.border
+            visible: !colorEditor.isNotInGradientMode()
+                     && !colorEditor.shapeGradients
+                     && colorEditor.hasLinearGradient()
         }
-        currentColor: colorEditor.color
-        width: parent.width
-    }
 
-    GradientLine {
-        property bool isInValidState: false
-        visible: {
-            return !(isNotInGradientMode())
-        }
-        id: gradientLine
+        Shape {
+            id: shape
+            anchors.fill: parent
+            anchors.margins: StudioTheme.Values.border
+            visible: !colorEditor.isNotInGradientMode()
+                     && colorEditor.shapeGradients
 
-        width: parent.width
+            ShapePath {
+                id: shapeGradientThumbnail
+                startX: shape.x - 1
+                startY: shape.y - 1
+                strokeWidth: -1
+                strokeColor: "green"
 
-        onCurrentColorChanged: {
-            if (colorEditor.supportGradient && gradientLine.hasGradient) {
-                colorEditor.color = gradientLine.currentColor
+                PathLine { x: shape.x - 1; y: shape.height }
+                PathLine { x: shape.width; y: shape.height }
+                PathLine { x: shape.width; y: shape.y - 1 }
             }
         }
 
-        onHasGradientChanged: {
-            if (!colorEditor.supportGradient)
-                return
-
-            if (gradientLine.hasGradient) {
-                if (colorEditor.shapeGradients) {
-                    switch (gradientLine.gradientTypeName) {
-                    case "LinearGradient":
-                        buttonRow.initalChecked = 1
-                        break;
-                    case "RadialGradient":
-                        buttonRow.initalChecked = 2
-                        break;
-                    case "ConicalGradient":
-                        buttonRow.initalChecked = 3
-                        break;
-                    default:
-                        buttonRow.initalChecked = 1
-                    }
-                } else {
-                    buttonRow.initalChecked = 1
-                }
-                colorEditor.color = gradientLine.currentColor
-            } else if (colorEditor.transparent) {
-                buttonRow.initalChecked = 4
-            } else {
-                buttonRow.initalChecked = 0
-                colorEditor.color = colorEditor.value
-            }
-
-            buttonRow.checkedIndex = buttonRow.initalChecked
-            colorEditor.originalColor = colorEditor.color
+        Image {
+            anchors.fill: parent
+            source: "images/checkers.png"
+            fillMode: Image.Tile
+            z: -1
         }
 
-        onSelectedNodeChanged: {
-            if (colorEditor.supportGradient && gradientLine.hasGradient) {
-                colorEditor.originalColor = gradientLine.currentColor
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                cePopup.opened ? cePopup.close() : cePopup.open()
+                forceActiveFocus()
             }
         }
 
-        Connections {
-            target: modelNodeBackend
-            onSelectionToBeChanged: {
-                colorEditorTimer.stop()
-                gradientLine.isInValidState = false
-                if (colorEditor.originalColor !== colorEditor.color) {
-                    if (colorEditor.color != "#ffffff"
-                            && colorEditor.color != "#000000"
-                            && colorEditor.color != "#00000000") {
-                        colorPalette.addColorToPalette(colorEditor.color)
-                    }
-                }
-            }
-        }
+        T.Popup {
+            id: cePopup
 
-        Connections {
-            target: modelNodeBackend
-            onSelectionChanged: {
-                if (colorEditor.supportGradient && gradientLine.hasGradient) {
-                    colorEditor.color = gradientLine.currentColor
-                    gradientLine.currentColor = color
-                    textField.text = colorEditor.color
-                }
-                gradientLine.isInValidState = true
-                colorEditor.originalColor = colorEditor.color
-                colorPalette.selectedColor = colorEditor.color
-            }
-        }
+            onOpened: {
+                if (Controller.mainScrollView === null)
+                    return
 
-    }
-
-    SectionLayout {
-        width: parent.width
-        columnSpacing: 0
-        rowSpacing: checkButton.checked ? 8 : 2
-
-        rows: 5
-
-        //spacer 1
-        Item {
-            height: 6
-        }
-
-        SecondColumnLayout {
-
-            Item {
-                width: 6
+                var mapped = preview.mapToItem(Controller.mainScrollView.contentItem, cePopup.x, cePopup.y)
+                Controller.mainScrollView.temporaryHeight = mapped.y + cePopup.height + 20
             }
 
-            ColorCheckButton {
-                id: checkButton
-                buttonColor: colorEditor.color
+            onHeightChanged: {
+                if (Controller.mainScrollView === null)
+                    return
 
-                onCheckedChanged: {
-                    if (contextMenu.opened)
-                        contextMenu.close()
-                }
-                onRightMouseButtonClicked: contextMenu.popup(checkButton)
+                var mapped = preview.mapToItem(Controller.mainScrollView.contentItem, cePopup.x, cePopup.y)
+                Controller.mainScrollView.temporaryHeight = mapped.y + cePopup.height + 20
             }
 
-            LineEdit {
-                enabled: !colorEditor.transparent
-                id: textField
+            onClosed: {
+                Controller.mainScrollView.temporaryHeight = 0
+            }
 
-                writeValueManually: true
+            x: - StudioTheme.Values.colorEditorPopupWidth * 0.5
+               + preview.width * 0.5
+            y: - StudioTheme.Values.colorEditorPopupMargin
+               - (StudioTheme.Values.colorEditorPopupSpacing * 2)
+               - StudioTheme.Values.defaultControlHeight
+               - StudioTheme.Values.colorEditorPopupLineHeight
+               - colorPicker.height * 0.5
+               + preview.height * 0.5
 
-                validator: RegExpValidator {
-                    regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
-                }
+            width: StudioTheme.Values.colorEditorPopupWidth
+            height: colorColumn.height + sectionColumn.height
+                    + StudioTheme.Values.colorEditorPopupMargin + 2 // TODO magic number
 
-                showTranslateCheckBox: false
+            padding: StudioTheme.Values.border
+            margins: -1 // If not defined margin will be -1
 
-                backendValue: colorEditor.backendValue
+            closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
 
-                onAccepted: {
-                    colorEditor.color = colorFromString(textField.text)
-                }
+            contentItem: Item {
+                id: todoItem
 
-                onCommitData: {
-                    colorEditor.color = colorFromString(textField.text)
-                    if (isNotInGradientMode()) {
-                        if (colorEditor.isVector3D) {
-                            backendValue.value = Qt.vector3d(colorEditor.color.r,
-                                                             colorEditor.color.g,
-                                                             colorEditor.color.b);
-                        } else {
-                            backendValue.value = colorEditor.color;
+                property color color
+                property bool supportGradient: false
+
+                Column {
+                    id: colorColumn
+
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: StudioTheme.Values.colorEditorPopupMargin
+                    spacing: StudioTheme.Values.colorEditorPopupSpacing
+
+                    RowLayout {
+                        width: parent.width
+                        Layout.alignment: Qt.AlignTop
+
+                        StudioControls.ComboBox {
+                            id: ceMode
+
+                            property ListModel items: ListModel {}
+
+                            implicitWidth: StudioTheme.Values.colorEditorPopupCmoboBoxWidth
+                            width: implicitWidth
+                            actionIndicatorVisible: false
+                            textRole: "text"
+                            valueRole: "value"
+                            model: ceMode.items
+                            onActivated: {
+                                switch (ceMode.currentValue) {
+                                case "Solid":
+                                    gradientLine.deleteGradient()
+                                    hexTextField.text = colorEditor.color
+                                    popupHexTextField.text = colorEditor.color
+                                    colorEditor.resetShapeColor()
+                                    break
+                                case "LinearGradient":
+                                    colorEditor.resetShapeColor()
+
+                                    if (colorEditor.shapeGradients)
+                                        gradientLine.gradientTypeName = "LinearGradient"
+                                    else
+                                        gradientLine.gradientTypeName = "Gradient"
+
+                                    if (gradientLine.hasGradient)
+                                        gradientLine.updateGradient()
+                                    else {
+                                        gradientLine.deleteGradient()
+                                        gradientLine.addGradient()
+                                    }
+                                    break
+                                case "RadialGradient":
+                                    colorEditor.resetShapeColor()
+                                    gradientLine.gradientTypeName = "RadialGradient"
+
+                                    if (gradientLine.hasGradient)
+                                        gradientLine.updateGradient()
+                                    else {
+                                        gradientLine.deleteGradient()
+                                        gradientLine.addGradient()
+                                    }
+                                    break
+                                case "ConicalGradient":
+                                    colorEditor.resetShapeColor()
+                                    gradientLine.gradientTypeName = "ConicalGradient"
+
+                                    if (gradientLine.hasGradient)
+                                        gradientLine.updateGradient()
+                                    else {
+                                        gradientLine.deleteGradient()
+                                        gradientLine.addGradient()
+                                    }
+                                    break
+                                default:
+                                    console.log("Unknown item selected in color mode ComboBox.")
+                                }
+                                colorEditor.updateThumbnail()
+                            }
                         }
-                    }
-                }
 
-                Layout.fillWidth: true
-            }
+                        ExpandingSpacer {}
 
-            ButtonRow {
-                id: buttonRow
-                exclusive: true
-
-                ButtonRowButton {
-                    iconSource: "images/icon_color_solid.png"
-
-                    onClicked: {
-                        gradientLine.deleteGradient()
-
-                        textField.text = colorEditor.color
-                        colorEditor.resetShapeColor()
-                    }
-                    tooltip: qsTr("Solid Color")
-                }
-                ButtonRowButton {
-                    visible: colorEditor.supportGradient
-                    iconSource: "images/icon_color_gradient.png"
-                    onClicked: {
-                        colorEditor.resetShapeColor()
-
-                        if (colorEditor.shapeGradients)
-                            gradientLine.gradientTypeName = "LinearGradient"
-                        else
-                            gradientLine.gradientTypeName = "Gradient"
-
-                        if (gradientLine.hasGradient)
-                            gradientLine.updateGradient()
-                        else {
-                            gradientLine.deleteGradient()
-                            gradientLine.addGradient()
+                        IconIndicator {
+                            id: transparentIndicator
+                            icon: StudioTheme.Constants.transparent
+                            pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                            tooltip: qsTr("Transparent TODO")
+                            onClicked: {
+                                colorPicker.alpha = 0
+                                colorPicker.updateColor()
+                            }
                         }
-                    }
 
-                    tooltip: qsTr("Linear Gradient")
+                        IconIndicator {
+                            id: gradientPickerIndicator
+                            icon: StudioTheme.Constants.gradient
+                            pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                            tooltip: qsTr("Gradient Picker")
+                            enabled: colorEditor.supportGradient
+                            onClicked: presetList.show()
 
-                    GradientPopupIndicator {
+                            GradientPresetList {
+                                id: presetList
+                                visible: false
 
-                        onClicked: gradientDialogPopupLinear.toggle()
-
-                        GradientDialogPopup {
-                            id: gradientDialogPopupLinear
-
-                            dialogHeight: 110
-                            content: Column {
-                                spacing: StudioTheme.Values.sectionRowSpacing
-
-                                RowLayout {
-                                    Label {
-                                        text: "X1"
-                                        width: 18
-                                        tooltip: qsTr("Defines the start point for color interpolation.")
+                                function applyPreset() {
+                                    if (!gradientLine.hasGradient) {
+                                        if (colorEditor.shapeGradients)
+                                            gradientLine.gradientTypeName = "LinearGradient"
+                                        else
+                                            gradientLine.gradientTypeName = "Gradient"
                                     }
 
-                                    GradientPropertySpinBox { propertyName: "x1" }
-
-                                    Item { width: StudioTheme.Values.controlLabelGap }
-
-                                    Label {
-                                        text: "X2"
-                                        width: 18
-                                        tooltip: qsTr("Defines the end point for color interpolation.")
+                                    if (presetList.gradientData.presetType == 0) {
+                                        gradientLine.setPresetByID(presetList.gradientData.presetID)
+                                    } else if (presetList.gradientData.presetType == 1) {
+                                        gradientLine.setPresetByStops(
+                                                    presetList.gradientData.stops,
+                                                    presetList.gradientData.colors,
+                                                    presetList.gradientData.stopsCount)
+                                    } else {
+                                        console.log("INVALID GRADIENT TYPE: " +
+                                                    presetList.gradientData.presetType)
                                     }
-
-                                    GradientPropertySpinBox { propertyName: "x2" }
                                 }
 
-                                RowLayout {
-                                    Label {
-                                        text: "Y1"
-                                        width: 18
-                                        tooltip: qsTr("Defines the start point for color interpolation.")
-                                    }
+                                onApplied: {
+                                    if (presetList.gradientData.stopsCount > 0)
+                                        applyPreset()
+                                }
 
-                                    GradientPropertySpinBox { propertyName: "y1" }
+                                onSaved: {
+                                    gradientLine.savePreset()
+                                    presetList.updatePresets()
+                                }
 
-                                    Item { width: StudioTheme.Values.controlLabelGap }
-
-                                    Label {
-                                        text: "Y2"
-                                        width: 18
-                                        tooltip: qsTr("Defines the end point for color interpolation.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "y2" }
+                                onAccepted: { // return key
+                                    if (presetList.gradientData.stopsCount > 0)
+                                        applyPreset()
                                 }
                             }
                         }
-                    }
-                }
-                ButtonRowButton {
-                    visible: colorEditor.supportGradient && colorEditor.shapeGradients
-                    iconSource: "images/icon_color_radial_gradient.png"
-                    onClicked: {
-                        colorEditor.resetShapeColor()
-                        gradientLine.gradientTypeName = "RadialGradient"
 
-                        if (gradientLine.hasGradient)
-                            gradientLine.updateGradient()
-                        else {
-                            gradientLine.deleteGradient()
-                            gradientLine.addGradient()
+                        IconIndicator {
+                            id: eyeDropperIndicator
+                            icon: StudioTheme.Constants.eyeDropper
+                            pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                            tooltip: qsTr("Eye Dropper")
+                            onClicked: ColorPaletteSingleton.eyeDropper()
+                        }
+
+                        IconIndicator {
+                            id: closeIndicator
+                            icon: StudioTheme.Constants.colorPopupClose
+                            pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                            onClicked: cePopup.close()
                         }
                     }
 
-                    tooltip: qsTr("Radial Gradient")
+                    ColorLine {
+                        id: colorLine
+                        width: parent.width
+                        currentColor: colorEditor.color
+                        visible: isNotInGradientMode()
+                    }
 
-                    GradientPopupIndicator {
-                        onClicked: gradientDialogPopupRadial.toggle()
+                    GradientLine {
+                        id: gradientLine
+                        property bool isInValidState: false
+                        width: parent.width
+                        visible: !isNotInGradientMode()
 
-                        GradientDialogPopup {
-                            id: gradientDialogPopupRadial
-                            dialogHeight: 140
-                            content: Column {
-                                spacing: StudioTheme.Values.sectionRowSpacing
+                        onCurrentColorChanged: {
+                            if (colorEditor.supportGradient && gradientLine.hasGradient)
+                                colorEditor.color = gradientLine.currentColor
+                        }
 
-                                RowLayout {
-                                    Label {
-                                        text: "CenterX"
-                                        width: 74
-                                        tooltip: qsTr("Defines the center point.")
+                        onHasGradientChanged: {
+                            if (!colorEditor.supportGradient)
+                                return
+
+                            colorEditor.determineActiveColorMode()
+                        }
+
+                        onSelectedNodeChanged: {
+                            if (colorEditor.supportGradient && gradientLine.hasGradient) {
+                                colorEditor.originalColor = gradientLine.currentColor
+                            }
+                        }
+
+                        onInvalidated: colorEditor.updateThumbnail()
+
+                        Connections {
+                            target: modelNodeBackend
+                            function onSelectionToBeChanged() {
+                                colorEditorTimer.stop()
+                                gradientLine.isInValidState = false
+
+                                var hexOriginalColor = convertColorToString(colorEditor.originalColor)
+                                var hexColor = convertColorToString(colorEditor.color)
+
+                                if (hexOriginalColor !== hexColor) {
+                                    if (colorEditor.color !== "#ffffff"
+                                        && colorEditor.color !== "#000000"
+                                        && colorEditor.color !== "#00000000") {
+                                        colorPalette.addColorToPalette(colorEditor.color)
                                     }
-
-                                    GradientPropertySpinBox { propertyName: "centerX" }
-
-                                    Item { width: StudioTheme.Values.controlLabelGap }
-
-                                    Label {
-                                        text: "CenterY"
-                                        width: 74
-                                        tooltip: qsTr("Defines the center point.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "centerY" }
-                                }
-
-                                RowLayout {
-                                    Label {
-                                        text: "FocalX"
-                                        width: 74
-                                        tooltip: qsTr("Defines the focal point.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "focalX" }
-
-                                    Item { width: StudioTheme.Values.controlLabelGap }
-
-                                    Label {
-                                        text: "FocalY"
-                                        width: 74
-                                        tooltip: qsTr("Defines the focal point.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "focalY" }
-                                }
-
-                                RowLayout {
-                                    Label {
-                                        text: "Center Radius"
-                                        width: 74
-                                        tooltip: qsTr("Defines the center point.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "centerRadius" }
-
-                                    Item { width: StudioTheme.Values.controlLabelGap }
-
-                                    Label {
-                                        text: "Focal Radius"
-                                        width: 74
-                                        tooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "focalRadius" }
                                 }
                             }
                         }
-                    }
-                }
-                ButtonRowButton {
-                    visible: colorEditor.supportGradient && colorEditor.shapeGradients
-                    iconSource: "images/icon_color_conical_gradient.png"
-                    onClicked: {
-                        colorEditor.resetShapeColor()
-                        gradientLine.gradientTypeName = "ConicalGradient"
 
-                        if (gradientLine.hasGradient)
-                            gradientLine.updateGradient()
-                        else {
-                            gradientLine.deleteGradient()
-                            gradientLine.addGradient()
-                        }
-                    }
-
-                    tooltip: qsTr("Conical Gradient")
-
-                    GradientPopupIndicator {
-
-                        onClicked: gradientDialogPopupConical.toggle()
-
-                        GradientDialogPopup {
-                            id: gradientDialogPopupConical
-                            dialogHeight: 110
-                            content: Column {
-                                spacing: StudioTheme.Values.sectionRowSpacing
-
-                                RowLayout {
-                                    Label {
-                                        text: "CenterX"
-                                        width: 64
-                                        tooltip: qsTr("Defines the center point.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "centerX" }
-
-                                    Item { width: StudioTheme.Values.controlLabelGap }
-
-                                    Label {
-                                        text: "CenterY"
-                                        width: 64
-                                        tooltip: qsTr("Defines the center point.")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "centerY" }
+                        Connections {
+                            target: modelNodeBackend
+                            function onSelectionChanged() {
+                                if (colorEditor.supportGradient && gradientLine.hasGradient) {
+                                    colorEditor.color = gradientLine.currentColor
+                                    gradientLine.currentColor = color
+                                    hexTextField.text = colorEditor.color
+                                    popupHexTextField.text = colorEditor.color
                                 }
+                                gradientLine.isInValidState = true
+                                colorEditor.originalColor = colorEditor.color
+                                colorPalette.selectedColor = colorEditor.color
 
-                                RowLayout {
-                                    Label {
-                                        text: "Angle"
-                                        width: 64
-                                        tooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
-                                    }
-
-                                    GradientPropertySpinBox { propertyName: "angle" }
-                                    }
+                                colorEditor.createModel()
+                                colorEditor.determineActiveColorMode()
                             }
                         }
                     }
-                }
-                ButtonRowButton {
-                    id: transparentButton
-                    iconSource: "images/icon_color_none.png"
-                    onClicked: {
-                        gradientLine.deleteGradient()
-                        colorEditor.resetShapeColor()
-                        colorEditor.color = "#00000000"
-                    }
-                    tooltip: qsTr("Transparent")
-                }
-            }
 
-            Rectangle {
-                id: gradientPickerButton
-                width: StudioTheme.Values.height
-                height: StudioTheme.Values.height
-                visible: colorEditor.supportGradient
+                    ColorPicker {
+                        id: colorPicker
 
-                color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
-                border.width: StudioTheme.Values.border
+                        property color boundColor: colorEditor.color
 
-                ToolTipArea {
-                    anchors.fill: parent
-                    id: toolTipArea
-                    tooltip: qsTr("Gradient Picker Dialog")
-                }
+                        width: parent.width
+                        sliderMargins: 4
 
-                GradientPresetList {
-                    id: presetList
-                    visible: false
+                        // Prevent the binding to be deleted by assignment
+                        onBoundColorChanged: colorPicker.color = colorPicker.boundColor
+                        onUpdateColor: {
+                            colorEditor.color = colorPicker.color
+                            if (contextMenu.opened)
+                                contextMenu.close()
+                        }
+                        onRightMouseButtonClicked: contextMenu.popup(colorPicker)
 
-                    function applyPreset() {
-                        if (!gradientLine.hasGradient)
-                        {
-                            if (colorEditor.shapeGradients)
-                                gradientLine.gradientTypeName = "LinearGradient"
+                        onColorInvalidated: {
+                            if (colorPicker.saturation > 0.0 && colorPicker.lightness > 0.0) {
+                                hueSpinBox.value = colorPicker.hue
+                            }
+
+                            if (colorPicker.lightness > 0.0)
+                                saturationSpinBox.value = colorPicker.saturation
                             else
-                                gradientLine.gradientTypeName = "Gradient"
-                        }
+                                colorPicker.saturation = saturationSpinBox.value
 
-                        if (presetList.gradientData.presetType == 0) {
-                            gradientLine.setPresetByID(presetList.gradientData.presetID);
-                        }
-                        else if (presetList.gradientData.presetType == 1) {
-                            gradientLine.setPresetByStops(
-                                        presetList.gradientData.stops,
-                                        presetList.gradientData.colors,
-                                        presetList.gradientData.stopsCount);
-                        }
-                        else {
-                            console.log("INVALID GRADIENT TYPE: " +
-                                        presetList.gradientData.presetType);
+                            lightnessSpinBox.value = colorPicker.lightness
+                            hslaAlphaSpinBox.value = colorPicker.alpha
+
+                            redSpinBox.value = (colorPicker.color.r * 255)
+                            greenSpinBox.value = (colorPicker.color.g * 255)
+                            blueSpinBox.value = (colorPicker.color.b * 255)
+                            rgbaAlphaSpinBox.value = (colorPicker.alpha * 255)
                         }
                     }
 
-                    onApplied : {
-                        if (presetList.gradientData.stopsCount > 0) {
-                            applyPreset();
-                        }
-                    }
-
-
-                    onSaved: {
-                        gradientLine.savePreset();
-                        presetList.updatePresets();
-                    }
-
-                    onAccepted: { //return key
-                        if (presetList.gradientData.stopsCount > 0) {
-                            applyPreset();
-                        }
-                    }
-                }
-
-                Image {
-                    id: image
-                    width: 16
-                    height: 16
-                    smooth: false
-                    anchors.centerIn: parent
-                    source: "images/icon-gradient-list.png"
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        presetList.show()
-                    }
-                }
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Item {
-            height: 8
-        }
-
-        ColorButton {
-            property color bindedColor: colorEditor.color
-
-            //prevent the binding to be deleted by assignment
-            onBindedColorChanged: {
-                colorButton.color = colorButton.bindedColor
-            }
-
-            enabled: !colorEditor.transparent
-            opacity: checkButton.checked ? 1 : 0
-            id: colorButton
-
-            Layout.preferredWidth: 124
-            Layout.preferredHeight: checkButton.checked ? 124 : 0
-
-            sliderMargins: 4
-
-            onUpdateColor: {
-                colorEditor.color = colorButton.color
-                if (contextMenu.opened)
-                    contextMenu.close()
-            }
-
-            onRightMouseButtonClicked: contextMenu.popup(colorButton)
-        }
-
-        Item {
-            height: 1
-        }
-
-        Item {
-            height: 2
-            visible: checkButton.checked
-        }
-
-        Item {
-            height: 1
-        }
-
-        Item {
-            id: colorBoxes
-
-            Layout.preferredWidth: 134
-            Layout.preferredHeight: checkButton.checked ? 70 : 0
-            visible: checkButton.checked
-
-
-            SecondColumnLayout {
-                spacing: 16
-                RowLayout {
-                    spacing: 2
                     Column {
-                        spacing: 5
-                        Label {
+                        id: colorCompare
+                        width: parent.width
+
+                        RowLayout {
                             width: parent.width
-                            text: qsTr("Original")
-                            color: "#eee"
+                            Layout.alignment: Qt.AlignTop
+                            spacing: StudioTheme.Values.controlGap
+
+                            Label {
+                                text: qsTr("Original")
+                                width: 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                       + StudioTheme.Values.controlGap
+                            }
+
+                            Label {
+                                text: qsTr("New")
+                                width: 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                       + StudioTheme.Values.controlGap
+                            }
                         }
-                        Rectangle {
-                            id: originalColorRectangle
-                            color: colorEditor.originalColor
-                            height: 40
-                            width: 67
 
-                            border.width: 1
-                            border.color: "#555555"
+                        RowLayout {
+                            width: parent.width
+                            Layout.alignment: Qt.AlignTop
+                            spacing: StudioTheme.Values.controlGap
 
-                            ToolTipArea {
-                                anchors.fill: parent
+                            Rectangle {
+                                id: originalColorRectangle
+                                color: colorEditor.originalColor
+                                height: StudioTheme.Values.height
+                                width: 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                       + StudioTheme.Values.controlGap
+                                border.width: StudioTheme.Values.border
+                                border.color: StudioTheme.Values.themeControlOutline
 
-                                tooltip: originalColorRectangle.color
-                                onClicked: {
-                                    if (!colorEditor.transparent)
-                                        colorEditor.color = colorEditor.originalColor
+                                Image {
+                                    anchors.fill: parent
+                                    source: "images/checkers.png"
+                                    fillMode: Image.Tile
+                                    z: -1
+                                }
+
+                                ToolTipArea {
+                                    anchors.fill: parent
+                                    tooltip: originalColorRectangle.color
+                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                    onClicked: {
+                                        if (mouse.button === Qt.LeftButton)
+                                            colorEditor.color = colorEditor.originalColor
+
+                                        if (mouse.button === Qt.RightButton) {
+                                            contextMenuFavorite.currentColor = colorEditor.originalColor
+                                            contextMenuFavorite.popup()
+                                        }
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                id: newColorRectangle
+                                color: colorEditor.color
+                                height: StudioTheme.Values.height
+                                width: 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                       + StudioTheme.Values.controlGap
+                                border.width: StudioTheme.Values.border
+                                border.color: StudioTheme.Values.themeControlOutline
+
+                                Image {
+                                    anchors.fill: parent
+                                    source: "images/checkers.png"
+                                    fillMode: Image.Tile
+                                    z: -1
+                                }
+
+                                ToolTipArea {
+                                    anchors.fill: parent
+                                    tooltip: newColorRectangle.color
+                                    acceptedButtons: Qt.RightButton
+                                    onClicked: {
+                                        if (mouse.button === Qt.RightButton) {
+                                            contextMenuFavorite.currentColor = colorEditor.color
+                                            contextMenuFavorite.popup()
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    Column {
-                        spacing: 5
-                        Label {
-                            width: parent.width
-                            text: qsTr("New")
-                            color: "#eee"
-                        }
-                        Rectangle {
-                            id: newColorRectangle
-                            color: colorEditor.color
-                            height: 40
-                            width: 67
+                        StudioControls.Menu {
+                            id: contextMenuFavorite
 
-                            border.width: 1
-                            border.color: "#555555"
+                            property color currentColor
+
+                            StudioControls.MenuItem {
+                                text: qsTr("Add to Favorites")
+                                onTriggered: ColorPaletteSingleton.addFavoriteColor(
+                                                 contextMenuFavorite.currentColor)
+                            }
                         }
                     }
                 }
 
                 Column {
-                    spacing: 5
-                    Label {
-                        width: parent.width
-                        text: qsTr("Recent")
-                        color: "#eee"
-                        elide: Text.ElideRight
+                    id: sectionColumn
+                    anchors.topMargin: StudioTheme.Values.colorEditorPopupMargin
+                    anchors.top: colorColumn.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+
+                    bottomPadding: 10
+
+                    Section {
+                        caption: qsTr("Color Details")
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
+                        leftPadding: 10
+                        rightPadding: 10
+
+                        Column {
+                            spacing: 10
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+
+                                LineEdit {
+                                    id: popupHexTextField
+                                    implicitWidth: 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                                   + StudioTheme.Values.controlGap
+                                    width: implicitWidth
+                                    writeValueManually: true
+                                    validator: RegExpValidator { regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g }
+                                    showTranslateCheckBox: false
+                                    showExtendedFunctionButton: false
+                                    backendValue: colorEditor.backendValue
+
+                                    onAccepted: colorEditor.color = colorFromString(popupHexTextField.text)
+                                    onCommitData: {
+                                        colorEditor.color = colorFromString(popupHexTextField.text)
+                                        if (isNotInGradientMode()) {
+                                            if (colorEditor.isVector3D) {
+                                                backendValue.value = Qt.vector3d(colorEditor.color.r,
+                                                                                 colorEditor.color.g,
+                                                                                 colorEditor.color.b)
+                                            } else {
+                                                backendValue.value = colorEditor.color
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                                ControlLabel {
+                                    text: "Hex"
+                                    width: StudioTheme.Values.colorEditorPopupHexLabelWidth
+                                }
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+
+                                StudioControls.ComboBox {
+                                    id: colorMode
+
+                                    implicitWidth: 3 * StudioTheme.Values.controlGap
+                                                   + 4 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    width: implicitWidth
+                                    actionIndicatorVisible: false
+                                    model: ["RGBA", "HSLA"]
+                                    onActivated: {
+                                        switch (colorMode.currentText) {
+                                        case "RGBA":
+                                            rgbaRow.visible = true
+                                            hslaRow.visible = false
+                                            break
+                                        case "HSLA":
+                                            rgbaRow.visible = false
+                                            hslaRow.visible = true
+                                            break
+                                        default:
+                                            console.log("Unknown color mode selected.")
+                                            rgbaRow.visible = true
+                                            hslaRow.visible = false
+                                        }
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                id: rgbaRow
+
+                                Layout.fillWidth: true
+                                spacing: StudioTheme.Values.controlGap
+
+                                DoubleSpinBox {
+                                    id: redSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+
+                                    stepSize: 1
+                                    minimumValue: 0
+                                    maximumValue: 255
+                                    decimals: 0
+
+                                    onValueModified: {
+                                        var tmp = redSpinBox.value / 255.0
+                                        if (colorPicker.color.r !== tmp && !colorPicker.block) {
+                                            colorPicker.color.r = tmp
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: greenSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+
+                                    stepSize: 1
+                                    minimumValue: 0
+                                    maximumValue: 255
+                                    decimals: 0
+
+                                    onValueModified: {
+                                        var tmp = greenSpinBox.value / 255.0
+                                        if (colorPicker.color.g !== tmp && !colorPicker.block) {
+                                            colorPicker.color.g = tmp
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: blueSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+
+                                    stepSize: 1
+                                    minimumValue: 0
+                                    maximumValue: 255
+                                    decimals: 0
+
+                                    onValueModified: {
+                                        var tmp = blueSpinBox.value / 255.0
+                                        if (colorPicker.color.b !== tmp && !colorPicker.block) {
+                                            colorPicker.color.b = tmp
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: rgbaAlphaSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+
+                                    stepSize: 1
+                                    minimumValue: 0
+                                    maximumValue: 255
+                                    decimals: 0
+
+                                    onValueModified: {
+                                        var tmp = rgbaAlphaSpinBox.value / 255.0
+                                        if (colorPicker.alpha !== tmp && !colorPicker.block) {
+                                            colorPicker.alpha = tmp
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                id: hslaRow
+
+                                visible: false
+                                Layout.fillWidth: true
+                                spacing: StudioTheme.Values.controlGap
+
+                                DoubleSpinBox {
+                                    id: hueSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.hue !== hueSpinBox.value && !colorPicker.block) {
+                                            colorPicker.hue = hueSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: saturationSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.saturation !== saturationSpinBox.value && !colorPicker.block) {
+                                            colorPicker.saturation = saturationSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: lightnessSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.lightness !== lightnessSpinBox.value && !colorPicker.block) {
+                                            colorPicker.lightness = lightnessSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: hslaAlphaSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.alpha !== hslaAlphaSpinBox.value && !colorPicker.block) {
+                                            colorPicker.alpha = hslaAlphaSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    SimpleColorPalette {
-                        id: colorPalette
+                    Section {
+                        caption: qsTr("Palette")
+                        anchors.left: parent.left
+                        anchors.right: parent.right
 
-                        clickable: !colorEditor.transparent
+                        leftPadding: 10
+                        rightPadding: 10
+                        bottomPadding: 5
 
-                        onSelectedColorChanged: colorEditor.color = colorPalette.selectedColor
-
-
-                        onDialogColorChanged: colorEditor.color = colorPalette.selectedColor
+                        ColorPalette {
+                            id: colorPalette
+                            enableSingletonConnection: cePopup.opened
+                            onSelectedColorChanged: colorEditor.color = colorPalette.selectedColor
+                            onDialogColorChanged: colorEditor.color = colorPalette.selectedColor
+                        }
                     }
+
+                    Section {
+                        id: gradientControls
+                        caption: qsTr("Gradient Controls")
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        visible: !colorEditor.isNotInGradientMode()
+
+                        leftPadding: 10
+                        rightPadding: 10
+
+                        component ControlsRow: RowLayout {
+                            property alias propertyName: spinBox.propertyName
+                            property alias labelText: label.text
+                            property alias labelTooltip: label.tooltip
+                            property alias value: spinBox.value
+
+                            Layout.fillWidth: true
+                            spacing: 0
+
+                            GradientPropertySpinBox {
+                                id: spinBox
+                                implicitWidth: StudioTheme.Values.controlGap
+                                               + 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                width: implicitWidth
+                            }
+
+                            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                            ControlLabel {
+                                id: label
+                                horizontalAlignment: Text.AlignLeft
+                                width: StudioTheme.Values.controlGap
+                                       + 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                            }
+                        }
+
+                        // Default Gradient Controls
+                        Column {
+                            id: defaultGradientControls
+                            spacing: 10
+
+                            visible: colorEditor.hasLinearGradient() && !colorEditor.shapeGradients
+
+                            RowLayout {
+                                id: defaultGradientOrientation
+
+                                Layout.fillWidth: true
+                                spacing: 0
+
+                                StudioControls.ComboBox {
+                                    id: gradientOrientation
+                                    implicitWidth: StudioTheme.Values.controlGap
+                                                   + 3 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    width: implicitWidth
+                                    model: [{ value: Gradient.Vertical, text: qsTr("Vertical") },
+                                            { value: Gradient.Horizontal, text: qsTr("Horizontal") }]
+
+                                    textRole: "text"
+                                    valueRole: "value"
+                                    onActivated: {
+                                        gradientLine.model.setGradientOrientation(gradientOrientation.currentValue)
+                                        colorEditor.updateThumbnail()
+                                    }
+
+                                    Component.onCompleted: {
+                                        var orientation = gradientLine.model.readGradientOrientation()
+
+                                        if (orientation === "Horizontal")
+                                            gradientOrientation.currentIndex =
+                                                    gradientOrientation.indexOfValue(Gradient.Horizontal)
+                                        else
+                                            gradientOrientation.currentIndex =
+                                                    gradientOrientation.indexOfValue(Gradient.Vertical)
+                                    }
+                                }
+
+                                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap + 6 }
+
+                                IconLabel {
+                                    id: iconLabel
+                                    icon: StudioTheme.Constants.orientation
+                                    pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                                    tooltip: qsTr("Defines the direction of the gradient.")
+                                }
+                            }
+                        }
+
+                        // Linear Gradient Controls
+                        Column {
+                            id: linearGradientControls
+                            spacing: 10
+
+                            visible: colorEditor.hasLinearGradient() && colorEditor.shapeGradients
+
+                            ControlsRow {
+                                id: linearGradientX1
+                                propertyName: "x1"
+                                labelText: "X1"
+                                labelTooltip: qsTr("Defines the start point for color interpolation.")
+                            }
+
+                            ControlsRow {
+                                id: linearGradientX2
+                                propertyName: "x2"
+                                labelText: "X2"
+                                labelTooltip: qsTr("Defines the end point for color interpolation.")
+                            }
+
+                            ControlsRow {
+                                id: linearGradientY1
+                                propertyName: "y1"
+                                labelText: "Y1"
+                                labelTooltip: qsTr("Defines the start point for color interpolation.")
+                            }
+
+                            ControlsRow {
+                                id: linearGradientY2
+                                propertyName: "y2"
+                                labelText: "Y2"
+                                labelTooltip: qsTr("Defines the end point for color interpolation.")
+                            }
+                        }
+
+                        // Radial Gradient Controls
+                        Column {
+                            id: radialGradientControls
+                            spacing: 10
+
+                            visible: colorEditor.hasRadialGradient()
+
+                            ControlsRow {
+                                propertyName: "centerX"
+                                labelText: "CenterX"
+                                labelTooltip: qsTr("Defines the center point.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "centerY"
+                                labelText: "CenterY"
+                                labelTooltip: qsTr("Defines the center point.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "focalX"
+                                labelText: "FocalX"
+                                labelTooltip: qsTr("Defines the focal point.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "focalY"
+                                labelText: "FocalY"
+                                labelTooltip: qsTr("Defines the focal point.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "centerRadius"
+                                labelText: "Center Radius"
+                                labelTooltip: qsTr("Defines the center radius.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "focalRadius"
+                                labelText: "Focal Radius"
+                                labelTooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
+                            }
+                        }
+
+                        // Conical Gradient Controls
+                        Column {
+                            id: concialGradientControls
+                            spacing: 10
+
+                            visible: colorEditor.hasConicalGradient()
+
+                            ControlsRow {
+                                propertyName: "centerX"
+                                labelText: "CenterX"
+                                labelTooltip: qsTr("Defines the center point.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "centerY"
+                                labelText: "CenterY"
+                                labelTooltip: qsTr("Defines the center point.")
+                            }
+
+                            ControlsRow {
+                                propertyName: "angle"
+                                labelText: "Angle"
+                                labelTooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
+                            }
+                        }
+                    }
+                }
+            }
+
+            background: Rectangle {
+                color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeInteraction
+                border.width: StudioTheme.Values.border
+            }
+
+            enter: Transition {}
+            exit: Transition {}
+        }
+    }
+
+    Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+    LineEdit {
+        id: hexTextField
+        implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                       + StudioTheme.Values.actionIndicatorWidth
+        width: implicitWidth
+        enabled: colorEditor.isNotInGradientMode()
+        writeValueManually: true
+        validator: RegExpValidator { regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g }
+        showTranslateCheckBox: false
+        backendValue: colorEditor.backendValue
+
+        onAccepted: colorEditor.color = colorFromString(hexTextField.text)
+        onCommitData: {
+            colorEditor.color = colorFromString(hexTextField.text)
+            if (isNotInGradientMode()) {
+                if (colorEditor.isVector3D) {
+                    backendValue.value = Qt.vector3d(colorEditor.color.r,
+                                                     colorEditor.color.g,
+                                                     colorEditor.color.b)
+                } else {
+                    backendValue.value = colorEditor.color
                 }
             }
         }
     }
+
+    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+    ControlLabel {
+        text: "Hex"
+        horizontalAlignment: Text.AlignLeft
+        width: StudioTheme.Values.controlLabelWidth
+               + StudioTheme.Values.controlGap
+               + StudioTheme.Values.linkControlWidth
+    }
+
+    ExpandingSpacer {}
 
     StudioControls.Menu {
         id: contextMenu
@@ -731,4 +1186,6 @@ Column {
             onTriggered: colorPalette.showColorDialog(colorEditor.color)
         }
     }
+
+    Component.onCompleted: colorEditor.determineActiveColorMode()
 }

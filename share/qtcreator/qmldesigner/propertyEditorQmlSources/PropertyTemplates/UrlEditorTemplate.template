@@ -1,14 +1,12 @@
-Label {
+PropertyLabel {
     text: "%1"
     tooltip: "%1"
 }
 
 SecondColumnLayout {
     UrlChooser {
-        Layout.fillWidth: true
-        backendValue:  backendValues.%2
+        backendValue: backendValues.%2
     }
 
-    ExpandingSpacer {
-    }
+    ExpandingSpacer {}
 }

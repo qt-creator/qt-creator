@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,41 +23,55 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.15
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
+    caption: qsTr("Flickable")
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: qsTr("Flickable")
-
-    id: root
-
-    property int labelWidth: 42
-    property int spinBoxWidth: 96
 
     SectionLayout {
+        PropertyLabel {
+            text: qsTr("Interactive")
+            tooltip: qsTr("Allows users to drag or flick a flickable component.")
+        }
 
+        SecondColumnLayout {
+            CheckBox {
+                text: backendValues.interactive.valueToString
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.interactive
+            }
 
-        Label {
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
             text: qsTr("Flick direction")
             disabledState: !backendValues.flickableDirection.isAvailable
         }
 
         SecondColumnLayout {
             ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 backendValue: backendValues.flickableDirection
                 model: ["AutoFlickDirection", "AutoFlickIfNeeded", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
-                Layout.fillWidth: true
                 scope: "Flickable"
                 enabled: backendValue.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Behavior")
             tooltip: qsTr("Whether the surface may be dragged beyond the Flickable's boundaries, or overshoot the Flickable's boundaries when flicked.")
             disabledState: !backendValues.boundsBehavior.isAvailable
@@ -65,18 +79,19 @@ Section {
 
         SecondColumnLayout {
             ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 backendValue: backendValues.boundsBehavior
                 model: ["StopAtBounds", "DragOverBounds", "OvershootBounds", "DragAndOvershootBounds"]
-                Layout.fillWidth: true
                 scope: "Flickable"
                 enabled: backendValue.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-
-        Label {
+        PropertyLabel {
             text: qsTr("Movement")
             tooltip: qsTr("Whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.")
             disabledState: !backendValues.boundsMovement.isAvailable
@@ -84,66 +99,57 @@ Section {
 
         SecondColumnLayout {
             ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 backendValue: backendValues.boundsMovement
                 model: ["FollowBoundsBehavior", "StopAtBounds"]
-                Layout.fillWidth: true
                 scope: "Flickable"
                 enabled: backendValue.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Interactive")
-            tooltip: qsTr("Allows users to drag or flick a flickable component.")
-        }
-
-        SecondColumnLayout {
-            CheckBox {
-                Layout.fillWidth: true
-                backendValue: backendValues.interactive
-                text: backendValues.interactive.valueToString
-            }
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
+        PropertyLabel {
             text: qsTr("Max. velocity")
-            tooltip: qsTr("Maximum flick velocity.")
+            tooltip: qsTr("Maximum flick velocity")
         }
 
         SecondColumnLayout {
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.maximumFlickVelocity
                 minimumValue: 0
                 maximumValue: 8000
                 decimals: 0
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Deceleration")
-            tooltip: qsTr("Flick deceleration.")
+            tooltip: qsTr("Flick deceleration")
             disabledState: !backendValues.flickDeceleration.isAvailable
         }
 
         SecondColumnLayout {
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.flickDeceleration
                 minimumValue: 0
                 maximumValue: 8000
                 decimals: 0
                 enabled: backendValue.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Press delay")
             tooltip: qsTr("Time to delay delivering a press to children of the Flickable in milliseconds.")
             disabledState: !backendValues.pressDelay.isAvailable
@@ -151,17 +157,19 @@ Section {
 
         SecondColumnLayout {
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.pressDelay
                 minimumValue: 0
                 maximumValue: 2000
                 decimals: 0
                 enabled: backendValue.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Pixel aligned")
             tooltip: qsTr("Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).")
             disabledState: !backendValues.pixelAligned.isAvailable
@@ -169,16 +177,17 @@ Section {
 
         SecondColumnLayout {
             CheckBox {
-                Layout.fillWidth: true
-                backendValue: backendValues.pixelAligned
                 text: backendValues.pixelAligned.valueToString
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.pixelAligned
                 enabled: backendValue.isAvailable
             }
-            ExpandingSpacer {
-            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Synchronous drag")
             tooltip: qsTr("If set to true, then when the mouse or touchpoint moves far enough to begin dragging\n"
                           + "the content, the content will jump, such that the content pixel which was under the\n"
@@ -188,236 +197,15 @@ Section {
 
         SecondColumnLayout {
             CheckBox {
-                Layout.fillWidth: true
-                backendValue: backendValues.synchronousDrag
                 text: backendValues.synchronousDrag.valueToString
-                enabled: backendValue.isAvailable
-            }
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Content size")
-        }
-
-        SecondColumnLayout {
-
-            Label {
-                text: "W"
-                width: root.labelWidth
-            }
-
-            SpinBox {
-                backendValue: backendValues.contentWidth
-                minimumValue: 0
-                maximumValue: 10000
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-            }
-
-            Item {
-                width: 4
-                height: 4
-            }
-
-            Label {
-                text: "H"
-                width: root.labelWidth
-            }
-
-            SpinBox {
-                backendValue: backendValues.contentHeight
-                minimumValue: 0
-                maximumValue: 10000
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-            }
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Content")
-        }
-
-        SecondColumnLayout {
-
-            Label {
-                text: "X"
-                width: root.labelWidth
-            }
-
-            SpinBox {
-                backendValue: backendValues.contentX
-                minimumValue: -8000
-                maximumValue: 8000
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-            }
-
-            Item {
-                width: 4
-                height: 4
-            }
-
-            Label {
-                text: "Y"
-                width: root.labelWidth
-            }
-
-            SpinBox {
-                backendValue: backendValues.contentY
-                minimumValue: -8000
-                maximumValue: 8000
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-            }
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Origin")
-            disabledState: (!backendValues.originX.isAvailable
-                            && !backendValues.originY.isAvailable)
-        }
-
-        SecondColumnLayout {
-            Label {
-                text: "X"
-                width: root.labelWidth
-                disabledStateSoft: !backendValues.originX.isAvailable
-            }
-
-            SpinBox {
-                backendValue: backendValues.originX
-                minimumValue: -8000
-                maximumValue: 8000
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.synchronousDrag
                 enabled: backendValue.isAvailable
             }
 
-            Item {
-                width: 4
-                height: 4
-            }
-
-            Label {
-                text: "Y"
-                width: root.labelWidth
-                disabledStateSoft: !backendValues.originY.isAvailable
-            }
-
-            SpinBox {
-                backendValue: backendValues.originY
-                minimumValue: -8000
-                maximumValue: 8000
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-                enabled: backendValue.isAvailable
-            }
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Margins")
-            disabledState: (!backendValues.topMargin.isAvailable
-                            && !backendValues.bottomMargin.isAvailable
-                            && !backendValues.leftMargin.isAvailable
-                            && !backendValues.rightMargin.isAvailable)
-        }
-
-        SecondColumnLayout {
-            Layout.fillWidth: true
-
-            Label {
-                text: "Top"
-                width: root.labelWidth
-                disabledStateSoft: !backendValues.topMargin.isAvailable
-            }
-
-            SpinBox {
-                backendValue: backendValues.topMargin
-                minimumValue: -10000
-                maximumValue: 10000
-                decimals: 0
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-                enabled: backendValue.isAvailable
-            }
-
-            Item {
-                width: 4
-                height: 4
-            }
-
-            Label {
-                text: "Bottom"
-                width: root.labelWidth
-                disabledStateSoft: !backendValues.bottomMargin.isAvailable
-            }
-
-            SpinBox {
-                backendValue: backendValues.bottomMargin
-                minimumValue: -10000
-                maximumValue: 10000
-                decimals: 0
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-                enabled: backendValue.isAvailable
-            }
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: ("")
-        }
-
-        SecondColumnLayout {
-            Layout.fillWidth: true
-
-            Label {
-                text: "Left"
-                width: root.labelWidth
-                disabledStateSoft: !backendValues.leftMargin.isAvailable
-            }
-
-            SpinBox {
-                backendValue: backendValues.leftMargin
-                minimumValue: -10000
-                maximumValue: 10000
-                decimals: 0
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-                enabled: backendValue.isAvailable
-            }
-
-            Item {
-                width: 4
-                height: 4
-            }
-
-            Label {
-                text: "Right"
-                width: root.labelWidth
-                disabledStateSoft: !backendValues.rightMargin.isAvailable
-            }
-
-            SpinBox {
-                backendValue: backendValues.rightMargin
-                minimumValue: -10000
-                maximumValue: 10000
-                decimals: 0
-                implicitWidth: root.spinBoxWidth
-                Layout.fillWidth: true
-                enabled: backendValue.isAvailable
-            }
-            ExpandingSpacer {
-            }
-        }
     }
 }

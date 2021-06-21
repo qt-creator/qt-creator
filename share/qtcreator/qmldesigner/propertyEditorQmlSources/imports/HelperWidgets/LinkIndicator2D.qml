@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,48 +23,6 @@
 **
 ****************************************************************************/
 
-#pragma once
+import StudioControls 1.0 as StudioControls
 
-#include <QObject>
-#include <QAbstractListModel>
-#include <QtQml/qqml.h>
-#include <QList>
-#include <simplecolorpalette.h>
-
-namespace QmlDesigner {
-
-class SimpleColorPaletteSingleton : public QObject
-{
-    Q_OBJECT
-public:
-    static SimpleColorPaletteSingleton &getInstance();
-
-    bool readPalette();
-    void writePalette();
-
-    void addItem(const PaletteColor &item);
-    QList<PaletteColor> getItems() const;
-
-    int getPaletteSize() const;
-    int getFavoriteOffset() const;
-
-    void sortItems();
-
-    void toggleFavorite(int id);
-
-    SimpleColorPaletteSingleton(const SimpleColorPaletteSingleton &) = delete;
-    void operator=(const SimpleColorPaletteSingleton &) = delete;
-
-signals:
-    void paletteChanged();
-
-private:
-    SimpleColorPaletteSingleton();
-
-private:
-    QList<PaletteColor> m_items;
-    const int m_paletteSize = 6;
-    int m_favoriteOffset;
-};
-
-} // namespace QmlDesigner
+StudioControls.LinkIndicator2D {}

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,166 +23,230 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: textInputSection
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Text Input")
 
     property bool isTextInput: false
-    id: textInputSection
 
     SectionLayout {
-        rows: 4
-        columns: 2
+        PropertyLabel { text: qsTr("Selection color") }
 
-        Label {
-            text: qsTr("Mouse selection mode")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            backendValue: backendValues.mouseSelectionMode
-            scope: "TextInput"
-            model: ["SelectCharacters", "SelectWords"]
+        ColorEditor {
+            backendValue: backendValues.selectionColor
+            supportGradient: false
         }
 
-        Label {
+        PropertyLabel { text: qsTr("Selected text color") }
+
+        ColorEditor {
+            backendValue: backendValues.selectedTextColor
+            supportGradient: false
+        }
+
+        PropertyLabel { text: qsTr("Selection mode") }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: backendValues.mouseSelectionMode
+                scope: "TextInput"
+                model: ["SelectCharacters", "SelectWords"]
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Input mask")
         }
 
-        LineEdit {
+        SecondColumnLayout {
             visible: textInputSection.isTextInput
-            backendValue: backendValues.inputMask
-            Layout.fillWidth: true
-            showTranslateCheckBox: false
+
+            LineEdit {
+                backendValue: backendValues.inputMask
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                showTranslateCheckBox: false
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Echo mode")
         }
 
-        ComboBox {
+        SecondColumnLayout {
             visible: textInputSection.isTextInput
-            Layout.fillWidth: true
-            backendValue: backendValues.echoMode
-            scope: "TextInput"
-            model: ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]
+
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: backendValues.echoMode
+                scope: "TextInput"
+                model: ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Password character")
             tooltip: qsTr("Character displayed when users enter passwords.")
         }
 
-        LineEdit {
+        SecondColumnLayout {
             visible: textInputSection.isTextInput
-            backendValue: backendValues.passwordCharacter
-            Layout.fillWidth: true
-            showTranslateCheckBox: false
+
+            LineEdit {
+                backendValue: backendValues.passwordCharacter
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                showTranslateCheckBox: false
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: !textInputSection.isTextInput
             text: qsTr("Tab stop distance")
             tooltip: qsTr("Default distance between tab stops in device units.")
         }
-        SpinBox {
+
+        SecondColumnLayout {
             visible: !textInputSection.isTextInput
-            Layout.fillWidth: true
-            backendValue: backendValues.tabStopDistance
-            maximumValue: 200
-            minimumValue: 0
+
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.tabStopDistance
+                maximumValue: 200
+                minimumValue: 0
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel { text: "px" }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: !textInputSection.isTextInput
             text: qsTr("Text margin")
             tooltip: qsTr("Margin around the text in the Text Edit in pixels.")
         }
-        SpinBox {
+
+        SecondColumnLayout {
             visible: !textInputSection.isTextInput
-            Layout.fillWidth: true
-            backendValue: backendValues.textMargin
-            maximumValue: 200
-            minimumValue: -200
+
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.textMargin
+                maximumValue: 200
+                minimumValue: -200
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel { text: "px" }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Maximum length")
             tooltip: qsTr("Maximum permitted length of the text in the Text Input.")
         }
-        SpinBox {
-            visible: textInputSection.isTextInput
-            Layout.fillWidth: true
-            backendValue: backendValues.maximumLength
-            minimumValue: 0
-            maximumValue: 32767
-        }
-
-        Label {
-            text: qsTr("Flags")
-            Layout.alignment: Qt.AlignTop
-        }
 
         SecondColumnLayout {
-            ColumnLayout {
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: qsTr("Read only")
-                    backendValue: backendValues.readOnly
-                }
+            visible: textInputSection.isTextInput
 
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: qsTr("Cursor visible")
-                    backendValue: backendValues.cursorVisible
-                }
-
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: qsTr("Active focus on press")
-                    backendValue: backendValues.activeFocusOnPress
-                }
-
-                CheckBox {
-                    visible: textInputSection.isTextInput
-                    Layout.fillWidth: true
-                    text: qsTr("Auto scroll")
-                    backendValue: backendValues.autoScroll
-                }
-
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: qsTr("Overwrite mode")
-                    backendValue: backendValues.overwriteMode
-                }
-
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: qsTr("Persistent selection")
-                    backendValue: backendValues.persistentSelection
-                }
-
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: qsTr("Select by mouse")
-                    backendValue: backendValues.selectByMouse
-                }
-
-                CheckBox {
-                    visible: !textInputSection.isTextInput
-                    Layout.fillWidth: true
-                    text: qsTr("Select by keyboard")
-                    backendValue: backendValues.selectByKeyboard
-                }
+            SpinBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.maximumLength
+                minimumValue: 0
+                maximumValue: 32767
             }
+
+            ExpandingSpacer {}
+        }
+
+        component FlagItem : SecondColumnLayout {
+            property alias backendValue: checkBox.backendValue
+            CheckBox {
+                id: checkBox
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                text: backendValue.valueToString
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel { text: qsTr("Read only") }
+
+        FlagItem { backendValue: backendValues.readOnly }
+
+        PropertyLabel { text: qsTr("Cursor visible") }
+
+        FlagItem { backendValue: backendValues.cursorVisible }
+
+        PropertyLabel { text: qsTr("Focus on press") }
+
+        FlagItem { backendValue: backendValues.activeFocusOnPress }
+
+        PropertyLabel {
+            visible: textInputSection.isTextInput
+            text: qsTr("Auto scroll")
+        }
+
+        FlagItem {
+            visible: textInputSection.isTextInput
+            backendValue: backendValues.autoScroll
+        }
+
+        PropertyLabel { text: qsTr("Overwrite mode") }
+
+        FlagItem { backendValue: backendValues.overwriteMode }
+
+        PropertyLabel { text: qsTr("Persistent selection") }
+
+        FlagItem { backendValue: backendValues.persistentSelection }
+
+        PropertyLabel { text: qsTr("Select by mouse") }
+
+        FlagItem { backendValue: backendValues.selectByMouse }
+
+        PropertyLabel {
+            visible: !textInputSection.isTextInput
+            text: qsTr("Select by keyboard")
+        }
+
+        FlagItem {
+            visible: !textInputSection.isTextInput
+            backendValue: backendValues.selectByKeyboard
         }
     }
 }

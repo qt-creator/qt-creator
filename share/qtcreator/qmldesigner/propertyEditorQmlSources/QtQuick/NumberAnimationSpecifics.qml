@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,62 +24,59 @@
 ****************************************************************************/
 
 import HelperWidgets 2.0
-import QtQuick 2.1
-import QtQuick.Layouts 1.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import StudioTheme 1.0 as StudioTheme
+
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
         caption: qsTr("Number Animation")
+
         anchors.left: parent.left
         anchors.right: parent.right
 
         SectionLayout {
-            Label {
+            PropertyLabel {
                 text: qsTr("From")
                 tooltip: qsTr("Start value for the animation.")
             }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     maximumValue: 9999999
                     minimumValue: -1
                     backendValue: backendValues.from
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 100
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("To")
                 tooltip: qsTr("End value for the animation.")
             }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     maximumValue: 9999999
                     minimumValue: -1
                     backendValue: backendValues.to
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 100
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
         }
     }
 
-    AnimationTargetSection {
+    AnimationTargetSection {}
 
-    }
-
-    AnimationSection {
-        showEasingCurve: true
-    }
+    AnimationSection { showEasingCurve: true }
 }
 

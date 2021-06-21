@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 pragma Singleton
-import QtQuick 2.12
+import QtQuick 2.15
 import QtQuickDesignerTheme 1.0
 
 QtObject {
@@ -86,20 +86,29 @@ QtObject {
     property int toolTipDelay: 1000
 
     // Layout sizes
-    property real sectionColumnSpacing: 30 // distance between label and sliderControlSize
+    property real sectionColumnSpacing: 20 // distance between label and sliderControlSize
     property real sectionRowSpacing: 5
     property real sectionHeadGap: 15
     property real sectionHeadHeight: 21 // tab and section
-    property real sectionHeadSpacerHeight: 15
+    property real sectionHeadSpacerHeight: 10
 
     property real controlLabelWidth: 15
     property real controlLabelGap: 5
-    property real controlGap: 5 // TODO different name
 
+    property real controlGap: 5 // TODO different name
+    property real twoControlColumnGap: values.controlLabelGap
+                                       + values.controlLabelWidth
+                                       + values.controlGap
 
     property real columnGap: 10
 
     property real iconAreaWidth: Math.round(21 * values.scaleFactor)
+
+    property real linkControlWidth: values.iconAreaWidth
+    property real linkControlHeight: values.height
+
+    property real infinityControlWidth: values.iconAreaWidth
+    property real infinityControlHeight: values.height
 
     // Control sizes
 
@@ -120,6 +129,68 @@ QtObject {
 
     property real checkIndicatorWidth: values.squareComponentWidth
     property real checkIndicatorHeight: values.height
+
+    property real singleControlColumnWidth: 2 * values.twoControlColumnWidth
+                                            + values.twoControlColumnGap
+                                            + values.actionIndicatorWidth
+
+    property real twoControlColumnWidthMin: 3 * values.height - 2 * values.border
+    property real twoControlColumnWidthMax: 3 * values.twoControlColumnWidthMin
+    property real twoControlColumnWidth: values.twoControlColumnWidthMin
+
+    property real controlColumnWithoutControlsWidth: 2 * (values.actionIndicatorWidth
+                                                          + values.twoControlColumnGap)
+                                                    + values.linkControlWidth
+
+    property real controlColumnWidth: values.controlColumnWithoutControlsWidth
+                                      + 2 * values.twoControlColumnWidth
+
+    property real controlColumnWidthMin: values.controlColumnWithoutControlsWidth
+                                         + 2 * values.twoControlColumnWidthMin
+
+    property real propertyLabelWidthMin: 80
+    property real propertyLabelWidthMax: 120
+    property real propertyLabelWidth: values.propertyLabelWidthMin
+
+    property real sectionLeftPadding: 8
+    property real sectionLayoutRightPadding: values.scrollBarThickness + 6
+
+    property real columnFactor: values.propertyLabelWidthMin
+                                / (values.propertyLabelWidthMin + values.controlColumnWidthMin)
+
+    function responsiveResize(width) {
+        var tmpWidth = width - values.sectionColumnSpacing
+                       - values.sectionLeftPadding - values.sectionLayoutRightPadding
+        var labelColumnWidth = Math.round(tmpWidth * values.columnFactor)
+        labelColumnWidth = Math.max(Math.min(values.propertyLabelWidthMax, labelColumnWidth),
+                                    values.propertyLabelWidthMin)
+
+        var controlColumnWidth = tmpWidth - labelColumnWidth
+        var controlWidth = Math.round((controlColumnWidth - values.controlColumnWithoutControlsWidth) * 0.5)
+        controlWidth = Math.max(Math.min(values.twoControlColumnWidthMax, controlWidth),
+                                values.twoControlColumnWidthMin)
+
+        values.propertyLabelWidth = labelColumnWidth
+        values.twoControlColumnWidth = controlWidth
+    }
+
+    // Color Editor Popup
+    property real colorEditorPopupWidth: 4 * values.colorEditorPopupSpinBoxWidth
+                                         + 3 * values.controlGap
+                                         + 2 * values.colorEditorPopupMargin
+    property real colorEditorPopupHeight: 800
+    property real colorEditorPopupMargin: 10
+
+    property real colorEditorPopupSpacing: 10
+    property real colorEditorPopupLineHeight: 60
+
+    property real hueSliderHeight: 20
+    property real hueSliderHandleWidth: 10
+
+    property real colorEditorPopupCmoboBoxWidth: 110
+    property real colorEditorPopupSpinBoxWidth: 54
+
+    property real colorEditorPopupHexLabelWidth: 20
 
     // Theme Colors
 
@@ -160,6 +231,10 @@ QtObject {
     property string themeLinkIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
     property string themeLinkIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
     property string themeLinkIndicatorColorDisabled: Theme.color(Theme.DSlinkIndicatorColorDisabled)
+
+    property string themeInfiniteLoopIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
+    property string themeInfiniteLoopIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
+    property string themeInfiniteLoopIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
 
     // Popup background color (ComboBox, SpinBox, TextArea)
     property string themePopupBackground: Theme.color(Theme.DSpopupBackground)

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,120 +23,126 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Grid")
 
+        anchors.left: parent.left
+        anchors.right: parent.right
 
         SectionLayout {
-
-            Label {
-                text: qsTr("Columns")
-            }
+            PropertyLabel { text: qsTr("Columns") }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.columns
                     minimumValue: 0
                     maximumValue: 2000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Rows")
-            }
+            PropertyLabel { text: qsTr("Rows") }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.rows
                     minimumValue: 0
                     maximumValue: 2000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Flow")
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["LeftToRight", "TopToBottom"]
-                    backendValue: backendValues.flow
-                    Layout.fillWidth: true
-                    scope: "Grid"
-                }
-            }
-
-            Label {
-                text: qsTr("Layout direction")
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["LeftToRight", "RightToLeft"]
-                    backendValue: backendValues.layoutDirection
-                    Layout.fillWidth: true
-                    scope: "Qt"
-                }
-            }
-
-            Label {
-                text: qsTr("Horizontal component alignment")
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["AlignLeft", "AlignRight" ,"AlignHCenter"]
-                    backendValue: backendValues.horizontalItemAlignment
-                    Layout.fillWidth: true
-                    scope: "Grid"
-                }
-            }
-
-            Label {
-                text: qsTr("Vertical component alignment")
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["AlignTop", "AlignBottom" ,"AlignVCenter"]
-                    backendValue: backendValues.verticalItemAlignment
-                    Layout.fillWidth: true
-                    scope: "Grid"
-                }
-            }
-
-            Label {
-                text: qsTr("Spacing")
-            }
+            PropertyLabel { text: qsTr("Spacing") }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.spacing
                     minimumValue: -4000
                     maximumValue: 4000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Flow") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.flow
+                    model: ["LeftToRight", "TopToBottom"]
+                    scope: "Grid"
                 }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Layout direction") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.layoutDirection
+                    model: ["LeftToRight", "RightToLeft"]
+                    scope: "Qt"
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Alignment H") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.horizontalItemAlignment
+                    model: ["AlignLeft", "AlignRight" ,"AlignHCenter"]
+                    scope: "Grid"
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Alignment V") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.verticalItemAlignment
+                    model: ["AlignTop", "AlignBottom" ,"AlignVCenter"]
+                    scope: "Grid"
+                }
+
+                ExpandingSpacer {}
             }
         }
     }

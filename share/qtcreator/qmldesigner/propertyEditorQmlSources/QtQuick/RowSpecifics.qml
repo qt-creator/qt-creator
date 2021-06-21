@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,53 +23,58 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Row")
 
+        anchors.left: parent.left
+        anchors.right: parent.right
+
         SectionLayout {
-            Label {
-                text: qsTr("Layout direction")
-                disabledState: !backendValues.layoutDirection.isAvailable
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    model: ["LeftToRight", "RightToLeft"]
-                    backendValue: backendValues.layoutDirection
-                    Layout.fillWidth: true
-                    scope: "Qt"
-                    enabled: backendValue.isAvailable
-                }
-            }
-
-            Label {
-                text: qsTr("Spacing")
-            }
+            PropertyLabel { text: qsTr("Spacing") }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.spacing
                     minimumValue: -4000
                     maximumValue: 4000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Layout direction")
+                disabledState: !backendValues.layoutDirection.isAvailable
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.layoutDirection
+                    model: ["LeftToRight", "RightToLeft"]
+                    scope: "Qt"
+                    enabled: backendValue.isAvailable
                 }
+
+                ExpandingSpacer {}
             }
         }
     }
 
-    PaddingSection {
-    }
+    PaddingSection {}
 }

@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Templates 2.12 as T
+import QtQuick 2.15
+import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
 T.CheckBox {
@@ -42,6 +42,9 @@ T.CheckBox {
 
     property alias labelVisible: checkBoxLabel.visible
     property alias labelColor: checkBoxLabel.color
+
+    property alias fontFamily: checkBoxLabel.font.family
+    property alias fontPixelSize: checkBoxLabel.font.pixelSize
 
     font.pixelSize: StudioTheme.Values.myFontSize
 

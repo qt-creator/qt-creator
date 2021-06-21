@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,17 +23,23 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
+
+     readonly property bool warningVisible: alignDistribute.multiSelection &&
+                                            (alignDistribute.selectionHasAnchors ||
+                                            !alignDistribute.selectionExclusivlyItems ||
+                                            alignDistribute.selectionContainsRootItem)
+
     anchors.left: parent.left
     anchors.right: parent.right
-
-    caption: qsTr("Align")
+    caption: qsTr("Alignment")
 
     SectionLayout {
         enabled: alignDistribute.multiSelection &&
@@ -46,16 +52,15 @@ Section {
             modelNodeBackendProperty: modelNodeBackend
         }
 
-        Label {
-            text: qsTr("Align objects")
-            width: 120
-            Layout.columnSpan: 2
-        }
+        PropertyLabel { text: qsTr("Alignment") }
 
-        RowLayout {
-            Layout.columnSpan: 2
+        SecondColumnLayout {
+            Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
             Row {
+                id: horizontalAlignmentButtons
                 spacing: -StudioTheme.Values.border
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.alignLeft
                     tooltip: qsTr("Align left edges.")
@@ -63,6 +68,7 @@ Section {
                                                             alignToComboBox.currentEnum,
                                                             keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.alignCenterHorizontal
                     tooltip: qsTr("Align horizontal centers.")
@@ -70,6 +76,7 @@ Section {
                                                             alignToComboBox.currentEnum,
                                                             keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.alignRight
                     tooltip: qsTr("Align right edges.")
@@ -79,8 +86,18 @@ Section {
                 }
             }
 
+            Spacer {
+                implicitWidth: StudioTheme.Values.controlGap
+                               + StudioTheme.Values.controlLabelWidth
+                               + StudioTheme.Values.controlGap
+                               + StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                               - horizontalAlignmentButtons.implicitWidth
+            }
+
             Row {
                 spacing: -StudioTheme.Values.border
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.alignTop
                     tooltip: qsTr("Align top edges.")
@@ -88,6 +105,7 @@ Section {
                                                             alignToComboBox.currentEnum,
                                                             keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.alignCenterVertical
                     tooltip: qsTr("Align vertical centers.")
@@ -95,6 +113,7 @@ Section {
                                                             alignToComboBox.currentEnum,
                                                             keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.alignBottom
                     tooltip: qsTr("Align bottom edges.")
@@ -105,16 +124,15 @@ Section {
             }
         }
 
-        Label {
-            text: qsTr("Distribute objects")
-            width: 120
-            Layout.columnSpan: 2
-        }
+        PropertyLabel { text: qsTr("Distribute Objects") }
 
-        RowLayout {
-            Layout.columnSpan: 2
+        SecondColumnLayout {
+            Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
             Row {
+                id: horizontalDistributionButtons
                 spacing: -StudioTheme.Values.border
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeLeft
                     tooltip: qsTr("Distribute left edges.")
@@ -122,6 +140,7 @@ Section {
                                                                  alignToComboBox.currentEnum,
                                                                  keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeCenterHorizontal
                     tooltip: qsTr("Distribute horizontal centers.")
@@ -129,6 +148,7 @@ Section {
                                                                  alignToComboBox.currentEnum,
                                                                  keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeRight
                     tooltip: qsTr("Distribute right edges.")
@@ -138,8 +158,18 @@ Section {
                 }
             }
 
+            Spacer {
+                implicitWidth: StudioTheme.Values.controlGap
+                               + StudioTheme.Values.controlLabelWidth
+                               + StudioTheme.Values.controlGap
+                               + StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                               - horizontalDistributionButtons.implicitWidth
+            }
+
             Row {
                 spacing: -StudioTheme.Values.border
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeTop
                     tooltip: qsTr("Distribute top edges.")
@@ -147,6 +177,7 @@ Section {
                                                                  alignToComboBox.currentEnum,
                                                                  keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeCenterVertical
                     tooltip: qsTr("Distribute vertical centers.")
@@ -154,6 +185,7 @@ Section {
                                                                  alignToComboBox.currentEnum,
                                                                  keyObjectComboBox.currentText)
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeBottom
                     tooltip: qsTr("Distribute bottom edges.")
@@ -164,16 +196,14 @@ Section {
             }
         }
 
-        Label {
-            text: qsTr("Distribute spacing")
-            width: 120
-            Layout.columnSpan: 2
-        }
+        PropertyLabel { text: qsTr("Distribute Spacing") }
 
-        RowLayout {
-            Layout.columnSpan: 2
+        SecondColumnLayout {
+            Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
             Row {
                 spacing: -StudioTheme.Values.border
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeSpacingHorizontal
                     tooltip: qsTr("Distribute spacing horizontally.")
@@ -183,6 +213,7 @@ Section {
                                                                  distanceSpinBox.realValue,
                                                                  buttonRow.getDistributeDirection())
                 }
+
                 AbstractButton {
                     buttonIcon: StudioTheme.Constants.distributeSpacingVertical
                     tooltip: qsTr("Distribute spacing vertically.")
@@ -202,8 +233,7 @@ Section {
                     id: group
                 }
 
-                function getDistributeDirection()
-                {
+                function getDistributeDirection() {
                     if (buttonLeftToRight.checked)
                         return AlignDistribute.TopLeft
                     else if (buttonCenter.checked)
@@ -221,33 +251,42 @@ Section {
                     checkable: true
                     StudioControls.ButtonGroup.group: group
                 }
+
                 AbstractButton {
                     id: buttonLeftToRight
                     buttonIcon: StudioTheme.Constants.distributeOriginTopLeft
                     checkable: true
                     StudioControls.ButtonGroup.group: group
                 }
+
                 AbstractButton {
                     id: buttonCenter
                     buttonIcon: StudioTheme.Constants.distributeOriginCenter
                     checkable: true
                     StudioControls.ButtonGroup.group: group
                 }
+
                 AbstractButton {
                     id: buttonRightToLeft
                     buttonIcon: StudioTheme.Constants.distributeOriginBottomRight
                     checkable: true
                     StudioControls.ButtonGroup.group: group
                 }
+            }
+        }
 
-                StudioControls.RealSpinBox {
-                    id: distanceSpinBox
-                    width: 64
-                    actionIndicatorVisible: false
-                    realFrom: -1000
-                    realTo: 1000
-                    enabled: !buttonNone.checked
-                }
+        PropertyLabel { text: qsTr("Pixel Spacing") }
+
+        SecondColumnLayout {
+            Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
+            StudioControls.RealSpinBox {
+                id: distanceSpinBox
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                actionIndicatorVisible: false
+                realFrom: -1000
+                realTo: 1000
+                enabled: !buttonNone.checked
             }
         }
 
@@ -257,14 +296,16 @@ Section {
             selectionOnly: true
         }
 
-        Label {
-            text: qsTr("Align to")
-        }
+        PropertyLabel { text: qsTr("Align to") }
+
         SecondColumnLayout {
             ComboBox {
                 id: alignToComboBox
-                Layout.fillWidth: true
+
                 property int currentEnum: alignTargets.get(alignToComboBox.currentIndex).value
+
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 textRole: "text"
                 model: ListModel {
                     id: alignTargets
@@ -274,21 +315,24 @@ Section {
                 }
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Key object")
-        }
+        PropertyLabel { text: qsTr("Key Object") }
+
         SecondColumnLayout {
             ComboBox {
                 id: keyObjectComboBox
+
+                property string lastSelectedItem: ""
+
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 enabled: alignToComboBox.currentIndex === 2
                 model: itemFilterModel.itemModel
-                Layout.fillWidth: true
-                property string lastSelectedItem: ""
+
                 onCompressedActivated: lastSelectedItem = keyObjectComboBox.currentText
+
                 onModelChanged: {
                     var idx = model.indexOf(keyObjectComboBox.lastSelectedItem)
                     if (idx !== -1)
@@ -298,56 +342,55 @@ Section {
                 }
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        SectionLayout {
-            columns: 1
-            Layout.topMargin: 30
-            Layout.columnSpan: 2
-            visible: alignDistribute.multiSelection &&
-                     (alignDistribute.selectionHasAnchors ||
-                     !alignDistribute.selectionExclusivlyItems ||
-                     alignDistribute.selectionContainsRootItem)
+        PropertyLabel {
+            text: qsTr("Warning")
+            visible: root.warningVisible
+            font.weight: Font.Bold
+        }
 
-            Text {
-                id: warningTitle
-                font.family: StudioTheme.Constants.font.family
-                font.pixelSize: StudioTheme.Values.myFontSize
-                font.weight: Font.Bold
-                color: StudioTheme.Values.themeTextColor
-                text: qsTr("Warning")
+        SecondColumnLayout {
+            visible: root.warningVisible
+
+            Spacer {
+                implicitWidth: StudioTheme.Values.actionIndicatorWidth
             }
-            Text {
-                id: warningRoot
-                visible: alignDistribute.selectionContainsRootItem
-                Layout.fillWidth: true
-                font.family: StudioTheme.Constants.font.family
-                font.pixelSize: StudioTheme.Values.myFontSize
-                color: StudioTheme.Values.themeTextColor
-                wrapMode: Text.WordWrap
-                text: qsTr("- The selection contains the root component.")
-            }
-            Text {
-                id: warningNonVisual
-                visible: !alignDistribute.selectionExclusivlyItems
-                Layout.fillWidth: true
-                font.family: StudioTheme.Constants.font.family
-                font.pixelSize: StudioTheme.Values.myFontSize
-                color: StudioTheme.Values.themeTextColor
-                wrapMode: Text.WordWrap
-                text: qsTr("- The selection contains a non-visual component.")
-            }
-            Text {
-                id: warningAnchors
-                visible: alignDistribute.selectionHasAnchors
-                Layout.fillWidth: true
-                font.family: StudioTheme.Constants.font.family
-                font.pixelSize: StudioTheme.Values.myFontSize
-                color: StudioTheme.Values.themeTextColor
-                wrapMode: Text.WordWrap
-                text: qsTr("- A component in the selection uses anchors.")
+
+            Column {
+                Text {
+                    id: warningRoot
+                    visible: alignDistribute.selectionContainsRootItem
+                    Layout.fillWidth: true
+                    font.family: StudioTheme.Constants.font.family
+                    font.pixelSize: StudioTheme.Values.myFontSize
+                    color: StudioTheme.Values.themeTextColor
+                    wrapMode: Text.WordWrap
+                    text: qsTr("- The selection contains the root component.")
+                }
+
+                Text {
+                    id: warningNonVisual
+                    visible: !alignDistribute.selectionExclusivlyItems
+                    Layout.fillWidth: true
+                    font.family: StudioTheme.Constants.font.family
+                    font.pixelSize: StudioTheme.Values.myFontSize
+                    color: StudioTheme.Values.themeTextColor
+                    wrapMode: Text.WordWrap
+                    text: qsTr("- The selection contains a non-visual component.")
+                }
+
+                Text {
+                    id: warningAnchors
+                    visible: alignDistribute.selectionHasAnchors
+                    Layout.fillWidth: true
+                    font.family: StudioTheme.Constants.font.family
+                    font.pixelSize: StudioTheme.Values.myFontSize
+                    color: StudioTheme.Values.themeTextColor
+                    wrapMode: Text.WordWrap
+                    text: qsTr("- A component in the selection uses anchors.")
+                }
             }
         }
     }

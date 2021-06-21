@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import StudioTheme 1.0 as StudioTheme
 
 Item {
@@ -62,7 +62,7 @@ Item {
             id: arrow
             width: StudioTheme.Values.spinControlIconSizeMulti
             height: StudioTheme.Values.spinControlIconSizeMulti
-            text: StudioTheme.Constants.startNode
+            text: StudioTheme.Constants.sectionToggle
             color: StudioTheme.Values.themeTextColor
             renderType: Text.NativeRendering
             anchors.left: parent.left
@@ -88,11 +88,11 @@ Item {
         }
     }
 
-    default property alias __content: row.children
+    default property alias __content: column.children
 
-    readonly property alias contentItem: row
+    readonly property alias contentItem: column
 
-    implicitHeight: Math.round(row.height + header.height + topRow.height + bottomRow.height)
+    implicitHeight: Math.round(column.height + header.height + topRow.height + bottomRow.height)
 
     Row {
         id: topRow
@@ -100,8 +100,8 @@ Item {
         anchors.top: header.bottom
     }
 
-    Row {
-        id: row
+    Column {
+        id: column
         anchors.left: parent.left
         anchors.leftMargin: leftPadding
         anchors.right: parent.right
@@ -112,7 +112,7 @@ Item {
     Row {
         id: bottomRow
         height: StudioTheme.Values.sectionHeadSpacerHeight
-        anchors.top: row.bottom
+        anchors.top: column.bottom
     }
 
     Behavior on implicitHeight {
@@ -128,7 +128,7 @@ Item {
             when: section.expanded
             PropertyChanges {
                 target: arrow
-                rotation: 90
+                rotation: 0
             }
         },
         State {
@@ -140,7 +140,7 @@ Item {
             }
             PropertyChanges {
                 target: arrow
-                rotation: 0
+                rotation: -90
             }
         }
     ]

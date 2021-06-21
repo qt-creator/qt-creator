@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,31 +23,30 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Item {
+    property alias currentColor: colorLine.color
+
     width: 300
-    height: 60
+    height: StudioTheme.Values.colorEditorPopupLineHeight
 
-    property alias currentColor : colorLine.color
+    Image {
+        id: checkerboard
+        anchors.fill: colorLine
+        source: "images/checkers.png"
+        fillMode: Image.Tile
+    }
 
-    Column {
-        anchors.fill: parent
-
-        Item {
-            width: 1
-            height: 40
-        }
-        Rectangle {
-            height: 16
-            width: parent.width
-            border.color: StudioTheme.Values.themeControlOutline
-            border.width: StudioTheme.Values.border
-
-            id: colorLine
-            color: "white"
-        }
+    Rectangle {
+        id: colorLine
+        height: StudioTheme.Values.hueSliderHeight
+        width: parent.width
+        border.color: StudioTheme.Values.themeControlOutline
+        border.width: StudioTheme.Values.border
+        color: "white"
+        anchors.bottom: parent.bottom
     }
 }

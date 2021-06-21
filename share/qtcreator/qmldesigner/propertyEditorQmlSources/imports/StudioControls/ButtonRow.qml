@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Templates 2.12 as T
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
 Row {

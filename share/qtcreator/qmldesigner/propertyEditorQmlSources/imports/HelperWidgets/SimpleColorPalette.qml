@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,27 +23,29 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import StudioControls 1.0 as StudioControls
+import QtQuick 2.15
 import HelperWidgets 2.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Item {
-    property color selectedColor
-    property bool clickable : true
-    property color oldColor
+    id: root
 
-    function showColorDialog(color) {
-        oldColor = color
-        paletteModel.showDialog(color)
-    }
+    property color selectedColor
+    property bool clickable: true
+    property color oldColor
 
     width: 200
     height: 40
     enabled: clickable
 
-    function addColorToPalette(colorCode)
-    {
+    function addColorToPalette(colorCode) {
         paletteModel.addItem(colorCode)
+    }
+
+    function showColorDialog(color) {
+        root.oldColor = color
+        paletteModel.showDialog(color)
     }
 
     signal dialogColorChanged
@@ -51,14 +53,15 @@ Item {
     Component {
         id: colorItemDelegate
 
-
         Rectangle {
             id: backgroundColor
-            property var favorite : isFavorite
+
+            property var favorite: isFavorite
+
             height: 27
             width: 27
-            border.color: (backgroundColor.favorite ? "#ffd700" : "#555555")
-            border.width: (backgroundColor.favorite ? 2 : 1)
+            border.color: backgroundColor.favorite ? "#ffd700" : "#555555"
+            border.width: backgroundColor.favorite ? 2 : 1
             color: "white"
             radius: 0
 
@@ -68,9 +71,8 @@ Item {
                 height: 25
                 anchors.centerIn: parent
                 color: colorCode
-
-                border.color: "black"
-                border.width: 1
+                border.color: StudioTheme.Values.themeControlOutline
+                border.width: StudioTheme.Values.border
             }
 
             ToolTipArea {
@@ -80,8 +82,8 @@ Item {
                 tooltip: colorCode
 
                 onClicked: {
-                    if ((mouse.button === Qt.LeftButton) && clickable)
-                        selectedColor = colorRectangle.color
+                    if (mouse.button === Qt.LeftButton && clickable)
+                        root.selectedColor = colorRectangle.color
                 }
                 onPressed: {
                     if (mouse.button === Qt.RightButton)
@@ -91,32 +93,30 @@ Item {
 
             StudioControls.Menu {
                 id: contextMenu
+
                 StudioControls.MenuItem {
-                    text: (backgroundColor.favorite
-                           ? qsTr("Remove from Favorites")
-                           : qsTr("Add to Favorites"))
-                    onTriggered: {
-                        paletteModel.toggleFavorite(index)
-                    }
+                    text: backgroundColor.favorite ? qsTr("Remove from Favorites")
+                                                   : qsTr("Add to Favorites")
+                    onTriggered: paletteModel.toggleFavorite(index)
                 }
             }
         }
     }
 
     SimpleColorPaletteModel {
-
         id: paletteModel
 
         onCurrentColorChanged: {
-            selectedColor = color
+            root.selectedColor = color
             dialogColorChanged()
-
         }
+
         onColorDialogRejected: {
-            selectedColor = oldColor
+            root.selectedColor = root.oldColor
             dialogColorChanged()
         }
     }
+
     ListView {
         id: colorPaletteView
         model: paletteModel

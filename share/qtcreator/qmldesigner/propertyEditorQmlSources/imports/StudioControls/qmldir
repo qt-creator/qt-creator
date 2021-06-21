@@ -8,8 +8,11 @@ CheckIndicator 1.0 CheckIndicator.qml
 ComboBox 1.0 ComboBox.qml
 ComboBoxInput 1.0 ComboBoxInput.qml
 ContextMenu 1.0 ContextMenu.qml
-ExpandingSpacer 1.0 ExpandingSpacer.qml
+InfinityLoopIndicator 1.0 InfinityLoopIndicator.qml
 ItemDelegate 1.0 ItemDelegate.qml
+LinkIndicator2D 1.0 LinkIndicator2D.qml
+LinkIndicator3D 1.0 LinkIndicator3D.qml
+LinkIndicator3DComponent 1.0 LinkIndicator3DComponent.qml
 Menu 1.0 Menu.qml
 MenuItem 1.0 MenuItem.qml
 MenuItemWithIcon 1.0 MenuItemWithIcon.qml

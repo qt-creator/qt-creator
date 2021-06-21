@@ -33,8 +33,8 @@ Item {
     id: extendedFunctionButton
 
     property variant backendValue
-    property bool isBoundBackend: backendValue.isBound
-    property string backendExpression: backendValue.expression
+    property bool isBoundBackend: backendValue === undefined ? false : backendValue.isBound
+    property string backendExpression: backendValue === undefined ? "" : backendValue.expression
 
     property string glyph: StudioTheme.Constants.actionIcon
     property string color: StudioTheme.Values.themeTextColor
@@ -50,7 +50,7 @@ Item {
 
     function setIcon() {
         extendedFunctionButton.color = StudioTheme.Values.themeTextColor
-        if (backendValue === null) {
+        if (backendValue === undefined) {
             extendedFunctionButton.glyph = StudioTheme.Constants.actionIcon
         } else if (backendValue.isBound) {
             if (backendValue.isTranslated) {

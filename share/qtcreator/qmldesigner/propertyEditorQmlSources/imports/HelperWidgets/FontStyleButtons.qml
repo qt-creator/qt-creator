@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,47 +23,57 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
-ButtonRow {
-
+SecondColumnLayout {
     property variant bold: backendValues.font_bold
     property variant italic: backendValues.font_italic
     property variant underline: backendValues.font_underline
     property variant strikeout: backendValues.font_strikeout
 
     BoolButtonRowButton {
+        id: boldButton
         buttonIcon: StudioTheme.Constants.fontStyleBold
         backendValue: bold
         enabled: backendValue.isAvailable
     }
-    Item {
-        width: 4
-        height: 4
+
+    Spacer {
+        implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                       + StudioTheme.Values.actionIndicatorWidth
+                       - (boldButton.implicitWidth + italicButton.implicitWidth)
     }
+
     BoolButtonRowButton {
+        id: italicButton
         buttonIcon: StudioTheme.Constants.fontStyleItalic
         backendValue: italic
         enabled: backendValue.isAvailable
     }
-    Item {
-        width: 4
-        height: 4
-    }
+
+    Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
     BoolButtonRowButton {
+        id: underlineButton
         buttonIcon: StudioTheme.Constants.fontStyleUnderline
         backendValue: underline
         enabled: backendValue.isAvailable
     }
-    Item {
-        width: 4
-        height: 4
+
+    Spacer {
+        implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                       + StudioTheme.Values.actionIndicatorWidth
+                       - (underlineButton.implicitWidth + strikethroughButton.implicitWidth)
     }
+
     BoolButtonRowButton {
+        id: strikethroughButton
         buttonIcon: StudioTheme.Constants.fontStyleStrikethrough
         backendValue: strikeout
         enabled: backendValue.isAvailable
     }
+
+    ExpandingSpacer {}
 }

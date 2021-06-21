@@ -105,7 +105,6 @@ Item {
                     caption: dirName
                     sectionHeight: 30
                     sectionFontSize: 15
-                    contentLevel: dirDepth
                     levelShift: 20
                     leftPadding: 0
                     hideHeader: dirDepth === 0

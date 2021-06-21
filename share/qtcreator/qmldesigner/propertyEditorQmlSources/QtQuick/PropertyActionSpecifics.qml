@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 import HelperWidgets 2.0
-import QtQuick 2.1
-import QtQuick.Layouts 1.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import StudioTheme 1.0 as StudioTheme
+
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
@@ -33,28 +35,31 @@ Column {
     Section {
         id: section
         caption: qsTr("Property Action")
+
         anchors.left: parent.left
         anchors.right: parent.right
 
         SectionLayout {
-            Label {
+            PropertyLabel {
                 text: qsTr("Value")
                 tooltip: qsTr("Value of the property.")
             }
-            LineEdit {
-                backendValue: backendValues.value
-                Layout.fillWidth: true
+
+            SecondColumnLayout {
+                LineEdit {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.value
+                }
+
+                ExpandingSpacer {}
             }
         }
     }
 
+    AnimationTargetSection {}
 
-    AnimationTargetSection {
-
-    }
-
-    AnimationSection {
-        showDuration: false
-    }
+    AnimationSection { showDuration: false }
 }
 

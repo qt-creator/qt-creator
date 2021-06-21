@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -31,7 +31,7 @@ import QtQuickDesignerTheme 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 2.5
 
-RowLayout {
+Row {
     id: urlChooser
 
     property variant backendValue
@@ -53,6 +53,9 @@ RowLayout {
     StudioControls.ComboBox {
         id: comboBox
 
+        implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                        + StudioTheme.Values.actionIndicatorWidth
+        width: implicitWidth
         // Note: highlightedIndex property isn't used because it has no setter and it doesn't reset
         // when the combobox is closed by focusing on some other control.
         property int hoverIndex: -1
@@ -175,8 +178,6 @@ RowLayout {
 
         onTextValueChanged: comboBox.setCurrentText(comboBox.textValue)
 
-        Layout.fillWidth: true
-
         editable: true
 
         model: fileModel.fileNameModel
@@ -205,8 +206,7 @@ RowLayout {
 
         onCompressedActivated: comboBox.handleActivate(index)
 
-        function handleActivate(index)
-        {
+        function handleActivate(index) {
             if (urlChooser.backendValue === undefined)
                 return
 
@@ -237,8 +237,7 @@ RowLayout {
 
     Connections {
         target: comboBox
-        function onStateChanged(state)
-        {
+        function onStateChanged(state) {
             // update currentIndex when the popup opens to override the default behavior in super classes
             // that selects currentIndex based on values in the combo box.
             if (comboBox.popup.opened) {
@@ -251,8 +250,10 @@ RowLayout {
         }
     }
 
-    StudioControls.AbstractButton {
-        buttonIcon: StudioTheme.Constants.addFile
+    Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+    IconIndicator {
+        icon: StudioTheme.Constants.addFile
         iconColor: urlChooser.textColor
         onClicked: {
             fileModel.openFileDialog()

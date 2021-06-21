@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -33,168 +33,159 @@ StudioControls.ButtonRow {
 
     enabled: anchorBackend.hasParent && isBaseState
     opacity: enabled ? 1 : 0.5
-
     actionIndicatorVisible: false
 
-    StudioControls.ButtonGroup {
-        id: group
-    }
+    StudioControls.ButtonGroup { id: group }
 
     AbstractButton {
+        property bool topAnchored: anchorBackend.topAnchored
+
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorTop
         tooltip: qsTr("Anchor component to the top.")
 
-        property bool topAnchored: anchorBackend.topAnchored
-        onTopAnchoredChanged: {
-            checked = topAnchored
-        }
+        onTopAnchoredChanged: checked = topAnchored
 
         onClicked: {
             if (checked) {
                 if (anchorBackend.bottomAnchored)
-                    anchorBackend.verticalCentered = false;
-                anchorBackend.topAnchored = true;
+                    anchorBackend.verticalCentered = false
+
+                anchorBackend.topAnchored = true
             } else {
-                anchorBackend.topAnchored = false;
+                anchorBackend.topAnchored = false
             }
         }
     }
 
     AbstractButton {
+        property bool bottomAnchored: anchorBackend.bottomAnchored
+
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorBottom
         tooltip: qsTr("Anchor component to the bottom.")
 
-        property bool bottomAnchored: anchorBackend.bottomAnchored
-        onBottomAnchoredChanged: {
-            checked = bottomAnchored
-        }
+        onBottomAnchoredChanged: checked = bottomAnchored
 
         onClicked: {
             if (checked) {
                 if (anchorBackend.topAnchored)
-                    anchorBackend.verticalCentered = false;
-                anchorBackend.bottomAnchored = true;
+                    anchorBackend.verticalCentered = false
+
+                anchorBackend.bottomAnchored = true
             } else {
-                anchorBackend.bottomAnchored = false;
+                anchorBackend.bottomAnchored = false
             }
         }
     }
 
     AbstractButton {
+        property bool leftAnchored: anchorBackend.leftAnchored
+
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorLeft
         tooltip: qsTr("Anchor component to the left.")
 
-        property bool leftAnchored: anchorBackend.leftAnchored
-        onLeftAnchoredChanged: {
-            checked = leftAnchored
-        }
+        onLeftAnchoredChanged: checked = leftAnchored
 
         onClicked: {
             if (checked) {
                 if (anchorBackend.rightAnchored)
-                    anchorBackend.horizontalCentered = false;
-                anchorBackend.leftAnchored = true;
+                    anchorBackend.horizontalCentered = false
+
+                anchorBackend.leftAnchored = true
             } else {
-                anchorBackend.leftAnchored = false;
+                anchorBackend.leftAnchored = false
             }
         }
     }
 
     AbstractButton {
+        property bool rightAnchored: anchorBackend.rightAnchored
+
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorRight
         tooltip: qsTr("Anchor component to the right.")
 
-        property bool rightAnchored: anchorBackend.rightAnchored
-        onRightAnchoredChanged: {
-            checked = rightAnchored
-        }
+        onRightAnchoredChanged: checked = rightAnchored
 
         onClicked: {
             if (checked) {
                 if (anchorBackend.leftAnchored)
-                    anchorBackend.horizontalCentered = false;
-                anchorBackend.rightAnchored = true;
+                    anchorBackend.horizontalCentered = false
+
+                anchorBackend.rightAnchored = true
             } else {
-                anchorBackend.rightAnchored = false;
+                anchorBackend.rightAnchored = false
             }
         }
     }
 
-    Item {
-        width: 16 + 2 * StudioTheme.Values.border
-        height: 5
+    Spacer {
+        implicitWidth: 16 + 2 * StudioTheme.Values.border
     }
 
     AbstractButton {
+        property bool isFilled: anchorBackend.isFilled
+
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorFill
         tooltip: qsTr("Fill parent component.")
 
-        property bool isFilled: anchorBackend.isFilled
-        onIsFilledChanged: {
-            checked = isFilled
-        }
+        onIsFilledChanged: checked = isFilled
 
         onClicked: {
-            if (checked) {
-                anchorBackend.fill();
-            } else {
-                anchorBackend.resetLayout();
-            }
+            if (checked)
+                anchorBackend.fill()
+            else
+                anchorBackend.resetLayout()
         }
     }
 
-    Item {
-        width: 16 + 2 * StudioTheme.Values.border
-        height: 5
+    Spacer {
+        implicitWidth: 16 + 2 * StudioTheme.Values.border
     }
 
     AbstractButton {
+        property bool verticalCentered: anchorBackend.verticalCentered
+
         checkable: true
         buttonIcon: StudioTheme.Constants.centerVertical
         tooltip: qsTr("Anchor component vertically.")
 
-        property bool verticalCentered: anchorBackend.verticalCentered
-        onVerticalCenteredChanged: {
-            checked = verticalCentered
-        }
+        onVerticalCenteredChanged: checked = verticalCentered
 
         onClicked: {
             if (checked) {
                 if (anchorBackend.topAnchored && anchorBackend.bottomAnchored) {
-                    anchorBackend.topAnchored = false;
-                    anchorBackend.bottomAnchored = false;
+                    anchorBackend.topAnchored = false
+                    anchorBackend.bottomAnchored = false
                 }
-                anchorBackend.verticalCentered = true;
+                anchorBackend.verticalCentered = true
             } else {
-                anchorBackend.verticalCentered = false;
+                anchorBackend.verticalCentered = false
             }
         }
     }
 
     AbstractButton {
+        property bool horizontalCentered: anchorBackend.horizontalCentered
+
         checkable: true
         buttonIcon: StudioTheme.Constants.centerHorizontal
         tooltip: qsTr("Anchor component horizontally.")
 
-        property bool horizontalCentered: anchorBackend.horizontalCentered
-        onHorizontalCenteredChanged: {
-            checked = horizontalCentered
-        }
+        onHorizontalCenteredChanged: checked = horizontalCentered
 
         onClicked: {
             if (checked) {
                 if (anchorBackend.leftAnchored && anchorBackend.rightAnchored) {
-                    anchorBackend.leftAnchored = false;
-                    anchorBackend.rightAnchored = false;
+                    anchorBackend.leftAnchored = false
+                    anchorBackend.rightAnchored = false
                 }
-                anchorBackend.horizontalCentered = true;
+                anchorBackend.horizontalCentered = true
             } else {
-                anchorBackend.horizontalCentered = false;
+                anchorBackend.horizontalCentered = false
             }
         }
     }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
-
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
@@ -35,67 +35,57 @@ Column {
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: qsTr("Color")
-
-        ColorEditor {
-            caption: qsTr("Color")
-            backendValue: backendValues.color
-            supportGradient: backendValues.gradient.isAvailable
-        }
-
-
-    }
-
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: qsTr("Border Color")
-        visible: backendValues.border_color.isAvailable
-
-        ColorEditor {
-            caption: qsTr("Border Color")
-            backendValue: backendValues.border_color
-            supportGradient: false
-        }
-    }
-
-
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Rectangle")
 
         SectionLayout {
-            rows: 2
-            Label {
+            PropertyLabel { text: qsTr("Color") }
+
+            ColorEditor {
+                backendValue: backendValues.color
+                supportGradient: backendValues.gradient.isAvailable
+            }
+
+            PropertyLabel {
+                text: qsTr("Border color")
+                visible: backendValues.border_color.isAvailable
+            }
+
+            ColorEditor {
+                visible: backendValues.border_color.isAvailable
+                backendValue: backendValues.border_color
+                supportGradient: false
+            }
+
+            PropertyLabel {
                 text: qsTr("Border")
                 disabledState: !backendValues.border_width.isAvailable
             }
+
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.border_width
-                    hasSlider: true
-                    Layout.preferredWidth: 120
                     enabled: backendValue.isAvailable
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
-            Label {
-                text: qsTr("Radius")
-            }
+
+            PropertyLabel { text: qsTr("Radius") }
+
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.radius
-                    hasSlider: true
-                    Layout.preferredWidth: 120
                     minimumValue: 0
                     maximumValue: Math.min(backendValues.height.value, backendValues.width.value) / 2
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
         }
     }

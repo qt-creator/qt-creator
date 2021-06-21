@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,57 +23,52 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
+        caption: qsTr("Mouse area")
+
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: qsTr("Mouse Area")
 
         SectionLayout {
-            Label {
-                text: qsTr("Enabled")
+            PropertyLabel {
+                text: qsTr("Enable")
                 tooltip: qsTr("Accepts mouse events.")
                 disabledState: !backendValues.enabled.isAvailable
             }
 
             SecondColumnLayout {
                 CheckBox {
-                    Layout.fillWidth: true
+                    text: qsTr("Area")
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.enabled
-                    text: backendValues.enabled.valueToString
                     enabled: backendValue.isAvailable
                 }
 
-                ExpandingSpacer {
-                }
-            }
+                Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
-            Label {
-                text: qsTr("Hover enabled")
-                tooltip: qsTr("Handles hover events.")
-                disabledState: !backendValues.hoverEnabled.isAvailable
-            }
-
-            SecondColumnLayout {
                 CheckBox {
-                    Layout.fillWidth: true
+                    text: qsTr("Hover")
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.hoverEnabled
-                    text: backendValues.hoverEnabled.valueToString
                     enabled: backendValue.isAvailable
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Accepted buttons")
                 tooltip: qsTr("Mouse buttons that the mouse area reacts to.")
                 disabledState: !backendValues.acceptedButtons.isAvailable
@@ -81,51 +76,19 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.acceptedButtons
                     model: ["LeftButton", "RightButton", "MiddleButton", "BackButton", "ForwardButton", "AllButtons"]
-                    Layout.fillWidth: true
                     scope: "Qt"
                     enabled: backendValue.isAvailable
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Press and hold interval")
-                tooltip: qsTr("Overrides the elapsed time in milliseconds before pressAndHold signal is emitted.")
-            }
-
-            SecondColumnLayout {
-                SpinBox {
-                    backendValue: backendValues.pressAndHoldInterval
-                    minimumValue: 0
-                    maximumValue: 2000
-                    decimals: 0
-                }
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
-                text: qsTr("Scroll gesture enabled")
-                tooltip: qsTr("Responds to scroll gestures from non-mouse devices.")
-                disabledState: !backendValues.scrollGestureEnabled.isAvailable
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.scrollGestureEnabled
-                    text: backendValues.scrollGestureEnabled.valueToString
-                    enabled: backendValue.isAvailable
-                }
-
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
+            PropertyLabel {
                 text: qsTr("Cursor shape")
                 tooltip: qsTr("Cursor shape for this mouse area.")
                 disabledState: !backendValues.cursorShape.isAvailable
@@ -133,6 +96,9 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.cursorShape
                     model: ["ArrowCursor", "UpArrowCursor", "CrossCursor", "WaitCursor",
                             "IBeamCursor", "SizeVerCursor", "SizeHorCursor", "SizeBDiagCursor",
@@ -140,15 +106,50 @@ Column {
                             "SplitHCursor", "PointingHandCursor", "ForbiddenCursor", "WhatsThisCursor",
                             "BusyCursor", "OpenHandCursor", "ClosedHandCursor", "DragCopyCursor",
                             "DragMoveCursor", "DragLinkCursor"]
-                    Layout.fillWidth: true
                     scope: "Qt"
                     enabled: backendValue.isAvailable
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
+                text: qsTr("Hold interval")
+                tooltip: qsTr("Overrides the elapsed time in milliseconds before pressAndHold signal is emitted.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.pressAndHoldInterval
+                    minimumValue: 0
+                    maximumValue: 2000
+                    decimals: 0
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Scroll gesture")
+                tooltip: qsTr("Responds to scroll gestures from non-mouse devices.")
+                disabledState: !backendValues.scrollGestureEnabled.isAvailable
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: qsTr("Enabled")
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.scrollGestureEnabled
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
                 text: qsTr("Prevent stealing")
                 tooltip: qsTr("Stops mouse events from being stolen from this mouse area.")
                 disabledState: !backendValues.preventStealing.isAvailable
@@ -156,109 +157,114 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.preventStealing
                     text: backendValues.preventStealing.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.preventStealing
                     enabled: backendValue.isAvailable
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Propagate composed events")
+            PropertyLabel {
+                text: qsTr("Propagate events")
                 tooltip: qsTr("Automatically propagates composed mouse events to other mouse areas.")
                 disabledState: !backendValues.propagateComposedEvents.isAvailable
             }
 
             SecondColumnLayout {
                 CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.propagateComposedEvents
                     text: backendValues.propagateComposedEvents.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.propagateComposedEvents
                     enabled: backendValue.isAvailable
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
         }
     }
 
     Section {
+        caption: qsTr("Drag")
+
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: qsTr("Drag")
         visible: backendValues.drag_target.isAvailable
 
         SectionLayout {
-            Label {
+            PropertyLabel {
                 text: qsTr("Target")
                 tooltip: qsTr("ID of the component to drag.")
             }
+
             SecondColumnLayout {
                 ItemFilterComboBox {
                     typeFilter: "QtQuick.QtObject"
                     validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                     backendValue: backendValues.drag_target
-                    Layout.fillWidth: true
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Axis")
                 tooltip: qsTr("Whether dragging can be done horizontally, vertically, or both.")
             }
+
             SecondColumnLayout {
                 ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     scope: "Drag"
                     model: ["XAxis", "YAxis", "XAndYAxis"]
                     backendValue: backendValues.drag_axis
-                    Layout.fillWidth: true
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Filter children")
-                tooltip: qsTr("Whether dragging overrides descendant mouse areas.")
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.drag_filterChildren
-                    text: backendValues.drag_filterChildren.valueToString
-                }
-
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
+            PropertyLabel {
                 text: qsTr("Threshold")
                 tooltip: qsTr("Threshold in pixels of when the drag operation should start.")
             }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.drag_threshold
                     minimumValue: 0
                     maximumValue: 5000
                     decimals: 0
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
+                text: qsTr("Filter children")
+                tooltip: qsTr("Whether dragging overrides descendant mouse areas.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.drag_filterChildren.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.drag_filterChildren
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
                 text: qsTr("Smoothed")
                 tooltip: qsTr("Moves targets only after the drag operation has started.\n"
                               + "When disabled, moves targets straight to the current mouse position.")
@@ -266,13 +272,13 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    Layout.fillWidth: true
-                    backendValue: backendValues.drag_smoothed
                     text: backendValues.drag_smoothed.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.drag_smoothed
                 }
 
-                ExpandingSpacer {
-                }
+                ExpandingSpacer {}
             }
         }
     }

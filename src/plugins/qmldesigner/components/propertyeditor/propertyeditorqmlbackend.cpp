@@ -672,34 +672,37 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     const QString anchorLeftRight = "anchors.left: parent.left\nanchors.right: parent.right\n";
 
     qmlTemplate += "Column {\n";
-    qmlTemplate += anchorLeftRight;
+    qmlTemplate += "width: parent.width\n";
 
     if (node.modelNode().isComponent())
         qmlTemplate += "ComponentButton {}\n";
 
-    qmlTemplate += "Section {\n";
-    qmlTemplate += "caption: \"User added properties\"\n";
-    qmlTemplate += anchorLeftRight;
-    qmlTemplate += "Column {\n";
-    qmlTemplate += "width: parent.width\n";
+    QString qmlInnerTemplate = "";
+
+    qmlInnerTemplate += "Section {\n";
+    qmlInnerTemplate += "caption: \""+ QObject::tr("User added properties") + "\"\n";
+    qmlInnerTemplate += anchorLeftRight;
+    qmlInnerTemplate += "leftPadding: 0\n";
+    qmlInnerTemplate += "rightPadding: 0\n";
+    qmlInnerTemplate += "bottomPadding: 0\n";
+    qmlInnerTemplate += "Column {\n";
+    qmlInnerTemplate += "width: parent.width\n";
 
     // First the section containing properties of basic type e.g. int, string, bool
     if (!basicProperties.empty()) {
         emptyTemplate = false;
 
-        qmlTemplate += "Column {\n";
-        qmlTemplate += "width: parent.width\n";
-        qmlTemplate += "leftPadding: 8\n";
-        qmlTemplate += "rightPadding: 0\n";
-        qmlTemplate += "topPadding: 4\n";
-        qmlTemplate += "bottomPadding: 4\n";
-        qmlTemplate += "SectionLayout {\n";
+        qmlInnerTemplate += "Column {\n";
+        qmlInnerTemplate += "width: parent.width\n";
+        qmlInnerTemplate += "leftPadding: 8\n";
+        qmlInnerTemplate += "bottomPadding: 10\n";
+        qmlInnerTemplate += "SectionLayout {\n";
 
         for (const auto &p : qAsConst(basicProperties))
-            qmlTemplate += findAndFillTemplate(p, p);
+            qmlInnerTemplate += findAndFillTemplate(p, p);
 
-        qmlTemplate += "}\n"; // SectionLayout
-        qmlTemplate += "}\n"; // Column
+        qmlInnerTemplate += "}\n"; // SectionLayout
+        qmlInnerTemplate += "}\n"; // Column
     }
 
     // Second the section containing properties of complex type for which no specific template exists e.g. Button
@@ -712,24 +715,26 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
             if (parentTypeName == "alias" && node.isValid())
                 parentTypeName = node.instanceType(key);
 
-            qmlTemplate += "Section {\n";
-            qmlTemplate += QStringLiteral("caption: \"%1 - %2\"\n")
+            qmlInnerTemplate += "Section {\n";
+            qmlInnerTemplate += QStringLiteral("caption: \"%1 - %2\"\n")
                     .arg(QString::fromUtf8(key), QString::fromUtf8(parentTypeName));
-            qmlTemplate += anchorLeftRight;
-            qmlTemplate += "expanded: false\n";
-            qmlTemplate += "level: 1\n";
-            qmlTemplate += "SectionLayout {\n";
+            qmlInnerTemplate += anchorLeftRight;
+            qmlInnerTemplate += "leftPadding: 8\n";
+            qmlInnerTemplate += "rightPadding: 0\n";
+            qmlInnerTemplate += "expanded: false\n";
+            qmlInnerTemplate += "level: 1\n";
+            qmlInnerTemplate += "SectionLayout {\n";
 
             auto properties = it.value();
             Utils::sort(properties);
 
             for (const auto &p : qAsConst(properties)) {
                 const PropertyName shortName = p.contains('.') ? p.split('.').last() : p;
-                qmlTemplate += findAndFillTemplate(shortName, p);
+                qmlInnerTemplate += findAndFillTemplate(shortName, p);
             }
 
-            qmlTemplate += "}\n"; // SectionLayout
-            qmlTemplate += "}\n"; // Section
+            qmlInnerTemplate += "}\n"; // SectionLayout
+            qmlInnerTemplate += "}\n"; // Section
         }
     }
 
@@ -737,32 +742,17 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     if (!separateSectionProperties.empty()) {
         emptyTemplate = false;
         Utils::sort(separateSectionProperties);
-        for (const auto &p : qAsConst(separateSectionProperties)) {
-            TypeName parentTypeName = type.propertyTypeName(p);
-            // alias resolution only possible with instance
-            if (parentTypeName == "alias" && node.isValid())
-                parentTypeName = node.instanceType(p);
-
-            qmlTemplate += "Section {\n";
-            qmlTemplate += QStringLiteral("caption: \"%1 - %2\"\n").arg(QString::fromUtf8(p)).arg(QString::fromUtf8(parentTypeName));
-            qmlTemplate += anchorLeftRight;
-            qmlTemplate += "level: 1\n";
-            qmlTemplate += "Column {\n";
-            qmlTemplate += "width: parent.width\n";
-
-            qmlTemplate += findAndFillTemplate(p, p);
-
-            qmlTemplate += "}\n"; // Column
-            qmlTemplate += "}\n"; // Section
-        }
+        for (const auto &p : qAsConst(separateSectionProperties))
+            qmlInnerTemplate += findAndFillTemplate(p, p);
     }
 
-    qmlTemplate += "}\n"; // Column
-    qmlTemplate += "}\n"; // Section
-    qmlTemplate += "}\n"; // Column
+    qmlInnerTemplate += "}\n"; // Column
+    qmlInnerTemplate += "}\n"; // Section
 
-    if (emptyTemplate)
-        return QString();
+    if (!emptyTemplate)
+        qmlTemplate += qmlInnerTemplate;
+
+    qmlTemplate += "}\n"; // Column
 
     return qmlTemplate;
 }
@@ -910,7 +900,10 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 
     const QString withoutDir = relativePath.split(QStringLiteral("/")).constLast();
 
-    if (importDirVersion.exists(withoutDir))
+    int lastSlash = importDirVersion.absoluteFilePath(withoutDir).lastIndexOf("/");
+    QString dirPath = importDirVersion.absoluteFilePath(withoutDir).left(lastSlash);
+
+    if (importDirVersion.exists(withoutDir) && !dirPath.endsWith("QtQuick/Controls.2/designer") && !dirPath.endsWith("QtQuick/Controls/designer"))
         return importDirVersion.absoluteFilePath(withoutDir);
 
     const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).constLast();

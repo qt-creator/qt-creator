@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuickDesignerTheme 1.0
+import QtQuick 2.15
 import StudioControls 1.0 as StudioControls
 
 Item {
@@ -32,28 +31,26 @@ Item {
 
     property alias decimals: spinBox.decimals
     property alias hasSlider: spinBox.hasSlider
-
     property alias value: spinBox.realValue
-
     property alias minimumValue: spinBox.realFrom
     property alias maximumValue: spinBox.realTo
     property alias stepSize: spinBox.realStepSize
-
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
+    property alias hover: spinBox.hover
 
     signal valueModified
 
     width: 90
     implicitHeight: spinBox.height
 
-    onFocusChanged: restoreCursor();
+    onFocusChanged: restoreCursor()
 
     StudioControls.RealSpinBox {
         id: spinBox
 
-        onDragStarted: hideCursor();
-        onDragEnded: restoreCursor();
-        onDragging: holdCursorInPlace();
+        onDragStarted: hideCursor()
+        onDragEnded: restoreCursor()
+        onDragging: holdCursorInPlace()
 
         property bool hasSlider: spinBox.sliderIndicatorVisible
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,113 +23,93 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.12
 import StudioTheme 1.0 as StudioTheme
 
 Item {
-    id: colorSlider
+    id: root
 
     property real value: 1
-    property real maximum: 1
     property real minimum: 0
+    property real maximum: 1
     property bool pressed: mouseArea.pressed
     property bool integer: false
-    property Component trackDelegate
-    property string handleSource: "images/slider_handle.png"
 
     signal clicked
 
-    width: 20
-    height: 100
+    height: StudioTheme.Values.hueSliderHeight
 
     function updatePos() {
-        if (maximum > minimum) {
-            var pos = (track.height - 8) * (value - minimum) / (maximum - minimum)
-            return Math.min(Math.max(pos, 0), track.height - 8);
+        if (root.maximum > root.minimum) {
+            var pos = (track.width - handle.width) * (root.value - root.minimum) / (root.maximum - root.minimum)
+            return Math.min(Math.max(pos, 0), track.width - 8)
         } else {
-            return 0;
+            return 0
         }
     }
 
-    Row {
+    Item {
+        id: track
+
+        width: parent.width
         height: parent.height
-        spacing: 12
 
-        Item {
-            id: track
-            width: 6
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+        Rectangle {
+            anchors.fill: parent
+            border.color: StudioTheme.Values.themeControlOutline
+            border.width: StudioTheme.Values.border
 
-            Rectangle {
-                anchors.fill: track
-                anchors.margins: -1
-                color: StudioTheme.Values.themeControlOutline
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.000; color: Qt.rgba(1, 0, 0, 1) }
+                GradientStop { position: 0.167; color: Qt.rgba(1, 1, 0, 1) }
+                GradientStop { position: 0.333; color: Qt.rgba(0, 1, 0, 1) }
+                GradientStop { position: 0.500; color: Qt.rgba(0, 1, 1, 1) }
+                GradientStop { position: 0.667; color: Qt.rgba(0, 0, 1, 1) }
+                GradientStop { position: 0.833; color: Qt.rgba(1, 0, 1, 1) }
+                GradientStop { position: 1.000; color: Qt.rgba(1, 0, 0, 1) }
+            }
+        }
+
+        Rectangle {
+            id: handle
+            width: StudioTheme.Values.hueSliderHandleWidth
+            height: track.height
+            anchors.verticalCenter: parent.verticalCenter
+            smooth: true
+            opacity: 0.9
+            radius: 2
+            border.color: "black"
+            border.width: 1
+            x: root.updatePos()
+            z: 1
+
+            gradient: Gradient {
+                GradientStop {color: "#2c2c2c" ; position: 0}
+                GradientStop {color: "#343434" ; position: 0.15}
+                GradientStop {color: "#373737" ; position: 1.0}
+            }
+        }
+
+        MouseArea {
+            id: mouseArea
+            anchors.fill: parent
+            preventStealing: true
+
+            function calculateValue() {
+                var handleX = Math.max(0, Math.min(mouseArea.mouseX, mouseArea.width))
+                var realValue = (root.maximum - root.minimum) * handleX / mouseArea.width + root.minimum
+                root.value = root.integer ? Math.round(realValue) : realValue
             }
 
-            Rectangle {
-                gradient: Gradient {
-                    GradientStop {position: 0.000; color: Qt.rgba(1, 0, 0, 1)}
-                    GradientStop {position: 0.167; color: Qt.rgba(1, 1, 0, 1)}
-                    GradientStop {position: 0.333; color: Qt.rgba(0, 1, 0, 1)}
-                    GradientStop {position: 0.500; color: Qt.rgba(0, 1, 1, 1)}
-                    GradientStop {position: 0.667; color: Qt.rgba(0, 0, 1, 1)}
-                    GradientStop {position: 0.833; color: Qt.rgba(1, 0, 1, 1)}
-                    GradientStop {position: 1.000; color: Qt.rgba(1, 0, 0, 1)}
-                }
-
-                width: parent.width
-                height: parent.height
-            }
-
-            Rectangle {
-                id: handle
-                width: 14
-                height: 10
-
-                opacity: 0.9
-
-                anchors.horizontalCenter: parent.horizontalCenter
-                smooth: true
-
-                radius: 2
-                border.color: "black"
-                border.width: 1
-
-                gradient: Gradient {
-                    GradientStop {color: "#2c2c2c" ; position: 0}
-                    GradientStop {color: "#343434" ; position: 0.15}
-                    GradientStop {color: "#373737" ; position: 1.0}
-                }
-
-
-                y: updatePos()
-                z: 1
-            }
-
-            MouseArea {
-                id: mouseArea
-                anchors {top: parent.top; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
-
-                width: handle.width
-                preventStealing: true
-
-                onPressed: {
-                    var handleY = Math.max(0, Math.min(mouseY, mouseArea.height))
-                    var realValue = (maximum - minimum) * handleY / mouseArea.height + minimum;
-                    value = colorSlider.integer ? Math.round(realValue) : realValue;
-                }
-
-                onReleased: colorSlider.clicked()
-
-                onPositionChanged: {
-                    if (pressed) {
-                        var handleY = Math.max(0, Math.min(mouseY, mouseArea.height))
-                        var realValue = (maximum - minimum) * handleY / mouseArea.height + minimum;
-                        value = colorSlider.integer ? Math.round(realValue) : realValue;
-                    }
+            onPressed: calculateValue()
+            onReleased: root.clicked()
+            onPositionChanged: {
+                if (pressed) {
+                    calculateValue()
                 }
             }
         }
+
     }
 }

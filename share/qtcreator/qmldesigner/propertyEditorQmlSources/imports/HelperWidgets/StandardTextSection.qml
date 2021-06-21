@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,173 +23,255 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
-    anchors.left: parent.left
-    anchors.right: parent.right
-    caption: qsTr("Text")
+    id: root
 
-    property bool showIsWrapping: false
+    property bool showIsWrapping: false // TODO not used
     property bool showElide: false
     property bool showVerticalAlignment: false
     property bool showFormatProperty: false
     property bool showFontSizeMode: false
     property bool showLineHeight: false
     property bool richTextEditorAvailable: false
-    id: root
 
+    anchors.left: parent.left
+    anchors.right: parent.right
+    caption: qsTr("Text")
 
     SectionLayout {
-        columns: 2
-        rows: 3
-        Label {
-            text: qsTr("Text")
-        }
+        PropertyLabel { text: qsTr("Text") }
 
-        RowLayout {
+        SecondColumnLayout {
             LineEdit {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 backendValue: backendValues.text
-                Layout.fillWidth: true
             }
 
-            StudioControls.AbstractButton {
-                id: richTextEditorButton
-                buttonIcon: StudioTheme.Constants.edit
-                onClicked: {
-                    richTextDialogLoader.show()
-                }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+            Rectangle {
+                id: richTextEditorIndicator
                 visible: root.richTextEditorAvailable
+                color: "transparent"
+                border.color: "transparent"
+                implicitWidth: StudioTheme.Values.iconAreaWidth // TODO dedicated value
+                implicitHeight: StudioTheme.Values.height // TODO dedicated value
+
+                T.Label {
+                    id: richTextEditorIcon
+                    anchors.fill: parent
+                    text: StudioTheme.Constants.edit
+                    color: StudioTheme.Values.themeTextColor
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.myIconFontSize + 4 // TODO
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    states: [
+                        State {
+                            name: "default"
+                            when: !richTextEditorMouseArea.containsMouse
+                            PropertyChanges {
+                                target: richTextEditorIcon
+                                color: StudioTheme.Values.themeLinkIndicatorColor
+                            }
+                        },
+                        State {
+                            name: "hover"
+                            when: richTextEditorMouseArea.containsMouse
+                            PropertyChanges {
+                                target: richTextEditorIcon
+                                color: StudioTheme.Values.themeLinkIndicatorColorHover
+                            }
+                        }
+                    ]
+                }
+
+                MouseArea {
+                    id: richTextEditorMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: richTextDialogLoader.show()
+                }
             }
+
+            ExpandingSpacer {}
 
             RichTextEditor {
-                onRejected: {
-                    hideWidget()
-                }
-                onAccepted: {
-                    hideWidget()
-                }
+                onRejected: hideWidget()
+                onAccepted: hideWidget()
             }
         }
 
-        Label {
-            visible: showVerticalAlignment
+        PropertyLabel { text: qsTr("Text color") }
+
+        ColorEditor {
+            backendValue: backendValues.color
+            supportGradient: false
+        }
+
+        PropertyLabel {
+            visible: root.showVerticalAlignment
             text: qsTr("Wrap mode")
             disabledState: !backendValues.wrapMode.isAvailable
         }
 
-        ComboBox {
-            visible: showVerticalAlignment
-            Layout.fillWidth: true
-            backendValue: backendValues.wrapMode
-            scope: "Text"
-            model: ["NoWrap", "WordWrap", "WrapAnywhere", "Wrap"]
-            enabled: backendValue.isAvailable
+        SecondColumnLayout {
+            ComboBox {
+                visible: root.showVerticalAlignment
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: backendValues.wrapMode
+                scope: "Text"
+                model: ["NoWrap", "WordWrap", "WrapAnywhere", "Wrap"]
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showElide
+        PropertyLabel {
+            visible: root.showElide
             text: qsTr("Elide")
             disabledState: !backendValues.elide.isAvailable
         }
 
-        ComboBox {
-            visible: showElide
-            Layout.fillWidth: true
-            backendValue: backendValues.elide
-            scope: "Text"
-            model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
-            enabled: backendValue.isAvailable
+        SecondColumnLayout {
+            ComboBox {
+                visible: root.showElide
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: backendValues.elide
+                scope: "Text"
+                model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showElide
-            text: qsTr("Maximum line count")
+        PropertyLabel {
+            visible: root.showElide
+            text: qsTr("Max line count")
             tooltip: qsTr("Limits the number of lines that the text component will show.")
             disabledState: !backendValues.maximumLineCount.isAvailable
         }
 
-        SpinBox {
-            visible: showElide
-            Layout.fillWidth: true
-            backendValue: backendValues.maximumLineCount
-            minimumValue: 0
-            maximumValue: 10000
-            decimals: 0
-            enabled: backendValue.isAvailable
-        }
-
-        Label {
-            text: qsTr("Alignment")
-        }
-
-        Row {
-            AligmentHorizontalButtons {}
-
-            Item {
-                visible: showVerticalAlignment
-                width: 20
-                height: 2
+        SecondColumnLayout {
+            SpinBox {
+                visible: root.showElide
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.maximumLineCount
+                minimumValue: 0
+                maximumValue: 10000
+                decimals: 0
+                enabled: backendValue.isAvailable
             }
 
-            AligmentVerticalButtons { visible: showVerticalAlignment }
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showFormatProperty
+        PropertyLabel { text: qsTr("Alignment") }
+
+        SecondColumnLayout {
+            AligmentHorizontalButtons { id: horizontalAlignmentButtons }
+
+            Spacer {
+                visible: root.showVerticalAlignment
+                implicitWidth: StudioTheme.Values.controlGap
+                               + StudioTheme.Values.controlLabelWidth
+                               + StudioTheme.Values.controlGap
+                               + StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                               - horizontalAlignmentButtons.implicitWidth
+            }
+
+            AligmentVerticalButtons { visible: root.showVerticalAlignment }
+        }
+
+        PropertyLabel {
+            visible: root.showFormatProperty
             text: qsTr("Format")
             disabledState: !backendValues.textFormat.isAvailable
         }
-        ComboBox {
-            scope: "Text"
-            visible: showFormatProperty
-            model:  ["PlainText", "RichText", "AutoText"]
-            backendValue: backendValues.textFormat
-            Layout.fillWidth: true
-            enabled: backendValue.isAvailable
+
+        SecondColumnLayout {
+            ComboBox {
+                visible: root.showFormatProperty
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "Text"
+                model: ["PlainText", "RichText", "AutoText"]
+                backendValue: backendValues.textFormat
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Render type")
-            toolTip: qsTr("Overrides the default rendering type for this component.")
+            tooltip: qsTr("Overrides the default rendering type for this component.")
             disabledState: !backendValues.renderType.isAvailable
         }
-        ComboBox {
-            scope: "Text"
-            model:  ["QtRendering", "NativeRendering"]
-            backendValue: backendValues.renderType
-            Layout.fillWidth: true
-            enabled: backendValue.isAvailable
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "Text"
+                model: ["QtRendering", "NativeRendering"]
+                backendValue: backendValues.renderType
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showFontSizeMode
-            text: qsTr("Font size mode")
-            toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
+        PropertyLabel {
+            visible: root.showFontSizeMode
+            text: qsTr("Size mode")
+            tooltip: qsTr("Specifies how the font size of the displayed text is determined.")
             disabledState: !backendValues.fontSizeMode.isAvailable
         }
-        ComboBox {
-            id: fontSizeMode
-            visible: showFontSizeMode
-            scope: "Text"
-            model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
-            backendValue: backendValues.fontSizeMode
-            Layout.fillWidth: true
-            enabled: backendValue.isAvailable
+
+        SecondColumnLayout {
+            ComboBox {
+                id: fontSizeMode
+                visible: root.showFontSizeMode
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "Text"
+                model: ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
+                backendValue: backendValues.fontSizeMode
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showFontSizeMode
-            text: qsTr("Minimum size")
+        PropertyLabel {
+            visible: root.showFontSizeMode
+            text: qsTr("Min size")
             disabledState: !backendValues.minimumPixelSize.isAvailable
                            && !backendValues.minimumPointSize.isAvailable
         }
+
         SecondColumnLayout {
-            visible: showFontSizeMode
+            visible: root.showFontSizeMode
 
             SpinBox {
                 enabled: (fontSizeMode.currentIndex !== 0) || backendValue.isAvailable
@@ -197,20 +279,19 @@ Section {
                 maximumValue: 500
                 decimals: 0
                 backendValue: backendValues.minimumPixelSize
-                Layout.fillWidth: true
-                Layout.minimumWidth: 60
-            }
-            Label {
-                text: qsTr("Pixel")
-                tooltip: qsTr("Minimum font pixel size of scaled text.")
-                width: 42
-                disabledStateSoft: !backendValues.minimumPixelSize.isAvailable
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Item {
-                width: 4
-                height: 4
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                text: "px"
+                tooltip: qsTr("Minimum font pixel size of scaled text.")
+                //disabledStateSoft: !backendValues.minimumPixelSize.isAvailable
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             SpinBox {
                 enabled: (fontSizeMode.currentIndex !== 0) || backendValue.isAvailable
@@ -218,49 +299,67 @@ Section {
                 maximumValue: 500
                 decimals: 0
                 backendValue: backendValues.minimumPointSize
-                Layout.fillWidth: true
-                Layout.minimumWidth: 60
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
-            Label {
-                text: qsTr("Point")
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                text: "pt"
                 tooltip: qsTr("Minimum font point size of scaled text.")
-                width: 42
-                disabledStateSoft: !backendValues.minimumPointSize.isAvailable
+                //disabledStateSoft: !backendValues.minimumPointSize.isAvailable
             }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showLineHeight
+        PropertyLabel {
+            visible: root.showLineHeight
             text: qsTr("Line height")
             tooltip: qsTr("Line height for the text.")
             disabledState: !lineHeightSpinBox.enabled
         }
 
-        SpinBox {
-            id: lineHeightSpinBox
-            visible: showLineHeight
-            Layout.fillWidth: true
-            backendValue: (backendValues.lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
-            maximumValue: 500
-            minimumValue: 0
-            decimals: 2
-            stepSize: 0.1
-            enabled: backendValue.isAvailable
+        SecondColumnLayout {
+            visible: root.showLineHeight
+
+            SpinBox {
+                id: lineHeightSpinBox
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: (backendValues.lineHeight === undefined) ? dummyBackendValue
+                                                                       : backendValues.lineHeight
+                decimals: 2
+                minimumValue: 0
+                maximumValue: 500
+                stepSize: 0.1
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showLineHeight
+        PropertyLabel {
+            visible: root.showLineHeight
             text: qsTr("Line height mode")
-            toolTip: qsTr("Determines how the line height is specified.")
+            tooltip: qsTr("Determines how the line height is specified.")
             disabledState: !backendValues.lineHeightMode.isAvailable
         }
-        ComboBox {
-            visible: showLineHeight
-            scope: "Text"
-            model:  ["ProportionalHeight", "FixedHeight"]
-            backendValue: backendValues.lineHeightMode
-            Layout.fillWidth: true
-            enabled: backendValue.isAvailable
+
+        SecondColumnLayout {
+            ComboBox {
+                visible: root.showLineHeight
+                scope: "Text"
+                model: ["ProportionalHeight", "FixedHeight"]
+                backendValue: backendValues.lineHeightMode
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
     }
 

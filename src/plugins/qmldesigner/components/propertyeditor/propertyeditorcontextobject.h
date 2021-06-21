@@ -34,6 +34,7 @@
 #include <QQmlComponent>
 #include <QColor>
 #include <QPoint>
+#include <QMouseEvent>
 
 namespace QmlDesigner {
 
@@ -210,6 +211,5 @@ private:
     QVariant m_modelNodeBackend;
     QmlDesigner::ModelNode m_modelNode;
 };
-
 
 } //QmlDesigner {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Section {
     caption: qsTr("Padding")
@@ -34,105 +35,125 @@ Section {
     anchors.right: parent.right
 
     SectionLayout {
-        Label {
+        PropertyLabel {
             text: qsTr("Vertical")
             disabledState: (!backendValues.topPadding.isAvailable && !backendValues.bottomPadding.isAvailable)
         }
+
         SecondColumnLayout {
-            Label {
-                text: qsTr("Top")
-                tooltip: qsTr("Padding between the content and the top edge of the item.")
-                width: 42
-                disabledStateSoft: !backendValues.topPadding.isAvailable
-            }
             SpinBox {
-                maximumValue: 10000
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
-                realDragRange: 5000
+                maximumValue: 10000
                 decimals: 0
                 backendValue: backendValues.topPadding
-                Layout.fillWidth: true
                 enabled: backendValue.isAvailable
             }
-            Item {
-                width: 4
-                height: 4
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                tooltip: qsTr("Padding between the content and the top edge of the item.")
+                //disabledStateSoft: !backendValues.topPadding.isAvailable
             }
 
-            Label {
-                text: qsTr("Bottom")
-                tooltip: qsTr("Padding between the content and the bottom edge of the item.")
-                width: 42
-                disabledStateSoft: !backendValues.bottomPadding.isAvailable
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
             SpinBox {
-                maximumValue: 10000
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
-                realDragRange: 5000
+                maximumValue: 10000
                 decimals: 0
                 backendValue: backendValues.bottomPadding
-                Layout.fillWidth: true
                 enabled: backendValue.isAvailable
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                rotation: 180
+                tooltip: qsTr("Padding between the content and the bottom edge of the item.")
+                //disabledStateSoft: !backendValues.bottomPadding.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Horizontal")
             disabledState: (!backendValues.leftPadding.isAvailable && !backendValues.rightPadding.isAvailable)
         }
+
         SecondColumnLayout {
-            Label {
-                text: qsTr("Left")
-                tooltip: qsTr("Padding between the content and the left edge of the item.")
-                width: 42
-                disabledStateSoft: !backendValues.leftPadding.isAvailable
-            }
             SpinBox {
-                maximumValue: 10000
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
-                realDragRange: 5000
+                maximumValue: 10000
                 decimals: 0
                 backendValue: backendValues.leftPadding
-                Layout.fillWidth: true
                 enabled: backendValue.isAvailable
             }
-            Item {
-                width: 4
-                height: 4
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                rotation: 270
+                tooltip: qsTr("Padding between the content and the left edge of the item.")
+                //disabledStateSoft: !backendValues.leftPadding.isAvailable
             }
 
-            Label {
-                text: qsTr("Right")
-                tooltip: qsTr("Padding between the content and the right edge of the item.")
-                width: 42
-                disabledStateSoft: !backendValues.rightPadding.isAvailable
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
             SpinBox {
-                maximumValue: 10000
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
-                realDragRange: 5000
+                maximumValue: 10000
                 decimals: 0
                 backendValue: backendValues.rightPadding
-                Layout.fillWidth: true
                 enabled: backendValue.isAvailable
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                rotation: 90
+                tooltip: qsTr("Padding between the content and the right edge of the item.")
+                //disabledStateSoft: !backendValues.rightPadding.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Padding")
+        PropertyLabel {
+            text: qsTr("Global")
             tooltip: qsTr("Padding between the content and the edges of the items.")
             disabledState: !backendValues.padding.isAvailable
         }
+
         SecondColumnLayout {
             SpinBox {
-                maximumValue: 10000
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 minimumValue: -10000
-                realDragRange: 5000
+                maximumValue: 10000
                 decimals: 0
                 backendValue: backendValues.padding
-                Layout.fillWidth: true
                 enabled: backendValue.isAvailable
             }
+
+            ExpandingSpacer {}
         }
     }
 }

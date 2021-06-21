@@ -1,107 +1,153 @@
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: qsTr("Text")
+    leftPadding: 8
+    rightPadding: 0
+    caption: "%1" + " - " + qsTr("Text")
     expanded: false
-    level: 2
+    level: 1
 
     SectionLayout {
-        columns: 2
-        rows: 3
-        Label {
-            text: qsTr("Text")
-        }
-        LineEdit {
-            backendValue: backendValues.%2_text
-            Layout.fillWidth: true
-        }
+        PropertyLabel { text: qsTr("Text") }
 
-        Label {
-            text: qsTr("Wrap mode")
-        }
+        SecondColumnLayout {
+            LineEdit {
+                backendValue: backendValues.%2_text
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+            }
 
-        ComboBox {
-            Layout.fillWidth: true
-            backendValue: backendValues.%2_wrapMode
-            scope: "Text"
-            model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Elide")
+        PropertyLabel { text: qsTr("Text color") }
+
+        ColorEditor {
+            backendValue: backendValues.%2_color
+            supportGradient: false
         }
 
-        ComboBox {
-            Layout.fillWidth: true
-            backendValue: backendValues.%2_elide
-            scope: "Text"
-            model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
+        PropertyLabel { text: qsTr("Wrap mode") }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: backendValues.%2_wrapMode
+                scope: "Text"
+                model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Alignment")
+        PropertyLabel { text: qsTr("Elide") }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: backendValues.%2_elide
+                scope: "Text"
+                model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
+            }
+
+            ExpandingSpacer {}
         }
 
-        AligmentHorizontalButtons {
-            backendValue: backendValues.%2_horizontalAlignment;
+        PropertyLabel { text: qsTr("Alignment") }
 
+        SecondColumnLayout {
+            AligmentHorizontalButtons {
+                id: horizontalAlignmentButtons
+                backendValue: backendValues.%2_horizontalAlignment;
+            }
+
+            Spacer {
+                implicitWidth: StudioTheme.Values.controlGap
+                               + StudioTheme.Values.controlLabelWidth
+                               + StudioTheme.Values.controlGap
+                               + StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                               - horizontalAlignmentButtons.implicitWidth
+            }
+
+            AligmentVerticalButtons {
+                backendValue: backendValues.%2_verticalAlignment;
+            }
         }
 
-        Label {
-            text: ("")
+        PropertyLabel { text: qsTr("Format") }
+
+        SecondColumnLayout {
+            ComboBox {
+                scope: "Text"
+                model: ["PlainText", "RichText", "AutoText"]
+                backendValue: backendValues.%2_textFormat
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+            }
+
+            ExpandingSpacer {}
         }
 
-        AligmentVerticalButtons {
-            backendValue: backendValues.%2_verticalAlignment;
-        }
-
-
-        Label {
-            text: qsTr("Format")
-        }
-        ComboBox {
-            scope: "Text"
-            model:  ["PlainText", "RichText", "AutoText"]
-            backendValue: backendValues.%2_textFormat
-            Layout.fillWidth: true
-        }
-
-        Label {
+        PropertyLabel {
             text: qsTr("Render type")
-            toolTip: qsTr("Override the default rendering type for this item.")
-        }
-        ComboBox {
-            scope: "Text"
-            model:  ["QtRendering", "NativeRendering"]
-            backendValue: backendValues.%2_renderType
-            Layout.fillWidth: true
+            tooltip: qsTr("Overrides the default rendering type for this component.")
         }
 
-        Label {
-            text: qsTr("Font size mode")
-            toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
-        }
-        ComboBox {
-            scope: "Text"
-            model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
-            backendValue: backendValues.%2_fontSizeMode
-            Layout.fillWidth: true
+        SecondColumnLayout {
+            ComboBox {
+                scope: "Text"
+                model: ["QtRendering", "NativeRendering"]
+                backendValue: backendValues.%2_renderType
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+            }
+
+            ExpandingSpacer {}
         }
 
+        PropertyLabel {
+            text: qsTr("Size mode")
+            tooltip: qsTr("Specifies how the font size of the displayed text is determined.")
+        }
 
-        Label {
+        SecondColumnLayout {
+            ComboBox {
+                scope: "Text"
+                model: ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
+                backendValue: backendValues.%2_fontSizeMode
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
             text: qsTr("Line height")
             tooltip: qsTr("Sets the line height for the text.")
         }
 
-        SpinBox {
-            Layout.fillWidth: true
-            backendValue: (backendValues.%2_lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
-            maximumValue: 500
-            minimumValue: 0
-            decimals: 2
-            stepSize: 0.1
-        }
+        SecondColumnLayout {
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: (backendValues.%2_lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
+                maximumValue: 500
+                minimumValue: 0
+                decimals: 2
+                stepSize: 0.1
+            }
 
+            ExpandingSpacer {}
+        }
     }
 }
