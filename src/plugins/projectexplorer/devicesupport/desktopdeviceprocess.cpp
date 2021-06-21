@@ -32,6 +32,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -39,20 +41,19 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
                                            QObject *parent)
     : DeviceProcess(device, parent)
 {
-    connect(&m_process, &QProcess::errorOccurred, this, &DeviceProcess::error);
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &DeviceProcess::finished);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
+    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
+    connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);
+    connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);
-    connect(&m_process, &QProcess::readyReadStandardError,
+    connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &DeviceProcess::readyReadStandardError);
-    connect(&m_process, &QProcess::started, this, &DeviceProcess::started);
+    connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
 }
 
 void DesktopDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
-    m_process.setProcessEnvironment(runnable.environment.toProcessEnvironment());
+    m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
     m_process.start(runnable.executable.toString(),
                     Utils::ProcessArgs::splitArgs(runnable.commandLineArguments));

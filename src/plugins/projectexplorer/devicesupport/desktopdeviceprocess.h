@@ -27,6 +27,8 @@
 
 #include "deviceprocess.h"
 
+#include <utils/qtcprocess.h>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -53,7 +55,7 @@ public:
     qint64 write(const QByteArray &data) override;
 
 private:
-    QProcess m_process;
+    Utils::QtcProcess m_process;
 };
 
 } // namespace Internal
