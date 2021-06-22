@@ -142,13 +142,15 @@ public:
         connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &QtcProcessPrivate::slotFinished);
         connect(m_process, &QProcess::errorOccurred,
-                q, &QtcProcess::errorOccurred);
+                this, &QtcProcessPrivate::slotError);
         connect(m_process, &QProcess::stateChanged,
                 q, &QtcProcess::stateChanged);
         connect(m_process, &QProcess::readyReadStandardOutput,
                 this, &QtcProcessPrivate::handleReadyReadStandardOutput);
         connect(m_process, &QProcess::readyReadStandardError,
                 this, &QtcProcessPrivate::handleReadyReadStandardError);
+        connect(&m_timer, &QTimer::timeout, this, &QtcProcessPrivate::slotTimeout);
+        m_timer.setInterval(1000);
     }
 
     ~QtcProcessPrivate()
@@ -250,6 +252,8 @@ QtcProcess::QtcProcess(QObject *parent)
 
 QtcProcess::~QtcProcess()
 {
+    disconnect(&d->m_timer, nullptr, this, nullptr);
+    disconnect(this, nullptr, this, nullptr);
     delete d;
 }
 
@@ -946,16 +950,10 @@ void ChannelBuffer::handleRest()
 SynchronousProcess::SynchronousProcess()
 {
     d->m_isSynchronousProcess = true; // Only for QTC_ASSERTs above.
-
-    d->m_timer.setInterval(1000);
-    connect(&d->m_timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
-    connect(d->m_process, &QProcess::errorOccurred, d, &QtcProcessPrivate::slotError);
 }
 
 SynchronousProcess::~SynchronousProcess()
 {
-    disconnect(&d->m_timer, nullptr, this, nullptr);
-    disconnect(this, nullptr, this, nullptr);
 }
 
 void SynchronousProcess::setProcessUserEventWhileRunning()
@@ -1152,16 +1150,18 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
     emit q->finished();
 }
 
-void QtcProcessPrivate::slotError(QProcess::ProcessError e)
+void QtcProcessPrivate::slotError(QProcess::ProcessError error)
 {
     m_hangTimerCount = 0;
     if (debug)
-        qDebug() << Q_FUNC_INFO << e;
+        qDebug() << Q_FUNC_INFO << error;
     // Was hang detected before and killed?
     if (m_result != QtcProcess::Hang)
         m_result = QtcProcess::StartFailed;
     m_startFailure = true;
     m_eventLoop.quit();
+
+    emit q->errorOccurred(error);
 }
 
 } // namespace Utils
