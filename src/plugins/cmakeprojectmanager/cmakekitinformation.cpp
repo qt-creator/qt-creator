@@ -272,8 +272,19 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
 void CMakeKitAspect::setup(Kit *k)
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-    if (!tool)
-        setCMakeTool(k, defaultCMakeToolId());
+    if (tool)
+        return;
+
+    // Look for a suitable auto-detected one:
+    const QString id = k->autoDetectionSource();
+    for (CMakeTool *tool : CMakeToolManager::cmakeTools()) {
+        if (tool->detectionSource() == id) {
+            setCMakeTool(k, tool->id());
+            return;
+        }
+    }
+
+    setCMakeTool(k, defaultCMakeToolId());
 }
 
 void CMakeKitAspect::fix(Kit *k)

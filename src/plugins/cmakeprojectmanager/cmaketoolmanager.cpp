@@ -177,7 +177,7 @@ void CMakeToolManager::updateDocumentation()
     Core::HelpManager::registerDocumentation(docs);
 }
 
-void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath)
+void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSource)
 {
     const Id id = Id::fromString(cmakePath.toUserOutput());
 
@@ -188,6 +188,7 @@ void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath)
     auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
     newTool->setFilePath(cmakePath);
     newTool->setDisplayName(cmakePath.toUserOutput());
+    newTool->setDetectionSource(detectionSource);
     registerCMakeTool(std::move(newTool));
 }
 
