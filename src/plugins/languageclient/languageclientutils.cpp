@@ -85,11 +85,9 @@ bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
         return true;
     const DocumentUri &uri = edit.textDocument().uri();
     const FilePath &filePath = uri.toFilePath();
-    if (TextDocument* doc = TextDocument::textDocumentForFilePath(filePath)) {
-        LanguageClientValue<int> version = edit.textDocument().version();
-        if (!version.isNull() && version.value(0) < client->documentVersion(filePath))
-            return false;
-    }
+    LanguageClientValue<int> version = edit.textDocument().version();
+    if (!version.isNull() && version.value(0) < client->documentVersion(filePath))
+        return false;
     return applyTextEdits(uri, edits);
 }
 
