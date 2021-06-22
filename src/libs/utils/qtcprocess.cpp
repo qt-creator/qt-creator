@@ -206,7 +206,6 @@ public:
     bool m_startFailure = false;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
-    bool m_isSynchronousProcess = false;
     bool m_processUserEvents = false;
 };
 
@@ -252,8 +251,6 @@ QtcProcess::QtcProcess(QObject *parent)
 
 QtcProcess::~QtcProcess()
 {
-    disconnect(&d->m_timer, nullptr, this, nullptr);
-    disconnect(this, nullptr, this, nullptr);
     delete d;
 }
 
@@ -567,7 +564,7 @@ void QtcProcess::setResult(Result result)
 
 int QtcProcess::exitCode() const
 {
-    return d->m_isSynchronousProcess ? d->m_exitCode : d->m_process->exitCode(); // FIXME: Unify.
+    return d->m_exitCode;
 }
 
 
@@ -946,24 +943,13 @@ void ChannelBuffer::handleRest()
     }
 }
 
-// ----------- SynchronousProcess
-SynchronousProcess::SynchronousProcess()
-{
-    d->m_isSynchronousProcess = true; // Only for QTC_ASSERTs above.
-}
-
-SynchronousProcess::~SynchronousProcess()
-{
-}
-
-void SynchronousProcess::setProcessUserEventWhileRunning()
+void QtcProcess::setProcessUserEventWhileRunning()
 {
     d->m_processUserEvents = true;
 }
 
 void QtcProcess::setTimeoutS(int timeoutS)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     if (timeoutS > 0)
         d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
@@ -978,7 +964,6 @@ void QtcProcess::setCodec(QTextCodec *c)
 
 void QtcProcess::setTimeOutMessageBoxEnabled(bool v)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_timeOutMessageBoxEnabled = v;
 }
 
@@ -989,7 +974,6 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_writeData = writeData;
 }
 
@@ -1002,7 +986,6 @@ static bool isGuiThread()
 
 void SynchronousProcess::runBlocking()
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     // FIXME: Implement properly
     if (d->m_commandLine.executable().needsDevice()) {
 
@@ -1073,7 +1056,6 @@ void SynchronousProcess::runBlocking()
 
 void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = false;
     d->m_stdOut.emitSingleLines = false;
@@ -1089,7 +1071,6 @@ void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &
 
 void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = false;
     d->m_stdErr.keepRawData = false;

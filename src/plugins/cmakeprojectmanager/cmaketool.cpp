@@ -184,7 +184,7 @@ bool CMakeTool::isValid() const
     return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
 }
 
-void CMakeTool::runCMake(SynchronousProcess &cmake, const QStringList &args, int timeoutS) const
+void CMakeTool::runCMake(QtcProcess &cmake, const QStringList &args, int timeoutS) const
 {
     cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
