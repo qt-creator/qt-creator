@@ -36,60 +36,62 @@ class AnnotationEditorDialog;
 }
 class DefaultAnnotationsModel;
 
-class BasicAnnotationEditorDialog : public QDialog
+class AnnotationEditorDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit BasicAnnotationEditorDialog(QWidget *parent);
-    ~BasicAnnotationEditorDialog();
+    enum ViewMode { TableView, TabsView };
+
+    explicit AnnotationEditorDialog(QWidget *parent,
+                                    const QString &targetId = {},
+                                    const QString &customId = {});
+    ~AnnotationEditorDialog();
+
+    ViewMode viewMode() const;
 
     Annotation const &annotation() const;
     void setAnnotation(const Annotation &annotation);
 
+    QString customId() const;
+    void setCustomId(const QString &customId);
+
+    bool isGlobal() const;
+    void setGlobal(bool = true);
+
     void loadDefaultAnnotations(QString const &filename);
 
     DefaultAnnotationsModel *defaultAnnotations() const;
+    void setStatus(GlobalAnnotationStatus status);
+    GlobalAnnotationStatus globalStatus() const;
+
+public slots:
+    void showStatusContainer(bool show);
+    void switchToTabView();
+    void switchToTableView();
+
+private slots:
+    void acceptedClicked();
 
 signals:
     void acceptedDialog(); //use instead of QDialog::accepted
-
-protected:
-    virtual void fillFields() = 0;
-    virtual void acceptedClicked() = 0;
-
-    Annotation m_annotation;
-    std::unique_ptr<DefaultAnnotationsModel> m_defaults;
-};
-
-class AnnotationEditorDialog : public BasicAnnotationEditorDialog
-{
-    Q_OBJECT
-
-public:
-    explicit AnnotationEditorDialog(QWidget *parent,
-                                    const QString &targetId,
-                                    const QString &customId);
-    ~AnnotationEditorDialog();
-
-    void setCustomId(const QString &customId);
-    QString customId() const;
-
-private slots:
-    void acceptedClicked() override;
-
+    void globalChanged();
 private:
-    void fillFields() override;
+    void fillFields();
     void updateAnnotation();
 
     void addComment(const Comment &comment);
     void removeComment(int index);
 
-private:
-    const QString annotationEditorTitle = {tr("Annotation Editor")};
+    void setStatusVisibility(bool hasStatus);
 
-    Ui::AnnotationEditorDialog *ui;
-
+    std::unique_ptr<Ui::AnnotationEditorDialog> ui;
+    GlobalAnnotationStatus m_globalStatus = GlobalAnnotationStatus::NoStatus;
+    bool m_statusIsActive = false;
+    bool m_isGlobal = false;
+    Annotation m_annotation;
     QString m_customId;
+    std::unique_ptr<DefaultAnnotationsModel> m_defaults;
 };
+
 
 } //namespace QmlDesigner

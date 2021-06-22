@@ -39,56 +39,191 @@
 #include <QToolBar>
 
 namespace QmlDesigner {
-BasicAnnotationEditorDialog::BasicAnnotationEditorDialog(QWidget *parent)
+AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent,
+                                               const QString &targetId,
+                                               const QString &customId)
     : QDialog(parent)
     , m_defaults(std::make_unique<DefaultAnnotationsModel>())
+    , m_customId(customId)
+    , ui(std::make_unique<Ui::AnnotationEditorDialog>())
+    , m_statusIsActive(false)
 {
+    ui->setupUi(this);
+    setGlobal(m_isGlobal);
+
     setWindowFlag(Qt::Tool, true);
     setModal(true);
     loadDefaultAnnotations(DefaultAnnotationsModel::defaultJsonFilePath());
+    ui->tabWidget->setDefaultAnnotations(defaultAnnotations());
+    ui->tableView->setDefaultAnnotations(defaultAnnotations());
 
-    connect(this, &QDialog::accepted, this, &BasicAnnotationEditorDialog::acceptedClicked);
+    connect(ui->tableView,
+            &AnnotationTableView::richTextEditorRequested,
+            this,
+            [&](int index, QString const &) {
+                switchToTabView();
+                ui->tabWidget->setCurrentIndex(index);
+            });
+
+    connect(ui->statusAddButton, &QPushButton::clicked, this, [&](bool) {
+        setStatusVisibility(true);
+    });
+
+    connect(ui->rbTableView,
+            &QRadioButton::clicked,
+            this,
+            &AnnotationEditorDialog::switchToTableView);
+    connect(ui->rbTabView,
+            &QRadioButton::clicked,
+            this, &AnnotationEditorDialog::switchToTabView);
+
+    setStatus(m_globalStatus);
+    switchToTabView();
+
+    connect(this, &QDialog::accepted, this, &AnnotationEditorDialog::acceptedClicked);
+
+    ui->targetIdEdit->setText(targetId);
+
 }
 
-BasicAnnotationEditorDialog::~BasicAnnotationEditorDialog() {}
+AnnotationEditorDialog::~AnnotationEditorDialog() {
+}
 
-Annotation const &BasicAnnotationEditorDialog::annotation() const
+bool AnnotationEditorDialog::isGlobal() const {
+    return m_isGlobal;
+}
+
+void AnnotationEditorDialog::setGlobal(bool global) {
+    ui->annotationContainer->setVisible(!global);
+    ui->statusAddButton->setVisible(global);
+    ui->statusComboBox->setVisible(global);
+
+    setWindowTitle(global ? tr("Global Annotation Editor") : tr("Annotation Editor"));
+
+    if (m_isGlobal != global) {
+        m_isGlobal = global;
+        emit globalChanged();
+    }
+}
+
+AnnotationEditorDialog::ViewMode AnnotationEditorDialog::viewMode() const
+{
+    return ui->rbTableView->isChecked() ? TableView : TabsView;
+}
+
+void AnnotationEditorDialog::setStatus(GlobalAnnotationStatus status)
+{
+    m_globalStatus = status;
+    bool hasStatus = status.status() != GlobalAnnotationStatus::NoStatus;
+
+    if (hasStatus)
+        ui->statusComboBox->setCurrentIndex(int(status.status()));
+
+    setStatusVisibility(hasStatus);
+}
+
+GlobalAnnotationStatus AnnotationEditorDialog::globalStatus() const
+{
+    return m_globalStatus;
+}
+
+void AnnotationEditorDialog::showStatusContainer(bool show)
+{
+    ui->statusContainer->setVisible(show);
+}
+
+void AnnotationEditorDialog::switchToTabView()
+{
+    m_annotation.setComments(ui->tableView->fetchComments());
+    ui->rbTabView->setChecked(true);
+    ui->tableView->hide();
+    ui->tabWidget->show();
+    fillFields();
+}
+
+void AnnotationEditorDialog::switchToTableView()
+{
+    m_annotation.setComments(ui->tabWidget->fetchComments());
+    ui->rbTableView->setChecked(true);
+    ui->tabWidget->hide();
+    ui->tableView->show();
+    fillFields();
+}
+
+void AnnotationEditorDialog::acceptedClicked()
+{
+    updateAnnotation();
+    emit AnnotationEditorDialog::acceptedDialog();
+}
+
+void AnnotationEditorDialog::fillFields()
+{
+    ui->customIdEdit->setText(m_customId);
+    ui->tabWidget->setupComments(m_annotation.comments());
+    ui->tableView->setupComments(m_annotation.comments());
+}
+
+void AnnotationEditorDialog::updateAnnotation()
+{
+    m_customId = ui->customIdEdit->text();
+    Annotation annotation;
+    switch (viewMode()) {
+    case TabsView:
+        annotation.setComments(ui->tabWidget->fetchComments());
+        break;
+    case TableView:
+        annotation.setComments(ui->tableView->fetchComments());
+        break;
+    }
+
+    m_annotation = annotation;
+
+    if (m_statusIsActive && m_isGlobal)
+        m_globalStatus.setStatus(ui->statusComboBox->currentIndex());
+}
+
+void AnnotationEditorDialog::addComment(const Comment &comment)
+{
+    m_annotation.addComment(comment);
+    ui->tabWidget->addCommentTab(comment);
+}
+
+void AnnotationEditorDialog::removeComment(int index)
+{
+    if ((m_annotation.commentsSize() > index) && (index >= 0)) {
+        m_annotation.removeComment(index);
+        ui->tabWidget->removeTab(index);
+    }
+}
+
+void AnnotationEditorDialog::setStatusVisibility(bool hasStatus)
+{
+    ui->statusAddButton->setVisible(!hasStatus && m_isGlobal);
+    ui->statusComboBox->setVisible(hasStatus && m_isGlobal);
+
+    m_statusIsActive = hasStatus;
+}
+
+
+Annotation const &AnnotationEditorDialog::annotation() const
 {
     return m_annotation;
 }
 
-void BasicAnnotationEditorDialog::setAnnotation(const Annotation &annotation)
+void AnnotationEditorDialog::setAnnotation(const Annotation &annotation)
 {
     m_annotation = annotation;
     fillFields();
 }
 
-void BasicAnnotationEditorDialog::loadDefaultAnnotations(QString const &filename)
+void AnnotationEditorDialog::loadDefaultAnnotations(QString const &filename)
 {
     m_defaults->loadFromFile(filename);
 }
 
-DefaultAnnotationsModel *BasicAnnotationEditorDialog::defaultAnnotations() const
+DefaultAnnotationsModel *AnnotationEditorDialog::defaultAnnotations() const
 {
     return m_defaults.get();
-}
-
-AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent,
-                                               const QString &targetId,
-                                               const QString &customId)
-    : BasicAnnotationEditorDialog(parent)
-    , ui(new Ui::AnnotationEditorDialog)
-    , m_customId(customId)
-{
-    ui->setupUi(this);
-    ui->targetIdEdit->setText(targetId);
-
-    setWindowTitle(annotationEditorTitle);
-}
-
-AnnotationEditorDialog::~AnnotationEditorDialog()
-{
-    delete ui;
 }
 
 void AnnotationEditorDialog::setCustomId(const QString &customId)
@@ -102,36 +237,5 @@ QString AnnotationEditorDialog::customId() const
     return m_customId;
 }
 
-void AnnotationEditorDialog::acceptedClicked()
-{
-    updateAnnotation();
-    emit AnnotationEditorDialog::acceptedDialog();
-}
-
-void AnnotationEditorDialog::fillFields()
-{
-    ui->customIdEdit->setText(m_customId);
-    ui->tabWidget->setupComments(m_annotation.comments());
-}
-
-void AnnotationEditorDialog::updateAnnotation()
-{
-    m_customId = ui->customIdEdit->text();
-    Annotation annotation;
-    annotation.setComments(ui->tabWidget->fetchComments());
-    m_annotation = annotation;
-}
-
-void AnnotationEditorDialog::addComment(const Comment &comment)
-{
-    m_annotation.addComment(comment);
-    ui->tabWidget->addCommentTab(comment);
-}
-
-void AnnotationEditorDialog::removeComment(int index)
-{
-    m_annotation.removeComment(index);
-    ui->tabWidget->removeTab(index);
-}
 
 } //namespace QmlDesigner

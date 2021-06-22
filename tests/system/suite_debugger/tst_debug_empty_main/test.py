@@ -81,14 +81,19 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def __handleAppOutputWaitForDebuggerFinish__():
+    def __lastLine__(editor):
+        lines = str(editor.plainText).strip().splitlines()
+        return lines[-1] if len(lines) else ""
+
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     appOutput = waitForObject("{type='Core::OutputWindow' visible='1' "
                               "windowTitle='Application Output Window'}")
-    if not test.verify(waitFor("str(appOutput.plainText).rstrip().endswith('Debugging has finished')", 20000),
+    regex = re.compile(r".*Debugging of .* has finished( with exit code -?[0-9]+)?\.$")
+    if not test.verify(waitFor("regex.match(__lastLine__(appOutput))", 20000),
                        "Verifying whether debugging has finished."):
         test.log("Aborting debugging to let test continue.")
         invokeMenuItem("Debug", "Abort Debugging")
-        waitFor("str(appOutput.plainText).endswith('Debugging has finished')", 5000)
+        waitFor("regex.match(__lastLine(appOutput))", 5000)
 
 def performDebugging(projectName):
     for kit, config in iterateBuildConfigs("Debug"):
