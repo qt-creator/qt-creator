@@ -238,6 +238,7 @@ public:
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
     virtual bool isExecutableFile(const Utils::FilePath &filePath) const;
     virtual bool isReadableFile(const Utils::FilePath &filePath) const;
+    virtual bool isWritableFile(const Utils::FilePath &filePath) const;
     virtual bool isReadableDirectory(const Utils::FilePath &filePath) const;
     virtual bool isWritableDirectory(const Utils::FilePath &filePath) const;
     virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;

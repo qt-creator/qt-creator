@@ -232,6 +232,13 @@ bool IDevice::isReadableFile(const FilePath &filePath) const
     return false;
 }
 
+bool IDevice::isWritableFile(const Utils::FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 bool IDevice::isReadableDirectory(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
