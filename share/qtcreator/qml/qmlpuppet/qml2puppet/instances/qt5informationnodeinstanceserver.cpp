@@ -793,6 +793,11 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             m_editView3DData.window->afterRendering();
         }
 #else
+        if (m_render2D) {
+            // Render 2D content, as it might be used by 3D content
+            grabWindow();
+            m_render2D = false;
+        }
         renderImage = grabRenderControl(m_editView3DData);
 #endif
 
@@ -1767,6 +1772,11 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
         if (!container.isReflected()) {
             hasDynamicProperties |= container.isDynamic();
             setInstancePropertyVariant(container);
+            if (!m_render2D && isQuick3DMode() && hasInstanceForId(container.instanceId())) {
+                ServerNodeInstance instance = instanceForId(container.instanceId());
+                if (instance.isSubclassOf("QQuickItem"))
+                    m_render2D = true;
+            }
         }
     }
 
@@ -1877,6 +1887,17 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
 void Qt5InformationNodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     Qt5NodeInstanceServer::changePropertyBindings(command);
+
+    const QVector<PropertyBindingContainer> &values = command.bindingChanges;
+    for (const PropertyBindingContainer &container : values) {
+        if (!m_render2D && isQuick3DMode() && hasInstanceForId(container.instanceId())) {
+            ServerNodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isSubclassOf("QQuickItem")) {
+                m_render2D = true;
+                break;
+            }
+        }
+    }
     render3DEditView();
 }
 
