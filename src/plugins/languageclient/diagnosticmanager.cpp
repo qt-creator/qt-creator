@@ -25,6 +25,8 @@
 
 #include "diagnosticmanager.h"
 
+#include "client.h"
+
 #include <coreplugin/editormanager/documentmodel.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -69,8 +71,8 @@ private:
     const Diagnostic m_diagnostic;
 };
 
-DiagnosticManager::DiagnosticManager(const Id &clientId)
-    : m_clientId(clientId)
+DiagnosticManager::DiagnosticManager(Client *client)
+    : m_client(client)
 {}
 
 DiagnosticManager::~DiagnosticManager()
@@ -95,7 +97,7 @@ void DiagnosticManager::hideDiagnostics(TextDocument *doc)
         m_hideHandler();
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
         editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
-    qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextMark::category, m_clientId)));
+    qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextMark::category, m_client->id())));
 }
 
 void DiagnosticManager::removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri)
@@ -141,7 +143,7 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
                 QObject::connect(action, &QAction::triggered, [text = diagnostic.message()]() {
                     QApplication::clipboard()->setText(text);
                 });
-                auto mark = new TextMark(filePath, diagnostic, m_clientId);
+                auto mark = new TextMark(filePath, diagnostic, m_client->id());
                 mark->setActions({action});
 
                 doc->addMark(mark);
@@ -164,7 +166,7 @@ void DiagnosticManager::clearDiagnostics()
 QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,
                                                    const QTextCursor &cursor) const
 {
-    const int documentRevision = cursor.document()->revision();
+    const int documentRevision = m_client->documentVersion(uri.toFilePath());
     auto it = m_diagnostics.find(uri);
     if (it == m_diagnostics.end())
         return {};
@@ -184,7 +186,7 @@ bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri 
     const auto it = m_diagnostics.find(uri);
     if (it == m_diagnostics.end())
         return {};
-    const int revision = doc->document()->revision();
+    const int revision = m_client->documentVersion(uri.toFilePath());
     if (revision != it->version.value_or(revision))
         return false;
     return it->diagnostics.contains(diag);

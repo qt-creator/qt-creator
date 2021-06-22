@@ -81,7 +81,7 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMs
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
     , m_clientInterface(clientInterface)
-    , m_diagnosticManager(m_id)
+    , m_diagnosticManager(this)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)

@@ -40,6 +40,8 @@ class TextMark;
 
 namespace LanguageClient {
 
+class Client;
+
 using TextMarkCreator = std::function<TextEditor::TextMark *(const Utils::FilePath &,
         const LanguageServerProtocol::Diagnostic &)>;
 using HideDiagnosticsHandler = std::function<void()>;
@@ -48,7 +50,7 @@ class DiagnosticManager
 {
     Q_DECLARE_TR_FUNCTIONS(LanguageClient::DiagnosticManager)
 public:
-    explicit DiagnosticManager(const Utils::Id &clientId);
+    explicit DiagnosticManager(Client *client);
     ~DiagnosticManager();
 
     void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
@@ -77,9 +79,9 @@ private:
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
     QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
-    Utils::Id m_clientId;
     TextMarkCreator m_textMarkCreator;
     HideDiagnosticsHandler m_hideHandler;
+    Client *m_client;
 };
 
 } // namespace LanguageClient
