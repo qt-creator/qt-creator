@@ -419,7 +419,7 @@ QString PluginManager::systemInformation()
     QString result;
     CommandLine qtDiag(HostOsInfo::withExecutableSuffix(
                 QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag"));
-    SynchronousProcess qtDiagProc;
+    QtcProcess qtDiagProc;
     qtDiagProc.setCommand(qtDiag);
     qtDiagProc.runBlocking();
     if (qtDiagProc.result() == QtcProcess::FinishedWithSuccess)

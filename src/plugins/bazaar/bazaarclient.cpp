@@ -150,7 +150,7 @@ bool BazaarClient::synchronousUncommit(const QString &workingDir,
          << revisionSpec(revision)
          << extraOptions;
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     VcsOutputWindow::append(proc.stdOut());
     return proc.result() == QtcProcess::FinishedWithSuccess;
@@ -191,7 +191,7 @@ bool BazaarClient::managesFile(const QString &workingDirectory, const QString &f
     QStringList args(QLatin1String("status"));
     args << fileName;
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::FinishedWithSuccess)
         return false;

@@ -992,7 +992,7 @@ void DockerDevice::aboutToBeRemoved() const
 
 void DockerDevicePrivate::fetchSystemEnviroment()
 {
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setCommand({"env", {}});
 
     q->runProcess(proc); // FIXME: This only starts.

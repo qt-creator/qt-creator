@@ -52,7 +52,7 @@ void MainWindow::test()
     args.pop_front();
     const QString cmd = args.front();
     args.pop_front();
-    Utils::SynchronousProcess process;
+    Utils::QtcProcess process;
     process.setTimeoutS(2);
     qDebug() << "Async: " << cmd << args;
     process.setStdOutCallback([this](const QString &s) { append(s); });

@@ -278,7 +278,7 @@ Interpreter::Interpreter(const FilePath &python, const QString &defaultName, boo
     : id(QUuid::createUuid().toString())
     , command(python)
 {
-    SynchronousProcess pythonProcess;
+    QtcProcess pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
     pythonProcess.setTimeoutS(1);
     pythonProcess.setCommand({python, {"--version"}});

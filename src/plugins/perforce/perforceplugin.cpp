@@ -1250,7 +1250,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
     // Run, connect stderr to the output window
-    SynchronousProcess process;
+    QtcProcess process;
     const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
     process.setTimeoutS(timeOutS);
     if (outputCodec)

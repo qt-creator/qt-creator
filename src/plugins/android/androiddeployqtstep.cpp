@@ -480,7 +480,7 @@ void AndroidDeployQtStep::doRun()
 
 void AndroidDeployQtStep::runCommand(const CommandLine &command)
 {
-    SynchronousProcess buildProc;
+    QtcProcess buildProc;
     buildProc.setTimeoutS(2 * 60);
     emit addOutput(tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);

@@ -50,7 +50,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
     if (commandLine.executable().isEmpty() || !commandLine.executable().toFileInfo().isExecutable())
         return {};
 
-    SynchronousProcess cpp;
+    QtcProcess cpp;
     Environment env = Environment::systemEnvironment();
     env.setupEnglishOutput();
     cpp.setEnvironment(env);

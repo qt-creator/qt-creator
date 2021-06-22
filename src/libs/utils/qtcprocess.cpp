@@ -183,7 +183,6 @@ public:
 
     QProcess::OpenMode m_openMode = QProcess::ReadWrite;
 
-    // SynchronousProcess left overs:
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
     void slotError(QProcess::ProcessError);
@@ -492,7 +491,7 @@ static bool askToKill(const QString &command)
 }
 
 // Helper for running a process synchronously in the foreground with timeout
-// detection similar SynchronousProcess' handling (taking effect after no more output
+// detection (taking effect after no more output
 // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
 // occurs. Checking of the process' exit state/code still has to be done.
 
@@ -984,7 +983,7 @@ static bool isGuiThread()
 }
 #endif
 
-void SynchronousProcess::runBlocking()
+void QtcProcess::runBlocking()
 {
     // FIXME: Implement properly
     if (d->m_commandLine.executable().needsDevice()) {

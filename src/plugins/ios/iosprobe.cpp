@@ -65,7 +65,7 @@ void XcodeProbe::addDeveloperPath(const QString &path)
 
 void XcodeProbe::detectDeveloperPaths()
 {
-    Utils::SynchronousProcess selectedXcode;
+    Utils::QtcProcess selectedXcode;
     selectedXcode.setTimeoutS(5);
     selectedXcode.setCommand({"/usr/bin/xcode-select", {"--print-path"}});
     selectedXcode.runBlocking();

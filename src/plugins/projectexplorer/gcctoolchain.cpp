@@ -81,7 +81,7 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
     if (!gcc.isExecutableFile())
         return QByteArray();
 
-    SynchronousProcess cpp;
+    QtcProcess cpp;
     Environment environment(env);
     environment.setupEnglishOutput();
 

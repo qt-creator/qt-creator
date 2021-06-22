@@ -1006,7 +1006,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     const QStringList params = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(),
         "-storepass", m_keystorePasswd, "-J-Duser.language=en"};
 
-    SynchronousProcess keytoolProc;
+    QtcProcess keytoolProc;
     keytoolProc.setTimeoutS(30);
     keytoolProc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), params});
     keytoolProc.setProcessUserEventWhileRunning();

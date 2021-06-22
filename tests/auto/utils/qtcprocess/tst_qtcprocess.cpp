@@ -845,7 +845,7 @@ void tst_QtcProcess::exitCode()
         QCOMPARE(qtcP.exitCode() == 0, qtcP.result() == QtcProcess::FinishedWithSuccess);
     }
     {
-        SynchronousProcess sP;
+        QtcProcess sP;
         sP.setCommand(command);
         sP.setEnvironment(env);
         sP.runBlocking();
@@ -876,7 +876,7 @@ void tst_QtcProcess::runBlockingStdOut()
     QFETCH(bool, withEndl);
     QFETCH(int, timeOutS);
 
-    SynchronousProcess sp;
+    QtcProcess sp;
     QStringList args = QCoreApplication::arguments();
     const QString binary = args.takeFirst();
     sp.setCommand(CommandLine(binary, args));
@@ -893,7 +893,7 @@ void tst_QtcProcess::runBlockingStdOut()
     });
     sp.runBlocking();
 
-    // See also QTCREATORBUG-25667 for why it is a bad idea to use SynchronousProcess::runBlocking
+    // See also QTCREATORBUG-25667 for why it is a bad idea to use QtcProcess::runBlocking
     // with interactive cli tools.
     QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
     QVERIFY2(sp.result() != QtcProcess::Hang, "Process run did not time out.");

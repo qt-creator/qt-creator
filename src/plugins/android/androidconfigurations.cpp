@@ -156,7 +156,7 @@ namespace {
                 if (executable.isEmpty() || shell.isEmpty())
                     return true; // we can't detect, but creator is 32bit so assume 32bit
 
-                SynchronousProcess proc;
+                QtcProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 proc.setTimeoutS(30);
                 proc.setCommand({executable, {shell}});
@@ -560,7 +560,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbToolPath, QString *error)
 {
     QVector<AndroidDeviceInfo> devices;
-    SynchronousProcess adbProc;
+    QtcProcess adbProc;
     adbProc.setTimeoutS(30);
     CommandLine cmd{adbToolPath, {"devices"}};
     adbProc.setCommand(cmd);
@@ -630,7 +630,7 @@ QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QStr
     CommandLine cmd(adbToolPath, AndroidDeviceInfo::adbSelector(device));
     cmd.addArgs({"shell", "getprop", property});
 
-    SynchronousProcess adbProc;
+    QtcProcess adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
@@ -728,7 +728,7 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
     // First try via ro.product.cpu.abilist
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
-    SynchronousProcess adbProc;
+    QtcProcess adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand({adbToolPath, arguments});
     adbProc.runBlocking();
@@ -751,7 +751,7 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
         else
             arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
 
-        SynchronousProcess abiProc;
+        QtcProcess abiProc;
         abiProc.setTimeoutS(10);
         abiProc.setCommand({adbToolPath, arguments});
         abiProc.runBlocking();

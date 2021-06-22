@@ -71,7 +71,7 @@ const Environment VcsCommand::processEnvironment() const
     return env;
 }
 
-void VcsCommand::runCommand(SynchronousProcess &proc,
+void VcsCommand::runCommand(QtcProcess &proc,
                             const CommandLine &command,
                             const QString &workingDirectory)
 {

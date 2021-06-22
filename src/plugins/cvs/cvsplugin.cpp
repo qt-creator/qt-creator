@@ -1446,7 +1446,7 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
         return response;
     }
     // Run, connect stderr to the output window
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setTimeoutS(timeOutS);
 
     VcsCommand command(workingDirectory, Environment::systemEnvironment());

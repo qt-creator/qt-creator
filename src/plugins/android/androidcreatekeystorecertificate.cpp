@@ -196,7 +196,7 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
                               "-keypass", certificatePassword(),
                               "-dname", distinguishedNames});
 
-    SynchronousProcess genKeyCertProc;
+    QtcProcess genKeyCertProc;
     genKeyCertProc.setTimeoutS(15);
     genKeyCertProc.setCommand(command);
     genKeyCertProc.setProcessUserEventWhileRunning();

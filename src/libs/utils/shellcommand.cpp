@@ -272,7 +272,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
-        SynchronousProcess proc;
+        QtcProcess proc;
         proc.setExitCodeInterpreter(job.exitCodeInterpreter);
         proc.setTimeoutS(job.timeoutS);
         runCommand(proc, job.command, job.workingDirectory);
@@ -306,7 +306,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     this->deleteLater();
 }
 
-void ShellCommand::runCommand(SynchronousProcess &proc,
+void ShellCommand::runCommand(QtcProcess &proc,
                               const CommandLine &command,
                               const QString &workingDirectory)
 {
@@ -340,7 +340,7 @@ void ShellCommand::runCommand(SynchronousProcess &proc,
     }
 }
 
-void ShellCommand::runFullySynchronous(SynchronousProcess &process,
+void ShellCommand::runFullySynchronous(QtcProcess &process,
                                        const QString &workingDirectory)
 {
     // Set up process
@@ -372,10 +372,10 @@ void ShellCommand::runFullySynchronous(SynchronousProcess &process,
     }
 }
 
-void ShellCommand::runSynchronous(SynchronousProcess &process,
+void ShellCommand::runSynchronous(QtcProcess &process,
                                   const QString &workingDirectory)
 {
-    connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::stopProcess);
+    connect(this, &ShellCommand::terminate, &process, &QtcProcess::stopProcess);
     process.setEnvironment(processEnvironment());
     if (d->m_codec)
         process.setCodec(d->m_codec);

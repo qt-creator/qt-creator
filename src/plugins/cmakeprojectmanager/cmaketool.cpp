@@ -268,7 +268,7 @@ TextEditor::Keywords CMakeTool::keywords()
         return {};
 
     if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
-        SynchronousProcess proc;
+        QtcProcess proc;
         runCMake(proc, {"--help-command-list"}, 5);
         if (proc.result() == QtcProcess::FinishedWithSuccess)
             m_introspection->m_functions = proc.stdOut().split('\n');
@@ -481,7 +481,7 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    SynchronousProcess cmake;
+    QtcProcess cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
     if (cmake.result() == QtcProcess::FinishedWithSuccess) {

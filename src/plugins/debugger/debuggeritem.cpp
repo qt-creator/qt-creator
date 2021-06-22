@@ -69,7 +69,7 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 static QString getConfigurationOfGdbCommand(const FilePath &command, const Utils::Environment &sysEnv)
 {
     // run gdb with the --configuration opion
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setEnvironment(sysEnv);
     proc.setCommand({command, {"--configuration"}});
     proc.runBlocking();
@@ -184,7 +184,7 @@ void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
         return;
     }
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setEnvironment(sysEnv);
     proc.setCommand({m_command, {version}});
     proc.runBlocking();

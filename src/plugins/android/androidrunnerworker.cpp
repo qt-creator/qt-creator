@@ -123,7 +123,7 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
     do {
         QThread::msleep(200);
-        SynchronousProcess proc;
+        QtcProcess proc;
         proc.setCommand({adbPath, args});
         proc.runBlocking();
         const QByteArray out = proc.allRawOutput();
