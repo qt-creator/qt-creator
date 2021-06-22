@@ -137,10 +137,7 @@
 
     To stop synchronizing the position in the project tree with the file
     currently opened in the editor, deselect \inlineimage linkicon.png
-    (\uicontrol {Synchronize with Editor}). You can specify a keyboard
-    shortcut to use when synchronization is needed. Select \uicontrol Tools
-    > \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard,
-    and then search for \uicontrol {Show in Explorer}.
+    (\uicontrol {Synchronize with Editor}).
 
     \if defined(qtcreator)
     Some build systems support adding and removing files to a project in \QC
