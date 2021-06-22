@@ -596,15 +596,16 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     }
 
     LOG("CHECKING: " << tempFileName);
-    for (int i = 0; i <= 10; ++i) {
+    for (int i = 0; i <= 20; ++i) {
         QFile file(tempFileName);
-        file.open(QIODevice::ReadOnly);
-        m_container = QString::fromUtf8(file.readAll()).trimmed();
-        if (!m_container.isEmpty()) {
-            LOG("Container: " << m_container);
-            break;
+        if (file.open(QIODevice::ReadOnly)) {
+            m_container = QString::fromUtf8(file.readAll()).trimmed();
+            if (!m_container.isEmpty()) {
+                LOG("Container: " << m_container);
+                break;
+            }
         }
-        if (i == 10) {
+        if (i == 20) {
             qWarning("Docker cid file empty.");
             return; // No
         }
