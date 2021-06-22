@@ -31,7 +31,6 @@
 
 #include "abstractaction.h"
 #include "annotation.h"
-#include "globalannotationeditordialog.h"
 
 #include "editorproxy.h"
 #include "modelnode.h"
