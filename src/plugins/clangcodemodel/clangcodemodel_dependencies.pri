@@ -4,11 +4,11 @@ QTC_LIB_DEPENDS += \
     clangsupport
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
+    cppeditor \
     cpptools \
     languageclient \
     texteditor
 QTC_TEST_DEPENDS += \
-    cppeditor \
     qmakeprojectmanager
 
 equals(TEST, 1): QTC_PLUGIN_DEPENDS += qtsupport

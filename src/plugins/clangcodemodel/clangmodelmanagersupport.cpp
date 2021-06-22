@@ -26,16 +26,17 @@
 #include "clangmodelmanagersupport.h"
 
 #include "clangconstants.h"
+#include "clangcurrentdocumentfilter.h"
 #include "clangdclient.h"
+#include "clangdquickfixfactory.h"
 #include "clangeditordocumentprocessor.h"
-#include "clangutils.h"
 #include "clangfollowsymbol.h"
+#include "clanggloballocatorfilters.h"
 #include "clanghoverhandler.h"
+#include "clangoverviewmodel.h"
 #include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
-#include "clangcurrentdocumentfilter.h"
-#include "clanggloballocatorfilters.h"
-#include "clangoverviewmodel.h"
+#include "clangutils.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -128,6 +129,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     // TODO: Enable this once we do document-level stuff with clangd (highlighting etc)
     // createClient(nullptr, {});
     m_generatorSynchronizer.setCancelOnWait(true);
+    new ClangdQuickFixFactory(); // memory managed by CppEditor::g_cppQuickFixFactories
 }
 
 ClangModelManagerSupport::~ClangModelManagerSupport()
