@@ -751,6 +751,7 @@ QmlObjectNode *QmlObjectNode::getQmlObjectNodeOfCorrectType(const ModelNode &mod
 
 bool QmlObjectNode::isBlocked(const PropertyName &propName) const
 {
+    Q_UNUSED(propName)
     return false;
 }
 

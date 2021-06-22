@@ -310,7 +310,7 @@ void SelectionBoxGeometry::getBounds(
     for (const auto &newBounds : qAsConst(maxBoundsVec))
         combineMaxBounds(localMaxBounds, newBounds);
 
-    if (auto modelNode = qobject_cast<QQuick3DModel *>(node)) {
+    if (qobject_cast<QQuick3DModel *>(node)) {
         if (auto renderModel = static_cast<QSSGRenderModel *>(renderNode)) {
             QWindow *window = static_cast<QWindow *>(m_view3D->window());
             if (window) {
