@@ -899,9 +899,10 @@ void ClangdClient::Private::handleRenameRequest(const SearchResult *search,
                                                 const QList<SearchResultItem> &checkedItems,
                                                 bool preserveCase)
 {
-    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(newSymbolName, checkedItems,
-                                                                       preserveCase);
-    if (!fileNames.isEmpty())
+    const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(newSymbolName,
+                                                                            checkedItems,
+                                                                            preserveCase);
+    if (!filePaths.isEmpty())
         SearchResultWindow::instance()->hide();
 
     const auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());

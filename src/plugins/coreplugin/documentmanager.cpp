@@ -1527,9 +1527,9 @@ void DocumentManager::setFileDialogLastVisitedDirectory(const QString &directory
     d->m_lastVisitedDirectory = directory;
 }
 
-void DocumentManager::notifyFilesChangedInternally(const QStringList &files)
+void DocumentManager::notifyFilesChangedInternally(const Utils::FilePaths &filePaths)
 {
-    emit m_instance->filesChangedInternally(files);
+    emit m_instance->filesChangedInternally(filePaths);
 }
 
 void DocumentManager::registerSaveAllAction()

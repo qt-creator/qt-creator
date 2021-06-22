@@ -346,7 +346,7 @@ void BaseFileFind::doReplace(const QString &text,
                              const QList<SearchResultItem> &items,
                              bool preserveCase)
 {
-    const QStringList files = replaceAll(text, items, preserveCase);
+    const FilePaths files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
         Utils::FadingIndicator::showText(ICore::dialogParent(),
             tr("%n occurrences replaced.", nullptr, items.size()),
@@ -485,25 +485,24 @@ void BaseFileFind::recheckEnabled(SearchResult *search)
     search->setSearchAgainEnabled(isEnabled());
 }
 
-QStringList BaseFileFind::replaceAll(const QString &text,
-                                     const QList<SearchResultItem> &items,
-                                     bool preserveCase)
+FilePaths BaseFileFind::replaceAll(const QString &text,
+                                   const QList<SearchResultItem> &items,
+                                   bool preserveCase)
 {
     if (items.isEmpty())
-        return QStringList();
+        return {};
 
     RefactoringChanges refactoring;
 
-    QHash<QString, QList<SearchResultItem> > changes;
+    QHash<FilePath, QList<SearchResultItem> > changes;
     for (const SearchResultItem &item : items)
-        changes[QDir::fromNativeSeparators(item.path().first())].append(item);
+        changes[FilePath::fromUserInput(item.path().first())].append(item);
 
     // Checking for files without write permissions
     QSet<FilePath> roFiles;
     for (auto it = changes.cbegin(), end = changes.cend(); it != end; ++it) {
-        const QFileInfo fileInfo(it.key());
-        if (!fileInfo.isWritable())
-            roFiles.insert(FilePath::fromString(it.key()));
+        if (!it.key().isWritableFile())
+            roFiles.insert(it.key());
     }
 
     // Query the user for permissions
@@ -511,15 +510,15 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         ReadOnlyFilesDialog roDialog(Utils::toList(roFiles), ICore::dialogParent());
         roDialog.setShowFailWarning(true, tr("Aborting replace."));
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
-            return QStringList();
+            return {};
     }
 
     for (auto it = changes.cbegin(), end = changes.cend(); it != end; ++it) {
-        const QString fileName = it.key();
+        const FilePath filePath = it.key();
         const QList<SearchResultItem> changeItems = it.value();
 
         ChangeSet changeSet;
-        RefactoringFilePtr file = refactoring.file(FilePath::fromString(fileName));
+        RefactoringFilePtr file = refactoring.file(filePath);
         QSet<QPair<int, int> > processed;
         for (const SearchResultItem &item : changeItems) {
             const QPair<int, int> &p = qMakePair(item.mainRange().begin.line,

@@ -601,8 +601,8 @@ void CppModelManager::initCppTools()
     connect(Core::VcsManager::instance(), &Core::VcsManager::repositoryChanged,
             this, &CppModelManager::updateModifiedSourceFiles);
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedInternally,
-            [this](const QStringList &files) {
-        updateSourceFiles(Utils::toSet(files));
+            [this](const Utils::FilePaths &filePaths) {
+        updateSourceFiles(Utils::transform<QSet>(filePaths, &Utils::FilePath::toString));
     });
 
     connect(this, &CppModelManager::documentUpdated,
