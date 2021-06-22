@@ -140,7 +140,7 @@ public:
 
     void handleFinished()
     {
-        if (m_proc.exitStatus() == QProcess::NormalExit && m_proc.exitCode() == 0) {
+        if (m_proc.result() == QtcProcess::FinishedWithSuccess) {
             // all good.
             reportDone();
         } else {
