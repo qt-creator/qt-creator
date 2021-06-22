@@ -182,6 +182,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     container->setWidget(details);
 
     auto buildDirAspect = bc->buildDirectoryAspect();
+    buildDirAspect->setAutoApplyOnEditingFinished(true);
     connect(buildDirAspect, &BaseAspect::changed, this, [this]() {
         m_configModel->flush(); // clear out config cache...;
     });
@@ -851,7 +852,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 return newDir;
 
             if (QDir(oldDir).exists("CMakeCache.txt") && !QDir(newDir).exists("CMakeCache.txt")) {
-                if (QMessageBox::information(nullptr,
+                if (QMessageBox::information(Core::ICore::dialogParent(),
                                              tr("Changing Build Directory"),
                                              tr("Change the build directory and start with a "
                                                 "basic CMake configuration?"),

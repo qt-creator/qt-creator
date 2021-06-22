@@ -658,6 +658,10 @@ public:
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
     bool m_useResetButton = false;
+    bool m_autoApplyOnEditingFinished = false;
+    // Used to block recursive editingFinished signals for example when return is pressed, and
+    // the validation changes focus by opening a dialog
+    bool m_blockAutoApply = false;
 
     template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
     {
@@ -1015,6 +1019,11 @@ void StringAspect::setOpenTerminalHandler(const std::function<void ()> &openTerm
         d->m_pathChooserDisplay->setOpenTerminalHandler(openTerminal);
 }
 
+void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
+{
+    d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
+}
+
 void StringAspect::validateInput()
 {
     if (d->m_pathChooserDisplay)
@@ -1059,8 +1068,19 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         addLabeledItem(builder, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         if (isAutoApply()) {
-            connect(d->m_pathChooserDisplay, &PathChooser::pathChanged, this, [this] {
-                setValue(d->m_pathChooserDisplay->path()); });
+            if (d->m_autoApplyOnEditingFinished) {
+                connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, [this] {
+                    if (d->m_blockAutoApply)
+                        return;
+                    d->m_blockAutoApply = true;
+                    setValue(d->m_pathChooserDisplay->path());
+                    d->m_blockAutoApply = false;
+                });
+            } else {
+                connect(d->m_pathChooserDisplay, &PathChooser::pathChanged, this, [this] {
+                    setValue(d->m_pathChooserDisplay->path());
+                });
+            }
         }
         break;
     case LineEditDisplay:
@@ -1075,8 +1095,20 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         addLabeledItem(builder, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
         if (isAutoApply()) {
-            connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
-                    this, &StringAspect::setValue);
+            if (d->m_autoApplyOnEditingFinished) {
+                connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished, this, [this] {
+                    if (d->m_blockAutoApply)
+                        return;
+                    d->m_blockAutoApply = true;
+                    setValue(d->m_lineEditDisplay->text());
+                    d->m_blockAutoApply = false;
+                });
+            } else {
+                connect(d->m_lineEditDisplay,
+                        &FancyLineEdit::textEdited,
+                        this,
+                        &StringAspect::setValue);
+            }
         }
         if (d->m_useResetButton) {
             auto resetButton = createSubWidget<QPushButton>(tr("Reset"));
