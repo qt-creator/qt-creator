@@ -54,6 +54,22 @@
     such as \e {.psd} and \e {.psb}. For all other document formats, \QDS
     displays the following error message: \e {Document is not supported.}
 
+    \section2 Items You Can Export
+
+    You can export the following parts of your design using \QBPS:
+    \list
+        \li Layers
+        \li Text layers
+        \li Groups
+        \li Artboards
+    \endlist
+
+    You cannot export the following parts of your design:
+    \list
+        \li Smart Objects
+        \li Frames
+    \endlist
+
     \section2 Using Artboards
 
     The relationships between the groups and layers on an artboard are preserved

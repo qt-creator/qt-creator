@@ -82,6 +82,25 @@
             {Sketch Bridge Tutorial Part 2}
     \endlist
 
+    \section2 Items You Can Export
+
+    You can export the following parts of your design using \QBSK:
+    \list
+        \li Layers
+            \list
+                \li Shape layers
+                \li Vector layers
+                \li Pencil layers
+                \li Slice layers
+                \li Text layers
+            \endlist
+        \li Groups
+        \li Artboards
+        \li Hotspots
+        \li Symbols
+        \li Libraries
+    \endlist
+
     \section2 Using Artboards
 
     The relationships between artboards and layers are preserved when you export

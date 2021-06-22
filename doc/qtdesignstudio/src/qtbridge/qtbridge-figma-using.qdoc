@@ -73,6 +73,23 @@
     them to \QDS as assets. \QDS deploys them to devices when you preview the
     UI. For more information, see \l{Using Custom Fonts}.
 
+    \section2 Items You Can Export
+
+    You can export the following parts of your design using \QBF:
+    \list
+        \li Images
+        \li Vector images
+        \li Layers
+            \list
+                \li Text layers
+                \li Shape layers
+            \endlist
+        \li Components
+        \li Component instances
+        \li Frames
+        \li Groups
+    \endlist
+
     \section2 Using Frames
 
     Frames are exported as components of the \l Rectangle type by default.
