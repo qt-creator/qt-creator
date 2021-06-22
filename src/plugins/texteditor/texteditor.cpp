@@ -1445,7 +1445,22 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
         QString text = block.text();
         if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
             const QString trimmedText = text.trimmed();
-            if (trimmedText.startsWith("/*") || trimmedText.startsWith('#')) {
+            QStringList commentMarker;
+            if (auto highlighter = qobject_cast<Highlighter *>(
+                    q->textDocument()->syntaxHighlighter())) {
+                const Highlighter::Definition def = highlighter->definition();
+                for (const QString &marker :
+                     {def.singleLineCommentMarker(), def.multiLineCommentMarker().first}) {
+                    if (!marker.isEmpty())
+                        commentMarker << marker;
+                }
+            } else {
+                commentMarker = QStringList({"/*", "#"});
+            }
+
+            if (Utils::anyOf(commentMarker, [&](const QString &marker) {
+                    return trimmedText.startsWith(marker);
+                })) {
                 TextDocumentLayout::doFoldOrUnfold(block, false);
                 moveCursorVisible();
                 documentLayout->requestUpdate();
