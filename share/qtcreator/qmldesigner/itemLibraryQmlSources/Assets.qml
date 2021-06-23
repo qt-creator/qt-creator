@@ -64,9 +64,11 @@ Item {
     }
 
     // called from C++ to close context menu on focus out
-    function closeContextMenu()
+    function handleViewFocusOut()
     {
         contextMenu.close()
+        selectedAssets = {}
+        selectedAssetsChanged()
     }
 
     ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
