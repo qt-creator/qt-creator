@@ -8201,9 +8201,9 @@ void FakeVimHandler::Private::saveLastVisualMode()
     if (isVisualMode() && g.mode == CommandMode && g.submode == NoSubMode) {
         setMark('<', markLessPosition());
         setMark('>', markGreaterPosition());
+        m_buffer->lastVisualModeInverted = anchor() > position();
+        m_buffer->lastVisualMode = g.visualMode;
     }
-    m_buffer->lastVisualModeInverted = anchor() > position();
-    m_buffer->lastVisualMode = g.visualMode;
 }
 
 QWidget *FakeVimHandler::Private::editor() const
