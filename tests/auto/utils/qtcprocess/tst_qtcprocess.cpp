@@ -897,7 +897,7 @@ void tst_QtcProcess::runBlockingStdOut()
     // with interactive cli tools.
     QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
     QVERIFY2(sp.result() != QtcProcess::Hang, "Process run did not time out.");
-
+    QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
     QVERIFY2(readLastLine, "Last line was read.");
 }
 
