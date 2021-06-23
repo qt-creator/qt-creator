@@ -226,8 +226,17 @@ void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFil
         if (!fn->filePath().isChildOf(root->filePath()))
             continue;
 
-        std::unique_ptr<FileNode> node(fn->clone());
+        FileType fileType = fn->fileType();
+        if (fileType == FileType::Resource)
+            fileType = FileType::Source;
+
+        std::unique_ptr<FileNode> node(new FileNode(fn->filePath(), fileType));
+        node->setLine(fn->line());
+        node->setIsGenerated(fn->isGenerated());
         node->setEnabled(false);
+        node->setPriority(fn->priority());
+        node->setListInProject(fn->listInProject());
+
         fileSystemNode->addNestedNode(std::move(node));
     }
 
