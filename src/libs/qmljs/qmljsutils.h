@@ -57,6 +57,7 @@ QMLJS_EXPORT DiagnosticMessage errorMessage(const SourceLocation &loc,
 
 QMLJS_EXPORT bool maybeModuleVersion(const QString &version);
 
+QMLJS_EXPORT const QStringList splitVersion(const QString &version);
 QMLJS_EXPORT QStringList modulePaths(const QString &moduleImportName, const QString &version,
                                      const QStringList &importPaths);
 
