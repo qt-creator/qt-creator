@@ -642,6 +642,7 @@ public:
     void attachToQmlPort();
     void runScheduled();
     void attachCore();
+    void reloadDebuggingHelpers();
 
     void remoteCommand(const QStringList &options);
 
@@ -683,6 +684,7 @@ public:
     QAction m_watchAction{tr("Add Expression Evaluator")};
     Command *m_watchCommand = nullptr;
     QAction m_breakAction{tr("Toggle Breakpoint")};
+    QAction m_reloadDebuggingHelpersAction{tr("Reload Debugging Helpers")};
 
     BreakpointManager m_breakpointManager;
     QString m_lastPermanentStatusMessage;
@@ -1115,6 +1117,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     debugMenu->addSeparator();
 
+    ActionManager::registerAction(&m_reloadDebuggingHelpersAction, Constants::RELOAD_DEBUGGING_HELPERS);
+    connect(&m_reloadDebuggingHelpersAction, &QAction::triggered,
+            this, &DebuggerPluginPrivate::reloadDebuggingHelpers);
+
     cmd = m_watchCommand = ActionManager::registerAction(&m_watchAction, Constants::WATCH);
     debugMenu->addAction(cmd);
 
@@ -1546,6 +1552,15 @@ void DebuggerPluginPrivate::attachCore()
     if (!sysRoot.isEmpty())
         debugger->setSysRoot(sysRoot);
     debugger->startRunControl();
+}
+
+void DebuggerPluginPrivate::reloadDebuggingHelpers()
+{
+    if (DebuggerEngine *engine = EngineManager::currentEngine())
+        engine->reloadDebuggingHelpers();
+    else
+        DebuggerMainWindow::showStatusMessage(
+            tr("Reload debugging helpers skipped as no engine is running."), 5000);
 }
 
 void DebuggerPluginPrivate::startRemoteCdbSession()
