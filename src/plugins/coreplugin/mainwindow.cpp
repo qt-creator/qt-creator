@@ -1263,8 +1263,8 @@ void MainWindow::contact()
                             "mailto:qt-creator@qt-project.org"
                          "</a></p>")
                     .arg("<p>&nbsp;&nbsp;&nbsp;&nbsp;"
-                            "<a href=\"https://irc.freenode.org\">"
-                            "irc://freenode.org/qt-creator"
+                            "<a href=\"https://irc.libera.chat\">"
+                            "irc://irc.libera.chat/qt-creator"
                          "</a></p>")
                     .arg("<a href=\"https://bugreports.qt.io/projects/QTCREATORBUG\">"
                             "https://bugreports.qt.io"
