@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,49 +23,59 @@
 **
 ****************************************************************************/
 
-#pragma once
-
 #ifdef QUICK3D_MODULE
 
 #include "geometrybase.h"
 
-#include <QtGui/QVector3D>
-
 namespace QmlDesigner {
 namespace Internal {
 
-class LineGeometry : public GeometryBase
+GeometryBase::GeometryBase()
+    : QQuick3DGeometry()
 {
-    Q_OBJECT
-    Q_PROPERTY(QVector3D startPos READ startPos WRITE setStartPos NOTIFY startPosChanged)
-    Q_PROPERTY(QVector3D endPos READ endPos WRITE setEndPos NOTIFY endPosChanged)
+    m_updatetimer.setSingleShot(true);
+    m_updatetimer.setInterval(0);
+    connect(&m_updatetimer, &QTimer::timeout, this, &GeometryBase::doUpdateGeometry);
+    updateGeometry();
+    setStride(12); // To avoid div by zero inside QtQuick3D
+}
 
-public:
-    LineGeometry();
-    ~LineGeometry() override;
+GeometryBase::~GeometryBase()
+{
+}
 
-    QVector3D startPos() const;
-    QVector3D endPos() const;
+void GeometryBase::doUpdateGeometry()
+{
+    clear();
 
-public slots:
-    void setStartPos(const QVector3D &pos);
-    void setEndPos(const QVector3D &pos);
+    setStride(12);
 
-signals:
-    void startPosChanged();
-    void endPosChanged();
+    addAttribute(QQuick3DGeometry::Attribute::PositionSemantic, 0,
+                 QQuick3DGeometry::Attribute::F32Type);
+    setPrimitiveType(QQuick3DGeometry::PrimitiveType::Lines);
 
-protected:
-    void doUpdateGeometry() override;
+    update();
+}
 
-private:
-    QVector3D m_startPos;
-    QVector3D m_endPos;
-};
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QString GeometryBase::name() const
+{
+    return objectName();
+}
+
+void GeometryBase::setName(const QString &name)
+{
+    setObjectName(name);
+    emit nameChanged();
+}
+#endif
+
+void GeometryBase::updateGeometry()
+{
+    m_updatetimer.start();
+}
 
 }
 }
-
-QML_DECLARE_TYPE(QmlDesigner::Internal::LineGeometry)
 
 #endif // QUICK3D_MODULE

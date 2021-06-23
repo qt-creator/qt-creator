@@ -27,32 +27,17 @@
 
 #include "linegeometry.h"
 
-#include <QtQuick3DRuntimeRender/private/qssgrendergeometry_p.h>
-
 namespace QmlDesigner {
 namespace Internal {
 
 LineGeometry::LineGeometry()
-    : QQuick3DGeometry()
+    : GeometryBase()
 {
 }
 
 LineGeometry::~LineGeometry()
 {
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-QString LineGeometry::name() const
-{
-    return objectName();
-}
-
-void LineGeometry::setName(const QString &name)
-{
-    setObjectName(name);
-    emit nameChanged();
-}
-#endif
 
 QVector3D LineGeometry::startPos() const
 {
@@ -69,7 +54,7 @@ void LineGeometry::setStartPos(const QVector3D &pos)
     if (pos != m_startPos) {
         m_startPos = pos;
         emit startPosChanged();
-        update();
+        updateGeometry();
     }
 }
 
@@ -78,16 +63,13 @@ void LineGeometry::setEndPos(const QVector3D &pos)
     if (pos != m_endPos) {
         m_endPos = pos;
         emit endPosChanged();
-        update();
+        updateGeometry();
     }
 }
 
-QSSGRenderGraphObject *LineGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
+void LineGeometry::doUpdateGeometry()
 {
-    setStride(12); // Silence a warning
-    node = QQuick3DGeometry::updateSpatialNode(node);
-    QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
-    geometry->clear();
+    GeometryBase::doUpdateGeometry();
 
     QByteArray vertexData;
     vertexData.resize(2 * 3 * 4); // 2 vertices of 3 floats each 4 bytes
@@ -100,20 +82,8 @@ QSSGRenderGraphObject *LineGeometry::updateSpatialNode(QSSGRenderGraphObject *no
     dataPtr[4] = m_endPos[1];
     dataPtr[5] = m_endPos[2];
 
-    geometry->setStride(12);
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
-#else
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::Float32);
-    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
-#endif
-    geometry->setVertexData(vertexData);
-    geometry->setBounds(m_startPos, m_endPos);
-
-    return node;
+    setVertexData(vertexData);
+    setBounds(m_startPos, m_endPos);
 }
 
 }

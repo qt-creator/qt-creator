@@ -37,26 +37,13 @@ namespace QmlDesigner {
 namespace Internal {
 
 LightGeometry::LightGeometry()
-    : QQuick3DGeometry()
+    : GeometryBase()
 {
 }
 
 LightGeometry::~LightGeometry()
 {
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-QString LightGeometry::name() const
-{
-    return objectName();
-}
-
-void LightGeometry::setName(const QString &name)
-{
-    setObjectName(name);
-    emit nameChanged();
-}
-#endif
 
 LightGeometry::LightType LightGeometry::lightType() const
 {
@@ -71,45 +58,29 @@ void LightGeometry::setLightType(LightGeometry::LightType lightType)
     m_lightType = lightType;
 
     emit lightTypeChanged();
-    update();
+    updateGeometry();
 }
 
-QSSGRenderGraphObject *LightGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
+void LightGeometry::doUpdateGeometry()
 {
     if (m_lightType == LightType::Invalid)
-        return node;
+        return;
 
-    setStride(12); // Silence a warning
-    node = QQuick3DGeometry::updateSpatialNode(node);
-    QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
-
-    geometry->clear();
+    GeometryBase::doUpdateGeometry();
 
     QByteArray vertexData;
     QByteArray indexData;
     QVector3D minBounds;
     QVector3D maxBounds;
+
     fillVertexData(vertexData, indexData, minBounds, maxBounds);
 
-    geometry->setStride(12);
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::IndexSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::U16Type);
-    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
-#else
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::Float32);
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::IndexSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::UnsignedInt16);
-    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
-#endif
-    geometry->setVertexData(vertexData);
-    geometry->setIndexData(indexData);
-    geometry->setBounds(minBounds, maxBounds);
+    addAttribute(QQuick3DGeometry::Attribute::IndexSemantic, 0,
+                 QQuick3DGeometry::Attribute::U16Type);
 
-    return node;
+    setVertexData(vertexData);
+    setIndexData(indexData);
+    setBounds(minBounds, maxBounds);
 }
 
 void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData,

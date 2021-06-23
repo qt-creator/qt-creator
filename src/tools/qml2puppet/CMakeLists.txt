@@ -129,6 +129,7 @@ extend_qtc_executable(qml2puppet
   SOURCES
     generalhelper.cpp generalhelper.h
     mousearea3d.cpp mousearea3d.h
+    geometrybase.cpp geometrybase.h
     camerageometry.cpp camerageometry.h
     lightgeometry.cpp lightgeometry.h
     gridgeometry.cpp gridgeometry.h

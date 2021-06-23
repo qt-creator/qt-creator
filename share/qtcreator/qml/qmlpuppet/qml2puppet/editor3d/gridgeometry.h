@@ -27,12 +27,12 @@
 
 #ifdef QUICK3D_MODULE
 
-#include <QtQuick3D/private/qquick3dgeometry_p.h>
+#include "geometrybase.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-class GridGeometry : public QQuick3DGeometry
+class GridGeometry : public GeometryBase
 {
     Q_OBJECT
 
@@ -40,17 +40,6 @@ class GridGeometry : public QQuick3DGeometry
     Q_PROPERTY(float step READ step WRITE setStep NOTIFY stepChanged)
     Q_PROPERTY(bool isCenterLine READ isCenterLine WRITE setIsCenterLine NOTIFY isCenterLineChanged)
     Q_PROPERTY(bool isSubdivision MEMBER m_isSubdivision)
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    // Name property was removed in Qt 6, so define it here for compatibility.
-    // Name maps to object name.
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-public:
-    QString name() const;
-    void setName(const QString &name);
-signals:
-    void nameChanged();
-#endif
 
 public:
     GridGeometry();
@@ -71,7 +60,7 @@ signals:
     void isCenterLineChanged();
 
 protected:
-    QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
+    void doUpdateGeometry() override;
 
 private:
     void fillVertexData(QByteArray &vertexData);

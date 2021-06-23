@@ -373,6 +373,8 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
 #ifdef QUICK3D_MODULE
     qmlRegisterRevision<QQuick3DNode, 1>("MouseArea3D", 1, 0);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
+    qmlRegisterUncreatableType<QmlDesigner::Internal::GeometryBase>("GeometryBase", 1, 0, "GeometryBase",
+                                                                    "Abstract Base Class");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
     qmlRegisterType<QmlDesigner::Internal::LightGeometry>("LightUtils", 1, 0, "LightGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");

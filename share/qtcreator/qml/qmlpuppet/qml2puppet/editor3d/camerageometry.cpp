@@ -27,7 +27,6 @@
 
 #include "camerageometry.h"
 
-#include <QtQuick3DRuntimeRender/private/qssgrendergeometry_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercamera_p.h>
 #include <QtQuick3D/private/qquick3dcustomcamera_p.h>
 #include <QtQuick3D/private/qquick3dfrustumcamera_p.h>
@@ -35,7 +34,6 @@
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
 #include <QtQuick3D/private/qquick3dutils_p.h>
 #include <QtCore/qmath.h>
-#include <QtCore/qtimer.h>
 
 #include <limits>
 
@@ -43,26 +41,13 @@ namespace QmlDesigner {
 namespace Internal {
 
 CameraGeometry::CameraGeometry()
-    : QQuick3DGeometry()
+    : GeometryBase()
 {
 }
 
 CameraGeometry::~CameraGeometry()
 {
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-QString CameraGeometry::name() const
-{
-    return objectName();
-}
-
-void CameraGeometry::setName(const QString &name)
-{
-    setObjectName(name);
-    emit nameChanged();
-}
-#endif
 
 QQuick3DCamera *CameraGeometry::camera() const
 {
@@ -111,7 +96,7 @@ void CameraGeometry::setCamera(QQuick3DCamera *camera)
                          this, &CameraGeometry::handleCameraPropertyChange);
     }
     emit cameraChanged();
-    update();
+    handleCameraPropertyChange();
 }
 
 void CameraGeometry::setViewPortRect(const QRectF &rect)
@@ -121,26 +106,37 @@ void CameraGeometry::setViewPortRect(const QRectF &rect)
 
     m_viewPortRect = rect;
     emit viewPortRectChanged();
-    update();
+    updateGeometry();
 }
 
 void CameraGeometry::handleCameraPropertyChange()
 {
     m_cameraUpdatePending = true;
+    clear();
+    setStride(12); // To avoid div by zero inside QtQuick3D
     update();
 }
 
 QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
 {
+    if (m_cameraUpdatePending) {
+        m_cameraUpdatePending = false;
+        updateGeometry();
+    }
+
+    return QQuick3DGeometry::updateSpatialNode(node);
+}
+
+void CameraGeometry::doUpdateGeometry()
+{
     if (!m_camera)
-        return node;
+        return;
 
     // If camera properties have been updated, we need to defer updating the frustum geometry
     // to the next frame to ensure camera's spatial node has been properly updated.
     if (m_cameraUpdatePending) {
-        QTimer::singleShot(0, this, &CameraGeometry::update);
-        m_cameraUpdatePending = false;
-        return node;
+        update();
+        return;
     }
 
     if (!m_camera->cameraNode()) {
@@ -148,11 +144,7 @@ QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *
         m_camera->mapToViewport({}, m_viewPortRect.width(), m_viewPortRect.height());
     }
 
-    setStride(12); // Silence a warning
-    node = QQuick3DGeometry::updateSpatialNode(node);
-    QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
-
-    geometry->clear();
+    GeometryBase::doUpdateGeometry();
 
     QByteArray vertexData;
     QByteArray indexData;
@@ -160,25 +152,11 @@ QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *
     QVector3D maxBounds;
     fillVertexData(vertexData, indexData, minBounds, maxBounds);
 
-    geometry->setStride(12);
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::IndexSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::U16Type);
-    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
-#else
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::Float32);
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::IndexSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::UnsignedInt16);
-    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
-#endif
-    geometry->setVertexData(vertexData);
-    geometry->setIndexData(indexData);
-    geometry->setBounds(minBounds, maxBounds);
-
-    return node;
+    addAttribute(QQuick3DGeometry::Attribute::IndexSemantic, 0,
+                 QQuick3DGeometry::Attribute::U16Type);
+    setVertexData(vertexData);
+    setIndexData(indexData);
+    setBounds(minBounds, maxBounds);
 }
 
 void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData,

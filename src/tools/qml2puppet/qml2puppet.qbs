@@ -232,6 +232,7 @@ QtcTool {
             "instances/capturenodeinstanceserverdispatcher.h",
             "editor3d/generalhelper.cpp",
             "editor3d/mousearea3d.cpp",
+            "editor3d/geometrybase.cpp",
             "editor3d/camerageometry.cpp",
             "editor3d/lightgeometry.cpp",
             "editor3d/gridgeometry.cpp",
@@ -249,6 +250,7 @@ QtcTool {
         Group {
             name: "3d-only puppet2 headers"
             files: [
+                "editor3d/geometrybase.h",
                 "editor3d/camerageometry.h",
                 "editor3d/generalhelper.h",
                 "editor3d/gridgeometry.h",

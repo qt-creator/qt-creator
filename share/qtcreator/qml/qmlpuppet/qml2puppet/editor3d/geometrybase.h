@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,45 +27,43 @@
 
 #ifdef QUICK3D_MODULE
 
-#include "geometrybase.h"
+#include <QtQuick3D/private/qquick3dgeometry_p.h>
 
-#include <QtGui/QVector3D>
+#include <QTimer>
 
 namespace QmlDesigner {
 namespace Internal {
 
-class LineGeometry : public GeometryBase
+class GeometryBase : public QQuick3DGeometry
 {
     Q_OBJECT
-    Q_PROPERTY(QVector3D startPos READ startPos WRITE setStartPos NOTIFY startPosChanged)
-    Q_PROPERTY(QVector3D endPos READ endPos WRITE setEndPos NOTIFY endPosChanged)
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Name property was removed in Qt 6, so define it here for compatibility.
+    // Name maps to object name.
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+public:
+    QString name() const;
+    void setName(const QString &name);
+signals:
+    void nameChanged();
+#endif
 
 public:
-    LineGeometry();
-    ~LineGeometry() override;
-
-    QVector3D startPos() const;
-    QVector3D endPos() const;
-
-public slots:
-    void setStartPos(const QVector3D &pos);
-    void setEndPos(const QVector3D &pos);
-
-signals:
-    void startPosChanged();
-    void endPosChanged();
+    GeometryBase();
+    ~GeometryBase() override;
 
 protected:
-    void doUpdateGeometry() override;
+    void updateGeometry();
+    virtual void doUpdateGeometry();
 
 private:
-    QVector3D m_startPos;
-    QVector3D m_endPos;
+    QTimer m_updatetimer;
 };
 
 }
 }
 
-QML_DECLARE_TYPE(QmlDesigner::Internal::LineGeometry)
+QML_DECLARE_TYPE(QmlDesigner::Internal::GeometryBase)
 
 #endif // QUICK3D_MODULE

@@ -27,32 +27,22 @@
 
 #ifdef QUICK3D_MODULE
 
+#include "geometrybase.h"
+
 #include <QtQuick3D/private/qquick3dnode_p.h>
-#include <QtQuick3D/private/qquick3dgeometry_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-class SelectionBoxGeometry : public QQuick3DGeometry
+class SelectionBoxGeometry : public GeometryBase
 {
     Q_OBJECT
     Q_PROPERTY(QQuick3DNode *targetNode READ targetNode WRITE setTargetNode NOTIFY targetNodeChanged)
     Q_PROPERTY(QQuick3DNode *rootNode READ rootNode WRITE setRootNode NOTIFY rootNodeChanged)
     Q_PROPERTY(QQuick3DViewport *view3D READ view3D WRITE setView3D NOTIFY view3DChanged)
     Q_PROPERTY(bool isEmpty READ isEmpty NOTIFY isEmptyChanged)
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    // Name property was removed in Qt 6, so define it here for compatibility.
-    // Name maps to object name.
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-public:
-    QString name() const;
-    void setName(const QString &name);
-signals:
-    void nameChanged();
-#endif
 
 public:
     SelectionBoxGeometry();
@@ -62,6 +52,7 @@ public:
     QQuick3DNode *rootNode() const;
     QQuick3DViewport *view3D() const;
     bool isEmpty() const;
+    void setEmpty(bool isEmpty);
 
     QSSGBounds3 bounds() const;
 
@@ -78,6 +69,7 @@ signals:
 
 protected:
     QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
+    void doUpdateGeometry() override;
 
 private:
     void getBounds(QQuick3DNode *node, QByteArray &vertexData,
@@ -85,7 +77,8 @@ private:
     void appendVertexData(const QMatrix4x4 &m, QByteArray &vertexData, QByteArray &indexData,
                           const QVector3D &minBounds, const QVector3D &maxBounds);
     void trackNodeChanges(QQuick3DNode *node);
-    void targetMeshUpdated();
+    void spatialNodeUpdateNeeded();
+    void clearGeometry();
 
     QQuick3DNode *m_targetNode = nullptr;
     QQuick3DViewport *m_view3D = nullptr;
@@ -94,7 +87,6 @@ private:
     QVector<QMetaObject::Connection> m_connections;
     QSSGBounds3 m_bounds;
     bool m_spatialNodeUpdatePending = false;
-    bool m_meshUpdatePending = false;
 };
 
 }
