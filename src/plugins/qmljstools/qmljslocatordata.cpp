@@ -43,6 +43,7 @@ using namespace QmlJS::AST;
 LocatorData::LocatorData()
 {
     ModelManagerInterface *manager = ModelManagerInterface::instance();
+    Q_ASSERT(thread() == manager->thread()); // we do not protect accesses below
 
     // Force the updating of source file when updating a project (they could be cached, in such
     // case LocatorData::onDocumentUpdated will not be called.
@@ -61,8 +62,10 @@ LocatorData::LocatorData()
 
     ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
     if (session)
-        connect(session, &ProjectExplorer::SessionManager::projectRemoved,
-                [this] (ProjectExplorer::Project*) { m_entries.clear(); });
+        connect(session,
+                &ProjectExplorer::SessionManager::projectRemoved,
+                this,
+                [this](ProjectExplorer::Project *) { m_entries.clear(); });
 }
 
 LocatorData::~LocatorData() = default;
