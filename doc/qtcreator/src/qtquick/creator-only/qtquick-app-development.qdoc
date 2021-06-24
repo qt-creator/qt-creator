@@ -49,17 +49,26 @@
 
         \li \l {Wireframing}
 
-            Qt Quick enables you to build UIs around the behavior of
-            \e components and how they connect with one another. You
-            create components using Qt Quick and QML types that are
-            available in the Design mode, manage their relationships,
-            and specify their properties.
+            Plan your UI properly. Know what elements, such as screens,
+            components, and states, you need. Create a descriptive wireframe
+            and acquire a detailed UI specification before you start to make
+            the process of creating the UI more efficient.
 
-        \li \l {Adding Dynamics}
+        \li \l {Prototyping}
 
-            You can animate the properties of UI components and create
-            connections between them to enable them to communicate with
-            each other.
+            After your UI wireframe has been approved, you can turn it into
+            an interactive prototype to ensure that you and the developers
+            share a common vision about the UI appearance and functionality.
+
+        \li \l{Motion Design}
+
+            After the wireframing and prototyping phases, you can use the
+            supported motion design techniques to fine-tune your UI for
+            production. You can use different animation techniques for
+            different purposes. \QC supports common motion design techniques,
+            such as timeline and keyframe based animation and easing curves,
+            as well as screen-to-screen or state-to-state application flows
+            and data-driven UI logic animation.
 
     \endlist
 

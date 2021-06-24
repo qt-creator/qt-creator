@@ -90,10 +90,10 @@
             instead of duplicating them, so the components do not need to be
             processed as completely new component types. This reduces loading
             and compilation time as well as the size of the binary.
-        \li Any content that is data-driven should be
-            \l {Using UI Files}{exported as a public property} of the
-            relevant component. For example, a speedometer should have an \c int
-            or \c real property for speed to which the UI is bound.
+        \li Any content that is data-driven should be exported as a public
+            property (alias property) of the relevant component. For example,
+            a speedometer should have an \c int or \c real property for speed
+            to which the UI is bound.
         \li Separate UI from the application logic. Designers should work with
             the \l{UI Files}{UI files} (.ui.qml), while developers should work
             on the corresponding implementation files (.qml) to define their

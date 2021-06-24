@@ -111,22 +111,18 @@
                 \li \l{Scalable Layouts}
                 \li \l{Annotating Designs}
             \endlist
-        \li \l{Prototyping} (NEW)
+        \li \l{Prototyping}
             \list
-                \li Creating UI Logic
-                \li \l{Simulating Data Input}{Simulating Complex Experiences}
+                \li \l{Creating UI Logic}
+                \li \l{Simulating Complex Experiences}
                     \list
                         \li \l{Loading Placeholder Data}
                         \li \l{Simulating Application Logic}
                         \li \l{Simulating Dynamic Systems}
                         \li \l{Using QML Modules with Plugins}
                     \endlist
-                \li \l{Adding Dynamics}{Dynamic Behaviors}
+                \li \l{Dynamic Behaviors}
                     \list
-                        \li \l{Creating Animations}
-                            \list
-                                \li \l{Editing Easing Curves}
-                            \endlist
                         \li \l{Adding Connections}
                             \list
                                 \li\l{Connecting Components to Signals}
@@ -135,34 +131,34 @@
                             \endlist
                         \li \l{Adding States}
                     \endlist
-                \li \l{Previewing}{Validating with Target Hardware}
+                \li \l{Validating with Target Hardware}
                     \list
                         \li \l{Previewing on Desktop}
                         \li \l{Previewing on Devices}
                         \li \l{Previewing in Browsers}
                     \endlist
-                \li \l {Exporting and Importing}{Asset Creation with Other Tools}
+                \li \l {Asset Creation with Other Tools}
                     \list
                         \li \l{Exporting from Design Tools}
                         \li \l{Exporting 2D Assets} (NEW)
-                                \list
-                                    \li \l{Exporting Designs from Adobe Illustrator}
-                                    \li \l{Exporting Designs from Adobe Photoshop}
-                                        \list
-                                            \li \l{Setting Up Qt Bridge for Adobe Photoshop}
-                                            \li \l{Using Qt Bridge for Adobe Photoshop}
-                                        \endlist
-                                    \li \l{Exporting Designs from Sketch}
-                                        \list
-                                            \li \l{Setting Up Qt Bridge for Sketch}
-                                            \li \l{Using Qt Bridge for Sketch}
-                                        \endlist
-                                    \li \l{Exporting Designs from Figma}
-                                        \list
-                                            \li \l{Setting Up Qt Bridge for Figma}
-                                            \li \l{Using Qt Bridge for Figma}
-                                        \endlist
-                                \endlist
+                            \list
+                                \li \l{Exporting Designs from Adobe Illustrator}
+                                \li \l{Exporting Designs from Adobe Photoshop}
+                                    \list
+                                        \li \l{Setting Up Qt Bridge for Adobe Photoshop}
+                                        \li \l{Using Qt Bridge for Adobe Photoshop}
+                                    \endlist
+                                \li \l{Exporting Designs from Sketch}
+                                    \list
+                                        \li \l{Setting Up Qt Bridge for Sketch}
+                                        \li \l{Using Qt Bridge for Sketch}
+                                    \endlist
+                                \li \l{Exporting Designs from Figma}
+                                    \list
+                                        \li \l{Setting Up Qt Bridge for Figma}
+                                        \li \l{Using Qt Bridge for Figma}
+                                    \endlist
+                            \endlist
                         \li \l {Exporting 3D Assets}
                             \list
                                 \li \l{Exporting from Blender}
@@ -178,12 +174,13 @@
                                 \li \l{Importing 3D Assets}
                             \endlist
                         \li \l{Exporting Components}
-                        \li \l{To and from Qt Creator} (designer-developer workflow)
                     \endlist
             \endlist
         \li \l{Motion Design}
             \list
                 \li \l{Introduction to Animation Techniques}
+                \li \l{Creating Animations}
+                \li \l{Editing Easing Curves}
                 \li \l{Production Quality} (NEW)
                     \list
                         \li \l{Detailed Motion Design} (NEW)

@@ -96,7 +96,7 @@
         \row
             \li \b {\l{Building and Running}}
                 \list
-                    \li \l{Previewing}
+                    \li \l{Validating with Target Hardware}
                     \li \l{Building for Multiple Platforms}
                     \li \l{Running on Multiple Platforms}
                     \li \l{Deploying to Devices}

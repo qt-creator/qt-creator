@@ -1,0 +1,109 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-prototyping.html
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-annotations.html
+    \else
+    \previouspage creator-quick-ui-forms.html
+    \endif
+    \nextpage qtquick-creating-ui-logic.html
+
+    \title Prototyping
+
+    \table
+        \row
+            \li \image studio-3d-scenes.png
+            \li After your UI wireframe has been approved, you can turn it
+                into an interactive prototype to ensure that you and the
+                developers share a common vision about the UI appearance
+                and functionality. You can create the UI logic to simulate
+                complex experiences and add dynamic behavior. You can then
+                validate your design on desktop, embedded, and mobile device
+                platforms. In the prototyping phase, you can also import
+                assets from 2D and 3D content creation tools to bring your
+                prototype closer to the final UI.
+    \endtable
+
+    \list
+
+        \li \l {Creating UI Logic}
+
+            You can turn your wireframe into an interactive prototype by
+            adding the logic that enables your components to apply actions
+            or react to mock data from backend systems to simulate complex
+            experiences.
+        \li \l{Simulating Complex Experiences}
+
+            You can connect UIs to different forms of data from various
+            sources, such as QML-based data models, JavaScript files, and
+            backend services.
+            \if defined(qtdesignstudio)
+            You can also connect your UI to Simulink to load live data from
+            a Simulink simulation.
+            \endif
+
+        \li \l {Dynamic Behaviors}
+
+            You can create connections between components to enable them to
+            communicate with each other. The connections can be triggered by
+            changes in component property values or in UI states.
+
+        \if defined(qtdesignstudio)
+        \li \l {Validating with Target Hardware}
+
+            You can use the live preview feature to preview a UI file or the
+            entire UI on the desktop, as well as on Android and embedded Linux
+            devices. The changes you make to the UI are instantly visible
+            to you in the preview.
+
+        \li \l {Asset Creation with Other Tools}
+
+            Describes how to export designs containing 2D and 3D assets into
+            files that you can import to projects in \QDS, how to import them,
+            and how to export them from \QDS back to the metadata format.
+
+        \else
+        \li \l {Exporting 3D Assets}
+
+            You can export assets from 3D graphics applications into several
+            widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf, .obj,
+            .uia, or .uip.
+
+        \li \l {Importing 3D Assets}
+
+            You can import exported assets into \QC. For a list of formats
+            supported by each \l{Qt Quick 3D} version, see the module
+            documentation.
+
+        \li \l {Exporting Components}
+
+            You can export components contained in \l{UI Files}{UI files}
+            (.ui.qml) to JSON metadata format and PNG assets.
+        \endif
+
+    \endlist
+*/

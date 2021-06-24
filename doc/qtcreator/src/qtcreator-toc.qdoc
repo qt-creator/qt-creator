@@ -155,61 +155,49 @@
                         \li \l{Scalable Layouts}
                         \li \l{Using Custom Fonts}
                         \li \l{Annotating Designs}
-                        \li \l{Loading Placeholder Data}
                         \li \l{UI Files}
                     \endlist
-                \li \l {Adding Dynamics}
+                \li \l{Prototyping}
                     \list
-                        \li \l{Creating Animations}
+                        \li \l{Creating UI Logic}
+                        \li \l{Simulating Complex Experiences}
                             \list
-                                \li \l{Editing Easing Curves}
+                                \li \l{Loading Placeholder Data}
+                                \li \l{Using QML Modules with Plugins}
                             \endlist
-                        \li \l{Adding Connections}
-                        \list
-                            \li \l{Connecting Components to Signals}
-                            \li \l{Adding Bindings Between Properties}
-                            \li \l{Specifying Dynamic Properties}
-                            \li \l{Managing C++ Backend Objects}
-                        \endlist
-                        \li \l {Adding States}
-                    \endlist
-                \li \l{Editing 3D Scenes}
-                        \list
+                        \li \l {Dynamic Behaviors}
+                            \list
+                                \li \l{Adding Connections}
+                                \list
+                                    \li \l{Connecting Components to Signals}
+                                    \li \l{Adding Bindings Between Properties}
+                                    \li \l{Specifying Dynamic Properties}
+                                    \li \l{Managing C++ Backend Objects}
+                                \endlist
+                                \li \l {Adding States}
+                            \endlist
                             \li \l {Exporting 3D Assets}
                                 \list
                                     \li \l{Exporting from Blender}{Blender}
                                     \li \l{Exporting from Maya}{Maya}
                                 \endlist
                             \li \l{Importing 3D Assets}
-                            \li \l{Adding 3D Views}
-                            \li \l{Using 3D Components}
-                            \list
-                                \li \l{Setting Group Properties}
-                                \li \l{Adding 3D Models}
-                                \li \l{Using Materials and Shaders}
-                                \li \l{Attaching Textures to Materials}
-                                \li \l{Using 3D Materials}
-                                \li \l{Applying 3D Effects}
-                                \li \l{Using Custom Shaders}
-                                \li \l{Creating Custom Effects and Materials}
-                                \li \l{Using Lights}
-                                \li \l{Using Scene Camera}
-                                \li \l{Setting Scene Environment}
-                            \endlist
-                        \endlist
+                            \li \l{Exporting Components}
+                    \endlist
+                \li \l{Motion Design}
+                    \list
+                        \li \l{Introduction to Animation Techniques}
+                        \li \l{Creating Animations}
+                        \li \l{Editing Easing Curves}
+                    \endlist
                 \li \l {Browsing ISO 7000 Icons}
-                \li \l {Using QML Modules with Plugins}
                 \li \l {Converting UI Projects to Applications}
-                \li \l {Exporting Components}
             \endlist
             \li \l{Developing Widget Based Applications}
             \list
                 \li  \l{Adding Qt Designer Plugins}
             \endlist
-            \li \l {Best Practices}
-            \list
-                \li \l{Optimizing Applications for Mobile Devices}
-            \endlist
+            \li \l{Optimizing Applications for Mobile Devices}
         \endlist
         \li \l{Coding}
         \list
@@ -247,7 +235,7 @@
         \endlist
         \li \l{Building and Running}
         \list
-            \li \l{Previewing}
+            \li \l{Validating with Target Hardware}
             \list
                 \li \l{Previewing on Desktop}
                 \li \l{Previewing on Devices}

@@ -26,12 +26,11 @@
 /*!
     \page studio-importing-3d.html
     \if defined(qtdesignstudio)
-    \previouspage studio-importing-2d.html
-    \nextpage creator-exporting-qml.html
+    \previouspage qtquick-fonts.html
     \else
     \previouspage exporting-from-maya.html
-    \nextpage studio-3d-view.html
     \endif
+    \nextpage creator-exporting-qml.html
 
     \title Importing 3D Assets
 

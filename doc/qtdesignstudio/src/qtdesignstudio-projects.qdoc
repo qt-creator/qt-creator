@@ -60,7 +60,7 @@
     Because the projects do not contain any C++ code, you do not need
     to build them. To test how well your designs work, you can preview the
     UIs on the desktop or embedded Linux devices. For more
-    information, see \l{Previewing}.
+    information, see \l{Validating with Target Hardware}.
 
     \image studio-project-wizards.png "A list of project wizards"
 

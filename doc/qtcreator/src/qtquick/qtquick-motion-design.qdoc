@@ -25,6 +25,7 @@
 
 /*!
     \page qtquick-motion-design.html
+    \previouspage creator-exporting-qml.html
     \nextpage quick-animation-overview.html
 
     \title Motion Design
@@ -39,6 +40,14 @@
 
             Learn more about which animation techniques are supported by \QDS
             and the use cases they are most suitable for.
+
+        \li \l {Creating Animations}
+
+            You can use a timeline and keyframe based editor in the
+            \uicontrol Timeline view to animate the properties of UI
+            components. Animating properties enables their values to
+            move through intermediate values at specified keyframes
+            instead of immediately changing to the target value.
         \li Production Quality (TODO)
 
             After the wireframing and prototyping phases, you can use the

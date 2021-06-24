@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 /*!
-    \previouspage qtquick-editing-easing-curves.html
     \page qmldesigner-connections.html
+    \previouspage qtquick-adding-dynamics.html
     \nextpage quick-signals.html
 
     \title Adding Connections

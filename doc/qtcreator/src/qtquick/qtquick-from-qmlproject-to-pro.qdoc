@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -26,11 +26,12 @@
 /*!
     \page quick-converting-ui-projects.html
     \if defined(qtdesignstudio)
-    \previouspage studio-importing-3d.html
+    \previouspage creator-vcs-git.html
+    \nextpage creator-editor-external.html
     \else
-    \previouspage creator-qml-modules-with-plugins.html
+    \previouspage qtquick-iso-icon-browser.html
+    \nextpage creator-using-qt-designer.html
     \endif
-    \nextpage creator-exporting-qml.html
 
     \title Converting UI Projects to Applications
 
@@ -66,18 +67,19 @@
     Then you can use the \l QQuickView class in the main C++ source file to
     show the main QML file when the application starts.
 
-    The \e {Qt Quick Designer Components} module is delivered with the
-    standalone \QDS installation. If you use Qt Quick Studio Components
-    or Effects from the module in a project that you want to edit in \QC,
+    The \e {Qt Quick Designer Components} module is installed when you
+    install \QDS. If you use Qt Quick Studio Components or Effects
+    from the module in a project that you want to edit in Qt Creator,
     you have to build the module and install it to your Qt to be able to
-    build your project.
+    build your project. For more information, see
+    \l{Adding Qt Quick Designer Components to Qt Installations}.
 
-    The \l{Qt Quick Timeline} module is delivered with the standalone \QDS
-    installation package and with Qt 5.14, and later. If you install \QDS
-    using the Qt Installation Tool or use \QC, remember to also select the
-    Qt Quick Timeline module for installation. If your Qt is older than 5.14,
-    you must build the Qt Quick Timeline module and install it to your Qt to
-    be able to build your project.
+    The \l{Qt Quick Timeline} module is installed when you install \QDS.
+    If you only install Qt Creator and Qt, remember to also select the
+    Qt Quick Timeline module for installation. If your Qt is older than
+    5.14, you must build the Qt Quick Timeline module and install it to
+    your Qt to be able to build your project. For more information, see
+    \l{Adding Qt Quick Timeline Module to Qt Installations}.
 
     \section1 Converting Projects
 

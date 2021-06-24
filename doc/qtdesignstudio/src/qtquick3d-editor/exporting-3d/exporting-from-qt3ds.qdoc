@@ -28,7 +28,12 @@
 /*!
     \page exporting-from-qt3ds.html
     \previouspage exporting-from-maya.html
+    \if defined(qtdesignstudio)
     \nextpage studio-importing-designs.html
+    \else
+    \nextpage studio-importing-3d.html
+    \endif
+
     \title Exporting from Qt 3D Studio
 
     Use the following guidelines to achieve the best results when converting

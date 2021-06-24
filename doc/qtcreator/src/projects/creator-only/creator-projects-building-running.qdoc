@@ -46,7 +46,7 @@
 
     \list
 
-        \li \l {Previewing}
+        \li \l {Validating with Target Hardware}
 
             You can use the QML live preview to preview a QML file or an
             entire Qt Quick application on the desktop, as well as on

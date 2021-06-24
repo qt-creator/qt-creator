@@ -216,7 +216,8 @@
     100. When all our progress bar instances have been animated, we'll continue
     by specifying easing curves for them.
 
-    For more information about previewing UIs, see \l {Previewing}.
+    For more information about previewing UIs, see
+    \l {Validating with Target Hardware}.
 
     \section1 Specifying Easing Curves
 

@@ -110,7 +110,7 @@ function(qtc_source_dir varName)
 endfunction()
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;UNVERSIONED;FEATURE_INFO"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;UNVERSIONED;FEATURE_INFO;SKIP_PCH"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
@@ -256,7 +256,10 @@ function(add_qtc_library name)
     ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_ARCHIVE_PATH}"
     ${_arg_PROPERTIES}
   )
-  enable_pch(${name})
+
+  if (NOT _arg_SKIP_PCH)
+    enable_pch(${name})
+  endif()
 
   if (WIN32 AND library_type STREQUAL "SHARED" AND NOT _arg_UNVERSIONED)
     # Match qmake naming scheme e.g. Library4.dll
@@ -313,7 +316,7 @@ endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT"
+    "SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
     ${ARGN}
@@ -522,7 +525,9 @@ function(add_qtc_plugin target_name)
       IMPORT_PREFIX ""
     )
   endif()
-  enable_pch(${target_name})
+  if (NOT _arg_SKIP_PCH)
+    enable_pch(${target_name})
+  endif()
 
   if (NOT _arg_SKIP_INSTALL)
     if (_arg_EXPORT)
@@ -597,7 +602,7 @@ function(extend_qtc_test target_name)
 endfunction()
 
 function(add_qtc_executable name)
-  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
+  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;SKIP_PCH"
     "DESTINATION;COMPONENT;BUILD_DEFAULT"
     "CONDITION;DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
 
@@ -698,7 +703,9 @@ function(add_qtc_executable name)
     VISIBILITY_INLINES_HIDDEN ON
     ${_arg_PROPERTIES}
   )
-  enable_pch(${name})
+  if (NOT _arg_SKIP_PCH)
+    enable_pch(${name})
+  endif()
 
   if (NOT _arg_SKIP_INSTALL)
     unset(COMPONENT_OPTION)
@@ -785,7 +792,7 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST" "TIMEOUT" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC" ${ARGN})
+  cmake_parse_arguments(_arg "GTEST" "TIMEOUT" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
@@ -837,7 +844,9 @@ function(add_qtc_test name)
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
   )
-  enable_pch(${name})
+  if (NOT _arg_SKIP_PCH)
+    enable_pch(${name})
+  endif()
 
   if (NOT _arg_GTEST)
     add_test(NAME ${name} COMMAND ${name})

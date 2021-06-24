@@ -1189,7 +1189,9 @@ void BaseQtVersion::ensureMkSpecParsed() const
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
     ProFileEvaluator evaluator(&option, &parser, &vfs, &msgHandler);
-    evaluator.loadNamedSpec(mkspecPath().toString(), false);
+    // FIXME: toString() would be better, but the pro parser Q_ASSERTs on anything
+    // non-local.
+    evaluator.loadNamedSpec(mkspecPath().path(), false);
 
     parseMkSpec(&evaluator);
 

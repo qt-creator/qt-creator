@@ -26,7 +26,7 @@
 /*!
     \page creator-telemetry.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-external.html
+    \previouspage creator-quick-ui-forms.html
     \else
     \previouspage creator-task-lists.html
     \endif
