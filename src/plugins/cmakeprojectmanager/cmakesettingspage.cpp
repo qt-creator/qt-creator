@@ -109,10 +109,10 @@ public:
         , m_name(item->displayName())
         , m_executable(item->filePath())
         , m_qchFile(item->qchFilePath())
+        , m_versionDisplay(item->versionDisplay())
         , m_isAutoRun(item->isAutoRun())
         , m_autodetected(item->isAutoDetected())
         , m_isSupported(item->hasFileApi())
-        , m_versionDisplay(item->versionDisplay())
         , m_changed(changed)
     {
         updateErrorFlags();
