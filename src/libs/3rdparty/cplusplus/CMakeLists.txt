@@ -41,5 +41,14 @@ add_qtc_library(3rd_cplusplus OBJECT
     Type.cpp Type.h
     TypeVisitor.cpp TypeVisitor.h
     cppassert.h
+  SKIP_PCH
   PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
+
+if(TARGET 3rd_cplusplus)
+  qtc_enable_release_for_debug_configuration()
+  if (BUILD_WITH_PCH)
+    target_precompile_headers(3rd_cplusplus PRIVATE
+      "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h")
+  endif()
+endif()

@@ -40,4 +40,13 @@ add_qtc_library(CPlusPlus
     pp-engine.h pp-scanner.cpp
     pp-scanner.h
     pp.h
+  SKIP_PCH
 )
+
+if(TARGET CPlusPlus)
+  qtc_enable_release_for_debug_configuration()
+  if (BUILD_WITH_PCH)
+    target_precompile_headers(CPlusPlus PRIVATE
+      "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h")
+  endif()
+endif()
