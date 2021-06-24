@@ -183,9 +183,13 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
     if (const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k))
         data.insert("moduleProviders.Qt.qmakeFilePaths", qt->qmakeCommand().toString());
 
-    const QString keyPrefix = "profiles." + name + ".";
-    for (auto it = data.begin(); it != data.end(); ++it)
-        runQbsConfig(QbsConfigOp::Set, keyPrefix + it.key(), it.value());
+    if (QbsSettings::qbsVersion() < QVersionNumber({1, 20})) {
+        const QString keyPrefix = "profiles." + name + ".";
+        for (auto it = data.begin(); it != data.end(); ++it)
+            runQbsConfig(QbsConfigOp::Set, keyPrefix + it.key(), it.value());
+    } else {
+        runQbsConfig(QbsConfigOp::AddProfile, name, data);
+    }
     emit qbsProfilesUpdated();
 }
 
@@ -228,6 +232,13 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     case QbsConfigOp::Unset:
         args << "--unset" << key;
         break;
+    case QbsConfigOp::AddProfile: {
+        args << "--add-profile" << key;
+        const QVariantMap props = value.toMap();
+        for (auto it = props.begin(); it != props.end(); ++it)
+            args << it.key() << toJSLiteral(it.value());
+        break;
+    }
     }
     const Utils::FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
     if (qbsExe.isEmpty() || !qbsExe.exists())
