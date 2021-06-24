@@ -52,7 +52,7 @@ Row {
             if (enumString === "")
                 enumString = root.backendValue.value
 
-            root.origin = enumString
+            root.origin = enumString === undefined ? "Center" : enumString
         }
     }
 

@@ -46,18 +46,18 @@ Item {
     implicitHeight: spinBox.height
 
     onFocusChanged: {
-        restoreCursor();
-        transaction.end();
+        restoreCursor()
+        transaction.end()
     }
 
     Component.onCompleted: {
-        spinBox.enabled = !isBlocked(backendValue.name);
+        spinBox.enabled = backendValue === undefined ? false : !isBlocked(backendValue.name)
     }
 
     Connections {
         target: modelNodeBackend
         function onSelectionChanged() {
-            spinBox.enabled = !isBlocked(backendValue.name);
+            spinBox.enabled = backendValue === undefined ? false : !isBlocked(backendValue.name)
         }
     }
 
@@ -65,25 +65,25 @@ Item {
         id: spinBox
 
         onDragStarted: {
-            hideCursor();
-            transaction.start();
+            hideCursor()
+            transaction.start()
         }
 
         onDragEnded: {
-            restoreCursor();
-            transaction.end();
+            restoreCursor()
+            transaction.end()
         }
 
-        onDragging: holdCursorInPlace();
+        onDragging: holdCursorInPlace()
 
         onRealValueModified: {
             if (transaction.active())
-                commitValue();
+                commitValue()
         }
 
         function commitValue() {
             if (spinBox.backendValue.value !== spinBox.realValue)
-                spinBox.backendValue.value = spinBox.realValue;
+                spinBox.backendValue.value = spinBox.realValue
         }
 
         property variant backendValue

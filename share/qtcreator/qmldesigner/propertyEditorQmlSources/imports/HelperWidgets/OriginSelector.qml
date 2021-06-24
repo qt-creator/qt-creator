@@ -48,7 +48,7 @@ Rectangle {
     states: [
         State {
             name: "default"
-            when: !mouseArea.containsMouse && !mouseArea.pressed && myControl.origin !== value
+            when: !mouseArea.containsMouse && !mouseArea.pressed && myControl.origin !== root.value
             PropertyChanges {
                 target: root
                 color: StudioTheme.Values.themeTextColorDisabled // TODO
@@ -56,7 +56,7 @@ Rectangle {
         },
         State {
             name: "hover"
-            when: mouseArea.containsMouse && !mouseArea.pressed && myControl.origin !== value
+            when: mouseArea.containsMouse && !mouseArea.pressed && myControl.origin !== root.value
             PropertyChanges {
                 target: root
                 color: StudioTheme.Values.themeControlBackgroundInteraction // TODO
@@ -64,7 +64,7 @@ Rectangle {
         },
         State {
             name: "press"
-            when: mouseArea.containsPress && myControl.origin !== enumValue
+            when: mouseArea.containsPress && myControl.origin !== root.value
             PropertyChanges {
                 target: root
                 color: StudioTheme.Values.themeControlBackgroundInteraction // TODO
@@ -73,7 +73,7 @@ Rectangle {
         },
         State {
             name: "active"
-            when: myControl.origin === value
+            when: myControl.origin === root.value
             PropertyChanges {
                 target: root
                 color: StudioTheme.Values.themeInteraction
