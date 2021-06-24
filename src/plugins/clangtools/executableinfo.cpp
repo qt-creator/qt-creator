@@ -43,9 +43,7 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-enum class FailSilently { Yes, No };
-static QString runExecutable(const Utils::CommandLine &commandLine,
-                             FailSilently failSilently = FailSilently::No)
+static QString runExecutable(const Utils::CommandLine &commandLine, QueryFailMode queryFailMode)
 {
     if (commandLine.executable().isEmpty() || !commandLine.executable().toFileInfo().isExecutable())
         return {};
@@ -58,7 +56,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
 
     cpp.runBlocking();
     if (cpp.result() != QtcProcess::FinishedWithSuccess
-            && (failSilently == FailSilently::No
+            && (queryFailMode == QueryFailMode::Noisy
             || cpp.result() != QtcProcess::FinishedWithError)) {
         Core::MessageManager::writeFlashing(cpp.exitMessage());
         Core::MessageManager::writeFlashing(QString::fromUtf8(cpp.allRawOutput()));
@@ -76,7 +74,7 @@ static QStringList queryClangTidyChecks(const QString &executable,
         arguments.prepend(checksArgument);
 
     const CommandLine commandLine(executable, arguments);
-    QString output = runExecutable(commandLine);
+    QString output = runExecutable(commandLine, QueryFailMode::Noisy);
     if (output.isEmpty())
         return {};
 
@@ -105,12 +103,14 @@ static QStringList queryClangTidyChecks(const QString &executable,
 static ClazyChecks querySupportedClazyChecks(const QString &executablePath)
 {
     static const QString queryFlag = "-supported-checks-json";
-    QString jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag}));
+    QString jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag}),
+                                       QueryFailMode::Noisy);
 
     // Some clazy 1.6.x versions have a bug where they expect an argument after the
     // option.
     if (jsonOutput.isEmpty())
-        jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag, "dummy"}));
+        jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag, "dummy"}),
+                                   QueryFailMode::Noisy);
     if (jsonOutput.isEmpty())
         return {};
 
@@ -172,7 +172,7 @@ static FilePath queryResourceDir(const FilePath &clangToolPath)
 {
     QString output = runExecutable(CommandLine(clangToolPath, {"someFilePath", "--",
                                                                "-print-resource-dir"}),
-                                   FailSilently::Yes);
+                                   QueryFailMode::Silent);
 
     // Expected output is (clang-tidy 10):
     //   lib/clang/10.0.1
@@ -189,9 +189,9 @@ static FilePath queryResourceDir(const FilePath &clangToolPath)
     return {};
 }
 
-static QString queryVersion(const FilePath &clangToolPath)
+QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
 {
-    QString output = runExecutable(CommandLine(clangToolPath, {"--version"}));
+    QString output = runExecutable(CommandLine(clangToolPath, {"--version"}), failMode);
     QTextStream stream(&output);
     while (!stream.atEnd()) {
         static const QStringList versionPrefixes{"LLVM version ", "clang version: "};
@@ -207,7 +207,7 @@ static QString queryVersion(const FilePath &clangToolPath)
 QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
 {
     const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
-    const QString dynamicVersion = queryVersion(clangToolPath);
+    const QString dynamicVersion = queryVersion(clangToolPath, QueryFailMode::Noisy);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
         return qMakePair(FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION));
     return qMakePair(dynamicResourceDir + "/include", dynamicVersion);

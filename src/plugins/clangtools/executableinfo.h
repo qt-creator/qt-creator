@@ -36,6 +36,9 @@ namespace Internal {
 
 QPair<Utils::FilePath, QString> getClangIncludeDirAndVersion(const Utils::FilePath &clangToolPath);
 
+enum class QueryFailMode{ Silent, Noisy };
+QString queryVersion(const Utils::FilePath &clangToolPath, QueryFailMode failMode);
+
 class ClangTidyInfo
 {
 public:
