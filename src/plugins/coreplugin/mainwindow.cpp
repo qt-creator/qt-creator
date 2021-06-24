@@ -1254,7 +1254,7 @@ void MainWindow::contact()
     QMessageBox dlg(QMessageBox::Information, tr("Contact"),
            tr("<p>Qt Creator developers can be reached at the Qt Creator mailing list:</p>"
               "%1"
-              "<p>or the #qt-creator channel on FreeNode IRC:</p>"
+              "<p>or the #qt-creator channel on Libera.Chat IRC:</p>"
               "%2"
               "<p>Our bug tracker is located at %3.</p>"
               "<p>Please use %4 for bigger chunks of text.</p>")
@@ -1263,8 +1263,8 @@ void MainWindow::contact()
                             "mailto:qt-creator@qt-project.org"
                          "</a></p>")
                     .arg("<p>&nbsp;&nbsp;&nbsp;&nbsp;"
-                            "<a href=\"https://irc.libera.chat\">"
-                            "irc://irc.libera.chat/qt-creator"
+                            "<a href=\"https://web.libera.chat/#qt-creator\">"
+                            "https://web.libera.chat/#qt-creator"
                          "</a></p>")
                     .arg("<a href=\"https://bugreports.qt.io/projects/QTCREATORBUG\">"
                             "https://bugreports.qt.io"
