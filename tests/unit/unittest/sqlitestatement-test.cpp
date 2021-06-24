@@ -1162,21 +1162,29 @@ TEST_F(SqliteStatement, GetTupleValueAndMultipleQueryValue)
 
 TEST_F(SqliteStatement, GetValueCallsReset)
 {
+    struct Value
+    {
+        int x = 0;
+    };
     MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
-    mockStatement.value<int>("bar");
+    mockStatement.value<Value>("bar");
 }
 
 TEST_F(SqliteStatement, GetValueCallsResetIfExceptionIsThrown)
 {
+    struct Value
+    {
+        int x = 0;
+    };
     MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
 
-    EXPECT_THROW(mockStatement.value<int>("bar"), Sqlite::StatementHasError);
+    EXPECT_THROW(mockStatement.value<Value>("bar"), Sqlite::StatementHasError);
 }
 
 TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsReset)

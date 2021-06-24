@@ -210,7 +210,7 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    auto value(const QueryTypes &...queryValues)
+    std::enable_if_t<!std::is_function_v<ResultType>, ResultType> value(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
         ResultType resultValue;
