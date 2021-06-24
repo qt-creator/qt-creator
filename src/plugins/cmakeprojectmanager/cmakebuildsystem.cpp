@@ -1009,6 +1009,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = buildKey;
             bti.usesTerminal = !ct.linksToQtGui;
+            bti.isQtcRunnable = ct.qtcRunnable;
 
             // Workaround for QTCREATORBUG-19354:
             bti.runEnvModifier = [this, buildKey](Environment &env, bool enabled) {

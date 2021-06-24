@@ -17,6 +17,7 @@ add_qtc_executable(qtcreator
     MACOSX_BUNDLE ON
     OUTPUT_NAME "${IDE_APP_TARGET}"
   DESTINATION "${IDE_APP_PATH}"
+  QTC_RUNNABLE
 )
 
 if (NOT TARGET qtcreator)

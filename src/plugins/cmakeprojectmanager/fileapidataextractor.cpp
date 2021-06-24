@@ -256,6 +256,8 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                                                                  || f.fragment.contains("Qt6Gui"));
                                                   });
 
+                ct.qtcRunnable = t.folderTargetProperty == "qtc_runnable";
+
                 // Extract library directories for executables:
                 for (const FragmentInfo &f : t.link.value().fragments) {
                     if (f.role == "flags") // ignore all flags fragments

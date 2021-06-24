@@ -602,7 +602,7 @@ function(extend_qtc_test target_name)
 endfunction()
 
 function(add_qtc_executable name)
-  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;SKIP_PCH"
+  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;SKIP_PCH;QTC_RUNNABLE"
     "DESTINATION;COMPONENT;BUILD_DEFAULT"
     "CONDITION;DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
 
@@ -705,6 +705,11 @@ function(add_qtc_executable name)
   )
   if (NOT _arg_SKIP_PCH)
     enable_pch(${name})
+  endif()
+
+  if (_arg_QTC_RUNNABLE)
+      # Used by QtCreator to select the default target in the project
+      set_target_properties(${name} PROPERTIES FOLDER "qtc_runnable")
   endif()
 
   if (NOT _arg_SKIP_INSTALL)
