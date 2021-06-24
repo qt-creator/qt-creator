@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import StudioTheme 1.0 as StudioTheme
 
 QtObject {
@@ -31,16 +31,16 @@ QtObject {
 
     property variant backendValue
     property color textColor: StudioTheme.Values.themeTextColor
-    property variant valueFromBackend: backendValue.value;
-    property bool baseStateFlag: isBaseState;
-    property bool isInModel: backendValue.isInModel;
-    property bool isInSubState: backendValue.isInSubState;
+    property variant valueFromBackend: backendValue === undefined ? 0 : backendValue.value
+    property bool baseStateFlag: isBaseState
+    property bool isInModel: backendValue === undefined ? false : backendValue.isInModel
+    property bool isInSubState: backendValue === undefined ? false : backendValue.isInSubState
     property bool highlight: textColor === __changedTextColor
     property bool errorState: false
 
     readonly property color __defaultTextColor: StudioTheme.Values.themeTextColor
     readonly property color __changedTextColor: StudioTheme.Values.themeInteraction
-    readonly property color __errorTextColor: StudioTheme.Values.themeErrorColor
+    readonly property color __errorTextColor: StudioTheme.Values.themeError
 
     onBackendValueChanged: evaluate()
     onValueFromBackendChanged: evaluate()

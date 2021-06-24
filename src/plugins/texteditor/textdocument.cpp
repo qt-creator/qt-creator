@@ -719,7 +719,7 @@ Core::IDocument::OpenResult TextDocument::open(QString *errorString,
     emit aboutToOpen(filePath, realFilePath);
     OpenResult success = openImpl(errorString, filePath, realFilePath, /*reload =*/ false);
     if (success == OpenResult::Success) {
-        setMimeType(Utils::mimeTypeForFile(filePath.toString()).name());
+        setMimeType(Utils::mimeTypeForFile(filePath).name());
         emit openFinishedSuccessfully();
     }
     return success;

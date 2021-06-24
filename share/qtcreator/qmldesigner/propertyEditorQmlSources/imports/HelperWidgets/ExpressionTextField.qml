@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -43,7 +43,6 @@ StudioControls.TextField {
     property bool dotCompletion: false
     property int dotCursorPos: 0
     property string prefix
-    property alias showButtons: buttonrow.visible
     property bool fixedSize: false
     property bool replaceCurrentTextByCompletion: false
 
@@ -151,10 +150,8 @@ StudioControls.TextField {
             border.width: 0
         }
 
-        enter: Transition {
-        }
-        exit: Transition {
-        }
+        enter: Transition {}
+        exit: Transition {}
     }
 
     verticalAlignment: Text.AlignVCenter
@@ -264,67 +261,5 @@ StudioControls.TextField {
     Keys.onDownPressed: {
         listView.incrementCurrentIndex()
         event.accepted = false
-    }
-
-    Row {
-        id: buttonrow
-        spacing: 2
-        StudioControls.AbstractButton {
-            width: 16
-            height: 16
-
-            background: Item{
-                Image {
-                    width: 16
-                    height: 16
-                    source: "image://icons/ok"
-                    opacity: {
-                        if (control.pressed)
-                            return 0.8;
-                        return 1.0;
-                    }
-                    Rectangle {
-                        z: -1
-                        anchors.fill: parent
-                        color: control.pressed || control.hovered ? Theme.qmlDesignerBackgroundColorDarker() : Theme.qmlDesignerButtonColor()
-                        border.color: Theme.qmlDesignerBorderColor()
-                        radius: 2
-                    }
-                }
-
-            }
-            onClicked: accepted()
-        }
-        StudioControls.AbstractButton {
-            width: 16
-            height: 16
-
-            background: Item {
-                Image {
-                    width: 16
-                    height: 16
-                    source: "image://icons/error"
-                    opacity: {
-                        if (control.pressed)
-                            return 0.8;
-                        return 1.0;
-                    }
-                    Rectangle {
-                        z: -1
-                        anchors.fill: parent
-                        color: control.pressed || control.hovered ? Theme.qmlDesignerBackgroundColorDarker() : Theme.qmlDesignerButtonColor()
-                        border.color: Theme.qmlDesignerBorderColor()
-                        radius: 2
-                    }
-
-                }
-            }
-            onClicked: {
-                rejected()
-            }
-        }
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.margins: 4
     }
 }

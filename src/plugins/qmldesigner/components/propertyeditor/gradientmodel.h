@@ -30,6 +30,7 @@
 #include <QAbstractListModel>
 #include <QColor>
 #include <QtQml>
+#include <enumeration.h>
 
 class GradientModel : public QAbstractListModel
 {
@@ -67,8 +68,10 @@ public:
     static void registerDeclarativeType();
 
     Q_INVOKABLE qreal readGradientProperty(const QString &property) const;
+    Q_INVOKABLE QString readGradientOrientation() const;
 
     Q_INVOKABLE void setGradientProperty(const QString &propertyName, qreal value);
+    Q_INVOKABLE void setGradientOrientation(Qt::Orientation value);
 
     Q_INVOKABLE void setPresetByID(int presetID);
     Q_INVOKABLE void setPresetByStops(const QList<qreal> &stopsPositions,

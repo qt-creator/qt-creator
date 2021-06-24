@@ -1041,16 +1041,18 @@ void FindReferences::setPaused(bool paused)
 
 void FindReferences::onReplaceButtonClicked(const QString &text, const QList<SearchResultItem> &items, bool preserveCase)
 {
-    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
+    const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text,
+                                                                            items,
+                                                                            preserveCase);
 
     // files that are opened in an editor are changed, but not saved
     QStringList changedOnDisk;
     QStringList changedUnsavedEditors;
-    foreach (const QString &fileName, fileNames) {
-        if (DocumentModel::documentForFilePath(Utils::FilePath::fromString(fileName)))
-            changedOnDisk += fileName;
+    for (const Utils::FilePath &filePath : filePaths) {
+        if (DocumentModel::documentForFilePath(filePath))
+            changedOnDisk += filePath.toString();
         else
-            changedUnsavedEditors += fileName;
+            changedUnsavedEditors += filePath.toString();
     }
 
     if (!changedOnDisk.isEmpty())

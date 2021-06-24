@@ -1,4 +1,4 @@
-Label {
+PropertyLabel {
     text: "%1"
     tooltip: "%1"
 }
@@ -8,10 +8,9 @@ SecondColumnLayout {
         maximumValue: 9999999
         minimumValue: -9999999
         backendValue: backendValues.%2
-        Layout.fillWidth: true
-        Layout.maximumWidth: 100
+        implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                       + StudioTheme.Values.actionIndicatorWidth
     }
 
-    ExpandingSpacer {
-    }
+    ExpandingSpacer {}
 }

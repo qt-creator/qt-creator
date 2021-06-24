@@ -22,9 +22,10 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Templates 2.12 as T
+
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
 T.ComboBox {
@@ -132,12 +133,19 @@ T.ComboBox {
                                                    + 2 : 0) // TODO Magic number
         height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
         padding: 0
+        enabled: model.test === "undefined" ? true : model.test // TODO modelData
 
         contentItem: Text {
             leftPadding: itemDelegateIconArea.width
-            text: myComboBox.textRole ? (Array.isArray(myComboBox.model) ? modelData[myComboBox.textRole] : model[myComboBox.textRole]) : modelData
-            color: myItemDelegate.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
-                                              : StudioTheme.Values.themeTextColor
+            text: myComboBox.textRole ? (Array.isArray(myComboBox.model) ? modelData[myComboBox.textRole]
+                                                                         : model[myComboBox.textRole]) : modelData
+            color: {
+                if (!myItemDelegate.enabled)
+                    return StudioTheme.Values.themeTextColorDisabled
+
+                return myItemDelegate.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                                                  : StudioTheme.Values.themeTextColor
+            }
             font: myComboBox.font
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter

@@ -642,9 +642,8 @@ BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const F
     QTC_ASSERT(k, return nullptr);
     const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : qAsConst(g_buildConfigurationFactories)) {
-        if (Utils::mimeTypeForFile(projectPath.toString())
-                .matchesName(factory->m_supportedProjectMimeTypeName)
-                && factory->supportsTargetDeviceType(deviceType))
+        if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
+            && factory->supportsTargetDeviceType(deviceType))
             return factory;
     }
     return nullptr;

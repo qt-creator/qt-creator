@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick.Controls 2.12 as Controls
+import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
@@ -39,21 +39,22 @@ Item {
     property alias showTopSeparator: topSeparator.visible
     property alias showArrow: arrow.visible
     property alias showLeftBorder: leftBorder.visible
+    property alias spacing: column.spacing
 
-    property int leftPadding: 8
+    property int leftPadding: StudioTheme.Values.sectionLeftPadding
     property int rightPadding: 0
+    property int topPadding: StudioTheme.Values.sectionHeadSpacerHeight
+    property int bottomPadding: StudioTheme.Values.sectionHeadSpacerHeight
 
     property bool expanded: true
-    property int level: 0 // affects arrow and title
-    property int contentLevel: 0 // affects whole section
+    property int level: 0
     property int levelShift: 10
     property bool hideHeader: false
     property bool expandOnClick: true // if false, toggleExpand signal will be emitted instead
     property bool addTopPadding: true
     property bool addBottomPadding: true
 
-    onHideHeaderChanged:
-    {
+    onHideHeaderChanged: {
         header.visible = !hideHeader
         header.height = hideHeader ? 0 : 20
     }
@@ -118,21 +119,20 @@ Item {
         color: StudioTheme.Values.themeControlOutline
     }
 
-    default property alias __content: row.children
+    default property alias __content: column.children
 
-    readonly property alias contentItem: row
+    readonly property alias contentItem: column
 
-    implicitHeight: Math.round(row.height + header.height + topSpacer.height + bottomSpacer.height)
-
+    implicitHeight: Math.round(column.height + header.height + topSpacer.height + bottomSpacer.height)
 
     Item {
         id: topSpacer
-        height: addTopPadding && row.height > 0 ? StudioTheme.Values.sectionHeadSpacerHeight : 0
+        height: section.addTopPadding && column.height > 0 ? section.topPadding : 0
         anchors.top: header.bottom
     }
 
-    Row {
-        id: row
+    Column {
+        id: column
         anchors.left: parent.left
         anchors.leftMargin: section.leftPadding
         anchors.right: parent.right
@@ -150,8 +150,8 @@ Item {
 
     Item {
         id: bottomSpacer
-        height: addBottomPadding && row.height > 0 ? StudioTheme.Values.sectionHeadSpacerHeight : 0
-        anchors.top: row.bottom
+        height: section.addBottomPadding && column.height > 0 ? section.bottomPadding : 0
+        anchors.top: column.bottom
     }
 
     states: [
@@ -173,8 +173,8 @@ Item {
         id: trans
         enabled: false
         NumberAnimation {
-            properties: "implicitHeight,rotation";
-            duration: 120;
+            properties: "implicitHeight,rotation"
+            duration: 120
             easing.type: Easing.OutCubic
         }
     }

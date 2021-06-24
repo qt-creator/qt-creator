@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
-import QtQuickDesignerTheme 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Section {
     id: fontSection
@@ -39,8 +39,7 @@ Section {
 
     property bool showStyle: false
 
-    function getBackendValue(name)
-    {
+    function getBackendValue(name) {
         return backendValues[fontSection.fontName + "_" + name]
     }
 
@@ -53,66 +52,67 @@ Section {
     property variant underlineStyle: getBackendValue("underline")
     property variant strikeoutStyle: getBackendValue("strikeout")
 
-    onPointSizeChanged: {
-        sizeWidget.setPointPixelSize();
-    }
-
-    onPixelSizeChanged: {
-        sizeWidget.setPointPixelSize();
-    }
-
+    onPointSizeChanged: sizeWidget.setPointPixelSize()
+    onPixelSizeChanged: sizeWidget.setPointPixelSize()
 
     SectionLayout {
-        columns: 2
-        Label {
-            text: qsTr("Font")
-        }
-        FontComboBox {
-            id: fontComboBox
-            backendValue: fontSection.fontFamily
-            Layout.fillWidth: true
-            width: 160
-            property string familyName: backendValue.value
+        PropertyLabel { text: qsTr("Font") }
+
+        SecondColumnLayout {
+            FontComboBox {
+                id: fontComboBox
+                property string familyName: backendValue.value
+                backendValue: fontSection.fontFamily
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Size")
-        }
+        PropertyLabel { text: qsTr("Size") }
 
-        RowLayout {
+        SecondColumnLayout {
             id: sizeWidget
             property bool selectionFlag: selectionChanged
 
-            property bool pixelSize: sizeType.currentText === "pixels"
-            property bool isSetup;
-
+            property bool pixelSize: sizeType.currentText === "px"
+            property bool isSetup
 
             function setPointPixelSize() {
-                sizeWidget.isSetup = true;
+                sizeWidget.isSetup = true
                 sizeType.currentIndex = 1
+
                 if (fontSection.pixelSize.isInModel)
                     sizeType.currentIndex = 0
-                sizeWidget.isSetup = false;
+
+                sizeWidget.isSetup = false
             }
 
-            onSelectionFlagChanged: {
-                sizeWidget.setPointPixelSize();
-            }
+            onSelectionFlagChanged: sizeWidget.setPointPixelSize()
 
             Item {
-                width: sizeSpinBox.width
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 height: sizeSpinBox.height
 
                 SpinBox {
                     id: sizeSpinBox
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     minimumValue: 0
                     visible: !sizeWidget.pixelSize
                     z: !sizeWidget.pixelSize ? 1 : 0
                     maximumValue: 400
                     backendValue: pointSize
                 }
-
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     minimumValue: 0
                     visible: sizeWidget.pixelSize
                     z: sizeWidget.pixelSize ? 1 : 0
@@ -121,31 +121,36 @@ Section {
                 }
             }
 
+            Spacer {
+                implicitWidth: StudioTheme.Values.twoControlColumnGap
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
             StudioControls.ComboBox {
                 id: sizeType
-                model: ["pixels", "points"]
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                width: implicitWidth
+                model: ["px", "pt"]
                 actionIndicatorVisible: false
 
                 onActivated: {
                     if (sizeWidget.isSetup)
-                        return;
-                    if (currentText == "pixels") {
-                        pointSize.resetValue();
-                        pixelSize.value = 8;
+                        return
+
+                    if (sizeType.currentText === "px") {
+                        pointSize.resetValue()
+                        pixelSize.value = 8
                     } else {
-                        pixelSize.resetValue();
+                        pixelSize.resetValue()
                     }
-
                 }
-
-                Layout.fillWidth: true
             }
 
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Font style")
-        }
+        PropertyLabel { text: qsTr("Emphasis") }
+
         FontStyleButtons {
             bold: fontSection.boldStyle
             italic: fontSection.italicStyle
@@ -154,154 +159,202 @@ Section {
             enabled: !styleNameComboBox.styleSet
         }
 
-        Label {
-            text: qsTr("Font capitalization")
-            toolTip: qsTr("Capitalization for the text.")
+        PropertyLabel {
+            text: qsTr("Capitalization")
+            tooltip: qsTr("Capitalization for the text.")
             disabledState: !getBackendValue("capitalization").isAvailable
         }
 
-        ComboBox {
-            Layout.fillWidth: true
-            backendValue: getBackendValue("capitalization")
-            model:  ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
-            scope: "Font"
-            enabled: backendValue.isAvailable
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: getBackendValue("capitalization")
+                scope: "Font"
+                model: ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Font weight")
-            toolTip: qsTr("Font's weight.")
+        PropertyLabel {
+            text: qsTr("Weight")
+            tooltip: qsTr("Font's weight.")
         }
 
-        ComboBox {
-            Layout.fillWidth: true
-            backendValue: getBackendValue("weight")
-            model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
-            scope: "Font"
-            enabled: !styleNameComboBox.styleSet
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: getBackendValue("weight")
+                model: ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
+                scope: "Font"
+                enabled: !styleNameComboBox.styleSet
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Style name")
-            toolTip: qsTr("Font's style.")
+            tooltip: qsTr("Font's style.")
             disabledState: !styleNameComboBox.enabled
         }
 
-        ComboBox {
-            id: styleNameComboBox
-            property bool styleSet: backendValue.isInModel
-            Layout.fillWidth: true
-            backendValue: getBackendValue("styleName")
-            model: styleNamesForFamily(fontComboBox.familyName)
-            valueType: ComboBox.String
-            enabled: backendValue.isAvailable
+        SecondColumnLayout {
+            ComboBox {
+                id: styleNameComboBox
+                property bool styleSet: backendValue.isInModel
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: getBackendValue("styleName")
+                model: styleNamesForFamily(fontComboBox.familyName)
+                valueType: ComboBox.String
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: showStyle
+        PropertyLabel {
+            visible: fontSection.showStyle
             text: qsTr("Style")
             disabledState: !styleComboBox.enabled
         }
 
-        ComboBox {
-            id: styleComboBox
-            visible: showStyle
-            Layout.fillWidth: true
-            backendValue: (backendValues.style === undefined) ? dummyBackendValue : backendValues.style
-            model:  ["Normal", "Outline", "Raised", "Sunken"]
-            scope: "Text"
-            enabled: backendValue.isAvailable
-        }
-
-        Label {
-            text: qsTr("Spacing")
-            disabledState: (!getBackendValue("wordSpacing").isAvailable &&
-                            !getBackendValue("letterSpacing").isAvailable)
-        }
-
         SecondColumnLayout {
-
-            SpinBox {
-                maximumValue: 500
-                minimumValue: -500
-                decimals: 2
-                backendValue: getBackendValue("wordSpacing")
-                Layout.fillWidth: true
-                Layout.minimumWidth: 60
-                stepSize: 0.1
+            visible: fontSection.showStyle
+            ComboBox {
+                id: styleComboBox
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: (backendValues.style === undefined) ? dummyBackendValue
+                                                                  : backendValues.style
+                scope: "Text"
+                model: ["Normal", "Outline", "Raised", "Sunken"]
                 enabled: backendValue.isAvailable
             }
-            Label {
-                text: qsTr("Word")
-                tooltip: qsTr("Word spacing for the font.")
-                width: 42
-                disabledStateSoft: !getBackendValue("wordSpacing").isAvailable
-            }
-            Item {
-                width: 4
-                height: 4
-            }
 
-            SpinBox {
-                maximumValue: 500
-                minimumValue: -500
-                decimals: 2
-                backendValue: getBackendValue("letterSpacing")
-                Layout.fillWidth: true
-                Layout.minimumWidth: 60
-                stepSize: 0.1
-                enabled: backendValue.isAvailable
-            }
-            Label {
-                text: qsTr("Letter")
-                tooltip: qsTr("Letter spacing for the font.")
-                width: 42
-                disabledStateSoft: !getBackendValue("letterSpacing").isAvailable
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible:  minorQtQuickVersion > 9
-            text: qsTr("Performance")
-            disabledState: (!getBackendValue("kerning").isAvailable &&
-                            !getBackendValue("preferShaping").isAvailable)
+        PropertyLabel {
+            text: qsTr("Style color")
+            visible: fontSection.showStyle && backendValues.styleColor.isAvailable
         }
 
-        SecondColumnLayout {
-            visible:  minorQtQuickVersion > 9
-
-            CheckBox {
-                text: qsTr("Kerning")
-                Layout.fillWidth: true
-                backendValue: getBackendValue("kerning")
-                tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
-                              "improve performance when creating or changing the text, at the expense of some cosmetic features.")
-                enabled: backendValue.isAvailable
-            }
-
-            CheckBox {
-                text: qsTr("Prefer shaping")
-                Layout.fillWidth: true
-                backendValue: getBackendValue("preferShaping")
-                tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
-                              "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
-                              "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
-                enabled: backendValue.isAvailable
-            }
+        ColorEditor {
+            visible: fontSection.showStyle && backendValues.styleColor.isAvailable
+            backendValue: backendValues.styleColor
+            supportGradient: false
         }
 
-        Label {
-            text: qsTr("Hinting preference")
-            toolTip: qsTr("Preferred hinting on the text.")
+        PropertyLabel {
+            text: qsTr("Hinting")
+            tooltip: qsTr("Preferred hinting on the text.")
             disabledState: !getBackendValue("hintingPreference").isAvailable
         }
 
-        ComboBox {
-            Layout.fillWidth: true
-            backendValue: getBackendValue("hintingPreference")
-            model: ["PreferDefaultHinting", "PreferNoHinting", "PreferVerticalHinting", "PreferFullHinting"]
-            scope: "Font"
-            enabled: backendValue.isAvailable
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: getBackendValue("hintingPreference")
+                scope: "Font"
+                model: ["PreferDefaultHinting", "PreferNoHinting", "PreferVerticalHinting", "PreferFullHinting"]
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Letter space")
+            tooltip: qsTr("Letter spacing for the font.")
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: getBackendValue("letterSpacing")
+                decimals: 2
+                minimumValue: -500
+                maximumValue: 500
+                stepSize: 0.1
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Word space")
+            tooltip: qsTr("Word spacing for the font.")
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: getBackendValue("wordSpacing")
+                decimals: 2
+                minimumValue: -500
+                maximumValue: 500
+                stepSize: 0.1
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Auto kerning")
+            tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
+                          "improve performance when creating or changing the text, at the expense of some cosmetic features.")
+            disabledState: !getBackendValue("kerning").isAvailable
+            visible: minorQtQuickVersion > 9
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                visible:  minorQtQuickVersion > 9
+                text: backendValue.valueToString
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: getBackendValue("kerning")
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Prefer shaping")
+            tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
+                          "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
+                          "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
+            disabledState: !getBackendValue("preferShaping").isAvailable
+            visible: minorQtQuickVersion > 9
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                visible:  minorQtQuickVersion > 9
+                text: backendValue.valueToString
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: getBackendValue("preferShaping")
+                enabled: backendValue.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
     }
 }

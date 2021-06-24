@@ -1667,7 +1667,7 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
         return response;
     }
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setTimeoutS(timeOutS);
 
     VcsCommand command(workingDir, Environment::systemEnvironment());
@@ -2355,7 +2355,7 @@ QString ClearCasePluginPrivate::runExtDiff(const QString &workingDir, const QStr
     diff.addArgs(m_settings.diffArgs.split(' ', Qt::SkipEmptyParts));
     diff.addArgs(arguments);
 
-    SynchronousProcess process;
+    QtcProcess process;
     process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));

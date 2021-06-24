@@ -297,7 +297,7 @@ void GradientModel::registerDeclarativeType()
 qreal GradientModel::readGradientProperty(const QString &propertyName) const
 {
     if (!m_itemNode.isValid())
-            return 0;
+        return 0;
 
     QmlDesigner::QmlObjectNode gradient;
 
@@ -305,9 +305,25 @@ qreal GradientModel::readGradientProperty(const QString &propertyName) const
         gradient = m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
 
     if (!gradient.isValid())
-            return 0;
+        return 0;
 
     return gradient.modelValue(propertyName.toUtf8()).toReal();
+}
+
+QString GradientModel::readGradientOrientation() const
+{
+    if (!m_itemNode.isValid())
+        return QString();
+
+    QmlDesigner::QmlObjectNode gradient;
+
+    if (m_itemNode.modelNode().hasProperty(gradientPropertyName().toUtf8()))
+        gradient = m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
+
+    if (!gradient.isValid())
+        return QString();
+
+    return gradient.modelValue("orientation").value<QmlDesigner::Enumeration>().nameToString();
 }
 
 void GradientModel::setupModel()
@@ -360,7 +376,7 @@ QString GradientModel::gradientTypeName() const
 
 void GradientModel::setGradientTypeName(const QString &name)
 {
-     m_gradientTypeName = name;
+    m_gradientTypeName = name;
 }
 
 bool GradientModel::hasGradient() const
@@ -408,6 +424,7 @@ void GradientModel::setupGradientProperties(const QmlDesigner::ModelNode &gradie
     QTC_ASSERT(gradient.isValid(), return);
 
     if (m_gradientTypeName == "Gradient") {
+        gradient.variantProperty("orientation").setEnumeration("Gradient.Vertical");
     } else if (m_gradientTypeName == "LinearGradient") {
         gradient.variantProperty("x1").setValue(0);
         gradient.variantProperty("x2").setValue(m_itemNode.instanceValue("width"));
@@ -518,6 +535,26 @@ void GradientModel::setGradientProperty(const QString &propertyName, qreal value
 
     try {
         gradient.setVariantProperty(propertyName.toUtf8(), value);
+    } catch (const QmlDesigner::Exception &e) {
+        e.showException();
+    }
+}
+
+void GradientModel::setGradientOrientation(Qt::Orientation value)
+{
+    QTC_ASSERT(m_itemNode.isValid(), return);
+
+    QmlDesigner::QmlObjectNode gradient;
+
+    if (m_itemNode.modelNode().hasProperty(gradientPropertyName().toUtf8()))
+        gradient = m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
+
+    QTC_ASSERT(gradient.isValid(), return);
+
+    try {
+        QmlDesigner::EnumerationName name = value == Qt::Horizontal ? "Gradient.Horizontal"
+                                                                    : "Gradient.Vertical";
+        gradient.modelNode().variantProperty("orientation").setEnumeration(name);
     } catch (const QmlDesigner::Exception &e) {
         e.showException();
     }

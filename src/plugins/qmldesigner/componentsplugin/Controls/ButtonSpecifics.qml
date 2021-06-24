@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,51 +23,57 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.15
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Button")
 
-        SectionLayout {
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-            Label {
+        SectionLayout {
+            PropertyLabel {
                 text: qsTr("Text")
                 tooltip:  qsTr("Text displayed on the button.")
             }
 
             SecondColumnLayout {
                 LineEdit {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.text
-                    Layout.fillWidth: true
                 }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Checked")
                 tooltip: qsTr("State of the button.")
             }
 
             SecondColumnLayout {
                 CheckBox {
-                    enabled: backendValues.checkable.value
                     text: backendValues.checked.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.checked
-                    implicitWidth: 180
+                    enabled: backendValues.checkable.value
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Checkable")
                 tooltip: qsTr("Determines whether the button is checkable or not.")
             }
@@ -75,6 +81,8 @@ Column {
             SecondColumnLayout {
                 CheckBox {
                     text: backendValues.checkable.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.checkable
                     property bool backEndValueValue: backendValues.checkable.value
                     onTextChanged: {
@@ -82,15 +90,12 @@ Column {
                             backendValues.checked.resetValue()
                         }
                     }
-
-                    implicitWidth: 180
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Enabled")
                 tooltip: qsTr("Determines whether the button is enabled or not.")
             }
@@ -98,16 +103,15 @@ Column {
             SecondColumnLayout {
                 CheckBox {
                     text: backendValues.enabled.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.enabled
-                    implicitWidth: 180
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
 
-
-            Label {
+            PropertyLabel {
                 text: qsTr("Default button")
                 tooltip: qsTr("Sets the button as the default button in a dialog.")
             }
@@ -115,27 +119,31 @@ Column {
             SecondColumnLayout {
                 CheckBox {
                     text: backendValues.isDefault.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.isDefault
-                    implicitWidth: 180
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Tool tip")
                 tooltip: qsTr("The tool tip shown for the button.")
             }
 
             SecondColumnLayout {
                 LineEdit {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.tooltip
-                    Layout.fillWidth: true
                 }
+
+
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Focus on press")
                 tooltip: qsTr("Determines whether the button gets focus if pressed.")
             }
@@ -143,28 +151,27 @@ Column {
             SecondColumnLayout {
                 CheckBox {
                     text: backendValues.activeFocusOnPress.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.activeFocusOnPress
-                    implicitWidth: 180
                 }
-                ExpandingSpacer {
 
-                }
+                ExpandingSpacer {}
             }
 
-
-            Label {
+            PropertyLabel {
                 text: qsTr("Icon source")
                 tooltip: qsTr("The URL of an icon resource.")
             }
 
             SecondColumnLayout {
                 LineEdit {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                     backendValue: backendValues.iconSource
-                    Layout.fillWidth: true
                 }
             }
-
-
         }
     }
 }

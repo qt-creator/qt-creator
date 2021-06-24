@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,23 +23,48 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Layouts 1.0
-import QtQuickDesignerTheme 1.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import StudioControls 1.0 as StudioControls
 
-StudioControls.RealSpinBox {
-    id: spinBox
-    width: 82
-    Layout.minimumWidth: 82
+Item {
+    id: wrapper
 
     property string propertyName
-    actionIndicatorVisible: false
 
-    realFrom: -9999
-    realTo: 9999
-    realStepSize: 1
+    property alias decimals: spinBox.decimals
 
-    Component.onCompleted: spinBox.realValue = gradientLine.model.readGradientProperty(propertyName)
-    onCompressedRealValueModified: gradientLine.model.setGradientProperty(propertyName, spinBox.realValue)
+    property alias value: spinBox.realValue
+
+    property alias minimumValue: spinBox.realFrom
+    property alias maximumValue: spinBox.realTo
+    property alias stepSize: spinBox.realStepSize
+
+    width: 90
+    implicitHeight: spinBox.height
+
+    onFocusChanged: restoreCursor()
+
+    StudioControls.RealSpinBox {
+        id: spinBox
+
+        width: wrapper.width
+        actionIndicatorVisible: false
+
+        realFrom: -9999
+        realTo: 9999
+        realStepSize: 1
+        decimals: 0
+
+        Component.onCompleted: {
+            spinBox.realValue = gradientLine.model.readGradientProperty(wrapper.propertyName)
+        }
+        onCompressedRealValueModified: {
+            gradientLine.model.setGradientProperty(wrapper.propertyName, spinBox.realValue)
+        }
+
+        onDragStarted: hideCursor()
+        onDragEnded: restoreCursor()
+        onDragging: holdCursorInPlace()
+    }
 }

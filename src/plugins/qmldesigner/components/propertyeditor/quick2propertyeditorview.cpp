@@ -29,6 +29,7 @@
 #include "annotationeditor/annotationeditor.h"
 #include "bindingeditor/actioneditor.h"
 #include "bindingeditor/bindingeditor.h"
+#include "colorpalettesingleton.h"
 #include "fileresourcesmodel.h"
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
@@ -39,7 +40,6 @@
 #include "propertyeditorvalue.h"
 #include "qmlanchorbindingproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
-#include "simplecolorpalettemodel.h"
 #include "theme.h"
 #include "tooltip.h"
 
@@ -63,7 +63,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         GradientPresetDefaultListModel::registerDeclarativeType();
         GradientPresetCustomListModel::registerDeclarativeType();
         ItemFilterModel::registerDeclarativeType();
-        SimpleColorPaletteModel::registerDeclarativeType();
+        ColorPaletteSingleton::registerDeclarativeType();
         Internal::QmlAnchorBindingProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
         ActionEditor::registerDeclarativeType();

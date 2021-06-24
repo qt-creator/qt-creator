@@ -34,11 +34,11 @@
 #include <cstdio>
 
 static const char usage[] =
-"Tests timeout behaviour of Utils:SynchronousProcess.\n"
+"Tests timeout behavior of Utils::QtcProcess.\n"
 "Usage:\n"
-"   1) Test Utils:SynchronousProcess (graphically)\n"
+"   1) Test Utils::QtcProcess (graphically)\n"
 "   process <cmd> <args>\n"
-"   2) Test synchronous helpers of Utils:SynchronousProcess (tty)\n"
+"   2) Test synchronous helpers of Utils::QtcProcess (tty)\n"
 "   process -s <cmd> <args>\n\n"
 "slowprocess.sh is provided as an example script that produces slow\n"
 "output. It takes an option -e to switch to stderr\n"

@@ -103,9 +103,9 @@ public:
     void addSearchEngine(SearchEngine *searchEngine);
 
     /* returns the list of unique files that were passed in items */
-    static QStringList replaceAll(const QString &txt,
-                                  const QList<Core::SearchResultItem> &items,
-                                  bool preserveCase = false);
+    static Utils::FilePaths replaceAll(const QString &txt,
+                                       const QList<Core::SearchResultItem> &items,
+                                       bool preserveCase = false);
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
                                        const QStringList &exclusionFilters,
                                        const QVariant &additionalParameters) const = 0;

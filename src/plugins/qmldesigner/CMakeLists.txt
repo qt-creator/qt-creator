@@ -353,6 +353,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
   SOURCES
     aligndistribute.cpp aligndistribute.h
+    colorpalettesingleton.cpp colorpalettesingleton.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
@@ -367,9 +368,6 @@ extend_qtc_plugin(QmlDesigner
     propertyeditorvalue.cpp propertyeditorvalue.h
     propertyeditorview.cpp propertyeditorview.h
     propertyeditorwidget.cpp propertyeditorwidget.h
-    simplecolorpalette.cpp simplecolorpalette.h
-    simplecolorpalettemodel.cpp simplecolorpalettemodel.h
-    simplecolorpalettesingleton.cpp simplecolorpalettesingleton.h
     tooltip.cpp tooltip.h
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h

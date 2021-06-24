@@ -273,6 +273,12 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_trimEmptyDirectoriesAction, &QAction::toggled,
             this, &ProjectTreeWidget::setTrimEmptyDirectories);
 
+    m_showSourceGroupsAction = new QAction(tr("Show Source and Header Groups"), this);
+    m_showSourceGroupsAction->setCheckable(true);
+    m_showSourceGroupsAction->setChecked(true);
+    connect(m_showSourceGroupsAction, &QAction::toggled,
+            this, &ProjectTreeWidget::setShowSourceGroups);
+
     // connections
     connect(m_model, &FlatModel::renamed,
             this, &ProjectTreeWidget::renamed);
@@ -442,6 +448,7 @@ QList<QToolButton *> ProjectTreeWidget::createToolButtons()
     filterMenu->addAction(m_filterGeneratedFilesAction);
     filterMenu->addAction(m_filterDisabledFilesAction);
     filterMenu->addAction(m_trimEmptyDirectoriesAction);
+    filterMenu->addAction(m_showSourceGroupsAction);
     filter->setMenu(filterMenu);
 
     auto toggleSync = new QToolButton;
@@ -586,6 +593,12 @@ void ProjectTreeWidget::setTrimEmptyDirectories(bool filter)
     m_trimEmptyDirectoriesAction->setChecked(filter);
 }
 
+void ProjectTreeWidget::setShowSourceGroups(bool filter)
+{
+    m_model->setShowSourceGroups(filter);
+    m_showSourceGroupsAction->setChecked(filter);
+}
+
 bool ProjectTreeWidget::generatedFilesFilter()
 {
     return m_model->generatedFilesFilterEnabled();
@@ -599,6 +612,11 @@ bool ProjectTreeWidget::disabledFilesFilter()
 bool ProjectTreeWidget::trimEmptyDirectoriesFilter()
 {
     return m_model->trimEmptyDirectoriesEnabled();
+}
+
+bool ProjectTreeWidget::showSourceGroups()
+{
+    return m_model->showSourceGroups();
 }
 
 bool ProjectTreeWidget::projectFilter()
@@ -625,6 +643,7 @@ const bool kProjectFilterDefault = false;
 const bool kHideGeneratedFilesDefault = true;
 const bool kHideDisabledFilesDefault = false;
 const bool kTrimEmptyDirsDefault = true;
+const bool kShowSourceGroupsDefault = true;
 const bool kSyncDefault = true;
 const char kBaseKey[] = "ProjectTreeWidget.";
 const char kProjectFilterKey[] = ".ProjectFilter";
@@ -632,6 +651,7 @@ const char kHideGeneratedFilesKey[] = ".GeneratedFilter";
 const char kHideDisabledFilesKey[] = ".DisabledFilesFilter";
 const char kTrimEmptyDirsKey[] = ".TrimEmptyDirsFilter";
 const char kSyncKey[] = ".SyncWithEditor";
+const char kShowSourceGroupsKey[] = ".ShowSourceGroups";
 
 void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position, QWidget *widget)
 {
@@ -650,6 +670,9 @@ void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position,
     settings->setValueWithDefault(baseKey + kTrimEmptyDirsKey,
                                   ptw->trimEmptyDirectoriesFilter(),
                                   kTrimEmptyDirsDefault);
+    settings->setValueWithDefault(baseKey + kShowSourceGroupsKey,
+                                  ptw->showSourceGroups(),
+                                  kShowSourceGroupsDefault);
     settings->setValueWithDefault(baseKey + kSyncKey, ptw->autoSynchronization(), kSyncDefault);
 }
 
@@ -666,5 +689,7 @@ void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position
         settings->value(baseKey + kHideDisabledFilesKey, kHideDisabledFilesDefault).toBool());
     ptw->setTrimEmptyDirectories(
         settings->value(baseKey + kTrimEmptyDirsKey, kTrimEmptyDirsDefault).toBool());
+    ptw->setShowSourceGroups(
+        settings->value(baseKey + kShowSourceGroupsKey, kShowSourceGroupsDefault).toBool());
     ptw->setAutoSynchronization(settings->value(baseKey + kSyncKey, kSyncDefault).toBool());
 }

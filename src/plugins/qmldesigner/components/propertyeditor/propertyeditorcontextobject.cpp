@@ -90,16 +90,14 @@ QColor convertColorFromString(const QString &s)
 
 namespace QmlDesigner {
 
-PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
-    QObject(parent),
-    m_isBaseState(false),
-    m_selectionChanged(false),
-    m_backendValues(nullptr),
-    m_qmlComponent(nullptr),
-    m_qmlContext(nullptr)
-{
-
-}
+PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent)
+    : QObject(parent)
+    , m_isBaseState(false)
+    , m_selectionChanged(false)
+    , m_backendValues(nullptr)
+    , m_qmlComponent(nullptr)
+    , m_qmlContext(nullptr)
+{}
 
 QString PropertyEditorContextObject::convertColorToString(const QVariant &color)
 {
@@ -477,7 +475,7 @@ void PropertyEditorContextObject::setIsBaseState(bool newIsBaseState)
 
 void PropertyEditorContextObject::setSelectionChanged(bool newSelectionChanged)
 {
-    if (newSelectionChanged ==  m_selectionChanged)
+    if (newSelectionChanged == m_selectionChanged)
         return;
 
     m_selectionChanged = newSelectionChanged;
@@ -486,7 +484,7 @@ void PropertyEditorContextObject::setSelectionChanged(bool newSelectionChanged)
 
 void PropertyEditorContextObject::setBackendValues(QQmlPropertyMap *newBackendValues)
 {
-    if (newBackendValues ==  m_backendValues)
+    if (newBackendValues == m_backendValues)
         return;
 
     m_backendValues = newBackendValues;

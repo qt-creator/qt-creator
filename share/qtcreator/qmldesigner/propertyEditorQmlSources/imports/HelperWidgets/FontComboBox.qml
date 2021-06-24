@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
 
 StudioControls.ComboBox {
@@ -33,35 +33,30 @@ StudioControls.ComboBox {
 
     property variant backendValue
     property color textColor: colorLogic.textColor
+    property string fontFilter: "*.ttf *.otf"
 
     labelColor: colorLogic.textColor
+    editable: true
 
     onTextColorChanged: setColor()
 
-    editable: true
-
-    property string fontFilter: "*.ttf *.otf"
-
-
     FileResourcesModel {
+        id: fileModel
         modelNodeBackendProperty: modelNodeBackend
         filter: comboBox.fontFilter
-        id: fileModel
     }
 
-    function createFontLoader(fontUrl)
-    {
+    function createFontLoader(fontUrl) {
         return Qt.createQmlObject('import QtQuick 2.0; FontLoader { source: "' + fontUrl + '"; }',
-                                  comboBox, "dynamicFontLoader");
+                                  comboBox, "dynamicFontLoader")
     }
 
-    function setupModel()
-    {
+    function setupModel() {
         var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"] // default fonts
 
         for (var i = 0; i < fileModel.fullPathModel.length; ++i) { // add custom fonts
-            var fontLoader = createFontLoader(fileModel.docPath + "/" + fileModel.fullPathModel[i]);
-            familyNames.push(fontLoader.name);
+            var fontLoader = createFontLoader(fileModel.docPath + "/" + fileModel.fullPathModel[i])
+            familyNames.push(fontLoader.name)
         }
 
         familyNames.sort()
@@ -95,11 +90,9 @@ StudioControls.ComboBox {
         }
     }
 
-    Layout.fillWidth: true
-
     onAccepted: {
         if (backendValue === undefined)
-            return;
+            return
 
         if (editText === "")
             return
@@ -110,7 +103,7 @@ StudioControls.ComboBox {
 
     onActivated: {
         if (backendValue === undefined)
-            return;
+            return
 
         if (editText === "")
             return
@@ -118,12 +111,12 @@ StudioControls.ComboBox {
         var indexText = comboBox.textAt(index)
 
         if (backendValue.value !== indexText)
-            backendValue.value = indexText;
+            backendValue.value = indexText
     }
 
     Connections {
         target: modelNodeBackend
-        onSelectionChanged: {
+        function onSelectionChanged() {
             comboBox.editText = backendValue.value
             setupModel()
         }
@@ -140,6 +133,7 @@ StudioControls.ComboBox {
             }
         }
     }
+
     function setColor() {
         //Hack to style the text input
         for (var i = 0; i < comboBox.children.length; i++) {

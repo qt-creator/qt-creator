@@ -198,7 +198,7 @@ public:
         QObject::connect(m_command.get(),
                          &VcsCommand::stdOutText,
                          [this, &fi](const QString &text) { read(fi, text); });
-        SynchronousProcess proc;
+        QtcProcess proc;
         proc.setTimeoutS(0);
         m_command->runCommand(proc, {m_vcsBinary, arguments});
         switch (proc.result()) {

@@ -774,6 +774,22 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
     return exitCode == 0;
 }
 
+bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isWritableFile();
+        LOG("WritableFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("test", {"-w", path, "-a", "-f", path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
 bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
@@ -976,7 +992,7 @@ void DockerDevice::aboutToBeRemoved() const
 
 void DockerDevicePrivate::fetchSystemEnviroment()
 {
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setCommand({"env", {}});
 
     q->runProcess(proc); // FIXME: This only starts.

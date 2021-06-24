@@ -84,7 +84,7 @@ static QString pythonName(const FilePath &pythonPath)
         return {};
     QString name = nameForPython.value(pythonPath);
     if (name.isEmpty()) {
-        SynchronousProcess pythonProcess;
+        QtcProcess pythonProcess;
         pythonProcess.setTimeoutS(2);
         pythonProcess.setCommand({pythonPath, {"--version"}});
         pythonProcess.runBlocking();
@@ -107,7 +107,7 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
 
     pylsCommand.addArg("-h");
 
-    SynchronousProcess pythonProcess;
+    QtcProcess pythonProcess;
     Environment env = pythonProcess.environment();
     env.set("PYTHONVERBOSE", "x");
     pythonProcess.setEnvironment(env);
@@ -161,7 +161,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
         }
     }
 
-    SynchronousProcess pythonProcess;
+    QtcProcess pythonProcess;
     pythonProcess.setCommand(pythonLShelpCommand);
     pythonProcess.runBlocking();
     if (pythonProcess.allOutput().contains("Python Language Server"))

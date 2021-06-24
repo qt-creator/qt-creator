@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import QtQuickDesignerTheme 1.0
 
@@ -42,8 +42,8 @@ Rectangle {
 
             Label {
                 id: test
-                text: qsTr("None or multiple components selected.");
-                anchors.fill: parent
+                text: qsTr("None or multiple components selected.")
+                anchors.fill: parent // TODO
             }
         }
     }

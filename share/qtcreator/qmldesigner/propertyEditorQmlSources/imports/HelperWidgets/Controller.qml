@@ -23,9 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
+pragma Singleton
+import QtQuick 2.15
 
-Item {
-    Layout.fillWidth: true
+QtObject {
+    id: values
+
+    property Item mainScrollView
 }

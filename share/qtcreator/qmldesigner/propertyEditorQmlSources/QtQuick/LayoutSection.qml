@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -33,140 +33,144 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Layout")
+    spacing: StudioTheme.Values.sectionRowSpacing + 6
 
-    LayoutPoperties {
+    LayoutProperties {
         id: layoutPoperties
         visible: anchorBackend.isInLayout
     }
 
-    ColumnLayout {
+    SectionLayout {
         visible: !anchorBackend.isInLayout
-        width: parent.width
-        Label {
-            text: qsTr("Anchors")
+
+        PropertyLabel { text: qsTr("Anchors") }
+
+        SecondColumnLayout {
+            Spacer {
+                implicitWidth: StudioTheme.Values.actionIndicatorWidth
+            }
+
+            AnchorButtons {}
+
+            ExpandingSpacer {}
         }
+    }
 
-        AnchorButtons {
+    AnchorRow {
+        visible: anchorBackend.topAnchored
+        iconSource: StudioTheme.Constants.anchorTop
+        anchorMargin: backendValues.anchors_topMargin
+        targetName: anchorBackend.topTarget
+        relativeTarget: anchorBackend.relativeAnchorTargetTop
+        verticalAnchor: true
+
+        onTargetChanged: {
+            anchorBackend.topTarget = currentText
         }
-
-        AnchorRow {
-            visible: anchorBackend.topAnchored
-            iconSource: StudioTheme.Constants.anchorTop
-            anchorMargin: backendValues.anchors_topMargin
-            targetName: anchorBackend.topTarget
-            onTargetChanged: {
-                anchorBackend.topTarget = currentText
-            }
-            relativeTarget: anchorBackend.relativeAnchorTargetTop
-            verticalAnchor: true
-
-            onSameEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.SameEdge
-            }
-            onOppositeEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.OppositeEdge
-            }
-
-            onCenterButtonClicked: {
-                anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.Center
-            }
+        onSameEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.SameEdge
         }
-
-        AnchorRow {
-            visible: anchorBackend.bottomAnchored
-            iconSource: StudioTheme.Constants.anchorBottom
-            anchorMargin: backendValues.anchors_bottomMargin
-            targetName: anchorBackend.bottomTarget
-            onTargetChanged: {
-                anchorBackend.bottomTarget = currentText
-            }
-            relativeTarget: anchorBackend.relativeAnchorTargetBottom
-            verticalAnchor: true
-            invertRelativeTargets: true
-
-            onSameEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.SameEdge
-            }
-            onOppositeEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.OppositeEdge
-            }
-
-            onCenterButtonClicked: {
-                anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.Center
-            }
+        onOppositeEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.OppositeEdge
         }
-
-        AnchorRow {
-            visible: anchorBackend.leftAnchored
-            iconSource: StudioTheme.Constants.anchorLeft
-            anchorMargin: backendValues.anchors_leftMargin
-            targetName: anchorBackend.leftTarget
-            onTargetChanged: {
-                anchorBackend.leftTarget = currentText
-            }
-            relativeTarget: anchorBackend.relativeAnchorTargetLeft
-            verticalAnchor: false
-
-            onSameEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.SameEdge
-            }
-            onOppositeEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.OppositeEdge
-            }
-
-            onCenterButtonClicked: {
-                anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.Center
-            }
+        onCenterButtonClicked: {
+            anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.Center
         }
+    }
 
-        AnchorRow {
-            visible: anchorBackend.rightAnchored
-            iconSource: StudioTheme.Constants.anchorRight
-            anchorMargin: backendValues.anchors_rightMargin
-            targetName: anchorBackend.rightTarget
-            onTargetChanged: {
-                anchorBackend.rightTarget = currentText
-            }
-            relativeTarget: anchorBackend.relativeAnchorTargetRight
-            verticalAnchor: false
-            invertRelativeTargets: true
+    AnchorRow {
+        visible: anchorBackend.bottomAnchored
+        iconSource: StudioTheme.Constants.anchorBottom
+        anchorMargin: backendValues.anchors_bottomMargin
+        targetName: anchorBackend.bottomTarget
+        relativeTarget: anchorBackend.relativeAnchorTargetBottom
+        verticalAnchor: true
+        invertRelativeTargets: true
 
-            onSameEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.SameEdge
-            }
-            onOppositeEdgeButtonClicked: {
-                anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.OppositeEdge
-            }
-
-            onCenterButtonClicked: {
-                anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.Center
-            }
+        onTargetChanged: {
+            anchorBackend.bottomTarget = currentText
         }
-
-        AnchorRow {
-            showAlternativeTargets: false
-            visible: anchorBackend.horizontalCentered
-            iconSource: StudioTheme.Constants.centerHorizontal
-            anchorMargin: backendValues.anchors_horizontalCenterOffset
-            targetName: anchorBackend.horizontalTarget
-            onTargetChanged: {
-                anchorBackend.horizontalTarget = currentText
-            }
-            verticalAnchor: false
-            buttonRow.visible: false
+        onSameEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.SameEdge
         }
+        onOppositeEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.OppositeEdge
+        }
+        onCenterButtonClicked: {
+            anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.Center
+        }
+    }
 
-        AnchorRow {
-            showAlternativeTargets: false
-            visible: anchorBackend.verticalCentered
-            iconSource: StudioTheme.Constants.centerVertical
-            anchorMargin: backendValues.anchors_verticalCenterOffset
-            targetName: anchorBackend.verticalTarget
-            onTargetChanged: {
-                 anchorBackend.verticalTarget = currentText
-            }
-            verticalAnchor: true
-            buttonRow.visible: false
+    AnchorRow {
+        visible: anchorBackend.leftAnchored
+        iconSource: StudioTheme.Constants.anchorLeft
+        anchorMargin: backendValues.anchors_leftMargin
+        targetName: anchorBackend.leftTarget
+        relativeTarget: anchorBackend.relativeAnchorTargetLeft
+        verticalAnchor: false
+
+        onTargetChanged: {
+            anchorBackend.leftTarget = currentText
+        }
+        onSameEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.SameEdge
+        }
+        onOppositeEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.OppositeEdge
+        }
+        onCenterButtonClicked: {
+            anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.Center
+        }
+    }
+
+    AnchorRow {
+        visible: anchorBackend.rightAnchored
+        iconSource: StudioTheme.Constants.anchorRight
+        anchorMargin: backendValues.anchors_rightMargin
+        targetName: anchorBackend.rightTarget
+        relativeTarget: anchorBackend.relativeAnchorTargetRight
+        verticalAnchor: false
+        invertRelativeTargets: true
+
+        onTargetChanged: {
+            anchorBackend.rightTarget = currentText
+        }
+        onSameEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.SameEdge
+        }
+        onOppositeEdgeButtonClicked: {
+            anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.OppositeEdge
+        }
+        onCenterButtonClicked: {
+            anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.Center
+        }
+    }
+
+    AnchorRow {
+        showAlternativeTargets: false
+        visible: anchorBackend.horizontalCentered
+        iconSource: StudioTheme.Constants.centerHorizontal
+        anchorMargin: backendValues.anchors_horizontalCenterOffset
+        targetName: anchorBackend.horizontalTarget
+        verticalAnchor: false
+        buttonRow.visible: false
+
+        onTargetChanged: {
+            anchorBackend.horizontalTarget = currentText
+        }
+    }
+
+    AnchorRow {
+        showAlternativeTargets: false
+        visible: anchorBackend.verticalCentered
+        iconSource: StudioTheme.Constants.centerVertical
+        anchorMargin: backendValues.anchors_verticalCenterOffset
+        targetName: anchorBackend.verticalTarget
+        verticalAnchor: true
+        buttonRow.visible: false
+
+        onTargetChanged: {
+             anchorBackend.verticalTarget = currentText
         }
     }
 }

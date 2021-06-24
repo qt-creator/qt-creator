@@ -29,6 +29,7 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
+#include "debuggerinternalconstants.h"
 
 #include <QDebug>
 #include <QTime>
@@ -46,6 +47,7 @@
 
 #include <app/app_version.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/find/basetextfind.h>
@@ -208,10 +210,6 @@ public:
         m_saveContentsAction->setEnabled(true);
         connect(m_saveContentsAction, &QAction::triggered,
                 this, &DebuggerPane::saveContents);
-
-        m_reloadDebuggingHelpersAction = new QAction(this);
-        m_reloadDebuggingHelpersAction->setText(tr("Reload Debugging Helpers"));
-        m_reloadDebuggingHelpersAction->setEnabled(true);
     }
 
     void contextMenuEvent(QContextMenuEvent *ev) override
@@ -220,7 +218,7 @@ public:
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         menu->addAction(debuggerSettings()->logTimeStamps.action());
-        menu->addAction(m_reloadDebuggingHelpersAction);
+        menu->addAction(Core::ActionManager::command(Constants::RELOAD_DEBUGGING_HELPERS)->action());
         menu->addSeparator();
         menu->addAction(debuggerSettings()->settingsDialog.action());
         menu->exec(ev->globalPos());
@@ -255,14 +253,12 @@ public:
     }
 
     QAction *clearContentsAction() const { return m_clearContentsAction; }
-    QAction *reloadDebuggingHelpersAction() const { return m_reloadDebuggingHelpersAction; }
 
 private:
     void saveContents() { writeLogContents(this, this); }
 
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
-    QAction *m_reloadDebuggingHelpersAction;
 };
 
 
@@ -281,8 +277,6 @@ public:
     {
         connect(clearContentsAction(), &QAction::triggered,
                 logWindow, &LogWindow::clearContents);
-        connect(reloadDebuggingHelpersAction(), &QAction::triggered,
-                logWindow->engine(), &DebuggerEngine::reloadDebuggingHelpers);
         (void) new InputHighlighter(this);
     }
 
@@ -351,8 +345,6 @@ public:
         (void) new OutputHighlighter(this);
         connect(clearContentsAction(), &QAction::triggered,
                 logWindow, &LogWindow::clearContents);
-        connect(reloadDebuggingHelpersAction(), &QAction::triggered,
-                logWindow->engine(), &DebuggerEngine::reloadDebuggingHelpers);
     }
 
     void gotoResult(int i)

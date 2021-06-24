@@ -972,8 +972,8 @@ bool Client::isSupportedFile(const Utils::FilePath &filePath, const QString &mim
 
 bool Client::isSupportedUri(const DocumentUri &uri) const
 {
-    return m_languagFilter.isSupported(uri.toFilePath(),
-                                       Utils::mimeTypeForFile(uri.toFilePath().fileName()).name());
+    const FilePath &filePath = uri.toFilePath();
+    return m_languagFilter.isSupported(filePath, Utils::mimeTypeForFile(filePath).name());
 }
 
 void Client::addAssistProcessor(TextEditor::IAssistProcessor *processor)

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
+import QtQuick 2.15
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import QtQuickDesignerTheme 1.0
@@ -52,8 +52,7 @@ StudioControls.TextField {
 
     property string context
 
-    function setTranslateExpression()
-    {
+    function setTranslateExpression() {
         if (translateFunction() === "qsTranslate") {
             backendValue.expression = translateFunction()
                     + "(\"" + backendValue.getTranslationContext()
@@ -77,10 +76,13 @@ StudioControls.TextField {
         id: colorLogic
         backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
+            if (colorLogic.valueFromBackend === undefined)
+                return
+
             if (writeValueManually) {
-                lineEdit.text = convertColorToString(valueFromBackend)
+                lineEdit.text = convertColorToString(colorLogic.valueFromBackend)
             } else {
-                lineEdit.text = valueFromBackend
+                lineEdit.text = colorLogic.valueFromBackend
             }
             __dirty = false
         }
@@ -92,7 +94,7 @@ StudioControls.TextField {
 
     Connections {
         target: modelNodeBackend
-        onSelectionToBeChanged: {
+        function onSelectionToBeChanged() {
             if (__dirty && !writeValueManually) {
                 if (writeAsExpression)
                     lineEdit.backendValue.expression = text
@@ -126,7 +128,8 @@ StudioControls.TextField {
         __dirty = false
     }
 
-    property bool isTranslated: colorLogic.backendValue.isTranslated
+    property bool isTranslated: colorLogic.backendValue === undefined ? false
+                                                                      : colorLogic.backendValue.isTranslated
 
     translationIndicator.onClicked: {
         if (translationIndicator.checked) {
@@ -138,13 +141,19 @@ StudioControls.TextField {
         colorLogic.evaluate();
     }
 
-    property variant backendValueValueInternal: backendValue.value
+    property variant backendValueValueInternal: backendValue === undefined ? 0 : backendValue.value
     onBackendValueValueInternalChanged: {
-        lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
+        if (lineEdit.backendValue === undefined)
+            lineEdit.translationIndicator.checked = false
+        else
+            lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
     }
 
     onIsTranslatedChanged: {
-        lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
+        if (lineEdit.backendValue === undefined)
+            lineEdit.translationIndicator.checked = false
+        else
+            lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
     }
 
     function escapeString(string) {

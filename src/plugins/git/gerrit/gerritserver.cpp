@@ -244,7 +244,7 @@ int GerritServer::testConnection()
 {
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
-    SynchronousProcess proc;
+    QtcProcess proc;
     client->vcsFullySynchronousExec(proc, QString(), {curlBinary, arguments},
                                     Core::ShellCommand::NoOutput);
     if (proc.result() == QtcProcess::FinishedWithSuccess) {
@@ -341,7 +341,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     if (!version.isEmpty() && !forceReload)
         return;
     if (type == Ssh) {
-        SynchronousProcess proc;
+        QtcProcess proc;
         QStringList arguments;
         if (port)
             arguments << p.portFlag << QString::number(port);
@@ -353,7 +353,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         version = stdOut;
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
-        SynchronousProcess proc;
+        QtcProcess proc;
         client->vcsFullySynchronousExec(proc, QString(), {curlBinary, arguments},
                                         Core::ShellCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid

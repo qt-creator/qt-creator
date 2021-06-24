@@ -83,7 +83,7 @@ static int parseVersion(const QString &text)
 
 static int updateVersionHelper(const Utils::FilePath &command)
 {
-    Utils::SynchronousProcess process;
+    Utils::QtcProcess process;
     process.setCommand({command, {"--version"}});
     process.runBlocking();
     if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
@@ -180,7 +180,7 @@ QString ArtisticStyleSettings::documentationFilePath() const
 
 void ArtisticStyleSettings::createDocumentationFile() const
 {
-    Utils::SynchronousProcess process;
+    Utils::QtcProcess process;
     process.setTimeoutS(2);
     process.setCommand({command(), {"-h"}});
     process.runBlocking();

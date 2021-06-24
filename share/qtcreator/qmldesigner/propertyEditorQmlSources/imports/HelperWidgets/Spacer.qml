@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,53 +23,9 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.12
+import QtQuick.Layouts 1.12
 
-#include <QObject>
-#include <QtQml/qqml.h>
-#include <QColor>
-
-namespace QmlDesigner {
-
-class PaletteColor
-{
-    Q_GADGET
-
-    Q_PROPERTY(QColor color READ color FINAL)
-    Q_PROPERTY(QString colorCode READ colorCode FINAL)
-    Q_PROPERTY(bool isFavorite READ isFavorite FINAL)
-public:
-    PaletteColor();
-    PaletteColor(const QString &colorCode);
-    PaletteColor(const QColor &value);
-    ~PaletteColor() = default;
-
-    enum Property {
-        objectNameRole = 0,
-        colorRole = 1,
-        colorCodeRole = 2,
-        isFavoriteRole = 3
-    };
-
-    QVariant getProperty(Property id) const;
-
-    QColor color() const;
-    void setColor(const QColor &value);
-
-    QString colorCode() const;
-
-    bool isFavorite() const;
-    void setFavorite(bool favorite);
-    bool toggleFavorite();
-
-    bool operator==(const PaletteColor &other) const;
-
-private:
-    QColor m_color;
-    QString m_colorCode;
-    bool m_isFavorite;
-};
-
-} // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::PaletteColor)
+Item {
+    height: 4
+}

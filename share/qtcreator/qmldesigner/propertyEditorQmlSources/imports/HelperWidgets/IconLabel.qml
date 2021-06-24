@@ -24,15 +24,35 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import HelperWidgets 2.0
+import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
-Label {
-    id: myLabel
+Rectangle {
+    property alias tooltip: toolTipArea.tooltip
+    property alias icon: icon.text
+    property alias iconColor: icon.color
+    property alias pixelSize: icon.font.pixelSize
+    property alias horizontalAlignment: icon.horizontalAlignment
 
-    property alias icon: myLabel.text
+    implicitWidth: StudioTheme.Values.controlLabelWidth
+    implicitHeight: StudioTheme.Values.controlLabelWidth
 
-    text: StudioTheme.Constants.actionIcon
-    font.family: StudioTheme.Constants.iconFont.family
-    font.pixelSize: StudioTheme.Values.myIconFontSize
+    color: "transparent"
+    border.color: "transparent"
+
+    T.Label {
+        id: icon
+        anchors.fill: parent
+        color: StudioTheme.Values.themeIconColor
+        text: ""
+        font.family: StudioTheme.Constants.iconFont.family
+        font.pixelSize: StudioTheme.Values.myIconFontSize
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+    }
+
+    ToolTipArea {
+        id: toolTipArea
+        anchors.fill: parent
+    }
 }

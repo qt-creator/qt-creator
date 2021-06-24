@@ -215,10 +215,6 @@ public:
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
 
-    static QList<FileNode *>
-    scanForFiles(QFutureInterface<QList<FileNode *>> &future,
-                 const Utils::FilePath &directory,
-                 const std::function<FileNode *(const Utils::FilePath &fileName)> factory);
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
 
@@ -360,6 +356,12 @@ public:
 
     bool isFolderNodeType() const override { return false; }
     bool isVirtualFolderType() const override { return true; }
+
+    bool isSourcesOrHeaders() const { return m_isSourcesOrHeaders; }
+    void setIsSourcesOrHeaders(bool on) { m_isSourcesOrHeaders = on; }
+
+private:
+    bool m_isSourcesOrHeaders; // "Sources" or "Headers"
 };
 
 // Documentation inside.

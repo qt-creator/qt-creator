@@ -83,7 +83,7 @@ static bool
                               const QMap<QString, QString> &fieldMap,
                               QString *stdOut /* = 0 */, QString *errorMessage)
 {
-    Utils::SynchronousProcess process;
+    Utils::QtcProcess process;
     const QString binary = script.front();
     QStringList arguments;
     const int binarySize = script.size();

@@ -52,6 +52,7 @@ const char FRAME_UP[]                         = "Debugger.FrameUp";
 const char FRAME_DOWN[]                       = "Debugger.FrameDown";
 const char QML_SHOW_APP_ON_TOP[]              = "Debugger.QmlShowAppOnTop";
 const char QML_SELECTTOOL[]                   = "Debugger.QmlSelectTool";
+const char RELOAD_DEBUGGING_HELPERS[]         = "Debugger.ReloadDebuggingHelpers";
 
 const char DEBUGGER_COMMON_SETTINGS_ID[]      = "A.Debugger.General";
 const char DEBUGGER_SETTINGS_CATEGORY[]       = "O.Debugger";

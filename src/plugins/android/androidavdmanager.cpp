@@ -66,7 +66,7 @@ const int avdCreateTimeoutMs = 30000;
 bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
-    Utils::SynchronousProcess proc;
+    Utils::QtcProcess proc;
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
     qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
@@ -200,7 +200,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
 {
     const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setTimeoutS(5);
     proc.setCommand(command);
     proc.runBlocking();
@@ -350,7 +350,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
 
     const CommandLine command({m_config.adbToolPath(), arguments});
     qCDebug(avdManagerLog) << "Running command (isAvdBooted):" << command.toUserOutput();
-    SynchronousProcess adbProc;
+    QtcProcess adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
+import "../QtQuick" as Q
 
 Rectangle {
     id: itemPane
@@ -47,162 +48,13 @@ Rectangle {
             id: rootColumn
             y: -1
             width: itemPane.width
-            Section {
-                caption: qsTr("Component")
 
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                SectionLayout {
-                    Label {
-                        text: qsTr("Type")
-                    }
-
-                    SecondColumnLayout {
-                        z: 2
-
-                        RoundedPanel {
-                            Layout.fillWidth: true
-                            height: StudioTheme.Values.height
-
-                            Label {
-                                anchors.fill: parent
-                                anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
-                                anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
-                                text: backendValues.className.value
-                            }
-                            ToolTipArea {
-                                anchors.fill: parent
-                                onDoubleClicked: {
-                                    typeLineEdit.text = backendValues.className.value
-                                    typeLineEdit.visible = ! typeLineEdit.visible
-                                    typeLineEdit.forceActiveFocus()
-                                }
-                                tooltip: qsTr("Change the type of this component.")
-                                enabled: !modelNodeBackend.multiSelection
-                            }
-
-                            ExpressionTextField {
-                                z: 2
-                                id: typeLineEdit
-                                completeOnlyTypes: true
-                                replaceCurrentTextByCompletion: true
-                                anchors.fill: parent
-
-                                visible: false
-
-                                showButtons: false
-                                fixedSize: true
-
-                                property bool blockEditingFinished: false
-
-                                onEditingFinished: {
-                                    if (typeLineEdit.blockEditingFinished)
-                                        return
-
-                                    typeLineEdit.blockEditingFinished = true
-
-                                    if (typeLineEdit.visible)
-                                        changeTypeName(typeLineEdit.text.trim())
-                                    typeLineEdit.visible = false
-
-                                    typeLineEdit.blockEditingFinished = false
-
-                                    typeLineEdit.completionList.model = null
-                                }
-
-                                onRejected: {
-                                    typeLineEdit.visible = false
-                                    typeLineEdit.completionList.model = null
-                                }
-                            }
-
-                        }
-                        Item {
-                            Layout.preferredWidth: 20
-                            Layout.preferredHeight: 20
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("ID")
-                    }
-
-                    SecondColumnLayout {
-                        spacing: 2
-                        LineEdit {
-                            id: lineEdit
-
-                            backendValue: backendValues.id
-                            placeholderText: qsTr("ID")
-                            text: backendValues.id.value
-                            Layout.fillWidth: true
-                            width: 240
-                            showTranslateCheckBox: false
-                            showExtendedFunctionButton: false
-                            enabled: !modelNodeBackend.multiSelection
-                        }
-
-                        Rectangle {
-                            id: aliasIndicator
-                            color: "transparent"
-                            border.color: "transparent"
-                            implicitWidth: StudioTheme.Values.height
-                            implicitHeight: StudioTheme.Values.height
-                            z: 10
-
-                            Label {
-                                id: aliasIndicatorIcon
-                                enabled: !modelNodeBackend.multiSelection
-                                anchors.fill: parent
-                                text: {
-                                    if (!aliasIndicatorIcon.enabled)
-                                        return StudioTheme.Constants.idAliasOff
-
-                                    return hasAliasExport ? StudioTheme.Constants.idAliasOn : StudioTheme.Constants.idAliasOff
-                                }
-                                color: {
-                                    if (!aliasIndicatorIcon.enabled)
-                                        return StudioTheme.Values.themeTextColorDisabled
-
-                                    return hasAliasExport ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
-                                }
-                                font.family: StudioTheme.Constants.iconFont.family
-                                font.pixelSize: Math.round(16 * StudioTheme.Values.scaleFactor)
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignHCenter
-                                states: [
-                                    State {
-                                        name: "hovered"
-                                        when: toolTipArea.containsMouse && aliasIndicatorIcon.enabled
-                                        PropertyChanges {
-                                            target: aliasIndicatorIcon
-                                            scale: 1.2
-                                        }
-                                    }
-                                ]
-                            }
-
-                            ToolTipArea {
-                                id: toolTipArea
-                                enabled: !modelNodeBackend.multiSelection
-                                anchors.fill: parent
-                                onClicked: toogleExportAlias()
-                                tooltip: qsTr("Toggles whether this component is exported as an alias property of the root component.")
-                            }
-                        }
-                    }
-                }
-            }
-
-            Item {
-                height: 4
-                width: 4
-            }
+            Q.ComponentSection {}
 
             Column {
                 anchors.left: parent.left
                 anchors.right: parent.right
+
                 Loader {
                     id: specificsTwo
                     anchors.left: parent.left

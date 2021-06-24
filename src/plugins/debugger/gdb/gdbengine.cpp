@@ -4984,7 +4984,7 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
         args += {"-ex", "set osabi GNU/Linux"};
     args += {"-ex", "core " + coreFile};
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     Environment envLang(Environment::systemEnvironment());
     envLang.setupEnglishOutput();
     proc.setEnvironment(envLang);

@@ -664,12 +664,6 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
     return infos;
 }
 
-bool ModelManagerInterface::isIdle() const
-{
-    QMutexLocker futureLocker(&m_futuresMutex);
-    return m_futureSynchronizer.isEmpty();
-}
-
 void ModelManagerInterface::emitDocumentChangedOnDisk(Document::Ptr doc)
 {
     emit documentChangedOnDisk(std::move(doc));

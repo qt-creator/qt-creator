@@ -47,6 +47,8 @@
 #include "mimeprovider_p.h"
 #include "mimetype_p.h"
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -731,6 +733,12 @@ MimeType Utils::mimeTypeForFile(const QFileInfo &fileInfo, MimeMatchMode mode)
 {
     MimeDatabase mdb;
     return mdb.mimeTypeForFile(fileInfo, MimeDatabase::MatchMode(mode));
+}
+
+MimeType Utils::mimeTypeForFile(const FilePath &filePath, MimeMatchMode mode)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForFile(filePath.toString(), MimeDatabase::MatchMode(mode));
 }
 
 QList<MimeType> Utils::mimeTypesForFileName(const QString &fileName)

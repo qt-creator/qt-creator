@@ -16,9 +16,7 @@ SOURCES += propertyeditorview.cpp \
     gradientpresetlistmodel.cpp \
     gradientpresetdefaultlistmodel.cpp \
     gradientpresetcustomlistmodel.cpp \
-    simplecolorpalette.cpp \
-    simplecolorpalettemodel.cpp \
-    simplecolorpalettesingleton.cpp \
+    colorpalettesingleton.cpp \
     itemfiltermodel.cpp \
     aligndistribute.cpp \
     tooltip.cpp
@@ -39,9 +37,7 @@ HEADERS += propertyeditorview.h \
     gradientpresetlistmodel.h \
     gradientpresetdefaultlistmodel.h \
     gradientpresetcustomlistmodel.h \
-    simplecolorpalette.h \
-    simplecolorpalettemodel.h \
-    simplecolorpalettesingleton.h \
+    colorpalettesingleton.h \
     itemfiltermodel.h \
     aligndistribute.h \
     tooltip.h

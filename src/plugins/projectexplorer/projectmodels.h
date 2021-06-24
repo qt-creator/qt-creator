@@ -82,10 +82,12 @@ public:
     bool generatedFilesFilterEnabled();
     bool disabledFilesFilterEnabled() const { return m_filterDisabledFiles; }
     bool trimEmptyDirectoriesEnabled();
+    bool showSourceGroups() { return m_showSourceGroups; }
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);
     void setDisabledFilesFilterEnabled(bool filter);
     void setTrimEmptyDirectories(bool filter);
+    void setShowSourceGroups(bool filter);
 
     void onExpanded(const QModelIndex &idx);
     void onCollapsed(const QModelIndex &idx);
@@ -98,6 +100,7 @@ private:
     bool m_filterGeneratedFiles = true;
     bool m_filterDisabledFiles = false;
     bool m_trimEmptyDirectories = true;
+    bool m_showSourceGroups = true;
 
     static const QLoggingCategory &logger();
 

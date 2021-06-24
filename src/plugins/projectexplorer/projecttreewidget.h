@@ -58,6 +58,7 @@ public:
     bool generatedFilesFilter();
     bool disabledFilesFilter();
     bool trimEmptyDirectoriesFilter();
+    bool showSourceGroups();
     Node *currentNode();
     void sync(ProjectExplorer::Node *node);
     void showMessage(ProjectExplorer::Node *node, const QString &message);
@@ -77,6 +78,7 @@ private:
     void setGeneratedFilesFilter(bool filter);
     void setDisabledFilesFilter(bool filter);
     void setTrimEmptyDirectories(bool filter);
+    void setShowSourceGroups(bool filter);
 
     void handleCurrentItemChange(const QModelIndex &current);
     void showContextMenu(const QPoint &pos);
@@ -98,6 +100,7 @@ private:
     QAction *m_filterDisabledFilesAction = nullptr;
     QAction *m_trimEmptyDirectoriesAction = nullptr;
     QAction *m_toggleSync = nullptr;
+    QAction *m_showSourceGroupsAction = nullptr;
 
     QString m_modelId;
     bool m_autoSync = true;

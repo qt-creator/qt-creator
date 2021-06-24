@@ -161,7 +161,6 @@ public:
     void updateQrcFile(const QString &path);
     ProjectInfo projectInfoForPath(const QString &path) const;
     QList<ProjectInfo> allProjectInfosForPath(const QString &path) const;
-    bool isIdle() const ;
 
     QStringList importPathsNames() const;
     QmlJS::QmlLanguageBundles activeBundles() const;

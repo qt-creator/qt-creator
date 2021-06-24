@@ -30,6 +30,7 @@
 #include "cmakeprojectnodes.h"
 
 #include <projectexplorer/rawprojectpart.h>
+#include <projectexplorer/treescanner.h>
 
 #include <utils/filesystemwatcher.h>
 #include <utils/optional.h>
@@ -70,7 +71,7 @@ public:
     CMakeConfig takeParsedConfiguration(QString &errorMessage);
     QString ctestPath() const;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const QList<const ProjectExplorer::FileNode *> &allFiles,
+        const ProjectExplorer::TreeScanner::Result &allFiles,
         QString &errorMessage,
         bool includeHeaderNodes);
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);

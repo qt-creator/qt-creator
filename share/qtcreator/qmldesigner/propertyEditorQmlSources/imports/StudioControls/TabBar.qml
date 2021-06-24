@@ -34,14 +34,11 @@ T.TabBar {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-
     spacing: 0
-    bottomPadding: 2
 
     contentItem: ListView {
         model: myButton.contentModel
         currentIndex: myButton.currentIndex
-
         spacing: myButton.spacing
         orientation: ListView.Horizontal
         boundsBehavior: Flickable.StopAtBounds
@@ -50,6 +47,6 @@ T.TabBar {
     }
 
     background: Rectangle {
-        color: StudioTheme.Values.themeTabActiveBackground
+        color: StudioTheme.Values.themePanelBackground
     }
 }

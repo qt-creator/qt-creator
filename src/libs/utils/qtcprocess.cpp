@@ -142,13 +142,15 @@ public:
         connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &QtcProcessPrivate::slotFinished);
         connect(m_process, &QProcess::errorOccurred,
-                q, &QtcProcess::errorOccurred);
+                this, &QtcProcessPrivate::slotError);
         connect(m_process, &QProcess::stateChanged,
                 q, &QtcProcess::stateChanged);
         connect(m_process, &QProcess::readyReadStandardOutput,
                 this, &QtcProcessPrivate::handleReadyReadStandardOutput);
         connect(m_process, &QProcess::readyReadStandardError,
                 this, &QtcProcessPrivate::handleReadyReadStandardError);
+        connect(&m_timer, &QTimer::timeout, this, &QtcProcessPrivate::slotTimeout);
+        m_timer.setInterval(1000);
     }
 
     ~QtcProcessPrivate()
@@ -181,7 +183,6 @@ public:
 
     QProcess::OpenMode m_openMode = QProcess::ReadWrite;
 
-    // SynchronousProcess left overs:
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
     void slotError(QProcess::ProcessError);
@@ -204,7 +205,6 @@ public:
     bool m_startFailure = false;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
-    bool m_isSynchronousProcess = false;
     bool m_processUserEvents = false;
 };
 
@@ -491,7 +491,7 @@ static bool askToKill(const QString &command)
 }
 
 // Helper for running a process synchronously in the foreground with timeout
-// detection similar SynchronousProcess' handling (taking effect after no more output
+// detection (taking effect after no more output
 // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
 // occurs. Checking of the process' exit state/code still has to be done.
 
@@ -563,7 +563,7 @@ void QtcProcess::setResult(Result result)
 
 int QtcProcess::exitCode() const
 {
-    return d->m_isSynchronousProcess ? d->m_exitCode : d->m_process->exitCode(); // FIXME: Unify.
+    return d->m_exitCode;
 }
 
 
@@ -942,30 +942,13 @@ void ChannelBuffer::handleRest()
     }
 }
 
-// ----------- SynchronousProcess
-SynchronousProcess::SynchronousProcess()
-{
-    d->m_isSynchronousProcess = true; // Only for QTC_ASSERTs above.
-
-    d->m_timer.setInterval(1000);
-    connect(&d->m_timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
-    connect(d->m_process, &QProcess::errorOccurred, d, &QtcProcessPrivate::slotError);
-}
-
-SynchronousProcess::~SynchronousProcess()
-{
-    disconnect(&d->m_timer, nullptr, this, nullptr);
-    disconnect(this, nullptr, this, nullptr);
-}
-
-void SynchronousProcess::setProcessUserEventWhileRunning()
+void QtcProcess::setProcessUserEventWhileRunning()
 {
     d->m_processUserEvents = true;
 }
 
 void QtcProcess::setTimeoutS(int timeoutS)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     if (timeoutS > 0)
         d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
@@ -980,7 +963,6 @@ void QtcProcess::setCodec(QTextCodec *c)
 
 void QtcProcess::setTimeOutMessageBoxEnabled(bool v)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_timeOutMessageBoxEnabled = v;
 }
 
@@ -991,7 +973,6 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_writeData = writeData;
 }
 
@@ -1002,9 +983,8 @@ static bool isGuiThread()
 }
 #endif
 
-void SynchronousProcess::runBlocking()
+void QtcProcess::runBlocking()
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     // FIXME: Implement properly
     if (d->m_commandLine.executable().needsDevice()) {
 
@@ -1075,7 +1055,6 @@ void SynchronousProcess::runBlocking()
 
 void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = false;
     d->m_stdOut.emitSingleLines = false;
@@ -1091,7 +1070,6 @@ void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &
 
 void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
 {
-    QTC_CHECK(d->m_isSynchronousProcess);
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = false;
     d->m_stdErr.keepRawData = false;
@@ -1152,16 +1130,18 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
     emit q->finished();
 }
 
-void QtcProcessPrivate::slotError(QProcess::ProcessError e)
+void QtcProcessPrivate::slotError(QProcess::ProcessError error)
 {
     m_hangTimerCount = 0;
     if (debug)
-        qDebug() << Q_FUNC_INFO << e;
+        qDebug() << Q_FUNC_INFO << error;
     // Was hang detected before and killed?
     if (m_result != QtcProcess::Hang)
         m_result = QtcProcess::StartFailed;
     m_startFailure = true;
     m_eventLoop.quit();
+
+    emit q->errorOccurred(error);
 }
 
 } // namespace Utils

@@ -139,12 +139,12 @@ public:
 
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
-    static void notifyFilesChangedInternally(const QStringList &files);
+    static void notifyFilesChangedInternally(const Utils::FilePaths &filePaths);
 
 signals:
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
-    void filesChangedInternally(const QStringList &files);
+    void filesChangedInternally(const Utils::FilePaths &filePaths);
     /// emitted if all documents changed their name e.g. due to the file changing on disk
     void allDocumentsRenamed(const Utils::FilePath &from, const Utils::FilePath &to);
     /// emitted if one document changed its name e.g. due to save as

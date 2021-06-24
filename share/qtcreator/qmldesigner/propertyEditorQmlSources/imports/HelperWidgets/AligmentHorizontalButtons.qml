@@ -32,13 +32,9 @@ Row {
     id: alignmentHorizontalButtons
 
     property bool blueHighlight: false
-
     property variant backendValue: backendValues.horizontalAlignment;
-
     property variant value: backendValue.enumeration
-
     property bool baseStateFlag: isBaseState;
-
     property color __currentColor: blueHighlight ? StudioTheme.Values.themeIconColorInteraction
                                                  : StudioTheme.Values.themeIconColor
 
@@ -48,37 +44,32 @@ Row {
         buttonAlignRight.checked = false
 
         if (value !== undefined) {
-            if (value === "AlignLeft") {
+            if (value === "AlignLeft")
                 buttonAlignLeft.checked = true
-            } else if (value === "AlignHCenter") {
+            else if (value === "AlignHCenter")
                 buttonAlignHCenter.checked = true
-            } else if (value === "AlignRight") {
+            else if (value === "AlignRight")
                 buttonAlignRight.checked = true
-            }
         }
         evaluate()
     }
 
-    property bool isInModel: backendValue.isInModel;
-    onIsInModelChanged: {
-        evaluate();
-    }
-    property bool isInSubState: backendValue.isInSubState;
-    onIsInSubStateChanged: {
-        evaluate();
-    }
+    property bool isInModel: backendValue.isInModel
+    onIsInModelChanged: evaluate()
+    property bool isInSubState: backendValue.isInSubState
+    onIsInSubStateChanged: evaluate()
 
     function evaluate() {
         if (baseStateFlag) {
             if (backendValue !== null && backendValue.isInModel)
-                blueHighlight = true;
+                blueHighlight = true
             else
-                blueHighlight = false;
+                blueHighlight = false
         } else {
             if (backendValue !== null && backendValue.isInSubState)
-                blueHighlight = true;
+                blueHighlight = true
             else
-                blueHighlight = false;
+                blueHighlight = false
         }
     }
 
@@ -96,9 +87,7 @@ Row {
         actionIndicator.onClicked: extFuncLogic.show()
         actionIndicator.forceVisible: extFuncLogic.menuVisible
 
-        StudioControls.ButtonGroup {
-            id: group
-        }
+        StudioControls.ButtonGroup { id: group }
 
         StudioControls.AbstractButton {
             id: buttonAlignLeft
@@ -112,6 +101,7 @@ Row {
                     backendValue.setEnumeration("Text", "AlignLeft")
             }
         }
+
         StudioControls.AbstractButton {
             id: buttonAlignHCenter
             buttonIcon: StudioTheme.Constants.textAlignCenter
@@ -124,6 +114,7 @@ Row {
                     backendValue.setEnumeration("Text", "AlignHCenter")
             }
         }
+
         StudioControls.AbstractButton {
             id: buttonAlignRight
             buttonIcon: StudioTheme.Constants.textAlignRight

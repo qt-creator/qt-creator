@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -118,6 +118,9 @@ StudioControls.ComboBox {
                     break
                 case ComboBox.ValueType.Enum:
                 default:
+                    if (comboBox.backendValue === undefined)
+                        break
+
                     var enumString = comboBox.backendValue.enumeration
 
                     if (enumString === "")
@@ -167,6 +170,8 @@ StudioControls.ComboBox {
 
     Connections {
         target: modelNodeBackend
-        onSelectionToBeChanged: comboBox.popup.close()
+        function onSelectionToBeChanged() {
+            comboBox.popup.close()
+        }
     }
 }

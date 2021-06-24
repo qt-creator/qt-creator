@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,14 +23,16 @@
 **
 ****************************************************************************/
 
+import QtQuick 2.15
 import HelperWidgets 2.0
-import QtQuick 2.1
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.15
+import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
     id: section
     caption: qsTr("Animation")
+
     anchors.left: parent.left
     anchors.right: parent.right
 
@@ -38,89 +40,122 @@ Section {
     property bool showEasingCurve: false
 
     SectionLayout {
-        Label {
+        PropertyLabel {
             text: qsTr("Running")
-            tooltip: qsTr("Whether the animation is running.")
+            tooltip: qsTr("Whether the animation is running and paused.")
         }
 
-        CheckBox {
-            text: backendValues.running.valueToString
-            backendValue: backendValues.running
+        SecondColumnLayout {
+            CheckBox {
+                text: StudioTheme.Constants.play
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.running
+                enabled: backendValue.isAvailable
+                fontFamily: StudioTheme.Constants.iconFont.family
+                fontPixelSize: StudioTheme.Values.myIconFontSize
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+            CheckBox {
+                text: StudioTheme.Constants.pause
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.paused
+                enabled: backendValue.isAvailable
+                fontFamily: StudioTheme.Constants.iconFont.family
+                fontPixelSize: StudioTheme.Values.myIconFontSize
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Paused")
-            tooltip: qsTr("Whether the animation is paused.")
-            disabledState: !backendValues.paused.isAvailable
-        }
-
-        CheckBox {
-            text: backendValues.paused.valueToString
-            backendValue: backendValues.paused
-            enabled: backendValue.isAvailable
-        }
-        Label {
+        PropertyLabel {
             text: qsTr("Loops")
             tooltip: qsTr("Number of times the animation should play.")
         }
 
         SecondColumnLayout {
             SpinBox {
+                id: loopSpinBox
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.loops
                 maximumValue: 9999999
                 minimumValue: -1
-                backendValue: backendValues.loops
-                Layout.fillWidth: true
-                Layout.maximumWidth: 100
             }
 
-            ExpandingSpacer {
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+            StudioControls.InfinityLoopIndicator {
+                id: infinityLoopIndicator
+
+                infinite: backendValues.loops.value === -1 ? true : false
+
+                onInfiniteChanged: {
+                    if (infinityLoopIndicator.infinite === true)
+                        backendValues.loops.value = -1
+                    else
+                        backendValues.loops.value = ((backendValues.loops.value < 0) ? 1 : backendValues.loops.value)
+                }
             }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: section.showDuration
+        PropertyLabel {
             text: qsTr("Duration")
             tooltip: qsTr("Duration of the animation in milliseconds.")
+            visible: section.showDuration
         }
 
         SecondColumnLayout {
             visible: section.showDuration
+
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 maximumValue: 9999999
                 minimumValue: -9999999
                 backendValue: backendValues.duration
-                Layout.fillWidth: true
-                Layout.maximumWidth: 100
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
-        Label {
-            text: qsTr("Always run to end")
+
+        PropertyLabel {
+            text: qsTr("Run to end")
             tooltip: qsTr("Runs the animation to completion when it is stopped.")
         }
 
-        CheckBox {
-            text: backendValues.alwaysRunToEnd.valueToString
-            backendValue: backendValues.alwaysRunToEnd
+        SecondColumnLayout {
+            CheckBox {
+                text: backendValues.alwaysRunToEnd.valueToString
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.alwaysRunToEnd
+            }
+
+            ExpandingSpacer {}
         }
 
-        Label {
-            visible: section.showEasingCurve
+        PropertyLabel {
             text: qsTr("Easing curve")
             tooltip: qsTr("Defines a custom easing curve.")
+            visible: section.showEasingCurve
         }
 
         BoolButtonRowButton {
             visible: section.showEasingCurve
             buttonIcon: StudioTheme.Constants.curveDesigner
+
             EasingCurveEditor {
                 id: easingCurveEditor
                 modelNodeBackendProperty: modelNodeBackend
             }
-            onClicked: easingCurveEditor.runDialog()
 
+            onClicked: easingCurveEditor.runDialog()
         }
     }
 }

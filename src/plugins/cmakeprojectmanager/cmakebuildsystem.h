@@ -133,7 +133,7 @@ private:
     void combineScanAndParse();
 
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const QList<const ProjectExplorer::FileNode *> &allFiles, bool includeHeadersNode);
+        const ProjectExplorer::TreeScanner::Result &allFiles, bool includeHeadersNode);
     void checkAndReportError(QString &errorMessage);
 
     void updateCMakeConfiguration(QString &errorMessage);
@@ -159,8 +159,8 @@ private:
     void runCTest();
 
     ProjectExplorer::TreeScanner m_treeScanner;
+    ProjectExplorer::TreeScanner::Result m_allFiles;
     QHash<QString, bool> m_mimeBinaryCache;
-    QList<const ProjectExplorer::FileNode *> m_allFiles;
 
     bool m_waitingForScan = false;
     bool m_waitingForParse = false;

@@ -123,7 +123,7 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    virtual void runCommand(Utils::SynchronousProcess &process,
+    virtual void runCommand(Utils::QtcProcess &process,
                             const CommandLine &command,
                             const QString &workingDirectory = QString());
 
@@ -153,10 +153,10 @@ private:
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
-    void runFullySynchronous(SynchronousProcess &proc,
+    void runFullySynchronous(QtcProcess &proc,
                              const QString &workingDirectory);
     // Run with an event loop. Signals will be delivered.
-    void runSynchronous(SynchronousProcess &proc,
+    void runSynchronous(QtcProcess &proc,
                         const QString &workingDirectory);
 
     class Internal::ShellCommandPrivate *const d;

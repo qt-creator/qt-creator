@@ -76,6 +76,7 @@ public:
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool isExecutableFile(const Utils::FilePath &filePath) const override;
     bool isReadableFile(const Utils::FilePath &filePath) const override;
+    bool isWritableFile(const Utils::FilePath &filePath) const override;
     bool isReadableDirectory(const Utils::FilePath &filePath) const override;
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;

@@ -145,7 +145,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
     }
 
     setFilePath(filePath);
-    setMimeType(Utils::mimeTypeForFile(fileName).name());
+    setMimeType(Utils::mimeTypeForFile(filePath).name());
     return OpenResult::Success;
 }
 

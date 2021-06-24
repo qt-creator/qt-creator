@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,62 +23,28 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    StandardTextSection {
-        showVerticalAlignment: true
-        showFormatProperty: true
+    CharacterSection {
         richTextEditorAvailable: true
+        showVerticalAlignment: true
     }
 
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: qsTr("Text Color")
+    TextInputSection {}
 
-        ColorEditor {
-            caption: qsTr("Text Color")
-            backendValue: backendValues.color
-            supportGradient: false
-        }
-
+    TextExtrasSection {
+        showWrapMode: true
+        showFormatProperty: true
     }
 
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: qsTr("Selection Color")
-
-        ColorEditor {
-            caption: qsTr("Selection Color")
-            backendValue:  backendValues.selectionColor
-            supportGradient: false
-        }
-    }
-
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: qsTr("Selected Text Color")
-
-        ColorEditor {
-            caption: qsTr("Selected Text Color")
-            backendValue: backendValues.selectedTextColor
-            supportGradient: false
-        }
-    }
-
-    FontSection {
+    FontExtrasSection {
         showStyle: false
-    }
-
-    TextInputSection {
     }
 
     PaddingSection {

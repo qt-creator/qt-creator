@@ -56,6 +56,7 @@
 # for more details or look at qttypes.py, stdtypes.py, boosttypes.py
 # for more complex examples.
 
-import dumper
+from dumper import Children, SubItem, UnnamedSubItem, DumperBase
+from utils import DisplayFormat, TypeCode
 
 ######################## Your code below #######################

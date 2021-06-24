@@ -144,7 +144,7 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
     return in;
 }
 
-void VcsBaseClientImpl::vcsFullySynchronousExec(SynchronousProcess &proc,
+void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
                                                 const QString &workingDir, const CommandLine &cmdLine,
                                                 unsigned flags, int timeoutS, QTextCodec *codec) const
 {
@@ -174,7 +174,7 @@ void VcsBaseClientImpl::annotateRevisionRequested(const QString &workingDirector
     annotate(workingDirectory, file, changeCopy, line);
 }
 
-void VcsBaseClientImpl::vcsFullySynchronousExec(SynchronousProcess &proc,
+void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
                                                 const QString &workingDir, const QStringList &args,
                                                 unsigned flags, int timeoutS, QTextCodec *codec) const
 {
@@ -195,7 +195,7 @@ VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QS
     return command;
 }
 
-void VcsBaseClientImpl::vcsSynchronousExec(SynchronousProcess &proc, const QString &workingDir,
+void VcsBaseClientImpl::vcsSynchronousExec(QtcProcess &proc, const QString &workingDir,
                                            const QStringList &args,
                                            unsigned flags,
                                            QTextCodec *outputCodec) const
@@ -259,7 +259,7 @@ bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
 {
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     args << extraOptions;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::FinishedWithSuccess)
         return false;
@@ -279,7 +279,7 @@ bool VcsBaseClient::synchronousClone(const QString &workingDir,
     args << vcsCommandString(CloneCommand)
          << extraOptions << srcLocation << dstLocation;
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     resetCachedVcsInfo(workingDir);
     return proc.result() == QtcProcess::FinishedWithSuccess;
@@ -290,7 +290,7 @@ bool VcsBaseClient::synchronousAdd(const QString &workingDir, const QString &fil
 {
     QStringList args;
     args << vcsCommandString(AddCommand) << extraOptions << filename;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
@@ -300,7 +300,7 @@ bool VcsBaseClient::synchronousRemove(const QString &workingDir, const QString &
 {
     QStringList args;
     args << vcsCommandString(RemoveCommand) << extraOptions << filename;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
@@ -311,7 +311,7 @@ bool VcsBaseClient::synchronousMove(const QString &workingDir,
 {
     QStringList args;
     args << vcsCommandString(MoveCommand) << extraOptions << from << to;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
@@ -327,7 +327,7 @@ bool VcsBaseClient::synchronousPull(const QString &workingDir,
             VcsCommand::SshPasswordPrompt
             | VcsCommand::ShowStdOut
             | VcsCommand::ShowSuccessMessage;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
     const bool ok = proc.result() == QtcProcess::FinishedWithSuccess;
     if (ok)
@@ -346,7 +346,7 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
             VcsCommand::SshPasswordPrompt
             | VcsCommand::ShowStdOut
             | VcsCommand::ShowSuccessMessage;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }

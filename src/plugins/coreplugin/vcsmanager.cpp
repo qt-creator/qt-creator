@@ -173,8 +173,11 @@ void VcsManager::extensionsInitialized()
 {
     // Change signal connections
     foreach (IVersionControl *versionControl, versionControls()) {
-        connect(versionControl, &IVersionControl::filesChanged,
-                DocumentManager::instance(), &DocumentManager::filesChangedInternally);
+        connect(versionControl, &IVersionControl::filesChanged, DocumentManager::instance(),
+                [](const QStringList fileNames) {
+                    DocumentManager::notifyFilesChangedInternally(
+                        Utils::transform(fileNames, &Utils::FilePath::fromString));
+                });
         connect(versionControl, &IVersionControl::repositoryChanged,
                 m_instance, &VcsManager::repositoryChanged);
         connect(versionControl, &IVersionControl::configurationChanged,

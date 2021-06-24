@@ -119,7 +119,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                 return false;
             const FileNode *fn = n->asFileNode();
             return fn && fn->fileType() == FileType::QML
-                    && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
+                    && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath(),
                                                                     MimeMatchMode::MatchExtension).name());
         }), &FilePath::toString);
         activeTarget = project->activeTarget();

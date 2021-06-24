@@ -237,7 +237,7 @@ static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
 static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
 {
     QVector<VisualStudioInstallation> installations;
-    SynchronousProcess vsWhereProcess;
+    QtcProcess vsWhereProcess;
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
@@ -615,7 +615,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return predefinedMacros;
     }
-    Utils::SynchronousProcess cpp;
+    Utils::QtcProcess cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
     QStringList arguments;
@@ -1503,7 +1503,7 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
 
 static QVersionNumber clangClVersion(const QString &clangClPath)
 {
-    SynchronousProcess clangClProcess;
+    QtcProcess clangClProcess;
     clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();
     if (clangClProcess.result() != QtcProcess::FinishedWithSuccess)
@@ -1723,7 +1723,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (!cxxflags.contains("--driver-mode=g++"))
         return MsvcToolChain::msvcPredefinedMacros(cxxflags, env);
 
-    SynchronousProcess cpp;
+    QtcProcess cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
 
@@ -2053,7 +2053,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
         return QString();
     }
 
-    Utils::SynchronousProcess run;
+    Utils::QtcProcess run;
 
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems

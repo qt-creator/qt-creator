@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,67 +23,69 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
     Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
         caption: qsTr("Flow")
 
+        anchors.left: parent.left
+        anchors.right: parent.right
+
         SectionLayout {
-            Label {
-                text: qsTr("Flow")
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    scope: "Flow"
-                    model: ["LeftToRight", "TopToBottom"]
-                    backendValue: backendValues.flow
-                    Layout.fillWidth: true
-                }
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
-                text: qsTr("Layout direction")
-            }
-
-            SecondColumnLayout {
-                ComboBox {
-                    scope: "Qt"
-                    model: ["LeftToRight", "RightToLeft"]
-                    backendValue: backendValues.layoutDirection
-                    Layout.fillWidth: true
-                }
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
-                text: qsTr("Spacing")
-            }
+            PropertyLabel { text: qsTr("Spacing") }
 
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.spacing
                     minimumValue: -4000
                     maximumValue: 4000
                     decimals: 0
                 }
-                ExpandingSpacer {
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Flow") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.flow
+                    model: ["LeftToRight", "TopToBottom"]
+                    scope: "Flow"
                 }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Layout direction") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.layoutDirection
+                    model: ["LeftToRight", "RightToLeft"]
+                    scope: "Qt"
+                }
+
+                ExpandingSpacer {}
             }
         }
     }
 
-    PaddingSection {
-    }
+    PaddingSection {}
 }

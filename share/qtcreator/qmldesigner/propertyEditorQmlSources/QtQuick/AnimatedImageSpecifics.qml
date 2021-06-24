@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,43 +23,49 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    ImageSpecifics {
+    ImageSection {
+        caption: qsTr("Animated Image")
     }
 
     Section {
+        caption: qsTr("Animation Settings")
+
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: qsTr("Animated Image")
 
         SectionLayout {
-            Label {
+            PropertyLabel {
                 text: qsTr("Speed")
                 disabledState: !backendValues.speed.isAvailable
             }
+
             SecondColumnLayout {
                 SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     sliderIndicatorVisible: true
                     backendValue: backendValues.speed
                     hasSlider: true
                     decimals: 2
                     minimumValue: 0
                     maximumValue: 100
-                    Layout.preferredWidth: 140
                     enabled: backendValues.speed.isAvailable
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Paused")
                 tooltip: qsTr("Whether the animated image is paused.")
                 disabledState: !backendValues.paused.isAvailable
@@ -67,15 +73,17 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    enabled: backendValues.paused.isAvailable
                     text: backendValues.paused.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.paused
-                    implicitWidth: 180
+                    enabled: backendValues.paused.isAvailable
                 }
+
                 ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Playing")
                 tooltip: qsTr("Whether the animated image is playing.")
                 disabledState: !backendValues.playing.isAvailable
@@ -83,11 +91,13 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    enabled: backendValues.playing.isAvailable
                     text: backendValues.playing.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.playing
-                    implicitWidth: 180
+                    enabled: backendValues.playing.isAvailable
                 }
+
                 ExpandingSpacer {}
             }
         }

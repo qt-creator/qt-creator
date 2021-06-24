@@ -81,7 +81,7 @@ static bool checkForTimeout(const chrono::high_resolution_clock::time_point &sta
 
 static bool runCommand(const CommandLine &command, QString *stdOutput, QString *allOutput = nullptr)
 {
-    SynchronousProcess p;
+    QtcProcess p;
     p.setTimeoutS(-1);
     p.setCommand(command);
     p.runBlocking();

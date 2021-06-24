@@ -100,7 +100,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
 
     const QString outpath = fakeIn.fileName() + ".tmp";
 
-    SynchronousProcess cpp;
+    QtcProcess cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
@@ -152,7 +152,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId
     cmd.addArg("--preinclude");
     cmd.addArg(".");
 
-    SynchronousProcess cpp;
+    QtcProcess cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
     cpp.setCommand(cmd);

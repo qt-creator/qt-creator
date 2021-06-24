@@ -151,7 +151,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     qCDebug(sdkManagerLog) << "Running SDK Manager command (sync):"
                            << CommandLine(config.sdkManagerToolPath(), newArgs)
                                   .toUserOutput();
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
@@ -179,7 +179,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     qCDebug(sdkManagerLog) << "Running SDK Manager command (async):"
                            << CommandLine(config.sdkManagerToolPath(), newArgs).toUserOutput();
     int offset = fi.progressValue();
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     bool assertionFound = false;
     proc.setTimeoutS(timeout);
@@ -195,7 +195,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     });
     if (interruptible) {
         QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations,
-                         &proc, &SynchronousProcess::stopProcess);
+                         &proc, &QtcProcess::stopProcess);
     }
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
     proc.setProcessUserEventWhileRunning();

@@ -133,7 +133,7 @@ Rectangle {
                               !backgroundCard.isSelected
                         PropertyChanges {
                             target: backgroundCard
-                            color: StudioTheme.Values.themeControlBackgroundPressed
+                            color: StudioTheme.Values.themeControlBackgroundHover
                             border.width: StudioTheme.Values.border
                             border.color: StudioTheme.Values.themeInteraction
                         }

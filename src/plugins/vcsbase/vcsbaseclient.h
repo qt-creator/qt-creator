@@ -95,10 +95,10 @@ public:
     static QString stripLastNewline(const QString &in);
 
     // Fully synchronous VCS execution (QProcess-based)
-    void vcsFullySynchronousExec(Utils::SynchronousProcess &process,
+    void vcsFullySynchronousExec(Utils::QtcProcess &process,
                                  const QString &workingDir, const QStringList &args,
                                  unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    void vcsFullySynchronousExec(Utils::SynchronousProcess &process,
+    void vcsFullySynchronousExec(Utils::QtcProcess &process,
                                  const QString &workingDir, const Utils::CommandLine &cmdLine,
                                  unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
@@ -115,7 +115,7 @@ protected:
 
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
-    void vcsSynchronousExec(Utils::SynchronousProcess &proc,
+    void vcsSynchronousExec(Utils::QtcProcess &proc,
                             const QString &workingDir,
                             const QStringList &args,
                             unsigned flags = 0,

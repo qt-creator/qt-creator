@@ -88,7 +88,7 @@ static FormatTask format(FormatTask task)
         // Format temporary file
         QStringList options = task.command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
-        SynchronousProcess process;
+        QtcProcess process;
         process.setTimeoutS(5);
         process.setCommand({executable, options});
         process.runBlocking();

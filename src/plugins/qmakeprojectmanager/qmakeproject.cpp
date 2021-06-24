@@ -857,7 +857,9 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
 
     auto reader = new QtSupport::ProFileReader(m_qmakeGlobals.get(), m_qmakeVfs);
 
-    reader->setOutputDir(buildDir(qmakeProFile->filePath()).toString());
+    // FIXME: Currently intentional.
+    // Core parts of the ProParser hard-assert on non-local items
+    reader->setOutputDir(buildDir(qmakeProFile->filePath()).path());
 
     return reader;
 }

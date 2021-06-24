@@ -32,12 +32,14 @@ Flickable {
 
     property alias horizontalThickness: horizontalScrollBar.height
     property alias verticalThickness: verticalScrollBar.width
-    property bool verticalScrollBarVisible: verticalScrollBar.scrollBarVisible
-    property bool horizontalScrollBarVisible: horizontalScrollBar.scrollBarVisible
-    property bool bothVisible: verticalScrollBarVisible && horizontalScrollBarVisible
+    readonly property bool verticalScrollBarVisible: verticalScrollBar.scrollBarVisible
+    readonly property bool horizontalScrollBarVisible: horizontalScrollBar.scrollBarVisible
+    readonly property bool bothVisible: verticalScrollBarVisible && horizontalScrollBarVisible
+
+    property real temporaryHeight: 0
 
     contentWidth: areaItem.childrenRect.width
-    contentHeight: areaItem.childrenRect.height
+    contentHeight: Math.max(areaItem.childrenRect.height, flickable.temporaryHeight)
     boundsBehavior: Flickable.StopAtBounds
 
     default property alias content: areaItem.children
@@ -49,12 +51,12 @@ Flickable {
     ScrollBar.horizontal: HorizontalScrollBar {
         id: horizontalScrollBar
         parent: flickable
-        scrollBarVisible: areaItem.childrenRect.width > flickable.width
+        scrollBarVisible: flickable.contentWidth > flickable.width
     }
 
     ScrollBar.vertical: VerticalScrollBar {
         id: verticalScrollBar
         parent: flickable
-        scrollBarVisible: areaItem.childrenRect.height > flickable.height
+        scrollBarVisible: flickable.contentHeight > flickable.height
     }
 }

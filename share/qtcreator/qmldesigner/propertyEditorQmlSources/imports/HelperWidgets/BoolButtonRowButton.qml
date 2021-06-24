@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -62,23 +62,23 @@ StudioControls.Button {
         property bool baseStateFlag: isBaseState
         onBaseStateFlagChanged: evaluate()
 
-        property bool isInModel: button.backendValue.isInModel
+        property bool isInModel: button.backendValue === undefined ? false
+                                                                   : button.backendValue.isInModel
         onIsInModelChanged: evaluate()
 
 
-        property bool isInSubState: button.backendValue.isInSubState
+        property bool isInSubState: button.backendValue === undefined ? false
+                                                                      : button.backendValue.isInSubState
         onIsInSubStateChanged: evaluate()
 
-        property variant theValue: button.backendValue.value
+        property variant theValue: button.backendValue === undefined ? 0 : button.backendValue.value
         onTheValueChanged: {
             evaluate()
             button.checked = innerObject.theValue
         }
     }
 
-    onCheckedChanged: {
-        button.backendValue.value = button.checked
-    }
+    onCheckedChanged: button.backendValue.value = button.checked
 
     ExtendedFunctionLogic {
         id: extFuncLogic

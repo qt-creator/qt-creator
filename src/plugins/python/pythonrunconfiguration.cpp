@@ -186,7 +186,7 @@ void InterpreterAspect::addToLayout(LayoutBuilder &builder)
         m_comboBox = new QComboBox;
 
     updateComboBox();
-    connect(m_comboBox, &QComboBox::currentTextChanged,
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &InterpreterAspect::updateCurrentInterpreter);
 
     auto manageButton = new QPushButton(tr("Manage..."));
@@ -199,8 +199,12 @@ void InterpreterAspect::addToLayout(LayoutBuilder &builder)
 
 void InterpreterAspect::updateCurrentInterpreter()
 {
-    m_currentId = currentInterpreter().id;
-    m_comboBox->setToolTip(currentInterpreter().command.toUserOutput());
+    const int index = m_comboBox->currentIndex();
+    if (index < 0)
+        return;
+    QTC_ASSERT(index < m_interpreters.size(), return);
+    m_currentId = m_interpreters[index].id;
+    m_comboBox->setToolTip(m_interpreters[index].command.toUserOutput());
     emit changed();
 }
 

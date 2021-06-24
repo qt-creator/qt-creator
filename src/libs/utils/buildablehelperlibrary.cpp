@@ -44,7 +44,7 @@ bool BuildableHelperLibrary::isQtChooser(const QFileInfo &info)
 QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
 {
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
-    SynchronousProcess proc;
+    QtcProcess proc;
     proc.setTimeoutS(1);
     proc.setCommand({path, {"-print-env"}});
     proc.runBlocking();
@@ -129,7 +129,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
     if (qmakePath.isEmpty())
         return QString();
 
-    SynchronousProcess qmake;
+    QtcProcess qmake;
     qmake.setTimeoutS(5);
     qmake.setCommand({qmakePath, {"--version"}});
     qmake.runBlocking();

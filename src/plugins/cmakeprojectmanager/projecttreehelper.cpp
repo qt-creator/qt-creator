@@ -43,6 +43,8 @@ std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
+    newFolder->setIsSourcesOrHeaders(displayName == "Source Files"
+                                  || displayName == "Header Files");
     return newFolder;
 }
 
@@ -175,7 +177,7 @@ CMakeTargetNode *createTargetNode(const QHash<Utils::FilePath, ProjectNode *> &c
 
 void addHeaderNodes(ProjectNode *root,
                     QSet<Utils::FilePath> &seenHeaders,
-                    const QList<const FileNode *> &allFiles)
+                    const QList<FileNode *> &allFiles)
 {
     QTC_ASSERT(root, return );
 
@@ -206,11 +208,28 @@ void addHeaderNodes(ProjectNode *root,
         root->addNode(std::move(headerNode));
 }
 
-void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFiles)
+template<typename Result>
+static std::unique_ptr<Result> cloneFolderNode(FolderNode *node)
+{
+    auto folderNode = std::make_unique<Result>(node->filePath());
+    folderNode->setDisplayName(node->displayName());
+    for (Node *node : node->nodes()) {
+        if (FileNode *fn = node->asFileNode()) {
+            folderNode->addNode(std::unique_ptr<FileNode>(fn->clone()));
+        } else if (FolderNode *fn = node->asFolderNode()) {
+            folderNode->addNode(cloneFolderNode<FolderNode>(fn));
+        } else {
+            QTC_CHECK(false);
+        }
+    }
+    return folderNode;
+}
+
+void addFileSystemNodes(ProjectNode *root, const std::shared_ptr<FolderNode> &folderNode)
 {
     QTC_ASSERT(root, return );
 
-    auto fileSystemNode = std::make_unique<VirtualFolderNode>(root->filePath());
+    auto fileSystemNode = cloneFolderNode<VirtualFolderNode>(folderNode.get());
     // just before special nodes like "CMake Modules"
     fileSystemNode->setPriority(Node::DefaultPriority - 6);
     fileSystemNode->setDisplayName(
@@ -218,19 +237,12 @@ void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFil
                                     "<File System>"));
     fileSystemNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN));
 
-    for (const FileNode *fn : allFiles) {
-        if (!fn->filePath().isChildOf(root->filePath()))
-            continue;
-
-        std::unique_ptr<FileNode> node(fn->clone());
-        node->setEnabled(false);
-        fileSystemNode->addNestedNode(std::move(node));
-    }
-
     if (!fileSystemNode->isEmpty()) {
         // make file system nodes less probable to be selected when syncing with the current document
-        fileSystemNode->forEachGenericNode(
-            [](Node *n) { n->setPriority(n->priority() + Node::DefaultProjectFilePriority + 1); });
+        fileSystemNode->forEachGenericNode([](Node *n) {
+            n->setPriority(n->priority() + Node::DefaultProjectFilePriority + 1);
+            n->setEnabled(false);
+        });
         root->addNode(std::move(fileSystemNode));
     }
 }

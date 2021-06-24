@@ -98,6 +98,12 @@ public:
     void terminate();
     void interrupt();
 
+    // Starts the command and waits for finish. User input processing depends
+    // on whether setProcessUserEventWhileRunning was called.
+    void runBlocking();
+    // This starts a nested event loop when running the command.
+    void setProcessUserEventWhileRunning(); // Avoid.
+
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
     void setTimeoutS(int timeoutS);
@@ -186,7 +192,6 @@ signals:
     void readyReadStandardError();
 
 private:
-    friend class SynchronousProcess;
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
 
     Internal::QtcProcessPrivate *d = nullptr;
@@ -204,22 +209,6 @@ using ExitCodeInterpreter = std::function<QtcProcess::Result(int /*exitCode*/)>;
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &);
 
-class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
-{
-    Q_OBJECT
-public:
-    SynchronousProcess();
-    ~SynchronousProcess() override;
-
-    // Force the use of 'runBlocking' for now.
-    void start() = delete;
-
-    // This starts a nested event loop when running the command.
-    void setProcessUserEventWhileRunning(); // Avoid.
-
-    // Starts the command and waits for finish. User input processing depends
-    // on whether setProcessUserEventWhileRunning was called.
-    void runBlocking();
-};
+using SynchronousProcess = QtcProcess; // FIXME: Remove.
 
 } // namespace Utils

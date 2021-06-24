@@ -23,33 +23,30 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
 import StudioControls 1.0 as StudioControls
-import QtQuickDesignerTheme 1.0
+import StudioTheme 1.0 as StudioTheme
 
 StudioControls.ComboBox {
-
-    property string targetName: anchorBackend.topTarget
-    property color textColor: Theme.color(Theme.PanelTextColorLight)
-
-    actionIndicatorVisible: false
-
     id: targetComboBox
 
-    Connections {
-        target: anchorBackend
-        onInvalidated: {
-            targetComboBox.currentIndex =
-                    anchorBackend.indexOfPossibleTargetItem(targetComboBox.targetName)
-        }
-    }
+    property string targetName: anchorBackend.topTarget
+
+    actionIndicatorVisible: false
+    model: anchorBackend.possibleTargetItems
 
     onTargetNameChanged: {
         targetComboBox.currentIndex =
                 anchorBackend.indexOfPossibleTargetItem(targetComboBox.targetName)
     }
 
-    model: anchorBackend.possibleTargetItems
+    Connections {
+        target: anchorBackend
+        function onInvalidated() {
+            targetComboBox.currentIndex =
+                    anchorBackend.indexOfPossibleTargetItem(targetComboBox.targetName)
+        }
+    }
 }

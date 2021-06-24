@@ -1,14 +1,15 @@
-Label {
+PropertyLabel {
     text: "%1"
     tooltip: "%1"
 }
 
 SecondColumnLayout {
     CheckBox {
+        implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                       + StudioTheme.Values.actionIndicatorWidth
         text: backendValues.%2.valueToString
         backendValue: backendValues.%2
     }
 
-    ExpandingSpacer {
-    }
+    ExpandingSpacer {}
 }

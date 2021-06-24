@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Section {
     anchors.left: parent.left
@@ -34,97 +35,54 @@ Section {
     visible: backendValues.layer_effect.isAvailable
 
     SectionLayout {
-        columns: 2
-
-        Label {
-            text: qsTr("Effect")
-            tooltip: qsTr("Applies the effect to this layer.")
-        }
-        SecondColumnLayout {
-            ItemFilterComboBox {
-                typeFilter: "QtQuick.Item"
-                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
-                backendValue: backendValues.layer_effect
-                Layout.fillWidth: true
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
+        PropertyLabel {
             text: qsTr("Enabled")
             tooltip: qsTr("Whether the component is layered or not.")
         }
+
         SecondColumnLayout {
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 text: backendValues.layer_enabled.valueToString
                 backendValue: backendValues.layer_enabled
-                Layout.fillWidth: true
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
-            text: qsTr("Format")
-            tooltip: qsTr("Internal OpenGL format of the texture.")
-        }
-        SecondColumnLayout {
-            ComboBox {
-                scope: "ShaderEffectSource"
-                model: ["Alpha", "RGB", "RGBA"]
-                backendValue: backendValues.layer_format
-                Layout.fillWidth: true
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Mipmap")
-            tooltip: qsTr("Generates mipmaps for the texture.")
-        }
-        SecondColumnLayout {
-            CheckBox {
-                text: backendValues.layer_mipmap.valueToString
-                backendValue: backendValues.layer_mipmap
-                Layout.fillWidth: true
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Sampler name")
+        PropertyLabel {
+            text: qsTr("Sampler Name")
             tooltip: qsTr("Name of the effect's source texture property.")
         }
+
         SecondColumnLayout {
             LineEdit {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 backendValue: backendValues.layer_samplerName
                 text: backendValues.layer_samplerName.valueToString
-                Layout.fillWidth: true
                 showTranslateCheckBox: false
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
             text: qsTr("Samples")
             tooltip: qsTr("Allows requesting multisampled rendering in the layer.")
         }
+
         SecondColumnLayout {
             ComboBox {
                 id: samplesComboBox
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
                 model: [2, 4, 8, 16]
                 backendValue: backendValues.layer_samples
                 manualMapping: true
-                Layout.fillWidth: true
 
                 onValueFromBackendChanged: {
                     if (!samplesComboBox.__isCompleted)
@@ -150,93 +108,208 @@ Section {
                 }
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
 
-        Label {
+        PropertyLabel {
+            text: qsTr("Effect")
+            tooltip: qsTr("Applies the effect to this layer.")
+        }
+
+        SecondColumnLayout {
+            ItemFilterComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                typeFilter: "QtQuick.Item"
+                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
+                backendValue: backendValues.layer_effect
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Format")
+            tooltip: qsTr("Internal OpenGL format of the texture.")
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "ShaderEffectSource"
+                model: ["Alpha", "RGB", "RGBA"]
+                backendValue: backendValues.layer_format
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Texture size")
+            tooltip: qsTr("Requested pixel size of the layer's texture.")
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.layer_textureSize_width
+                minimumValue: 0
+                maximumValue: 2000
+                decimals: 0
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel { text: qsTr("W") }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.layer_textureSize_height
+                minimumValue: 0
+                maximumValue: 2000
+                decimals: 0
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel { text: qsTr("H") }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Texture Mirroring")
+            tooltip: qsTr("Sets how the generated OpenGL texture should be mirrored.")
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "ShaderEffectSource"
+                model: ["NoMirroring", "MirrorHorizontally", "MirrorVertically"]
+                backendValue: backendValues.layer_textureMirroring
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Wrap mode")
+            tooltip: qsTr("OpenGL wrap modes associated with the texture.")
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "ShaderEffectSource"
+                model: ["ClampToEdge", "RepeatHorizontally", "RepeatVertically", "Repeat"]
+                backendValue: backendValues.layer_wrapMode
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Mipmap")
+            tooltip: qsTr("Generates mipmaps for the texture.")
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                text: backendValues.layer_mipmap.valueToString
+                backendValue: backendValues.layer_mipmap
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
             text: qsTr("Smooth")
             tooltip: qsTr("Transforms the layer smoothly.")
         }
+
         SecondColumnLayout {
             CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 text: backendValues.layer_smooth.valueToString
                 backendValue: backendValues.layer_smooth
-                Layout.fillWidth: true
             }
 
-            ExpandingSpacer {
-            }
+            ExpandingSpacer {}
         }
-
 /*
-        Label {
-            text: qsTr("Source rectangle")
+        PropertyLabel {
+            text: qsTr("Source Rectangle")
             tooltip: qsTr("TODO.")
         }
+
         SecondColumnLayout {
-            Label {
-                text: "X"
-                width: 12
-            }
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.layer_sourceRect_x
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
-                realDragRange: 5000
             }
 
-            Item {
-                width: 4
-                height: 4
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            Label {
-                text: "Y"
-                width: 12
-            }
+            ControlLabel { text: "X" }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.layer_sourceRect_y
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
-                realDragRange: 5000
             }
 
-            ExpandingSpacer {
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel { text: "Y" }
+
+            ExpandingSpacer {}
         }
 
-        Item {
-            width: 4
-            height: 4
-        }
+        PropertyLabel {}
+
         SecondColumnLayout {
-            Layout.fillWidth: true
-
-            Label {
-                text: "W"
-                width: 12
-            }
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.layer_sourceRect_width
                 maximumValue: 0xffff
                 minimumValue: 0
                 decimals: 0
-                realDragRange: 5000
             }
 
-            Item {
-                width: 4
-                height: 4
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            Label {
-                text: "H"
-                width: 12
-            }
+            ControlLabel { text: qsTr("W") }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
             SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.layer_sourceRect_height
                 maximumValue: 0xffff
                 minimumValue: 0
@@ -244,77 +317,12 @@ Section {
                 realDragRange: 5000
             }
 
-            ExpandingSpacer {
-            }
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel { text: qsTr("H") }
+
+            ExpandingSpacer {}
         }
 */
-
-        Label {
-            text: qsTr("Texture mirroring")
-            tooltip: qsTr("Sets how the generated OpenGL texture should be mirrored.")
-        }
-        SecondColumnLayout {
-            ComboBox {
-                scope: "ShaderEffectSource"
-                model: ["NoMirroring", "MirrorHorizontally", "MirrorVertically"]
-                backendValue: backendValues.layer_textureMirroring
-                Layout.fillWidth: true
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Texture size")
-            tooltip: qsTr("Requested pixel size of the layer's texture.")
-        }
-        SecondColumnLayout {
-            Label {
-                text: "W"
-                width: 12
-            }
-            SpinBox {
-                backendValue: backendValues.layer_textureSize_width
-                minimumValue: 0
-                maximumValue: 2000
-                decimals: 0
-            }
-
-            Item {
-                width: 4
-                height: 4
-            }
-
-            Label {
-                text: "H"
-                width: 12
-            }
-            SpinBox {
-                backendValue: backendValues.layer_textureSize_height
-                minimumValue: 0
-                maximumValue: 2000
-                decimals: 0
-            }
-
-            ExpandingSpacer {
-            }
-        }
-
-        Label {
-            text: qsTr("Wrap mode")
-            tooltip: qsTr("OpenGL wrap modes associated with the texture.")
-        }
-        SecondColumnLayout {
-            ComboBox {
-                scope: "ShaderEffectSource"
-                model: ["ClampToEdge", "RepeatHorizontally", "RepeatVertically", "Repeat"]
-                backendValue: backendValues.layer_wrapMode
-                Layout.fillWidth: true
-            }
-
-            ExpandingSpacer {
-            }
-        }
     }
 }

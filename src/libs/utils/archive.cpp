@@ -116,7 +116,7 @@ static QVector<Tool> toolsForMimeType(const Utils::MimeType &mimeType)
 
 static QVector<Tool> toolsForFilePath(const Utils::FilePath &fp)
 {
-    return toolsForMimeType(Utils::mimeTypeForFile(fp.toString()));
+    return toolsForMimeType(Utils::mimeTypeForFile(fp));
 }
 
 static Utils::optional<Tool> resolveTool(const Tool &tool)

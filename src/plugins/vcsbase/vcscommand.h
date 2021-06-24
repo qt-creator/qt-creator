@@ -47,7 +47,7 @@ public:
 
     const Utils::Environment processEnvironment() const override;
 
-    void runCommand(Utils::SynchronousProcess &process,
+    void runCommand(Utils::QtcProcess &process,
                     const Utils::CommandLine &command,
                     const QString &workDirectory = {}) override;
 
