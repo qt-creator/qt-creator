@@ -48,15 +48,16 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
     qmlRegisterType<FlameGraph::FlameGraph>("QtCreator.Tracing", 1, 0, "FlameGraph");
-#endif // Qt < 6.2
     qmlRegisterUncreatableType<FlameGraphModel>("QtCreator.QmlProfiler", 1, 0,
                                                 "QmlProfilerFlameGraphModel",
                                                 QLatin1String("use the context property"));
+#endif // Qt < 6.2
 
     Timeline::TimelineTheme::setupTheme(m_content->engine());
 
     m_content->rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);
-    m_content->setSource(QUrl(QStringLiteral("qrc:/qmlprofiler/QmlProfilerFlameGraphView.qml")));
+    m_content->setSource(
+                QUrl(QStringLiteral("qrc:/QtCreator/QmlProfiler/QmlProfilerFlameGraphView.qml")));
     m_content->setClearColor(Utils::creatorTheme()->color(Utils::Theme::Timeline_BackgroundColor1));
 
     m_content->setResizeMode(QQuickWidget::SizeRootObjectToView);
