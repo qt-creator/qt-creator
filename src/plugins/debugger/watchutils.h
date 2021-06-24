@@ -47,5 +47,7 @@ bool isIntType(const QString &type);
 QString formatToolTipAddress(quint64 a);
 QString removeObviousSideEffects(const QString &exp);
 
+QString escapeUnprintable(const QString &str, int unprintableBase = -1);
+
 } // namespace Internal
 } // namespace Debugger
