@@ -213,7 +213,7 @@ public:
     auto value(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
-        ResultType resultValue;
+        ResultType resultValue{};
 
         bindValues(queryValues...);
 
