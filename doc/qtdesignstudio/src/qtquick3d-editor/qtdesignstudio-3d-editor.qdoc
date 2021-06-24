@@ -55,7 +55,10 @@
     \uicontrol Properties to transform the component around a point other than
     its local origin. A line is drawn in \uicontrol {3D Editor} from the pivot
     point to the center of the component to provide a visual connection between
-    them.
+    them. Especially when working with complex scenes, it may be useful to use
+    the \l {Showing and Hiding Components}{showing and hiding} or the
+    \l {Locking Components}{locking} features in \l Navigator to avoid
+    transforming components by mistake while editing your scene.
 
     Toggle between local and global orientation to determine whether the gizmos
     affect only the local transformations of the component or whether they
@@ -169,6 +172,12 @@
     \endlist
 
     To toggle the selection mode, press \key Q.
+
+    To multiselect, hold \key Ctrl and click the components you wish to select.
+
+    After selecting a component, you can apply the usual \l {Keyboard Shortcuts}
+    {keyboard shortcuts} applicable to your operating system, for example,
+    \key Ctrl+C and \key Ctrl+V on Windows to copy-paste components.
 
     \section1 Moving Components
 
