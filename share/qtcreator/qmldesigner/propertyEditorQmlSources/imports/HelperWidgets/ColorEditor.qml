@@ -25,7 +25,6 @@
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
-import QtGraphicalEffects 1.15 as Effects
 import QtQuick.Shapes 1.15
 import QtQuick.Templates 2.15 as T
 import QtQuickDesignerTheme 1.0
@@ -88,7 +87,7 @@ SecondColumnLayout {
 
             gradientString += "}"
 
-            var gradientObject = Qt.createQmlObject(gradientString, gradientThumbnail, "test")
+            var gradientObject = Qt.createQmlObject(gradientString, gradientThumbnail, "dynamicGradient")
 
             for (i = 0; i < gradientLine.model.count; i++) {
                 gradientObject.stops[i].color = gradientLine.model.getColor(i)
@@ -123,7 +122,7 @@ SecondColumnLayout {
 
             gradientStr += "}"
 
-            var gradientObj = Qt.createQmlObject(gradientStr, shapeGradientThumbnail, "test1")
+            var gradientObj = Qt.createQmlObject(gradientStr, shapeGradientThumbnail, "dynamicShapeGradient")
 
             for (j = 0; j < gradientLine.model.count; j++) {
                 gradientObj.stops[j].color = gradientLine.model.getColor(j)
@@ -235,7 +234,7 @@ SecondColumnLayout {
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
 
-        Effects.LinearGradient {
+        Rectangle {
             id: gradientThumbnail
             anchors.fill: parent
             anchors.margins: StudioTheme.Values.border
