@@ -147,9 +147,11 @@
     when: control.pressed || control.checked && !control.hovered
     \endcode
 
+    \if defined(qtdesignstudio)
     If you are not familiar with writing expressions, you can use preset
     \l{Logic Helpers}{logic helpers} from \l Library > \uicontrol Components
     > \uicontrol {Qt Quick Studio Logic Helper}.
+    \endif
 
     \section1 Using States
 

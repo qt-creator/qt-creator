@@ -43,7 +43,7 @@
     tools, you also import a \l{Cameras}{scene camera},
     \l{Lights}{light}, \l{3D Models}{model}, and
     \l {Materials and Shaders}{materials}. If your scene did not contain
-    them, you can add the corresponding \l {Using 3D Components}{Qt Quick 3D}
+    them, you can add the corresponding \l {3D Components}{Qt Quick 3D}
     components from \l Library > \uicontrol Components > \inlineimage plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 

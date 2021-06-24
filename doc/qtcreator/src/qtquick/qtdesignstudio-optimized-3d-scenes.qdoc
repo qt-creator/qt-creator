@@ -40,7 +40,12 @@
 
     \section1 The Optimal 3D Scene Example
 
-    The \l {Optimal 3D Scene} example features four versions of the same kitchen
+    \if defined(qtdesignstudio)
+    The \l {Optimal 3D Scene}
+    \else
+    The Optimal 3D Scene
+    \endif
+    example features four versions of the same kitchen
     scene that have been created using different strategies: High, Low, Combined,
     and Vertex Color. The High Scene includes a significantly higher number of
     objects compared to the other versions of the scene. The Low, Combined and

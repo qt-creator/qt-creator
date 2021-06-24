@@ -184,10 +184,9 @@
     split view, select \uicontrol Window > \uicontrol {Remove All Splits} or
     press \key {Ctrl+E, 1}.
 
-    \if defined(qtcreator)
     \section1 Using Bookmarks
 
-    To insert or delete a bookmark:
+    To insert or delete a bookmark in the \uicontrol Edit mode:
 
     \list
 
@@ -245,7 +244,8 @@
 
     \section1 Moving to Symbol Definition or Declaration
 
-    You can move directly to the definition or the declaration of a symbol by
+    You can move directly to the definition or the declaration of a symbol
+    in the \uicontrol Edit mode by
     holding the \key Ctrl key and clicking the symbol. If you have multiple
     splits opened, you can open the link in the next split by holding \key Ctrl
     and \key Alt while clicking the symbol.
@@ -290,6 +290,7 @@
     \uicontrol {Open Corresponding Header/Source in Next Split}. You can also
     press \key F4 or \key {Ctrl+E,F4}, respectively.
 
+    \if defined(qtcreator)
     \section1 Reparsing Externally Changed Files
 
     If source files are modified from outside \QC, the opened files will be
