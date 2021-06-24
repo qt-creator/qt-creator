@@ -1139,7 +1139,7 @@ public:
         QTC_ASSERT(item, return {});
 
         auto device = DockerDevice::create(*item);
-        device->setupId(IDevice::ManuallyAdded, Utils::Id());
+        device->setupId(IDevice::ManuallyAdded, Id::fromString(item->id()));
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
 
