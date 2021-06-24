@@ -308,10 +308,10 @@ void GdbMi::parseList(DebuggerOutputParser &parser)
         }
         GdbMi child;
         child.parseResultOrValue(parser);
-        if (child.isValid()) {
-            m_children.push_back(child);
-            parser.skipCommas();
-        }
+        if (!child.isValid())
+            break;
+        m_children.push_back(child);
+        parser.skipCommas();
     }
 }
 
