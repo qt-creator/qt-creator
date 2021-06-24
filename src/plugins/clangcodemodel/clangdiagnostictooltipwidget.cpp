@@ -218,40 +218,6 @@ private:
         return text;
     }
 
-    static QString documentationUrlForOption(const Utf8String &optionAsUtf8String)
-    {
-        if (optionAsUtf8String.isEmpty())
-            return QString();
-
-        QString option = optionAsUtf8String.toString();
-
-        // Clazy
-        if (DiagnosticTextInfo::isClazyOption(option)) {
-            option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
-            return QString::fromUtf8(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE)
-                .arg(option);
-        }
-
-        // Clang itself
-        if (option.startsWith("-W"))
-            return QString();
-
-        // Clang-Tidy
-        return QString::fromUtf8(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE).arg(option);
-    }
-
-    static QString maybeClickableOption(const Utf8String &option)
-    {
-        if (option.isEmpty())
-            return option;
-
-        const QString link = documentationUrlForOption(option);
-        if (link.isEmpty())
-            return option;
-
-        return wrapInLink(option.toString(), link);
-    }
-
     static QString diagnosticCategoryAndEnableOptionRow(
             const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
@@ -260,7 +226,7 @@ private:
             "    <td align='left'><b>%1</b></td>"
             "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
-            .arg(diagnostic.category, maybeClickableOption(diagnostic.enableOption));
+            .arg(diagnostic.category, diagnostic.enableOption);
 
         return text;
     }
