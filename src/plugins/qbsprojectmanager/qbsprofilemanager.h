@@ -58,9 +58,6 @@ signals:
     void qbsProfilesUpdated();
 
 private:
-    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
-    void addProfile(const QString &name, const QVariantMap &data);
-    void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
     void addProfileFromKit(const ProjectExplorer::Kit *k);
     void updateAllProfiles();
 
