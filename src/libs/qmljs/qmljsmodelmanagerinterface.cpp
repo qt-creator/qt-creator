@@ -165,6 +165,7 @@ ModelManagerInterface::~ModelManagerInterface()
 static QHash<QString, Dialect> defaultLanguageMapping()
 {
     static QHash<QString, Dialect> res{
+        {QLatin1String("mjs"), Dialect::JavaScript},
         {QLatin1String("js"), Dialect::JavaScript},
         {QLatin1String("qml"), Dialect::Qml},
         {QLatin1String("qmltypes"), Dialect::QmlTypeInfo},
