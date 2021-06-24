@@ -40,6 +40,7 @@ using std::get;
 using std::get_if;
 using std::holds_alternative;
 using std::variant;
+using std::variant_alternative_t;
 using std::visit;
 } // namespace Utils
 
@@ -51,6 +52,7 @@ using mpark::get;
 using mpark::get_if;
 using mpark::holds_alternative;
 using mpark::variant;
+using mpark::variant_alternative_t;
 using mpark::visit;
 } // namespace Utils
 
