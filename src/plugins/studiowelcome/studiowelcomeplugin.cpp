@@ -195,7 +195,7 @@ public:
             connect(checkout,
                     &ExampleCheckout::finishedSucessfully,
                     this,
-                    [checkout, this, formFile, example]() {
+                    [checkout, formFile, example]() {
                         const QString projectFile = checkout->extractionFolder() + "/" + example
                                                     + "/" + example + ".qmlproject";
 
