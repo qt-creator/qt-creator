@@ -69,10 +69,18 @@ public:
     const QSet<QString> &supportedSuffixes() const;
     const QSet<QString> &previewableSuffixes() const;
 
-    static void saveExpandedState(bool expanded, const QString &sectionName);
-    static bool loadExpandedState(const QString &sectionName);
+    static void saveExpandedState(bool expanded, const QString &assetPath);
+    static bool loadExpandedState(const QString &assetPath);
+
+    enum class DirExpandState {
+        SomeExpanded,
+        AllExpanded,
+        AllCollapsed
+    };
+    Q_ENUM(DirExpandState)
 
     Q_INVOKABLE void toggleExpandAll(bool expand);
+    Q_INVOKABLE DirExpandState getAllExpandedState() const;
 
 private:
     SynchronousImageCache &m_fontImageCache;
@@ -83,7 +91,7 @@ private:
     ItemLibraryAssetsDir *m_assetsDir = nullptr;
 
     QHash<int, QByteArray> m_roleNames;
-    inline static QHash<QString, bool> m_expandedStateHash;
+    inline static QHash<QString, bool> m_expandedStateHash; // <assetPath, isExpanded>
 };
 
 } // namespace QmlDesigner

@@ -44,14 +44,35 @@
 
 namespace QmlDesigner {
 
-void ItemLibraryAssetsModel::saveExpandedState(bool expanded, const QString &sectionName)
+void ItemLibraryAssetsModel::saveExpandedState(bool expanded, const QString &assetPath)
 {
-    m_expandedStateHash.insert(sectionName, expanded);
+    m_expandedStateHash.insert(assetPath, expanded);
 }
 
-bool ItemLibraryAssetsModel::loadExpandedState(const QString &sectionName)
+bool ItemLibraryAssetsModel::loadExpandedState(const QString &assetPath)
 {
-    return m_expandedStateHash.value(sectionName, true);
+    return m_expandedStateHash.value(assetPath, true);
+}
+
+ItemLibraryAssetsModel::DirExpandState ItemLibraryAssetsModel::getAllExpandedState() const
+{
+    const auto keys = m_expandedStateHash.keys();
+    bool allExpanded = true;
+    bool allCollapsed = true;
+    for (const QString &assetPath : keys) {
+        bool expanded = m_expandedStateHash.value(assetPath);
+
+        if (expanded)
+            allCollapsed = false;
+        if (!expanded)
+            allExpanded = false;
+
+        if (!allCollapsed && !allExpanded)
+            break;
+    }
+
+    return allExpanded ? DirExpandState::AllExpanded : allCollapsed ? DirExpandState::AllCollapsed
+           : DirExpandState::SomeExpanded;
 }
 
 void ItemLibraryAssetsModel::toggleExpandAll(bool expand)
@@ -200,6 +221,7 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
 
             ItemLibraryAssetsDir *assetsDir = new ItemLibraryAssetsDir(subDir.path(), currDepth, loadExpandedState(subDir.path()), currAssetsDir);
             currAssetsDir->addDir(assetsDir);
+            saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
             isEmpty &= parseDirRecursive(assetsDir, currDepth + 1);
         }
 

@@ -33,6 +33,7 @@ import StudioTheme 1.0 as StudioTheme
 
 Item {
     property var selectedAssets: ({})
+    property int allExpandedState: 0
 
     DropArea {
         id: dropArea
@@ -81,11 +82,13 @@ Item {
 
                 StudioControls.MenuItem {
                     text: qsTr("Expand All")
+                    enabled: allExpandedState !== 1
                     onTriggered: assetsModel.toggleExpandAll(true)
                 }
 
                 StudioControls.MenuItem {
                     text: qsTr("Collapse All")
+                    enabled: allExpandedState !== 2
                     onTriggered: assetsModel.toggleExpandAll(false)
                 }
             }
@@ -118,6 +121,7 @@ Item {
                         dirExpanded = !dirExpanded
                     }
                     onShowContextMenu: {
+                        allExpandedState = assetsModel.getAllExpandedState()
                         contextMenu.popup()
                     }
 
