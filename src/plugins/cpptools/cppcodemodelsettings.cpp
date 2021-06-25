@@ -66,6 +66,7 @@ static QString indexerFileSizeLimitKey()
 static QString useClangdKey() { return QLatin1String("UseClangd"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
+static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -303,6 +304,7 @@ static bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Dat
 {
     return s1.useClangd == s2.useClangd
             && s1.executableFilePath == s2.executableFilePath
+            && s1.workerThreadLimit == s2.workerThreadLimit
             && s1.enableIndexing == s2.enableIndexing;
 }
 static bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
@@ -342,6 +344,7 @@ void ClangdSettings::loadSettings()
     m_data.useClangd = s->value(useClangdKey(), false).toBool();
     m_data.executableFilePath = FilePath::fromString(s->value(clangdPathKey()).toString());
     m_data.enableIndexing = s->value(clangdIndexingKey(), true).toBool();
+    m_data.workerThreadLimit = s->value(clangdThreadLimitKey(), 0).toInt();
 }
 
 void ClangdSettings::saveSettings()
@@ -350,6 +353,7 @@ void ClangdSettings::saveSettings()
     s->setValue(useClangdKey(), useClangd());
     s->setValue(clangdPathKey(), m_data.executableFilePath.toString());
     s->setValue(clangdIndexingKey(), m_data.enableIndexing);
+    s->setValue(clangdThreadLimitKey(), m_data.workerThreadLimit);
 }
 
 #ifdef WITH_TESTS

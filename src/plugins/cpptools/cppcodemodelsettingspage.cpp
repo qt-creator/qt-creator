@@ -36,6 +36,7 @@
 #include <utils/pathchooser.h>
 
 #include <QFormLayout>
+#include <QSpinBox>
 #include <QTextStream>
 
 namespace CppTools {
@@ -210,6 +211,10 @@ public:
                 "If background indexing is enabled, global symbol searches will yield\n"
                 "more accurate results, at the cost of additional CPU load when\n"
                 "the project is first opened."));
+        m_threadLimitCheckBox.setText(tr("Set worker thread count limit"));
+        m_threadLimitCheckBox.setChecked(ClangdSettings::workerThreadLimit() != 0);
+        m_threadLimitSpinBox.setMinimum(1);
+        m_threadLimitSpinBox.setValue(ClangdSettings::workerThreadLimit());
 
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_useClangdCheckBox);
@@ -218,6 +223,10 @@ public:
         formLayout->addRow(chooserLabel, &m_clangdChooser);
         const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
         formLayout->addRow(indexingLabel, &m_indexingCheckBox);
+        const auto threadLimitLayout = new QHBoxLayout;
+        threadLimitLayout->addWidget(&m_threadLimitSpinBox);
+        threadLimitLayout->addStretch(1);
+        formLayout->addRow(&m_threadLimitCheckBox, threadLimitLayout);
         layout->addLayout(formLayout);
         layout->addStretch(1);
 
@@ -226,9 +235,15 @@ public:
             m_clangdChooser.setEnabled(checked);
             indexingLabel->setEnabled(checked);
             m_indexingCheckBox.setEnabled(checked);
+            m_threadLimitCheckBox.setEnabled(checked);
+            m_threadLimitSpinBox.setEnabled(checked && m_threadLimitCheckBox.isChecked());
         };
         connect(&m_useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
+        connect(&m_threadLimitCheckBox, &QCheckBox::toggled,
+                &m_threadLimitSpinBox, &QSpinBox::setEnabled);
         toggleEnabled(m_useClangdCheckBox.isChecked());
+        m_threadLimitSpinBox.setEnabled(m_useClangdCheckBox.isChecked()
+                                        && m_threadLimitCheckBox.isChecked());
     }
 
 private:
@@ -238,11 +253,15 @@ private:
         data.useClangd = m_useClangdCheckBox.isChecked();
         data.executableFilePath = m_clangdChooser.filePath();
         data.enableIndexing = m_indexingCheckBox.isChecked();
+        data.workerThreadLimit = m_threadLimitCheckBox.isChecked()
+                ? m_threadLimitSpinBox.value() : 0;
         ClangdSettings::setData(data);
     }
 
     QCheckBox m_useClangdCheckBox;
     QCheckBox m_indexingCheckBox;
+    QCheckBox m_threadLimitCheckBox;
+    QSpinBox m_threadLimitSpinBox;
     Utils::PathChooser m_clangdChooser;
 };
 
@@ -253,8 +272,6 @@ ClangdSettingsPage::ClangdSettingsPage()
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new ClangdSettingsWidget; });
 }
-
-
 
 } // Internal
 } // CppTools

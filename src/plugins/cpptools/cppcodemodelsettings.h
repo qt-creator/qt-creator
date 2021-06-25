@@ -102,9 +102,10 @@ public:
     class Data
     {
     public:
+        Utils::FilePath executableFilePath;
+        int workerThreadLimit = 0;
         bool useClangd = false;
         bool enableIndexing = true;
-        Utils::FilePath executableFilePath;
     };
 
     static bool useClangd() { return instance().m_data.useClangd; }
@@ -112,6 +113,7 @@ public:
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
     static Utils::FilePath clangdFilePath();
     static bool indexingEnabled() { return instance().m_data.enableIndexing; }
+    static int workerThreadLimit() { return instance().m_data.workerThreadLimit; }
 
     static void setData(const Data &data);
     static Data data() { return instance().m_data; }

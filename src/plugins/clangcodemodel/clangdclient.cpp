@@ -387,6 +387,8 @@ static BaseClientInterface *clientInterface(const Utils::FilePath &jsonDbDir)
         indexingOption += "=0";
     Utils::CommandLine cmd{CppTools::ClangdSettings::clangdFilePath(),
                            {indexingOption, "--limit-results=0"}};
+    if (CppTools::ClangdSettings::workerThreadLimit() != 0)
+        cmd.addArg("-j=" + QString::number(CppTools::ClangdSettings::workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLog().isDebugEnabled())
