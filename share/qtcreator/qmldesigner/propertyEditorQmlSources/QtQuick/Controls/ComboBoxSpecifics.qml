@@ -81,7 +81,7 @@ Column {
             }
 
             PropertyLabel {
-                text: qsTr("Current")
+                text: qsTr("Current index")
                 tooltip: qsTr("The index of the current item.")
             }
 
@@ -90,8 +90,8 @@ Column {
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                     width: implicitWidth
-                    maximumValue: 9999999
                     minimumValue: -9999999
+                    maximumValue: 9999999
                     decimals: 0
                     backendValue: backendValues.currentIndex
                 }

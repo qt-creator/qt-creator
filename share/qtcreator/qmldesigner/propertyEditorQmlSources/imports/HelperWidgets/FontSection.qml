@@ -275,7 +275,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Letter space")
+            text: qsTr("Letter spacing")
             tooltip: qsTr("Letter spacing for the font.")
         }
 
@@ -295,7 +295,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Word space")
+            text: qsTr("Word spacing")
             tooltip: qsTr("Word spacing for the font.")
         }
 

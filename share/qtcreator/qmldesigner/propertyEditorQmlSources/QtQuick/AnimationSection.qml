@@ -91,7 +91,14 @@ Section {
             StudioControls.InfinityLoopIndicator {
                 id: infinityLoopIndicator
 
-                infinite: backendValues.loops.value === -1 ? true : false
+                property var valueFromBackend: backendValues.loops.value
+
+                onValueFromBackendChanged: {
+                    if (valueFromBackend === -1)
+                        infinityLoopIndicator.infinite = true
+                    else
+                        infinityLoopIndicator.infinite = false
+                }
 
                 onInfiniteChanged: {
                     if (infinityLoopIndicator.infinite === true)
