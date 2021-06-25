@@ -79,7 +79,7 @@ public:
 
 protected:
     virtual void dispatchCommand(const QVariant &command, Connection &connection) = 0;
-    virtual void processFinished(int exitCode, QProcess::ExitStatus exitStatus) = 0;
+    virtual void processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName) = 0;
 };
 
 } // namespace QmlDesigner

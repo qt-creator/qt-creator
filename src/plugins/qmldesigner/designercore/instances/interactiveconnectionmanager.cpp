@@ -107,7 +107,7 @@ void InteractiveConnectionManager::puppetTimeout(Connection &connection)
         return;
     }
 
-    processFinished();
+    processFinished(connection.name + "_timeout");
 }
 
 void InteractiveConnectionManager::puppetAlive(Connection &connection)

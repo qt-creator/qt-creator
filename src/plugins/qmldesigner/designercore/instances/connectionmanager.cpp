@@ -69,7 +69,7 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
             socketToken,
             [&] { printProcessOutput(connection.qmlPuppetProcess.get(), connection.name); },
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
-                processFinished(exitCode, exitStatus);
+                processFinished(exitCode, exitStatus, connection.name);
             });
 
         const int second = 1000;
@@ -122,15 +122,10 @@ void ConnectionManager::writeCommand(const QVariant &command)
     m_writeCommandCounter++;
 }
 
-void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName)
 {
-    auto finishedProcess = qobject_cast<QProcess *>(sender());
-    if (finishedProcess)
-        qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
-                   << finishedProcess->arguments() << "exitCode:" << exitCode;
-    else
-        qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
-                   << sender() << "exitCode:" << exitCode;
+    qWarning() << "Process" << connectionName <<(exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
+               << "with exitCode:" << exitCode;
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
