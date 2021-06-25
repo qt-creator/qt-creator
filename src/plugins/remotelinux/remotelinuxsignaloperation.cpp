@@ -119,7 +119,7 @@ void RemoteLinuxSignalOperation::interruptProcess(const QString &filePath)
 void RemoteLinuxSignalOperation::runnerProcessFinished()
 {
     m_errorMessage.clear();
-    if (m_runner->processExitStatus() != QSsh::SshRemoteProcess::NormalExit) {
+    if (m_runner->processExitStatus() != QProcess::NormalExit) {
         m_errorMessage = m_runner->processErrorString();
     } else if (m_runner->processExitCode() != 0) {
         m_errorMessage = tr("Exit code is %1. stderr:").arg(m_runner->processExitCode())

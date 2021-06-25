@@ -58,7 +58,7 @@ struct Command
 
 struct SftpSession::SftpSessionPrivate
 {
-    SshProcess sftpProc;
+    SshProcess sftpProc = {ProcessMode::Writer};
     QStringList connectionArgs;
     QByteArray output;
     QQueue<Command> pendingCommands;
@@ -112,17 +112,17 @@ static QByteArray prompt() { return "sftp> "; }
 SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionPrivate)
 {
     d->connectionArgs = connectionArgs;
-    connect(&d->sftpProc, &QProcess::started, [this] {
+    connect(&d->sftpProc, &QtcProcess::started, [this] {
         qCDebug(sshLog) << "sftp process started";
         d->sftpProc.write("\n"); // Force initial prompt.
     });
-    connect(&d->sftpProc, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    connect(&d->sftpProc, &QtcProcess::errorOccurred, [this](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart) {
             d->state = State::Inactive;
             emit done(tr("sftp failed to start: %1").arg(d->sftpProc.errorString()));
         }
     });
-    connect(&d->sftpProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
+    connect(&d->sftpProc, &QtcProcess::finished, [this] {
         qCDebug(sshLog) << "sftp process finished";
 
         d->state = State::Inactive;
@@ -136,7 +136,7 @@ SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionP
         }
         emit done(QString());
     });
-    connect(&d->sftpProc, &QProcess::readyReadStandardOutput, this, &SftpSession::handleStdout);
+    connect(&d->sftpProc, &QtcProcess::readyReadStandardOutput, this, &SftpSession::handleStdout);
 }
 
 void SftpSession::doStart()
@@ -153,7 +153,8 @@ void SftpSession::doStart()
     d->activeCommand = Command();
     const QStringList args = QStringList{"-q"} << d->connectionArgs;
     qCDebug(sshLog) << "starting sftp session:" << sftpBinary.toUserOutput() << args;
-    d->sftpProc.start(sftpBinary.toString(), args);
+    d->sftpProc.setCommand(CommandLine(sftpBinary, args));
+    d->sftpProc.start();
 }
 
 void SftpSession::handleStdout()

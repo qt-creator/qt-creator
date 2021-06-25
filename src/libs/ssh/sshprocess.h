@@ -27,22 +27,14 @@
 
 #include "ssh_global.h"
 
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 namespace QSsh {
 
-class QSSH_EXPORT SshProcess : public QProcess
+class QSSH_EXPORT SshProcess : public Utils::QtcProcess
 {
 public:
-    SshProcess();
-    ~SshProcess() override;
-
-private:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override;
-#endif
-
-    void setupChildProcess_impl();
+    SshProcess(Utils::ProcessMode processMode = Utils::ProcessMode::Reader);
 };
 
 } // namespace QSsh

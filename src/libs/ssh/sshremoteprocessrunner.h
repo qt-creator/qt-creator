@@ -48,7 +48,7 @@ public:
     bool isProcessRunning() const;
     void writeDataToProcess(const QByteArray &data);
     void cancel();
-    SshRemoteProcess::ExitStatus processExitStatus() const;
+    QProcess::ExitStatus processExitStatus() const;
     int processExitCode() const;
     QString processErrorString() const;
     QByteArray readAllStandardOutput();

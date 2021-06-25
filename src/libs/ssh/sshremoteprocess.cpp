@@ -60,13 +60,15 @@ struct SshRemoteProcess::SshRemoteProcessPrivate
     bool useTerminal = false;
 };
 
-SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs)
-    : d(new SshRemoteProcessPrivate)
+SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
+                                   Utils::ProcessMode processMode)
+    : SshProcess(processMode)
+    , d(new SshRemoteProcessPrivate)
 {
     d->remoteCommand = command;
     d->connectionArgs = connectionArgs;
 
-    connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this] {
+    connect(this, &QtcProcess::finished, this, [this] {
         QString error;
         if (exitStatus() == QProcess::CrashExit)
             error = tr("The ssh process crashed: %1").arg(errorString());
@@ -74,7 +76,7 @@ SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &co
             error = tr("Remote process crashed.");
         emit done(error);
     });
-    connect(this, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    connect(this, &QtcProcess::errorOccurred, [this](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart)
             emit done(errorString());
     });
@@ -85,12 +87,13 @@ void SshRemoteProcess::doStart()
     QTC_ASSERT(!isRunning(), return);
     const Utils::CommandLine cmd = fullLocalCommandLine();
     if (!d->displayName.isEmpty()) {
-        QProcessEnvironment env = processEnvironment();
-        env.insert("DISPLAY", d->displayName);
-        setProcessEnvironment(env);
+        Utils::Environment env = environment();
+        env.set("DISPLAY", d->displayName);
+        setEnvironment(env);
     }
     qCDebug(sshLog) << "starting remote process:" << cmd.toUserOutput();
-    QProcess::start(cmd.executable().toString(), cmd.splitArguments());
+    setCommand(cmd);
+    QtcProcess::start();
 }
 
 SshRemoteProcess::~SshRemoteProcess()
@@ -110,7 +113,7 @@ void SshRemoteProcess::requestX11Forwarding(const QString &displayName)
 
 void SshRemoteProcess::start()
 {
-    QTimer::singleShot(0, this, &SshRemoteProcess::doStart);
+    doStart();
 }
 
 bool SshRemoteProcess::isRunning() const

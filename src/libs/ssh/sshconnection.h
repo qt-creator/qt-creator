@@ -28,6 +28,8 @@
 #include "sftpdefs.h"
 #include "ssh_global.h"
 
+#include <utils/processutils.h>
+
 #include <QByteArray>
 #include <QFlags>
 #include <QMetaType>
@@ -113,8 +115,10 @@ public:
     bool sharingEnabled() const;
     ~SshConnection();
 
-    SshRemoteProcessPtr createRemoteProcess(const QString &command);
-    SshRemoteProcessPtr createRemoteShell();
+    SshRemoteProcessPtr createRemoteProcess(const QString &command, Utils::ProcessMode processMode
+                                            = Utils::ProcessMode::Reader);
+    SshRemoteProcessPtr createRemoteShell(Utils::ProcessMode processMode
+                                          = Utils::ProcessMode::Reader);
     SftpTransferPtr createUpload(const FilesToTransfer &files,
                                  FileTransferErrorHandling errorHandlingMode);
     SftpTransferPtr createDownload(const FilesToTransfer &files,

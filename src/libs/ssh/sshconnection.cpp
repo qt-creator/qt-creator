@@ -167,7 +167,7 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
     qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
     qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
     d->connParams = serverInfo;
-    connect(&d->masterProcess, &QProcess::started, [this] {
+    connect(&d->masterProcess, &QtcProcess::started, [this] {
         QFileInfo socketInfo(d->socketFilePath());
         if (socketInfo.exists()) {
             emitConnected();
@@ -194,7 +194,7 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
             socketWatcherTimer->start();
         }
     });
-    connect(&d->masterProcess, &QProcess::errorOccurred, [this] (QProcess::ProcessError error) {
+    connect(&d->masterProcess, &QtcProcess::errorOccurred, [this] (QProcess::ProcessError error) {
         switch (error) {
         case QProcess::FailedToStart:
             emitError(tr("Cannot establish SSH connection: Control process failed to start: %1")
@@ -208,7 +208,7 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
             break; // Cannot happen.
         }
     });
-    connect(&d->masterProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
+    connect(&d->masterProcess, &QtcProcess::finished, [this] {
         if (d->state == Disconnecting) {
             emitDisconnected();
             return;
@@ -220,9 +220,9 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
         emitError(errorMsg);
     });
     if (!d->connParams.x11DisplayName.isEmpty()) {
-        QProcessEnvironment env = d->masterProcess.processEnvironment();
-        env.insert("DISPLAY", d->connParams.x11DisplayName);
-        d->masterProcess.setProcessEnvironment(env);
+        Environment env = d->masterProcess.environment();
+        env.set("DISPLAY", d->connParams.x11DisplayName);
+        d->masterProcess.setEnvironment(env);
     }
 }
 
@@ -316,16 +316,17 @@ SshConnection::~SshConnection()
     delete d;
 }
 
-SshRemoteProcessPtr SshConnection::createRemoteProcess(const QString &command)
+SshRemoteProcessPtr SshConnection::createRemoteProcess(const QString &command, ProcessMode processMode)
 {
     QTC_ASSERT(state() == Connected, return SshRemoteProcessPtr());
     return SshRemoteProcessPtr(new SshRemoteProcess(command,
-                                                    d->connectionArgs(SshSettings::sshFilePath())));
+                                                    d->connectionArgs(SshSettings::sshFilePath()),
+                                                    processMode));
 }
 
-SshRemoteProcessPtr SshConnection::createRemoteShell()
+SshRemoteProcessPtr SshConnection::createRemoteShell(ProcessMode processMode)
 {
-    return createRemoteProcess({});
+    return createRemoteProcess({}, processMode);
 }
 
 SftpTransferPtr SshConnection::createUpload(const FilesToTransfer &files,
@@ -372,7 +373,8 @@ void SshConnection::doConnectToHost()
     if (!d->connParams.x11DisplayName.isEmpty())
         args.prepend("-X");
     qCDebug(sshLog) << "establishing connection:" << sshBinary.toUserOutput() << args;
-    d->masterProcess.start(sshBinary.toString(), args);
+    d->masterProcess.setCommand(CommandLine(sshBinary, args));
+    d->masterProcess.start();
 }
 
 void SshConnection::emitError(const QString &reason)

@@ -29,8 +29,12 @@
 #include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sshsettings.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/launcherinterface.h>
+#include <utils/processreaper.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDateTime>
@@ -114,14 +118,20 @@ private slots:
     void remoteProcessInput();
     void sftp();
 
+    void cleanupTestCase();
 private:
     bool waitForConnection(SshConnection &connection);
 
-    SshConnectionManager sshConnectionManager;
+    Utils::ProcessReaper *processReaper = nullptr;
+    SshConnectionManager *sshConnectionManager = nullptr;
 };
 
 void tst_Ssh::initTestCase()
 {
+    processReaper = new Utils::ProcessReaper();
+    Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
+                                            + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+    sshConnectionManager = new SshConnectionManager();
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
                                                            + "/qtc-ssh-autotest-XXXXXX");
 }
@@ -269,7 +279,7 @@ void tst_Ssh::remoteProcess()
     QVERIFY2(runner.lastConnectionErrorString().isEmpty(),
              qPrintable(runner.lastConnectionErrorString()));
     if (isBlocking) {
-        QVERIFY(runner.processExitStatus() == SshRemoteProcess::CrashExit
+        QVERIFY(runner.processExitStatus() == QProcess::CrashExit
                 || runner.processExitCode() != 0);
     } else {
         QCOMPARE(successExpected, runner.processExitCode() == 0);
@@ -291,11 +301,10 @@ void tst_Ssh::remoteProcessChannels()
     QByteArray remoteData;
     SshRemoteProcessPtr echoProcess
             = connection.createRemoteProcess("printf " + QString::fromUtf8(testString) + " >&2");
-    echoProcess->setReadChannel(QProcess::StandardError);
     QEventLoop loop;
     connect(echoProcess.get(), &SshRemoteProcess::done, &loop, &QEventLoop::quit);
-    connect(echoProcess.get(), &QIODevice::readyRead,
-            [&remoteData, p = echoProcess.get()] { remoteData += p->readAll(); });
+    connect(echoProcess.get(), &Utils::QtcProcess::readyReadStandardError,
+            [&remoteData, p = echoProcess.get()] { remoteData += p->readAllStandardError(); });
     connect(echoProcess.get(), &SshRemoteProcess::readyReadStandardOutput,
             [&remoteStdout, p = echoProcess.get()] { remoteStdout += p->readAllStandardOutput(); });
     connect(echoProcess.get(), &SshRemoteProcess::readyReadStandardError,
@@ -324,7 +333,8 @@ void tst_Ssh::remoteProcessInput()
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
 
-    SshRemoteProcessPtr catProcess = connection.createRemoteProcess("/bin/cat");
+    SshRemoteProcessPtr catProcess = connection.createRemoteProcess("/bin/cat",
+                                                                    Utils::ProcessMode::Writer);
     QEventLoop loop;
     connect(catProcess.get(), &SshRemoteProcess::started, &loop, &QEventLoop::quit);
     connect(catProcess.get(), &SshRemoteProcess::done, &loop, &QEventLoop::quit);
@@ -340,17 +350,16 @@ void tst_Ssh::remoteProcessInput()
     QVERIFY(catProcess->isRunning());
 
     static QString testString = "x\r\n";
-    connect(catProcess.get(), &QIODevice::readyRead, &loop, &QEventLoop::quit);
-    QTextStream stream(catProcess.get());
-    stream << testString;
-    stream.flush();
+    connect(catProcess.get(), &Utils::QtcProcess::readyReadStandardOutput, &loop, &QEventLoop::quit);
+
+    catProcess->write(testString.toUtf8());
     timer.start();
     loop.exec();
     QVERIFY(timer.isActive());
     timer.stop();
     QVERIFY(catProcess->isRunning());
 
-    const QString data = QString::fromUtf8(catProcess->readAll());
+    const QString data = QString::fromUtf8(catProcess->readAllStandardOutput());
     QCOMPARE(data, testString);
     SshRemoteProcessRunner * const killer = new SshRemoteProcessRunner(this);
     killer->run("pkill -9 cat", params);
@@ -621,6 +630,13 @@ void tst_Ssh::sftp()
     QVERIFY(timer.isActive());
     QCOMPARE(connection.state(), SshConnection::Unconnected);
     QVERIFY2(connection.errorString().isEmpty(), qPrintable(connection.errorString()));
+}
+
+void tst_Ssh::cleanupTestCase()
+{
+    delete sshConnectionManager;
+    Utils::LauncherInterface::stopLauncher();
+    delete processReaper;
 }
 
 bool tst_Ssh::waitForConnection(SshConnection &connection)

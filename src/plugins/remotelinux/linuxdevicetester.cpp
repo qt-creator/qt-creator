@@ -220,19 +220,19 @@ void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
 void GenericLinuxDeviceTester::testRsync()
 {
     emit progressMessage(tr("Checking whether rsync works..."));
-    connect(&d->rsyncProcess, &QProcess::errorOccurred, [this] {
+    connect(&d->rsyncProcess, &Utils::QtcProcess::errorOccurred, [this] {
         if (d->rsyncProcess.error() == QProcess::FailedToStart)
             handleRsyncFinished();
     });
-    connect(&d->rsyncProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this] {
+    connect(&d->rsyncProcess, &Utils::QtcProcess::finished, this, [this] {
         handleRsyncFinished();
     });
     const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection,
                                                                    RsyncDeployStep::defaultFlags());
     const QStringList args = QStringList(cmdLine.options)
             << "-n" << "--exclude=*" << (cmdLine.remoteHostSpec + ":/tmp");
-    d->rsyncProcess.start("rsync", args);
+    d->rsyncProcess.setCommand(Utils::CommandLine("rsync", args));
+    d->rsyncProcess.start();
 }
 
 void GenericLinuxDeviceTester::handleRsyncFinished()

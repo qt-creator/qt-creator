@@ -149,7 +149,7 @@ QProcess::ProcessState SshDeviceProcess::state() const
 
 QProcess::ExitStatus SshDeviceProcess::exitStatus() const
 {
-    return d->exitStatus == QSsh::SshRemoteProcess::NormalExit && d->exitCode != 255
+    return d->exitStatus == QProcess::NormalExit && d->exitCode != 255
             ? QProcess::NormalExit : QProcess::CrashExit;
 }
 
@@ -237,7 +237,7 @@ void SshDeviceProcess::handleDisconnected()
         emit error(QProcess::FailedToStart);
         break;
     case SshDeviceProcessPrivate::ProcessRunning:
-        d->exitStatus = QSsh::SshRemoteProcess::CrashExit;
+        d->exitStatus = QProcess::CrashExit;
         emit finished();
     default:
         break;
@@ -284,7 +284,7 @@ void SshDeviceProcess::handleKillOperationFinished(const QString &errorMessage)
     if (errorMessage.isEmpty()) // Process will finish as expected; nothing to do here.
         return;
 
-    d->exitStatus = QSsh::SshRemoteProcess::CrashExit; // Not entirely true, but it will get the message across.
+    d->exitStatus = QProcess::CrashExit; // Not entirely true, but it will get the message across.
     d->errorMessage = tr("Failed to kill remote process: %1").arg(errorMessage);
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();
@@ -292,7 +292,7 @@ void SshDeviceProcess::handleKillOperationFinished(const QString &errorMessage)
 
 void SshDeviceProcess::handleKillOperationTimeout()
 {
-    d->exitStatus = QSsh::SshRemoteProcess::CrashExit; // Not entirely true, but it will get the message across.
+    d->exitStatus = QProcess::CrashExit; // Not entirely true, but it will get the message across.
     d->errorMessage = tr("Timeout waiting for remote process to finish.");
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();

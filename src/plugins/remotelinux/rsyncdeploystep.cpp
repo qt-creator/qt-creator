@@ -123,19 +123,19 @@ void RsyncDeployService::createRemoteDirectories()
 
 void RsyncDeployService::deployFiles()
 {
-    connect(&m_rsync, &QProcess::readyReadStandardOutput, this, [this] {
+    connect(&m_rsync, &QtcProcess::readyReadStandardOutput, this, [this] {
         emit progressMessage(QString::fromLocal8Bit(m_rsync.readAllStandardOutput()));
     });
-    connect(&m_rsync, &QProcess::readyReadStandardError, this, [this] {
+    connect(&m_rsync, &QtcProcess::readyReadStandardError, this, [this] {
         emit warningMessage(QString::fromLocal8Bit(m_rsync.readAllStandardError()));
     });
-    connect(&m_rsync, &QProcess::errorOccurred, this, [this] {
+    connect(&m_rsync, &QtcProcess::errorOccurred, this, [this] {
         if (m_rsync.error() == QProcess::FailedToStart) {
             emit errorMessage(tr("rsync failed to start: %1").arg(m_rsync.errorString()));
             setFinished();
         }
     });
-    connect(&m_rsync, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this] {
+    connect(&m_rsync, &QtcProcess::finished, this, [this] {
         if (m_rsync.exitStatus() == QProcess::CrashExit) {
             emit errorMessage(tr("rsync crashed."));
             setFinished();
@@ -173,7 +173,8 @@ void RsyncDeployService::deployNextFile()
     const QStringList args = QStringList(cmdLine.options)
             << (localFilePath + (file.localFilePath().isDir() ? "/" : QString()))
             << (cmdLine.remoteHostSpec + ':' + file.remoteFilePath());
-    m_rsync.start("rsync", args); // TODO: Get rsync location from settings?
+    m_rsync.setCommand(CommandLine("rsync", args));
+    m_rsync.start(); // TODO: Get rsync location from settings?
 }
 
 void RsyncDeployService::setFinished()

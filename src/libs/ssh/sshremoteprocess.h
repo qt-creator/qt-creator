@@ -54,7 +54,8 @@ signals:
     void done(const QString &error);
 
 private:
-    SshRemoteProcess(const QString &command, const QStringList &connectionArgs);
+    SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
+                     Utils::ProcessMode processMode = Utils::ProcessMode::Reader);
     void doStart();
 
     struct SshRemoteProcessPrivate;

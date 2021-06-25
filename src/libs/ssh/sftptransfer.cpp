@@ -113,11 +113,11 @@ SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferT
     d->transferType = type;
     d->errorHandlingMode = errorHandlingMode;
     d->connectionArgs = connectionArgs;
-    connect(&d->sftpProc, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    connect(&d->sftpProc, &QtcProcess::errorOccurred, [this](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart)
             emitError(tr("sftp failed to start: %1").arg(d->sftpProc.errorString()));
     });
-    connect(&d->sftpProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
+    connect(&d->sftpProc, &QtcProcess::finished, [this] {
         if (d->sftpProc.exitStatus() != QProcess::NormalExit) {
             emitError(tr("sftp crashed."));
             return;
@@ -128,7 +128,7 @@ SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferT
         }
         emit done(QString());
     });
-    connect(&d->sftpProc, &QProcess::readyReadStandardOutput, [this] {
+    connect(&d->sftpProc, &QtcProcess::readyReadStandardOutput, [this] {
         emit progress(QString::fromLocal8Bit(d->sftpProc.readAllStandardOutput()));
     });
 }
@@ -179,7 +179,8 @@ void SftpTransfer::doStart()
                          + ProcessArgs::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
     }
     d->sftpProc.setStandardInputFile(batchFile.fileName());
-    d->sftpProc.start(sftpBinary.toString(), d->connectionArgs);
+    d->sftpProc.setCommand(CommandLine(sftpBinary, d->connectionArgs));
+    d->sftpProc.start();
     emit started();
 }
 

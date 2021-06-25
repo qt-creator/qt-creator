@@ -186,7 +186,7 @@ void SshRemoteProcessRunner::setState(int newState)
         if (d->m_process) {
             disconnect(d->m_process.get(), nullptr, this, nullptr);
             d->m_process->terminate();
-            d->m_process.release()->deleteLater();
+            d->m_process.reset();
         }
         if (d->m_connection) {
             disconnect(d->m_connection, nullptr, this, nullptr);
@@ -206,7 +206,7 @@ bool SshRemoteProcessRunner::isProcessRunning() const
     return d->m_process && d->m_process->isRunning();
 }
 
-SshRemoteProcess::ExitStatus SshRemoteProcessRunner::processExitStatus() const
+QProcess::ExitStatus SshRemoteProcessRunner::processExitStatus() const
 {
     QTC_CHECK(!isProcessRunning());
     return d->m_exitStatus;
@@ -214,7 +214,7 @@ SshRemoteProcess::ExitStatus SshRemoteProcessRunner::processExitStatus() const
 
 int SshRemoteProcessRunner::processExitCode() const
 {
-    QTC_CHECK(processExitStatus() == SshRemoteProcess::NormalExit);
+    QTC_CHECK(processExitStatus() == QProcess::NormalExit);
     return d->m_exitCode;
 }
 
