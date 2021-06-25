@@ -1044,14 +1044,14 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
 
     const QString projectName = projectFilePath.parentDir().fileName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
-    QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
+    const FilePath projectDir = Project::projectDirectory(projectFilePath);
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     buildPath.replace(" ", "-");
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
         buildPath = buildPath.left(buildPath.lastIndexOf(QString("-%1").arg(bcName)));
 
-    return FilePath::fromUserInput(projectDir.absoluteFilePath(buildPath));
+    return projectDir.resolvePath(buildPath);
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
