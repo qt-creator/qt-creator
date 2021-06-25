@@ -1,5 +1,3 @@
-find_package(QT NAMES Qt5 Qt6)
-
 if (WITH_TESTS)
   set(TEST_SOURCES
     runscenegraphtest.cpp runscenegraphtest.h
@@ -40,7 +38,7 @@ add_qtc_library(Tracing
     ${TEST_SOURCES}
 )
 
-if(${QT_VERSION} VERSION_LESS "6.2.0")
+if(${Qt5_VERSION} VERSION_LESS "6.2.0")
   extend_qtc_library(Tracing
     SOURCES
       ${TRACING_CPP_SOURCES}
