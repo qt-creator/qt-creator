@@ -382,7 +382,7 @@ public:
 
 static BaseClientInterface *clientInterface(const Utils::FilePath &jsonDbDir)
 {
-    Utils::CommandLine cmd{CppTools::codeModelSettings()->clangdFilePath(),
+    Utils::CommandLine cmd{CppTools::ClangdSettings::clangdFilePath(),
                            {"--background-index", "--limit-results=0"}};
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());

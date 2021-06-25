@@ -119,7 +119,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ClangModelManagerSupport::onAboutToRemoveProject);
 
-    CppTools::CppCodeModelSettings::setDefaultClangdPath(Utils::FilePath::fromString(
+    CppTools::ClangdSettings::setDefaultClangdPath(Utils::FilePath::fromString(
             Core::ICore::clangdExecutable(CLANG_BINDIR)));
     CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
@@ -245,7 +245,7 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
                                                     const CppTools::ProjectInfo &projectInfo)
 {
-    if (!CppTools::codeModelSettings()->useClangd())
+    if (!CppTools::ClangdSettings::useClangd())
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -264,7 +264,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
     connect(generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             [this, project, projectInfo, getJsonDbDir, jsonDbDir, generatorWatcher] {
         generatorWatcher->deleteLater();
-        if (!CppTools::codeModelSettings()->useClangd())
+        if (!CppTools::ClangdSettings::useClangd())
             return;
         if (!ProjectExplorer::SessionManager::hasProject(project))
             return;
@@ -284,7 +284,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         ClangdClient * const client = createClient(project, jsonDbDir);
         connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
-            if (!CppTools::codeModelSettings()->useClangd())
+            if (!CppTools::ClangdSettings::useClangd())
                 return;
             if (!SessionManager::hasProject(project))
                 return;

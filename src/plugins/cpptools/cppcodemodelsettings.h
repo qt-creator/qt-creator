@@ -78,13 +78,6 @@ public:
     int indexerFileSizeLimitInMb() const;
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
-    void setUseClangd(bool use) { m_useClangd = use; }
-    bool useClangd() const { return m_useClangd; }
-
-    static void setDefaultClangdPath(const Utils::FilePath &filePath);
-    void setClangdFilePath(const Utils::FilePath &filePath) { m_clangdFilePath = filePath; }
-    Utils::FilePath clangdFilePath() const;
-
     void setCategorizeFindReferences(bool categorize) { m_categorizeFindReferences = categorize; }
     bool categorizeFindReferences() const { return m_categorizeFindReferences; }
 
@@ -100,9 +93,40 @@ private:
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
     Utils::Id m_clangDiagnosticConfigId;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
-    Utils::FilePath m_clangdFilePath;
-    bool m_useClangd = false;
     bool m_categorizeFindReferences = false; // Ephemeral!
+};
+
+class CPPTOOLS_EXPORT ClangdSettings
+{
+public:
+    class Data
+    {
+    public:
+        bool useClangd = false;
+        Utils::FilePath executableFilePath;
+    };
+
+    static bool useClangd() { return instance().m_data.useClangd; }
+
+    static void setDefaultClangdPath(const Utils::FilePath &filePath);
+    static Utils::FilePath clangdFilePath();
+
+    static void setData(const Data &data);
+    static Data data() { return instance().m_data; }
+
+#ifdef WITH_TESTS
+    static void setUseClangd(bool use);
+    static void setClangdFilePath(const Utils::FilePath &filePath);
+#endif
+
+private:
+    ClangdSettings() { loadSettings(); }
+    static ClangdSettings &instance();
+
+    void loadSettings();
+    void saveSettings();
+
+    Data m_data;
 };
 
 } // namespace CppTools

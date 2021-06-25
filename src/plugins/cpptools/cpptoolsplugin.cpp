@@ -86,6 +86,7 @@ public:
     ~CppToolsPluginPrivate()
     {
         ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
+        delete m_clangdSettingsPage;
     }
 
     StringTable stringTable;
@@ -95,6 +96,7 @@ public:
     CppFileSettings m_fileSettings;
     CppFileSettingsPage m_cppFileSettingsPage{&m_fileSettings};
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage{&m_codeModelSettings};
+    ClangdSettingsPage *m_clangdSettingsPage = nullptr;
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
@@ -218,6 +220,8 @@ void CppToolsPlugin::extensionsInitialized()
     d->m_fileSettings.fromSettings(ICore::settings());
     if (!d->m_fileSettings.applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
+    if (CppModelManager::instance()->isClangCodeModelActive())
+        d->m_clangdSettingsPage = new ClangdSettingsPage;
 }
 
 CppCodeModelSettings *CppToolsPlugin::codeModelSettings()

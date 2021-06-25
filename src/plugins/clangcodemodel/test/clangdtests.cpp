@@ -85,14 +85,13 @@ Utils::FilePath ClangdTest::filePath(const QString &fileName) const
 
 void ClangdTest::initTestCase()
 {
-    const auto settings = CppTools::codeModelSettings();
     const QString clangdFromEnv = qEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
-        settings->setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
-    const auto clangd = settings->clangdFilePath();
+        CppTools::ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+    const auto clangd = CppTools::ClangdSettings::clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
-    settings->setUseClangd(true);
+    CppTools::ClangdSettings::setUseClangd(true);
 
     // Find suitable kit.
     m_kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {

@@ -285,7 +285,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     const QString curTestName = QLatin1String(QTest::currentTestFunction());
     const QString tag = QLatin1String(QTest::currentDataTag());
-    const bool useClangd = CppTools::codeModelSettings()->useClangd();
+    const bool useClangd = CppTools::ClangdSettings::useClangd();
     if (useClangd) {
         if (curTestName == "test_FollowSymbolUnderCursor_QObject_connect"
                 || curTestName == "test_FollowSymbolUnderCursor_QObject_oldStyleConnect") {
@@ -475,7 +475,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
 
-    if (!CppTools::codeModelSettings()->useClangd()) {
+    if (!CppTools::ClangdSettings::useClangd()) {
         QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
         QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
     }
@@ -541,12 +541,11 @@ namespace Internal {
 
 void CppEditorPlugin::initTestCase()
 {
-    const auto settings = CppTools::codeModelSettings();
     const QString clangdFromEnv = qEnvironmentVariable("QTC_CLANGD");
     if (clangdFromEnv.isEmpty())
         return;
-    settings->setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
-    const auto clangd = settings->clangdFilePath();
+    ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+    const auto clangd = ClangdSettings::clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         return;
 

@@ -29,6 +29,8 @@
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -172,9 +174,6 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
-    setUseClangd(s->value(useClangdKey(), false).toBool());
-    setClangdFilePath(FilePath::fromString(s->value(clangdPathKey()).toString()));
-
     s->endGroup();
 
     if (write)
@@ -198,8 +197,6 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
-    s->setValue(useClangdKey(), useClangd());
-    s->setValue(clangdPathKey(), m_clangdFilePath.toString());
 
     s->endGroup();
 
@@ -300,14 +297,60 @@ void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
     m_enableLowerClazyLevels = yesno;
 }
 
-void CppCodeModelSettings::setDefaultClangdPath(const Utils::FilePath &filePath)
+
+static bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
+{
+    return s1.useClangd == s2.useClangd && s1.executableFilePath == s2.executableFilePath;
+}
+static bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
+{
+    return !(s1 == s2);
+}
+
+ClangdSettings &ClangdSettings::instance()
+{
+    static ClangdSettings settings;
+    return settings;
+}
+
+void ClangdSettings::setDefaultClangdPath(const Utils::FilePath &filePath)
 {
     g_defaultClangdFilePath = filePath;
 }
 
-FilePath CppCodeModelSettings::clangdFilePath() const
+FilePath ClangdSettings::clangdFilePath()
 {
-    if (!m_clangdFilePath.isEmpty())
-        return m_clangdFilePath;
+    if (!instance().m_data.executableFilePath.isEmpty())
+        return instance().m_data.executableFilePath;
     return fallbackClangdFilePath();
 }
+
+void ClangdSettings::setData(const Data &data)
+{
+    if (data != instance().m_data) {
+        instance().m_data = data;
+        instance().saveSettings();
+    }
+}
+
+void ClangdSettings::loadSettings()
+{
+    QSettings * const s = Core::ICore::settings();
+    m_data.useClangd = s->value(useClangdKey(), false).toBool();
+    m_data.executableFilePath = FilePath::fromString(s->value(clangdPathKey()).toString());
+}
+
+void ClangdSettings::saveSettings()
+{
+    QSettings * const s = Core::ICore::settings();
+    s->setValue(useClangdKey(), useClangd());
+    s->setValue(clangdPathKey(), m_data.executableFilePath.toString());
+}
+
+#ifdef WITH_TESTS
+void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
+void ClangdSettings::setClangdFilePath(const Utils::FilePath &filePath)
+{
+    instance().m_data.executableFilePath = filePath;
+}
+#endif

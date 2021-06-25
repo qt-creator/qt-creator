@@ -33,7 +33,9 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/pathchooser.h>
 
+#include <QFormLayout>
 #include <QTextStream>
 
 namespace CppTools {
@@ -100,8 +102,6 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
     m_ui->clangCodeModelIsDisabledHint->setVisible(!isClangActive);
     m_ui->clangCodeModelIsEnabledHint->setVisible(isClangActive);
-    m_ui->clangdCheckBox->setVisible(isClangActive);
-    m_ui->clangdChooser->setVisible(isClangActive);
 
     for (int i = 0; i < m_ui->clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
         QWidget *widget = m_ui->clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();
@@ -120,16 +120,6 @@ void CppCodeModelSettingsWidget::setupGeneralWidgets()
 
     const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
     m_ui->ignorePCHCheckBox->setChecked(ignorePch);
-
-    m_ui->clangdCheckBox->setChecked(m_settings->useClangd());
-    m_ui->clangdCheckBox->setToolTip(tr("Use clangd for locators and \"Find References\".\n"
-        "Changing this option does not affect projects that are already open."));
-    m_ui->clangdChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->clangdChooser->setFilePath(codeModelSettings()->clangdFilePath());
-    m_ui->clangdChooser->setEnabled(m_ui->clangdCheckBox->isChecked());
-    connect(m_ui->clangdCheckBox, &QCheckBox::toggled, m_ui->clangdChooser, [this](bool checked) {
-        m_ui->clangdChooser->setEnabled(checked);
-    });
 }
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
@@ -176,16 +166,6 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
         m_settings->setIndexerFileSizeLimitInMb(newFileSizeLimit);
         settingsChanged = true;
     }
-    const bool newUseClangd = m_ui->clangdCheckBox->isChecked();
-    if (m_settings->useClangd() != newUseClangd) {
-        m_settings->setUseClangd(newUseClangd);
-        settingsChanged = true;
-    }
-    const Utils::FilePath newClangdPath = m_ui->clangdChooser->rawFilePath();
-    if (m_settings->clangdFilePath() != newClangdPath) {
-        m_settings->setClangdFilePath(newClangdPath);
-        settingsChanged = true;
-    }
 
     const bool newIgnorePch = m_ui->ignorePCHCheckBox->isChecked();
     const bool previousIgnorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
@@ -209,6 +189,61 @@ CppCodeModelSettingsPage::CppCodeModelSettingsPage(CppCodeModelSettings *setting
     setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
     setWidgetCreator([settings] { return new CppCodeModelSettingsWidget(settings); });
 }
+
+
+class ClangdSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CppTools::Internal::ClangdSettingsWidget)
+
+public:
+    ClangdSettingsWidget()
+    {
+        m_useClangdCheckBox.setText(tr("Use clangd (EXPERIMENTAL)"));
+        m_useClangdCheckBox.setChecked(ClangdSettings::useClangd());
+        m_useClangdCheckBox.setToolTip(tr("Changing this option does not affect projects "
+                                          "that are already open."));
+        m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_clangdChooser.setFilePath(ClangdSettings::clangdFilePath());
+        m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
+
+        const auto layout = new QVBoxLayout(this);
+        layout->addWidget(&m_useClangdCheckBox);
+        const auto formLayout = new QFormLayout;
+        const auto chooserLabel = new QLabel(tr("Path to executable:"));
+        formLayout->addRow(chooserLabel, &m_clangdChooser);
+        layout->addLayout(formLayout);
+        layout->addStretch(1);
+
+        const auto toggleEnabled = [=](const bool checked) {
+            chooserLabel->setEnabled(checked);
+            m_clangdChooser.setEnabled(checked);
+        };
+        connect(&m_useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
+        toggleEnabled(m_useClangdCheckBox.isChecked());
+    }
+
+private:
+    void apply() final
+    {
+        ClangdSettings::Data data;
+        data.useClangd = m_useClangdCheckBox.isChecked();
+        data.executableFilePath = m_clangdChooser.filePath();
+        ClangdSettings::setData(data);
+    }
+
+    QCheckBox m_useClangdCheckBox;
+    Utils::PathChooser m_clangdChooser;
+};
+
+ClangdSettingsPage::ClangdSettingsPage()
+{
+    setId("K.Clangd");
+    setDisplayName(ClangdSettingsWidget::tr("Clangd"));
+    setCategory(Constants::CPP_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new ClangdSettingsWidget; });
+}
+
+
 
 } // Internal
 } // CppTools
