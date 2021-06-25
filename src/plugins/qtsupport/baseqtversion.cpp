@@ -1486,67 +1486,67 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                                QtKitAspect::tr(
                                    "The installation prefix of the current Qt version."),
                                versionProperty([](const BaseQtVersion *version) {
-                                   return version->prefix().toString();
+                                   return version->prefix().path();
                                }));
 
     expander->registerVariable("Qt:QT_INSTALL_DATA",
                                QtKitAspect::tr(
                                    "The installation location of the current Qt version's data."),
                                versionProperty([](const BaseQtVersion *version) {
-                                   return version->dataPath().toString();
+                                   return version->dataPath().path();
                                }));
 
     expander->registerVariable("Qt:QT_HOST_PREFIX",
                                QtKitAspect::tr(
                                    "The host location of the current Qt version."),
                                versionProperty([](const BaseQtVersion *version) {
-                                   return version->hostPrefixPath().toString();
+                                   return version->hostPrefixPath().path();
                                }));
 
     expander->registerVariable("Qt:QT_HOST_LIBEXECS",
                                QtKitAspect::tr("The installation location of the current Qt "
                                                "version's internal host executable files."),
                                versionProperty([](const BaseQtVersion *version) {
-                                   return version->hostLibexecPath().toString();
+                                   return version->hostLibexecPath().path();
                                }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_HEADERS",
         QtKitAspect::tr("The installation location of the current Qt version's header files."),
         versionProperty(
-            [](const BaseQtVersion *version) { return version->headerPath().toString(); }));
+            [](const BaseQtVersion *version) { return version->headerPath().path(); }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_LIBS",
         QtKitAspect::tr("The installation location of the current Qt version's library files."),
         versionProperty(
-            [](const BaseQtVersion *version) { return version->libraryPath().toString(); }));
+            [](const BaseQtVersion *version) { return version->libraryPath().path(); }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_DOCS",
         QtKitAspect::tr(
             "The installation location of the current Qt version's documentation files."),
         versionProperty(
-            [](const BaseQtVersion *version) { return version->docsPath().toString(); }));
+            [](const BaseQtVersion *version) { return version->docsPath().path(); }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_BINS",
         QtKitAspect::tr("The installation location of the current Qt version's executable files."),
-        versionProperty([](const BaseQtVersion *version) { return version->binPath().toString(); }));
+        versionProperty([](const BaseQtVersion *version) { return version->binPath().path(); }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_LIBEXECS",
         QtKitAspect::tr(
             "The installation location of the current Qt version's internal executable files."),
         versionProperty(
-            [](const BaseQtVersion *version) { return version->libExecPath().toString(); }));
+            [](const BaseQtVersion *version) { return version->libExecPath().path(); }));
 
     expander
         ->registerVariable("Qt:QT_INSTALL_PLUGINS",
                            QtKitAspect::tr(
                                "The installation location of the current Qt version's plugins."),
                            versionProperty([](const BaseQtVersion *version) {
-                               return version->pluginPath().toString();
+                               return version->pluginPath().path();
                            }));
 
     expander
@@ -1554,7 +1554,7 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                            QtKitAspect::tr(
                                "The installation location of the current Qt version's QML files."),
                            versionProperty([](const BaseQtVersion *version) {
-                               return version->qmlPath().toString();
+                               return version->qmlPath().path();
                            }));
 
     expander
@@ -1562,34 +1562,34 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                            QtKitAspect::tr(
                                "The installation location of the current Qt version's imports."),
                            versionProperty([](const BaseQtVersion *version) {
-                               return version->importsPath().toString();
+                               return version->importsPath().path();
                            }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_TRANSLATIONS",
         QtKitAspect::tr("The installation location of the current Qt version's translation files."),
         versionProperty(
-            [](const BaseQtVersion *version) { return version->translationsPath().toString(); }));
+            [](const BaseQtVersion *version) { return version->translationsPath().path(); }));
 
     expander->registerVariable(
         "Qt:QT_INSTALL_CONFIGURATION",
         QtKitAspect::tr("The installation location of the current Qt version's translation files."),
         versionProperty(
-            [](const BaseQtVersion *version) { return version->configurationPath().toString(); }));
+            [](const BaseQtVersion *version) { return version->configurationPath().path(); }));
 
     expander
         ->registerVariable("Qt:QT_INSTALL_EXAMPLES",
                            QtKitAspect::tr(
                                "The installation location of the current Qt version's examples."),
                            versionProperty([](const BaseQtVersion *version) {
-                               return version->examplesPath().toString();
+                               return version->examplesPath().path();
                            }));
 
     expander->registerVariable("Qt:QT_INSTALL_DEMOS",
                                QtKitAspect::tr(
                                    "The installation location of the current Qt version's demos."),
                                versionProperty([](const BaseQtVersion *version) {
-                                   return version->demosPath().toString();
+                                   return version->demosPath().path();
                                }));
 
     expander->registerVariable("Qt:QMAKE_MKSPECS",
