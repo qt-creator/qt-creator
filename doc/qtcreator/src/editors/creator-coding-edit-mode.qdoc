@@ -201,6 +201,8 @@
 
     \image qtcreator-togglebookmark.png
 
+    \section2 Adding Notes to Bookmarks
+
     To add a note to a bookmark:
 
     \list
@@ -211,7 +213,10 @@
             in the context menu.
     \endlist
 
-    To view the note, move the mouse pointer over the bookmark.
+    To view the note, move the mouse pointer over the bookmark or open the
+    \uicontrol Bookmarks view in the \l{Working with Sidebars}{sidebar}.
+
+    \section2 Navigating Bookmarks
 
     To go to the previous bookmark in the current session, select
     \uicontrol Tools > \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
@@ -228,6 +233,8 @@
     go to it in the editor.
 
     \image qtcreator-locator-bookmark-filtering.png "Filtering bookmarks in locator"
+
+    \section2 Viewing Bookmarks
 
     Bookmarks are listed in the \uicontrol Bookmarks view in the sidebar. To
     move between bookmarks, select the \uicontrol {Previous Bookmark} or
