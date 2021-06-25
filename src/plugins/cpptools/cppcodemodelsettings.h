@@ -103,6 +103,7 @@ public:
     {
     public:
         bool useClangd = false;
+        bool enableIndexing = true;
         Utils::FilePath executableFilePath;
     };
 
@@ -110,6 +111,7 @@ public:
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
     static Utils::FilePath clangdFilePath();
+    static bool indexingEnabled() { return instance().m_data.enableIndexing; }
 
     static void setData(const Data &data);
     static Data data() { return instance().m_data; }

@@ -205,18 +205,27 @@ public:
         m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
         m_clangdChooser.setFilePath(ClangdSettings::clangdFilePath());
         m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
+        m_indexingCheckBox.setChecked(ClangdSettings::indexingEnabled());
+        m_indexingCheckBox.setToolTip(tr(
+                "If background indexing is enabled, global symbol searches will yield\n"
+                "more accurate results, at the cost of additional CPU load when\n"
+                "the project is first opened."));
 
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_useClangdCheckBox);
         const auto formLayout = new QFormLayout;
         const auto chooserLabel = new QLabel(tr("Path to executable:"));
         formLayout->addRow(chooserLabel, &m_clangdChooser);
+        const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
+        formLayout->addRow(indexingLabel, &m_indexingCheckBox);
         layout->addLayout(formLayout);
         layout->addStretch(1);
 
         const auto toggleEnabled = [=](const bool checked) {
             chooserLabel->setEnabled(checked);
             m_clangdChooser.setEnabled(checked);
+            indexingLabel->setEnabled(checked);
+            m_indexingCheckBox.setEnabled(checked);
         };
         connect(&m_useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
         toggleEnabled(m_useClangdCheckBox.isChecked());
@@ -228,10 +237,12 @@ private:
         ClangdSettings::Data data;
         data.useClangd = m_useClangdCheckBox.isChecked();
         data.executableFilePath = m_clangdChooser.filePath();
+        data.enableIndexing = m_indexingCheckBox.isChecked();
         ClangdSettings::setData(data);
     }
 
     QCheckBox m_useClangdCheckBox;
+    QCheckBox m_indexingCheckBox;
     Utils::PathChooser m_clangdChooser;
 };
 

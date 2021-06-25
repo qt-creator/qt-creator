@@ -65,6 +65,7 @@ static QString indexerFileSizeLimitKey()
 
 static QString useClangdKey() { return QLatin1String("UseClangd"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
+static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -300,7 +301,9 @@ void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
 
 static bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
 {
-    return s1.useClangd == s2.useClangd && s1.executableFilePath == s2.executableFilePath;
+    return s1.useClangd == s2.useClangd
+            && s1.executableFilePath == s2.executableFilePath
+            && s1.enableIndexing == s2.enableIndexing;
 }
 static bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
 {
@@ -338,6 +341,7 @@ void ClangdSettings::loadSettings()
     QSettings * const s = Core::ICore::settings();
     m_data.useClangd = s->value(useClangdKey(), false).toBool();
     m_data.executableFilePath = FilePath::fromString(s->value(clangdPathKey()).toString());
+    m_data.enableIndexing = s->value(clangdIndexingKey(), true).toBool();
 }
 
 void ClangdSettings::saveSettings()
@@ -345,6 +349,7 @@ void ClangdSettings::saveSettings()
     QSettings * const s = Core::ICore::settings();
     s->setValue(useClangdKey(), useClangd());
     s->setValue(clangdPathKey(), m_data.executableFilePath.toString());
+    s->setValue(clangdIndexingKey(), m_data.enableIndexing);
 }
 
 #ifdef WITH_TESTS

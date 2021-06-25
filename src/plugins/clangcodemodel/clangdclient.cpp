@@ -382,8 +382,11 @@ public:
 
 static BaseClientInterface *clientInterface(const Utils::FilePath &jsonDbDir)
 {
+    QString indexingOption = "--background-index";
+    if (!CppTools::ClangdSettings::indexingEnabled())
+        indexingOption += "=0";
     Utils::CommandLine cmd{CppTools::ClangdSettings::clangdFilePath(),
-                           {"--background-index", "--limit-results=0"}};
+                           {indexingOption, "--limit-results=0"}};
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLog().isDebugEnabled())
