@@ -63,7 +63,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
-    setKnowsAllBuildExecutables(false);
+    setKnowsAllBuildExecutables(true);
     setHasMakeInstallEquivalent(true);
 }
 
