@@ -1415,6 +1415,15 @@ bool FilePath::copyFile(const FilePath &target) const
     return QFile::copy(path(), target.path());
 }
 
+bool FilePath::renameFile(const FilePath &target) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.renameFile, return false);
+        return s_deviceHooks.renameFile(*this, target);
+    }
+    return QFile::rename(path(), target.path());
+}
+
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toString();

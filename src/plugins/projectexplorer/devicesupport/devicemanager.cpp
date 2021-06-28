@@ -435,6 +435,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->copyFile(filePath, target);
     };
 
+    deviceHooks.renameFile = [](const FilePath &filePath, const FilePath &target) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->renameFile(filePath, target);
+    };
+
     deviceHooks.searchInPath = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return FilePath{});

@@ -887,6 +887,23 @@ bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) co
     return exitCode == 0;
 }
 
+bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(handlesFile(target), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const FilePath localTarget = mapToLocalAccess(target);
+        const bool res = localAccess.renameFile(localTarget);
+        LOG("Move " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
+        return res;
+    }
+    const CommandLine cmd("mv", {filePath.path(), target.path()});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
 QDateTime DockerDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});

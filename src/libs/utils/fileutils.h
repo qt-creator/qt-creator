@@ -79,6 +79,7 @@ public:
     std::function<bool(const FilePath &)> exists;
     std::function<bool(const FilePath &)> removeFile;
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
+    std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &)> searchInPath;
     std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
@@ -167,6 +168,7 @@ public:
     QFile::Permissions permissions() const;
     bool removeFile() const;
     bool copyFile(const FilePath &target) const;
+    bool renameFile(const FilePath &target) const;
 
     Qt::CaseSensitivity caseSensitivity() const;
 

@@ -311,8 +311,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
     if (reply.exists()) {
         if (replyPrev.exists())
             FileUtils::removeRecursively(replyPrev);
-        QDir dir;
-        if (!dir.rename(reply.toString(), replyPrev.toString()))
+        if (!reply.renameFile(replyPrev))
             Core::MessageManager::writeFlashing(tr("Failed to rename %1 to %2.")
                                                 .arg(reply.toString(), replyPrev.toString()));
 

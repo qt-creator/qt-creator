@@ -289,6 +289,14 @@ bool IDevice::copyFile(const FilePath &filePath, const FilePath &target) const
     return false;
 }
 
+bool IDevice::renameFile(const FilePath &filePath, const FilePath &target) const
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(target);
+    QTC_CHECK(false);
+    return false;
+}
+
 FilePath IDevice::searchInPath(const FilePath &filePath) const
 {
     return Environment::systemEnvironment().searchInPath(filePath.path());
