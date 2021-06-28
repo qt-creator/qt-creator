@@ -68,6 +68,11 @@
 #include <QTextBrowser>
 #include <QThread>
 
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#include <sys/types.h>
+#endif
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -578,6 +583,10 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
                                     "-e", "DISPLAY=:0",
                                     "-e", "XAUTHORITY=/.Xauthority",
                                     "--net", "host"}};
+
+#ifdef Q_OS_UNIX
+    dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
+#endif
 
     for (const QString &mount : qAsConst(m_mounts))
         dockerRun.addArgs({"-v", mount + ':' + mount});
