@@ -42,7 +42,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Running")
-            tooltip: qsTr("Whether the animation is running and paused.")
+            tooltip: qsTr("Whether the animation is running and/or paused.")
         }
 
         SecondColumnLayout {
