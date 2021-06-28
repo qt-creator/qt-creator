@@ -1474,7 +1474,6 @@ TEST_F(SqliteStatement, ReadStatementOptionalValueWithTransactions)
 
 TEST_F(SqliteStatement, ReadStatementReadCallbackWithTransactions)
 {
-    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, Utils::SmallStringView, long long)> callbackMock;
     ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
                                database);
@@ -1541,7 +1540,6 @@ TEST_F(SqliteStatement, ReadWriteStatementOptionalValueWithTransactions)
 
 TEST_F(SqliteStatement, ReadWriteStatementReadCallbackWithTransactions)
 {
-    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, Utils::SmallStringView, long long)> callbackMock;
     ReadWriteStatement<3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=?", database);

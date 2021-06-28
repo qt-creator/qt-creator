@@ -38,7 +38,7 @@ Column {
         caption: qsTr("Rectangle")
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Color") }
+            PropertyLabel { text: qsTr("Fill color") }
 
             ColorEditor {
                 backendValue: backendValues.color
@@ -57,7 +57,7 @@ Column {
             }
 
             PropertyLabel {
-                text: qsTr("Border")
+                text: qsTr("Border width")
                 disabledState: !backendValues.border_width.isAvailable
             }
 

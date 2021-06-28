@@ -43,10 +43,9 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent,
                                                const QString &targetId,
                                                const QString &customId)
     : QDialog(parent)
-    , m_defaults(std::make_unique<DefaultAnnotationsModel>())
-    , m_customId(customId)
     , ui(std::make_unique<Ui::AnnotationEditorDialog>())
-    , m_statusIsActive(false)
+    , m_customId(customId)
+    , m_defaults(std::make_unique<DefaultAnnotationsModel>())
 {
     ui->setupUi(this);
     setGlobal(m_isGlobal);

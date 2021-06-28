@@ -132,7 +132,7 @@ public:
     void copyPathContextMenu();
     void copyUrlContextMenu();
 
-    void updateContextActions();
+    void updateContextActions(Node *node);
 
     ResourceEditorW * currentEditor() const;
 
@@ -368,9 +368,8 @@ void ResourceEditorPluginPrivate::renamePrefixContextMenu()
     node->renamePrefix(prefix, dialog.lang());
 }
 
-void ResourceEditorPluginPrivate::updateContextActions()
+void ResourceEditorPluginPrivate::updateContextActions(Node *node)
 {
-    const Node *node = ProjectTree::currentNode();
     const bool isResourceNode = dynamic_cast<const ResourceTopLevelNode *>(node);
     m_addPrefix->setEnabled(isResourceNode);
     m_addPrefix->setVisible(isResourceNode);

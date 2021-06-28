@@ -86,7 +86,7 @@ public:
     void activeTargetChanged();
     void updateActions();
     void updateRunQMakeAction();
-    void updateContextActions();
+    void updateContextActions(Node *node);
     void buildStateChanged(Project *pro);
     void updateBuildFileAction();
     void disableBuildFileMenus();
@@ -496,7 +496,7 @@ void QmakeProjectManagerPluginPrivate::activeTargetChanged()
 void QmakeProjectManagerPluginPrivate::updateActions()
 {
     updateRunQMakeAction();
-    updateContextActions();
+    updateContextActions(ProjectTree::currentNode());
 }
 
 void QmakeProjectManagerPluginPrivate::updateRunQMakeAction()
@@ -515,9 +515,8 @@ void QmakeProjectManagerPluginPrivate::updateRunQMakeAction()
     m_runQMakeAction->setEnabled(enable);
 }
 
-void QmakeProjectManagerPluginPrivate::updateContextActions()
+void QmakeProjectManagerPluginPrivate::updateContextActions(Node *node)
 {
-    const Node *node = ProjectTree::currentNode();
     Project *project = ProjectTree::currentProject();
 
     const ContainerNode *containerNode = node ? node->asContainerNode() : nullptr;
@@ -578,7 +577,7 @@ void QmakeProjectManagerPluginPrivate::buildStateChanged(Project *pro)
 {
     if (pro == ProjectTree::currentProject()) {
         updateRunQMakeAction();
-        updateContextActions();
+        updateContextActions(ProjectTree::currentNode());
         updateBuildFileAction();
     }
 }

@@ -136,7 +136,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
     static McuSupportOptions::UpgradeOption selectedOption;
     const QStringList options = { tr("Create new kits"), tr("Replace existing kits") };
     selectedOption = McuSupportOptions::UpgradeOption::Keep;
-    info.setComboInfo(options, [upgradeMcuSupportKits, options](const QString &selected) {
+    info.setComboInfo(options, [options](const QString &selected) {
         selectedOption = options.indexOf(selected) == 0 ?
                     McuSupportOptions::UpgradeOption::Keep :
                     McuSupportOptions::UpgradeOption::Replace;

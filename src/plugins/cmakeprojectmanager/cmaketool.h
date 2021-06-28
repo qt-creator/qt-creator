@@ -109,6 +109,9 @@ public:
 
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
+    QString detectionSource() const { return m_detectionSource; }
+    void setDetectionSource(const QString &source) { m_detectionSource = source; }
+
 private:
     void readInformation() const;
 
@@ -126,6 +129,7 @@ private:
 
     bool m_isAutoRun = true;
     bool m_isAutoDetected = false;
+    QString m_detectionSource;
     bool m_autoCreateBuildDirectory = false;
 
     Utils::optional<ReaderType> m_readerType;

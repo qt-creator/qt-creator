@@ -3583,8 +3583,10 @@ protected:
                     if (i.type()->isNamedType()) { // check if we have to search recursively
                         const Name *newName = i.type()->asNamedType()->name();
                         Scope *newScope = i.declaration()->enclosingScope();
-                        if (newName == name && newScope == scope)
+                        if (Matcher::match(newName, name)
+                                && Matcher::match(newScope->name(), scope->name())) {
                             continue; // we have found the start location of the search
+                        }
                         return isValueType(newName, newScope, isValueType);
                     }
                     return false;

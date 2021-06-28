@@ -262,7 +262,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     });
 
     // Run initial setup routines
-    updateContextActions();
+    updateContextActions(ProjectTree::currentNode());
     updateReparseQbsAction();
     updateBuildActions();
 
@@ -280,10 +280,9 @@ void QbsProjectManagerPlugin::targetWasAdded(Target *target)
             this, &QbsProjectManagerPlugin::projectChanged);
 }
 
-void QbsProjectManagerPlugin::updateContextActions()
+void QbsProjectManagerPlugin::updateContextActions(Node *node)
 {
     auto project = qobject_cast<Internal::QbsProject *>(ProjectTree::currentProject());
-    const Node *node = ProjectTree::currentNode();
     bool isEnabled = !BuildManager::isBuilding(project)
             && project && project->activeTarget()
             && !project->activeTarget()->buildSystem()->isParsing()
@@ -369,7 +368,7 @@ void QbsProjectManagerPlugin::projectChanged()
         updateReparseQbsAction();
 
     if (!project || project == ProjectTree::currentProject())
-        updateContextActions();
+        updateContextActions(ProjectTree::currentNode());
 
     if (!project || project == currentEditorProject())
         updateBuildActions();

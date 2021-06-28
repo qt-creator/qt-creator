@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -43,52 +43,38 @@ Column {
     width: parent.width
 
     Section {
-        caption: qsTr("Combo Box")
-
         width: parent.width
+        caption: qsTr("PageIndicator")
 
         SectionLayout {
             PropertyLabel {
-                text: qsTr("Text role")
-                tooltip: qsTr("The model role used for displaying text.")
-            }
-
-            SecondColumnLayout {
-                LineEdit {
-                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
-                    width: implicitWidth
-                    backendValue: backendValues.textRole
-                }
-
-                ExpandingSpacer {}
-            }
-
-            PropertyLabel {
-                text: qsTr("Display text")
-                tooltip: qsTr("Holds the text that is displayed on the combo box button.")
-            }
-
-            SecondColumnLayout {
-                LineEdit {
-                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
-                    width: implicitWidth
-                    backendValue: backendValues.displayText
-                }
-
-                ExpandingSpacer {}
-            }
-
-            PropertyLabel {
-                text: qsTr("Current index")
-                tooltip: qsTr("The index of the current item.")
+                text: qsTr("Count")
+                tooltip: qsTr("The number of pages.")
             }
 
             SecondColumnLayout {
                 SpinBox {
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 0
+                    backendValue: backendValues.count
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Current")
+                tooltip: qsTr("The index of the current page.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                     width: implicitWidth
                     minimumValue: -9999999
                     maximumValue: 9999999
@@ -100,32 +86,16 @@ Column {
             }
 
             PropertyLabel {
-                text: qsTr("Flat")
-                tooltip: qsTr("Whether the combo box button is flat.")
+                text: qsTr("Interactive")
+                tooltip: qsTr("Whether the control is interactive.")
             }
 
             SecondColumnLayout {
                 CheckBox {
-                    text: backendValues.flat.valueToString
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
-                    backendValue: backendValues.flat
-                }
-
-                ExpandingSpacer {}
-            }
-
-            PropertyLabel {
-                text: qsTr("Editable")
-                tooltip: qsTr("Whether the combo box is editable.")
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    text: backendValues.editable.valueToString
-                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
-                    backendValue: backendValues.editable
+                    text: backendValues.interactive.valueToString
+                    backendValue: backendValues.interactive
                 }
 
                 ExpandingSpacer {}
@@ -134,8 +104,6 @@ Column {
     }
 
     ControlSection {}
-
-    FontSection {}
 
     PaddingSection {}
 }

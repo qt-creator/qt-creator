@@ -54,6 +54,7 @@ public:
     Utils::FilePath executable; // TODO: rename to output?
     TargetType targetType = UtilityType;
     bool linksToQtGui = false;
+    bool qtcRunnable = true;
     Utils::FilePath workingDirectory;
     Utils::FilePath sourceDirectory;
     Utils::FilePath makeCommand;

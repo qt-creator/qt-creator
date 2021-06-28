@@ -49,6 +49,19 @@ const char QBS_EXE_KEY[] = "QbsProjectManager/QbsExecutable";
 const char QBS_DEFAULT_INSTALL_DIR_KEY[] = "QbsProjectManager/DefaultInstallDir";
 const char USE_CREATOR_SETTINGS_KEY[] = "QbsProjectManager/useCreatorDir";
 
+static QString getQbsVersion(const FilePath &qbsExe)
+{
+    if (qbsExe.isEmpty() || !qbsExe.exists())
+        return {};
+    QProcess qbsProc;
+    qbsProc.start(qbsExe.toString(), {"--version"});
+    if (!qbsProc.waitForStarted(3000) || !qbsProc.waitForFinished(5000)
+            || qbsProc.exitCode() != 0) {
+        return {};
+    }
+    return QString::fromLocal8Bit(qbsProc.readAllStandardOutput()).trimmed();
+}
+
 static bool operator==(const QbsSettingsData &s1, const QbsSettingsData &s2)
 {
     return s1.qbsExecutableFilePath == s2.qbsExecutableFilePath
@@ -86,6 +99,14 @@ bool QbsSettings::useCreatorSettingsDirForQbs()
 QString QbsSettings::qbsSettingsBaseDir()
 {
     return useCreatorSettingsDirForQbs() ? Core::ICore::userResourcePath().toString() : QString();
+}
+
+QVersionNumber QbsSettings::qbsVersion()
+{
+    if (instance().m_settings.qbsVersion.isNull())
+        instance().m_settings.qbsVersion = QVersionNumber::fromString(
+                    getQbsVersion(qbsExecutableFilePath()));
+    return instance().m_settings.qbsVersion;
 }
 
 QbsSettings &QbsSettings::instance()
@@ -140,7 +161,7 @@ public:
         m_qbsExePathChooser.setExpectedKind(PathChooser::ExistingCommand);
         m_qbsExePathChooser.setFilePath(QbsSettings::qbsExecutableFilePath());
         m_defaultInstallDirLineEdit.setText(QbsSettings::defaultInstallDirTemplate());
-        m_versionLabel.setText(getQbsVersion());
+        m_versionLabel.setText(getQbsVersionString());
         m_settingsDirCheckBox.setText(tr("Use %1 settings directory for Qbs")
                                       .arg(Core::Constants::IDE_DISPLAY_NAME));
         m_settingsDirCheckBox.setChecked(QbsSettings::useCreatorSettingsDirForQbs());
@@ -150,6 +171,10 @@ public:
         layout->addRow(tr("Path to qbs executable:"), &m_qbsExePathChooser);
         layout->addRow(tr("Default installation directory:"), &m_defaultInstallDirLineEdit);
         layout->addRow(tr("Qbs version:"), &m_versionLabel);
+
+        connect(&m_qbsExePathChooser, &PathChooser::pathChanged, [this] {
+            m_versionLabel.setText(getQbsVersionString());
+        });
     }
 
     void apply()
@@ -159,22 +184,15 @@ public:
             settings.qbsExecutableFilePath = m_qbsExePathChooser.filePath();
         settings.defaultInstallDirTemplate = m_defaultInstallDirLineEdit.text();
         settings.useCreatorSettings = m_settingsDirCheckBox.isChecked();
+        settings.qbsVersion = {};
         QbsSettings::setSettingsData(settings);
     }
 
 private:
-    static QString getQbsVersion()
+    QString getQbsVersionString()
     {
-        const FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
-        if (qbsExe.isEmpty() || !qbsExe.exists())
-            return tr("Failed to retrieve version.");
-        QProcess qbsProc;
-        qbsProc.start(qbsExe.toString(), {"--version"});
-        if (!qbsProc.waitForStarted(3000) || !qbsProc.waitForFinished(5000)
-                || qbsProc.exitCode() != 0) {
-            return tr("Failed to retrieve version.");
-        }
-        return QString::fromLocal8Bit(qbsProc.readAllStandardOutput()).trimmed();
+        const QString version = getQbsVersion(m_qbsExePathChooser.filePath());
+        return version.isEmpty() ? tr("Failed to retrieve version.") : version;
     }
 
     PathChooser m_qbsExePathChooser;

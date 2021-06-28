@@ -491,7 +491,8 @@ void DockerDevicePrivate::autoDetectCMake(QTextBrowser *log)
             log->append(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
             const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                        "registerCMakeByPath",
-                                                       Q_ARG(Utils::FilePath, cmake));
+                                                       Q_ARG(Utils::FilePath, cmake),
+                                                       Q_ARG(QString, m_data.id()));
             QTC_CHECK(res);
         }
     }
@@ -1139,7 +1140,7 @@ public:
         QTC_ASSERT(item, return {});
 
         auto device = DockerDevice::create(*item);
-        device->setupId(IDevice::ManuallyAdded, Utils::Id());
+        device->setupId(IDevice::ManuallyAdded, Id::fromString(item->id()));
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
 

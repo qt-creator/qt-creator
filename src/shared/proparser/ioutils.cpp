@@ -48,6 +48,18 @@ using namespace QMakeInternal;
 
 IoUtils::FileType IoUtils::fileType(const QString &fileName)
 {
+    // FIXME:
+    if (fileName.startsWith("docker:/")) {
+        if (!fileName.startsWith("docker://"))
+            qWarning("File name not canonical");
+        int pos = fileName.indexOf('/', 10);
+        if (pos == 0) {
+            qWarning("File name not canonical");
+            return FileNotFound;
+        }
+        return fileType(fileName.mid(pos));
+    }
+
     Q_ASSERT(fileName.isEmpty() || isAbsolutePath(fileName));
 #ifdef Q_OS_WIN
     DWORD attr = GetFileAttributesW((WCHAR*)fileName.utf16());

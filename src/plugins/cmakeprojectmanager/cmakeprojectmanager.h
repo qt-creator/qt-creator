@@ -44,7 +44,7 @@ public:
     CMakeManager();
 
 private:
-    void updateCmakeActions();
+    void updateCmakeActions(ProjectExplorer::Node *node);
     void clearCMakeCache(ProjectExplorer::BuildSystem *buildSystem);
     void runCMake(ProjectExplorer::BuildSystem *buildSystem);
     void rescanProject(ProjectExplorer::BuildSystem *buildSystem);

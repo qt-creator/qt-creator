@@ -123,12 +123,10 @@ Section {
             tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
                           "improve performance when creating or changing the text, at the expense of some cosmetic features.")
             disabledState: !getBackendValue("kerning").isAvailable
-            visible: minorQtQuickVersion > 9
         }
 
         SecondColumnLayout {
             CheckBox {
-                visible:  minorQtQuickVersion > 9
                 text: backendValue.valueToString
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -145,12 +143,10 @@ Section {
                           "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
                           "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
             disabledState: !getBackendValue("preferShaping").isAvailable
-            visible: minorQtQuickVersion > 9
         }
 
         SecondColumnLayout {
             CheckBox {
-                visible:  minorQtQuickVersion > 9
                 text: backendValue.valueToString
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth

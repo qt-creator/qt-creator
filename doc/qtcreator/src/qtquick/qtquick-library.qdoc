@@ -114,7 +114,11 @@
 
     \uicontrol Library > \uicontrol {Assets} displays the images and other files
     that you add to the project folder by selecting \inlineimage plus.png
-    .
+    . To add assets to your UI, drag-and-drop them to \l Navigator or
+    \l {Form Editor}.
+
+    To add multiple assets to your UI simultaneously, multiselect them first by
+    holding \key Ctrl and clicking the asset files you wish to select.
 
     \image qtquick-assets-tab.png "Library view Assets tab"
 

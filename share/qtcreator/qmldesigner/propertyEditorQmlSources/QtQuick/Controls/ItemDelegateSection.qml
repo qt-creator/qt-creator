@@ -49,7 +49,7 @@ Section {
 
     SectionLayout {
         PropertyLabel {
-            text: qsTr("Highlighted")
+            text: qsTr("Highlight")
             tooltip: qsTr("Whether the delegate is highlighted.")
         }
 
