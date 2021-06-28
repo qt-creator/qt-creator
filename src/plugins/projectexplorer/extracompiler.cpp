@@ -53,7 +53,7 @@ namespace ProjectExplorer {
 
 Q_GLOBAL_STATIC(QThreadPool, s_extraCompilerThreadPool);
 Q_GLOBAL_STATIC(QList<ExtraCompilerFactory *>, factories);
-Q_GLOBAL_STATIC(QVector<ExtraCompilerFactoryObserver *>, observers);
+
 class ExtraCompilerPrivate
 {
 public:
@@ -322,14 +322,6 @@ ExtraCompilerFactory::~ExtraCompilerFactory()
     factories->removeAll(this);
 }
 
-void ExtraCompilerFactory::annouceCreation(const Project *project,
-                                           const Utils::FilePath &source,
-                                           const Utils::FilePaths &targets)
-{
-    for (ExtraCompilerFactoryObserver *observer : qAsConst(*observers))
-        observer->newExtraCompiler(project, source, targets);
-}
-
 QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
 {
     return *factories();
@@ -463,16 +455,6 @@ void ProcessExtraCompiler::cleanUp()
         setContent(it.key(), it.value());
 
     setCompileTime(QDateTime::currentDateTime());
-}
-
-ExtraCompilerFactoryObserver::ExtraCompilerFactoryObserver()
-{
-    observers->push_back(this);
-}
-
-ExtraCompilerFactoryObserver::~ExtraCompilerFactoryObserver()
-{
-    observers->removeOne(this);
 }
 
 } // namespace ProjectExplorer

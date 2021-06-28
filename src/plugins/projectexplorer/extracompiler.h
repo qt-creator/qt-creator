@@ -143,20 +143,6 @@ private:
     QFutureWatcher<FileNameToContentsHash> *m_watcher = nullptr;
 };
 
-class PROJECTEXPLORER_EXPORT ExtraCompilerFactoryObserver
-{
-    friend class ExtraCompilerFactory;
-
-protected:
-    ExtraCompilerFactoryObserver();
-    ~ExtraCompilerFactoryObserver();
-
-    virtual void newExtraCompiler(const Project *project,
-                                  const Utils::FilePath &source,
-                                  const Utils::FilePaths &targets)
-        = 0;
-};
-
 class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
 {
     Q_OBJECT
@@ -171,10 +157,6 @@ public:
                                   const Utils::FilePath &source,
                                   const Utils::FilePaths &targets)
         = 0;
-
-    void annouceCreation(const Project *project,
-                         const Utils::FilePath &source,
-                         const Utils::FilePaths &targets);
 
     static QList<ExtraCompilerFactory *> extraCompilerFactories();
 };
