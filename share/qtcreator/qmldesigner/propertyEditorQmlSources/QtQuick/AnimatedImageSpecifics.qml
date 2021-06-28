@@ -34,11 +34,11 @@ Column {
     anchors.right: parent.right
 
     ImageSection {
-        caption: qsTr("Animated Image")
+        caption: qsTr("Image")
     }
 
     Section {
-        caption: qsTr("Animation Settings")
+        caption: qsTr("Animated image")
 
         anchors.left: parent.left
         anchors.right: parent.right
@@ -62,40 +62,38 @@ Column {
                     enabled: backendValues.speed.isAvailable
                 }
 
-                ExpandingSpacer {}
-            }
-
-            PropertyLabel {
-                text: qsTr("Paused")
-                tooltip: qsTr("Whether the animated image is paused.")
-                disabledState: !backendValues.paused.isAvailable
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    text: backendValues.paused.valueToString
-                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
-                    backendValue: backendValues.paused
-                    enabled: backendValues.paused.isAvailable
-                }
+                // TODO convert to % and add % label after the spin box
 
                 ExpandingSpacer {}
             }
 
             PropertyLabel {
                 text: qsTr("Playing")
-                tooltip: qsTr("Whether the animated image is playing.")
-                disabledState: !backendValues.playing.isAvailable
+                tooltip: qsTr("Whether the animation is playing and/or paused.")
+                disabledState: !backendValues.playing.isAvailable && !backendValues.paused.isAvailable
             }
 
             SecondColumnLayout {
                 CheckBox {
-                    text: backendValues.playing.valueToString
+                    text: StudioTheme.Constants.play
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
+                                + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.playing
-                    enabled: backendValues.playing.isAvailable
+                    enabled: backendValue.isAvailable
+                    fontFamily: StudioTheme.Constants.iconFont.family
+                    fontPixelSize: StudioTheme.Values.myIconFontSize
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+                CheckBox {
+                    text: StudioTheme.Constants.pause
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.paused
+                    enabled: backendValue.isAvailable
+                    fontFamily: StudioTheme.Constants.iconFont.family
+                    fontPixelSize: StudioTheme.Values.myIconFontSize
                 }
 
                 ExpandingSpacer {}
