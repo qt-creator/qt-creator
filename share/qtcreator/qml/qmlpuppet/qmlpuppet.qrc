@@ -9,58 +9,7 @@
         <file>mockfiles/SwipeView.qml</file>
         <file>mockfiles/GenericBackend.qml</file>
         <file>mockfiles/Dialog.qml</file>
-        <file>mockfiles/IconRenderer3D.qml</file>
-        <file>mockfiles/EditView3D.qml</file>
-        <file>mockfiles/EditCameraController.qml</file>
-        <file>mockfiles/Arrow.qml</file>
-        <file>mockfiles/AutoScaleHelper.qml</file>
-        <file>mockfiles/MoveGizmo.qml</file>
-        <file>mockfiles/CameraFrustum.qml</file>
-        <file>mockfiles/CameraGizmo.qml</file>
-        <file>mockfiles/LightModel.qml</file>
-        <file>mockfiles/LightIconGizmo.qml</file>
-        <file>mockfiles/LightGizmo.qml</file>
-        <file>mockfiles/AdjustableArrow.qml</file>
-        <file>mockfiles/FadeHandle.qml</file>
-        <file>mockfiles/AreaLightHandle.qml</file>
-        <file>mockfiles/SpotLightHandle.qml</file>
-        <file>mockfiles/IconGizmo.qml</file>
-        <file>mockfiles/Overlay2D.qml</file>
-        <file>mockfiles/HelperGrid.qml</file>
-        <file>mockfiles/DirectionalDraggable.qml</file>
-        <file>mockfiles/PlanarDraggable.qml</file>
-        <file>mockfiles/PlanarMoveHandle.qml</file>
-        <file>mockfiles/PlanarScaleHandle.qml</file>
-        <file>mockfiles/ScaleRod.qml</file>
-        <file>mockfiles/ScaleGizmo.qml</file>
         <file>mockfiles/ToolBarButton.qml</file>
         <file>mockfiles/ToggleButton.qml</file>
-        <file>mockfiles/RotateGizmo.qml</file>
-        <file>mockfiles/RotateRing.qml</file>
-        <file>mockfiles/SceneView3D.qml</file>
-        <file>mockfiles/SelectionBox.qml</file>
-        <file>mockfiles/AxisHelper.qml</file>
-        <file>mockfiles/AxisHelperArm.qml</file>
-        <file>mockfiles/Line3D.qml</file>
-        <file>mockfiles/ModelNode3DImageView.qml</file>
-        <file>mockfiles/ModelNode2DImageView.qml</file>
-        <file>mockfiles/MaterialNodeView.qml</file>
-        <file>mockfiles/ModelNodeView.qml</file>
-        <file>mockfiles/NodeNodeView.qml</file>
-        <file>mockfiles/meshes/arrow.mesh</file>
-        <file>mockfiles/meshes/scalerod.mesh</file>
-        <file>mockfiles/meshes/ring.mesh</file>
-        <file>mockfiles/meshes/ringselect.mesh</file>
-        <file>mockfiles/meshes/axishelper.mesh</file>
-        <file>mockfiles/images/editor_camera.png</file>
-        <file>mockfiles/images/editor_camera@2x.png</file>
-        <file>mockfiles/images/area.png</file>
-        <file>mockfiles/images/area@2x.png</file>
-        <file>mockfiles/images/directional.png</file>
-        <file>mockfiles/images/directional@2x.png</file>
-        <file>mockfiles/images/point.png</file>
-        <file>mockfiles/images/point@2x.png</file>
-        <file>mockfiles/images/spot.png</file>
-        <file>mockfiles/images/spot@2x.png</file>
     </qresource>
 </RCC>

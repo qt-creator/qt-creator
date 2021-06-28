@@ -49,12 +49,12 @@ Model {
     signal rotateCommit()
     signal rotateChange()
 
-    source: "meshes/ring.mesh"
+    source: "../meshes/ring.mesh"
 
     Model {
         id: pickModel
         objectName: "PickModel for " + rotateRing.objectName
-        source: "meshes/ringselect.mesh"
+        source: "../meshes/ringselect.mesh"
         pickable: true
     }
 

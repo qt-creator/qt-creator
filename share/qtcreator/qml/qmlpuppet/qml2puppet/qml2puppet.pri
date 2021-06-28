@@ -29,6 +29,9 @@ include (import3d/import3d.pri)
 SOURCES +=  $$PWD/qml2puppetmain.cpp
 RESOURCES +=  $$PWD/../qmlpuppet.qrc
 
+versionAtLeast(QT_VERSION, 6.0.0): RESOURCES += $$PWD/../editor3d_qt6.qrc
+else: RESOURCES += $$PWD/../editor3d_qt5.qrc
+
 DISTFILES += Info.plist
 
 unix:!openbsd:!osx: LIBS += -lrt # posix shared memory

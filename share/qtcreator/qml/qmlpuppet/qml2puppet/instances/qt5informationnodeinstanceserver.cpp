@@ -392,8 +392,11 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
                                new QmlDesigner::Internal::IconGizmoImageProvider);
     m_3dHelper = helper;
 
-    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"), m_editView3DData);
-
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt6/EditView3D.qml"), m_editView3DData);
+#else
+    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt5/EditView3D.qml"), m_editView3DData);
+#endif
     if (m_editView3DData.rootItem)
         helper->setParent(m_editView3DData.rootItem);
 #endif
@@ -1192,12 +1195,22 @@ void Qt5InformationNodeInstanceServer::initializeAuxiliaryViews()
 #ifdef QUICK3D_MODULE
     if (isQuick3DMode())
         createEditView3D();
-    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode3DImageView.qml"),
+                             m_modelNode3DImageViewData);
+#else
+    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt5/ModelNode3DImageView.qml"),
                              m_modelNode3DImageViewData);
 #endif
+#endif
 
-    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode2DImageView.qml"),
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode2DImageView.qml"),
                              m_modelNode2DImageViewData);
+#else
+    createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt5/ModelNode2DImageView.qml"),
+                             m_modelNode2DImageViewData);
+#endif
     m_modelNode2DImageViewData.window->setDefaultAlphaBuffer(true);
     m_modelNode2DImageViewData.window->setColor(Qt::transparent);
 }

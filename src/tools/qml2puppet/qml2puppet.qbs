@@ -167,6 +167,20 @@ QtcTool {
     }
 
     Group {
+        name: "puppet2 3D editor Qt5"
+        condition: !product.usesQt6
+        prefix: puppetDir + "/"
+        files: ["editor3d_qt5.qrc"]
+    }
+
+    Group {
+        name: "puppet2 3D editor Qt6"
+        condition: product.usesQt6
+        prefix: puppetDir + "/"
+        files: ["editor3d_qt6.qrc"]
+    }
+
+    Group {
         name: "puppet2 sources"
         prefix: puppetDir + "/qml2puppet/"
         files: [

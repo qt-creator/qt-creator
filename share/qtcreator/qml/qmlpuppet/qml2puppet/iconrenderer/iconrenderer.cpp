@@ -96,11 +96,13 @@ void IconRenderer::setupRender()
         if (auto scene = qobject_cast<QQuick3DNode *>(iconItem)) {
             qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
             QQmlComponent component(engine);
-            component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/IconRenderer3D.qml"));
-            m_containerItem = qobject_cast<QQuickItem *>(component.create());
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt5/IconRenderer3D.qml"));
+            m_containerItem = qobject_cast<QQuickItem *>(component.create());
             DesignerSupport::setRootItem(view, m_containerItem);
 #else
+            component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt6/IconRenderer3D.qml"));
+            m_containerItem = qobject_cast<QQuickItem *>(component.create());
             m_window->contentItem()->setSize(m_containerItem->size());
             m_window->setGeometry(0, 0, m_containerItem->width(), m_containerItem->height());
             m_containerItem->setParentItem(m_window->contentItem());
