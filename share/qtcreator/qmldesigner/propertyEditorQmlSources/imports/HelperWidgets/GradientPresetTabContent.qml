@@ -145,7 +145,7 @@ Rectangle {
                             target: backgroundCard
                             color:StudioTheme.Values.themeInteraction
                             border.width: StudioTheme.Values.border
-                            border.color: StudioTheme.Values.themeControlBackgroundPressed
+                            border.color: StudioTheme.Values.themeControlOutlineInteraction
                         }
                     }
                 ]

@@ -63,7 +63,7 @@
 
 namespace QmlDesigner {
 
-QTableWidget* GenerateResource::createFilesTable(const QStringList &fileNames)
+QTableWidget* GenerateResource::createFilesTable(const QList<ResourceFile> &fileNames)
 {
     auto table = new QTableWidget(0, 1);
     table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -74,11 +74,18 @@ QTableWidget* GenerateResource::createFilesTable(const QStringList &fileNames)
     table->verticalHeader()->hide();
     table->setShowGrid(false);
 
-    for (const QString &filePath : fileNames) {
+    QFont font;
+    font.setBold(true);
+
+    for (ResourceFile resource : fileNames){
+        QString filePath = resource.fileName;
         auto checkboxItem = new QTableWidgetItem();
         checkboxItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         checkboxItem->setCheckState(Qt::Checked);
         checkboxItem->setText(filePath);
+
+        if (resource.inProject)
+            checkboxItem->setFont(font);
 
         int row = table->rowCount();
         table->insertRow(row);
@@ -88,7 +95,7 @@ QTableWidget* GenerateResource::createFilesTable(const QStringList &fileNames)
     return table;
 }
 
-QStringList GenerateResource::getFileList(const QStringList &fileNames)
+QStringList GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
 {
     QStringList result;
     QDialog *dialog = new QDialog(Core::ICore::dialogParent());
@@ -107,21 +114,21 @@ QStringList GenerateResource::getFileList(const QStringList &fileNames)
 
     mainLayout->addWidget(buttonBox, 3, 2, 1, 2);
 
-    QObject::connect(buttonBox, &QDialogButtonBox::accepted, dialog, [dialog](){
+    QObject::connect(buttonBox, &QDialogButtonBox::accepted, dialog, [dialog]() {
         dialog->accept();
         dialog->deleteLater();
     });
 
-    QObject::connect(buttonBox, &QDialogButtonBox::rejected, dialog, [dialog](){
+    QObject::connect(buttonBox, &QDialogButtonBox::rejected, dialog, [dialog]() {
         dialog->reject();
         dialog->deleteLater();
     });
 
-    QObject::connect(dialog, &QDialog::accepted, [&result, &table](){
+    QObject::connect(dialog, &QDialog::accepted, [&result, &table]() {
         QStringList fileList;
         QString file;
 
-        for (int i = 0; i < table->rowCount(); ++i){
+        for (int i = 0; i < table->rowCount(); ++i) {
             if (table->item(i,0)->checkState()){
                 file = table->item(i,0)->text();
                 fileList.append(file);
@@ -141,19 +148,21 @@ void GenerateResource::generateMenuEntry()
     Core::ActionContainer *buildMenu =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
 
-
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
-    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource", "Generate Resource File"));
+    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                          "Generate QRC Resource File"));
     action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
-    QObject::connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::startupProjectChanged, [action]() {
+    QObject::connect(ProjectExplorer::SessionManager::instance(),
+        &ProjectExplorer::SessionManager::startupProjectChanged, [action]() {
             action->setEnabled(ProjectExplorer::SessionManager::startupProject());
     });
 
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateResource");
     QObject::connect(action, &QAction::triggered, [] () {
         auto currentProject = ProjectExplorer::SessionManager::startupProject();
+        QTC_ASSERT(currentProject, return);
         auto projectPath = currentProject->projectFilePath().parentDir().toString();
 
         static QMap<QString, QString> lastUsedPathes;
@@ -163,21 +172,13 @@ void GenerateResource::generateMenuEntry()
         saveLastUsedPath(lastUsedPathes.value(currentProject->displayName(),
             currentProject->projectFilePath().parentDir().parentDir().toString()));
 
-        auto resourceFileName = Core:: DocumentManager::getSaveFileName(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as Resource"),
-            lastUsedPathes.value(currentProject->displayName()) + "/" + currentProject->displayName() + ".qmlrc",
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "QML Resource File (*.qmlrc)"));
-        if (resourceFileName.isEmpty())
-            return;
-
-        Core::MessageManager::writeSilently(
-            QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                        "Generate a resource file out of project %1 to %2")
-                .arg(currentProject->displayName(), QDir::toNativeSeparators(resourceFileName)));
-
+        QString projectFileName = currentProject->displayName() + ".qrc";
         QTemporaryFile temp(projectPath + "/XXXXXXX.create.resource.qrc");
+        QFile persistentFile(projectPath + "/" + projectFileName);
+
         if (!temp.open())
             return;
+
         temp.close();
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
@@ -196,7 +197,7 @@ void GenerateResource::generateMenuEntry()
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "Unable to generate resource file: %1")
-                        .arg(resourceFileName));
+                        .arg(temp.fileName()));
                 return;
             }
             QByteArray stdOut;
@@ -208,10 +209,11 @@ void GenerateResource::generateMenuEntry()
                                                 "A timeout occurred running \"%1\"")
                         .arg(rccBinary + " " + arguments.join(" ")));
                 return;
+
             }
-            if (!stdOut.trimmed().isEmpty()) {
+            if (!stdOut.trimmed().isEmpty())
                 Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
-            }
+
             if (!stdErr.trimmed().isEmpty())
                 Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
 
@@ -229,14 +231,13 @@ void GenerateResource::generateMenuEntry()
                         .arg(rccProcess.exitCode()));
                 return;
             }
-
         }
 
         if (!temp.open())
             return;
 
         QXmlStreamReader reader(&temp);
-        QStringList fileList = {};
+        QList<ResourceFile> fileList = {};
         QByteArray firstLine = temp.readLine();
 
         while (!reader.atEnd()) {
@@ -247,12 +248,244 @@ void GenerateResource::generateMenuEntry()
 
             if (reader.name() == QLatin1String("file")) {
                 QString fileName = reader.readElementText().trimmed();
-                if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX")))
-                    fileList.append(fileName);
+
+                if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX"))
+                        && !fileName.endsWith(".qmlproject") && !fileName.endsWith(".pri")
+                        && !fileName.endsWith(".pro") && !fileName.endsWith(".user")
+                        && !fileName.endsWith(".qrc")) {
+                    ResourceFile file;
+                    file.fileName = fileName;
+                    file.inProject = false;
+                    fileList.append(file);
+                }
+            }
+        }
+
+        QDir dir;
+        dir.setCurrent(projectPath);
+
+        Utils::FilePaths paths = currentProject->files(ProjectExplorer::Project::AllFiles);
+        QStringList projectFiles = {};
+
+         for (const Utils::FilePath &path : paths) {
+             QString relativepath = dir.relativeFilePath(path.toString());
+
+            if (!relativepath.endsWith(".qmlproject") && !relativepath.endsWith(".pri")
+                    && !relativepath.endsWith(".pro") && !relativepath.endsWith(".user")
+                    && !relativepath.endsWith(".qrc")) {
+                projectFiles.append(relativepath);
+
+                bool found = false;
+                QString compareString = "./" + relativepath.trimmed();
+                for (int i = 0; i < fileList.count(); ++i)
+                    if (fileList.at(i).fileName == compareString) {
+                        fileList[i].inProject = true;
+                        found = true;
+                        break;
+                    }
+
+                if (!found) {
+                    ResourceFile res;
+                    res.fileName = "./" + relativepath.trimmed();
+                    res.inProject = true;
+                    fileList.append(res);
+                }
             }
         }
 
         temp.close();
+
+        QStringList modifiedList = getFileList(fileList);
+
+        if (!persistentFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
+            return;
+
+        QXmlStreamWriter writer(&persistentFile);
+        writer.setAutoFormatting(true);
+        writer.setAutoFormattingIndent(0);
+
+        persistentFile.write(firstLine.trimmed());
+        writer.writeStartElement("qresource");
+
+        for (QString file : modifiedList)
+            writer.writeTextElement("file", file.trimmed());
+
+        writer.writeEndElement();
+        persistentFile.write("\n</RCC>\n");
+        persistentFile.close();
+
+        saveLastUsedPath(Utils::FilePath::fromString(projectFileName).parentDir().toString());
+    });
+
+    // ToDo: move this to QtCreator and add tr to the string then
+    auto rccAction = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                             "Generate RCC Resource File"));
+    rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
+    QObject::connect(ProjectExplorer::SessionManager::instance(),
+        &ProjectExplorer::SessionManager::startupProjectChanged, [rccAction]() {
+            rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject());
+    });
+
+    Core::Command *cmd2 = Core::ActionManager::registerAction(rccAction,
+                                         "QmlProject.CreateRCCResource");
+    QObject::connect(rccAction, &QAction::triggered, [] () {
+        auto currentProject = ProjectExplorer::SessionManager::startupProject();
+        QTC_ASSERT(currentProject, return);
+        auto projectPath = currentProject->projectFilePath().parentDir().toString();
+
+        static QMap<QString, QString> lastUsedPathes;
+        auto saveLastUsedPath = [currentProject] (const QString &lastUsedPath) {
+            lastUsedPathes.insert(currentProject->displayName(), lastUsedPath);
+        };
+        saveLastUsedPath(lastUsedPathes.value(currentProject->displayName(),
+            currentProject->projectFilePath().parentDir().parentDir().toString()));
+
+        auto resourceFileName = Core:: DocumentManager::getSaveFileName(
+            QCoreApplication::translate("QmlDesigner::GenerateResource",
+                "Save Project as Resource"), lastUsedPathes.value(currentProject->displayName())
+                + "/" + currentProject->displayName() + ".qmlrc",
+                QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                            "QML Resource File (*.qmlrc);;Resource File (*.rcc)"));
+        if (resourceFileName.isEmpty())
+            return;
+
+        Core::MessageManager::writeSilently(
+            QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                        "Generate a resource file out of project %1 to %2")
+                .arg(currentProject->displayName(), QDir::toNativeSeparators(resourceFileName)));
+
+        QString projectFileName = currentProject->displayName() + ".qrc";
+        QFile persistentFile(projectPath + "/" + projectFileName);
+        QTemporaryFile temp(projectPath + "/XXXXXXX.create.resource.qrc");
+
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
+            currentProject->activeTarget()->kit());
+        QString rccBinary = qtVersion->rccCommand();
+
+        Utils::QtcProcess rccProcess;
+        rccProcess.setWorkingDirectory(projectPath);
+
+        QXmlStreamReader reader;
+        QByteArray firstLine;
+
+        if (!QFileInfo(persistentFile).exists()) {
+            if (!temp.open())
+                return;
+            temp.close();
+
+            const QStringList arguments1 = {"--project", "--output", temp.fileName()};
+
+            for (const auto &arguments : {arguments1}) {
+                rccProcess.setCommand({rccBinary, arguments});
+                rccProcess.start();
+                if (!rccProcess.waitForStarted()) {
+                    Core::MessageManager::writeDisrupting(
+                        QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                "Unable to generate resource file: %1")
+                        .arg(resourceFileName));
+                    return;
+                }
+                QByteArray stdOut;
+                QByteArray stdErr;
+                if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
+                    rccProcess.stopProcess();
+                    Core::MessageManager::writeDisrupting(
+                        QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                "A timeout occurred running \"%1\"")
+                        .arg(rccBinary + " " + arguments.join(" ")));
+                    return;
+                }
+                if (!stdOut.trimmed().isEmpty())
+                    Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
+
+                if (!stdErr.trimmed().isEmpty())
+                    Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
+
+                if (rccProcess.exitStatus() != QProcess::NormalExit) {
+                    Core::MessageManager::writeDisrupting(
+                    QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
+                        .arg(rccBinary + " " + arguments.join(" ")));
+                    return;
+                }
+                if (rccProcess.exitCode() != 0) {
+                    Core::MessageManager::writeDisrupting(
+                        QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                                "\"%1\" failed (exit code %2).")
+                        .arg(rccBinary + " " + arguments.join(" "))
+                        .arg(rccProcess.exitCode()));
+                    return;
+                }
+            }
+
+            reader.setDevice(&temp);
+
+            if (!temp.open())
+                return;
+            firstLine = temp.readLine();
+
+        } else {
+            reader.setDevice(&persistentFile);
+            if (!persistentFile.open(QIODevice::ReadWrite))
+                return;
+
+            firstLine = persistentFile.readLine();
+        }
+
+        QList<ResourceFile> fileList = {};
+
+        while (!reader.atEnd()) {
+            const auto token = reader.readNext();
+
+            if (token != QXmlStreamReader::StartElement)
+                continue;
+
+            if (reader.name() == QLatin1String("file")) {
+                QString fileName = reader.readElementText().trimmed();
+                if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX"))
+                        && !fileName.endsWith(".qmlproject") && !fileName.endsWith(".pri")
+                        && !fileName.endsWith(".pro") && !fileName.endsWith(".user")
+                        && !fileName.endsWith(".qrc")) {
+                    ResourceFile file;
+                    file.fileName = fileName;
+                    file.inProject = false;
+                    fileList.append(file);
+                }
+            }
+        }
+
+        QDir dir;
+        dir.setCurrent(projectPath);
+
+        Utils::FilePaths paths = currentProject->files(ProjectExplorer::Project::AllFiles);
+        QStringList projectFiles = {};
+
+        for (const Utils::FilePath &path : paths) {
+            QString relativepath = dir.relativeFilePath(path.toString());
+
+            if (!relativepath.endsWith(".qmlproject") && !relativepath.endsWith(".pri")
+                    && !relativepath.endsWith(".pro") && !relativepath.endsWith(".user")
+                    && !relativepath.endsWith(".qrc")) {
+                projectFiles.append(relativepath);
+
+                bool found = false;
+                QString compareString = "./" + relativepath.trimmed();
+                for (int i = 0; i < fileList.count(); ++i)
+                    if (fileList.at(i).fileName == compareString) {
+                        fileList[i].inProject = true;
+                        found = true;
+                    }
+
+                if (!found) {
+                    ResourceFile res;
+                    res.fileName = "./" + relativepath.trimmed();
+                    res.inProject = true;
+                    fileList.append(res);
+                }
+            }
+        }
+
+        temp.close();
+        persistentFile.close();
         QStringList modifiedList = getFileList(fileList);
         QTemporaryFile tempFile(projectPath + "/XXXXXXX.create.modifiedresource.qrc");
 
@@ -266,14 +499,15 @@ void GenerateResource::generateMenuEntry()
         tempFile.write(firstLine.trimmed());
         writer.writeStartElement("qresource");
 
-        for (int i = 0; i < modifiedList.count(); ++i)
-            writer.writeTextElement("file", modifiedList.at(i).trimmed());
+        for (QString file : modifiedList)
+            writer.writeTextElement("file", file.trimmed());
 
         writer.writeEndElement();
         tempFile.write("\n</RCC>\n");
         tempFile.close();
 
-        const QStringList arguments2 = {"--binary", "--output", resourceFileName, tempFile.fileName()};
+        const QStringList arguments2 = {"--binary", "--output", resourceFileName,
+                                        tempFile.fileName()};
 
         for (const auto &arguments : {arguments2}) {
             rccProcess.setCommand({rccBinary, arguments});
@@ -293,12 +527,12 @@ void GenerateResource::generateMenuEntry()
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
                         .arg(rccBinary + " " + arguments.join(" ")));
-                return ;
+                return;
 
             }
-            if (!stdOut.trimmed().isEmpty()) {
+            if (!stdOut.trimmed().isEmpty())
                 Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
-            }
+
             if (!stdErr.trimmed().isEmpty())
                 Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
 
@@ -322,6 +556,7 @@ void GenerateResource::generateMenuEntry()
         saveLastUsedPath(Utils::FilePath::fromString(resourceFileName).parentDir().toString());
     });
     buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
+    buildMenu->addAction(cmd2, ProjectExplorer::Constants::G_BUILD_RUN);
 }
 
 } // namespace QmlDesigner

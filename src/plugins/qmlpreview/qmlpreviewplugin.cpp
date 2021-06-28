@@ -236,8 +236,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
         Constants::G_FILE_OTHER);
     action->setVisible(false);
-    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, action, [action]() {
-        const Node *node = ProjectTree::currentNode();
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, action, [action](Node *node) {
         const FileNode *fileNode = node ? node->asFileNode() : nullptr;
         action->setVisible(fileNode ? fileNode->fileType() == FileType::QML : false);
     });

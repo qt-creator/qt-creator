@@ -92,11 +92,6 @@
             to automatically run CMake every time when you save changes to
             \c {CMakeLists.txt} files.
 
-        \li Select the \uicontrol {Auto-create build directories} check box to
-            initially configure the project in a temporary directory. When you
-            build the project \QC starts from scratch and configures the
-            project again using the build directory.
-
         \li Select \uicontrol Apply to save your changes.
 
     \endlist

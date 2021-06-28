@@ -420,6 +420,8 @@ void TimelineView::customNotification(const AbstractView * /*view*/,
                                       const QList<ModelNode> &nodeList,
                                       const QList<QVariant> &data)
 {
+    Q_UNUSED(nodeList)
+    Q_UNUSED(data)
     if (identifier == QStringLiteral("reset QmlPuppet")) {
         QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
         if (timeline.isValid())

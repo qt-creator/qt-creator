@@ -1009,6 +1009,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = buildKey;
             bti.usesTerminal = !ct.linksToQtGui;
+            bti.isQtcRunnable = ct.qtcRunnable;
 
             // Workaround for QTCREATORBUG-19354:
             bti.runEnvModifier = [this, buildKey](Environment &env, bool enabled) {
@@ -1027,7 +1028,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 
 QStringList CMakeBuildSystem::buildTargetTitles() const
 {
-    auto nonAutogenTargets = filtered(m_buildTargets, [this](const CMakeBuildTarget &target){
+    auto nonAutogenTargets = filtered(m_buildTargets, [](const CMakeBuildTarget &target){
         return !CMakeBuildSystem::filteredOutTarget(target);
     });
     return transform(nonAutogenTargets, &CMakeBuildTarget::title);

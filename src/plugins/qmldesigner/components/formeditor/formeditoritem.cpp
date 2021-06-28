@@ -60,7 +60,6 @@ const int startItemOffset = 96;
 
 const qreal labelFontSize = 10;
 const qreal labelShowThreshold = 0.25; // Everything lower than that will hide all labels
-const qreal defaultDpi = 96.0;
 
 void drawIcon(QPainter *painter,
               int x,

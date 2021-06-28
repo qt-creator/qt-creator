@@ -1358,6 +1358,7 @@ class Dumper(DumperBase):
     def report(self, stuff):
         with self.outputLock:
             sys.stdout.write("@\n" + stuff + "@\n")
+            sys.stdout.flush()
 
     def reportState(self, state):
         self.report('state="%s"' % state)
@@ -1588,6 +1589,7 @@ class Dumper(DumperBase):
                 'output = d.hexencode(sys.stdout.getvalue())',
                 'sys.stdout = origout',
                 'd.report("output={channel=\"stderr\",data=\" + output + \"}")',
+                'sys.stdout.flush()',
                 'if result is False:',
                 '  d.reportState("continueafternextstop")',
                 'return True'

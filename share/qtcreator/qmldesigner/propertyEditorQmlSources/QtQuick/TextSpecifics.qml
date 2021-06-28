@@ -49,7 +49,5 @@ Column {
         showStyle: true
     }
 
-    PaddingSection {
-        visible: minorQtQuickVersion > 5
-    }
+    PaddingSection {}
 }

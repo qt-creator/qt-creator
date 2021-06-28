@@ -80,8 +80,8 @@ T.AbstractButton {
             when: myButton.hovered && myButton.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: StudioTheme.Values.themeControlBackgroundPressed
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
             }
         },
         State {

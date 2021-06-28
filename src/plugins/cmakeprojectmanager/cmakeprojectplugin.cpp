@@ -142,9 +142,9 @@ void CMakeProjectPlugin::extensionsInitialized()
     CMakeToolManager::restoreCMakeTools();
 }
 
-void CMakeProjectPlugin::updateContextActions()
+void CMakeProjectPlugin::updateContextActions(Node *node)
 {
-    auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
+    auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
     const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
 
     // Build Target:

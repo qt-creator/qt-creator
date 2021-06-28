@@ -852,12 +852,14 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 return newDir;
 
             if (QDir(oldDir).exists("CMakeCache.txt") && !QDir(newDir).exists("CMakeCache.txt")) {
-                if (QMessageBox::information(Core::ICore::dialogParent(),
-                                             tr("Changing Build Directory"),
-                                             tr("Change the build directory and start with a "
-                                                "basic CMake configuration?"),
-                                             QMessageBox::Ok,
-                                             QMessageBox::Cancel)
+                if (QMessageBox::information(
+                        Core::ICore::dialogParent(),
+                        tr("Changing Build Directory"),
+                        tr("Change the build directory to \"%1\" and start with a "
+                           "basic CMake configuration?")
+                            .arg(newDir),
+                        QMessageBox::Ok,
+                        QMessageBox::Cancel)
                     == QMessageBox::Ok) {
                     return newDir;
                 }

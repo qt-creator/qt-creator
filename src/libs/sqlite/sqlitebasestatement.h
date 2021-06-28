@@ -213,7 +213,7 @@ public:
     std::enable_if_t<!std::is_function_v<ResultType>, ResultType> value(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
-        ResultType resultValue;
+        ResultType resultValue{};
 
         bindValues(queryValues...);
 

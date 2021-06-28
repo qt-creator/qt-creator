@@ -28,8 +28,13 @@
 
 namespace QmlDesigner {
 namespace GenerateResource {
+struct ResourceFile
+{
+    QString fileName;
+    bool inProject;
+};
     void generateMenuEntry();
-    QStringList getFileList(const QStringList &);
-    QTableWidget* createFilesTable(const QStringList &);
+    QStringList getFileList(const QList<ResourceFile> &);
+    QTableWidget* createFilesTable(const QList<ResourceFile> &);
 }
 } // namespace QmlDesigner

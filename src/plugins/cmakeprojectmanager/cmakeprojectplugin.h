@@ -27,6 +27,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer { class Node; }
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -60,7 +62,7 @@ private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
 
-    void updateContextActions();
+    void updateContextActions(ProjectExplorer::Node *node);
 
     class CMakeProjectPluginPrivate *d = nullptr;
 };

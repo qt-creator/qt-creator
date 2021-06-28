@@ -63,7 +63,7 @@ public:
     static void updateDocumentation();
 
 public slots:
-    void registerCMakeByPath(const Utils::FilePath &cmakePath);
+    void registerCMakeByPath(const Utils::FilePath &cmakePath, const QString &detectionSource);
 
 signals:
     void cmakeAdded (const Utils::Id &id);

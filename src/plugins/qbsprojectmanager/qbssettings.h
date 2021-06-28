@@ -30,6 +30,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QVersionNumber>
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -38,6 +39,7 @@ class QbsSettingsData {
 public:
     Utils::FilePath qbsExecutableFilePath;
     QString defaultInstallDirTemplate;
+    QVersionNumber qbsVersion; // Ephemeral
     bool useCreatorSettings = true;
 };
 
@@ -52,6 +54,7 @@ public:
     static QString defaultInstallDirTemplate();
     static bool useCreatorSettingsDirForQbs();
     static QString qbsSettingsBaseDir();
+    static QVersionNumber qbsVersion();
 
     static void setSettingsData(const QbsSettingsData &settings);
     static QbsSettingsData rawSettingsData();

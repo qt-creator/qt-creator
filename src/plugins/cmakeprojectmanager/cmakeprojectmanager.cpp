@@ -130,26 +130,28 @@ CMakeManager::CMakeManager()
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
 
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
-            this, &CMakeManager::updateCmakeActions);
-    connect(BuildManager::instance(), &BuildManager::buildStateChanged,
-            this, &CMakeManager::updateCmakeActions);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, [this] {
+        updateCmakeActions(ProjectTree::currentNode());
+    });
+    connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
+        updateCmakeActions(ProjectTree::currentNode());
+    });
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CMakeManager::updateBuildFileAction);
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &CMakeManager::updateCmakeActions);
 
-    updateCmakeActions();
+    updateCmakeActions(ProjectTree::currentNode());
 }
 
-void CMakeManager::updateCmakeActions()
+void CMakeManager::updateCmakeActions(Node *node)
 {
     auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
     const bool visible = project && !BuildManager::isBuilding(project);
     m_runCMakeAction->setVisible(visible);
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
-    enableBuildFileMenus(ProjectTree::currentNode());
+    enableBuildFileMenus(node);
 }
 
 void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)

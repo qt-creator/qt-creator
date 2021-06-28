@@ -227,7 +227,7 @@ void ProjectTree::setCurrent(Node *node, Project *project)
 
     if (node != m_currentNode) {
         m_currentNode = node;
-        emit currentNodeChanged();
+        emit currentNodeChanged(node);
     }
 
     if (changedProject) {

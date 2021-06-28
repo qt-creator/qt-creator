@@ -516,9 +516,11 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
         return result;
 
     const Id dt = DeviceTypeKitAspect::deviceTypeId(k);
-    const QSet<Id> tdt = targetDeviceTypes();
-    if (!tdt.isEmpty() && !tdt.contains(dt))
-        result << BuildSystemTask(Task::Warning, tr("Device type is not supported by Qt version."));
+    if (dt != "DockerDeviceType") {
+        const QSet<Id> tdt = targetDeviceTypes();
+        if (!tdt.isEmpty() && !tdt.contains(dt))
+            result << BuildSystemTask(Task::Warning, tr("Device type is not supported by Qt version."));
+    }
 
     if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
         Abi targetAbi = tc->targetAbi();

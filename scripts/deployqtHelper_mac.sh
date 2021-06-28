@@ -136,8 +136,6 @@ if [ $LLVM_INSTALL_DIR ]; then
         install_name_tool -add_rpath "@executable_path/../lib" "$libexec_path/clang/bin/clazy-standalone" || exit 1
     fi
     clangbackendArgument="-executable=$libexec_path/clangbackend"
-    clangpchmanagerArgument="-executable=$libexec_path/clangpchmanagerbackend"
-    clangrefactoringArgument="-executable=$libexec_path/clangrefactoringbackend"
 fi
 
 #### macdeployqt
@@ -173,6 +171,6 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$libexec_path/cpaster" \
         "${qbsArguments[@]}" \
         "$qml2puppetArgument" \
-        "$clangbackendArgument" "$clangpchmanagerArgument" "$clangrefactoringArgument" || exit 1
+        "$clangbackendArgument" || exit 1
 
 fi
