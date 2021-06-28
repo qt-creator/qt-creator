@@ -162,6 +162,10 @@
     editor, select \uicontrol GDB > \uicontrol {Adjust breakpoint locations}
     or \uicontrol CDB > \uicontrol {Correct breakpoint location}.
 
+    When using GDB as backend, you can extend the ordinary GDB
+    breakpoint class by using Python. Select \uicontrol GDB >
+    \uicontrol {Use pseudo message tracepoints}.
+
     When using CDB as backend, you can specify that the debugger should break on
     specific events, such as C++ exceptions, thread creation or exit, loading or
     unloading \l{Viewing Modules}{application modules}, or particular output.
