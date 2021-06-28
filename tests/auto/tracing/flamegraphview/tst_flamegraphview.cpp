@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <testflamegraphmodel.h>
+#include "testflamegraphmodel.h"
 
 #include <tracing/flamegraph.h>
 #include <tracing/timelinetheme.h>
