@@ -48,11 +48,6 @@ namespace CMakeProjectManager {
 
 using namespace Internal;
 
-// QtCreator CMake Generator wishlist:
-// Which make targets we need to build to get all executables
-// What is the actual compiler executable
-// DEFINES
-
 /*!
   \class CMakeProject
 */
