@@ -429,6 +429,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->removeFile(filePath);
     };
 
+    deviceHooks.removeRecursively = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->removeRecursively(filePath);
+    };
+
     deviceHooks.copyFile = [](const FilePath &filePath, const FilePath &target) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);

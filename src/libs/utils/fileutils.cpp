@@ -84,6 +84,7 @@ static DeviceFileHooks s_deviceHooks;
 */
 bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
 {
+    QTC_ASSERT(!filePath.needsDevice(), return false);
     QFileInfo fileInfo = filePath.toFileInfo();
     if (!fileInfo.exists() && !fileInfo.isSymLink())
         return true;
@@ -1404,6 +1405,15 @@ bool FilePath::removeFile() const
         return s_deviceHooks.removeFile(*this);
     }
     return QFile::remove(path());
+}
+
+bool FilePath::removeRecursively() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.removeRecursively, return false);
+        return s_deviceHooks.removeRecursively(*this);
+    }
+    return FileUtils::removeRecursively(*this);
 }
 
 bool FilePath::copyFile(const FilePath &target) const

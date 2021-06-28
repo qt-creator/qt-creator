@@ -878,6 +878,24 @@ bool DockerDevice::removeFile(const FilePath &filePath) const
     return exitCode == 0;
 }
 
+bool DockerDevice::removeRecursively(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(filePath.path().startsWith('/'), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.removeRecursively();
+        LOG("Remove recursively? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+// Open this up only when really needed.
+//    const CommandLine cmd("rm", "-rf", {filePath.path()});
+//    const int exitCode = d->runSynchronously(cmd);
+//    return exitCode == 0;
+    return false;
+}
+
 bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);

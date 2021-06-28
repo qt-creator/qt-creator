@@ -281,6 +281,13 @@ bool IDevice::removeFile(const FilePath &filePath) const
     return false;
 }
 
+bool IDevice::removeRecursively(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 bool IDevice::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     Q_UNUSED(filePath);

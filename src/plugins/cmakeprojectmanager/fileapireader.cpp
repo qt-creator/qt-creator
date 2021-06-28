@@ -310,11 +310,11 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     if (reply.exists()) {
         if (replyPrev.exists())
-            FileUtils::removeRecursively(replyPrev);
+            replyPrev.removeRecursively();
+        QTC_CHECK(!replyPrev.exists());
         if (!reply.renameFile(replyPrev))
             Core::MessageManager::writeFlashing(tr("Failed to rename %1 to %2.")
                                                 .arg(reply.toString(), replyPrev.toString()));
-
     }
 
     FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");

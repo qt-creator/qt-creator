@@ -245,6 +245,7 @@ public:
     virtual bool createDirectory(const Utils::FilePath &filePath) const;
     virtual bool exists(const Utils::FilePath &filePath) const;
     virtual bool removeFile(const Utils::FilePath &filePath) const;
+    virtual bool removeRecursively(const Utils::FilePath &filePath) const;
     virtual bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
     virtual bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
     virtual Utils::FilePath searchInPath(const Utils::FilePath &filePath) const;

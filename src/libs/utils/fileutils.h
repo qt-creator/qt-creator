@@ -78,6 +78,7 @@ public:
     std::function<bool(const FilePath &)> createDir;
     std::function<bool(const FilePath &)> exists;
     std::function<bool(const FilePath &)> removeFile;
+    std::function<bool(const FilePath &)> removeRecursively;
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &)> searchInPath;
@@ -167,6 +168,7 @@ public:
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
     bool removeFile() const;
+    bool removeRecursively() const;
     bool copyFile(const FilePath &target) const;
     bool renameFile(const FilePath &target) const;
 
