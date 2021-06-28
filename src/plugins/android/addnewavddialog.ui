@@ -6,21 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>243</height>
+    <width>800</width>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>600</width>
-    <height>0</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>1024</width>
-    <height>16777215</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Create new AVD</string>
