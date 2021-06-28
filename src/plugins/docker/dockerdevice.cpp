@@ -1018,6 +1018,14 @@ bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByt
 
 void DockerDevice::runProcess(QtcProcess &process) const
 {
+    tryCreateLocalFileAccess();
+    if (d->m_container.isEmpty()) {
+        LOG("No container set to run " << process.commandLine().toUserOutput());
+        QTC_CHECK(false);
+        process.setResult(QtcProcess::StartFailed);
+        return;
+    }
+
     const FilePath workingDir = process.workingDirectory();
     const CommandLine origCmd = process.commandLine();
 
