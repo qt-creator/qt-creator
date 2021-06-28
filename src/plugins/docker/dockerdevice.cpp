@@ -64,6 +64,7 @@
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
 #include <QHeaderView>
+#include <QLoggingCategory>
 #include <QPushButton>
 #include <QTextBrowser>
 #include <QThread>
@@ -78,13 +79,11 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-#define LOG(x)
-//#define LOG(x) qDebug() << x
-
 namespace Docker {
 namespace Internal {
 
-const QByteArray pidMarker = "__qtc";
+static Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
+#define LOG(x) qCDebug(dockerDeviceLog) << x
 
 class DockerDeviceProcess : public ProjectExplorer::DeviceProcess
 {
