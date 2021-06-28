@@ -38,6 +38,8 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Project; }
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
@@ -102,21 +104,27 @@ public:
     class Data
     {
     public:
+        QVariantMap toMap() const;
+        void fromMap(const QVariantMap &map);
+
         Utils::FilePath executableFilePath;
         int workerThreadLimit = 0;
         bool useClangd = false;
         bool enableIndexing = true;
     };
 
-    static bool useClangd() { return instance().m_data.useClangd; }
+    ClangdSettings(const Data &data) : m_data(data) {}
+
+    static ClangdSettings &instance();
+    bool useClangd() const { return m_data.useClangd; }
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
-    static Utils::FilePath clangdFilePath();
-    static bool indexingEnabled() { return instance().m_data.enableIndexing; }
-    static int workerThreadLimit() { return instance().m_data.workerThreadLimit; }
+    Utils::FilePath clangdFilePath() const;
+    bool indexingEnabled() const { return m_data.enableIndexing; }
+    int workerThreadLimit() const { return m_data.workerThreadLimit; }
 
-    static void setData(const Data &data);
-    static Data data() { return instance().m_data; }
+    void setData(const Data &data);
+    Data data() const { return m_data; }
 
 #ifdef WITH_TESTS
     static void setUseClangd(bool use);
@@ -125,12 +133,30 @@ public:
 
 private:
     ClangdSettings() { loadSettings(); }
-    static ClangdSettings &instance();
 
     void loadSettings();
     void saveSettings();
 
     Data m_data;
+};
+
+class CPPTOOLS_EXPORT ClangdProjectSettings
+{
+public:
+    ClangdProjectSettings(ProjectExplorer::Project *project);
+
+    ClangdSettings settings() const;
+    void setSettings(const ClangdSettings::Data &data);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    ClangdSettings::Data m_customSettings;
+    bool m_useGlobalSettings = true;
 };
 
 } // namespace CppTools

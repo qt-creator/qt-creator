@@ -247,7 +247,7 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
                                                     const CppTools::ProjectInfo &projectInfo)
 {
-    if (!CppTools::ClangdSettings::useClangd())
+    if (!CppTools::ClangdProjectSettings(project).settings().useClangd())
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -266,9 +266,9 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
     connect(generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             [this, project, projectInfo, getJsonDbDir, jsonDbDir, generatorWatcher] {
         generatorWatcher->deleteLater();
-        if (!CppTools::ClangdSettings::useClangd())
-            return;
         if (!ProjectExplorer::SessionManager::hasProject(project))
+            return;
+        if (!CppTools::ClangdProjectSettings(project).settings().useClangd())
             return;
         if (cppModelManager()->projectInfo(project) != projectInfo)
             return;
@@ -286,9 +286,9 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         ClangdClient * const client = createClient(project, jsonDbDir);
         connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
-            if (!CppTools::ClangdSettings::useClangd())
-                return;
             if (!SessionManager::hasProject(project))
+                return;
+            if (!CppTools::ClangdProjectSettings(project).settings().useClangd())
                 return;
             if (cppModelManager()->projectInfo(project) != projectInfo)
                 return;

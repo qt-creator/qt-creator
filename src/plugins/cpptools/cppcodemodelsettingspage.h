@@ -44,5 +44,36 @@ public:
     explicit ClangdSettingsPage();
 };
 
+class ClangdSettingsWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ClangdSettingsWidget(const ClangdSettings &settings);
+    ~ClangdSettingsWidget();
+
+    ClangdSettings::Data settingsData() const;
+
+signals:
+    void settingsDataChanged();
+
+private:
+    class Private;
+    Private * const d;
+};
+
+class ClangdProjectSettingsWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ClangdProjectSettingsWidget(const ClangdProjectSettings &settings);
+    ~ClangdProjectSettingsWidget();
+
+private:
+    class Private;
+    Private * const d;
+};
+
 } // Internal namespace
 } // CppTools namespace

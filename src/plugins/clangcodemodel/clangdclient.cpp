@@ -416,15 +416,15 @@ public:
         : Request("textDocument/symbolInfo", params) {}
 };
 
-static BaseClientInterface *clientInterface(const Utils::FilePath &jsonDbDir)
+static BaseClientInterface *clientInterface(Project *project, const Utils::FilePath &jsonDbDir)
 {
     QString indexingOption = "--background-index";
-    if (!CppTools::ClangdSettings::indexingEnabled())
+    const CppTools::ClangdSettings settings = CppTools::ClangdProjectSettings(project).settings();
+    if (!settings.indexingEnabled())
         indexingOption += "=0";
-    Utils::CommandLine cmd{CppTools::ClangdSettings::clangdFilePath(),
-                           {indexingOption, "--limit-results=0"}};
-    if (CppTools::ClangdSettings::workerThreadLimit() != 0)
-        cmd.addArg("-j=" + QString::number(CppTools::ClangdSettings::workerThreadLimit()));
+    Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, "--limit-results=0"}};
+    if (settings.workerThreadLimit() != 0)
+        cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLog().isDebugEnabled())
@@ -700,7 +700,7 @@ public:
 };
 
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
-    : Client(clientInterface(jsonDbDir)), d(new Private(this))
+    : Client(clientInterface(project, jsonDbDir)), d(new Private(this))
 {
     setName(tr("clangd"));
     LanguageFilter langFilter;

@@ -49,6 +49,7 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
@@ -209,6 +210,14 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
                 "Cpp:PragmaOnce",
                 tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
                 [] { return usePragmaOnce() ? QString("true") : QString(); });
+
+    const auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
+    panelFactory->setPriority(100);
+    panelFactory->setDisplayName(tr("Clangd"));
+    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+        return new ClangdProjectSettingsWidget(project);
+    });
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     return true;
 }

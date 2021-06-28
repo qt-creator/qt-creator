@@ -191,71 +191,99 @@ CppCodeModelSettingsPage::CppCodeModelSettingsPage(CppCodeModelSettings *setting
     setWidgetCreator([settings] { return new CppCodeModelSettingsWidget(settings); });
 }
 
+class ClangdSettingsWidget::Private
+{
+public:
+    QCheckBox useClangdCheckBox;
+    QCheckBox indexingCheckBox;
+    QSpinBox threadLimitSpinBox;
+    Utils::PathChooser clangdChooser;
+};
 
-class ClangdSettingsWidget final : public Core::IOptionsPageWidget
+ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings &settings) : d(new Private)
+{
+    d->useClangdCheckBox.setText(tr("Use clangd (EXPERIMENTAL)"));
+    d->useClangdCheckBox.setChecked(settings.useClangd());
+    d->useClangdCheckBox.setToolTip(tr("Changing this option does not affect projects "
+                                      "that are already open."));
+    d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
+    d->clangdChooser.setFilePath(settings.clangdFilePath());
+    d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
+    d->indexingCheckBox.setChecked(settings.indexingEnabled());
+    d->indexingCheckBox.setToolTip(tr(
+        "If background indexing is enabled, global symbol searches will yield\n"
+        "more accurate results, at the cost of additional CPU load when\n"
+        "the project is first opened."));
+    d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
+    d->threadLimitSpinBox.setSpecialValueText("Automatic");
+
+    const auto layout = new QVBoxLayout(this);
+    layout->addWidget(&d->useClangdCheckBox);
+    const auto formLayout = new QFormLayout;
+    const auto chooserLabel = new QLabel(tr("Path to executable:"));
+    formLayout->addRow(chooserLabel, &d->clangdChooser);
+    const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
+    formLayout->addRow(indexingLabel, &d->indexingCheckBox);
+    const auto threadLimitLayout = new QHBoxLayout;
+    threadLimitLayout->addWidget(&d->threadLimitSpinBox);
+    threadLimitLayout->addStretch(1);
+    const auto threadLimitLabel = new QLabel(tr("Set worker thread count:"));
+    formLayout->addRow(threadLimitLabel, threadLimitLayout);
+    layout->addLayout(formLayout);
+    layout->addStretch(1);
+
+    const auto toggleEnabled = [=](const bool checked) {
+        chooserLabel->setEnabled(checked);
+        d->clangdChooser.setEnabled(checked);
+        indexingLabel->setEnabled(checked);
+        d->indexingCheckBox.setEnabled(checked);
+        d->threadLimitSpinBox.setEnabled(checked);
+    };
+    connect(&d->useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
+    toggleEnabled(d->useClangdCheckBox.isChecked());
+    d->threadLimitSpinBox.setEnabled(d->useClangdCheckBox.isChecked());
+
+    connect(&d->useClangdCheckBox, &QCheckBox::toggled,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->indexingCheckBox, &QCheckBox::toggled,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->threadLimitSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->clangdChooser, &Utils::PathChooser::pathChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+}
+
+ClangdSettingsWidget::~ClangdSettingsWidget()
+{
+    delete d;
+}
+
+ClangdSettings::Data ClangdSettingsWidget::settingsData() const
+{
+    ClangdSettings::Data data;
+    data.useClangd = d->useClangdCheckBox.isChecked();
+    data.executableFilePath = d->clangdChooser.filePath();
+    data.enableIndexing = d->indexingCheckBox.isChecked();
+    data.workerThreadLimit = d->threadLimitSpinBox.value();
+    return data;
+}
+
+class ClangdSettingsPageWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(CppTools::Internal::ClangdSettingsWidget)
 
 public:
-    ClangdSettingsWidget()
+    ClangdSettingsPageWidget() : m_widget(ClangdSettings::instance())
     {
-        m_useClangdCheckBox.setText(tr("Use clangd (EXPERIMENTAL)"));
-        m_useClangdCheckBox.setChecked(ClangdSettings::useClangd());
-        m_useClangdCheckBox.setToolTip(tr("Changing this option does not affect projects "
-                                          "that are already open."));
-        m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
-        m_clangdChooser.setFilePath(ClangdSettings::clangdFilePath());
-        m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
-        m_indexingCheckBox.setChecked(ClangdSettings::indexingEnabled());
-        m_indexingCheckBox.setToolTip(tr(
-                "If background indexing is enabled, global symbol searches will yield\n"
-                "more accurate results, at the cost of additional CPU load when\n"
-                "the project is first opened."));
-        m_threadLimitSpinBox.setValue(ClangdSettings::workerThreadLimit());
-        m_threadLimitSpinBox.setSpecialValueText("Automatic");
 
         const auto layout = new QVBoxLayout(this);
-        layout->addWidget(&m_useClangdCheckBox);
-        const auto formLayout = new QFormLayout;
-        const auto chooserLabel = new QLabel(tr("Path to executable:"));
-        formLayout->addRow(chooserLabel, &m_clangdChooser);
-        const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
-        formLayout->addRow(indexingLabel, &m_indexingCheckBox);
-        const auto threadLimitLayout = new QHBoxLayout;
-        threadLimitLayout->addWidget(&m_threadLimitSpinBox);
-        threadLimitLayout->addStretch(1);
-        const auto threadLimitLabel = new QLabel(tr("Set worker thread count:"));
-        formLayout->addRow(threadLimitLabel, threadLimitLayout);
-        layout->addLayout(formLayout);
-        layout->addStretch(1);
-
-        const auto toggleEnabled = [=](const bool checked) {
-            chooserLabel->setEnabled(checked);
-            m_clangdChooser.setEnabled(checked);
-            indexingLabel->setEnabled(checked);
-            m_indexingCheckBox.setEnabled(checked);
-            m_threadLimitSpinBox.setEnabled(checked);
-        };
-        connect(&m_useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
-        toggleEnabled(m_useClangdCheckBox.isChecked());
-        m_threadLimitSpinBox.setEnabled(m_useClangdCheckBox.isChecked());
+        layout->addWidget(&m_widget);
     }
 
 private:
-    void apply() final
-    {
-        ClangdSettings::Data data;
-        data.useClangd = m_useClangdCheckBox.isChecked();
-        data.executableFilePath = m_clangdChooser.filePath();
-        data.enableIndexing = m_indexingCheckBox.isChecked();
-        data.workerThreadLimit = m_threadLimitSpinBox.value();
-        ClangdSettings::setData(data);
-    }
+    void apply() final { ClangdSettings::instance().setData(m_widget.settingsData()); }
 
-    QCheckBox m_useClangdCheckBox;
-    QCheckBox m_indexingCheckBox;
-    QSpinBox m_threadLimitSpinBox;
-    Utils::PathChooser m_clangdChooser;
+    ClangdSettingsWidget m_widget;
 };
 
 ClangdSettingsPage::ClangdSettingsPage()
@@ -263,7 +291,47 @@ ClangdSettingsPage::ClangdSettingsPage()
     setId("K.Clangd");
     setDisplayName(ClangdSettingsWidget::tr("Clangd"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new ClangdSettingsWidget; });
+    setWidgetCreator([] { return new ClangdSettingsPageWidget; });
+}
+
+
+class ClangdProjectSettingsWidget::Private
+{
+public:
+    Private(const ClangdProjectSettings &s) : settings(s), widget(s.settings()) {}
+
+    ClangdProjectSettings settings;
+    ClangdSettingsWidget widget;
+    QCheckBox useGlobalSettingsCheckBox;
+};
+
+ClangdProjectSettingsWidget::ClangdProjectSettingsWidget(const ClangdProjectSettings &settings)
+    : d(new Private(settings))
+{
+    const auto layout = new QVBoxLayout(this);
+    d->useGlobalSettingsCheckBox.setText(tr("Use global settings"));
+    layout->addWidget(&d->useGlobalSettingsCheckBox);
+    const auto separator = new QFrame;
+    separator->setFrameShape(QFrame::HLine);
+    layout->addWidget(separator);
+    layout->addWidget(&d->widget);
+
+    d->useGlobalSettingsCheckBox.setChecked(d->settings.useGlobalSettings());
+    d->widget.setEnabled(!d->settings.useGlobalSettings());
+    connect(&d->useGlobalSettingsCheckBox, &QCheckBox::toggled, [this](bool checked) {
+        d->widget.setEnabled(!checked);
+        d->settings.setUseGlobalSettings(checked);
+        if (!checked)
+            d->settings.setSettings(d->widget.settingsData());
+    });
+    connect(&d->widget, &ClangdSettingsWidget::settingsDataChanged, [this] {
+        d->settings.setSettings(d->widget.settingsData());
+    });
+}
+
+ClangdProjectSettingsWidget::~ClangdProjectSettingsWidget()
+{
+    delete d;
 }
 
 } // Internal
