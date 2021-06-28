@@ -444,6 +444,11 @@ bool QtcProcess::keepsWriteChannelOpen() const
     return d->m_process->m_keepStdInOpen;
 }
 
+void QtcProcess::setStandardInputFile(const QString &inputFile)
+{
+    d->m_process->setStandardInputFile(inputFile);
+}
+
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 {
     s_deviceHooks = hooks;

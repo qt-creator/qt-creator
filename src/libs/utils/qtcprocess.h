@@ -182,6 +182,8 @@ public:
     void setKeepWriteChannelOpen();
     bool keepsWriteChannelOpen() const;
 
+    void setStandardInputFile(const QString &inputFile);
+
 signals:
     void started();
     void finished();
