@@ -1245,6 +1245,10 @@ void ClangdClient::Private::handleGotoDefinitionResult()
 
 void ClangdClient::Private::sendGotoImplementationRequest(const Utils::Link &link)
 {
+    if (!q->documentForFilePath(link.targetFilePath)
+        && followSymbolData->openedFiles.insert(link.targetFilePath).second) {
+        q->openExtraFile(link.targetFilePath);
+    }
     const Position position(link.targetLine - 1, link.targetColumn);
     const TextDocumentIdentifier documentId(DocumentUri::fromFilePath(link.targetFilePath));
     GotoImplementationRequest req(TextDocumentPositionParams(documentId, position));
