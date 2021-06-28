@@ -161,7 +161,7 @@ Section {
                             when: hasAliasExport
                             PropertyChanges {
                                 target: aliasIndicatorIcon
-                                color: StudioTheme.Values.themeLinkIndicatorColorInteraction
+                                color: StudioTheme.Values.themeAliasIconChecked
                             }
                         },
                         State {

@@ -200,6 +200,8 @@ QtObject {
     property string themeError: Theme.color(Theme.DSerrorColor)
     property string themeDisabled: Theme.color(Theme.DSdisabledColor)
 
+    property string themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
+
     // Control colors
     property string themeControlBackground: Theme.color(Theme.DScontrolBackground)
     property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction)
