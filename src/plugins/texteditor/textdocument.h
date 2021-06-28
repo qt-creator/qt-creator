@@ -33,6 +33,7 @@
 
 #include <utils/id.h>
 #include <utils/link.h>
+#include <utils/multitextcursor.h>
 
 #include <QList>
 #include <QMap>
@@ -95,9 +96,8 @@ public:
                     int currentCursorPosition = -1);
     void autoReindent(const QTextCursor &cursor, int currentCursorPosition = -1);
     void autoFormatOrIndent(const QTextCursor &cursor);
-    QTextCursor indent(const QTextCursor &cursor, bool blockSelection, int column, int *offset);
-    QTextCursor unindent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
-                         int *offset = nullptr);
+    Utils::MultiTextCursor indent(const Utils::MultiTextCursor &cursor);
+    Utils::MultiTextCursor unindent(const Utils::MultiTextCursor &cursor);
 
     void setFormatter(Formatter *indenter); // transfers ownership
     void autoFormat(const QTextCursor &cursor);

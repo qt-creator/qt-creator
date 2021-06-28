@@ -37,37 +37,6 @@ class TextDocument;
 
 namespace Internal {
 
-class TEXTEDITOR_EXPORT TextBlockSelection
-{
-public:
-    TextBlockSelection() = default;
-    TextBlockSelection(const TextBlockSelection &other);
-
-    void clear();
-    QTextCursor selection(const TextDocument *baseTextDocument) const;
-    QTextCursor cursor(const TextDocument *baseTextDocument) const;
-    void fromPostition(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn);
-    bool hasSelection() { return !(positionBlock == anchorBlock && positionColumn == anchorColumn); }
-
-    // defines the first block
-    inline int firstBlockNumber() const { return qMin(positionBlock, anchorBlock); }
-     // defines the last block
-    inline int lastBlockNumber() const { return qMax(positionBlock, anchorBlock); }
-    // defines the first visual column of the selection
-    inline int firstVisualColumn() const { return qMin(positionColumn, anchorColumn); }
-    // defines the last visual column of the selection
-    inline int lastVisualColumn() const { return qMax(positionColumn, anchorColumn); }
-
-public:
-    int positionBlock = 0;
-    int positionColumn = 0;
-    int anchorBlock = 0;
-    int anchorColumn = 0;
-
-private:
-    QTextCursor cursor(const TextDocument *baseTextDocument, bool fullSelection) const;
-};
-
 //
 // TextEditorPrivate
 //

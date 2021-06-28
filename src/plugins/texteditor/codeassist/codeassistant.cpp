@@ -164,6 +164,8 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
 
 bool CodeAssistantPrivate::requestActivationCharProposal()
 {
+    if (m_editorWidget->multiTextCursor().hasMultipleCursors())
+        return false;
     if (m_assistKind == Completion && m_settings.m_completionTrigger != ManualCompletion) {
         if (CompletionAssistProvider *provider = identifyActivationSequence()) {
             requestProposal(ActivationCharacter, Completion, provider);
@@ -196,9 +198,6 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     Utils::ExecuteOnDestruction earlyReturnContextClear([this]() { destroyContext(); });
     if (isWaitingForProposal())
         cancelCurrentRequest();
-
-    if (m_editorWidget->hasBlockSelection())
-        return; // TODO
 
     if (!provider) {
         if (kind == Completion)
@@ -528,8 +527,11 @@ void CodeAssistantPrivate::startAutomaticProposalTimer()
 
 void CodeAssistantPrivate::automaticProposalTimeout()
 {
-    if (isWaitingForProposal() || (isDisplayingProposal() && !m_proposal->isFragile()))
+    if (isWaitingForProposal()
+        || m_editorWidget->multiTextCursor().hasMultipleCursors()
+        || (isDisplayingProposal() && !m_proposal->isFragile())) {
         return;
+    }
 
     requestProposal(IdleEditor, Completion);
 }

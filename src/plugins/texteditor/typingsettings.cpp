@@ -89,7 +89,9 @@ bool TypingSettings::equals(const TypingSettings &ts) const
         && m_preferSingleLineComments == ts.m_preferSingleLineComments;
 }
 
-bool TypingSettings::tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const
+bool TypingSettings::tabShouldIndent(const QTextDocument *document,
+                                     const QTextCursor &cursor,
+                                     int *suggestedPosition) const
 {
     if (m_tabKeyBehavior == TabNeverIndents)
         return false;

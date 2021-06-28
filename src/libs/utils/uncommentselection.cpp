@@ -24,10 +24,14 @@
 ****************************************************************************/
 
 #include "uncommentselection.h"
+
+#include "qtcassert.h"
+#include "utils/multitextcursor.h"
+
 #include <QPlainTextEdit>
 #include <QTextBlock>
 
-using namespace Utils;
+namespace Utils {
 
 CommentDefinition CommentDefinition::CppStyle = CommentDefinition("//", "/*", "*/");
 CommentDefinition CommentDefinition::HashStyle = CommentDefinition("#");
@@ -74,9 +78,9 @@ static bool isComment(const QString &text, int index,
 }
 
 
-QTextCursor Utils::unCommentSelection(const QTextCursor &cursorIn,
-                                      const CommentDefinition &definition,
-                                      bool preferSingleLine)
+QTextCursor unCommentSelection(const QTextCursor &cursorIn,
+                               const CommentDefinition &definition,
+                               bool preferSingleLine)
 {
     if (!definition.isValid())
         return cursorIn;
@@ -244,3 +248,31 @@ QTextCursor Utils::unCommentSelection(const QTextCursor &cursorIn,
     }
     return cursor;
 }
+
+MultiTextCursor unCommentSelection(const MultiTextCursor &cursorIn,
+                                   const CommentDefinition &definiton,
+                                   bool preferSingleLine)
+{
+    if (cursorIn.isNull())
+        return cursorIn;
+    if (!cursorIn.hasMultipleCursors())
+        return MultiTextCursor({unCommentSelection(cursorIn.mainCursor(), definiton, preferSingleLine)});
+    QMap<int, QTextCursor> cursors;
+    for (const QTextCursor &c : cursorIn) {
+        QTextBlock block = c.document()->findBlock(c.selectionStart());
+        QTC_ASSERT(block.isValid(), continue);
+        QTextBlock end = c.document()->findBlock(c.selectionEnd());
+        QTC_ASSERT(end.isValid(), continue);
+        end = end.next();
+        while (block != end && block.isValid()) {
+            if (!cursors.contains(block.blockNumber()))
+                cursors.insert(block.blockNumber(), QTextCursor(block));
+            block = block.next();
+        }
+    }
+    for (const QTextCursor &c : cursors)
+        unCommentSelection(c, definiton, /*always prefer single line for multi cursor*/ true);
+    return cursorIn;
+}
+
+} // namespace Utils

@@ -10,4 +10,5 @@ SUBDIRS = \
     settings \
     stringutils \
     templateengine \
-    treemodel
+    treemodel \
+    multicursor

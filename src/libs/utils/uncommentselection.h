@@ -36,6 +36,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class MultiTextCursor;
+
 class QTCREATOR_UTILS_EXPORT CommentDefinition
 {
 public:
@@ -61,5 +63,10 @@ QTCREATOR_UTILS_EXPORT
 QTextCursor unCommentSelection(const QTextCursor &cursor,
                                const CommentDefinition &definiton = CommentDefinition(),
                                bool preferSingleLine = false);
+
+QTCREATOR_UTILS_EXPORT
+MultiTextCursor unCommentSelection(const MultiTextCursor &cursor,
+                                   const CommentDefinition &definiton = CommentDefinition(),
+                                   bool preferSingleLine = false);
 
 } // namespace Utils

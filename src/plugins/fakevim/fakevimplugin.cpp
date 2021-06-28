@@ -1690,22 +1690,44 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
 
     handler->requestDisableBlockSelection.connect([tew] {
         if (tew)
-            tew->setBlockSelection(false);
+            tew->setTextCursor(tew->textCursor());
     });
 
     handler->requestSetBlockSelection.connect([tew](const QTextCursor &cursor) {
-        if (tew)
-            tew->setBlockSelection(cursor);
+        if (tew) {
+            const TabSettings &tabs = tew->textDocument()->tabSettings();
+            MultiTextCursor mtc;
+            const bool forwardSelection = cursor.anchor() < cursor.position();
+            QTextBlock block = cursor.document()->findBlock(cursor.anchor());
+            const QTextBlock end = forwardSelection ? cursor.block().next() : cursor.block().previous();
+            const int anchor = tabs.columnAt(block.text(), cursor.anchor() - block.position());
+            const int pos = tabs.columnAt(cursor.block().text(), cursor.positionInBlock());
+            while (block.isValid() && block != end) {
+                const int columns = tabs.columnCountForText(block.text());
+                if (columns >= anchor || columns >= pos) {
+                    QTextCursor c(block);
+                    c.setPosition(block.position() + tabs.positionAtColumn(block.text(), anchor));
+                    c.setPosition(block.position() + tabs.positionAtColumn(block.text(), pos),
+                                  QTextCursor::KeepAnchor);
+                    mtc.addCursor(c);
+                }
+                block = forwardSelection ? block.next() : block.previous();
+            }
+            tew->setMultiTextCursor(mtc);
+        }
     });
 
     handler->requestBlockSelection.connect([tew](QTextCursor *cursor) {
-        if (tew && cursor)
-            *cursor = tew->blockSelection();
+        if (tew && cursor) {
+            MultiTextCursor mtc = tew->multiTextCursor();
+            *cursor = mtc.cursors().first();
+            cursor->setPosition(mtc.mainCursor().position(), QTextCursor::KeepAnchor);
+        }
     });
 
     handler->requestHasBlockSelection.connect([tew](bool *on) {
         if (tew && on)
-            *on = tew->hasBlockSelection();
+            *on = tew->multiTextCursor().hasMultipleCursors();
     });
 
     handler->simpleCompletionRequested.connect([this, handler](const QString &needle, bool forward) {

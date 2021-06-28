@@ -27,6 +27,10 @@
 
 #include "ifindsupport.h"
 
+#include <utils/multitextcursor.h>
+
+#include <QRegularExpression>
+
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextEdit;
@@ -63,22 +67,26 @@ public:
 
     void highlightAll(const QString &txt, FindFlags findFlags) override;
 
+    using CursorProvider = std::function<Utils::MultiTextCursor ()>;
+    void setMultiTextCursorProvider(const CursorProvider &provider);
+    bool inScope(const QTextCursor &candidate) const;
+
+    static QRegularExpression regularExpression(const QString &txt, FindFlags flags);
+
 signals:
     void highlightAllRequested(const QString &txt, Core::FindFlags findFlags);
-    void findScopeChanged(const QTextCursor &start, const QTextCursor &end,
-                          int verticalBlockSelectionFirstColumn,
-                          int verticalBlockSelectionLastColumn);
+    void findScopeChanged(const Utils::MultiTextCursor &cursor);
 
 private:
     bool find(const QString &txt, FindFlags findFlags, QTextCursor start, bool *wrapped);
     QTextCursor replaceInternal(const QString &before, const QString &after, FindFlags findFlags);
 
+    Utils::MultiTextCursor multiTextCursor() const;
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor&);
     QTextDocument *document() const;
     bool isReadOnly() const;
-    bool inScope(int startPosition, int endPosition) const;
-    QTextCursor findOne(const QRegularExpression &expr, const QTextCursor &from, QTextDocument::FindFlags options) const;
+    QTextCursor findOne(const QRegularExpression &expr, QTextCursor from, QTextDocument::FindFlags options) const;
 
     BaseTextFindPrivate *d;
 };

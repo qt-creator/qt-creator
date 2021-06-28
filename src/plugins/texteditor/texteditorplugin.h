@@ -57,15 +57,6 @@ private slots:
     void testSnippetParsing_data();
     void testSnippetParsing();
 
-    void testBlockSelectionTransformation_data();
-    void testBlockSelectionTransformation();
-    void testBlockSelectionInsert_data();
-    void testBlockSelectionInsert();
-    void testBlockSelectionRemove_data();
-    void testBlockSelectionRemove();
-    void testBlockSelectionCopy_data();
-    void testBlockSelectionCopy();
-
     void testIndentationClean_data();
     void testIndentationClean();
 #endif

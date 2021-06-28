@@ -396,7 +396,6 @@ int SideDiffEditorWidget::chunkRowsCountForBlockNumber(int blockNumber) const
 
 void SideDiffEditorWidget::clearAll(const QString &message)
 {
-    setBlockSelection(false);
     clear();
     clearAllData();
     setExtraSelections(TextEditorWidget::OtherSelection,

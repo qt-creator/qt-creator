@@ -81,10 +81,7 @@ public:
     {
     }
 
-    QTextCursor indentOrUnindent(const QTextCursor &textCursor, bool doIndent,
-                                 const TabSettings &tabSettings,
-                                 bool blockSelection = false, int column = 0,
-                                 int *offset = nullptr);
+    MultiTextCursor indentOrUnindent(const MultiTextCursor &cursor, bool doIndent, const TabSettings &tabSettings);
     void resetRevisions();
     void updateRevisions();
 
@@ -112,146 +109,90 @@ public:
     Utils::Guard m_modificationChangedGuard;
 };
 
-QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent,
-                                                  const TabSettings &tabSettings,
-                                                  bool blockSelection, int columnIn, int *offset)
+MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cursors,
+                                                      bool doIndent,
+                                                      const TabSettings &tabSettings)
 {
-    QTextCursor cursor = textCursor;
-    cursor.beginEditBlock();
-
-    // Indent or unindent the selected lines
-    int pos = cursor.position();
-    int column = blockSelection ? columnIn
-               : tabSettings.columnAt(cursor.block().text(), cursor.positionInBlock());
-    int anchor = cursor.anchor();
-    int start = qMin(anchor, pos);
-    int end = qMax(anchor, pos);
-    bool modified = true;
-
-    QTextBlock startBlock = m_document.findBlock(start);
-    QTextBlock endBlock = m_document.findBlock(blockSelection ? end : qMax(end - 1, 0)).next();
-    const bool cursorAtBlockStart = (textCursor.position() == startBlock.position());
-    const bool anchorAtBlockStart = (textCursor.anchor() == startBlock.position());
-    const bool oneLinePartial = (startBlock.next() == endBlock)
-                              && (start > startBlock.position() || end < endBlock.position() - 1);
-
-    // Make sure one line selection will get processed in "for" loop
-    if (startBlock == endBlock)
-        endBlock = endBlock.next();
-
-    if (cursor.hasSelection() && !blockSelection && !oneLinePartial) {
-        for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
-            const QString text = block.text();
-            int indentPosition = tabSettings.lineIndentPosition(text);
-            if (!doIndent && !indentPosition)
-                indentPosition = TabSettings::firstNonSpace(text);
-            int targetColumn = tabSettings.indentedColumn(
-                        tabSettings.columnAt(text, indentPosition), doIndent);
-            cursor.setPosition(block.position() + indentPosition);
-            cursor.insertText(tabSettings.indentationString(0, targetColumn, 0, block));
-            cursor.setPosition(block.position());
-            cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
-            cursor.removeSelectedText();
-        }
-        // make sure that selection that begins in first column stays at first column
-        // even if we insert text at first column
-        if (cursorAtBlockStart) {
-            cursor = textCursor;
-            cursor.setPosition(startBlock.position(), QTextCursor::KeepAnchor);
-        } else if (anchorAtBlockStart) {
-            cursor = textCursor;
-            cursor.setPosition(startBlock.position(), QTextCursor::MoveAnchor);
-            cursor.setPosition(textCursor.position(), QTextCursor::KeepAnchor);
+    MultiTextCursor result;
+    bool first = true;
+    for (const QTextCursor &textCursor : cursors) {
+        QTextCursor cursor = textCursor;
+        if (first) {
+            cursor.beginEditBlock();
+            first = false;
         } else {
-            modified = false;
+            cursor.joinPreviousEditBlock();
         }
-    } else if (cursor.hasSelection() && !blockSelection && oneLinePartial) {
-        // Only one line partially selected.
-        cursor.removeSelectedText();
-    } else {
-        // Indent or unindent at cursor position
-        int maxTargetColumn = -1;
 
-        class BlockIndenter
-        {
-        public:
-            BlockIndenter(const QTextBlock &_block,
-                          const int column,
-                          const TabSettings &_tabSettings)
-                : block(_block)
-                , text(block.text())
-                , tabSettings(_tabSettings)
-            {
-                indentPosition = tabSettings.positionAtColumn(text, column, nullptr, true);
-                spaces = TabSettings::spacesLeftFromPosition(text, indentPosition);
-            }
+        // Indent or unindent the selected lines
+        int pos = cursor.position();
+        int column = tabSettings.columnAt(cursor.block().text(), cursor.positionInBlock());
+        int anchor = cursor.anchor();
+        int start = qMin(anchor, pos);
+        int end = qMax(anchor, pos);
 
-            void indent(const int targetColumn) const
-            {
-                const int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
-                QTextCursor cursor(block);
-                cursor.setPosition(block.position() + indentPosition);
-                cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
+        QTextBlock startBlock = m_document.findBlock(start);
+        QTextBlock endBlock = m_document.findBlock(qMax(end - 1, 0)).next();
+        const bool cursorAtBlockStart = (cursor.position() == startBlock.position());
+        const bool anchorAtBlockStart = (cursor.anchor() == startBlock.position());
+        const bool oneLinePartial = (startBlock.next() == endBlock)
+                                    && (start > startBlock.position()
+                                        || end < endBlock.position() - 1)
+                                    && !cursors.hasMultipleCursors();
+
+        // Make sure one line selection will get processed in "for" loop
+        if (startBlock == endBlock)
+            endBlock = endBlock.next();
+
+        if (cursor.hasSelection()) {
+            if (oneLinePartial) {
                 cursor.removeSelectedText();
-                cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, 0, block));
+            } else {
+                for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
+                    const QString text = block.text();
+                    int indentPosition = tabSettings.lineIndentPosition(text);
+                    if (!doIndent && !indentPosition)
+                        indentPosition = TabSettings::firstNonSpace(text);
+                    int targetColumn
+                        = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition),
+                                                     doIndent);
+                    cursor.setPosition(block.position() + indentPosition);
+                    cursor.insertText(tabSettings.indentationString(0, targetColumn, 0, block));
+                    cursor.setPosition(block.position());
+                    cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
+                    cursor.removeSelectedText();
+                }
+                // make sure that selection that begins in first column stays at first column
+                // even if we insert text at first column
+                if (cursorAtBlockStart) {
+                    cursor = textCursor;
+                    cursor.setPosition(startBlock.position(), QTextCursor::KeepAnchor);
+                } else if (anchorAtBlockStart) {
+                    cursor = textCursor;
+                    cursor.setPosition(startBlock.position(), QTextCursor::MoveAnchor);
+                    cursor.setPosition(textCursor.position(), QTextCursor::KeepAnchor);
+                }
             }
-
-            int targetColumn(bool doIndent) const
-            {
-                const int optimumTargetColumn
-                    = tabSettings.indentedColumn(tabSettings.columnAt(block.text(), indentPosition),
-                                                 doIndent);
-                const int minimumTargetColumn = tabSettings.columnAt(text, indentPosition - spaces);
-                return std::max(optimumTargetColumn, minimumTargetColumn);
-            }
-
-            const QTextBlock &textBlock() { return block; }
-
-        private:
-            QTextBlock block;
-            const QString text;
-            int indentPosition;
-            int spaces;
-            const TabSettings &tabSettings;
-        };
-
-        std::vector<BlockIndenter> blocks;
-
-        for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
-            QString text = block.text();
-
-            const int blockColumn = tabSettings.columnAt(text, text.size());
-            if (blockColumn < column) {
-                cursor.setPosition(block.position() + text.size());
-                cursor.insertText(tabSettings.indentationString(blockColumn, column, 0, block));
-                text = block.text();
-            }
-
-            blocks.emplace_back(BlockIndenter(block, column, tabSettings));
-            maxTargetColumn = std::max(maxTargetColumn, blocks.back().targetColumn(doIndent));
+        } else {
+            QString text = startBlock.text();
+            int indentPosition = tabSettings.positionAtColumn(text, column, nullptr, true);
+            int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
+            int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
+            int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition),
+                                                          doIndent);
+            cursor.setPosition(startBlock.position() + indentPosition);
+            cursor.setPosition(startBlock.position() + indentPosition - spaces,
+                               QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
+            cursor.insertText(
+                tabSettings.indentationString(startColumn, targetColumn, 0, startBlock));
         }
-        for (const BlockIndenter &blockIndenter : blocks)
-            blockIndenter.indent(maxTargetColumn);
 
-        // Preserve initial anchor of block selection
-        if (blockSelection) {
-            if (offset)
-                *offset = maxTargetColumn - column;
-            startBlock = pos < anchor ? blocks.front().textBlock() : blocks.back().textBlock();
-            start = startBlock.position()
-                    + tabSettings.positionAtColumn(startBlock.text(), maxTargetColumn);
-            endBlock = pos > anchor ? blocks.front().textBlock() : blocks.back().textBlock();
-            end = endBlock.position()
-                  + tabSettings.positionAtColumn(endBlock.text(), maxTargetColumn);
-
-            cursor.setPosition(end);
-            cursor.setPosition(start, QTextCursor::KeepAnchor);
-        }
+        cursor.endEditBlock();
+        result.addCursor(cursor);
     }
 
-    cursor.endEditBlock();
-
-    return modified ? cursor : textCursor;
+    return result;
 }
 
 void TextDocumentPrivate::resetRevisions()
@@ -504,16 +445,14 @@ void TextDocument::autoFormatOrIndent(const QTextCursor &cursor)
     d->m_indenter->autoIndent(cursor, tabSettings());
 }
 
-QTextCursor TextDocument::indent(const QTextCursor &cursor, bool blockSelection, int column,
-                                 int *offset)
+Utils::MultiTextCursor TextDocument::indent(const Utils::MultiTextCursor &cursor)
 {
-    return d->indentOrUnindent(cursor, true, tabSettings(), blockSelection, column, offset);
+    return d->indentOrUnindent(cursor, true, tabSettings());
 }
 
-QTextCursor TextDocument::unindent(const QTextCursor &cursor, bool blockSelection, int column,
-                                   int *offset)
+Utils::MultiTextCursor TextDocument::unindent(const Utils::MultiTextCursor &cursor)
 {
-    return d->indentOrUnindent(cursor, false, tabSettings(), blockSelection, column, offset);
+    return d->indentOrUnindent(cursor, false, tabSettings());
 }
 
 void TextDocument::setFormatter(Formatter *formatter)

@@ -93,6 +93,7 @@ add_qtc_library(Utils
     mimetypes/mimeprovider.cpp mimetypes/mimeprovider_p.h
     mimetypes/mimetype.cpp mimetypes/mimetype.h mimetypes/mimetype_p.h
     mimetypes/mimetypeparser.cpp mimetypes/mimetypeparser_p.h
+    multitextcursor.cpp multitextcursor.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevalueitem.cpp namevalueitem.h

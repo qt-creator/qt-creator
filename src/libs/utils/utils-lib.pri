@@ -142,6 +142,7 @@ SOURCES += \
     $$PWD/qtcsettings.cpp \
     $$PWD/link.cpp \
     $$PWD/linecolumn.cpp \
+    $$PWD/multitextcursor.cpp \
 
 HEADERS += \
     $$PWD/environmentfwd.h \
@@ -307,6 +308,7 @@ HEADERS += \
     $$PWD/launcherpackets.h \
     $$PWD/launchersocket.h \
     $$PWD/qtcsettings.h
+    $$PWD/multitextcursor.h \
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

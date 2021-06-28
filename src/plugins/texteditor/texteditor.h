@@ -40,6 +40,7 @@
 
 #include <utils/elidinglabel.h>
 #include <utils/link.h>
+#include <utils/multitextcursor.h>
 #include <utils/uncommentselection.h>
 
 #include <QPlainTextEdit>
@@ -177,9 +178,6 @@ private:
 class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
 {
     Q_OBJECT
-    Q_PROPERTY(int verticalBlockSelectionFirstColumn READ verticalBlockSelectionFirstColumn)
-    Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
-
 public:
     explicit TextEditorWidget(QWidget *parent = nullptr);
     ~TextEditorWidget() override;
@@ -271,15 +269,8 @@ public:
                            const QString &snippet,
                            const SnippetParser &parse);
 
-    void setBlockSelection(bool on);
-    void setBlockSelection(int positionBlock, int positionColumn, int anchhorBlock,
-                           int anchorColumn);
-    void setBlockSelection(const QTextCursor &cursor);
-    QTextCursor blockSelection() const;
-    bool hasBlockSelection() const;
-
-    int verticalBlockSelectionFirstColumn() const;
-    int verticalBlockSelectionLastColumn() const;
+    Utils::MultiTextCursor multiTextCursor() const;
+    void setMultiTextCursor(const Utils::MultiTextCursor &cursor);
 
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 
@@ -325,6 +316,7 @@ public:
     static Utils::Id AutoCompleteSelection;
     static Utils::Id CodeWarningsSelection;
     static Utils::Id CodeSemanticsSelection;
+    static Utils::Id CursorSelection;
     static Utils::Id UndefinedSymbolSelection;
     static Utils::Id UnusedSymbolSelection;
     static Utils::Id OtherSelection;
@@ -512,7 +504,6 @@ protected:
     QTextBlock blockForVerticalOffset(int offset) const;
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
-    void inputMethodEvent(QInputMethodEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
     void changeEvent(QEvent *e) override;
@@ -542,6 +533,7 @@ protected:
     void dropEvent(QDropEvent *e) override;
 
     virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
+    virtual QString plainTextFromSelection(const Utils::MultiTextCursor &cursor) const;
     static QString convertToPlainText(const QString &txt);
 
     virtual QString lineNumber(int blockNumber) const;
@@ -602,7 +594,7 @@ protected:
                                          const QRect &clip);
     int visibleFoldedBlockNumber() const;
     void doSetTextCursor(const QTextCursor &cursor) override;
-    void doSetTextCursor(const QTextCursor &cursor, bool keepBlockSelection);
+    void doSetTextCursor(const QTextCursor &cursor, bool keepMultiSelection);
 
 signals:
     void markRequested(TextEditor::TextEditorWidget *widget,
@@ -619,7 +611,6 @@ protected:
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
     Q_INVOKABLE bool inFindScope(const QTextCursor &cursor);
-    Q_INVOKABLE bool inFindScope(int selectionStart, int selectionEnd);
 
 private:
     Internal::TextEditorWidgetPrivate *d;

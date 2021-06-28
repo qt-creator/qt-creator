@@ -13,5 +13,6 @@ Project {
         "stringutils/stringutils.qbs",
         "templateengine/templateengine.qbs",
         "treemodel/treemodel.qbs",
+        "multicursor/multicursor.qbs",
     ]
 }

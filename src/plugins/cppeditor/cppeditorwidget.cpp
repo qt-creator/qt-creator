@@ -337,6 +337,9 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
     if (!settings.m_enableDoxygen && !settings.m_leadingAsterisks)
         return false;
 
+    if (editorWidget->multiTextCursor().hasMultipleCursors())
+        return false;
+
     QTextCursor cursor = editorWidget->textCursor();
     if (!CPlusPlus::MatchingText::isInCommentHelper(cursor))
         return false;

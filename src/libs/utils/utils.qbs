@@ -177,6 +177,8 @@ Project {
             "macroexpander.cpp",
             "macroexpander.h",
             "mapreduce.h",
+            "multitextcursor.cpp",
+            "multitextcursor.h",
             "namevaluedictionary.cpp",
             "namevaluedictionary.h",
             "namevalueitem.cpp",

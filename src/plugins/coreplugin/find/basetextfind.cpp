@@ -25,6 +25,7 @@
 
 #include "basetextfind.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
 
@@ -36,13 +37,13 @@
 
 namespace Core {
 
-static QRegularExpression regularExpression(const QString &txt, FindFlags flags)
+QRegularExpression BaseTextFind::regularExpression(const QString &txt, FindFlags flags)
 {
-    return QRegularExpression(
-                (flags & FindRegularExpression) ? txt
-                                                : QRegularExpression::escape(txt),
-                (flags & FindCaseSensitively) ? QRegularExpression::NoPatternOption
-                                              : QRegularExpression::CaseInsensitiveOption);
+    return QRegularExpression((flags & FindRegularExpression) ? txt
+                                                              : QRegularExpression::escape(txt),
+                              (flags & FindCaseSensitively)
+                                  ? QRegularExpression::NoPatternOption
+                                  : QRegularExpression::CaseInsensitiveOption);
 }
 
 struct BaseTextFindPrivate
@@ -53,10 +54,8 @@ struct BaseTextFindPrivate
     QPointer<QTextEdit> m_editor;
     QPointer<QPlainTextEdit> m_plaineditor;
     QPointer<QWidget> m_widget;
-    QTextCursor m_findScopeStart;
-    QTextCursor m_findScopeEnd;
-    int m_findScopeVerticalBlockSelectionFirstColumn;
-    int m_findScopeVerticalBlockSelectionLastColumn;
+    Utils::MultiTextCursor m_scope;
+    std::function<Utils::MultiTextCursor()> m_cursorProvider;
     int m_incrementalStartPos;
     bool m_incrementalWrappedState;
 };
@@ -64,8 +63,6 @@ struct BaseTextFindPrivate
 BaseTextFindPrivate::BaseTextFindPrivate(QTextEdit *editor)
     : m_editor(editor)
     , m_widget(editor)
-    , m_findScopeVerticalBlockSelectionFirstColumn(-1)
-    , m_findScopeVerticalBlockSelectionLastColumn(-1)
     , m_incrementalStartPos(-1)
     , m_incrementalWrappedState(false)
 {
@@ -74,8 +71,6 @@ BaseTextFindPrivate::BaseTextFindPrivate(QTextEdit *editor)
 BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
     : m_plaineditor(editor)
     , m_widget(editor)
-    , m_findScopeVerticalBlockSelectionFirstColumn(-1)
-    , m_findScopeVerticalBlockSelectionLastColumn(-1)
     , m_incrementalStartPos(-1)
     , m_incrementalWrappedState(false)
 {
@@ -93,15 +88,10 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 */
 
 /*!
-    \fn void Core::BaseTextFind::findScopeChanged(const QTextCursor &start,
-                           const QTextCursor &end,
-                           int verticalBlockSelectionFirstColumn,
-                           int verticalBlockSelectionLastColumn)
+    \fn void Core::BaseTextFind::findScopeChanged(const Utils::MultiTextCursor &cursor)
 
     This signal is emitted when the search
-    scope changes to \a start, \a end,
-    \a verticalBlockSelectionFirstColumn, and
-    \a verticalBlockSelectionLastColumn.
+    scope changes to \a cursor.
 */
 
 /*!
@@ -324,6 +314,13 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
     return cursor;
 }
 
+Utils::MultiTextCursor BaseTextFind::multiTextCursor() const
+{
+    if (d->m_cursorProvider)
+        return d->m_cursorProvider();
+    return Utils::MultiTextCursor({textCursor()});
+}
+
 /*!
     \reimp
 */
@@ -344,10 +341,11 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after, Find
 int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
-    if (!d->m_findScopeStart.isNull())
-        editCursor.setPosition(d->m_findScopeStart.position());
+    if (findFlags.testFlag(FindBackward))
+        editCursor.movePosition(QTextCursor::End);
     else
         editCursor.movePosition(QTextCursor::Start);
+    editCursor.movePosition(QTextCursor::Start);
     editCursor.beginEditBlock();
     int count = 0;
     bool usesRegExp = (findFlags & FindRegularExpression);
@@ -355,7 +353,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
     QRegularExpression regexp = regularExpression(before, findFlags);
     QTextCursor found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
     bool first = true;
-    while (!found.isNull() && inScope(found.selectionStart(), found.selectionEnd())) {
+    while (!found.isNull()) {
         if (found == editCursor && !first) {
             if (editCursor.atEnd())
                 break;
@@ -390,8 +388,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
     return count;
 }
 
-bool BaseTextFind::find(const QString &txt, FindFlags findFlags,
-    QTextCursor start, bool *wrapped)
+bool BaseTextFind::find(const QString &txt, FindFlags findFlags, QTextCursor start, bool *wrapped)
 {
     if (txt.isEmpty()) {
         setTextCursor(start);
@@ -402,85 +399,52 @@ bool BaseTextFind::find(const QString &txt, FindFlags findFlags,
     if (wrapped)
         *wrapped = false;
 
-    if (!d->m_findScopeStart.isNull()) {
-
-        // scoped
-        if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd())) {
-            if ((findFlags & FindBackward) == 0)
-                start.setPosition(d->m_findScopeStart.position());
-            else
-                start.setPosition(d->m_findScopeEnd.position());
-            found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
-            if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd()))
-                return false;
-            if (wrapped)
-                *wrapped = true;
-        }
-    } else {
-
-        // entire document
-        if (found.isNull()) {
-            if ((findFlags & FindBackward) == 0)
-                start.movePosition(QTextCursor::Start);
-            else
-                start.movePosition(QTextCursor::End);
-            found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
-            if (found.isNull())
-                return false;
-            if (wrapped)
-                *wrapped = true;
-        }
+    if (found.isNull()) {
+        if ((findFlags & FindBackward) == 0)
+            start.movePosition(QTextCursor::Start);
+        else
+            start.movePosition(QTextCursor::End);
+        found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
+        if (found.isNull())
+            return false;
+        if (wrapped)
+            *wrapped = true;
     }
-    if (!found.isNull())
-        setTextCursor(found);
+    setTextCursor(found);
     return true;
 }
 
-
-// helper function. Works just like QTextDocument::find() but supports vertical block selection
 QTextCursor BaseTextFind::findOne(const QRegularExpression &expr,
-                                  const QTextCursor &from, QTextDocument::FindFlags options) const
+                                  QTextCursor from,
+                                  QTextDocument::FindFlags options) const
 {
-    QTextCursor candidate = document()->find(expr, from, options);
-    if (candidate.isNull())
-        return candidate;
-
-    if (d->m_findScopeVerticalBlockSelectionFirstColumn < 0)
-        return candidate;
-    forever {
-        if (!inScope(candidate.selectionStart(), candidate.selectionEnd()))
-            return candidate;
-        bool inVerticalFindScope = false;
-        // This code relies on the fact, that we have to keep TextEditorWidget subclass
-        // inside d->m_plaineditor which is of QPlainTextEdit class. So we can't
-        // transform it into a typed version now, as it relies on a dynamic match.
-        QMetaObject::invokeMethod(d->m_plaineditor, "inFindScope", Qt::DirectConnection,
-                                  Q_RETURN_ARG(bool, inVerticalFindScope),
-                                  Q_ARG(QTextCursor, candidate));
-        if (inVerticalFindScope)
-            return candidate;
-
-        QTextCursor newCandidate = document()->find(expr, candidate, options);
-        if (newCandidate == candidate) {
-            // When searching for regular expressions that match "zero length" strings (like ^ or \b)
-            // we need to move away from the match before searching for the next one.
-            candidate.movePosition(options & QTextDocument::FindBackward
+    QTextCursor found = document()->find(expr, from, options);
+    while (!found.isNull() && !inScope(found)) {
+        if (!found.hasSelection()) {
+            from = found;
+            found.movePosition(options & QTextDocument::FindBackward
                                    ? QTextCursor::PreviousCharacter
                                    : QTextCursor::NextCharacter);
-            candidate = document()->find(expr, candidate, options);
         } else {
-            candidate = newCandidate;
+            from.setPosition(options & QTextDocument::FindBackward ? found.selectionStart()
+                                                                   : found.selectionEnd());
         }
+        found = document()->find(expr, from, options);
     }
-    return candidate;
+
+    return found;
 }
 
-bool BaseTextFind::inScope(int startPosition, int endPosition) const
+bool BaseTextFind::inScope(const QTextCursor &candidate) const
 {
-    if (d->m_findScopeStart.isNull())
+    if (candidate.isNull())
+        return false;
+    if (d->m_scope.isNull())
         return true;
-    return (d->m_findScopeStart.position() <= startPosition
-            && d->m_findScopeEnd.position() >= endPosition);
+    return Utils::anyOf(d->m_scope, [candidate](const QTextCursor &scope){
+        return candidate.selectionStart() >= scope.selectionStart()
+               && candidate.selectionEnd() <= scope.selectionEnd();
+    });
 }
 
 /*!
@@ -488,30 +452,24 @@ bool BaseTextFind::inScope(int startPosition, int endPosition) const
 */
 void BaseTextFind::defineFindScope()
 {
-    QTextCursor cursor = textCursor();
-    if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
-        d->m_findScopeStart = cursor;
-        d->m_findScopeStart.setPosition(qMax(0, cursor.selectionStart()));
-        d->m_findScopeEnd = cursor;
-        d->m_findScopeEnd.setPosition(cursor.selectionEnd());
-        d->m_findScopeVerticalBlockSelectionFirstColumn = -1;
-        d->m_findScopeVerticalBlockSelectionLastColumn = -1;
-
-        if (d->m_plaineditor && d->m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelectionFirstColumn") >= 0) {
-            d->m_findScopeVerticalBlockSelectionFirstColumn
-                    = d->m_plaineditor->property("verticalBlockSelectionFirstColumn").toInt();
-            d->m_findScopeVerticalBlockSelectionLastColumn
-                    = d->m_plaineditor->property("verticalBlockSelectionLastColumn").toInt();
+    Utils::MultiTextCursor multiCursor = multiTextCursor();
+    bool foundSelection = false;
+    for (const QTextCursor &c : multiCursor) {
+        if (c.hasSelection()) {
+            if (foundSelection || c.block() != c.document()->findBlock(c.anchor())) {
+                QList<QTextCursor> sortedCursors = multiCursor.cursors();
+                Utils::sort(sortedCursors);
+                d->m_scope = Utils::MultiTextCursor(sortedCursors);
+                QTextCursor cursor = textCursor();
+                cursor.clearSelection();
+                setTextCursor(cursor);
+                emit findScopeChanged(d->m_scope);
+                return;
+            }
+            foundSelection = true;
         }
-
-        emit findScopeChanged(d->m_findScopeStart, d->m_findScopeEnd,
-                              d->m_findScopeVerticalBlockSelectionFirstColumn,
-                              d->m_findScopeVerticalBlockSelectionLastColumn);
-        cursor.setPosition(d->m_findScopeStart.position());
-        setTextCursor(cursor);
-    } else {
-        clearFindScope();
     }
+    clearFindScope();
 }
 
 /*!
@@ -519,13 +477,8 @@ void BaseTextFind::defineFindScope()
 */
 void BaseTextFind::clearFindScope()
 {
-    d->m_findScopeStart = QTextCursor();
-    d->m_findScopeEnd = QTextCursor();
-    d->m_findScopeVerticalBlockSelectionFirstColumn = -1;
-    d->m_findScopeVerticalBlockSelectionLastColumn = -1;
-    emit findScopeChanged(d->m_findScopeStart, d->m_findScopeEnd,
-                          d->m_findScopeVerticalBlockSelectionFirstColumn,
-                          d->m_findScopeVerticalBlockSelectionLastColumn);
+    d->m_scope = Utils::MultiTextCursor();
+    emit findScopeChanged(d->m_scope);
 }
 
 /*!
@@ -535,6 +488,11 @@ void BaseTextFind::clearFindScope()
 void BaseTextFind::highlightAll(const QString &txt, FindFlags findFlags)
 {
     emit highlightAllRequested(txt, findFlags);
+}
+
+void BaseTextFind::setMultiTextCursorProvider(const CursorProvider &provider)
+{
+    d->m_cursorProvider = provider;
 }
 
 } // namespace Core
