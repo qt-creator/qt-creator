@@ -39,6 +39,14 @@
     \l{Specifying Breakpoint Settings}{specify settings for breakpoints},
     and map source paths to target paths.
 
+    You can view debug output in the \uicontrol {Debugger Log} view.
+    However, in some Linux distributions, such as Arch Linux, debug
+    output is sent to the system log. To override this behavior, select
+    the \uicontrol {Force logging to console} check box. This sets
+    \c QT_LOGGING_TO_CONSOLE=1 in the environment of the debugged
+    program, which effectively prevents storing debug output in
+    system logs.
+
     \section2 Mapping Source Paths
 
     To enable the debugger to step into the code and display the source code
