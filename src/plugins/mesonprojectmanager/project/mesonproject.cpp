@@ -47,7 +47,6 @@ MesonProject::MesonProject(const Utils::FilePath &path)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
-    setKnowsAllBuildExecutables(true);
     setHasMakeInstallEquivalent(true);
 }
 

@@ -147,10 +147,6 @@ public:
 
     virtual ProjectImporter *projectImporter() const;
 
-    // The build system is able to report all executables that can be built, independent
-    // of configuration.
-    bool knowsAllBuildExecutables() const;
-
     virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }
     bool hasMakeInstallEquivalent() const;
     virtual MakeInstallCommand makeInstallCommand(const Target *target, const QString &installRoot);
@@ -228,7 +224,6 @@ protected:
     void removeProjectLanguage(Utils::Id id);
     void setHasMakeInstallEquivalent(bool enabled);
 
-    void setKnowsAllBuildExecutables(bool value);
     void setNeedsBuildConfigurations(bool value);
     void setNeedsDeployConfigurations(bool value);
 
