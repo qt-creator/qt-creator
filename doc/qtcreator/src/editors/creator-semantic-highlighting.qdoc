@@ -101,6 +101,8 @@
     \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Display folding markers}. This option is enabled by default.
 
+    \image qtcreator-options-text-editor-display.png "Text Editor Display options"
+
     When the cursor is on a brace, the matching brace is animated by default. To
     turn off the animation and just highlight the block and the braces, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
@@ -117,4 +119,6 @@
     \key {Ctrl+Alt+Shift+U}. To enable smart block selection, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol {Enable smart selection changing}.
+
+    \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior options"
 */
