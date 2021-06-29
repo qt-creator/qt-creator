@@ -184,7 +184,7 @@ public:
 
     void updateVersionInfo();
 
-    QString findHostBinary(HostBinaries binary) const;
+    FilePath findHostBinary(HostBinaries binary) const;
     void updateMkspec();
     QHash<ProKey, ProString> versionInfo();
     static bool queryQMakeVariables(const FilePath &binary,
@@ -235,13 +235,13 @@ public:
 
     FilePath m_qmakeCommand;
 
-    QString m_rccCommand;
-    QString m_uicCommand;
-    QString m_designerCommand;
-    QString m_linguistCommand;
-    QString m_qscxmlcCommand;
+    FilePath m_rccCommand;
+    FilePath m_uicCommand;
+    FilePath m_designerCommand;
+    FilePath m_linguistCommand;
+    FilePath m_qscxmlcCommand;
     FilePath m_qmlsceneCommand;
-    QString m_qmlplugindumpCommand;
+    FilePath m_qmlplugindumpCommand;
 
     MacroExpanderWrapper m_expander;
 };
@@ -991,30 +991,30 @@ FilePath BaseQtVersion::qtPackageSourcePath() const
     return d->m_data.qtSources;
 }
 
-QString BaseQtVersion::designerCommand() const
+FilePath BaseQtVersion::designerCommand() const
 {
     if (!isValid())
-        return QString();
-    if (d->m_designerCommand.isNull())
+        return {};
+    if (d->m_designerCommand.isEmpty())
         d->m_designerCommand = d->findHostBinary(Designer);
     return d->m_designerCommand;
 }
 
-QString BaseQtVersion::linguistCommand() const
+FilePath BaseQtVersion::linguistCommand() const
 {
     if (!isValid())
-        return QString();
-    if (d->m_linguistCommand.isNull())
+        return {};
+    if (d->m_linguistCommand.isEmpty())
         d->m_linguistCommand = d->findHostBinary(Linguist);
     return d->m_linguistCommand;
 }
 
-QString BaseQtVersion::qscxmlcCommand() const
+FilePath BaseQtVersion::qscxmlcCommand() const
 {
     if (!isValid())
-        return QString();
+        return {};
 
-    if (d->m_qscxmlcCommand.isNull())
+    if (d->m_qscxmlcCommand.isEmpty())
         d->m_qscxmlcCommand = d->findHostBinary(QScxmlc);
     return d->m_qscxmlcCommand;
 }
@@ -1033,40 +1033,38 @@ FilePath BaseQtVersion::qmlsceneCommand() const
     return d->m_qmlsceneCommand;
 }
 
-QString BaseQtVersion::qmlplugindumpCommand() const
+FilePath BaseQtVersion::qmlplugindumpCommand() const
 {
     if (!isValid())
-        return QString();
+        return {};
 
-    if (!d->m_qmlplugindumpCommand.isNull())
+    if (!d->m_qmlplugindumpCommand.isEmpty())
         return d->m_qmlplugindumpCommand;
 
-    const QString path
-        = binPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlplugindump")).toString();
-
-    d->m_qmlplugindumpCommand = QFileInfo(path).isFile() ? path : QString();
+    const FilePath path = binPath() / HostOsInfo::withExecutableSuffix("qmlplugindump");
+    d->m_qmlplugindumpCommand = path.isExecutableFile() ? path : FilePath();
 
     return d->m_qmlplugindumpCommand;
 }
 
-QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
+FilePath BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
 {
-    QString baseDir;
+    FilePath baseDir;
     if (q->qtVersion() < QtVersionNumber(5, 0, 0)) {
-        baseDir = q->binPath().toString();
+        baseDir = q->binPath();
     } else {
         switch (binary) {
         case Designer:
         case Linguist:
         case QScxmlc:
-            baseDir = q->hostBinPath().toString();
+            baseDir = q->hostBinPath();
             break;
         case Rcc:
         case Uic:
             if (q->qtVersion() >= QtVersionNumber(6, 1))
-                baseDir = q->hostLibexecPath().toString();
+                baseDir = q->hostLibexecPath();
             else
-                baseDir = q->hostBinPath().toString();
+                baseDir = q->hostBinPath();
             break;
         default:
             // Can't happen
@@ -1075,9 +1073,7 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
     }
 
     if (baseDir.isEmpty())
-        return QString();
-    if (!baseDir.endsWith('/'))
-        baseDir += '/';
+        return {};
 
     QStringList possibleCommands;
     switch (binary) {
@@ -1115,29 +1111,29 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
     default:
         Q_ASSERT(false);
     }
-    foreach (const QString &possibleCommand, possibleCommands) {
-        const QString fullPath = baseDir + possibleCommand;
-        if (QFileInfo(fullPath).isFile())
-            return QDir::cleanPath(fullPath);
+    for (const QString &possibleCommand : qAsConst(possibleCommands)) {
+        const FilePath fullPath = baseDir / possibleCommand;
+        if (fullPath.isExecutableFile())
+            return fullPath;
     }
-    return QString();
+    return {};
 }
 
-QString BaseQtVersion::rccCommand() const
+FilePath BaseQtVersion::rccCommand() const
 {
     if (!isValid())
-        return QString();
-    if (!d->m_rccCommand.isNull())
+        return {};
+    if (!d->m_rccCommand.isEmpty())
         return d->m_rccCommand;
     d->m_rccCommand = d->findHostBinary(Rcc);
     return d->m_rccCommand;
 }
 
-QString BaseQtVersion::uicCommand() const
+FilePath BaseQtVersion::uicCommand() const
 {
     if (!isValid())
-        return QString();
-    if (!d->m_uicCommand.isNull())
+        return {};
+    if (!d->m_uicCommand.isEmpty())
         return d->m_uicCommand;
     d->m_uicCommand = d->findHostBinary(Uic);
     return d->m_uicCommand;

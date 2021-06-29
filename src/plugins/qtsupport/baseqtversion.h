@@ -131,14 +131,14 @@ public:
     bool isInSourceDirectory(const Utils::FilePath &filePath);
     bool isSubProject(const Utils::FilePath &filePath) const;
 
-    QString rccCommand() const;
+    Utils::FilePath rccCommand() const;
     // used by UiCodeModelSupport
-    QString uicCommand() const;
-    QString designerCommand() const;
-    QString linguistCommand() const;
-    QString qscxmlcCommand() const;
+    Utils::FilePath uicCommand() const;
+    Utils::FilePath designerCommand() const;
+    Utils::FilePath linguistCommand() const;
+    Utils::FilePath qscxmlcCommand() const;
     Utils::FilePath qmlsceneCommand() const;
-    QString qmlplugindumpCommand() const;
+    Utils::FilePath qmlplugindumpCommand() const;
 
     QString qtVersionString() const;
     QtVersionNumber qtVersion() const;
