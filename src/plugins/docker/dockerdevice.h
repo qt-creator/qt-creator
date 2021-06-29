@@ -44,6 +44,7 @@ public:
     QString tag;
     QString size;
     bool useLocalUidGid = true;
+    QStringList mounts = {"/opt", "/data"};
 };
 
 class DockerDevice : public ProjectExplorer::IDevice
@@ -100,6 +101,7 @@ public:
     Utils::Environment systemEnvironment() const override;
 
     const DockerDeviceData &data() const;
+    DockerDeviceData &data();
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;

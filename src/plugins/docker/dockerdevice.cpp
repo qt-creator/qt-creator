@@ -239,10 +239,6 @@ class DockerDevicePrivate : public QObject
 public:
     DockerDevicePrivate(DockerDevice *parent) : q(parent)
     {
-        // FIXME: Make mounts flexible
-        m_mounts.append("/opt");
-        m_mounts.append("/data");
-
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [](const QString &path) {
             Q_UNUSED(path)
             LOG("Container watcher change, file: " << path);
@@ -276,7 +272,6 @@ public:
     QPointer<QtcProcess> m_shell;
     QString m_container;
     QString m_mergedDir;
-    QStringList m_mounts;
     QFileSystemWatcher m_mergedDirWatcher;
 
     Environment m_cachedEnviroment;
@@ -293,12 +288,12 @@ public:
         auto dockerDevice = device.dynamicCast<DockerDevice>();
         QTC_ASSERT(dockerDevice, return);
 
-        m_idLabel = new QLabel(tr("Image Id:"));
+        auto idLabel = new QLabel(tr("Image Id:"));
         m_idLineEdit = new QLineEdit;
         m_idLineEdit->setText(dockerDevice->data().imageId);
         m_idLineEdit->setEnabled(false);
 
-        m_repoLabel = new QLabel(tr("Repository:"));
+        auto repoLabel = new QLabel(tr("Repository:"));
         m_repoLineEdit = new QLineEdit;
         m_repoLineEdit->setText(dockerDevice->data().repo);
         m_repoLineEdit->setEnabled(false);
@@ -308,6 +303,20 @@ public:
                                           "in the docker container."));
         m_runAsOutsideUser->setChecked(dockerDevice->data().useLocalUidGid);
         m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
+
+        connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
+            dockerDevice->data().useLocalUidGid = on;
+        });
+
+        m_pathsLineEdit = new QLineEdit;
+        m_pathsLineEdit->setText(dockerDevice->data().repo);
+        m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
+            "mapped one-to-one into the docker container."));
+        m_pathsLineEdit->setText(dockerDevice->data().mounts.join(';'));
+
+        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [this, dockerDevice](const QString &text) {
+            dockerDevice->data().mounts = text.split(';');
+        });
 
         auto logView = new QTextBrowser;
 
@@ -327,9 +336,10 @@ public:
         using namespace Layouting;
 
         Form {
-            m_idLabel, m_idLineEdit, Break(),
-            m_repoLabel, m_repoLineEdit, Break(),
+            idLabel, m_idLineEdit, Break(),
+            repoLabel, m_repoLineEdit, Break(),
             m_runAsOutsideUser, Break(),
+            tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
                 Space(20),
                 Row { autoDetectButton, undoAutoDetectButton, Stretch() },
@@ -342,11 +352,10 @@ public:
     void updateDeviceFromUi() final {}
 
 private:
-    QLabel *m_idLabel;
     QLineEdit *m_idLineEdit;
-    QLabel *m_repoLabel;
     QLineEdit *m_repoLineEdit;
     QCheckBox *m_runAsOutsideUser;
+    QLineEdit *m_pathsLineEdit;
 };
 
 IDeviceWidget *DockerDevice::createWidget()
@@ -406,6 +415,11 @@ DockerDevice::~DockerDevice()
 }
 
 const DockerDeviceData &DockerDevice::data() const
+{
+    return d->m_data;
+}
+
+DockerDeviceData &DockerDevice::data()
 {
     return d->m_data;
 }
@@ -597,7 +611,7 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
-    for (const QString &mount : qAsConst(m_mounts))
+    for (const QString &mount : qAsConst(m_data.mounts))
         dockerRun.addArgs({"-v", mount + ':' + mount});
 
     dockerRun.addArg(m_data.imageId);
@@ -661,7 +675,7 @@ FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
 {
     QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
     QString path = filePath.path();
-    for (const QString &mount : qAsConst(d->m_mounts)) {
+    for (const QString &mount : qAsConst(d->m_data.mounts)) {
         if (path.startsWith(mount + '/'))
             return FilePath::fromString(path);
     }
@@ -688,6 +702,7 @@ const char DockerDeviceDataRepoKey[] = "DockerDeviceDataRepo";
 const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
 const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
 const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
+const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 
 void DockerDevice::fromMap(const QVariantMap &map)
 {
@@ -698,6 +713,7 @@ void DockerDevice::fromMap(const QVariantMap &map)
     d->m_data.size = map.value(DockerDeviceDataSizeKey).toString();
     d->m_data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser,
                                          HostOsInfo::isLinuxHost()).toBool();
+    d->m_data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
 }
 
 QVariantMap DockerDevice::toMap() const
@@ -708,6 +724,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceDataTagKey, d->m_data.tag);
     map.insert(DockerDeviceDataSizeKey, d->m_data.size);
     map.insert(DockerDeviceUseOutsideUser, d->m_data.useLocalUidGid);
+    map.insert(DockerDeviceMappedPaths, d->m_data.mounts);
     return map;
 }
 
