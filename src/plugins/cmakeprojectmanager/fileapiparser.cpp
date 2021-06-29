@@ -948,16 +948,12 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
 
 FilePath FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
 {
-    QTC_CHECK(!buildDirectory.needsDevice());
-    QDir replyDir(cmakeReplyDirectory(buildDirectory).path());
+    const FilePath replyDir = cmakeReplyDirectory(buildDirectory);
     if (!replyDir.exists())
         return {};
 
-    const QFileInfoList fis = replyDir.entryInfoList(QStringList("index-*.json"),
-                                                     QDir::Files,
-                                                     QDir::Name);
-    const QFileInfo fi = fis.isEmpty() ? QFileInfo() : fis.last();
-    return FilePath::fromFileInfo(fi);
+    const FilePaths entries = replyDir.dirEntries({"index-*.json"}, QDir::Files, QDir::Name);
+    return entries.isEmpty() ? FilePath() : entries.first();
 }
 
 FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
