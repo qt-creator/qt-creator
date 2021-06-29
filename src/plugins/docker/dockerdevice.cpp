@@ -1118,7 +1118,7 @@ int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
 
     QtcProcess proc;
     proc.setCommand(dcmd);
-    proc.setWorkingDirectory("/tmp");
+    proc.setWorkingDirectory(QDir::tempPath());
     proc.start();
     proc.waitForFinished();
 
