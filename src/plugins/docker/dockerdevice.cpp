@@ -991,7 +991,8 @@ void DockerDevice::runProcess(QtcProcess &process) const
     const CommandLine origCmd = process.commandLine();
 
     CommandLine cmd{"docker", {"exec"}};
-    cmd.addArgs({"-w", workingDir.path()});
+    if (!workingDir.isEmpty())
+        cmd.addArgs({"-w", workingDir.path()});
     if (process.keepsWriteChannelOpen())
         cmd.addArg("-i");
     cmd.addArg(d->m_container);
