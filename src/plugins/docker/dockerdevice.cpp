@@ -934,7 +934,7 @@ FilePath DockerDevice::searchInPath(const FilePath &filePath) const
     CommandLine dcmd{"docker", {"exec", d->m_container, "which", path}};
     QtcProcess proc;
     proc.setCommand(dcmd);
-    proc.setWorkingDirectory("/tmp");
+    proc.setWorkingDirectory(QDir::tempPath());
     proc.start();
     proc.waitForFinished();
 
