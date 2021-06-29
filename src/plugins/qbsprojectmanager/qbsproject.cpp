@@ -193,6 +193,10 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
             }
         }
         CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
+        for (ExtraCompiler *compiler : m_extraCompilers) {
+            if (compiler->isDirty())
+                compiler->run();
+        }
         m_sourcesForGeneratedFiles.clear();
     });
     connect(m_session, &QbsSession::errorOccurred, this, [](QbsSession::Error e) {

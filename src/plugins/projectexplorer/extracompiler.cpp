@@ -123,11 +123,6 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FilePath &sour
         if (file.open(QFile::ReadOnly | QFile::Text))
             setContent(target, file.readAll());
     }
-
-    if (d->dirty) {
-        d->dirty = false;
-        QTimer::singleShot(0, this, [this]() { run(d->source); }); // delay till available.
-    }
 }
 
 ExtraCompiler::~ExtraCompiler() = default;
@@ -171,6 +166,11 @@ QDateTime ExtraCompiler::compileTime() const
 QThreadPool *ExtraCompiler::extraCompilerThreadPool()
 {
     return s_extraCompilerThreadPool();
+}
+
+bool ExtraCompiler::isDirty() const
+{
+    return d->dirty;
 }
 
 void ExtraCompiler::onTargetsBuilt(Project *project)
@@ -346,15 +346,16 @@ void ProcessExtraCompiler::run(const QByteArray &sourceContents)
     runImpl(contents);
 }
 
-void ProcessExtraCompiler::run(const Utils::FilePath &fileName)
+QFuture<FileNameToContentsHash> ProcessExtraCompiler::run()
 {
+    const Utils::FilePath fileName = source();
     ContentProvider contents = [fileName]() {
         QFile file(fileName.toString());
         if (!file.open(QFile::ReadOnly | QFile::Text))
             return QByteArray();
         return file.readAll();
     };
-    runImpl(contents);
+    return runImpl(contents);
 }
 
 Utils::FilePath ProcessExtraCompiler::workingDirectory() const
@@ -379,7 +380,7 @@ Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
     return {};
 }
 
-void ProcessExtraCompiler::runImpl(const ContentProvider &provider)
+QFuture<FileNameToContentsHash> ProcessExtraCompiler::runImpl(const ContentProvider &provider)
 {
     if (m_watcher)
         delete m_watcher;
@@ -392,6 +393,7 @@ void ProcessExtraCompiler::runImpl(const ContentProvider &provider)
                                          &ProcessExtraCompiler::runInThread, this,
                                          command(), workingDirectory(), arguments(), provider,
                                          buildEnvironment()));
+    return m_watcher->future();
 }
 
 void ProcessExtraCompiler::runInThread(

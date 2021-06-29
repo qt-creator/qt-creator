@@ -27,13 +27,20 @@
 
 #include "cppmodelmanager.h"
 #include "cppprojectinfogenerator.h"
+#include "generatedcodemodelsupport.h"
+
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/toolchainmanager.h>
 
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
 #include <QFutureInterface>
+
+using namespace ProjectExplorer;
 
 namespace CppTools {
 
@@ -46,11 +53,25 @@ CppProjectUpdater::CppProjectUpdater()
     m_futureSynchronizer.setCancelOnWait(true);
 }
 
-void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo)
+CppProjectUpdater::~CppProjectUpdater()
+{
+    cancel();
+}
+
+void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)
+{
+    update(projectUpdateInfo, {});
+}
+
+void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
+                               const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers)
 {
     // Stop previous update.
     cancel();
 
+    m_extraCompilers = Utils::transform(extraCompilers, [](ExtraCompiler *compiler) {
+        return QPointer<ExtraCompiler>(compiler);
+    });
     m_projectUpdateInfo = projectUpdateInfo;
 
     // Ensure that we do not operate on a deleted toolchain.
@@ -68,15 +89,52 @@ void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &project
     });
     m_generateFutureWatcher.setFuture(generateFuture);
     m_futureSynchronizer.addFuture(generateFuture);
+
+    // extra compilers
+    for (QPointer<ExtraCompiler> compiler : qAsConst(m_extraCompilers)) {
+        if (compiler->isDirty()) {
+            auto watcher = new QFutureWatcher<void>;
+            // queued connection to delay after the extra compiler updated its result contents,
+            // which is also done in the main thread when compiler->run() finished
+            connect(watcher, &QFutureWatcherBase::finished,
+                    this, [this, watcher] {
+                        m_projectUpdateFutureInterface->setProgressValue(
+                            m_projectUpdateFutureInterface->progressValue() + 1);
+                        m_extraCompilersFutureWatchers.remove(watcher);
+                        watcher->deleteLater();
+                        if (!watcher->isCanceled())
+                            checkForExtraCompilersFinished();
+                    },
+                    Qt::QueuedConnection);
+            m_extraCompilersFutureWatchers += watcher;
+            watcher->setFuture(QFuture<void>(compiler->run()));
+            m_futureSynchronizer.addFuture(watcher->future());
+        }
+    }
+
+    m_projectUpdateFutureInterface.reset(new QFutureInterface<void>);
+    m_projectUpdateFutureInterface->setProgressRange(0, m_extraCompilersFutureWatchers.size()
+                                                        + 1 /*generateFuture*/);
+    m_projectUpdateFutureInterface->setProgressValue(0);
+    m_projectUpdateFutureInterface->reportStarted();
+    Core::ProgressManager::addTask(m_projectUpdateFutureInterface->future(),
+                                   tr("Preparing C++ Code Model"),
+                                   "CppProjectUpdater");
 }
 
 void CppProjectUpdater::cancel()
 {
+    if (m_projectUpdateFutureInterface && m_projectUpdateFutureInterface->isRunning())
+        m_projectUpdateFutureInterface->reportFinished();
     m_generateFutureWatcher.setFuture({});
+    m_isProjectInfoGenerated = false;
+    qDeleteAll(m_extraCompilersFutureWatchers);
+    m_extraCompilersFutureWatchers.clear();
+    m_extraCompilers.clear();
     m_futureSynchronizer.cancelAllFutures();
 }
 
-void CppProjectUpdater::onToolChainRemoved(ProjectExplorer::ToolChain *t)
+void CppProjectUpdater::onToolChainRemoved(ToolChain *t)
 {
     QTC_ASSERT(t, return);
     if (t == m_projectUpdateInfo.cToolChain || t == m_projectUpdateInfo.cxxToolChain)
@@ -93,8 +151,33 @@ void CppProjectUpdater::onProjectInfoGenerated()
     if (m_generateFutureWatcher.isCanceled() || m_generateFutureWatcher.future().resultCount() < 1)
         return;
 
-    auto updateFuture = CppModelManager::instance()->updateProjectInfo(
-        m_generateFutureWatcher.result());
+    m_projectUpdateFutureInterface->setProgressValue(m_projectUpdateFutureInterface->progressValue()
+                                                     + 1);
+    m_isProjectInfoGenerated = true;
+    checkForExtraCompilersFinished();
+}
+
+void CppProjectUpdater::checkForExtraCompilersFinished()
+{
+    if (!m_extraCompilersFutureWatchers.isEmpty() || !m_isProjectInfoGenerated)
+        return; // still need to wait
+
+    m_projectUpdateFutureInterface->reportFinished();
+    m_projectUpdateFutureInterface.reset();
+
+    QList<ExtraCompiler *> extraCompilers;
+    QSet<QString> compilerFiles;
+    for (const QPointer<ExtraCompiler> &compiler : qAsConst(m_extraCompilers)) {
+        if (compiler) {
+            extraCompilers += compiler.data();
+            compilerFiles += Utils::transform<QSet>(compiler->targets(), &Utils::FilePath::toString);
+        }
+    }
+    GeneratedCodeModelSupport::update(extraCompilers);
+    m_extraCompilers.clear();
+
+    auto updateFuture = CppModelManager::instance()
+                            ->updateProjectInfo(m_generateFutureWatcher.result(), compilerFiles);
     m_futureSynchronizer.addFuture(updateFuture);
 }
 

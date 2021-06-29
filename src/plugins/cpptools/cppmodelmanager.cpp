@@ -1145,7 +1145,8 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     }
 }
 
-QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
+QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo,
+                                                 const QSet<QString> &additionalFiles)
 {
     if (!newProjectInfo.isValid())
         return QFuture<void>();
@@ -1236,6 +1237,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     // resolved includes that we could rely on.
     updateCppEditorDocuments(/*projectsUpdated = */ true);
 
+    filesToReindex.unite(additionalFiles);
     // Trigger reindexing
     const QFuture<void> indexingFuture = updateSourceFiles(filesToReindex,
                                                            ForcedProgressNotification);

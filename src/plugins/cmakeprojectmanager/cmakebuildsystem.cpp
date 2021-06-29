@@ -630,8 +630,7 @@ void CMakeBuildSystem::updateProjectData()
     {
         qDeleteAll(m_extraCompilers);
         m_extraCompilers = findExtraCompilers();
-        CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
-        qCDebug(cmakeBuildSystemLog) << "Extra compilers updated.";
+        qCDebug(cmakeBuildSystemLog) << "Extra compilers created.";
     }
 
     QtSupport::CppKitInfo kitInfo(kit());
@@ -658,7 +657,8 @@ void CMakeBuildSystem::updateProjectData()
             }
         }
 
-        m_cppCodeModelUpdater->update({p, kitInfo, cmakeBuildConfiguration()->environment(), rpps});
+        m_cppCodeModelUpdater->update({p, kitInfo, cmakeBuildConfiguration()->environment(), rpps},
+                                      m_extraCompilers);
     }
     {
         const bool mergedHeaderPathsAndQmlImportPaths = kit()->value(

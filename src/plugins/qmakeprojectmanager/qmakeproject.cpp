@@ -399,8 +399,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         rpps.append(rpp);
     }
 
-    CppTools::GeneratedCodeModelSupport::update(generators);
-    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps});
+    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps}, generators);
 }
 
 void QmakeBuildSystem::updateQmlJSCodeModel()
