@@ -90,6 +90,7 @@ public:
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;
+    std::function<OsType(const FilePath &)> osType;
 };
 
 class QTCREATOR_UTILS_EXPORT FilePath
@@ -190,6 +191,7 @@ public:
 
     FilePath canonicalPath() const;
     FilePath symLinkTarget() const;
+    FilePath withExecutableSuffix() const;
 
     FilePath operator/(const QString &str) const;
 

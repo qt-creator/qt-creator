@@ -29,6 +29,7 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QDataStream>
@@ -1015,6 +1016,19 @@ FilePath FilePath::symLinkTarget() const
     return FilePath::fromString(info.symLinkTarget());
 }
 
+FilePath FilePath::withExecutableSuffix() const
+{
+    OsType osType;
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.osType, return {});
+        osType = s_deviceHooks.osType(*this);
+    } else {
+        osType = HostOsInfo::hostOs();
+    }
+    FilePath res = *this;
+    res.setPath(OsSpecificAspects::withExecutableSuffix(osType, m_data));
+    return res;
+}
 
 /// Find the parent directory of a given directory.
 
