@@ -33,10 +33,9 @@ import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: tabBackground
-    width: parent.width
-    height: parent.height
     color: StudioTheme.Values.themeControlBackground
-    anchors.fill: parent
+    Layout.fillWidth: true
+    Layout.fillHeight: true
 
     property alias viewModel: gradientTable.model
     property bool editableName: false

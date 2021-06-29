@@ -79,8 +79,7 @@ HelperWindow {
             StudioControls.TabBar {
                 id: presetTabBar
 
-                anchors.left: parent.left
-                anchors.right: parent.right
+                Layout.fillWidth: true
 
                 StudioControls.TabButton {
                     text: qsTr("System Presets")
