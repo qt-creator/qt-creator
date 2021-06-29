@@ -43,6 +43,7 @@ public:
     QString repo;
     QString tag;
     QString size;
+    bool useLocalUidGid = true;
 };
 
 class DockerDevice : public ProjectExplorer::IDevice

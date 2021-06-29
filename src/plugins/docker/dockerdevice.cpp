@@ -59,6 +59,7 @@
 #include <utils/treemodel.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QDateTime>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -302,6 +303,12 @@ public:
         m_repoLineEdit->setText(dockerDevice->data().repo);
         m_repoLineEdit->setEnabled(false);
 
+        m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
+        m_runAsOutsideUser->setToolTip(tr("Use user id and group id of the user running Qt Creator "
+                                          "in the docker container."));
+        m_runAsOutsideUser->setChecked(dockerDevice->data().useLocalUidGid);
+        m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
+
         auto logView = new QTextBrowser;
 
         auto autoDetectButton = new QPushButton(tr("Auto-detect Kit Items"));
@@ -322,6 +329,7 @@ public:
         Form {
             m_idLabel, m_idLineEdit, Break(),
             m_repoLabel, m_repoLineEdit, Break(),
+            m_runAsOutsideUser, Break(),
             Column {
                 Space(20),
                 Row { autoDetectButton, undoAutoDetectButton, Stretch() },
@@ -338,6 +346,7 @@ private:
     QLineEdit *m_idLineEdit;
     QLabel *m_repoLabel;
     QLineEdit *m_repoLineEdit;
+    QCheckBox *m_runAsOutsideUser;
 };
 
 IDeviceWidget *DockerDevice::createWidget()
@@ -584,7 +593,8 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
                                     "--net", "host"}};
 
 #ifdef Q_OS_UNIX
-    dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
+    if (m_data.useLocalUidGid)
+        dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
     for (const QString &mount : qAsConst(m_mounts))
@@ -677,6 +687,7 @@ const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
 const char DockerDeviceDataRepoKey[] = "DockerDeviceDataRepo";
 const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
 const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
+const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
 
 void DockerDevice::fromMap(const QVariantMap &map)
 {
@@ -685,6 +696,8 @@ void DockerDevice::fromMap(const QVariantMap &map)
     d->m_data.repo = map.value(DockerDeviceDataRepoKey).toString();
     d->m_data.tag = map.value(DockerDeviceDataTagKey).toString();
     d->m_data.size = map.value(DockerDeviceDataSizeKey).toString();
+    d->m_data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser,
+                                         HostOsInfo::isLinuxHost()).toBool();
 }
 
 QVariantMap DockerDevice::toMap() const
@@ -694,6 +707,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceDataRepoKey, d->m_data.repo);
     map.insert(DockerDeviceDataTagKey, d->m_data.tag);
     map.insert(DockerDeviceDataSizeKey, d->m_data.size);
+    map.insert(DockerDeviceUseOutsideUser, d->m_data.useLocalUidGid);
     return map;
 }
 
