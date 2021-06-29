@@ -839,14 +839,8 @@ bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::Fil
 
     bool failedBefore = false;
     for (const FilePath &filePath : cmakeQueryFilePaths(buildDirectory)) {
-        QTC_CHECK(!filePath.needsDevice());
-        QFile f(filePath.path());
-        if (!f.exists()) {
-            f.open(QFile::WriteOnly);
-            f.close();
-        }
-
-        if (!f.exists() && !failedBefore) {
+        const bool success = filePath.ensureExistingFile();
+        if (!success && !failedBefore) {
             failedBefore = true;
             reportFileApiSetupFailure();
         }
