@@ -852,7 +852,7 @@ bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::Fil
         }
     }
 
-    watcher.addDirectory(cmakeReplyDirectory(buildDirectory).toString(), FileSystemWatcher::WatchAllChanges);
+    watcher.addDirectory(cmakeReplyDirectory(buildDirectory).path(), FileSystemWatcher::WatchAllChanges);
     return true;
 }
 
