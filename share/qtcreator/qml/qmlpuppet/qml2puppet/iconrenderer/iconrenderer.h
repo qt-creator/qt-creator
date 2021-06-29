@@ -53,7 +53,9 @@ public:
     void setupRender();
 
 private:
-    void createIcon();
+    void startCreateIcon();
+    void focusCamera();
+    void finishCreateIcon();
     void render(const QString &fileName);
     void resizeContent(int dimensions);
     bool initRhi();
@@ -66,6 +68,7 @@ private:
     QQuickItem *m_containerItem = nullptr;
     DesignerSupport m_designerSupport;
     bool m_is3D = false;
+    int m_focusStep = 0;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QQuickRenderControl *m_renderControl = nullptr;
     QRhi *m_rhi = nullptr;
