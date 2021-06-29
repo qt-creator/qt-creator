@@ -344,12 +344,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     Column {
         Form {
             buildDirAspect,
-            bc->aspect<InitialCMakeArgumentsAspect>(),
             bc->aspect<BuildTypeAspect>(),
-            QString(), clearCMakeConfiguration,
+            bc->aspect<InitialCMakeArgumentsAspect>(),
+            QString(), clearCMakeConfiguration, Break(),
             qmlDebugAspect
         },
-        Space(10),
         m_warningMessageLabel,
         Space(10),
         cmakeConfiguration,
