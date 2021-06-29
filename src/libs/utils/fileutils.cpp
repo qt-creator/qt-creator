@@ -391,13 +391,6 @@ FilePath FilePath::resolvePath(const QString &fileName) const
     return FilePath::fromString(QDir::cleanPath(toString() + QLatin1Char('/') + fileName));
 }
 
-FilePath FilePath::resolveSymlinkTarget() const
-{
-    // FIXME: implement
-    QTC_CHECK(false);
-    return *this;
-}
-
 FilePath FilePath::cleanPath() const
 {
     FilePath result = *this;
@@ -1007,6 +1000,19 @@ bool FilePath::writeFileContents(const QByteArray &data) const
 bool FilePath::needsDevice() const
 {
     return !m_scheme.isEmpty();
+}
+
+/// \returns an empty FilePath if this is not a symbolic linl
+FilePath FilePath::symLinkTarget() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.symLinkTarget, return {});
+        return s_deviceHooks.symLinkTarget(*this);
+    }
+    const QFileInfo info(m_data);
+    if (!info.isSymLink())
+        return {};
+    return FilePath::fromString(info.symLinkTarget());
 }
 
 

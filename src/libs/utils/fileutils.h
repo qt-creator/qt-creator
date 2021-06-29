@@ -83,6 +83,7 @@ public:
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &)> searchInPath;
+    std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<QList<FilePath>(const FilePath &, const QStringList &,
                                   QDir::Filters, QDir::SortFlags)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
@@ -188,6 +189,7 @@ public:
     FilePath cleanPath() const;
 
     FilePath canonicalPath() const;
+    FilePath symLinkTarget() const;
 
     FilePath operator/(const QString &str) const;
 

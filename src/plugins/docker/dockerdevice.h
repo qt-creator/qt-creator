@@ -89,6 +89,7 @@ public:
     bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     Utils::FilePath searchInPath(const Utils::FilePath &filePath) const override;
+    Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
                                             QDir::Filters filters,

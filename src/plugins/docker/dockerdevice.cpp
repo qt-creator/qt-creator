@@ -1002,6 +1002,22 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
     return {};
 }
 
+FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const FilePath target = localAccess.symLinkTarget();
+        LOG("SymLinkTarget? " << filePath.toUserOutput() << localAccess.toUserOutput() << target);
+        if (target.isEmpty())
+            return {};
+        return mapToGlobalPath(target);
+    }
+    QTC_CHECK(false);
+    return {};
+}
+
 FilePath DockerDevice::searchInPath(const FilePath &filePath) const
 {
     const QString path = filePath.path();
