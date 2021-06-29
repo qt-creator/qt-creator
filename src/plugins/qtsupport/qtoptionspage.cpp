@@ -612,10 +612,9 @@ void QtOptionsPageWidget::addQtDir()
     if (qtVersion.isEmpty())
         return;
 
-    QFileInfo fi = qtVersion.toFileInfo();
     // should add all qt versions here ?
-    if (BuildableHelperLibrary::isQtChooser(fi))
-        qtVersion = FilePath::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
+    if (BuildableHelperLibrary::isQtChooser(qtVersion))
+        qtVersion = BuildableHelperLibrary::qtChooserToQmakePath(qtVersion.symLinkTarget());
 
     auto checkAlreadyExists = [qtVersion](TreeItem *parent) {
         for (int i = 0; i < parent->childCount(); ++i) {

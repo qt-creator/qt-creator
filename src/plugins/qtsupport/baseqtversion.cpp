@@ -728,18 +728,18 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     d->m_qmakeCommand = FilePath::fromVariant(map.value(QTVERSIONQMAKEPATH));
 
-    QString string = d->m_qmakeCommand.toString();
+    FilePath qmake = d->m_qmakeCommand;
+    // FIXME: Check this is still needed or whether ProcessArgs::splitArg handles it.
+    QString string = d->m_qmakeCommand.path();
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
+    qmake.setPath(string);
     if (!d->m_qmakeCommand.needsDevice()) {
-        // FIXME: generalize for all devices.
-        QFileInfo fi(string);
-        if (BuildableHelperLibrary::isQtChooser(fi)) {
+        if (BuildableHelperLibrary::isQtChooser(qmake)) {
             // we don't want to treat qtchooser as a normal qmake
             // see e.g. QTCREATORBUG-9841, also this lead to users changing what
             // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
-            string = BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget());
-            d->m_qmakeCommand = FilePath::fromString(string);
+            d->m_qmakeCommand = BuildableHelperLibrary::qtChooserToQmakePath(qmake);
         }
     }
 

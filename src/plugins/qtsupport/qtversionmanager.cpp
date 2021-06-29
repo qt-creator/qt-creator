@@ -439,7 +439,7 @@ static void findSystemQt()
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
     systemQMakes.append(gatherQmakePathsFromQtChooser());
     for (const FilePath &qmakePath : qAsConst(systemQMakes)) {
-        if (BuildableHelperLibrary::isQtChooser(qmakePath.toFileInfo()))
+        if (BuildableHelperLibrary::isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const BaseQtVersion *version) {
             return Environment::systemEnvironment().
