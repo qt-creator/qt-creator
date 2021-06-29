@@ -242,6 +242,7 @@ public:
     virtual bool isReadableDirectory(const Utils::FilePath &filePath) const;
     virtual bool isWritableDirectory(const Utils::FilePath &filePath) const;
     virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;
+    virtual bool ensureExistingFile(const Utils::FilePath &filePath) const;
     virtual bool createDirectory(const Utils::FilePath &filePath) const;
     virtual bool exists(const Utils::FilePath &filePath) const;
     virtual bool removeFile(const Utils::FilePath &filePath) const;

@@ -898,6 +898,20 @@ bool FilePath::ensureWritableDir() const
     return QDir().mkpath(m_data);
 }
 
+bool FilePath::ensureExistingFile() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.ensureExistingFile, return false);
+        return s_deviceHooks.ensureExistingFile(*this);
+    }
+    QFile f(m_data);
+    if (f.exists())
+        return true;
+    f.open(QFile::WriteOnly);
+    f.close();
+    return f.exists();
+}
+
 bool FilePath::isExecutableFile() const
 {
     if (needsDevice()) {

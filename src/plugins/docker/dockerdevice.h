@@ -82,6 +82,7 @@ public:
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
     bool exists(const Utils::FilePath &filePath) const override;
+    bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool removeFile(const Utils::FilePath &filePath) const override;
     bool removeRecursively(const Utils::FilePath &filePath) const override;
     bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;

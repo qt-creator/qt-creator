@@ -877,6 +877,22 @@ bool DockerDevice::exists(const FilePath &filePath) const
     return exitCode == 0;
 }
 
+bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.ensureExistingFile();
+        LOG("Ensure existing file? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("touch", {path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
 bool DockerDevice::removeFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);

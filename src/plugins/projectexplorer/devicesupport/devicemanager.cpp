@@ -411,6 +411,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->ensureWritableDirectory(filePath);
     };
 
+    deviceHooks.ensureExistingFile = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->ensureExistingFile(filePath);
+    };
+
     deviceHooks.createDir = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);

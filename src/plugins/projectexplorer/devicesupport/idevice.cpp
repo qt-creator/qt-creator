@@ -260,6 +260,13 @@ bool IDevice::ensureWritableDirectory(const FilePath &filePath) const
     return createDirectory(filePath);
 }
 
+bool IDevice::ensureExistingFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 bool IDevice::createDirectory(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);

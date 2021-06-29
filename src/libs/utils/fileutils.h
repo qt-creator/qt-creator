@@ -75,6 +75,7 @@ public:
     std::function<bool(const FilePath &)> isWritableDir;
     std::function<bool(const FilePath &)> isWritableFile;
     std::function<bool(const FilePath &)> ensureWritableDir;
+    std::function<bool(const FilePath &)> ensureExistingFile;
     std::function<bool(const FilePath &)> createDir;
     std::function<bool(const FilePath &)> exists;
     std::function<bool(const FilePath &)> removeFile;
@@ -135,6 +136,7 @@ public:
     bool isWritableDir() const;
     bool isWritableFile() const;
     bool ensureWritableDir() const;
+    bool ensureExistingFile() const;
     bool isExecutableFile() const;
     bool isReadableFile() const;
     bool isReadableDir() const;
