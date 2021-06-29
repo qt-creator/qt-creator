@@ -84,7 +84,7 @@ namespace Docker {
 namespace Internal {
 
 static Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
-#define LOG(x) qCDebug(dockerDeviceLog) << x
+#define LOG(x) qCDebug(dockerDeviceLog) << x << '\n'
 
 class DockerDeviceProcess : public ProjectExplorer::DeviceProcess
 {
@@ -620,6 +620,16 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     LOG("RUNNING: " << dockerRun.toUserOutput());
     m_shell = new QtcProcess;
     m_shell->setCommand(dockerRun);
+    connect(m_shell, &QtcProcess::finished, this, [this] {
+        LOG("\nSHELL FINISHED\n");
+        if (m_shell) {
+            LOG("RES: " << m_shell->result()
+                << " STDOUT: " << m_shell->readAllStandardOutput()
+                << " STDERR: " << m_shell->readAllStandardError());
+        }
+        m_container.clear();
+    });
+
     m_shell->start();
     m_shell->waitForStarted();
 
@@ -647,20 +657,21 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
 
     QtcProcess proc;
     proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", m_container}});
-    //LOG(proc2.commandLine().toUserOutput());
+    LOG(proc.commandLine().toUserOutput());
     proc.start();
     proc.waitForFinished();
     const QString out = proc.stdOut();
     m_mergedDir = out.trimmed();
+    LOG("Found merged dir: " << m_mergedDir);
     if (m_mergedDir.endsWith('/'))
         m_mergedDir.chop(1);
 
-    if (!QFileInfo(m_mergedDir).isWritable()) {
+    if (!QFileInfo(m_mergedDir).isReadable()) {
         MessageManager::writeFlashing(
-            tr("Local write access to Docker container %1 unavailable through directory \"%2\".")
+            tr("Local read access to Docker container %1 unavailable through directory \"%2\".")
                 .arg(m_container, m_mergedDir)
-                    + '\n' + tr("Output: %1").arg(out)
-                    + '\n' + tr("Error: %1").arg(proc.stdErr()));
+                    + '\n' + tr("Output: '%1'").arg(out)
+                    + '\n' + tr("Error: '%1'").arg(proc.stdErr()));
     }
 
     m_mergedDirWatcher.addPath(m_mergedDir);
