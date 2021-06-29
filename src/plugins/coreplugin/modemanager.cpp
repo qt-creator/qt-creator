@@ -275,19 +275,6 @@ void ModeManagerPrivate::enabledStateChanged(IMode *mode)
     }
 }
 
-void ModeManager::removeMode(IMode *mode)
-{
-    const int index = d->m_modes.indexOf(mode);
-    d->m_modes.remove(index);
-    if (d->m_startingUp)
-        return;
-
-    d->m_modeCommands.remove(index);
-    d->m_modeStack->removeTab(index);
-
-    d->m_mainWindow->removeContextObject(mode);
-}
-
 /*!
     Adds the \a action to the mode selector's tool bar.
     Actions are sorted by \a priority in descending order.

@@ -125,14 +125,6 @@ IMode::IMode(QObject *parent) : IContext(parent)
     ModeManager::addMode(this);
 }
 
-/*!
-    Unregisters the mode from \QC and destroys it.
-*/
-IMode::~IMode()
-{
-    ModeManager::removeMode(this);
-}
-
 void IMode::setEnabled(bool enabled)
 {
     if (m_isEnabled == enabled)
