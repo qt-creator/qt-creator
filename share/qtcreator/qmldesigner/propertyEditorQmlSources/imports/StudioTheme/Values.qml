@@ -110,6 +110,8 @@ QtObject {
     property real infinityControlWidth: values.iconAreaWidth
     property real infinityControlHeight: values.height
 
+    property real transform3DSectionSpacing: 15
+
     // Control sizes
 
     property real defaultControlWidth: values.squareComponentWidth * 5
