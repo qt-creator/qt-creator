@@ -995,17 +995,14 @@ FilePath DockerDevice::searchInPath(const FilePath &filePath) const
 
 QList<FilePath> DockerDevice::directoryEntries(const FilePath &filePath,
                                                const QStringList &nameFilters,
-                                               QDir::Filters filters) const
+                                               QDir::Filters filters,
+                                               QDir::SortFlags sort) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const QFileInfoList entryInfoList = QDir(localAccess.toString()).entryInfoList(nameFilters, filters);
-        return Utils::transform(entryInfoList, [this](const QFileInfo &fi) {
-            return mapFromLocalAccess(fi.absoluteFilePath());
-        });
-    }
+    if (hasLocalFileAccess())
+        return mapToLocalAccess(filePath).dirEntries(nameFilters, filters, sort);
+
     QTC_CHECK(false); // FIXME: Implement
     return {};
 }

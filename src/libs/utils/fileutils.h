@@ -83,7 +83,8 @@ public:
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &)> searchInPath;
-    std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
+    std::function<QList<FilePath>(const FilePath &, const QStringList &,
+                                  QDir::Filters, QDir::SortFlags)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
@@ -141,7 +142,9 @@ public:
     bool isReadableFile() const;
     bool isReadableDir() const;
     bool createDir() const;
-    QList<FilePath> dirEntries(const QStringList &nameFilters, QDir::Filters filters) const;
+    QList<FilePath> dirEntries(const QStringList &nameFilters,
+                               QDir::Filters filters,
+                               QDir::SortFlags sort = QDir::NoSort) const;
     QList<FilePath> dirEntries(QDir::Filters filters) const;
     QByteArray fileContents(int maxSize = -1) const;
     bool writeFileContents(const QByteArray &data) const;

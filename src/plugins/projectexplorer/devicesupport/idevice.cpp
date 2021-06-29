@@ -318,11 +318,13 @@ FilePath IDevice::searchInPath(const FilePath &filePath) const
 
 QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
                                           const QStringList &nameFilters,
-                                          QDir::Filters filters) const
+                                          QDir::Filters filters,
+                                          QDir::SortFlags sort) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(nameFilters);
     Q_UNUSED(filters);
+    Q_UNUSED(sort);
     QTC_CHECK(false);
     return {};
 }

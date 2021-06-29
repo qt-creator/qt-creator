@@ -252,7 +252,8 @@ public:
     virtual Utils::FilePath searchInPath(const Utils::FilePath &filePath) const;
     virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                                     const QStringList &nameFilters,
-                                                    QDir::Filters filters) const;
+                                                    QDir::Filters filters,
+                                                    QDir::SortFlags sort = QDir::NoSort) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
     virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;

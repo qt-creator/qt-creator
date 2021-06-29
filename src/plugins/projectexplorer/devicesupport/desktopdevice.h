@@ -57,7 +57,8 @@ public:
     bool handlesFile(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
-                                            QDir::Filters filters) const override;
+                                            QDir::Filters filters,
+                                            QDir::SortFlags sort) const override;
     Utils::Environment systemEnvironment() const override;
 
 

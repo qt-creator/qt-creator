@@ -90,7 +90,8 @@ public:
     Utils::FilePath searchInPath(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
-                                            QDir::Filters filters) const override;
+                                            QDir::Filters filters,
+                                            QDir::SortFlags sort) const override;
     QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;

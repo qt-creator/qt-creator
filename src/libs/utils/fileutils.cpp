@@ -952,14 +952,16 @@ bool FilePath::createDir() const
     return dir.mkpath(dir.absolutePath());
 }
 
-QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters, QDir::Filters filters) const
+QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters,
+                                     QDir::Filters filters,
+                                     QDir::SortFlags sort) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.dirEntries, return {});
-        return s_deviceHooks.dirEntries(*this, nameFilters, filters);
+        return s_deviceHooks.dirEntries(*this, nameFilters, filters, sort);
     }
 
-    const QFileInfoList entryInfoList = QDir(toString()).entryInfoList(nameFilters, filters);
+    const QFileInfoList entryInfoList = QDir(m_data).entryInfoList(nameFilters, filters, sort);
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
 }
 
