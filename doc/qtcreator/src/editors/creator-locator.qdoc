@@ -139,11 +139,12 @@
 
         \li Executing shell commands (\c {!})
 
-        \li Executing version control system commands (\c {git}).
+        \li Executing version control system commands
             \if defined(qtcreator)
-            For more information, see \l{Using Version Control Systems}
+            (\c {bzr}, \c {cvs}, \c {git}, \c {hg}, or \c {svn}).
+            For more information, see \l{Using Version Control Systems}.
             \else
-            For more information, see \l{Using Git}
+            (\c {git}). For more information, see \l{Using Git}.
             \endif
 
         \li Triggering menu items from the main menu (\c {t})
