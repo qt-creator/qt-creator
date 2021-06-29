@@ -62,9 +62,9 @@ KSyntaxHighlighting::Repository *highlightRepository()
     if (!repository) {
         repository = new KSyntaxHighlighting::Repository();
         repository->addCustomSearchPath(TextEditorSettings::highlighterSettings().definitionFilesPath());
-        QDir dir(Core::ICore::resourcePath("generic-highlighter/syntax").toDir());
-        if (dir.exists() && dir.cdUp())
-            repository->addCustomSearchPath(dir.path());
+        const Utils::FilePath dir = Core::ICore::resourcePath("generic-highlighter/syntax");
+        if (dir.exists())
+            repository->addCustomSearchPath(dir.parentDir().path());
     }
     return repository;
 }
