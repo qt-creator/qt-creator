@@ -240,7 +240,7 @@ public:
     QString m_designerCommand;
     QString m_linguistCommand;
     QString m_qscxmlcCommand;
-    QString m_qmlsceneCommand;
+    FilePath m_qmlsceneCommand;
     QString m_qmlplugindumpCommand;
 
     MacroExpanderWrapper m_expander;
@@ -1019,18 +1019,16 @@ QString BaseQtVersion::qscxmlcCommand() const
     return d->m_qscxmlcCommand;
 }
 
-QString BaseQtVersion::qmlsceneCommand() const
+FilePath BaseQtVersion::qmlsceneCommand() const
 {
     if (!isValid())
-        return QString();
+        return {};
 
-    if (!d->m_qmlsceneCommand.isNull())
+    if (!d->m_qmlsceneCommand.isEmpty())
         return d->m_qmlsceneCommand;
 
-    const QString path
-        = binPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlscene")).toString();
-
-    d->m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
+    const FilePath path = binPath() / HostOsInfo::withExecutableSuffix("qmlscene");
+    d->m_qmlsceneCommand = path.isExecutableFile() ? path : FilePath();
 
     return d->m_qmlsceneCommand;
 }

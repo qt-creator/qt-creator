@@ -137,7 +137,7 @@ public:
     QString designerCommand() const;
     QString linguistCommand() const;
     QString qscxmlcCommand() const;
-    QString qmlsceneCommand() const;
+    Utils::FilePath qmlsceneCommand() const;
     QString qmlplugindumpCommand() const;
 
     QString qtVersionString() const;
