@@ -30,42 +30,83 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
     caption: qsTr("Geometry - 2d")
 
     anchors.left: parent.left
     anchors.right: parent.right
+
+    readonly property string disbaledTooltip: qsTr("This property is defined by an anchor or a layout.")
+
+    function positionDisabled() {
+        return anchorBackend.isFilled || anchorBackend.isInLayout
+    }
+
+    function xDisabled() {
+        return anchorBackend.leftAnchored
+               || anchorBackend.rightAnchored
+               || anchorBackend.horizontalCentered
+    }
+
+    function yDisabled() {
+        return anchorBackend.topAnchored
+               || anchorBackend.bottomAnchored
+               || anchorBackend.verticalCentered
+    }
+
+    function sizeDisabled() {
+        return anchorBackend.isFilled
+    }
+
+    function widthDisabled() {
+        return anchorBackend.leftAnchored && anchorBackend.rightAnchored
+    }
+
+    function heightDisabled() {
+        return anchorBackend.topAnchored && anchorBackend.bottomAnchored
+    }
 
     SectionLayout {
         PropertyLabel { text: qsTr("Position") }
 
         SecondColumnLayout {
             SpinBox {
+                id: xSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.x
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
+                enabled: !root.positionDisabled() && !root.xDisabled()
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "X" }
+            ControlLabel {
+                text: "X"
+                tooltip: xSpinBox.enabled ? "X" : root.disbaledTooltip
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             SpinBox {
+                id: ySpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.y
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
+                enabled: !root.positionDisabled() && !root.yDisabled()
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "Y" }
+            ControlLabel {
+                text: "Y"
+                tooltip: xSpinBox.enabled ? "Y" : root.disbaledTooltip
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -78,32 +119,42 @@ Section {
 
         SecondColumnLayout {
             SpinBox {
+                id: widthSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.width
                 maximumValue: 0xffff
                 minimumValue: 0
                 decimals: 0
+                enabled: !root.sizeDisabled() && !root.widthDisabled()
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: qsTr("W") }
+            ControlLabel {
+                text: qsTr("W")
+                tooltip: widthSpinBox.enabled ? qsTr("Width") : root.disbaledTooltip
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             SpinBox {
+                id: heightSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.height
                 maximumValue: 0xffff
                 minimumValue: 0
                 decimals: 0
+                enabled: !root.sizeDisabled() && !root.heightDisabled()
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: qsTr("H") }
+            ControlLabel {
+                text: qsTr("H")
+                tooltip: heightSpinBox.enabled ? qsTr("Height") : root.disbaledTooltip
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
