@@ -526,7 +526,7 @@ public:
     Utils::Link defLink;
     QList<Utils::Link> allLinks;
     QHash<Utils::Link, Utils::Link> declDefMap;
-    AstNode cursorNode;
+    Utils::optional<AstNode> cursorNode;
     AstNode defLinkNode;
     SymbolDataList symbolsToDisplay;
     std::set<Utils::FilePath> openedFiles;
@@ -1074,10 +1074,15 @@ void ClangdClient::followSymbol(
         if (!d->followSymbolData || id != d->followSymbolData->id)
             return;
         d->followSymbolData->defLink = link;
-        if (d->followSymbolData->cursorNode.isValid())
+        if (d->followSymbolData->cursorNode)
             d->handleGotoDefinitionResult();
     };
     symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
+
+    if (versionNumber() < QVersionNumber(12)) {
+        d->followSymbolData->cursorNode.emplace(AstNode());
+        return;
+    }
 
     AstRequest astRequest(AstParams(TextDocumentIdentifier(d->followSymbolData->uri),
                                     Range(cursor)));
@@ -1087,11 +1092,10 @@ void ClangdClient::followSymbol(
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
         const auto result = response.result();
-        if (!result) {
-            d->followSymbolData.reset();
-            return;
-        }
-        d->followSymbolData->cursorNode = *result;
+        if (result)
+            d->followSymbolData->cursorNode = *result;
+        else
+            d->followSymbolData->cursorNode.emplace(AstNode());
         if (d->followSymbolData->defLink.hasValidTarget())
             d->handleGotoDefinitionResult();
     });
@@ -1229,8 +1233,8 @@ void ClangdClient::Private::handleGotoDefinitionResult()
     qCDebug(clangdLog) << "handling go to definition result";
 
     // No dis-ambiguation necessary. Call back with the link and finish.
-    if (!followSymbolData->cursorNode.mightBeAmbiguousVirtualCall()
-            && !followSymbolData->cursorNode.isPureVirtualDeclaration()) {
+    if (!followSymbolData->cursorNode->mightBeAmbiguousVirtualCall()
+            && !followSymbolData->cursorNode->isPureVirtualDeclaration()) {
         followSymbolData->callback(followSymbolData->defLink);
         followSymbolData.reset();
         return;
