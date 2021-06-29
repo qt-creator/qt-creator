@@ -939,7 +939,8 @@ FilePath DockerDevice::searchInPath(const FilePath &filePath) const
     proc.waitForFinished();
 
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
-    QTC_ASSERT(proc.exitCode() == 0, return filePath);
+    if (proc.exitCode() != 0)
+        return {};
 
     const QString output = proc.stdOut().trimmed();
     return mapToGlobalPath(FilePath::fromString(output));
