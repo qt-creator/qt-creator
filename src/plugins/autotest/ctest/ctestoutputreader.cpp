@@ -84,6 +84,8 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression testResult("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
                                                "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
                                                ".*\\*\\*\\*Exception:.*)\\s+(.*) sec$");
+    static const QRegularExpression testCrash("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
+                                              "Exit code .*$");
     static const QRegularExpression summary("^\\d+% tests passed, (\\d+) tests failed "
                                             "out of (\\d+)");
     static const QRegularExpression summaryTime("^Total Test time .* =\\s+(.*) sec$");
@@ -137,10 +139,19 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult->setResult(ResultType::TestEnd);
         testResult->setDescription(match.captured());
         reportResult(testResult);
+    } else if (ExactMatch match = testCrash.match(line)) {
+        m_description = match.captured();
+        m_testName = match.captured(1);
+        m_result = ResultType::Fail;
+        m_expectExceptionFromCrash = true;
     } else {
         if (!m_description.isEmpty())
             m_description.append('\n');
         m_description.append(line);
+        if (m_expectExceptionFromCrash) {
+            if (QTC_GUARD(line.startsWith("***Exception:")))
+                m_expectExceptionFromCrash = false;
+        }
     }
 }
 
