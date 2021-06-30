@@ -42,7 +42,6 @@ add_qtc_test(unittest GTEST
     clientserverinprocess-test.cpp
     clientserveroutsideprocess-test.cpp
     compare-operators.h
-    compileroptionsbuilder-test.cpp
     conditionally-disabled-tests.h
     cppprojectfilecategorizer-test.cpp
     cppprojectinfogenerator-test.cpp
@@ -456,7 +455,6 @@ extend_qtc_test(unittest
     cppprojectfile.cpp cppprojectfile.h
     senddocumenttracker.cpp senddocumenttracker.h
     projectpart.cpp projectpart.h
-    compileroptionsbuilder.cpp compileroptionsbuilder.h
     cppprojectfilecategorizer.cpp cppprojectfilecategorizer.h
     projectinfo.cpp projectinfo.h
     cppprojectinfogenerator.cpp cppprojectinfogenerator.cpp

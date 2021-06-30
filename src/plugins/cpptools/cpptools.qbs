@@ -229,6 +229,7 @@ Project {
             name: "Tests"
             condition: qtc.testsEnabled
             files: [
+                "compileroptionsbuilder_test.cpp",
                 "cppcodegen_test.cpp",
                 "cppcompletion_test.cpp",
                 "cppheadersource_test.cpp",

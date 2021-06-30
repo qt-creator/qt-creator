@@ -168,6 +168,48 @@ private slots:
     void test_includeGroups_detectIncludeGroupsByNewLines();
     void test_includeGroups_detectIncludeGroupsByIncludeDir();
     void test_includeGroups_detectIncludeGroupsByIncludeType();
+
+    void test_optionsBuilder_addProjectMacros();
+    void test_optionsBuilder_unknownFlagsAreForwarded();
+    void test_optionsBuilder_warningsFlagsAreNotFilteredIfRequested();
+    void test_optionsBuilder_diagnosticOptionsAreRemoved();
+    void test_optionsBuilder_cLanguageVersionIsRewritten();
+    void test_optionsBuilder_languageVersionIsExplicitlySetIfNotProvided();
+    void test_optionsBuilder_LanguageVersionIsExplicitlySetIfNotProvidedMsvc();
+    void test_optionsBuilder_addWordWidth();
+    void test_optionsBuilder_headerPathOptionsOrder();
+    void test_optionsBuilder_HeaderPathOptionsOrderMsvc();
+    void test_optionsBuilder_useSystemHeader();
+    void test_optionsBuilder_noClangHeadersPath();
+    void test_optionsBuilder_clangHeadersAndCppIncludePathsOrderMacOs();
+    void test_optionsBuilder_clangHeadersAndCppIncludePathsOrderLinux();
+    void test_optionsBuilder_clangHeadersAndCppIncludePathsOrderNoVersion();
+    void test_optionsBuilder_clangHeadersAndCppIncludePathsOrderAndroidClang();
+    void test_optionsBuilder_noPrecompiledHeader();
+    void test_optionsBuilder_usePrecompiledHeader();
+    void test_optionsBuilder_usePrecompiledHeaderMsvc();
+    void test_optionsBuilder_addMacros();
+    void test_optionsBuilder_addTargetTriple();
+    void test_optionsBuilder_enableCExceptions();
+    void test_optionsBuilder_enableCxxExceptions();
+    void test_optionsBuilder_insertWrappedQtHeaders();
+    void test_optionsBuilder_insertWrappedMingwHeadersWithNonMingwToolchain();
+    void test_optionsBuilder_insertWrappedMingwHeadersWithMingwToolchain();
+    void test_optionsBuilder_setLanguageVersion();
+    void test_optionsBuilder_setLanguageVersionMsvc();
+    void test_optionsBuilder_handleLanguageExtension();
+    void test_optionsBuilder_updateLanguageVersion();
+    void test_optionsBuilder_updateLanguageVersionMsvc();
+    void test_optionsBuilder_addMsvcCompatibilityVersion();
+    void test_optionsBuilder_undefineCppLanguageFeatureMacrosForMsvc2015();
+    void test_optionsBuilder_addDefineFunctionMacrosMsvc();
+    void test_optionsBuilder_addProjectConfigFileInclude();
+    void test_optionsBuilder_addProjectConfigFileIncludeMsvc();
+    void test_optionsBuilder_noUndefineClangVersionMacrosForNewMsvc();
+    void test_optionsBuilder_undefineClangVersionMacrosForOldMsvc();
+    void test_optionsBuilder_buildAllOptions();
+    void test_optionsBuilder_buildAllOptionsMsvc();
+    void test_optionsBuilder_buildAllOptionsMsvcWithExceptions();
 #endif
 
 private:

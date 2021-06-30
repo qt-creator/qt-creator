@@ -8,7 +8,6 @@ HEADERS += \
     $$PWD/cppprojectfile.h \
     $$PWD/senddocumenttracker.h \
     $$PWD/projectpart.h \
-    $$PWD/compileroptionsbuilder.h \
     $$PWD/cppprojectfilecategorizer.h \
     $$PWD/projectinfo.h \
     $$PWD/cppprojectinfogenerator.cpp \
@@ -19,7 +18,6 @@ SOURCES += \
     $$PWD/cppprojectfile.cpp \
     $$PWD/senddocumenttracker.cpp \
     $$PWD/projectpart.cpp \
-    $$PWD/compileroptionsbuilder.cpp \
     $$PWD/cppprojectfilecategorizer.cpp \
     $$PWD/projectinfo.cpp \
     $$PWD/cppprojectinfogenerator.cpp \

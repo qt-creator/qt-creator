@@ -173,7 +173,6 @@ Project {
             "clientserveroutsideprocess-test.cpp",
             "compare-operators.h",
             "compilationdatabaseutils-test.cpp",
-            "compileroptionsbuilder-test.cpp",
             "conditionally-disabled-tests.h",
             "cppprojectfilecategorizer-test.cpp",
             "cppprojectinfogenerator-test.cpp",
@@ -486,8 +485,6 @@ Project {
             name: "sources from cpptools"
             prefix: "../../../src/plugins/cpptools/"
             files: [
-                "compileroptionsbuilder.cpp",
-                "compileroptionsbuilder.h",
                 "cppprojectfile.cpp",
                 "cppprojectfile.h",
                 "cppprojectfilecategorizer.cpp",

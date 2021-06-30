@@ -110,6 +110,7 @@ add_qtc_plugin(CppTools
 extend_qtc_plugin(CppTools
   CONDITION WITH_TESTS
   SOURCES
+    compileroptionsbuilder_test.cpp
     cppcodegen_test.cpp
     cppcompletion_test.cpp
     cppheadersource_test.cpp

@@ -89,7 +89,6 @@ SOURCES += \
     processcreator-test.cpp \
     mocktimer.cpp \
     task.cpp \
-    compileroptionsbuilder-test.cpp \
     compilationdatabaseutils-test.cpp \
     headerpathfilter-test.cpp \
     sqlitecolumn-test.cpp \

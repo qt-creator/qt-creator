@@ -214,6 +214,7 @@ equals(TEST, 1) {
         cppsourceprocessertesthelper.cpp \
         cppsourceprocessor_test.cpp \
         cpptoolstestcase.cpp \
+        compileroptionsbuilder_test.cpp \
         modelmanagertesthelper.cpp \
         symbolsearcher_test.cpp \
         typehierarchybuilder_test.cpp
