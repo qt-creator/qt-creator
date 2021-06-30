@@ -128,8 +128,8 @@ public:
     Utils::FilePath sourcePath() const;
     // returns source path for installed qt packages and empty string for self build qt
     Utils::FilePath qtPackageSourcePath() const;
-    bool isInSourceDirectory(const Utils::FilePath &filePath);
-    bool isSubProject(const Utils::FilePath &filePath) const;
+    bool isInQtSourceDirectory(const Utils::FilePath &filePath) const;
+    bool isQtSubProject(const Utils::FilePath &filePath) const;
 
     Utils::FilePath rccCommand() const;
     // used by UiCodeModelSupport

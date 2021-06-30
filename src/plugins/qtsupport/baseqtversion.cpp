@@ -1961,35 +1961,32 @@ FilePath BaseQtVersionPrivate::sourcePath(const QHash<ProKey, ProString> &versio
     return FilePath::fromUserInput(QFileInfo(sourcePath).canonicalFilePath());
 }
 
-bool BaseQtVersion::isInSourceDirectory(const FilePath &filePath)
+bool BaseQtVersion::isInQtSourceDirectory(const FilePath &filePath) const
 {
-    const FilePath &source = sourcePath();
+    FilePath source = sourcePath();
     if (source.isEmpty())
         return false;
-    QDir dir = QDir(source.toString());
-    if (dir.dirName() == "qtbase")
-        dir.cdUp();
-    return filePath.isChildOf(dir);
+    if (source.fileName() == "qtbase")
+        source = source.parentDir();
+    return filePath.isChildOf(source);
 }
 
-bool BaseQtVersion::isSubProject(const FilePath &filePath) const
+bool BaseQtVersion::isQtSubProject(const FilePath &filePath) const
 {
-    const FilePath &source = sourcePath();
+    FilePath source = sourcePath();
     if (!source.isEmpty()) {
-        QDir dir = QDir(source.toString());
-        if (dir.dirName() == "qtbase")
-            dir.cdUp();
-
-        if (filePath.isChildOf(dir))
+        if (source.fileName() == "qtbase")
+            source = source.parentDir();
+        if (filePath.isChildOf(source))
             return true;
     }
 
-    const QString examples = examplesPath().toString();
-    if (!examples.isEmpty() && filePath.isChildOf(QDir(examples)))
+    const FilePath examples = examplesPath();
+    if (!examples.isEmpty() && filePath.isChildOf(examples))
         return true;
 
-    const QString demos = demosPath().toString();
-    if (!demos.isEmpty() && filePath.isChildOf(QDir(demos)))
+    const FilePath demos = demosPath();
+    if (!demos.isEmpty() && filePath.isChildOf(demos))
         return true;
 
     return false;
