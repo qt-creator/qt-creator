@@ -199,7 +199,6 @@ HEADERS += \
     mimedatabase-utilities.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
-    mockfilesystem.h \
     mockimagecachegenerator.h \
     mockimagecachestorage.h \
     mocklistmodeleditorview.h \
