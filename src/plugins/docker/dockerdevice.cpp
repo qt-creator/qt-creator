@@ -304,7 +304,7 @@ public:
         m_runAsOutsideUser->setChecked(dockerDevice->data().useLocalUidGid);
         m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
 
-        connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
+        connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [dockerDevice](bool on) {
             dockerDevice->data().useLocalUidGid = on;
         });
 
@@ -314,7 +314,7 @@ public:
             "mapped one-to-one into the docker container."));
         m_pathsLineEdit->setText(dockerDevice->data().mounts.join(';'));
 
-        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [this, dockerDevice](const QString &text) {
+        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
             dockerDevice->data().mounts = text.split(';');
         });
 
