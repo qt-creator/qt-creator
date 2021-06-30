@@ -32,6 +32,8 @@
 
 #include <texteditor/textmark.h>
 
+#include <QPointer>
+
 #include <functional>
 
 namespace LanguageClient { class Client; }
@@ -77,7 +79,7 @@ private:
 
     const LanguageServerProtocol::Diagnostic m_lspDiagnostic;
     const ClangBackEnd::DiagnosticContainer m_diagnostic;
-    const LanguageClient::Client * const m_client;
+    const QPointer<const LanguageClient::Client> m_client;
 };
 
 } // namespace Internal

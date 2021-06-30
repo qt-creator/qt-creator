@@ -48,7 +48,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QLayout>
-#include <QPointer>
 #include <QString>
 
 using namespace CppTools;
@@ -394,7 +393,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 
 bool ClangdTextMark::addToolTipContent(QLayout *target) const
 {
-    const auto canApplyFixIt = [c = QPointer(m_client), diag = m_lspDiagnostic, fp = fileName()] {
+    const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = fileName()] {
         return c && c->reachable() && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
     };
     target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},
