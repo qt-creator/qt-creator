@@ -62,6 +62,10 @@ void DocumentSymbolCache::requestSymbols(const DocumentUri &uri)
 
 void DocumentSymbolCache::requestSymbolsImpl()
 {
+    if (!m_client->reachable()) {
+        m_compressionTimer.start(200);
+        return;
+    }
     for (const DocumentUri &uri : qAsConst(m_compressedUris)) {
         auto entry = m_cache.find(uri);
         if (entry != m_cache.end()) {
