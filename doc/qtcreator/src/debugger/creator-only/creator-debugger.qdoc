@@ -220,6 +220,15 @@
             applications.
         \li Select the \uicontrol {Break at "main"} check box to stop the
             debugger at the main function.
+        \li Select the \uicontrol {Use target extended-remote to connect}
+            check box to create the connection in the
+            \c {target extended-remote mode}. In this mode, when the debugged
+            application exits or you detach from it, the debugger remains
+            connected to the target. You can rerun the application, attach
+            to a running application, or use monitor commands specific to the
+            target. For example, GDB does not exit unless it was invoked using
+            the \c {--once} option, but you can make it exit by using the
+            \c {monitor exit} command.
         \li In the \uicontrol {Override SysRoot} field, specify the path to
             the \c sysroot to use instead of the default \c sysroot.
         \li In the \uicontrol {Debug information} field, specify the location
