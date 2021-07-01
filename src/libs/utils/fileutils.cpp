@@ -1011,15 +1011,8 @@ FilePath FilePath::symLinkTarget() const
 
 FilePath FilePath::withExecutableSuffix() const
 {
-    OsType osType;
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.osType, return {});
-        osType = s_deviceHooks.osType(*this);
-    } else {
-        osType = HostOsInfo::hostOs();
-    }
     FilePath res = *this;
-    res.setPath(OsSpecificAspects::withExecutableSuffix(osType, m_data));
+    res.setPath(OsSpecificAspects::withExecutableSuffix(osType(), m_data));
     return res;
 }
 
@@ -1425,6 +1418,15 @@ QFile::Permissions FilePath::permissions() const
         return s_deviceHooks.permissions(*this);
     }
     return toFileInfo().permissions();
+}
+
+OsType FilePath::osType() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.osType, return {});
+        return s_deviceHooks.osType(*this);
+    }
+    return HostOsInfo::hostOs();
 }
 
 bool FilePath::removeFile() const
