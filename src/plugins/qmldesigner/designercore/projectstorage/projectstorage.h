@@ -472,6 +472,21 @@ private:
         SourceId sourceId;
     };
 
+    class Prototype
+    {
+    public:
+        explicit Prototype(TypeId typeId, Storage::TypeName prototypeName, SourceId sourceId)
+            : typeId{typeId}
+            , typeName{std::move(prototypeName)}
+            , sourceId{sourceId}
+        {}
+
+    public:
+        TypeId typeId;
+        Storage::TypeName typeName;
+        SourceId sourceId;
+    };
+
     Storage::TypeName fetchTypeName(TypeNameId typeNameId)
     {
         Storage::TypeName typeName;
@@ -530,12 +545,27 @@ private:
         updatesPropertyDeclarationPropertyTypeToNullStatement.readCallback(callback, &typeId);
     }
 
+    void handlePrototypes(TypeId prototypeId, std::vector<Prototype> &relinkablePrototypes)
+    {
+        auto callback = [&](long long typeId, long long prototypeNameId, int sourceId) {
+            relinkablePrototypes.emplace_back(TypeId{typeId},
+                                              fetchTypeName(TypeNameId{prototypeNameId}),
+                                              SourceId{sourceId});
+
+            return Sqlite::CallbackControl::Continue;
+        };
+
+        updatePrototypeToNullStatement.readCallback(callback, &prototypeId);
+    }
+
     void deleteType(TypeId typeId,
                     std::vector<AliasPropertyDeclaration> &relinkableAliasPropertyDeclarations,
-                    std::vector<PropertyDeclaration> &relinkablePropertyDeclarations)
+                    std::vector<PropertyDeclaration> &relinkablePropertyDeclarations,
+                    std::vector<Prototype> &relinkablePrototypes)
     {
         handlePropertyDeclarationWithPropertyType(typeId, relinkablePropertyDeclarations);
         handleAliasPropertyDeclarationsWithPropertyType(typeId, relinkableAliasPropertyDeclarations);
+        handlePrototypes(typeId, relinkablePrototypes);
         deleteTypeNamesByTypeIdStatement.write(&typeId);
         deleteEnumerationDeclarationByTypeIdStatement.write(&typeId);
         deletePropertyDeclarationByTypeIdStatement.write(&typeId);
@@ -544,7 +574,8 @@ private:
         deleteTypeStatement.write(&typeId);
     }
 
-    void relinkAliasPropertyDeclaration(const std::vector<AliasPropertyDeclaration> &aliasPropertyDeclarations)
+    void relinkAliasPropertyDeclarations(
+        const std::vector<AliasPropertyDeclaration> &aliasPropertyDeclarations)
     {
         for (const AliasPropertyDeclaration &alias : aliasPropertyDeclarations) {
             auto [typeId, aliasTypeNameId] = fetchTypeIdByNameUngarded(alias.aliasTypeName,
@@ -571,7 +602,7 @@ private:
         }
     }
 
-    void relinkPropertyDeclaration(const std::vector<PropertyDeclaration> &relinkablePropertyDeclaration)
+    void relinkPropertyDeclarations(const std::vector<PropertyDeclaration> &relinkablePropertyDeclaration)
     {
         for (const PropertyDeclaration &property : relinkablePropertyDeclaration) {
             auto [propertyTypeId, propertyTypeNameId] = fetchTypeIdByNameUngarded(property.typeName,
@@ -593,10 +624,30 @@ private:
         }
     }
 
+    void relinkPrototypes(std::vector<Prototype> relinkablePrototypes)
+    {
+        for (const Prototype &prototype : relinkablePrototypes) {
+            auto [prototypeId, prototypeNameId] = fetchTypeIdByNameUngarded(prototype.typeName,
+                                                                            prototype.sourceId);
+
+            if (!prototypeId) {
+                auto hasTypeId = selectPropertyDeclarationIdStatement.template optionalValue<TypeId>(
+                    &prototype.typeId);
+                if (hasTypeId)
+                    throw TypeNameDoesNotExists{};
+
+                continue;
+            }
+
+            updateTypePrototypeStatement.write(&prototype.typeId, &prototypeId, &prototypeNameId);
+        }
+    }
+
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds, const SourceIds &sourceIds)
     {
         std::vector<AliasPropertyDeclaration> relinkableAliasPropertyDeclarations;
         std::vector<PropertyDeclaration> relinkablePropertyDeclarations;
+        std::vector<Prototype> relinkablePrototypes;
 
         auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
             return &typeId;
@@ -609,7 +660,8 @@ private:
         auto callback = [&](long long typeId) {
             deleteType(TypeId{typeId},
                        relinkableAliasPropertyDeclarations,
-                       relinkablePropertyDeclarations);
+                       relinkablePropertyDeclarations,
+                       relinkablePrototypes);
             return Sqlite::CallbackControl::Continue;
         };
 
@@ -617,17 +669,22 @@ private:
                                                              Utils::span(sourceIdValues),
                                                              Utils::span(updatedTypeIdValues));
 
-        relinkPropertyDeclaration(relinkablePropertyDeclarations);
-        relinkAliasPropertyDeclaration(relinkableAliasPropertyDeclarations);
+        relinkPropertyDeclarations(relinkablePropertyDeclarations);
+        relinkAliasPropertyDeclarations(relinkableAliasPropertyDeclarations);
+        relinkPrototypes(relinkablePrototypes);
     }
 
     void deleteTypesForImportId(ImportId importId)
     {
         std::vector<AliasPropertyDeclaration> aliasPropertyDeclarations;
         std::vector<PropertyDeclaration> relinkablePropertyDeclarations;
+        std::vector<Prototype> relinkablePrototypes;
 
         auto callback = [&](long long typeId) {
-            deleteType(TypeId{typeId}, aliasPropertyDeclarations, relinkablePropertyDeclarations);
+            deleteType(TypeId{typeId},
+                       aliasPropertyDeclarations,
+                       relinkablePropertyDeclarations,
+                       relinkablePrototypes);
             return Sqlite::CallbackControl::Continue;
         };
 
@@ -1037,7 +1094,7 @@ private:
     {
         if (Utils::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
                          type.prototype)) {
-            updatePrototypeStatement.write(&type.typeId, Sqlite::NullValue{});
+            updatePrototypeStatement.write(&type.typeId, Sqlite::NullValue{}, Sqlite::NullValue{});
         } else {
             auto [prototypeId, prototypeTypeNameId] = fetchTypeIdByNameUngarded(type.prototype,
                                                                                 type.sourceId);
@@ -1045,7 +1102,7 @@ private:
             if (!prototypeId)
                 throw TypeNameDoesNotExists{};
 
-            updatePrototypeStatement.write(&type.typeId, &prototypeId);
+            updatePrototypeStatement.write(&type.typeId, &prototypeId, &prototypeTypeNameId);
         }
     }
 
@@ -1307,6 +1364,7 @@ private:
                                            typesTable,
                                            Sqlite::ForeignKeyAction::NoAction,
                                            Sqlite::ForeignKeyAction::Restrict);
+            typesTable.addColumn("prototypeNameId");
 
             typesTable.addUniqueIndex({importIdColumn, typesNameColumn});
 
@@ -1460,8 +1518,8 @@ public:
         "CONFLICT DO UPDATE SET prototypeId=excluded.prototypeId, "
         "accessSemantics=excluded.accessSemantics, sourceId=excluded.sourceId RETURNING typeId",
         database};
-    WriteStatement updatePrototypeStatement{"UPDATE types SET prototypeId=?2 WHERE typeId=?1",
-                                            database};
+    WriteStatement updatePrototypeStatement{
+        "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1", database};
     mutable ReadStatement<1> selectTypeIdByExportedNameStatement{
         "SELECT typeId FROM typeNames WHERE name=?1 AND kind=1", database};
     mutable ReadStatement<1> selectPrototypeIdStatement{
@@ -1753,6 +1811,13 @@ public:
     ReadStatement<1> selectPropertyDeclarationIdStatement{
         "SELECT propertyDeclarationId FROM propertyDeclarations WHERE propertyDeclarationId=?",
         database};
+    ReadWriteStatement<3> updatePrototypeToNullStatement{
+        "UPDATE types SET prototypeId=NULL WHERE prototypeId=?1 RETURNING "
+        "typeId, prototypeNameId, sourceId",
+        database};
+    ReadStatement<1> selectTypeIdStatement{"SELECT typeId FROM types WHERE typeId=?", database};
+    WriteStatement updateTypePrototypeStatement{
+        "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1", database};
 };
 
 } // namespace QmlDesigner

@@ -1191,7 +1191,7 @@ TEST_F(ProjectStorageSlowTest, BreakingPrototypeChainByDeletingBaseComponentThro
     types.pop_back();
 
     ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1, sourceId2}),
-                 Sqlite::ConstraintPreventsModification);
+                 QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarations)
@@ -3005,4 +3005,69 @@ TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyTypeDoesNotExists)
 
     ASSERT_THROW(storage.synchronizeTypes({}, {sourceId1}), QmlDesigner::TypeNameDoesNotExists);
 }
+
+TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeName)
+{
+    Storage::Types types{createTypes()};
+    types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Object"};
+    types[0].prototype = Storage::ExportedType{"Object"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[1].typeName = "QObject3";
+
+    storage.synchronizeTypes({types[1]}, {sourceId2});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(IsStorageType(importId2,
+                                       "QQuickItem",
+                                       Storage::NativeType{"QObject3"},
+                                       TypeAccessSemantics::Reference,
+                                       sourceId1)));
+}
+
+TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeImportId)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[1].importId = importId2;
+
+    storage.synchronizeTypes({types[1]}, {sourceId2});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(IsStorageType(importId2,
+                                       "QQuickItem",
+                                       Storage::NativeType{"QObject"},
+                                       TypeAccessSemantics::Reference,
+                                       sourceId1)));
+}
+
+TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeNameAndImportId)
+{
+    Storage::Types types{createTypes()};
+    types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Object"};
+    types[0].prototype = Storage::ExportedType{"Object"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[1].importId = importId2;
+    types[1].typeName = "QObject3";
+
+    storage.synchronizeTypes({types[1]}, {sourceId2});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(IsStorageType(importId2,
+                                       "QQuickItem",
+                                       Storage::NativeType{"QObject3"},
+                                       TypeAccessSemantics::Reference,
+                                       sourceId1)));
+}
+
+TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeNameThrowsForWrongNativePrototupeTypeName)
+{
+    Storage::Types types{createTypes()};
+    types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Object"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[1].typeName = "QObject3";
+
+    ASSERT_THROW(storage.synchronizeTypes({types[1]}, {sourceId2}),
+                 QmlDesigner::TypeNameDoesNotExists);
+}
+
 } // namespace

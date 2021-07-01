@@ -1034,7 +1034,7 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using Utils::operator<<;
     return out << "(import: " << type.importId << ", typename: \"" << type.typeName
-               << "\", prototype: \"" << type.prototype << "\", " << type.accessSemantics
+               << "\", prototype: " << type.prototype << ", " << type.accessSemantics
                << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
                << ", properties: " << type.propertyDeclarations
                << ", functions: " << type.functionDeclarations
