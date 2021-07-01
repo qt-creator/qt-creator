@@ -31,6 +31,8 @@
 
 namespace Utils {
 
+class FilePath;
+
 class QTCREATOR_UTILS_EXPORT TemporaryDirectory : public QTemporaryDir
 {
 public:
@@ -39,6 +41,9 @@ public:
     static QTemporaryDir *masterTemporaryDirectory();
     static void setMasterTemporaryDirectory(const QString &pattern);
     static QString masterDirectoryPath();
+
+    FilePath path() const;
+    FilePath filePath(const QString &fileName) const;
 };
 
 } // namespace Utils

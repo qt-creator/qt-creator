@@ -445,7 +445,7 @@ template<class T>
 ClangToolRunner *ClangToolRunWorker::createRunner()
 {
     auto runner = new T(m_diagnosticConfig, this);
-    runner->init(m_temporaryDir.path(), m_environment);
+    runner->init(m_temporaryDir.path().path(), m_environment);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &ClangToolRunWorker::onRunnerFinishedWithSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,

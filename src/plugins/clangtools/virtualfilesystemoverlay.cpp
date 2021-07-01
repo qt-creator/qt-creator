@@ -42,7 +42,7 @@ namespace Internal {
 
 VirtualFileSystemOverlay::VirtualFileSystemOverlay(const QString &rootPattern)
     : m_root(rootPattern)
-    , m_overlayFilePath(Utils::FilePath::fromString(m_root.filePath("vfso.yaml")))
+    , m_overlayFilePath(m_root.filePath("vfso.yaml"))
 { }
 
 void VirtualFileSystemOverlay::update()
@@ -64,8 +64,7 @@ void VirtualFileSystemOverlay::update()
             saved.path.removeRecursively();
             saved.revision = document->document()->revision();
             QString error;
-            saved.path = Utils::FilePath::fromString(m_root.path())
-                    .pathAppended(doc->filePath().fileName() + ".auto");
+            saved.path = m_root.filePath(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
                 saved.path = saved.path + ".1";
             if (!doc->save(&error, saved.path, true)) {

@@ -183,7 +183,7 @@ class JLSInterface : public LanguageClient::StdIOClientInterface
 public:
     JLSInterface() = default;
 
-    QString workspaceDir() const { return m_workspaceDir.path(); }
+    QString workspaceDir() const { return m_workspaceDir.path().path(); }
 
 private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");

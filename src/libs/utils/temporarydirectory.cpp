@@ -25,6 +25,8 @@
 
 #include "temporarydirectory.h"
 
+#include "fileutils.h"
+
 #include <QtCore/QCoreApplication>
 
 #include "qtcassert.h"
@@ -62,6 +64,16 @@ void TemporaryDirectory::setMasterTemporaryDirectory(const QString &pattern)
 QString TemporaryDirectory::masterDirectoryPath()
 {
     return m_masterTemporaryDir->path();
+}
+
+FilePath TemporaryDirectory::path() const
+{
+    return FilePath::fromString(QTemporaryDir::path());
+}
+
+FilePath TemporaryDirectory::filePath(const QString &fileName) const
+{
+    return FilePath::fromString(QTemporaryDir::filePath(fileName));
 }
 
 } // namespace Utils

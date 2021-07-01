@@ -567,7 +567,7 @@ int main(int argc, char **argv)
         temporaryCleanSettingsDir.reset(new Utils::TemporaryDirectory("qtc-test-settings"));
         if (!temporaryCleanSettingsDir->isValid())
             return 1;
-        options.settingsPath = temporaryCleanSettingsDir->path();
+        options.settingsPath = temporaryCleanSettingsDir->path().path();
     }
     if (!options.settingsPath.isEmpty())
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, options.settingsPath);

@@ -155,7 +155,7 @@ public:
     TemporaryDir();
 
     bool isValid() const { return m_isValid; }
-    QString path() const { return m_temporaryDir.path(); }
+    QString path() const { return m_temporaryDir.path().path(); }
 
     QString createFile(const QByteArray &relativePath, const QByteArray &contents);
 

@@ -312,7 +312,7 @@ QString TemporaryDir::createFile(const QByteArray &relativePath, const QByteArra
     if (relativePathString.isEmpty() || QFileInfo(relativePathString).isAbsolute())
         return QString();
 
-    const QString filePath = m_temporaryDir.path() + QLatin1Char('/') + relativePathString;
+    const QString filePath = m_temporaryDir.filePath(relativePathString).path();
     if (!TestCase::writeFile(filePath, contents))
         return QString();
     return filePath;
@@ -368,7 +368,7 @@ TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
 
 QString TemporaryCopiedDir::absolutePath(const QByteArray &relativePath) const
 {
-    return m_temporaryDir.path() + QLatin1Char('/') + QString::fromUtf8(relativePath);
+    return m_temporaryDir.filePath(QString::fromUtf8(relativePath)).path();
 }
 
 FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteArray &contents)
