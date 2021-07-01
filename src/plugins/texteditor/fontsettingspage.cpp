@@ -189,32 +189,30 @@ public:
 
 } // namespace Internal
 
-static QString customStylesPath()
+static Utils::FilePath customStylesPath()
 {
-    return Core::ICore::userResourcePath("styles").toString();
+    return Core::ICore::userResourcePath("styles");
 }
 
-static QString createColorSchemeFileName(const QString &pattern)
+static Utils::FilePath createColorSchemeFileName(const QString &pattern)
 {
-    const QString stylesPath = customStylesPath();
-    QString baseFileName = stylesPath;
-    baseFileName += pattern;
+    const Utils::FilePath stylesPath = customStylesPath();
 
     // Find an available file name
     int i = 1;
-    QString fileName;
+    Utils::FilePath filePath;
     do {
-        fileName = baseFileName.arg((i == 1) ? QString() : QString::number(i));
+        filePath = stylesPath.pathAppended(pattern.arg((i == 1) ? QString() : QString::number(i)));
         ++i;
-    } while (QFile::exists(fileName));
+    } while (filePath.exists());
 
     // Create the base directory when it doesn't exist
-    if (!QFile::exists(stylesPath) && !QDir().mkpath(stylesPath)) {
+    if (!stylesPath.exists() && !stylesPath.createDir()) {
         qWarning() << "Failed to create color scheme directory:" << stylesPath;
-        return QString();
+        return {};
     }
 
-    return fileName;
+    return filePath;
 }
 
 // ------- FormatDescription
@@ -470,7 +468,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
     QString baseFileName = QFileInfo(entry.fileName).completeBaseName();
     baseFileName += QLatin1String("_copy%1.xml");
-    QString fileName = createColorSchemeFileName(baseFileName);
+    Utils::FilePath fileName = createColorSchemeFileName(baseFileName);
 
     if (!fileName.isEmpty()) {
         // Ask about saving any existing modifactions
@@ -481,8 +479,8 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
         ColorScheme scheme = m_value.colorScheme();
         scheme.setDisplayName(name);
-        if (scheme.save(fileName, Core::ICore::dialogParent()))
-            m_value.setColorSchemeFileName(fileName);
+        if (scheme.save(fileName.path(), Core::ICore::dialogParent()))
+            m_value.setColorSchemeFileName(fileName.path());
 
         refreshColorSchemeList();
     }
@@ -576,7 +574,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
     if (colorSchemes.isEmpty())
         qWarning() << "Warning: no color schemes found in path:" << styleDir.path();
 
-    styleDir.setPath(customStylesPath());
+    styleDir.setPath(customStylesPath().path());
 
     foreach (const QString &file, styleDir.entryList()) {
         const QString fileName = styleDir.absoluteFilePath(file);
