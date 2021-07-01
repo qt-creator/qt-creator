@@ -531,7 +531,7 @@ protected:
 
         types.push_back(Storage::Type{importId2,
                                       "QAliasItem",
-                                      Storage::NativeType{"QQuickItem"},
+                                      Storage::ExportedType{"Item"},
                                       TypeAccessSemantics::Reference,
                                       sourceId3,
                                       importIds,
@@ -541,9 +541,48 @@ protected:
                                          Storage::NativeType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList});
         types.back().aliasDeclarations.push_back(
-            Storage::AliasPropertyDeclaration{"items", Storage::NativeType{"QQuickItem"}, "children"});
+            Storage::AliasPropertyDeclaration{"items", Storage::ExportedType{"Item"}, "children"});
         types.back().aliasDeclarations.push_back(
-            Storage::AliasPropertyDeclaration{"objects", Storage::NativeType{"QQuickItem"}, "objects"});
+            Storage::AliasPropertyDeclaration{"objects", Storage::ExportedType{"Item"}, "objects"});
+
+        types.push_back(
+            Storage::Type{importId3,
+                          "QObject2",
+                          Storage::NativeType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId4,
+                          importIds,
+                          {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
+        types[3].propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"objects",
+                                         Storage::NativeType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList});
+
+        return types;
+    }
+
+    auto createTypesWithAliases2()
+    {
+        auto types = createTypes();
+
+        types[1].propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"objects",
+                                         Storage::NativeType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList});
+
+        types.push_back(Storage::Type{importId2,
+                                      "QAliasItem",
+                                      Storage::NativeType{"QObject"},
+                                      TypeAccessSemantics::Reference,
+                                      sourceId3,
+                                      importIds,
+                                      {Storage::ExportedType{"AliasItem"}}});
+        types.back().propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"data",
+                                         Storage::NativeType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList});
+        types.back().aliasDeclarations.push_back(
+            Storage::AliasPropertyDeclaration{"objects", Storage::ExportedType{"Item"}, "objects"});
 
         types.push_back(
             Storage::Type{importId3,
@@ -1112,6 +1151,32 @@ TEST_F(ProjectStorageSlowTest, DontDeleteTypeIfSourceIdIsNotSynchronized)
                                                                       IsExportedType("Obj")))),
                                      AllOf(IsStorageType(importId2,
                                                          "QQuickItem",
+                                                         Storage::NativeType{"QObject"},
+                                                         TypeAccessSemantics::Reference,
+                                                         sourceId1),
+                                           Field(&Storage::Type::exportedTypes,
+                                                 UnorderedElementsAre(IsExportedType("Item"))))));
+}
+
+TEST_F(ProjectStorageSlowTest, UpdateExportedTypesIfTypeNameChanges)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[0].typeName = "QQuickItem2";
+
+    storage.synchronizeTypes({types[0]}, {sourceId1});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(AllOf(IsStorageType(importId1,
+                                                         "QObject",
+                                                         Storage::NativeType{},
+                                                         TypeAccessSemantics::Reference,
+                                                         sourceId2),
+                                           Field(&Storage::Type::exportedTypes,
+                                                 UnorderedElementsAre(IsExportedType("Object"),
+                                                                      IsExportedType("Obj")))),
+                                     AllOf(IsStorageType(importId2,
+                                                         "QQuickItem2",
                                                          Storage::NativeType{"QObject"},
                                                          TypeAccessSemantics::Reference,
                                                          sourceId1),
@@ -2676,7 +2741,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveTypeWithAliasTargetProperty
     types[2].aliasDeclarations[1].aliasTypeName = Storage::ExportedType{"Object2"};
     storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
 
-    ASSERT_THROW(storage.synchronizeTypes({}, {sourceId4}), Sqlite::ConstraintPreventsModification);
+    ASSERT_THROW(storage.synchronizeTypes({}, {sourceId4}), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
@@ -2839,4 +2904,105 @@ TEST_F(ProjectStorageSlowTest, RelinkAliasProperty)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
+TEST_F(ProjectStorageSlowTest, RelinkAliasPropertyReactToTypeNameChange)
+{
+    Storage::Types types{createTypesWithAliases2()};
+    types[2].aliasDeclarations.push_back(
+        Storage::AliasPropertyDeclaration{"items", Storage::ExportedType{"Item"}, "children"});
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    types[0].typeName = "QQuickItem2";
+
+    storage.synchronizeTypes({types[0]}, {sourceId1});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(importId2,
+                                  "QAliasItem",
+                                  Storage::NativeType{"QObject"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId3),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    Storage::NativeType{"QQuickItem2"},
+                                                    Storage::PropertyDeclarationTraits::IsList
+                                                        | Storage::PropertyDeclarationTraits::IsReadOnly),
+                              IsPropertyDeclaration("objects",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList),
+                              IsPropertyDeclaration("data",
+                                                    Storage::NativeType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForDeletedType)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    types.erase(std::next(types.begin(), 2));
+    types[2].importId = importId2;
+
+    storage.synchronizeTypes({types[2]}, {sourceId3, sourceId4});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Not(Contains(AllOf(IsStorageType(importId2,
+                                                 "QAliasItem",
+                                                 Storage::NativeType{"QQuickItem"},
+                                                 TypeAccessSemantics::Reference,
+                                                 sourceId3)))));
+}
+
+TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyType)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    types.pop_back();
+    types.pop_back();
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject"};
+
+    storage.synchronizeTypes({types[1]}, {sourceId2, sourceId3, sourceId4});
+
+    ASSERT_THAT(storage.fetchTypes(), SizeIs(2));
+}
+
+TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyTypeNameChange)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    types.erase(std::next(types.begin(), 2));
+    types[2].importId = importId2;
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject"};
+
+    storage.synchronizeTypes({types[2]}, {sourceId3, sourceId4});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Not(Contains(AllOf(IsStorageType(importId2,
+                                                 "QAliasItem",
+                                                 Storage::NativeType{"QQuickItem"},
+                                                 TypeAccessSemantics::Reference,
+                                                 sourceId3)))));
+}
+
+TEST_F(ProjectStorageSlowTest, DoNotRelinkPropertyTypeDoesNotExists)
+{
+    Storage::Types types{createTypesWithAliases()};
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    types.pop_back();
+
+    ASSERT_THROW(storage.synchronizeTypes({}, {sourceId4}), QmlDesigner::TypeNameDoesNotExists);
+}
+
+TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyTypeDoesNotExists)
+{
+    Storage::Types types{createTypesWithAliases2()};
+    types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    types.erase(types.begin());
+
+    ASSERT_THROW(storage.synchronizeTypes({}, {sourceId1}), QmlDesigner::TypeNameDoesNotExists);
+}
 } // namespace

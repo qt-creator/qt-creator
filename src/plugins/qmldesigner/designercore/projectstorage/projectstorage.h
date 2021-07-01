@@ -550,6 +550,16 @@ private:
             auto [typeId, aliasTypeNameId] = fetchTypeIdByNameUngarded(alias.aliasTypeName,
                                                                        alias.sourceId);
 
+            if (!typeId) {
+                auto hasPropertyDeclaration = selectPropertyDeclarationIdStatement
+                                                  .template optionalValue<PropertyDeclarationId>(
+                                                      &alias.propertyDeclarationId);
+                if (hasPropertyDeclaration)
+                    throw TypeNameDoesNotExists{};
+
+                continue;
+            }
+
             auto [propertyTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeIdAndNameUngarded(
                 typeId, alias.aliasPropertyName);
 
@@ -1025,7 +1035,8 @@ private:
 
     void syncPrototypes(Storage::Type &type)
     {
-        if (Utils::visit([](auto &&type) -> bool { return type.name.isEmpty(); }, type.prototype)) {
+        if (Utils::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
+                         type.prototype)) {
             updatePrototypeStatement.write(&type.typeId, Sqlite::NullValue{});
         } else {
             auto [prototypeId, prototypeTypeNameId] = fetchTypeIdByNameUngarded(type.prototype,
@@ -1482,9 +1493,10 @@ public:
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
-    WriteStatement upsertTypeNamesStatement{"INSERT INTO typeNames(importId, name, typeId, kind) "
-                                            "VALUES(?1, ?2, ?3, ?4) ON CONFLICT DO NOTHING",
-                                            database};
+    WriteStatement upsertTypeNamesStatement{
+        "INSERT INTO typeNames(importId, name, typeId, kind) VALUES(?1, ?2, ?3, ?4) ON CONFLICT DO "
+        "UPDATE SET typeId=excluded.typeId",
+        database};
     mutable ReadStatement<1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("
@@ -1721,7 +1733,8 @@ public:
         "SELECT alias.propertyDeclarationId, alias.propertyTypeNameId, alias.typeId, "
         "target.propertyDeclarationId FROM propertyDeclarations AS alias JOIN propertyDeclarations "
         "AS target ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId WHERE "
-        "alias.propertyTypeId=?1",
+        "alias.propertyTypeId=?1 OR alias.propertyTypeNameId IN (SELECT typeNameId FROM typeNames "
+        "WHERE typeId=?1)",
         database};
     ReadWriteStatement<2> updatesPropertyDeclarationPropertyTypeToNullStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=NULL WHERE propertyTypeId=?1 AND "
