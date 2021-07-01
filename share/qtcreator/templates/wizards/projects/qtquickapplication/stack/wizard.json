@@ -132,7 +132,7 @@
                                     "QtQuickControlsVersion": "2.5",
                                     "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
                                 }
-                            },
+                            }
                         ]
                     }
                 },
