@@ -508,7 +508,6 @@ void FontSettingsPageWidget::confirmDeleteColorScheme()
     messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
     messageBox->setDefaultButton(deleteButton);
 
-    connect(deleteButton, &QAbstractButton::clicked, messageBox, &QDialog::accept);
     connect(messageBox, &QDialog::accepted, this, &FontSettingsPageWidget::deleteColorScheme);
     messageBox->setAttribute(Qt::WA_DeleteOnClose);
     messageBox->open();
