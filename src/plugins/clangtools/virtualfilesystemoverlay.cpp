@@ -47,7 +47,7 @@ VirtualFileSystemOverlay::VirtualFileSystemOverlay(const QString &rootPattern)
 
 void VirtualFileSystemOverlay::update()
 {
-    Utils::FileUtils::removeRecursively(overlayFilePath());
+    overlayFilePath().removeRecursively();
     QFile overlayFile(m_overlayFilePath.toString());
     if (!overlayFile.open(QFile::ReadWrite))
         return;
@@ -61,8 +61,7 @@ void VirtualFileSystemOverlay::update()
         documentRoots[doc->filePath().absolutePath()] << doc;
         AutoSavedPath saved = m_saved.take(document);
         if (saved.revision != document->document()->revision()) {
-            if (saved.path.exists())
-                Utils::FileUtils::removeRecursively(saved.path);
+            saved.path.removeRecursively();
             saved.revision = document->document()->revision();
             QString error;
             saved.path = Utils::FilePath::fromString(m_root.path())
@@ -79,7 +78,7 @@ void VirtualFileSystemOverlay::update()
 
     for (const AutoSavedPath &path : qAsConst(m_saved)) {
         QString error;
-        if (!Utils::FileUtils::removeRecursively(path.path, &error))
+        if (!path.path.removeRecursively(&error))
             qCDebug(LOG) << error;
     }
     m_saved = newSaved;

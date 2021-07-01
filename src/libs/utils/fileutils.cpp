@@ -76,14 +76,7 @@ static DeviceFileHooks s_deviceHooks;
 
 */
 
-/*!
-  Removes the directory \a filePath and its subdirectories recursively.
-
-  \note The \a error parameter is optional.
-
-  Returns whether the operation succeeded.
-*/
-bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
+static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
 {
     QTC_ASSERT(!filePath.needsDevice(), return false);
     QFileInfo fileInfo = filePath.toFileInfo();
@@ -111,7 +104,7 @@ bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
         const QStringList fileNames = dir.entryList(
                     QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QString &fileName : fileNames) {
-            if (!removeRecursively(filePath / fileName, error))
+            if (!removeRecursivelyLocal(filePath / fileName, error))
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
@@ -1443,13 +1436,20 @@ bool FilePath::removeFile() const
     return QFile::remove(path());
 }
 
-bool FilePath::removeRecursively() const
+/*!
+  Removes the directory this filePath refers too and its subdirectories recursively.
+
+  \note The \a error parameter is optional.
+
+  Returns whether the operation succeeded.
+*/
+bool FilePath::removeRecursively(QString *error) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.removeRecursively, return false);
         return s_deviceHooks.removeRecursively(*this);
     }
-    return FileUtils::removeRecursively(*this);
+    return removeRecursivelyLocal(*this, error);
 }
 
 bool FilePath::copyFile(const FilePath &target) const

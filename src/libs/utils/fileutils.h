@@ -175,7 +175,7 @@ public:
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
     bool removeFile() const;
-    bool removeRecursively() const;
+    bool removeRecursively(QString *error = nullptr) const;
     bool copyFile(const FilePath &target) const;
     bool renameFile(const FilePath &target) const;
 
@@ -242,7 +242,6 @@ public:
     };
 #endif // QT_GUI_LIB
 
-    static bool removeRecursively(const FilePath &filePath, QString *error = nullptr);
     static bool copyRecursively(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath,
                                 QString *error = nullptr);
