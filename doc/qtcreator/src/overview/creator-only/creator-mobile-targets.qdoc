@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -68,6 +68,11 @@
             You can connect bare metal devices to the development PC and use \QC
             to debug applications on them with GDB or a hardware debugger.
         \endif
+
+        \li \l{Connecting Boot2Qt Devices}
+
+            You can connect \l{Boot2Qt} devices to the development PC to run,
+            debug, and analyze applications built for them from \QC.
 
         \li \l{Connecting Generic Remote Linux Devices}
 
