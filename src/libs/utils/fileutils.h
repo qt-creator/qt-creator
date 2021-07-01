@@ -143,6 +143,9 @@ public:
     bool isExecutableFile() const;
     bool isReadableFile() const;
     bool isReadableDir() const;
+    bool isRelativePath() const;
+    bool isAbsolutePath() const { return !isRelativePath(); }
+
     bool createDir() const;
     QList<FilePath> dirEntries(const QStringList &nameFilters,
                                QDir::Filters filters,

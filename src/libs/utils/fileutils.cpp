@@ -358,20 +358,30 @@ QString FileUtils::normalizePathName(const QString &name)
 #endif
 }
 
-bool FileUtils::isRelativePath(const QString &path)
+static bool isRelativePathHelper(const QString &path, OsType osType)
 {
-    if (path.startsWith(QLatin1Char('/')))
+    if (path.startsWith('/'))
         return false;
-    if (HostOsInfo::isWindowsHost()) {
-        if (path.startsWith(QLatin1Char('\\')))
+    if (osType == OsType::OsTypeWindows) {
+        if (path.startsWith('\\'))
             return false;
         // Unlike QFileInfo, this won't accept a relative path with a drive letter.
         // Such paths result in a royal mess anyway ...
-        if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
-                && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\')))
+        if (path.length() >= 3 && path.at(1) == ':' && path.at(0).isLetter()
+                && (path.at(2) == '/' || path.at(2) == '\\'))
             return false;
     }
     return true;
+}
+
+bool FileUtils::isRelativePath(const QString &path)
+{
+    return isRelativePathHelper(path, HostOsInfo::hostOs());
+}
+
+bool FilePath::isRelativePath() const
+{
+    return isRelativePathHelper(m_data, osType());
 }
 
 FilePath FilePath::resolvePath(const QString &fileName) const
@@ -1055,7 +1065,7 @@ FilePath FilePath::absoluteFilePath() const
 
 FilePath FilePath::absoluteFilePath(const FilePath &tail) const
 {
-    if (FileUtils::isRelativePath(tail.m_data))
+    if (isRelativePathHelper(tail.m_data, osType()))
         return pathAppended(tail.m_data);
     return tail;
 }
