@@ -199,14 +199,12 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
 */
 bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 {
-    const QFileInfo fileInfo = toFileInfo();
-    if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
+    if (!exists() || lastModified() >= timeStamp)
         return true;
-    if (fileInfo.isDir()) {
-        const QStringList dirContents = QDir(toString())
-            .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QString &curFileName : dirContents) {
-            if (pathAppended(curFileName).isNewerThan(timeStamp))
+    if (isDir()) {
+        const FilePaths dirContents = dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const FilePath &entry : dirContents) {
+            if (entry.isNewerThan(timeStamp))
                 return true;
         }
     }
