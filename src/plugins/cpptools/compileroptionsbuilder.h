@@ -85,6 +85,7 @@ public:
 
     // Add custom options
     void add(const QString &arg, bool gccOnlyOption = false);
+    void prepend(const QString &arg);
     void add(const QStringList &args, bool gccOnlyOptions = false);
     virtual void addExtraOptions() {}
 

@@ -165,6 +165,11 @@ void CompilerOptionsBuilder::add(const QString &arg, bool gccOnlyOption)
     add(QStringList{arg}, gccOnlyOption);
 }
 
+void CompilerOptionsBuilder::prepend(const QString &arg)
+{
+    m_options.prepend(arg);
+}
+
 void CompilerOptionsBuilder::add(const QStringList &args, bool gccOnlyOptions)
 {
     m_options.append((gccOnlyOptions && isClStyle()) ? clangArgsForCl(args) : args);
