@@ -67,10 +67,10 @@ public:
     Q_INVOKABLE float zoomCamera(QQuick3DCamera *camera, float distance,
                                  float defaultLookAtDistance, const QVector3D &lookAt,
                                  float zoomFactor, bool relative);
-    Q_INVOKABLE QVector4D focusObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
-                                              QQuick3DNode *targetObject, QQuick3DViewport *viewPort,
-                                              float oldZoom, bool updateZoom = true,
-                                              bool closeUp = false);
+    Q_INVOKABLE QVector4D focusNodesToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                             const QVariant &nodes, QQuick3DViewport *viewPort,
+                                             float oldZoom, bool updateZoom = true,
+                                             bool closeUp = false);
     Q_INVOKABLE bool fuzzyCompare(double a, double b);
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);

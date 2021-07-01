@@ -88,14 +88,21 @@ Item {
     }
 
 
-    function focusObject(targetObject, rotation, updateZoom, closeUp)
+    function focusObject(targetNodes, rotation, updateZoom, closeUp)
     {
         if (!camera)
             return;
 
+        // targetNodes could be a list of nodes or a single node
+        var nodes = [];
+        if (targetNodes instanceof Node)
+            nodes.push(targetNodes);
+        else
+            nodes = targetNodes
+
         camera.eulerRotation = rotation;
-        var newLookAtAndZoom = _generalHelper.focusObjectToCamera(
-                    camera, _defaultCameraLookAtDistance, targetObject, view3d, _zoomFactor,
+        var newLookAtAndZoom = _generalHelper.focusNodesToCamera(
+                    camera, _defaultCameraLookAtDistance, nodes, view3d, _zoomFactor,
                     updateZoom, closeUp);
         _lookAtPoint = newLookAtAndZoom.toVector3d();
         _zoomFactor = newLookAtAndZoom.w;

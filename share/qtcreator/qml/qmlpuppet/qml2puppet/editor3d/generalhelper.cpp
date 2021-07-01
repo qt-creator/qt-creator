@@ -46,6 +46,8 @@
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmath.h>
 
+#include <limits>
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -151,55 +153,89 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
 }
 
 // Return value contains new lookAt point (xyz) and zoom factor (w)
-QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
-                                             QQuick3DNode *targetObject, QQuick3DViewport *viewPort,
-                                             float oldZoom, bool updateZoom, bool closeUp)
+QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                            const QVariant &nodes, QQuick3DViewport *viewPort,
+                                            float oldZoom, bool updateZoom, bool closeUp)
 {
     if (!camera)
         return QVector4D(0.f, 0.f, 0.f, 1.f);
 
-    QVector3D lookAt = targetObject ? targetObject->scenePosition() : QVector3D();
+    QList<QQuick3DNode *> nodeList;
+    const QVariantList varNodes = nodes.value<QVariantList>();
+    for (const auto &varNode : varNodes) {
+        auto model = varNode.value<QQuick3DNode *>();
+        if (model)
+            nodeList.append(model);
+    }
 
-    // Get object bounds
+    // Get bounds
+    QVector3D totalMinBound;
+    QVector3D totalMaxBound;
     const qreal defaultExtent = 200.;
-    qreal maxExtent = defaultExtent;
-    if (auto modelNode = qobject_cast<QQuick3DModel *>(targetObject)) {
-        auto targetPriv = QQuick3DObjectPrivate::get(targetObject);
-        if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
-            QWindow *window = static_cast<QWindow *>(viewPort->window());
-            if (window) {
-                QSSGRef<QSSGRenderContextInterface> context;
+
+    if (!nodeList.isEmpty()) {
+        static const float floatMin = std::numeric_limits<float>::lowest();
+        static const float floatMax = std::numeric_limits<float>::max();
+        totalMinBound = {floatMax, floatMax, floatMax};
+        totalMaxBound = {floatMin, floatMin, floatMin};
+    } else {
+        const float halfExtent = defaultExtent / 2.f;
+        totalMinBound = {-halfExtent, -halfExtent, -halfExtent};
+        totalMaxBound = {halfExtent, halfExtent, halfExtent};
+    }
+    for (const auto node : qAsConst(nodeList)) {
+        auto model = qobject_cast<QQuick3DModel *>(node);
+        qreal maxExtent = defaultExtent;
+        QVector3D center = node->scenePosition();
+        if (model) {
+            auto targetPriv = QQuick3DObjectPrivate::get(model);
+            if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
+                QWindow *window = static_cast<QWindow *>(viewPort->window());
+                if (window) {
+                    QSSGRef<QSSGRenderContextInterface> context;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
+                    context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
 #else
-                context = targetPriv->sceneManager->rci;
+                    context = targetPriv->sceneManager->rci;
 #endif
-                if (!context.isNull()) {
-                    QSSGBounds3 bounds;
-                    auto geometry = qobject_cast<SelectionBoxGeometry *>(modelNode->geometry());
-                    if (geometry) {
-                        bounds = geometry->bounds();
-                    } else {
-                        auto bufferManager = context->bufferManager();
-                        bounds = renderModel->getModelBounds(bufferManager);
+                    if (!context.isNull()) {
+                        QSSGBounds3 bounds;
+                        auto geometry = qobject_cast<SelectionBoxGeometry *>(model->geometry());
+                        if (geometry) {
+                            bounds = geometry->bounds();
+                        } else {
+                            auto bufferManager = context->bufferManager();
+                            bounds = renderModel->getModelBounds(bufferManager);
+                        }
+
+                        center = renderModel->globalTransform.map(bounds.center());
+                        const QVector3D e = bounds.extents();
+                        const QVector3D s = model->sceneScale();
+                        qreal maxScale = qSqrt(qreal(s.x() * s.x() + s.y() * s.y() + s.z() * s.z()));
+                        maxExtent = qSqrt(qreal(e.x() * e.x() + e.y() * e.y() + e.z() * e.z()));
+                        maxExtent *= maxScale;
+
+                        if (maxExtent < 0.0001)
+                            maxExtent = defaultExtent;
                     }
-
-                    QVector3D center = bounds.center();
-                    const QVector3D e = bounds.extents();
-                    const QVector3D s = targetObject->sceneScale();
-                    qreal maxScale = qSqrt(qreal(s.x() * s.x() + s.y() * s.y() + s.z() * s.z()));
-                    maxExtent = qSqrt(qreal(e.x() * e.x() + e.y() * e.y() + e.z() * e.z()));
-                    maxExtent *= maxScale;
-
-                    if (maxExtent < 0.0001)
-                        maxExtent = defaultExtent;
-
-                    // Adjust lookAt to look directly at the center of the object bounds
-                    lookAt = renderModel->globalTransform.map(center);
                 }
             }
         }
+        float halfExtent = float(maxExtent / 2.);
+        const QVector3D halfExtents {halfExtent, halfExtent, halfExtent};
+
+        const QVector3D minBound = center - halfExtents;
+        const QVector3D maxBound = center + halfExtents;
+
+        for (int i = 0; i < 3; ++i) {
+            totalMinBound[i] = qMin(minBound[i], totalMinBound[i]);
+            totalMaxBound[i] = qMax(maxBound[i], totalMaxBound[i]);
+        }
     }
+
+    QVector3D extents = totalMaxBound - totalMinBound;
+    QVector3D lookAt = totalMinBound + (extents / 2.f);
+    float maxExtent = qMax(extents.x(), qMax(extents.y(), extents.z()));
 
     // Reset camera position to default zoom
     QMatrix4x4 m = camera->sceneTransform();
@@ -210,9 +246,9 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
 
     camera->setPosition(lookAt + newLookVector);
 
-    qreal divisor = closeUp ? 900. : 725.;
+    float divisor = closeUp ? 900.f : 725.f;
 
-    float newZoomFactor = updateZoom ? qBound(.01f, float(maxExtent / divisor), 100.f) : oldZoom;
+    float newZoomFactor = updateZoom ? qBound(.01f, maxExtent / divisor, 100.f) : oldZoom;
     float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 
     return QVector4D(lookAt, cameraZoomFactor);
