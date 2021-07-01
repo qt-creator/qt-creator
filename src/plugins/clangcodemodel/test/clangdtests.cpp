@@ -499,6 +499,7 @@ ClangdTestTooltips::ClangdTestTooltips()
 {
     setProjectFileName("tooltips.pro");
     setSourceFileNames({"tooltips.cpp"});
+    setMinimumVersion(13);
 }
 
 void ClangdTestTooltips::test_data()
@@ -600,7 +601,8 @@ void ClangdTestTooltips::test()
     QCOMPARE(editor->document(), doc);
     QVERIFY(editor->editorWidget());
 
-    QSKIP("IncludeDirective", "FIXME: clangd sends empty or no hover data for includes", Abort);
+    if (QLatin1String(QTest::currentDataTag()) == "IncludeDirective")
+        QSKIP("FIXME: clangd sends empty or no hover data for includes");
 
     QTimer timer;
     timer.setSingleShot(true);
