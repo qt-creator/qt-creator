@@ -122,6 +122,8 @@ ClangModelManagerSupport::ClangModelManagerSupport()
 
     CppTools::ClangdSettings::setDefaultClangdPath(Utils::FilePath::fromString(
             Core::ICore::clangdExecutable(CLANG_BINDIR)));
+    connect(&CppTools::ClangdSettings::instance(), &CppTools::ClangdSettings::changed,
+            this, &ClangModelManagerSupport::onClangdSettingsChanged);
     CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ClangModelManagerSupport::onDiagnosticConfigsInvalidated);
@@ -247,7 +249,7 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
                                                     const CppTools::ProjectInfo &projectInfo)
 {
-    if (!CppTools::ClangdProjectSettings(project).settings().useClangd())
+    if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -268,7 +270,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         generatorWatcher->deleteLater();
         if (!ProjectExplorer::SessionManager::hasProject(project))
             return;
-        if (!CppTools::ClangdProjectSettings(project).settings().useClangd())
+        if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
             return;
         if (cppModelManager()->projectInfo(project) != projectInfo)
             return;
@@ -288,7 +290,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
             using namespace ProjectExplorer;
             if (!SessionManager::hasProject(project))
                 return;
-            if (!CppTools::ClangdProjectSettings(project).settings().useClangd())
+            if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
                 return;
             if (cppModelManager()->projectInfo(project) != projectInfo)
                 return;
@@ -585,6 +587,27 @@ void ClangModelManagerSupport::onProjectPartsRemoved(const QStringList &projectP
 {
     if (!projectPartIds.isEmpty())
         reinitializeBackendDocuments(projectPartIds);
+}
+
+void ClangModelManagerSupport::onClangdSettingsChanged()
+{
+    // TODO: Handle also project-less client
+    for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
+        const CppTools::ClangdSettings settings(
+                    CppTools::ClangdProjectSettings(project).settings());
+        ClangdClient * const client = clientForProject(project);
+        if (!client) {
+            if (settings.useClangd())
+                updateLanguageClient(project, cppModelManager()->projectInfo(project));
+            continue;
+        }
+        if (!settings.useClangd()) {
+            LanguageClientManager::shutdownClient(client);
+            continue;
+        }
+        if (client->settingsData() != settings.data())
+            updateLanguageClient(project, cppModelManager()->projectInfo(project));
+    }
 }
 
 static ClangEditorDocumentProcessors clangProcessorsWithDiagnosticConfig(

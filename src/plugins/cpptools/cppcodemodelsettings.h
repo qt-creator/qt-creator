@@ -98,10 +98,11 @@ private:
     bool m_categorizeFindReferences = false; // Ephemeral!
 };
 
-class CPPTOOLS_EXPORT ClangdSettings
+class CPPTOOLS_EXPORT ClangdSettings : public QObject
 {
+    Q_OBJECT
 public:
-    class Data
+    class CPPTOOLS_EXPORT Data
     {
     public:
         QVariantMap toMap() const;
@@ -131,6 +132,9 @@ public:
     static void setClangdFilePath(const Utils::FilePath &filePath);
 #endif
 
+signals:
+    void changed();
+
 private:
     ClangdSettings() { loadSettings(); }
 
@@ -140,12 +144,24 @@ private:
     Data m_data;
 };
 
+inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
+{
+    return s1.useClangd == s2.useClangd
+            && s1.executableFilePath == s2.executableFilePath
+            && s1.workerThreadLimit == s2.workerThreadLimit
+            && s1.enableIndexing == s2.enableIndexing;
+}
+inline bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
+{
+    return !(s1 == s2);
+}
+
 class CPPTOOLS_EXPORT ClangdProjectSettings
 {
 public:
     ClangdProjectSettings(ProjectExplorer::Project *project);
 
-    ClangdSettings settings() const;
+    ClangdSettings::Data settings() const;
     void setSettings(const ClangdSettings::Data &data);
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);

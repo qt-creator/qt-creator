@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/refactoringengineinterface.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
@@ -49,6 +50,7 @@ public:
 
     bool isFullyIndexed() const;
     QVersionNumber versionNumber() const;
+    CppTools::ClangdSettings::Data settingsData() const;
 
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);

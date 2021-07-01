@@ -49,7 +49,7 @@ class ClangdSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    ClangdSettingsWidget(const ClangdSettings &settings);
+    ClangdSettingsWidget(const ClangdSettings::Data &settingsData);
     ~ClangdSettingsWidget();
 
     ClangdSettings::Data settingsData() const;

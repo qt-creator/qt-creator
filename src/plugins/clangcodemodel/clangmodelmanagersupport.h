@@ -114,6 +114,7 @@ private:
 
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
+    void onClangdSettingsChanged();
 
     void onDiagnosticConfigsInvalidated(const QVector<::Utils::Id> &configIds);
 

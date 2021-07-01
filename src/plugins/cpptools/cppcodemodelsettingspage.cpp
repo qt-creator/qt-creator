@@ -200,12 +200,12 @@ public:
     Utils::PathChooser clangdChooser;
 };
 
-ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings &settings) : d(new Private)
+ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsData)
+    : d(new Private)
 {
+    const ClangdSettings settings(settingsData);
     d->useClangdCheckBox.setText(tr("Use clangd (EXPERIMENTAL)"));
     d->useClangdCheckBox.setChecked(settings.useClangd());
-    d->useClangdCheckBox.setToolTip(tr("Changing this option does not affect projects "
-                                      "that are already open."));
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());
     d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
@@ -273,9 +273,8 @@ class ClangdSettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(CppTools::Internal::ClangdSettingsWidget)
 
 public:
-    ClangdSettingsPageWidget() : m_widget(ClangdSettings::instance())
+    ClangdSettingsPageWidget() : m_widget(ClangdSettings::instance().data())
     {
-
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_widget);
     }

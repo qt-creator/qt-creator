@@ -33,7 +33,6 @@
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
-#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppeditorwidgetinterface.h>
 #include <cpptools/cppfindreferences.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -419,7 +418,7 @@ public:
 static BaseClientInterface *clientInterface(Project *project, const Utils::FilePath &jsonDbDir)
 {
     QString indexingOption = "--background-index";
-    const CppTools::ClangdSettings settings = CppTools::ClangdProjectSettings(project).settings();
+    const CppTools::ClangdSettings settings(CppTools::ClangdProjectSettings(project).settings());
     if (!settings.indexingEnabled())
         indexingOption += "=0";
     Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, "--limit-results=0"}};
@@ -661,7 +660,8 @@ public:
 class ClangdClient::Private
 {
 public:
-    Private(ClangdClient *q) : q(q) {}
+    Private(ClangdClient *q, Project *project)
+        : q(q), settings(CppTools::ClangdProjectSettings(project).settings()) {}
 
     void handleFindUsagesResult(quint64 key, const QList<Location> &locations);
     static void handleRenameRequest(const SearchResult *search,
@@ -689,6 +689,7 @@ public:
                                const QString &type = {});
 
     ClangdClient * const q;
+    const CppTools::ClangdSettings::Data settings;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
@@ -700,7 +701,7 @@ public:
 };
 
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
-    : Client(clientInterface(project, jsonDbDir)), d(new Private(this))
+    : Client(clientInterface(project, jsonDbDir)), d(new Private(this, project))
 {
     setName(tr("clangd"));
     LanguageFilter langFilter;
@@ -899,6 +900,8 @@ QVersionNumber ClangdClient::versionNumber() const
     }
     return d->versionNumber.value();
 }
+
+CppTools::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
 {

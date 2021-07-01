@@ -303,18 +303,6 @@ void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
 }
 
 
-static bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
-{
-    return s1.useClangd == s2.useClangd
-            && s1.executableFilePath == s2.executableFilePath
-            && s1.workerThreadLimit == s2.workerThreadLimit
-            && s1.enableIndexing == s2.enableIndexing;
-}
-static bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
-{
-    return !(s1 == s2);
-}
-
 ClangdSettings &ClangdSettings::instance()
 {
     static ClangdSettings settings;
@@ -338,6 +326,7 @@ void ClangdSettings::setData(const Data &data)
     if (this == &instance() && data != m_data) {
         m_data = data;
         saveSettings();
+        emit changed();
     }
 }
 
@@ -364,23 +353,25 @@ ClangdProjectSettings::ClangdProjectSettings(ProjectExplorer::Project *project) 
     loadSettings();
 }
 
-ClangdSettings ClangdProjectSettings::settings() const
+ClangdSettings::Data ClangdProjectSettings::settings() const
 {
     if (m_useGlobalSettings)
-        return ClangdSettings::instance();
-    return ClangdSettings(m_customSettings);
+        return ClangdSettings::instance().data();
+    return m_customSettings;
 }
 
 void ClangdProjectSettings::setSettings(const ClangdSettings::Data &data)
 {
     m_customSettings = data;
     saveSettings();
+    emit ClangdSettings::instance().changed();
 }
 
 void ClangdProjectSettings::setUseGlobalSettings(bool useGlobal)
 {
     m_useGlobalSettings = useGlobal;
     saveSettings();
+    emit ClangdSettings::instance().changed();
 }
 
 void ClangdProjectSettings::loadSettings()
