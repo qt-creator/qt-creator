@@ -439,9 +439,9 @@ void TestCodeParser::onFinished()
 
 void TestCodeParser::onPartialParsingFinished()
 {
-    QTC_ASSERT(m_fullUpdatePostponed != m_partialUpdatePostponed
-            || ((m_fullUpdatePostponed || m_partialUpdatePostponed) == false),
-               m_partialUpdatePostponed = false;m_postponedFiles.clear(););
+    // fail only when both are true
+    QTC_ASSERT(!m_fullUpdatePostponed || !m_partialUpdatePostponed,
+               m_partialUpdatePostponed = false; m_postponedFiles.clear());
     if (m_fullUpdatePostponed) {
         m_fullUpdatePostponed = false;
         qCDebug(LOG) << "calling updateTestTree (onPartialParsingFinished)";
