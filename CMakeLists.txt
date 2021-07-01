@@ -52,20 +52,17 @@ find_package(Qt5
 )
 if (Qt5_VERSION VERSION_LESS 6.0.0)
   install(TARGETS Qt6Core5Compat EXPORT QtCreator)
-  set(BUILD_WITH_PCH_DEFAULT ON)
 
   # Specify standards conformance mode to MSVC 2017 and later
   # Qt6 has the values as part of the Qt6::Platform target interface
   if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
     add_compile_options(/permissive- /Zc:__cplusplus)
   endif()
-else()
-  set(BUILD_WITH_PCH_DEFAULT OFF)
 endif()
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg Tools QUIET)
 
-option(BUILD_WITH_PCH "Build with precompiled headers" ${BUILD_WITH_PCH_DEFAULT})
+option(BUILD_WITH_PCH "Build with precompiled headers" ON)
 
 find_package(Threads)
 find_package(Clang QUIET)
