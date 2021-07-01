@@ -77,7 +77,7 @@ Column {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 tooltip: modelData
 
-                onClicked: {
+                onClicked: function(mouse) {
                     if (mouse.button === Qt.LeftButton)
                         root.selectedColor = colorRectangle.color
 

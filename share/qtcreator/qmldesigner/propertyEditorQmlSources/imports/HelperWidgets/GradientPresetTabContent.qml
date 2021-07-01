@@ -171,12 +171,12 @@ Rectangle {
                         }
 
                         Component.onCompleted: {
-                            var stopsAmount = stopListSize;
-                            var newStops = [];
-                            for (var i = 0; i < stopsAmount; i++) {
-                                newStops.push( stopComponent.createObject(showGr, { "position": stopsPosList[i], "color": stopsColorList[i] }) );
-                            }
-                            showGr.stops = newStops;
+                            var stopsAmount = stopListSize
+                            var newStops = []
+                            for (var i = 0; i < stopsAmount; i++)
+                                newStops.push( stopComponent.createObject(showGr, { "position": stopsPosList[i], "color": stopsColorList[i] }) )
+
+                            showGr.stops = newStops
                         }
 
                         AbstractButton {
@@ -267,7 +267,7 @@ Rectangle {
                                 presetNameBox.edit = false
                             }
 
-                            Keys.onPressed: {
+                            Keys.onPressed:function(event) {
                                 if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
                                     event.accepted = true
                                     nameInput.editingFinished()

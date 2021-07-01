@@ -34,6 +34,7 @@ StudioControls.ComboBox {
     property variant backendValue
     property color textColor: colorLogic.textColor
     property string fontFilter: "*.ttf *.otf"
+    property bool showExtendedFunctionButton: true
 
     labelColor: colorLogic.textColor
     editable: true
@@ -63,9 +64,7 @@ StudioControls.ComboBox {
         comboBox.model = familyNames
     }
 
-    onModelChanged: {
-        editText = comboBox.backendValue.valueToString
-    }
+    onModelChanged: editText = comboBox.backendValue.valueToString
 
     ExtendedFunctionLogic {
         id: extFuncLogic
@@ -76,18 +75,13 @@ StudioControls.ComboBox {
     actionIndicator.icon.text: extFuncLogic.glyph
     actionIndicator.onClicked: extFuncLogic.show()
     actionIndicator.forceVisible: extFuncLogic.menuVisible
-
-    property bool showExtendedFunctionButton: true
-
-    actionIndicator.visible: showExtendedFunctionButton
+    actionIndicator.visible: comboBox.showExtendedFunctionButton
 
     ColorLogic {
         id: colorLogic
-        backendValue: comboBox.backendValue
         property string textValue: comboBox.backendValue.valueToString
-        onTextValueChanged: {
-            comboBox.editText = textValue
-        }
+        backendValue: comboBox.backendValue
+        onTextValueChanged: comboBox.editText = colorLogic.textValue
     }
 
     onAccepted: {
@@ -124,7 +118,7 @@ StudioControls.ComboBox {
 
     Component.onCompleted: {
         setupModel()
-        //Hack to style the text input
+        // Hack to style the text input
         for (var i = 0; i < comboBox.children.length; i++) {
             if (comboBox.children[i].text !== undefined) {
                 comboBox.children[i].color = comboBox.textColor
@@ -135,7 +129,7 @@ StudioControls.ComboBox {
     }
 
     function setColor() {
-        //Hack to style the text input
+        // Hack to style the text input
         for (var i = 0; i < comboBox.children.length; i++) {
             if (comboBox.children[i].text !== undefined) {
                 comboBox.children[i].color = comboBox.textColor

@@ -108,9 +108,8 @@ Item {
             onPressed: calculateValue()
             onReleased: root.clicked()
             onPositionChanged: {
-                if (pressed) {
+                if (pressed)
                     calculateValue()
-                }
             }
         }
 

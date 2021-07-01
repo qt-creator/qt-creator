@@ -30,44 +30,40 @@ import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: buttonRowButton
+
+    property int leftPadding: 0
     property bool checked: false
-
     property bool roundLeftButton: true
-
     property alias iconSource: image.source
+    property alias tooltip: toolTipArea.tooltip
 
     signal clicked()
-
     signal doubleClicked()
-
-    property alias tooltip: toolTipArea.tooltip
 
     width: StudioTheme.Values.height + leftPadding
     height: StudioTheme.Values.height
 
-    property int leftPadding: 0
-
     function index() {
         for (var i = 0; i < parent.children.length; i++) {
             if (parent.children[i] === buttonRowButton)
-                return i;
+                return i
         }
-        return -1;
+        return -1
     }
 
     function isFirst() {
-        return index() === 0;
+        return index() === 0
     }
 
     function isLast() {
-        return index() === (parent.children.length - 1);
+        return index() === (parent.children.length - 1)
     }
 
     Item {
         anchors.fill: parent
+
         RoundedPanel {
             roundLeft: isFirst() && buttonRowButton.roundLeftButton
-
             anchors.fill: parent
             visible: checked
             color: StudioTheme.Values.themeControlBackgroundInteraction
@@ -75,7 +71,6 @@ Item {
 
         RoundedPanel {
             roundLeft: isFirst()
-
             anchors.fill: parent
             visible: !checked
             color: StudioTheme.Values.themeControlBackground

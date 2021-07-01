@@ -34,7 +34,7 @@ TextInput {
 
     property bool edit: textInput.activeFocus
     property bool drag: false
-    property bool hover: mouseArea.containsMouse
+    property bool hover: mouseArea.containsMouse && textInput.enabled
 
     z: 2
     font: myControl.font
@@ -57,7 +57,7 @@ TextInput {
     // TextInput focus needs to be set to activeFocus whenever it changes,
     // otherwise TextInput will get activeFocus whenever the parent SpinBox gets
     // activeFocus. This will lead to weird side effects.
-    onActiveFocusChanged: textInput.focus = activeFocus
+    onActiveFocusChanged: textInput.focus = textInput.activeFocus
 
     Rectangle {
         id: textInputBackground
@@ -115,8 +115,8 @@ TextInput {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
-        onPressed: mouse.accepted = false
-        onWheel: {
+        onPressed: function(mouse) { mouse.accepted = false }
+        onWheel: function(wheel) {
             if (!myControl.__wheelEnabled)
                 return
 

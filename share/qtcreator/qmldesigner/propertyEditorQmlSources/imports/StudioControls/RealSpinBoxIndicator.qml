@@ -32,7 +32,7 @@ Rectangle {
 
     property T.Control myControl
 
-    property bool hover: spinBoxIndicatorMouseArea.containsMouse
+    property bool hover: spinBoxIndicatorMouseArea.containsMouse && spinBoxIndicator.enabled
     property bool pressed: spinBoxIndicatorMouseArea.containsPress
     property bool released: false
     property bool realEnabled: true
@@ -79,7 +79,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         pressAndHoldInterval: 500
-        onPressed: {
+        onPressed: function(mouse) {
             if (myControl.activeFocus)
                 spinBoxIndicator.forceActiveFocus()
 
@@ -90,7 +90,7 @@ Rectangle {
             pressAndHoldTimer.restart()
             pressedAndHeld = true
         }
-        onReleased: {
+        onReleased: function(mouse) {
             // Only trigger real released when pressAndHold isn't active
             if (!pressAndHoldTimer.running && containsMouse)
                 spinBoxIndicator.realReleased()
@@ -222,7 +222,7 @@ Rectangle {
             }
             PropertyChanges {
                 target: spinBoxIndicator
-                color: "#2aafd3" // TODO
+                color: StudioTheme.Values.themeInteraction
             }
         },
         State {

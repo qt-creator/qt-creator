@@ -33,20 +33,16 @@ Item {
     property int leftPadding: 8
     property int topPadding: 4
     property int rightPadding: 0
-
     property int animationDuration: 120
-
     property bool expanded: true
 
     clip: true
 
     Rectangle {
         id: header
-        height: StudioTheme.Values.sectionHeadHeight
-
         anchors.left: parent.left
         anchors.right: parent.right
-
+        height: StudioTheme.Values.sectionHeadHeight
         color: StudioTheme.Values.themeSectionHeadBackground
 
         SectionLabel {

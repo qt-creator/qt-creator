@@ -206,7 +206,7 @@ Column {
                 preventStealing: true
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                onPositionChanged: {
+                onPositionChanged: function(mouse) {
                     if (pressed && mouse.buttons === Qt.LeftButton) {
                         var xx = Math.max(0, Math.min(mouse.x, parent.width))
                         var yy = Math.max(0, Math.min(mouse.y, parent.height))
@@ -215,15 +215,15 @@ Column {
                         root.saturation = xx / parent.width
                     }
                 }
-                onPressed: {
+                onPressed: function(mouse) {
                     if (mouse.button === Qt.LeftButton)
                         positionChanged(mouse)
                 }
-                onReleased: {
+                onReleased: function(mouse) {
                     if (mouse.button === Qt.LeftButton)
                         root.updateColor()
                 }
-                onClicked: {
+                onClicked: function(mouse) {
                     if (mouse.button === Qt.RightButton)
                         root.rightMouseButtonClicked()
                 }

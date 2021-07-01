@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import QtQuickDesignerTheme 1.0
@@ -70,17 +70,9 @@ Item {
         }
     }
 
-    onBackendValueChanged: {
-        setIcon()
-    }
-
-    onIsBoundBackendChanged: {
-        setIcon()
-    }
-
-    onBackendExpressionChanged: {
-        setIcon()
-    }
+    onBackendValueChanged: setIcon()
+    onIsBoundBackendChanged: setIcon()
+    onBackendExpressionChanged: setIcon()
 
     Loader {
         id: menuLoader
@@ -101,15 +93,11 @@ Item {
                     exportMenuItem.enabled = !backendValue.isAttachedProperty()
                     extendedFunctionButton.menuVisible = true
                 }
-                onAboutToHide: {
-                    extendedFunctionButton.menuVisible = false
-                }
+                onAboutToHide: extendedFunctionButton.menuVisible = false
 
                 Connections {
                     target: modelNodeBackend
-                    onSelectionChanged: {
-                        menu.close()
-                    }
+                    onSelectionChanged: menu.close()
                 }
 
                 StudioControls.MenuItem {
@@ -121,20 +109,22 @@ Item {
                         extendedFunctionButton.reseted()
                     }
                 }
+
                 StudioControls.MenuItem {
                     text: qsTr("Set Binding")
                     onTriggered: expressionDialogLoader.show()
                 }
+
                 StudioControls.MenuItem {
                     id: exportMenuItem
                     text: qsTr("Export Property as Alias")
+                    checkable: true
                     onTriggered: {
                         if (checked)
                             backendValue.exportPopertyAsAlias()
                         else
                             backendValue.removeAliasExport()
                     }
-                    checkable: true
                 }
 
                 StudioControls.MenuItem {
@@ -150,13 +140,13 @@ Item {
         id: expressionDialogLoader
         parent: itemPane
         anchors.fill: parent
-
         visible: false
         active: visible
 
         function show() {
             expressionDialogLoader.visible = true
         }
+
         sourceComponent: Item {
             id: bindingEditorParent
 
@@ -176,6 +166,7 @@ Item {
                     hideWidget()
                     expressionDialogLoader.visible = false
                 }
+
                 onAccepted: {
                     backendValue.expression = bindingEditor.text.trim()
                     hideWidget()

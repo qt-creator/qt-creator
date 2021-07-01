@@ -127,7 +127,7 @@ TextField {
         myTextField.text = txtStorage.slice(0, sliceAt).padEnd(sliceAt + 3, '.')
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Escape)
             popup.opened ? popup.close() : myTextField.focus = false
 

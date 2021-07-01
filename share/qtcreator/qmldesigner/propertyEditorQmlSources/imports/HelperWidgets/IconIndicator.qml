@@ -68,7 +68,7 @@ Rectangle {
     states: [
         State {
             name: "default"
-            when: !toolTipArea.containsMouse
+            when: !toolTipArea.containsMouse && root.enabled
             PropertyChanges {
                 target: indicatorIcon
                 color: StudioTheme.Values.themeLinkIndicatorColor
@@ -76,10 +76,18 @@ Rectangle {
         },
         State {
             name: "hover"
-            when: toolTipArea.containsMouse
+            when: toolTipArea.containsMouse && root.enabled
             PropertyChanges {
                 target: indicatorIcon
                 color: StudioTheme.Values.themeLinkIndicatorColorHover
+            }
+        },
+        State {
+            name: "disable"
+            when: !root.enabled
+            PropertyChanges {
+                target: indicatorIcon
+                color: StudioTheme.Values.themeLinkIndicatorColorDisabled
             }
         }
     ]

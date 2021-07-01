@@ -69,7 +69,7 @@ Item {
         height: StudioTheme.Values.sectionHeadHeight
         anchors.left: parent.left
         anchors.right: parent.right
-        color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * level))
+        color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * section.level))
 
         Image {
             id: arrow
@@ -77,7 +77,7 @@ Item {
             height: 4
             source: "image://icons/down-arrow"
             anchors.left: parent.left
-            anchors.leftMargin: 4 + (level * levelShift)
+            anchors.leftMargin: 4 + (section.level * section.levelShift)
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -85,7 +85,7 @@ Item {
             id: label
             anchors.verticalCenter: parent.verticalCenter
             color: StudioTheme.Values.themeTextColor
-            x: 22 + (level * levelShift)
+            x: 22 + (section.level * section.levelShift)
             font.pixelSize: StudioTheme.Values.myFontSize
             font.capitalization: Font.AllUppercase
         }
@@ -94,7 +94,7 @@ Item {
             id: mouseArea
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton | Qt.RightButton
-            onClicked: {
+            onClicked: function(mouse) {
                 if (mouse.button === Qt.LeftButton) {
                     trans.enabled = true
                     if (expandOnClick)

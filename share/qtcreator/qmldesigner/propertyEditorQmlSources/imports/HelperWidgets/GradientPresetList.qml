@@ -81,12 +81,8 @@ HelperWindow {
 
                 Layout.fillWidth: true
 
-                StudioControls.TabButton {
-                    text: qsTr("System Presets")
-                }
-                StudioControls.TabButton {
-                    text: qsTr("User Presets")
-                }
+                StudioControls.TabButton { text: qsTr("System Presets") }
+                StudioControls.TabButton { text: qsTr("User Presets") }
             }
 
             StackLayout {
@@ -103,11 +99,13 @@ HelperWindow {
                     id: customTabContent
                     viewModel: customPresetListModel
                     editableName: true
-                    onPresetNameChanged: customPresetListModel.changePresetName(id, name)
+                    onPresetNameChanged: function(id, name) {
+                        customPresetListModel.changePresetName(id, name)
+                    }
 
                     property int deleteId
 
-                    onDeleteButtonClicked: {
+                    onDeleteButtonClicked: function(id) {
                         deleteId = id
                         deleteDialog.open()
                     }
@@ -116,7 +114,7 @@ HelperWindow {
                         id: deleteDialog
                         visible: false
                         modality: Qt.WindowModal
-                         buttons: StandardButton.No | StandardButton.Yes
+                        buttons: StandardButton.No | StandardButton.Yes
                         title: qsTr("Delete preset?")
                         text: qsTr("Are you sure you want to delete this preset?")
                         onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId)

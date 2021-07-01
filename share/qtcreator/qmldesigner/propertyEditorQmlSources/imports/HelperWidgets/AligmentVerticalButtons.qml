@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -32,13 +32,9 @@ Row {
     id: alignmentVerticalButtons
 
     property bool blueHighlight: false
-
-    property variant backendValue: backendValues.verticalAlignment;
-
+    property variant backendValue: backendValues.verticalAlignment
     property variant value: backendValue.enumeration
-
-    property bool baseStateFlag: isBaseState;
-
+    property bool baseStateFlag: isBaseState
     property color __currentColor: blueHighlight ? StudioTheme.Values.themeIconColorInteraction
                                                  : StudioTheme.Values.themeIconColor
 
@@ -48,37 +44,32 @@ Row {
         buttonAlignBottom.checked = false
 
         if (value !== undefined) {
-            if (value === "AlignTop") {
+            if (value === "AlignTop")
                 buttonAlignTop.checked = true
-            } else if (value === "AlignVCenter") {
+            else if (value === "AlignVCenter")
                 buttonAlignVCenter.checked = true
-            } else if (value === "AlignBottom") {
+            else if (value === "AlignBottom")
                 buttonAlignBottom.checked = true
-            }
         }
         evaluate()
     }
 
-    property bool isInModel: backendValue.isInModel;
-    onIsInModelChanged: {
-        evaluate();
-    }
-    property bool isInSubState: backendValue.isInSubState;
-    onIsInSubStateChanged: {
-        evaluate();
-    }
+    property bool isInModel: backendValue.isInModel
+    onIsInModelChanged: evaluate()
+    property bool isInSubState: backendValue.isInSubState
+    onIsInSubStateChanged: evaluate()
 
     function evaluate() {
         if (baseStateFlag) {
             if (backendValue !== null && backendValue.isInModel)
-                blueHighlight = true;
+                blueHighlight = true
             else
-                blueHighlight = false;
+                blueHighlight = false
         } else {
             if (backendValue !== null && backendValue.isInSubState)
-                blueHighlight = true;
+                blueHighlight = true
             else
-                blueHighlight = false;
+                blueHighlight = false
         }
     }
 

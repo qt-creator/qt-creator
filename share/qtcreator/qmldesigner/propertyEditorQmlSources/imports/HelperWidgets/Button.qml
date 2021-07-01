@@ -69,7 +69,7 @@ T.AbstractButton {
         },
         State {
             name: "hovered"
-            when: myButton.hovered && !myButton.pressed
+            when: myButton.enabled && myButton.hovered && !myButton.pressed
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundHover
@@ -77,7 +77,7 @@ T.AbstractButton {
         },
         State {
             name: "pressed"
-            when: myButton.hovered && myButton.pressed
+            when: myButton.enabled && myButton.hovered && myButton.pressed
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction

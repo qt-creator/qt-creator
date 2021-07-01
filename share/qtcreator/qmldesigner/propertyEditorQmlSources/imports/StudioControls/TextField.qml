@@ -34,8 +34,8 @@ T.TextField {
     property alias translationIndicator: translationIndicator
 
     // This property is used to indicate the global hover state
-    property bool hover: actionIndicator.hover || mouseArea.containsMouse
-                         || translationIndicator.hover
+    property bool hover: (actionIndicator.hover || mouseArea.containsMouse
+                         || translationIndicator.hover) && myTextField.enabled
     property bool edit: myTextField.activeFocus
 
     property alias actionIndicatorVisible: actionIndicator.visible
@@ -75,7 +75,7 @@ T.TextField {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
-        onPressed: {
+        onPressed: function(mouse) {
             if (mouse.button === Qt.RightButton)
                 contextMenu.popup(myTextField)
 
@@ -147,6 +147,7 @@ T.TextField {
         State {
             name: "globalHover"
             when: (actionIndicator.hover || translationIndicator.hover) && !myTextField.edit
+                  && myTextField.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
@@ -160,7 +161,7 @@ T.TextField {
         State {
             name: "hover"
             when: mouseArea.containsMouse && !actionIndicator.hover && !translationIndicator.hover
-                  && !myTextField.edit
+                  && !myTextField.edit && myTextField.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundHover
@@ -203,7 +204,7 @@ T.TextField {
         }
     ]
 
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Escape)
             myTextField.focus = false
     }

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
+import QtQuick 2.15
 import StudioTheme 1.0 as StudioTheme
 
 Item {
@@ -105,9 +105,8 @@ Item {
             onPressed: calculateValue()
             onReleased: root.clicked()
             onPositionChanged: {
-                if (pressed) {
+                if (pressed)
                     calculateValue()
-                }
             }
         }
 

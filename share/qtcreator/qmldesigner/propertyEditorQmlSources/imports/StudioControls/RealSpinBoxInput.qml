@@ -34,7 +34,7 @@ TextInput {
 
     property bool edit: textInput.activeFocus
     property bool drag: false
-    property bool hover: mouseArea.containsMouse
+    property bool hover: mouseArea.containsMouse && textInput.enabled
 
     z: 2
     font: myControl.font
@@ -57,7 +57,7 @@ TextInput {
     // TextInput focus needs to be set to activeFocus whenever it changes,
     // otherwise TextInput will get activeFocus whenever the parent SpinBox gets
     // activeFocus. This will lead to weird side effects.
-    onActiveFocusChanged: textInput.focus = activeFocus
+    onActiveFocusChanged: textInput.focus = textInput.activeFocus
 
     Rectangle {
         id: textInputBackground
@@ -72,7 +72,7 @@ TextInput {
 
     Item {
         id: dragModifierWorkaround
-        Keys.onPressed: {
+        Keys.onPressed: function(event) {
             event.accepted = true
 
             if (event.modifiers & Qt.ControlModifier) {
@@ -85,7 +85,7 @@ TextInput {
                 mouseArea.calcValue(myControl.realValueModified)
             }
         }
-        Keys.onReleased: {
+        Keys.onReleased: function(event) {
             event.accepted = true
             mouseArea.stepSize = myControl.realStepSize
             mouseArea.calcValue(myControl.realValueModified)
@@ -93,7 +93,7 @@ TextInput {
     }
 
     // Ensure that we get Up and Down key press events first
-    Keys.onShortcutOverride: {
+    Keys.onShortcutOverride: function(event) {
         event.accepted = (event.key === Qt.Key_Up || event.key === Qt.Key_Down)
     }
 
@@ -119,7 +119,7 @@ TextInput {
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
 
-        onPositionChanged: {
+        onPositionChanged: function(mouse) {
             if (!mouseArea.dragging
                     && !myControl.edit
                     && Math.abs(mouseArea.pressStartX - mouse.x) > StudioTheme.Values.dragThreshold
@@ -149,7 +149,7 @@ TextInput {
 
         onCanceled: mouseArea.endDrag()
 
-        onClicked: {
+        onClicked: function(mouse) {
             if (textInput.edit)
                 mouse.accepted = false
 
@@ -162,7 +162,7 @@ TextInput {
             textInput.deselect() // QTBUG-75862
         }
 
-        onPressed: {
+        onPressed: function(mouse) {
             if (textInput.edit)
                 mouse.accepted = false
 
@@ -170,7 +170,7 @@ TextInput {
             mouseArea.pressStartX = mouseArea.mouseX
         }
 
-        onReleased: {
+        onReleased: function(mouse) {
             if (textInput.edit)
                 mouse.accepted = false
 
@@ -213,7 +213,7 @@ TextInput {
             callback()
         }
 
-        onWheel: {
+        onWheel: function(wheel) {
             if (!myControl.__wheelEnabled)
                 return
 

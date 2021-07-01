@@ -33,7 +33,7 @@ Rectangle {
     property T.Control myControl
     property T.Popup myPopup
 
-    property bool hover: checkIndicatorMouseArea.containsMouse
+    property bool hover: checkIndicatorMouseArea.containsMouse && checkIndicator.enabled
     property bool pressed: checkIndicatorMouseArea.containsPress
     property bool checked: false
 

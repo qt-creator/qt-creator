@@ -35,7 +35,8 @@ T.ComboBox {
     property alias labelColor: comboBoxInput.color
 
     // This property is used to indicate the global hover state
-    property bool hover: comboBoxInput.hover || actionIndicator.hover || popupIndicator.hover
+    property bool hover: (comboBoxInput.hover || actionIndicator.hover || popupIndicator.hover)
+                         && myComboBox.enabled
     property bool edit: myComboBox.activeFocus && myComboBox.editable
     property bool open: comboBoxPopup.opened
 
@@ -217,10 +218,8 @@ T.ComboBox {
             border.width: 0
         }
 
-        enter: Transition {
-        }
-        exit: Transition {
-        }
+        enter: Transition {}
+        exit: Transition {}
     }
 
     states: [
@@ -307,7 +306,7 @@ T.ComboBox {
         }
     ]
 
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Escape)
             myComboBox.focus = false
     }

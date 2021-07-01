@@ -42,7 +42,7 @@ Rectangle {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: myControl.originSelectorClicked(value)
+        onClicked: myControl.originSelectorClicked(root.value)
     }
 
     states: [
