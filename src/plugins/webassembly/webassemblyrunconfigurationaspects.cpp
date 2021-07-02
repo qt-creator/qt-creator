@@ -75,7 +75,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
 {
     if (!m_availableBrowsers.isEmpty())
         m_currentBrowser = m_availableBrowsers.first();
-    setDisplayName(tr("Web browser"));
+    setDisplayName(tr("Web Browser"));
     setId("WebBrowserAspect");
     setSettingsKey("RunConfiguration.WebBrowser");
 }
