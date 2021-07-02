@@ -52,7 +52,6 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 {
 public:
     PersistentSettingsWriter(const FilePath &fileName, const QString &docType);
-    ~PersistentSettingsWriter();
 
     bool save(const QVariantMap &data, QString *errorString) const;
 #ifdef QT_GUI_LIB
