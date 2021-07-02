@@ -224,7 +224,7 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
 }
 
 /*!
-  Recursively resolves symlinks if \a filePath is a symlink.
+  Recursively resolves symlinks if this is a symlink.
   To resolve symlinks anywhere in the path, see canonicalPath.
   Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
   target file even if the symlink is dangling.
@@ -233,15 +233,17 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
 
   Returns the symlink target file path.
 */
-FilePath FileUtils::resolveSymlinks(const FilePath &path)
+FilePath FilePath::resolveSymlinks() const
 {
-    QFileInfo f = path.toFileInfo();
+    FilePath current = *this;
     int links = 16;
-    while (links-- && f.isSymLink())
-        f.setFile(f.dir(), f.symLinkTarget());
-    if (links <= 0)
-        return FilePath();
-    return FilePath::fromString(f.filePath());
+    while (links--) {
+        const FilePath target = current.symLinkTarget();
+        if (target.isEmpty())
+            return current;
+        current = target;
+    }
+    return current;
 }
 
 /*!

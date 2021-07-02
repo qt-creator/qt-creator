@@ -195,6 +195,7 @@ public:
 
     FilePath canonicalPath() const;
     FilePath symLinkTarget() const;
+    FilePath resolveSymlinks() const;
     FilePath withExecutableSuffix() const;
 
     FilePath operator/(const QString &str) const;
@@ -256,7 +257,6 @@ public:
                                 T &&copyHelper);
     static bool copyIfDifferent(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath);
-    static FilePath resolveSymlinks(const FilePath &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
     static QString qmakeFriendlyName(const QString &name);
