@@ -47,6 +47,10 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       qml/tracing.qrc
   )
 else() # < Qt 6.2
+  if (NOT TARGET Tracing)
+    return()
+  endif()
+
   set(TRACING_QML_FILES
     qml/ButtonsBar.qml
     qml/CategoryLabel.qml

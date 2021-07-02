@@ -83,6 +83,10 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       qml/qmlprofiler.qrc
   )
 else() # < Qt 6.2
+  if (NOT TARGET QmlProfiler)
+    return()
+  endif()
+
   set(QMLPROFILER_QML_FILES
     qml/QmlProfilerFlameGraphView.qml
   )
