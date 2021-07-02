@@ -54,11 +54,6 @@ Item {
     property bool addTopPadding: true
     property bool addBottomPadding: true
 
-    onHideHeaderChanged: {
-        header.visible = !hideHeader
-        header.height = hideHeader ? 0 : 20
-    }
-
     clip: true
 
     signal showContextMenu()
@@ -66,7 +61,8 @@ Item {
 
     Rectangle {
         id: header
-        height: StudioTheme.Values.sectionHeadHeight
+        height: hideHeader ? 0 : StudioTheme.Values.sectionHeadHeight
+        visible: !hideHeader
         anchors.left: parent.left
         anchors.right: parent.right
         color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * section.level))
