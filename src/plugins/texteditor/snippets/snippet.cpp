@@ -242,7 +242,7 @@ SnippetParseResult Snippet::parse(const QString &snippet)
         }
 
         if (mangler) {
-            return SnippetParseResult{SnippetParseError{tr("Expected delimiter after mangler id"),
+            return SnippetParseResult{SnippetParseError{tr("Expected delimiter after mangler ID."),
                                                         preprocessedSnippet,
                                                         i}};
         }
@@ -257,8 +257,8 @@ SnippetParseResult Snippet::parse(const QString &snippet)
                 mangler = &tcMangler;
             } else {
                 return SnippetParseResult{
-                    SnippetParseError{tr("Expected mangler id 'l'(lowercase), 'u'(uppercase), "
-                                         "or 'c'(titlecase) after colon"),
+                    SnippetParseError{tr("Expected mangler ID \"l\" (lowercase), \"u\" (uppercase), "
+                                         "or \"c\" (titlecase) after colon."),
                                       preprocessedSnippet,
                                       i}};
             }
