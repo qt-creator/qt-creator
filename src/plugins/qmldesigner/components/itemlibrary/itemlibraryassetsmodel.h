@@ -81,6 +81,7 @@ public:
 
     Q_INVOKABLE void toggleExpandAll(bool expand);
     Q_INVOKABLE DirExpandState getAllExpandedState() const;
+    Q_INVOKABLE void removeFile(const QString &filePath);
 
 private:
     SynchronousImageCache &m_fontImageCache;

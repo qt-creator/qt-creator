@@ -30,6 +30,9 @@
 #include <synchronousimagecache.h>
 #include <theme.h>
 #include <hdrimage.h>
+#include <designersettings.h>
+
+#include <coreplugin/icore.h>
 
 #include <QDebug>
 #include <QDir>
@@ -39,6 +42,8 @@
 #include <QMetaProperty>
 #include <QPainter>
 #include <QRawFont>
+#include <QMessageBox>
+#include <QCheckBox>
 #include <utils/stylehelper.h>
 #include <utils/filesystemwatcher.h>
 
@@ -92,6 +97,41 @@ void ItemLibraryAssetsModel::toggleExpandAll(bool expand)
     beginResetModel();
     expandDirRecursive(m_assetsDir);
     endResetModel();
+}
+
+void ItemLibraryAssetsModel::removeFile(const QString &filePath)
+{
+    bool askBeforeDelete = DesignerSettings::getValue(
+                DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
+    bool assetDelete = true;
+
+    if (askBeforeDelete) {
+        QMessageBox msg(QMessageBox::Question, tr("Confirm Delete File"),
+                        tr("\"%1\" might be in use. Delete anyway?").arg(filePath),
+                        QMessageBox::No | QMessageBox::Yes);
+        QCheckBox cb;
+        cb.setText(tr("Do not ask this again"));
+        msg.setCheckBox(&cb);
+        int ret = msg.exec();
+
+        if (ret == QMessageBox::No)
+            assetDelete = false;
+
+        if (cb.isChecked())
+            DesignerSettings::setValue(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
+    }
+
+    if (assetDelete) {
+        if (!QFile::exists(filePath)) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 tr("Failed to Locate File"),
+                                 tr("Could not find \"%1\".").arg(filePath));
+        } else if (!QFile::remove(filePath)) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 tr("Failed to Delete File"),
+                                 tr("Could not delete \"%1\".").arg(filePath));
+        }
+    }
 }
 
 const QStringList &ItemLibraryAssetsModel::supportedImageSuffixes()
