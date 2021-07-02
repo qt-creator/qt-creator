@@ -72,9 +72,9 @@ ListModelEditorDialog::ListModelEditorDialog(QWidget *parent)
     m_addColumnAction = toolBar->addAction(getIcon(Theme::Icon::addColumnAfter), tr("Add Column"));
     m_removeColumnsAction = toolBar->addAction(getIcon(Theme::Icon::deleteColumn),
                                                tr("Remove Columns"));
-    m_moveDownAction = toolBar->addAction(Icons::ARROW_DOWN.icon(), tr("Move down (CTRL + Down)."));
+    m_moveDownAction = toolBar->addAction(Icons::ARROW_DOWN.icon(), tr("Move Down (Ctrl + Down)"));
     m_moveDownAction->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
-    m_moveUpAction = toolBar->addAction(Icons::ARROW_UP.icon(), tr("Move up (CTRL + Up)."));
+    m_moveUpAction = toolBar->addAction(Icons::ARROW_UP.icon(), tr("Move Up (Ctrl + Up)"));
     m_moveDownAction->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
 }
 

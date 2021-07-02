@@ -680,7 +680,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     QString qmlInnerTemplate = "";
 
     qmlInnerTemplate += "Section {\n";
-    qmlInnerTemplate += "caption: \""+ QObject::tr("User added properties") + "\"\n";
+    qmlInnerTemplate += "caption: \""+ QObject::tr("User Added Properties") + "\"\n";
     qmlInnerTemplate += anchorLeftRight;
     qmlInnerTemplate += "leftPadding: 0\n";
     qmlInnerTemplate += "rightPadding: 0\n";

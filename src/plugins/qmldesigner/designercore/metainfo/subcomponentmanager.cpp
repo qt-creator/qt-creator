@@ -407,7 +407,7 @@ void SubComponentManager::parseQuick3DAssetsItem(const QString &importUrl, const
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setType(type.toUtf8(), 1, 0);
         itemLibraryEntry.setName(name);
-        itemLibraryEntry.setCategory(tr("My Quick3D Components"));
+        itemLibraryEntry.setCategory(tr("My 3D Components"));
         itemLibraryEntry.setRequiredImport(importUrl);
         QString iconPath = qmlIt.fileInfo().absolutePath() + '/'
                 + Constants::QUICK_3D_ASSET_ICON_DIR + '/' + name
