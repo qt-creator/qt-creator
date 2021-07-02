@@ -65,7 +65,7 @@ public:
     void syncTestFrameworks(const QList<ITestParser *> &parsers);
 #ifdef WITH_TESTS
     bool furtherParsingExpected() const
-    { return m_singleShotScheduled || m_fullUpdatePostponed || m_partialUpdatePostponed; }
+    { return m_singleShotScheduled || m_postponedUpdateType != UpdateType::NoUpdate; }
 #endif
 
 signals:
@@ -105,8 +105,11 @@ private:
     bool m_parsingHasFailed = false;
 
     bool m_codeModelParsing = false;
-    bool m_fullUpdatePostponed = false;
-    bool m_partialUpdatePostponed = false;
+    enum class UpdateType {
+        NoUpdate,
+        PartialUpdate,
+        FullUpdate
+    } m_postponedUpdateType = UpdateType::NoUpdate;
     bool m_dirty = false;
     bool m_singleShotScheduled = false;
     bool m_reparseTimerTimedOut = false;
