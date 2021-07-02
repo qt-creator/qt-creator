@@ -29,7 +29,6 @@ FontComboBox 2.0 FontComboBox.qml
 FontExtrasSection 2.0 FontExtrasSection.qml
 FontSection 2.0 FontSection.qml
 FontStyleButtons 2.0 FontStyleButtons.qml
-GradientDialogPopup 2.0 GradientDialogPopup.qml
 GradientLine 2.0 GradientLine.qml
 GradientPopupIndicator 2.0 GradientPopupIndicator.qml
 GradientPresetList 2.0 GradientPresetList.qml
@@ -59,7 +58,6 @@ ScrollView 2.0 ScrollView.qml
 SecondColumnLayout 2.0 SecondColumnLayout.qml
 Section 2.0 Section.qml
 SectionLayout 2.0 SectionLayout.qml
-SimpleColorPalette 2.0 SimpleColorPalette.qml
 Spacer 2.0 Spacer.qml
 SpinBox 2.0 SpinBox.qml
 StandardTextSection 2.0 StandardTextSection.qml
