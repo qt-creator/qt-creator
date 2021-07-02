@@ -176,7 +176,6 @@ Project {
             "conditionally-disabled-tests.h",
             "cppprojectfilecategorizer-test.cpp",
             "cppprojectinfogenerator-test.cpp",
-            "cppprojectpartchooser-test.cpp",
             "createtablesqlstatementbuilder-test.cpp",
             "dummyclangipcclient.h",
             "dynamicastmatcherdiagnosticcontainer-matcher.h",

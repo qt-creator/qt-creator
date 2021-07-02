@@ -242,6 +242,7 @@ Project {
                 "cppsourceprocessor_test.cpp",
                 "modelmanagertesthelper.cpp",
                 "modelmanagertesthelper.h",
+                "projectinfo_test.cpp",
                 "symbolsearcher_test.cpp",
                 "typehierarchybuilder_test.cpp",
             ]

@@ -216,6 +216,7 @@ equals(TEST, 1) {
         cpptoolstestcase.cpp \
         compileroptionsbuilder_test.cpp \
         modelmanagertesthelper.cpp \
+        projectinfo_test.cpp \
         symbolsearcher_test.cpp \
         typehierarchybuilder_test.cpp
 

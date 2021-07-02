@@ -45,7 +45,6 @@ add_qtc_test(unittest GTEST
     conditionally-disabled-tests.h
     cppprojectfilecategorizer-test.cpp
     cppprojectinfogenerator-test.cpp
-    cppprojectpartchooser-test.cpp
     dummyclangipcclient.h
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h

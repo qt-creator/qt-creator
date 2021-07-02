@@ -122,6 +122,7 @@ extend_qtc_plugin(CppTools
     cppsourceprocessor_test.cpp
     cpptoolstestcase.cpp cpptoolstestcase.h
     modelmanagertesthelper.cpp modelmanagertesthelper.h
+    projectinfo_test.cpp
     symbolsearcher_test.cpp
     typehierarchybuilder_test.cpp
 )

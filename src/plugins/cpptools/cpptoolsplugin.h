@@ -210,6 +210,28 @@ private slots:
     void test_optionsBuilder_buildAllOptions();
     void test_optionsBuilder_buildAllOptionsMsvc();
     void test_optionsBuilder_buildAllOptionsMsvcWithExceptions();
+
+    void test_projectPartChooser_chooseManuallySet();
+    void test_projectPartChooser_indicateManuallySet();
+    void test_projectPartChooser_indicateManuallySetForFallbackToProjectPartFromDependencies();
+    void test_projectPartChooser_doNotIndicateNotManuallySet();
+    void test_projectPartChooser_forMultipleChooseFromActiveProject();
+    void test_projectPartChooser_forMultiplePreferSelectedForBuilding();
+    void test_projectPartChooser_forMultipleFromDependenciesChooseFromActiveProject();
+    void test_projectPartChooser_forMultipleCheckIfActiveProjectChanged();
+    void test_projectPartChooser_forMultipleAndAmbigiousHeaderPreferCProjectPart();
+    void test_projectPartChooser_forMultipleAndAmbigiousHeaderPreferCxxProjectPart();
+    void test_projectPartChooser_indicateMultiple();
+    void test_projectPartChooser_indicateMultipleForFallbackToProjectPartFromDependencies();
+    void test_projectPartChooser_forMultipleChooseNewIfPreviousIsGone();
+    void test_projectPartChooser_fallbackToProjectPartFromDependencies();
+    void test_projectPartChooser_fallbackToProjectPartFromModelManager();
+    void test_projectPartChooser_continueUsingFallbackFromModelManagerIfProjectDoesNotChange();
+    void test_projectPartChooser_stopUsingFallbackFromModelManagerIfProjectChanges1();
+    void test_projectPartChooser_stopUsingFallbackFromModelManagerIfProjectChanges2();
+    void test_projectPartChooser_indicateFallbacktoProjectPartFromModelManager();
+    void test_projectPartChooser_indicateFromDependencies();
+    void test_projectPartChooser_doNotIndicateFromDependencies();
 #endif
 
 private:
