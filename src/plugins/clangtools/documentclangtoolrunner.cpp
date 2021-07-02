@@ -391,7 +391,7 @@ ClangToolRunner *DocumentClangToolRunner::createRunner(const CppTools::ClangDiag
                                                        const Utils::Environment &env)
 {
     auto runner = new T(config, this);
-    runner->init(m_temporaryDir.path().path(), env);
+    runner->init(m_temporaryDir.path(), env);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &DocumentClangToolRunner::onSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,

@@ -78,7 +78,7 @@ ClangToolRunner::~ClangToolRunner()
     m_process->deleteLater();
 }
 
-void ClangToolRunner::init(const QString &outputDirPath, const Environment &environment)
+void ClangToolRunner::init(const FilePath &outputDirPath, const Environment &environment)
 {
     m_outputDirPath = outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
@@ -112,15 +112,14 @@ bool ClangToolRunner::supportsVFSOverlay() const
     return it.value();
 }
 
-static QString createOutputFilePath(const QString &dirPath, const QString &fileToAnalyze)
+static QString createOutputFilePath(const FilePath &dirPath, const QString &fileToAnalyze)
 {
     const QString fileName = QFileInfo(fileToAnalyze).fileName();
-    const QString fileTemplate = dirPath
-            + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX");
+    const FilePath fileTemplate = dirPath.pathAppended("report-" + fileName + "-XXXXXX");
 
-    Utils::TemporaryFile temporaryFile("clangtools");
+    TemporaryFile temporaryFile("clangtools");
     temporaryFile.setAutoRemove(false);
-    temporaryFile.setFileTemplate(fileTemplate);
+    temporaryFile.setFileTemplate(fileTemplate.path());
     if (temporaryFile.open()) {
         temporaryFile.close();
         return temporaryFile.fileName();
