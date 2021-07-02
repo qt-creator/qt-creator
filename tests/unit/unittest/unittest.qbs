@@ -11,7 +11,7 @@ Project {
             property bool useExternalLibs: preferExternalLibs && externalLibsPresent
             property bool useRepo: !useExternalLibs && hasRepo
             property bool preferExternalLibs: true
-            property bool externalLibsPresent: gtest.present && gmock.present
+            property bool externalLibsPresent: preferExternalLibs && gtest.present && gmock.present
             property string repoDir: FileInfo.joinPaths(path, "3rdparty", "googletest")
             property string gtestDir: FileInfo.joinPaths(repoDir, "googletest")
             property string gmockDir: FileInfo.joinPaths(repoDir, "googlemock")
