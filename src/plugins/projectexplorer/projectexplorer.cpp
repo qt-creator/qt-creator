@@ -888,7 +888,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Groups
     //
 
-    mbuild->appendGroup(Constants::G_BUILD_BUILD);
     mbuild->appendGroup(Constants::G_BUILD_ALLPROJECTS);
     mbuild->appendGroup(Constants::G_BUILD_PROJECT);
     mbuild->appendGroup(Constants::G_BUILD_PRODUCT);
@@ -897,6 +896,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->appendGroup(Constants::G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS);
     mbuild->appendGroup(Constants::G_BUILD_PROJECT_ALLCONFIGURATIONS);
     mbuild->appendGroup(Constants::G_BUILD_CANCEL);
+    mbuild->appendGroup(Constants::G_BUILD_BUILD);
     mbuild->appendGroup(Constants::G_BUILD_RUN);
 
     msessionContextMenu->appendGroup(Constants::G_SESSION_BUILD);
@@ -981,7 +981,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addSeparator(projectTreeContext, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addSeparator(projectTreeContext, Constants::G_PROJECT_FILES);
     mfile->addSeparator(Core::Constants::G_FILE_PROJECT);
-    mbuild->addSeparator(Constants::G_BUILD_BUILD);
     mbuild->addSeparator(Constants::G_BUILD_ALLPROJECTS);
     mbuild->addSeparator(Constants::G_BUILD_PROJECT);
     mbuild->addSeparator(Constants::G_BUILD_PRODUCT);
@@ -991,6 +990,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addSeparator(Constants::G_BUILD_PROJECT_ALLCONFIGURATIONS);
     msessionContextMenu->addSeparator(Constants::G_SESSION_OTHER);
     mbuild->addSeparator(Constants::G_BUILD_CANCEL);
+    mbuild->addSeparator(Constants::G_BUILD_BUILD);
     mbuild->addSeparator(Constants::G_BUILD_RUN);
     mprojectContextMenu->addSeparator(Constants::G_PROJECT_REBUILD);
 
