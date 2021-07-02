@@ -196,7 +196,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(this, &BuildConfiguration::environmentChanged,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(target->project(), &Project::environmentChanged,
-            this, &BuildConfiguration::environmentChanged);
+            this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     // Many macroexpanders are based on the current project, so they may change the environment:
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
