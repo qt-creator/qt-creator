@@ -94,6 +94,7 @@ protected:
 
     virtual bool initRhi(RenderViewData &viewData);
     virtual QImage grabRenderControl(RenderViewData &viewData);
+    virtual bool renderWindow();
 
 private:
     RenderViewData m_viewData;

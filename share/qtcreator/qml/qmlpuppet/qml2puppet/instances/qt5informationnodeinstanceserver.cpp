@@ -800,8 +800,7 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
 #else
         if (m_render2D) {
             // Render 2D content, as it might be used by 3D content
-            grabWindow();
-            m_render2D = false;
+            m_render2D = !renderWindow();
         }
         renderImage = grabRenderControl(m_editView3DData);
 #endif
