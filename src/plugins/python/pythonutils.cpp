@@ -278,7 +278,7 @@ public:
         m_process.start();
 
         Core::MessageManager::writeDisrupting(
-            tr("Running \"%1\" to install Python language server")
+            tr("Running \"%1\" to install Python language server.")
                 .arg(m_process.commandLine().toUserOutput()));
 
         m_killTimer.setSingleShot(true);
