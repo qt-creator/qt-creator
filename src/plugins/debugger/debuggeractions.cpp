@@ -516,7 +516,7 @@ DebuggerSettings::DebuggerSettings()
     maximalStackDepth.setLabelText(tr("Maximum stack depth:"));
 
     displayStringLimit.setSettingsKey(debugModeGroup, "DisplayStringLimit");
-    displayStringLimit.setDefaultValue(100);
+    displayStringLimit.setDefaultValue(300);
     displayStringLimit.setSpecialValueText(tr("<unlimited>"));
     displayStringLimit.setRange(20, 10000);
     displayStringLimit.setSingleStep(10);
