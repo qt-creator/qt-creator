@@ -180,21 +180,42 @@
 
     \section1 Picking Colors
 
-    To specify the color of the selected component in the color picker view (1),
-    select the color picker icon (2) in the \uicontrol Properties view.
+    You can define color properties for some of the components in the
+    \uicontrol Properties view by using the color picker. Open the color picker
+    by clicking, for example, the color field of the \uicontrol {Fill color} or
+    \uicontrol {Border color} property.
 
     \image qtquick-designer-color-picker.png "Color Picker view"
 
-    You can use either a solid color (3) or a gradient (4). You can select the
-    gradient in the \uicontrol {Gradient Picker} (5).
+    To select a new color, click the color of your choice in the color selector
+    (1), or click the \uicontrol {Eye Dropper} icon (2) to be able to select any
+    color visible in your screen to use further in your project.
 
     The \uicontrol Original field displays the original color of the component,
-    whereas the \uicontrol New field displays the current color. The
-    \uicontrol Recent field displays the colors that you have last selected.
+    while the \uicontrol New field displays the current color.
 
-    \section1 Picking Gradients
+    Make the color fully transparent by clicking the \uicontrol Transparent icon
+    (3).
 
-    A gradient is defined by two or more colors, which will be blended
+    To use preset \l {Selecting Web Gradients}{web gradients}, click the
+    \uicontrol {Gradient Picker} icon (4).
+
+    Use the dropdown menu (5) to determine the color fill type you wish to use.
+    You can choose a solid or a gradient color. Available gradient types vary
+    between components. The items listed in light grey are not available for the
+    selected component.
+
+    The current color bar (6) shows gradient and gradient stops when a gradient
+    is selected.
+
+    Use the hue slider (7) or the alpha slider (8) to further define a new
+    color.
+
+    Click the \uicontrol X icon to close the color picker.
+
+    \section2 Picking Gradients
+
+    A gradient is defined by two or more colors which are blended
     seamlessly. The colors are specified as a set of gradient stops,
     each of which defines a position on the gradient bar from 0.0 to 1.0
     and a color. Drag the gradient stops along the gradient bar to set their
@@ -205,6 +226,10 @@
     it with the finger-shaped cursor. To remove gradient stops, pull them away
     from the gradient line.
 
+    Set the direction of the gradient by selecting \uicontrol Horizontal
+    or \uicontrol Vertical in the \uicontrol {Gradient Controls} section of the
+    color picker.
+
     \image qtquick-designer-gradient-stops.gif
 
     Calculating gradients can be computationally expensive compared to the
@@ -214,10 +239,13 @@
     \if defined(qtdesignstudio)
     \section2 Setting Gradient Properties
 
-    Select the arrow below the gradient button to set gradient properties
-    for \l{Shapes}{Qt Quick Studio Components}.
+    \image qtquick-designer-gradient-types.png "Available gradient types"
 
-    \image qtquick-designer-gradient-types.png "Gradients supported by Qt Quick Studio Components"
+    You can select \uicontrol Linear (1), \uicontrol Radial (2), or
+    \uicontrol Conical (3) as the color fill type. After selecting one of the
+    gradient types, you can define the gradient properties for
+    \l{Shapes}{Qt Quick Studio Components} in the \uicontrol {Gradient Controls}
+    section of the color picker.
 
     \section3 Linear Gradients
 
@@ -227,7 +255,7 @@
     vertical interpolation in the \uicontrol X1, \uicontrol X2, \uicontrol Y1,
     and \uicontrol Y2 fields.
 
-    \image qtquick-designer-gradient-properties-linear.png "Linear gradient properties"
+    \image qtquick-designer-gradient-properties-linear.png "Linear gradient controls"
 
     \section3 Radial Gradients
 
@@ -236,16 +264,17 @@
     be transparent. Outside the end points, the gradient is either padded,
     reflected, or repeated depending on the spread type.
 
-    \image qtquick-designer-gradient-properties-radial.png "Radial gradient properties"
-
     You can set the center and focal radius in the \uicontrol {Center radius}
     and \uicontrol {Focal radius} fields. For simple radial gradients, set
-    the focal radius to 0.
+    \uicontrol {Focal radius} to 0.
 
     You can set the center and focal points in the \uicontrol CenterX,
     \uicontrol CenterY, \uicontrol FocalX, and \uicontrol FocalY fields.
-    To specify a simple radial gradient, set the focal X and focal Y to
-    the value of center X and center Y, respectively.
+    To specify a simple radial gradient, set the \uicontrol FocalX and
+    \uicontrol FocalY to the value of \uicontrol CenterX and \uicontrol CenterY,
+    respectively.
+
+    \image qtquick-designer-gradient-properties-radial.png "Radial gradient properties"
 
     \section3 Conical Gradients
 
@@ -264,7 +293,7 @@
     that support \l QGradient.
 
     To open the \uicontrol {Gradient Picker}, select the
-    \uicontrol {Gradient Picker Dialog} icon in the \uicontrol Properties view.
+    \uicontrol {Gradient Picker Dialog} icon (4).
 
     \image qtquick-designer-gradient-picker.png "Gradient Picker dialog"
 
@@ -273,8 +302,43 @@
     To save a gradient in the \uicontrol {User Presets} tab, select
     \uicontrol Save.
 
-    By default, a linear gradient (4) is used, but you can select another
-    supported gradient type in the \uicontrol Properties view.
+    By default, a linear gradient is used, but you can select another
+    supported gradient type in the dropdown menu (5) of the color picker.
+
+    \section2 Color Details
+
+    Further define the colors in your project by modifying the properties in the
+    \uicontrol {Color Details} section of the color picker.
+
+    \image qtquick-designer-color-details.png "Color Details tab"
+
+    Use the \uicontrol Hex property to enter the Hex value of a new color
+    manually. Define exact values for red, green, and blue using the
+    \uicontrol Hex property to create different shades for the colors used in
+    the project.
+
+    The default color value mode is HSVA (hue-saturation-value-alpha). Use the
+    dropdown menu to change the color value mode to RGBA (red-green-blue-alpha)
+    or HSLA (hue-saturation-lightness-alpha). \e Hue is defined in degrees which
+    refer to different colors of the color wheel. \e Saturation modifies the
+    intensity of the color. \e Value determines the brightness of the color. In
+    HSLA \e Lightness signifies the amount of white or black blended with the
+    color.
+
+    \section2 Palette
+
+    \image qtquick-designer-color-palette.png "Color Palette tab"
+
+    Use the dropdown menu in the \uicontrol Palette section of the
+    color picker to change the \uicontrol Palette type. \uicontrol Recent
+    displays the recent colors used in the project, while \uicontrol Favorites
+    shows the colors you have added to your collection of favorite colors. You
+    can add colors to \uicontrol Favorites by right-clicking the color thumbnail
+    for \uicontrol Original, \uicontrol New, or in \uicontrol Palette >
+    \uicontrol Recent colors and selecting \uicontrol {Add to Favorites}.
+
+    Click one of the \uicontrol Palette color thumbnails to select it as
+    the new color.
 
     \section1 Specifying Developer Properties
 
