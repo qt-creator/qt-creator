@@ -321,8 +321,6 @@ bool Qt5NodeInstanceServer::renderWindow()
     m_viewData.renderControl->render();
     m_viewData.renderControl->endFrame();
     return true;
-#else
-    Q_UNUSED(viewData)
 #endif
     return false;
 }
