@@ -45,12 +45,12 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Tab bar")
+        caption: qsTr("Tab Bar")
 
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Position")
-                tooltip: qsTr("Position of the tabbar.")
+                tooltip: qsTr("Position of the tab bar.")
             }
 
             SecondColumnLayout {

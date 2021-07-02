@@ -31,7 +31,7 @@ import StudioTheme 1.0 as StudioTheme
 
 Section {
     id: root
-    caption: qsTr("Geometry - 2d")
+    caption: qsTr("Geometry - 2D")
 
     anchors.left: parent.left
     anchors.right: parent.right
@@ -231,7 +231,7 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Z Stack") }
+        PropertyLabel { text: qsTr("Z stack") }
 
         SecondColumnLayout {
             SpinBox {

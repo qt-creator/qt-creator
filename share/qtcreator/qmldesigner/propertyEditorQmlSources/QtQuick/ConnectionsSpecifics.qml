@@ -52,7 +52,7 @@ Column {
 
             Label {
                 text: qsTr("Ignore unknown signals")
-                tooltip: qsTr("A connection to a non-existent signal produces runtime errors. If this property is set to true, such errors are ignored")
+                tooltip: qsTr("Ignores runtime errors produced by connections to non-existent signals.")
             }
             SecondColumnLayout {
                 CheckBox {

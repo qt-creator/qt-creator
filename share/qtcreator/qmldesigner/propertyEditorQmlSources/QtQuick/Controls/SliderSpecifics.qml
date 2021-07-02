@@ -66,7 +66,7 @@ Column {
                 Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
                 CheckBox {
-                    text: qsTr("live")
+                    text: qsTr("Live")
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                 + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.live
@@ -135,7 +135,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Drag threshold")
-                tooltip: qsTr("The threshold (in logical pixels) at which a Drag event will be initiated.")
+                tooltip: qsTr("The threshold (in logical pixels) at which a drag event will be initiated.")
             }
 
             SecondColumnLayout {

@@ -43,7 +43,7 @@ Column {
     width: parent.width
 
     Section {
-        caption: qsTr("Progress bar")
+        caption: qsTr("Progress Bar")
 
         width: parent.width
 

@@ -44,7 +44,7 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Scroll view")
+        caption: qsTr("Scroll View")
 
         SectionLayout {
             PropertyLabel { text: qsTr("Content size") }
@@ -96,7 +96,7 @@ Column {
     PaddingSection {}
 
     FontSection {
-        caption: qsTr("Font inheritance")
+        caption: qsTr("Font Inheritance")
         expanded: false
     }
 }

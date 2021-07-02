@@ -44,7 +44,7 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Swipe view")
+        caption: qsTr("Swipe View")
 
         SectionLayout {
             PropertyLabel {
@@ -90,7 +90,7 @@ Column {
     PaddingSection {}
 
     FontSection {
-        caption: qsTr("Font inheritance")
+        caption: qsTr("Font Inheritance")
         expanded: false
     }
 }

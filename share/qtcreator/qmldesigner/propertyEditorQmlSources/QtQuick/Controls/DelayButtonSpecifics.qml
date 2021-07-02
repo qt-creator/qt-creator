@@ -43,7 +43,7 @@ Column {
     width: parent.width
 
     Section {
-        caption: qsTr("Delay button")
+        caption: qsTr("Delay Button")
 
         width: parent.width
 

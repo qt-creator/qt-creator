@@ -43,7 +43,7 @@ Column {
     width: parent.width
 
     Section {
-        caption: qsTr("Group box")
+        caption: qsTr("Group Box")
 
         width: parent.width
 

@@ -52,7 +52,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Sampler Name")
+            text: qsTr("Sampler name")
             tooltip: qsTr("Name of the effect's source texture property.")
         }
 
@@ -185,7 +185,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Texture Mirroring")
+            text: qsTr("Texture mirroring")
             tooltip: qsTr("Sets how the generated OpenGL texture should be mirrored.")
         }
 

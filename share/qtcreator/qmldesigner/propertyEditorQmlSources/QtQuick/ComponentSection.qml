@@ -103,7 +103,7 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("id") }
+        PropertyLabel { text: qsTr("ID") }
 
         SecondColumnLayout {
             Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
@@ -187,7 +187,7 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("id Annotation") }
+        PropertyLabel { text: qsTr("Name") }
 
         SecondColumnLayout {
             enabled: !modelNodeBackend.multiSelection
@@ -205,7 +205,7 @@ Section {
                             - removeAnnotationButton.width
                             + 2 * StudioTheme.Values.border
                     backendValue: backendValues.customId__AUX
-                    placeholderText: qsTr("customId")
+                    placeholderText: qsTr("Descriptive text")
                     text: backendValue.value
                     showTranslateCheckBox: false
                     showExtendedFunctionButton: false
@@ -233,7 +233,7 @@ Section {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: StudioTheme.Values.singleControlColumnWidth
                 visible: !annotationEditor.hasAuxData
-                buttonIcon: qsTr("add")
+                buttonIcon: qsTr("Add Annotation")
                 iconFont: StudioTheme.Constants.font
                 onClicked: annotationEditor.showWidget()
                 onHoveredChanged: annotationEditor.checkAux()

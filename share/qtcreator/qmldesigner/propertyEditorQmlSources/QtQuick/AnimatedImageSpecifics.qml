@@ -38,7 +38,7 @@ Column {
     }
 
     Section {
-        caption: qsTr("Animated image")
+        caption: qsTr("Animated Image")
 
         anchors.left: parent.left
         anchors.right: parent.right
@@ -69,7 +69,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Playing")
-                tooltip: qsTr("Whether the animation is playing and/or paused.")
+                tooltip: qsTr("Whether the animation is playing or paused.")
                 disabledState: !backendValues.playing.isAvailable && !backendValues.paused.isAvailable
             }
 

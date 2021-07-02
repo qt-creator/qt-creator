@@ -44,12 +44,12 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Spin box")
+        caption: qsTr("Spin Box")
 
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Value")
-                tooltip: qsTr("The current value of the spinbox.")
+                tooltip: qsTr("The current value of the spin box.")
             }
 
             SecondColumnLayout {
@@ -67,7 +67,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("From")
-                tooltip: qsTr("The starting value of the spinbox range.")
+                tooltip: qsTr("The starting value of the spin box range.")
             }
 
             SecondColumnLayout {
@@ -85,7 +85,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("To")
-                tooltip: qsTr("The ending value of the spinbox range.")
+                tooltip: qsTr("The ending value of the spin box range.")
             }
 
             SecondColumnLayout {
@@ -103,7 +103,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Step size")
-                tooltip: qsTr("The step size of the spinbox.")
+                tooltip: qsTr("The step size of the spin box.")
             }
 
             SecondColumnLayout {
@@ -121,7 +121,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Editable")
-                tooltip: qsTr("Whether the spinbox is editable.")
+                tooltip: qsTr("Whether the spin box is editable.")
             }
 
             SecondColumnLayout {
@@ -137,7 +137,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Wrap")
-                tooltip: qsTr("Whether the spinbox wraps.")
+                tooltip: qsTr("Whether the spin box values wrap.")
             }
 
             SecondColumnLayout {

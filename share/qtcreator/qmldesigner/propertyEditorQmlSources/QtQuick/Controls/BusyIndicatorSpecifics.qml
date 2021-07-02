@@ -44,7 +44,7 @@ Column {
     width: parent.width
 
     Section {
-        caption: qsTr("Busy indicator")
+        caption: qsTr("Busy Indicator")
 
         width: parent.width
 
@@ -56,7 +56,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("live")
+                    text: qsTr("Live")
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.running

@@ -85,7 +85,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Wrap")
-                tooltip: qsTr("Whether the tumbler wrap.")
+                tooltip: qsTr("Whether the tumbler values wrap.")
             }
 
             SecondColumnLayout {
