@@ -288,7 +288,7 @@ public:
         auto dockerDevice = device.dynamicCast<DockerDevice>();
         QTC_ASSERT(dockerDevice, return);
 
-        auto idLabel = new QLabel(tr("Image Id:"));
+        auto idLabel = new QLabel(tr("Image ID:"));
         m_idLineEdit = new QLineEdit;
         m_idLineEdit->setText(dockerDevice->data().imageId);
         m_idLineEdit->setEnabled(false);
@@ -299,8 +299,8 @@ public:
         m_repoLineEdit->setEnabled(false);
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
-        m_runAsOutsideUser->setToolTip(tr("Use user id and group id of the user running Qt Creator "
-                                          "in the docker container."));
+        m_runAsOutsideUser->setToolTip(tr("Use user ID and group ID of the user running Qt Creator "
+                                          "in the Docker container."));
         m_runAsOutsideUser->setChecked(dockerDevice->data().useLocalUidGid);
         m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
 
@@ -311,7 +311,7 @@ public:
         m_pathsLineEdit = new QLineEdit;
         m_pathsLineEdit->setText(dockerDevice->data().repo);
         m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
-            "mapped one-to-one into the docker container."));
+            "mapped one-to-one into the Docker container."));
         m_pathsLineEdit->setText(dockerDevice->data().mounts.join(';'));
 
         connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
@@ -343,7 +343,7 @@ public:
             Column {
                 Space(20),
                 Row { autoDetectButton, undoAutoDetectButton, Stretch() },
-                new QLabel(tr("Detection Log:")),
+                new QLabel(tr("Detection log:")),
                 logView
             }
         }.attachTo(this);
@@ -444,7 +444,7 @@ void DockerDevicePrivate::undoAutoDetect(QTextBrowser *log) const
     };
 
     if (log)
-        log->append(tr("Toolchains not removed."));
+        log->append(tr("Tool chains not removed."));
     //        for (ToolChain *toolChain : ToolChainManager::toolChains()) {
     //            if (toolChain->autoDetectionSource() == id.toString())
     //                // FIXME: Implement
@@ -487,17 +487,17 @@ QList<ToolChain *> DockerDevicePrivate::autoDetectToolChains(QTextBrowser *log)
 
     QList<ToolChain *> toolChains;
     QApplication::processEvents();
-    log->append('\n' + tr("Searching toolchains..."));
+    log->append('\n' + tr("Searching tool chains..."));
     for (ToolChainFactory *factory : factories) {
         const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, q->sharedFromThis());
-        log->append(tr("Searching toolchains of type %1").arg(factory->displayName()));
+        log->append(tr("Searching tool chains of type %1").arg(factory->displayName()));
         for (ToolChain *toolChain : newToolChains) {
-            log->append(tr("Found ToolChain: %1").arg(toolChain->compilerCommand().toUserOutput()));
+            log->append(tr("Found tool chain: %1").arg(toolChain->compilerCommand().toUserOutput()));
             ToolChainManager::registerToolChain(toolChain);
             toolChains.append(toolChain);
         }
     }
-    log->append(tr("%1 new toolchains found.").arg(toolChains.size()));
+    log->append(tr("%1 new tool chains found.").arg(toolChains.size()));
 
     return toolChains;
 }
@@ -577,7 +577,7 @@ void DockerDevicePrivate::autoDetect(QTextBrowser *log)
 
     Kit *kit = KitManager::registerKit(initializeKit);
     if (log)
-        log->append('\n' + tr("Registered Kit %1").arg(kit->displayName()));
+        log->append('\n' + tr("Registered kit %1").arg(kit->displayName()));
 
     QApplication::restoreOverrideCursor();
 }
