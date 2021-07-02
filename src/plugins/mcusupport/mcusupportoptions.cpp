@@ -839,7 +839,7 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const QString
                           "CMAKE_TOOLCHAIN_FILE",
                           cMakeToolchainFile.toString().toUtf8()));
         if (!cMakeToolchainFile.exists()) {
-            printMessage(McuTarget::tr("Warning for target %1: missing CMake Toolchain File expected at %2.")
+            printMessage(McuTarget::tr("Warning for target %1: missing CMake toolchain file expected at %2.")
                   .arg(McuSupportOptions::kitName(mcuTarget), cMakeToolchainFile.toUserOutput()), false);
         }
     }
@@ -1023,10 +1023,10 @@ McuSupportOptions::UpgradeOption McuSupportOptions::askForKitUpgrades()
 {
     QMessageBox upgradePopup(Core::ICore::dialogParent());
     upgradePopup.setStandardButtons(QMessageBox::Cancel);
-    QPushButton *replaceButton = upgradePopup.addButton(tr("Replace existing kits"),QMessageBox::NoRole);
-    QPushButton *keepButton = upgradePopup.addButton(tr("Create new kits"),QMessageBox::NoRole);
+    QPushButton *replaceButton = upgradePopup.addButton(tr("Replace Existing Kits"),QMessageBox::NoRole);
+    QPushButton *keepButton = upgradePopup.addButton(tr("Create New Kits"),QMessageBox::NoRole);
     upgradePopup.setWindowTitle(tr("Qt for MCUs"));
-    upgradePopup.setText(tr("New version of Qt for MCUs detected. Upgrade existing Kits?"));
+    upgradePopup.setText(tr("New version of Qt for MCUs detected. Upgrade existing kits?"));
 
     upgradePopup.exec();
 
@@ -1282,7 +1282,7 @@ McuDependenciesKitAspect::McuDependenciesKitAspect()
 {
     setObjectName(QLatin1String("McuDependenciesKitAspect"));
     setId(McuDependenciesKitAspect::id());
-    setDisplayName(tr("Mcu Dependencies"));
+    setDisplayName(tr("MCU Dependencies"));
     setDescription(tr("Paths to 3rd party dependencies"));
     setPriority(28500);
 }
@@ -1294,7 +1294,7 @@ Tasks McuDependenciesKitAspect::validate(const Kit *k) const
 
     const QVariant checkFormat = k->value(McuDependenciesKitAspect::id());
     if (!checkFormat.isNull() && !checkFormat.canConvert(QVariant::List))
-        return { BuildSystemTask(Task::Error, tr("The mcu dependencies setting value is invalid.")) };
+        return { BuildSystemTask(Task::Error, tr("The MCU dependencies setting value is invalid.")) };
 
     const QVariant envStringList = k->value(EnvironmentKitAspect::id());
     if (!envStringList.isNull() && !envStringList.canConvert(QVariant::List))
