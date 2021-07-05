@@ -452,7 +452,7 @@ static void filterOutQtBaseImportPath(QStringList *stringList)
 {
     Utils::erase(*stringList, [](const QString &string) {
         QDir dir(string);
-        return dir.dirName() == "qml" && !dir.entryInfoList(QStringList("QtQuick.2"), QDir::Dirs).isEmpty();
+        return dir.dirName() == "qml" && !dir.entryInfoList(QStringList("QtTest"), QDir::Dirs).isEmpty();
     });
 }
 
