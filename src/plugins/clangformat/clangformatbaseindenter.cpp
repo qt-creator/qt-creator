@@ -300,8 +300,8 @@ int forceIndentWithExtraText(QByteArray &buffer,
         if (block.previous().isValid()) {
             const int prevEndOffset = Utils::Text::utf8NthLineOffset(block.document(), buffer,
                     block.blockNumber()) + block.previous().text().length();
-            buffer.insert(prevEndOffset, "//");
-            extraLength += 2;
+            buffer.insert(prevEndOffset, " //");
+            extraLength += 3;
         }
     }
     buffer.insert(utf8Offset + extraLength, dummyText);

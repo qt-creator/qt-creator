@@ -957,7 +957,7 @@ TEST_F(ClangFormat, ChainedMemberFunctionCalls)
                                              "    .func();"));
 }
 
-TEST_F(ClangFormat, DISABLED_CommentBlock)
+TEST_F(ClangFormat, CommentBlock)
 {
     insertLines({"/****************************************************************************",
                  "**",
