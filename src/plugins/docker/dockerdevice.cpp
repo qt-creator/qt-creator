@@ -1037,15 +1037,19 @@ FilePath DockerDevice::searchInPath(const FilePath &filePath) const
     return mapToGlobalPath(FilePath::fromString(output));
 }
 
-QList<FilePath> DockerDevice::directoryEntries(const FilePath &filePath,
-                                               const QStringList &nameFilters,
-                                               QDir::Filters filters,
-                                               QDir::SortFlags sort) const
+FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
+                                         const QStringList &nameFilters,
+                                         QDir::Filters filters,
+                                         QDir::SortFlags sort) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
-    if (hasLocalFileAccess())
-        return mapToLocalAccess(filePath).dirEntries(nameFilters, filters, sort);
+    if (hasLocalFileAccess()) {
+        const FilePaths entries = mapToLocalAccess(filePath).dirEntries(nameFilters, filters, sort);
+        return Utils::transform(entries, [this](const FilePath &entry) {
+            return mapFromLocalAccess(entry);
+        });
+    }
 
     QTC_CHECK(false); // FIXME: Implement
     return {};
