@@ -69,7 +69,9 @@ public:
     void setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState);
 
     bool isLoaded() const;
+
     static IDevice::ConstPtr deviceForPath(const Utils::FilePath &path);
+    static IDevice::ConstPtr defaultDesktopDevice();
 
 signals:
     void deviceAdded(Utils::Id id);

@@ -104,7 +104,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
     r.setCommandLine(commandLine());
     r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory.toString();
-    r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+    r.device = DeviceManager::defaultDesktopDevice();
 
     if (!r.executable.isEmpty()) {
         const QString expanded = macroExpander()->expand(r.executable.toString());

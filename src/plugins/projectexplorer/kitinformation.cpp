@@ -1231,8 +1231,7 @@ BuildDeviceKitAspect::BuildDeviceKitAspect()
 QVariant BuildDeviceKitAspect::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
-    IDevice::ConstPtr defaultDevice =
-            DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+    IDevice::ConstPtr defaultDevice = DeviceManager::defaultDesktopDevice();
     return defaultDevice->id().toString();
 }
 

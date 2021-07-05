@@ -63,10 +63,8 @@ PerfTracePointDialog::PerfTracePointDialog() :
     }
 
     if (!m_device) {
-        const DeviceManager *deviceManager = DeviceManager::instance();
-
         // There should at least be a desktop device.
-        m_device = deviceManager->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+        m_device = DeviceManager::defaultDesktopDevice();
         QTC_ASSERT(m_device, return);
     }
 
