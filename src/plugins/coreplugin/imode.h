@@ -46,7 +46,6 @@ class CORE_EXPORT IMode : public IContext
 
 public:
     IMode(QObject *parent = nullptr);
-    ~IMode() override;
 
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }

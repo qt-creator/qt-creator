@@ -344,12 +344,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     Column {
         Form {
             buildDirAspect,
-            bc->aspect<InitialCMakeArgumentsAspect>(),
             bc->aspect<BuildTypeAspect>(),
-            QString(), clearCMakeConfiguration,
+            bc->aspect<InitialCMakeArgumentsAspect>(),
+            QString(), clearCMakeConfiguration, Break(),
             qmlDebugAspect
         },
-        Space(10),
         m_warningMessageLabel,
         Space(10),
         cmakeConfiguration,
@@ -459,6 +458,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(bc, &CMakeBuildConfiguration::errorOccurred, this, &CMakeBuildSettingsWidget::setError);
     connect(bc, &CMakeBuildConfiguration::warningOccurred, this, &CMakeBuildSettingsWidget::setWarning);
+    connect(bc, &CMakeBuildConfiguration::configurationChanged, this, [this](const CMakeConfig &config) {
+       m_configModel->setBatchEditConfiguration(config);
+    });
 
     updateFromKit();
     connect(m_buildConfiguration->target(), &Target::kitChanged,
@@ -1044,14 +1046,14 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
 
     const QString projectName = projectFilePath.parentDir().fileName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
-    QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
+    const FilePath projectDir = Project::projectDirectory(projectFilePath);
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     buildPath.replace(" ", "-");
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
         buildPath = buildPath.left(buildPath.lastIndexOf(QString("-%1").arg(bcName)));
 
-    return FilePath::fromUserInput(projectDir.absoluteFilePath(buildPath));
+    return projectDir.resolvePath(buildPath);
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)

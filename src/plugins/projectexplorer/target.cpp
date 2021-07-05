@@ -684,7 +684,7 @@ void Target::updateDefaultRunConfigurations()
                 present = true;
             }
         }
-        if (!present && project()->knowsAllBuildExecutables())
+        if (!present)
             toRemove.append(rc);
     }
     configuredCount -= toRemove.count();

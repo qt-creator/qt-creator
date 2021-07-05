@@ -308,6 +308,23 @@ QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData &viewData)
     return renderImage;
 }
 
+// This method simply renders the window without grabbing it
+bool Qt5NodeInstanceServer::renderWindow()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
+        return false;
+
+    m_viewData.renderControl->polishItems();
+    m_viewData.renderControl->beginFrame();
+    m_viewData.renderControl->sync();
+    m_viewData.renderControl->render();
+    m_viewData.renderControl->endFrame();
+    return true;
+#endif
+    return false;
+}
+
 QImage Qt5NodeInstanceServer::grabWindow()
 {
     if (m_viewData.rootItem)

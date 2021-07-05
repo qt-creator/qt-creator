@@ -75,16 +75,22 @@ public:
     std::function<bool(const FilePath &)> isWritableDir;
     std::function<bool(const FilePath &)> isWritableFile;
     std::function<bool(const FilePath &)> ensureWritableDir;
+    std::function<bool(const FilePath &)> ensureExistingFile;
     std::function<bool(const FilePath &)> createDir;
     std::function<bool(const FilePath &)> exists;
     std::function<bool(const FilePath &)> removeFile;
+    std::function<bool(const FilePath &)> removeRecursively;
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
+    std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &)> searchInPath;
-    std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
+    std::function<FilePath(const FilePath &)> symLinkTarget;
+    std::function<QList<FilePath>(const FilePath &, const QStringList &,
+                                  QDir::Filters, QDir::SortFlags)> dirEntries;
     std::function<QByteArray(const FilePath &, int)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;
+    std::function<OsType(const FilePath &)> osType;
 };
 
 class QTCREATOR_UTILS_EXPORT FilePath
@@ -133,11 +139,17 @@ public:
     bool isWritableDir() const;
     bool isWritableFile() const;
     bool ensureWritableDir() const;
+    bool ensureExistingFile() const;
     bool isExecutableFile() const;
     bool isReadableFile() const;
     bool isReadableDir() const;
+    bool isRelativePath() const;
+    bool isAbsolutePath() const { return !isRelativePath(); }
+
     bool createDir() const;
-    QList<FilePath> dirEntries(const QStringList &nameFilters, QDir::Filters filters) const;
+    QList<FilePath> dirEntries(const QStringList &nameFilters,
+                               QDir::Filters filters,
+                               QDir::SortFlags sort = QDir::NoSort) const;
     QList<FilePath> dirEntries(QDir::Filters filters) const;
     QByteArray fileContents(int maxSize = -1) const;
     bool writeFileContents(const QByteArray &data) const;
@@ -165,8 +177,11 @@ public:
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
+    OsType osType() const;
     bool removeFile() const;
+    bool removeRecursively(QString *error = nullptr) const;
     bool copyFile(const FilePath &target) const;
+    bool renameFile(const FilePath &target) const;
 
     Qt::CaseSensitivity caseSensitivity() const;
 
@@ -179,6 +194,9 @@ public:
     FilePath cleanPath() const;
 
     FilePath canonicalPath() const;
+    FilePath symLinkTarget() const;
+    FilePath resolveSymlinks() const;
+    FilePath withExecutableSuffix() const;
 
     FilePath operator/(const QString &str) const;
 
@@ -229,7 +247,6 @@ public:
     };
 #endif // QT_GUI_LIB
 
-    static bool removeRecursively(const FilePath &filePath, QString *error = nullptr);
     static bool copyRecursively(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath,
                                 QString *error = nullptr);
@@ -240,7 +257,6 @@ public:
                                 T &&copyHelper);
     static bool copyIfDifferent(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath);
-    static FilePath resolveSymlinks(const FilePath &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
     static QString qmakeFriendlyName(const QString &name);

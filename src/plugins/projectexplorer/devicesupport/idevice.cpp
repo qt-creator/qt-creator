@@ -260,6 +260,13 @@ bool IDevice::ensureWritableDirectory(const FilePath &filePath) const
     return createDirectory(filePath);
 }
 
+bool IDevice::ensureExistingFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 bool IDevice::createDirectory(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
@@ -281,7 +288,22 @@ bool IDevice::removeFile(const FilePath &filePath) const
     return false;
 }
 
+bool IDevice::removeRecursively(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 bool IDevice::copyFile(const FilePath &filePath, const FilePath &target) const
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(target);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(target);
@@ -294,13 +316,22 @@ FilePath IDevice::searchInPath(const FilePath &filePath) const
     return Environment::systemEnvironment().searchInPath(filePath.path());
 }
 
+FilePath IDevice::symLinkTarget(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return {};
+}
+
 QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
                                           const QStringList &nameFilters,
-                                          QDir::Filters filters) const
+                                          QDir::Filters filters,
+                                          QDir::SortFlags sort) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(nameFilters);
     Q_UNUSED(filters);
+    Q_UNUSED(sort);
     QTC_CHECK(false);
     return {};
 }

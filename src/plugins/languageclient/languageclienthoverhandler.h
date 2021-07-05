@@ -25,14 +25,21 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <languageserverprotocol/languagefeatures.h>
 #include <texteditor/basehoverhandler.h>
+
+#include <functional>
 
 namespace LanguageClient {
 
 class Client;
 
-class HoverHandler final : public TextEditor::BaseHoverHandler
+using HelpItemProvider = std::function<void(const LanguageServerProtocol::HoverRequest::Response &,
+                                            const LanguageServerProtocol::DocumentUri &uri)>;
+
+class LANGUAGECLIENT_EXPORT HoverHandler final : public TextEditor::BaseHoverHandler
 {
     Q_DECLARE_TR_FUNCTIONS(HoverHandler)
 public:
@@ -40,6 +47,9 @@ public:
     ~HoverHandler() override;
 
     void abort() override;
+
+    void setHelpItemProvider(const HelpItemProvider &provider) { m_helpItemProvider = provider; }
+    void setHelpItem(const LanguageServerProtocol::MessageId &msgId, const Core::HelpItem &help);
 
 protected:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
@@ -52,7 +62,10 @@ private:
 
     QPointer<Client> m_client;
     Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    LanguageServerProtocol::DocumentUri m_uri;
+    LanguageServerProtocol::HoverRequest::Response m_response;
     TextEditor::BaseHoverHandler::ReportPriority m_report;
+    HelpItemProvider m_helpItemProvider;
 };
 
 } // namespace LanguageClient

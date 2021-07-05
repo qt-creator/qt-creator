@@ -76,7 +76,7 @@
       <item>
        <widget class="QRadioButton" name="rbTabView">
         <property name="text">
-         <string>Tab View</string>
+         <string>Tab view</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -86,7 +86,7 @@
       <item>
        <widget class="QRadioButton" name="rbTableView">
         <property name="text">
-         <string>Table View</string>
+         <string>Table view</string>
         </property>
        </widget>
       </item>
@@ -135,7 +135,7 @@
         <item>
          <widget class="QLabel" name="customIdLabel">
           <property name="text">
-           <string>Custom ID</string>
+           <string>Name</string>
           </property>
          </widget>
         </item>

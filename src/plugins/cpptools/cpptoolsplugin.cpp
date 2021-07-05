@@ -49,6 +49,7 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
@@ -86,6 +87,7 @@ public:
     ~CppToolsPluginPrivate()
     {
         ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
+        delete m_clangdSettingsPage;
     }
 
     StringTable stringTable;
@@ -95,6 +97,7 @@ public:
     CppFileSettings m_fileSettings;
     CppFileSettingsPage m_cppFileSettingsPage{&m_fileSettings};
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage{&m_codeModelSettings};
+    ClangdSettingsPage *m_clangdSettingsPage = nullptr;
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
@@ -208,6 +211,14 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
                 tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
                 [] { return usePragmaOnce() ? QString("true") : QString(); });
 
+    const auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
+    panelFactory->setPriority(100);
+    panelFactory->setDisplayName(tr("Clangd"));
+    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+        return new ClangdProjectSettingsWidget(project);
+    });
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+
     return true;
 }
 
@@ -218,6 +229,8 @@ void CppToolsPlugin::extensionsInitialized()
     d->m_fileSettings.fromSettings(ICore::settings());
     if (!d->m_fileSettings.applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
+    if (CppModelManager::instance()->isClangCodeModelActive())
+        d->m_clangdSettingsPage = new ClangdSettingsPage;
 }
 
 CppCodeModelSettings *CppToolsPlugin::codeModelSettings()

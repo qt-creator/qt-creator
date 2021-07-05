@@ -31,15 +31,26 @@
 
 #include <QMap>
 
-namespace TextEditor { class TextDocument; }
+#include <functional>
+
+namespace TextEditor {
+class TextDocument;
+class TextMark;
+}
 
 namespace LanguageClient {
+
+class Client;
+
+using TextMarkCreator = std::function<TextEditor::TextMark *(const Utils::FilePath &,
+        const LanguageServerProtocol::Diagnostic &)>;
+using HideDiagnosticsHandler = std::function<void()>;
 
 class DiagnosticManager
 {
     Q_DECLARE_TR_FUNCTIONS(LanguageClient::DiagnosticManager)
 public:
-    explicit DiagnosticManager(const Utils::Id &clientId);
+    explicit DiagnosticManager(Client *client);
     ~DiagnosticManager();
 
     void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
@@ -55,6 +66,12 @@ public:
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
         const LanguageServerProtocol::DocumentUri &uri,
         const QTextCursor &cursor) const;
+    bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+                       const TextEditor::TextDocument *doc,
+                       const LanguageServerProtocol::Diagnostic &diag) const;
+
+    void setDiagnosticsHandlers(const TextMarkCreator &shownHandler,
+                                const HideDiagnosticsHandler &removalHandler);
 
 private:
     struct VersionedDiagnostics {
@@ -62,7 +79,9 @@ private:
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
     QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
-    Utils::Id m_clientId;
+    TextMarkCreator m_textMarkCreator;
+    HideDiagnosticsHandler m_hideHandler;
+    Client *m_client;
 };
 
 } // namespace LanguageClient

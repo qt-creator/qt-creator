@@ -449,8 +449,7 @@ public:
                 // 'clang-analyzer-' group
                 if (node->isDir)
                     return CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
-                return QString::fromUtf8(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE)
-                        .arg(node->fullPath.toString());
+                return clangTidyDocUrl(node->fullPath.toString());
             }
 
             return BaseChecksTreeModel::data(fullIndex, role);

@@ -130,11 +130,26 @@ QString ClangDiagnosticConfig::clangTidyChecksAsJson() const
 {
     QString jsonString = "{Checks: '" + clangTidyChecks()
             + ",-clang-diagnostic-*', CheckOptions: [";
+
+    // The check is either listed verbatim or covered by the "<prefix>-*" pattern.
+    const auto checkIsEnabled = [this](const QString &check) {
+        for (QString subString = check; !subString.isEmpty();
+             subString.chop(subString.length() - subString.lastIndexOf('-'))) {
+            const int idx = m_clangTidyChecks.indexOf(subString);
+            if (idx == -1)
+                continue;
+            if (idx > 0 && m_clangTidyChecks.at(idx - 1) == '-')
+                continue;
+            if (subString == check || QStringView(m_clangTidyChecks)
+                    .mid(idx + subString.length()).startsWith(QLatin1String("-*"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     for (auto it = m_tidyChecksOptions.cbegin(); it != m_tidyChecksOptions.cend(); ++it) {
-        const int idx = m_clangTidyChecks.indexOf(it.key());
-        if (idx == -1)
-            continue;
-        if (idx > 0 && m_clangTidyChecks.at(idx - 1) == '-')
+        if (!checkIsEnabled(it.key()))
             continue;
         QString optionString;
         for (auto optIt = it.value().begin(); optIt != it.value().end(); ++optIt) {

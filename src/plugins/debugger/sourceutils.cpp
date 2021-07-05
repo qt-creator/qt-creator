@@ -414,7 +414,7 @@ static void setValueAnnotationsHelper(BaseTextEditor *textEditor,
             const QString expression = expressionUnderCursor(tc);
             if (expression.isEmpty())
                 continue;
-            const QString value = values.take(expression); // Show value one only once.
+            const QString value = escapeUnprintable(values.take(expression)); // Show value one only once.
             if (value.isEmpty())
                 continue;
             const QString annotation = QString("%1: %2").arg(expression, value);

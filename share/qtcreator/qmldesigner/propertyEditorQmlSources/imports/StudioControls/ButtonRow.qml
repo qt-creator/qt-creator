@@ -31,7 +31,7 @@ import StudioTheme 1.0 as StudioTheme
 Row {
     id: myButtonRow
 
-    property bool hover: actionIndicator.hover || myButtonRow.childHover
+    property bool hover: (actionIndicator.hover || myButtonRow.childHover) && myButtonRow.enabled
     property bool childHover: false
 
     property alias actionIndicator: actionIndicator

@@ -109,12 +109,6 @@ public:
         updateGeometry();
     }
     void setEnabled(int index, bool enabled);
-    void removeTab(int index)
-    {
-        FancyTab *tab = m_tabs.takeAt(index);
-        delete tab;
-        updateGeometry();
-    }
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
 
@@ -148,7 +142,6 @@ public:
     FancyTabWidget(QWidget *parent = nullptr);
 
     void insertTab(int index, QWidget *tab, const QIcon &icon, const QString &label, bool hasMenu);
-    void removeTab(int index);
     void setBackgroundBrush(const QBrush &brush);
     void addCornerWidget(QWidget *widget);
     void insertCornerWidget(int pos, QWidget *widget);

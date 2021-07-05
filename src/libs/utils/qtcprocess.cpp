@@ -71,7 +71,7 @@ enum { syncDebug = 0 };
 
 enum { defaultMaxHangTimerCount = 10 };
 
-static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
+static Q_LOGGING_CATEGORY(processLog, "qtc.utils.qtcprocess", QtWarningMsg)
 
 static DeviceProcessHooks s_deviceHooks;
 
@@ -325,6 +325,11 @@ void QtcProcess::start()
         return;
     }
 
+    if (processLog().isDebugEnabled()) {
+        static int n = 0;
+        qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << d->m_commandLine.toUserOutput();
+    }
+
     Environment env;
     const OsType osType = HostOsInfo::hostOs();
     if (d->m_haveEnv) {
@@ -442,6 +447,11 @@ void QtcProcess::setKeepWriteChannelOpen()
 bool QtcProcess::keepsWriteChannelOpen() const
 {
     return d->m_process->m_keepStdInOpen;
+}
+
+void QtcProcess::setStandardInputFile(const QString &inputFile)
+{
+    d->m_process->setStandardInputFile(inputFile);
 }
 
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)

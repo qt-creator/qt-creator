@@ -104,8 +104,10 @@ QList<SemanticToken> SemanticTokens::toTokens(const QList<int> &tokenTypes,
         token.deltaLine = *(it);
         token.deltaStart = *(it + 1);
         token.length = *(it + 2);
-        token.tokenType = tokenTypes.value(*(it + 3), -1);
-        token.tokenModifiers = convertModifiers(*(it + 4), tokenModifiers);
+        token.tokenIndex = *(it + 3);
+        token.tokenType = tokenTypes.value(token.tokenIndex, -1);
+        token.rawTokenModifiers = *(it + 4);
+        token.tokenModifiers = convertModifiers(token.rawTokenModifiers, tokenModifiers);
         tokens << token;
     }
     return tokens;

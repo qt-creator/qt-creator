@@ -38,6 +38,8 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Project; }
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
@@ -78,13 +80,6 @@ public:
     int indexerFileSizeLimitInMb() const;
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
-    void setUseClangd(bool use) { m_useClangd = use; }
-    bool useClangd() const { return m_useClangd; }
-
-    static void setDefaultClangdPath(const Utils::FilePath &filePath);
-    void setClangdFilePath(const Utils::FilePath &filePath) { m_clangdFilePath = filePath; }
-    Utils::FilePath clangdFilePath() const;
-
     void setCategorizeFindReferences(bool categorize) { m_categorizeFindReferences = categorize; }
     bool categorizeFindReferences() const { return m_categorizeFindReferences; }
 
@@ -100,9 +95,84 @@ private:
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
     Utils::Id m_clangDiagnosticConfigId;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
-    Utils::FilePath m_clangdFilePath;
-    bool m_useClangd = false;
     bool m_categorizeFindReferences = false; // Ephemeral!
+};
+
+class CPPTOOLS_EXPORT ClangdSettings : public QObject
+{
+    Q_OBJECT
+public:
+    class CPPTOOLS_EXPORT Data
+    {
+    public:
+        QVariantMap toMap() const;
+        void fromMap(const QVariantMap &map);
+
+        Utils::FilePath executableFilePath;
+        int workerThreadLimit = 0;
+        bool useClangd = false;
+        bool enableIndexing = true;
+    };
+
+    ClangdSettings(const Data &data) : m_data(data) {}
+
+    static ClangdSettings &instance();
+    bool useClangd() const { return m_data.useClangd; }
+
+    static void setDefaultClangdPath(const Utils::FilePath &filePath);
+    Utils::FilePath clangdFilePath() const;
+    bool indexingEnabled() const { return m_data.enableIndexing; }
+    int workerThreadLimit() const { return m_data.workerThreadLimit; }
+
+    void setData(const Data &data);
+    Data data() const { return m_data; }
+
+#ifdef WITH_TESTS
+    static void setUseClangd(bool use);
+    static void setClangdFilePath(const Utils::FilePath &filePath);
+#endif
+
+signals:
+    void changed();
+
+private:
+    ClangdSettings() { loadSettings(); }
+
+    void loadSettings();
+    void saveSettings();
+
+    Data m_data;
+};
+
+inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
+{
+    return s1.useClangd == s2.useClangd
+            && s1.executableFilePath == s2.executableFilePath
+            && s1.workerThreadLimit == s2.workerThreadLimit
+            && s1.enableIndexing == s2.enableIndexing;
+}
+inline bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
+{
+    return !(s1 == s2);
+}
+
+class CPPTOOLS_EXPORT ClangdProjectSettings
+{
+public:
+    ClangdProjectSettings(ProjectExplorer::Project *project);
+
+    ClangdSettings::Data settings() const;
+    void setSettings(const ClangdSettings::Data &data);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    ClangdSettings::Data m_customSettings;
+    bool m_useGlobalSettings = true;
 };
 
 } // namespace CppTools

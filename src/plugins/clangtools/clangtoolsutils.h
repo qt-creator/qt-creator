@@ -42,6 +42,8 @@ namespace Debugger { class DiagnosticLocation; }
 namespace ClangTools {
 namespace Internal {
 
+QString clangTidyDocUrl(const QString &check);
+
 class Diagnostic;
 
 enum class FixitStatus {

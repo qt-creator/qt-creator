@@ -241,7 +241,7 @@ public:
             return Utils::nullopt;
         return Utils::make_optional(Result(result));
     }
-    void setResult(const Result &result) { m_jsonObject.insert(resultKey, result); }
+    void setResult(const Result &result) { m_jsonObject.insert(resultKey, QJsonValue(result)); }
     void clearResult() { m_jsonObject.remove(resultKey); }
 
     using Error = ResponseError<ErrorDataType>;

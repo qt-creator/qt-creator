@@ -1145,7 +1145,8 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     }
 }
 
-QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
+QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo,
+                                                 const QSet<QString> &additionalFiles)
 {
     if (!newProjectInfo.isValid())
         return QFuture<void>();
@@ -1236,6 +1237,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     // resolved includes that we could rely on.
     updateCppEditorDocuments(/*projectsUpdated = */ true);
 
+    filesToReindex.unite(additionalFiles);
     // Trigger reindexing
     const QFuture<void> indexingFuture = updateSourceFiles(filesToReindex,
                                                            ForcedProgressNotification);
@@ -1308,6 +1310,11 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
 bool CppModelManager::isCppEditor(Core::IEditor *editor)
 {
     return editor->context().contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+}
+
+bool CppModelManager::supportsOutline(const TextEditor::TextDocument *document)
+{
+    return instance()->d->m_activeModelManagerSupport->supportsOutline(document);
 }
 
 bool CppModelManager::isClangCodeModelActive() const

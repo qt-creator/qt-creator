@@ -80,6 +80,9 @@ public:
 
     static QThreadPool *extraCompilerThreadPool();
 
+    virtual QFuture<FileNameToContentsHash> run() = 0;
+    bool isDirty() const;
+
 signals:
     void contentsChanged(const Utils::FilePath &file);
 
@@ -94,7 +97,6 @@ private:
     void setDirty();
     // This method may not block!
     virtual void run(const QByteArray &sourceContent) = 0;
-    virtual void run(const Utils::FilePath &file) = 0;
 
     const std::unique_ptr<ExtraCompilerPrivate> d;
 };
@@ -115,7 +117,7 @@ protected:
     //  * prepareToRun returns true
     //  * The process is not yet running
     void run(const QByteArray &sourceContents) override;
-    void run(const Utils::FilePath &fileName) override;
+    QFuture<FileNameToContentsHash> run() override;
 
     // Information about the process to run:
     virtual Utils::FilePath workingDirectory() const;
@@ -133,7 +135,7 @@ protected:
 
 private:
     using ContentProvider = std::function<QByteArray()>;
-    void runImpl(const ContentProvider &sourceContents);
+    QFuture<FileNameToContentsHash> runImpl(const ContentProvider &sourceContents);
     void runInThread(QFutureInterface<FileNameToContentsHash> &futureInterface,
                      const Utils::FilePath &cmd, const Utils::FilePath &workDir,
                      const QStringList &args, const ContentProvider &provider,
@@ -141,20 +143,6 @@ private:
     void cleanUp();
 
     QFutureWatcher<FileNameToContentsHash> *m_watcher = nullptr;
-};
-
-class PROJECTEXPLORER_EXPORT ExtraCompilerFactoryObserver
-{
-    friend class ExtraCompilerFactory;
-
-protected:
-    ExtraCompilerFactoryObserver();
-    ~ExtraCompilerFactoryObserver();
-
-    virtual void newExtraCompiler(const Project *project,
-                                  const Utils::FilePath &source,
-                                  const Utils::FilePaths &targets)
-        = 0;
 };
 
 class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
@@ -171,10 +159,6 @@ public:
                                   const Utils::FilePath &source,
                                   const Utils::FilePaths &targets)
         = 0;
-
-    void annouceCreation(const Project *project,
-                         const Utils::FilePath &source,
-                         const Utils::FilePaths &targets);
 
     static QList<ExtraCompilerFactory *> extraCompilerFactories();
 };

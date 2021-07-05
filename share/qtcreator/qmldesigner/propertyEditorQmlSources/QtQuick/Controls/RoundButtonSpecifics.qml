@@ -44,7 +44,7 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Round button")
+        caption: qsTr("Round Button")
 
         SectionLayout {
             PropertyLabel {

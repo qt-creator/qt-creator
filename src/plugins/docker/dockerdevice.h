@@ -43,6 +43,8 @@ public:
     QString repo;
     QString tag;
     QString size;
+    bool useLocalUidGid = true;
+    QStringList mounts = {"/opt", "/data"};
 };
 
 class DockerDevice : public ProjectExplorer::IDevice
@@ -81,12 +83,17 @@ public:
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
     bool exists(const Utils::FilePath &filePath) const override;
+    bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool removeFile(const Utils::FilePath &filePath) const override;
+    bool removeRecursively(const Utils::FilePath &filePath) const override;
     bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
+    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     Utils::FilePath searchInPath(const Utils::FilePath &filePath) const override;
+    Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
-                                            QDir::Filters filters) const override;
+                                            QDir::Filters filters,
+                                            QDir::SortFlags sort) const override;
     QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
@@ -95,6 +102,7 @@ public:
     Utils::Environment systemEnvironment() const override;
 
     const DockerDeviceData &data() const;
+    DockerDeviceData &data();
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;

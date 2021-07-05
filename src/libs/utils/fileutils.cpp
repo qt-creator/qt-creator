@@ -29,6 +29,7 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QDataStream>
@@ -75,15 +76,9 @@ static DeviceFileHooks s_deviceHooks;
 
 */
 
-/*!
-  Removes the directory \a filePath and its subdirectories recursively.
-
-  \note The \a error parameter is optional.
-
-  Returns whether the operation succeeded.
-*/
-bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
+static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
 {
+    QTC_ASSERT(!filePath.needsDevice(), return false);
     QFileInfo fileInfo = filePath.toFileInfo();
     if (!fileInfo.exists() && !fileInfo.isSymLink())
         return true;
@@ -109,7 +104,7 @@ bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
         const QStringList fileNames = dir.entryList(
                     QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QString &fileName : fileNames) {
-            if (!removeRecursively(filePath / fileName, error))
+            if (!removeRecursivelyLocal(filePath / fileName, error))
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
@@ -204,14 +199,12 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
 */
 bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 {
-    const QFileInfo fileInfo = toFileInfo();
-    if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
+    if (!exists() || lastModified() >= timeStamp)
         return true;
-    if (fileInfo.isDir()) {
-        const QStringList dirContents = QDir(toString())
-            .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QString &curFileName : dirContents) {
-            if (pathAppended(curFileName).isNewerThan(timeStamp))
+    if (isDir()) {
+        const FilePaths dirContents = dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const FilePath &entry : dirContents) {
+            if (entry.isNewerThan(timeStamp))
                 return true;
         }
     }
@@ -231,7 +224,7 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
 }
 
 /*!
-  Recursively resolves symlinks if \a filePath is a symlink.
+  Recursively resolves symlinks if this is a symlink.
   To resolve symlinks anywhere in the path, see canonicalPath.
   Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
   target file even if the symlink is dangling.
@@ -240,15 +233,17 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
 
   Returns the symlink target file path.
 */
-FilePath FileUtils::resolveSymlinks(const FilePath &path)
+FilePath FilePath::resolveSymlinks() const
 {
-    QFileInfo f = path.toFileInfo();
+    FilePath current = *this;
     int links = 16;
-    while (links-- && f.isSymLink())
-        f.setFile(f.dir(), f.symLinkTarget());
-    if (links <= 0)
-        return FilePath();
-    return FilePath::fromString(f.filePath());
+    while (links--) {
+        const FilePath target = current.symLinkTarget();
+        if (target.isEmpty())
+            return current;
+        current = target;
+    }
+    return current;
 }
 
 /*!
@@ -365,20 +360,30 @@ QString FileUtils::normalizePathName(const QString &name)
 #endif
 }
 
-bool FileUtils::isRelativePath(const QString &path)
+static bool isRelativePathHelper(const QString &path, OsType osType)
 {
-    if (path.startsWith(QLatin1Char('/')))
+    if (path.startsWith('/'))
         return false;
-    if (HostOsInfo::isWindowsHost()) {
-        if (path.startsWith(QLatin1Char('\\')))
+    if (osType == OsType::OsTypeWindows) {
+        if (path.startsWith('\\'))
             return false;
         // Unlike QFileInfo, this won't accept a relative path with a drive letter.
         // Such paths result in a royal mess anyway ...
-        if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
-                && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\')))
+        if (path.length() >= 3 && path.at(1) == ':' && path.at(0).isLetter()
+                && (path.at(2) == '/' || path.at(2) == '\\'))
             return false;
     }
     return true;
+}
+
+bool FileUtils::isRelativePath(const QString &path)
+{
+    return isRelativePathHelper(path, HostOsInfo::hostOs());
+}
+
+bool FilePath::isRelativePath() const
+{
+    return isRelativePathHelper(m_data, osType());
 }
 
 FilePath FilePath::resolvePath(const QString &fileName) const
@@ -388,13 +393,6 @@ FilePath FilePath::resolvePath(const QString &fileName) const
     if (FileUtils::isAbsolutePath(fileName))
         return FilePath::fromString(QDir::cleanPath(fileName));
     return FilePath::fromString(QDir::cleanPath(toString() + QLatin1Char('/') + fileName));
-}
-
-FilePath FilePath::resolveSymlinkTarget() const
-{
-    // FIXME: implement
-    QTC_CHECK(false);
-    return *this;
 }
 
 FilePath FilePath::cleanPath() const
@@ -897,6 +895,20 @@ bool FilePath::ensureWritableDir() const
     return QDir().mkpath(m_data);
 }
 
+bool FilePath::ensureExistingFile() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.ensureExistingFile, return false);
+        return s_deviceHooks.ensureExistingFile(*this);
+    }
+    QFile f(m_data);
+    if (f.exists())
+        return true;
+    f.open(QFile::WriteOnly);
+    f.close();
+    return f.exists();
+}
+
 bool FilePath::isExecutableFile() const
 {
     if (needsDevice()) {
@@ -937,14 +949,16 @@ bool FilePath::createDir() const
     return dir.mkpath(dir.absolutePath());
 }
 
-QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters, QDir::Filters filters) const
+QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters,
+                                     QDir::Filters filters,
+                                     QDir::SortFlags sort) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.dirEntries, return {});
-        return s_deviceHooks.dirEntries(*this, nameFilters, filters);
+        return s_deviceHooks.dirEntries(*this, nameFilters, filters, sort);
     }
 
-    const QFileInfoList entryInfoList = QDir(toString()).entryInfoList(nameFilters, filters);
+    const QFileInfoList entryInfoList = QDir(m_data).entryInfoList(nameFilters, filters, sort);
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
 }
 
@@ -992,6 +1006,25 @@ bool FilePath::needsDevice() const
     return !m_scheme.isEmpty();
 }
 
+/// \returns an empty FilePath if this is not a symbolic linl
+FilePath FilePath::symLinkTarget() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.symLinkTarget, return {});
+        return s_deviceHooks.symLinkTarget(*this);
+    }
+    const QFileInfo info(m_data);
+    if (!info.isSymLink())
+        return {};
+    return FilePath::fromString(info.symLinkTarget());
+}
+
+FilePath FilePath::withExecutableSuffix() const
+{
+    FilePath res = *this;
+    res.setPath(OsSpecificAspects::withExecutableSuffix(osType(), m_data));
+    return res;
+}
 
 /// Find the parent directory of a given directory.
 
@@ -1034,7 +1067,7 @@ FilePath FilePath::absoluteFilePath() const
 
 FilePath FilePath::absoluteFilePath(const FilePath &tail) const
 {
-    if (FileUtils::isRelativePath(tail.m_data))
+    if (isRelativePathHelper(tail.m_data, osType()))
         return pathAppended(tail.m_data);
     return tail;
 }
@@ -1397,6 +1430,15 @@ QFile::Permissions FilePath::permissions() const
     return toFileInfo().permissions();
 }
 
+OsType FilePath::osType() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.osType, return {});
+        return s_deviceHooks.osType(*this);
+    }
+    return HostOsInfo::hostOs();
+}
+
 bool FilePath::removeFile() const
 {
     if (needsDevice()) {
@@ -1406,6 +1448,22 @@ bool FilePath::removeFile() const
     return QFile::remove(path());
 }
 
+/*!
+  Removes the directory this filePath refers too and its subdirectories recursively.
+
+  \note The \a error parameter is optional.
+
+  Returns whether the operation succeeded.
+*/
+bool FilePath::removeRecursively(QString *error) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.removeRecursively, return false);
+        return s_deviceHooks.removeRecursively(*this);
+    }
+    return removeRecursivelyLocal(*this, error);
+}
+
 bool FilePath::copyFile(const FilePath &target) const
 {
     if (needsDevice()) {
@@ -1413,6 +1471,15 @@ bool FilePath::copyFile(const FilePath &target) const
         return s_deviceHooks.copyFile(*this, target);
     }
     return QFile::copy(path(), target.path());
+}
+
+bool FilePath::renameFile(const FilePath &target) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.renameFile, return false);
+        return s_deviceHooks.renameFile(*this, target);
+    }
+    return QFile::rename(path(), target.path());
 }
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)

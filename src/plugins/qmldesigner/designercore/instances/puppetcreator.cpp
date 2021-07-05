@@ -321,7 +321,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             qmakeArguments.append("CONFIG+=release");
 #endif
             qmakeArguments.append(qmlPuppetProjectFilePath);
-            buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments, &progressDialog);
+            buildSucceeded = startBuildProcess(buildDirectory.path().path(), qmakeCommand(), qmakeArguments, &progressDialog);
             if (buildSucceeded) {
                 progressDialog.show();
                 QString buildingCommand = buildCommand();
@@ -330,7 +330,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                     buildArguments.append("-j");
                     buildArguments.append(idealProcessCount());
                 }
-                buildSucceeded = startBuildProcess(buildDirectory.path(), buildingCommand, buildArguments, &progressDialog);
+                buildSucceeded = startBuildProcess(buildDirectory.path().path(), buildingCommand, buildArguments, &progressDialog);
             }
 
             if (!buildSucceeded) {

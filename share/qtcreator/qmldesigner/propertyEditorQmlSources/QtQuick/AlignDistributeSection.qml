@@ -124,7 +124,7 @@ Section {
             }
         }
 
-        PropertyLabel { text: qsTr("Distribute Objects") }
+        PropertyLabel { text: qsTr("Distribute objects") }
 
         SecondColumnLayout {
             Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
@@ -196,7 +196,7 @@ Section {
             }
         }
 
-        PropertyLabel { text: qsTr("Distribute Spacing") }
+        PropertyLabel { text: qsTr("Distribute spacing") }
 
         SecondColumnLayout {
             Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
@@ -275,7 +275,7 @@ Section {
             }
         }
 
-        PropertyLabel { text: qsTr("Pixel Spacing") }
+        PropertyLabel { text: qsTr("Pixel spacing") }
 
         SecondColumnLayout {
             Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
@@ -318,7 +318,7 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Key Object") }
+        PropertyLabel { text: qsTr("Key object") }
 
         SecondColumnLayout {
             ComboBox {

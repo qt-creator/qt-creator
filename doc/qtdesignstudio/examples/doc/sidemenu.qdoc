@@ -185,7 +185,8 @@
     apply when the animation finishes. In the lower part of the
     dialog, we bind the states that don't have animations to fixed frames.
 
-    For more information about using the timeline, see \l {Creating Animations}.
+    For more information about using the timeline, see
+    \l {Creating Timeline Animations}.
 
     \section1 Connecting the Burger Menu to Actions
 

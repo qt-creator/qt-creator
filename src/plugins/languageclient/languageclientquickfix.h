@@ -25,13 +25,31 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <texteditor/codeassist/iassistprovider.h>
+#include <texteditor/quickfix.h>
+
+#include <languageserverprotocol/languagefeatures.h>
+
+#include <QPointer>
 
 namespace LanguageClient {
 
 class Client;
 
-class LanguageClientQuickFixProvider : public TextEditor::IAssistProvider
+class LANGUAGECLIENT_EXPORT CodeActionQuickFixOperation : public TextEditor::QuickFixOperation
+{
+public:
+    CodeActionQuickFixOperation(const LanguageServerProtocol::CodeAction &action, Client *client);
+    void perform() override;
+
+private:
+    LanguageServerProtocol::CodeAction m_action;
+    QPointer<Client> m_client;
+};
+
+class LANGUAGECLIENT_EXPORT LanguageClientQuickFixProvider : public TextEditor::IAssistProvider
 {
 public:
     explicit LanguageClientQuickFixProvider(Client *client);

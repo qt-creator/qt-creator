@@ -635,7 +635,7 @@ SecondColumnLayout {
                                     anchors.fill: parent
                                     tooltip: originalColorRectangle.color
                                     acceptedButtons: Qt.LeftButton | Qt.RightButton
-                                    onClicked: {
+                                    onClicked: function(mouse) {
                                         if (mouse.button === Qt.LeftButton)
                                             colorEditor.color = colorEditor.originalColor
 
@@ -667,7 +667,7 @@ SecondColumnLayout {
                                     anchors.fill: parent
                                     tooltip: newColorRectangle.color
                                     acceptedButtons: Qt.RightButton
-                                    onClicked: {
+                                    onClicked: function(mouse) {
                                         if (mouse.button === Qt.RightButton) {
                                             contextMenuFavorite.currentColor = colorEditor.color
                                             contextMenuFavorite.popup()

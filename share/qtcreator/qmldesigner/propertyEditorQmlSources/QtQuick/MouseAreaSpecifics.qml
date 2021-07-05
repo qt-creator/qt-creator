@@ -34,7 +34,7 @@ Column {
     anchors.right: parent.right
 
     Section {
-        caption: qsTr("Mouse area")
+        caption: qsTr("Mouse Area")
 
         anchors.left: parent.left
         anchors.right: parent.right

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/refactoringengineinterface.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
@@ -49,6 +50,7 @@ public:
 
     bool isFullyIndexed() const;
     QVersionNumber versionNumber() const;
+    CppTools::ClangdSettings::Data settingsData() const;
 
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);
@@ -70,19 +72,36 @@ public:
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                          CppTools::RefactoringEngineInterface::RenameCallback &&callback);
 
+    void gatherHelpItemForTooltip(
+            const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
+            const LanguageServerProtocol::DocumentUri &uri);
+
     void enableTesting();
 
 signals:
     void indexingFinished();
     void foundReferences(const QList<Core::SearchResultItem> &items);
     void findUsagesDone();
+    void helpItemGathered(const Core::HelpItem &helpItem);
+    void highlightingResultsReady(const TextEditor::HighlightingResults &results);
 
 private:
+    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+    void handleDocumentClosed(TextEditor::TextDocument *doc) override;
+
     class Private;
     class FollowSymbolData;
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
     Private * const d;
+};
+
+class ClangdDiagnostic : public LanguageServerProtocol::Diagnostic
+{
+public:
+    using Diagnostic::Diagnostic;
+    Utils::optional<QList<LanguageServerProtocol::CodeAction>> codeActions() const;
+    QString category() const;
 };
 
 } // namespace Internal

@@ -159,7 +159,7 @@ StudioControls.TextField {
     onPressed: listView.model = null
 
     Keys.priority: Keys.BeforeItem
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         var text = textField.text
         var pos = textField.cursorPosition
         var explicitComplete = true
@@ -220,7 +220,7 @@ StudioControls.TextField {
         listView.model = list
     }
 
-    Keys.onSpacePressed: {
+    Keys.onSpacePressed: function(event) {
         if (event.modifiers & Qt.ControlModifier) {
             var list = autoComplete(textField.text, textField.cursorPosition, true, textField.completeOnlyTypes)
             textField.prefix = textField.text.substring(0, textField.cursorPosition)
@@ -236,7 +236,7 @@ StudioControls.TextField {
         }
     }
 
-    Keys.onReturnPressed: {
+    Keys.onReturnPressed: function(event) {
         event.accepted = false
         if (textField.completionActive) {
             textField.commitCompletion()
@@ -244,7 +244,7 @@ StudioControls.TextField {
         }
     }
 
-    Keys.onEscapePressed: {
+    Keys.onEscapePressed: function(event) {
         event.accepted = true
         if (textField.completionActive) {
             listView.model = null
@@ -253,12 +253,12 @@ StudioControls.TextField {
         }
     }
 
-    Keys.onUpPressed: {
+    Keys.onUpPressed: function(event) {
         listView.decrementCurrentIndex()
         event.accepted = false
     }
 
-    Keys.onDownPressed: {
+    Keys.onDownPressed: function(event) {
         listView.incrementCurrentIndex()
         event.accepted = false
     }

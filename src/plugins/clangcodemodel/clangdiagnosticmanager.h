@@ -66,6 +66,8 @@ public:
     static void clearTaskHubIssues();
     void generateTaskHubIssues();
 
+    static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool isChild = false);
+
 private:
     void cleanMarks();
     QString filePath() const;

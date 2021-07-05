@@ -43,7 +43,7 @@ Column {
     width: parent.width
 
     ItemDelegateSection {
-        caption: qsTr("Radio delegate")
+        caption: qsTr("Radio Delegate")
     }
 
     AbstractButtonSection {}

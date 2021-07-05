@@ -34,7 +34,7 @@ Row {
     property alias origin: myButton.origin
     property variant backendValue
 
-    onOriginSelectorClicked: {
+    onOriginSelectorClicked: function(value) {
         if (root.enabled)
             root.backendValue.setEnumeration("Item", value)
     }
@@ -78,7 +78,7 @@ Row {
         property string origin: "Center"
 
         // This property is used to indicate the global hover state
-        property bool hover: myButton.hovered
+        property bool hover: myButton.hovered && root.enabled
 
         property alias backgroundVisible: buttonBackground.visible
         property alias backgroundRadius: buttonBackground.radius
@@ -162,10 +162,8 @@ Row {
                 border.width: StudioTheme.Values.border
             }
 
-            enter: Transition {
-            }
-            exit: Transition {
-            }
+            enter: Transition {}
+            exit: Transition {}
         }
 
         states: [
@@ -185,6 +183,7 @@ Row {
             State {
                 name: "globalHover"
                 when: actionIndicator.hover && !myButton.pressed && !originPopup.opened
+                      && root.enabled
                 PropertyChanges {
                     target: buttonBackground
                     color: StudioTheme.Values.themeControlBackgroundGlobalHover
@@ -194,7 +193,7 @@ Row {
             State {
                 name: "hover"
                 when: myButton.hover && !actionIndicator.hover && !myButton.pressed
-                      && !originPopup.opened
+                      && !originPopup.opened && root.enabled
                 PropertyChanges {
                     target: buttonBackground
                     color: StudioTheme.Values.themeControlBackgroundHover

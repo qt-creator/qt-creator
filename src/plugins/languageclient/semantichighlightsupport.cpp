@@ -273,6 +273,8 @@ void addModifiers(int key,
 
 void SemanticTokenSupport::setLegend(const LanguageServerProtocol::SemanticTokensLegend &legend)
 {
+    m_tokenTypeStrings = legend.tokenTypes();
+    m_tokenModifierStrings = legend.tokenModifiers();
     m_tokenTypes = Utils::transform(legend.tokenTypes(), [&](const QString &tokenTypeString){
         return m_tokenTypesMap.value(tokenTypeString, -1);
     });
@@ -424,6 +426,35 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
     SyntaxHighlighter *highlighter = doc->syntaxHighlighter();
     if (!highlighter)
         return;
+    const QList<SemanticToken> tokens = m_tokens.value(filePath).toTokens(m_tokenTypes,
+                                                                          m_tokenModifiers);
+    if (m_tokensHandler) {
+        int line = 1;
+        int column = 1;
+        QList<ExpandedSemanticToken> expandedTokens;
+        for (const SemanticToken &token : tokens) {
+            line += token.deltaLine;
+            if (token.deltaLine != 0) // reset the current column when we change the current line
+                column = 1;
+            column += token.deltaStart;
+            if (token.tokenIndex >= m_tokenTypeStrings.length())
+                continue;
+            ExpandedSemanticToken expandedToken;
+            expandedToken.type = m_tokenTypeStrings.at(token.tokenIndex);
+            int modifiers = token.rawTokenModifiers;
+            for (int bitPos = 0; modifiers && bitPos < m_tokenModifierStrings.length();
+                 ++bitPos, modifiers >>= 1) {
+                if (modifiers & 0x1)
+                    expandedToken.modifiers << m_tokenModifierStrings.at(bitPos);
+            }
+            expandedToken.line = line;
+            expandedToken.column = column;
+            expandedToken.length = token.length;
+            expandedTokens << expandedToken;
+        };
+        m_tokensHandler(doc, expandedTokens);
+        return;
+    }
     int line = 1;
     int column = 1;
     auto toResult = [&](const SemanticToken &token){
@@ -434,8 +465,6 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
         const int tokenKind = token.tokenType << tokenTypeBitOffset | token.tokenModifiers;
         return HighlightingResult(line, column, token.length, tokenKind);
     };
-    const QList<SemanticToken> tokens = m_tokens.value(filePath).toTokens(m_tokenTypes,
-                                                                          m_tokenModifiers);
     const HighlightingResults results = Utils::transform(tokens, toResult);
     SemanticHighlighter::setExtraAdditionalFormats(highlighter, results, m_formatHash);
 }

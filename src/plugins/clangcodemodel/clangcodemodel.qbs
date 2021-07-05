@@ -13,12 +13,12 @@ QtcPlugin {
     Depends { name: "Utils" }
     Depends { name: "ClangSupport" }
     Depends { name: "LanguageClient" }
+    Depends { name: "CppEditor" }
 
     Depends { name: "libclang"; required: false }
     Depends { name: "clang_defines" }
 
     pluginTestDepends: [
-        "CppEditor",
         "QmakeProjectManager",
     ]
 
@@ -64,6 +64,8 @@ QtcPlugin {
         "clangdiagnosticmanager.h",
         "clangdiagnostictooltipwidget.cpp",
         "clangdiagnostictooltipwidget.h",
+        "clangdquickfixfactory.cpp",
+        "clangdquickfixfactory.h",
         "clangeditordocumentparser.cpp",
         "clangeditordocumentparser.h",
         "clangeditordocumentprocessor.cpp",

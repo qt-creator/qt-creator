@@ -84,7 +84,6 @@ private:
     static void extensionsInitialized();
 
     static void addMode(IMode *mode);
-    static void removeMode(IMode *mode);
     void currentTabAboutToChange(int index);
     void currentTabChanged(int index);
 

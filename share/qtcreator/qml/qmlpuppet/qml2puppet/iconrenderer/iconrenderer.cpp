@@ -96,11 +96,13 @@ void IconRenderer::setupRender()
         if (auto scene = qobject_cast<QQuick3DNode *>(iconItem)) {
             qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
             QQmlComponent component(engine);
-            component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/IconRenderer3D.qml"));
-            m_containerItem = qobject_cast<QQuickItem *>(component.create());
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt5/IconRenderer3D.qml"));
+            m_containerItem = qobject_cast<QQuickItem *>(component.create());
             DesignerSupport::setRootItem(view, m_containerItem);
 #else
+            component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt6/IconRenderer3D.qml"));
+            m_containerItem = qobject_cast<QQuickItem *>(component.create());
             m_window->contentItem()->setSize(m_containerItem->size());
             m_window->setGeometry(0, 0, m_containerItem->width(), m_containerItem->height());
             m_containerItem->setParentItem(m_window->contentItem());
@@ -133,7 +135,7 @@ void IconRenderer::setupRender()
             resizeContent(m_size);
             if (!initRhi())
                 QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
-            QTimer::singleShot(0, this, &IconRenderer::createIcon);
+            QTimer::singleShot(0, this, &IconRenderer::startCreateIcon);
         } else {
             QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
         }
@@ -142,25 +144,41 @@ void IconRenderer::setupRender()
     }
 }
 
-void IconRenderer::createIcon()
+void IconRenderer::startCreateIcon()
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_designerSupport.refFromEffectItem(m_containerItem, false);
 #endif
     QQuickDesignerSupportItems::disableNativeTextRendering(m_containerItem);
+
+    if (m_is3D)
+        QTimer::singleShot(0, this, &IconRenderer::focusCamera);
+    else
+        QTimer::singleShot(0, this, &IconRenderer::finishCreateIcon);
+}
+
+void IconRenderer::focusCamera()
+{
 #ifdef QUICK3D_MODULE
-    if (m_is3D) {
-        // Render once to make sure scene is up to date before we set up the selection box
-        render({});
-        QMetaObject::invokeMethod(m_containerItem, "setSceneToBox");
-        int tries = 0;
-        while (tries < 10) {
-            ++tries;
-            render({});
-            QMetaObject::invokeMethod(m_containerItem, "fitAndHideBox");
-        }
+    if (m_focusStep >= 10) {
+        QTimer::singleShot(0, this, &IconRenderer::finishCreateIcon);
+        return;
     }
+
+    render({});
+
+    if (m_focusStep == 0) {
+        QMetaObject::invokeMethod(m_containerItem, "setSceneToBox");
+    } else if (m_focusStep > 1 && m_focusStep < 10) {
+        QMetaObject::invokeMethod(m_containerItem, "fitAndHideBox");
+    }
+    ++m_focusStep;
+    QTimer::singleShot(0, this, &IconRenderer::focusCamera);
 #endif
+}
+
+void IconRenderer::finishCreateIcon()
+{
     QFileInfo fi(m_filePath);
 
     // Render regular size image

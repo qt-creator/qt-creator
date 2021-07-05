@@ -97,10 +97,10 @@ void TestCodeParser::setState(State state)
     m_parserState = state;
 
     if (m_parserState == Idle && SessionManager::startupProject()) {
-        if (m_fullUpdatePostponed || m_dirty) {
+        if (m_postponedUpdateType == UpdateType::FullUpdate || m_dirty) {
             emitUpdateTestTree();
-        } else if (m_partialUpdatePostponed) {
-            m_partialUpdatePostponed = false;
+        } else if (m_postponedUpdateType == UpdateType::PartialUpdate) {
+            m_postponedUpdateType = UpdateType::NoUpdate;
             qCDebug(LOG) << "calling scanForTests with postponed files (setState)";
             if (!m_reparseTimer.isActive())
                 scanForTests(Utils::toList(m_postponedFiles));
@@ -112,7 +112,7 @@ void TestCodeParser::syncTestFrameworks(const QList<ITestParser *> &parsers)
 {
     if (m_parserState != Idle) {
         // there's a running parse
-        m_fullUpdatePostponed = m_partialUpdatePostponed = false;
+        m_postponedUpdateType = UpdateType::NoUpdate;
         m_postponedFiles.clear();
         Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
     }
@@ -142,8 +142,7 @@ void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
 {
     m_singleShotScheduled = false;
     if (m_codeModelParsing) {
-        m_fullUpdatePostponed = true;
-        m_partialUpdatePostponed = false;
+        m_postponedUpdateType = UpdateType::FullUpdate;
         m_postponedFiles.clear();
         if (parsers.isEmpty()) {
             m_updateParsers.clear();
@@ -157,7 +156,7 @@ void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
     if (!SessionManager::startupProject())
         return;
 
-    m_fullUpdatePostponed = false;
+    m_postponedUpdateType = UpdateType::NoUpdate;
     qCDebug(LOG) << "calling scanForTests (updateTestTree)";
     QList<ITestParser *> sortedParsers = Utils::toList(parsers);
     Utils::sort(sortedParsers, [](const ITestParser *lhs, const ITestParser *rhs) {
@@ -170,7 +169,7 @@ void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
 
 void TestCodeParser::onDocumentUpdated(const Utils::FilePath &fileName, bool isQmlFile)
 {
-    if (m_codeModelParsing || m_fullUpdatePostponed)
+    if (m_codeModelParsing || m_postponedUpdateType == UpdateType::FullUpdate)
         return;
 
     Project *project = SessionManager::startupProject();
@@ -211,7 +210,7 @@ void TestCodeParser::onProjectPartsUpdated(Project *project)
     if (project != SessionManager::startupProject())
         return;
     if (m_codeModelParsing)
-        m_fullUpdatePostponed = true;
+        m_postponedUpdateType = UpdateType::FullUpdate;
     else
         emitUpdateTestTree();
 }
@@ -260,19 +259,18 @@ bool TestCodeParser::postponed(const Utils::FilePaths &fileList)
     case FullParse:
         // parse is running, postponing a full parse
         if (fileList.isEmpty()) {
-            m_partialUpdatePostponed = false;
             m_postponedFiles.clear();
-            m_fullUpdatePostponed = true;
+            m_postponedUpdateType = UpdateType::FullUpdate;
             qCDebug(LOG) << "Canceling scanForTest (full parse triggered while running a scan)";
             Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
         } else {
             // partial parse triggered, but full parse is postponed already, ignoring this
-            if (m_fullUpdatePostponed)
+            if (m_postponedUpdateType == UpdateType::FullUpdate)
                 return true;
             // partial parse triggered, postpone or add current files to already postponed partial
             for (const Utils::FilePath &file : fileList)
                 m_postponedFiles.insert(file);
-            m_partialUpdatePostponed = true;
+            m_postponedUpdateType = UpdateType::PartialUpdate;
         }
         return true;
     case Shutdown:
@@ -378,8 +376,8 @@ void TestCodeParser::onTaskStarted(Utils::Id type)
     if (type == CppTools::Constants::TASK_INDEX) {
         m_codeModelParsing = true;
         if (m_parserState == FullParse || m_parserState == PartialParse) {
-            m_fullUpdatePostponed = m_parserState == FullParse;
-            m_partialUpdatePostponed = !m_fullUpdatePostponed;
+            m_postponedUpdateType = m_parserState == FullParse
+                    ? UpdateType::FullUpdate : UpdateType::PartialUpdate;
             qCDebug(LOG) << "Canceling scan for test (CppModelParsing started)";
             m_parsingHasFailed = true;
             Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
@@ -417,7 +415,7 @@ void TestCodeParser::onFinished()
         qCDebug(LOG) << "setting state to Idle (onFinished, FullParse)";
         m_parserState = Idle;
         m_dirty = m_parsingHasFailed;
-        if (m_partialUpdatePostponed || m_fullUpdatePostponed || m_parsingHasFailed) {
+        if (m_postponedUpdateType != UpdateType::NoUpdate || m_parsingHasFailed) {
             onPartialParsingFinished();
         } else {
             qCDebug(LOG) << "emitting parsingFinished"
@@ -439,19 +437,19 @@ void TestCodeParser::onFinished()
 
 void TestCodeParser::onPartialParsingFinished()
 {
-    QTC_ASSERT(m_fullUpdatePostponed != m_partialUpdatePostponed
-            || ((m_fullUpdatePostponed || m_partialUpdatePostponed) == false),
-               m_partialUpdatePostponed = false;m_postponedFiles.clear(););
-    if (m_fullUpdatePostponed) {
-        m_fullUpdatePostponed = false;
+    const UpdateType oldType = m_postponedUpdateType;
+    m_postponedUpdateType = UpdateType::NoUpdate;
+    switch (oldType) {
+    case UpdateType::FullUpdate:
         qCDebug(LOG) << "calling updateTestTree (onPartialParsingFinished)";
         updateTestTree(m_updateParsers);
-    } else if (m_partialUpdatePostponed) {
-        m_partialUpdatePostponed = false;
+        break;
+    case UpdateType::PartialUpdate:
         qCDebug(LOG) << "calling scanForTests with postponed files (onPartialParsingFinished)";
         if (!m_reparseTimer.isActive())
             scanForTests(Utils::toList(m_postponedFiles));
-    } else {
+        break;
+    case UpdateType::NoUpdate:
         m_dirty |= m_codeModelParsing;
         if (m_dirty) {
             emit parsingFailed();
@@ -466,6 +464,7 @@ void TestCodeParser::onPartialParsingFinished()
             qCDebug(LOG) << "not emitting parsingFinished"
                          << "(on PartialParsingFinished, singleshot scheduled)";
         }
+        break;
     }
 }
 

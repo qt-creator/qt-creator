@@ -52,7 +52,7 @@ Column {
 
             Label {
                 text: qsTr("Name")
-                tooltip: qsTr("Holds the name of the state.")
+                tooltip: qsTr("The name of the state.")
             }
             SecondColumnLayout {
                 LineEdit {
@@ -65,7 +65,7 @@ Column {
 
             Label {
                 text: qsTr("Extend")
-                tooltip: qsTr("Holds the state that this state extends.")
+                tooltip: qsTr("The state that this state extends.")
             }
             SecondColumnLayout {
                 LineEdit {

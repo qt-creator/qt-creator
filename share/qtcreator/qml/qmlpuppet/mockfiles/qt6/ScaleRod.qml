@@ -23,41 +23,51 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick3D 1.15
+import QtQuick 6.0
+import QtQuick3D 6.0
+import MouseArea3D 1.0
 
 DirectionalDraggable {
-    id: arrow
-    source: "meshes/arrow.mesh"
+    id: scaleRod
+    source: "../meshes/scalerod.mesh"
 
-    signal positionCommit()
-    signal positionMove()
+    property vector3d axis
 
-    function localPos(sceneRelativeDistance)
-    {
-        var newScenePos = Qt.vector3d(
-                    _targetStartPos.x + sceneRelativeDistance.x,
-                    _targetStartPos.y + sceneRelativeDistance.y,
-                    _targetStartPos.z + sceneRelativeDistance.z);
-        return targetNode.parent ? targetNode.parent.mapPositionFromScene(newScenePos) : newScenePos;
+    signal scaleCommit()
+    signal scaleChange()
+
+    property vector3d _startScale
+
+    Model {
+        source: "#Cube"
+        y: 10
+        scale: Qt.vector3d(0.020, 0.020, 0.020)
+        materials: DefaultMaterial {
+            id: material
+            diffuseColor: scaleRod.color
+            lighting: DefaultMaterial.NoLighting
+        }
     }
 
     onPressed: {
         if (targetNode == multiSelectionNode)
             _generalHelper.restartMultiSelection();
+        _startScale = targetNode.scale;
     }
 
-    onDragged: (mouseArea, sceneRelativeDistance)=> {
-        targetNode.position = localPos(sceneRelativeDistance);
+    onDragged: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
+        targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
+                                                 axis, Qt.vector3d(0, 0, 0));
         if (targetNode == multiSelectionNode)
-            _generalHelper.moveMultiSelection(false);
-        positionMove();
+            _generalHelper.scaleMultiSelection(false);
+        scaleChange();
     }
 
-    onReleased: (mouseArea, sceneRelativeDistance)=> {
-        targetNode.position = localPos(sceneRelativeDistance);
+    onReleased: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
+        targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
+                                                 axis, Qt.vector3d(0, 0, 0));
         if (targetNode == multiSelectionNode)
-            _generalHelper.moveMultiSelection(true);
-        positionCommit();
+            _generalHelper.scaleMultiSelection(true);
+        scaleCommit();
     }
 }

@@ -32,6 +32,7 @@
 #include "../testsettings.h"
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -115,13 +116,17 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
     CTestConfiguration *config = new CTestConfiguration(testBase());
     config->setProject(project);
     config->setCommandLine(command);
-    const QList<ProjectExplorer::BuildConfiguration *> buildConfigs = target->buildConfigurations();
-    if (QTC_GUARD(!buildConfigs.isEmpty())) {
-        config->setEnvironment(buildConfigs.first()->environment());
-        config->setWorkingDirectory(buildConfigs.first()->buildDirectory().toString());
-    } else {
-        config->setEnvironment(Utils::Environment::systemEnvironment());
+    const ProjectExplorer::RunConfiguration *runConfig = target->activeRunConfiguration();
+    if (QTC_GUARD(runConfig)) {
+        if (auto envAspect = runConfig->aspect<ProjectExplorer::EnvironmentAspect>())
+            config->setEnvironment(envAspect->environment());
+        else
+            config->setEnvironment(Utils::Environment::systemEnvironment());
     }
+    const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
+    if (QTC_GUARD(buildConfig))
+        config->setWorkingDirectory(buildConfig->buildDirectory().toString());
+
     if (selected.isEmpty())
         config->setTestCaseCount(testBase()->asTestTool()->rootNode()->childCount());
     else

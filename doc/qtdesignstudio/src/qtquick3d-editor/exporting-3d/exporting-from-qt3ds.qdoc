@@ -243,7 +243,7 @@
 
     \li Recreate animations in subpresentation_ADAS according to the original
         project. For more information on creating animations in \QDS, see
-        \l {Creating Animations}.
+        \l {Creating Timeline Animations}.
         \image exporting-from-qt3ds/24-recreate-animations.png "Recreate animations"
 
     \li Go to the \uicontrol Timeline View to review the timeline for the

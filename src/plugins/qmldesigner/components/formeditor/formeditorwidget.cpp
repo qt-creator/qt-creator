@@ -242,14 +242,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
         }
     };
 
-    m_zoomInAction = new QAction(zoomInIcon, tr("Zoom in"), this);
+    m_zoomInAction = new QAction(zoomInIcon, tr("Zoom In"), this);
     m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Plus));
     addAction(m_zoomInAction.data());
     upperActions.append(m_zoomInAction.data());
     m_toolBox->addRightSideAction(m_zoomInAction.data());
     connect(m_zoomInAction.data(), &QAction::triggered, zoomIn);
 
-    m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom out"), this);
+    m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom Out"), this);
     m_zoomOutAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Minus));
     addAction(m_zoomOutAction.data());
     upperActions.append(m_zoomOutAction.data());
@@ -262,7 +262,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_zoomAction.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged, setZoomLevel);
 
-    m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content"), this);
+    m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content."), this);
     m_zoomAllAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_0));
     addAction(m_zoomAllAction.data());
     upperActions.append(m_zoomAllAction.data());
@@ -270,7 +270,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomAllAction.data(), &QAction::triggered, frameAll);
 
     m_zoomSelectionAction = new QAction(zoomSelectionIcon,
-                                        tr("Zoom screen to fit current selection"),
+                                        tr("Zoom screen to fit current selection."),
                                         this);
     m_zoomSelectionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_I));
     addAction(m_zoomSelectionAction.data());

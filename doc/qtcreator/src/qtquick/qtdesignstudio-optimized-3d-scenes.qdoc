@@ -25,8 +25,12 @@
 
 /*!
     \page studio-optimized-3d-scenes.html
-    \previouspage quick-scalable-image.html
-    \nextpage qtquick-properties.html
+    \previouspage qtquick-optimizing-designs.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-coding.html
+    \else
+    \nextpage qtquick-iso-icon-browser.html
+    \endif
 
     \title Creating Optimized 3D Scenes
 
@@ -40,7 +44,12 @@
 
     \section1 The Optimal 3D Scene Example
 
-    The \l {Optimal 3D Scene} example features four versions of the same kitchen
+    \if defined(qtdesignstudio)
+    The \l {Optimal 3D Scene}
+    \else
+    The Optimal 3D Scene
+    \endif
+    example features four versions of the same kitchen
     scene that have been created using different strategies: High, Low, Combined,
     and Vertex Color. The High Scene includes a significantly higher number of
     objects compared to the other versions of the scene. The Low, Combined and

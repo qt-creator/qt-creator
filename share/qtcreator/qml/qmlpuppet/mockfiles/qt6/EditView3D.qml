@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick3D 1.15
+import QtQuick 6.0
+import QtQuick3D 6.0
 import MouseArea3D 1.0
 
 Item {
@@ -176,9 +176,16 @@ Item {
     function fitToView()
     {
         if (editView) {
-            var targetNode = selectionBoxes.length > 0
-                    ? selectionBoxes[0].model : null;
-            cameraControl.focusObject(targetNode, editView.camera.eulerRotation, true, false);
+            var boxModels = [];
+            if (selectedNodes.length > 1) {
+                for (var i = 0; i < selectedNodes.length; ++i) {
+                    if (selectionBoxes.length > i)
+                        boxModels.push(selectionBoxes[i].model)
+                }
+            } else if (selectedNodes.length > 0 && selectionBoxes.length > 0) {
+                boxModels.push(selectionBoxes[0].model);
+            }
+            cameraControl.focusObject(boxModels, editView.camera.eulerRotation, true, false);
         }
     }
 
@@ -857,7 +864,8 @@ Item {
             width: 100
             height: width
             editCameraCtrl: cameraControl
-            selectedNode : viewRoot.selectedNodes.length ? selectionBoxes[0].model : null
+            selectedNode: viewRoot.selectedNodes.length === 1 ? viewRoot.selectionBoxes[0].model
+                                                              : viewRoot.selectedNode
         }
 
         Text {

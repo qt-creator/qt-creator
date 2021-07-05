@@ -54,6 +54,7 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
+    warningLabel->setVisible(false);
     builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;

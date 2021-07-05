@@ -56,7 +56,7 @@ QVariant eventIdsToVariant(const QStringList &eventIds)
 NodeListModel::NodeListModel(QObject *parent)
     : QStandardItemModel(0, 4, parent)
 {
-    setHeaderData(idColumn, Qt::Horizontal, tr("Id"));
+    setHeaderData(idColumn, Qt::Horizontal, tr("ID"));
     setHeaderData(typeColumn, Qt::Horizontal, tr("Type"));
     setHeaderData(fromColumn, Qt::Horizontal, tr("From"));
     setHeaderData(toColumn, Qt::Horizontal, tr("To"));

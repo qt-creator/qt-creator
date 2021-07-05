@@ -143,6 +143,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
     void updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
                               const QList<QByteArray> &moduleMappings);
+    void updateInitialCMakeExpandableVars();
 
     void handleParsingSucceeded();
     void handleParsingFailed(const QString &msg);

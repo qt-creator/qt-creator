@@ -128,7 +128,11 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
         std::unique_ptr<CMakeTool> userTool = std::move(userTools[0]);
         userTools.erase(std::begin(userTools));
 
-        if (!Utils::contains(result, Utils::equal(&CMakeTool::id, userTool->id()))) {
+        int userToolIndex = Utils::indexOf(result, Utils::equal(&CMakeTool::id, userTool->id()));
+        if (userToolIndex >= 0) {
+            // Replace the sdk tool with the user tool, so any user changes do not get lost
+            result[userToolIndex] = std::move(userTool);
+        } else {
             if (userTool->isAutoDetected()
                     && !Utils::contains(autoDetectedTools, Utils::equal(&CMakeTool::cmakeExecutable,
                                                                         userTool->cmakeExecutable()))) {

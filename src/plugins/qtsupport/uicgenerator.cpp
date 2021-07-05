@@ -62,7 +62,7 @@ Utils::FilePath UicGenerator::command() const
     if (!version)
         return Utils::FilePath();
 
-    return Utils::FilePath::fromString(version->uicCommand());
+    return version->uicCommand();
 }
 
 QStringList UicGenerator::arguments() const
@@ -107,8 +107,6 @@ ExtraCompiler *UicGeneratorFactory::create(const Project *project,
                                            const Utils::FilePath &source,
                                            const Utils::FilePaths &targets)
 {
-    annouceCreation(project, source, targets);
-
     return new UicGenerator(project, source, targets, this);
 }
 

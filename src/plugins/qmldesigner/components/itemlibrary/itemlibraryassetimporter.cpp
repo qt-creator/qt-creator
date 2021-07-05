@@ -89,7 +89,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
         const auto parseData = m_parseData;
         for (const auto &pd : parseData) {
             if (!startImportProcess(pd)) {
-                addError(tr("Failed to start import 3D asset process"),
+                addError(tr("Failed to start import 3D asset process."),
                          pd.sourceInfo.absoluteFilePath());
                 m_parseData.remove(pd.importId);
             }
@@ -153,7 +153,7 @@ void ItemLibraryAssetImporter::importProcessFinished(int exitCode, QProcess::Exi
 
     if (m_parseData.contains(-exitCode)) {
         const ParseData pd = m_parseData.take(-exitCode);
-        addError(tr("Asset import process failed for: \"%1\"").arg(pd.sourceInfo.absoluteFilePath()));
+        addError(tr("Asset import process failed for: \"%1\".").arg(pd.sourceInfo.absoluteFilePath()));
     }
 
     if (m_qmlImportFinishedCount == m_qmlPuppetCount) {
@@ -256,7 +256,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
     pd.targetDirPath = pd.targetDir.filePath(pd.assetName);
 
     if (pd.outDir.exists(pd.assetName)) {
-        addWarning(tr("Skipped import of duplicate asset: \"%1\"").arg(pd.assetName));
+        addWarning(tr("Skipped import of duplicate asset: \"%1\".").arg(pd.assetName));
         return false;
     }
 
@@ -274,7 +274,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
                 ? confirmAssetOverwrite(pd.assetName)
                 : OverwriteResult::Update;
         if (result == OverwriteResult::Skip) {
-            addWarning(tr("Skipped import of existing asset: \"%1\"").arg(pd.assetName));
+            addWarning(tr("Skipped import of existing asset: \"%1\".").arg(pd.assetName));
             return false;
         } else if (result == OverwriteResult::Update) {
             // Add generated icons and existing source asset file, as those will always need
@@ -305,7 +305,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
                 overwriteFiles.append(Utils::toList(alwaysOverwrite));
                 m_overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
             } else {
-                addWarning(tr("No files selected for overwrite, skipping import: \"%1\"").arg(pd.assetName));
+                addWarning(tr("No files selected for overwrite, skipping import: \"%1\".").arg(pd.assetName));
                 return false;
             }
 
@@ -317,7 +317,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
     pd.outDir.mkpath(pd.assetName);
 
     if (!pd.outDir.cd(pd.assetName)) {
-        addError(tr("Could not access temporary asset directory: \"%1\"")
+        addError(tr("Could not access temporary asset directory: \"%1\".")
                  .arg(pd.outDir.filePath(pd.assetName)));
         return false;
     }
@@ -427,7 +427,7 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(const ParseData &pd)
                 qmldirFile.write(qmlInfo.toUtf8());
                 qmldirFile.commit();
             } else {
-                addError(tr("Failed to create qmldir file for asset: \"%1\"").arg(pd.assetName));
+                addError(tr("Failed to create qmldir file for asset: \"%1\".").arg(pd.assetName));
             }
         }
     }

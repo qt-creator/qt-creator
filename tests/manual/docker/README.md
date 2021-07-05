@@ -1,0 +1,55 @@
+Limitations:
+
+- Only Linux development hosts supported, as the docker container
+  contents is accessed via the local file system.
+
+- It currently unconditionally mounts /data and /opt,
+  source code has to live in either.
+
+- Kit items are auto-detected, but Kits themselves need to be
+  fixed up manually.
+
+
+What works:
+
+- Qmake in path is found
+- CMake in path is found
+- Toolchain autodection finds gcc
+- Gdb in path is found
+
+- Building in the container with qmake works
+- Building in the container with cmake works
+
+- Running locally or in a compatible docker container works
+
+
+For testing:
+
+- build docker containers from this directory (tests/manual/docker) by
+  running ./build.sh. This builds a docker image containing a Desktop Qt
+  build setup (including compiler etc) and second docker image container
+  containing a run environment without the build tools, but e.g. with gdb
+  for debugger testing
+
+    - or -
+
+  install similar docker images containing Qt, e.g.  darkmattercoder/qt-build
+
+- Go to Tools -> Options -> Devices, 'Add', 'Apply' for both images.
+  Note that the Build container alone is sufficient also to run applications,
+  but using the Run container gives a more restricted setup closer to a
+  real world scenario.
+
+- Try to auto-detect kit items by pressing "Auto Detect Kit Items" for
+  the Build container (only Build, not Run)
+
+- Check whether the auto-detection of kit items works, i.e. this Qt version
+  shows up in Kits -> Qt Version, Compilers, CMake, Debugger.
+
+- Fix the Kit setup: There should also be an auto-detected Kit, not
+  necessarily with all items in a suitable state.
+  Select as Run device the Run container, as Build device the Build container,
+  and matching auto-detected compilers, cmake, gdb.
+
+- Create a CMake based Qt (console or widget) application, build / run / debug it.
+

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -48,6 +48,29 @@
         \li Other text files
     \endlist
 
+    To fix the indentation in the file currently open in the editor,
+    select options in the \uicontrol Edit > \uicontrol Advanced menu
+    or use \l{Keyboard Shortcuts}{keyboard shortcuts}:
+
+    \list
+        \li To automatically indent the highlighted text, select
+            \uicontrol {Auto-indent Selection} or press \key {Ctrl+I}.
+        \li To automatically format the highlighted text, select
+            \uicontrol {Auto-format Selection} or press \key {Ctrl+;}.
+        \li To adjust the wrapping of the selected paragraph, select
+            \uicontrol {Rewrap Paragraph} or press \key {Ctrl+E}
+            followed by \key R.
+        \li To toggle text wrapping, select \uicontrol {Enable Text Wrapping}
+             or press \key {Ctrl+E} followed by \key {Ctrl+W}.
+        \li To visualize whitespace in the editor, select
+            \uicontrol {Visualize Whitespace} or press \key {Ctrl+E}
+            followed by \key {Ctrl+V}.
+        \li To clear all whitespace characters from the currently open file,
+            select \uicontrol {Clean Whitespace}.
+    \endlist
+
+    \section1 Specifying Indentation Settings
+
     You can also specify indentation separately for each project. You can
     specify several sets of code style settings and easily switch between them.
     In addition, you can import and export code style settings.
@@ -61,7 +84,20 @@
 
     \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior options"
 
+    To visualize whitespace in the editor, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Display >
+    \uicontrol {Visualize whitespace}.
+
+    \image qtcreator-options-text-editor-display.png "Text Editor Display options"
+
+    To help you keep line length at a particular number of characters, set the
+    number of characters in the \uicontrol {Display right margin at column}
+    field. To use a context-specific margin when available, select the
+    \uicontrol {Use context-specific margin} check box.
     \if defined(qtcreator)
+    For example, the margin could be set by the \c ColumnLimit option of the
+    \l{Specifying Code Style Settings}{Clang Format plugin}.
+
     \section1 Indenting C++ Files
 
     To specify indentation settings for the C++ editor:

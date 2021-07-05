@@ -42,7 +42,7 @@ import StudioTheme 1.0 as StudioTheme
 
 Section {
     id: section
-    caption: qsTr("Item delegate")
+    caption: qsTr("Item Delegate")
 
     anchors.left: parent.left
     anchors.right: parent.right

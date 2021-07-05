@@ -27,32 +27,18 @@
 
 #include "gridgeometry.h"
 
-#include <QtQuick3DRuntimeRender/private/qssgrendergeometry_p.h>
-
 namespace QmlDesigner {
 namespace Internal {
 
 GridGeometry::GridGeometry()
-    : QQuick3DGeometry()
+    : GeometryBase()
 {
+    updateGeometry();
 }
 
 GridGeometry::~GridGeometry()
 {
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-QString GridGeometry::name() const
-{
-    return objectName();
-}
-
-void GridGeometry::setName(const QString &name)
-{
-    setObjectName(name);
-    emit nameChanged();
-}
-#endif
 
 int GridGeometry::lines() const
 {
@@ -79,7 +65,7 @@ void GridGeometry::setLines(int count)
         return;
     m_lines = qMax(count, 1);
     emit linesChanged();
-    update();
+    updateGeometry();
 }
 
 // Space between lines
@@ -90,7 +76,7 @@ void GridGeometry::setStep(float step)
         return;
     m_step = step;
     emit stepChanged();
-    update();
+    updateGeometry();
 }
 
 void GridGeometry::setIsCenterLine(bool enabled)
@@ -100,36 +86,22 @@ void GridGeometry::setIsCenterLine(bool enabled)
 
     m_isCenterLine = enabled;
     emit isCenterLineChanged();
-    update();
+    updateGeometry();
 }
 
-QSSGRenderGraphObject *GridGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
+void GridGeometry::doUpdateGeometry()
 {
-    setStride(12); // Silence a warning
-    node = QQuick3DGeometry::updateSpatialNode(node);
-    QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
-    geometry->clear();
+    GeometryBase::doUpdateGeometry();
 
     QByteArray vertexData;
     fillVertexData(vertexData);
 
-    geometry->setStride(12);
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
-#else
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::Float32);
-    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
-#endif
-    geometry->setVertexData(vertexData);
+    setVertexData(vertexData);
 
     int lastIndex = (vertexData.size() - 1) / int(sizeof(QVector3D));
     auto vertexPtr = reinterpret_cast<QVector3D *>(vertexData.data());
-    geometry->setBounds(QVector3D(vertexPtr[0][0], vertexPtr[0][1], 0.0),
-                        QVector3D(vertexPtr[lastIndex][0], vertexPtr[lastIndex][1], 0.0));
-    return node;
+    setBounds(QVector3D(vertexPtr[0][0], vertexPtr[0][1], 0.0),
+            QVector3D(vertexPtr[lastIndex][0], vertexPtr[lastIndex][1], 0.0));
 }
 
 void GridGeometry::fillVertexData(QByteArray &vertexData)

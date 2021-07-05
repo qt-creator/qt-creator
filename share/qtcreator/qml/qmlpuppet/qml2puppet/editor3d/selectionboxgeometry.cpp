@@ -27,7 +27,6 @@
 
 #include "selectionboxgeometry.h"
 
-#include <QtQuick3DRuntimeRender/private/qssgrendergeometry_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
@@ -36,7 +35,6 @@
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qvector.h>
-#include <QtCore/qtimer.h>
 
 #include <limits>
 
@@ -49,7 +47,7 @@ static const QVector3D maxVec = QVector3D(floatMax, floatMax, floatMax);
 static const QVector3D minVec = QVector3D(floatMin, floatMin, floatMin);
 
 SelectionBoxGeometry::SelectionBoxGeometry()
-    : QQuick3DGeometry()
+    : GeometryBase()
 {
 }
 
@@ -59,19 +57,6 @@ SelectionBoxGeometry::~SelectionBoxGeometry()
         QObject::disconnect(connection);
     m_connections.clear();
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-QString SelectionBoxGeometry::name() const
-{
-    return objectName();
-}
-
-void SelectionBoxGeometry::setName(const QString &name)
-{
-    setObjectName(name);
-    emit nameChanged();
-}
-#endif
 
 QQuick3DNode *SelectionBoxGeometry::targetNode() const
 {
@@ -93,9 +78,24 @@ bool QmlDesigner::Internal::SelectionBoxGeometry::isEmpty() const
     return m_isEmpty;
 }
 
+void SelectionBoxGeometry::setEmpty(bool isEmpty)
+{
+    if (m_isEmpty != isEmpty) {
+        m_isEmpty = isEmpty;
+        emit isEmptyChanged();
+    }
+}
+
 QSSGBounds3 SelectionBoxGeometry::bounds() const
 {
     return m_bounds;
+}
+
+void SelectionBoxGeometry::clearGeometry()
+{
+    clear();
+    setStride(12); // To avoid div by zero inside QtQuick3D
+    setEmpty(true);
 }
 
 void SelectionBoxGeometry::setTargetNode(QQuick3DNode *targetNode)
@@ -109,17 +109,18 @@ void SelectionBoxGeometry::setTargetNode(QQuick3DNode *targetNode)
 
     if (auto model = qobject_cast<QQuick3DModel *>(m_targetNode)) {
         QObject::connect(model, &QQuick3DModel::sourceChanged,
-                         this, &SelectionBoxGeometry::targetMeshUpdated, Qt::QueuedConnection);
+                         this, &SelectionBoxGeometry::spatialNodeUpdateNeeded, Qt::QueuedConnection);
         QObject::connect(model, &QQuick3DModel::geometryChanged,
-                         this, &SelectionBoxGeometry::targetMeshUpdated, Qt::QueuedConnection);
+                         this, &SelectionBoxGeometry::spatialNodeUpdateNeeded, Qt::QueuedConnection);
     }
     if (m_targetNode) {
         QObject::connect(m_targetNode, &QQuick3DNode::parentChanged,
-                         this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                         this, &SelectionBoxGeometry::spatialNodeUpdateNeeded, Qt::QueuedConnection);
     }
 
+    clearGeometry();
     emit targetNodeChanged();
-    update();
+    spatialNodeUpdateNeeded();
 }
 
 void SelectionBoxGeometry::setRootNode(QQuick3DNode *rootNode)
@@ -130,7 +131,7 @@ void SelectionBoxGeometry::setRootNode(QQuick3DNode *rootNode)
     m_rootNode = rootNode;
 
     emit rootNodeChanged();
-    update();
+    spatialNodeUpdateNeeded();
 }
 
 void SelectionBoxGeometry::setView3D(QQuick3DViewport *view)
@@ -141,24 +142,31 @@ void SelectionBoxGeometry::setView3D(QQuick3DViewport *view)
     m_view3D = view;
 
     emit view3DChanged();
-    update();
+    spatialNodeUpdateNeeded();
 }
 
 QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
 {
-    // If target node mesh has been updated, we need to defer updating the box geometry
-    // to the next frame to ensure target node geometry has been updated
-    if (m_meshUpdatePending) {
-        QTimer::singleShot(0, this, &SelectionBoxGeometry::update);
-        m_meshUpdatePending = false;
-        return node;
+
+    if (m_spatialNodeUpdatePending) {
+        m_spatialNodeUpdatePending = false;
+        updateGeometry();
     }
 
-    setStride(12); // Silence a warning
-    node = QQuick3DGeometry::updateSpatialNode(node);
-    QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
+    return QQuick3DGeometry::updateSpatialNode(node);
+}
 
-    geometry->clear();
+void SelectionBoxGeometry::doUpdateGeometry()
+{
+    // Some changes require a frame to be rendered for us to be able to calculate geometry,
+    // so defer calculations until after next frame.
+    if (m_spatialNodeUpdatePending) {
+        update();
+        return;
+    }
+
+    GeometryBase::doUpdateGeometry();
+
     for (auto &connection : qAsConst(m_connections))
         QObject::disconnect(connection);
     m_connections.clear();
@@ -186,15 +194,10 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
             rootRN->localTransform = m;
             rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
             rootRN->calculateGlobalVariables();
-            m_spatialNodeUpdatePending = false;
         } else if (!m_spatialNodeUpdatePending) {
+            // Necessary spatial nodes do not yet exist. Defer selection box creation one frame.
             m_spatialNodeUpdatePending = true;
-            // A necessary spatial node doesn't yet exist. Defer selection box creation one frame.
-            // Note: We don't share pending flag with target mesh update, which is checked and
-            // cleared at the beginning of this method, as there would be potential for an endless
-            // loop in case we can't ever resolve one of the spatial nodes.
-            QTimer::singleShot(0, this, &SelectionBoxGeometry::update);
-            return node;
+            update();
         }
         getBounds(m_targetNode, vertexData, indexData, minBounds, maxBounds);
         appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
@@ -212,34 +215,15 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
         appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
     }
 
-    geometry->setStride(12);
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->addAttribute(QSSGRenderGeometry::Attribute::IndexSemantic, 0,
-                           QSSGRenderGeometry::Attribute::ComponentType::U16Type);
-    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
-#else
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::Float32);
-    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::IndexSemantic, 0,
-                           QSSGMesh::Mesh::ComponentType::UnsignedInt16);
-    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
-#endif
-    geometry->setVertexData(vertexData);
-    geometry->setIndexData(indexData);
-    geometry->setBounds(minBounds, maxBounds);
+    addAttribute(QQuick3DGeometry::Attribute::IndexSemantic, 0,
+                 QQuick3DGeometry::Attribute::U16Type);
+    setVertexData(vertexData);
+    setIndexData(indexData);
+    setBounds(minBounds, maxBounds);
 
     m_bounds = QSSGBounds3(minBounds, maxBounds);
 
-    bool empty = minBounds.isNull() && maxBounds.isNull();
-    if (m_isEmpty != empty) {
-        m_isEmpty = empty;
-        // Delay notification until we're done with spatial node updates
-        QTimer::singleShot(0, this, &SelectionBoxGeometry::isEmptyChanged);
-    }
-
-    return node;
+    setEmpty(minBounds.isNull() && maxBounds.isNull());
 }
 
 void SelectionBoxGeometry::getBounds(
@@ -405,18 +389,19 @@ void SelectionBoxGeometry::appendVertexData(const QMatrix4x4 &m, QByteArray &ver
 void SelectionBoxGeometry::trackNodeChanges(QQuick3DNode *node)
 {
     m_connections << QObject::connect(node, &QQuick3DNode::sceneScaleChanged,
-                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                                      this, &SelectionBoxGeometry::updateGeometry, Qt::QueuedConnection);
     m_connections << QObject::connect(node, &QQuick3DNode::sceneRotationChanged,
-                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                                      this, &SelectionBoxGeometry::updateGeometry, Qt::QueuedConnection);
     m_connections << QObject::connect(node, &QQuick3DNode::scenePositionChanged,
-                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                                      this, &SelectionBoxGeometry::updateGeometry, Qt::QueuedConnection);
     m_connections << QObject::connect(node, &QQuick3DNode::pivotChanged,
-                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                                      this, &SelectionBoxGeometry::updateGeometry, Qt::QueuedConnection);
 }
 
-void SelectionBoxGeometry::targetMeshUpdated()
+void SelectionBoxGeometry::spatialNodeUpdateNeeded()
 {
-    m_meshUpdatePending = true;
+    m_spatialNodeUpdatePending = true;
+    clearGeometry();
     update();
 }
 

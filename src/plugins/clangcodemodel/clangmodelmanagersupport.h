@@ -72,6 +72,7 @@ public:
     CppTools::FollowSymbolInterface &followSymbolInterface() override;
     CppTools::RefactoringEngineInterface &refactoringEngineInterface() override;
     std::unique_ptr<CppTools::AbstractOverviewModel> createOverviewModel() override;
+    bool supportsOutline(const TextEditor::TextDocument *document) const override;
 
     BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;
@@ -79,8 +80,8 @@ public:
 
     ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
-    ClangdClient *clientForProject(const ProjectExplorer::Project *project);
-    ClangdClient *clientForFile(const Utils::FilePath &file);
+    ClangdClient *clientForProject(const ProjectExplorer::Project *project) const;
+    ClangdClient *clientForFile(const Utils::FilePath &file) const;
 
     static ClangModelManagerSupport *instance();
 
@@ -114,6 +115,7 @@ private:
 
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
+    void onClangdSettingsChanged();
 
     void onDiagnosticConfigsInvalidated(const QVector<::Utils::Id> &configIds);
 

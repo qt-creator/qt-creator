@@ -81,31 +81,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QCheckBox" name="clangdCheckBox">
-          <property name="text">
-           <string>Use clangd (EXPERIMENTAL)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Utils::PathChooser" name="clangdChooser"/>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
       </item>
      </layout>
     </widget>
@@ -173,11 +149,6 @@
    <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
    <extends>QWidget</extends>
    <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QLineEdit</extends>
-   <header location="global">utils/pathchooser.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

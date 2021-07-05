@@ -41,7 +41,7 @@ T.SpinBox {
 
     property bool edit: spinBoxInput.activeFocus
     // This property is used to indicate the global hover state
-    property bool hover: mySpinBox.hovered || actionIndicator.hover
+    property bool hover: (mySpinBox.hovered || actionIndicator.hover) && mySpinBox.enabled
     property bool drag: false
     property bool sliderDrag: sliderPopup.drag
 
@@ -164,10 +164,8 @@ T.SpinBox {
         width: mySpinBox.width - actionIndicator.width - (StudioTheme.Values.border * 2)
         height: StudioTheme.Values.sliderHeight
 
-        enter: Transition {
-        }
-        exit: Transition {
-        }
+        enter: Transition {}
+        exit: Transition {}
     }
 
     textFromValue: function (value, locale) {
@@ -256,7 +254,7 @@ T.SpinBox {
             sliderPopup.close()
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
             event.accepted = true
 

@@ -9,6 +9,7 @@ TracingAutotest {
     Group {
         name: "Test sources"
         files: [
+            "testflamegraphmodel.h",
             "tst_flamegraphview.cpp", "flamegraphview.qrc"
         ]
     }

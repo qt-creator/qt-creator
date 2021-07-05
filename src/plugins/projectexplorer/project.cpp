@@ -183,7 +183,6 @@ public:
     Utils::Id m_id;
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
-    bool m_knowsAllBuildExecutables = true;
     bool m_hasMakeInstallEquivalent = false;
     bool m_needsBuildConfigurations = true;
     bool m_needsDeployConfigurations = true;
@@ -903,11 +902,6 @@ void Project::setHasMakeInstallEquivalent(bool enabled)
     d->m_hasMakeInstallEquivalent = enabled;
 }
 
-void Project::setKnowsAllBuildExecutables(bool value)
-{
-    d->m_knowsAllBuildExecutables = value;
-}
-
 void Project::setNeedsBuildConfigurations(bool value)
 {
     d->m_needsBuildConfigurations = value;
@@ -974,11 +968,6 @@ bool Project::needsBuildConfigurations() const
 
 void Project::configureAsExampleProject(Kit * /*kit*/)
 {
-}
-
-bool Project::knowsAllBuildExecutables() const
-{
-    return d->m_knowsAllBuildExecutables;
 }
 
 bool Project::hasMakeInstallEquivalent() const

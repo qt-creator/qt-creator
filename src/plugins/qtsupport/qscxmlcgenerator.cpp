@@ -48,8 +48,8 @@ QScxmlcGenerator::QScxmlcGenerator(const Project *project,
     m_tmpdir("qscxmlgenerator")
 {
     QTC_ASSERT(targets.count() == 2, return);
-    m_header = m_tmpdir.path() + QLatin1Char('/') + targets[0].fileName();
-    m_impl = m_tmpdir.path() + QLatin1Char('/') + targets[1].fileName();
+    m_header = m_tmpdir.filePath(targets[0].fileName()).toString();
+    m_impl = m_tmpdir.filePath(targets[1].fileName()).toString();
 }
 
 Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
@@ -84,7 +84,7 @@ Utils::FilePath QScxmlcGenerator::command() const
     if (!version)
         return Utils::FilePath();
 
-    return Utils::FilePath::fromString(version->qscxmlcCommand());
+    return version->qscxmlcCommand();
 }
 
 QStringList QScxmlcGenerator::arguments() const
@@ -97,7 +97,7 @@ QStringList QScxmlcGenerator::arguments() const
 
 Utils::FilePath QScxmlcGenerator::workingDirectory() const
 {
-    return Utils::FilePath::fromString(m_tmpdir.path());
+    return m_tmpdir.path();
 }
 
 bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
@@ -146,8 +146,6 @@ ExtraCompiler *QScxmlcGeneratorFactory::create(
         const Project *project, const Utils::FilePath &source,
         const Utils::FilePaths &targets)
 {
-    annouceCreation(project, source, targets);
-
     return new QScxmlcGenerator(project, source, targets, this);
 }
 

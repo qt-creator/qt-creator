@@ -81,7 +81,7 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMs
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
     , m_clientInterface(clientInterface)
-    , m_diagnosticManager(m_id)
+    , m_diagnosticManager(this)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)
@@ -426,9 +426,12 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     deactivateDocument(document);
     const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     m_highlights[uri].clear();
-    if (m_openedDocument.remove(document) != 0 && m_state == Initialized) {
-        DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
-        sendContent(DidCloseTextDocumentNotification(params));
+    if (m_openedDocument.remove(document) != 0) {
+        handleDocumentClosed(document);
+        if (m_state == Initialized) {
+            DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
+            sendContent(DidCloseTextDocumentNotification(params));
+        }
     }
 }
 
@@ -989,6 +992,33 @@ void Client::removeAssistProcessor(TextEditor::IAssistProcessor *processor)
 QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const QTextCursor &cursor) const
 {
     return m_diagnosticManager.diagnosticsAt(uri, cursor);
+}
+
+bool Client::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+                           const LanguageServerProtocol::Diagnostic &diag) const
+{
+    return m_diagnosticManager.hasDiagnostic(uri, documentForFilePath(uri.toFilePath()), diag);
+}
+
+void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
+                                    const HideDiagnosticsHandler &hideHandler)
+{
+    m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler);
+}
+
+void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
+{
+    m_tokentSupport.setTokensHandler(handler);
+}
+
+void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
+{
+    m_symbolStringifier = stringifier;
+}
+
+SymbolStringifier Client::symbolStringifier() const
+{
+    return m_symbolStringifier;
 }
 
 void Client::start()

@@ -308,7 +308,7 @@ QString documentationUrl(const QString &checkName)
     } else if (name.startsWith(clangStaticAnalyzerPrefix)) {
         url = CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
     } else {
-        url = QString(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE).arg(name);
+        url = clangTidyDocUrl(name);
     }
 
     return url;
@@ -349,6 +349,17 @@ QStringList extraClangToolsAppendOptions()
     if (!options.isEmpty())
         qWarning() << "ClangTools options are appended with " << options.toVector();
     return options;
+}
+
+QString clangTidyDocUrl(const QString &check)
+{
+    QVersionNumber version = ClangToolsSettings::clangTidyVersion();
+    version = QVersionNumber(version.majorVersion(), 0, 0);
+    if (version == QVersionNumber(0))
+        version = QVersionNumber(12);
+    static const char urlTemplate[]
+            = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/clang-tidy/checks/%2.html";
+    return QString::fromLatin1(urlTemplate).arg(version.toString(), check);
 }
 
 } // namespace Internal

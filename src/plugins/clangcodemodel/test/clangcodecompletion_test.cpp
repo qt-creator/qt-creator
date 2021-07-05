@@ -52,7 +52,6 @@
 #include <QDebug>
 #include <QtTest>
 
-using namespace ClangBackEnd;
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 

@@ -67,11 +67,11 @@ TransitionForm::TransitionForm(QWidget *parent)
         bool error = false;
 
         if (!ModelNode::isValidId(newId)) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
-                                                  tr("%1 is an invalid id.").arg(newId));
+            Core::AsynchronousMessageBox::warning(tr("Invalid ID"),
+                                                  tr("%1 is an invalid ID.").arg(newId));
             error = true;
         } else if (m_transition.view()->hasId(newId)) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
+            Core::AsynchronousMessageBox::warning(tr("Invalid ID"),
                                                   tr("%1 already exists.").arg(newId));
             error = true;
         } else {

@@ -39,5 +39,9 @@
         <file>follow-symbol/main.cpp</file>
         <file>local-references/local-references.pro</file>
         <file>local-references/references.cpp</file>
+        <file>tooltips/tooltips.cpp</file>
+        <file>tooltips/tooltips.pro</file>
+        <file>highlighting/highlighting.cpp</file>
+        <file>highlighting/highlighting.pro</file>
     </qresource>
 </RCC>

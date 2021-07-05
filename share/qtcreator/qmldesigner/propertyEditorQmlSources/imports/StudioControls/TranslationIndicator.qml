@@ -32,7 +32,7 @@ Item {
 
     property Item myControl
 
-    property bool hover: translationIndicatorMouseArea.containsMouse
+    property bool hover: translationIndicatorMouseArea.containsMouse && translationIndicator.enabled
     property bool pressed: translationIndicatorMouseArea.pressed
     property bool checked: false
 
@@ -62,7 +62,7 @@ Item {
             id: translationIndicatorMouseArea
             anchors.fill: parent
             hoverEnabled: true
-            onPressed: mouse.accepted = true // TODO
+            onPressed: function(mouse) { mouse.accepted = true }
             onClicked: {
                 translationIndicator.checked = !translationIndicator.checked
                 translationIndicator.clicked()

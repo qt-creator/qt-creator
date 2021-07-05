@@ -119,6 +119,26 @@
 
     \image qtcreator-build-run-options-cmake.png "CMake Build & Run options"
 
+    \section1 Viewing CMake Output
+
+    Output from CMake is displayed next to the \uicontrol {Build Settings} and
+    \uicontrol {Run Settings} panes in the \uicontrol Projects mode.
+
+    \image qtcreator-build-cmake-output.png "CMake output in Projects mode"
+
+    To clear the search results, select the \inlineimage clean_pane_small.png
+    (\uicontrol Clear) button.
+
+    You can enter a string in the \uicontrol Filter field to filter output.
+    To specify filtering options, select the \inlineimage magnifier.png "Filtering options menu"
+    button. You can filter output by using regular expressions or
+    case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
+    hide the lines that match the filter.
+
+    To increase or decrease the output text size, select \inlineimage plus.png
+    (\uicontrol {Zoom In}) or \inlineimage minus.png
+    (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-.
+
     \section1 CMake Build Steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs

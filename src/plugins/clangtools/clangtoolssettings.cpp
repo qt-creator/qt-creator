@@ -198,5 +198,38 @@ void ClangToolsSettings::writeSettings()
     emit changed();
 }
 
+void ClangToolsSettings::setClangTidyExecutable(const QString &path)
+{
+    m_clangTidyExecutable = path;
+    m_clangTidyVersion = {};
+}
+
+void ClangTools::Internal::ClangToolsSettings::setClazyStandaloneExecutable(const QString &path)
+{
+    m_clazyStandaloneExecutable = path;
+    m_clazyVersion = {};
+}
+
+static QVersionNumber getVersionNumber(QVersionNumber &version, const QString &toolFilePath)
+{
+    if (version.isNull() && !toolFilePath.isEmpty()) {
+        version = QVersionNumber::fromString(queryVersion(Utils::FilePath::fromString(toolFilePath),
+                                                          QueryFailMode::Silent));
+    };
+    return version;
+}
+
+QVersionNumber ClangToolsSettings::clangTidyVersion()
+{
+    return getVersionNumber(instance()->m_clangTidyVersion,
+                            ClangTools::Internal::clangTidyExecutable());
+}
+
+QVersionNumber ClangToolsSettings::clazyVersion()
+{
+    return getVersionNumber(instance()->m_clazyVersion,
+                            ClangTools::Internal::clazyStandaloneExecutable());
+}
+
 } // namespace Internal
 } // namespace ClangTools

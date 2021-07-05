@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,15 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import QtQuick.Layouts 1.0
 
 Row {
-
     id: buttonRow
 
     property bool exclusive: false
-
     property int initalChecked: 0
-
     property int checkedIndex: 0
 
     signal toggled (int index, bool checked)
-
-    Component.onCompleted: {
-    }
-
 }

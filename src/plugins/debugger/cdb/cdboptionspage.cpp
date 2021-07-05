@@ -225,7 +225,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
         },
 
         Group {
-            Title(tr("Break on")),
+            Title(tr("Break On")),
             m_breakEventWidget
         },
 

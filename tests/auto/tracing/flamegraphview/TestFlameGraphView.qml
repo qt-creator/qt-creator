@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtCreator.TstTracingFlameGraphView 1.0
-import "../QtCreator/Tracing/" // TODO: Turn into module import when possible
+import "../Tracing" // TODO: Turn into module import when possible
 
 FlameGraphView {
     id: root

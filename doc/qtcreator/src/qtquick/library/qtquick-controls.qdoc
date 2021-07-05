@@ -392,7 +392,7 @@
     \section1 Selectors
 
     Qt Quick Controls offers a set of selector-like controls, such as sliders,
-    dial, sping box, combo box, and tumbler, for specific use cases. The
+    dial, spin box, combo box, and tumbler, for specific use cases. The
     following sections contain guidelines for choosing the selector most
     suitable for a use case.
 

@@ -28,6 +28,7 @@
 #include <QFile>
 #include <QFileInfo>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 namespace ClangCodeModel {
@@ -62,7 +63,7 @@ QString UiHeaderOnDiskManager::remove(const QString &filePath)
 
 QString UiHeaderOnDiskManager::directoryPath() const
 {
-    return m_temporaryDir.path();
+    return m_temporaryDir.path().path();
 }
 
 QString UiHeaderOnDiskManager::mapPath(const QString &filePath) const

@@ -167,6 +167,20 @@ QtcTool {
     }
 
     Group {
+        name: "puppet2 3D editor Qt5"
+        condition: !product.usesQt6
+        prefix: puppetDir + "/"
+        files: ["editor3d_qt5.qrc"]
+    }
+
+    Group {
+        name: "puppet2 3D editor Qt6"
+        condition: product.usesQt6
+        prefix: puppetDir + "/"
+        files: ["editor3d_qt6.qrc"]
+    }
+
+    Group {
         name: "puppet2 sources"
         prefix: puppetDir + "/qml2puppet/"
         files: [
@@ -232,6 +246,7 @@ QtcTool {
             "instances/capturenodeinstanceserverdispatcher.h",
             "editor3d/generalhelper.cpp",
             "editor3d/mousearea3d.cpp",
+            "editor3d/geometrybase.cpp",
             "editor3d/camerageometry.cpp",
             "editor3d/lightgeometry.cpp",
             "editor3d/gridgeometry.cpp",
@@ -249,6 +264,7 @@ QtcTool {
         Group {
             name: "3d-only puppet2 headers"
             files: [
+                "editor3d/geometrybase.h",
                 "editor3d/camerageometry.h",
                 "editor3d/generalhelper.h",
                 "editor3d/gridgeometry.h",

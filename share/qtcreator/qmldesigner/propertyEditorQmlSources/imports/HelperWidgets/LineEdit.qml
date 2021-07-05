@@ -138,7 +138,7 @@ StudioControls.TextField {
             var textValue = lineEdit.text
             lineEdit.backendValue.value = textValue
         }
-        colorLogic.evaluate();
+        colorLogic.evaluate()
     }
 
     property variant backendValueValueInternal: backendValue === undefined ? 0 : backendValue.value
@@ -157,13 +157,13 @@ StudioControls.TextField {
     }
 
     function escapeString(string) {
-        var str  = string;
-        str = str.replace(/\\/g, "\\\\");
-        str.replace(/\"/g, "\\\"");
-        str = str.replace(/\t/g, "\\t");
-        str = str.replace(/\r/g, "\\r");
-        str = str.replace(/\n/g, '\\n');
-        return str;
+        var str = string
+        str = str.replace(/\\/g, "\\\\")
+        str.replace(/\"/g, "\\\"")
+        str = str.replace(/\t/g, "\\t")
+        str = str.replace(/\r/g, "\\r")
+        str = str.replace(/\n/g, '\\n')
+        return str
     }
 
 }

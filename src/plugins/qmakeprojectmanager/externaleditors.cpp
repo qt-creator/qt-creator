@@ -43,6 +43,7 @@
 #include <QTcpServer>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 enum { debug = 0 };
 
@@ -65,14 +66,14 @@ static inline QString msgAppNotFound(const QString &id)
 static QString linguistBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (qtVersion)
-        return qtVersion->linguistCommand();
+        return qtVersion->linguistCommand().toString();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
 static QString designerBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (qtVersion)
-        return qtVersion->designerCommand();
+        return qtVersion->designerCommand().toString();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Designer" : "designer");
 }
 

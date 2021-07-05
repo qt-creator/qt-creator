@@ -132,7 +132,7 @@
     Changing a component's opacity does not affect whether the component
     receives user input events.
 
-    You can \l{Creating Animations}{animate} the opacity value to make a
+    You can \l{Creating Timeline Animations}{animate} the opacity value to make a
     component fade in and out.
 
     If the \uicontrol Clip check box is selected, the component and its children

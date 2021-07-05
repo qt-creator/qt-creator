@@ -183,7 +183,7 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
             const FilePath f2 = FilePath::fromString(i2);
             if (f1 == f2)
                 return true;
-            if (FileUtils::resolveSymlinks(f1) == FileUtils::resolveSymlinks(f2))
+            if (f1.resolveSymlinks() == f2.resolveSymlinks())
                 return true;
             if (FileUtils::fileId(f1) == FileUtils::fileId(f2))
                 return true;

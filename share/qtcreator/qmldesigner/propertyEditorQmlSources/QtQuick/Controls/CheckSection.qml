@@ -41,7 +41,7 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
-    caption: qsTr("Check box")
+    caption: qsTr("Check Box")
 
     anchors.left: parent.left
     anchors.right: parent.right

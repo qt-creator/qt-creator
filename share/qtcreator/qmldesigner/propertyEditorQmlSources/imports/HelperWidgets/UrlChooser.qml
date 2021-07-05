@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import QtQuickDesignerTheme 1.0
-import QtQuick.Layouts 1.0
-import QtQuick.Controls 2.5
 
 Row {
     id: urlChooser

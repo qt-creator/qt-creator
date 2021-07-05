@@ -44,7 +44,7 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Tool bar")
+        caption: qsTr("Tool Bar")
 
         SectionLayout {
             PropertyLabel {
@@ -74,7 +74,7 @@ Column {
     PaddingSection {}
 
     FontSection {
-        caption: qsTr("Font inheritance")
+        caption: qsTr("Font Inheritance")
         expanded: false
     }
 }

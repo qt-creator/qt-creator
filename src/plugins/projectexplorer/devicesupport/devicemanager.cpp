@@ -411,6 +411,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->ensureWritableDirectory(filePath);
     };
 
+    deviceHooks.ensureExistingFile = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->ensureExistingFile(filePath);
+    };
+
     deviceHooks.createDir = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
@@ -429,10 +435,22 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->removeFile(filePath);
     };
 
+    deviceHooks.removeRecursively = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->removeRecursively(filePath);
+    };
+
     deviceHooks.copyFile = [](const FilePath &filePath, const FilePath &target) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->copyFile(filePath, target);
+    };
+
+    deviceHooks.renameFile = [](const FilePath &filePath, const FilePath &target) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->renameFile(filePath, target);
     };
 
     deviceHooks.searchInPath = [](const FilePath &filePath) {
@@ -441,11 +459,17 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->searchInPath(filePath);
     };
 
-    deviceHooks.dirEntries = [](const FilePath &filePath,
-            const QStringList &nameFilters, QDir::Filters filters) {
+    deviceHooks.symLinkTarget = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return FilePath{});
+        return device->symLinkTarget(filePath);
+    };
+
+    deviceHooks.dirEntries = [](const FilePath &filePath, const QStringList &nameFilters,
+                                QDir::Filters filters, QDir::SortFlags sort) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return FilePaths());
-        return device->directoryEntries(filePath, nameFilters, filters);
+        return device->directoryEntries(filePath, nameFilters, filters, sort);
     };
 
     deviceHooks.fileContents = [](const FilePath &filePath, int maxSize) {
@@ -470,6 +494,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return QFile::Permissions());
         return device->permissions(filePath);
+    };
+
+    deviceHooks.osType = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return OsTypeOther);
+        return device->osType();
     };
 
     FilePath::setDeviceFileHooks(deviceHooks);

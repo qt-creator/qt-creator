@@ -44,7 +44,7 @@ Column {
     width: parent.width
 
     TextSection {
-        caption: qsTr("Text field")
+        caption: qsTr("Text Field")
     }
 
     CharacterSection {}

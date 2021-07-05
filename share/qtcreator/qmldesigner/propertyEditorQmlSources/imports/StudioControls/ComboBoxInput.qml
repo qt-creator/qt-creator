@@ -33,7 +33,7 @@ TextInput {
     property T.Control myControl
 
     property bool edit: textInput.activeFocus
-    property bool hover: mouseArea.containsMouse
+    property bool hover: mouseArea.containsMouse && textInput.enabled
 
     z: 2
     font: myControl.font
@@ -91,7 +91,7 @@ TextInput {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
-        onPressed: mouse.accepted = false
+        onPressed: function(mouse) { mouse.accepted = false }
     }
 
     states: [

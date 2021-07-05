@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/qmlprofiler">
+    <qresource prefix="/QtCreator/QmlProfiler">
         <file>bindingloops.vert</file>
         <file>bindingloops.frag</file>
         <file>QmlProfilerFlameGraphView.qml</file>

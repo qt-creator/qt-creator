@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -56,16 +56,25 @@
     syntax definitions. \QC comes with most of the commonly used syntax files,
     and you can download additional files. For more information about the
     definition files, see
-    \l{https://docs.kde.org/stable5/en/applications/katepart/highlight.html}
+    \l{https://docs.kde.org/trunk5/en/kate/katepart/highlight.html}
     {Working with Syntax Highlighting}.
 
     Font attributes that a syntax definition file explicitly specifies, such as
     bold, italic, underline, or strike through, are applied. Colors are applied
     if they are readable with \QC themes.
 
+    If more than one highlight definition is available for the file that you
+    open for editing, the editor asks you to select the one to use. To save
+    the selection, select \uicontrol {Remember My Choice}. To reset the
+    remembered definitions, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} >
+    \uicontrol {Reset Remembered Definitions}.
+
     If the editor cannot find the highlight definition for a file that you open
-    for editing, it prompts you to update the highlight definition files. Select
-    \uicontrol {Update Definitions} to update the files.
+    for editing, it prompts you to download additional highlight definition
+    files. Select \uicontrol {Download Definitions} to download the files.
+    Information about the downloaded files is displayed in the
+    \uicontrol {General Messages} \l{Viewing Output}{output pane}.
 
     To suppress the message for a particular file pattern, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
@@ -76,10 +85,9 @@
 
     If you have written your own syntax definition files, you
     can provide an additional definition search path in the
-    \uicontrol {User Highlight Definition Files} field.
-
-    To manually update the highlight definition files, select
-    \uicontrol {Update Definitions}.
+    \uicontrol {User Highlight Definition Files} field. To
+    apply the changes you make to the definition files, select
+    \uicontrol {Reload Definitions}.
 
     \section1 Highlighting and Folding Blocks
 
@@ -101,6 +109,8 @@
     \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Display folding markers}. This option is enabled by default.
 
+    \image qtcreator-options-text-editor-display.png "Text Editor Display options"
+
     When the cursor is on a brace, the matching brace is animated by default. To
     turn off the animation and just highlight the block and the braces, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
@@ -117,4 +127,6 @@
     \key {Ctrl+Alt+Shift+U}. To enable smart block selection, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol {Enable smart selection changing}.
+
+    \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior options"
 */

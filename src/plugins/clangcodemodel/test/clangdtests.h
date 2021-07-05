@@ -27,6 +27,7 @@
 
 #include <cpptools/cpptoolstestcase.h>
 #include <coreplugin/find/searchresultitem.h>
+#include <texteditor/semantichighlighter.h>
 #include <utils/fileutils.h>
 
 #include <QHash>
@@ -113,6 +114,32 @@ public:
 private slots:
     void test_data();
     void test();
+};
+
+class ClangdTestTooltips : public ClangdTest
+{
+    Q_OBJECT
+public:
+    ClangdTestTooltips();
+
+private slots:
+    void test_data();
+    void test();
+};
+
+class ClangdTestHighlighting : public ClangdTest
+{
+    Q_OBJECT
+public:
+    ClangdTestHighlighting();
+
+private slots:
+    void initTestCase() override;
+    void test_data();
+    void test();
+
+private:
+    TextEditor::HighlightingResults m_results;
 };
 
 } // namespace Tests

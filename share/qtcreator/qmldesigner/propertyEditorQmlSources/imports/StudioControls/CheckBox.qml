@@ -33,7 +33,7 @@ T.CheckBox {
     property alias actionIndicator: actionIndicator
 
     // This property is used to indicate the global hover state
-    property bool hover: myCheckBox.hovered
+    property bool hover: myCheckBox.hovered && myCheckBox.enabled
     property bool edit: false
 
     property alias actionIndicatorVisible: actionIndicator.visible

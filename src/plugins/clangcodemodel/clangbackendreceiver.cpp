@@ -41,8 +41,6 @@
 
 #define qCDebugIpc() qCDebug(ipcLog) << "<===="
 
-using namespace ClangBackEnd;
-
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -189,12 +187,12 @@ void BackendReceiver::alive()
     m_aliveHandler();
 }
 
-void BackendReceiver::echo(const EchoMessage &message)
+void BackendReceiver::echo(const ClangBackEnd::EchoMessage &message)
 {
     qCDebugIpc() << message;
 }
 
-void BackendReceiver::completions(const CompletionsMessage &message)
+void BackendReceiver::completions(const ClangBackEnd::CompletionsMessage &message)
 {
     qCDebugIpc() << "CompletionsMessage with" << message.codeCompletions.size()
                  << "items";
@@ -204,7 +202,7 @@ void BackendReceiver::completions(const CompletionsMessage &message)
         processor->handleAvailableCompletions(message.codeCompletions);
 }
 
-void BackendReceiver::annotations(const AnnotationsMessage &message)
+void BackendReceiver::annotations(const ClangBackEnd::AnnotationsMessage &message)
 {
     qCDebugIpc() << "AnnotationsMessage"
                  << "for" << QFileInfo(message.fileContainer.filePath).fileName() << "with"
@@ -230,10 +228,10 @@ void BackendReceiver::annotations(const AnnotationsMessage &message)
 }
 
 static
-CppTools::CursorInfo::Range toCursorInfoRange(const SourceRangeContainer &sourceRange)
+CppTools::CursorInfo::Range toCursorInfoRange(const ClangBackEnd::SourceRangeContainer &sourceRange)
 {
-    const SourceLocationContainer &start = sourceRange.start;
-    const SourceLocationContainer &end = sourceRange.end;
+    const ClangBackEnd::SourceLocationContainer &start = sourceRange.start;
+    const ClangBackEnd::SourceLocationContainer &end = sourceRange.end;
     const int length = end.column - start.column;
 
     return {start.line, start.column, length};
@@ -241,13 +239,13 @@ CppTools::CursorInfo::Range toCursorInfoRange(const SourceRangeContainer &source
 
 static
 CppTools::CursorInfo toCursorInfo(const CppTools::SemanticInfo::LocalUseMap &localUses,
-                                  const ReferencesMessage &message)
+                                  const ClangBackEnd::ReferencesMessage &message)
 {
     CppTools::CursorInfo result;
-    const QVector<SourceRangeContainer> &references = message.references;
+    const QVector<ClangBackEnd::SourceRangeContainer> &references = message.references;
 
     result.areUseRangesForLocalVariable = message.isLocalVariable;
-    for (const SourceRangeContainer &reference : references)
+    for (const ClangBackEnd::SourceRangeContainer &reference : references)
         result.useRanges.append(toCursorInfoRange(reference));
 
     result.useRanges.reserve(references.size());
@@ -257,13 +255,13 @@ CppTools::CursorInfo toCursorInfo(const CppTools::SemanticInfo::LocalUseMap &loc
 }
 
 static
-CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
+CppTools::SymbolInfo toSymbolInfo(const ClangBackEnd::FollowSymbolMessage &message)
 {
     CppTools::SymbolInfo result;
-    const SourceRangeContainer &range = message.result.range;
+    const ClangBackEnd::SourceRangeContainer &range = message.result.range;
 
-    const SourceLocationContainer &start = range.start;
-    const SourceLocationContainer &end = range.end;
+    const ClangBackEnd::SourceLocationContainer &start = range.start;
+    const ClangBackEnd::SourceLocationContainer &end = range.end;
     result.startLine = start.line;
     result.startColumn = start.column;
     result.endLine = end.line;
@@ -275,7 +273,7 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
     return result;
 }
 
-void BackendReceiver::references(const ReferencesMessage &message)
+void BackendReceiver::references(const ClangBackEnd::ReferencesMessage &message)
 {
     qCDebugIpc() << "ReferencesMessage with"
                  << message.references.size() << "references";
@@ -292,22 +290,22 @@ void BackendReceiver::references(const ReferencesMessage &message)
     futureInterface.reportFinished();
 }
 
-static Core::HelpItem::Category toHelpItemCategory(ToolTipInfo::QdocCategory category)
+static Core::HelpItem::Category toHelpItemCategory(ClangBackEnd::ToolTipInfo::QdocCategory category)
 {
     switch (category) {
-    case ToolTipInfo::Unknown:
+    case ClangBackEnd::ToolTipInfo::Unknown:
         return Core::HelpItem::Unknown;
-    case ToolTipInfo::ClassOrNamespace:
+    case ClangBackEnd::ToolTipInfo::ClassOrNamespace:
         return Core::HelpItem::ClassOrNamespace;
-    case ToolTipInfo::Enum:
+    case ClangBackEnd::ToolTipInfo::Enum:
         return Core::HelpItem::Enum;
-    case ToolTipInfo::Typedef:
+    case ClangBackEnd::ToolTipInfo::Typedef:
         return Core::HelpItem::Typedef;
-    case ToolTipInfo::Macro:
+    case ClangBackEnd::ToolTipInfo::Macro:
         return Core::HelpItem::Macro;
-    case ToolTipInfo::Brief:
+    case ClangBackEnd::ToolTipInfo::Brief:
         return Core::HelpItem::Brief;
-    case ToolTipInfo::Function:
+    case ClangBackEnd::ToolTipInfo::Function:
         return Core::HelpItem::Function;
     }
 
@@ -325,11 +323,11 @@ static QStringList toStringList(const Utf8StringVector &utf8StringVector)
     return list;
 }
 
-static CppTools::ToolTipInfo toToolTipInfo(const ToolTipMessage &message)
+static CppTools::ToolTipInfo toToolTipInfo(const ClangBackEnd::ToolTipMessage &message)
 {
     CppTools::ToolTipInfo info;
 
-    const ToolTipInfo &backendInfo = message.toolTipInfo;
+    const ClangBackEnd::ToolTipInfo &backendInfo = message.toolTipInfo;
 
     info.text = backendInfo.text;
     info.briefComment = backendInfo.briefComment;
@@ -343,7 +341,7 @@ static CppTools::ToolTipInfo toToolTipInfo(const ToolTipMessage &message)
     return info;
 }
 
-void BackendReceiver::tooltip(const ToolTipMessage &message)
+void BackendReceiver::tooltip(const ClangBackEnd::ToolTipMessage &message)
 {
     qCDebugIpc() << "ToolTipMessage" << message.toolTipInfo.text;
 

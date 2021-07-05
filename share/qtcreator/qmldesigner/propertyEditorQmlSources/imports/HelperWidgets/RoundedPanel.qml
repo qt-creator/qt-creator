@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Layouts 1.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 

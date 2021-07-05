@@ -84,6 +84,7 @@ signals:
     void errorOccurred(const QString &message);
     void warningOccurred(const QString &message);
     void signingFlagsChanged();
+    void configurationChanged(const CMakeConfig &config);
 
 protected:
     bool fromMap(const QVariantMap &map) override;

@@ -100,7 +100,7 @@ void CppToolsPlugin::initTestCase()
 
 void CppToolsPlugin::cleanupTestCase()
 {
-    Utils::FileUtils::removeRecursively(Utils::FilePath::fromString(baseTestDir()));
+    Utils::FilePath::fromString(baseTestDir()).removeRecursively();
     CppFileSettings *fs = fileSettings();
     fs->headerSearchPaths.removeLast();
     fs->headerSearchPaths.removeLast();

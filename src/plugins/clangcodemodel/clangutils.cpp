@@ -100,8 +100,10 @@ private:
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath();
-        if (!path.isEmpty())
-            add({"-I", QDir::toNativeSeparators(path)});
+        if (!path.isEmpty()) {
+            prepend(QDir::toNativeSeparators(path));
+            prepend("-I");
+        }
     }
 };
 

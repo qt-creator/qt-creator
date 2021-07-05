@@ -217,8 +217,8 @@ T.Slider {
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
         // Sets the global hover
-        onContainsMouseChanged: slider.hover = containsMouse
-        onPressed: mouse.accepted = false
+        onContainsMouseChanged: slider.hover = mouseArea.containsMouse
+        onPressed: function(mouse) { mouse.accepted = false }
     }
 
     states: [

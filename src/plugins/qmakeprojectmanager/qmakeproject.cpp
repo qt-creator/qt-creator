@@ -399,8 +399,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         rpps.append(rpp);
     }
 
-    CppTools::GeneratedCodeModelSupport::update(generators);
-    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps});
+    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps}, generators);
 }
 
 void QmakeBuildSystem::updateQmlJSCodeModel()
@@ -746,7 +745,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     // that is not the one from the current kit.
     const QList<BaseQtVersion *> qtsContainingThisProject
             = QtVersionManager::versions([filePath = projectFilePath()](const BaseQtVersion *qt) {
-        return qt->isValid() && qt->isSubProject(filePath);
+        return qt->isValid() && qt->isQtSubProject(filePath);
     });
     if (!qtsContainingThisProject.isEmpty()
             && !qtsContainingThisProject.contains(const_cast<BaseQtVersion *>(qtFromKit))) {

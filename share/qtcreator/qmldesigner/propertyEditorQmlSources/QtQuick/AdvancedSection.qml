@@ -111,7 +111,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Focus on Tab")
+            text: qsTr("Focus on tab")
             tooltip: qsTr("Adds the component to the tab focus chain.")
             disabledState: !backendValues.activeFocusOnTab.isAvailable
         }
@@ -129,7 +129,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Baseline Offset")
+            text: qsTr("Baseline offset")
             tooltip: qsTr("Position of the component's baseline in local coordinates.")
             disabledState: !backendValues.baselineOffset.isAvailable
         }

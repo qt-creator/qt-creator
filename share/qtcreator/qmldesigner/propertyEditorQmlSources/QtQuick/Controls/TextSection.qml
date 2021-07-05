@@ -41,7 +41,7 @@ import StudioTheme 1.0 as StudioTheme
 
 Section {
     width: parent.width
-    caption: qsTr("Text area")
+    caption: qsTr("Text Area")
 
     SectionLayout {
         PropertyLabel {
@@ -62,7 +62,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Placeholder color")
-            tooltip: qsTr("Placeholder text color")
+            tooltip: qsTr("Placeholder text color.")
         }
 
         ColorEditor {

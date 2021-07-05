@@ -5778,6 +5778,13 @@ void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
     d->m_hoverHandlers.removeAll(handler);
 }
 
+#ifdef WITH_TESTS
+void TextEditorWidget::processTooltipRequest(const QTextCursor &c)
+{
+    d->processTooltipRequest(c);
+}
+#endif
+
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
     d->extraAreaPreviousMarkTooltipRequestedLine = -1;

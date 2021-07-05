@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -58,7 +58,8 @@
     \QB is available for the following design tools:
 
     \list
-        \li Adobe Photoshop version 20.0.0
-        \li Sketch 55.1
+        \li Adobe Photoshop version 22.3.1
+        \li Figma version 97.x
+        \li Sketch version 72.2
     \endlist
 */

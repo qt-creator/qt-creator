@@ -44,27 +44,28 @@
 #include <Repository>
 #include <SyntaxHighlighter>
 
-#include <QDir>
 #include <QLoggingCategory>
 #include <QMetaEnum>
 
-using namespace TextEditor;
+using namespace Utils;
+
+namespace TextEditor {
 
 static Q_LOGGING_CATEGORY(highlighterLog, "qtc.editor.highlighter", QtWarningMsg)
 
-static const char kDefinitionForMimeType[] = "definitionForMimeType";
-static const char kDefinitionForExtension[] = "definitionForExtension";
-static const char kDefinitionForFilePath[] = "definitionForFilePath";
+const char kDefinitionForMimeType[] = "definitionForMimeType";
+const char kDefinitionForExtension[] = "definitionForExtension";
+const char kDefinitionForFilePath[] = "definitionForFilePath";
 
-KSyntaxHighlighting::Repository *highlightRepository()
+static KSyntaxHighlighting::Repository *highlightRepository()
 {
     static KSyntaxHighlighting::Repository *repository = nullptr;
     if (!repository) {
         repository = new KSyntaxHighlighting::Repository();
         repository->addCustomSearchPath(TextEditorSettings::highlighterSettings().definitionFilesPath());
-        QDir dir(Core::ICore::resourcePath("generic-highlighter/syntax").toDir());
-        if (dir.exists() && dir.cdUp())
-            repository->addCustomSearchPath(dir.path());
+        const FilePath dir = Core::ICore::resourcePath("generic-highlighter/syntax");
+        if (dir.exists())
+            repository->addCustomSearchPath(dir.parentDir().path());
     }
     return repository;
 }
@@ -128,20 +129,18 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     // If we check the MIME type first and then skip the pattern, the definition for "*.rb.xml" is
     // never considered.
     // The KSyntaxHighlighting CLI also completely ignores MIME types.
-    const Utils::FilePath &filePath = document->filePath();
+    const FilePath &filePath = document->filePath();
     Definitions definitions = definitionsForFileName(filePath);
     if (definitions.isEmpty()) {
         // check for *.in filename since those are usually used for
         // cmake configure_file input filenames without the .in extension
-        if (filePath.endsWith(".in")) {
-            definitions = definitionsForFileName(
-                Utils::FilePath::fromString(filePath.completeBaseName()));
-        }
+        if (filePath.endsWith(".in"))
+            definitions = definitionsForFileName(FilePath::fromString(filePath.completeBaseName()));
         if (filePath.fileName() == "qtquickcontrols2.conf")
             definitions = definitionsForFileName(filePath.stringAppended(".ini"));
     }
     if (definitions.isEmpty()) {
-        const Utils::MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
+        const MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
         if (mimeType.isValid())
             definitions = definitionsForMimeType(mimeType.name());
     }
@@ -171,7 +170,7 @@ Highlighter::Definitions Highlighter::definitionsForMimeType(const QString &mime
     return definitions;
 }
 
-Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FilePath &fileName)
+Highlighter::Definitions Highlighter::definitionsForFileName(const FilePath &fileName)
 {
     Definitions definitions
         = highlightRepository()->definitionsForFileName(fileName.fileName()).toList();
@@ -197,7 +196,7 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
     if (!definition.isValid())
         return;
     const QString &mimeType = document->mimeType();
-    const Utils::FilePath &path = document->filePath();
+    const FilePath &path = document->filePath();
     const QString &fileExtension = path.completeSuffix();
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
@@ -233,7 +232,7 @@ void Highlighter::clearDefinitionForDocumentCache()
     settings->endGroup();
 }
 
-void Highlighter::addCustomHighlighterPath(const Utils::FilePath &path)
+void Highlighter::addCustomHighlighterPath(const FilePath &path)
 {
     highlightRepository()->addCustomSearchPath(path.toString());
 }
@@ -332,18 +331,18 @@ void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting:
         const QColor textColor = format.textColor(defaultTheme);
         if (format.hasBackgroundColor(defaultTheme)) {
             const QColor backgroundColor = format.hasBackgroundColor(defaultTheme);
-            if (Utils::StyleHelper::isReadableOn(backgroundColor, textColor)) {
+            if (StyleHelper::isReadableOn(backgroundColor, textColor)) {
                 qformat.setForeground(textColor);
                 qformat.setBackground(backgroundColor);
-            } else if (Utils::StyleHelper::isReadableOn(qformat.background().color(), textColor)) {
+            } else if (StyleHelper::isReadableOn(qformat.background().color(), textColor)) {
                 qformat.setForeground(textColor);
             }
-        } else if (Utils::StyleHelper::isReadableOn(qformat.background().color(), textColor)) {
+        } else if (StyleHelper::isReadableOn(qformat.background().color(), textColor)) {
             qformat.setForeground(textColor);
         }
     } else if (format.hasBackgroundColor(defaultTheme)) {
         const QColor backgroundColor = format.hasBackgroundColor(defaultTheme);
-        if (Utils::StyleHelper::isReadableOn(backgroundColor, qformat.foreground().color()))
+        if (StyleHelper::isReadableOn(backgroundColor, qformat.foreground().color()))
             qformat.setBackground(backgroundColor);
     }
 
@@ -396,3 +395,5 @@ void Highlighter::applyFolding(int offset,
             data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
     }
 }
+
+} // TextEditor

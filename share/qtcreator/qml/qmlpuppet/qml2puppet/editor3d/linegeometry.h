@@ -27,28 +27,18 @@
 
 #ifdef QUICK3D_MODULE
 
-#include <QtQuick3D/private/qquick3dgeometry_p.h>
+#include "geometrybase.h"
+
 #include <QtGui/QVector3D>
 
 namespace QmlDesigner {
 namespace Internal {
 
-class LineGeometry : public QQuick3DGeometry
+class LineGeometry : public GeometryBase
 {
     Q_OBJECT
     Q_PROPERTY(QVector3D startPos READ startPos WRITE setStartPos NOTIFY startPosChanged)
     Q_PROPERTY(QVector3D endPos READ endPos WRITE setEndPos NOTIFY endPosChanged)
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    // Name property was removed in Qt 6, so define it here for compatibility.
-    // Name maps to object name.
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-public:
-    QString name() const;
-    void setName(const QString &name);
-signals:
-    void nameChanged();
-#endif
 
 public:
     LineGeometry();
@@ -66,7 +56,7 @@ signals:
     void endPosChanged();
 
 protected:
-    QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
+    void doUpdateGeometry() override;
 
 private:
     QVector3D m_startPos;

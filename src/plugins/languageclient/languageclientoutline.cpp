@@ -55,14 +55,15 @@ public:
         , m_type(info.kind())
     { }
 
-    LanguageClientOutlineItem(const DocumentSymbol &info)
+    LanguageClientOutlineItem(const DocumentSymbol &info, const SymbolStringifier &stringifier)
         : m_name(info.name())
         , m_detail(info.detail().value_or(QString()))
         , m_range(info.range())
+        , m_symbolStringifier(stringifier)
         , m_type(info.kind())
     {
         for (const DocumentSymbol &child : info.children().value_or(QList<DocumentSymbol>()))
-            appendChild(new LanguageClientOutlineItem(child));
+            appendChild(new LanguageClientOutlineItem(child, stringifier));
     }
 
     // TreeItem interface
@@ -72,7 +73,9 @@ public:
         case Qt::DecorationRole:
             return symbolIcon(m_type);
         case Qt::DisplayRole:
-            return m_name;
+            return m_symbolStringifier
+                    ? m_symbolStringifier(static_cast<SymbolKind>(m_type), m_name, m_detail)
+                    : m_name;
         default:
             return Utils::TreeItem::data(column, role);
         }
@@ -85,6 +88,7 @@ private:
     QString m_name;
     QString m_detail;
     Range m_range;
+    SymbolStringifier m_symbolStringifier;
     int m_type = -1;
 };
 
@@ -102,8 +106,16 @@ public:
     {
         clear();
         for (const DocumentSymbol &symbol : info)
-            rootItem()->appendChild(new LanguageClientOutlineItem(symbol));
+            rootItem()->appendChild(new LanguageClientOutlineItem(symbol, m_symbolStringifier));
     }
+
+    void setSymbolStringifier(const SymbolStringifier &stringifier)
+    {
+        m_symbolStringifier = stringifier;
+    }
+
+private:
+    SymbolStringifier m_symbolStringifier;
 };
 
 class LanguageClientOutlineWidget : public TextEditor::IOutlineWidget
@@ -153,6 +165,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     layout->setSpacing(0);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(&m_view));
     setLayout(layout);
+    m_model.setSymbolStringifier(m_client->symbolStringifier());
     m_view.setModel(&m_model);
     m_view.setHeaderHidden(true);
     m_view.setExpandsOnDoubleClick(false);
@@ -295,6 +308,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     , m_editorWidget(editor->editorWidget())
     , m_uri(DocumentUri::fromFilePath(editor->document()->filePath()))
 {
+    m_model.setSymbolStringifier(client->symbolStringifier());
     setModel(&m_model);
     setMinimumContentsLength(13);
     QSizePolicy policy = sizePolicy();

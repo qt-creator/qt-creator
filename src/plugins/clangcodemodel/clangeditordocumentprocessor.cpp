@@ -137,6 +137,8 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
     };
     if (!Utils::contains(Core::EditorManager::visibleEditors(), matchesEditor))
         return;
+    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+        return;
 
     m_semanticHighlighter.updateFormatMapFromFontSettings();
     if (m_projectPart)
@@ -188,6 +190,9 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(
         const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
         uint documentRevision)
 {
+    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+        return;
+
     if (documentRevision == revision()) {
         if (m_invalidationState == InvalidationState::Scheduled)
             m_invalidationState = InvalidationState::Canceled;
@@ -251,6 +256,8 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
         uint documentRevision)
 {
+    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+        return;
     if (documentRevision == revision()) {
         const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
@@ -489,7 +496,7 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         vbox->setSpacing(2);
 
         vbox->addWidget(ClangDiagnosticWidget::createWidget({firstHeaderErrorDiagnostic},
-                                                            ClangDiagnosticWidget::InfoBar));
+                                                            ClangDiagnosticWidget::InfoBar, {}));
 
         auto widget = new QWidget;
         widget->setLayout(vbox);

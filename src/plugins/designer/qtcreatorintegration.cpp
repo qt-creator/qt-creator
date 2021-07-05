@@ -550,8 +550,11 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
     CppTools::CppRefactoringChanges refactoring(docTable);
     CppTools::SymbolFinder symbolFinder;
-    if (symbolFinder.findMatchingDefinition(fun, docTable, true))
+    if (const Function *funImpl = symbolFinder.findMatchingDefinition(fun, docTable, true)) {
+        Core::EditorManager::openEditorAt(QString::fromUtf8(funImpl->fileName()),
+                                          funImpl->line() + 2);
         return true;
+    }
     const QString implFilePath = CppTools::correspondingHeaderOrSource(declFilePath);
     const CppTools::InsertionLocation location = CppTools::insertLocationForMethodDefinition
             (fun, false, CppTools::NamespaceHandling::CreateMissing, refactoring, implFilePath);

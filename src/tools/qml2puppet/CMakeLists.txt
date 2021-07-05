@@ -108,6 +108,20 @@ add_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
+  SOURCES_PREFIX "${SRCDIR}/"
+  SOURCES
+    "editor3d_qt6.qrc"
+)
+
+extend_qtc_executable(qml2puppet
+  CONDITION Qt5_VERSION VERSION_LESS 6.0.0
+  SOURCES_PREFIX "${SRCDIR}/"
+  SOURCES
+    "editor3d_qt5.qrc"
+)
+
+extend_qtc_executable(qml2puppet
   CONDITION UNIX AND (NOT APPLE)
   DEPENDS rt
 )
@@ -129,6 +143,7 @@ extend_qtc_executable(qml2puppet
   SOURCES
     generalhelper.cpp generalhelper.h
     mousearea3d.cpp mousearea3d.h
+    geometrybase.cpp geometrybase.h
     camerageometry.cpp camerageometry.h
     lightgeometry.cpp lightgeometry.h
     gridgeometry.cpp gridgeometry.h

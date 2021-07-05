@@ -6,8 +6,8 @@ endif()
 add_qtc_plugin(ClangCodeModel
   CONDITION TARGET libclang
   DEPENDS ClangSupport CPlusPlus
-  PLUGIN_DEPENDS Core CppTools LanguageClient ${TEST_LINK_DEPENDS} TextEditor
-  PLUGIN_TEST_DEPENDS CppEditor QmakeProjectManager
+  PLUGIN_DEPENDS Core CppEditor CppTools LanguageClient ${TEST_LINK_DEPENDS} TextEditor
+  PLUGIN_TEST_DEPENDS QmakeProjectManager
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
@@ -24,11 +24,12 @@ add_qtc_plugin(ClangCodeModel
     clangcompletionchunkstotextconverter.cpp clangcompletionchunkstotextconverter.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
-    clangdclient.cpp clangdclient.h
     clangcurrentdocumentfilter.cpp clangcurrentdocumentfilter.h
+    clangdclient.cpp clangdclient.h
     clangdiagnosticfilter.cpp clangdiagnosticfilter.h
     clangdiagnosticmanager.cpp clangdiagnosticmanager.h
     clangdiagnostictooltipwidget.cpp clangdiagnostictooltipwidget.h
+    clangdquickfixfactory.cpp clangdquickfixfactory.h
     clangeditordocumentparser.cpp clangeditordocumentparser.h
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h

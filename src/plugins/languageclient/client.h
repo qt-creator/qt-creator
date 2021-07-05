@@ -170,6 +170,13 @@ public:
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
         const LanguageServerProtocol::DocumentUri &uri,
         const QTextCursor &cursor) const;
+    bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+                       const LanguageServerProtocol::Diagnostic &diag) const;
+    void setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
+                                const HideDiagnosticsHandler &hideHandler);
+    void setSemanticTokensHandler(const SemanticTokensHandler &handler);
+    void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
+    LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
 
     // logging
     void log(const QString &message) const;
@@ -189,6 +196,7 @@ protected:
     void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                                   const QString &message);
     void handleMessage(const LanguageServerProtocol::BaseMessage &message);
+    virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
 
 private:
     void handleResponse(const LanguageServerProtocol::MessageId &id, const QByteArray &content,
@@ -196,7 +204,6 @@ private:
     void handleMethod(const QString &method, const LanguageServerProtocol::MessageId &id,
                       const LanguageServerProtocol::IContent *content);
 
-    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     void handleSemanticHighlight(const LanguageServerProtocol::SemanticHighlightingParams &params);
 
     void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
@@ -219,6 +226,8 @@ private:
     void requestSemanticTokens(TextEditor::TextEditorWidget *widget);
     void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
     void rehighlight();
+
+    virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,
@@ -266,6 +275,7 @@ private:
     SemanticTokenSupport m_tokentSupport;
     QString m_serverName;
     QString m_serverVersion;
+    LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
     bool m_locatorsEnabled = true;
 };
 

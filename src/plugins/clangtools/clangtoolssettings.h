@@ -25,12 +25,15 @@
 
 #pragma once
 
+#include "executableinfo.h"
+
 #include <cpptools/clangdiagnosticconfig.h>
 
 #include <utils/id.h>
 
 #include <QObject>
 #include <QString>
+#include <QVersionNumber>
 
 namespace ClangTools {
 namespace Internal {
@@ -75,10 +78,10 @@ public:
     void writeSettings();
 
     QString clangTidyExecutable() const { return m_clangTidyExecutable; }
-    void setClangTidyExecutable(const QString &path) { m_clangTidyExecutable = path; }
+    void setClangTidyExecutable(const QString &path);
 
     QString clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
-    void setClazyStandaloneExecutable(const QString &path) { m_clazyStandaloneExecutable = path; }
+    void setClazyStandaloneExecutable(const QString &path);
 
     CppTools::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
     void setDiagnosticConfigs(const CppTools::ClangDiagnosticConfigs &configs)
@@ -86,6 +89,9 @@ public:
 
     RunSettings runSettings() const { return m_runSettings; }
     void setRunSettings(const RunSettings &settings) { m_runSettings = settings; }
+
+    static QVersionNumber clangTidyVersion();
+    static QVersionNumber clazyVersion();
 
 signals:
     void changed();
@@ -103,6 +109,10 @@ private:
 
     // Run settings
     RunSettings m_runSettings;
+
+    // Version info. Ephemeral.
+    QVersionNumber m_clangTidyVersion;
+    QVersionNumber m_clazyVersion;
 };
 
 } // namespace Internal

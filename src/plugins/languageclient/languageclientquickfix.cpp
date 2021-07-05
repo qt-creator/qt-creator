@@ -39,28 +39,22 @@ using namespace TextEditor;
 
 namespace LanguageClient {
 
-class CodeActionQuickFixOperation : public QuickFixOperation
+CodeActionQuickFixOperation::CodeActionQuickFixOperation(const CodeAction &action, Client *client)
+    : m_action(action)
+    , m_client(client)
 {
-public:
-    CodeActionQuickFixOperation(const CodeAction &action, Client *client)
-        : m_action(action)
-        , m_client(client)
-    { setDescription(action.title()); }
+    setDescription(action.title());
+}
 
-    void perform() override
-    {
-        if (!m_client)
-            return;
-        if (Utils::optional<WorkspaceEdit> edit = m_action.edit())
-            applyWorkspaceEdit(m_client, *edit);
-        else if (Utils::optional<Command> command = m_action.command())
-            m_client->executeCommand(*command);
-    }
-
-private:
-    CodeAction m_action;
-    QPointer<Client> m_client;
-};
+void CodeActionQuickFixOperation::perform()
+{
+    if (!m_client)
+        return;
+    if (Utils::optional<WorkspaceEdit> edit = m_action.edit())
+        applyWorkspaceEdit(m_client, *edit);
+    else if (Utils::optional<Command> command = m_action.command())
+        m_client->executeCommand(*command);
+}
 
 class CommandQuickFixOperation : public QuickFixOperation
 {

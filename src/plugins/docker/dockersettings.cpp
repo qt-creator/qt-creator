@@ -119,7 +119,7 @@ DockerOptionsPage::DockerOptionsPage(DockerSettings *settings)
 
         Column {
             Group {
-                Title(DockerSettings::tr("Search images on Docker Hub")),
+                Title(DockerSettings::tr("Search Images on Docker Hub")),
                 Form {
                     s.imageListFilter,
                     s.imageList

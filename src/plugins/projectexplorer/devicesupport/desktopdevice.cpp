@@ -180,7 +180,8 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
 
 QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
                                                 const QStringList &nameFilters,
-                                                QDir::Filters filters) const
+                                                QDir::Filters filters,
+                                                QDir::SortFlags sort) const
 {
     QTC_CHECK(!filePath.needsDevice());
     const QDir dir(filePath.path());

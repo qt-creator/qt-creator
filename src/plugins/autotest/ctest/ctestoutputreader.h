@@ -46,6 +46,7 @@ protected:
     QString m_testName;
     QString m_description;
     ResultType m_result = ResultType::Invalid;
+    bool m_expectExceptionFromCrash = false;
 };
 
 } // namespace Internal

@@ -56,7 +56,7 @@ public:
 
         m_dockerCommand = addAspect<StringAspect>();
         m_dockerCommand->setDisplayStyle(StringAspect::DisplayStyle::TextEditDisplay);
-        m_dockerCommand->setLabelText(tr("Docker Command:"));
+        m_dockerCommand->setLabelText(tr("Docker command:"));
         m_dockerCommand->setMacroExpanderProvider([=] { return macroExpander(); });
         m_dockerCommand->setDefaultValue(QLatin1String(DEFAULT_DOCKER_COMMAND));
         m_dockerCommand->setPlaceHolderText(QLatin1String(DEFAULT_DOCKER_COMMAND));
@@ -72,7 +72,7 @@ public:
         };
         setupField(m_command, tr("Command:"), "Command");
         setupField(m_arguments, tr("Arguments:"), "Arguments");
-        setupField(m_workingDirectory, tr("Working Directory:"), "WorkingDirectory");
+        setupField(m_workingDirectory, tr("Working directory:"), "WorkingDirectory");
 
         setCommandLineProvider([=] { return commandLine(); });
         setWorkingDirectoryProvider([=] {

@@ -200,14 +200,14 @@ public:
         m_canceled = false;
 
         m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
-        m_data->extractedPath = FilePath::fromString(m_tempDir->path());
+        m_data->extractedPath = m_tempDir->path();
         m_label->setText(PluginInstallWizard::tr("Checking archive..."));
         m_label->setType(InfoLabel::None);
 
         m_cancelButton->setVisible(true);
         m_output->clear();
 
-        m_archive = Archive::unarchive(m_data->sourcePath, FilePath::fromString(m_tempDir->path()));
+        m_archive = Archive::unarchive(m_data->sourcePath, m_tempDir->path());
 
         if (!m_archive) {
             m_label->setType(InfoLabel::Error);
@@ -271,7 +271,7 @@ public:
         PluginSpec *coreplugin = CorePlugin::instance()->pluginSpec();
 
         // look for plugin
-        QDirIterator it(m_tempDir->path(),
+        QDirIterator it(m_tempDir->path().path(),
                         libraryNameFilter(),
                         QDir::Files | QDir::NoSymLinks,
                         QDirIterator::Subdirectories);

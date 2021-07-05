@@ -68,7 +68,7 @@ Column {
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
                 CheckBox {
-                    text: qsTr("live")
+                    text: qsTr("Live")
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.live

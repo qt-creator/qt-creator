@@ -49,7 +49,7 @@ protected:
     QString createFile(const QString &yamlFilePath, const QString &filePathToInject)
     {
         QTC_ASSERT(QDir::isAbsolutePath(filePathToInject), return QString());
-        const QString newFileName = temporaryDir.filePath(QFileInfo(yamlFilePath).fileName());
+        const Utils::FilePath newFileName = temporaryDir.filePath(QFileInfo(yamlFilePath).fileName());
 
         Utils::FileReader reader;
         if (QTC_GUARD(reader.fetch(Utils::FilePath::fromString(yamlFilePath),
@@ -57,13 +57,12 @@ protected:
             QByteArray contents = reader.data();
             contents.replace("FILE_PATH", filePathToInject.toLocal8Bit());
 
-            Utils::FileSaver fileSaver(Utils::FilePath::fromString(newFileName),
-                                       QIODevice::WriteOnly | QIODevice::Text);
+            Utils::FileSaver fileSaver(newFileName, QIODevice::WriteOnly | QIODevice::Text);
             QTC_CHECK(fileSaver.write(contents));
             QTC_CHECK(fileSaver.finalize());
         }
 
-        return newFileName;
+        return newFileName.toString();
     }
 
 protected:

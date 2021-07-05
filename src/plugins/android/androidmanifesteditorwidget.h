@@ -115,7 +115,6 @@ signals:
     void guiChanged();
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
 
 private:
@@ -141,8 +140,6 @@ private:
     void hideInfoBar();
     void setInvalidServiceInfo();
     void clearInvalidServiceInfo();
-
-    void updateTargetComboBox();
 
     void parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer);
@@ -181,7 +178,6 @@ private:
     // Application
     QLineEdit *m_appNameLineEdit;
     QLineEdit *m_activityNameLineEdit;
-    QComboBox *m_targetLineEdit;
     QComboBox *m_styleExtractMethod;
     QComboBox *m_screenOrientation;
     AndroidManifestEditorIconContainerWidget *m_iconButtons;

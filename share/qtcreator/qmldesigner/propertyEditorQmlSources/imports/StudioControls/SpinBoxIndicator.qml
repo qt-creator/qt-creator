@@ -32,7 +32,7 @@ Rectangle {
 
     property T.Control myControl
 
-    property bool hover: spinBoxIndicatorMouseArea.containsMouse
+    property bool hover: spinBoxIndicatorMouseArea.containsMouse && spinBoxIndicator.enabled
     property bool pressed: spinBoxIndicatorMouseArea.containsPress
 
     property alias iconFlip: spinBoxIndicatorIconScale.yScale
@@ -46,7 +46,7 @@ Rectangle {
         id: spinBoxIndicatorMouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onPressed: {
+        onPressed: function(mouse) {
             if (myControl.activeFocus)
                 spinBoxIndicator.forceActiveFocus()
 

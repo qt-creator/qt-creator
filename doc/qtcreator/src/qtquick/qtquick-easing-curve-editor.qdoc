@@ -26,14 +26,28 @@
 /*!
     \page qtquick-editing-easing-curves.html
     \previouspage studio-timeline.html
-    \nextpage qmldesigner-connections.html
+    \nextpage qtquick-production-quality-animation.html
 
     \title Editing Easing Curves
 
-    You can use \uicontrol {Easing Curve Editor} to edit the easing curve
-    between two keyframes.
+    Easing curves define the progress of animation to make motion appear more
+    natural because real objects don't usually move at a constant speed nor
+    start and stop instantly. You can add and edit easing curves for nonlinear
+    interpolation to make components appear to pick up speed, slow down, or
+    bounce back at the end of an animation.
 
-    \image studio-easing-curve-editor.png "Easing Curve Editor"
+    You can attach easing curves to:
+
+    \list
+        \li Keyframes in timeline animations
+        \li Transitions
+        \li Property animation component instances
+    \endlist
+
+    You can use \uicontrol {Easing Curve Editor} to select and edit easing
+    curves.
+
+    \section1 Selecting Easing Curves
 
     You can use the preset curves or modify them by dragging the curve handles
     around. You can add points to the curve and drag them and the point handles
@@ -41,13 +55,28 @@
     a custom curve. For more information about easing curve types, see the
     technical documentation for \l [QML] {PropertyAnimation}{easing curves}.
 
+    \image studio-easing-curve-editor.png "Easing Curve Editor"
+
+    To select an easing curve:
+
+    \list 1
+        \li Select an easing curve in the \uicontrol Presets tab.
+        \li In the \uicontrol {Duration (ms)} field, select the
+            duration of the easing function in milliseconds.
+        \li Select \uicontrol Preview to preview the curve.
+        \li Select \uicontrol OK to attach the easing curve and
+            return to the view where you are adding the curve.
+    \endlist
+
     To zoom into and out of the easing curve editor, use the mouse
     roller. To reset the zoom factor, right-click in the picker and
     select \uicontrol {Reset Zoom}.
 
-    You can also use the more advanced \l {Curve Editor} that
-    shows the interpolated values of an animated property over
-    the \l{Creating Animations}{animation} range.
+    \section1 Easing Curves in Timeline Animations
+
+    For timeline animations, you can also use the more advanced
+    \l {Curve Editor} that shows the interpolated values of an animated
+    property over the \l{Creating Timeline Animations}{animation} range.
 
     The animation curves present a more readable view of the animation by
     showing the effective values of the animated properties over the animation
@@ -61,26 +90,42 @@
             and are therefore painted in a different color and without handles.
     \endlist
 
-    \section1 Attaching Easing Curves to Keyframes
+    \section2 Attaching Easing Curves to Keyframes
 
     To attach easing curves to keyframes:
 
     \list 1
         \li Right-click a keyframe in \l Timeline and select
             \uicontrol {Easing Curve Editor} in the context menu.
-        \li Select an easing curve in the \uicontrol Presets tab.
-        \li In the \uicontrol {Duration (ms)} field, select the
-            duration of the easing function in milliseconds.
-        \li Select \uicontrol Preview to preview the curve.
-        \li Select \uicontrol OK to attach the easing curve to the
-            keyframe, close \uicontrol {Easing Curve Editor}, and
-            return to \l Timeline.
+        \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist
 
     When you attach easing curves to keyframes, the shape of the
     \l{keyframe_marker}{keyframe marker} on a keyframe track in
     \l Timeline changes from \inlineimage keyframe_linear_inactive.png
     to a marker that describes the type of the selected easing curve.
+
+    \section1 Attaching Easing Curves to Transitions
+
+    To attach easing curves to transitions:
+
+    \list 1
+        \li In \l{Transition Editor}, select the \inlineimage curve_editor.png
+            (\uicontrol {Easing Curve Editor}) button.
+        \li Select an easing curve, as described in \l{Selecting Easing Curves}.
+    \endlist
+
+    \section1 Attaching Easing Curves to Property Animations
+
+    To attach easing curves to property animations:
+
+    \list 1
+        \li In \l Navigator, select an \l{Animations}{Animation} component
+            instance.
+        \li In \l Properties, select the \inlineimage curve_editor.png
+            (\uicontrol {Easing Curve Editor}) button.
+        \li Select an easing curve, as described in \l{Selecting Easing Curves}.
+    \endlist
 
     \section1 Customizing Easing Curves
 

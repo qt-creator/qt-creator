@@ -52,7 +52,7 @@ T.AbstractButton {
     activeFocusOnTab: false
 
     onHoveredChanged: {
-        if (parent !== undefined && parent.hoverCallback !== undefined)
+        if (parent !== undefined && parent.hoverCallback !== undefined && myButton.enabled)
             parent.hoverCallback()
     }
 
@@ -132,7 +132,7 @@ T.AbstractButton {
         },
         State {
             name: "globalHover"
-            when: myButton.globalHover && !myButton.hovered && !myButton.pressed
+            when: myButton.globalHover && !myButton.hovered && !myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
@@ -140,7 +140,7 @@ T.AbstractButton {
         },
         State {
             name: "hover"
-            when: myButton.hovered && !myButton.pressed
+            when: myButton.hovered && !myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundHover

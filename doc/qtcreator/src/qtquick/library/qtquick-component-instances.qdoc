@@ -65,7 +65,8 @@
         \li Add states to apply sets of changes to the property values of one
             or several component instances in the \uicontrol States view.
             For more information, see \l{Adding States}.
-        \li Animate the properties of component instances in the \uicontrol
-            Timeline view. For more information, see \l{Creating Animations}.
+        \li Animate the properties of component instances in the
+            \uicontrol Timeline view. For more information, see
+            \l{Creating Timeline Animations}.
     \endlist
 */

@@ -43,7 +43,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Orientation")
-                tooltip: qsTr("Orientation of the list")
+                tooltip: qsTr("Orientation of the list.")
             }
 
             SecondColumnLayout {
@@ -118,7 +118,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Cache")
-                tooltip: qsTr("Cache buffer")
+                tooltip: qsTr("Cache buffer.")
                 disabledState: !backendValues.cacheBuffer.isAvailable
             }
 
@@ -165,7 +165,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Range")
-                tooltip: qsTr("Highlight range")
+                tooltip: qsTr("Highlight range.")
                 disabledState: !backendValues.highlightRangeMode.isAvailable
             }
 

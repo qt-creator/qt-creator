@@ -757,7 +757,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     // Leave info.buildDirectory unset;
 
     // check if this project is in the source directory:
-    if (version && version->isInSourceDirectory(projectPath)) {
+    if (version && version->isInQtSourceDirectory(projectPath)) {
         // assemble build directory
         QString projectDirectory = projectPath.toFileInfo().absolutePath();
         QDir qtSourceDir = QDir(version->sourcePath().toString());

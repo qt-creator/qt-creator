@@ -26,16 +26,17 @@
 #include "clangmodelmanagersupport.h"
 
 #include "clangconstants.h"
+#include "clangcurrentdocumentfilter.h"
 #include "clangdclient.h"
+#include "clangdquickfixfactory.h"
 #include "clangeditordocumentprocessor.h"
-#include "clangutils.h"
 #include "clangfollowsymbol.h"
+#include "clanggloballocatorfilters.h"
 #include "clanghoverhandler.h"
+#include "clangoverviewmodel.h"
 #include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
-#include "clangcurrentdocumentfilter.h"
-#include "clanggloballocatorfilters.h"
-#include "clangoverviewmodel.h"
+#include "clangutils.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -119,8 +120,10 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ClangModelManagerSupport::onAboutToRemoveProject);
 
-    CppTools::CppCodeModelSettings::setDefaultClangdPath(Utils::FilePath::fromString(
+    CppTools::ClangdSettings::setDefaultClangdPath(Utils::FilePath::fromString(
             Core::ICore::clangdExecutable(CLANG_BINDIR)));
+    connect(&CppTools::ClangdSettings::instance(), &CppTools::ClangdSettings::changed,
+            this, &ClangModelManagerSupport::onClangdSettingsChanged);
     CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ClangModelManagerSupport::onDiagnosticConfigsInvalidated);
@@ -128,6 +131,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     // TODO: Enable this once we do document-level stuff with clangd (highlighting etc)
     // createClient(nullptr, {});
     m_generatorSynchronizer.setCancelOnWait(true);
+    new ClangdQuickFixFactory(); // memory managed by CppEditor::g_cppQuickFixFactories
 }
 
 ClangModelManagerSupport::~ClangModelManagerSupport()
@@ -165,6 +169,11 @@ CppTools::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngin
 std::unique_ptr<CppTools::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
 {
     return std::make_unique<OverviewModel>();
+}
+
+bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *document) const
+{
+    return !clientForFile(document->filePath());
 }
 
 CppTools::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
@@ -245,7 +254,7 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
                                                     const CppTools::ProjectInfo &projectInfo)
 {
-    if (!CppTools::codeModelSettings()->useClangd())
+    if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -264,9 +273,9 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
     connect(generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             [this, project, projectInfo, getJsonDbDir, jsonDbDir, generatorWatcher] {
         generatorWatcher->deleteLater();
-        if (!CppTools::codeModelSettings()->useClangd())
-            return;
         if (!ProjectExplorer::SessionManager::hasProject(project))
+            return;
+        if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
             return;
         if (cppModelManager()->projectInfo(project) != projectInfo)
             return;
@@ -284,9 +293,9 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         ClangdClient * const client = createClient(project, jsonDbDir);
         connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
-            if (!CppTools::codeModelSettings()->useClangd())
-                return;
             if (!SessionManager::hasProject(project))
+                return;
+            if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
                 return;
             if (cppModelManager()->projectInfo(project) != projectInfo)
                 return;
@@ -340,7 +349,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
 }
 
 ClangdClient *ClangModelManagerSupport::clientForProject(
-        const ProjectExplorer::Project *project)
+        const ProjectExplorer::Project *project) const
 {
     const QList<Client *> clients = Utils::filtered(
                 LanguageClientManager::clientsForProject(project),
@@ -353,7 +362,7 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
     return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
-ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file)
+ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file) const
 {
     return clientForProject(ProjectExplorer::SessionManager::projectForFile(file));
 }
@@ -583,6 +592,27 @@ void ClangModelManagerSupport::onProjectPartsRemoved(const QStringList &projectP
 {
     if (!projectPartIds.isEmpty())
         reinitializeBackendDocuments(projectPartIds);
+}
+
+void ClangModelManagerSupport::onClangdSettingsChanged()
+{
+    // TODO: Handle also project-less client
+    for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
+        const CppTools::ClangdSettings settings(
+                    CppTools::ClangdProjectSettings(project).settings());
+        ClangdClient * const client = clientForProject(project);
+        if (!client) {
+            if (settings.useClangd())
+                updateLanguageClient(project, cppModelManager()->projectInfo(project));
+            continue;
+        }
+        if (!settings.useClangd()) {
+            LanguageClientManager::shutdownClient(client);
+            continue;
+        }
+        if (client->settingsData() != settings.data())
+            updateLanguageClient(project, cppModelManager()->projectInfo(project));
+    }
 }
 
 static ClangEditorDocumentProcessors clangProcessorsWithDiagnosticConfig(

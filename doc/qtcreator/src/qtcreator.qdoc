@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -53,6 +53,8 @@
 
     \table
         \row
+            \li {4,1} \b {\l{All Topics}}
+        \row
             \li \inlineimage front-gs.png
             \li \inlineimage front-projects.png
             \li \inlineimage front-ui.png
@@ -77,7 +79,7 @@
                 \list
                     \li \l{Developing Qt Quick Applications}
                     \li \l{Developing Widget Based Applications}
-                    \li \l{Best Practices}
+                    \li \l{Optimizing Applications for Mobile Devices}
                 \endlist
             \li \b {\l{Coding}}
                 \list
@@ -125,20 +127,20 @@
                     \li \l{Glossary}
                 \endlist
         \row
-            \li {4,1} \l{All Topics}
-        \row
-            \li {4,1} \note To report bugs and suggestions to the
-                \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
-                select \uicontrol Help > \uicontrol {Report Bug}.
-                To copy and paste detailed information about your system to the
-                bug report, select \uicontrol Help >
-                \uicontrol {System Information}.
-
-                You can also join the \QC mailing list at:
-                \l{http://lists.qt-project.org/mailman/listinfo/}
-                {lists.qt-project.org Mailing Lists}.
-
-                For credits and a list of third-party libraries, see
-                \l {Acknowledgements}.
+            \li {4,1} \b {Contact Us}
+                \list
+                    \li To report bugs and suggestions to the
+                        \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
+                        select \uicontrol Help > \uicontrol {Report Bug}.
+                    \li To copy and paste detailed information about your
+                        system to the bug report, select \uicontrol Help >
+                        \uicontrol {System Information}.
+                    \li To join the \l{https://lists.qt-project.org/listinfo/qt-creator}
+                        {\QC mailing list} or \l{https://web.libera.chat/#qt-creator}
+                        {#qt-creator} channel on Libera.Chat IRC, select
+                        \uicontrol Help > \uicontrol Contact.
+                    \li For credits and a list of third-party libraries, see
+                        \l {Acknowledgements}.
+            \endlist
     \endtable
 */

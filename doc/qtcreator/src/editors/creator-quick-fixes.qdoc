@@ -571,6 +571,21 @@
             \endlist
             \li \c Q_PROPERTY
         \row
+            \li Generate Q_PROPERTY and Missing Members
+            \li Generates a Q_PROPERTY and adds missing members to it, as
+                described above.
+            \li Class member
+        \row
+            \li Generate Constant Q_PROPERTY and Missing Members
+            \li Generates a constant Q_PROPERTY and adds missing members
+                to it, as described above.
+            \li Class member
+        \row
+            \li Generate Q_PROPERTY and Missing Members with Reset Function
+            \li Generates a Q_PROPERTY and adds missing members to it, as
+                described above, but with an additional \c reset function.
+            \li Class member
+       \row
             \li Apply Changes
             \li Keeps function declarations and definitions synchronized by
                 checking for the matching declaration or definition when you
@@ -616,6 +631,19 @@
             \li Create Getter and Setter Member Functions
             \li Creates either both getter and setter member functions for
                 member variables or only a getter or setter.
+            \li Member variable in class definition
+        \row
+            \li Generate Getter and Setter
+            \li Creates getter and setter member functions for a member
+                variable.
+            \li Member variable in class definition
+        \row
+            \li Generate Getter
+            \li Creates a getter member function for a member variable.
+            \li Member variable in class definition
+        \row
+            \li Generate Setter
+            \li Creates a setter member function for a member variable.
             \li Member variable in class definition
         \row
             \li Generate Constructor

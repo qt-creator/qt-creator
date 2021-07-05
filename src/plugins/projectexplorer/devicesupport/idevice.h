@@ -242,14 +242,19 @@ public:
     virtual bool isReadableDirectory(const Utils::FilePath &filePath) const;
     virtual bool isWritableDirectory(const Utils::FilePath &filePath) const;
     virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;
+    virtual bool ensureExistingFile(const Utils::FilePath &filePath) const;
     virtual bool createDirectory(const Utils::FilePath &filePath) const;
     virtual bool exists(const Utils::FilePath &filePath) const;
     virtual bool removeFile(const Utils::FilePath &filePath) const;
+    virtual bool removeRecursively(const Utils::FilePath &filePath) const;
     virtual bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
+    virtual bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
     virtual Utils::FilePath searchInPath(const Utils::FilePath &filePath) const;
+    virtual Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const;
     virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                                     const QStringList &nameFilters,
-                                                    QDir::Filters filters) const;
+                                                    QDir::Filters filters,
+                                                    QDir::SortFlags sort = QDir::NoSort) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
     virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;

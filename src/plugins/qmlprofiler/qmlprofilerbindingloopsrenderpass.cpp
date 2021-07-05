@@ -317,11 +317,13 @@ BindingLoopMaterialShader::BindingLoopMaterialShader()
     : QSGMaterialShader()
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/qmlprofiler/bindingloops.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/qmlprofiler/bindingloops.frag"));
+    setShaderSourceFile(QOpenGLShader::Vertex,
+                        QStringLiteral(":/QtCreator/QmlProfiler/bindingloops.vert"));
+    setShaderSourceFile(QOpenGLShader::Fragment,
+                        QStringLiteral(":/QtCreator/QmlProfiler/bindingloops.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/qmlprofiler/bindingloops.vert");
-    setShaderFileName(FragmentStage, ":/qmlprofiler/bindingloops.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/QmlProfiler/bindingloops.vert");
+    setShaderFileName(FragmentStage, ":/QtCreator/QmlProfiler/bindingloops.frag");
 #endif // < Qt 6
 }
 

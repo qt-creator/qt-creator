@@ -618,8 +618,8 @@ void NavigatorView::setupWidget()
     const QString visibilityOnUnicode = Theme::getIconUnicode(Theme::Icon::visibilityOn);
     const QString visibilityOffUnicode = Theme::getIconUnicode(Theme::Icon::visibilityOff);
 
-    const QString aliasOnUnicode = Theme::getIconUnicode(Theme::Icon::idAliasOn);
-    const QString aliasOffUnicode = Theme::getIconUnicode(Theme::Icon::idAliasOff);
+    const QString aliasOnUnicode = Theme::getIconUnicode(Theme::Icon::alias);
+    const QString aliasOffUnicode = aliasOnUnicode;
 
     const QString lockOnUnicode = Theme::getIconUnicode(Theme::Icon::lockOn);
     const QString lockOffUnicode = Theme::getIconUnicode(Theme::Icon::lockOff);

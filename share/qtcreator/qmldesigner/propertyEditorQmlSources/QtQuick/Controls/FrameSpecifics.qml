@@ -51,7 +51,7 @@ Column {
     PaddingSection {}
 
     FontSection {
-        caption: qsTr("Font inheritance")
+        caption: qsTr("Font Inheritance")
         expanded: false
     }
 }

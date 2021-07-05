@@ -25,46 +25,49 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
+import MouseArea3D 1.0
 
-Node {
-    id: armRoot
-    property alias posModel: posModel
-    property alias negModel: negModel
-    property View3D view3D
-    property color hoverColor
-    property color color
-    property vector3d camRotPos
-    property vector3d camRotNeg
+DirectionalDraggable {
+    id: scaleRod
+    source: "../meshes/scalerod.mesh"
+
+    property vector3d axis
+
+    signal scaleCommit()
+    signal scaleChange()
+
+    property vector3d _startScale
 
     Model {
-        id: posModel
-
-        property bool hovering: false
-        property vector3d cameraRotation: armRoot.camRotPos
-
-        source: "meshes/axishelper.mesh"
+        source: "#Cube"
+        y: 10
+        scale: Qt.vector3d(0.020, 0.020, 0.020)
         materials: DefaultMaterial {
-            id: posMat
-            diffuseColor: posModel.hovering ? armRoot.hoverColor : armRoot.color
+            id: material
+            diffuseColor: scaleRod.color
             lighting: DefaultMaterial.NoLighting
         }
-        pickable: true
     }
 
-    Model {
-        id: negModel
+    onPressed: {
+        if (targetNode == multiSelectionNode)
+            _generalHelper.restartMultiSelection();
+        _startScale = targetNode.scale;
+    }
 
-        property bool hovering: false
-        property vector3d cameraRotation: armRoot.camRotNeg
+    onDragged: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
+        targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
+                                                 axis, Qt.vector3d(0, 0, 0));
+        if (targetNode == multiSelectionNode)
+            _generalHelper.scaleMultiSelection(false);
+        scaleChange();
+    }
 
-        source: "#Sphere"
-        y: -6
-        scale: Qt.vector3d(0.025, 0.025, 0.025)
-        materials: DefaultMaterial {
-            id: negMat
-            diffuseColor: negModel.hovering ? armRoot.hoverColor : armRoot.color
-            lighting: DefaultMaterial.NoLighting
-        }
-        pickable: true
+    onReleased: (mouseArea, sceneRelativeDistance, relativeDistance)=> {
+        targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
+                                                 axis, Qt.vector3d(0, 0, 0));
+        if (targetNode == multiSelectionNode)
+            _generalHelper.scaleMultiSelection(true);
+        scaleCommit();
     }
 }

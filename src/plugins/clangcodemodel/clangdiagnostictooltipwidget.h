@@ -27,6 +27,8 @@
 
 #include <clangsupport/diagnosticcontainer.h>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QLayout;
 class QWidget;
@@ -43,9 +45,10 @@ public:
     static QString createText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                               const Destination &destination);
 
+
     static QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                                  const Destination &destination,
-                                 const ClangDiagnosticManager *diagMgr = nullptr);
+                                 const std::function<bool()> &canApplyFixIt);
 };
 
 } // namespace Internal

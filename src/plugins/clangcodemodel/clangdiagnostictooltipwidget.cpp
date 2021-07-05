@@ -104,7 +104,7 @@ public:
     }
 
     QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                          const ClangDiagnosticManager *diagMgr)
+                          const std::function<bool()> &canApplyFixIt)
     {
         const QString text = htmlText(diagnostics);
 
@@ -133,7 +133,7 @@ public:
         const TargetIdToDiagnosticTable table = m_targetIdsToDiagnostics;
         const bool hideToolTipAfterLinkActivation = m_displayHints.hideTooltipAfterLinkActivation;
         QObject::connect(label, &QLabel::linkActivated, [table, hideToolTipAfterLinkActivation,
-                         diagMgr](const QString &action) {
+                         canApplyFixIt](const QString &action) {
             const ClangBackEnd::DiagnosticContainer diagnostic = table.value(action);
 
             if (diagnostic == ClangBackEnd::DiagnosticContainer())
@@ -141,10 +141,8 @@ public:
             else if (action.startsWith(LINK_ACTION_GOTO_LOCATION)) {
                 openEditorAt(diagnostic);
             } else if (action.startsWith(LINK_ACTION_APPLY_FIX)) {
-                if (diagMgr && !diagMgr->diagnosticsInvalidated()
-                        && diagMgr->diagnosticsWithFixIts().contains(diagnostic)) {
+                if (canApplyFixIt && canApplyFixIt())
                     applyFixit(diagnostic);
-                }
             } else {
                 QTC_CHECK(!"Link target cannot be handled.");
             }
@@ -218,40 +216,6 @@ private:
         return text;
     }
 
-    static QString documentationUrlForOption(const Utf8String &optionAsUtf8String)
-    {
-        if (optionAsUtf8String.isEmpty())
-            return QString();
-
-        QString option = optionAsUtf8String.toString();
-
-        // Clazy
-        if (DiagnosticTextInfo::isClazyOption(option)) {
-            option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
-            return QString::fromUtf8(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE)
-                .arg(option);
-        }
-
-        // Clang itself
-        if (option.startsWith("-W"))
-            return QString();
-
-        // Clang-Tidy
-        return QString::fromUtf8(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE).arg(option);
-    }
-
-    static QString maybeClickableOption(const Utf8String &option)
-    {
-        if (option.isEmpty())
-            return option;
-
-        const QString link = documentationUrlForOption(option);
-        if (link.isEmpty())
-            return option;
-
-        return wrapInLink(option.toString(), link);
-    }
-
     static QString diagnosticCategoryAndEnableOptionRow(
             const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
@@ -260,7 +224,7 @@ private:
             "    <td align='left'><b>%1</b></td>"
             "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
-            .arg(diagnostic.category, maybeClickableOption(diagnostic.enableOption));
+            .arg(diagnostic.category, diagnostic.enableOption);
 
         return text;
     }
@@ -402,14 +366,14 @@ private:
 };
 
 WidgetFromDiagnostics::DisplayHints toHints(const ClangDiagnosticWidget::Destination &destination,
-                                            const ClangDiagnosticManager *diagMgr = nullptr)
+                                            const std::function<bool()> &canApplyFixIt)
 {
     WidgetFromDiagnostics::DisplayHints hints;
 
     if (destination == ClangDiagnosticWidget::ToolTip) {
         hints.showCategoryAndEnableOption = true;
         hints.showFileNameInMainDiagnostic = false;
-        hints.enableClickableFixits = diagMgr && !diagMgr->diagnosticsInvalidated();
+        hints.enableClickableFixits = canApplyFixIt && canApplyFixIt();
         hints.limitWidth = true;
         hints.hideTooltipAfterLinkActivation = true;
         hints.allowTextSelection = false;
@@ -432,7 +396,7 @@ QString ClangDiagnosticWidget::createText(
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
     const ClangDiagnosticWidget::Destination &destination)
 {
-    const QString htmlText = WidgetFromDiagnostics(toHints(destination)).htmlText(diagnostics);
+    const QString htmlText = WidgetFromDiagnostics(toHints(destination, {})).htmlText(diagnostics);
 
     QTextDocument document;
     document.setHtml(htmlText);
@@ -447,9 +411,10 @@ QString ClangDiagnosticWidget::createText(
 }
 
 QWidget *ClangDiagnosticWidget::createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-        const Destination &destination, const ClangDiagnosticManager *diagMgr)
+        const Destination &destination, const std::function<bool()> &canApplyFixIt)
 {
-    return WidgetFromDiagnostics(toHints(destination, diagMgr)).createWidget(diagnostics, diagMgr);
+    return WidgetFromDiagnostics(toHints(destination, canApplyFixIt))
+            .createWidget(diagnostics, canApplyFixIt);
 }
 
 } // namespace Internal

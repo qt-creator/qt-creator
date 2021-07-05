@@ -137,7 +137,7 @@ void AndroidPackageInstallationStep::doRun()
         FilePath androidDir = FilePath::fromString(dir);
         if (!dir.isEmpty() && androidDir.exists()) {
             emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
-            if (!FileUtils::removeRecursively(androidDir, &error)) {
+            if (!androidDir.removeRecursively(&error)) {
                 emit addOutput(error, OutputFormat::Stderr);
                 TaskHub::addTask(BuildSystemTask(Task::Error, error));
                 emit finished(false);

@@ -29,6 +29,9 @@
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 
+#include <coreplugin/icore.h>
+#include <projectexplorer/project.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -61,8 +64,12 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
+static QString clangdSettingsKey() { return QLatin1String("ClangdSettings"); }
 static QString useClangdKey() { return QLatin1String("UseClangd"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
+static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
+static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
+static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -172,9 +179,6 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
-    setUseClangd(s->value(useClangdKey(), false).toBool());
-    setClangdFilePath(FilePath::fromString(s->value(clangdPathKey()).toString()));
-
     s->endGroup();
 
     if (write)
@@ -198,8 +202,6 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
-    s->setValue(useClangdKey(), useClangd());
-    s->setValue(clangdPathKey(), m_clangdFilePath.toString());
 
     s->endGroup();
 
@@ -300,14 +302,113 @@ void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
     m_enableLowerClazyLevels = yesno;
 }
 
-void CppCodeModelSettings::setDefaultClangdPath(const Utils::FilePath &filePath)
+
+ClangdSettings &ClangdSettings::instance()
+{
+    static ClangdSettings settings;
+    return settings;
+}
+
+void ClangdSettings::setDefaultClangdPath(const Utils::FilePath &filePath)
 {
     g_defaultClangdFilePath = filePath;
 }
 
-FilePath CppCodeModelSettings::clangdFilePath() const
+FilePath ClangdSettings::clangdFilePath() const
 {
-    if (!m_clangdFilePath.isEmpty())
-        return m_clangdFilePath;
+    if (!m_data.executableFilePath.isEmpty())
+        return m_data.executableFilePath;
     return fallbackClangdFilePath();
+}
+
+void ClangdSettings::setData(const Data &data)
+{
+    if (this == &instance() && data != m_data) {
+        m_data = data;
+        saveSettings();
+        emit changed();
+    }
+}
+
+void ClangdSettings::loadSettings()
+{
+    m_data.fromMap(Core::ICore::settings()->value(clangdSettingsKey()).toMap());
+}
+
+void ClangdSettings::saveSettings()
+{
+    Core::ICore::settings()->setValue(clangdSettingsKey(), m_data.toMap());
+}
+
+#ifdef WITH_TESTS
+void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
+void ClangdSettings::setClangdFilePath(const Utils::FilePath &filePath)
+{
+    instance().m_data.executableFilePath = filePath;
+}
+#endif
+
+ClangdProjectSettings::ClangdProjectSettings(ProjectExplorer::Project *project) : m_project(project)
+{
+    loadSettings();
+}
+
+ClangdSettings::Data ClangdProjectSettings::settings() const
+{
+    if (m_useGlobalSettings)
+        return ClangdSettings::instance().data();
+    return m_customSettings;
+}
+
+void ClangdProjectSettings::setSettings(const ClangdSettings::Data &data)
+{
+    m_customSettings = data;
+    saveSettings();
+    emit ClangdSettings::instance().changed();
+}
+
+void ClangdProjectSettings::setUseGlobalSettings(bool useGlobal)
+{
+    m_useGlobalSettings = useGlobal;
+    saveSettings();
+    emit ClangdSettings::instance().changed();
+}
+
+void ClangdProjectSettings::loadSettings()
+{
+    if (!m_project)
+        return;
+    const QVariantMap data = m_project->namedSettings(clangdSettingsKey()).toMap();
+    m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
+    if (!m_useGlobalSettings)
+        m_customSettings.fromMap(data);
+}
+
+void ClangdProjectSettings::saveSettings()
+{
+    if (!m_project)
+        return;
+    QVariantMap data;
+    if (!m_useGlobalSettings)
+        data = m_customSettings.toMap();
+    data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
+    m_project->setNamedSettings(clangdSettingsKey(), data);
+}
+
+QVariantMap ClangdSettings::Data::toMap() const
+{
+    QVariantMap map;
+    map.insert(useClangdKey(), useClangd);
+    map.insert(clangdPathKey(), executableFilePath.toString());
+    map.insert(clangdIndexingKey(), enableIndexing);
+    map.insert(clangdThreadLimitKey(), workerThreadLimit);
+    return map;
+}
+
+void ClangdSettings::Data::fromMap(const QVariantMap &map)
+{
+    useClangd = map.value(useClangdKey(), false).toBool();
+    executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
+    enableIndexing = map.value(clangdIndexingKey(), true).toBool();
+    workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
 }

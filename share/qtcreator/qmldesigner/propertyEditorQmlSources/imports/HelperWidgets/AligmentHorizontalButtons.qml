@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -32,9 +32,9 @@ Row {
     id: alignmentHorizontalButtons
 
     property bool blueHighlight: false
-    property variant backendValue: backendValues.horizontalAlignment;
+    property variant backendValue: backendValues.horizontalAlignment
     property variant value: backendValue.enumeration
-    property bool baseStateFlag: isBaseState;
+    property bool baseStateFlag: isBaseState
     property color __currentColor: blueHighlight ? StudioTheme.Values.themeIconColorInteraction
                                                  : StudioTheme.Values.themeIconColor
 

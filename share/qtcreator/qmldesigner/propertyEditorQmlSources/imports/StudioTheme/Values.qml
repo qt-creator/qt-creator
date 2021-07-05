@@ -110,6 +110,8 @@ QtObject {
     property real infinityControlWidth: values.iconAreaWidth
     property real infinityControlHeight: values.height
 
+    property real transform3DSectionSpacing: 15
+
     // Control sizes
 
     property real defaultControlWidth: values.squareComponentWidth * 5
@@ -199,6 +201,8 @@ QtObject {
     property string themeInteraction: Theme.color(Theme.DSinteraction)
     property string themeError: Theme.color(Theme.DSerrorColor)
     property string themeDisabled: Theme.color(Theme.DSdisabledColor)
+
+    property string themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
 
     // Control colors
     property string themeControlBackground: Theme.color(Theme.DScontrolBackground)

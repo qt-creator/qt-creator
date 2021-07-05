@@ -116,7 +116,8 @@ public:
 
     QList<ProjectInfo> projectInfos() const;
     ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
+    QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo,
+                                    const QSet<QString> &additionalFiles = {});
 
     /// \return The project part with the given project file
     ProjectPart::Ptr projectPartForId(const QString &projectPartId) const override;
@@ -142,6 +143,7 @@ public:
     void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
+    static bool supportsOutline(const TextEditor::TextDocument *document);
     bool isClangCodeModelActive() const;
 
     QSet<AbstractEditorSupport*> abstractEditorSupports() const;

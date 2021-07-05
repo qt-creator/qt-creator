@@ -44,7 +44,7 @@ Column {
 
     Section {
         width: parent.width
-        caption: qsTr("Tool separator")
+        caption: qsTr("Tool Separator")
 
         SectionLayout {
             PropertyLabel {

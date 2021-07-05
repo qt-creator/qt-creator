@@ -162,7 +162,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     // Run a CMake project that would do qmake probing
     TemporaryDirectory qtcQMakeProbeDir("qtc-cmake-qmake-probe-XXXXXXXX");
 
-    QFile cmakeListTxt(qtcQMakeProbeDir.path() + "/CMakeLists.txt");
+    QFile cmakeListTxt(qtcQMakeProbeDir.filePath("CMakeLists.txt").toString());
     if (!cmakeListTxt.open(QIODevice::WriteOnly)) {
         return FilePath();
     }
@@ -219,9 +219,9 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
 
     QStringList args;
     args.push_back("-S");
-    args.push_back(qtcQMakeProbeDir.path());
+    args.push_back(qtcQMakeProbeDir.path().path());
     args.push_back("-B");
-    args.push_back(qtcQMakeProbeDir.path() + "/build");
+    args.push_back(qtcQMakeProbeDir.filePath("build").path());
     args.push_back("-G");
     args.push_back(cmakeGenerator);
 
@@ -242,7 +242,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     cmake.setCommand({cmakeExecutable, args});
     cmake.runBlocking();
 
-    QFile qmakeLocationTxt(qtcQMakeProbeDir.path() + "/qmake-location.txt");
+    QFile qmakeLocationTxt(qtcQMakeProbeDir.filePath("qmake-location.txt").path());
     if (!qmakeLocationTxt.open(QIODevice::ReadOnly)) {
         return FilePath();
     }

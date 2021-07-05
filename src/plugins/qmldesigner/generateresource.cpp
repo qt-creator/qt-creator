@@ -61,6 +61,8 @@
 #include <QTemporaryFile>
 #include <QXmlStreamReader>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 QTableWidget* GenerateResource::createFilesTable(const QList<ResourceFile> &fileNames)
@@ -183,7 +185,7 @@ void GenerateResource::generateMenuEntry()
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
-        QString rccBinary = qtVersion->rccCommand();
+        FilePath rccBinary = qtVersion->rccCommand();
 
         Utils::QtcProcess rccProcess;
         rccProcess.setWorkingDirectory(projectPath);
@@ -207,7 +209,7 @@ void GenerateResource::generateMenuEntry()
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
-                        .arg(rccBinary + " " + arguments.join(" ")));
+                        .arg(rccProcess.commandLine().toUserOutput()));
                 return;
 
             }
@@ -220,14 +222,14 @@ void GenerateResource::generateMenuEntry()
             if (rccProcess.exitStatus() != QProcess::NormalExit) {
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                        .arg(rccBinary + " " + arguments.join(" ")));
+                        .arg(rccProcess.commandLine().toUserOutput()));
                 return;
             }
             if (rccProcess.exitCode() != 0) {
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "\"%1\" failed (exit code %2).")
-                        .arg(rccBinary + " " + arguments.join(" "))
+                        .arg(rccProcess.commandLine().toUserOutput())
                         .arg(rccProcess.exitCode()));
                 return;
             }
@@ -360,9 +362,9 @@ void GenerateResource::generateMenuEntry()
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
-        QString rccBinary = qtVersion->rccCommand();
+        FilePath rccBinary = qtVersion->rccCommand();
 
-        Utils::QtcProcess rccProcess;
+        QtcProcess rccProcess;
         rccProcess.setWorkingDirectory(projectPath);
 
         QXmlStreamReader reader;
@@ -392,7 +394,7 @@ void GenerateResource::generateMenuEntry()
                     Core::MessageManager::writeDisrupting(
                         QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
-                        .arg(rccBinary + " " + arguments.join(" ")));
+                        .arg(rccProcess.commandLine().toUserOutput()));
                     return;
                 }
                 if (!stdOut.trimmed().isEmpty())
@@ -404,14 +406,14 @@ void GenerateResource::generateMenuEntry()
                 if (rccProcess.exitStatus() != QProcess::NormalExit) {
                     Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                        .arg(rccBinary + " " + arguments.join(" ")));
+                        .arg(rccProcess.commandLine().toUserOutput()));
                     return;
                 }
                 if (rccProcess.exitCode() != 0) {
                     Core::MessageManager::writeDisrupting(
                         QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "\"%1\" failed (exit code %2).")
-                        .arg(rccBinary + " " + arguments.join(" "))
+                        .arg(rccProcess.commandLine().toUserOutput())
                         .arg(rccProcess.exitCode()));
                     return;
                 }
@@ -526,7 +528,7 @@ void GenerateResource::generateMenuEntry()
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
-                        .arg(rccBinary + " " + arguments.join(" ")));
+                        .arg(rccProcess.commandLine().toUserOutput()));
                 return;
 
             }
@@ -539,14 +541,14 @@ void GenerateResource::generateMenuEntry()
             if (rccProcess.exitStatus() != QProcess::NormalExit) {
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                        .arg(rccBinary + " " + arguments.join(" ")));
+                        .arg(rccProcess.commandLine().toUserOutput()));
                 return;
             }
             if (rccProcess.exitCode() != 0) {
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "\"%1\" failed (exit code %2).")
-                        .arg(rccBinary + " " + arguments.join(" "))
+                        .arg(rccProcess.commandLine().toUserOutput())
                         .arg(rccProcess.exitCode()));
                 return;
             }

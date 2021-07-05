@@ -30,10 +30,15 @@
 
     \title Motion Design
 
-    You can use different animation techniques for different purposes. \QDS
-    supports common motion design techniques, such as timeline and keyframe
-    based animation and easing curves, as well as screen-to-screen or
-    state-to-state application flows and data-driven UI logic animation.
+    \table
+        \row
+            \li \image studio-animation.png
+            \li You can use different animation techniques for different
+                purposes. \QDS supports common motion design techniques,
+                such as timeline and keyframe based animation and easing
+                curves, as well as screen-to-screen or state-to-state
+                application flows and data-driven UI logic animation.
+    \endtable
 
     \list
         \li \l {Introduction to Animation Techniques}
@@ -41,21 +46,28 @@
             Learn more about which animation techniques are supported by \QDS
             and the use cases they are most suitable for.
 
-        \li \l {Creating Animations}
+        \li \l {Creating Timeline Animations}
 
             You can use a timeline and keyframe based editor in the
-            \uicontrol Timeline view to animate the properties of UI
+            \l Timeline view to animate the properties of UI
             components. Animating properties enables their values to
             move through intermediate values at specified keyframes
             instead of immediately changing to the target value.
-        \li Production Quality (TODO)
+        \li \l{Editing Easing Curves}
 
-            After the wireframing and prototyping phases, you can use the
-            supported motion design techniques to fine-tune your UI for
-            production.
-        \li Optimizing for Target Devices (TODO)
+            Specify easing curves for nonlinear interpolation between
+            keyframes in timeline animations, as well as between original
+            and new property values in property animations and between
+            transitions.
+        \li \l {Production Quality}
+
+            After the wireframing and prototyping phases, you can use previewing
+            and profiling tools to fine-tune your UI for production.
+        \li \l{Optimizing Designs}
 
             You can test your UIs on the target devices to make sure you get
-            the best performance out of your animations.
+            the best performance out of your animations. To solve performance
+            problems, you typically need to optimize the graphical assets used
+            in the UI, such as images, effects, or 3D scenes.
     \endlist
 */
