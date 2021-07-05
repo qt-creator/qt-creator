@@ -28,6 +28,8 @@
 #include "nimconstants.h"
 #include "nimtoolchain.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -52,11 +54,10 @@ NimToolChainFactory::NimToolChainFactory()
 QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
                                                    const IDevice::Ptr &device)
 {
-    Q_UNUSED(device);
     QList<ToolChain *> result;
 
-    Environment systemEnvironment = Environment::systemEnvironment();
-    const FilePath compilerPath = systemEnvironment.searchInPath("nim");
+    IDevice::ConstPtr dev = device ? device : DeviceManager::defaultDesktopDevice();
+    const FilePath compilerPath = dev->searchInPath(FilePath::fromString("nim"));
     if (compilerPath.isEmpty())
         return result;
 
