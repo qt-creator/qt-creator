@@ -49,7 +49,6 @@ const char IDE_REVISION_URL[] = "${IDE_REVISION_URL}";
 
 // changes the path where the settings are saved to
 const char IDE_SETTINGSVARIANT_STR[] = "${IDE_SETTINGSVARIANT}";
-const char IDE_COPY_SETTINGS_FROM_VARIANT_STR[] = "${IDE_COPY_SETTINGSVARIANT}";
 
 } // Constants
 } // Core
