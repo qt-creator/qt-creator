@@ -92,6 +92,11 @@ clang::tooling::Replacements filteredReplacements(const QByteArray &buffer,
         llvm::StringRef text = replacementsToKeep == ReplacementsToKeep::OnlyIndent
                                    ? clearExtraNewline(replacement.getReplacementText())
                                    : replacement.getReplacementText();
+        if (replacementsToKeep == ReplacementsToKeep::OnlyIndent && int(text.count('\n'))
+                != buffer.mid(replacementOffset, replacement.getLength()).count('\n')) {
+            continue;
+        }
+
 
         llvm::Error error = filtered.add(
             clang::tooling::Replacement(replacement.getFilePath(),
