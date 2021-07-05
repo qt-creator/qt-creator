@@ -39,9 +39,10 @@ using namespace LanguageServerProtocol;
 using namespace TextEditor;
 
 namespace LanguageClient {
-namespace SemanticHighligtingSupport {
 
 static Q_LOGGING_CATEGORY(LOGLSPHIGHLIGHT, "qtc.languageclient.highlight", QtWarningMsg);
+
+namespace SemanticHighligtingSupport {
 
 static const QList<QList<QString>> highlightScopes(const ServerCapabilities &capabilities)
 {
@@ -399,15 +400,27 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         newData.reserve(newDataSize);
 
         auto it = data.begin();
+        const auto end = data.end();
         for (const SemanticTokensEdit &edit : qAsConst(edits)) {
             if (edit.start() > data.size()) // prevent edits after the previously reported data
                 return;
             for (const auto start = data.begin() + edit.start(); it < start; ++it)
                 newData.append(*it);
             newData.append(edit.data().value_or(QList<int>()));
-            it += edit.deleteCount();
+            int deleteCount = edit.deleteCount();
+            if (deleteCount > std::distance(it, end)) {
+                qCDebug(LOGLSPHIGHLIGHT)
+                    << "We shall delete more highlight data entries than we actually have, "
+                       "so we are out of sync with the server. "
+                       "Request full semantic tokens again.";
+                TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
+                if (doc && LanguageClientManager::clientForDocument(doc) == m_client)
+                    reloadSemanticTokens(doc);
+                return;
+            }
+            it += deleteCount;
         }
-        for (const auto end = data.end(); it != end; ++it)
+        for (; it != end; ++it)
             newData.append(*it);
 
         tokens.setData(newData);
