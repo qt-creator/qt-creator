@@ -241,6 +241,7 @@ function(add_qtc_library name)
   qtc_output_binary_dir(_output_binary_dir)
   string(REGEX MATCH "^[0-9]*" IDE_VERSION_MAJOR ${IDE_VERSION})
   set_target_properties(${name} PROPERTIES
+    LINK_DEPENDS_NO_SHARED ON
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     VERSION "${IDE_VERSION}"
     SOVERSION "${IDE_VERSION_MAJOR}"
@@ -497,6 +498,7 @@ function(add_qtc_plugin target_name)
 
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${target_name} PROPERTIES
+    LINK_DEPENDS_NO_SHARED ON
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     MACHO_CURRENT_VERSION ${IDE_VERSION}
     MACHO_COMPATIBILITY_VERSION ${IDE_VERSION_COMPAT}
@@ -694,6 +696,7 @@ function(add_qtc_executable name)
 
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties("${name}" PROPERTIES
+    LINK_DEPENDS_NO_SHARED ON
     BUILD_RPATH "${build_rpath}"
     INSTALL_RPATH "${install_rpath}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
@@ -844,6 +847,7 @@ function(add_qtc_test name)
   )
 
   set_target_properties(${name} PROPERTIES
+    LINK_DEPENDS_NO_SHARED ON
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
