@@ -1249,6 +1249,18 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
     CMakeConfig config;
 
+    const FilePath projectDirectory = project()->projectDirectory();
+    const auto samePath = [projectDirectory](const FilePath &first, const FilePath &second) {
+        // if a path is relative, resolve it relative to the project directory
+        // this is not 100% correct since CMake resolve them to CMAKE_CURRENT_SOURCE_DIR
+        // depending on context, but we cannot do better here
+        return first == second
+               || projectDirectory.absoluteFilePath(first)
+                      == projectDirectory.absoluteFilePath(second)
+               || projectDirectory.absoluteFilePath(first).canonicalPath()
+                      == projectDirectory.absoluteFilePath(second).canonicalPath();
+    };
+
     // Replace path values that do not  exist on file system
     const QByteArrayList singlePathList = {
         "CMAKE_C_COMPILER",
@@ -1265,9 +1277,10 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
         if (it != cm.cend()) {
             const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
-            if (!initialValue.isEmpty()
-                && it->value != initialValue
-                && !FilePath::fromString(QString::fromUtf8(it->value)).exists()) {
+            const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
+            const FilePath path = FilePath::fromString(QString::fromUtf8(it->value));
+
+            if (!initialValue.isEmpty() && !samePath(path, initialPath) && !path.exists()) {
                 CMakeConfigItem item(*it);
                 item.value = initialValue;
 
@@ -1288,7 +1301,13 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
         if (it != cm.cend()) {
             const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
-            if (!initialValue.isEmpty() && !it->value.contains(initialValue)) {
+            const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
+
+            const bool pathIsContained
+                = Utils::contains(it->value.split(';'), [samePath, initialPath](const QByteArray &p) {
+                      return samePath(FilePath::fromString(QString::fromUtf8(p)), initialPath);
+                  });
+            if (!initialValue.isEmpty() && !pathIsContained) {
                 CMakeConfigItem item(*it);
                 item.value = initialValue;
                 item.value.append(";");
