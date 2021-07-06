@@ -37,6 +37,8 @@ Rectangle {
     property alias pixelSize: indicatorIcon.font.pixelSize
     property alias tooltip: toolTipArea.tooltip
 
+    property bool hovered: toolTipArea.containsMouse && root.enabled
+
     signal clicked()
 
     color: "transparent"
