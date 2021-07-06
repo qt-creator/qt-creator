@@ -838,7 +838,7 @@ void CMakeBuildSystem::wireUpConnections()
                     QString errorMessage;
                     const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
                     if (!config.isEmpty() && errorMessage.isEmpty()) {
-                        QString cmakeBuildTypeName = CMakeConfigItem::stringValueOf("CMAKE_BUILD_TYPE", config);
+                        QString cmakeBuildTypeName = config.stringValueOf("CMAKE_BUILD_TYPE");
                         cmakeBuildConfiguration()->setCMakeBuildType(cmakeBuildTypeName, true);
                     }
                 }
@@ -1057,7 +1057,7 @@ CMakeConfig CMakeBuildSystem::parseCMakeCacheDotTxt(const Utils::FilePath &cache
             *errorMessage = tr("CMakeCache.txt file not found.");
         return {};
     }
-    CMakeConfig result = CMakeConfigItem::itemsFromFile(cacheFile, errorMessage);
+    CMakeConfig result = CMakeConfig::fromFile(cacheFile, errorMessage);
     if (!errorMessage->isEmpty())
         return {};
     return result;
@@ -1210,7 +1210,7 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
     };
 
     const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
-    addImports(CMakeConfigItem::stringValueOf("QML_IMPORT_PATH", cm));
+    addImports(cm.stringValueOf("QML_IMPORT_PATH"));
     addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
 
     for (const QString &extraHeaderPath : extraHeaderPaths)
@@ -1244,7 +1244,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 {
     const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
     const CMakeConfig &initialConfig =
-            CMakeConfigItem::itemsFromArguments(cmakeBuildConfiguration()->initialCMakeArguments());
+            CMakeConfig::fromArguments(cmakeBuildConfiguration()->initialCMakeArguments());
 
     CMakeConfig config;
 
@@ -1275,7 +1275,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         });
 
         if (it != cm.cend()) {
-            const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
+            const QByteArray initialValue = initialConfig.expandedValueOf(kit(), var).toUtf8();
             const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
             const FilePath path = FilePath::fromString(QString::fromUtf8(it->value));
 
@@ -1299,7 +1299,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         });
 
         if (it != cm.cend()) {
-            const QByteArrayList initialValueList = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8().split(';');
+            const QByteArrayList initialValueList = initialConfig.expandedValueOf(kit(), var).toUtf8().split(';');
 
             for (const auto &initialValue: initialValueList) {
                 const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));

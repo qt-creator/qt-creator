@@ -515,7 +515,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
                                            [expander](const QString &s) {
                                                return expander->expand(s);
                                            });
-        const CMakeConfig config = CMakeConfigItem::itemsFromArguments(expandedLines);
+        const CMakeConfig config = CMakeConfig::fromArguments(expandedLines);
 
         m_configModel->setBatchEditConfiguration(config);
     });
@@ -1048,7 +1048,7 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     }();
     if (initialCMakeArguments().isEmpty()) {
         QStringList initialArgs = defaultInitialCMakeArguments(kit(), buildTypeName)
-                                  + Utils::transform(conf, [this](const CMakeConfigItem &i) {
+                                  + Utils::transform(conf.toList(), [this](const CMakeConfigItem &i) {
                                         return i.toArgument(macroExpander());
                                     });
 
@@ -1110,7 +1110,8 @@ CMakeConfig CMakeBuildConfiguration::configurationChanges() const
 
 QStringList CMakeBuildConfiguration::configurationChangesArguments() const
 {
-    return Utils::transform(m_configurationChanges, [](const CMakeConfigItem &i) { return i.toArgument(); });
+    return Utils::transform(m_configurationChanges.toList(),
+                            [](const CMakeConfigItem &i) { return i.toArgument(); });
 }
 
 QStringList CMakeBuildConfiguration::initialCMakeArguments() const
@@ -1296,9 +1297,9 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 
 BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
-    QByteArray cmakeBuildTypeName = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", m_configurationFromCMake);
+    QByteArray cmakeBuildTypeName = m_configurationFromCMake.valueOf("CMAKE_BUILD_TYPE");
     if (cmakeBuildTypeName.isEmpty()) {
-        QByteArray cmakeCfgTypes = CMakeConfigItem::valueOf("CMAKE_CONFIGURATION_TYPES", m_configurationFromCMake);
+        QByteArray cmakeCfgTypes = m_configurationFromCMake.valueOf("CMAKE_CONFIGURATION_TYPES");
         if (!cmakeCfgTypes.isEmpty())
             cmakeBuildTypeName = cmakeBuildType().toUtf8();
     }
@@ -1352,14 +1353,14 @@ QString CMakeBuildConfiguration::cmakeBuildType() const
             QString errorMessage;
             config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
         } else {
-            config = CMakeConfigItem::itemsFromArguments(initialCMakeArguments());
+            config = CMakeConfig::fromArguments(initialCMakeArguments());
         }
     } else if (!hasCMakeCache) {
-        config = CMakeConfigItem::itemsFromArguments(initialCMakeArguments());
+        config = CMakeConfig::fromArguments(initialCMakeArguments());
     }
 
     if (!config.isEmpty() && !isMultiConfig()) {
-        cmakeBuildType = CMakeConfigItem::stringValueOf("CMAKE_BUILD_TYPE", config);
+        cmakeBuildType = config.stringValueOf("CMAKE_BUILD_TYPE");
         const_cast<CMakeBuildConfiguration*>(this)->setCMakeBuildType(cmakeBuildType);
     }
 

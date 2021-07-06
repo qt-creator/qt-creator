@@ -337,7 +337,7 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
     QByteArray contents;
     contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
     contents.append(
-        transform(CMakeConfigItem::itemsFromArguments(configurationArguments),
+        transform(CMakeConfig::fromArguments(configurationArguments).toList(),
             [](const CMakeConfigItem &item) {
                 return item.toCMakeSetLine(nullptr);
             })

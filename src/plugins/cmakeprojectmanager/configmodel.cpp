@@ -203,7 +203,7 @@ QList<ConfigModel::DataItem> ConfigModel::configurationForCMake() const
 
 void ConfigModel::setConfiguration(const CMakeConfig &config)
 {
-    setConfiguration(Utils::transform(config, [](const CMakeConfigItem &i) {
+    setConfiguration(Utils::transform(config.toList(), [](const CMakeConfigItem &i) {
         return DataItem(i);
     }));
 }

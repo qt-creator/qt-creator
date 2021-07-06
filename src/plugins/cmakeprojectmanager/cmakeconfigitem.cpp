@@ -55,29 +55,28 @@ CMakeConfigItem::CMakeConfigItem(const QByteArray &k, const QByteArray &v) :
     key(k), value(v)
 { }
 
-QByteArray CMakeConfigItem::valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input)
+QByteArray CMakeConfig::valueOf(const QByteArray &key) const
 {
-    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
+    for (auto it = constBegin(); it != constEnd(); ++it) {
         if (it->key == key)
             return it->value;
     }
     return QByteArray();
 }
 
-QString CMakeConfigItem::stringValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input)
+QString CMakeConfig::stringValueOf(const QByteArray &key) const
 {
-    return QString::fromUtf8(valueOf(key, input));
+    return QString::fromUtf8(valueOf(key));
 }
 
-FilePath CMakeConfigItem::filePathValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input)
+FilePath CMakeConfig::filePathValueOf(const QByteArray &key) const
 {
-    return FilePath::fromUtf8(valueOf(key, input));
+    return FilePath::fromUtf8(valueOf(key));
 }
 
-QString CMakeConfigItem::expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
-                                         const QList<CMakeConfigItem> &input)
+QString CMakeConfig::expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key) const
 {
-    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
+    for (auto it = constBegin(); it != constEnd(); ++it) {
         if (it->key == key)
             return it->expandedValue(k);
     }
@@ -312,7 +311,7 @@ static CMakeConfigItem unsetItemFromString(const QString &input)
     return item;
 }
 
-QList<CMakeConfigItem> CMakeConfigItem::itemsFromArguments(const QStringList &list)
+CMakeConfig CMakeConfig::fromArguments(const QStringList &list)
 {
     CMakeConfig result;
     bool inSet = false;
@@ -348,7 +347,7 @@ QList<CMakeConfigItem> CMakeConfigItem::itemsFromArguments(const QStringList &li
     return result;
 }
 
-QList<CMakeConfigItem> CMakeConfigItem::itemsFromFile(const Utils::FilePath &cacheFile, QString *errorMessage)
+CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *errorMessage)
 {
     CMakeConfig result;
     QFile cache(cacheFile.toString());

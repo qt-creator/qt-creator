@@ -996,15 +996,15 @@ void CMakeConfigurationKitAspect::setConfiguration(Kit *k, const CMakeConfig &co
 {
     if (!k)
         return;
-    const QStringList tmp = Utils::transform(config, [](const CMakeConfigItem &i) { return i.toString(); });
+    const QStringList tmp = Utils::transform(config.toList(),
+                                             [](const CMakeConfigItem &i) { return i.toString(); });
     k->setValue(CONFIGURATION_ID, tmp);
 }
 
 QStringList CMakeConfigurationKitAspect::toStringList(const Kit *k)
 {
-    QStringList current
-            = Utils::transform(CMakeConfigurationKitAspect::configuration(k),
-                               [](const CMakeConfigItem &i) { return i.toString(); });
+    QStringList current = Utils::transform(CMakeConfigurationKitAspect::configuration(k).toList(),
+                                           [](const CMakeConfigItem &i) { return i.toString(); });
     current = Utils::filtered(current, [](const QString &s) { return !s.isEmpty(); });
     Utils::sort(current);
     return current;
@@ -1023,7 +1023,7 @@ void CMakeConfigurationKitAspect::fromStringList(Kit *k, const QStringList &in)
 
 QStringList CMakeConfigurationKitAspect::toArgumentsList(const Kit *k)
 {
-    return Utils::transform(CMakeConfigurationKitAspect::configuration(k),
+    return Utils::transform(CMakeConfigurationKitAspect::configuration(k).toList(),
                             [](const CMakeConfigItem &i) { return i.toArgument(nullptr); });
 }
 
@@ -1046,8 +1046,8 @@ QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const
 {
     // FIXME: Convert preload scripts
     CMakeConfig config = defaultConfiguration(k);
-    const QStringList tmp
-            = Utils::transform(config, [](const CMakeConfigItem &i) { return i.toString(); });
+    const QStringList tmp = Utils::transform(config.toList(),
+                                             [](const CMakeConfigItem &i) { return i.toString(); });
     return tmp;
 }
 

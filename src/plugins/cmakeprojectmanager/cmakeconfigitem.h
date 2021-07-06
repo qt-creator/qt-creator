@@ -43,18 +43,16 @@ class Kit;
 
 namespace CMakeProjectManager {
 
-class CMAKE_EXPORT CMakeConfigItem {
+class CMakeConfig;
+
+class CMAKE_EXPORT CMakeConfigItem
+{
 public:
     enum Type { FILEPATH, PATH, BOOL, STRING, INTERNAL, STATIC, UNINITIALIZED };
     CMakeConfigItem();
     CMakeConfigItem(const QByteArray &k, Type t, const QByteArray &d, const QByteArray &v, const QStringList &s = {});
     CMakeConfigItem(const QByteArray &k, const QByteArray &v);
 
-    static QByteArray valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
-    static QString stringValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
-    static Utils::FilePath filePathValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
-    static QString expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
-                                   const QList<CMakeConfigItem> &input);
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);
     static Type typeStringToType(const QByteArray &typeString);
     static QString typeToTypeString(const Type t);
@@ -66,8 +64,6 @@ public:
 
     static bool less(const CMakeConfigItem &a, const CMakeConfigItem &b);
     static CMakeConfigItem fromString(const QString &s);
-    static QList<CMakeConfigItem> itemsFromArguments(const QStringList &list);
-    static QList<CMakeConfigItem> itemsFromFile(const Utils::FilePath &input, QString *errorMessage);
     QString toString(const Utils::MacroExpander *expander = nullptr) const;
     QString toArgument(const Utils::MacroExpander *expander = nullptr) const;
     QString toCMakeSetLine(const Utils::MacroExpander *expander = nullptr) const;
@@ -83,6 +79,23 @@ public:
     QByteArray documentation;
     QStringList values;
 };
-using CMakeConfig = QList<CMakeConfigItem>;
+
+class CMAKE_EXPORT CMakeConfig : public QList<CMakeConfigItem>
+{
+public:
+    CMakeConfig() = default;
+    CMakeConfig(const QList<CMakeConfigItem> &items) : QList<CMakeConfigItem>(items) {}
+    CMakeConfig(std::initializer_list<CMakeConfigItem> items) : QList<CMakeConfigItem>(items) {}
+
+    const QList<CMakeConfigItem> &toList() const { return *this; }
+
+    static CMakeConfig fromArguments(const QStringList &list);
+    static CMakeConfig fromFile(const Utils::FilePath &input, QString *errorMessage);
+
+    QByteArray valueOf(const QByteArray &key) const;
+    QString stringValueOf(const QByteArray &key) const;
+    Utils::FilePath filePathValueOf(const QByteArray &key) const;
+    QString expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key) const;
+};
 
 } // namespace CMakeProjectManager
