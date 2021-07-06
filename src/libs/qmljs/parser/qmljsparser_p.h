@@ -1,8 +1,6 @@
-
-#line 185 "qmljs.g"
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -292,27 +290,27 @@ protected:
 
 
 
-#line 1862 "qmljs.g"
+#line 1878 "qmljs.g"
 
 #define J_SCRIPT_REGEXPLITERAL_RULE1 164
 
-#line 1874 "qmljs.g"
+#line 1890 "qmljs.g"
 
 #define J_SCRIPT_REGEXPLITERAL_RULE2 165
 
-#line 3423 "qmljs.g"
+#line 3502 "qmljs.g"
 
-#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 463
+#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 466
 
-#line 4076 "qmljs.g"
+#line 4154 "qmljs.g"
 
-#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 533
+#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 536
 
-#line 4618 "qmljs.g"
+#line 4696 "qmljs.g"
 
-#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 602
+#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 605
 
-#line 4902 "qmljs.g"
+#line 4980 "qmljs.g"
 
 QT_QML_END_NAMESPACE
 

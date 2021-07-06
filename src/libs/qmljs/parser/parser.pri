@@ -3,6 +3,7 @@ HEADERS += \
     $$PWD/qmljsastfwd_p.h \
     $$PWD/qmljsastvisitor_p.h \
     $$PWD/qmljsengine_p.h \
+    $$PWD/qmlimportresolver_p.h \
     $$PWD/qmljslexer_p.h \
     $$PWD/qmljsglobal_p.h \
     $$PWD/qmljssourcelocation_p.h \
@@ -16,6 +17,7 @@ SOURCES += \
     $$PWD/qmljsast.cpp \
     $$PWD/qmljsastvisitor.cpp \
     $$PWD/qmljsengine_p.cpp \
+    $$PWD/qmlimportresolver.cpp \
     $$PWD/qmljslexer.cpp \
     $$PWD/qmldirparser.cpp \
     $$PWD/qmljsgrammar.cpp \

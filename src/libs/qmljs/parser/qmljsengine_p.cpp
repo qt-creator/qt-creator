@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,11 +26,9 @@
 #include "qmljsengine_p.h"
 #include "qmljsglobal_p.h"
 
-#include <utils/porting.h>
-
-#include <QtCore/qdebug.h>
-#include <QtCore/qhash.h>
 #include <QtCore/qnumeric.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qdebug.h>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -138,9 +136,7 @@ QStringView Engine::newStringRef(const QString &text)
 }
 
 QStringView Engine::newStringRef(const QChar *chars, int size)
-{
-    return newStringRef(QString(chars, size));
-}
+{ return newStringRef(QString(chars, size)); }
 
 } // end of namespace QmlJS
 

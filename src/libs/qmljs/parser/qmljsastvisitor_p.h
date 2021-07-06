@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -126,6 +126,9 @@ public:
     virtual void endVisit(UiRequired *) = 0;
 
     // QmlJS
+    virtual bool visit(TypeExpression *) = 0;
+    virtual void endVisit(TypeExpression *) = 0;
+
     virtual bool visit(ThisExpression *) = 0;
     virtual void endVisit(ThisExpression *) = 0;
 
@@ -467,6 +470,9 @@ public:
     void endVisit(UiRequired *) override {}
 
     // QmlJS
+    bool visit(TypeExpression *) override { return true; }
+    void endVisit(TypeExpression *) override {}
+
     bool visit(ThisExpression *) override { return true; }
     void endVisit(ThisExpression *) override {}
 

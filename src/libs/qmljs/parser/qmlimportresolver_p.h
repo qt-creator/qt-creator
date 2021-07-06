@@ -25,12 +25,26 @@
 
 #pragma once
 
-#include <qglobal.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#if defined(QMLJS_LIBRARY)
-#  define QMLJS_EXPORT Q_DECL_EXPORT
-#elif defined(QML_BUILD_STATIC_LIB)
-#  define QMLJS_EXPORT
-#else
-#  define QMLJS_EXPORT Q_DECL_IMPORT
-#endif
+#include "qmljs/parser/qmljsglobal_p.h"
+
+#include "qmljsglobal_p.h"
+#include <QtCore/qstring.h>
+#include <languageutils/componentversion.h>
+
+QT_QML_BEGIN_NAMESPACE
+
+QML_PARSER_EXPORT QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths,
+                                   LanguageUtils::ComponentVersion version);
+
+QT_QML_END_NAMESPACE

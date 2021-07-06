@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -176,6 +176,7 @@ protected:
 
 private:
     inline void scanChar();
+    inline QChar peekChar();
     int scanToken();
     int scanNumber(QChar ch);
     int scanVersionNumber(QChar ch);

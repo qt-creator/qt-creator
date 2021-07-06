@@ -370,7 +370,7 @@ LibraryInfo::LibraryInfo(Status status)
     updateFingerprint();
 }
 
-LibraryInfo::LibraryInfo(const QmlDirParser::TypeInfo &typeInfo)
+LibraryInfo::LibraryInfo(const QString &typeInfo)
     : _status(Found)
 {
     _typeinfos.append(typeInfo);
@@ -421,10 +421,10 @@ QByteArray LibraryInfo::calculateFingerprint() const
     }
     len = _typeinfos.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    foreach (const QmlDirParser::TypeInfo &typeinfo, _typeinfos) {
-        len = typeinfo.fileName.size();
+    foreach (const QString &typeinfo, _typeinfos) {
+        len = typeinfo.size();
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(typeinfo.fileName.constData()),
+        hash.addData(reinterpret_cast<const char *>(typeinfo.constData()),
                      len * sizeofQChar);
     }
     len = _metaObjects.size();

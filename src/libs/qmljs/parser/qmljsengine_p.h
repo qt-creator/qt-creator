@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -37,16 +37,14 @@
 //
 
 #include "qmljsglobal_p.h"
+#include "qmljs/parser/qmljssourcelocation_p.h"
 
 #include "qmljs/parser/qmljsmemorypool_p.h"
-#include "qmljs/parser/qmljssourcelocation_p.h"
-#include <qmljs/qmljsconstants.h>
-
-#include <utils/porting.h>
 
 #include <QString>
 #include <QSet>
 
+#include <qmljs/qmljsconstants.h>
 QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
@@ -107,10 +105,7 @@ public:
 
     MemoryPool *pool();
 
-    inline QStringView midRef(int position, int size)
-    {
-        return Utils::midView(_code, position, size);
-    }
+    inline QStringView midRef(int position, int size) { return QStringView{_code}.mid(position, size); }
 
     QStringView newStringRef(const QString &s);
     QStringView newStringRef(const QChar *chars, int size);

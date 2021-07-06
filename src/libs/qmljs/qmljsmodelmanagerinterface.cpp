@@ -811,7 +811,7 @@ static bool findNewQmlApplicationInPath(const QString &path,
 
     qmltypesFile = it.next();
 
-    LibraryInfo libraryInfo = LibraryInfo(QmlDirParser::TypeInfo(qmltypesFile));
+    LibraryInfo libraryInfo = LibraryInfo(qmltypesFile);
     const QString libraryPath = dir.absolutePath();
     newLibraries->insert(libraryPath);
     modelManager->updateLibraryInfo(path, libraryInfo);
