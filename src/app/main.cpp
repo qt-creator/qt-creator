@@ -290,49 +290,6 @@ static Utils::QtcSettings *createUserSettings()
                                   QLatin1String(Core::Constants::IDE_CASED_ID));
 }
 
-static inline Utils::QtcSettings *userSettings()
-{
-    Utils::QtcSettings *settings = createUserSettings();
-    const QString fromVariant = QLatin1String(Core::Constants::IDE_COPY_SETTINGS_FROM_VARIANT_STR);
-    if (fromVariant.isEmpty())
-        return settings;
-
-    // Copy old settings to new ones:
-    QFileInfo pathFi = QFileInfo(settings->fileName());
-    if (pathFi.exists()) // already copied.
-        return settings;
-
-    QDir destDir = pathFi.absolutePath();
-    if (!destDir.exists())
-        destDir.mkpath(pathFi.absolutePath());
-
-    QDir srcDir = destDir;
-    srcDir.cdUp();
-    if (!srcDir.cd(fromVariant))
-        return settings;
-
-    if (srcDir == destDir) // Nothing to copy and no settings yet
-        return settings;
-
-    const QStringList entries = srcDir.entryList();
-    for (const QString &file : entries) {
-        const QString lowerFile = file.toLower();
-        if (lowerFile.startsWith(QLatin1String("profiles.xml"))
-                || lowerFile.startsWith(QLatin1String("toolchains.xml"))
-                || lowerFile.startsWith(QLatin1String("qtversion.xml"))
-                || lowerFile.startsWith(QLatin1String("devices.xml"))
-                || lowerFile.startsWith(QLatin1String("debuggers.xml"))
-                || lowerFile.startsWith(QLatin1String(Core::Constants::IDE_ID) + "."))
-            QFile::copy(srcDir.absoluteFilePath(file), destDir.absoluteFilePath(file));
-        if (file == QLatin1String(Core::Constants::IDE_ID))
-            copyRecursively(srcDir.absoluteFilePath(file), destDir.absoluteFilePath(file));
-    }
-
-    // Make sure to use the copied settings:
-    delete settings;
-    return createUserSettings();
-}
-
 static void setHighDpiEnvironmentVariable()
 {
 
@@ -595,7 +552,7 @@ int main(int argc, char **argv)
 
     /*Initialize global settings and resetup install settings with QApplication::applicationDirPath */
     setupInstallSettings(options.installSettingsPath);
-    Utils::QtcSettings *settings = userSettings();
+    Utils::QtcSettings *settings = createUserSettings();
     Utils::QtcSettings *globalSettings
         = new Utils::QtcSettings(QSettings::IniFormat,
                                  QSettings::SystemScope,

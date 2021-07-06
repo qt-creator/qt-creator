@@ -39,7 +39,7 @@ public:
                ProjectExplorer::Target *target,
                AbstractView *view) override;
 
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus) override;
+    void processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName) override;
 
     void writeCommand(const QVariant &command) override;
 

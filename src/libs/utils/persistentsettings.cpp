@@ -427,11 +427,6 @@ PersistentSettingsWriter::PersistentSettingsWriter(const FilePath &fileName, con
     m_fileName(fileName), m_docType(docType)
 { }
 
-PersistentSettingsWriter::~PersistentSettingsWriter()
-{
-    write(m_savedData, nullptr);
-}
-
 bool PersistentSettingsWriter::save(const QVariantMap &data, QString *errorString) const
 {
     if (data == m_savedData)

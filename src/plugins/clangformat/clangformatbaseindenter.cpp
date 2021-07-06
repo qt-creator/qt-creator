@@ -92,6 +92,11 @@ clang::tooling::Replacements filteredReplacements(const QByteArray &buffer,
         llvm::StringRef text = replacementsToKeep == ReplacementsToKeep::OnlyIndent
                                    ? clearExtraNewline(replacement.getReplacementText())
                                    : replacement.getReplacementText();
+        if (replacementsToKeep == ReplacementsToKeep::OnlyIndent && int(text.count('\n'))
+                != buffer.mid(replacementOffset, replacement.getLength()).count('\n')) {
+            continue;
+        }
+
 
         llvm::Error error = filtered.add(
             clang::tooling::Replacement(replacement.getFilePath(),
@@ -295,8 +300,8 @@ int forceIndentWithExtraText(QByteArray &buffer,
         if (block.previous().isValid()) {
             const int prevEndOffset = Utils::Text::utf8NthLineOffset(block.document(), buffer,
                     block.blockNumber()) + block.previous().text().length();
-            buffer.insert(prevEndOffset, "//");
-            extraLength += 2;
+            buffer.insert(prevEndOffset, " //");
+            extraLength += 3;
         }
     }
     buffer.insert(utf8Offset + extraLength, dummyText);

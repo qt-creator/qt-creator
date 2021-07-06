@@ -331,6 +331,11 @@ IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
     return {};
 }
 
+IDevice::ConstPtr DeviceManager::defaultDesktopDevice()
+{
+    return m_instance->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+}
+
 void DeviceManager::setDefaultDevice(Utils::Id id)
 {
     QTC_ASSERT(this != instance(), return);

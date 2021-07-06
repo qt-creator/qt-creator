@@ -1085,7 +1085,7 @@ static QStringList normalLogArguments()
                 "--pretty=format:"
                 "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
                 "Author: %C(%3)%an <%ae>%Creset%n"
-                "Date:   %C(%4)%cD%Creset%n%n"
+                "Date:   %C(%4)%cD %Creset%n%n"
                 "%C(%5)%w(0,4,4)%s%Creset%n%n%b"
                 ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
 

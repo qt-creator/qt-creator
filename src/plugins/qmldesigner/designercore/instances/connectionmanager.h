@@ -58,7 +58,7 @@ public:
 
 protected:
     using BaseConnectionManager::processFinished;
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus) override;
+    void processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName) override;
     std::vector<Connection> &connections() { return m_connections; }
 
     quint32 &writeCommandCounter() { return m_writeCommandCounter; }

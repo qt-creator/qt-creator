@@ -66,9 +66,9 @@ bool BaseConnectionManager::isActive() const
 
 void BaseConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode() {}
 
-void BaseConnectionManager::processFinished()
+void BaseConnectionManager::processFinished(const QString &reason)
 {
-    processFinished(-1, QProcess::CrashExit);
+    processFinished(-1, QProcess::CrashExit, reason);
 }
 
 void BaseConnectionManager::writeCommandToIODevice(const QVariant &command,

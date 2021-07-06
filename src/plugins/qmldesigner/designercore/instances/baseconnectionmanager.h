@@ -64,7 +64,7 @@ protected:
     void dispatchCommand(const QVariant &command, Connection &connection) override;
     virtual void showCannotConnectToPuppetWarningAndSwitchToEditMode();
     using ConnectionManagerInterface::processFinished;
-    void processFinished();
+    void processFinished(const QString &reason);
     static void writeCommandToIODevice(const QVariant &command,
                                        QIODevice *ioDevice,
                                        unsigned int commandCounter);

@@ -232,6 +232,49 @@ class DockerPortsGatheringMethod : public PortsGatheringMethod
     }
 };
 
+class KitDetectorPrivate
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::KitItemDetector)
+
+public:
+    KitDetectorPrivate(KitDetector *parent, const IDevice::ConstPtr &device)
+        : q(parent), m_device(device)
+    {}
+
+    void autoDetect();
+    void undoAutoDetect() const;
+
+    QList<BaseQtVersion *> autoDetectQtVersions() const;
+    QList<ToolChain *> autoDetectToolChains();
+    void autoDetectCMake();
+    void autoDetectDebugger();
+
+    KitDetector *q;
+    IDevice::ConstPtr m_device;
+    QString m_sharedId;
+};
+
+KitDetector::KitDetector(const IDevice::ConstPtr &device)
+    : d(new KitDetectorPrivate(this, device))
+{}
+
+KitDetector::~KitDetector()
+{
+    delete d;
+}
+
+void KitDetector::autoDetect(const QString &sharedId) const
+{
+    d->m_sharedId = sharedId;
+    d->autoDetect();
+}
+
+void KitDetector::undoAutoDetect(const QString &sharedId) const
+{
+    d->m_sharedId = sharedId;
+    d->undoAutoDetect();
+}
+
 class DockerDevicePrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
@@ -255,14 +298,6 @@ public:
 
     void tryCreateLocalFileAccess();
 
-    void autoDetect(QTextBrowser *log);
-    void undoAutoDetect(QTextBrowser *log) const;
-
-    QList<BaseQtVersion *> autoDetectQtVersions(QTextBrowser *log) const;
-    QList<ToolChain *> autoDetectToolChains(QTextBrowser *log);
-    void autoDetectCMake(QTextBrowser *log);
-    void autoDetectDebugger(QTextBrowser *log);
-
     void fetchSystemEnviroment();
 
     DockerDevice *q;
@@ -283,54 +318,59 @@ class DockerDeviceWidget final : public IDeviceWidget
 
 public:
     explicit DockerDeviceWidget(const IDevice::Ptr &device)
-        : IDeviceWidget(device)
+        : IDeviceWidget(device), m_kitItemDetector(device)
     {
         auto dockerDevice = device.dynamicCast<DockerDevice>();
         QTC_ASSERT(dockerDevice, return);
 
-        auto idLabel = new QLabel(tr("Image ID:"));
+        DockerDeviceData &data = dockerDevice->data();
+
+        auto idLabel = new QLabel(tr("Image Id:"));
         m_idLineEdit = new QLineEdit;
-        m_idLineEdit->setText(dockerDevice->data().imageId);
+        m_idLineEdit->setText(data.imageId);
         m_idLineEdit->setEnabled(false);
 
         auto repoLabel = new QLabel(tr("Repository:"));
         m_repoLineEdit = new QLineEdit;
-        m_repoLineEdit->setText(dockerDevice->data().repo);
+        m_repoLineEdit->setText(data.repo);
         m_repoLineEdit->setEnabled(false);
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
         m_runAsOutsideUser->setToolTip(tr("Use user ID and group ID of the user running Qt Creator "
                                           "in the Docker container."));
-        m_runAsOutsideUser->setChecked(dockerDevice->data().useLocalUidGid);
+        m_runAsOutsideUser->setChecked(data.useLocalUidGid);
         m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
 
-        connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [dockerDevice](bool on) {
-            dockerDevice->data().useLocalUidGid = on;
+        connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [&data](bool on) {
+            data.useLocalUidGid = on;
         });
 
         m_pathsLineEdit = new QLineEdit;
-        m_pathsLineEdit->setText(dockerDevice->data().repo);
+        m_pathsLineEdit->setText(data.repo);
         m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
             "mapped one-to-one into the Docker container."));
-        m_pathsLineEdit->setText(dockerDevice->data().mounts.join(';'));
+        m_pathsLineEdit->setText(data.mounts.join(';'));
 
-        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
-            dockerDevice->data().mounts = text.split(';');
+        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [&data](const QString &text) {
+            data.mounts = text.split(';');
         });
 
         auto logView = new QTextBrowser;
+        connect(&m_kitItemDetector, &KitDetector::logOutput,
+                logView, &QTextBrowser::append);
 
         auto autoDetectButton = new QPushButton(tr("Auto-detect Kit Items"));
         auto undoAutoDetectButton = new QPushButton(tr("Remove Auto-Detected Kit Items"));
 
-        connect(autoDetectButton, &QPushButton::clicked, this, [logView, dockerDevice] {
+        connect(autoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id(), dockerDevice] {
             logView->clear();
-            dockerDevice->d->autoDetect(logView);
+            dockerDevice->tryCreateLocalFileAccess();
+            m_kitItemDetector.autoDetect(id);
         });
 
-        connect(undoAutoDetectButton, &QPushButton::clicked, this, [logView, dockerDevice] {
+        connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id()] {
             logView->clear();
-            dockerDevice->d->undoAutoDetect(logView);
+            m_kitItemDetector.undoAutoDetect(id);
         });
 
         using namespace Layouting;
@@ -356,6 +396,8 @@ private:
     QLineEdit *m_repoLineEdit;
     QCheckBox *m_runAsOutsideUser;
     QLineEdit *m_pathsLineEdit;
+
+    KitDetector m_kitItemDetector;
 };
 
 IDeviceWidget *DockerDevice::createWidget()
@@ -424,146 +466,132 @@ DockerDeviceData &DockerDevice::data()
     return d->m_data;
 }
 
-void DockerDevicePrivate::undoAutoDetect(QTextBrowser *log) const
+void KitDetectorPrivate::undoAutoDetect() const
 {
-    const QString id = q->id().toString();
-
     for (Kit *kit : KitManager::kits()) {
-        if (kit->autoDetectionSource() == id) {
-            if (log)
-                log->append(tr("Removing kit: %1").arg(kit->displayName()));
+        if (kit->autoDetectionSource() == m_sharedId) {
+            emit q->logOutput(tr("Removing kit: %1").arg(kit->displayName()));
             KitManager::deregisterKit(kit);
         }
     };
     for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
-        if (qtVersion->autodetectionSource() == id) {
-            if (log)
-                log->append(tr("Removing Qt version: %1").arg(qtVersion->displayName()));
+        if (qtVersion->autodetectionSource() == m_sharedId) {
+            emit q->logOutput(tr("Removing Qt version: %1").arg(qtVersion->displayName()));
             QtVersionManager::removeVersion(qtVersion);
         }
     };
 
-    if (log)
-        log->append(tr("Tool chains not removed."));
+    emit q->logOutput(tr("Tool chains not removed."));
     //        for (ToolChain *toolChain : ToolChainManager::toolChains()) {
     //            if (toolChain->autoDetectionSource() == id.toString())
     //                // FIXME: Implement
     //        };
 
-    if (log)
-        log->append(tr("Removal of previously auto-detected kit items finished.") + '\n');
+    emit q->logOutput(tr("Removal of previously auto-detected kit items finished.") + '\n');
 }
 
-QList<BaseQtVersion *> DockerDevicePrivate::autoDetectQtVersions(QTextBrowser *log) const
+QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
 {
     QList<BaseQtVersion *> qtVersions;
 
     QString error;
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
-    if (log)
-        log->append('\n' + tr("Searching Qt installations..."));
+    emit q->logOutput('\n' + tr("Searching Qt installations..."));
     for (const QString &candidate : candidates) {
-        if (log)
-            log->append(tr("Searching for %1 executable...").arg(candidate));
-        const FilePath qmake = q->searchInPath(FilePath::fromString(candidate));
+        emit q->logOutput(tr("Searching for %1 executable...").arg(candidate));
+        const FilePath qmake = m_device->searchInPath(FilePath::fromString(candidate));
         if (qmake.isEmpty())
             continue;
-        BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_data.id(), &error);
+        BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
         if (!qtVersion)
             continue;
         qtVersions.append(qtVersion);
         QtVersionManager::addVersion(qtVersion);
-        if (log)
-            log->append(tr("Found Qt: %1").arg(qtVersion->qmakeCommand().toUserOutput()));
+        emit q->logOutput(tr("Found Qt: %1").arg(qtVersion->qmakeCommand().toUserOutput()));
     }
-    if (qtVersions.isEmpty() && log)
-        log->append(tr("No Qt installation found."));
+    if (qtVersions.isEmpty())
+        emit q->logOutput(tr("No Qt installation found."));
     return qtVersions;
 }
 
-QList<ToolChain *> DockerDevicePrivate::autoDetectToolChains(QTextBrowser *log)
+QList<ToolChain *> KitDetectorPrivate::autoDetectToolChains()
 {
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
     QList<ToolChain *> toolChains;
     QApplication::processEvents();
-    log->append('\n' + tr("Searching tool chains..."));
+    emit q->logOutput('\n' + tr("Searching tool chains..."));
     for (ToolChainFactory *factory : factories) {
-        const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, q->sharedFromThis());
-        log->append(tr("Searching tool chains of type %1").arg(factory->displayName()));
+        const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, m_device.constCast<IDevice>());
+        emit q->logOutput(tr("Searching tool chains of type %1").arg(factory->displayName()));
         for (ToolChain *toolChain : newToolChains) {
-            log->append(tr("Found tool chain: %1").arg(toolChain->compilerCommand().toUserOutput()));
+            emit q->logOutput(tr("Found tool chain: %1").arg(toolChain->compilerCommand().toUserOutput()));
             ToolChainManager::registerToolChain(toolChain);
             toolChains.append(toolChain);
         }
     }
-    log->append(tr("%1 new tool chains found.").arg(toolChains.size()));
+    emit q->logOutput(tr("%1 new tool chains found.").arg(toolChains.size()));
 
     return toolChains;
 }
 
-void DockerDevicePrivate::autoDetectCMake(QTextBrowser *log)
+void KitDetectorPrivate::autoDetectCMake()
 {
     QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager");
     if (!cmakeManager)
         return;
 
-    log->append('\n' + tr("Searching CMake binary..."));
+    emit q->logOutput('\n' + tr("Searching CMake binary..."));
     QString error;
     const QStringList candidates = {"cmake"};
     for (const QString &candidate : candidates) {
-        const FilePath cmake = q->searchInPath(FilePath::fromString(candidate));
-        QTC_CHECK(q->hasLocalFileAccess());
+        const FilePath cmake = m_device->searchInPath(FilePath::fromString(candidate));
         if (cmake.isExecutableFile()) {
-            log->append(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
+            emit q->logOutput(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
             const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                        "registerCMakeByPath",
                                                        Q_ARG(Utils::FilePath, cmake),
-                                                       Q_ARG(QString, m_data.id()));
+                                                       Q_ARG(QString, m_sharedId));
             QTC_CHECK(res);
         }
     }
 }
 
-void DockerDevicePrivate::autoDetectDebugger(QTextBrowser *log)
+void KitDetectorPrivate::autoDetectDebugger()
 {
     QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin");
     if (!debuggerPlugin)
         return;
 
-    if (log)
-        log->append('\n' + tr("Searching debuggers..."));
-    const FilePath deviceRoot = q->mapToGlobalPath({});
+    emit q->logOutput('\n' + tr("Searching debuggers..."));
+    const FilePath deviceRoot = m_device->mapToGlobalPath({});
     const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                "autoDetectDebuggersForDevice",
                                                Q_ARG(Utils::FilePath, deviceRoot));
     QTC_CHECK(res);
 }
 
-void DockerDevicePrivate::autoDetect(QTextBrowser *log)
+void KitDetectorPrivate::autoDetect()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    undoAutoDetect(log);
+    undoAutoDetect();
 
-    tryCreateLocalFileAccess();
+    emit q->logOutput(tr("Starting auto-detection. This will take a while..."));
 
-    if (log)
-        log->append(tr("Starting auto-detection. This will take a while..."));
+    QList<ToolChain *> toolChains = autoDetectToolChains();
+    QList<BaseQtVersion *> qtVersions = autoDetectQtVersions();
 
-    QList<ToolChain *> toolChains = autoDetectToolChains(log);
-    QList<BaseQtVersion *> qtVersions = autoDetectQtVersions(log);
-
-    autoDetectCMake(log);
-    autoDetectDebugger(log);
+    autoDetectCMake();
+    autoDetectDebugger();
 
     const auto initializeKit = [this, toolChains, qtVersions](Kit *k) {
         k->setAutoDetected(false);
-        k->setAutoDetectionSource(m_data.id());
+        k->setAutoDetectionSource(m_sharedId);
         k->setUnexpandedDisplayName("%{Device:Name}");
 
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
-        DeviceKitAspect::setDevice(k, q->sharedFromThis());
+        DeviceKitAspect::setDevice(k, m_device);
         for (ToolChain *tc : toolChains)
             ToolChainKitAspect::setToolChain(k, tc);
         if (!qtVersions.isEmpty())
@@ -576,8 +604,7 @@ void DockerDevicePrivate::autoDetect(QTextBrowser *log)
     };
 
     Kit *kit = KitManager::registerKit(initializeKit);
-    if (log)
-        log->append('\n' + tr("Registered kit %1").arg(kit->displayName()));
+    emit q->logOutput('\n' + tr("Registered kit %1").arg(kit->displayName()));
 
     QApplication::restoreOverrideCursor();
 }
@@ -1037,15 +1064,19 @@ FilePath DockerDevice::searchInPath(const FilePath &filePath) const
     return mapToGlobalPath(FilePath::fromString(output));
 }
 
-QList<FilePath> DockerDevice::directoryEntries(const FilePath &filePath,
-                                               const QStringList &nameFilters,
-                                               QDir::Filters filters,
-                                               QDir::SortFlags sort) const
+FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
+                                         const QStringList &nameFilters,
+                                         QDir::Filters filters,
+                                         QDir::SortFlags sort) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
-    if (hasLocalFileAccess())
-        return mapToLocalAccess(filePath).dirEntries(nameFilters, filters, sort);
+    if (hasLocalFileAccess()) {
+        const FilePaths entries = mapToLocalAccess(filePath).dirEntries(nameFilters, filters, sort);
+        return Utils::transform(entries, [this](const FilePath &entry) {
+            return mapFromLocalAccess(entry);
+        });
+    }
 
     QTC_CHECK(false); // FIXME: Implement
     return {};
@@ -1112,7 +1143,8 @@ Environment DockerDevice::systemEnvironment() const
 
 void DockerDevice::aboutToBeRemoved() const
 {
-    d->undoAutoDetect(nullptr);
+    KitDetector detector(sharedFromThis());
+    detector.undoAutoDetect(d->m_data.id());
 }
 
 void DockerDevicePrivate::fetchSystemEnviroment()

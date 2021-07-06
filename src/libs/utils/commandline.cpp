@@ -1089,13 +1089,6 @@ bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType o
     return true;
 }
 
-QString ProcessArgs::expandMacros(const QString &str, AbstractMacroExpander *mx, OsType osType)
-{
-    QString ret = str;
-    expandMacros(&ret, mx, osType);
-    return ret;
-}
-
 bool ProcessArgs::ArgIterator::next()
 {
     // We delay the setting of m_prev so we can still delete the last argument

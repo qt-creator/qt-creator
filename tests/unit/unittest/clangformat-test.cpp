@@ -957,6 +957,28 @@ TEST_F(ClangFormat, ChainedMemberFunctionCalls)
                                              "    .func();"));
 }
 
+TEST_F(ClangFormat, CommentBlock)
+{
+    insertLines({"/****************************************************************************",
+                 "**",
+                 "** Copyright (C) 2021 The Qt Company Ltd.",
+                 "** Contact: https://www.qt.io/licensing/",
+                 "**",
+                 "** This file is part of Qt Creator.",
+                 "**",
+                 "****************************************************************************/"});
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+    ASSERT_THAT(documentLines(), ElementsAre(
+                 "/****************************************************************************",
+                 "**",
+                 "** Copyright (C) 2021 The Qt Company Ltd.",
+                 "** Contact: https://www.qt.io/licensing/",
+                 "**",
+                 "** This file is part of Qt Creator.",
+                 "**",
+                 "****************************************************************************/"));
+}
+
 // clang-format on
 
 } // namespace

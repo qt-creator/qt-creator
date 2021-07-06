@@ -54,17 +54,17 @@ void CapturingConnectionManager::setUp(NodeInstanceServerInterface *nodeInstance
     }
 }
 
-void CapturingConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void CapturingConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName)
 {
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         Core::AsynchronousMessageBox::warning(
-            tr("QML Emulation Layer (QML Puppet) Crashed"),
+            tr("QML Emulation Layer (QML Puppet - %1) Crashed").arg(connectionName),
             tr("You are recording a puppet stream and the emulations layer crashed. "
                "It is recommended to reopen the Qt Quick Designer and start again."));
     }
 
-    InteractiveConnectionManager::processFinished(exitCode, exitStatus);
+    InteractiveConnectionManager::processFinished(exitCode, exitStatus, connectionName);
 }
 
 void CapturingConnectionManager::writeCommand(const QVariant &command)

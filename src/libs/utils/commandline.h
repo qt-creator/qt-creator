@@ -81,8 +81,6 @@ public:
     //! Safely replace the expandos in a shell command
     static bool expandMacros(QString *cmd, AbstractMacroExpander *mx,
                              OsType osType = HostOsInfo::hostOs());
-    static QString expandMacros(const QString &str, AbstractMacroExpander *mx,
-                                OsType osType = HostOsInfo::hostOs());
 
     /*! Iterate over arguments from a command line.
      *  Assumes that the name of the actual command is *not* part of the line.
