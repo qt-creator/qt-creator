@@ -35,10 +35,13 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QMap>
 
 namespace Utils {
 namespace Internal {
+
+static Q_LOGGING_CATEGORY(expanderLog, "qtc.utils.macroexpander", QtWarningMsg)
 
 const char kFilePathPostfix[] = ":FilePath";
 const char kPathPostfix[] = ":Path";
@@ -327,7 +330,10 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
 
 QString MacroExpander::expandProcessArgs(const QString &argsWithVariables) const
 {
-    return ProcessArgs::expandMacros(argsWithVariables, d);
+    QString result = argsWithVariables;
+    const bool ok = ProcessArgs::expandMacros(&result, d);
+    QTC_ASSERT(ok, qCDebug(expanderLog) << "Expanding failed: " << argsWithVariables);
+    return result;
 }
 
 static QByteArray fullPrefix(const QByteArray &prefix)
