@@ -1072,6 +1072,9 @@ private:
                                                                  static_cast<int>(type.accessSemantics),
                                                                  &type.sourceId);
 
+        if (!type.typeId)
+            type.typeId = selectTypeIdByImportIdAndNameStatement.template value<TypeId>(&type.importId,
+                                                                                        type.typeName);
         upsertNativeType(type.importId, type.typeName, type.typeId);
 
         for (const auto &exportedType : type.exportedTypes)
@@ -1516,10 +1519,15 @@ public:
         "INSERT INTO types(importId, name,  accessSemantics, sourceId) VALUES(?1, ?2, "
         "?3, nullif(?4, -1)) ON "
         "CONFLICT DO UPDATE SET prototypeId=excluded.prototypeId, "
-        "accessSemantics=excluded.accessSemantics, sourceId=excluded.sourceId RETURNING typeId",
+        "accessSemantics=excluded.accessSemantics, sourceId=excluded.sourceId WHERE "
+        "prototypeId iS NOT excluded.prototypeId OR accessSemantics IS NOT "
+        "excluded.accessSemantics OR "
+        "sourceId IS NOT excluded.sourceId RETURNING typeId",
         database};
     WriteStatement updatePrototypeStatement{
-        "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1", database};
+        "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1 AND (prototypeId IS "
+        "NOT ?2 OR prototypeNameId IS NOT ?3)",
+        database};
     mutable ReadStatement<1> selectTypeIdByExportedNameStatement{
         "SELECT typeId FROM typeNames WHERE name=?1 AND kind=1", database};
     mutable ReadStatement<1> selectPrototypeIdStatement{
@@ -1553,7 +1561,7 @@ public:
         database};
     WriteStatement upsertTypeNamesStatement{
         "INSERT INTO typeNames(importId, name, typeId, kind) VALUES(?1, ?2, ?3, ?4) ON CONFLICT DO "
-        "UPDATE SET typeId=excluded.typeId",
+        "UPDATE SET typeId=excluded.typeId WHERE typeId IS NOT excluded.typeId",
         database};
     mutable ReadStatement<1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
