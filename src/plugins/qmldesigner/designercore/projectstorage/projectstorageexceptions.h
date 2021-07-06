@@ -89,4 +89,10 @@ public:
     const char *what() const noexcept override { return "The property name does not exist!"; }
 };
 
+class PrototypeChainCycle : std::exception
+{
+public:
+    const char *what() const noexcept override { return "There is a prototype chain cycle!"; }
+};
+
 } // namespace QmlDesigner

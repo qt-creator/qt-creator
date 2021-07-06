@@ -555,7 +555,7 @@ private:
             return Sqlite::CallbackControl::Continue;
         };
 
-        updatePrototypeToNullStatement.readCallback(callback, &prototypeId);
+        updatePrototypeIdToNullStatement.readCallback(callback, &prototypeId);
     }
 
     void deleteType(TypeId typeId,
@@ -640,6 +640,7 @@ private:
             }
 
             updateTypePrototypeStatement.write(&prototype.typeId, &prototypeId, &prototypeNameId);
+            checkForPrototypeChainCycle(prototype.typeId);
         }
     }
 
@@ -1093,6 +1094,18 @@ private:
         synchronizeEnumerationDeclarations(typeId, type.enumerationDeclarations);
     }
 
+    void checkForPrototypeChainCycle(TypeId typeId)
+    {
+        auto callback = [=](long long currentTypeId) {
+            if (typeId == TypeId{currentTypeId})
+                throw PrototypeChainCycle{};
+
+            return Sqlite::CallbackControl::Continue;
+        };
+
+        selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, &typeId);
+    }
+
     void syncPrototypes(Storage::Type &type)
     {
         if (Utils::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
@@ -1106,6 +1119,7 @@ private:
                 throw TypeNameDoesNotExists{};
 
             updatePrototypeStatement.write(&type.typeId, &prototypeId, &prototypeTypeNameId);
+            checkForPrototypeChainCycle(type.typeId);
         }
     }
 
@@ -1517,11 +1531,8 @@ public:
     Initializer initializer;
     ReadWriteStatement<1> upsertTypeStatement{
         "INSERT INTO types(importId, name,  accessSemantics, sourceId) VALUES(?1, ?2, "
-        "?3, nullif(?4, -1)) ON "
-        "CONFLICT DO UPDATE SET prototypeId=excluded.prototypeId, "
-        "accessSemantics=excluded.accessSemantics, sourceId=excluded.sourceId WHERE "
-        "prototypeId iS NOT excluded.prototypeId OR accessSemantics IS NOT "
-        "excluded.accessSemantics OR "
+        "?3, nullif(?4, -1)) ON CONFLICT DO UPDATE SET  accessSemantics=excluded.accessSemantics, "
+        "sourceId=excluded.sourceId WHERE accessSemantics IS NOT excluded.accessSemantics OR "
         "sourceId IS NOT excluded.sourceId RETURNING typeId",
         database};
     WriteStatement updatePrototypeStatement{
@@ -1819,13 +1830,21 @@ public:
     ReadStatement<1> selectPropertyDeclarationIdStatement{
         "SELECT propertyDeclarationId FROM propertyDeclarations WHERE propertyDeclarationId=?",
         database};
-    ReadWriteStatement<3> updatePrototypeToNullStatement{
+    ReadWriteStatement<3> updatePrototypeIdToNullStatement{
         "UPDATE types SET prototypeId=NULL WHERE prototypeId=?1 RETURNING "
         "typeId, prototypeNameId, sourceId",
         database};
     ReadStatement<1> selectTypeIdStatement{"SELECT typeId FROM types WHERE typeId=?", database};
     WriteStatement updateTypePrototypeStatement{
         "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1", database};
+    mutable ReadStatement<1> selectTypeIdsForPrototypeChainIdStatement{
+        "WITH RECURSIVE "
+        "  prototypes(typeId) AS ("
+        "       SELECT prototypeId FROM types WHERE typeId=? "
+        "    UNION ALL "
+        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId)) "
+        "SELECT typeId FROM prototypes",
+        database};
 };
 
 } // namespace QmlDesigner

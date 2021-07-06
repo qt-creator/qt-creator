@@ -912,8 +912,15 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesThrowsWithWrongExport
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithMissingImportAndExportedPrototypeName)
 {
     Storage::Types types{createTypes()};
+    types.push_back(Storage::Type{importId3,
+                                  "QObject2",
+                                  Storage::NativeType{},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId4,
+                                  importIds,
+                                  {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
     storage.synchronizeDocuments({Storage::Document{sourceId1, {importId1}}});
-    types[1].prototype = Storage::ExportedType{"Object"};
+    types[1].prototype = Storage::ExportedType{"Object2"};
 
     ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1, sourceId2}),
                  QmlDesigner::TypeNameDoesNotExists);
@@ -3070,4 +3077,40 @@ TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeNameThrowsForWrongNativeProtot
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
+TEST_F(ProjectStorageSlowTest, ThrowForPrototypeChainCycles)
+{
+    Storage::Types types{createTypes()};
+    types[1].prototype = Storage::ExportedType{"Object2"};
+    types.push_back(Storage::Type{importId3,
+                                  "QObject2",
+                                  Storage::ExportedType{"Item"},
+                                  TypeAccessSemantics::Reference,
+                                  sourceId3,
+                                  importIds,
+                                  {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
+
+    ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3}),
+                 QmlDesigner::PrototypeChainCycle);
+}
+
+TEST_F(ProjectStorageSlowTest, ThrowForTypeIdAndPrototypeIdAreTheSame)
+{
+    Storage::Types types{createTypes()};
+    types[1].prototype = Storage::ExportedType{"Object"};
+
+    ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1, sourceId2}),
+                 QmlDesigner::PrototypeChainCycle);
+}
+
+TEST_F(ProjectStorageSlowTest, ThrowForTypeIdAndPrototypeIdAreTheSameForRelinking)
+{
+    Storage::Types types{createTypes()};
+    types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Object"};
+    types[0].prototype = Storage::ExportedType{"Object"};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[1].prototype = Storage::ExportedType{"Item"};
+    types[1].typeName = "QObject2";
+
+    ASSERT_THROW(storage.synchronizeTypes({types[1]}, {sourceId2}), QmlDesigner::PrototypeChainCycle);
+}
 } // namespace
