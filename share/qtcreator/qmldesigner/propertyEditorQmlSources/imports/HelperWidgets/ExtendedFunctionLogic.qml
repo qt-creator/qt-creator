@@ -97,7 +97,7 @@ Item {
 
                 Connections {
                     target: modelNodeBackend
-                    onSelectionChanged: menu.close()
+                    function onSelectionChanged() { menu.close() }
                 }
 
                 StudioControls.MenuItem {

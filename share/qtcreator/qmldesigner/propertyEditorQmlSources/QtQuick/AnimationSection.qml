@@ -153,16 +153,20 @@ Section {
             visible: section.showEasingCurve
         }
 
-        BoolButtonRowButton {
-            visible: section.showEasingCurve
-            buttonIcon: StudioTheme.Constants.curveDesigner
+        SecondColumnLayout {
+            BoolButtonRowButton {
+                visible: section.showEasingCurve
+                buttonIcon: StudioTheme.Constants.curveDesigner
 
-            EasingCurveEditor {
-                id: easingCurveEditor
-                modelNodeBackendProperty: modelNodeBackend
+                EasingCurveEditor {
+                    id: easingCurveEditor
+                    modelNodeBackendProperty: modelNodeBackend
+                }
+
+                onClicked: easingCurveEditor.runDialog()
             }
 
-            onClicked: easingCurveEditor.runDialog()
+            ExpandingSpacer {}
         }
     }
 }
