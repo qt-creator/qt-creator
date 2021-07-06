@@ -35,6 +35,8 @@
 #include <QFile>
 #include <QIODevice>
 
+using namespace Utils;
+
 namespace CMakeProjectManager {
 
 // --------------------------------------------------------------------
@@ -60,6 +62,16 @@ QByteArray CMakeConfigItem::valueOf(const QByteArray &key, const QList<CMakeConf
             return it->value;
     }
     return QByteArray();
+}
+
+QString CMakeConfigItem::stringValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input)
+{
+    return QString::fromUtf8(valueOf(key, input));
+}
+
+FilePath CMakeConfigItem::filePathValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input)
+{
+    return FilePath::fromUtf8(valueOf(key, input));
 }
 
 QString CMakeConfigItem::expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,

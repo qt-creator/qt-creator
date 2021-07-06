@@ -65,11 +65,11 @@ struct DirectoryData
 
     // Kit Stuff
     FilePath cmakeBinary;
-    QByteArray generator;
-    QByteArray extraGenerator;
-    QByteArray platform;
-    QByteArray toolset;
-    QByteArray sysroot;
+    QString generator;
+    QString extraGenerator;
+    QString platform;
+    QString toolset;
+    FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
     QVector<ToolChainDescription> toolChains;
 };
@@ -206,16 +206,11 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
 
-    QString cmakeGenerator
-            = QString::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_GENERATOR"), config));
-    FilePath cmakeExecutable
-            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_COMMAND"), config));
-    FilePath cmakeMakeProgram
-            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_MAKE_PROGRAM"), config));
-    FilePath toolchainFile
-            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"), config));
-    FilePath hostPath
-            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("QT_HOST_PATH"), config));
+    QString cmakeGenerator = CMakeConfigItem::stringValueOf(QByteArray("CMAKE_GENERATOR"), config);
+    FilePath cmakeExecutable = CMakeConfigItem::filePathValueOf(QByteArray("CMAKE_COMMAND"), config);
+    FilePath cmakeMakeProgram =CMakeConfigItem::filePathValueOf(QByteArray("CMAKE_MAKE_PROGRAM"), config);
+    FilePath toolchainFile = CMakeConfigItem::filePathValueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"), config);
+    FilePath hostPath = CMakeConfigItem::filePathValueOf(QByteArray("QT_HOST_PATH"), config);
 
     QStringList args;
     args.push_back("-S");
@@ -333,10 +328,9 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
     for (auto const &buildType: qAsConst(buildConfigurationTypes)) {
         auto data = std::make_unique<DirectoryData>();
 
-        data->cmakeHomeDirectory = FilePath::fromUserInput(
-                                    QString::fromUtf8(
-                                      CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)))
-                                    .canonicalPath();
+        data->cmakeHomeDirectory =
+                FilePath::fromUserInput(CMakeConfigItem::stringValueOf("CMAKE_HOME_DIRECTORY", config))
+                    .canonicalPath();
         const FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
         if (data->cmakeHomeDirectory != canonicalProjectDirectory) {
             *warningMessage = tr("Unexpected source directory \"%1\", expected \"%2\". "
@@ -350,13 +344,12 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->buildDirectory = importPath;
         data->cmakeBuildType = buildType;
 
-        data->cmakeBinary = FilePath::fromUtf8(CMakeConfigItem::valueOf("CMAKE_COMMAND", config));
-        data->generator = CMakeConfigItem::valueOf("CMAKE_GENERATOR", config);
-        data->extraGenerator = CMakeConfigItem::valueOf("CMAKE_EXTRA_GENERATOR", config);
-        data->platform = CMakeConfigItem::valueOf("CMAKE_GENERATOR_PLATFORM", config);
-        data->toolset = CMakeConfigItem::valueOf("CMAKE_GENERATOR_TOOLSET", config);
-
-        data->sysroot = CMakeConfigItem::valueOf("CMAKE_SYSROOT", config);
+        data->cmakeBinary = CMakeConfigItem::filePathValueOf("CMAKE_COMMAND", config);
+        data->generator = CMakeConfigItem::stringValueOf("CMAKE_GENERATOR", config);
+        data->extraGenerator = CMakeConfigItem::stringValueOf("CMAKE_EXTRA_GENERATOR", config);
+        data->platform = CMakeConfigItem::stringValueOf("CMAKE_GENERATOR_PLATFORM", config);
+        data->toolset = CMakeConfigItem::stringValueOf("CMAKE_GENERATOR_TOOLSET", config);
+        data->sysroot = CMakeConfigItem::filePathValueOf("CMAKE_SYSROOT", config);
 
         // Qt:
         const FilePath qmake = qmakeFromCMakeCache(config);
@@ -380,13 +373,13 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     if (!cm || cm->cmakeExecutable() != data->cmakeBinary)
         return false;
 
-    if (CMakeGeneratorKitAspect::generator(k) != QString::fromUtf8(data->generator)
-            || CMakeGeneratorKitAspect::extraGenerator(k) != QString::fromUtf8(data->extraGenerator)
-            || CMakeGeneratorKitAspect::platform(k) != QString::fromUtf8(data->platform)
-            || CMakeGeneratorKitAspect::toolset(k) != QString::fromUtf8(data->toolset))
+    if (CMakeGeneratorKitAspect::generator(k) != data->generator
+            || CMakeGeneratorKitAspect::extraGenerator(k) != data->extraGenerator
+            || CMakeGeneratorKitAspect::platform(k) != data->platform
+            || CMakeGeneratorKitAspect::toolset(k) != data->toolset)
         return false;
 
-    if (SysRootKitAspect::sysRoot(k) != FilePath::fromUtf8(data->sysroot))
+    if (SysRootKitAspect::sysRoot(k) != data->sysroot)
         return false;
 
     if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
@@ -421,12 +414,12 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             addTemporaryData(CMakeKitAspect::id(), cmtd.cmakeTool->id().toSetting(), k);
         CMakeKitAspect::setCMakeTool(k, cmtd.cmakeTool->id());
 
-        CMakeGeneratorKitAspect::setGenerator(k, QString::fromUtf8(data->generator));
-        CMakeGeneratorKitAspect::setExtraGenerator(k, QString::fromUtf8(data->extraGenerator));
-        CMakeGeneratorKitAspect::setPlatform(k, QString::fromUtf8(data->platform));
-        CMakeGeneratorKitAspect::setToolset(k, QString::fromUtf8(data->toolset));
+        CMakeGeneratorKitAspect::setGenerator(k, data->generator);
+        CMakeGeneratorKitAspect::setExtraGenerator(k, data->extraGenerator);
+        CMakeGeneratorKitAspect::setPlatform(k, data->platform);
+        CMakeGeneratorKitAspect::setToolset(k, data->toolset);
 
-        SysRootKitAspect::setSysRoot(k, FilePath::fromUtf8(data->sysroot));
+        SysRootKitAspect::setSysRoot(k, data->sysroot);
 
         for (const ToolChainDescription &cmtcd : data->toolChains) {
             const ToolChainData tcd = findOrCreateToolChains(cmtcd);

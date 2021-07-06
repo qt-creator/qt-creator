@@ -838,8 +838,8 @@ void CMakeBuildSystem::wireUpConnections()
                     QString errorMessage;
                     const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
                     if (!config.isEmpty() && errorMessage.isEmpty()) {
-                        QByteArray cmakeBuildTypeName = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config);
-                        cmakeBuildConfiguration()->setCMakeBuildType(QString::fromUtf8(cmakeBuildTypeName), true);
+                        QString cmakeBuildTypeName = CMakeConfigItem::stringValueOf("CMAKE_BUILD_TYPE", config);
+                        cmakeBuildConfiguration()->setCMakeBuildType(cmakeBuildTypeName, true);
                     }
                 }
                 setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()), options);
@@ -1210,8 +1210,7 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
     };
 
     const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
-    const QString cmakeImports = QString::fromUtf8(CMakeConfigItem::valueOf("QML_IMPORT_PATH", cm));
-    addImports(cmakeImports);
+    addImports(CMakeConfigItem::stringValueOf("QML_IMPORT_PATH", cm));
     addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
 
     for (const QString &extraHeaderPath : extraHeaderPaths)
