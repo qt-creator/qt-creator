@@ -49,6 +49,7 @@
 #include <cpptools/cppcanonicalsymbol.h>
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppeditoroutline.h>
 #include <cpptools/cppmodelmanager.h>
@@ -114,11 +115,15 @@ class CppEditorWidgetPrivate
 public:
     CppEditorWidgetPrivate(CppEditorWidget *q);
 
+    bool shouldOfferOutline() const { return CppModelManager::supportsOutline(m_cppEditorDocument); }
+
 public:
     QPointer<CppModelManager> m_modelManager;
 
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline = nullptr;
+    QAction *m_outlineAction = nullptr;
+    QTimer m_outlineTimer;
 
     QTimer m_updateFunctionDeclDefLinkTimer;
     SemanticInfo m_lastSemanticInfo;
@@ -159,11 +164,11 @@ void CppEditorWidget::finalizeInitialization()
 
     // clang-format off
     // function combo box sorting
-    if (CppModelManager::supportsOutline(d->m_cppEditorDocument)) {
-        d->m_cppEditorOutline = new CppEditorOutline(this);
-        connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,
-                outline(), &CppEditorOutline::setSorted);
-    }
+    d->m_cppEditorOutline = new CppEditorOutline(this);
+
+    // TODO: Nobody emits this signal... Remove?
+    connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,
+            outline(), &CppEditorOutline::setSorted);
 
     connect(d->m_cppEditorDocument, &CppEditorDocument::codeWarningsUpdated,
             this, &CppEditorWidget::onCodeWarningsUpdated);
@@ -197,10 +202,10 @@ void CppEditorWidget::finalizeInitialization()
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
-    if (d->m_cppEditorOutline) {
-        connect(this, &QPlainTextEdit::cursorPositionChanged,
-                d->m_cppEditorOutline, &CppEditorOutline::updateIndex);
-    }
+    connect(this, &QPlainTextEdit::cursorPositionChanged, this, [this] {
+        if (d->shouldOfferOutline())
+            d->m_cppEditorOutline->updateIndex();
+    });
 
     connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged, this,
             [this](bool customSettings) {
@@ -236,8 +241,8 @@ void CppEditorWidget::finalizeInitialization()
     });
 
     // Toolbar: Outline/Overview combo box
-    if (d->m_cppEditorOutline)
-        insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
+    d->m_outlineAction = insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                  d->m_cppEditorOutline->widget());
 
     // clang-format on
     // Toolbar: '#' Button
@@ -261,6 +266,20 @@ void CppEditorWidget::finalizeInitialization()
     });
     connect(&cppEditorDocument()->minimizableInfoBars(), &MinimizableInfoBars::showAction,
             this, &CppEditorWidget::onShowInfoBarAction);
+
+    d->m_outlineTimer.setInterval(5000);
+    d->m_outlineTimer.setSingleShot(true);
+    connect(&d->m_outlineTimer, &QTimer::timeout, this, [this] {
+        d->m_outlineAction->setVisible(d->shouldOfferOutline());
+        if (d->m_outlineAction->isVisible()) {
+            d->m_cppEditorOutline->update();
+            d->m_cppEditorOutline->updateIndex();
+        }
+    });
+    connect(&ClangdSettings::instance(), &ClangdSettings::changed,
+            &d->m_outlineTimer, qOverload<>(&QTimer::start));
+    connect(d->m_cppEditorDocument, &CppEditorDocument::changed,
+            &d->m_outlineTimer, qOverload<>(&QTimer::start));
 }
 
 void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *other)
@@ -271,7 +290,7 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
 
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
         updateSemanticInfo(cppEditorWidget->semanticInfo());
-    if (d->m_cppEditorOutline)
+    if (d->shouldOfferOutline())
         d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
@@ -331,7 +350,7 @@ void CppEditorWidget::selectAll()
 
 void CppEditorWidget::onCppDocumentUpdated()
 {
-    if (d->m_cppEditorOutline)
+    if (d->shouldOfferOutline())
         d->m_cppEditorOutline->update();
 }
 
