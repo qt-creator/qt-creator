@@ -1387,6 +1387,16 @@ FilePath FilePath::onDeviceSearchInPath() const
     return Environment::systemEnvironment().searchInPath(path());
 }
 
+Environment FilePath::deviceEnvironment() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.environment, return {});
+        return s_deviceHooks.environment(*this);
+    }
+    return Environment::systemEnvironment();
+}
+
+
 FilePath FilePath::pathAppended(const QString &path) const
 {
     FilePath fn = *this;

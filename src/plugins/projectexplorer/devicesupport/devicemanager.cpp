@@ -507,6 +507,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->osType();
     };
 
+    deviceHooks.environment = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return Environment{});
+        return device->systemEnvironment();
+    };
+
     FilePath::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
