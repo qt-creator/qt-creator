@@ -54,7 +54,7 @@
     {Item} component. Even though it has no visual appearance itself (similarly
     to a mouse area, for example), it defines all the properties that are
     common across visual components, such as position, size, and visibility. For
-    more information, see \l{Specifying Basic Component Properties}.
+    more information, see \l{Basic Component Properties}.
 
     In addition, each component has a set of properties that specify its visual
     appearance and behavior. You can modify the property values to set fill

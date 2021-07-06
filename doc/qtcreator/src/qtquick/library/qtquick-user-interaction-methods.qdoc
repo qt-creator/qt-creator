@@ -96,7 +96,7 @@
     is ignored.
 
     A component has focus when the \uicontrol Focus property in the
-    \uicontrol Advanced tab is set to \c true. However, for reusable
+    \uicontrol Advanced section is set to \c true. However, for reusable
     or imported components, this is not sufficient, and you should use
     a \uicontrol {Focus Scope} component.
 

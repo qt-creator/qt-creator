@@ -90,7 +90,7 @@
         \li Shows and hides invisible components in \uicontrol Navigator.
         \li \l{Showing and Hiding Components}
     \row
-        \li \inlineimage export_unchecked.png
+        \li \inlineimage icons/alias.png
         \li Adds a property alias that you can use from outside of the
             component.
         \li \l{Adding Property Aliases}
@@ -227,7 +227,7 @@
             below the third level.
     \endlist
 
-    You can use the \inlineimage export_unchecked.png
+    You can use the \inlineimage icons/alias.png
     (\uicontrol Export) button in \uicontrol Navigator to export
     a component as a property alias with a valid alias reference.
 

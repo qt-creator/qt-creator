@@ -32,9 +32,9 @@
 
     You can use several different text components to add read-only or editable
     text to a UI, such as titles or labels and text input fields with
-    placeholder text. The \l Text component adds formatted text, the \l TextEdit
-    component adds a multiline line edit, and the \l TextInput component adds a
-    single editable line field.
+    placeholder text. The \uicontrol Text component adds formatted text, the
+    \uicontrol {Text Edit} component adds a multiline line edit, and the
+    \uicontrol {Text Input} component adds a single editable line field.
 
     You can select the font to use and specify extensive properties for each
     text string, such as size in points or pixels, style name, emphasis,
@@ -44,15 +44,19 @@
 
     \youtube yOUdg1o2KJM
 
-    To create a label with a background, use the \l Label component from the
-    Qt Quick Controls module.
+    To create a label with a background, use the \uicontrol Label
+    component available in \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls}. The module also contains components
+    for creating \uicontrol {Text Field} and \uicontrol {Text Area} controls.
+    They differ from the basic components in that a common style is applied
+    to them and that you can specify placeholder text for them.
 
     \section1 Using Rich Text
 
-    You can use rich text in the \l Text and \l TextInput components. To
-    open the rich text editor, select the \inlineimage icons/edit.png
-    (\uicontrol Edit) button next to the \uicontrol Text field in
-    \uicontrol Properties.
+    You can use rich text in the \uicontrol Text and \uicontrol {Text Input}
+    components. To open the rich text editor, select the \inlineimage icons/edit.png
+    (\uicontrol Edit) button in \uicontrol Properties > \uicontrol Character
+    > \uicontrol Text.
 
     \image qtquick-text-rtf.gif "Editing text in the rich text editor"
 
@@ -71,15 +75,48 @@
 
     \image qtquick-rtf-editor.png "Text formatted as rich text in the editor"
 
-    \section1 Typography
+    \section1 Marking Strings for Translation
 
-    For each string that you enter in the \uicontrol Text field, you can
-    select the font to use in the \uicontrol Font field and specify the
-    size, emphasis, aligment, and spacing of the text. Specify the font
-    size in either points or pixels in the \uicontrol Size field.
+    To support translators, mark the strings that should be translated.
+    In \uicontrol Properties > \uicontrol Character > \uicontrol Text, select
+    \uicontrol tr.
 
-    \image qtquick-designer-text-properties.png "Text component general properties"
-    \image qtquick-designer-properties-font.png "Text component font properties"
+    \image qmldesigner-text-property-tr.png "tr button in Character section"
+
+    By default, the text string is enclosed in a \c qsTr() call.
+
+    \image qml-translate.png "Text marked for translation"
+
+    If you use text IDs instead of plain text, change the default call to
+    \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
+    \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
+    group. For more information about text ID based translations, see
+    \l {Qt Linguist Manual: Text ID Based Translations}.
+
+    To preserve the context when editing the text or to change the context
+    by setting a binding on the text property, change the default call to
+    \c qsTranslate() by selecting the \uicontrol {qsTranslate()} radio button.
+
+    For more information, see
+    \l {Internationalization and Localization with Qt Quick}.
+
+    \if defined(qtcreator)
+    When you \l{Creating Qt Quick Projects}{create a new project}, you can
+    automatically generate a translation source file (TS) for one language.
+    You can add other languages later by editing the project file.
+    \endif
+
+    \section1 Character Properties
+
+    You can set font properties in the \uicontrol Character section
+    in \uicontrol Properties. For each string that you enter in the
+    \uicontrol Text field, you can select the font to use in the
+    \uicontrol Font field and specify the size, emphasis, aligment,
+    and spacing of the text. Specify the font size in either points
+    or pixels in the \uicontrol Size field.
+
+    \image qtquick-designer-text-properties.png "Character properties"
 
     To display custom fonts in the list of available fonts in the
     \uicontrol Font field, you need to first add them to \l Library:
@@ -94,23 +131,27 @@
         \li Select \uicontrol OK.
     \endlist
 
-    You can use the buttons in the \uicontrol {Font style} group to emphasize
+    In the \uicontrol Weight field, you can select the font weight from a
+    list of predefined values that range between extra-light and extra-bold.
+    You can also use the buttons in the \uicontrol Emphasis group to format
     text by making it bold, italic, underlined, or strikethrough.
 
-    Alternatively, select a font variant to use in the \uicontrol {Style name}
-    field, such as \uicontrol Regular or \uicontrol Bold.
+    If you set a style name in the \uicontrol {Style name} field, the font is
+    matched against the style name instead of the values set in the
+    \uicontrol Weight and \uicontrol Emphasis fields.
 
-    The value of the \uicontrol Word field in the \uicontrol Spacing group
-    changes the default spacing between individual words, whereas the value
-    of the \uicontrol Letter field changes the spacing between individual
+    The value of the \uicontrol {Word spacing} field changes the default
+    spacing between individual words, whereas the value of the
+    \uicontrol {Letter spacing} field changes the spacing between individual
     letters in a word. A positive value increases the spacing by a
     corresponding amount of pixels, while a negative value decreases it.
 
     The value of the \uicontrol {Line height} field sets the line height
-    for the text. In the \uicontrol {Line height mode} field, select
-    \uicontrol FixedHeight to set the line height in pixels or
-    \uicontrol ProportionalHeight (default) to set the spacing proportionally
-    to the line (as a multiplier). For example, set to 2 for double spacing.
+    for the text. In the \uicontrol {Line height mode} field in the
+    \uicontrol {Text Extras} section, select \uicontrol FixedHeight to set
+    the line height in pixels or \uicontrol ProportionalHeight (default)
+    to set the spacing proportionally to the line (as a multiplier).
+    For example, set to 2 for double spacing.
 
     \section1 Text Alignment
 
@@ -134,15 +175,13 @@
     You can set the color of the text itself and a secondary color used by
     text styles.
 
-    The color that you pick in the \uicontrol {Style color} field is used as
-    the outline color for outlined text, and as the shadow color for raised
-    or sunken text. You set the font style in the \uicontrol Style field of
-    the \uicontrol Font section.
-
     For the \uicontrol {Text Edit} and \uicontrol {Text Input} components, you
     can also set the color of selected text and the text highlight color
     that is used behind selections in the \uicontrol {Selected text color}
     and \uicontrol {Selection color} fields.
+
+    For the \uicontrol {Text Field} and \uicontrol {Text Area} controls, you
+    can also set the color of the \l{Placeholder Text}{placeholder text}.
 
     For more information about selecting colors, see \l{Picking Colors}. You
     can only set solid colors for text components.
@@ -152,17 +191,24 @@
     The height and width of a text component are determined automatically depending
     on the values of the properties you set, to accommodate the length of the
     string that you specify in the \uicontrol Text field and the font size, for
-    example.
+    example. You can specify additional properties for formatting text in the
+    \uicontrol {Text Extras} section.
 
-    The value of the \uicontrol {Font size mode} field specifies how the font
-    size of the displayed text is determined. Select \uicontrol FixedSize to
-    use the size specified in the \uicontrol Size field in pixels or points.
+    \image qtquick-properties-text-extras.png "Text Extras section"
+
+    The value of the \uicontrol {Size mode} field specifies how the font
+    size of the displayed text is determined. Select \uicontrol FixedSize
+    to use the size specified in the \uicontrol Size field in the
+    \uicontrol Character section in pixels or points.
+
     Select \uicontrol HorizontalFit or \uicontrol VerticalFit to use the largest
     size up to the size specified that fits the width or height of the component.
     Select \uicontrol Fit to use the largest size up to the size specified that
     fits within the width and height of the component. The font size of fitted text
-    has a minimum bound specified by the \uicontrol {Minimum size} field and
+    has a minimum bound specified by the \uicontrol {Min size} field and
     maximum bound specified by the \uicontrol Size field.
+
+    \section3 Wrapping and Eliding Text
 
     In the \uicontrol {Wrap mode} field, you can wrap the text to the text
     component's width. The text will only wrap if you set an explicit width for
@@ -174,7 +220,7 @@
 
     You can use the \uicontrol Elide property with the \uicontrol Wrap
     option to fit a single line of plain text to a set width. Select
-    \uicontrol ElideRight, and set the \uicontrol {Maximum line count}
+    \uicontrol ElideRight, and set the \uicontrol {Max line count}
     or the text component height (in the \uicontrol H field). If you set both,
     the maximum line count will apply unless the lines do not fit in the
     height allowed.
@@ -186,18 +232,7 @@
     Multi-length strings are ordered from longest to shortest, separated by the
     Unicode \e {String Terminator} character \c U009C.
 
-    \section1 Advanced Font Properties
-
-    In the \uicontrol {Font weight} field, you can select the font weight from
-    list predefined values that range between extra-light and extra-bold.
-
-    In the \uicontrol {Font capitalization} field, select \uicontrol MixedCase
-    for normal text rendering where no capitalization changes are applied. You
-    can also set the text in all upper or lower case, or use small caps. The
-    \uicontrol Capitalize option renders the first character of each word as an
-    uppercase character.
-
-    \section1 Developer Text Properties
+    \section3 Formatting Text
 
     Text can be either in plain text or rich text format, depending on the
     value you set in the \uicontrol Format field. If you select
@@ -206,6 +241,8 @@
     described on the \l {Supported HTML Subset}. Note that plain text offers
     better performance than rich text.
 
+    \section3 Rendering Text
+
     In the \uicontrol {Render type} field, you can override the default
     rendering type for a text component. Select \uicontrol NativeRendering if
     you prefer text to look native on the target platform and do not
@@ -213,20 +250,69 @@
     {transformation} of the text. Using rotation or scaling in combination
     with native rendering leads to poor and sometimes pixelated results.
 
+    If you select \uicontrol NativeRendering, you can set the hinting preference
+    in the \uicontrol Hinting field in the \uicontrol {Font Extras} section:
+
+    \list
+        \li \uicontrol PreferDefaultHinting uses the default hinting level for
+            the target platform.
+        \li \uicontrol PreferNoHinting renders text without hinting the outlines
+            of the glyphs, if possible.
+        \li \uicontrol PreferVerticalHinting renders text with no horizontal
+            hinting, but aligns glyphs to the pixel grid in the vertical
+            direction, if possible.
+        \li \uicontrol PreferFullHinting renders text with hinting in both
+            horizontal and vertical directions.
+    \endlist
+
+    \note This property only describes a preference, as the full range of
+    hinting levels are not supported on all of Qt's supported platforms.
+
+    \section1 Advanced Font Properties
+
+    You can specify additional properties for fonts in the
+    \uicontrol {Font Extras} section.
+
+    \image qtquick-properties-font-extras.png "Font Extras section"
+
+    In the \uicontrol Capitalization field, select \uicontrol MixedCase
+    for normal text rendering where no capitalization changes are applied. You
+    can also set the text in all upper or lower case, or use small caps. The
+    \uicontrol Capitalize option renders the first character of each word as an
+    uppercase character.
+
+    You can set the font style in the \uicontrol Style field to
+    \uicontrol Outline, \uicontrol Raised, or \uicontrol Sunken.
+    The color that you pick in the \uicontrol {Style color}
+    field is used as the outline color for outlined text, and as
+    the shadow color for raised or sunken text.
+
+    To use kerning when drawing text with the selected font, select the
+    \uicontrol {Auto kerning} check box.
+
+    Sometimes, a font will apply complex rules to a set of characters in order
+    to display them correctly. In some writing systems, such as Brahmic scripts,
+    this is required in order for the text to be legible but in others, such
+    as Latin script, it is merely a cosmetic feature. Such features are disabled
+    by default to improve performance. If they are required, select the
+    \uicontrol {Prefer shaping} check box.
+
     \target text-edit
     \section1 Text Input
 
     You can use the \uicontrol {Text Edit} and \uicontrol {Text Input}
     components to add text fields where users can enter text.
 
-    The Text Input component displays a single line of editable plain text,
-    whereas the Text Edit component displays a block of editable, formatted
-    text. Both components are used to accept text input.
+    The \uicontrol {Text Input} component displays a single line of editable
+    plain text, whereas the \uicontrol {Text Edit} component displays a block
+    of editable, formatted text. Both components are used to accept text input.
 
     \image qtquick-designer-text-input-properties.png "Text input field properties"
 
-    In the \uicontrol {Mouse selection mode} field, you can specify whether
-    individual characters or whole words are selected when selecting text.
+    \section2 Entering Passwords
+
+    You can set properties for \uicontrol {Text Input} components that make
+    them suitable for entering passwords.
 
     In the \uicontrol {Input mask} field, you can create an input mask that
     contains mask and meta characters and separators between them. When created
@@ -241,14 +327,18 @@
     platform-dependent password mask characters instead of the actual characters
     that users enter. Select \uicontrol PasswordEchoOnEdit to display characters
     as users enter them. The mask character is displayed in the
-    \uicontrol {Pass. char} field.
+    \uicontrol {Password character} field.
+
+    \section2 Entering Text
+
+    You can specify how users can enter text into text edit or input fields.
 
     In the \uicontrol {Maximum length} field, set the maximum number of
     characters that users can enter.
 
     The value of the \uicontrol {Auto scroll} check box determines whether the
     text edit or input should scroll when the text is longer than the width of
-    the input field.
+    the field.
 
     If the \uicontrol {Overwrite mode} check box is selected, existing text is
     overwritten, character-for-character by new text. Otherwise, new text is
@@ -258,7 +348,27 @@
     To prevent users from changing the text, select the \uicontrol {Read only}
     check box.
 
-    The value of the \uicontrol {Set active focus on press} check box determines
+    \section2 Selecting Text
+
+    In the \uicontrol {Selection mode} field, you can specify whether
+    individual characters or whole words are selected when selecting text
+    with a pointer device.
+
+    Select the \uicontrol {Select by mouse} check box to enable users to
+    use the mouse to select text in some platform-specific way. For some
+    platforms this may not be an appropriate interaction because it may
+    conflict with how the text needs to behave inside a \uicontrol Flickable
+    component, for example.
+
+    For a \uicontrol {Text Edit} component, you can select the
+    \uicontrol {Select by keyboard} check box to enable users to
+    use the keyboard to select text even if the edit field is
+    read-only. If this property is set to \c false, users cannot
+    use the keyboard to select text even if it is editable.
+
+    \section2 Focus
+
+    The value of the \uicontrol {Focus on press} check box determines
     whether the text edit or input should gain active focus on a mouse press.
 
     By default, the cursor becomes visible when the text edit or input gains
@@ -270,19 +380,43 @@
     If the \uicontrol {Persistent selection} check box is selected, a text edit
     or input keeps its selection when active focus moves to another component.
 
-    To use a pointer device for selecting text, select the
-    \uicontrol {Select by mouse} check box.
+    \section2 Tabs and Margins
+
+    You can specify additional properties for formatting a block of text in
+    a \uicontrol {Text Edit} component.
+
+    \image qtquick-designer-text-edit-properties.png "Text edit properties"
+
+    In the \uicontrol {Tab stop distance} field, set the default distance, in
+    device units, between tab stops.
+
+    In the \uicontrol {Text margin} field, set the margin around the text in
+    pixels.
 
     \section1 Padding
 
     The values of the properties in the \uicontrol Padding section specify the
     padding around the content. The individual padding properties adopt the
-    value of the \uicontrol Padding field, unless you set them explicitly.
+    value of the \uicontrol Global field, unless you set them explicitly.
+
+    \image qtquick-properties-text-padding.png "Padding section"
 
     \note If you explicitly set the width or height of a text edit or input,
     ensure that it is large enough to accommodate the padding values. If the
     text does not have enough vertical or horizontal space in which to be
     rendered, it will appear clipped.
+
+    \section1 Placeholder Text
+
+    For \uicontrol {Text Field} and \uicontrol {Text Area} controls, you can
+    specify text to display in a field before users enter text into it.
+    Specify the text in the \uicontrol {Placeholder text} field and its color
+    in the \uicontrol {Placeholder color} field.
+
+    \image qtquick-properties-text-field.png "Placeholder text settings"
+
+    Select the \uicontrol Hover check box to enable the text field to accept
+    hover events.
 
     \section1 Summary of Text Components
 

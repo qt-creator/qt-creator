@@ -151,7 +151,7 @@
     In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
     {anchors} to position the component.
 
-    In the \uicontrol Advanced tab, you can manage the more
+    In the \uicontrol Advanced section, you can manage the more
     \l{Specifying Developer Properties}{advanced properties}
     of components.
 */
@@ -233,7 +233,7 @@
     In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
     {anchors} to position the component.
 
-    In the \uicontrol Advanced tab, you can manage the more
+    In the \uicontrol Advanced section, you can manage the more
     \l{Specifying Developer Properties}{advanced properties} of components.
 */
 
@@ -305,7 +305,7 @@
     In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
     {anchors} to position the component.
 
-    In the \uicontrol Advanced tab, you can manage the more
+    In the \uicontrol Advanced section, you can manage the more
     \l{Specifying Developer Properties}{advanced properties} of components.
 
     \section1 Flow Action Area Properties
