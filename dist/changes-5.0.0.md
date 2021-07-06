@@ -21,17 +21,20 @@ Editing
 * Added line ending and indentation to file properties information
 * Added menu item and shortcut for editing bookmark comments
   (QTCREATORBUG-25696)
+* Fixed folding for Markdown (QTCREATORBUG-25882)
 
 ### C++
 
+* Added experimental support for `clangd` (no code completion yet, requires
+  development build of `clangd`)
 * Added highlighting option for function parameters (QTCREATORBUG-24880)
-* Added experimental support for `clangd` for global index (`Find References`,
-  `Rename Symbol`, `Follow Symbol`)
 * Added template parameters to symbols in Locator
 * Fixed that project-unrelated files were selected by default when renaming
   symbols (QTCREATORBUG-8561)
 * Fixed highlighting of string literals with multi-byte characters
   (QTCREATORBUG-25715)
+* Fixed code model for changed but not yet built `.ui` and `.scxml` files
+  (QTCREATORBUG-25937)
 
 ### QML
 
@@ -57,10 +60,17 @@ Editing
 Projects
 --------
 
+* Added experimental support for building and running on Docker devices
+* Added option `Show Source and Header Groups` to project tree
+  (QTCREATORBUG-25313)
 * Fixed crash when closing project while changing current configuration
   (QTCREATORBUG-25655)
 * Fixed that output of custom targets was interpreted as errors
   (QTCREATORBUG-25677)
+* Fixed missing update of run configuration environment (QTCREATORBUG-25947)
+* Fixed that user files were unnecessarily saved with new time stamp
+  (QTCREATORBUG-25921)
+* Reduced UI freeze after loading projects (QTCREATORBUG-25783)
 
 ### CMake
 
@@ -69,6 +79,12 @@ Projects
 * Added CMake output to right side of `Projects` mode (QTCREATORBUG-25522)
 * Fixed `Jump to File` for file names with special characters
   (QTCREATORBUG-25572)
+* Fixed updating of available targets (QTCREATORBUG-24914, QTCREATORBUG-25906)
+* Fixed persistence of CMake tool options (QTCREATORBUG-25911)
+
+### Qbs
+
+* Improved performance of registering profiles (QTCREATORBUG-25463)
 
 Debugging
 ---------
@@ -87,6 +103,14 @@ Debugging
 
 * Implemented `Load QML Stack` for LLDB (QTCREATORBUG-25554)
 
+Analyzer
+--------
+
+### Clang
+
+* Fixed URL for `clang-tidy` checks (QTCREATORBUG-25902)
+* Fixed application of options to checks (QTCREATORBUG-25827)
+
 FakeVim
 -------
 
@@ -102,6 +126,11 @@ Platforms
 ### macOS
 
 * Fixed performance issue with registering file watches after loading projects
+
+### Android
+
+* Fixed detection of `_prepare_apk_dir` target for CMake projects
+  (QTCREATORBUG-25216)
 
 ### QNX
 
@@ -138,6 +167,7 @@ Jaroslaw Kobus
 Jochen Becher  
 Johanna Vanhatapio  
 Kai Köhne  
+Kama Wójcik  
 Knud Dollereder  
 Leena Miettinen  
 Lukas Holecek  
@@ -149,6 +179,7 @@ Michael Weghorn
 Miikka Heikkinen  
 Miina Puuronen  
 Miklós Márton  
+Nodir Temirkhodjaev  
 Oliver Wolff  
 Orgad Shaneh  
 Pekka Kaikkonen  
@@ -158,4 +189,5 @@ Tim Blechmann
 Tim Jenssen  
 Tom Praschan  
 Vikas Pachdha  
+Wojciech Smigaj  
 Youri Westerman  
