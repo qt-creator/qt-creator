@@ -69,16 +69,12 @@ set(QMLPROFILER_CPP_SOURCES
   scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
 )
 
-add_qtc_plugin(QmlProfiler
-  DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
-  SOURCES
-    ${TEST_SOURCES}
-)
-
 if(${Qt5_VERSION} VERSION_LESS "6.2.0")
-  extend_qtc_plugin(QmlProfiler
+  add_qtc_plugin(QmlProfiler
+    DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
+    PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
     SOURCES
+      ${TEST_SOURCES}
       ${QMLPROFILER_CPP_SOURCES}
       qml/qmlprofiler.qrc
   )
@@ -86,6 +82,13 @@ else() # < Qt 6.2
   if (NOT TARGET QmlProfiler)
     return()
   endif()
+
+  add_qtc_plugin(QmlProfiler
+    DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
+    PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
+    SOURCES
+      ${TEST_SOURCES}
+  )
 
   set(QMLPROFILER_QML_FILES
     qml/QmlProfilerFlameGraphView.qml

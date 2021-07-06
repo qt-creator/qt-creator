@@ -38,16 +38,12 @@ set(PERFPROFILER_CPP_SOURCES
   perftracepointdialog.cpp perftracepointdialog.h perftracepointdialog.ui
 )
 
-add_qtc_plugin(PerfProfiler
-  DEPENDS Tracing Qt5::QuickWidgets
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
-  SOURCES
-    ${TEST_SOURCES}
-)
-
 if(${Qt5_VERSION} VERSION_LESS "6.2.0")
-  extend_qtc_plugin(PerfProfiler
+  add_qtc_plugin(PerfProfiler
+    DEPENDS Tracing Qt5::QuickWidgets
+    PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
     SOURCES
+      ${TEST_SOURCES}
       ${PERFPROFILER_CPP_SOURCES}
       perfprofiler.qrc
   )
@@ -55,6 +51,13 @@ else() # < Qt 6.2
   if (NOT TARGET PerfProfiler)
     return()
   endif()
+
+  add_qtc_plugin(PerfProfiler
+    DEPENDS Tracing Qt5::QuickWidgets
+    PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
+    SOURCES
+      ${TEST_SOURCES}
+  )
 
   qt_add_resources(PerfProfiler perfprofiler
     PREFIX "/perfprofiler"
