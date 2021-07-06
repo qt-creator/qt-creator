@@ -321,7 +321,9 @@ FilePath IDevice::searchExecutableInPath(const QString &fileName) const
 
 FilePath IDevice::searchExecutable(const QString &fileName, const FilePaths &dirs) const
 {
-    for (const FilePath &dir : dirs) {
+    for (FilePath dir : dirs) {
+        if (!handlesFile(dir)) // Allow device-local dirs to be used.
+            dir = mapToGlobalPath(dir);
         QTC_CHECK(handlesFile(dir));
         const FilePath candidate = dir / fileName;
         if (isExecutableFile(candidate))

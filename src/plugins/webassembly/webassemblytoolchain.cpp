@@ -27,19 +27,19 @@
 #include "webassemblyconstants.h"
 #include "webassemblyemsdk.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <qtsupport/qtkitinformation.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-
-#include <QDir>
-#include <QSettings>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -73,7 +73,7 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
 void WebAssemblyToolChain::addToEnvironment(Environment &env) const
 {
     WebAssemblyEmSdk::addToEnvironment(WebAssemblyEmSdk::registeredEmSdk(), env);
-    if (HostOsInfo::isWindowsHost())
+    if (env.osType() == OsTypeWindows)
         addRegisteredMinGWToEnvironment(env);
 }
 
@@ -88,9 +88,9 @@ WebAssemblyToolChain::WebAssemblyToolChain() :
 FilePath WebAssemblyToolChain::makeCommand(const Environment &environment) const
 {
     // Diverged duplicate of ClangToolChain::makeCommand and MingwToolChain::makeCommand
-    const QStringList makes
-            = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"})
-                                          : QStringList({"make"});
+    const QStringList makes = environment.osType() == OsTypeWindows
+            ? QStringList({"mingw32-make.exe", "make.exe"})
+            : QStringList({"make"});
 
     FilePath tmp;
     for (const QString &make : makes) {
@@ -162,13 +162,12 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
         const IDevice::Ptr &device)
 {
     Q_UNUSED(alreadyKnown)
-    Q_UNUSED(device)
 
     const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 
-    Environment env;
+    Environment env = sdk.deviceEnvironment();
     WebAssemblyEmSdk::addToEnvironment(sdk, env);
 
     QList<ToolChain *> result;
@@ -178,9 +177,11 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
         toolChain->setLanguage(languageId);
         toolChain->setDetection(ToolChain::AutoDetection);
         const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
-        const QString scriptFile = QLatin1String(cLanguage ? "emcc" : "em++")
-                + QLatin1String(HostOsInfo::isWindowsHost() ? ".bat" : "");
-        toolChain->setCompilerCommand(env.searchInPath(scriptFile));
+        const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
+                + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
+        const FilePath scriptFile =
+                FilePath::fromString(script).onDevice(sdk).searchOnDevice(env.path());
+        toolChain->setCompilerCommand(scriptFile);
 
         const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")
                 .arg(toolChain->version(), QLatin1String(cLanguage ? "C" : "C++"));

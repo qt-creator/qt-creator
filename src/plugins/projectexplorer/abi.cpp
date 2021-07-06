@@ -1168,11 +1168,8 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
             && getUint8(data, 6) == '>' && getUint8(data, 7) == 0x0a) {
         // We got an ar file: possibly a static lib for ELF, PE or Mach-O
 
-        // FIXME: Implement remote
-        QTC_ASSERT(!path.needsDevice(), return tmp);
         QFile f(path.toString());
-        if (!f.open(QFile::ReadOnly))
-            return tmp;
+        const bool canRead = f.open(QFile::ReadOnly);
 
         data = data.mid(8); // Cut of ar file magic
         quint64 offset = 8;
@@ -1198,6 +1195,11 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
 
             if (!tmp.isEmpty() && tmp.at(0).binaryFormat() != MachOFormat)
                 break;
+
+            if (!canRead) {
+                // FIXME: Implement remote
+                QTC_ASSERT(!path.needsDevice(), return {});
+            }
 
             offset += (offset % 2); // ar is 2 byte aligned
             f.seek(offset);

@@ -43,35 +43,36 @@ using namespace Utils;
 namespace WebAssembly {
 namespace Internal {
 
-using EmSdkEnvCache = QCache<QString, QByteArray>;
+using EmSdkEnvCache = QCache<QString, QString>;
 Q_GLOBAL_STATIC_WITH_ARGS(EmSdkEnvCache, emSdkEnvCache, (10))
 using EmSdkVersionCache = QCache<QString, QVersionNumber>;
 Q_GLOBAL_STATIC_WITH_ARGS(EmSdkVersionCache, emSdkVersionCache, (10))
 
-static QByteArray emSdkEnvOutput(const FilePath &sdkRoot)
+static QString emSdkEnvOutput(const FilePath &sdkRoot)
 {
     const QString cacheKey = sdkRoot.toString();
+    const bool isWindows = sdkRoot.osType() == OsTypeWindows;
     if (!emSdkEnvCache()->contains(cacheKey)) {
         const QString scriptFile = sdkRoot.pathAppended(QLatin1String("emsdk_env") +
-                                        (HostOsInfo::isWindowsHost() ? ".bat" : ".sh")).toString();
+                                        (isWindows ? ".bat" : ".sh")).path();
         QtcProcess emSdkEnv;
-        if (HostOsInfo::isWindowsHost()) {
+        if (isWindows) {
             emSdkEnv.setCommand(CommandLine(scriptFile));
         } else {
             // File needs to be source'd, not executed.
-            emSdkEnv.setCommand({"bash", {"-c", ". " + scriptFile}});
+            emSdkEnv.setCommand({FilePath::fromString("bash").onDevice(sdkRoot),
+                                 {"-c", ". " + scriptFile}});
         }
-        emSdkEnv.start();
-        if (!emSdkEnv.waitForFinished())
-            return {};
-        emSdkEnvCache()->insert(cacheKey, new QByteArray(emSdkEnv.readAllStandardError()));
+        emSdkEnv.runBlocking();
+        const QString output = emSdkEnv.allOutput();
+        emSdkEnvCache()->insert(cacheKey, new QString(output));
     }
     return *emSdkEnvCache()->object(cacheKey);
 }
 
-static void parseEmSdkEnvOutputAndAddToEnv(const QByteArray &output, Environment &env)
+static void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Environment &env)
 {
-    const QStringList lines = QString::fromLocal8Bit(output).split('\n');
+    const QStringList lines = output.split('\n');
 
     for (const QString &line : lines) {
         const QStringList prependParts = line.trimmed().split(" += ");
@@ -104,18 +105,17 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
         return {};
     const QString cacheKey = sdkRoot.toString();
     if (!emSdkVersionCache()->contains(cacheKey)) {
-        Environment env = Environment::systemEnvironment();
+        Environment env;
         WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
-        const QString scriptFile =
-                QLatin1String("emcc") + QLatin1String(HostOsInfo::isWindowsHost() ? ".bat" : "");
-        const CommandLine command(env.searchInPath(scriptFile), {"-dumpversion"});
+        QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
+        FilePath script =
+                FilePath::fromString(scriptFile).onDevice(sdkRoot).searchOnDevice(env.path());
+        const CommandLine command(script, {"-dumpversion"});
         QtcProcess emcc;
         emcc.setCommand(command);
         emcc.setEnvironment(env);
-        emcc.start();
-        if (!emcc.waitForFinished())
-            return {};
-        const QString version = QLatin1String(emcc.readAllStandardOutput());
+        emcc.runBlocking();
+        const QString version = emcc.stdOut();
         emSdkVersionCache()->insert(cacheKey,
                                     new QVersionNumber(QVersionNumber::fromString(version)));
     }
@@ -148,7 +148,7 @@ void WebAssemblyEmSdk::clearCaches()
 void WebAssemblyPlugin::testEmSdkEnvParsing()
 {
     // Output of "emsdk_env"
-    const QByteArray emSdkEnvOutput = HostOsInfo::isWindowsHost() ?
+    const QString emSdkEnvOutput = QString::fromLatin1(HostOsInfo::isWindowsHost() ?
                 R"(
 Adding directories to PATH:
 PATH += C:\Users\user\dev\emsdk
@@ -177,7 +177,7 @@ EMSDK = /home/user/dev/emsdk
 EM_CONFIG = /home/user/dev/emsdk/.emscripten
 EM_CACHE = /home/user/dev/emsdk/upstream/emscripten/cache
 EMSDK_NODE = /home/user/dev/emsdk/node/12.18.1_64bit/bin/node
-               )";
+               )");
     Environment env;
     parseEmSdkEnvOutputAndAddToEnv(emSdkEnvOutput, env);
 
