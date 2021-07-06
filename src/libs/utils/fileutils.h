@@ -85,7 +85,7 @@ public:
     std::function<bool(const FilePath &)> removeRecursively;
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
-    std::function<FilePath(const FilePath &)> searchInPath;
+    std::function<FilePath(const FilePath &, const QList<FilePath> &)> searchInPath;
     std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<QList<FilePath>(const FilePath &, const QStringList &,
                                   QDir::Filters, QDir::SortFlags)> dirEntries;
@@ -216,7 +216,7 @@ public:
 
     static void setDeviceFileHooks(const DeviceFileHooks &hooks);
 
-    FilePath onDeviceSearchInPath() const;
+    FilePath onDeviceSearchInPath(const QList<FilePath> &additionalDirs = {}) const;
     Environment deviceEnvironment() const;
 
 private:

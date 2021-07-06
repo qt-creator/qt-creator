@@ -1045,23 +1045,33 @@ FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
     return {};
 }
 
-FilePath DockerDevice::searchInPath(const FilePath &filePath) const
+FilePath DockerDevice::searchInPath(const FilePath &filePath, const FilePaths &additionalDirs) const
 {
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+
     const QString path = filePath.path();
 
+    // FIXME: Check whether local search via deviceEnvironment/PATH is faster?
     CommandLine dcmd{"docker", {"exec", d->m_container, "which", path}};
     QtcProcess proc;
     proc.setCommand(dcmd);
-    proc.setWorkingDirectory(QDir::tempPath());
     proc.start();
     proc.waitForFinished();
 
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
-    if (proc.exitCode() != 0)
-        return {};
+    if (proc.exitCode() == 0) {
+        const QString output = proc.stdOut().trimmed();
+        return mapToGlobalPath(FilePath::fromString(output));
+    }
 
-    const QString output = proc.stdOut().trimmed();
-    return mapToGlobalPath(FilePath::fromString(output));
+    for (const FilePath &dir : additionalDirs) {
+        const FilePath candidate = dir / filePath.path();
+        if (candidate.exists())
+            return candidate;
+    }
+
+    return {};
 }
 
 FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
