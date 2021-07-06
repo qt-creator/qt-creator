@@ -203,9 +203,9 @@ QString CMakeConfigItem::expandedValue(const Utils::MacroExpander *expander) con
     return expander ? expander->expand(QString::fromUtf8(value)) : QString::fromUtf8(value);
 }
 
-std::function<bool (const CMakeConfigItem &a, const CMakeConfigItem &b)> CMakeConfigItem::sortOperator()
+bool CMakeConfigItem::less(const CMakeConfigItem &a, const CMakeConfigItem &b)
 {
-    return [](const CMakeConfigItem &a, const CMakeConfigItem &b) { return a.key < b.key; };
+    return a.key < b.key;
 }
 
 CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
@@ -393,7 +393,7 @@ QList<CMakeConfigItem> CMakeConfigItem::itemsFromFile(const Utils::FilePath &cac
         }
     }
 
-    Utils::sort(result, CMakeConfigItem::sortOperator());
+    Utils::sort(result, &CMakeConfigItem::less);
 
     return result;
 
