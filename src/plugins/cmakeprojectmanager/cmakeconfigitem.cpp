@@ -186,11 +186,11 @@ QString CMakeConfigItem::typeToTypeString(const CMakeConfigItem::Type t)
     return {};
 }
 
-Utils::optional<bool> CMakeConfigItem::toBool(const QByteArray &value)
+Utils::optional<bool> CMakeConfigItem::toBool(const QString &value)
 {
     // Taken from CMakes if(<constant>) documentation:
     // "Named boolean constants are case-insensitive."
-    const QString v = QString::fromUtf8(value).toUpper();
+    const QString v = value.toUpper();
 
     bool isInt = false;
     v.toInt(&isInt);

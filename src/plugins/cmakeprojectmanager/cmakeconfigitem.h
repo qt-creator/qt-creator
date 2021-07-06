@@ -58,7 +58,7 @@ public:
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);
     static Type typeStringToType(const QByteArray &typeString);
     static QString typeToTypeString(const Type t);
-    static Utils::optional<bool> toBool(const QByteArray &value);
+    static Utils::optional<bool> toBool(const QString &value);
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;
