@@ -437,8 +437,9 @@
     means that the overflow button in the system navigation bar will not be
     enabled by default.
 
-    \li In the \uicontrol Application group, set the application's name.
-        You can also give an activity a name and select the activity to run.
+    \li In the \uicontrol {Application name} field, set the application's name.
+
+    \li In the \uicontrol {Activity name} field, set an activity name.
 
     \li In the \uicontrol {Style extraction} field, set the method that Qt
         uses to \l{Styling}{determine which UI style to use}.
