@@ -30,6 +30,7 @@
 #include "remotelinux_constants.h"
 
 #include <utils/portlist.h>
+#include <utils/fileutils.h>
 
 using namespace ProjectExplorer;
 using namespace QSsh;

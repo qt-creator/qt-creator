@@ -57,6 +57,7 @@
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/treemodel.h>
+#include <utils/fileutils.h>
 
 #include <QApplication>
 #include <QCheckBox>

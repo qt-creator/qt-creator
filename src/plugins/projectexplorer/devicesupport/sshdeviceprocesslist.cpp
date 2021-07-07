@@ -29,6 +29,7 @@
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 using namespace QSsh;
 

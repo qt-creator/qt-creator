@@ -29,6 +29,8 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 
+#include <utils/fileutils.h>
+
 #include <QPushButton>
 
 namespace ProjectExplorer {

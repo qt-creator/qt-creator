@@ -30,6 +30,7 @@
 #include <app/app_version.h>
 
 #include <utils/winutils.h>
+#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QDir>

@@ -25,6 +25,8 @@
 
 #include "qnxdeviceprocesssignaloperation.h"
 
+#include <utils/fileutils.h>
+
 using namespace Qnx;
 using namespace Qnx::Internal;
 

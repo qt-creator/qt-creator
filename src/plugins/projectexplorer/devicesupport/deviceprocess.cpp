@@ -28,6 +28,7 @@
 #include "idevice.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 namespace ProjectExplorer {
 

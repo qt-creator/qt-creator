@@ -26,6 +26,7 @@
 #include "remotelinuxcheckforfreediskspaceservice.h"
 
 #include <ssh/sshremoteprocessrunner.h>
+#include <utils/fileutils.h>
 
 namespace RemoteLinux {
 namespace Internal {

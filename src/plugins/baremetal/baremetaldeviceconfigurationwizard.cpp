@@ -29,6 +29,8 @@
 #include "baremetaldeviceconfigurationwizard.h"
 #include "baremetaldeviceconfigurationwizardpages.h"
 
+#include <utils/fileutils.h>
+
 namespace BareMetal {
 namespace Internal {
 

@@ -28,6 +28,7 @@
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 using namespace RemoteLinux;
 using namespace ProjectExplorer;
