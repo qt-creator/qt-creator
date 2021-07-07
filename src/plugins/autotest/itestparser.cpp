@@ -37,6 +37,7 @@ namespace Autotest {
 
 using LookupInfo = QPair<QString, QString>;
 static QHash<LookupInfo, bool> s_pchLookupCache;
+Q_GLOBAL_STATIC(QMutex, s_cacheMutex);
 
 CppParser::CppParser(ITestFramework *framework)
     : ITestParser(framework)
@@ -96,6 +97,7 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
         }
         return it.value();
     };
+    QMutexLocker l(s_cacheMutex());
     return Utils::anyOf(precompiledHeaders, headerContains);
 }
 
@@ -127,6 +129,7 @@ void CppParser::release()
 {
     m_cppSnapshot = CPlusPlus::Snapshot();
     m_workingCopy = CppTools::WorkingCopy();
+    QMutexLocker l(s_cacheMutex());
     s_pchLookupCache.clear();
 }
 
