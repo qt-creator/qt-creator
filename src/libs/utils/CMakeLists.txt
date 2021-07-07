@@ -76,6 +76,9 @@ add_qtc_library(Utils
     itemviews.cpp itemviews.h
     json.cpp json.h
     jsontreeitem.cpp jsontreeitem.h
+    launcherinterface.cpp launcherinterface.h
+    launcherpackets.cpp launcherpackets.h
+    launchersocket.cpp launchersocket.h
     layoutbuilder.cpp layoutbuilder.h
     linecolumn.cpp linecolumn.h
     link.cpp link.h

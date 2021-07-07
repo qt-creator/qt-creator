@@ -142,6 +142,9 @@ SOURCES += \
     $$PWD/layoutbuilder.cpp \
     $$PWD/variablechooser.cpp \
     $$PWD/futuresynchronizer.cpp \
+    $$PWD/launcherinterface.cpp \
+    $$PWD/launcherpackets.cpp \
+    $$PWD/launchersocket.cpp \
     $$PWD/qtcsettings.cpp \
     $$PWD/link.cpp \
     $$PWD/linecolumn.cpp \
@@ -302,6 +305,9 @@ HEADERS += \
     $$PWD/variablechooser.h \
     $$PWD/set_algorithm.h \
     $$PWD/futuresynchronizer.h \
+    $$PWD/launcherinterface.h \
+    $$PWD/launcherpackets.h \
+    $$PWD/launchersocket.h \
     $$PWD/qtcsettings.h
 
 FORMS += $$PWD/filewizardpage.ui \

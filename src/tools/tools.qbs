@@ -7,6 +7,7 @@ Project {
         "buildoutputparser/buildoutputparser.qbs",
         "clangbackend/clangbackend.qbs",
         "cplusplustools.qbs",
+        "processlauncher/processlauncher.qbs",
         "qml2puppet/qml2puppet.qbs",
         "qtcdebugger/qtcdebugger.qbs",
         "qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",

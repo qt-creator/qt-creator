@@ -33,6 +33,7 @@ if (APPLE)
   add_subdirectory(iostool)
 endif()
 
+add_subdirectory(processlauncher)
 add_subdirectory(qml2puppet)
 add_subdirectory(qtcdebugger) ## windows only
 # add_subdirectory(qtcrashhandler)

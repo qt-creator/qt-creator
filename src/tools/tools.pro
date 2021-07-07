@@ -7,6 +7,7 @@ SUBDIRS = qtpromaker \
      valgrindfake \
      3rdparty \
      buildoutputparser \
+     processlauncher \
      qtc-askpass
 
 isEmpty(QTC_SKIP_SDKTOOL): SUBDIRS += sdktool
