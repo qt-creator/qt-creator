@@ -55,7 +55,7 @@ public:
 };
 
 
-inline uint qHash(SearchResultColor::Style style)
+inline auto qHash(SearchResultColor::Style style)
 {
     return QT_PREPEND_NAMESPACE(qHash(int(style)));
 }

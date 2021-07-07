@@ -75,7 +75,7 @@ enum class ResultType {
     LAST_TYPE = Invalid
 };
 
-inline uint qHash(const ResultType &result)
+inline auto qHash(const ResultType &result)
 {
     return QT_PREPEND_NAMESPACE(qHash(int(result)));
 }

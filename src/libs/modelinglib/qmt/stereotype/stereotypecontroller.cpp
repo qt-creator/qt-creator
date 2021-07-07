@@ -77,7 +77,7 @@ bool operator==(const IconKey &lhs, const IconKey &rhs) {
             && lhs.m_lineWidth == rhs.m_lineWidth;
 }
 
-uint qHash(const IconKey &key) {
+auto qHash(const IconKey &key) {
     return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
             + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
 }

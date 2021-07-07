@@ -92,7 +92,7 @@ struct ResponseHandler
 using ResponseHandlers = std::function<void(const MessageId &, const QByteArray &, QTextCodec *)>;
 using MethodHandler = std::function<void(const QString &, const MessageId &, const IContent *)>;
 
-inline uint qHash(const LanguageServerProtocol::MessageId &id)
+inline auto qHash(const LanguageServerProtocol::MessageId &id)
 {
     if (Utils::holds_alternative<int>(id))
         return QT_PREPEND_NAMESPACE(qHash(Utils::get<int>(id)));

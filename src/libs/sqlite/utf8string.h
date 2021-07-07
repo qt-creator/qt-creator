@@ -302,7 +302,7 @@ public:
         return datastream;
     }
 
-    friend uint qHash(const Utf8String &utf8String)
+    friend auto qHash(const Utf8String &utf8String)
     {
         return qHash(utf8String.byteArray);
     }

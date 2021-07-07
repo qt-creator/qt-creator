@@ -46,7 +46,7 @@ public:
     inline const QString &name() const { return m_name; }
     inline const QString &type() const { return m_type; }
     inline int iconType() const { return m_iconType; }
-    inline uint hash() const { return m_hash; }
+    inline auto hash() const { return m_hash; }
     inline bool operator==(const SymbolInformation &other) const
     {
         return hash() == other.hash() && iconType() == other.iconType() && name() == other.name()
@@ -64,7 +64,7 @@ private:
 };
 
 //! qHash overload for QHash/QSet
-inline uint qHash(const SymbolInformation &information)
+inline auto qHash(const SymbolInformation &information)
 {
     return information.hash();
 }

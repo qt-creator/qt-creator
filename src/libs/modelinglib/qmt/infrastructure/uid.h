@@ -55,7 +55,7 @@ private:
     QUuid m_uuid;
 };
 
-inline uint qHash(const Uid &uid)
+inline auto qHash(const Uid &uid)
 {
     return qHash(uid.get());
 }
