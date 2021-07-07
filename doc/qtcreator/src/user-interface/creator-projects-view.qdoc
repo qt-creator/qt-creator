@@ -133,6 +133,9 @@
             not enabled for the current target,
         \li \uicontrol {Hide Empty Directories} hides directories that do not
             contain any files.
+        \li \uicontrol {Show Source and Header Groups} shows source and header
+            files grouped together in the view, regardless of their location in
+            the file system.
     \endlist
 
     To stop synchronizing the position in the project tree with the file
