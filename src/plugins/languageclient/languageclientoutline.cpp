@@ -283,7 +283,7 @@ private:
     void updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result);
     void updateEntry();
     void activateEntry();
-    void requestSymbols();
+    void documentUpdated(TextEditor::TextDocument *document);
 
     LanguageClientOutlineModel m_model;
     QPointer<Client> m_client;
@@ -318,13 +318,12 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
 
     connect(client->documentSymbolCache(), &DocumentSymbolCache::gotSymbols,
             this, &OutlineComboBox::updateModel);
-    connect(editor->textDocument(), &TextEditor::TextDocument::contentsChanged,
-            this, &OutlineComboBox::requestSymbols);
+    connect(client, &Client::documentUpdated, this, &OutlineComboBox::documentUpdated);
     connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
             this, &OutlineComboBox::updateEntry);
     connect(this, QOverload<int>::of(&QComboBox::activated), this, &OutlineComboBox::activateEntry);
 
-    requestSymbols();
+    documentUpdated(editor->textDocument());
 }
 
 void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result)
@@ -365,9 +364,9 @@ void OutlineComboBox::activateEntry()
     }
 }
 
-void OutlineComboBox::requestSymbols()
+void OutlineComboBox::documentUpdated(TextEditor::TextDocument *document)
 {
-    if (m_client)
+    if (document == m_editorWidget->textDocument())
         m_client->documentSymbolCache()->requestSymbols(m_uri);
 }
 
