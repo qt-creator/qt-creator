@@ -1045,7 +1045,8 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
 {
     using Utils::operator<<;
     return out << "(\"" << propertyDeclaration.name << "\", \"" << propertyDeclaration.typeName
-               << "\", " << propertyDeclaration.traits << ", " << propertyDeclaration.typeId << ")";
+               << "\", " << propertyDeclaration.traits << ", " << propertyDeclaration.typeId
+               << ", \"" << propertyDeclaration.aliasPropertyName << "\")";
 }
 
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)

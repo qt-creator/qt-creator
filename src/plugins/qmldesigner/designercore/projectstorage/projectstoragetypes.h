@@ -344,6 +344,8 @@ public:
     FunctionDeclarationId id;
 };
 
+enum class PropertyKind { Property, Alias };
+
 class PropertyDeclaration
 {
 public:
@@ -354,19 +356,47 @@ public:
         : name{name}
         , typeName{std::move(typeName)}
         , traits{traits}
+        , kind{PropertyKind::Property}
     {}
 
-    explicit PropertyDeclaration(Utils::SmallStringView name, Utils::SmallStringView typeName, int traits)
+    explicit PropertyDeclaration(Utils::SmallStringView name,
+                                 TypeName typeName,
+                                 PropertyDeclarationTraits traits,
+                                 Utils::SmallStringView aliasPropertyName)
+        : name{name}
+        , typeName{std::move(typeName)}
+        , aliasPropertyName{aliasPropertyName}
+        , traits{traits}
+        , kind{PropertyKind::Property}
+    {}
+
+    explicit PropertyDeclaration(Utils::SmallStringView name,
+                                 Utils::SmallStringView typeName,
+                                 int traits,
+                                 Utils::SmallStringView aliasPropertyName)
         : name{name}
         , typeName{NativeType{typeName}}
+        , aliasPropertyName{aliasPropertyName}
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
+        , kind{PropertyKind::Property}
+    {}
+
+    explicit PropertyDeclaration(Utils::SmallStringView name,
+                                 TypeName aliasTypeName,
+                                 Utils::SmallStringView aliasPropertyName)
+        : name{name}
+        , typeName{std::move(aliasTypeName)}
+        , aliasPropertyName{aliasPropertyName}
+        , kind{PropertyKind::Alias}
     {}
 
 public:
     Utils::SmallString name;
     TypeName typeName;
+    Utils::SmallString aliasPropertyName;
     PropertyDeclarationTraits traits = {};
     TypeId typeId;
+    PropertyKind kind = PropertyKind::Property;
 };
 
 using PropertyDeclarations = std::vector<PropertyDeclaration>;
@@ -374,14 +404,18 @@ using PropertyDeclarations = std::vector<PropertyDeclaration>;
 class PropertyDeclarationView
 {
 public:
-    explicit PropertyDeclarationView(
-        Utils::SmallStringView name, int traits, long long typeId, long long typeNameId, long long id)
+    explicit PropertyDeclarationView(Utils::SmallStringView name,
+                                     int traits,
+                                     long long typeId,
+                                     long long typeNameId,
+                                     long long id,
+                                     long long aliasId)
         : name{name}
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
         , typeId{typeId}
         , typeNameId{typeNameId}
         , id{id}
-
+        , aliasId{aliasId}
     {}
 
 public:
@@ -389,39 +423,6 @@ public:
     PropertyDeclarationTraits traits = {};
     TypeId typeId;
     TypeNameId typeNameId;
-    PropertyDeclarationId id;
-};
-
-class AliasPropertyDeclaration
-{
-public:
-    explicit AliasPropertyDeclaration(Utils::SmallStringView name,
-                                      TypeName aliasTypeName,
-                                      Utils::SmallStringView aliasPropertyName)
-        : name{name}
-        , aliasTypeName{std::move(aliasTypeName)}
-        , aliasPropertyName{aliasPropertyName}
-    {}
-
-public:
-    Utils::SmallString name;
-    TypeName aliasTypeName;
-    Utils::SmallString aliasPropertyName;
-};
-
-using AliasDeclarations = std::vector<AliasPropertyDeclaration>;
-
-class AliasPropertyDeclarationView
-{
-public:
-    explicit AliasPropertyDeclarationView(Utils::SmallStringView name, long long id, long long aliasId)
-        : name{name}
-        , id{id}
-        , aliasId{aliasId}
-    {}
-
-public:
-    Utils::SmallStringView name;
     PropertyDeclarationId id;
     PropertyDeclarationId aliasId;
 };
@@ -435,13 +436,11 @@ public:
                   TypeName prototype,
                   TypeAccessSemantics accessSemantics,
                   SourceId sourceId,
-                  ImportIds importIds = {},
                   ExportedTypes exportedTypes = {},
                   PropertyDeclarations propertyDeclarations = {},
                   FunctionDeclarations functionDeclarations = {},
                   SignalDeclarations signalDeclarations = {},
                   EnumerationDeclarations enumerationDeclarations = {},
-                  AliasDeclarations aliasDeclarations = {},
                   TypeId typeId = TypeId{})
         : typeName{typeName}
         , prototype{std::move(prototype)}
@@ -450,7 +449,6 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
-        , aliasDeclarations{std::move(aliasDeclarations)}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
@@ -493,7 +491,6 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
-    AliasDeclarations aliasDeclarations;
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;
