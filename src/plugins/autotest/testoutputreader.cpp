@@ -39,11 +39,10 @@
 namespace Autotest {
 
 Utils::FilePath TestOutputReader::constructSourceFilePath(const Utils::FilePath &path,
-                                                          const QString &filePath)
+                                                          const QString &file)
 {
-    if (!filePath.isEmpty() && filePath.at(0) != '.')
-        return Utils::FilePath::fromFileInfo(QFileInfo(filePath));
-    return (path / filePath).canonicalPath();
+    const Utils::FilePath filePath = path.resolvePath(file);
+    return filePath.exists() ? filePath : Utils::FilePath();
 }
 
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
@@ -177,9 +176,8 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
         if (m_sanitizerOutputMode == SanitizerOutputMode::Ubsan) {
             const Utils::FilePath path = constructSourceFilePath(m_buildDir, match.captured(1));
             // path may be empty if not existing - so, provide at least what we have
-            m_sanitizerResult->setFileName(path.isEmpty()
-                                           ? Utils::FilePath::fromString(match.captured(1))
-                                           : path);
+            m_sanitizerResult->setFileName(
+                path.exists() ? path : Utils::FilePath::fromString(match.captured(1)));
             m_sanitizerResult->setLine(match.captured(2).toInt());
         }
     }

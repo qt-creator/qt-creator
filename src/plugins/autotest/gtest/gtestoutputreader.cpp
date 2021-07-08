@@ -179,7 +179,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult->setResult(type);
         testResult->setLine(match.captured(3).toInt());
         const Utils::FilePath file = constructSourceFilePath(m_buildDir, match.captured(2));
-        if (!file.isEmpty())
+        if (file.exists())
             testResult->setFileName(file);
         testResult->setDescription(match.captured(4));
         reportResult(testResult);
@@ -247,7 +247,7 @@ void GTestOutputReader::handleDescriptionAndReportResult(TestResultPtr testResul
         testResult->setResult(ResultType::MessageLocation);
         testResult->setLine(innerMatch.captured(2).toInt());
         const Utils::FilePath file = constructSourceFilePath(m_buildDir, innerMatch.captured(1));
-        if (!file.isEmpty())
+        if (file.exists())
             testResult->setFileName(file);
         resultDescription << output;
     }
