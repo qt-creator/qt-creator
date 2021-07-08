@@ -210,8 +210,10 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    std::enable_if_t<!std::is_function_v<ResultType>, ResultType> value(const QueryTypes &...queryValues)
+    auto value(const QueryTypes &...queryValues)
     {
+        static_assert(!std::is_fundamental_v<ResultType>,
+                      "Use optionalValue(...) instead of value(...) for fundamental types!");
         Resetter resetter{this};
         ResultType resultValue{};
 
