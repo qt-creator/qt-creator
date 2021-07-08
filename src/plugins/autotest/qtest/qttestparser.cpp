@@ -410,8 +410,7 @@ QtTestParseResult *QtTestParser::createParseResult(
             dataTag->itemType = tag.m_type;
             dataTag->name = tag.m_name;
             dataTag->displayName = tag.m_name;
-            dataTag->fileName = Utils::FilePath::fromString(
-                        data.testFunctions.value(it.key() + "_data").m_name);
+            dataTag->fileName = data.testFunctions.value(it.key() + "_data").m_filePath;
             dataTag->line = tag.m_line;
             dataTag->column = tag.m_column;
             dataTag->setInherited(tag.m_inherited);
