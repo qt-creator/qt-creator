@@ -198,7 +198,7 @@ private:
 
     QString m_qmakeSysroot;
 
-    QFutureInterface<void> m_asyncUpdateFutureInterface;
+    std::unique_ptr<QFutureInterface<void>> m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount = 0;
     AsyncUpdateState m_asyncUpdateState = Base;
     bool m_cancelEvaluate = false;

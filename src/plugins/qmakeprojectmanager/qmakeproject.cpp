@@ -284,8 +284,11 @@ QmakeBuildSystem::~QmakeBuildSystem()
     delete m_qmakeVfs;
     m_qmakeVfs = nullptr;
 
-    m_asyncUpdateFutureInterface.reportCanceled();
-    m_asyncUpdateFutureInterface.reportFinished();
+    if (m_asyncUpdateFutureInterface) {
+        m_asyncUpdateFutureInterface->reportCanceled();
+        m_asyncUpdateFutureInterface->reportFinished();
+        m_asyncUpdateFutureInterface.reset();
+    }
 }
 
 void QmakeBuildSystem::updateCodeModels()
@@ -592,8 +595,9 @@ void QmakeBuildSystem::incrementPendingEvaluateFutures()
     }
     ++m_pendingEvaluateFuturesCount;
     TRACE("pending inc to: " << m_pendingEvaluateFuturesCount);
-    m_asyncUpdateFutureInterface.setProgressRange(m_asyncUpdateFutureInterface.progressMinimum(),
-                                                  m_asyncUpdateFutureInterface.progressMaximum() + 1);
+    m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
+                                                   m_asyncUpdateFutureInterface->progressMaximum()
+                                                       + 1);
 }
 
 void QmakeBuildSystem::decrementPendingEvaluateFutures()
@@ -606,15 +610,17 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
         return; // We are closing the project!
     }
 
-    m_asyncUpdateFutureInterface.setProgressValue(m_asyncUpdateFutureInterface.progressValue() + 1);
+    m_asyncUpdateFutureInterface->setProgressValue(m_asyncUpdateFutureInterface->progressValue()
+                                                   + 1);
     if (m_pendingEvaluateFuturesCount == 0) {
         // We are done!
         setRootProjectNode(QmakeNodeTreeBuilder::buildTree(this));
 
         if (!m_rootProFile->validParse())
-            m_asyncUpdateFutureInterface.reportCanceled();
+            m_asyncUpdateFutureInterface->reportCanceled();
 
-        m_asyncUpdateFutureInterface.reportFinished();
+        m_asyncUpdateFutureInterface->reportFinished();
+        m_asyncUpdateFutureInterface.reset();
         m_cancelEvaluate = false;
 
         // TODO clear the profile cache ?
@@ -660,12 +666,13 @@ void QmakeBuildSystem::asyncUpdate()
         m_qmakeVfs->invalidateCache();
     }
 
-    m_asyncUpdateFutureInterface.setProgressRange(0, 0);
-    Core::ProgressManager::addTask(m_asyncUpdateFutureInterface.future(),
+    m_asyncUpdateFutureInterface.reset(new QFutureInterface<void>);
+    m_asyncUpdateFutureInterface->setProgressRange(0, 0);
+    Core::ProgressManager::addTask(m_asyncUpdateFutureInterface->future(),
                                    tr("Reading Project \"%1\"").arg(project()->displayName()),
                                    Constants::PROFILE_EVALUATE);
 
-    m_asyncUpdateFutureInterface.reportStarted();
+    m_asyncUpdateFutureInterface->reportStarted();
     const auto watcher = new QFutureWatcher<void>(this);
     connect(watcher, &QFutureWatcher<void>::canceled, this, [this, watcher] {
         if (!m_qmakeGlobals)
@@ -677,7 +684,7 @@ void QmakeBuildSystem::asyncUpdate()
         watcher->disconnect();
         watcher->deleteLater();
     });
-    watcher->setFuture(m_asyncUpdateFutureInterface.future());
+    watcher->setFuture(m_asyncUpdateFutureInterface->future());
 
     const Kit *const k = kit();
     QtSupport::BaseQtVersion *const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
@@ -688,8 +695,9 @@ void QmakeBuildSystem::asyncUpdate()
                       .arg(project()->displayName(), k->displayName())
                 : tr("Cannot parse project \"%1\": No kit selected.").arg(project()->displayName());
         proFileParseError(errorMessage, project()->projectFilePath());
-        m_asyncUpdateFutureInterface.reportCanceled();
-        m_asyncUpdateFutureInterface.reportFinished();
+        m_asyncUpdateFutureInterface->reportCanceled();
+        m_asyncUpdateFutureInterface->reportFinished();
+        m_asyncUpdateFutureInterface.reset();
         return;
     }
 
