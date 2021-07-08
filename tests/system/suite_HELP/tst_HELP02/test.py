@@ -66,6 +66,11 @@ def checkQtCreatorHelpVersion(expectedVersion):
         test.log("Exception caught", "%s(%s)" % (str(t), str(v)))
         test.fail("Missing Qt Creator Manual.")
 
+
+def _shortcutMatches_(shortcutEdit, expectedText):
+    return str(findObject(shortcutEdit).text) == expectedText
+
+
 def setKeyboardShortcutForAboutQtC():
     invokeMenuItem("Tools", "Options...")
     mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
@@ -85,20 +90,19 @@ def setKeyboardShortcutForAboutQtC():
                            "visible='1' text~='(Stop Recording|Record)'}" % shortcutGB)
     shortcut = ("{container=%s type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                 "placeholderText='Enter key sequence as text'}" % shortcutGB)
+    expected = 'Ctrl+Opt+A' if platform.system() == 'Darwin' else 'Ctrl+Alt+A'
     clickButton(record)
     nativeType("<Ctrl+Alt+a>")
+    waitFor("_shortcutMatches_(shortcut, expected)", 5000)
     clickButton(record)
-    expected = 'Ctrl+Alt+A'
-    if platform.system() == 'Darwin':
-        expected = 'Ctrl+Opt+A'
 
-    shortcutMatches = waitFor("str(findObject(shortcut).text) == expected", 5000)
-    if not shortcutMatches and platform.system() == 'Darwin':
+    gotExpectedShortcut = _shortcutMatches_(shortcut, expected)
+    if not gotExpectedShortcut and platform.system() == 'Darwin':
         test.warning("Squish Issue: shortcut was set to %s - entering it manually now"
                      % waitForObject(shortcut).text)
         replaceEditorContent(shortcut, expected)
     else:
-        test.verify(shortcutMatches, "Expected key sequence is displayed.")
+        test.verify(gotExpectedShortcut, "Expected key sequence is displayed.")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def main():
