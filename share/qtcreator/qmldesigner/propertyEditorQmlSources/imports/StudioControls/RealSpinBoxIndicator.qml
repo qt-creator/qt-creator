@@ -258,7 +258,7 @@ Rectangle {
             }
             PropertyChanges {
                 target: spinBoxIndicator
-                color: StudioTheme.Values.themeControlBackground
+                color: StudioTheme.Values.themeControlBackgroundDisabled
             }
         },
         State {

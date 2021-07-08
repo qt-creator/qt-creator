@@ -32,7 +32,6 @@ StudioControls.ButtonRow {
     id: buttonRow
 
     enabled: anchorBackend.hasParent && isBaseState
-    opacity: enabled ? 1 : 0.5
     actionIndicatorVisible: false
 
     StudioControls.ButtonGroup { id: group }
