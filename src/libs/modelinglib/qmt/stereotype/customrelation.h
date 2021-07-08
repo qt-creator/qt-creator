@@ -151,15 +151,15 @@ private:
     QColor m_color;
 };
 
-inline uint qHash(CustomRelation::Relationship relationship) {
+inline auto qHash(CustomRelation::Relationship relationship) {
     return ::qHash(static_cast<int>(relationship));
 }
 
-inline uint qHash(CustomRelation::ShaftPattern pattern) {
+inline auto qHash(CustomRelation::ShaftPattern pattern) {
     return ::qHash(static_cast<int>(pattern));
 }
 
-inline uint qHash(CustomRelation::Head head) {
+inline auto qHash(CustomRelation::Head head) {
     return ::qHash(static_cast<int>(head));
 }
 

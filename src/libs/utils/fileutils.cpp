@@ -1378,14 +1378,24 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
         assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
     \endcode
 */
-FilePath FilePath::onDeviceSearchInPath() const
+FilePath FilePath::onDeviceSearchInPath(const FilePaths &additionalDirs) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.searchInPath, return {});
-        return s_deviceHooks.searchInPath(*this);
+        return s_deviceHooks.searchInPath(*this, additionalDirs);
     }
-    return Environment::systemEnvironment().searchInPath(path());
+    return Environment::systemEnvironment().searchInPath(path(), additionalDirs);
 }
+
+Environment FilePath::deviceEnvironment() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.environment, return {});
+        return s_deviceHooks.environment(*this);
+    }
+    return Environment::systemEnvironment();
+}
+
 
 FilePath FilePath::pathAppended(const QString &path) const
 {

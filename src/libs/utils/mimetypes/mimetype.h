@@ -120,7 +120,7 @@ protected:
     QExplicitlySharedDataPointer<Internal::MimeTypePrivate> d;
 };
 
-inline uint qHash(const MimeType &mime) { return qHash(mime.name()); }
+inline auto qHash(const MimeType &mime) { return qHash(mime.name()); }
 
 } // Utils
 

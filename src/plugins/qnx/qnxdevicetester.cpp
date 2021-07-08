@@ -28,6 +28,7 @@
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 namespace Qnx {
 namespace Internal {

@@ -311,7 +311,7 @@ bool IDevice::renameFile(const FilePath &filePath, const FilePath &target) const
     return false;
 }
 
-FilePath IDevice::searchInPath(const FilePath &filePath) const
+FilePath IDevice::searchInPath(const FilePath &filePath, const FilePaths &additionalDirs) const
 {
     return Environment::systemEnvironment().searchInPath(filePath.path());
 }

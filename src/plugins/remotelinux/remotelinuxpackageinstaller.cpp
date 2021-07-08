@@ -26,6 +26,7 @@
 #include "remotelinuxpackageinstaller.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 #include <ssh/sshremoteprocessrunner.h>
 
 using namespace ProjectExplorer;

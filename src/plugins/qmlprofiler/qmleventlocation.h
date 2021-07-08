@@ -76,7 +76,7 @@ inline bool operator!=(const QmlEventLocation &location1, const QmlEventLocation
     return !(location1 == location2);
 }
 
-inline uint qHash(const QmlEventLocation &location)
+inline auto qHash(const QmlEventLocation &location)
 {
     return qHash(location.filename())
             ^ ((location.line() & 0xfff)                   // 12 bits of line number

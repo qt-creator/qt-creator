@@ -28,6 +28,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
+#include <utils/fileutils.h>
 
 using namespace Utils;
 

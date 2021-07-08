@@ -85,7 +85,7 @@ private:
 };
 
 inline
-uint qHash(const Macro &macro)
+auto qHash(const Macro &macro)
 {
     using QT_PREPEND_NAMESPACE(qHash);
     return qHash(macro.key) ^ qHash(macro.value) ^ qHash(int(macro.type));

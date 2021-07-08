@@ -68,8 +68,8 @@ static void addToPropertyNameListIfNotBlackListed(
 }
 
 PropertyNameList allPropertyNamesInline(QObject *object,
-                                        const PropertyName &baseName,
-                                        QObjectList *inspectedObjects,
+                                        const PropertyName &baseName = {},
+                                        QObjectList *inspectedObjects = nullptr,
                                         int depth = 0)
 {
     QQuickDesignerSupport::PropertyNameList propertyNameList;
@@ -136,24 +136,20 @@ PropertyNameList allPropertyNamesInline(QObject *object,
 }
 #endif
 
-PropertyNameList allPropertyNames(QObject *object,
-                                  const PropertyName &baseName,
-                                  QObjectList *inspectedObjects)
+PropertyNameList allPropertyNames(QObject *object)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    return QQuickDesignerSupportProperties::allPropertyNames(object, baseName, inspectedObjects);
+    return QQuickDesignerSupportProperties::allPropertyNames(object);
 #elif QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    return allPropertyNamesInline(object, baseName, inspectedObjects);
+    return allPropertyNamesInline(object);
 #else
-    return QQuickDesignerSupportProperties::allPropertyNames(object, baseName, inspectedObjects);
+    return QQuickDesignerSupportProperties::allPropertyNames(object);
 #endif
 }
 
-PropertyNameList propertyNameListForWritableProperties(QObject *object,
-                                                       const PropertyName &baseName,
-                                                       QObjectList *inspectedObjects)
+PropertyNameList propertyNameListForWritableProperties(QObject *object)
 {
-    return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object, baseName, inspectedObjects);
+    return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object);
 }
 
 void tweakObjects(QObject *object)

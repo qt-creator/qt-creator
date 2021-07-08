@@ -193,7 +193,7 @@ private:
     QString m_param;
 };
 
-inline int qHash(const ProjectExplorer::Abi &abi)
+inline auto qHash(const ProjectExplorer::Abi &abi)
 {
     int h = abi.architecture()
             + (abi.os() << 3)

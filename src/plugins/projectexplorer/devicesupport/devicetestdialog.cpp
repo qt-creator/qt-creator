@@ -26,6 +26,8 @@
 #include "devicetestdialog.h"
 #include "ui_devicetestdialog.h"
 
+#include <utils/fileutils.h>
+
 #include <QBrush>
 #include <QColor>
 #include <QFont>

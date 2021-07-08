@@ -26,6 +26,7 @@
 #include "qnxdeviceprocesslist.h"
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 
 #include <QRegularExpression>
 #include <QStringList>

@@ -59,7 +59,7 @@ public:
     HeaderPathType type = HeaderPathType::User;
 };
 
-inline uint qHash(const HeaderPath &key, uint seed = 0)
+inline auto qHash(const HeaderPath &key, uint seed = 0)
 {
     return ((qHash(key.path) << 2) | uint(key.type)) ^ seed;
 }

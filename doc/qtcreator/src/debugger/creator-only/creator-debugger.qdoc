@@ -1540,8 +1540,16 @@
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
-    The part of the slowness that is related to the loading of debug information
-    is hard to avoid. Another part stems from maintaining breakpoints inside
+    Slowness that is related to the loading of debug information is hard to
+    avoid.
+
+    When using GDB as backend, you can automatically save a copy of
+    its symbol index in a cache on disk and retrieve it from there
+    when loading the same binary in the future. Select \uicontrol Tools
+    > \uicontrol Options > \uicontrol Debugger > \uicontrol GDB >
+    \uicontrol {Use automatic symbol cache}.
+
+    Some slowness stems from maintaining breakpoints inside
     the debugger (under some circumstances all breakpoints need to be inserted
     and removed again for each step) and the evaluation of expressions after
     each step. We recommend that you minimize the number of breakpoints and

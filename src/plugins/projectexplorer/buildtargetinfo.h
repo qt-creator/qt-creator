@@ -70,7 +70,7 @@ inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
     return !(ti1 == ti2);
 }
 
-inline uint qHash(const BuildTargetInfo &ti)
+inline auto qHash(const BuildTargetInfo &ti)
 {
     return qHash(ti.displayName) ^ qHash(ti.buildKey);
 }

@@ -28,6 +28,7 @@
 #include "devicemanager.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QString>
 

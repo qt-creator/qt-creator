@@ -155,7 +155,7 @@ namespace std {
 template<> struct hash<Utils::SmallString>
 {
     using argument_type = Utils::SmallString;
-    using result_type = uint;
+    using result_type = std::size_t;
     result_type operator()(const argument_type& string) const
     {
         return qHashBits(string.data(), string.size());

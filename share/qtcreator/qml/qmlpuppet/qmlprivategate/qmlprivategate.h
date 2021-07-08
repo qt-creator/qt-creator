@@ -71,9 +71,7 @@ public:
     PropertyNameList propertyNameListForWritableProperties(QObject *object,
                                                            const PropertyName &baseName = PropertyName(),
                                                            QObjectList *inspectedObjects = nullptr);
-    PropertyNameList allPropertyNames(QObject *object,
-                                      const PropertyName &baseName = PropertyName(),
-                                      QObjectList *inspectedObjects = nullptr);
+    PropertyNameList allPropertyNames(QObject *object);
     bool hasFullImplementedListInterface(const QQmlListReference &list);
 
     void registerCustomData(QObject *object);

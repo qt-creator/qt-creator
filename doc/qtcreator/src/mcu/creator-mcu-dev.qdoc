@@ -171,6 +171,9 @@
     the kit's toolkits and SDKs, and keeps them synchronized when selecting
     \uicontrol Apply or \uicontrol OK.
 
+    The \uicontrol {MCU dependencies} field displays paths to 3rd party
+    software required for MCU development with the current kit.
+
     \section1 Running Applications on MCUs
 
     You can use a wizard to set up a project for developing an application that

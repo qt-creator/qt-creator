@@ -1823,7 +1823,7 @@ bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &c
 {
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"branch", "-r", "--contains", commit}, silentFlags);
-    return proc.rawStdOut().isEmpty();
+    return !proc.rawStdOut().isEmpty();
 }
 
 bool GitClient::isFastForwardMerge(const QString &workingDirectory, const QString &branch)

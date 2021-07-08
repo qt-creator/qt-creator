@@ -40,7 +40,10 @@
 #include <functional>
 #include <memory>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class Environment;
+class FilePath;
+} // Utils
 
 QT_BEGIN_NAMESPACE
 class QDataStream;
@@ -82,7 +85,7 @@ public:
     std::function<bool(const FilePath &)> removeRecursively;
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
-    std::function<FilePath(const FilePath &)> searchInPath;
+    std::function<FilePath(const FilePath &, const QList<FilePath> &)> searchInPath;
     std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<QList<FilePath>(const FilePath &, const QStringList &,
                                   QDir::Filters, QDir::SortFlags)> dirEntries;
@@ -91,6 +94,7 @@ public:
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;
     std::function<OsType(const FilePath &)> osType;
+    std::function<Environment(const FilePath &)> environment;
 };
 
 class QTCREATOR_UTILS_EXPORT FilePath
@@ -212,7 +216,8 @@ public:
 
     static void setDeviceFileHooks(const DeviceFileHooks &hooks);
 
-    FilePath onDeviceSearchInPath() const;
+    FilePath onDeviceSearchInPath(const QList<FilePath> &additionalDirs = {}) const;
+    Environment deviceEnvironment() const;
 
 private:
     friend class ::tst_fileutils;

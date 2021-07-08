@@ -30,6 +30,7 @@
 #include "debugserverproviderchooser.h"
 
 #include <utils/variablechooser.h>
+#include <utils/fileutils.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QFormLayout>

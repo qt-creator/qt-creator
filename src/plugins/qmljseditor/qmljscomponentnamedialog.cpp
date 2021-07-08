@@ -163,13 +163,13 @@ QString ComponentNameDialog::isValid() const
 
     QString compName = ui->componentNameEdit->text();
     if (compName.isEmpty() || !compName[0].isUpper())
-        return tr("Invalid component name");
+        return tr("Invalid component name.");
 
     if (!ui->pathEdit->isValid())
-        return tr("Invalid path");
+        return tr("Invalid path.");
 
     if (QDir(ui->pathEdit->path()).exists(compName + u".qml"))
-        return tr("Component already exists");
+        return tr("Component already exists.");
 
     return QString();
 }
