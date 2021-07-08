@@ -839,13 +839,15 @@ void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString 
     item.setUri(DocumentUri::fromFilePath(filePath));
     item.setText(!content.isEmpty() ? content : QString::fromUtf8(cxxFile.readAll()));
     item.setVersion(0);
-    sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
+    sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
+                SendDocUpdates::Ignore);
 }
 
 void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 {
     sendContent(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
-            TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})));
+            TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})),
+                SendDocUpdates::Ignore);
 }
 
 void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
@@ -1036,7 +1038,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
         });
         qCDebug(clangdLog) << "requesting AST for" << it.key().toFilePath();
         refData->pendingAstRequests << request.id();
-        q->sendContent(request);
+        q->sendContent(request, SendDocUpdates::Ignore);
 
         if (extraOpen)
             q->closeExtraFile(it.key().toFilePath());
@@ -1194,7 +1196,7 @@ void ClangdClient::followSymbol(
         if (d->followSymbolData->defLink.hasValidTarget())
             d->handleGotoDefinitionResult();
     });
-    sendContent(astRequest);
+    sendContent(astRequest, SendDocUpdates::Ignore);
 }
 
 void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QTextCursor &cursor,
@@ -1228,7 +1230,7 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
             d->handleDeclDefSwitchReplies();
 
     });
-    sendContent(astRequest);
+    sendContent(astRequest, SendDocUpdates::Ignore);
     documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri);
 
 }
@@ -1315,8 +1317,7 @@ void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTe
             d->localRefsData.reset();
         });
         qCDebug(clangdLog) << "sending ast request for link";
-        sendContent(astRequest);
-
+        sendContent(astRequest, SendDocUpdates::Ignore);
     };
     symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
 }
@@ -1401,7 +1402,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 // with mainOverload = true, such information would get ignored anyway.
                 d->setHelpItemForTooltip(id, fqn, HelpItem::Function, isFunction ? type : "()");
             });
-            sendContent(symReq);
+            sendContent(symReq, SendDocUpdates::Ignore);
             return;
         }
         if ((node.role() == "expression" && node.kind() == "DeclRef")
@@ -1466,7 +1467,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
         d->setHelpItemForTooltip(id);
     });
-    sendContent(req);
+    sendContent(req, SendDocUpdates::Ignore);
 }
 
 void ClangdClient::Private::handleGotoDefinitionResult()
@@ -1507,7 +1508,7 @@ void ClangdClient::Private::sendGotoImplementationRequest(const Utils::Link &lin
         followSymbolData->pendingGotoImplRequests.removeOne(reqId);
         handleGotoImplementationResult(response);
     });
-    q->sendContent(req);
+    q->sendContent(req, SendDocUpdates::Ignore);
     followSymbolData->pendingGotoImplRequests << req.id();
     qCDebug(clangdLog) << "sending go to implementation request" << link.targetLine;
 }
@@ -1594,7 +1595,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
         });
         followSymbolData->pendingSymbolInfoRequests << symReq.id();
         qCDebug(clangdLog) << "sending symbol info request";
-        q->sendContent(symReq);
+        q->sendContent(symReq, SendDocUpdates::Ignore);
 
         if (link == followSymbolData->defLink)
             continue;
@@ -1628,7 +1629,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
         followSymbolData->pendingGotoDefRequests << defReq.id();
         qCDebug(clangdLog) << "sending additional go to definition request"
                            << link.targetFilePath << link.targetLine;
-        q->sendContent(defReq);
+        q->sendContent(defReq, SendDocUpdates::Ignore);
     }
 
     const DocumentUri defLinkUri
@@ -1651,7 +1652,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
         }
     });
     qCDebug(clangdLog) << "sending ast request for def link";
-    q->sendContent(astRequest);
+    q->sendContent(astRequest, SendDocUpdates::Ignore);
 }
 
 void ClangdClient::Private::handleDocumentInfoResults()
@@ -2385,7 +2386,7 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         it->second.setHighlightingRunner(runner);
         it->second.run();
     });
-    q->sendContent(astReq);
+    q->sendContent(astReq, SendDocUpdates::Ignore);
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()
