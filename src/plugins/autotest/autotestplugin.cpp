@@ -99,8 +99,8 @@ public:
     QMap<QString, ChoicePair> m_runconfigCache;
 
     void initializeMenuEntries();
-    void onRunAllTriggered();
-    void onRunSelectedTriggered();
+    void onRunAllTriggered(TestRunMode mode);
+    void onRunSelectedTriggered(TestRunMode mode);
     void onRunFailedTriggered();
     void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
@@ -214,7 +214,19 @@ void AutotestPluginPrivate::initializeMenuEntries()
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+A") : tr("Alt+Shift+T,Alt+A")));
-    connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onRunAllTriggered);
+    connect(action, &QAction::triggered,
+            std::bind(&AutotestPluginPrivate::onRunAllTriggered, this, TestRunMode::Run));
+    action->setEnabled(false);
+    menu->addAction(command);
+
+    action = new QAction(tr("Run All Tests Without Deployment"), this);
+    action->setIcon(Utils::Icons::RUN_SMALL.icon());
+    action->setToolTip(tr("Run All Tests Without Deployment"));
+    command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_NODEPLOY_ID);
+    command->setDefaultKeySequence(
+                QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+E") : tr("Alt+Shift+T,Alt+E")));
+    connect(action, &QAction::triggered,
+            std::bind(&AutotestPluginPrivate::onRunAllTriggered, this, TestRunMode::RunWithoutDeploy));
     action->setEnabled(false);
     menu->addAction(command);
 
@@ -224,7 +236,19 @@ void AutotestPluginPrivate::initializeMenuEntries()
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+R") : tr("Alt+Shift+T,Alt+R")));
-    connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onRunSelectedTriggered);
+    connect(action, &QAction::triggered,
+            std::bind(&AutotestPluginPrivate::onRunSelectedTriggered, this, TestRunMode::Run));
+    action->setEnabled(false);
+    menu->addAction(command);
+
+    action = new QAction(tr("&Run Selected Tests Without Deployment"), this);
+    action->setIcon(Utils::Icons::RUN_SELECTED.icon());
+    action->setToolTip(tr("Run Selected Tests"));
+    command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID);
+    command->setDefaultKeySequence(
+        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+W") : tr("Alt+Shift+T,Alt+W")));
+    connect(action, &QAction::triggered,
+            std::bind(&AutotestPluginPrivate::onRunSelectedTriggered, this, TestRunMode::RunWithoutDeploy));
     action->setEnabled(false);
     menu->addAction(command);
 
@@ -300,6 +324,15 @@ void AutotestPlugin::extensionsInitialized()
     contextMenu->addSeparator();
     contextMenu->addAction(command);
 
+    action = new QAction(tr("Run Test Under Cursor Without Deployment"), this);
+    action->setEnabled(false);
+    action->setIcon(Utils::Icons::RUN_SMALL.icon());
+
+    command = ActionManager::registerAction(action, Constants::ACTION_RUN_UCURSOR_NODEPLOY);
+    connect(action, &QAction::triggered,
+            std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::RunWithoutDeploy));
+    contextMenu->addAction(command);
+
     action = new QAction(tr("&Debug Test Under Cursor"), this);
     action->setEnabled(false);
     action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
@@ -307,6 +340,15 @@ void AutotestPlugin::extensionsInitialized()
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_DBG_UCURSOR);
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::Debug));
+    contextMenu->addAction(command);
+
+    action = new QAction(tr("Debug Test Under Cursor Without Deployment"), this);
+    action->setEnabled(false);
+    action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
+
+    command = ActionManager::registerAction(action, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY);
+    connect(action, &QAction::triggered,
+            std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::DebugWithoutDeploy));
     contextMenu->addAction(command);
     contextMenu->addSeparator();
 }
@@ -318,16 +360,16 @@ ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void AutotestPluginPrivate::onRunAllTriggered()
+void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
 {
     m_testRunner.setSelectedTests(m_testTreeModel.getAllTestCases());
-    m_testRunner.prepareToRunTests(TestRunMode::Run);
+    m_testRunner.prepareToRunTests(mode);
 }
 
-void AutotestPluginPrivate::onRunSelectedTriggered()
+void AutotestPluginPrivate::onRunSelectedTriggered(TestRunMode mode)
 {
     m_testRunner.setSelectedTests(m_testTreeModel.getSelectedTests());
-    m_testRunner.prepareToRunTests(TestRunMode::Run);
+    m_testRunner.prepareToRunTests(mode);
 }
 
 void AutotestPluginPrivate::onRunFailedTriggered()
@@ -416,6 +458,8 @@ void AutotestPlugin::updateMenuItemsEnabledState()
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_ALL_NODEPLOY_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action()->setEnabled(canRunFailed);
     ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_SCAN_ID)->action()->setEnabled(canScan);
@@ -425,7 +469,9 @@ void AutotestPlugin::updateMenuItemsEnabledState()
         return; // When no context menu, actions do not exists
 
     ActionManager::command(Constants::ACTION_RUN_UCURSOR)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_UCURSOR_NODEPLOY)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_DBG_UCURSOR)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY)->action()->setEnabled(canRun);
 }
 
 void AutotestPlugin::cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice)

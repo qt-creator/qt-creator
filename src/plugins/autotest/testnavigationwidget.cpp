@@ -176,6 +176,8 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QAction *runAll = Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action();
     QAction *runSelected = Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action();
+    QAction *runAllNoDeploy = Core::ActionManager::command(Constants::ACTION_RUN_ALL_NODEPLOY_ID)->action();
+    QAction *runSelectedNoDeploy = Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action();
     QAction *selectAll = new QAction(tr("Select All"), &menu);
     QAction *deselectAll = new QAction(tr("Deselect All"), &menu);
     // TODO remove?
@@ -196,7 +198,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         menu.addSeparator();
 
     menu.addAction(runAll);
+    menu.addAction(runAllNoDeploy);
     menu.addAction(runSelected);
+    menu.addAction(runSelectedNoDeploy);
     menu.addSeparator();
     menu.addAction(selectAll);
     menu.addAction(deselectAll);

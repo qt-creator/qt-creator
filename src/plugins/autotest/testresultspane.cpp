@@ -648,6 +648,13 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     });
     menu.addAction(action);
 
+    action = new QAction(tr("Run This Test Without Deployment"), &menu);
+    action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
+    connect(action, &QAction::triggered, this, [this, clicked] {
+        onRunThisTestTriggered(TestRunMode::RunWithoutDeploy, clicked);
+    });
+    menu.addAction(action);
+
     action = new QAction(tr("Debug This Test"), &menu);
     bool debugEnabled = false;
     if (correlatingItem) {
@@ -659,6 +666,13 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     action->setEnabled(debugEnabled);
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::Debug, clicked);
+    });
+    menu.addAction(action);
+
+    action = new QAction(tr("Debug This Test Without Deployment"), &menu);
+    action->setEnabled(debugEnabled);
+    connect(action, &QAction::triggered, this, [this, clicked] {
+        onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy, clicked);
     });
     menu.addAction(action);
 
