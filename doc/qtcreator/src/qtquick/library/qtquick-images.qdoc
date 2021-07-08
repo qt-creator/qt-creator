@@ -131,8 +131,9 @@
 
     \section1 Image Alignment
 
-    You can align images horizontally and vertically. By default, images are
-    centered.
+    You can align images horizontally and vertically in the
+    \uicontrol {Alignment H} and \uicontrol {Alignment V}
+    fields. By default, images are centered.
 
     Select the \uicontrol Mirrored check box to horizontally invert the image,
     effectively displaying a mirrored image.
@@ -161,8 +162,7 @@
     of each image. A source image is broken into 9 regions that are scaled or
     tiled individually. The corner regions are not scaled at all, while the
     horizontal and vertical regions are scaled according to the values of the
-    \uicontrol {Horizontal tile mode} and \uicontrol {Vertical tile mode} field,
-    or both.
+    \uicontrol {Tile mode H} and \uicontrol {Tile mode V} field, or both.
 
     The \uicontrol Stretch option scales the image to fit the available area.
     The \uicontrol Repeat option tiles the image until there is no more space.
@@ -193,8 +193,10 @@
 
     \image qtquick-designer-animated-image-properties.png "Animated Image properties"
 
-    To pause or play the animation, select the \uicontrol Paused or
-    \uicontrol Playing check boxes.
+    To play the animation, select the \uicontrol Playing check box.
+
+    To pause the animation, select the \inlineimage icons/pause-icon.png
+    (\uicontrol Paused) check box.
 
     When the \uicontrol Cache check box is selected, every frame of the
     animation is cached. Deselect the check box if you are playing a long
