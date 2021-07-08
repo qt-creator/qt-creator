@@ -108,6 +108,8 @@ public:
     static void clearTaskHubIssues();
     void generateTaskHubIssues();
 
+    static void clearTextMarks(const Utils::FilePath &filePath);
+
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
