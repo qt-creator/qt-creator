@@ -111,10 +111,18 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
                                   "        windowTitle='Rename More Files?'}}"))
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),
                 "Verify that file with new name exists: %s" % newFilePath)
-    test.compare(readFile(newFilePath), oldFileText,
-                 "Comparing content of file before and after renaming")
     test.verify(waitFor("' ' + newname in safeReadFile(proFile)", 2000),
                 "Verify that new filename '%s' was added to pro-file." % newname)
+    if oldname.endswith(".h"):
+        # Creator updates include guards in renamed header files and changes line breaks
+        oldFileText = oldFileText.replace("\r\n", "\n")
+        includeGuard = " " + newname.upper().replace(".", "_")
+        if not includeGuard.endswith("_H"):
+            includeGuard += "_H"
+        oldFileText = oldFileText.replace(" " + oldname.upper().replace(".", "_"), includeGuard)
+        waitFor("includeGuard in safeReadFile(newFilePath)", 2000)
+    test.compare(readFile(newFilePath), oldFileText,
+                 "Comparing content of file before and after renaming")
     if oldname not in newname:
         test.verify(oldname not in readFile(proFile),
                     "Verify that old filename '%s' was removed from pro-file." % oldname)
