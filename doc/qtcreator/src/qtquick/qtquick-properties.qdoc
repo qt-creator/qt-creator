@@ -409,6 +409,22 @@
     and vertically. Note that some OpenGL ES 2 implementations do not support
     the \uicontrol Repeat wrap mode with non-power-of-two textures.
 
+    \section1 Copying and Pasting Formatting
+
+    You can copy property values from a component and paste them to one or
+    several other components. The values are applied if the target components
+    have those particular properties.
+
+    To copy property values from the selected component, select
+    \inlineimage icons/copy-formatting.png
+    on the \uicontrol Design mode \l{Summary of Main Toolbar Actions}
+    {main toolbar}.
+
+    To apply the values to one or several other components, select
+    them in \l Navigator or \l{Form Editor}, and then select
+    \inlineimage icons/paste-formatting.png
+    .
+
     \section1 Editing Properties Inline
 
     You can double-click components in \l {Form Editor} to edit their

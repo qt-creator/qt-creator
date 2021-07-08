@@ -231,6 +231,17 @@
         \li \key Ctrl+Shift+R (\key Shift+Cmd+R on \macos)
         \li \l{Setting Anchors and Margins}
     \row
+        \li \inlineimage icons/copy-formatting.png
+        \li Copies property values from the selected component.
+        \li
+        \li \l{Copying and Pasting Formatting}
+    \row
+        \li \inlineimage icons/paste-formatting.png
+        \li Applies copied property values to one or several selected
+            components.
+        \li
+        \li \l{Copying and Pasting Formatting}
+    \row
         \li \inlineimage row.png
         \li Uses a \uicontrol Row component to lay out the selected components.
         \li \key Ctrl+U (\key Cmd+U on \macos)
