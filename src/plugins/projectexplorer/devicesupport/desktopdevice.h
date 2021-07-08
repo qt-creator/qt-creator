@@ -54,13 +54,29 @@ public:
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
+
     bool handlesFile(const Utils::FilePath &filePath) const override;
     QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                             const QStringList &nameFilters,
                                             QDir::Filters filters,
                                             QDir::SortFlags sort) const override;
     Utils::Environment systemEnvironment() const override;
-
+    bool isExecutableFile(const Utils::FilePath &filePath) const override;
+    bool isReadableFile(const Utils::FilePath &filePath) const override;
+    bool isWritableFile(const Utils::FilePath &filePath) const override;
+    bool isReadableDirectory(const Utils::FilePath &filePath) const override;
+    bool isWritableDirectory(const Utils::FilePath &filePath) const override;
+    bool ensureExistingFile(const Utils::FilePath &filePath) const override;
+    bool createDirectory(const Utils::FilePath &filePath) const override;
+    bool exists(const Utils::FilePath &filePath) const override;
+    bool removeFile(const Utils::FilePath &filePath) const override;
+    bool removeRecursively(const Utils::FilePath &filePath) const override;
+    bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
+    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
+    QDateTime lastModified(const Utils::FilePath &filePath) const override;
+    Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
+    QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
+    bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
 
 protected:
     DesktopDevice();

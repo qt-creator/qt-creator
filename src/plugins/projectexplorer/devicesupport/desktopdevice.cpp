@@ -43,6 +43,7 @@
 #include <utils/url.h>
 
 #include <QCoreApplication>
+#include <QDateTime>
 
 using namespace ProjectExplorer::Constants;
 using namespace Utils;
@@ -192,6 +193,103 @@ QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
 Environment DesktopDevice::systemEnvironment() const
 {
     return Environment::systemEnvironment();
+}
+
+bool DesktopDevice::isExecutableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isExecutableFile();
+}
+
+bool DesktopDevice::isReadableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isReadableFile();
+}
+
+bool DesktopDevice::isWritableFile(const Utils::FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isWritableFile();
+}
+
+bool DesktopDevice::isReadableDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isReadableDir();
+}
+
+bool DesktopDevice::isWritableDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isWritableDir();
+}
+
+bool DesktopDevice::createDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.createDir();
+}
+
+bool DesktopDevice::exists(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.exists();
+}
+
+bool DesktopDevice::ensureExistingFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.ensureExistingFile();
+}
+
+bool DesktopDevice::removeFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.removeFile();
+}
+
+bool DesktopDevice::removeRecursively(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.removeRecursively();
+}
+
+bool DesktopDevice::copyFile(const FilePath &filePath, const FilePath &target) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.copyFile(target);
+}
+
+bool DesktopDevice::renameFile(const FilePath &filePath, const FilePath &target) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(handlesFile(target), return false);
+    return filePath.renameFile(target);
+}
+
+QDateTime DesktopDevice::lastModified(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return filePath.lastModified();
+}
+
+FilePath DesktopDevice::symLinkTarget(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return filePath.symLinkTarget();
+}
+
+QByteArray DesktopDevice::fileContents(const FilePath &filePath, int limit) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return filePath.fileContents(limit);
+}
+
+bool DesktopDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return filePath.writeFileContents(data);
 }
 
 } // namespace ProjectExplorer
