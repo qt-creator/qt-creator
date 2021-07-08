@@ -216,7 +216,7 @@ public:
 
     static void setDeviceFileHooks(const DeviceFileHooks &hooks);
 
-    FilePath onDeviceSearchInPath(const QList<FilePath> &additionalDirs = {}) const;
+    FilePath searchOnDevice(const QList<FilePath> &dirs) const;
     Environment deviceEnvironment() const;
 
 private:

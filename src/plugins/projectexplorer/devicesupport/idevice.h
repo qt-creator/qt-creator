@@ -249,8 +249,9 @@ public:
     virtual bool removeRecursively(const Utils::FilePath &filePath) const;
     virtual bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
     virtual bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
-    virtual Utils::FilePath searchInPath(const Utils::FilePath &filePath,
-                                         const QList<Utils::FilePath> &additionalDirs = {}) const;
+    virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
+    virtual Utils::FilePath searchExecutable(const QString &fileName,
+                                             const QList<Utils::FilePath> &dirs) const;
     virtual Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const;
     virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
                                                     const QStringList &nameFilters,

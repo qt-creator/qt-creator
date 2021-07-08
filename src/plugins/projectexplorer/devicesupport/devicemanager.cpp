@@ -458,10 +458,10 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->renameFile(filePath, target);
     };
 
-    deviceHooks.searchInPath = [](const FilePath &filePath, const FilePaths &additionalDirs) {
+    deviceHooks.searchInPath = [](const FilePath &filePath, const FilePaths &dirs) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return FilePath{});
-        return device->searchInPath(filePath, additionalDirs);
+        return device->searchExecutable(filePath.path(), dirs);
     };
 
     deviceHooks.symLinkTarget = [](const FilePath &filePath) {
