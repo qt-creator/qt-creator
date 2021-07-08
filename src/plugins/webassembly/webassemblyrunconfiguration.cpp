@@ -50,8 +50,9 @@ static CommandLine emrunCommand(Target *target, const QString &browser, const QS
         // that the web server is killed when the application is stopped in Qt Creator.
         // On Non-windows, we prefer using the shell script, because that knows how to find the
         // right python (not part of emsdk). The shell script stays attached to the server process.
-        const FilePath interpreter = bc->environment().searchInPath(
-                    QLatin1String(HostOsInfo::isWindowsHost() ? "python" : "sh"));
+        const FilePath interpreter = HostOsInfo::isWindowsHost()
+                ? FilePath::fromUserInput(bc->environment().value("EMSDK_PYTHON"))
+                : bc->environment().searchInPath("sh");
         const QString emrunLaunchScript = HostOsInfo::isWindowsHost()
                 ? emrun.absolutePath() + "/" + emrun.baseName() + ".py"
                 : emrun.absoluteFilePath();

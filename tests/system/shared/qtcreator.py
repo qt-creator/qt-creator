@@ -144,9 +144,10 @@ def checkForStillRunningQmlExecutable(possibleNames):
             continue
         else:
             if subprocess.call(["taskkill", "/F", "/FI", "IMAGENAME eq %s" % qmlHelper]) == 0:
-                print "Killed still running %s" % qmlHelper
+                print("Killed still running %s" % qmlHelper)
             else:
-                print "%s is still running - failed to kill it" % qmlHelper
+                print("%s is still running - failed to kill it" % qmlHelper)
+
 
 def __removeTestingDir__():
     def __removeIt__(directory):
