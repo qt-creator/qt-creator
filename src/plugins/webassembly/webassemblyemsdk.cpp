@@ -147,9 +147,30 @@ void WebAssemblyEmSdk::clearCaches()
 #ifdef WITH_TESTS
 void WebAssemblyPlugin::testEmSdkEnvParsing()
 {
+    QFETCH(QString, emSdkEnvOutput);
+    QFETCH(int, osType);
+    QFETCH(int, pathCount);
+    QFETCH(QString, emsdk);
+    QFETCH(QString, em_config);
+
+    Environment env{OsType(osType)};
+    parseEmSdkEnvOutputAndAddToEnv(emSdkEnvOutput, env);
+
+    QVERIFY(env.path().count() == pathCount);
+    QCOMPARE(env.value("EMSDK"), emsdk);
+    QCOMPARE(env.value("EM_CONFIG"), em_config);
+}
+
+void WebAssemblyPlugin::testEmSdkEnvParsing_data()
+{
     // Output of "emsdk_env"
-    const QString emSdkEnvOutput = QString::fromLatin1(HostOsInfo::isWindowsHost() ?
-                R"(
+    QTest::addColumn<QString>("emSdkEnvOutput");
+    QTest::addColumn<int>("osType");
+    QTest::addColumn<int>("pathCount");
+    QTest::addColumn<QString>("emsdk");
+    QTest::addColumn<QString>("em_config");
+
+    QTest::newRow("windows") << R"(
 Adding directories to PATH:
 PATH += C:\Users\user\dev\emsdk
 PATH += C:\Users\user\dev\emsdk\upstream\emscripten
@@ -165,7 +186,9 @@ EM_CACHE = C:/Users/user/dev/emsdk/upstream/emscripten\cache
 EMSDK_NODE = C:\Users\user\dev\emsdk\node\12.18.1_64bit\bin\node.exe
 EMSDK_PYTHON = C:\Users\user\dev\emsdk\python\3.7.4-pywin32_64bit\python.exe
 JAVA_HOME = C:\Users\user\dev\emsdk\java\8.152_64bit
-                )" : R"(
+      )" << int(OsTypeWindows) << 5 << "C:/Users/user/dev/emsdk" << "C:\\Users\\user\\dev\\emsdk\\.emscripten";
+
+    QTest::newRow("linux") << R"(
 Adding directories to PATH:
 PATH += /home/user/dev/emsdk
 PATH += /home/user/dev/emsdk/upstream/emscripten
@@ -177,20 +200,9 @@ EMSDK = /home/user/dev/emsdk
 EM_CONFIG = /home/user/dev/emsdk/.emscripten
 EM_CACHE = /home/user/dev/emsdk/upstream/emscripten/cache
 EMSDK_NODE = /home/user/dev/emsdk/node/12.18.1_64bit/bin/node
-               )");
-    Environment env;
-    parseEmSdkEnvOutputAndAddToEnv(emSdkEnvOutput, env);
-
-    if (HostOsInfo::isWindowsHost()) {
-        QVERIFY(env.path().count() == 5);
-        QCOMPARE(env.value("EMSDK"), "C:/Users/user/dev/emsdk");
-        QCOMPARE(env.value("EM_CONFIG"), "C:\\Users\\user\\dev\\emsdk\\.emscripten");
-    } else {
-        QVERIFY(env.path().count() == 3);
-        QCOMPARE(env.value("EMSDK"), "/home/user/dev/emsdk");
-        QCOMPARE(env.value("EM_CONFIG"), "/home/user/dev/emsdk/.emscripten");
-    }
+      )" << int(OsTypeLinux) << 3 << "/home/user/dev/emsdk" << "/home/user/dev/emsdk/.emscripten";
 }
+
 #endif // WITH_TESTS
 
 } // namespace Internal
