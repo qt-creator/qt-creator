@@ -37,16 +37,16 @@ class AnnotationTabWidget : public QTabWidget
     Q_OBJECT
 public:
     AnnotationTabWidget(QWidget *parent = nullptr);
-    ~AnnotationTabWidget();
+    ~AnnotationTabWidget() = default;
 
     QVector<Comment> fetchComments() const;
-    void setupComments(QVector<Comment> const &comments);
+    void setupComments(const QVector<Comment> &comments);
 
     DefaultAnnotationsModel *defaultAnnotations() const;
     void setDefaultAnnotations(DefaultAnnotationsModel *);
 
 public slots:
-    void addCommentTab(const Comment &comment = {});
+    void addCommentTab(const QmlDesigner::Comment &comment = {});
     void deleteAllTabs();
 
 private slots:

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QmlDesigner::AnnotationEditorDialog</class>
- <widget class="QDialog" name="QmlDesigner::AnnotationEditorDialog">
+ <class>QmlDesigner::AnnotationEditorWidget</class>
+ <widget class="QWidget" name="QmlDesigner::AnnotationEditorWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -10,10 +10,7 @@
     <height>819</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string notr="true">Dialog</string>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QWidget" name="statusContainer" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -170,19 +167,6 @@
    <item>
     <widget class="AnnotationTableView" name="tableView"/>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -198,44 +182,6 @@
    <header>annotationtableview.h</header>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>targetIdEdit</tabstop>
-  <tabstop>customIdEdit</tabstop>
-  <tabstop>tabWidget</tabstop>
- </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>QmlDesigner::AnnotationEditorDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>261</x>
-     <y>473</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>QmlDesigner::AnnotationEditorDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>329</x>
-     <y>473</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,23 @@
 
 #pragma once
 
+#include "annotation.h"
+#include "editorproxy.h"
+#include "modelnode.h"
+
 #include <QObject>
 #include <QPointer>
 #include <QtQml>
 
-#include "abstractaction.h"
-#include "annotation.h"
-
-#include "editorproxy.h"
-#include "modelnode.h"
 
 namespace QmlDesigner {
+
 class GlobalAnnotationEditor : public ModelNodeEditorProxy
 {
     Q_OBJECT
 public:
     explicit GlobalAnnotationEditor(QObject *parent = nullptr);
-    ~GlobalAnnotationEditor();
+    ~GlobalAnnotationEditor() = default;
 
     QWidget *createWidget() override;
 
@@ -50,12 +50,15 @@ public:
 signals:
     void accepted();
     void canceled();
-    void modelNodeBackendChanged();
-    void annotationChanged();
+    void applied();
 
 private slots:
     void acceptedClicked();
+    void appliedClicked();
     void cancelClicked();
+
+private:
+    void applyChanges();
 };
 
 } //namespace QmlDesigner

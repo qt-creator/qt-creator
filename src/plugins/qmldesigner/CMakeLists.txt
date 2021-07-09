@@ -638,9 +638,13 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/annotationeditor
   SOURCES annotationcommenttab.cpp annotationcommenttab.h annotationcommenttab.ui
-  annotationeditordialog.cpp annotationeditordialog.h annotationeditordialog.ui
+  annotationeditordialog.cpp annotationeditordialog.h
+  annotationeditorwidget.cpp annotationeditorwidget.h annotationeditorwidget.ui
   annotationeditor.cpp annotationeditor.h
+  annotationlist.cpp annotationlist.h
+  annotationlistwidget.cpp annotationlistwidget.h
   globalannotationeditor.cpp globalannotationeditor.h
+  globalannotationdialog.cpp globalannotationdialog.h
   defaultannotations.cpp defaultannotations.h
   annotationtableview.cpp annotationtableview.h
   annotationtabwidget.cpp annotationtabwidget.h

@@ -84,7 +84,7 @@ public:
                       QAbstractItemModel *model,
                       const QModelIndex &index) const override;
 signals:
-    void commentChanged(int row, Comment const &);
+    void commentChanged(int row, const QmlDesigner::Comment &comment);
 };
 
 class CommentValueDelegate : public CommentDelegate

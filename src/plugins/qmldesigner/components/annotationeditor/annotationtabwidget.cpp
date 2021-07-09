@@ -66,8 +66,6 @@ AnnotationTabWidget::AnnotationTabWidget(QWidget *parent)
     setCornerWidget(commentCornerWidget, Qt::TopRightCorner);
 }
 
-AnnotationTabWidget::~AnnotationTabWidget() {}
-
 QVector<Comment> AnnotationTabWidget::fetchComments() const
 {
     QVector<Comment> comments;
@@ -85,7 +83,7 @@ QVector<Comment> AnnotationTabWidget::fetchComments() const
     return comments;
 }
 
-void AnnotationTabWidget::setupComments(QVector<Comment> const &comments)
+void AnnotationTabWidget::setupComments(const QVector<Comment> &comments)
 {
     setUpdatesEnabled(false);
 
@@ -124,7 +122,7 @@ void AnnotationTabWidget::onCommentTitleChanged(const QString &text, QWidget *ta
         setTabText(tabIndex, defaultTabName + " " + QString::number(tabIndex + 1));
 }
 
-void AnnotationTabWidget::addCommentTab(const Comment &comment)
+void AnnotationTabWidget::addCommentTab(const QmlDesigner::Comment &comment)
 {
     auto *commentTab = new AnnotationCommentTab();
     commentTab->setDefaultAnnotations(m_defaults);

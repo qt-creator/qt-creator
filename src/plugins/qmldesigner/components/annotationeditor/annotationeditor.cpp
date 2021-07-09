@@ -46,8 +46,6 @@ AnnotationEditor::AnnotationEditor(QObject *parent)
     : ModelNodeEditorProxy(parent)
 {}
 
-AnnotationEditor::~AnnotationEditor() {}
-
 QWidget *AnnotationEditor::createWidget()
 {
     const auto &node = m_modelNode;
@@ -64,6 +62,8 @@ QWidget *AnnotationEditor::createWidget()
                      &AnnotationEditorDialog::rejected,
                      this,
                      &AnnotationEditor::cancelClicked);
+    QObject::connect(dialog, &AnnotationEditorDialog::appliedDialog,
+                     this, &AnnotationEditor::appliedClicked);
     return dialog;
 }
 
@@ -91,19 +91,7 @@ void AnnotationEditor::removeFullAnnotation()
 
 void AnnotationEditor::acceptedClicked()
 {
-    if (const auto *dialog = qobject_cast<AnnotationEditorDialog *>(widget())) {
-        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_ANNOTATION_ADDED);
-        const QString customId = dialog->customId();
-        const Annotation annotation = dialog->annotation();
-        auto &node = this->m_modelNode;
-
-        node.setCustomId(customId);
-
-        if (annotation.comments().isEmpty())
-            node.removeAnnotation();
-        else
-            node.setAnnotation(annotation);
-    }
+    applyChanges();
 
     hideWidget();
 
@@ -120,6 +108,32 @@ void AnnotationEditor::cancelClicked()
 
     emit customIdChanged();
     emit annotationChanged();
+}
+
+void AnnotationEditor::appliedClicked()
+{
+    applyChanges();
+
+    emit applied();
+    emit customIdChanged();
+    emit annotationChanged();
+}
+
+void AnnotationEditor::applyChanges()
+{
+    if (const auto *dialog = qobject_cast<AnnotationEditorDialog *>(widget())) {
+        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_ANNOTATION_ADDED);
+        const QString customId = dialog->customId();
+        const Annotation annotation = dialog->annotation();
+        auto &node = this->m_modelNode;
+
+        node.setCustomId(customId);
+
+        if (annotation.comments().isEmpty())
+            node.removeAnnotation();
+        else
+            node.setAnnotation(annotation);
+    }
 }
 
 } //namespace QmlDesigner

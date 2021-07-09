@@ -25,64 +25,46 @@
 
 #pragma once
 
-#include "annotation.h"
+#include "modelnode.h"
 
+#include <coreplugin/icore.h>
+
+#include <QWidget>
 #include <QDialog>
+#include <QListView>
 
-
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-class QDialogButtonBox;
-QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class DefaultAnnotationsModel;
+class AnnotationListView;
 class AnnotationEditorWidget;
 
-class AnnotationEditorDialog : public QDialog
+class AnnotationListWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    enum class ViewMode { TableView,
-                          TabsView };
+    explicit AnnotationListWidget(ModelNode rootNode, QWidget *parent = nullptr);
+    ~AnnotationListWidget() = default;
 
-    explicit AnnotationEditorDialog(QWidget *parent,
-                                    const QString &targetId = {},
-                                    const QString &customId = {});
-    ~AnnotationEditorDialog();
+    void setRootNode(ModelNode rootNode);
 
-    const Annotation &annotation() const;
-    void setAnnotation(const Annotation &annotation);
+    void saveAllChanges();
 
-    const QString &customId() const;
-    void setCustomId(const QString &customId);
+private:
+    void createUI();
 
-    DefaultAnnotationsModel *defaultAnnotations() const;
-    void loadDefaultAnnotations(const QString &filename);
+    bool validateListSize();
 
 private slots:
-    void buttonClicked(QAbstractButton *button);
-
-    void acceptedClicked();
-    void appliedClicked();
-
-signals:
-    void acceptedDialog(); //use instead of QDialog::accepted
-    void appliedDialog();
+    void changeAnnotation(const QModelIndex &index);
 
 private:
-    void updateAnnotation();
+    AnnotationListView *m_listView;
+    AnnotationEditorWidget *m_editor;
 
-private:
-    GlobalAnnotationStatus m_globalStatus = GlobalAnnotationStatus::NoStatus;
-    Annotation m_annotation;
-    QString m_customId;
-    std::unique_ptr<DefaultAnnotationsModel> m_defaults;
-    AnnotationEditorWidget *m_editorWidget;
-
-    QDialogButtonBox *m_buttonBox;
+    int m_currentItem = -1;
 };
 
+}
 
-} //namespace QmlDesigner

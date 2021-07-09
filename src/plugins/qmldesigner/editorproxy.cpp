@@ -36,7 +36,7 @@ EditorProxy::EditorProxy(QObject *parent)
 
 EditorProxy::~EditorProxy()
 {
-    hideWidget();
+    EditorProxy::hideWidget();
 }
 
 void EditorProxy::showWidget()

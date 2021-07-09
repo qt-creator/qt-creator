@@ -27,61 +27,77 @@
 
 #include "annotation.h"
 
-#include <QDialog>
+#include <QWidget>
 
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
-class QDialogButtonBox;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class DefaultAnnotationsModel;
+namespace Ui {
 class AnnotationEditorWidget;
+}
+class DefaultAnnotationsModel;
 
-class AnnotationEditorDialog : public QDialog
+class AnnotationEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    enum class ViewMode { TableView,
-                          TabsView };
+    enum class ViewMode { TableView, TabsView };
 
-    explicit AnnotationEditorDialog(QWidget *parent,
+    explicit AnnotationEditorWidget(QWidget *parent,
                                     const QString &targetId = {},
                                     const QString &customId = {});
-    ~AnnotationEditorDialog();
+    ~AnnotationEditorWidget();
+
+    ViewMode viewMode() const;
 
     const Annotation &annotation() const;
     void setAnnotation(const Annotation &annotation);
 
+    QString targetId() const;
+    void setTargetId(const QString &targetId);
+
     const QString &customId() const;
     void setCustomId(const QString &customId);
+
+    bool isGlobal() const;
+    void setGlobal(bool = true);
 
     DefaultAnnotationsModel *defaultAnnotations() const;
     void loadDefaultAnnotations(const QString &filename);
 
-private slots:
-    void buttonClicked(QAbstractButton *button);
+    GlobalAnnotationStatus globalStatus() const;
+    void setStatus(GlobalAnnotationStatus status);
 
-    void acceptedClicked();
-    void appliedClicked();
-
-signals:
-    void acceptedDialog(); //use instead of QDialog::accepted
-    void appliedDialog();
-
-private:
     void updateAnnotation();
 
+public slots:
+    void showStatusContainer(bool show);
+    void switchToTabView();
+    void switchToTableView();
+
+signals:
+    void globalChanged();
+
 private:
+    void fillFields();
+
+    void addComment(const Comment &comment);
+    void removeComment(int index);
+
+    void setStatusVisibility(bool hasStatus);
+
+private:
+    std::unique_ptr<DefaultAnnotationsModel> m_defaults;
+    std::unique_ptr<Ui::AnnotationEditorWidget> ui;
     GlobalAnnotationStatus m_globalStatus = GlobalAnnotationStatus::NoStatus;
+    bool m_statusIsActive = false;
+    bool m_isGlobal = false;
     Annotation m_annotation;
     QString m_customId;
-    std::unique_ptr<DefaultAnnotationsModel> m_defaults;
-    AnnotationEditorWidget *m_editorWidget;
-
-    QDialogButtonBox *m_buttonBox;
 };
 
 

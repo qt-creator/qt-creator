@@ -36,7 +36,7 @@ class AnnotationEditor : public ModelNodeEditorProxy
     Q_OBJECT
 public:
     explicit AnnotationEditor(QObject *parent = nullptr);
-    ~AnnotationEditor();
+    ~AnnotationEditor() = default;
 
     QWidget *createWidget() override;
     Q_INVOKABLE void removeFullAnnotation();
@@ -46,10 +46,15 @@ public:
 signals:
     void accepted();
     void canceled();
+    void applied();
 
 private slots:
     void acceptedClicked();
     void cancelClicked();
+    void appliedClicked();
+
+private:
+    void applyChanges();
 };
 
 } //namespace QmlDesigner

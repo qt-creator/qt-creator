@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,10 +26,10 @@
 #include "globalannotationeditor.h"
 
 #include "annotation.h"
-#include "annotationeditordialog.h"
-
+#include "globalannotationdialog.h"
 
 #include <coreplugin/icore.h>
+
 #include <QMessageBox>
 
 namespace QmlDesigner {
@@ -38,24 +38,19 @@ GlobalAnnotationEditor::GlobalAnnotationEditor(QObject *parent)
     : ModelNodeEditorProxy(parent)
 {}
 
-GlobalAnnotationEditor::~GlobalAnnotationEditor() {}
-
 QWidget *GlobalAnnotationEditor::createWidget()
 {
-    auto *dialog = new AnnotationEditorDialog(Core::ICore::dialogParent());
+    GlobalAnnotationDialog *dialog = new GlobalAnnotationDialog(m_modelNode, Core::ICore::dialogParent());
 
-    dialog->setGlobal(true);
     dialog->setStatus(m_modelNode.globalStatus());
 
     dialog->setAnnotation(this->m_modelNode.globalAnnotation());
-    QObject::connect(dialog,
-                     &AnnotationEditorDialog::acceptedDialog,
-                     this,
-                     &GlobalAnnotationEditor::acceptedClicked);
-    QObject::connect(dialog,
-                     &AnnotationEditorDialog::rejected,
-                     this,
-                     &GlobalAnnotationEditor::cancelClicked);
+    QObject::connect(dialog, &GlobalAnnotationDialog::acceptedDialog,
+                     this, &GlobalAnnotationEditor::acceptedClicked);
+    QObject::connect(dialog, &GlobalAnnotationDialog::rejected,
+                     this, &GlobalAnnotationEditor::cancelClicked);
+    QObject::connect(dialog, &GlobalAnnotationDialog::appliedDialog,
+                     this, &GlobalAnnotationEditor::appliedClicked);
     return dialog;
 };
 
@@ -65,9 +60,9 @@ void GlobalAnnotationEditor::removeFullAnnotation()
     if (!node.isValid())
         return;
 
-    QString dialogTitle = tr("Global Annotation");
+    const QString dialogTitle = tr("Global Annotation");
     if (QMessageBox::question(Core::ICore::dialogParent(),
-                              tr("Global Annotation"),
+                              dialogTitle,
                               tr("Delete this annotation?"))
         == QMessageBox::Yes) {
         node.removeGlobalAnnotation();
@@ -77,9 +72,42 @@ void GlobalAnnotationEditor::removeFullAnnotation()
 
 void GlobalAnnotationEditor::acceptedClicked()
 {
-    if (const auto *dialog = qobject_cast<AnnotationEditorDialog *>(widget())) {
+    applyChanges();
+
+    hideWidget();
+
+    emit accepted();
+
+    emit annotationChanged();
+    emit customIdChanged();
+}
+
+void GlobalAnnotationEditor::appliedClicked()
+{
+    applyChanges();
+
+    emit applied();
+
+    emit annotationChanged();
+    emit customIdChanged();
+}
+
+void GlobalAnnotationEditor::cancelClicked()
+{
+    hideWidget();
+
+    emit canceled();
+
+    emit annotationChanged();
+    emit customIdChanged();
+}
+
+void GlobalAnnotationEditor::applyChanges()
+{
+    if (GlobalAnnotationDialog * const dialog = qobject_cast<GlobalAnnotationDialog *>(widget())) {
+        //first save global annotation:
         auto &node = this->m_modelNode;
-        const Annotation annotation = dialog->annotation();
+        const Annotation &annotation = dialog->annotation();
 
         if (annotation.comments().isEmpty())
             node.removeGlobalAnnotation();
@@ -92,20 +120,11 @@ void GlobalAnnotationEditor::acceptedClicked()
             node.removeGlobalStatus();
         else
             node.setGlobalStatus(status);
+
+
+        //then save annotations list:
+        dialog->saveAnnotationListChanges();
     }
-
-    hideWidget();
-
-    emit accepted();
-    emit annotationChanged();
-}
-
-void GlobalAnnotationEditor::cancelClicked()
-{
-    hideWidget();
-
-    emit canceled();
-    emit annotationChanged();
 }
 
 } //namespace QmlDesigner
