@@ -492,7 +492,7 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
             QPen outline(indicatorColor, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
             painter->setPen(outline);
             QColor fill(frameColor);
-            fill.setAlphaF(0.8);
+            fill.setAlphaF(0.8f);
             painter->setBrush(fill);
             const double o = 3.5;
             painter->drawRect(QRectF(option->rect).adjusted(o, o, -o, -o));
@@ -675,9 +675,9 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 }
                 if (option->state & State_HasFocus && (option->state & State_KeyboardFocusChange)) {
                     QColor highlight = option->palette.highlight().color();
-                    highlight.setAlphaF(0.4);
+                    highlight.setAlphaF(0.4f);
                     painter->setPen(QPen(highlight.lighter(), 1));
-                    highlight.setAlphaF(0.3);
+                    highlight.setAlphaF(0.3f);
                     painter->setBrush(highlight);
                     painter->setRenderHint(QPainter::Antialiasing);
                     const QRectF rect = option->rect;
@@ -743,10 +743,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
             painter->setPen(Qt::NoPen);
             QColor dark = StyleHelper::borderColor();
-            dark.setAlphaF(0.4);
+            dark.setAlphaF(0.4f);
 
             QColor light = StyleHelper::baseColor();
-            light.setAlphaF(0.4);
+            light.setAlphaF(0.4f);
 
             painter->fillPath(path, light);
             painter->save();
@@ -908,7 +908,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_SizeGrip: {
             painter->save();
             QColor dark = Qt::white;
-            dark.setAlphaF(0.1);
+            dark.setAlphaF(0.1f);
             int x, y, w, h;
             option->rect.getRect(&x, &y, &w, &h);
             int sw = qMin(h, w);
