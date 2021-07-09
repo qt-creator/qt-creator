@@ -352,6 +352,7 @@ public:
         m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
             "mapped one-to-one into the Docker container."));
         m_pathsLineEdit->setText(data.mounts.join(';'));
+        m_pathsLineEdit->setPlaceholderText(tr("List project source directories here"));
 
         connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
             dockerDevice->setMounts(text.split(';', Qt::SkipEmptyParts));
