@@ -381,6 +381,7 @@ void ProcessLauncherImpl::start(const QString &program, const QStringList &argum
 
 void ProcessLauncherImpl::doStart()
 {
+    emit started(); // Should be queued in order to behave the same as QProcess?
     m_state = QProcess::Running;
     StartProcessPacket p(token());
     p.command = m_command;
