@@ -25,11 +25,14 @@
 
 #include "qtcprocess.h"
 
-#include "stringutils.h"
+#include "commandline.h"
 #include "executeondestruction.h"
 #include "hostosinfo.h"
-#include "commandline.h"
+#include "launcherinterface.h"
+#include "launcherpackets.h"
+#include "launchersocket.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -281,17 +284,26 @@ private:
 class ProcessLauncherImpl : public ProcessInterface
 {
 public:
-    ProcessLauncherImpl() : ProcessInterface() {}
+    ProcessLauncherImpl() : ProcessInterface()
+    {
+        connect(LauncherInterface::socket(), &LauncherSocket::ready,
+                this, &ProcessLauncherImpl::handleSocketReady);
+        connect(LauncherInterface::socket(), &LauncherSocket::errorOccurred,
+                this, &ProcessLauncherImpl::handleSocketError);
+        connect(LauncherInterface::socket(), &LauncherSocket::packetArrived,
+                this, &ProcessLauncherImpl::handlePacket);
+    }
 
-    QByteArray readAllStandardOutput() override { QTC_CHECK(false); return {}; }
-    QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
+    QByteArray readAllStandardOutput() override { return readAndClear(m_stdout); }
+    QByteArray readAllStandardError() override { return readAndClear(m_stderr); }
 
-    void setProcessEnvironment(const QProcessEnvironment &environment) override { QTC_CHECK(false); }
-    void setWorkingDirectory(const QString &dir) override { QTC_CHECK(false); }
-    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) override { QTC_CHECK(false); }
-    void terminate() override { QTC_CHECK(false); }
-    void kill() override { QTC_CHECK(false); }
-    void close() override { QTC_CHECK(false); }
+    void setProcessEnvironment(const QProcessEnvironment &environment) override
+    { m_environment = environment; }
+    void setWorkingDirectory(const QString &dir) override { m_workingDirectory = dir; }
+    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) override;
+    void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
+    void kill() override { cancel(); } // TODO: see above
+    void close() override { cancel(); } // TODO: see above
     qint64 write(const QByteArray &data) override { QTC_CHECK(false); return -1; }
     void closeWriteChannel() override { QTC_CHECK(false); }
 
@@ -301,11 +313,11 @@ public:
     QProcess::ProcessChannel readChannel() const override { QTC_CHECK(false); return QProcess::StandardOutput; }
     qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }
     QString program() const override { QTC_CHECK(false); return {}; }
-    QProcess::ProcessError error() const override { QTC_CHECK(false); return QProcess::UnknownError; }
-    QProcess::ProcessState state() const override { QTC_CHECK(false); return QProcess::NotRunning; }
+    QProcess::ProcessError error() const override { return m_error; }
+    QProcess::ProcessState state() const override { return m_state; }
     qint64 processId() const override { QTC_CHECK(false); return 0; }
     QProcess::ExitStatus exitStatus() const override { QTC_CHECK(false); return QProcess::NormalExit; }
-    QString errorString() const override { QTC_CHECK(false); return {}; }
+    QString errorString() const override { return m_errorString; }
     void setErrorString(const QString &str) override { QTC_CHECK(false); }
 
     bool waitForStarted(int msecs) override { QTC_CHECK(false); return false; }
@@ -323,7 +335,146 @@ public:
     { QTC_CHECK(false); }
     void setNativeArguments(const QString &arguments) override { QTC_CHECK(false); }
 #endif
+
+private:
+    void doStart();
+    void cancel();
+    void sendPacket(const Internal::LauncherPacket &packet)
+    { LauncherInterface::socket()->sendData(packet.serialize()); }
+    QByteArray readAndClear(QByteArray &data)
+    {
+        const QByteArray tmp = data;
+        data.clear();
+        return tmp;
+    }
+
+    void handleSocketError(const QString &message);
+    void handlePacket(Internal::LauncherPacketType type, quintptr token,
+                      const QByteArray &payload);
+    void handleErrorPacket(const QByteArray &packetData);
+    void handleFinishedPacket(const QByteArray &packetData);
+    void handleSocketReady();
+
+    quintptr token() const { return reinterpret_cast<quintptr>(this); }
+
+    QString m_command;
+    QStringList m_arguments;
+    QProcessEnvironment m_environment;
+    QString m_workingDirectory;
+    QByteArray m_stdout;
+    QByteArray m_stderr;
+    QString m_errorString;
+    QProcess::ProcessError m_error = QProcess::UnknownError;
+    QProcess::ProcessState m_state = QProcess::NotRunning;
+    int m_exitCode = 0;
+    int m_connectionAttempts = 0;
+    bool m_socketError = false;
 };
+
+void ProcessLauncherImpl::start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode)
+{
+    // TODO: pass the open mode to StartProcessPacket
+    if (m_socketError) {
+        m_error = QProcess::FailedToStart;
+        emit errorOccurred(m_error);
+        return;
+    }
+    m_command = program;
+    m_arguments = arguments;
+    m_state = QProcess::Starting;
+    if (LauncherInterface::socket()->isReady())
+        doStart();
+}
+
+void ProcessLauncherImpl::doStart()
+{
+    m_state = QProcess::Running;
+    StartProcessPacket p(token());
+    p.command = m_command;
+    p.arguments = m_arguments;
+    p.env = m_environment.toStringList();
+    p.workingDir = m_workingDirectory;
+    sendPacket(p);
+}
+
+void ProcessLauncherImpl::cancel()
+{
+    switch (m_state) {
+    case QProcess::NotRunning:
+        break;
+    case QProcess::Starting:
+        m_errorString = QCoreApplication::translate("Utils::QtcProcess",
+                                                    "Process canceled before it was started.");
+        m_error = QProcess::FailedToStart;
+        m_state = QProcess::NotRunning;
+        emit errorOccurred(m_error);
+        break;
+    case QProcess::Running:
+        sendPacket(StopProcessPacket(token()));
+        break;
+    }
+}
+
+void ProcessLauncherImpl::handlePacket(LauncherPacketType type, quintptr token, const QByteArray &payload)
+{
+    if (token != this->token())
+        return;
+    switch (type) {
+    case LauncherPacketType::ProcessError:
+        handleErrorPacket(payload);
+        break;
+    case LauncherPacketType::ProcessFinished:
+        handleFinishedPacket(payload);
+        break;
+    default:
+        QTC_ASSERT(false, break);
+    }
+}
+
+void ProcessLauncherImpl::handleSocketReady()
+{
+    m_socketError = false;
+    if (m_state == QProcess::Starting)
+        doStart();
+}
+
+void ProcessLauncherImpl::handleSocketError(const QString &message)
+{
+    m_socketError = true;
+    m_errorString = QCoreApplication::translate("Utils::QtcProcess",
+                                                "Internal socket error: %1").arg(message);
+    if (m_state != QProcess::NotRunning) {
+        m_state = QProcess::NotRunning;
+        m_error = QProcess::FailedToStart;
+        emit errorOccurred(m_error);
+    }
+}
+
+void ProcessLauncherImpl::handleErrorPacket(const QByteArray &packetData)
+{
+    QTC_ASSERT(m_state != QProcess::NotRunning, return);
+    const auto packet = LauncherPacket::extractPacket<ProcessErrorPacket>(token(), packetData);
+    m_error = packet.error;
+    m_errorString = packet.errorString;
+    m_state = QProcess::NotRunning;
+    emit errorOccurred(m_error);
+}
+
+void ProcessLauncherImpl::handleFinishedPacket(const QByteArray &packetData)
+{
+    QTC_ASSERT(m_state == QProcess::Running, return);
+    m_state = QProcess::NotRunning;
+    const auto packet = LauncherPacket::extractPacket<ProcessFinishedPacket>(token(), packetData);
+    m_exitCode = packet.exitCode;
+    m_stdout = packet.stdOut;
+    m_stderr = packet.stdErr;
+    if (!m_stdout.isEmpty())
+        emit readyReadStandardOutput();
+    if (!m_stderr.isEmpty())
+        emit readyReadStandardError();
+    m_errorString = packet.errorString;
+    emit finished(m_exitCode, packet.exitStatus);
+}
 
 static ProcessInterface *newProcessInstance(QtcProcess::ProcessImpl processImpl)
 {

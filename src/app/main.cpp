@@ -36,6 +36,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/launcherinterface.h>
 #include <utils/optional.h>
 #include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
@@ -45,6 +46,7 @@
 #include <QFontDatabase>
 #include <QFileInfo>
 #include <QLibraryInfo>
+#include <QScopeGuard>
 #include <QStyle>
 #include <QTextStream>
 #include <QThreadPool>
@@ -547,6 +549,9 @@ int main(int argc, char **argv)
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));
     QGuiApplication::setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+
+    Utils::LauncherInterface::startLauncher();
+    auto cleanup = qScopeGuard([] { Utils::LauncherInterface::stopLauncher(); });
 
     const QStringList pluginArguments = app.arguments();
 
