@@ -311,7 +311,7 @@ public:
     qint64 processId() const override { QTC_CHECK(false); return 0; }
     QProcess::ExitStatus exitStatus() const override { QTC_CHECK(false); return QProcess::NormalExit; }
     QString errorString() const override { return m_errorString; }
-    void setErrorString(const QString &str) override { QTC_CHECK(false); }
+    void setErrorString(const QString &str) override { m_errorString = str; }
 
     bool waitForStarted(int msecs) override { QTC_CHECK(false); return false; }
     bool waitForReadyRead(int msecs) override { QTC_CHECK(false); return false; }
