@@ -194,8 +194,6 @@ signals:
     void started();
     void finished();
     void errorOccurred(QProcess::ProcessError error);
-    void stateChanged(QProcess::ProcessState state);
-
     void readyReadStandardOutput();
     void readyReadStandardError();
 

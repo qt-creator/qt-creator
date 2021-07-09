@@ -147,7 +147,6 @@ signals:
     void started();
     void finished(int exitCode, QProcess::ExitStatus status);
     void errorOccurred(QProcess::ProcessError error);
-    void stateChanged(QProcess::ProcessState state);
     void readyReadStandardOutput();
     void readyReadStandardError();
 };
@@ -200,8 +199,6 @@ public:
                 this, &ProcessInterface::finished);
         connect(&m_process, &QProcess::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
-        connect(&m_process, &QProcess::stateChanged,
-                this, &ProcessInterface::stateChanged);
         connect(&m_process, &QProcess::readyReadStandardOutput,
                 this, &ProcessInterface::readyReadStandardOutput);
         connect(&m_process, &QProcess::readyReadStandardError,
@@ -495,8 +492,6 @@ public:
                 this, &QtcProcessPrivate::slotFinished);
         connect(m_process, &ProcessInterface::errorOccurred,
                 this, &QtcProcessPrivate::slotError);
-        connect(m_process, &ProcessInterface::stateChanged,
-                q, &QtcProcess::stateChanged);
         connect(m_process, &ProcessInterface::readyReadStandardOutput,
                 this, &QtcProcessPrivate::handleReadyReadStandardOutput);
         connect(m_process, &ProcessInterface::readyReadStandardError,
