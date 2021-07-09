@@ -309,7 +309,7 @@ public:
 
     QProcess::ProcessChannel readChannel() const override { QTC_CHECK(false); return QProcess::StandardOutput; }
     qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }
-    QString program() const override { QTC_CHECK(false); return {}; }
+    QString program() const override { return m_command; }
     QProcess::ProcessError error() const override { return m_error; }
     QProcess::ProcessState state() const override { return m_state; }
     qint64 processId() const override { QTC_CHECK(false); return 0; }
