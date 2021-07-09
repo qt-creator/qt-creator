@@ -44,7 +44,7 @@ public:
     QString tag;
     QString size;
     bool useLocalUidGid = true;
-    QStringList mounts = {"/opt", "/data"};
+    QStringList mounts;
 };
 
 class DockerDevice : public ProjectExplorer::IDevice
