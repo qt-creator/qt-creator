@@ -42,7 +42,7 @@ Item {
     function updatePos() {
         if (root.maximum > root.minimum) {
             var pos = (track.width - handle.width) * (root.value - root.minimum) / (root.maximum - root.minimum)
-            return Math.min(Math.max(pos, 0), track.width - 8)
+            return Math.min(Math.max(pos, 0), track.width - handle.width)
         } else {
             return 0
         }
@@ -74,20 +74,24 @@ Item {
         Rectangle {
             id: handle
             width: StudioTheme.Values.hueSliderHandleWidth
-            height: track.height
+            height: track.height - 4
             anchors.verticalCenter: parent.verticalCenter
             smooth: true
-            opacity: 0.9
+            color: "transparent"
             radius: 2
             border.color: "black"
             border.width: 1
             x: root.updatePos()
+            y: 2
             z: 1
 
-            gradient: Gradient {
-                GradientStop {color: "#2c2c2c" ; position: 0}
-                GradientStop {color: "#343434" ; position: 0.15}
-                GradientStop {color: "#373737" ; position: 1.0}
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 1
+                color: "transparent"
+                radius: 1
+                border.color: "white"
+                border.width: 1
             }
         }
 
