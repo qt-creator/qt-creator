@@ -98,9 +98,8 @@ void CompilationDatabaseTests::testProject_data()
 void CompilationDatabaseTests::addTestRow(const QByteArray &relativeFilePath)
 {
     const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
-    const QString fileName = QFileInfo(absoluteFilePath).fileName();
 
-    QTest::newRow(fileName.toUtf8().constData()) << absoluteFilePath;
+    QTest::newRow(relativeFilePath.constData()) << absoluteFilePath;
 }
 
 } // namespace CompilationDatabaseProjectManager
