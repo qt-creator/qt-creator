@@ -299,6 +299,7 @@ public:
 
     void tryCreateLocalFileAccess();
 
+    void stopCurrentContainer();
     void fetchSystemEnviroment();
 
     DockerDevice *q;
@@ -352,8 +353,8 @@ public:
             "mapped one-to-one into the Docker container."));
         m_pathsLineEdit->setText(data.mounts.join(';'));
 
-        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [&data](const QString &text) {
-            data.mounts = text.split(';');
+        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
+            dockerDevice->setMounts(text.split(';'));
         });
 
         auto logView = new QTextBrowser;
@@ -615,6 +616,20 @@ void DockerDevice::tryCreateLocalFileAccess() const
     d->tryCreateLocalFileAccess();
 }
 
+void DockerDevicePrivate::stopCurrentContainer()
+{
+    if (m_container.isEmpty())
+        return;
+
+    QtcProcess proc;
+    proc.setCommand({"docker", {"container", "stop", m_container}});
+
+    m_container.clear();
+    m_mergedDir.clear();
+
+    proc.runBlocking();
+}
+
 void DockerDevicePrivate::tryCreateLocalFileAccess()
 {
     if (!m_container.isEmpty())
@@ -708,6 +723,12 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
 bool DockerDevice::hasLocalFileAccess() const
 {
     return !d->m_mergedDir.isEmpty();
+}
+
+void DockerDevice::setMounts(const QStringList &mounts) const
+{
+    d->m_data.mounts = mounts;
+    d->stopCurrentContainer(); // Force re-start with new mounts.
 }
 
 FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const

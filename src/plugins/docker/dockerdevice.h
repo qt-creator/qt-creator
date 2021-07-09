@@ -105,6 +105,7 @@ public:
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;
+    void setMounts(const QStringList &mounts) const;
 
     Utils::FilePath mapToLocalAccess(const Utils::FilePath &filePath) const;
     Utils::FilePath mapFromLocalAccess(const Utils::FilePath &filePath) const;
