@@ -153,8 +153,8 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
             &DocumentSymbolCache::gotSymbols,
             this,
             &LanguageClientOutlineWidget::handleResponse);
-    connect(editor->textDocument(), &TextEditor::TextDocument::contentsChanged, this, [this]() {
-        if (m_client)
+    connect(client, &Client::documentUpdated, this, [this](TextEditor::TextDocument *document) {
+        if (m_client && m_uri == DocumentUri::fromFilePath(document->filePath()))
             m_client->documentSymbolCache()->requestSymbols(m_uri);
     });
 
