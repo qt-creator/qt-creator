@@ -94,6 +94,61 @@ public:
     bool keepRawData = true;
 };
 
+class ProcessInterface : public QObject
+{
+    Q_OBJECT
+public:
+    ProcessInterface() : QObject() {}
+
+    virtual QByteArray readAllStandardOutput() = 0;
+    virtual QByteArray readAllStandardError() = 0;
+
+    virtual void setProcessEnvironment(const QProcessEnvironment &environment) = 0;
+    virtual void setWorkingDirectory(const QString &dir) = 0;
+    virtual void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) = 0;
+    virtual void terminate() = 0;
+    virtual void kill() = 0;
+    virtual void close() = 0;
+    virtual qint64 write(const QByteArray &data) = 0;
+    virtual void closeWriteChannel() = 0;
+
+    virtual void setStandardInputFile(const QString &fileName) = 0;
+    virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode) = 0;
+
+    virtual QProcess::ProcessChannel readChannel() const = 0; // only in assert?
+    virtual qint64 bytesAvailable() const = 0;
+    virtual QString program() const = 0;
+    virtual QProcess::ProcessError error() const = 0;
+    virtual QProcess::ProcessState state() const = 0;
+    virtual qint64 processId() const = 0;
+    virtual QProcess::ExitStatus exitStatus() const = 0;
+    virtual QString errorString() const = 0;
+    virtual void setErrorString(const QString &str) = 0;
+
+    virtual bool waitForStarted(int msecs) = 0;
+    virtual bool waitForReadyRead(int msecs) = 0;
+    virtual bool waitForFinished(int msecs) = 0;
+
+    virtual void setLowPriority() = 0;
+    virtual bool lowPriority() const = 0;
+    virtual void setDisableUnixTerminal() = 0;
+    virtual void setKeepWriteChannelOpen() = 0;
+    virtual bool keepsWriteChannelOpen() const = 0;
+
+#ifdef Q_OS_WIN
+    virtual void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) = 0;
+    virtual void setNativeArguments(const QString &arguments) = 0;
+#endif
+
+signals:
+    void started();
+    void finished(int exitCode, QProcess::ExitStatus status);
+    void errorOccurred(QProcess::ProcessError error);
+    void stateChanged(QProcess::ProcessState state);
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+};
+
 class ProcessHelper : public QProcess
 {
 public:
@@ -131,23 +186,169 @@ public:
     bool m_keepStdInOpen = false;
 };
 
+class QProcessImpl : public ProcessInterface
+{
+public:
+    QProcessImpl() : ProcessInterface()
+    {
+        connect(&m_process, &QProcess::started,
+                this, &ProcessInterface::started);
+        connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                this, &ProcessInterface::finished);
+        connect(&m_process, &QProcess::errorOccurred,
+                this, &ProcessInterface::errorOccurred);
+        connect(&m_process, &QProcess::stateChanged,
+                this, &ProcessInterface::stateChanged);
+        connect(&m_process, &QProcess::readyReadStandardOutput,
+                this, &ProcessInterface::readyReadStandardOutput);
+        connect(&m_process, &QProcess::readyReadStandardError,
+                this, &ProcessInterface::readyReadStandardError);
+    }
+
+    QByteArray readAllStandardOutput() override { return m_process.readAllStandardOutput(); }
+    QByteArray readAllStandardError() override { return m_process.readAllStandardError(); }
+
+    void setProcessEnvironment(const QProcessEnvironment &environment) override
+    { m_process.setProcessEnvironment(environment); }
+    void setWorkingDirectory(const QString &dir) override
+    { m_process.setWorkingDirectory(dir); }
+    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) override
+    { m_process.start(program, arguments, mode); }
+    void terminate() override
+    { m_process.terminate(); }
+    void kill() override
+    { m_process.kill(); }
+    void close() override
+    { m_process.close(); }
+    qint64 write(const QByteArray &data) override
+    { return m_process.write(data); }
+    void closeWriteChannel() override
+    { m_process.closeWriteChannel(); }
+
+    void setStandardInputFile(const QString &fileName) override
+    { m_process.setStandardInputFile(fileName); }
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode) override
+    { m_process.setProcessChannelMode(mode); }
+
+    QProcess::ProcessChannel readChannel() const override
+    { return m_process.readChannel(); }
+    qint64 bytesAvailable() const override
+    { return m_process.bytesAvailable(); }
+    QString program() const override
+    { return m_process.program(); }
+    QProcess::ProcessError error() const override
+    { return m_process.error(); }
+    QProcess::ProcessState state() const override
+    { return m_process.state(); }
+    qint64 processId() const override
+    { return m_process.processId(); }
+    QProcess::ExitStatus exitStatus() const override
+    { return m_process.exitStatus(); }
+    QString errorString() const override
+    { return m_process.errorString(); }
+    void setErrorString(const QString &str) override
+    { m_process.setErrorString(str); }
+
+    bool waitForStarted(int msecs) override
+    { return m_process.waitForStarted(msecs); }
+    bool waitForReadyRead(int msecs) override
+    { return m_process.waitForReadyRead(msecs); }
+    bool waitForFinished(int msecs) override
+    { return m_process.waitForFinished(msecs); }
+
+    void setLowPriority() override
+    { m_process.m_lowPriority = true; }
+    bool lowPriority() const override
+    { return m_process.m_lowPriority; }
+    void setDisableUnixTerminal() override
+    { m_process.m_disableUnixTerminal = true; }
+    void setKeepWriteChannelOpen() override
+    { m_process.m_keepStdInOpen = true; }
+    bool keepsWriteChannelOpen() const override
+    { return m_process.m_keepStdInOpen; }
+
+#ifdef Q_OS_WIN
+    void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) override
+    { m_process.setCreateProcessArgumentsModifier(modifier); }
+    void setNativeArguments(const QString &arguments) override
+    { m_process.setNativeArguments(arguments); }
+#endif
+
+private:
+    ProcessHelper m_process;
+};
+
+class ProcessLauncherImpl : public ProcessInterface
+{
+public:
+    ProcessLauncherImpl() : ProcessInterface() {}
+
+    QByteArray readAllStandardOutput() override { QTC_CHECK(false); return {}; }
+    QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
+
+    void setProcessEnvironment(const QProcessEnvironment &environment) override { QTC_CHECK(false); }
+    void setWorkingDirectory(const QString &dir) override { QTC_CHECK(false); }
+    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) override { QTC_CHECK(false); }
+    void terminate() override { QTC_CHECK(false); }
+    void kill() override { QTC_CHECK(false); }
+    void close() override { QTC_CHECK(false); }
+    qint64 write(const QByteArray &data) override { QTC_CHECK(false); return -1; }
+    void closeWriteChannel() override { QTC_CHECK(false); }
+
+    void setStandardInputFile(const QString &fileName) override { QTC_CHECK(false); }
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode) override { QTC_CHECK(false); }
+
+    QProcess::ProcessChannel readChannel() const override { QTC_CHECK(false); return QProcess::StandardOutput; }
+    qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }
+    QString program() const override { QTC_CHECK(false); return {}; }
+    QProcess::ProcessError error() const override { QTC_CHECK(false); return QProcess::UnknownError; }
+    QProcess::ProcessState state() const override { QTC_CHECK(false); return QProcess::NotRunning; }
+    qint64 processId() const override { QTC_CHECK(false); return 0; }
+    QProcess::ExitStatus exitStatus() const override { QTC_CHECK(false); return QProcess::NormalExit; }
+    QString errorString() const override { QTC_CHECK(false); return {}; }
+    void setErrorString(const QString &str) override { QTC_CHECK(false); }
+
+    bool waitForStarted(int msecs) override { QTC_CHECK(false); return false; }
+    bool waitForReadyRead(int msecs) override { QTC_CHECK(false); return false; }
+    bool waitForFinished(int msecs) override { QTC_CHECK(false); return false; }
+
+    void setLowPriority() override { QTC_CHECK(false); }
+    bool lowPriority() const override { QTC_CHECK(false); return false; }
+    void setDisableUnixTerminal() override { QTC_CHECK(false); }
+    void setKeepWriteChannelOpen() override { QTC_CHECK(false); }
+    bool keepsWriteChannelOpen() const override { QTC_CHECK(false); return false; }
+
+#ifdef Q_OS_WIN
+    void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) override
+    { QTC_CHECK(false); }
+    void setNativeArguments(const QString &arguments) override { QTC_CHECK(false); }
+#endif
+};
+
+static ProcessInterface *newProcessInstance(QtcProcess::ProcessImpl processImpl)
+{
+    if (processImpl == QtcProcess::QProcessImpl)
+        return new QProcessImpl;
+    return new ProcessLauncherImpl;
+}
+
 class QtcProcessPrivate : public QObject
 {
 public:
-    explicit QtcProcessPrivate(QtcProcess *parent)
-        : q(parent), m_process(new ProcessHelper)
+    explicit QtcProcessPrivate(QtcProcess *parent, QtcProcess::ProcessImpl processImpl)
+        : q(parent), m_process(newProcessInstance(processImpl))
     {
-        connect(m_process, &QProcess::started,
+        connect(m_process, &ProcessInterface::started,
                 q, &QtcProcess::started);
-        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+        connect(m_process, &ProcessInterface::finished,
                 this, &QtcProcessPrivate::slotFinished);
-        connect(m_process, &QProcess::errorOccurred,
+        connect(m_process, &ProcessInterface::errorOccurred,
                 this, &QtcProcessPrivate::slotError);
-        connect(m_process, &QProcess::stateChanged,
+        connect(m_process, &ProcessInterface::stateChanged,
                 q, &QtcProcess::stateChanged);
-        connect(m_process, &QProcess::readyReadStandardOutput,
+        connect(m_process, &ProcessInterface::readyReadStandardOutput,
                 this, &QtcProcessPrivate::handleReadyReadStandardOutput);
-        connect(m_process, &QProcess::readyReadStandardError,
+        connect(m_process, &ProcessInterface::readyReadStandardError,
                 this, &QtcProcessPrivate::handleReadyReadStandardError);
         connect(&m_timer, &QTimer::timeout, this, &QtcProcessPrivate::slotTimeout);
         m_timer.setInterval(1000);
@@ -173,7 +374,7 @@ public:
     }
 
     QtcProcess *q;
-    ProcessHelper *m_process;
+    ProcessInterface *m_process;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
@@ -239,14 +440,16 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
     \sa Utils::ProcessArgs
 */
 
-QtcProcess::QtcProcess(QObject *parent)
-    : QObject(parent), d(new QtcProcessPrivate(this))
+QtcProcess::QtcProcess(ProcessImpl processImpl, QObject *parent)
+    : QObject(parent), d(new QtcProcessPrivate(this, processImpl))
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
     Q_UNUSED(qProcessExitStatusMeta)
     Q_UNUSED(qProcessProcessErrorMeta)
 }
+
+QtcProcess::QtcProcess(QObject *parent) : QtcProcess(QtcProcess::QProcessImpl, parent) {}
 
 QtcProcess::~QtcProcess()
 {
@@ -354,12 +557,12 @@ void QtcProcess::start()
     if (osType == OsTypeWindows) {
         QString args;
         if (d->m_useCtrlCStub) {
-            if (d->m_process->m_lowPriority)
+            if (d->m_process->lowPriority())
                 ProcessArgs::addArg(&args, "-nice");
             ProcessArgs::addArg(&args, QDir::toNativeSeparators(command));
             command = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else if (d->m_process->m_lowPriority) {
+        } else if (d->m_process->lowPriority()) {
 #ifdef Q_OS_WIN
             d->m_process->setCreateProcessArgumentsModifier(
                 [](QProcess::CreateProcessArguments *args) {
@@ -431,22 +634,22 @@ void QtcProcess::interrupt()
 
 void QtcProcess::setLowPriority()
 {
-    d->m_process->m_lowPriority = true;
+    d->m_process->setLowPriority();
 }
 
 void QtcProcess::setDisableUnixTerminal()
 {
-    d->m_process->m_disableUnixTerminal = true;
+    d->m_process->setDisableUnixTerminal();
 }
 
 void QtcProcess::setKeepWriteChannelOpen()
 {
-    d->m_process->m_keepStdInOpen = true;
+    d->m_process->setKeepWriteChannelOpen();
 }
 
 bool QtcProcess::keepsWriteChannelOpen() const
 {
-    return d->m_process->m_keepStdInOpen;
+    return d->m_process->keepsWriteChannelOpen();
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)
@@ -1011,7 +1214,7 @@ void QtcProcess::runBlocking()
 
     if (d->m_processUserEvents) {
         if (!d->m_writeData.isEmpty()) {
-            connect(d->m_process, &QProcess::started, this, [this] {
+            connect(d->m_process, &ProcessInterface::started, this, [this] {
                 write(d->m_writeData);
                 closeWriteChannel();
             });
@@ -1155,3 +1358,5 @@ void QtcProcessPrivate::slotError(QProcess::ProcessError error)
 }
 
 } // namespace Utils
+
+#include "qtcprocess.moc"

@@ -59,6 +59,12 @@ class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
     Q_OBJECT
 
 public:
+    enum ProcessImpl {
+        QProcessImpl,
+        ProcessLauncherImpl
+    };
+
+    QtcProcess(ProcessImpl processImpl, QObject *parent = nullptr);
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
