@@ -1007,20 +1007,32 @@ void DesignerActionManager::createDefaultDesignerActions()
                             &selectionNotEmptyAndHasXorYProperty));
 
     const QString fontName = "qtds_propertyIconFont.ttf";
-    const QColor iconColorNormal(Theme::getColor(Theme::IconsBaseColor));
-    const QIcon pasteIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                    Theme::getIconUnicode(
-                                                                        Theme::Icon::pasteStyle),
-                                                                    28,
-                                                                    28,
-                                                                    iconColorNormal);
+    const QColor iconColorDefault(Theme::getColor(Theme::IconsBaseColor));
+    const QColor iconColorDisabled(Theme::getColor(Theme::IconsDisabledColor));
+    const QString copyUnicode = Theme::getIconUnicode(Theme::Icon::copyStyle);
+    const QString pasteUnicode = Theme::getIconUnicode(Theme::Icon::pasteStyle);
 
+    const auto copyDefault = Utils::StyleHelper::IconFontHelper(copyUnicode,
+                                                                iconColorDefault,
+                                                                QSize(28, 28),
+                                                                QIcon::Normal);
+    const auto copyDisabled = Utils::StyleHelper::IconFontHelper(copyUnicode,
+                                                                 iconColorDisabled,
+                                                                 QSize(28, 28),
+                                                                 QIcon::Disabled);
     const QIcon copyIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                   Theme::getIconUnicode(
-                                                                       Theme::Icon::copyStyle),
-                                                                   28,
-                                                                   28,
-                                                                   iconColorNormal);
+                                                                   {copyDefault, copyDisabled});
+
+    const auto pasteDefault = Utils::StyleHelper::IconFontHelper(pasteUnicode,
+                                                                 iconColorDefault,
+                                                                 QSize(28, 28),
+                                                                 QIcon::Normal);
+    const auto pasteDisabled = Utils::StyleHelper::IconFontHelper(pasteUnicode,
+                                                                  iconColorDisabled,
+                                                                  QSize(28, 28),
+                                                                  QIcon::Disabled);
+    const QIcon pasteIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                    {pasteDefault, pasteDisabled});
 
     addDesignerAction(new ModelNodeAction(copyFormatCommandId,
                                           copyFormatDisplayName,
