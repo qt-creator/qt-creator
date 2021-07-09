@@ -1064,12 +1064,12 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
     return {};
 }
 
-QByteArray DockerDevice::fileContents(const FilePath &filePath, int limit) const
+QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
     if (hasLocalFileAccess())
-        return mapToLocalAccess(filePath).fileContents(limit);
+        return mapToLocalAccess(filePath).fileContents(limit, offset);
 
     QTC_CHECK(false); // FIXME: Implement
     return {};

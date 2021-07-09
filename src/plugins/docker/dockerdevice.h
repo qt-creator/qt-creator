@@ -93,7 +93,7 @@ public:
                                             const QStringList &nameFilters,
                                             QDir::Filters filters,
                                             QDir::SortFlags sort) const override;
-    QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
+    QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     void runProcess(Utils::QtcProcess &process) const override;

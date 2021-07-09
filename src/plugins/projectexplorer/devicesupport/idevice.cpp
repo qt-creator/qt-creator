@@ -353,7 +353,7 @@ QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
     return {};
 }
 
-QByteArray IDevice::fileContents(const FilePath &filePath, int limit) const
+QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(limit);

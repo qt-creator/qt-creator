@@ -75,7 +75,7 @@ public:
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
-    QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
+    QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
 
 protected:

@@ -280,10 +280,10 @@ FilePath DesktopDevice::symLinkTarget(const FilePath &filePath) const
     return filePath.symLinkTarget();
 }
 
-QByteArray DesktopDevice::fileContents(const FilePath &filePath, int limit) const
+QByteArray DesktopDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.fileContents(limit);
+    return filePath.fileContents(limit, offset);
 }
 
 bool DesktopDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const

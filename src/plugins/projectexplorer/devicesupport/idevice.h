@@ -257,7 +257,9 @@ public:
                                                     const QStringList &nameFilters,
                                                     QDir::Filters filters,
                                                     QDir::SortFlags sort = QDir::NoSort) const;
-    virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
+    virtual QByteArray fileContents(const Utils::FilePath &filePath,
+                                    qint64 limit,
+                                    qint64 offset) const;
     virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
