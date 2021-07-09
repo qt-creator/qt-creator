@@ -57,9 +57,28 @@ private:
 
 QString FunctionHintProposalModel::text(int index) const
 {
+    using Parameters = QList<ParameterInformation>;
     if (index < 0 || m_sigis.signatures().size() <= index)
         return {};
-    return m_sigis.signatures().at(index).label();
+    const SignatureInformation signature = m_sigis.signatures().at(index);
+    QString label = signature.label();
+    if (index != m_sigis.activeSignature().value_or(-1))
+        return label;
+
+    const int parametersIndex = m_sigis.activeParameter().value_or(-1);
+    if (parametersIndex < 0)
+        return label;
+
+    const QList<QString> parameters = Utils::transform(signature.parameters().value_or(Parameters()),
+                                                       &ParameterInformation::label);
+    if (parameters.size() <= parametersIndex)
+        return label;
+
+    const QString &parameterText = parameters.at(parametersIndex);
+    const int start = label.indexOf(parameterText);
+    const int end = start + parameterText.length();
+    return label.mid(0, start).toHtmlEscaped() + "<b>" + parameterText.toHtmlEscaped() + "</b>"
+           + label.mid(end).toHtmlEscaped();
 }
 
 class FunctionHintProcessor : public IAssistProcessor
