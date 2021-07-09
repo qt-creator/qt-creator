@@ -1178,7 +1178,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
     QMakeVfs vfs;
     QMakeGlobals option;
     applyProperties(&option);
-    Environment env = Environment::systemEnvironment(); // FIXME: Use build device
+    Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
     ProMessageHandler msgHandler(true);
@@ -1709,7 +1709,7 @@ void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 
 Environment BaseQtVersion::qmakeRunEnvironment() const
 {
-    Environment env = Environment::systemEnvironment(); // FIXME: Use build environment
+    Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     return env;
 }
@@ -2291,7 +2291,8 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
     (const FilePath &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
-    if (!BaseQtVersionPrivate::queryQMakeVariables(qmakePath, Environment::systemEnvironment(), &versionInfo, error))
+    const Environment env = qmakePath.deviceEnvironment();
+    if (!BaseQtVersionPrivate::queryQMakeVariables(qmakePath, env, &versionInfo, error))
         return nullptr;
     FilePath mkspec = BaseQtVersionPrivate::mkspecFromVersionInfo(versionInfo, qmakePath);
 
