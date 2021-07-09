@@ -364,7 +364,7 @@ private:
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QProcess::ProcessState m_state = QProcess::NotRunning;
     int m_exitCode = 0;
-    int m_connectionAttempts = 0;
+    bool m_canceled = false;
     bool m_socketError = false;
 };
 
@@ -408,8 +408,10 @@ void ProcessLauncherImpl::cancel()
         break;
     case QProcess::Running:
         sendPacket(StopProcessPacket(token()));
+        m_state = QProcess::NotRunning;
         break;
     }
+    m_canceled = true;
 }
 
 void ProcessLauncherImpl::handlePacket(LauncherPacketType type, quintptr token, const QByteArray &payload)
@@ -459,6 +461,8 @@ void ProcessLauncherImpl::handleErrorPacket(const QByteArray &packetData)
 
 void ProcessLauncherImpl::handleFinishedPacket(const QByteArray &packetData)
 {
+    if (m_canceled)
+        return;
     QTC_ASSERT(m_state == QProcess::Running, return);
     m_state = QProcess::NotRunning;
     const auto packet = LauncherPacket::extractPacket<ProcessFinishedPacket>(token(), packetData);
@@ -818,6 +822,8 @@ bool QtcProcess::stopProcess()
     if (state() == QProcess::NotRunning)
         return true;
     terminate();
+    if (state() == QProcess::NotRunning)
+        return true;
     if (waitForFinished(300))
         return true;
     kill();
