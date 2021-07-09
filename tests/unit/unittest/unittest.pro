@@ -31,6 +31,15 @@ unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 RELATIVE_DATA_PATH = ../../../share/qtcreator
 DEFINES += $$shell_quote(RELATIVE_DATA_PATH=\"$$RELATIVE_DATA_PATH\")
 
+win32 {
+    RELATIVE_LIBEXEC_PATH = .
+} else: macos {
+    RELATIVE_LIBEXEC_PATH = ../Resources/libexec
+} else {
+    RELATIVE_LIBEXEC_PATH = ../libexec/qtcreator
+}
+DEFINES += $$shell_quote(RELATIVE_LIBEXEC_PATH=\"$$RELATIVE_LIBEXEC_PATH\")
+
 linux {
 QMAKE_LFLAGS_RELEASE = #disable optimization
 QMAKE_LFLAGS += -fno-merge-debug-strings -fuse-ld=gold
