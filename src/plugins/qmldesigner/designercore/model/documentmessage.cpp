@@ -70,9 +70,9 @@ QString DocumentMessage::toString() const
     QString str;
 
     if (m_type == ParseError)
-        str += tr("Error parsing");
+        str += ::QmlDesigner::DocumentMessage::tr("Error parsing");
     else if (m_type == InternalError)
-        str += tr("Internal error");
+        str += ::QmlDesigner::DocumentMessage::tr("Internal error");
 
     if (url().isValid()) {
         if (!str.isEmpty())
@@ -84,14 +84,14 @@ QString DocumentMessage::toString() const
     if (line() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
-        str += tr("line %1").arg(line());
+        str += ::QmlDesigner::DocumentMessage::tr("line %1").arg(line());
     }
 
     if (column() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
 
-        str += tr("column %1").arg(column());
+        str += ::QmlDesigner::DocumentMessage::tr("column %1").arg(column());
     }
 
     if (!str.isEmpty())

@@ -35,6 +35,8 @@ namespace Internal {
 
 class DockerSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerSettings)
+
 public:
     DockerSettings();
     static DockerSettings *instance();

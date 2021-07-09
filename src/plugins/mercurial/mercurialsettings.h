@@ -34,6 +34,8 @@ namespace Internal {
 
 class MercurialSettings : public VcsBase::VcsBaseSettings
 {
+    Q_DECLARE_TR_FUNCTIONS(Mercurial::Internal::MercurialSettings)
+
 public:
     Utils::StringAspect diffIgnoreWhiteSpace;
     Utils::StringAspect diffIgnoreBlankLines;

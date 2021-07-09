@@ -72,7 +72,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
 CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
 {
     setId("CMakeSpecificSettings");
-    setDisplayName(CMakeSpecificSettings::tr("CMake"));
+    setDisplayName(::CMakeProjectManager::Internal::CMakeSpecificSettings::tr("CMake"));
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setSettings(settings);
 
@@ -81,7 +81,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
         using namespace Layouting;
         Column {
             Group {
-                Title(CMakeSpecificSettings::tr("Adding Files")),
+                Title(::CMakeProjectManager::Internal::CMakeSpecificSettings::tr("Adding Files")),
                 s.afterAddFileSetting
             },
             s.packageManagerAutoSetup,

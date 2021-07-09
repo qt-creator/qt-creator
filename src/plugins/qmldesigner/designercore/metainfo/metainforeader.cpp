@@ -100,7 +100,8 @@ void MetaInfoReader::elementStart(const QString &name)
     case ParsingHints:
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing."), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Illegal state while parsing."),
+                 currentSourceLocation());
     case Error:
     default: return;
     }
@@ -120,7 +121,8 @@ void MetaInfoReader::elementEnd()
     case ParsingDocument:
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing."), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Illegal state while parsing."),
+                 currentSourceLocation());
     case Error:
     default: return;
     }
@@ -135,12 +137,16 @@ void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &val
     case ParsingProperty: readPropertyProperty(name, value); break;
     case ParsingQmlSource: readQmlSourceProperty(name, value); break;
     case ParsingExtraFile: readExtraFileProperty(name, value); break;
-    case ParsingMetaInfo: addError(tr("No property definition allowed."), currentSourceLocation()); break;
+    case ParsingMetaInfo:
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("No property definition allowed."),
+                 currentSourceLocation());
+        break;
     case ParsingDocument:
     case ParsingHints: readHint(name, value); break;
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing."), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Illegal state while parsing."),
+                 currentSourceLocation());
     case Error:
     default: return;
     }
@@ -203,26 +209,30 @@ MetaInfoReader::ParserSate MetaInfoReader::readItemLibraryEntryElement(const QSt
     } else if (name == ExtraFileElementName) {
         return ParsingExtraFile;
     } else {
-        addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Invalid type %1").arg(name),
+                 currentSourceLocation());
         return Error;
     }
 }
 
 MetaInfoReader::ParserSate MetaInfoReader::readPropertyElement(const QString &name)
 {
-    addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+    addError(::QmlDesigner::Internal::MetaInfoReader::tr("Invalid type %1").arg(name),
+             currentSourceLocation());
     return Error;
 }
 
 MetaInfoReader::ParserSate MetaInfoReader::readQmlSourceElement(const QString &name)
 {
-    addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+    addError(::QmlDesigner::Internal::MetaInfoReader::tr("Invalid type %1").arg(name),
+             currentSourceLocation());
     return Error;
 }
 
 MetaInfoReader::ParserSate MetaInfoReader::readExtraFileElement(const QString &name)
 {
-    addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+    addError(::QmlDesigner::Internal::MetaInfoReader::tr("Invalid type %1").arg(name),
+             currentSourceLocation());
     return Error;
 }
 
@@ -237,7 +247,9 @@ void MetaInfoReader::readImportsProperty(const QString &name, const QVariant &va
         // imports to keep compatibility with old metainfo files.
         m_metaInfo.itemLibraryInfo()->addPriorityImports(Utils::toSet(values));
     } else {
-        addError(tr("Unknown property for Imports %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Unknown property for Imports %1")
+                     .arg(name),
+                 currentSourceLocation());
         setParserState(Error);
     }
 }
@@ -251,7 +263,9 @@ void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value
     } else if (name == QStringLiteral("icon")) {
         m_currentIcon = absoluteFilePathForDocument(value.toString());
     } else {
-        addError(tr("Unknown property for Type %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Unknown property for Type %1")
+                     .arg(name),
+                 currentSourceLocation());
         setParserState(Error);
     }
 }
@@ -269,7 +283,10 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
     } else if (name == QStringLiteral("requiredImport")) {
         m_currentEntry.setRequiredImport(value.toString());
     } else {
-        addError(tr("Unknown property for ItemLibraryEntry %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr(
+                     "Unknown property for ItemLibraryEntry %1")
+                     .arg(name),
+                 currentSourceLocation());
         setParserState(Error);
     }
 }
@@ -299,7 +316,9 @@ void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &v
     } else if (name == QStringLiteral("value")) {
         m_currentPropertyValue = deEscapeVariant(value);
     } else {
-        addError(tr("Unknown property for Property %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Unknown property for Property %1")
+                     .arg(name),
+                 currentSourceLocation());
         setParserState(Error);
     }
 }
@@ -309,7 +328,9 @@ void MetaInfoReader::readQmlSourceProperty(const QString &name, const QVariant &
     if (name == QLatin1String("source")) {
         m_currentEntry.setQmlPath(absoluteFilePathForDocument(value.toString()));
     } else {
-        addError(tr("Unknown property for QmlSource %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Unknown property for QmlSource %1")
+                     .arg(name),
+                 currentSourceLocation());
         setParserState(Error);
     }
 }
@@ -319,7 +340,9 @@ void MetaInfoReader::readExtraFileProperty(const QString &name, const QVariant &
     if (name == QLatin1String("source")) {
         m_currentEntry.addExtraFilePath(absoluteFilePathForDocument(value.toString()));
     } else {
-        addError(tr("Unknown property for ExtraFile %1").arg(name), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr("Unknown property for ExtraFile %1")
+                     .arg(name),
+                 currentSourceLocation());
         setParserState(Error);
     }
 }
@@ -366,7 +389,10 @@ void MetaInfoReader::syncItemLibraryEntries()
     try {
         m_metaInfo.itemLibraryInfo()->addEntries(m_bufferedEntries, m_overwriteDuplicates);
     } catch (const InvalidMetaInfoException &) {
-        addError(tr("Invalid or duplicate library entry %1").arg(m_currentEntry.name()), currentSourceLocation());
+        addError(::QmlDesigner::Internal::MetaInfoReader::tr(
+                     "Invalid or duplicate library entry %1")
+                     .arg(m_currentEntry.name()),
+                 currentSourceLocation());
     }
     m_bufferedEntries.clear();
 }
@@ -383,7 +409,8 @@ void MetaInfoReader::insertProperty()
 
 void MetaInfoReader::addErrorInvalidType(const QString &typeName)
 {
-    addError(tr("Invalid type %1").arg(typeName), currentSourceLocation());
+    addError(::QmlDesigner::Internal::MetaInfoReader::tr("Invalid type %1").arg(typeName),
+             currentSourceLocation());
 }
 
 QString MetaInfoReader::absoluteFilePathForDocument(const QString &relativeFilePath)
