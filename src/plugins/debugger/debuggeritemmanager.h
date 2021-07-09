@@ -52,7 +52,8 @@ public:
     static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const QVariant &id);
 
-    static void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot);
+    static void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot,
+                                             const QString &detectionSource);
 
     static const DebuggerItem *findByCommand(const Utils::FilePath &command);
     static const DebuggerItem *findById(const QVariant &id);

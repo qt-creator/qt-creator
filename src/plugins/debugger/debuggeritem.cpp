@@ -57,7 +57,8 @@ const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
 const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char DEBUGGER_INFORMATION_ID[] = "Id";
 const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
-const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
+const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected"; // FIXME: Merge into DetectionSource
+const char DEBUGGER_INFORMATION_DETECTION_SOURCE[] = "DetectionSource";
 const char DEBUGGER_INFORMATION_VERSION[] = "Version";
 const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
@@ -113,6 +114,7 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
     m_workingDirectory = FilePath::fromVariant(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY));
     m_unexpandedDisplayName = data.value(DEBUGGER_INFORMATION_DISPLAYNAME).toString();
     m_isAutoDetected = data.value(DEBUGGER_INFORMATION_AUTODETECTED, false).toBool();
+    m_detectionSource = data.value(DEBUGGER_INFORMATION_DETECTION_SOURCE).toString();
     m_version = data.value(DEBUGGER_INFORMATION_VERSION).toString();
     m_engineType = DebuggerEngineType(data.value(DEBUGGER_INFORMATION_ENGINETYPE,
                                                  static_cast<int>(NoEngineType)).toInt());
@@ -210,8 +212,8 @@ void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
         const bool unableToFindAVersion = (0 == version);
         const bool gdbSupportsConfigurationFlag = (version >= 70700);
         if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-            const auto gdbConfiguration = getConfigurationOfGdbCommand(m_command, sysEnv);
-            const auto gdbTargetAbiString =
+            const QString gdbConfiguration = getConfigurationOfGdbCommand(m_command, sysEnv);
+            const QString gdbTargetAbiString =
                     extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration);
             if (!gdbTargetAbiString.isEmpty()) {
                 m_abis.append(Abi::abiFromTargetTriplet(gdbTargetAbiString));
@@ -318,6 +320,7 @@ bool DebuggerItem::operator==(const DebuggerItem &other) const
     return m_id == other.m_id
             && m_unexpandedDisplayName == other.m_unexpandedDisplayName
             && m_isAutoDetected == other.m_isAutoDetected
+            && m_detectionSource == other.m_detectionSource
             && m_command == other.m_command
             && m_workingDirectory == other.m_workingDirectory;
 }
@@ -331,6 +334,7 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(DEBUGGER_INFORMATION_WORKINGDIRECTORY, m_workingDirectory.toVariant());
     data.insert(DEBUGGER_INFORMATION_ENGINETYPE, int(m_engineType));
     data.insert(DEBUGGER_INFORMATION_AUTODETECTED, m_isAutoDetected);
+    data.insert(DEBUGGER_INFORMATION_DETECTION_SOURCE, m_detectionSource);
     data.insert(DEBUGGER_INFORMATION_VERSION, m_version);
     data.insert(DEBUGGER_INFORMATION_ABIS, abiNames());
     data.insert(DEBUGGER_INFORMATION_LASTMODIFIED, m_lastModified);

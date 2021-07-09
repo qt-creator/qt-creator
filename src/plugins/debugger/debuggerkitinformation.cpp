@@ -185,9 +185,12 @@ void DebuggerKitAspect::setup(Kit *k)
             // This improves the situation a bit if a cross-compilation tool chain has the
             // same ABI as the host.
             if (level == DebuggerItem::MatchesPerfectly
+                    && !item.command().needsDevice()
                     && systemEnvironment.path().contains(item.command().parentDir())) {
                 level = DebuggerItem::MatchesPerfectlyInPath;
             }
+            if (!item.detectionSource().isEmpty() && item.detectionSource() == k->autoDetectionSource())
+                level = DebuggerItem::MatchLevel(level + 2);
         } else if (rawId.type() == QVariant::String) {
             // New structure.
             if (item.id() == rawId) {

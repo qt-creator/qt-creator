@@ -92,7 +92,7 @@ public:
     QVariant registerDebugger(const DebuggerItem &item);
     void readDebuggers(const FilePath &fileName, bool isSystem);
     void autoDetectCdbDebuggers();
-    void autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot);
+    void autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot, const QString &detectionSource);
     void autoDetectUvscDebuggers();
     QString uniqueDisplayName(const QString &base);
 
@@ -556,7 +556,6 @@ void DebuggerConfigWidget::addDebugger()
 {
     DebuggerItem item;
     item.createId();
-    item.setAutoDetected(false);
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(d->uniqueDisplayName(tr("New Debugger")));
     item.setAutoDetected(false);
@@ -715,7 +714,8 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
     return searchPaths;
 }
 
-void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot)
+void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot,
+                                                              const QString &detectionSource)
 {
     const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
                                  "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
@@ -784,14 +784,17 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &de
         }
         DebuggerItem item;
         item.createId();
+        item.setDetectionSource(detectionSource);
+        // Intentionally set items with non-empty source as manual for now to
+        // give the user a chance to remove them. FIXME: Think of a better way.
+        item.setAutoDetected(detectionSource.isEmpty());
         item.setCommand(command);
         item.reinitializeFromFile();
         if (item.engineType() == NoEngineType)
             continue;
         //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
-        item.setUnexpandedDisplayName(tr("System %1 at %2")
-            .arg(item.engineTypeName()).arg(command.toUserOutput()));
-        item.setAutoDetected(true);
+        const QString name = detectionSource.isEmpty() ? tr("System %1 at %2") : tr("Detected %1 at %2");
+        item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
         m_model->addDebugger(item);
     }
 }
@@ -942,7 +945,7 @@ void DebuggerItemManagerPrivate::restoreDebuggers()
 
     // Auto detect current.
     autoDetectCdbDebuggers();
-    autoDetectGdbOrLldbDebuggers({});
+    autoDetectGdbOrLldbDebuggers({}, {});
     autoDetectUvscDebuggers();
 }
 
@@ -1026,9 +1029,10 @@ void DebuggerItemManager::deregisterDebugger(const QVariant &id)
     });
 }
 
-void DebuggerItemManager::autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot)
+void DebuggerItemManager::autoDetectDebuggersForDevice(const FilePath &deviceRoot,
+                                                       const QString &detectionSource)
 {
-    d->autoDetectGdbOrLldbDebuggers(deviceRoot);
+    d->autoDetectGdbOrLldbDebuggers(deviceRoot, detectionSource);
 }
 
 } // namespace Debugger

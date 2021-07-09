@@ -570,7 +570,8 @@ void KitDetectorPrivate::autoDetectDebugger()
     const FilePath deviceRoot = m_device->mapToGlobalPath({});
     const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                "autoDetectDebuggersForDevice",
-                                               Q_ARG(Utils::FilePath, deviceRoot));
+                                               Q_ARG(Utils::FilePath, deviceRoot),
+                                               Q_ARG(QString, m_sharedId));
     QTC_CHECK(res);
 }
 

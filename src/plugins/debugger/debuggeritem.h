@@ -103,6 +103,9 @@ public:
     Utils::FilePath workingDirectory() const { return m_workingDirectory; }
     void setWorkingDirectory(const Utils::FilePath &workingPath) { m_workingDirectory = workingPath; }
 
+    QString detectionSource() const { return m_detectionSource; }
+    void setDetectionSource(const QString &source) { m_detectionSource = source; }
+
 private:
     DebuggerItem(const QVariant &id);
     void initMacroExpander();
@@ -116,6 +119,7 @@ private:
     QString m_version;
     ProjectExplorer::Abis m_abis;
     QDateTime m_lastModified;
+    QString m_detectionSource;
 
     friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;
