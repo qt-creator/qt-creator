@@ -400,11 +400,12 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 }
 
-void Client::sendContent(const IContent &content)
+void Client::sendContent(const IContent &content, SendDocUpdates sendUpdates)
 {
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
-    sendPostponedDocumentUpdates();
+    if (sendUpdates == SendDocUpdates::Send)
+        sendPostponedDocumentUpdates();
     if (Utils::optional<ResponseHandler> responseHandler = content.responseHandler())
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
@@ -418,7 +419,7 @@ void Client::sendContent(const IContent &content)
 void Client::cancelRequest(const MessageId &id)
 {
     m_responseHandlers.remove(id);
-    sendContent(CancelRequest(CancelParameter(id)));
+    sendContent(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
 }
 
 void Client::closeDocument(TextEditor::TextDocument *document)

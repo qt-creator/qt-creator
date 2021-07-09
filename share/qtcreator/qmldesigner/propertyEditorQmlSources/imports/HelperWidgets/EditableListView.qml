@@ -28,170 +28,212 @@ import QtQuick.Layouts 1.15
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
-Rectangle {
+Item {
     id: editableListView
-
-    property variant backendValue
 
     ExtendedFunctionLogic {
         id: extFuncLogic
         backendValue: editableListView.backendValue
     }
 
+    property var backendValue
     property var model
     onModelChanged: myRepeater.updateModel()
+
+    property alias actionIndicator: actionIndicator
+    property alias actionIndicatorVisible: actionIndicator.visible
+    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property string typeFilter: "QtQuick3D.Material"
+    property int activatedReason: ComboBox.ActivatedReason.Other
+
+    property bool delegateHover: false
 
     signal add(string value)
     signal remove(int idx)
     signal replace(int idx, string value)
-
-    property alias actionIndicator: actionIndicator
-
-    property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
-
-    property string typeFilter: "QtQuick3D.Material"
-
-    property int activatedReason: ComboBox.ActivatedReason.Other
-
-    color: "transparent"
-    border.color: StudioTheme.Values.themeControlOutline
-    border.width: StudioTheme.Values.border
 
     Layout.preferredWidth: StudioTheme.Values.height * 10
     Layout.preferredHeight: myColumn.height
 
     Component {
         id: myDelegate
-        ListViewComboBox {
-            id: itemFilterComboBox
-
-            property int myIndex: index
-            property bool empty: itemFilterComboBox.initialModelData === ""
-
-            validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
-
-            actionIndicatorVisible: false
-            typeFilter: editableListView.typeFilter
-            editText: modelData
-            initialModelData: modelData
-
-            width: editableListView.width
-
-            onFocusChanged: {
-                if (itemFilterComboBox.focus) {
-                    myColumn.currentIndex = index
-                }
-
-                if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
-                    myRepeater.dirty = false
-                    editableListView.add(itemFilterComboBox.editText)
-                }
-            }
-
-            onCompressedActivated: {
-                editableListView.activatedReason = reason
-
-                if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
-                    myRepeater.dirty = false
-                    editableListView.add(itemFilterComboBox.editText)
-                } else {
-                    editableListView.replace(itemFilterComboBox.myIndex, itemFilterComboBox.editText)
-                }
-            }
-        }
-    }
-
-    Rectangle {
-        id: highlightRect
-        color: "transparent"
-        border.width: StudioTheme.Values.border
-        border.color: StudioTheme.Values.themeInteraction
-        visible: myColumn.currentItem ? myColumn.currentItem.focus : false
-        x: myColumn.currentItem ? myColumn.currentItem.x : 0
-        y: myColumn.currentItem ? myColumn.currentItem.y : 0
-        z: 10
-        width: myColumn.currentItem ? myColumn.currentItem.width : 0
-        height: myColumn.currentItem ? myColumn.currentItem.height : 0
-    }
-
-    Column {
-        id: myColumn
-
-        property int currentIndex: -1
-        property Item currentItem
-
-        spacing: -1
-
-        onCurrentIndexChanged: myColumn.currentItem = myRepeater.itemAt(myColumn.currentIndex)
-
-        Repeater {
-            id: myRepeater
-
-            property bool dirty: false
-            property var localModel: []
-
-            delegate: myDelegate
-
-            onItemAdded: function(index, item) {
-                if (index === myColumn.currentIndex)
-                    myColumn.currentItem = item
-            }
-
-            function updateModel() {
-                var lastIndex = myColumn.currentIndex
-                myColumn.currentIndex = -1
-                myRepeater.localModel = []
-
-                editableListView.model.forEach(function(item) {
-                    myRepeater.localModel.push(item)
-                });
-
-                // if list view is still dirty, then last state had an unfinished/empty ComboBox
-                if (myRepeater.dirty)
-                    myRepeater.localModel.push("")
-
-                myRepeater.model = myRepeater.localModel // trigger on change handler
-
-                if (lastIndex < 0 && myRepeater.localModel.length > 0)
-                    myColumn.currentIndex = 0
-                else if (myRepeater.localModel.length > lastIndex)
-                    myColumn.currentIndex = lastIndex
-                else
-                    myColumn.currentIndex = myRepeater.localModel.length - 1
-
-                if (editableListView.activatedReason === ComboBox.ActivatedReason.Other)
-                    myColumn.currentItem.forceActiveFocus()
-            }
-        }
-
-        Item {
-            id: dummyItem
-            visible: myRepeater.count === 0
-            width: StudioTheme.Values.height
-            height: StudioTheme.Values.height
-        }
 
         Row {
-            id: row
-            spacing: -StudioTheme.Values.border
+            property alias comboBox: itemFilterComboBox
+            ListViewComboBox {
+                id: itemFilterComboBox
 
-            StudioControls.ActionIndicator {
-                id: actionIndicator
-                width: actionIndicator.visible ? __actionIndicatorWidth : 0
-                height: actionIndicator.visible ? __actionIndicatorHeight : 0
+                property int myIndex: index
+                property bool empty: itemFilterComboBox.initialModelData === ""
 
-                border.width: StudioTheme.Values.border
-                border.color: StudioTheme.Values.themeControlOutline
+                validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
 
-                icon.color: extFuncLogic.color
-                icon.text: extFuncLogic.glyph
-                onClicked: extFuncLogic.show()
+                actionIndicatorVisible: false
+                typeFilter: editableListView.typeFilter
+                editText: modelData
+                initialModelData: modelData
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                width: implicitWidth
+
+                onFocusChanged: {
+                    if (itemFilterComboBox.focus)
+                        myColumn.currentIndex = index
+
+                    if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
+                        myRepeater.dirty = false
+                        editableListView.add(itemFilterComboBox.editText)
+                    }
+                }
+
+                onCompressedActivated: {
+                    editableListView.activatedReason = reason
+
+                    if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
+                        myRepeater.dirty = false
+                        editableListView.add(itemFilterComboBox.editText)
+                    } else {
+                        editableListView.replace(itemFilterComboBox.myIndex, itemFilterComboBox.editText)
+                    }
+                }
+
+                onHoverChanged: editableListView.delegateHover = itemFilterComboBox.hover
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+            IconIndicator {
+                id: closeIndicator
+                icon: StudioTheme.Constants.closeCross
+                onClicked: {
+                    var lastItem = index === myRepeater.localModel.length - 1
+                    if (myColumn.currentItem.initialModelData === "") {
+                        myRepeater.localModel.pop()
+                        myRepeater.dirty = false
+                        myRepeater.model = myRepeater.localModel // trigger on change handler
+                    } else {
+                        editableListView.remove(index)
+                    }
+                    if (!lastItem)
+                        myColumn.currentIndex = index - 1
+                }
+                onHoveredChanged: editableListView.delegateHover = closeIndicator.hovered
+            }
+        }
+    }
+
+    Row {
+        ActionIndicator {
+            id: actionIndicator
+            icon.visible: editableListView.delegateHover
+            icon.color: extFuncLogic.color
+            icon.text: extFuncLogic.glyph
+            onClicked: extFuncLogic.show()
+        }
+
+        Column {
+            id: myColumn
+
+            property int currentIndex: -1
+            property Item currentItem
+
+            spacing: StudioTheme.Values.sectionRowSpacing
+
+            onCurrentIndexChanged: {
+                var tmp = myRepeater.itemAt(myColumn.currentIndex)
+                if (tmp !== null)
+                    myColumn.currentItem = tmp.comboBox
+            }
+
+            Repeater {
+                id: myRepeater
+
+                property bool dirty: false
+                property var localModel: []
+
+                delegate: myDelegate
+
+                onItemAdded: function(index, item) {
+                    if (index === myColumn.currentIndex)
+                        myColumn.currentItem = item
+                }
+
+                function updateModel() {
+                    var lastIndex = myColumn.currentIndex
+                    myColumn.currentIndex = -1
+                    myRepeater.localModel = []
+
+                    editableListView.model.forEach(function(item) {
+                        myRepeater.localModel.push(item)
+                    });
+
+                    // if list view is still dirty, then last state had an unfinished/empty ComboBox
+                    if (myRepeater.dirty)
+                        myRepeater.localModel.push("")
+
+                    myRepeater.model = myRepeater.localModel // trigger on change handler
+
+                    if (lastIndex < 0 && myRepeater.localModel.length > 0)
+                        myColumn.currentIndex = 0
+                    else if (myRepeater.localModel.length > lastIndex)
+                        myColumn.currentIndex = lastIndex
+                    else
+                        myColumn.currentIndex = myRepeater.localModel.length - 1
+
+                    if (editableListView.activatedReason === ComboBox.ActivatedReason.Other
+                        && myColumn.currentItem !== null)
+                        myColumn.currentItem.forceActiveFocus()
+                }
+            }
+
+            ListViewComboBox {
+                id: dummyComboBox
+
+                //property int myIndex: index
+                //property bool empty: dummyComboBox.initialModelData === ""
+
+                visible: myRepeater.count === 0
+
+                validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
+
+                actionIndicatorVisible: false
+                typeFilter: editableListView.typeFilter
+                //editText: modelData
+                //initialModelData: modelData
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                width: implicitWidth
+
+                onFocusChanged: {
+                    //if (itemFilterComboBox.focus)
+                    //    myColumn.currentIndex = index
+
+                    if (/*dummyComboBox.empty && */dummyComboBox.editText !== "") {
+                        //myRepeater.dirty = false
+                        editableListView.add(dummyComboBox.editText)
+                    }
+                }
+
+                onCompressedActivated: {
+                    editableListView.activatedReason = reason
+
+                    if (/*dummyComboBox.empty && */dummyComboBox.editText !== "") {
+                        //myRepeater.dirty = false
+                        editableListView.add(dummyComboBox.editText)
+                    } else {
+                        editableListView.replace(dummyComboBox.myIndex, dummyComboBox.editText)
+                    }
+                }
+
+                onHoverChanged: editableListView.delegateHover = dummyComboBox.hover
+            }
+
+
+
             StudioControls.AbstractButton {
+                id: plusButton
                 buttonIcon: StudioTheme.Constants.plus
-                enabled: !myRepeater.dirty && !(editableListView.backendValue.isInModel && !editableListView.backendValue.isIdList)
+                enabled: !myRepeater.dirty && !(editableListView.backendValue.isInModel
+                                                && !editableListView.backendValue.isIdList)
                 onClicked: {
                     var idx = myRepeater.localModel.push("") - 1
                     myRepeater.model = myRepeater.localModel // trigger on change handler
@@ -199,29 +241,7 @@ Rectangle {
                     myColumn.currentIndex = idx
                     myColumn.currentItem.forceActiveFocus()
                 }
-            }
-            StudioControls.AbstractButton {
-                buttonIcon: StudioTheme.Constants.minus
-                enabled: myRepeater.model.length && !(editableListView.backendValue.isInModel && !editableListView.backendValue.isIdList)
-                onClicked: {
-                    var lastItem = myColumn.currentIndex === myRepeater.localModel.length - 1
-                    if (myColumn.currentItem.initialModelData === "") {
-                        myRepeater.localModel.pop()
-                        myRepeater.dirty = false
-                        myRepeater.model = myRepeater.localModel // trigger on change handler
-                    } else {
-                        editableListView.remove(myColumn.currentIndex)
-                    }
-                    if (!lastItem)
-                        myColumn.currentIndex = myColumn.currentIndex - 1
-                }
-            }
-            Rectangle {
-                color: StudioTheme.Values.themeControlBackground
-                border.width: StudioTheme.Values.border
-                border.color: StudioTheme.Values.themeControlOutline
-                height: StudioTheme.Values.height
-                width: editableListView.width - (StudioTheme.Values.height - StudioTheme.Values.border) * (actionIndicatorVisible ? 3 : 2)
+                onHoveredChanged: editableListView.delegateHover = plusButton.hovered
             }
         }
     }

@@ -500,7 +500,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
     emit q->logOutput('\n' + tr("Searching Qt installations..."));
     for (const QString &candidate : candidates) {
         emit q->logOutput(tr("Searching for %1 executable...").arg(candidate));
-        const FilePath qmake = m_device->searchInPath(FilePath::fromString(candidate));
+        const FilePath qmake = m_device->searchExecutableInPath(candidate);
         if (qmake.isEmpty())
             continue;
         BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
@@ -546,8 +546,8 @@ void KitDetectorPrivate::autoDetectCMake()
     QString error;
     const QStringList candidates = {"cmake"};
     for (const QString &candidate : candidates) {
-        const FilePath cmake = m_device->searchInPath(FilePath::fromString(candidate));
-        if (cmake.isExecutableFile()) {
+        const FilePath cmake = m_device->searchExecutableInPath(candidate);
+        if (!cmake.isEmpty()) {
             emit q->logOutput(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
             const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                        "registerCMakeByPath",
@@ -1043,35 +1043,6 @@ FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
         return mapToGlobalPath(target);
     }
     QTC_CHECK(false);
-    return {};
-}
-
-FilePath DockerDevice::searchInPath(const FilePath &filePath, const FilePaths &additionalDirs) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    tryCreateLocalFileAccess();
-
-    const QString path = filePath.path();
-
-    // FIXME: Check whether local search via deviceEnvironment/PATH is faster?
-    CommandLine dcmd{"docker", {"exec", d->m_container, "which", path}};
-    QtcProcess proc;
-    proc.setCommand(dcmd);
-    proc.start();
-    proc.waitForFinished();
-
-    LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
-    if (proc.exitCode() == 0) {
-        const QString output = proc.stdOut().trimmed();
-        return mapToGlobalPath(FilePath::fromString(output));
-    }
-
-    for (const FilePath &dir : additionalDirs) {
-        const FilePath candidate = dir / filePath.path();
-        if (candidate.exists())
-            return candidate;
-    }
-
     return {};
 }
 

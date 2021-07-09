@@ -196,6 +196,8 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             break;
         }
     }
+    if (m_cdataMode == Description)
+        m_xmlReader.addData("\n");
     m_xmlReader.addData(QString::fromUtf8(outputLine));
     while (!m_xmlReader.atEnd()) {
         if (m_futureInterface.isCanceled())

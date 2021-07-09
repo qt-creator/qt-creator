@@ -22,7 +22,7 @@ DSdisabledColor=ff8e8e8e
 
 DScontrolBackground=ffeaeaea
 DScontrolBackgroundInteraction=ffc9c9c9
-DScontrolBackgroundDisabled=ff8e8e8e
+DScontrolBackgroundDisabled=ffeaeaea
 DScontrolBackgroundGlobalHover=ffe5e5e5
 DScontrolBackgroundHover=ffd1d1d1
 

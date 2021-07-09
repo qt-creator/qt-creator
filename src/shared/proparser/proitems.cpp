@@ -25,6 +25,7 @@
 
 #include "proitems.h"
 
+#include <qdebug.h>
 #include <qfileinfo.h>
 #include <qset.h>
 #include <qstringlist.h>
@@ -50,6 +51,11 @@ ProString::ProString() :
 {
 }
 
+ProString::ProString(const ProString &other) :
+    m_string(other.m_string), m_offset(other.m_offset), m_length(other.m_length), m_file(other.m_file), m_hash(other.m_hash)
+{
+}
+
 ProString::ProString(const ProString &other, OmitPreHashing) :
     m_string(other.m_string), m_offset(other.m_offset), m_length(other.m_length), m_file(other.m_file), m_hash(0x80000000)
 {
@@ -72,13 +78,13 @@ ProString::ProString(Utils::StringView str) :
 }
 
 ProString::ProString(const char *str, DoPreHashing) :
-    m_string(QString::fromLatin1(str)), m_offset(0), m_length(qstrlen(str)), m_file(0)
+    m_string(QString::fromLatin1(str)), m_offset(0), m_length(int(qstrlen(str))), m_file(0)
 {
     updatedHash();
 }
 
 ProString::ProString(const char *str) :
-    m_string(QString::fromLatin1(str)), m_offset(0), m_length(qstrlen(str)), m_file(0), m_hash(0x80000000)
+    m_string(QString::fromLatin1(str)), m_offset(0), m_length(int(qstrlen(str))), m_file(0), m_hash(0x80000000)
 {
 }
 
@@ -148,7 +154,8 @@ QString ProString::toQString() const
 
 QString &ProString::toQString(QString &tmp) const
 {
-    return tmp.setRawData(m_string.constData() + m_offset, m_length);
+    tmp = m_string.mid(m_offset, m_length);
+    return tmp;
 }
 
 ProString &ProString::prepend(const ProString &other)
@@ -491,6 +498,11 @@ ProKey ProFile::getHashStr(const ushort *&tPtr)
     ProKey ret(items(), tPtr - tokPtr(), len, hash);
     tPtr += len;
     return ret;
+}
+
+QDebug operator<<(QDebug debug, const ProString &str)
+{
+    return debug << str.toQString();
 }
 
 QT_END_NAMESPACE

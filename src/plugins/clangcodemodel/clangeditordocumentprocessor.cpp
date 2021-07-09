@@ -251,6 +251,14 @@ void ClangEditorDocumentProcessor::generateTaskHubIssues()
     m_diagnosticManager.generateTaskHubIssues();
 }
 
+void ClangEditorDocumentProcessor::clearTextMarks(const Utils::FilePath &filePath)
+{
+    if (ClangEditorDocumentProcessor * const proc = get(filePath.toString())) {
+        proc->m_diagnosticManager.cleanMarks();
+        emit proc->codeWarningsUpdated(proc->revision(), {}, {}, {});
+    }
+}
+
 void ClangEditorDocumentProcessor::updateHighlighting(
         const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,

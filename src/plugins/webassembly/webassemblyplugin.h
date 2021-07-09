@@ -48,6 +48,7 @@ public:
 #ifdef WITH_TESTS
 private slots:
     void testEmSdkEnvParsing();
+    void testEmSdkEnvParsing_data();
 #endif // WITH_TESTS
 };
 

@@ -1374,17 +1374,17 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     Example usage:
     \code
         binary = FilePath::fromUrl("docker://123/./make);
-        fullPath = binary.onDeviceSearchInPath();
+        fullPath = binary.searchOnDevice();
         assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
     \endcode
 */
-FilePath FilePath::onDeviceSearchInPath(const FilePaths &additionalDirs) const
+FilePath FilePath::searchOnDevice(const FilePaths &dirs) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.searchInPath, return {});
-        return s_deviceHooks.searchInPath(*this, additionalDirs);
+        return s_deviceHooks.searchInPath(*this, dirs);
     }
-    return Environment::systemEnvironment().searchInPath(path(), additionalDirs);
+    return Environment::systemEnvironment().searchInPath(path(), dirs);
 }
 
 Environment FilePath::deviceEnvironment() const

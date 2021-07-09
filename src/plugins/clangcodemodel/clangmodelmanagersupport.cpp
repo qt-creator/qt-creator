@@ -316,6 +316,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                 if (!project->isKnownFile(entry->fileName()))
                     continue;
                 client->openDocument(textDocument);
+                ClangEditorDocumentProcessor::clearTextMarks(textDocument->filePath());
                 hasDocuments = true;
             }
 

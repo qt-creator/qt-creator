@@ -58,7 +58,7 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     QList<ToolChain *> result;
 
     IDevice::ConstPtr dev = device ? device : DeviceManager::defaultDesktopDevice();
-    const FilePath compilerPath = dev->searchInPath(FilePath::fromString("nim"));
+    const FilePath compilerPath = dev->searchExecutableInPath("nim");
     if (compilerPath.isEmpty())
         return result;
 

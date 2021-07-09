@@ -311,9 +311,26 @@ bool IDevice::renameFile(const FilePath &filePath, const FilePath &target) const
     return false;
 }
 
-FilePath IDevice::searchInPath(const FilePath &filePath, const FilePaths &additionalDirs) const
+FilePath IDevice::searchExecutableInPath(const QString &fileName) const
 {
-    return Environment::systemEnvironment().searchInPath(filePath.path());
+    FilePaths paths;
+    for (const FilePath &path : systemEnvironment().path())
+        paths.append(mapToGlobalPath(path));
+    return searchExecutable(fileName, paths);
+}
+
+FilePath IDevice::searchExecutable(const QString &fileName, const FilePaths &dirs) const
+{
+    for (FilePath dir : dirs) {
+        if (!handlesFile(dir)) // Allow device-local dirs to be used.
+            dir = mapToGlobalPath(dir);
+        QTC_CHECK(handlesFile(dir));
+        const FilePath candidate = dir / fileName;
+        if (isExecutableFile(candidate))
+            return candidate;
+    }
+
+    return {};
 }
 
 FilePath IDevice::symLinkTarget(const FilePath &filePath) const

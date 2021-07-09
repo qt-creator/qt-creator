@@ -371,11 +371,11 @@ SemanticRequestTypes SemanticTokenSupport::supportedSemanticRequests(TextDocumen
 void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
                                                 const SemanticTokensResult &result)
 {
-    if (auto tokens = Utils::get_if<SemanticTokens>(&result))
+    if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = *tokens;
-    else
-        m_tokens.remove(filePath);
-    highlight(filePath);
+        highlight(filePath);
+    }
+    m_tokens.remove(filePath);
 }
 
 void SemanticTokenSupport::handleSemanticTokensDelta(
@@ -427,6 +427,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         tokens.setResultId(tokensDelta->resultId());
     } else {
         m_tokens.remove(filePath);
+        return;
     }
     highlight(filePath);
 }

@@ -92,7 +92,11 @@ public:
     Utils::Id id() const { return m_id; }
     void setName(const QString &name) { m_displayName = name; }
     QString name() const;
-    void sendContent(const LanguageServerProtocol::IContent &content);
+
+    enum class SendDocUpdates { Send, Ignore };
+    void sendContent(const LanguageServerProtocol::IContent &content,
+                     SendDocUpdates sendUpdates = SendDocUpdates::Send);
+
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
     // server state handling

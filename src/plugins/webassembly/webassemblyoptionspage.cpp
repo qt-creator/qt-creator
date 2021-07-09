@@ -129,7 +129,7 @@ static QString environmentDisplay(const FilePath &sdkRoot)
     WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
     QString result;
     result.append(WebAssemblyOptionsWidget::tr("<h4>Adding directories to PATH:</h4>"));
-    result.append(env.value("PATH").replace(HostOsInfo::pathListSeparator(), "<br/>"));
+    result.append(env.value("PATH").replace(OsSpecificAspects::pathListSeparator(sdkRoot.osType()), "<br/>"));
     result.append(WebAssemblyOptionsWidget::tr("<h4>Setting environment variables:</h4>"));
     for (const QString &envVar : env.toStringList()) {
         if (!envVar.startsWith("PATH")) // Path was already printed out above

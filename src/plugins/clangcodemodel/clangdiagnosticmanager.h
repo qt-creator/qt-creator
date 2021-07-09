@@ -65,11 +65,11 @@ public:
 
     static void clearTaskHubIssues();
     void generateTaskHubIssues();
+    void cleanMarks();
 
     static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool isChild = false);
 
 private:
-    void cleanMarks();
     QString filePath() const;
     void filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
     void generateEditorSelections();
