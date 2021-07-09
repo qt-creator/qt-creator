@@ -405,8 +405,6 @@
             applications.
         \li Select the \uicontrol {Break at "main"} check box to stop the
             debugger at the main function.
-        \li In the \uicontrol {Server start script} field, specify a
-            script file to run when the server starts.
         \li In the \uicontrol {Override SysRoot} field, specify the path to
             the \c sysroot to use instead of the default \c sysroot.
         \li In the \uicontrol {Init commands} field, enter the commands

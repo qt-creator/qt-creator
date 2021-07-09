@@ -95,98 +95,6 @@ DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine();
 DebuggerEngine *createUvscEngine();
 
-class LocalProcessRunner : public RunWorker
-{
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::LocalProcessRunner)
-
-public:
-    LocalProcessRunner(DebuggerRunTool *runTool, const CommandLine &command)
-        : RunWorker(runTool->runControl()), m_runTool(runTool), m_command(command)
-    {
-        connect(&m_proc, &QtcProcess::errorOccurred,
-                this, &LocalProcessRunner::handleError);
-        connect(&m_proc, &QtcProcess::readyReadStandardOutput,
-                this, &LocalProcessRunner::handleStandardOutput);
-        connect(&m_proc, &QtcProcess::readyReadStandardError,
-                this, &LocalProcessRunner::handleStandardError);
-        connect(&m_proc, &QtcProcess::finished,
-                this, &LocalProcessRunner::handleFinished);
-    }
-
-    void start() override
-    {
-        m_proc.setCommand(m_command);
-        m_proc.start();
-    }
-
-    void stop() override
-    {
-        m_proc.terminate();
-    }
-
-    void handleStandardOutput()
-    {
-        const QByteArray ba = m_proc.readAllStandardOutput();
-        const QString msg = QString::fromLocal8Bit(ba, ba.length());
-        m_runTool->appendMessage(msg, StdOutFormat);
-    }
-
-    void handleStandardError()
-    {
-        const QByteArray ba = m_proc.readAllStandardError();
-        const QString msg = QString::fromLocal8Bit(ba, ba.length());
-        m_runTool->appendMessage(msg, StdErrFormat);
-    }
-
-    void handleFinished()
-    {
-        if (m_proc.result() == QtcProcess::FinishedWithSuccess) {
-            // all good.
-            reportDone();
-        } else {
-            reportFailure(tr("Upload failed: %1").arg(m_proc.errorString()));
-        }
-    }
-
-    void handleError(QProcess::ProcessError error)
-    {
-        QString msg;
-        switch (error) {
-        case QProcess::FailedToStart:
-            msg = tr("The upload process failed to start. Shell missing?");
-            break;
-        case QProcess::Crashed:
-            msg = tr("The upload process crashed some time after starting "
-                     "successfully.");
-            break;
-        case QProcess::Timedout:
-            msg = tr("The last waitFor...() function timed out. "
-                     "The state of QProcess is unchanged, and you can try calling "
-                     "waitFor...() again.");
-            break;
-        case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
-                     "to the upload process. For example, the process may not be running, "
-                     "or it may have closed its input channel.");
-            break;
-        case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
-                     "the upload process. For example, the process may not be running.");
-            break;
-        default:
-            msg = tr("An unknown error in the upload process occurred. "
-                     "This is the default return value of error().");
-        }
-
-        m_runTool->showMessage(msg, StatusBar);
-        Core::AsynchronousMessageBox::critical(tr("Error"), msg);
-    }
-
-    QPointer<DebuggerRunTool> m_runTool;
-    CommandLine m_command;
-    Utils::QtcProcess m_proc;
-};
-
 class CoreUnpacker final : public RunWorker
 {
 public:
@@ -419,16 +327,6 @@ void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
 void DebuggerRunTool::setCommandsForReset(const QString &commands)
 {
     m_runParameters.commandsForReset = commands;
-}
-
-void DebuggerRunTool::setServerStartScript(const FilePath &serverStartScript)
-{
-    if (!serverStartScript.isEmpty()) {
-        // Provide script information about the environment
-        const CommandLine serverStarter(serverStartScript,
-            {m_runParameters.inferior.executable.toString(), m_runParameters.remoteChannel});
-        addStartDependency(new LocalProcessRunner(this, serverStarter));
-    }
 }
 
 void DebuggerRunTool::setDebugInfoLocation(const QString &debugInfoLocation)
