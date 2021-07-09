@@ -26,7 +26,7 @@
 #include "remotelinuxkillappservice.h"
 
 #include <utils/fileutils.h>
-#
+
 namespace RemoteLinux {
 namespace Internal {
 class RemoteLinuxKillAppServicePrivate

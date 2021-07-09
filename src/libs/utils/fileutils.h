@@ -89,7 +89,7 @@ public:
     std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<QList<FilePath>(const FilePath &, const QStringList &,
                                   QDir::Filters, QDir::SortFlags)> dirEntries;
-    std::function<QByteArray(const FilePath &, int)> fileContents;
+    std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;
@@ -155,7 +155,7 @@ public:
                                QDir::Filters filters,
                                QDir::SortFlags sort = QDir::NoSort) const;
     QList<FilePath> dirEntries(QDir::Filters filters) const;
-    QByteArray fileContents(int maxSize = -1) const;
+    QByteArray fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
     bool writeFileContents(const QByteArray &data) const;
 
     FilePath parentDir() const;

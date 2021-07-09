@@ -254,7 +254,8 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             connect(checker, &PerforceChecker::succeeded, errorLabel,
                     [errorLabel, testButton, checker](const QString &repo) {
                 errorLabel->setStyleSheet({});
-                errorLabel->setText(tr("Test succeeded (%1).").arg(QDir::toNativeSeparators(repo)));
+                errorLabel->setText(PerforceSettings::tr("Test succeeded (%1).")
+                                        .arg(QDir::toNativeSeparators(repo)));
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });

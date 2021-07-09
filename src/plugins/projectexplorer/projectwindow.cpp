@@ -121,7 +121,7 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
 
     m_filterActionRegexp = new QAction(this);
     m_filterActionRegexp->setCheckable(true);
-    m_filterActionRegexp->setText(tr("Use Regular Expressions"));
+    m_filterActionRegexp->setText(ProjectWindow::tr("Use Regular Expressions"));
     connect(m_filterActionRegexp, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
     Core::ActionManager::registerAction(m_filterActionRegexp,
                                         kRegExpActionId,
@@ -129,7 +129,7 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
 
     m_filterActionCaseSensitive = new QAction(this);
     m_filterActionCaseSensitive->setCheckable(true);
-    m_filterActionCaseSensitive->setText(tr("Case Sensitive"));
+    m_filterActionCaseSensitive->setText(ProjectWindow::tr("Case Sensitive"));
     connect(m_filterActionCaseSensitive,
             &QAction::toggled,
             this,
@@ -140,7 +140,7 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
 
     m_invertFilterAction = new QAction(this);
     m_invertFilterAction->setCheckable(true);
-    m_invertFilterAction->setText(tr("Show Non-matching Lines"));
+    m_invertFilterAction->setText(ProjectWindow::tr("Show Non-matching Lines"));
     connect(m_invertFilterAction, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
     Core::ActionManager::registerAction(m_invertFilterAction,
                                         kInvertActionId,

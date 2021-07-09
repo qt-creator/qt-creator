@@ -248,6 +248,7 @@ class LanguageClientCompletionModel : public GenericProposalModel
 {
 public:
     // GenericProposalModel interface
+    bool containsDuplicates() const override { return false; }
     bool isSortable(const QString &/*prefix*/) const override { return true; }
     void sort(const QString &/*prefix*/) override;
     bool supportsPrefixExpansion() const override { return false; }

@@ -34,6 +34,8 @@ namespace Internal {
 
 class BazaarSettings final : public VcsBase::VcsBaseSettings
 {
+    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::BazaarSettings)
+
 public:
     BazaarSettings();
 

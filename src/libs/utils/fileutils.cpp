@@ -967,11 +967,11 @@ QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
     return dirEntries({}, filters);
 }
 
-QByteArray FilePath::fileContents(int maxSize) const
+QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.fileContents, return {});
-        return s_deviceHooks.fileContents(*this, maxSize);
+        return s_deviceHooks.fileContents(*this, maxSize, offset);
     }
 
     const QString path = toString();
@@ -981,6 +981,9 @@ QByteArray FilePath::fileContents(int maxSize) const
 
     if (!f.open(QFile::ReadOnly))
         return {};
+
+    if (offset != 0)
+        f.seek(offset);
 
     if (maxSize != -1)
         return f.read(maxSize);

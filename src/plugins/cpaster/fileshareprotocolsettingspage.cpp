@@ -64,7 +64,7 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSe
     setLayouter([&s = *settings](QWidget *widget) {
         using namespace Layouting;
 
-        auto label = new QLabel(FileShareProtocolSettingsPage::tr(
+        auto label = new QLabel(FileShareProtocolSettings::tr(
             "The fileshare-based paster protocol allows for sharing code snippets using "
             "simple files on a shared network drive. Files are never deleted."));
         label->setWordWrap(true);

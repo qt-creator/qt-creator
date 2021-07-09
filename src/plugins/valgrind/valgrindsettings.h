@@ -40,6 +40,8 @@ class SuppressionAspectPrivate;
 
 class SuppressionAspect final : public Utils::BaseAspect
 {
+    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::SuppressionAspect)
+
 public:
     explicit SuppressionAspect(bool global);
     ~SuppressionAspect() final;

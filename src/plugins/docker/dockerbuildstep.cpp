@@ -48,6 +48,8 @@ const char DEFAULT_DOCKER_COMMAND[] = "run --read-only --rm %{BuildDevice:Docker
 
 class DockerBuildStep : public AbstractProcessStep
 {
+    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerBuildStep)
+
 public:
     DockerBuildStep(BuildStepList *bsl, Id id)
         : AbstractProcessStep(bsl, id)

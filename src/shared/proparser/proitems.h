@@ -350,6 +350,15 @@ inline ProStringList operator+(const ProStringList &one, const ProStringList &tw
 
 typedef QMap<ProKey, ProStringList> ProValueMap;
 
+// For std::list (sic!)
+#ifdef Q_CC_MSVC
+inline bool operator<(const ProValueMap &, const ProValueMap &)
+{
+    Q_ASSERT(false);
+    return false;
+}
+#endif
+
 // These token definitions affect both ProFileEvaluator and ProWriter
 enum ProToken {
     TokTerminator = 0,  // end of stream (possibly not included in length; must be zero)

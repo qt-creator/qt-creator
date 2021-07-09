@@ -104,12 +104,12 @@ public:
 
     Utils::optional<Params> params() const
     {
-        const QJsonValue &params = m_jsonObject.value(parametersKey);
+        const QJsonValue &params = m_jsonObject.value(paramsKey);
         return params.isUndefined() ? Utils::nullopt : Utils::make_optional(Params(params));
     }
     void setParams(const Params &params)
-    { m_jsonObject.insert(parametersKey, QJsonValue(params)); }
-    void clearParams() { m_jsonObject.remove(parametersKey); }
+    { m_jsonObject.insert(paramsKey, QJsonValue(params)); }
+    void clearParams() { m_jsonObject.remove(paramsKey); }
 
     bool isValid(QString *errorMessage) const override
     {
@@ -149,8 +149,8 @@ public:
     Utils::optional<std::nullptr_t> params() const
     { return nullptr; }
     void setParams(const std::nullptr_t &/*params*/)
-    { m_jsonObject.insert(parametersKey, QJsonValue::Null); }
-    void clearParams() { m_jsonObject.remove(parametersKey); }
+    { m_jsonObject.insert(paramsKey, QJsonValue::Null); }
+    void clearParams() { m_jsonObject.remove(paramsKey); }
 
     bool isValid(QString *errorMessage) const override
     {

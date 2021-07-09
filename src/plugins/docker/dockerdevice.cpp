@@ -1064,12 +1064,12 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
     return {};
 }
 
-QByteArray DockerDevice::fileContents(const FilePath &filePath, int limit) const
+QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
     if (hasLocalFileAccess())
-        return mapToLocalAccess(filePath).fileContents(limit);
+        return mapToLocalAccess(filePath).fileContents(limit, offset);
 
     QTC_CHECK(false); // FIXME: Implement
     return {};
@@ -1203,7 +1203,7 @@ public:
     DockerDeviceSetupWizard()
         : QDialog(ICore::dialogParent())
     {
-        setWindowTitle(tr("Docker Image Selection"));
+        setWindowTitle(DockerDevice::tr("Docker Image Selection"));
         resize(800, 600);
 
         m_model.setHeader({"Image", "Repository", "Tag", "Size"});
@@ -1232,7 +1232,7 @@ public:
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
         CommandLine cmd{"docker", {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
-        m_log->append(tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
+        m_log->append(DockerDevice::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
 
         m_process = new QtcProcess(this);
         m_process->setCommand(cmd);
@@ -1243,7 +1243,7 @@ public:
             for (const QString &line : out.split('\n')) {
                 const QStringList parts = line.trimmed().split('\t');
                 if (parts.size() != 4) {
-                    m_log->append(tr("Unexpected result: %1").arg(line) + '\n');
+                    m_log->append(DockerDevice::tr("Unexpected result: %1").arg(line) + '\n');
                     continue;
                 }
                 auto item = new DockerImageItem;
@@ -1253,12 +1253,12 @@ public:
                 item->size = parts.at(3);
                 m_model.rootItem()->appendChild(item);
             }
-            m_log->append(tr("Done."));
+            m_log->append(DockerDevice::tr("Done."));
         });
 
         connect(m_process, &Utils::QtcProcess::readyReadStandardError, this, [this] {
-            const QString out = tr("Error: %1").arg(m_process->stdErr());
-            m_log->append(tr("Error: %1").arg(out));
+            const QString out = DockerDevice::tr("Error: %1").arg(m_process->stdErr());
+            m_log->append(DockerDevice::tr("Error: %1").arg(out));
         });
 
         connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
