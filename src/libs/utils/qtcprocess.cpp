@@ -287,6 +287,7 @@ public:
         connect(LauncherInterface::socket(), &LauncherSocket::packetArrived,
                 this, &ProcessLauncherImpl::handlePacket);
     }
+    ~ProcessLauncherImpl() override { cancel(); }
 
     QByteArray readAllStandardOutput() override { return readAndClear(m_stdout); }
     QByteArray readAllStandardError() override { return readAndClear(m_stderr); }
@@ -401,6 +402,8 @@ void ProcessLauncherImpl::doStart()
 
 void ProcessLauncherImpl::cancel()
 {
+    if (m_canceled)
+        return;
     switch (m_state) {
     case QProcess::NotRunning:
         break;
