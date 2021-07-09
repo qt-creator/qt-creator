@@ -75,15 +75,15 @@
     \endif
 
     Rectangles can be filled either with a solid fill color or a linear
-    gradient that you set in the \uicontrol Color field. You can
+    gradient that you set in the \uicontrol {Fill color} field. You can
     also use a \l{Picking Colors}{color picker} to select colors and a
     \l{Picking Gradients}{gradient picker} to select gradients from a
     predefined set of \l{https://webgradients.com/}{WebGradients}.
 
     An optional solid border can be added to a rectangle with its own color
-    and thickness by setting the values of the \uicontrol {Border Color} and
-    \uicontrol Border fields. To create a border without a fill color, select
-    the \inlineimage icons/transparent-icon.png
+    and thickness by setting the values of the \uicontrol {Border color} and
+    \uicontrol {Border width} fields. To create a border without a fill color,
+    select the \inlineimage icons/transparent-icon.png
     button that sets the color to \e transparent.
 
     By setting the value of the \uicontrol Radius field, you can create shapes
@@ -93,52 +93,54 @@
     with all four sides equal, and then set its radius to half the side length.
 
     When drawing curved edges, consider enabling the \uicontrol Antialiasing
-    check box in the \uicontrol Advanced tab of the \uicontrol Properties view
-    to improve the appearance of your shape.
+    check box in the \uicontrol Advanced section to improve the appearance of
+    your shape.
 
     \if defined(qtdesignstudio)
     \target studio-rectangle
     \section2 Studio Rectangle
 
     If you want to modify each corner of the rectangle independently
-    or use a dashed border, create an instance of \uicontrol Library
-    > \uicontrol Components > \uicontrol {Qt Quick Studio Components}
-    > \uicontrol Rectangle instead of the basic rectangle component.
+    or use a dashed border, create an instance of the \uicontrol Rectangle
+    component available in \uicontrol Library > \uicontrol Components >
+    \uicontrol {Qt Quick Studio Components} instead of the basic
+    \uicontrol Rectangle component available in \uicontrol {Default Components}
+    > \uicontrol Basic.
 
     By setting the values of properties in the \uicontrol {Corner Radiuses}
-    group, you can draw each corner independently. By using radius values
-    in combination with the values in the \uicontrol {Corner Bevel} group,
+    section, you can draw each corner independently. By using radius values
+    in combination with the values in the \uicontrol {Corner Bevel} section,
     you can create shapes with cut corners.
 
     \image studio-shapes-rectangle.png "A studio rectangle with cut corners"
 
     In addition to linear gradients, you can specify conical and radial
-    gradients in the \uicontrol {Fill Color} field.
+    gradients in the \uicontrol {Fill color} field.
 
-    In the \uicontrol {Stroke Details} group, you can specify the border
+    In the \uicontrol {Stroke Details} section, you can specify the border
     mode, line style, and dash pattern for dashed and dotted lines.
     For more information, see \l{Strokes}.
 
     \section1 Border
 
     The Border component is used to create borders out of four segments:
-    left, top, right, and bottom. By selecting the \uicontrol {Draw top},
-    \uicontrol {Draw right}, \uicontrol {Draw bottom}, and
-    \uicontrol {Draw left} check boxes, you can determine whether each
+    left, top, right, and bottom. By selecting the check boxes in the
+    \uicontrol {Draw Edges} section, you can determine whether each
     of the segments is visible. This enables you to draw solid or dashed
     lines with specified dash patterns and joint and cap styles.
 
     \image studio-shapes-border.png "Border properties"
 
+    Set the color of the border in the \uicontrol {Stroke color} field and its
+    thickness in the \uicontrol {Stroke width} field. Then specify additional
+    properties for borders in the \uicontrol {Stroke Details} section.
+
     \section2 Strokes
 
-    In the \uicontrol {Stroke Details} group, you can specify the border mode,
+    In the \uicontrol {Stroke Details} section, you can specify the border mode,
     line style, and dash pattern for dashed and dotted lines.
 
     \image studio-shapes-stroke-properties.png "Stroke properties"
-
-    In the \uicontrol {Stroke width} field, you can set the thickness of the
-    line.
 
     In the \uicontrol {Border mode} field, you can specify whether the border
     is drawn along the inside or outside edge of the component, or on top of the
@@ -159,10 +161,10 @@
     the stroke to be drawn first, and values of the offset between 4.0 and 6.0
     will cause the line to begin with part of the gap.
 
-    In the \uicontrol {Joint style} field, select \uicontrol {Miter join} to
+    In the \uicontrol {Join style} field, select \uicontrol {Miter Join} to
     extend the outer edges of the lines to meet at an angle and to fill the
-    area between them. Select \uicontrol {Bevel join} to fill the triangular
-    notch between the two lines. Select \uicontrol {Round join} to fill a
+    area between them. Select \uicontrol {Bevel Join} to fill the triangular
+    notch between the two lines. Select \uicontrol {Round Join} to fill a
     circular arc between the two lines.
 
     The value of the \uicontrol {Cap style} property specifies whether line
@@ -173,20 +175,21 @@
     The Triangle component can be used to draw triangles with different dimensions
     and shapes. The component is enclosed in an invisible rectangle that determines
     its size. The dimensions of the triangle can be changed to make it elongated
-    or squatter with space around it by setting the left, right, top, and bottom
-    margins in the \uicontrol Margins group. The margins are set between the
+    or squatter with space around it by setting the top, bottom, left, and right
+    margins in the \uicontrol Margin section. The margins are set between the
     triangle and the edges of the parent rectangle.
 
     \image studio-shapes-triangle.png "Triangle properties"
 
-    The fill color property values are set in the same way as for a rectangle.
-    The border property values are described in \l{Strokes}.
+    The fill and stroke color property values are set in the same way as for a
+    rectangle. The border property values are described in \l{Strokes}.
 
     \section1 Arc
 
-    An arc is specified by setting values in degrees in the \uicontrol Begin and
-    \uicontrol End fields. The arc can be just a line or a filled outline.
-    The properties of the line or outline are described in \l{Strokes}.
+    An arc is specified by setting values in degrees in the
+    \uicontrol {Arc start} and \uicontrol {Arc end} fields.
+    The arc can be just a line or a filled outline. The
+    properties of the line or outline are described in \l{Strokes}.
 
     \image studio-shapes-arc.png "Arc properties"
 
@@ -196,46 +199,48 @@
     \image studio-shapes-arc-outline-properties.png "Arc Outline Properties"
 
     To create an arc with an outline, select the \uicontrol {Full outline}
-    check box. The \uicontrol {Arc outline width} field sets the width of
-    the arc outline, including the stroke. The \uicontrol {Arc outline begin}
-    and \uicontrol {Arc outline end} fields set the width of the start and
+    check box. The \uicontrol {Outline width} field sets the width of
+    the arc outline, including the stroke. The \uicontrol {Outline start}
+    and \uicontrol {Outline end} fields set the width of the start and
     end points of the outline separately. The width of the outline between
     them is calculated automatically. You can adjust the inner and outer
-    curves of the outline in the \uicontrol {Radius inner adjust} and
-    \uicontrol {Radius outer adjust} fields.
+    curves of the outline in the \uicontrol {Inner radius} and
+    \uicontrol {Outer radius} fields.
 
-    The \uicontrol {Round outline}, \uicontrol {Round begin outline}, and
-    \uicontrol {Round end outline} properties specify whether the end points
-    of the arc outline have rounded caps. For an arc that does not have an
-    outline, the \uicontrol {Cap style} property specifies whether the line
-    ends are square or rounded.
+    The \uicontrol {Round outline}, \uicontrol {Round start}, and
+    \uicontrol {Round end} properties specify whether the end points of the
+    arc outline have rounded caps. For an arc that does not have an outline,
+    the \uicontrol {Cap style} field in the \uicontrol {Stroke Details}
+    section specifies whether the line ends are square or rounded.
 
     \section1 Pie
 
     The Pie component is used to create a pie slice, a pie that is missing slices,
     or just the pie rind (similar to an arc), depending on the values of the
-    \uicontrol Begin, \uicontrol End, and \uicontrol {Hide line} properties.
+    \uicontrol {Pie start} and \uicontrol {Pie end} fields and the
+    \uicontrol Hide check box.
 
     \image studio-shapes-pie.png "Pie properties"
 
     The filling of the pie is painted using either a solid fill color or a
-    gradient. The fill color property values are set in the same way as for
-    a rectangle. The border property values are described in \l{Strokes}.
+    gradient. The fill and stroke color property values are set in the same
+    way as for a rectangle. The border property values are described in
+    \l{Strokes}.
 
     \section1 Flipable
 
     A Flipable component can be visibly \e flipped between its front and back
     sides, like a card. The front and back sides are specified by using any
     two components inside the Flipable component. The component with the
-    higher z-order is the front side. The \uicontrol {Opacity front} and
-    \uicontrol {Opacity back} properties are used to hide and show either the
-    front or back side of the item at a time.
+    higher z-order is the front side. The \uicontrol Front and \uicontrol Back
+    fields in the \uicontrol Opacity section are used to hide and show either
+    the front or back side of the item at a time.
 
     \image studio-flipable.png
 
     The \uicontrol {Flip angle} property is used to animate the angle
     of the component to produce the flipping effect. The value of the
-    \uicontrol {Rotation axis} property determine whether the component
+    \uicontrol {Rotational axis} property determine whether the component
     is rotated around the x-axis or the y-axis.
 
     \section1 Summary of Shapes
