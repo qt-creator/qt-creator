@@ -118,7 +118,6 @@ public:
     virtual void setStandardInputFile(const QString &fileName) = 0;
     virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode) = 0;
 
-    virtual QProcess::ProcessChannel readChannel() const = 0; // only in assert?
     virtual qint64 bytesAvailable() const = 0;
     virtual QString program() const = 0;
     virtual QProcess::ProcessError error() const = 0;
@@ -230,8 +229,6 @@ public:
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override
     { m_process.setProcessChannelMode(mode); }
 
-    QProcess::ProcessChannel readChannel() const override
-    { return m_process.readChannel(); }
     qint64 bytesAvailable() const override
     { return m_process.bytesAvailable(); }
     QString program() const override
@@ -307,7 +304,6 @@ public:
     void setStandardInputFile(const QString &fileName) override { QTC_CHECK(false); }
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override { QTC_CHECK(false); }
 
-    QProcess::ProcessChannel readChannel() const override { QTC_CHECK(false); return QProcess::StandardOutput; }
     qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }
     QString program() const override { return m_command; }
     QProcess::ProcessError error() const override { return m_error; }
@@ -872,8 +868,6 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
         qWarning("readDataFromProcess: Process in non-running state passed in.");
         return false;
     }
-
-    QTC_ASSERT(d->m_process->readChannel() == QProcess::StandardOutput, return false);
 
     // Keep the process running until it has no longer has data
     bool finished = false;
