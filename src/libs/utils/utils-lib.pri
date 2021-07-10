@@ -150,6 +150,7 @@ HEADERS += \
     $$PWD/environmentfwd.h \
     $$PWD/genericconstants.h \
     $$PWD/globalfilechangeblocker.h \
+    $$PWD/indexedcontainerproxyconstiterator.h \
     $$PWD/benchmarker.h \
     $$PWD/displayname.h \
     $$PWD/environment.h \

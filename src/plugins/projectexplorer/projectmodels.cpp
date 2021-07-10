@@ -61,6 +61,7 @@
 #include <QVBoxLayout>
 
 #include <functional>
+#include <iterator>
 #include <tuple>
 #include <vector>
 
@@ -68,6 +69,28 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
+
+/// An output iterator whose assignment operator appends a clone of the operand to the list of
+/// children of the WrapperNode passed to the constructor.
+class Appender : public std::iterator<std::output_iterator_tag, void, void, void, void>
+{
+public:
+    explicit Appender(WrapperNode *parent) : m_parent(parent) {}
+
+    Appender &operator=(const WrapperNode *node)
+    {
+        if (node)
+            m_parent->appendClone(*node);
+        return *this;
+    }
+
+    Appender &operator*() { return *this; }
+    Appender &operator++() { return *this; }
+    Appender &operator++(int) { return *this; }
+
+private:
+    WrapperNode *m_parent;
+};
 
 bool compareNodes(const Node *n1, const Node *n2)
 {
@@ -82,14 +105,77 @@ bool compareNodes(const Node *n1, const Node *n2)
 
     const int filePathResult = caseFriendlyCompare(n1->filePath().toString(),
                                  n2->filePath().toString());
-    if (filePathResult != 0)
-        return filePathResult < 0;
-    return n1 < n2; // sort by pointer value
+    return filePathResult < 0;
 }
 
 static bool sortWrapperNodes(const WrapperNode *w1, const WrapperNode *w2)
 {
     return compareNodes(w1->m_node, w2->m_node);
+}
+
+/// Appends to `dest` clones of children of `first` and `second`, removing duplicates (recursively).
+///
+/// \param first, second
+///   Nodes with children sorted by sortWrapperNodes.
+/// \param dest
+///   Node to which to append clones of children of `first` and `second`, with duplicates removed.
+static void appendMergedChildren(const WrapperNode *first, const WrapperNode *second, WrapperNode *dest)
+{
+    setUnionMerge(first->begin(), first->end(),
+                  second->begin(), second->end(),
+                  Appender(dest),
+                  [dest](const WrapperNode *childOfFirst, const WrapperNode *childOfSecond)
+                  -> const WrapperNode * {
+                      if (childOfSecond->hasChildren()) {
+                          if (childOfFirst->hasChildren()) {
+                              WrapperNode *mergeResult = new WrapperNode(childOfFirst->m_node);
+                              dest->appendChild(mergeResult);
+                              appendMergedChildren(childOfFirst, childOfSecond, mergeResult);
+                              // mergeResult has already been appended to the parent's list of
+                              // children -- there's no need for the Appender to do it again.
+                              // That's why we return a null pointer.
+                              return nullptr;
+                          } else {
+                              return childOfSecond;
+                          }
+                      } else {
+                          return childOfFirst;
+                      }
+                  },
+                  sortWrapperNodes);
+}
+
+/// Given a node `parent` with children sorted by the criteria defined in sortWrapperNodes(), merge
+/// any children that are equal according to those criteria.
+static void mergeDuplicates(WrapperNode *parent)
+{
+    // We assume all descendants of 'parent' are sorted
+    int childIndex = 0;
+    while (childIndex + 1 < parent->childCount()) {
+        const WrapperNode *child = parent->childAt(childIndex);
+        const WrapperNode *nextChild = parent->childAt(childIndex + 1);
+        Q_ASSERT_X(!sortWrapperNodes(nextChild, child), __func__, "Children are not sorted");
+        if (!sortWrapperNodes(child, nextChild)) {
+            // child and nextChild must have the same priorities, display names and folder paths.
+            // Replace them by a single node 'mergeResult` containing the union of their children.
+            auto mergeResult = new WrapperNode(child->m_node);
+            parent->insertChild(childIndex, mergeResult);
+            appendMergedChildren(child, nextChild, mergeResult);
+            // Now we can remove the original children
+            parent->removeChildAt(childIndex + 2);
+            parent->removeChildAt(childIndex + 1);
+        } else {
+            ++childIndex;
+        }
+    }
+}
+
+void WrapperNode::appendClone(const WrapperNode &node)
+{
+    WrapperNode *clone = new WrapperNode(node.m_node);
+    appendChild(clone);
+    for (const WrapperNode *child : node)
+        clone->appendClone(*child);
 }
 
 FlatModel::FlatModel(QObject *parent)
@@ -393,6 +479,8 @@ void FlatModel::saveExpandData()
 
 void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen)
 {
+    bool hasHiddenSourcesOrHeaders = false;
+
     for (Node *node : folderNode->nodes()) {
         if (m_filterGeneratedFiles && node->isGenerated())
             continue;
@@ -403,8 +491,10 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
             if (!m_showSourceGroups) {
                 if (subFolderNode->isVirtualFolderType()) {
                     auto vnode = static_cast<VirtualFolderNode *>(subFolderNode);
-                    if (vnode->isSourcesOrHeaders())
+                    if (vnode->isSourcesOrHeaders()) {
                         isHidden = true;
+                        hasHiddenSourcesOrHeaders = true;
+                    }
                 }
             }
             if (!isHidden && !seen->contains(subFolderNode)) {
@@ -422,6 +512,11 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                 parent->appendChild(new WrapperNode(fileNode));
             }
         }
+    }
+
+    if (hasHiddenSourcesOrHeaders) {
+        parent->sortChildren(&sortWrapperNodes);
+        mergeDuplicates(parent);
     }
 }
 

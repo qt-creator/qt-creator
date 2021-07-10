@@ -361,7 +361,7 @@ public:
     void setIsSourcesOrHeaders(bool on) { m_isSourcesOrHeaders = on; }
 
 private:
-    bool m_isSourcesOrHeaders; // "Sources" or "Headers"
+    bool m_isSourcesOrHeaders = false; // "Sources" or "Headers"
 };
 
 // Documentation inside.

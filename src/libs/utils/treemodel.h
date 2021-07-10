@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+#include "indexedcontainerproxyconstiterator.h"
 
 #include <QAbstractItemModel>
 
@@ -118,6 +119,15 @@ public:
             return lessThan(static_cast<const ChildType *>(a), static_cast<const ChildType *>(b));
         });
     }
+
+    using value_type = ChildType *;
+    using const_iterator = IndexedContainerProxyConstIterator<TypedTreeItem>;
+    using size_type = int;
+
+    ChildType *operator[](int index) const { return childAt(index); }
+    int size() const { return childCount(); }
+    const_iterator begin() const { return const_iterator(*this, 0); }
+    const_iterator end() const { return const_iterator(*this, size()); }
 
     template <typename Predicate>
     void forAllChildren(const Predicate &pred) const {
