@@ -1041,7 +1041,12 @@ FilePath BaseQtVersion::qmlsceneCommand() const
     if (!d->m_qmlsceneCommand.isEmpty())
         return d->m_qmlsceneCommand;
 
-    const FilePath path = binPath() / HostOsInfo::withExecutableSuffix("qmlscene");
+    FilePath path = binPath();
+    if (qtVersion() >= QtVersionNumber(6, 2, 0))
+        path = path / HostOsInfo::withExecutableSuffix("qml");
+    else
+        path = path / HostOsInfo::withExecutableSuffix("qmlscene");
+
     d->m_qmlsceneCommand = path.isExecutableFile() ? path : FilePath();
 
     return d->m_qmlsceneCommand;

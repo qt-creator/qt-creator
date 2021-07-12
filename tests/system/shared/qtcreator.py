@@ -102,7 +102,7 @@ def waitForCleanShutdown(timeOut=10):
     shutdownDone = (str(appCtxt)=="")
     if platform.system() in ('Windows','Microsoft'):
         # cleaning helper for running on the build machines
-        checkForStillRunningQmlExecutable(['qmlviewer.exe', 'qmlscene.exe'])
+        checkForStillRunningQmlExecutable(['qmlscene.exe', 'qml.exe'])
         endtime = datetime.utcnow() + timedelta(seconds=timeOut)
         while not shutdownDone:
             # following work-around because os.kill() works for win not until python 2.7

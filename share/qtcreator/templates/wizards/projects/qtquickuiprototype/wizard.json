@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "QmlProjectManager.QmlProject" ],
     "id": "QA.QtQuickUi",
     "category": "H.Project",
-    "trDescription": "Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up.\n\nUse this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.",
+    "trDescription": "Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.\n\nUse this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.",
     "trDisplayName": "Qt Quick UI Prototype",
     "trDisplayCategory": "Other Project",
     "icon": "qtquickuiprototype.png",

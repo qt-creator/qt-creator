@@ -214,8 +214,8 @@ public:
     QString debugServerPath() const;
     void setDebugServerPath(const QString &path);
 
-    QString qmlsceneCommand() const;
-    void setQmlsceneCommand(const QString &path);
+    QString qmlRunCommand() const;
+    void setQmlRunCommand(const QString &path);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;

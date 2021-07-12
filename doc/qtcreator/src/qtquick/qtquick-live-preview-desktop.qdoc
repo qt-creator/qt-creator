@@ -59,7 +59,7 @@
     \if defined(qtdesignstudio)
     \section1 Selecting the Preview Tool
 
-    By default, the \c qmlscene utility is used for previewing. To use some
+    By default, the QML runtime is used for previewing. To use some
     other tool, specify it in the \uicontrol {QML viewer} field in the run
     settings of the project in the Projects mode.
 

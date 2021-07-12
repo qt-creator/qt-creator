@@ -1,6 +1,6 @@
 set(EXT_TOOLS_DIR "${IDE_DATA_PATH}/externaltools")
 
-set(tools lrelease.xml lupdate.xml qmlscene.xml qmlviewer.xml)
+set(tools lrelease.xml lupdate.xml qmlscene.xml qml.xml)
 
 if (WIN32)
   list(APPEND tools notepad_win.xml)
