@@ -334,7 +334,7 @@ auto removeAndExtractTemplate(QString type)
     QString templateParameter;
     int counter = 0;
     int start = 0;
-    int templateStart;
+    int templateStart = 0;
     for (int i = 0; i < type.length(); ++i) {
         auto c = type[i];
         if (c == '<') {

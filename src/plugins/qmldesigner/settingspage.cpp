@@ -270,7 +270,7 @@ void SettingsPageWidget::apply()
       DesignerSettingsKey::ENABLE_TIMELINEVIEW
     };
 
-    for (const QByteArray &key : restartNecessaryKeys) {
+    for (const char * const key : restartNecessaryKeys) {
         if (currentSettings.value(key) != newSettings.value(key)) {
             QMessageBox::information(Core::ICore::dialogParent(), tr("Restart Required"),
                 tr("The made changes will take effect after a "

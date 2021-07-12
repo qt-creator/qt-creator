@@ -186,7 +186,7 @@ QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
 {
     QTC_CHECK(!filePath.needsDevice());
     const QDir dir(filePath.path());
-    const QFileInfoList entryInfoList = dir.entryInfoList(nameFilters, filters);
+    const QFileInfoList entryInfoList = dir.entryInfoList(nameFilters, filters, sort);
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
 }
 

@@ -1665,8 +1665,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
                   : locationsEnabled ? tr("Disable Location") : tr("Enable Location"),
               !selectedLocations.isEmpty() && handlesIndividualLocations,
               [this, selectedLocations, locationsEnabled] {
-                   for (const SubBreakpoint &sbp : selectedLocations)
-                       requestSubBreakpointEnabling(sbp, !locationsEnabled);
+                   for (SubBreakpointItem * const sbp : selectedLocations)
+                       requestSubBreakpointEnabling(QPointer(sbp), !locationsEnabled);
               }
     );
 

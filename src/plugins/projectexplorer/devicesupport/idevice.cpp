@@ -357,6 +357,7 @@ QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 
 {
     Q_UNUSED(filePath);
     Q_UNUSED(limit);
+    Q_UNUSED(offset);
     QTC_CHECK(false);
     return {};
 }
