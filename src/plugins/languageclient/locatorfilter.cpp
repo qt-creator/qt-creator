@@ -230,6 +230,8 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
 
     WorkspaceSymbolParams params;
     params.setQuery(entry);
+    if (m_maxResultCount > 0)
+        params.setLimit(m_maxResultCount);
 
     QMutexLocker locker(&m_mutex);
     for (auto client : qAsConst(clients)) {
