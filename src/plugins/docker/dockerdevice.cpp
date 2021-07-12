@@ -354,7 +354,7 @@ public:
         m_pathsLineEdit->setText(data.mounts.join(';'));
 
         connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
-            dockerDevice->setMounts(text.split(';'));
+            dockerDevice->setMounts(text.split(';', Qt::SkipEmptyParts));
         });
 
         auto logView = new QTextBrowser;
@@ -654,8 +654,10 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
-    for (const QString &mount : qAsConst(m_data.mounts))
-        dockerRun.addArgs({"-v", mount + ':' + mount});
+    for (const QString &mount : qAsConst(m_data.mounts)) {
+        if (!mount.isEmpty())
+            dockerRun.addArgs({"-v", mount + ':' + mount});
+    }
 
     dockerRun.addArg(m_data.imageId);
     dockerRun.addArg("/bin/sh");
