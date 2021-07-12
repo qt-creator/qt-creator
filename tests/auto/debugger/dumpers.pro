@@ -20,6 +20,9 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/environment.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/fileutils.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/launcherinterface.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/launcherpackets.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/launchersocket.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.cpp \
@@ -33,6 +36,9 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/environment.h \
         $$IDE_SOURCE_TREE/src/libs/utils/fileutils.h \
         $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/launcherinterface.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/launcherpackets.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/launchersocket.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.h \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h \

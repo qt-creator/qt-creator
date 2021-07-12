@@ -21,6 +21,9 @@ HEADERS += \
         $$UTILSDIR/environment.cpp \
         $$UTILSDIR/fileutils.cpp \
         $$UTILSDIR/hostosinfo.cpp \
+        $$UTILSDIR/launcherinterface.cpp \
+        $$UTILSDIR/launcherpackets.cpp \
+        $$UTILSDIR/launchersocket.cpp \
         $$UTILSDIR/namevaluedictionary.cpp \
         $$UTILSDIR/namevalueitem.cpp \
         $$UTILSDIR/qtcassert.cpp \
@@ -33,6 +36,9 @@ HEADERS += \
         $$UTILSDIR/environment.h \
         $$UTILSDIR/fileutils.h \
         $$UTILSDIR/hostosinfo.h \
+        $$UTILSDIR/launcherinterface.h \
+        $$UTILSDIR/launcherpackets.h \
+        $$UTILSDIR/launchersocket.h \
         $$UTILSDIR/namevaluedictionary.h \
         $$UTILSDIR/namevalueitem.h \
         $$UTILSDIR/qtcassert.h \
