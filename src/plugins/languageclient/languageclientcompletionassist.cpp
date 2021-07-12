@@ -188,7 +188,7 @@ QString LanguageClientCompletionItem::detail() const
 
 bool LanguageClientCompletionItem::isSnippet() const
 {
-    return m_item.insertTextFormat().value_or(CompletionItem::PlainText);
+    return m_item.insertTextFormat() == CompletionItem::Snippet;
 }
 
 bool LanguageClientCompletionItem::isValid() const
