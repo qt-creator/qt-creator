@@ -545,19 +545,15 @@ void KitDetectorPrivate::autoDetectCMake()
         return;
 
     emit q->logOutput('\n' + tr("Searching CMake binary..."));
+    const FilePath deviceRoot = m_device->mapToGlobalPath({});
     QString error;
-    const QStringList candidates = {"cmake"};
-    for (const QString &candidate : candidates) {
-        const FilePath cmake = m_device->searchExecutableInPath(candidate);
-        if (!cmake.isEmpty()) {
-            emit q->logOutput(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
-            const bool res = QMetaObject::invokeMethod(cmakeManager,
-                                                       "registerCMakeByPath",
-                                                       Q_ARG(Utils::FilePath, cmake),
-                                                       Q_ARG(QString, m_sharedId));
-            QTC_CHECK(res);
-        }
-    }
+    const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                               "autoDetectCMakeForDevice",
+                                               Q_ARG(Utils::FilePath, deviceRoot),
+                                               Q_ARG(QString, m_sharedId),
+                                               Q_ARG(QString *, &error));
+    QTC_CHECK(res);
+    emit q->logOutput(error);
 }
 
 void KitDetectorPrivate::autoDetectDebugger()
