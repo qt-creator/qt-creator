@@ -302,7 +302,13 @@ public:
     void closeWriteChannel() override { QTC_CHECK(false); }
 
     void setStandardInputFile(const QString &fileName) override { QTC_CHECK(false); }
-    void setProcessChannelMode(QProcess::ProcessChannelMode mode) override { QTC_CHECK(false); }
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode) override {
+        if (mode != QProcess::SeparateChannels && mode != QProcess::MergedChannels) {
+            qWarning("setProcessChannelMode: The only supported modes are SeparateChannels and MergedChannels.");
+            return;
+        }
+        m_channelMode = mode;
+    }
 
     qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }
     QString program() const override { return m_command; }
@@ -359,6 +365,7 @@ private:
     QString m_errorString;
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QProcess::ProcessState m_state = QProcess::NotRunning;
+    QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     int m_exitCode = 0;
     bool m_canceled = false;
     bool m_socketError = false;
@@ -388,6 +395,7 @@ void ProcessLauncherImpl::doStart()
     p.arguments = m_arguments;
     p.env = m_environment.toStringList();
     p.workingDir = m_workingDirectory;
+    p.mode = m_channelMode;
     sendPacket(p);
 }
 

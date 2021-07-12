@@ -222,6 +222,7 @@ void LauncherSocketHandler::handleStartPacket()
                 m_packetParser.packetData());
     process->setEnvironment(packet.env);
     process->setWorkingDirectory(packet.workingDir);
+    process->setProcessChannelMode(packet.mode);
     process->start(packet.command, packet.arguments);
 }
 

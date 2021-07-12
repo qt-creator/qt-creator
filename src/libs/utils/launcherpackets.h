@@ -99,6 +99,7 @@ public:
     QStringList arguments;
     QString workingDir;
     QStringList env;
+    QProcess::ProcessChannelMode mode = QProcess::SeparateChannels;
 
 private:
     void doSerialize(QDataStream &stream) const override;
