@@ -231,6 +231,7 @@ void LauncherSocketHandler::handleStartPacket()
     process->setEnvironment(packet.env);
     process->setWorkingDirectory(packet.workingDir);
     process->setProcessChannelMode(packet.channelMode);
+    process->setStandardInputFile(packet.standardInputFile);
     process->start(packet.command, packet.arguments, packet.openMode);
     process->closeWriteChannel();
 }

@@ -90,6 +90,7 @@ public:
 
     QProcess::ProcessError error() const { QMutexLocker locker(&m_mutex); return m_error; }
     QString program() const { QMutexLocker locker(&m_mutex); return m_command; }
+    void setStandardInputFile(const QString &fileName) { QMutexLocker locker(&m_mutex); m_standardInputFile = fileName; }
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) {
         QMutexLocker locker(&m_mutex);
         if (mode != QProcess::SeparateChannels && mode != QProcess::MergedChannels) {
@@ -175,6 +176,7 @@ private:
     QString m_workingDirectory;
     QIODevice::OpenMode m_openMode = QIODevice::ReadWrite;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
+    QString m_standardInputFile;
 
     CallerHandle *m_callerHandle = nullptr;
 

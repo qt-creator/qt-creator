@@ -313,7 +313,7 @@ public:
     qint64 write(const QByteArray &data) override { QTC_CHECK(false); return -1; }
     void closeWriteChannel() override { /*QTC_CHECK(false);*/ }
 
-    void setStandardInputFile(const QString &fileName) override { QTC_CHECK(false); }
+    void setStandardInputFile(const QString &fileName) override { m_handle->setStandardInputFile(fileName); }
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override { m_handle->setProcessChannelMode(mode); }
 
     qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }

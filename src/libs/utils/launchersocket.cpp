@@ -326,6 +326,7 @@ void LauncherHandle::doStart()
     p.workingDir = m_workingDirectory;
     p.openMode = m_openMode;
     p.channelMode = m_channelMode;
+    p.standardInputFile = m_standardInputFile;
     sendPacket(p);
 }
 

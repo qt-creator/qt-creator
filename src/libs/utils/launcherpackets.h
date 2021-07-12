@@ -101,6 +101,7 @@ public:
     QStringList env;
     QIODevice::OpenMode openMode = QIODevice::ReadWrite;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
+    QString standardInputFile;
 
 private:
     void doSerialize(QDataStream &stream) const override;
