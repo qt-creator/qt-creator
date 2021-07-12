@@ -44,6 +44,7 @@ using namespace Utils;
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
+static const char DETECTION_SOURCE_KEY[] = "ProjectExplorer.ToolChain.DetectionSource";
 static const char LANGUAGE_KEY_V1[] = "ProjectExplorer.ToolChain.Language"; // For QtCreator <= 4.2
 static const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For QtCreator > 4.2
 
@@ -82,6 +83,7 @@ public:
     Utils::Id m_typeId;
     Utils::Id m_language;
     Detection m_detection = ToolChain::UninitializedDetection;
+    QString m_detectionSource;
 
     ToolChain::MacrosCache m_predefinedMacrosCache;
     ToolChain::HeaderPathsCache m_headerPathsCache;
@@ -173,6 +175,11 @@ ToolChain::Detection ToolChain::detection() const
     return d->m_detection;
 }
 
+QString ToolChain::detectionSource() const
+{
+    return d->m_detectionSource;
+}
+
 QByteArray ToolChain::id() const
 {
     return d->m_id;
@@ -252,6 +259,7 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
+    result.insert(QLatin1String(DETECTION_SOURCE_KEY), d->m_detectionSource);
     // <Compatibility with QtC 4.2>
     int oldLanguageId = -1;
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
@@ -280,6 +288,11 @@ void ToolChain::toolChainUpdated()
 void ToolChain::setDetection(ToolChain::Detection de)
 {
     d->m_detection = de;
+}
+
+void ToolChain::setDetectionSource(const QString &source)
+{
+    d->m_detectionSource = source;
 }
 
 QString ToolChain::typeDisplayName() const
@@ -353,6 +366,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
 
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetection : ManualDetection;
+    d->m_detectionSource = data.value(DETECTION_SOURCE_KEY).toString();
 
     if (data.contains(LANGUAGE_KEY_V2)) {
         // remove hack to trim language id in 4.4: This is to fix up broken language
