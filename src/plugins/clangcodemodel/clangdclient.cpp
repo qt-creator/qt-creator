@@ -540,8 +540,10 @@ public:
 
     void closeTempDocuments()
     {
-        for (const Utils::FilePath &fp : qAsConst(openedFiles))
-            q->closeExtraFile(fp);
+        for (const Utils::FilePath &fp : qAsConst(openedFiles)) {
+            if (!q->documentForFilePath(fp))
+                q->closeExtraFile(fp);
+        }
         openedFiles.clear();
     }
 
@@ -690,7 +692,6 @@ public:
     void sendGotoImplementationRequest(const Utils::Link &link);
     void handleGotoImplementationResult(const GotoImplementationRequest::Response &response);
     void handleDocumentInfoResults();
-    void closeTempDocuments();
 
     void handleDeclDefSwitchReplies();
 
