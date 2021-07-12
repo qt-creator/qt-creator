@@ -265,8 +265,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Existing Qt versions =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toString() << "id:"<<version->uniqueId();
-            qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
+            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:"<<version->uniqueId();
+            qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
         qCDebug(log)<< "======= Adding sdk versions =======";
@@ -303,7 +303,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         bool restored = false;
         const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
         for (BaseQtVersion *v : versionsCopy) {
-            if (v->autodetectionSource() == autoDetectionSource) {
+            if (v->detectionSource() == autoDetectionSource) {
                 id = v->uniqueId();
                 qCDebug(log) << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
@@ -341,16 +341,16 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Before removing outdated sdk versions =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toString() << "id:"<<version->uniqueId();
-            qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
+            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
+            qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
     }
     const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
     for (BaseQtVersion *qtVersion : versionsCopy) {
-        if (qtVersion->autodetectionSource().startsWith("SDK.")) {
-            if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
-                qCDebug(log) << "  removing version"<<qtVersion->autodetectionSource();
+        if (qtVersion->detectionSource().startsWith("SDK.")) {
+            if (!sdkVersions.contains(qtVersion->detectionSource())) {
+                qCDebug(log) << "  removing version" << qtVersion->detectionSource();
                 m_versions.remove(qtVersion->uniqueId());
                 removed << qtVersion->uniqueId();
             }
@@ -360,8 +360,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log)<< "======= End result =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toString() << "id:" << version->uniqueId();
-            qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
+            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
+            qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
     }

@@ -478,7 +478,7 @@ void KitDetectorPrivate::undoAutoDetect() const
         }
     };
     for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
-        if (qtVersion->autodetectionSource() == m_sharedId) {
+        if (qtVersion->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removing Qt version: %1").arg(qtVersion->displayName()));
             QtVersionManager::removeVersion(qtVersion);
         }
