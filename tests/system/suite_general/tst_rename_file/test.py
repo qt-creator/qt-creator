@@ -87,14 +87,16 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     oldFilePath = os.path.join(projectDir, oldname)
     newFilePath = os.path.join(projectDir, newname)
     oldFileText = readFile(oldFilePath)
-    itemText = branch + "." + oldname.replace(".", "\\.")
+    oldItemText = branch + "." + oldname.replace(".", "\\.")
+    newItemText = branch + "." + newname.replace(".", "\\.")
     treeview = waitForObject(":Qt Creator_Utils::NavigationTreeView")
     try:
-        openItemContextMenu(treeview, itemText, 5, 5, 0)
+        openItemContextMenu(treeview, oldItemText, 5, 5, 0)
     except:
-        itemWithWildcard = addBranchWildcardToRoot(itemText)
-        waitForObjectItem(treeview, itemWithWildcard, 10000)
-        openItemContextMenu(treeview, itemWithWildcard, 5, 5, 0)
+        oldItemText = addBranchWildcardToRoot(oldItemText)
+        newItemText = addBranchWildcardToRoot(newItemText)
+        waitForObjectItem(treeview, oldItemText, 10000)
+        openItemContextMenu(treeview, oldItemText, 5, 5, 0)
     if oldname.lower().endswith(".qrc"):
         menu = ":Qt Creator.Project.Menu.Folder_QMenu"
     else:
@@ -129,6 +131,13 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     if not (oldname.lower() == newname.lower() and platform.system() in ('Windows', 'Microsoft')):
         test.verify(oldname not in os.listdir(projectDir),
                     "Verify that file with old name does not exist: %s" % oldFilePath)
+
+    if newItemText.endswith("\\.qml"):
+        newItemText = newItemText.replace(".Other files.", ".QML.")
+    else:
+        newItemText = newItemText.replace(".QML.", ".Other files.")
+    waitForObjectItem(treeview, newItemText)
+
 
 def safeReadFile(filename):
     text = ""
