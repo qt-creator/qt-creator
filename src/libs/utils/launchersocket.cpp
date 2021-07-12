@@ -100,6 +100,7 @@ void LauncherSocket::handleSocketDataAvailable()
     }
     switch (m_packetParser.type()) {
     case LauncherPacketType::ProcessError:
+    case LauncherPacketType::ProcessStarted:
     case LauncherPacketType::ProcessFinished:
         emit packetArrived(m_packetParser.type(), m_packetParser.token(),
                            m_packetParser.packetData());

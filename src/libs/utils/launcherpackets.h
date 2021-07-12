@@ -37,7 +37,7 @@ namespace Utils {
 namespace Internal {
 
 enum class LauncherPacketType {
-    Shutdown, StartProcess, StopProcess, ProcessError, ProcessFinished
+    Shutdown, StartProcess, ProcessStarted, StopProcess, ProcessError, ProcessFinished
 };
 
 class PacketParser
@@ -100,6 +100,18 @@ public:
     QString workingDir;
     QStringList env;
     QProcess::ProcessChannelMode mode = QProcess::SeparateChannels;
+
+private:
+    void doSerialize(QDataStream &stream) const override;
+    void doDeserialize(QDataStream &stream) override;
+};
+
+class ProcessStartedPacket : public LauncherPacket
+{
+public:
+    ProcessStartedPacket(quintptr token);
+
+    int processId;
 
 private:
     void doSerialize(QDataStream &stream) const override;

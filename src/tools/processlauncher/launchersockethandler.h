@@ -53,6 +53,7 @@ private:
     void handleSocketError();
     void handleSocketClosed();
     void handleProcessError();
+    void handleProcessStarted();
     void handleProcessFinished();
     void handleStopFailure();
 

@@ -178,6 +178,14 @@ void LauncherSocketHandler::handleProcessError()
     sendPacket(packet);
 }
 
+void LauncherSocketHandler::handleProcessStarted()
+{
+    Process *proc = senderProcess();
+    ProcessStartedPacket packet(proc->token());
+    packet.processId = proc->processId();
+    sendPacket(packet);
+}
+
 void LauncherSocketHandler::handleProcessFinished()
 {
     Process * proc = senderProcess();
@@ -265,6 +273,7 @@ Process *LauncherSocketHandler::setupProcess(quintptr token)
 {
     const auto p = new Process(token, this);
     connect(p, &QProcess::errorOccurred, this, &LauncherSocketHandler::handleProcessError);
+    connect(p, &QProcess::started, this, &LauncherSocketHandler::handleProcessStarted);
     connect(p, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &LauncherSocketHandler::handleProcessFinished);
     connect(p, &Process::failedToStop, this, &LauncherSocketHandler::handleStopFailure);

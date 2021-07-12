@@ -315,7 +315,7 @@ public:
     QString program() const override { return m_command; }
     QProcess::ProcessError error() const override { return m_error; }
     QProcess::ProcessState state() const override { return m_state; }
-    qint64 processId() const override { QTC_CHECK(false); return 0; }
+    qint64 processId() const override { return m_processId; }
     QProcess::ExitStatus exitStatus() const override { QTC_CHECK(false); return QProcess::NormalExit; }
     QString errorString() const override { return m_errorString; }
     void setErrorString(const QString &str) override { m_errorString = str; }
@@ -352,6 +352,7 @@ private:
     void handlePacket(Internal::LauncherPacketType type, quintptr token,
                       const QByteArray &payload);
     void handleErrorPacket(const QByteArray &packetData);
+    void handleStartedPacket(const QByteArray &packetData);
     void handleFinishedPacket(const QByteArray &packetData);
     void handleSocketReady();
 
@@ -367,6 +368,7 @@ private:
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QProcess::ProcessState m_state = QProcess::NotRunning;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
+    int m_processId = 0;
     int m_exitCode = 0;
     bool m_canceled = false;
     bool m_socketError = false;
@@ -389,8 +391,6 @@ void ProcessLauncherImpl::start(const QString &program, const QStringList &argum
 
 void ProcessLauncherImpl::doStart()
 {
-    emit started(); // Should be queued in order to behave the same as QProcess?
-    m_state = QProcess::Running;
     StartProcessPacket p(token());
     p.command = m_command;
     p.arguments = m_arguments;
@@ -412,7 +412,10 @@ void ProcessLauncherImpl::cancel()
                                                     "Process canceled before it was started.");
         m_error = QProcess::FailedToStart;
         m_state = QProcess::NotRunning;
-        emit errorOccurred(m_error);
+        if (LauncherInterface::socket()->isReady())
+            sendPacket(StopProcessPacket(token()));
+        else
+            emit errorOccurred(m_error);
         break;
     case QProcess::Running:
         sendPacket(StopProcessPacket(token()));
@@ -429,6 +432,9 @@ void ProcessLauncherImpl::handlePacket(LauncherPacketType type, quintptr token, 
     switch (type) {
     case LauncherPacketType::ProcessError:
         handleErrorPacket(payload);
+        break;
+    case LauncherPacketType::ProcessStarted:
+        handleStartedPacket(payload);
         break;
     case LauncherPacketType::ProcessFinished:
         handleFinishedPacket(payload);
@@ -465,6 +471,17 @@ void ProcessLauncherImpl::handleErrorPacket(const QByteArray &packetData)
     m_errorString = packet.errorString;
     m_state = QProcess::NotRunning;
     emit errorOccurred(m_error);
+}
+
+void ProcessLauncherImpl::handleStartedPacket(const QByteArray &packetData)
+{
+    if (m_canceled)
+        return;
+    QTC_ASSERT(m_state == QProcess::Starting, return);
+    m_state = QProcess::Running;
+    const auto packet = LauncherPacket::extractPacket<ProcessStartedPacket>(token(), packetData);
+    m_processId = packet.processId;
+    emit started();
 }
 
 void ProcessLauncherImpl::handleFinishedPacket(const QByteArray &packetData)

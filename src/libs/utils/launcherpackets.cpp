@@ -67,6 +67,22 @@ void StartProcessPacket::doDeserialize(QDataStream &stream)
 }
 
 
+ProcessStartedPacket::ProcessStartedPacket(quintptr token)
+    : LauncherPacket(LauncherPacketType::ProcessStarted, token)
+{
+}
+
+void ProcessStartedPacket::doSerialize(QDataStream &stream) const
+{
+    stream << processId;
+}
+
+void ProcessStartedPacket::doDeserialize(QDataStream &stream)
+{
+    stream >> processId;
+}
+
+
 StopProcessPacket::StopProcessPacket(quintptr token)
     : LauncherPacket(LauncherPacketType::StopProcess, token)
 {
