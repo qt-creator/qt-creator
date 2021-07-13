@@ -376,6 +376,7 @@ private:
     QString m_errorString;
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QProcess::ProcessState m_state = QProcess::NotRunning;
+    QIODevice::OpenMode m_openMode = QIODevice::ReadWrite;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     int m_processId = 0;
     int m_exitCode = 0;
@@ -430,6 +431,7 @@ void ProcessLauncherImpl::start(const QString &program, const QStringList &argum
     m_command = program;
     m_arguments = arguments;
     m_state = QProcess::Starting;
+    m_openMode = mode;
     if (LauncherInterface::socket()->isReady())
         doStart();
 }
@@ -441,7 +443,8 @@ void ProcessLauncherImpl::doStart()
     p.arguments = m_arguments;
     p.env = m_environment.toStringList();
     p.workingDir = m_workingDirectory;
-    p.mode = m_channelMode;
+    p.openMode = m_openMode;
+    p.channelMode = m_channelMode;
     sendPacket(p);
 }
 

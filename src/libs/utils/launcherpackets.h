@@ -99,7 +99,8 @@ public:
     QStringList arguments;
     QString workingDir;
     QStringList env;
-    QProcess::ProcessChannelMode mode = QProcess::SeparateChannels;
+    QIODevice::OpenMode openMode = QIODevice::ReadWrite;
+    QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
 
 private:
     void doSerialize(QDataStream &stream) const override;
