@@ -35,6 +35,7 @@
 #include <QAction>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QElapsedTimer>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -111,7 +112,7 @@ class MessageDetailWidget : public QGroupBox
 public:
     MessageDetailWidget();
 
-    void setMessage(const BaseMessage &message);
+    void setMessage(const LspLogMessage &message);
     void clear();
 
 private:
@@ -206,24 +207,13 @@ public:
 
 private:
     void currentMessageChanged(const QModelIndex &index);
-    void selectMatchingMessage(LspLogMessage::MessageSender sender, const QJsonValue &id);
+    void selectMatchingMessage(const LspLogMessage &message);
 };
 
 static QVariant messageData(const LspLogMessage &message, int, int role)
 {
-    if (role == Qt::DisplayRole) {
-        QString result = message.time.toString("hh:mm:ss.zzz") + '\n';
-        if (message.message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
-            QString error;
-            auto json = JsonRpcMessageHandler::toJsonObject(message.message.content,
-                                                            message.message.codec,
-                                                            error);
-            result += json.value(QString{methodKey}).toString(json.value(QString{idKey}).toString());
-        } else {
-            result += message.message.codec->toUnicode(message.message.content);
-        }
-        return result;
-    }
+    if (role == Qt::DisplayRole)
+        return message.displayText();
     if (role == Qt::TextAlignmentRole)
         return message.sender == LspLogMessage::ClientMessage ? Qt::AlignLeft : Qt::AlignRight;
     return {};
@@ -266,42 +256,33 @@ void LspLogWidget::currentMessageChanged(const QModelIndex &index)
     m_messages->clearSelection();
     if (!index.isValid())
         return;
-    LspLogMessage selectedMessage = m_model.itemAt(index.row())->itemData;
-    BaseMessage message = selectedMessage.message;
-    if (selectedMessage.sender == LspLogMessage::ClientMessage)
+    LspLogMessage message = m_model.itemAt(index.row())->itemData;
+    if (message.sender == LspLogMessage::ClientMessage)
         m_clientDetails->setMessage(message);
     else
         m_serverDetails->setMessage(message);
-    if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
-        QString error;
-        QJsonValue id = JsonRpcMessageHandler::toJsonObject(message.content, message.codec, error)
-                            .value(idKey);
-        if (!id.isUndefined()) {
-            selectMatchingMessage(selectedMessage.sender == LspLogMessage::ClientMessage
-                                      ? LspLogMessage::ServerMessage
-                                      : LspLogMessage::ClientMessage,
-                                  id);
-        }
-    }
+    selectMatchingMessage(message);
 }
 
 static bool matches(LspLogMessage::MessageSender sender,
-                    const QJsonValue &id,
+                    const MessageId &id,
                     const LspLogMessage &message)
 {
     if (message.sender != sender)
         return false;
     if (message.message.mimeType != JsonRpcMessageHandler::jsonRpcMimeType())
         return false;
-    QString error;
-    auto json = JsonRpcMessageHandler::toJsonObject(message.message.content,
-                                                    message.message.codec,
-                                                    error);
-    return json.value(QString{idKey}) == id;
+    return message.id() == id;
 }
 
-void LspLogWidget::selectMatchingMessage(LspLogMessage::MessageSender sender, const QJsonValue &id)
+void LspLogWidget::selectMatchingMessage(const LspLogMessage &message)
 {
+    MessageId id = message.id();
+    if (!id.isValid())
+        return;
+    LspLogMessage::MessageSender sender = message.sender == LspLogMessage::ServerMessage
+                                              ? LspLogMessage::ClientMessage
+                                              : LspLogMessage::ServerMessage;
     LspLogMessage *matchingMessage = m_model.findData(
         [&](const LspLogMessage &message) { return matches(sender, id, message); });
     if (!matchingMessage)
@@ -311,9 +292,9 @@ void LspLogWidget::selectMatchingMessage(LspLogMessage::MessageSender sender, co
 
     m_messages->selectionModel()->select(index, QItemSelectionModel::Select);
     if (matchingMessage->sender == LspLogMessage::ServerMessage)
-        m_serverDetails->setMessage(matchingMessage->message);
+        m_serverDetails->setMessage(*matchingMessage);
     else
-        m_clientDetails->setMessage(matchingMessage->message);
+        m_clientDetails->setMessage(*matchingMessage);
 }
 
 void LspLogWidget::addMessage(const LspLogMessage &message)
@@ -508,23 +489,18 @@ MessageDetailWidget::MessageDetailWidget()
     layout->addRow("MIME Type:", m_mimeType);
 }
 
-void MessageDetailWidget::setMessage(const BaseMessage &message)
+void MessageDetailWidget::setMessage(const LspLogMessage &message)
 {
-    m_contentLength->setText(QString::number(message.contentLength));
-    m_mimeType->setText(QString::fromLatin1(message.mimeType));
+    m_contentLength->setText(QString::number(message.message.contentLength));
+    m_mimeType->setText(QString::fromLatin1(message.message.mimeType));
 
     QWidget *newContentWidget = nullptr;
-    if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
-        QString error;
-        auto json = JsonRpcMessageHandler::toJsonObject(message.content, message.codec, error);
-        if (json.isEmpty())
-            newContentWidget = new QLabel(error);
-        else
-            newContentWidget = createJsonTreeView("content", json);
+    if (message.message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
+        newContentWidget = createJsonTreeView("content", message.json());
     } else {
         auto edit = new QPlainTextEdit();
         edit->setReadOnly(true);
-        edit->setPlainText(message.codec->toUnicode(message.content));
+        edit->setPlainText(message.message.codec->toUnicode(message.message.content));
         newContentWidget = edit;
     }
     auto formLayout = static_cast<QFormLayout *>(layout());
@@ -540,6 +516,48 @@ void MessageDetailWidget::clear()
     auto formLayout = static_cast<QFormLayout *>(layout());
     if (formLayout->rowCount() > 2)
         formLayout->removeRow(2);
+}
+
+LspLogMessage::LspLogMessage() = default;
+
+LspLogMessage::LspLogMessage(MessageSender sender,
+                             const QTime &time,
+                             const LanguageServerProtocol::BaseMessage &message)
+    : sender(sender)
+    , time(time)
+    , message(message)
+{}
+
+MessageId LspLogMessage::id() const
+{
+    if (!m_id.has_value())
+        m_id = MessageId(json().value(idKey));
+    return *m_id;
+}
+
+QString LspLogMessage::displayText() const
+{
+    if (!m_displayText.has_value()) {
+        m_displayText = time.toString("hh:mm:ss.zzz") + '\n';
+        if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType())
+            m_displayText->append(json().value(QString{methodKey}).toString(id().toString()));
+        else
+            m_displayText->append(message.codec->toUnicode(message.content));
+    }
+    return *m_displayText;
+}
+
+QJsonObject &LspLogMessage::json() const
+{
+    if (!m_json.has_value()) {
+        if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
+            QString error;
+            m_json = JsonRpcMessageHandler::toJsonObject(message.content, message.codec, error);
+        } else {
+            m_json = QJsonObject();
+        }
+    }
+    return *m_json;
 }
 
 } // namespace LanguageClient
