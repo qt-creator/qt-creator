@@ -357,14 +357,22 @@ static qint64 endTime(const TimelineModel *model, const TimelineRenderState *par
 
 const QSGGeometry::AttributeSet &OpaqueColoredPoint2DWithSize::attributes()
 {
-    static QSGGeometry::Attribute data[] = {
-        QSGGeometry::Attribute::create(0, 2, QSGGeometry::FloatType, true),
-        QSGGeometry::Attribute::create(1, 2, QSGGeometry::FloatType),
-        QSGGeometry::Attribute::create(2, 1, QSGGeometry::FloatType),
-        QSGGeometry::Attribute::create(3, 4, QSGGeometry::UnsignedByteType)
+    static const QSGGeometry::Attribute data[] = {
+        // vec4 vertexCoord
+        QSGGeometry::Attribute::createWithAttributeType(0, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::PositionAttribute),
+        // vec2 rectSize
+        QSGGeometry::Attribute::createWithAttributeType(1, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::UnknownAttribute),
+        // float selectionId
+        QSGGeometry::Attribute::createWithAttributeType(2, 1, QSGGeometry::FloatType,
+                                                        QSGGeometry::UnknownAttribute),
+        // vec4 vertexColor
+        QSGGeometry::Attribute::createWithAttributeType(3, 4, QSGGeometry::UnsignedByteType,
+                                                        QSGGeometry::ColorAttribute),
     };
-    static QSGGeometry::AttributeSet attrs = {
-        4,
+    static const QSGGeometry::AttributeSet attrs = {
+        sizeof(data) / sizeof(data[0]),
         sizeof(OpaqueColoredPoint2DWithSize),
         data
     };
@@ -448,13 +456,13 @@ public:
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void initialize() override;
-#endif // < Qt 6
 
     int m_matrix_id;
     int m_scale_id;
     int m_selection_color_id;
     int m_selected_item_id;
     int m_z_range_id;
+#endif // < Qt 6
 };
 
 TimelineItemsMaterialShader::TimelineItemsMaterialShader()
@@ -556,17 +564,12 @@ QSGMaterialType *TimelineItemsMaterial::type() const
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 QSGMaterialShader *TimelineItemsMaterial::createShader() const
-{
-    return new TimelineItemsMaterialShader;
-}
 #else // < Qt 6
-QSGMaterialShader *TimelineItemsMaterial::createShader(
-        QSGRendererInterface::RenderMode renderMode) const
+QSGMaterialShader *TimelineItemsMaterial::createShader(QSGRendererInterface::RenderMode) const
+#endif // < Qt 6
 {
-    Q_UNUSED(renderMode);
     return new TimelineItemsMaterialShader;
 }
-#endif // < Qt 6
 
 TimelineItemsRenderPassState::TimelineItemsRenderPassState(const TimelineModel *model) :
     m_indexFrom(std::numeric_limits<int>::max()), m_indexTo(-1)

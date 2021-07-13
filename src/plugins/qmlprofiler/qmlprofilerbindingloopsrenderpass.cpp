@@ -37,7 +37,7 @@ public:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSGMaterialShader *createShader() const override;
 #else
-    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode renderMode) const override;
+    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode) const override;
 #endif // < Qt 6
     BindingLoopMaterial();
 };
@@ -66,7 +66,8 @@ private:
 };
 
 struct Point2DWithOffset {
-    float x, y, x2, y2;
+    float x, y; // vec4 vertexCoord
+    float x2, y2; // vec2 postScaleOffset
     void set(float nx, float ny, float nx2, float ny2);
 };
 
@@ -199,12 +200,16 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
 
 const QSGGeometry::AttributeSet &BindlingLoopsGeometry::point2DWithOffset()
 {
-    static QSGGeometry::Attribute data[] = {
-        QSGGeometry::Attribute::create(0, 2, QSGGeometry::FloatType, true),
-        QSGGeometry::Attribute::create(1, 2, QSGGeometry::FloatType),
+    static const QSGGeometry::Attribute data[] = {
+        // vec4 vertexCoord
+        QSGGeometry::Attribute::createWithAttributeType(0, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::PositionAttribute),
+        // vec2 postScaleOffset
+        QSGGeometry::Attribute::createWithAttributeType(1, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::UnknownAttribute),
     };
-    static QSGGeometry::AttributeSet attrs = {
-        2,
+    static const QSGGeometry::AttributeSet attrs = {
+        sizeof(data) / sizeof(data[0]),
         sizeof(Point2DWithOffset),
         data
     };
@@ -299,18 +304,17 @@ public:
                      QSGMaterial *oldEffect) override;
     char const *const *attributeNames() const override;
 #else // < Qt 6
-    bool updateUniformData(RenderState &state, QSGMaterial *newEffect,
-                           QSGMaterial *oldEffect) override;
+    bool updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *) override;
 #endif // < Qt 6
 
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void initialize() override;
-#endif // < Qt 6
 
     int m_matrix_id = 0;
     int m_z_range_id = 0;
     int m_color_id = 0;
+#endif // < Qt 6
 };
 
 BindingLoopMaterialShader::BindingLoopMaterialShader()
@@ -327,25 +331,24 @@ BindingLoopMaterialShader::BindingLoopMaterialShader()
 #endif // < Qt 6
 }
 
+static QColor bindingLoopsColor()
+{
+    return Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor);
+}
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void BindingLoopMaterialShader::updateState(const RenderState &state, QSGMaterial *, QSGMaterial *)
 {
     if (state.isMatrixDirty()) {
         program()->setUniformValue(m_matrix_id, state.combinedMatrix());
         program()->setUniformValue(m_z_range_id, GLfloat(1.0));
-        program()->setUniformValue(
-                    m_color_id,
-                    Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor));
+        program()->setUniformValue(m_color_id, bindingLoopsColor());
     }
 }
 #else // < Qt 6
-bool BindingLoopMaterialShader::updateUniformData(RenderState &state,
-                                                  QSGMaterial *newMaterial, QSGMaterial *)
+bool BindingLoopMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)
 {
     // TODO: Make this work
-    if (state.isMatrixDirty()) {
-        BindingLoopMaterial *material = static_cast<BindingLoopMaterial *>(newMaterial);
-    }
     return state.isMatrixDirty();
 }
 #endif // < Qt 6
@@ -378,17 +381,12 @@ QSGMaterialType *BindingLoopMaterial::type() const
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 QSGMaterialShader *BindingLoopMaterial::createShader() const
-{
-    return new BindingLoopMaterialShader;
-}
 #else // < Qt 6
-QSGMaterialShader *BindingLoopMaterial::createShader(
-        QSGRendererInterface::RenderMode renderMode) const
+QSGMaterialShader *BindingLoopMaterial::createShader(QSGRendererInterface::RenderMode) const
+#endif // < Qt 6
 {
-    Q_UNUSED(renderMode);
     return new BindingLoopMaterialShader;
 }
-#endif // < Qt 6
 
 void Point2DWithOffset::set(float nx, float ny, float nx2, float ny2)
 {

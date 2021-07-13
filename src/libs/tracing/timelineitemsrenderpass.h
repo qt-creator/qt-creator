@@ -48,7 +48,7 @@ public:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSGMaterialShader *createShader() const override;
 #else
-    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode renderMode) const override;
+    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode) const override;
 #endif // < Qt 6
 
 private:
@@ -83,8 +83,10 @@ public:
     static OpaqueColoredPoint2DWithSize *fromVertexData(QSGGeometry *geometry);
 
 private:
-    float x, y, w, h, id;
-    unsigned char r, g, b, a;
+    float x, y; // vec4 vertexCoord
+    float w, h; // vec2 rectSize
+    float id; // float selectionId
+    unsigned char r, g, b, a; // vec4 vertexColor
 
     void setCommon(const OpaqueColoredPoint2DWithSize *master);
     void setLeft(const OpaqueColoredPoint2DWithSize *master);
