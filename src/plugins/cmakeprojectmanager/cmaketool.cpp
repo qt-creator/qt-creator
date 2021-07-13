@@ -53,6 +53,7 @@ const char CMAKE_INFORMATION_QCH_FILE_PATH[] = "QchFile";
 // obsolete since Qt Creator 5. Kept for backward compatibility
 const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
+const char CMAKE_INFORMATION_DETECTIONSOURCE[] = "DetectionSource";
 const char CMAKE_INFORMATION_READERTYPE[] = "ReaderType";
 
 bool CMakeTool::Generator::matches(const QString &n, const QString &ex) const
@@ -132,6 +133,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
     //loading a CMakeTool from SDK is always autodetection
     if (!fromSdk)
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
+    m_detectionSource = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
 
     setFilePath(FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 
@@ -209,6 +211,7 @@ QVariantMap CMakeTool::toMap() const
         data.insert(CMAKE_INFORMATION_READERTYPE,
                     Internal::readerTypeToString(m_readerType.value()));
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
+    data.insert(CMAKE_INFORMATION_DETECTIONSOURCE, m_detectionSource);
     return data;
 }
 

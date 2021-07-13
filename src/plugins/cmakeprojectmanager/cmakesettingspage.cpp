@@ -110,6 +110,7 @@ public:
         , m_executable(item->filePath())
         , m_qchFile(item->qchFilePath())
         , m_versionDisplay(item->versionDisplay())
+        , m_detectionSource(item->detectionSource())
         , m_isAutoRun(item->isAutoRun())
         , m_autodetected(item->isAutoDetected())
         , m_isSupported(item->hasFileApi())
@@ -145,9 +146,10 @@ public:
         cmake.setFilePath(m_executable);
         m_isSupported = cmake.hasFileApi();
 
-        m_tooltip = tr("Version: %1<br>Supports fileApi: %2")
-                        .arg(cmake.versionDisplay())
-                        .arg(cmake.hasFileApi() ? tr("yes") : tr("no"));
+        m_tooltip = tr("Version: %1").arg(cmake.versionDisplay());
+        m_tooltip += "<br>" + tr("Supports fileApi: %1").arg(m_isSupported ? tr("yes") : tr("no"));
+        m_tooltip += "<br>" + tr("Detection source: \"%1\"").arg(m_detectionSource);
+
         m_versionDisplay = cmake.versionDisplay();
     }
 
@@ -223,6 +225,7 @@ public:
     FilePath m_executable;
     FilePath m_qchFile;
     QString m_versionDisplay;
+    QString m_detectionSource;
     bool m_isAutoRun = true;
     bool m_pathExists = false;
     bool m_pathIsFile = false;
@@ -362,6 +365,7 @@ void CMakeToolItemModel::apply()
             cmake->setDisplayName(item->m_name);
             cmake->setFilePath(item->m_executable);
             cmake->setQchFilePath(item->m_qchFile);
+            cmake->setDetectionSource(item->m_detectionSource);
             cmake->setAutorun(item->m_isAutoRun);
         } else {
             toRegister.append(item);
@@ -375,6 +379,7 @@ void CMakeToolItemModel::apply()
         cmake->setDisplayName(item->m_name);
         cmake->setFilePath(item->m_executable);
         cmake->setQchFilePath(item->m_qchFile);
+        cmake->setDetectionSource(item->m_detectionSource);
         if (!CMakeToolManager::registerCMakeTool(std::move(cmake)))
             item->m_changed = true;
     }

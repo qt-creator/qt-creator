@@ -724,6 +724,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 {
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerRunParameters>("DebuggerRunParameters");
+    qRegisterMetaType<QString *>();
 
     // Menu groups
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
@@ -1747,9 +1748,15 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
 }
 
 void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePath &deviceRoot,
-                                                  const QString &detectionId)
+                                                  const QString &detectionSource,
+                                                  QString *logMessage)
 {
-    dd->m_debuggerItemManager.autoDetectDebuggersForDevice(deviceRoot, detectionId);
+    dd->m_debuggerItemManager.autoDetectDebuggersForDevice(deviceRoot, detectionSource, logMessage);
+}
+
+void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    dd->m_debuggerItemManager.removeDetectedDebuggers(detectionSource, logMessage);
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()

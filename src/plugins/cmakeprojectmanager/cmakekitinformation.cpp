@@ -277,9 +277,10 @@ void CMakeKitAspect::setup(Kit *k)
         return;
 
     // Look for a suitable auto-detected one:
-    const QString id = k->autoDetectionSource();
+    const QString kitSource = k->autoDetectionSource();
     for (CMakeTool *tool : CMakeToolManager::cmakeTools()) {
-        if (tool->detectionSource() == id) {
+        const QString toolSource = tool->detectionSource();
+        if (!toolSource.isEmpty() && toolSource == kitSource) {
             setCMakeTool(k, tool->id());
             return;
         }
@@ -1043,8 +1044,6 @@ CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
 
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const
 {
-    Q_UNUSED(k)
-
     // FIXME: Convert preload scripts
     CMakeConfig config = defaultConfiguration(k);
     const QStringList tmp

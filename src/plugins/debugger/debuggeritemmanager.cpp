@@ -92,7 +92,9 @@ public:
     QVariant registerDebugger(const DebuggerItem &item);
     void readDebuggers(const FilePath &fileName, bool isSystem);
     void autoDetectCdbDebuggers();
-    void autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot, const QString &detectionSource);
+    void autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot,
+                                      const QString &detectionSource,
+                                      QString *logMessage = nullptr);
     void autoDetectUvscDebuggers();
     QString uniqueDisplayName(const QString &base);
 
@@ -715,7 +717,8 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
 }
 
 void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &deviceRoot,
-                                                              const QString &detectionSource)
+                                                              const QString &detectionSource,
+                                                              QString *logMessage)
 {
     const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
                                  "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
@@ -773,6 +776,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &de
         suspects.append(device->directoryEntries(globalPath, filters, QDir::Files | QDir::Executable));
     }
 
+    QStringList logMessages{tr("Searching debuggers...")};
     for (const FilePath &command : qAsConst(suspects)) {
         const auto commandMatches = [command](const DebuggerTreeItem *titem) {
             return titem->m_item.command() == command;
@@ -796,7 +800,10 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &de
         const QString name = detectionSource.isEmpty() ? tr("System %1 at %2") : tr("Detected %1 at %2");
         item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
         m_model->addDebugger(item);
+        logMessages.append(tr("Found: \"%1\"").arg(name));
     }
+    if (logMessage)
+        *logMessage = logMessages.join('\n');
 }
 
 void DebuggerItemManagerPrivate::autoDetectUvscDebuggers()
@@ -1030,9 +1037,31 @@ void DebuggerItemManager::deregisterDebugger(const QVariant &id)
 }
 
 void DebuggerItemManager::autoDetectDebuggersForDevice(const FilePath &deviceRoot,
-                                                       const QString &detectionSource)
+                                                       const QString &detectionSource,
+                                                       QString *logMessage)
 {
-    d->autoDetectGdbOrLldbDebuggers(deviceRoot, detectionSource);
+    d->autoDetectGdbOrLldbDebuggers(deviceRoot, detectionSource, logMessage);
+}
+
+void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource,
+                                                  QString *logMessage)
+{
+    QStringList logMessages{tr("Removing debugger entries...")};
+    d->m_model->forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
+        if (titem->m_item.detectionSource() == detectionSource) {
+            logMessages.append(tr("Removed \"%1\"").arg(titem->m_item.displayName()));
+            d->m_model->destroyItem(titem);
+            return;
+        }
+        // FIXME: These items appeared in early docker development. Ok to remove for Creator 7.0.
+        FilePath filePath = titem->m_item.command();
+        if (filePath.scheme() + ':' + filePath.host() == detectionSource) {
+            logMessages.append(tr("Removed \"%1\"").arg(titem->m_item.displayName()));
+            d->m_model->destroyItem(titem);
+        }
+    });
+    if (logMessage)
+        *logMessage = logMessages.join('\n');
 }
 
 } // namespace Debugger

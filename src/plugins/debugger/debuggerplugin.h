@@ -59,10 +59,15 @@ private:
     Q_SLOT void getEnginesState(QByteArray *json) const;
 
     // Called from DockerDevice
-    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot, const QString &detectionId);
+    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot,
+                                             const QString &detectionId,
+                                             QString *logMessage);
+    Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
 
     QVector<QObject *> createTestObjects() const override;
 };
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(QString *)
