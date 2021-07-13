@@ -1095,7 +1095,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         if (!version || !version->isValid()) {
             addWarning(tr("CMake configuration has a path to a qmake binary set, "
                           "even though the kit has no valid Qt version."));
-        } else if (qmakePath != version->qmakeCommand() && isQt4) {
+        } else if (qmakePath != version->qmakeFilePath() && isQt4) {
             addWarning(tr("CMake configuration has a path to a qmake binary set "
                           "that does not match the qmake binary path "
                           "configured in the Qt version."));

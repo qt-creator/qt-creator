@@ -104,7 +104,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
         BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
         if (!qtVersion)
             return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
-        const QString program = qtVersion->qmakeCommand().fileName();
+        const QString program = qtVersion->qmakeFilePath().fileName();
         return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
     };
     setSummaryUpdater(updateSummary);
@@ -215,7 +215,7 @@ bool QMakeStep::init()
     else
         workingDirectory = qmakeBc->buildDirectory();
 
-    m_qmakeCommand = CommandLine{qtVersion->qmakeCommand(), allArguments(qtVersion), CommandLine::Raw};
+    m_qmakeCommand = CommandLine{qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
 
     // The Makefile is used by qmake and make on the build device, from that
@@ -433,7 +433,7 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 QString QMakeStep::effectiveQMakeCall() const
 {
     BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
-    QString qmake = qtVersion ? qtVersion->qmakeCommand().toUserOutput() : QString();
+    QString qmake = qtVersion ? qtVersion->qmakeFilePath().toUserOutput() : QString();
     if (qmake.isEmpty())
         qmake = tr("<no Qt version>");
     QString make = makeCommand().toUserOutput();

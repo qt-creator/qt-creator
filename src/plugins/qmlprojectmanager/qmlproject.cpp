@@ -373,7 +373,7 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 
     if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            if (version->qmlsceneCommand().isEmpty()) {
+            if (version->qmlRuntimeFilePath().isEmpty()) {
                 result.append(createProjectTask(Task::TaskType::Error,
                                                 tr("Qt version has no QML utility.")));
             }

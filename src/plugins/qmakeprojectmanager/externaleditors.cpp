@@ -66,14 +66,14 @@ static inline QString msgAppNotFound(const QString &id)
 static QString linguistBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (qtVersion)
-        return qtVersion->linguistCommand().toString();
+        return qtVersion->linguistFilePath().toString();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
 static QString designerBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (qtVersion)
-        return qtVersion->designerCommand().toString();
+        return qtVersion->designerFilePath().toString();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Designer" : "designer");
 }
 

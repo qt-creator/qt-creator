@@ -76,7 +76,7 @@ private:
     bool isEnabled() const final;
 
     QString mainScript() const;
-    FilePath qmlScenePath() const;
+    FilePath qmlRuntimeFilePath() const;
     QString commandLineArguments() const;
 
     StringAspect *m_qmlViewerAspect = nullptr;
@@ -97,7 +97,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
     setCommandLineGetter([this] {
-        return CommandLine(qmlScenePath(), commandLineArguments(), CommandLine::Raw);
+        return CommandLine(qmlRuntimeFilePath(), commandLineArguments(), CommandLine::Raw);
     });
 
     m_qmlMainFileAspect = addAspect<QmlMainFileAspect>(target);
@@ -150,7 +150,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
 
-    const FilePath viewer = qmlScenePath();
+    const FilePath viewer = qmlRuntimeFilePath();
     if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !viewer.exists()) {
@@ -161,7 +161,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
     return RunConfiguration::disabledReason();
 }
 
-FilePath QmlProjectRunConfiguration::qmlScenePath() const
+FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
     const QString qmlViewer = m_qmlViewerAspect->value();
     if (!qmlViewer.isEmpty())
@@ -176,16 +176,16 @@ FilePath QmlProjectRunConfiguration::qmlScenePath() const
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
-        return isDesktop ? version->qmlsceneCommand() : FilePath::fromString("qmlscene");
+        return isDesktop ? version->qmlRuntimeFilePath() : FilePath::fromString("qmlscene");
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
     if (dev.isNull()) // No device set. We don't know where a QML utility is.
         return {};
 
-    const QString qmlscene = dev->qmlRunCommand();
+    const QString qmlRuntime = dev->qmlRunCommand();
     // If not given explicitly by device, try to pick it from $PATH.
-    return FilePath::fromString(qmlscene.isEmpty() ? QString("qmlscene") : qmlscene);
+    return FilePath::fromString(qmlRuntime.isEmpty() ? QString("qmlscene") : qmlRuntime);
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const

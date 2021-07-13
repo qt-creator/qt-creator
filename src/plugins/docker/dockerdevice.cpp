@@ -510,7 +510,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
             continue;
         qtVersions.append(qtVersion);
         QtVersionManager::addVersion(qtVersion);
-        emit q->logOutput(tr("Found Qt: %1").arg(qtVersion->qmakeCommand().toUserOutput()));
+        emit q->logOutput(tr("Found Qt: %1").arg(qtVersion->qmakeFilePath().toUserOutput()));
     }
     if (qtVersions.isEmpty())
         emit q->logOutput(tr("No Qt installation found."));

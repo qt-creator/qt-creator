@@ -320,7 +320,7 @@ void QtKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
     expander->registerVariable("Qt:qmakeExecutable", tr("Path to the qmake executable"),
                 [kit]() -> QString {
                     BaseQtVersion *version = qtVersion(kit);
-                    return version ? version->qmakeCommand().path() : QString();
+                    return version ? version->qmakeFilePath().path() : QString();
                 });
 }
 

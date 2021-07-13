@@ -62,7 +62,7 @@ Utils::FilePath UicGenerator::command() const
     if (!version)
         return Utils::FilePath();
 
-    return version->uicCommand();
+    return version->uicFilePath();
 }
 
 QStringList UicGenerator::arguments() const

@@ -132,14 +132,14 @@ public:
     bool isInQtSourceDirectory(const Utils::FilePath &filePath) const;
     bool isQtSubProject(const Utils::FilePath &filePath) const;
 
-    Utils::FilePath rccCommand() const;
+    Utils::FilePath rccFilePath() const;
     // used by UiCodeModelSupport
-    Utils::FilePath uicCommand() const;
-    Utils::FilePath designerCommand() const;
-    Utils::FilePath linguistCommand() const;
-    Utils::FilePath qscxmlcCommand() const;
-    Utils::FilePath qmlsceneCommand() const;
-    Utils::FilePath qmlplugindumpCommand() const;
+    Utils::FilePath uicFilePath() const;
+    Utils::FilePath designerFilePath() const;
+    Utils::FilePath linguistFilePath() const;
+    Utils::FilePath qscxmlcFilePath() const;
+    Utils::FilePath qmlRuntimeFilePath() const;
+    Utils::FilePath qmlplugindumpFilePath() const;
 
     QString qtVersionString() const;
     QtVersionNumber qtVersion() const;
@@ -151,7 +151,7 @@ public:
     bool hasDemos() const;
 
     // former local functions
-    Utils::FilePath qmakeCommand() const;
+    Utils::FilePath qmakeFilePath() const;
 
     /// @returns the name of the mkspec
     QString mkspec() const;

@@ -156,7 +156,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     projectInfo.qmlDumpPath.clear();
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(activeKit);
     if (version && projectInfo.tryQmlDump) {
-        projectInfo.qmlDumpPath = version->qmlplugindumpCommand().toString();
+        projectInfo.qmlDumpPath = version->qmlplugindumpFilePath().toString();
         projectInfo.qmlDumpHasRelocatableFlag = version->hasQmlDumpWithRelocatableFlag();
     }
 

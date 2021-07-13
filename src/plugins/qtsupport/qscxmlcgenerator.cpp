@@ -84,7 +84,7 @@ Utils::FilePath QScxmlcGenerator::command() const
     if (!version)
         return Utils::FilePath();
 
-    return version->qscxmlcCommand();
+    return version->qscxmlcFilePath();
 }
 
 QStringList QScxmlcGenerator::arguments() const

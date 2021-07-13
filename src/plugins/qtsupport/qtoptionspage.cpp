@@ -112,7 +112,7 @@ public:
             if (column == 0)
                 return m_version->displayName();
             if (column == 1)
-                return m_version->qmakeCommand().toUserOutput();
+                return m_version->qmakeFilePath().toUserOutput();
         }
 
         if (role == Qt::FontRole && m_changed) {
@@ -128,7 +128,7 @@ public:
             const QString row = "<tr><td>%1:</td><td>%2</td></tr>";
             return QString("<table>"
                          + row.arg(tr("Qt Version"), m_version->qtVersionString())
-                         + row.arg(tr("Location of qmake"), m_version->qmakeCommand().toUserOutput())
+                         + row.arg(tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput())
                          + "</table>");
         }
 
@@ -619,7 +619,7 @@ void QtOptionsPageWidget::addQtDir()
     auto checkAlreadyExists = [qtVersion](TreeItem *parent) {
         for (int i = 0; i < parent->childCount(); ++i) {
             auto item = static_cast<QtVersionItem *>(parent->childAt(i));
-            if (item->version()->qmakeCommand() == qtVersion) {
+            if (item->version()->qmakeFilePath() == qtVersion) {
                 return std::make_pair(true, item->version()->displayName());
             }
         }
@@ -672,7 +672,7 @@ void QtOptionsPageWidget::removeQtDir()
 void QtOptionsPageWidget::editPath()
 {
     BaseQtVersion *current = currentVersion();
-    QString dir = currentVersion()->qmakeCommand().toFileInfo().absolutePath();
+    QString dir = currentVersion()->qmakeFilePath().toFileInfo().absolutePath();
     FilePath qtVersion = FilePath::fromString(
         QFileDialog::getOpenFileName(this,
                                      tr("Select a qmake Executable"),
@@ -770,7 +770,7 @@ void QtOptionsPageWidget::updateWidgets()
     BaseQtVersion *version = currentVersion();
     if (version) {
         m_versionUi.nameEdit->setText(version->unexpandedDisplayName());
-        m_versionUi.qmakePath->setText(version->qmakeCommand().toUserOutput());
+        m_versionUi.qmakePath->setText(version->qmakeFilePath().toUserOutput());
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_versionUi.formLayout->addRow(m_configurationWidget);

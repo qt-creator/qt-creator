@@ -181,7 +181,7 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
             data = provider->properties(k, data);
     }
     if (const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k))
-        data.insert("moduleProviders.Qt.qmakeFilePaths", qt->qmakeCommand().toString());
+        data.insert("moduleProviders.Qt.qmakeFilePaths", qt->qmakeFilePath().toString());
 
     if (QbsSettings::qbsVersion() < QVersionNumber({1, 20})) {
         const QString keyPrefix = "profiles." + name + ".";

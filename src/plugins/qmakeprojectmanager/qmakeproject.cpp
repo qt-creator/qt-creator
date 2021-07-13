@@ -831,7 +831,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
 
         if (qtVersion && qtVersion->isValid()) {
-            m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
+            m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeFilePath().toString());
             qtVersion->applyProperties(m_qmakeGlobals.get());
         }
         m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().toString(),
