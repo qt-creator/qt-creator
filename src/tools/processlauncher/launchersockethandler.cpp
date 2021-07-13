@@ -232,6 +232,7 @@ void LauncherSocketHandler::handleStartPacket()
     process->setWorkingDirectory(packet.workingDir);
     process->setProcessChannelMode(packet.mode);
     process->start(packet.command, packet.arguments);
+    process->closeWriteChannel();
 }
 
 void LauncherSocketHandler::handleStopPacket()

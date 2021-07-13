@@ -277,6 +277,7 @@ private:
 
 class ProcessLauncherImpl : public ProcessInterface
 {
+    Q_OBJECT
 public:
     ProcessLauncherImpl() : ProcessInterface()
     {
@@ -320,9 +321,9 @@ public:
     QString errorString() const override { return m_errorString; }
     void setErrorString(const QString &str) override { m_errorString = str; }
 
-    bool waitForStarted(int msecs) override { QTC_CHECK(false); return false; }
-    bool waitForReadyRead(int msecs) override { QTC_CHECK(false); return false; }
-    bool waitForFinished(int msecs) override { QTC_CHECK(false); return false; }
+    bool waitForStarted(int msecs) override;
+    bool waitForReadyRead(int msecs) override;
+    bool waitForFinished(int msecs) override;
 
     void setLowPriority() override { QTC_CHECK(false); }
     bool lowPriority() const override { QTC_CHECK(false); return false; }
@@ -336,7 +337,15 @@ public:
     void setNativeArguments(const QString &arguments) override { QTC_CHECK(false); }
 #endif
 
+signals:
+    void preStarted();
+    void preReadyRead();
+    void preFinished();
+
 private:
+    typedef void (ProcessLauncherImpl::*PreSignal)(void);
+
+    bool waitForSignal(int msecs, const PreSignal &preSignal);
     void doStart();
     void cancel();
     void sendPacket(const Internal::LauncherPacket &packet)
@@ -373,6 +382,42 @@ private:
     bool m_canceled = false;
     bool m_socketError = false;
 };
+
+bool ProcessLauncherImpl::waitForStarted(int msecs)
+{
+    if (m_state == QProcess::Running)
+        return true;
+    return waitForSignal(msecs, &ProcessLauncherImpl::preStarted);
+}
+
+bool ProcessLauncherImpl::waitForReadyRead(int msecs)
+{
+    // TODO: check if any data is ready, return true if there is data
+    return waitForSignal(msecs, &ProcessLauncherImpl::preReadyRead);
+}
+
+bool ProcessLauncherImpl::waitForFinished(int msecs)
+{
+    if (m_state == QProcess::NotRunning)
+        return true;
+    return waitForSignal(msecs, &ProcessLauncherImpl::preFinished);
+}
+
+bool ProcessLauncherImpl::waitForSignal(int msecs, const PreSignal &preSignal)
+{
+    if (m_canceled)
+        return false;
+
+    bool ok = false;
+    QEventLoop loop;
+    QTimer::singleShot(msecs, &loop, &QEventLoop::quit);
+    connect(this, preSignal, &loop, [&loop, &ok]() {
+        ok = true;
+        loop.quit();
+    });
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+    return ok;
+}
 
 void ProcessLauncherImpl::start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode)
 {
@@ -481,6 +526,7 @@ void ProcessLauncherImpl::handleStartedPacket(const QByteArray &packetData)
     m_state = QProcess::Running;
     const auto packet = LauncherPacket::extractPacket<ProcessStartedPacket>(token(), packetData);
     m_processId = packet.processId;
+    emit preStarted();
     emit started();
 }
 
@@ -494,11 +540,16 @@ void ProcessLauncherImpl::handleFinishedPacket(const QByteArray &packetData)
     m_exitCode = packet.exitCode;
     m_stdout = packet.stdOut;
     m_stderr = packet.stdErr;
-    if (!m_stdout.isEmpty())
+    if (!m_stdout.isEmpty()) {
+        emit preReadyRead();
         emit readyReadStandardOutput();
-    if (!m_stderr.isEmpty())
+    }
+    if (!m_stderr.isEmpty()) {
+        emit preReadyRead();
         emit readyReadStandardError();
+    }
     m_errorString = packet.errorString;
+    emit preFinished();
     emit finished(m_exitCode, packet.exitStatus);
 }
 
@@ -847,8 +898,6 @@ bool QtcProcess::stopProcess()
     if (state() == QProcess::NotRunning)
         return true;
     terminate();
-    if (state() == QProcess::NotRunning)
-        return true;
     if (waitForFinished(300))
         return true;
     kill();
