@@ -30,7 +30,7 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    available = [("5.10", "Qt Quick Application - Empty", Targets.DESKTOP_5_10_1_DEFAULT),
+    available = [("5.14", "Qt Quick Application - Empty", Targets.DESKTOP_5_14_1_DEFAULT),
                  ("5.14", "Qt Quick Application - Swipe", Targets.DESKTOP_5_14_1_DEFAULT)]
 
     for qtVersion, appTemplate, targ in available:

@@ -36,7 +36,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    available = ["5.10", "5.14"]
+    available = ["5.14"]
 
     for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing

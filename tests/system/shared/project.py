@@ -278,7 +278,7 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
         __verifyFileCreation__(path, expectedFiles)
 
 def createNewQtQuickApplication(workingDir, projectName=None,
-                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.10",
+                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.12",
                                 template="Qt Quick Application - Empty", fromWelcome=False,
                                 buildSystem=None):
     available = __createProjectOrFileSelectType__("  Application (Qt Quick)", template, fromWelcome)
@@ -298,7 +298,7 @@ def createNewQtQuickApplication(workingDir, projectName=None,
 
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtVersion = "5.10"):
+def createNewQtQuickUI(workingDir, qtVersion = "5.12"):
     available = __createProjectOrFileSelectType__("  Other Project", 'Qt Quick UI Prototype')
     if workingDir == None:
         workingDir = tempDir()
@@ -505,7 +505,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     else:
         version = None
     if templateName.startswith("Qt Quick Application - "):
-        result = set([Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT])
+        result = set([Targets.DESKTOP_5_14_1_DEFAULT])
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")
         result = set()
