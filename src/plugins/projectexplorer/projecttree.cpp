@@ -458,15 +458,14 @@ Node *ProjectTree::nodeForFile(const FilePath &fileName)
 {
     Node *node = nullptr;
     for (const Project *project : SessionManager::projects()) {
-        if (ProjectNode *projectNode = project->rootProjectNode()) {
-            projectNode->forEachGenericNode([&](Node *n) {
-                if (n->filePath() == fileName) {
-                    // prefer file nodes
-                    if (!node || (!node->asFileNode() && n->asFileNode()))
-                        node = n;
-                }
-            });
-        }
+        project->nodeForFilePath(fileName, [&](const Node *n) {
+            if (!node || (!node->asFileNode() && n->asFileNode()))
+                node = const_cast<Node *>(n);
+            return false;
+        });
+        // early return:
+        if (node && node->asFileNode())
+            return node;
     }
     return node;
 }
