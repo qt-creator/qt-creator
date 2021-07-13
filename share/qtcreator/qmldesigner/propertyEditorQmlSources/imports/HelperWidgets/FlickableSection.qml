@@ -54,7 +54,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Flick direction")
-            disabledState: !backendValues.flickableDirection.isAvailable
+            blockedByTemplate: !backendValues.flickableDirection.isAvailable
         }
 
         SecondColumnLayout {
@@ -74,7 +74,7 @@ Section {
         PropertyLabel {
             text: qsTr("Behavior")
             tooltip: qsTr("Whether the surface may be dragged beyond the Flickable's boundaries, or overshoot the Flickable's boundaries when flicked.")
-            disabledState: !backendValues.boundsBehavior.isAvailable
+            blockedByTemplate: !backendValues.boundsBehavior.isAvailable
         }
 
         SecondColumnLayout {
@@ -94,7 +94,7 @@ Section {
         PropertyLabel {
             text: qsTr("Movement")
             tooltip: qsTr("Whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.")
-            disabledState: !backendValues.boundsMovement.isAvailable
+            blockedByTemplate: !backendValues.boundsMovement.isAvailable
         }
 
         SecondColumnLayout {
@@ -132,7 +132,7 @@ Section {
         PropertyLabel {
             text: qsTr("Deceleration")
             tooltip: qsTr("Flick deceleration")
-            disabledState: !backendValues.flickDeceleration.isAvailable
+            blockedByTemplate: !backendValues.flickDeceleration.isAvailable
         }
 
         SecondColumnLayout {
@@ -152,7 +152,7 @@ Section {
         PropertyLabel {
             text: qsTr("Press delay")
             tooltip: qsTr("Time to delay delivering a press to children of the Flickable in milliseconds.")
-            disabledState: !backendValues.pressDelay.isAvailable
+            blockedByTemplate: !backendValues.pressDelay.isAvailable
         }
 
         SecondColumnLayout {
@@ -172,7 +172,7 @@ Section {
         PropertyLabel {
             text: qsTr("Pixel aligned")
             tooltip: qsTr("Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).")
-            disabledState: !backendValues.pixelAligned.isAvailable
+            blockedByTemplate: !backendValues.pixelAligned.isAvailable
         }
 
         SecondColumnLayout {
@@ -192,7 +192,7 @@ Section {
             tooltip: qsTr("If set to true, then when the mouse or touchpoint moves far enough to begin dragging\n"
                           + "the content, the content will jump, such that the content pixel which was under the\n"
                           + "cursor or touchpoint when pressed remains under that point.")
-            disabledState: !backendValues.synchronousDrag.isAvailable
+            blockedByTemplate: !backendValues.synchronousDrag.isAvailable
         }
 
         SecondColumnLayout {

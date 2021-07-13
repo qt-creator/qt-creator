@@ -67,6 +67,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.hoverEnabled
+                enabled: backendValues.hoverEnabled.isAvailable
             }
 
             ExpandingSpacer {}
@@ -75,6 +76,7 @@ Section {
         PropertyLabel {
             text: qsTr("Focus policy")
             tooltip: qsTr("Focus policy of the control.")
+            blockedByTemplate: !backendValues.focusPolicy.isAvailable
         }
 
         SecondColumnLayout {
@@ -85,6 +87,7 @@ Section {
                 backendValue: backendValues.focusPolicy
                 model: [ "TabFocus", "ClickFocus", "StrongFocus", "WheelFocus", "NoFocus" ]
                 scope: "Qt"
+                enabled: backendValues.focusPolicy.isAvailable
             }
 
             ExpandingSpacer {}
@@ -112,6 +115,7 @@ Section {
         PropertyLabel {
             text: qsTr("Wheel")
             tooltip: qsTr("Whether control accepts wheel events.")
+            blockedByTemplate: !backendValues.wheelEnabled.isAvailable
         }
 
         SecondColumnLayout {
@@ -120,6 +124,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.wheelEnabled
+                enabled: backendValues.wheelEnabled.isAvailable
             }
 
             ExpandingSpacer {}

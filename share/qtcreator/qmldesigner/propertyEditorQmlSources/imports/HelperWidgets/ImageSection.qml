@@ -26,7 +26,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
@@ -63,7 +62,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Source size")
-            disabledState: !backendValues.sourceSize.isAvailable
+            blockedByTemplate: !backendValues.sourceSize.isAvailable
         }
 
         SecondColumnLayout {
@@ -79,7 +78,11 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: qsTr("W") }
+            ControlLabel {
+                //: The width of the object
+                text: qsTr("W", "width")
+                enabled: backendValues.sourceSize_width.isAvailable
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -95,7 +98,11 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: qsTr("H") }
+            ControlLabel {
+                //: The height of the object
+                text: qsTr("H", "height")
+                enabled: backendValues.sourceSize_height.isAvailable
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -103,7 +110,6 @@ Section {
 
             ExpandingSpacer {}
         }
-
 
         PropertyLabel { text: qsTr("Alignment H") }
 
@@ -138,7 +144,7 @@ Section {
         PropertyLabel {
             text: qsTr("Asynchronous")
             tooltip: qsTr("Loads images on the local filesystem asynchronously in a separate thread.")
-            disabledState: !backendValues.asynchronous.isAvailable
+            blockedByTemplate: !backendValues.asynchronous.isAvailable
         }
 
         SecondColumnLayout {
@@ -156,7 +162,7 @@ Section {
         PropertyLabel {
             text: qsTr("Auto transform")
             tooltip: qsTr("Automatically applies image transformation metadata such as EXIF orientation.")
-            disabledState: !backendValues.autoTransform.isAvailable
+            blockedByTemplate: !backendValues.autoTransform.isAvailable
         }
 
         SecondColumnLayout {
@@ -174,7 +180,7 @@ Section {
         PropertyLabel {
             text: qsTr("Cache")
             tooltip: qsTr("Caches the image.")
-            disabledState: !backendValues.cache.isAvailable
+            blockedByTemplate: !backendValues.cache.isAvailable
         }
 
         SecondColumnLayout {
@@ -192,7 +198,7 @@ Section {
         PropertyLabel {
             text: qsTr("Mipmap")
             tooltip: qsTr("Uses mipmap filtering when the image is scaled or transformed.")
-            disabledState: !backendValues.mipmap.isAvailable
+            blockedByTemplate: !backendValues.mipmap.isAvailable
         }
 
         SecondColumnLayout {
@@ -210,7 +216,7 @@ Section {
         PropertyLabel {
             text: qsTr("Mirror")
             tooltip: qsTr("Inverts the image horizontally.")
-            disabledState: !backendValues.mirror.isAvailable
+            blockedByTemplate: !backendValues.mirror.isAvailable
         }
 
         SecondColumnLayout {
@@ -228,7 +234,7 @@ Section {
         PropertyLabel {
             text: qsTr("Smooth")
             tooltip: qsTr("Smoothly filters the image when it is scaled or transformed.")
-            disabledState: !backendValues.smooth.isAvailable
+            blockedByTemplate: !backendValues.smooth.isAvailable
         }
 
         SecondColumnLayout {

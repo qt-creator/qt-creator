@@ -28,6 +28,7 @@ import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
+    id: root
     property alias tooltip: toolTipArea.tooltip
     property alias icon0: icon0.text
     property alias icon1: icon1.text
@@ -69,4 +70,15 @@ Rectangle {
         id: toolTipArea
         anchors.fill: parent
     }
+
+    states: [
+        State {
+            name: "disabled"
+            when: !root.enabled
+            PropertyChanges {
+                target: icon1
+                color: StudioTheme.Values.themeIconColorDisabled
+            }
+        }
+    ]
 }

@@ -83,7 +83,8 @@ Column {
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
                 ControlLabel {
-                    text: qsTr("W")
+                    //: The width of the object
+                    text: qsTr("W", "width")
                     tooltip: qsTr("Content width used for calculating the total implicit width.")
                 }
 
@@ -102,7 +103,8 @@ Column {
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
                 ControlLabel {
-                    text: qsTr("H")
+                    //: The height of the object
+                    text: qsTr("H", "height")
                     tooltip: qsTr("Content height used for calculating the total implicit height.")
                 }
 

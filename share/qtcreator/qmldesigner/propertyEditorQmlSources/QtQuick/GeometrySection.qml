@@ -67,7 +67,10 @@ Section {
     }
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Position") }
+        PropertyLabel {
+            text: qsTr("Position")
+            enabled: xSpinBox.enabled || ySpinBox.enabled
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -86,6 +89,7 @@ Section {
             ControlLabel {
                 text: "X"
                 tooltip: xSpinBox.enabled ? "X" : root.disbaledTooltip
+                enabled: xSpinBox.enabled
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -106,6 +110,7 @@ Section {
             ControlLabel {
                 text: "Y"
                 tooltip: xSpinBox.enabled ? "Y" : root.disbaledTooltip
+                enabled: ySpinBox.enabled
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -115,7 +120,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Size") }
+        PropertyLabel {
+            text: qsTr("Size")
+            enabled: widthSpinBox.enabled || heightSpinBox.enabled
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -132,8 +140,10 @@ Section {
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
             ControlLabel {
-                text: qsTr("W")
+                //: The width of the object
+                text: qsTr("W", "width")
                 tooltip: widthSpinBox.enabled ? qsTr("Width") : root.disbaledTooltip
+                enabled: widthSpinBox.enabled
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -152,8 +162,10 @@ Section {
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
             ControlLabel {
-                text: qsTr("H")
+                //: The height of the object
+                text: qsTr("H", "height")
                 tooltip: heightSpinBox.enabled ? qsTr("Height") : root.disbaledTooltip
+                enabled: heightSpinBox.enabled
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -163,7 +175,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Rotation") }
+        PropertyLabel {
+            text: qsTr("Rotation")
+            blockedByTemplate: !backendValues.rotation.isAvailable
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -178,7 +193,10 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "°" }
+            ControlLabel {
+                text: "°"
+                enabled: backendValues.rotation.isAvailable
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -209,7 +227,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Scale") }
+        PropertyLabel {
+            text: qsTr("Scale")
+            blockedByTemplate: !backendValues.scale.isAvailable
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -226,7 +247,10 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "%" }
+            ControlLabel {
+                text: "%"
+                enabled: backendValues.scale.isAvailable
+            }
 
             ExpandingSpacer {}
         }
@@ -245,7 +269,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Origin") }
+        PropertyLabel {
+            text: qsTr("Origin")
+            blockedByTemplate: !backendValues.transformOrigin.isAvailable
+        }
 
         SecondColumnLayout {
             OriginControl {

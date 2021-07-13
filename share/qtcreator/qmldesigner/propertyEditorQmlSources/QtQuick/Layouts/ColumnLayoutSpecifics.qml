@@ -48,5 +48,23 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Layout direction")
+            blockedByTemplate: !backendValues.layoutDirection.isAvailable
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                scope: "Qt"
+                model: ["LeftToRight", "RightToLeft"]
+                backendValue: backendValues.layoutDirection
+                enabled: backendValues.layoutDirection.isAvailable
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }

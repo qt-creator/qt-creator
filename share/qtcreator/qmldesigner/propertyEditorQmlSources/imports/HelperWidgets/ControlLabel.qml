@@ -49,4 +49,15 @@ T.Label {
         anchors.fill: parent
         tooltip: label.text
     }
+
+    states: [
+        State {
+            name: "disabled"
+            when: !label.enabled
+            PropertyChanges {
+                target: label
+                color: StudioTheme.Values.themeTextColorDisabled
+            }
+        }
+    ]
 }

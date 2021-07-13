@@ -53,14 +53,11 @@ Section {
         }
 
         PropertyLabel {
-            visible: majorQtQuickVersion > 1
             text: qsTr("Smooth")
-            disabledState: !backendValues.smooth.isAvailable
+            blockedByTemplate: !backendValues.smooth.isAvailable
         }
 
         SecondColumnLayout {
-            visible: majorQtQuickVersion > 1
-
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -73,14 +70,11 @@ Section {
         }
 
         PropertyLabel {
-            visible: majorQtQuickVersion > 1
             text: qsTr("Antialiasing")
-            disabledState: !backendValues.antialiasing.isAvailable
+            blockedByTemplate: !backendValues.antialiasing.isAvailable
         }
 
         SecondColumnLayout {
-            visible: majorQtQuickVersion > 1
-
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -95,7 +89,7 @@ Section {
         PropertyLabel {
             text: qsTr("Focus")
             tooltip: qsTr("Sets focus on the component within the enclosing focus scope.")
-            disabledState: !backendValues.focus.isAvailable
+            blockedByTemplate: !backendValues.focus.isAvailable
         }
 
         SecondColumnLayout {
@@ -113,7 +107,7 @@ Section {
         PropertyLabel {
             text: qsTr("Focus on tab")
             tooltip: qsTr("Adds the component to the tab focus chain.")
-            disabledState: !backendValues.activeFocusOnTab.isAvailable
+            blockedByTemplate: !backendValues.activeFocusOnTab.isAvailable
         }
 
         SecondColumnLayout {
@@ -131,7 +125,7 @@ Section {
         PropertyLabel {
             text: qsTr("Baseline offset")
             tooltip: qsTr("Position of the component's baseline in local coordinates.")
-            disabledState: !backendValues.baselineOffset.isAvailable
+            blockedByTemplate: !backendValues.baselineOffset.isAvailable
         }
 
         SecondColumnLayout {

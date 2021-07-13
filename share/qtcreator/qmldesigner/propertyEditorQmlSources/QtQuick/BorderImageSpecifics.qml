@@ -52,7 +52,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Source size")
-                disabledState: !backendValues.sourceSize.isAvailable
+                blockedByTemplate: !backendValues.sourceSize.isAvailable
             }
 
             SecondColumnLayout {
@@ -68,7 +68,11 @@ Column {
 
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                ControlLabel { text: qsTr("W") }
+                ControlLabel {
+                    //: The width of the object
+                    text: qsTr("W", "width")
+                    enabled: backendValues.sourceSize_width.isAvailable
+                }
 
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -84,7 +88,11 @@ Column {
 
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                ControlLabel { text: qsTr("H") }
+                ControlLabel {
+                    //: The height of the object
+                    text: qsTr("H", "height")
+                    enabled: backendValues.sourceSize_height.isAvailable
+                }
 
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -95,7 +103,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Tile mode H")
-                disabledState: !backendValues.horizontalTileMode.isAvailable
+                blockedByTemplate: !backendValues.horizontalTileMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -114,7 +122,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Tile mode V")
-                disabledState: !backendValues.verticalTileMode.isAvailable
+                blockedByTemplate: !backendValues.verticalTileMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -192,9 +200,9 @@ Column {
             }
 
            PropertyLabel {
-               text: qsTr("Mirror") // TODO remove Mirror checkbox when flipping is added to a global setion
+               text: qsTr("Mirror")
                tooltip: qsTr("Specifies whether the image should be horizontally inverted.")
-               disabledState: !backendValues.mirror.isAvailable
+               blockedByTemplate: !backendValues.mirror.isAvailable
            }
 
            SecondColumnLayout {
@@ -212,7 +220,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Smooth")
                 tooltip: qsTr("Specifies whether the image is smoothly filtered when scaled or transformed.")
-                disabledState: !backendValues.smooth.isAvailable
+                blockedByTemplate: !backendValues.smooth.isAvailable
             }
 
             SecondColumnLayout {
@@ -230,7 +238,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Cache")
                 tooltip: qsTr("Specifies whether the image should be cached.")
-                disabledState: !backendValues.cache.isAvailable
+                blockedByTemplate: !backendValues.cache.isAvailable
             }
 
             SecondColumnLayout {
@@ -248,7 +256,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Asynchronous")
                 tooltip: qsTr("Specifies that images on the local filesystem should be loaded asynchronously in a separate thread.")
-                disabledState: !backendValues.asynchronous.isAvailable
+                blockedByTemplate: !backendValues.asynchronous.isAvailable
             }
 
             SecondColumnLayout {

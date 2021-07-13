@@ -70,6 +70,7 @@ Column {
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                 + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.live
+                    enabled: backendValues.live.isAvailable
                     tooltip: qsTr("Whether the slider provides live value updates.")
                 }
 
@@ -136,6 +137,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Drag threshold")
                 tooltip: qsTr("The threshold (in logical pixels) at which a drag event will be initiated.")
+                blockedByTemplate: !backendValues.touchDragThreshold.isAvailable
             }
 
             SecondColumnLayout {
@@ -146,6 +148,7 @@ Column {
                     maximumValue: 10000
                     decimals: 0
                     backendValue: backendValues.touchDragThreshold
+                    enabled: backendValues.touchDragThreshold.isAvailable
                 }
 
                 ExpandingSpacer {}
@@ -154,6 +157,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Snap mode")
                 tooltip: qsTr("The snap mode of the slider.")
+                blockedByTemplate: !backendValues.snapMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -164,6 +168,7 @@ Column {
                     backendValue: backendValues.snapMode
                     model: [ "NoSnap", "SnapOnRelease", "SnapAlways" ]
                     scope: "RangeSlider"
+                    enabled: backendValues.snapMode.isAvailable
                 }
 
                 ExpandingSpacer {}

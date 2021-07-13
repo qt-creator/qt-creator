@@ -33,12 +33,12 @@ T.Label {
 
     property alias tooltip: toolTipArea.tooltip
 
-    property bool disabledState: false
-    property bool disabledStateSoft: false
+    property bool blockedByContext: false
+    property bool blockedByTemplate: false // MCU
 
     width: StudioTheme.Values.propertyLabelWidth
     color: StudioTheme.Values.themeTextColor
-    font.pixelSize: StudioTheme.Values.myFontSize // TODO
+    font.pixelSize: StudioTheme.Values.myFontSize
     elide: Text.ElideRight
 
     horizontalAlignment: Text.AlignRight
@@ -50,26 +50,35 @@ T.Label {
     ToolTipArea {
         id: toolTipArea
         anchors.fill: parent
-        tooltip: ((label.disabledState || label.disabledStateSoft)
-                  ? qsTr("This property is not available in this configuration.")
-                  : label.text)
+        tooltip: label.blockedByTemplate
+                    ? qsTr("This property is not available in this configuration.")
+                    : label.text
     }
 
     states: [
         State {
             name: "disabled"
-            when: label.disabledState
+            when: !label.enabled && !(label.blockedByContext || label.blockedByTemplate)
             PropertyChanges {
                 target: label
                 color: StudioTheme.Values.themeTextColorDisabled
             }
         },
         State {
-            name: "disabledSoft"
-            when: label.disabledStateSoft
+            name: "blockedByContext"
+            when: label.blockedByContext
             PropertyChanges {
                 target: label
-                color: "red"//StudioTheme.Values.themeTextColorDisabled
+                color: StudioTheme.Values.themeTextColorDisabled
+            }
+        },
+        State {
+            name: "blockedByTemplate"
+            when: label.blockedByTemplate
+            PropertyChanges {
+                target: label
+                color: StudioTheme.Values.themeTextColorDisabledMCU
+                font.strikeout: true
             }
         }
     ]

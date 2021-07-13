@@ -37,7 +37,8 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Vertical")
-            disabledState: (!backendValues.topPadding.isAvailable && !backendValues.bottomPadding.isAvailable)
+            blockedByTemplate: !backendValues.topPadding.isAvailable
+                               && !backendValues.bottomPadding.isAvailable
         }
 
         SecondColumnLayout {
@@ -57,7 +58,7 @@ Section {
                 icon0: StudioTheme.Constants.paddingFrame
                 icon1: StudioTheme.Constants.paddingEdge
                 tooltip: qsTr("Padding between the content and the top edge of the item.")
-                //disabledStateSoft: !backendValues.topPadding.isAvailable
+                enabled: backendValues.topPadding.isAvailable
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -79,7 +80,7 @@ Section {
                 icon1: StudioTheme.Constants.paddingEdge
                 rotation: 180
                 tooltip: qsTr("Padding between the content and the bottom edge of the item.")
-                //disabledStateSoft: !backendValues.bottomPadding.isAvailable
+                enabled: backendValues.bottomPadding.isAvailable
             }
 
             ExpandingSpacer {}
@@ -87,7 +88,8 @@ Section {
 
         PropertyLabel {
             text: qsTr("Horizontal")
-            disabledState: (!backendValues.leftPadding.isAvailable && !backendValues.rightPadding.isAvailable)
+            blockedByTemplate: !backendValues.leftPadding.isAvailable
+                               && !backendValues.rightPadding.isAvailable
         }
 
         SecondColumnLayout {
@@ -108,7 +110,7 @@ Section {
                 icon1: StudioTheme.Constants.paddingEdge
                 rotation: 270
                 tooltip: qsTr("Padding between the content and the left edge of the item.")
-                //disabledStateSoft: !backendValues.leftPadding.isAvailable
+                enabled: backendValues.leftPadding.isAvailable
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -130,7 +132,7 @@ Section {
                 icon1: StudioTheme.Constants.paddingEdge
                 rotation: 90
                 tooltip: qsTr("Padding between the content and the right edge of the item.")
-                //disabledStateSoft: !backendValues.rightPadding.isAvailable
+                enabled: backendValues.rightPadding.isAvailable
             }
 
             ExpandingSpacer {}
@@ -139,7 +141,7 @@ Section {
         PropertyLabel {
             text: qsTr("Global")
             tooltip: qsTr("Padding between the content and the edges of the items.")
-            disabledState: !backendValues.padding.isAvailable
+            blockedByTemplate: !backendValues.padding.isAvailable
         }
 
         SecondColumnLayout {

@@ -241,7 +241,10 @@ SectionLayout {
 
         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        ControlLabel { text: qsTr("W") }
+        ControlLabel {
+            //: The width of the object
+            text: qsTr("W", "width")
+        }
 
         Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -256,7 +259,10 @@ SectionLayout {
 
         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        ControlLabel { text: qsTr("H") }
+        ControlLabel {
+            //: The height of the object
+            text: qsTr("H", "height")
+        }
 
         ExpandingSpacer {}
     }
@@ -278,7 +284,10 @@ SectionLayout {
 
         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        ControlLabel { text: qsTr("W") }
+        ControlLabel {
+            //: The width of the object
+            text: qsTr("W", "width")
+        }
 
         Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -293,7 +302,10 @@ SectionLayout {
 
         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        ControlLabel { text: qsTr("H") }
+        ControlLabel {
+            //: The height of the object
+            text: qsTr("H", "height")
+        }
 
         ExpandingSpacer {}
     }
@@ -315,7 +327,10 @@ SectionLayout {
 
         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        ControlLabel { text: qsTr("W") }
+        ControlLabel {
+            //: The width of the object
+            text: qsTr("W", "width")
+        }
 
         Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -330,7 +345,10 @@ SectionLayout {
 
         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-        ControlLabel { text: qsTr("H") }
+        ControlLabel {
+            //: The height of the object
+            text: qsTr("H", "height")
+        }
 
         ExpandingSpacer {}
     }
