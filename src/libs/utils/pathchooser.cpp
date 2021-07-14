@@ -180,7 +180,7 @@ class PathChooserPrivate
 public:
     PathChooserPrivate();
 
-    QString expandedPath(const QString &path) const;
+    FilePath expandedPath(const QString &path) const;
 
     QHBoxLayout *m_hLayout = nullptr;
     FancyLineEdit *m_lineEdit = nullptr;
@@ -204,24 +204,24 @@ PathChooserPrivate::PathChooserPrivate()
 {
 }
 
-QString PathChooserPrivate::expandedPath(const QString &input) const
+FilePath PathChooserPrivate::expandedPath(const QString &input) const
 {
     if (input.isEmpty())
-        return input;
+        return {};
 
     QString expandedInput = m_environment.expandVariables(input);
     if (m_macroExpander)
         expandedInput = m_macroExpander->expand(expandedInput);
 
-    const QString path = FilePath::fromUserInput(expandedInput).toString();
+    const FilePath path = FilePath::fromUserInput(expandedInput);
     if (path.isEmpty())
         return path;
 
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        const FilePath expanded = m_environment.searchInPath(path, {m_baseDirectory});
-        return expanded.isEmpty() ? path : expanded.toString();
+        const FilePath expanded = m_environment.searchInPath(path.path(), {m_baseDirectory});
+        return expanded.isEmpty() ? path : expanded;
     }
     case PathChooser::Any:
         break;
@@ -229,8 +229,8 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::ExistingDirectory:
     case PathChooser::File:
     case PathChooser::SaveFile:
-        if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
-            return m_baseDirectory.pathAppended(path).toFileInfo().absoluteFilePath();
+        if (!m_baseDirectory.isEmpty())
+            return m_baseDirectory.resolvePath(path.path()).absoluteFilePath();
         break;
     }
     return path;
@@ -332,12 +332,12 @@ QString PathChooser::rawPath() const
 
 FilePath PathChooser::rawFilePath() const
 {
-    return FilePath::fromString(QDir::fromNativeSeparators(d->m_lineEdit->text()));
+    return FilePath::fromUserInput(d->m_lineEdit->text());
 }
 
 FilePath PathChooser::filePath() const
 {
-    return FilePath::fromUserInput(d->expandedPath(rawFilePath().toString()));
+    return d->expandedPath(rawFilePath().toString());
 }
 
 // FIXME: try to remove again
@@ -523,13 +523,12 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         }
     }
 
-    const QString expandedPath = d->expandedPath(path);
-    if (expandedPath.isEmpty()) {
+    const FilePath filePath = d->expandedPath(path);
+    if (filePath.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(QDir::toNativeSeparators(path));
         return false;
     }
-    const FilePath filePath = FilePath::fromString(expandedPath);
 
     // Check if existing
     switch (d->m_acceptingKind) {
