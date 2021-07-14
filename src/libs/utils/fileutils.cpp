@@ -390,7 +390,9 @@ FilePath FilePath::resolvePath(const QString &fileName) const
 {
     if (FileUtils::isAbsolutePath(fileName))
         return FilePath::fromString(QDir::cleanPath(fileName));
-    return FilePath::fromString(QDir::cleanPath(toString() + QLatin1Char('/') + fileName));
+    FilePath result = *this;
+    result.setPath(QDir::cleanPath(m_data + '/' + fileName));
+    return result;
 }
 
 FilePath FilePath::cleanPath() const
