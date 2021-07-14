@@ -253,6 +253,20 @@ bool IDevice::isWritableDirectory(const FilePath &filePath) const
     return false;
 }
 
+bool IDevice::isFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::isDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 bool IDevice::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))

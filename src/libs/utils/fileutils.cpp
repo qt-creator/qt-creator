@@ -939,6 +939,26 @@ bool FilePath::isReadableDir() const
     return fi.exists() && fi.isReadable() && fi.isDir();
 }
 
+bool FilePath::isFile() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.isFile, return false);
+        return s_deviceHooks.isFile(*this);
+    }
+    const QFileInfo fi{m_data};
+    return fi.exists() && fi.isFile();
+}
+
+bool FilePath::isDir() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.isDir, return false);
+        return s_deviceHooks.isDir(*this);
+    }
+    const QFileInfo fi{m_data};
+    return fi.exists() && fi.isDir();
+}
+
 bool FilePath::createDir() const
 {
     if (needsDevice()) {
@@ -1242,12 +1262,6 @@ bool FilePath::startsWith(const QString &s) const
 bool FilePath::endsWith(const QString &s) const
 {
     return m_data.endsWith(s, caseSensitivity());
-}
-
-bool FilePath::isDir() const
-{
-    QTC_CHECK(m_scheme.isEmpty()); // FIXME: Not implemented yet.
-    return QFileInfo(m_data).isDir();
 }
 
 /// \returns the relativeChildPath of FilePath to parent if FilePath is a child of parent

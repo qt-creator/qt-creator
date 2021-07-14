@@ -925,6 +925,38 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
     return exitCode == 0;
 }
 
+bool DockerDevice::isFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isFile();
+        LOG("IsFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("test", {"-f", path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::isDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isDir();
+        LOG("IsDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("test", {"-d", path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
 bool DockerDevice::createDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
