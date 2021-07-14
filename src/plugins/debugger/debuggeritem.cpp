@@ -53,6 +53,8 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
+namespace Debugger {
+
 const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
 const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char DEBUGGER_INFORMATION_ID[] = "Id";
@@ -67,7 +69,7 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 
 //! Return the configuration of gdb as a list of --key=value
 //! \note That the list will also contain some output not in this format.
-static QString getConfigurationOfGdbCommand(const FilePath &command, const Utils::Environment &sysEnv)
+static QString getGdbConfiguration(const FilePath &command, const Environment &sysEnv)
 {
     // run gdb with the --configuration opion
     QtcProcess proc;
@@ -93,8 +95,6 @@ static QString extractGdbTargetAbiStringFromGdbOutput(const QString &gdbOutput)
     return {};
 }
 
-
-namespace Debugger {
 
 // --------------------------------------------------------------------------
 // DebuggerItem
@@ -151,7 +151,7 @@ static bool isUVisionExecutable(const QFileInfo &fileInfo)
     return baseName == "UV4";
 }
 
-void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
+void DebuggerItem::reinitializeFromFile(const Environment &sysEnv)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
@@ -212,7 +212,7 @@ void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
         const bool unableToFindAVersion = (0 == version);
         const bool gdbSupportsConfigurationFlag = (version >= 70700);
         if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-            const QString gdbConfiguration = getConfigurationOfGdbCommand(m_command, sysEnv);
+            const QString gdbConfiguration = getGdbConfiguration(m_command, sysEnv);
             const QString gdbTargetAbiString =
                     extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration);
             if (!gdbTargetAbiString.isEmpty()) {
@@ -300,11 +300,11 @@ QDateTime DebuggerItem::lastModified() const
 QIcon DebuggerItem::decoration() const
 {
     if (m_engineType == NoEngineType)
-        return Utils::Icons::CRITICAL.icon();
+        return Icons::CRITICAL.icon();
     if (!m_command.toFileInfo().isExecutable())
-        return Utils::Icons::WARNING.icon();
+        return Icons::WARNING.icon();
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
-        return Utils::Icons::WARNING.icon();
+        return Icons::WARNING.icon();
     return QIcon();
 }
 
