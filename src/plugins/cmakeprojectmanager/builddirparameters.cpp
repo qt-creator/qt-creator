@@ -86,9 +86,9 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 
     CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
     if (!settings->ninjaPath.filePath().isEmpty()) {
-        const Utils::FilePath setting = settings->ninjaPath.filePath();
-        const Utils::FilePath path = setting.toFileInfo().isFile() ? setting.parentDir() : setting;
-        environment.appendOrSetPath(path.toString());
+        const Utils::FilePath ninja = settings->ninjaPath.filePath();
+        const Utils::FilePath ninjaDir = ninja.isFile() ? ninja.parentDir() : ninja;
+        environment.appendOrSetPath(ninjaDir.path());
     }
 
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
