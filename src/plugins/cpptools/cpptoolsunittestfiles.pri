@@ -10,7 +10,6 @@ HEADERS += \
     $$PWD/projectpart.h \
     $$PWD/cppprojectfilecategorizer.h \
     $$PWD/projectinfo.h \
-    $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/headerpathfilter.h
 
 SOURCES += \
@@ -19,5 +18,4 @@ SOURCES += \
     $$PWD/projectpart.cpp \
     $$PWD/cppprojectfilecategorizer.cpp \
     $$PWD/projectinfo.cpp \
-    $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/headerpathfilter.cpp

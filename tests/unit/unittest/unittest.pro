@@ -66,7 +66,6 @@ SOURCES += \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess-test.cpp \
     cppprojectfilecategorizer-test.cpp \
-    cppprojectinfogenerator-test.cpp \
     fakeprocess.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \

@@ -44,7 +44,6 @@ add_qtc_test(unittest GTEST
     compare-operators.h
     conditionally-disabled-tests.h
     cppprojectfilecategorizer-test.cpp
-    cppprojectinfogenerator-test.cpp
     dummyclangipcclient.h
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h
@@ -456,7 +455,6 @@ extend_qtc_test(unittest
     projectpart.cpp projectpart.h
     cppprojectfilecategorizer.cpp cppprojectfilecategorizer.h
     projectinfo.cpp projectinfo.h
-    cppprojectinfogenerator.cpp cppprojectinfogenerator.cpp
     cppprojectpartchooser.cpp cppprojectpartchooser.h
     headerpathfilter.cpp headerpathfilter.h
 )

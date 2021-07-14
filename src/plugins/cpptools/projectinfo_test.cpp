@@ -23,8 +23,13 @@
 **
 ****************************************************************************/
 
+#include "cppprojectinfogenerator.h"
 #include "cppprojectpartchooser.h"
 #include "cpptoolsplugin.h"
+#include "projectinfo.h"
+
+#include <projectexplorer/toolchainconfigwidget.h>
+#include <utils/algorithm.h>
 
 #include <QtTest>
 
@@ -316,6 +321,150 @@ void CppToolsPlugin::test_projectPartChooser_doNotIndicateFromDependencies()
     t.projectPartsForFile += ProjectPart::Ptr(new ProjectPart);
 
     QVERIFY(!(t.choose().hints & ProjectPartInfo::IsFromDependenciesMatch));
+}
+
+namespace {
+class TestToolchain : public ProjectExplorer::ToolChain
+{
+public:
+    TestToolchain() : ProjectExplorer::ToolChain("dummy") {}
+
+private:
+    MacroInspectionRunner createMacroInspectionRunner() const override { return {}; }
+    Utils::LanguageExtensions languageExtensions(const QStringList &) const override { return {}; }
+    Utils::WarningFlags warningFlags(const QStringList &) const override { return {}; }
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
+            const Utils::Environment &) const override { return {}; }
+    void addToEnvironment(Utils::Environment &) const override {}
+    Utils::FilePath makeCommand(const Utils::Environment &) const override { return {}; }
+    QList<Utils::OutputLineParser *> createOutputParsers() const override { return {}; }
+    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() override
+    {
+        return {};
+    };
+};
+
+class ProjectInfoGeneratorTest
+{
+public:
+    ProjectInfo generate()
+    {
+        QFutureInterface<ProjectInfo> fi;
+        TestToolchain aToolChain;
+
+        projectUpdateInfo.rawProjectParts += rawProjectPart;
+        projectUpdateInfo.cxxToolChain = &aToolChain;
+        projectUpdateInfo.cToolChain = &aToolChain;
+        ProjectInfoGenerator generator(fi, projectUpdateInfo);
+
+        return generator.generate();
+    }
+
+    ProjectExplorer::ProjectUpdateInfo projectUpdateInfo;
+    ProjectExplorer::RawProjectPart rawProjectPart;
+};
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_createNoProjectPartsForEmptyFileList()
+{
+    ProjectInfoGeneratorTest t;
+    const ProjectInfo projectInfo = t.generate();
+
+    QVERIFY(projectInfo.projectParts().isEmpty());
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_createSingleProjectPart()
+{
+    ProjectInfoGeneratorTest t;
+    t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h"};
+    const ProjectInfo projectInfo = t.generate();
+
+    QCOMPARE(projectInfo.projectParts().size(), 1);
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_createMultipleProjectParts()
+{
+    ProjectInfoGeneratorTest t;
+    t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h", "bar.c", "bar.h" };
+    const ProjectInfo projectInfo = t.generate();
+
+    QCOMPARE(projectInfo.projectParts().size(), 2);
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_projectPartIndicatesObjectiveCExtensionsByDefault()
+{
+    ProjectInfoGeneratorTest t;
+    t.rawProjectPart.files = QStringList{ "foo.mm" };
+    const ProjectInfo projectInfo = t.generate();
+    QCOMPARE(projectInfo.projectParts().size(), 1);
+
+    const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
+    QVERIFY(projectPart.languageExtensions & Utils::LanguageExtension::ObjectiveC);
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_projectPartHasLatestLanguageVersionByDefault()
+{
+    ProjectInfoGeneratorTest t;
+    t.rawProjectPart.files = QStringList{ "foo.cpp" };
+    const ProjectInfo projectInfo = t.generate();
+    QCOMPARE(projectInfo.projectParts().size(), 1);
+
+    const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
+    QCOMPARE(projectPart.languageVersion, Utils::LanguageVersion::LatestCxx);
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_useMacroInspectionReportForLanguageVersion()
+{
+    ProjectInfoGeneratorTest t;
+    t.projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
+        return TestToolchain::MacroInspectionReport{ProjectExplorer::Macros(),
+                                                    Utils::LanguageVersion::CXX17};
+    };
+    t.rawProjectPart.files = QStringList{ "foo.cpp" };
+    const ProjectInfo projectInfo = t.generate();
+
+    QCOMPARE(projectInfo.projectParts().size(), 1);
+
+    const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
+    QCOMPARE(projectPart.languageVersion, Utils::LanguageVersion::CXX17);
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_useCompilerFlagsForLanguageExtensions()
+{
+    ProjectInfoGeneratorTest t;
+    t.rawProjectPart.files = QStringList{ "foo.cpp" };
+    t.rawProjectPart.flagsForCxx.languageExtensions = Utils::LanguageExtension::Microsoft;
+    const ProjectInfo projectInfo = t.generate();
+
+    QCOMPARE(projectInfo.projectParts().size(), 1);
+
+    const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
+    QVERIFY(projectPart.languageExtensions & Utils::LanguageExtension::Microsoft);
+}
+
+void CppToolsPlugin::test_projectInfoGenerator_projectFileKindsMatchProjectPartVersion()
+{
+    ProjectInfoGeneratorTest t;
+    t.rawProjectPart.files = QStringList{ "foo.h" };
+    const ProjectInfo projectInfo = t.generate();
+
+    QCOMPARE(projectInfo.projectParts().size(), 4);
+    QVERIFY(Utils::contains(projectInfo.projectParts(), [](const ProjectPart::Ptr &p) {
+        return p->languageVersion == Utils::LanguageVersion::LatestC
+                && p->files.first().kind == ProjectFile::CHeader;
+    }));
+    QVERIFY(Utils::contains(projectInfo.projectParts(), [](const ProjectPart::Ptr &p) {
+        return p->languageVersion == Utils::LanguageVersion::LatestC
+                && p->files.first().kind == ProjectFile::ObjCHeader;
+    }));
+    QVERIFY(Utils::contains(projectInfo.projectParts(), [](const ProjectPart::Ptr &p) {
+        return p->languageVersion == Utils::LanguageVersion::LatestCxx
+                && p->files.first().kind == ProjectFile::CXXHeader;
+    }));
+    QVERIFY(Utils::contains(projectInfo.projectParts(), [](const ProjectPart::Ptr &p) {
+        return p->languageVersion == Utils::LanguageVersion::LatestCxx
+                && p->files.first().kind == ProjectFile::ObjCXXHeader;
+    }));
 }
 
 } // namespace Internal

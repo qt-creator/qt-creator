@@ -232,6 +232,15 @@ private slots:
     void test_projectPartChooser_indicateFallbacktoProjectPartFromModelManager();
     void test_projectPartChooser_indicateFromDependencies();
     void test_projectPartChooser_doNotIndicateFromDependencies();
+
+    void test_projectInfoGenerator_createNoProjectPartsForEmptyFileList();
+    void test_projectInfoGenerator_createSingleProjectPart();
+    void test_projectInfoGenerator_createMultipleProjectParts();
+    void test_projectInfoGenerator_projectPartIndicatesObjectiveCExtensionsByDefault();
+    void test_projectInfoGenerator_projectPartHasLatestLanguageVersionByDefault();
+    void test_projectInfoGenerator_useMacroInspectionReportForLanguageVersion();
+    void test_projectInfoGenerator_useCompilerFlagsForLanguageExtensions();
+    void test_projectInfoGenerator_projectFileKindsMatchProjectPartVersion();
 #endif
 
 private:
