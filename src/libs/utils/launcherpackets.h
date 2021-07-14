@@ -111,7 +111,7 @@ class ProcessStartedPacket : public LauncherPacket
 public:
     ProcessStartedPacket(quintptr token);
 
-    int processId;
+    int processId = 0;
 
 private:
     void doSerialize(QDataStream &stream) const override;
