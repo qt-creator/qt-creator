@@ -4,10 +4,10 @@ project(%{TestCaseName} LANGUAGES CXX)
 
 @if "%{TestFrameWork}" == "QtTest"
 @if "%{RequireGUI}" == "true"
-find_package(QT NAMES Qt5 Qt6 COMPONENTS Gui Test REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Gui Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Test REQUIRED)
 @else
-find_package(QT NAMES Qt5 Qt6 COMPONENTS Test REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 @endif
 
@@ -32,7 +32,7 @@ target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Test)
 
 @endif
 @if "%{TestFrameWork}" == "QtQuickTest"
-find_package(QT NAMES Qt5 Qt6 COMPONENTS QuickTest REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS QuickTest REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS QuickTest REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -123,7 +123,7 @@ endif ()
 SET(CMAKE_CXX_STANDARD 11)
 
 @if "%{Catch2NeedsQt}" == "true"
-find_package(QT NAMES Qt5 Qt6 COMPONENTS Gui REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 @endif
 
