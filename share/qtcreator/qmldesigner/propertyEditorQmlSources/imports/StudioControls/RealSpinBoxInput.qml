@@ -214,8 +214,10 @@ TextInput {
         }
 
         onWheel: function(wheel) {
-            if (!myControl.__wheelEnabled)
+            if (!myControl.__wheelEnabled) {
+                wheel.accepted = false
                 return
+            }
 
             // Set stepSize according to used modifier key
             if (wheel.modifiers & Qt.ControlModifier)
