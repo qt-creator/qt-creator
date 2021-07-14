@@ -102,6 +102,7 @@ QStringList GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
     QStringList result;
     QDialog *dialog = new QDialog(Core::ICore::dialogParent());
     dialog->setMinimumWidth(480);
+    dialog->setMinimumHeight(640);
 
     dialog->setModal(true);
     dialog->setWindowTitle(QCoreApplication::translate("AddImageToResources","Add Resources"));
@@ -145,6 +146,53 @@ QStringList GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
     return result;
 }
 
+bool skipSuffix(const QString &fileName)
+{
+    const QStringList suffixes = {".qmlproject",
+                                  ".pri",
+                                  ".pro",
+                                  ".user",
+                                  ".qrc",
+                                  ".qds",
+                                  "CMakeLists.txt",
+                                  ".db",
+                                  ".tmp",
+                                  ".TMP",
+                                  ".metainfo"};
+
+    for (const auto &suffix : suffixes)
+        if (fileName.endsWith(suffix))
+            return true;
+
+    return false;
+}
+
+QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProject = false)
+{
+    QXmlStreamReader reader(file);
+    QList<GenerateResource::ResourceFile> fileList = {};
+
+    while (!reader.atEnd()) {
+        const auto token = reader.readNext();
+
+        if (token != QXmlStreamReader::StartElement)
+            continue;
+
+        if (reader.name() == QLatin1String("file")) {
+            QString fileName = reader.readElementText().trimmed();
+
+            if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX"))
+                && !skipSuffix(fileName)) {
+                GenerateResource::ResourceFile file;
+                file.fileName = fileName;
+                file.inProject = inProject;
+                fileList.append(file);
+            }
+        }
+    }
+    return fileList;
+}
+
 void GenerateResource::generateMenuEntry()
 {
     Core::ActionContainer *buildMenu =
@@ -167,16 +215,16 @@ void GenerateResource::generateMenuEntry()
         QTC_ASSERT(currentProject, return);
         auto projectPath = currentProject->projectFilePath().parentDir().toString();
 
-        static QMap<QString, QString> lastUsedPathes;
-        auto saveLastUsedPath = [currentProject] (const QString &lastUsedPath) {
-            lastUsedPathes.insert(currentProject->displayName(), lastUsedPath);
-        };
-        saveLastUsedPath(lastUsedPathes.value(currentProject->displayName(),
-            currentProject->projectFilePath().parentDir().parentDir().toString()));
+        auto projectFileName = Core::DocumentManager::getSaveFileName(
+            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as QRC File"),
+            projectPath + "/" + currentProject->displayName() + ".qrc",
+            QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                        "QML Resource File (*.qrc)"));
+        if (projectFileName.isEmpty())
+            return;
 
-        QString projectFileName = currentProject->displayName() + ".qrc";
         QTemporaryFile temp(projectPath + "/XXXXXXX.create.resource.qrc");
-        QFile persistentFile(projectPath + "/" + projectFileName);
+        QFile persistentFile(projectFileName);
 
         if (!temp.open())
             return;
@@ -238,29 +286,14 @@ void GenerateResource::generateMenuEntry()
         if (!temp.open())
             return;
 
-        QXmlStreamReader reader(&temp);
-        QList<ResourceFile> fileList = {};
         QByteArray firstLine = temp.readLine();
+        QList<ResourceFile> fileList = getFilesFromQrc(&temp);
 
-        while (!reader.atEnd()) {
-            const auto token = reader.readNext();
-
-            if (token != QXmlStreamReader::StartElement)
-                continue;
-
-            if (reader.name() == QLatin1String("file")) {
-                QString fileName = reader.readElementText().trimmed();
-
-                if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX"))
-                        && !fileName.endsWith(".qmlproject") && !fileName.endsWith(".pri")
-                        && !fileName.endsWith(".pro") && !fileName.endsWith(".user")
-                        && !fileName.endsWith(".qrc")) {
-                    ResourceFile file;
-                    file.fileName = fileName;
-                    file.inProject = false;
-                    fileList.append(file);
-                }
-            }
+        QFile existingQrcFile(projectFileName);
+        if (existingQrcFile.exists()) {
+            existingQrcFile.open(QFile::ReadOnly);
+            fileList = getFilesFromQrc(&existingQrcFile, true);
+            existingQrcFile.close();
         }
 
         QDir dir;
@@ -272,27 +305,25 @@ void GenerateResource::generateMenuEntry()
          for (const Utils::FilePath &path : paths) {
              QString relativepath = dir.relativeFilePath(path.toString());
 
-            if (!relativepath.endsWith(".qmlproject") && !relativepath.endsWith(".pri")
-                    && !relativepath.endsWith(".pro") && !relativepath.endsWith(".user")
-                    && !relativepath.endsWith(".qrc")) {
-                projectFiles.append(relativepath);
+             if (!skipSuffix(relativepath)) {
+                 projectFiles.append(relativepath);
 
-                bool found = false;
-                QString compareString = "./" + relativepath.trimmed();
-                for (int i = 0; i < fileList.count(); ++i)
-                    if (fileList.at(i).fileName == compareString) {
-                        fileList[i].inProject = true;
-                        found = true;
-                        break;
-                    }
+                 bool found = false;
+                 QString compareString = "./" + relativepath.trimmed();
+                 for (int i = 0; i < fileList.count(); ++i)
+                     if (fileList.at(i).fileName == compareString) {
+                         fileList[i].inProject = true;
+                         found = true;
+                         break;
+                     }
 
-                if (!found) {
-                    ResourceFile res;
-                    res.fileName = "./" + relativepath.trimmed();
-                    res.inProject = true;
-                    fileList.append(res);
-                }
-            }
+                 if (!found) {
+                     ResourceFile res;
+                     res.fileName = "./" + relativepath.trimmed();
+                     res.inProject = true;
+                     fileList.append(res);
+                 }
+             }
         }
 
         temp.close();
@@ -316,7 +347,6 @@ void GenerateResource::generateMenuEntry()
         persistentFile.write("\n</RCC>\n");
         persistentFile.close();
 
-        saveLastUsedPath(Utils::FilePath::fromString(projectFileName).parentDir().toString());
     });
 
     // ToDo: move this to QtCreator and add tr to the string then
@@ -335,19 +365,11 @@ void GenerateResource::generateMenuEntry()
         QTC_ASSERT(currentProject, return);
         auto projectPath = currentProject->projectFilePath().parentDir().toString();
 
-        static QMap<QString, QString> lastUsedPathes;
-        auto saveLastUsedPath = [currentProject] (const QString &lastUsedPath) {
-            lastUsedPathes.insert(currentProject->displayName(), lastUsedPath);
-        };
-        saveLastUsedPath(lastUsedPathes.value(currentProject->displayName(),
-            currentProject->projectFilePath().parentDir().parentDir().toString()));
-
-        auto resourceFileName = Core:: DocumentManager::getSaveFileName(
+        auto resourceFileName = Core::DocumentManager::getSaveFileName(
+            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as Resource"),
+            projectPath + "/" + currentProject->displayName() + ".qmlrc",
             QCoreApplication::translate("QmlDesigner::GenerateResource",
-                "Save Project as Resource"), lastUsedPathes.value(currentProject->displayName())
-                + "/" + currentProject->displayName() + ".qmlrc",
-                QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                            "QML Resource File (*.qmlrc);;Resource File (*.rcc)"));
+                                        "QML Resource File (*.qmlrc);;Resource File (*.rcc)"));
         if (resourceFileName.isEmpty())
             return;
 
@@ -358,6 +380,7 @@ void GenerateResource::generateMenuEntry()
 
         QString projectFileName = currentProject->displayName() + ".qrc";
         QFile persistentFile(projectPath + "/" + projectFileName);
+
         QTemporaryFile temp(projectPath + "/XXXXXXX.create.resource.qrc");
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
@@ -444,9 +467,7 @@ void GenerateResource::generateMenuEntry()
             if (reader.name() == QLatin1String("file")) {
                 QString fileName = reader.readElementText().trimmed();
                 if ((!fileName.startsWith("./.")) && (!fileName.startsWith("./XXXXXXX"))
-                        && !fileName.endsWith(".qmlproject") && !fileName.endsWith(".pri")
-                        && !fileName.endsWith(".pro") && !fileName.endsWith(".user")
-                        && !fileName.endsWith(".qrc")) {
+                    && !skipSuffix(fileName)) {
                     ResourceFile file;
                     file.fileName = fileName;
                     file.inProject = false;
@@ -464,9 +485,7 @@ void GenerateResource::generateMenuEntry()
         for (const Utils::FilePath &path : paths) {
             QString relativepath = dir.relativeFilePath(path.toString());
 
-            if (!relativepath.endsWith(".qmlproject") && !relativepath.endsWith(".pri")
-                    && !relativepath.endsWith(".pro") && !relativepath.endsWith(".user")
-                    && !relativepath.endsWith(".qrc")) {
+            if (!skipSuffix(relativepath)) {
                 projectFiles.append(relativepath);
 
                 bool found = false;
@@ -552,10 +571,7 @@ void GenerateResource::generateMenuEntry()
                         .arg(rccProcess.exitCode()));
                 return;
             }
-
         }
-
-        saveLastUsedPath(Utils::FilePath::fromString(resourceFileName).parentDir().toString());
     });
     buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
     buildMenu->addAction(cmd2, ProjectExplorer::Constants::G_BUILD_RUN);
