@@ -388,8 +388,6 @@ bool FilePath::isRelativePath() const
 
 FilePath FilePath::resolvePath(const QString &fileName) const
 {
-    if (fileName.isEmpty())
-        return {}; // FIXME: Isn't this odd?
     if (FileUtils::isAbsolutePath(fileName))
         return FilePath::fromString(QDir::cleanPath(fileName));
     return FilePath::fromString(QDir::cleanPath(toString() + QLatin1Char('/') + fileName));
