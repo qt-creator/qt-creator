@@ -24,24 +24,19 @@
 ****************************************************************************/
 
 /*!
-//! [run settings boot2qt]
+    \page creator-deployment-b2qt.html
+    \previouspage creator-deploying-android.html
+    \nextpage creator-deployment-embedded-linux.html
 
-    \section1 Specifying Run Settings for Boot2Qt Devices
+    \title Deploying Applications to Boot2Qt Devices
 
-    To run and debug an application on a Boot2Qt device (commercial only), you
-    must create connections from the development host to the device and add the
-    device configurations to \l{glossary-buildandrun-kit}{kits}. Select
-    \uicontrol {Manage Kits} to add devices to kits. For more information, see
-    the \l{http://doc.qt.io/QtForDeviceCreation/qtee-installation-guide.html}
-    {Installation Guide} in the
-    \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
-    documentation.
+    You can specify the generic deployment steps for remote Linux devices also
+    for \l{Boot2Qt} devices.
 
-    The run settings display the path to the executable file on the development
-    host and on the device.
+    \image qtcreator-boot2qt-deployment-steps.png "Boot2Qt deployment steps"
 
-    For more information on the deployment steps, see
-    \l{Deploying Applications to Boot2Qt Devices}.
+    For more information, see \l{Generic Deployment Steps}.
 
-//! [run settings boot2qt]
+    In addition, to have your application launch on boot, select
+    \uicontrol {Add Deploy Step} > \uicontrol {Change Default Application}.
 */

@@ -43,7 +43,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Enable")
                 tooltip: qsTr("Accepts mouse events.")
-                disabledState: !backendValues.enabled.isAvailable
+                blockedByTemplate: !backendValues.enabled.isAvailable
             }
 
             SecondColumnLayout {
@@ -71,7 +71,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Accepted buttons")
                 tooltip: qsTr("Mouse buttons that the mouse area reacts to.")
-                disabledState: !backendValues.acceptedButtons.isAvailable
+                blockedByTemplate: !backendValues.acceptedButtons.isAvailable
             }
 
             SecondColumnLayout {
@@ -91,7 +91,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Cursor shape")
                 tooltip: qsTr("Cursor shape for this mouse area.")
-                disabledState: !backendValues.cursorShape.isAvailable
+                blockedByTemplate: !backendValues.cursorShape.isAvailable
             }
 
             SecondColumnLayout {
@@ -134,7 +134,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Scroll gesture")
                 tooltip: qsTr("Responds to scroll gestures from non-mouse devices.")
-                disabledState: !backendValues.scrollGestureEnabled.isAvailable
+                blockedByTemplate: !backendValues.scrollGestureEnabled.isAvailable
             }
 
             SecondColumnLayout {
@@ -152,7 +152,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Prevent stealing")
                 tooltip: qsTr("Stops mouse events from being stolen from this mouse area.")
-                disabledState: !backendValues.preventStealing.isAvailable
+                blockedByTemplate: !backendValues.preventStealing.isAvailable
             }
 
             SecondColumnLayout {
@@ -170,7 +170,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Propagate events")
                 tooltip: qsTr("Automatically propagates composed mouse events to other mouse areas.")
-                disabledState: !backendValues.propagateComposedEvents.isAvailable
+                blockedByTemplate: !backendValues.propagateComposedEvents.isAvailable
             }
 
             SecondColumnLayout {

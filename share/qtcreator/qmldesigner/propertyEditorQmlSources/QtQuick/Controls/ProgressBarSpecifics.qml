@@ -111,7 +111,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Indeterminate")
                 tooltip: qsTr("Whether the progress is indeterminate.")
-                disabledState: !backendValues.indeterminate.isAvailable
+                blockedByTemplate: !backendValues.indeterminate.isAvailable
             }
 
             SecondColumnLayout {

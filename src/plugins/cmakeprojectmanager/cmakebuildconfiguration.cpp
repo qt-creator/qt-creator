@@ -98,6 +98,7 @@ static Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningM
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 const char DEVELOPMENT_TEAM_FLAG[] = "Ios:DevelopmentTeam:Flag";
 const char PROVISIONING_PROFILE_FLAG[] = "Ios:ProvisioningProfile:Flag";
+const char CMAKE_OSX_ARCHITECTURES_FLAG[] = "CMAKE_OSX_ARCHITECTURES:DefaultFlag";
 const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[] =
         "-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
 
@@ -890,6 +891,21 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                           return QString();
                                       });
 
+    macroExpander()->registerVariable(CMAKE_OSX_ARCHITECTURES_FLAG,
+                                      tr("The CMake flag for the architecture on macOS"),
+                                      [target] {
+                                          if (HostOsInfo::isRunningUnderRosetta()) {
+                                              if (auto *qt = QtSupport::QtKitAspect::qtVersion(target->kit())) {
+                                                  const Abis abis = qt->qtAbis();
+                                                  for (const Abi &abi : abis) {
+                                                      if (abi.architecture() == Abi::ArmArchitecture)
+                                                          return QLatin1String("-DCMAKE_OSX_ARCHITECTURES=arm64");
+                                                  }
+                                              }
+                                          }
+                                          return QLatin1String();
+                                      });
+
     addAspect<SourceDirectoryAspect>();
     addAspect<BuildTypeAspect>();
 
@@ -939,27 +955,33 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             }
         }
 
-        if (isIos(k)) {
-            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
-            if (qt && qt->qtVersion().majorVersion >= 6) {
-                // TODO it would be better if we could set
-                // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
-                // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
-                // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
-                // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
-                const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
-                // TODO the architectures are probably not correct with Apple Silicon in the mix...
-                const QString architecture = deviceType == Ios::Constants::IOS_DEVICE_TYPE
-                                                 ? QLatin1String("arm64")
-                                                 : QLatin1String("x86_64");
-                const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
-                                            ? QLatin1String("iphoneos")
-                                            : QLatin1String("iphonesimulator");
-                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
-                initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
-                initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
-                initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
-                initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
+        const IDevice::ConstPtr device = DeviceKitAspect::device(k);
+        if (device->osType() == Utils::OsTypeMac) {
+            if (isIos(k)) {
+                QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+                if (qt && qt->qtVersion().majorVersion >= 6) {
+                    // TODO it would be better if we could set
+                    // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
+                    // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
+                    // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
+                    // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
+                    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+                    // TODO the architectures are probably not correct with Apple Silicon in the mix...
+                    const QString architecture = deviceType == Ios::Constants::IOS_DEVICE_TYPE
+                                                     ? QLatin1String("arm64")
+                                                     : QLatin1String("x86_64");
+                    const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
+                                                ? QLatin1String("iphoneos")
+                                                : QLatin1String("iphonesimulator");
+                    initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
+                    initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
+                    initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
+                    initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
+                    initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
+                }
+            } else {
+                // macOS
+                initialArgs.append("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
             }
         }
 

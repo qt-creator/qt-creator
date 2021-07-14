@@ -32,6 +32,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 
@@ -63,6 +64,8 @@ CMakeToolManager::CMakeToolManager()
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
+
+    qRegisterMetaType<QString *>();
 
     d = new CMakeToolManagerPrivate;
     connect(ICore::instance(), &ICore::saveSettingsRequested,
@@ -176,6 +179,25 @@ void CMakeToolManager::updateDocumentation()
     }
     Core::HelpManager::registerDocumentation(docs);
 }
+
+void CMakeToolManager::autoDetectCMakeForDevice(const FilePath &deviceRoot,
+                                                const QString &detectionSource,
+                                                QString *logMessage)
+{
+    QStringList messages;
+    const FilePaths candidates = {FilePath::fromString("cmake").onDevice(deviceRoot)};
+    const Environment env = deviceRoot.deviceEnvironment();
+    for (const FilePath &candidate : candidates) {
+        const FilePath cmake = candidate.searchOnDevice(env.path());
+        if (!cmake.isEmpty()) {
+            registerCMakeByPath(cmake, detectionSource);
+            messages.append(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
+        }
+    }
+    if (logMessage)
+        *logMessage = messages.join('\n');
+}
+
 
 void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSource)
 {

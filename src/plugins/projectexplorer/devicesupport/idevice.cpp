@@ -126,7 +126,7 @@ const char TimeoutKey[] = "Timeout";
 const char HostKeyCheckingKey[] = "HostKeyChecking";
 
 const char DebugServerKey[] = "DebugServerKey";
-const char QmlsceneKey[] = "QmlsceneKey";
+const char QmlRuntimeKey[] = "QmlsceneKey";
 
 using AuthType = QSsh::SshConnectionParameters::AuthenticationType;
 const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypeAll;
@@ -153,7 +153,7 @@ public:
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
     QString debugServerPath;
-    QString qmlsceneCommand;
+    QString qmlRunCommand;
     bool emptyCommandAllowed = false;
 
     QList<Utils::Icon> deviceIcons;
@@ -247,6 +247,20 @@ bool IDevice::isReadableDirectory(const FilePath &filePath) const
 }
 
 bool IDevice::isWritableDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::isFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::isDirectory(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
     QTC_CHECK(false);
@@ -357,6 +371,7 @@ QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 
 {
     Q_UNUSED(filePath);
     Q_UNUSED(limit);
+    Q_UNUSED(offset);
     QTC_CHECK(false);
     return {};
 }
@@ -595,7 +610,7 @@ void IDevice::fromMap(const QVariantMap &map)
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
     d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
-    d->qmlsceneCommand = map.value(QLatin1String(QmlsceneKey)).toString();
+    d->qmlRunCommand = map.value(QLatin1String(QmlRuntimeKey)).toString();
     d->extraData = map.value(ExtraDataKey).toMap();
 }
 
@@ -626,7 +641,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(VersionKey), d->version);
 
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
-    map.insert(QLatin1String(QmlsceneKey), d->qmlsceneCommand);
+    map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand);
     map.insert(ExtraDataKey, d->extraData);
 
     return map;
@@ -709,14 +724,14 @@ void IDevice::setDebugServerPath(const QString &path)
     d->debugServerPath = path;
 }
 
-QString IDevice::qmlsceneCommand() const
+QString IDevice::qmlRunCommand() const
 {
-    return d->qmlsceneCommand;
+    return d->qmlRunCommand;
 }
 
-void IDevice::setQmlsceneCommand(const QString &path)
+void IDevice::setQmlRunCommand(const QString &path)
 {
-    d->qmlsceneCommand = path;
+    d->qmlRunCommand = path;
 }
 
 void IDevice::setExtraData(Utils::Id kind, const QVariant &data)

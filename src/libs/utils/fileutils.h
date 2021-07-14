@@ -77,6 +77,8 @@ public:
     std::function<bool(const FilePath &)> isReadableDir;
     std::function<bool(const FilePath &)> isWritableDir;
     std::function<bool(const FilePath &)> isWritableFile;
+    std::function<bool(const FilePath &)> isFile;
+    std::function<bool(const FilePath &)> isDir;
     std::function<bool(const FilePath &)> ensureWritableDir;
     std::function<bool(const FilePath &)> ensureExistingFile;
     std::function<bool(const FilePath &)> createDir;
@@ -149,6 +151,8 @@ public:
     bool isReadableDir() const;
     bool isRelativePath() const;
     bool isAbsolutePath() const { return !isRelativePath(); }
+    bool isFile() const;
+    bool isDir() const;
 
     bool createDir() const;
     QList<FilePath> dirEntries(const QStringList &nameFilters,
@@ -177,7 +181,6 @@ public:
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
 
-    bool isDir() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;

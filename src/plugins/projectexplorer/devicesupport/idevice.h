@@ -214,8 +214,8 @@ public:
     QString debugServerPath() const;
     void setDebugServerPath(const QString &path);
 
-    QString qmlsceneCommand() const;
-    void setQmlsceneCommand(const QString &path);
+    QString qmlRunCommand() const;
+    void setQmlRunCommand(const QString &path);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
@@ -241,6 +241,8 @@ public:
     virtual bool isWritableFile(const Utils::FilePath &filePath) const;
     virtual bool isReadableDirectory(const Utils::FilePath &filePath) const;
     virtual bool isWritableDirectory(const Utils::FilePath &filePath) const;
+    virtual bool isFile(const Utils::FilePath &filePath) const;
+    virtual bool isDirectory(const Utils::FilePath &filePath) const;
     virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;
     virtual bool ensureExistingFile(const Utils::FilePath &filePath) const;
     virtual bool createDirectory(const Utils::FilePath &filePath) const;

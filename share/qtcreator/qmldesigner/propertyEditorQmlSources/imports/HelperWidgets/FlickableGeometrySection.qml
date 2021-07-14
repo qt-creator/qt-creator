@@ -51,7 +51,8 @@ Section {
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
             ControlLabel {
-                text: qsTr("W")
+                //: The width of the object
+                text: qsTr("W", "width")
                 tooltip: qsTr("Content width used for calculating the total implicit width.")
             }
 
@@ -68,7 +69,8 @@ Section {
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
             ControlLabel {
-                text: qsTr("H")
+                //: The height of the object
+                text: qsTr("H", "height")
                 tooltip: qsTr("Content height used for calculating the total implicit height.")
             }
 
@@ -117,8 +119,8 @@ Section {
 
         PropertyLabel {
             text: qsTr("Origin")
-            disabledState: (!backendValues.originX.isAvailable
-                            && !backendValues.originY.isAvailable)
+            blockedByTemplate: !backendValues.originX.isAvailable
+                               && !backendValues.originY.isAvailable
         }
 
         SecondColumnLayout {
@@ -133,7 +135,10 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "X" }
+            ControlLabel {
+                text: "X"
+                enabled: backendValues.originX.isAvailable
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -148,7 +153,10 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "Y" }
+            ControlLabel {
+                text: "Y"
+                enabled: backendValues.originY.isAvailable
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -159,7 +167,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Left margin")
-            disabledState: !backendValues.leftMargin.isAvailable
+            blockedByTemplate: !backendValues.leftMargin.isAvailable
         }
 
         SecondColumnLayout {
@@ -172,12 +180,13 @@ Section {
                 decimals: 0
                 enabled: backendValue.isAvailable
             }
+
             ExpandingSpacer {}
         }
 
         PropertyLabel {
             text: qsTr("Right margin")
-            disabledState: !backendValues.rightMargin.isAvailable
+            blockedByTemplate: !backendValues.rightMargin.isAvailable
         }
 
         SecondColumnLayout {
@@ -196,7 +205,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Top margin")
-            disabledState: !backendValues.topMargin.isAvailable
+            blockedByTemplate: !backendValues.topMargin.isAvailable
         }
 
         SecondColumnLayout {
@@ -215,7 +224,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Bottom margin")
-            disabledState: !backendValues.bottomMargin.isAvailable
+            blockedByTemplate: !backendValues.bottomMargin.isAvailable
         }
 
         SecondColumnLayout {

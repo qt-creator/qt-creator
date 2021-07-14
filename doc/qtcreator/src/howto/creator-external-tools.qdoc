@@ -77,15 +77,12 @@
     \uicontrol {Open With} > \uicontrol {Qt Linguist} in the context menu.
     For more information about Qt Linguist, see \l{Qt Linguist Manual}.
 
-    \section1 Previewing QML Files
+    \section1 Running QML Files
 
-    You can preview the current QML document in the QML Viewer (Qt Quick 1) or
-    QML Scene (Qt Quick 2). The preview tools enable you to load QML documents
-    for viewing and testing while you are developing an application.
+    You can test the current QML document while you are developing an application.
 
-    To preview the currently active QML file, select \uicontrol Tools >
-    \uicontrol External > \uicontrol {Qt Quick} > \uicontrol {Qt Quick 1 Preview
-    (qmlviewer)} or \uicontrol {Qt Quick 2 Preview (qmlscene)}.
+    To run the currently active QML file, select \uicontrol Tools >
+    \uicontrol External > \uicontrol {Qt Quick} > \uicontrol {QML Runtime}.
 
     \section1 Using External Text Editors
 

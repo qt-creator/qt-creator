@@ -43,6 +43,8 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+const int MaxResultCount = 10000;
+
 class CppLocatorFilter : public CppTools::CppLocatorFilter
 {
 public:
@@ -67,6 +69,7 @@ public:
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
+        setMaxResultCount(MaxResultCount);
     }
 };
 
@@ -94,6 +97,7 @@ public:
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
+        setMaxResultCount(MaxResultCount);
     }
 };
 
@@ -121,6 +125,7 @@ public:
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
+        setMaxResultCount(MaxResultCount);
     }
 };
 

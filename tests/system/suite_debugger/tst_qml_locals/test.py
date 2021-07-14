@@ -52,7 +52,7 @@ def main():
                         "Verifying Run and Debug are enabled (Qt5 is available).")
             and test.compare(target, Targets.getStringForTarget(Targets.getDefaultKit()),
                              "Verifying selected Target is Qt5.")
-            and test.compare(exe, "QML Scene", "Verifying selected executable is QML Scene.")):
+            and test.compare(exe, "QML Utility", "Verifying selected executable is QML Utility.")):
         earlyExit("Something went wrong opening Qml project - probably missing Qt5.")
         return
     switchViewTo(ViewConstants.PROJECTS)

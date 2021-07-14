@@ -66,6 +66,8 @@ public:
     bool isWritableFile(const Utils::FilePath &filePath) const override;
     bool isReadableDirectory(const Utils::FilePath &filePath) const override;
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
+    bool isFile(const Utils::FilePath &filePath) const override;
+    bool isDirectory(const Utils::FilePath &filePath) const override;
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
     bool exists(const Utils::FilePath &filePath) const override;

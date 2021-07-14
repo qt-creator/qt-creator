@@ -854,8 +854,16 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
 TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
 {
-    QObject::disconnect(m_document.data(), &TextDocument::markRemoved,
-                        this, &TextEditorWidgetPrivate::markRemoved);
+    QTextDocument *doc = m_document->document();
+    QTC_CHECK(doc);
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
+    QTC_CHECK(documentLayout);
+    QTC_CHECK(m_document.data());
+    documentLayout->disconnect(this);
+    documentLayout->disconnect(m_extraArea);
+    doc->disconnect(this);
+    m_document.data()->disconnect(this);
+    q->disconnect(documentLayout);
     q->disconnect(this);
     delete m_toolBarWidget;
     delete m_highlightScrollBarController;

@@ -169,13 +169,13 @@ private: // functions
     QColor highlightBrushColor() const
     {
         QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground);
-        color.setAlphaF(0.7);
+        color.setAlphaF(0.7f);
         return color;
     }
     QColor highlightLineColor() const
     {
         QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorOutline);
-        color.setAlphaF(0.7);
+        color.setAlphaF(0.7f);
         return color;
     }
 

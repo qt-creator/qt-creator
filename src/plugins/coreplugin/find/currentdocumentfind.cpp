@@ -165,8 +165,12 @@ void CurrentDocumentFind::updateCandidateFindFilter(QWidget *old, QWidget *now)
         if (!impl)
             candidate = candidate->parentWidget();
     }
-    if (candidate == m_candidateWidget && impl == m_candidateFind)
+    if (candidate == m_candidateWidget && impl == m_candidateFind) {
+        // trigger update of action state since a changed focus can still require disabling the
+        // Find/Replace action
+        emit changed();
         return;
+    }
     if (m_candidateWidget)
         disconnect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), &Aggregation::Aggregate::changed,
                    this, &CurrentDocumentFind::candidateAggregationChanged);

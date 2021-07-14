@@ -373,9 +373,9 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 
     if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            if (version->qmlsceneCommand().isEmpty()) {
+            if (version->qmlRuntimeFilePath().isEmpty()) {
                 result.append(createProjectTask(Task::TaskType::Error,
-                                                tr("Qt version has no qmlscene command.")));
+                                                tr("Qt version has no QML utility.")));
             }
         } else {
             // Non-desktop Qt on a desktop device? We don't support that.
@@ -383,8 +383,8 @@ Tasks QmlProject::projectIssues(const Kit *k) const
                                             tr("Non-desktop Qt is used with a desktop device.")));
         }
     } else {
-        // If not a desktop device, don't check the Qt version for qmlscene.
-        // The device is responsible for providing it and we assume qmlscene can be found
+        // If not a desktop device, don't check the Qt version for qml runtime binary.
+        // The device is responsible for providing it and we assume qml runtime can be found
         // in $PATH if it's not explicitly given.
     }
 

@@ -547,8 +547,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileIncompatible;
     }
 
-    if (version->qmakeCommand() != parse.qmakePath()) {
-        qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeCommand().toString()
+    if (version->qmakeFilePath() != parse.qmakePath()) {
+        qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeFilePath().toString()
                       << " Makefile:"<< parse.qmakePath().toString();
         return MakefileForWrongProject;
     }

@@ -58,7 +58,10 @@ Column {
 
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                ControlLabel { text: qsTr("W") }
+                ControlLabel {
+                    //: The width of the object
+                    text: qsTr("W", "width")
+                }
 
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -72,7 +75,10 @@ Column {
 
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                ControlLabel { text: qsTr("H") }
+                ControlLabel {
+                    //: The height of the object
+                    text: qsTr("H", "height")
+                }
 
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -132,7 +138,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Cache")
                 tooltip: qsTr("Cache buffer")
-                disabledState: !backendValues.cacheBuffer.isAvailable
+                blockedByTemplate: !backendValues.cacheBuffer.isAvailable
             }
 
             SecondColumnLayout {
@@ -152,7 +158,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Navigation wraps")
                 tooltip: qsTr("Whether the grid wraps key navigation.")
-                disabledState: !backendValues.keyNavigationWraps.isAvailable
+                blockedByTemplate: !backendValues.keyNavigationWraps.isAvailable
             }
 
             SecondColumnLayout {

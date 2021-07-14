@@ -57,8 +57,7 @@ Product {
             var list = [
                 "lrelease.xml",
                 "lupdate.xml",
-                "qmlscene.xml",
-                "qmlviewer.xml",
+                "qml.xml",
             ]
             if (qbs.targetOS.contains("windows"))
                 list.push("notepad_win.xml");

@@ -97,6 +97,8 @@ signals:
 protected:
     explicit WorkspaceLocatorFilter(const QVector<LanguageServerProtocol::SymbolKind> &filter);
 
+    void setMaxResultCount(qint64 limit) { m_maxResultCount = limit; }
+
 private:
     void prepareSearch(const QString &entry, const QVector<Client *> &clients, bool force);
     void handleResponse(Client *client,
@@ -106,6 +108,7 @@ private:
     QMap<Client *, LanguageServerProtocol::MessageId> m_pendingRequests;
     QVector<LanguageServerProtocol::SymbolInformation> m_results;
     QVector<LanguageServerProtocol::SymbolKind> m_filterKinds;
+    qint64 m_maxResultCount = 0;
 };
 
 class LANGUAGECLIENT_EXPORT WorkspaceClassLocatorFilter : public WorkspaceLocatorFilter

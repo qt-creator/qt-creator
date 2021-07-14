@@ -61,7 +61,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Layout direction")
-                disabledState: !backendValues.layoutDirection.isAvailable
+                blockedByTemplate: !backendValues.layoutDirection.isAvailable
             }
 
             SecondColumnLayout {
@@ -81,7 +81,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Snap mode")
                 tooltip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
-                disabledState: !backendValues.snapMode.isAvailable
+                blockedByTemplate: !backendValues.snapMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -119,7 +119,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Cache")
                 tooltip: qsTr("Cache buffer.")
-                disabledState: !backendValues.cacheBuffer.isAvailable
+                blockedByTemplate: !backendValues.cacheBuffer.isAvailable
             }
 
             SecondColumnLayout {
@@ -139,7 +139,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Navigation wraps")
                 tooltip: qsTr("Whether the grid wraps key navigation.")
-                disabledState: !backendValues.keyNavigationWraps.isAvailable
+                blockedByTemplate: !backendValues.keyNavigationWraps.isAvailable
             }
 
             SecondColumnLayout {
@@ -166,7 +166,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Range")
                 tooltip: qsTr("Highlight range.")
-                disabledState: !backendValues.highlightRangeMode.isAvailable
+                blockedByTemplate: !backendValues.highlightRangeMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -186,7 +186,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Move duration")
                 tooltip: qsTr("Move animation duration of the highlight delegate.")
-                disabledState: !backendValues.highlightMoveDuration.isAvailable
+                blockedByTemplate: !backendValues.highlightMoveDuration.isAvailable
             }
 
             SecondColumnLayout {
@@ -206,7 +206,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Move velocity")
                 tooltip: qsTr("Move animation velocity of the highlight delegate.")
-                disabledState: !backendValues.highlightMoveVelocity.isAvailable
+                blockedByTemplate: !backendValues.highlightMoveVelocity.isAvailable
             }
 
             SecondColumnLayout {
@@ -226,7 +226,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Resize duration")
                 tooltip: qsTr("Resize animation duration of the highlight delegate.")
-                disabledState: !backendValues.highlightResizeDuration.isAvailable
+                blockedByTemplate: !backendValues.highlightResizeDuration.isAvailable
             }
 
             SecondColumnLayout {
@@ -246,7 +246,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Resize velocity")
                 tooltip: qsTr("Resize animation velocity of the highlight delegate.")
-                disabledState: !backendValues.highlightResizeVelocity.isAvailable
+                blockedByTemplate: !backendValues.highlightResizeVelocity.isAvailable
             }
 
             SecondColumnLayout {
@@ -266,7 +266,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Preferred begin")
                 tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
-                disabledState: !backendValues.preferredHighlightBegin.isAvailable
+                blockedByTemplate: !backendValues.preferredHighlightBegin.isAvailable
             }
 
             SecondColumnLayout {
@@ -286,7 +286,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Preferred end")
                 tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
-                disabledState: !backendValues.preferredHighlightEnd.isAvailable
+                blockedByTemplate: !backendValues.preferredHighlightEnd.isAvailable
             }
 
             SecondColumnLayout {
@@ -306,7 +306,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Follows current")
                 tooltip: qsTr("Whether the highlight is managed by the view.")
-                disabledState: !backendValues.highlightFollowsCurrentItem.isAvailable
+                blockedByTemplate: !backendValues.highlightFollowsCurrentItem.isAvailable
             }
 
             SecondColumnLayout {

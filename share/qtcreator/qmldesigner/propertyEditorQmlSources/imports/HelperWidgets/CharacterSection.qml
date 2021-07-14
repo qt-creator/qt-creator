@@ -162,7 +162,7 @@ Section {
         PropertyLabel {
             text: qsTr("Style name")
             tooltip: qsTr("Font's style.")
-            disabledState: !styleNameComboBox.enabled
+            blockedByTemplate: !styleNameComboBox.enabled
         }
 
         SecondColumnLayout {
@@ -298,6 +298,7 @@ Section {
         PropertyLabel {
             text: qsTr("Letter spacing")
             tooltip: qsTr("Letter spacing for the font.")
+            blockedByTemplate: !getBackendValue("letterSpacing").isAvailable
         }
 
         SecondColumnLayout {
@@ -318,6 +319,7 @@ Section {
         PropertyLabel {
             text: qsTr("Word spacing")
             tooltip: qsTr("Word spacing for the font.")
+            blockedByTemplate: !getBackendValue("wordSpacing").isAvailable
         }
 
         SecondColumnLayout {
@@ -339,7 +341,7 @@ Section {
             visible: root.showLineHeight
             text: qsTr("Line height")
             tooltip: qsTr("Line height for the text.")
-            disabledState: !lineHeightSpinBox.enabled
+            blockedByTemplate: !lineHeightSpinBox.enabled
         }
 
         SecondColumnLayout {

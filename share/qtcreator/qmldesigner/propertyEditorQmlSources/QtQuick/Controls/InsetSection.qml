@@ -48,50 +48,48 @@ Section {
         PropertyLabel { text: qsTr("Vertical") }
 
         SecondColumnLayout {
-            SecondColumnLayout {
-                SpinBox {
-                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
-                    maximumValue: 10000
-                    minimumValue: -10000
-                    realDragRange: 5000
-                    decimals: 0
-                    backendValue: backendValues.topInset
-                }
-
-                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                MultiIconLabel {
-                    icon0: StudioTheme.Constants.paddingFrame
-                    icon1: StudioTheme.Constants.paddingEdge
-                    tooltip: qsTr("Top inset for the background.")
-                    //disabledStateSoft: !backendValues.topPadding.isAvailable
-                }
-
-                Spacer { implicitWidth: StudioTheme.Values.controlGap }
-
-                SpinBox {
-                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
-                    maximumValue: 10000
-                    minimumValue: -10000
-                    realDragRange: 5000
-                    decimals: 0
-                    backendValue: backendValues.bottomInset
-                }
-
-                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                MultiIconLabel {
-                    icon0: StudioTheme.Constants.paddingFrame
-                    icon1: StudioTheme.Constants.paddingEdge
-                    rotation: 180
-                    tooltip: qsTr("Bottom inset for the background.")
-                    //disabledStateSoft: !backendValues.bottomPadding.isAvailable
-                }
-
-                ExpandingSpacer {}
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                maximumValue: 10000
+                minimumValue: -10000
+                realDragRange: 5000
+                decimals: 0
+                backendValue: backendValues.topInset
             }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                tooltip: qsTr("Top inset for the background.")
+                enabled: !backendValues.topPadding.isAvailable
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                maximumValue: 10000
+                minimumValue: -10000
+                realDragRange: 5000
+                decimals: 0
+                backendValue: backendValues.bottomInset
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            MultiIconLabel {
+                icon0: StudioTheme.Constants.paddingFrame
+                icon1: StudioTheme.Constants.paddingEdge
+                rotation: 180
+                tooltip: qsTr("Bottom inset for the background.")
+                enabled: !backendValues.bottomPadding.isAvailable
+            }
+
+            ExpandingSpacer {}
         }
 
         PropertyLabel { text: qsTr("Horizontal") }
@@ -114,7 +112,7 @@ Section {
                 icon1: StudioTheme.Constants.paddingEdge
                 rotation: 270
                 tooltip: qsTr("Left inset for the background.")
-                //disabledStateSoft: !backendValues.leftPadding.isAvailable
+                enabled: !backendValues.leftPadding.isAvailable
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -136,7 +134,7 @@ Section {
                 icon1: StudioTheme.Constants.paddingEdge
                 rotation: 90
                 tooltip: qsTr("Right inset for the background.")
-                //disabledStateSoft: !backendValues.rightPadding.isAvailable
+                enabled: !backendValues.rightPadding.isAvailable
             }
 
             ExpandingSpacer {}

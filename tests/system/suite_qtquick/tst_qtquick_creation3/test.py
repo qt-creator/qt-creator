@@ -56,7 +56,7 @@ def main():
             __closeSubprocessByPushingStop__(True)
         appOutput = logApplicationOutput()
         test.verify(_exactlyOne_(map(lambda ver: ver in appOutput, available)),
-                    "Does Creator use qmlscene from a checked kit?")
+                    "Does Qt Creator use QML binary from a checked kit?")
         test.verify(projectName + ".qml:" not in appOutput,
                     "Does the Application Output indicate QML errors?")
         invokeMenuItem("File", "Close All Projects and Editors")

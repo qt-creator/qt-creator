@@ -94,6 +94,8 @@ Debugging
   (QTCREATORBUG-25762)
 * Fixed that comments in startup commands resulted in message boxes
   (QTCREATORBUG-25666)
+* Removed extra Server Start Script field in Attach to Running Server,
+  use a custom deploy step instead.
 
 ### GDB
 

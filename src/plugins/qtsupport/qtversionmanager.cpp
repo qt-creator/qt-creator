@@ -265,7 +265,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Existing Qt versions =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
+            qCDebug(log) << version->qmakeFilePath().toString() << "id:"<<version->uniqueId();
             qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
             qCDebug(log) << "";
         }
@@ -341,7 +341,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Before removing outdated sdk versions =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
+            qCDebug(log) << version->qmakeFilePath().toString() << "id:"<<version->uniqueId();
             qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
             qCDebug(log) << "";
         }
@@ -360,7 +360,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log)<< "======= End result =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeCommand().toString() << "id:" << version->uniqueId();
+            qCDebug(log) << version->qmakeFilePath().toString() << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
             qCDebug(log) << "";
         }
@@ -443,7 +443,7 @@ static void findSystemQt()
             continue;
         const auto isSameQmake = [qmakePath](const BaseQtVersion *version) {
             return Environment::systemEnvironment().
-                    isSameExecutable(qmakePath.toString(), version->qmakeCommand().toString());
+                    isSameExecutable(qmakePath.toString(), version->qmakeFilePath().toString());
         };
         if (contains(m_versions, isSameQmake))
             continue;

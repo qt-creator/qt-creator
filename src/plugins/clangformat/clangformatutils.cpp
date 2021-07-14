@@ -120,7 +120,11 @@ static clang::format::FormatStyle qtcStyle()
     style.ExperimentalAutoDetectBinPacking = false;
     style.FixNamespaceComments = true;
     style.ForEachMacros = {"forever", "foreach", "Q_FOREACH", "BOOST_FOREACH"};
+#if LLVM_VERSION_MAJOR >= 12
+    style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200, 200, true}};
+#else
     style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200, 200}};
+#endif
     style.IncludeStyle.IncludeIsMainRegex = "(Test)?$";
     style.IndentCaseLabels = false;
     style.IndentWidth = 4;

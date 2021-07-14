@@ -76,7 +76,7 @@ private:
     bool isEnabled() const final;
 
     QString mainScript() const;
-    FilePath qmlScenePath() const;
+    FilePath qmlRuntimeFilePath() const;
     QString commandLineArguments() const;
 
     StringAspect *m_qmlViewerAspect = nullptr;
@@ -97,7 +97,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
     setCommandLineGetter([this] {
-        return CommandLine(qmlScenePath(), commandLineArguments(), CommandLine::Raw);
+        return CommandLine(qmlRuntimeFilePath(), commandLineArguments(), CommandLine::Raw);
     });
 
     m_qmlMainFileAspect = addAspect<QmlMainFileAspect>(target);
@@ -141,7 +141,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         r.workingDirectory = bs->targetDirectory().toString();
     });
 
-    setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
+    setDisplayName(tr("QML Utility", "QMLRunConfiguration display name."));
     update();
 }
 
@@ -150,18 +150,18 @@ QString QmlProjectRunConfiguration::disabledReason() const
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
 
-    const FilePath viewer = qmlScenePath();
+    const FilePath viewer = qmlRuntimeFilePath();
     if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !viewer.exists()) {
-        return tr("No qmlscene found.");
+        return tr("No QML utility found.");
     }
     if (viewer.isEmpty())
-        return tr("No qmlscene binary specified for target device.");
+        return tr("No QML utility specified for target device.");
     return RunConfiguration::disabledReason();
 }
 
-FilePath QmlProjectRunConfiguration::qmlScenePath() const
+FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
     const QString qmlViewer = m_qmlViewerAspect->value();
     if (!qmlViewer.isEmpty())
@@ -169,23 +169,23 @@ FilePath QmlProjectRunConfiguration::qmlScenePath() const
 
     Kit *kit = target()->kit();
     BaseQtVersion *version = QtKitAspect::qtVersion(kit);
-    if (!version) // No Qt version in Kit. Don't try to run qmlscene.
+    if (!version) // No Qt version in Kit. Don't try to run QML runtime.
         return {};
 
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(kit);
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
-        return isDesktop ? version->qmlsceneCommand() : FilePath::fromString("qmlscene");
+        return isDesktop ? version->qmlRuntimeFilePath() : FilePath::fromString("qmlscene");
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
-    if (dev.isNull()) // No device set. We don't know where to run qmlscene.
+    if (dev.isNull()) // No device set. We don't know where a QML utility is.
         return {};
 
-    const QString qmlscene = dev->qmlsceneCommand();
+    const QString qmlRuntime = dev->qmlRunCommand();
     // If not given explicitly by device, try to pick it from $PATH.
-    return FilePath::fromString(qmlscene.isEmpty() ? QString("qmlscene") : qmlscene);
+    return FilePath::fromString(qmlRuntime.isEmpty() ? QString("qmlscene") : qmlRuntime);
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
@@ -237,10 +237,10 @@ QString QmlProjectRunConfiguration::mainScript() const
 // QmlProjectRunConfigurationFactory
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
-    : FixedRunConfigurationFactory(QmlProjectRunConfiguration::tr("QML Scene"), false)
+    : FixedRunConfigurationFactory(QmlProjectRunConfiguration::tr("QML Runtime"), false)
 {
     registerRunConfiguration<QmlProjectRunConfiguration>
-            ("QmlProjectManager.QmlRunConfiguration.QmlScene");
+            ("QmlProjectManager.QmlRunConfiguration.Qml");
     addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
 }
 

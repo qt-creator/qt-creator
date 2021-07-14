@@ -100,6 +100,7 @@ public:
 
     bool isAutoDetected() const;
     Detection detection() const;
+    QString detectionSource() const;
 
     QByteArray id() const;
 
@@ -165,6 +166,7 @@ public:
 
     void setLanguage(Utils::Id language);
     void setDetection(Detection d);
+    void setDetectionSource(const QString &source);
 
     static Utils::LanguageVersion cxxLanguageVersion(const QByteArray &cplusplusMacroValue);
     static Utils::LanguageVersion languageVersion(const Utils::Id &language, const Macros &macros);

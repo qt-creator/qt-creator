@@ -46,7 +46,7 @@ Section {
         PropertyLabel {
             text: qsTr("Capitalization")
             tooltip: qsTr("Capitalization for the text.")
-            disabledState: !getBackendValue("capitalization").isAvailable
+            blockedByTemplate: !getBackendValue("capitalization").isAvailable
         }
 
         SecondColumnLayout {
@@ -66,7 +66,7 @@ Section {
         PropertyLabel {
             visible: root.showStyle
             text: qsTr("Style")
-            disabledState: !styleComboBox.enabled
+            blockedByTemplate: !styleComboBox.enabled
         }
 
         SecondColumnLayout {
@@ -101,7 +101,7 @@ Section {
         PropertyLabel {
             text: qsTr("Hinting")
             tooltip: qsTr("Preferred hinting on the text.")
-            disabledState: !getBackendValue("hintingPreference").isAvailable
+            blockedByTemplate: !getBackendValue("hintingPreference").isAvailable
         }
 
         SecondColumnLayout {
@@ -122,7 +122,7 @@ Section {
             text: qsTr("Auto kerning")
             tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
                           "improve performance when creating or changing the text, at the expense of some cosmetic features.")
-            disabledState: !getBackendValue("kerning").isAvailable
+            blockedByTemplate: !getBackendValue("kerning").isAvailable
         }
 
         SecondColumnLayout {
@@ -142,7 +142,7 @@ Section {
             tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
                           "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
                           "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
-            disabledState: !getBackendValue("preferShaping").isAvailable
+            blockedByTemplate: !getBackendValue("preferShaping").isAvailable
         }
 
         SecondColumnLayout {

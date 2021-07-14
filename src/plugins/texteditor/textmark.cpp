@@ -504,7 +504,7 @@ AnnotationColors &AnnotationColors::getAnnotationColors(const QColor &markColor,
                 : highClipHsl(backgroundLightness + 0.5);
 
         colors.rectColor = markColor;
-        colors.rectColor.setAlphaF(0.15);
+        colors.rectColor.setAlphaF(0.15f);
 
         colors.textColor.setHslF(markColor.hslHueF(),
                                  markColor.hslSaturationF(),

@@ -55,7 +55,7 @@ QtProjectImporter::QtVersionData
 QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
     QtVersionData result;
-    result.qt = QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
+    result.qt = QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeFilePath, qmakePath));
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();

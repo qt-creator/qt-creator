@@ -62,7 +62,7 @@ public:
     QString expandedValue(const ProjectExplorer::Kit *k) const;
     QString expandedValue(const Utils::MacroExpander *expander) const;
 
-    static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
+    static bool less(const CMakeConfigItem &a, const CMakeConfigItem &b);
     static CMakeConfigItem fromString(const QString &s);
     static QList<CMakeConfigItem> itemsFromArguments(const QStringList &list);
     static QList<CMakeConfigItem> itemsFromFile(const Utils::FilePath &input, QString *errorMessage);

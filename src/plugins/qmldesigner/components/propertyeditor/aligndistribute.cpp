@@ -631,7 +631,7 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
             QTC_ASSERT(!modelNode.isRootNode(), continue);
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
                 QmlItemNode qmlItemNode(modelNode);
-                qreal parentPos;
+                qreal parentPos = 0;
                 QByteArray propertyName;
                 switch (dimension) {
                 case Dimension::X: {

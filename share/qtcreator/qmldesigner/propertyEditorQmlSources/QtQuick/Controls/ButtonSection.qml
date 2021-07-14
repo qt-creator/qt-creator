@@ -51,7 +51,8 @@ Section {
         PropertyLabel {
             text: qsTr("Appearance")
             tooltip: qsTr("Whether the button is flat and/or highlighted.")
-            disabledState: !backendValues.flat.isAvailable
+            blockedByTemplate: !backendValues.flat.isAvailable
+                               && !backendValues.highlighted.isAvailable
         }
 
         SecondColumnLayout {

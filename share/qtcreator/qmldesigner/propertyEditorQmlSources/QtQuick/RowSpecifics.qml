@@ -57,7 +57,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Layout direction")
-                disabledState: !backendValues.layoutDirection.isAvailable
+                blockedByTemplate: !backendValues.layoutDirection.isAvailable
             }
 
             SecondColumnLayout {

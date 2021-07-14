@@ -235,13 +235,13 @@ public:
 
     FilePath m_qmakeCommand;
 
-    FilePath m_rccCommand;
-    FilePath m_uicCommand;
-    FilePath m_designerCommand;
-    FilePath m_linguistCommand;
-    FilePath m_qscxmlcCommand;
-    FilePath m_qmlsceneCommand;
-    FilePath m_qmlplugindumpCommand;
+    FilePath m_rccPath;
+    FilePath m_uicPath;
+    FilePath m_designerPath;
+    FilePath m_linguistPath;
+    FilePath m_qscxmlcPath;
+    FilePath m_qmlRuntimePath;
+    FilePath m_qmlplugindumpPath;
 
     MacroExpanderWrapper m_expander;
 };
@@ -346,12 +346,12 @@ BaseQtVersion::~BaseQtVersion()
 QString BaseQtVersion::defaultUnexpandedDisplayName() const
 {
     QString location;
-    if (qmakeCommand().isEmpty()) {
+    if (qmakeFilePath().isEmpty()) {
         location = QCoreApplication::translate("QtVersion", "<unknown>");
     } else {
         // Deduce a description from '/foo/qt-folder/[qtbase]/bin/qmake' -> '/foo/qt-folder'.
         // '/usr' indicates System Qt 4.X on Linux.
-        QDir dir = qmakeCommand().toFileInfo().absoluteDir();
+        QDir dir = qmakeFilePath().toFileInfo().absoluteDir();
         do {
             const QString dirName = dir.dirName();
             if (dirName == "usr") { // System-installed Qt.
@@ -755,7 +755,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     updateDefaultDisplayName();
 
     // Clear the cached qmlscene command, it might not match the restored path anymore.
-    d->m_qmlsceneCommand.clear();
+    d->m_qmlRuntimePath.clear();
 }
 
 QVariantMap BaseQtVersion::toMap() const
@@ -769,7 +769,7 @@ QVariantMap BaseQtVersion::toMap() const
     if (!d->m_overrideFeatures.isEmpty())
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
-    result.insert(QTVERSIONQMAKEPATH, qmakeCommand().toVariant());
+    result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toVariant());
     return result;
 }
 
@@ -780,7 +780,7 @@ bool BaseQtVersion::isValid() const
     d->updateVersionInfo();
     d->updateMkspec();
 
-    return !qmakeCommand().isEmpty() && d->m_data.installed && !binPath().isEmpty()
+    return !qmakeFilePath().isEmpty() && d->m_data.installed && !binPath().isEmpty()
            && !d->m_mkspecFullPath.isEmpty() && d->m_qmakeIsExecutable;
 }
 
@@ -795,7 +795,7 @@ QString BaseQtVersion::invalidReason() const
 {
     if (displayName().isEmpty())
         return QCoreApplication::translate("QtVersion", "Qt version has no name");
-    if (qmakeCommand().isEmpty())
+    if (qmakeFilePath().isEmpty())
         return QCoreApplication::translate("QtVersion", "No qmake path set");
     if (!d->m_qmakeIsExecutable)
         return QCoreApplication::translate("QtVersion", "qmake does not exist or is not executable");
@@ -821,7 +821,7 @@ QStringList BaseQtVersion::warningReason() const
     return ret;
 }
 
-FilePath BaseQtVersion::qmakeCommand() const
+FilePath BaseQtVersion::qmakeFilePath() const
 {
     return d->m_qmakeCommand;
 }
@@ -838,6 +838,20 @@ Abis BaseQtVersion::qtAbis() const
 Abis BaseQtVersion::detectQtAbis() const
 {
     return qtAbisFromLibrary(d->qtCorePaths());
+}
+
+bool BaseQtVersion::hasAbi(ProjectExplorer::Abi::OS os, ProjectExplorer::Abi::OSFlavor flavor) const
+{
+    const Abis abis = qtAbis();
+    return Utils::anyOf(abis, [&](const Abi &abi) {
+        if (abi.os() != os)
+            return false;
+
+        if (flavor == Abi::UnknownFlavor)
+            return true;
+
+        return abi.osFlavor() == flavor;
+    });
 }
 
 bool BaseQtVersion::equals(BaseQtVersion *other)
@@ -991,60 +1005,65 @@ FilePath BaseQtVersion::qtPackageSourcePath() const
     return d->m_data.qtSources;
 }
 
-FilePath BaseQtVersion::designerCommand() const
+FilePath BaseQtVersion::designerFilePath() const
 {
     if (!isValid())
         return {};
-    if (d->m_designerCommand.isEmpty())
-        d->m_designerCommand = d->findHostBinary(Designer);
-    return d->m_designerCommand;
+    if (d->m_designerPath.isEmpty())
+        d->m_designerPath = d->findHostBinary(Designer);
+    return d->m_designerPath;
 }
 
-FilePath BaseQtVersion::linguistCommand() const
+FilePath BaseQtVersion::linguistFilePath() const
 {
     if (!isValid())
         return {};
-    if (d->m_linguistCommand.isEmpty())
-        d->m_linguistCommand = d->findHostBinary(Linguist);
-    return d->m_linguistCommand;
+    if (d->m_linguistPath.isEmpty())
+        d->m_linguistPath = d->findHostBinary(Linguist);
+    return d->m_linguistPath;
 }
 
-FilePath BaseQtVersion::qscxmlcCommand() const
+FilePath BaseQtVersion::qscxmlcFilePath() const
 {
     if (!isValid())
         return {};
 
-    if (d->m_qscxmlcCommand.isEmpty())
-        d->m_qscxmlcCommand = d->findHostBinary(QScxmlc);
-    return d->m_qscxmlcCommand;
+    if (d->m_qscxmlcPath.isEmpty())
+        d->m_qscxmlcPath = d->findHostBinary(QScxmlc);
+    return d->m_qscxmlcPath;
 }
 
-FilePath BaseQtVersion::qmlsceneCommand() const
+FilePath BaseQtVersion::qmlRuntimeFilePath() const
 {
     if (!isValid())
         return {};
 
-    if (!d->m_qmlsceneCommand.isEmpty())
-        return d->m_qmlsceneCommand;
+    if (!d->m_qmlRuntimePath.isEmpty())
+        return d->m_qmlRuntimePath;
 
-    const FilePath path = binPath() / HostOsInfo::withExecutableSuffix("qmlscene");
-    d->m_qmlsceneCommand = path.isExecutableFile() ? path : FilePath();
+    FilePath path = binPath();
+    if (qtVersion() >= QtVersionNumber(6, 2, 0))
+        path = path / HostOsInfo::withExecutableSuffix("qml");
+    else
+        path = path / HostOsInfo::withExecutableSuffix("qmlscene");
 
-    return d->m_qmlsceneCommand;
+    d->m_qmlRuntimePath = path.isExecutableFile() ? path : FilePath();
+
+    return d->m_qmlRuntimePath;
 }
 
-FilePath BaseQtVersion::qmlplugindumpCommand() const
+FilePath BaseQtVersion::qmlplugindumpFilePath() const
 {
     if (!isValid())
         return {};
 
-    if (!d->m_qmlplugindumpCommand.isEmpty())
-        return d->m_qmlplugindumpCommand;
+    if (!d->m_qmlplugindumpPath.isEmpty())
+        return d->m_qmlplugindumpPath;
 
     const FilePath path = binPath() / HostOsInfo::withExecutableSuffix("qmlplugindump");
-    d->m_qmlplugindumpCommand = path.isExecutableFile() ? path : FilePath();
+    d->m_qmlplugindumpPath = path.isExecutableFile() ? path : FilePath();
 
-    return d->m_qmlplugindumpCommand;
+    return d->m_qmlplugindumpPath;
 }
 
 FilePath BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
@@ -1119,24 +1138,24 @@ FilePath BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
     return {};
 }
 
-FilePath BaseQtVersion::rccCommand() const
+FilePath BaseQtVersion::rccFilePath() const
 {
     if (!isValid())
         return {};
-    if (!d->m_rccCommand.isEmpty())
-        return d->m_rccCommand;
-    d->m_rccCommand = d->findHostBinary(Rcc);
-    return d->m_rccCommand;
+    if (!d->m_rccPath.isEmpty())
+        return d->m_rccPath;
+    d->m_rccPath = d->findHostBinary(Rcc);
+    return d->m_rccPath;
 }
 
-FilePath BaseQtVersion::uicCommand() const
+FilePath BaseQtVersion::uicFilePath() const
 {
     if (!isValid())
         return {};
-    if (!d->m_uicCommand.isEmpty())
-        return d->m_uicCommand;
-    d->m_uicCommand = d->findHostBinary(Uic);
-    return d->m_uicCommand;
+    if (!d->m_uicPath.isEmpty())
+        return d->m_uicPath;
+    d->m_uicPath = d->findHostBinary(Uic);
+    return d->m_uicPath;
 }
 
 void BaseQtVersionPrivate::updateMkspec()
@@ -1178,7 +1197,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
     QMakeVfs vfs;
     QMakeGlobals option;
     applyProperties(&option);
-    Environment env = Environment::systemEnvironment(); // FIXME: Use build device
+    Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
     ProMessageHandler msgHandler(true);
@@ -1709,7 +1728,7 @@ void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 
 Environment BaseQtVersion::qmakeRunEnvironment() const
 {
-    Environment env = Environment::systemEnvironment(); // FIXME: Use build environment
+    Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     return env;
 }
@@ -1737,7 +1756,7 @@ Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &bui
         results.append(BuildSystemTask(Task::Error, msg));
     }
 
-    FilePath qmake = qmakeCommand();
+    FilePath qmake = qmakeFilePath();
     if (!qmake.isExecutableFile()) {
         //: %1: Path to qmake executable
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
@@ -1812,6 +1831,15 @@ bool BaseQtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Env
 
     QByteArray output;
     output = runQmakeQuery(binary, env, error);
+
+    if (!output.startsWith('Q')) { // Is it always "QT_SYSROOT="?
+        // Some setups pass error messages via stdout, fooling the logic below.
+        // Example with docker/qemu/arm "OCI runtime exec failed: exec failed: container_linux.go:367:
+        // starting container process caused: exec: "/bin/qmake": stat /bin/qmake: no such file or directory"
+        // Since we have a rough idea on what the output looks like we can work around this.
+        *error = QString::fromUtf8(output);
+        return false;
+    }
 
     if (output.isNull() && !error->isEmpty()) {
         // Note: Don't rerun if we were able to execute the binary before.
@@ -2291,7 +2319,8 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
     (const FilePath &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
-    if (!BaseQtVersionPrivate::queryQMakeVariables(qmakePath, Environment::systemEnvironment(), &versionInfo, error))
+    const Environment env = qmakePath.deviceEnvironment();
+    if (!BaseQtVersionPrivate::queryQMakeVariables(qmakePath, env, &versionInfo, error))
         return nullptr;
     FilePath mkspec = BaseQtVersionPrivate::mkspecFromVersionInfo(versionInfo, qmakePath);
 

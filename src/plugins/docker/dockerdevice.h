@@ -81,6 +81,8 @@ public:
     bool isWritableFile(const Utils::FilePath &filePath) const override;
     bool isReadableDirectory(const Utils::FilePath &filePath) const override;
     bool isWritableDirectory(const Utils::FilePath &filePath) const override;
+    bool isFile(const Utils::FilePath &filePath) const override;
+    bool isDirectory(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
     bool exists(const Utils::FilePath &filePath) const override;
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;
@@ -105,6 +107,7 @@ public:
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;
+    void setMounts(const QStringList &mounts) const;
 
     Utils::FilePath mapToLocalAccess(const Utils::FilePath &filePath) const;
     Utils::FilePath mapFromLocalAccess(const Utils::FilePath &filePath) const;

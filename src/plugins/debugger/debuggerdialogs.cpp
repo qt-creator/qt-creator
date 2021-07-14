@@ -85,8 +85,6 @@ public:
     QCheckBox *runInTerminalCheckBox;
     QCheckBox *useTargetExtendedRemoteCheckBox;
     PathChooser *debuginfoPathChooser;
-    QLabel *serverStartScriptLabel;
-    PathChooser *serverStartScriptPathChooser;
     QLabel *sysRootLabel;
     PathChooser *sysRootPathChooser;
     QLabel *serverInitCommandsLabel;
@@ -129,7 +127,6 @@ public:
     bool breakAtMain = false;
     bool runInTerminal = false;
     bool useTargetExtendedRemote = false;
-    FilePath serverStartScript;
     FilePath sysRoot;
     QString serverInitCommands;
     QString serverResetCommands;
@@ -144,7 +141,6 @@ bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) c
         && runnable.workingDirectory == rhs.runnable.workingDirectory
         && breakAtMain == rhs.breakAtMain
         && runInTerminal == rhs.runInTerminal
-        && serverStartScript == rhs.serverStartScript
         && sysRoot == rhs.sysRoot
         && serverInitCommands == rhs.serverInitCommands
         && serverResetCommands == rhs.serverResetCommands
@@ -184,7 +180,6 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
     settings->setValue("LastExternalRunInTerminal", runInTerminal);
     settings->setValue("LastExternalUseTargetExtended", useTargetExtendedRemote);
-    settings->setValue("LastServerStartScript", serverStartScript.toVariant());
     settings->setValue("LastServerInitCommands", serverInitCommands);
     settings->setValue("LastServerResetCommands", serverResetCommands);
     settings->setValue("LastDebugInfoLocation", debugInfoLocation);
@@ -202,7 +197,6 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
     runInTerminal = settings->value("LastExternalRunInTerminal").toBool();
     useTargetExtendedRemote = settings->value("LastExternalUseTargetExtended").toBool();
-    serverStartScript = FilePath::fromVariant(settings->value("LastServerStartScript"));
     serverInitCommands = settings->value("LastServerInitCommands").toString();
     serverResetCommands = settings->value("LastServerResetCommands").toString();
     debugInfoLocation = settings->value("LastDebugInfoLocation").toString();
@@ -259,17 +253,6 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->breakAtMainCheckBox->setText(QString());
 
     d->useTargetExtendedRemoteCheckBox = new QCheckBox(this);
-
-    d->serverStartScriptPathChooser = new PathChooser(this);
-    d->serverStartScriptPathChooser->setExpectedKind(PathChooser::File);
-    d->serverStartScriptPathChooser->setPromptDialogTitle(tr("Select Server Start Script"));
-    d->serverStartScriptPathChooser->setToolTip(tr(
-        "This option can be used to point to a script that will be used "
-        "to start a debug server. If the field is empty, "
-        "default methods to set up debug servers will be used."));
-    d->serverStartScriptLabel = new QLabel(tr("&Server start script:"), this);
-    d->serverStartScriptLabel->setBuddy(d->serverStartScriptPathChooser);
-    d->serverStartScriptLabel->setToolTip(d->serverStartScriptPathChooser->toolTip());
 
     d->sysRootPathChooser = new PathChooser(this);
     d->sysRootPathChooser->setExpectedKind(PathChooser::Directory);
@@ -328,7 +311,6 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("Run in &terminal:"), d->runInTerminalCheckBox);
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
     formLayout->addRow(tr("Use target extended-remote to connect:"), d->useTargetExtendedRemoteCheckBox);
-    formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
     formLayout->addRow(d->sysRootLabel, d->sysRootPathChooser);
     formLayout->addRow(d->serverInitCommandsLabel, d->serverInitCommandsTextEdit);
     formLayout->addRow(d->serverResetCommandsLabel, d->serverResetCommandsTextEdit);
@@ -418,8 +400,6 @@ void StartApplicationDialog::run(bool attachRemote)
     dialog.setHistory(history);
     dialog.setParameters(history.back());
     if (!attachRemote) {
-        dialog.d->serverStartScriptPathChooser->setVisible(false);
-        dialog.d->serverStartScriptLabel->setVisible(false);
         dialog.d->serverInitCommandsTextEdit->setVisible(false);
         dialog.d->serverInitCommandsLabel->setVisible(false);
         dialog.d->serverResetCommandsTextEdit->setVisible(false);
@@ -465,7 +445,6 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setBreakOnMain(newParameters.breakAtMain);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
     debugger->setInferior(inferior);
-    debugger->setServerStartScript(newParameters.serverStartScript); // Note: This requires inferior.
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
     debugger->setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
@@ -505,7 +484,6 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.serverPort = d->serverPortSpinBox->value();
     result.serverAddress = d->channelOverrideEdit->text();
     result.runnable.executable = d->localExecutablePathChooser->filePath();
-    result.serverStartScript = d->serverStartScriptPathChooser->filePath();
     result.sysRoot = d->sysRootPathChooser->filePath();
     result.serverInitCommands = d->serverInitCommandsTextEdit->toPlainText();
     result.serverResetCommands = d->serverResetCommandsTextEdit->toPlainText();
@@ -525,7 +503,6 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->serverPortSpinBox->setValue(p.serverPort);
     d->channelOverrideEdit->setText(p.serverAddress);
     d->localExecutablePathChooser->setFilePath(p.runnable.executable);
-    d->serverStartScriptPathChooser->setFilePath(p.serverStartScript);
     d->sysRootPathChooser->setFilePath(p.sysRoot);
     d->serverInitCommandsTextEdit->setPlainText(p.serverInitCommands);
     d->serverResetCommandsTextEdit->setPlainText(p.serverResetCommands);

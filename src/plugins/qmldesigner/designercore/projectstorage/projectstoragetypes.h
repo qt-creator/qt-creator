@@ -589,7 +589,7 @@ public:
     friend bool operator==(const ImportView &first, const ImportView &second)
     {
         return first.name == second.name
-               && first.version == second.version & first.sourceId == second.sourceId;
+               && first.version == second.version && first.sourceId == second.sourceId;
     }
 
 public:

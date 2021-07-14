@@ -1195,7 +1195,7 @@ void Client::sendPostponedDocumentUpdates()
         emit documentUpdated(update.document);
 
         if (currentWidget && currentWidget->textDocument() == update.document)
-            cursorPositionChanged(currentWidget);
+            requestDocumentHighlights(currentWidget);
 
         m_tokentSupport.updateSemanticTokens(update.document);
     }

@@ -162,6 +162,7 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
         const IDevice::Ptr &device)
 {
     Q_UNUSED(alreadyKnown)
+    Q_UNUSED(device)
 
     const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))

@@ -186,7 +186,7 @@ QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
 {
     QTC_CHECK(!filePath.needsDevice());
     const QDir dir(filePath.path());
-    const QFileInfoList entryInfoList = dir.entryInfoList(nameFilters, filters);
+    const QFileInfoList entryInfoList = dir.entryInfoList(nameFilters, filters, sort);
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
 }
 
@@ -223,6 +223,18 @@ bool DesktopDevice::isWritableDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     return filePath.isWritableDir();
+}
+
+bool DesktopDevice::isFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isFile();
+}
+
+bool DesktopDevice::isDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return filePath.isDir();
 }
 
 bool DesktopDevice::createDirectory(const FilePath &filePath) const

@@ -32,9 +32,12 @@
 #include "taskhub.h"
 #include "taskmodel.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 
@@ -311,6 +314,10 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
     d->m_listview = new Internal::TaskView;
+
+    auto agg = new Aggregation::Aggregate;
+    agg->add(d->m_listview);
+    agg->add(new Core::ItemViewFind(d->m_listview, TaskModel::Description));
 
     d->m_listview->setModel(d->m_filter);
     d->m_listview->setFrameStyle(QFrame::NoFrame);

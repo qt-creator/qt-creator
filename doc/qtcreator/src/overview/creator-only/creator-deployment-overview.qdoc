@@ -49,18 +49,25 @@
             When you deploy the application to an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
+
+        \li \l {Deploying Applications to Boot2Qt Devices}
+
+            When you deploy the application to a Boot2Qt device, \QC copies
+            the application files to the connected device. You can then test
+            and debug the application on the device with \QC.
+
         \li \l{Deploying Applications to Generic Remote Linux Devices}
 
             When you deploy the application to a generic Linux-based device, \QC
-            copies the application files to the connected device. You can test
-            and debug the application on the device.
+            copies the application files to the connected device. You can then
+            test and debug the application on the device with \QC.
 
         \if defined(qtcreator)
         \li  \l{Deploying Applications to QNX Neutrino Devices}
 
             When you deploy the application to a QNX Neutrino device, \QC copies
-            the application files to the connected device. You can test and
-            debug the application on the device.
+            the application files to the connected device. You can then test and
+            debug the application on the device with \QC.
         \endif
 
     \endlist

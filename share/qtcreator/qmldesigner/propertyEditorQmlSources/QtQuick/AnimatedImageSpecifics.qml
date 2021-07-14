@@ -46,7 +46,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Speed")
-                disabledState: !backendValues.speed.isAvailable
+                blockedByTemplate: !backendValues.speed.isAvailable
             }
 
             SecondColumnLayout {
@@ -70,7 +70,7 @@ Column {
             PropertyLabel {
                 text: qsTr("Playing")
                 tooltip: qsTr("Whether the animation is playing or paused.")
-                disabledState: !backendValues.playing.isAvailable && !backendValues.paused.isAvailable
+                blockedByTemplate: !backendValues.playing.isAvailable && !backendValues.paused.isAvailable
             }
 
             SecondColumnLayout {

@@ -51,18 +51,16 @@ public:
     explicit MessageId(const QString &id) : variant(id) {}
     explicit MessageId(const QJsonValue &value)
     {
-        if (value.isUndefined())
-            return;
-        QTC_CHECK(value.isDouble() || value.isString());
         if (value.isDouble())
             *this = MessageId(value.toInt());
         else if (value.isString())
             *this = MessageId(value.toString());
+        else
+            m_valid = false;
     }
 
     operator QJsonValue() const
     {
-        QTC_CHECK(Utils::holds_alternative<int>(*this) || Utils::holds_alternative<QString>(*this));
         if (auto id = Utils::get_if<int>(this))
             return *id;
         if (auto id = Utils::get_if<QString>(this))
@@ -70,7 +68,7 @@ public:
         return QJsonValue();
     }
 
-    bool isValid() const { return true; }
+    bool isValid() const { return m_valid; }
 
     QString toString() const
     {
@@ -80,6 +78,9 @@ public:
             return QString::number(*id);
         return {};
     }
+
+private:
+    bool m_valid = true;
 };
 
 struct ResponseHandler

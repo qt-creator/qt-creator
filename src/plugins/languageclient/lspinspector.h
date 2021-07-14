@@ -37,11 +37,26 @@
 
 namespace LanguageClient {
 
-struct LspLogMessage
+class LspLogMessage
 {
+public:
     enum MessageSender { ClientMessage, ServerMessage } sender;
+
+    LspLogMessage();
+    LspLogMessage(MessageSender sender,
+                  const QTime &time,
+                  const LanguageServerProtocol::BaseMessage &message);
     QTime time;
     LanguageServerProtocol::BaseMessage message;
+
+    LanguageServerProtocol::MessageId id() const;
+    QString displayText() const;
+    QJsonObject &json() const;
+
+private:
+    mutable Utils::optional<LanguageServerProtocol::MessageId> m_id;
+    mutable Utils::optional<QString> m_displayText;
+    mutable Utils::optional<QJsonObject> m_json;
 };
 
 struct Capabilities

@@ -66,7 +66,7 @@ Section {
         PropertyLabel {
             text: qsTr("Display")
             tooltip: qsTr("Determines how the icon and text are displayed within the button.")
-            disabledState: !backendValues.display.isAvailable
+            blockedByTemplate: !backendValues.display.isAvailable
         }
 
         SecondColumnLayout {
@@ -118,7 +118,7 @@ Section {
         PropertyLabel {
             text: qsTr("Exclusive")
             tooltip: qsTr("Whether the button is exclusive.")
-            disabledState: !backendValues.autoExclusive.isAvailable
+            blockedByTemplate: !backendValues.autoExclusive.isAvailable
         }
 
         SecondColumnLayout {

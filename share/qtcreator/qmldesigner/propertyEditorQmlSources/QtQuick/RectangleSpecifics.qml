@@ -58,7 +58,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Border width")
-                disabledState: !backendValues.border_width.isAvailable
+                blockedByTemplate: !backendValues.border_width.isAvailable
             }
 
             SecondColumnLayout {

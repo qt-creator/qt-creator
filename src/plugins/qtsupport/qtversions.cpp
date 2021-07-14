@@ -62,8 +62,8 @@ QStringList DesktopQtVersion::warningReason() const
 {
     QStringList ret = BaseQtVersion::warningReason();
     if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
-        if (qmlsceneCommand().isEmpty())
-            ret << QCoreApplication::translate("QtVersion", "No qmlscene installed.");
+        if (qmlRuntimeFilePath().isEmpty())
+            ret << QCoreApplication::translate("QtVersion", "No QML utility installed.");
     }
     return ret;
 }

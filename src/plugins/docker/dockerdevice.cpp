@@ -299,6 +299,7 @@ public:
 
     void tryCreateLocalFileAccess();
 
+    void stopCurrentContainer();
     void fetchSystemEnviroment();
 
     DockerDevice *q;
@@ -351,9 +352,10 @@ public:
         m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
             "mapped one-to-one into the Docker container."));
         m_pathsLineEdit->setText(data.mounts.join(';'));
+        m_pathsLineEdit->setPlaceholderText(tr("List project source directories here"));
 
-        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [&data](const QString &text) {
-            data.mounts = text.split(';');
+        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
+            dockerDevice->setMounts(text.split(';', Qt::SkipEmptyParts));
         });
 
         auto logView = new QTextBrowser;
@@ -508,7 +510,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
             continue;
         qtVersions.append(qtVersion);
         QtVersionManager::addVersion(qtVersion);
-        emit q->logOutput(tr("Found Qt: %1").arg(qtVersion->qmakeCommand().toUserOutput()));
+        emit q->logOutput(tr("Found Qt: %1").arg(qtVersion->qmakeFilePath().toUserOutput()));
     }
     if (qtVersions.isEmpty())
         emit q->logOutput(tr("No Qt installation found."));
@@ -543,19 +545,15 @@ void KitDetectorPrivate::autoDetectCMake()
         return;
 
     emit q->logOutput('\n' + tr("Searching CMake binary..."));
+    const FilePath deviceRoot = m_device->mapToGlobalPath({});
     QString error;
-    const QStringList candidates = {"cmake"};
-    for (const QString &candidate : candidates) {
-        const FilePath cmake = m_device->searchExecutableInPath(candidate);
-        if (!cmake.isEmpty()) {
-            emit q->logOutput(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
-            const bool res = QMetaObject::invokeMethod(cmakeManager,
-                                                       "registerCMakeByPath",
-                                                       Q_ARG(Utils::FilePath, cmake),
-                                                       Q_ARG(QString, m_sharedId));
-            QTC_CHECK(res);
-        }
-    }
+    const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                               "autoDetectCMakeForDevice",
+                                               Q_ARG(Utils::FilePath, deviceRoot),
+                                               Q_ARG(QString, m_sharedId),
+                                               Q_ARG(QString *, &error));
+    QTC_CHECK(res);
+    emit q->logOutput(error);
 }
 
 void KitDetectorPrivate::autoDetectDebugger()
@@ -568,7 +566,8 @@ void KitDetectorPrivate::autoDetectDebugger()
     const FilePath deviceRoot = m_device->mapToGlobalPath({});
     const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                "autoDetectDebuggersForDevice",
-                                               Q_ARG(Utils::FilePath, deviceRoot));
+                                               Q_ARG(Utils::FilePath, deviceRoot),
+                                               Q_ARG(QString, m_sharedId));
     QTC_CHECK(res);
 }
 
@@ -615,6 +614,20 @@ void DockerDevice::tryCreateLocalFileAccess() const
     d->tryCreateLocalFileAccess();
 }
 
+void DockerDevicePrivate::stopCurrentContainer()
+{
+    if (m_container.isEmpty())
+        return;
+
+    QtcProcess proc;
+    proc.setCommand({"docker", {"container", "stop", m_container}});
+
+    m_container.clear();
+    m_mergedDir.clear();
+
+    proc.runBlocking();
+}
+
 void DockerDevicePrivate::tryCreateLocalFileAccess()
 {
     if (!m_container.isEmpty())
@@ -639,8 +652,10 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
-    for (const QString &mount : qAsConst(m_data.mounts))
-        dockerRun.addArgs({"-v", mount + ':' + mount});
+    for (const QString &mount : qAsConst(m_data.mounts)) {
+        if (!mount.isEmpty())
+            dockerRun.addArgs({"-v", mount + ':' + mount});
+    }
 
     dockerRun.addArg(m_data.imageId);
     dockerRun.addArg("/bin/sh");
@@ -708,6 +723,12 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
 bool DockerDevice::hasLocalFileAccess() const
 {
     return !d->m_mergedDir.isEmpty();
+}
+
+void DockerDevice::setMounts(const QStringList &mounts) const
+{
+    d->m_data.mounts = mounts;
+    d->stopCurrentContainer(); // Force re-start with new mounts.
 }
 
 FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
@@ -897,6 +918,38 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
     }
     const QString path = filePath.path();
     const CommandLine cmd("test", {"-w", path, "-a", "-d", path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::isFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isFile();
+        LOG("IsFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("test", {"-f", path});
+    const int exitCode = d->runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::isDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isDir();
+        LOG("IsDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.path();
+    const CommandLine cmd("test", {"-d", path});
     const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }

@@ -185,7 +185,7 @@ void GenerateResource::generateMenuEntry()
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
-        FilePath rccBinary = qtVersion->rccCommand();
+        FilePath rccBinary = qtVersion->rccFilePath();
 
         Utils::QtcProcess rccProcess;
         rccProcess.setWorkingDirectory(projectPath);
@@ -362,7 +362,7 @@ void GenerateResource::generateMenuEntry()
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
-        FilePath rccBinary = qtVersion->rccCommand();
+        FilePath rccBinary = qtVersion->rccFilePath();
 
         QtcProcess rccProcess;
         rccProcess.setWorkingDirectory(projectPath);

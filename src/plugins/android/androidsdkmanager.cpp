@@ -84,6 +84,8 @@ int platformNameToApiLevel(const QString &platformName)
                 apiLevel = 29;
             else if (apiLevelStr == 'R')
                 apiLevel = 30;
+            else if (apiLevelStr == 'S')
+                apiLevel = 31;
         }
     }
     return apiLevel;

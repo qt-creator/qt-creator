@@ -1403,8 +1403,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
     QFETCH(QStringList, abis);
 
     const Utils::FilePath fp = Utils::FilePath::fromString(file);
-    if (!fp.exists())
+    const QString dataTag = QString::fromLocal8Bit(QTest::currentDataTag());
+    if (!fp.exists() && dataTag != "no file" && dataTag != "non existing file")
         QSKIP("binary file not present");
+
     const Abis result = Abi::abisOfBinary(fp);
     QCOMPARE(result.count(), abis.count());
     for (int i = 0; i < abis.count(); ++i)

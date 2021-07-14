@@ -1751,15 +1751,15 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
 
     emit m_instance->editorsClosed(Utils::toList(acceptedEditors));
 
-    foreach (IEditor *editor, acceptedEditors)
-        delete editor;
-
     if (focusView) {
         activateView(focusView);
     } else {
         setCurrentView(currentView);
         setCurrentEditor(currentView->currentEditor());
     }
+
+    foreach (IEditor *editor, acceptedEditors)
+        delete editor;
 
     if (!EditorManager::currentEditor()) {
         emit m_instance->currentEditorChanged(nullptr);

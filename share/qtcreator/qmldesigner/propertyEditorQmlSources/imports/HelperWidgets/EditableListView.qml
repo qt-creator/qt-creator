@@ -188,46 +188,29 @@ Item {
 
             ListViewComboBox {
                 id: dummyComboBox
-
-                //property int myIndex: index
-                //property bool empty: dummyComboBox.initialModelData === ""
-
                 visible: myRepeater.count === 0
-
                 validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
-
                 actionIndicatorVisible: false
                 typeFilter: editableListView.typeFilter
-                //editText: modelData
-                //initialModelData: modelData
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: implicitWidth
 
                 onFocusChanged: {
-                    //if (itemFilterComboBox.focus)
-                    //    myColumn.currentIndex = index
-
-                    if (/*dummyComboBox.empty && */dummyComboBox.editText !== "") {
-                        //myRepeater.dirty = false
+                    if (dummyComboBox.editText !== "")
                         editableListView.add(dummyComboBox.editText)
-                    }
                 }
 
                 onCompressedActivated: {
                     editableListView.activatedReason = reason
 
-                    if (/*dummyComboBox.empty && */dummyComboBox.editText !== "") {
-                        //myRepeater.dirty = false
+                    if (dummyComboBox.editText !== "")
                         editableListView.add(dummyComboBox.editText)
-                    } else {
+                    else
                         editableListView.replace(dummyComboBox.myIndex, dummyComboBox.editText)
-                    }
                 }
 
                 onHoverChanged: editableListView.delegateHover = dummyComboBox.hover
             }
-
-
 
             StudioControls.AbstractButton {
                 id: plusButton
@@ -241,6 +224,7 @@ Item {
                     myColumn.currentIndex = idx
                     myColumn.currentItem.forceActiveFocus()
                 }
+
                 onHoveredChanged: editableListView.delegateHover = plusButton.hovered
             }
         }
