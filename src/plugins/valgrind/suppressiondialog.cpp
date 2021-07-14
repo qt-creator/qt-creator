@@ -210,7 +210,7 @@ void SuppressionDialog::accept()
     if (!ProjectExplorer::SessionManager::projectForFile(path)) {
         for (ProjectExplorer::Project *p : ProjectExplorer::SessionManager::projects()) {
             if (path.startsWith(p->projectDirectory().toString())) {
-                p->rootProjectNode()->addFiles({path.toString()});
+                p->rootProjectNode()->addFiles({path});
                 break;
             }
         }

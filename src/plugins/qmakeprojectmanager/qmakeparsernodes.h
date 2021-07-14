@@ -162,9 +162,9 @@ public:
     bool addSubProject(const QString &proFile);
     bool removeSubProjects(const QString &proFilePath);
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr);
-    bool deleteFiles(const QStringList &filePaths);
+    bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded = nullptr);
+    bool removeFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notRemoved = nullptr);
+    bool deleteFiles(const Utils::FilePaths &filePaths);
     bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
     bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
     bool addDependencies(const QStringList &dependencies);
@@ -205,8 +205,8 @@ protected:
     enum class Change { Save, TestOnly };
     bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath, Change mode);
     void changeFiles(const QString &mimeType,
-                     const QStringList &filePaths,
-                     QStringList *notChanged,
+                     const Utils::FilePaths &filePaths,
+                     Utils::FilePaths *notChanged,
                      ChangeType change,
                      Change mode = Change::Save);
 
@@ -221,7 +221,7 @@ private:
     static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);
     void save(const QStringList &lines);
     bool saveModifiedEditors();
-    QStringList formResources(const QString &formFile) const;
+    Utils::FilePaths formResources(const Utils::FilePath &formFile) const;
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);
     static QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir);
     static void extractSources(QHash<int, Internal::QmakePriFileEvalResult *> proToResult,

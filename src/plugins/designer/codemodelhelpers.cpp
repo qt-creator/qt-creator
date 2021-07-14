@@ -39,6 +39,7 @@
 // Debug helpers for code model. @todo: Move to some CppTools library?
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 using DependencyMap = QMap<QString, QStringList>;
 using DocumentPtr = CPlusPlus::Document::Ptr;
@@ -48,19 +49,18 @@ using DocumentPtrList = QList<DocumentPtr>;
 static const char setupUiC[] = "setupUi";
 
 // Find the generated "ui_form.h" header of the form via project.
-static QString generatedHeaderOf(const QString &uiFileName)
+static FilePath generatedHeaderOf(const FilePath &uiFileName)
 {
-    if (const Project *uiProject =
-            SessionManager::projectForFile(Utils::FilePath::fromString(uiFileName))) {
+    if (const Project *uiProject = SessionManager::projectForFile(uiFileName)) {
         if (Target *t = uiProject->activeTarget()) {
             if (BuildSystem *bs = t->buildSystem()) {
-                QStringList files = bs->filesGeneratedFrom(uiFileName);
+                FilePaths files = bs->filesGeneratedFrom(uiFileName);
                 if (!files.isEmpty()) // There should be at most one header generated from a .ui
                     return files.front();
             }
         }
     }
-    return QString();
+    return {};
 }
 
 namespace {
@@ -121,7 +121,7 @@ bool navigateToSlot(const QString &uiFileName,
 {
 
     // Find the generated header.
-    const QString generatedHeaderFile = generatedHeaderOf(uiFileName);
+    const FilePath generatedHeaderFile = generatedHeaderOf(FilePath::fromString(uiFileName));
     if (generatedHeaderFile.isEmpty()) {
         *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
@@ -129,7 +129,7 @@ bool navigateToSlot(const QString &uiFileName,
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);
+        *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile.toUserOutput());
         return false;
     }
 
@@ -139,7 +139,7 @@ bool navigateToSlot(const QString &uiFileName,
     if (funcs.size() != 1) {
         *errorMessage = QString::fromLatin1(
                             "Internal error: The function \"%1\" could not be found in %2")
-                            .arg(QLatin1String(setupUiC), generatedHeaderFile);
+                            .arg(QLatin1String(setupUiC), generatedHeaderFile.toUserOutput());
         return false;
     }
     return true;

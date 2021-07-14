@@ -298,10 +298,10 @@ public:
 
     bool supportsAction(ProjectAction action, const Node *node) const override;
 
-    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
-    virtual RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                                QStringList *notRemoved = nullptr);
-    virtual bool deleteFiles(const QStringList &filePaths);
+    virtual bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded = nullptr);
+    virtual RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
+                                                Utils::FilePaths *notRemoved = nullptr);
+    virtual bool deleteFiles(const Utils::FilePaths &filePaths);
     virtual bool canRenameFile(const Utils::FilePath &oldFilePath,
                                const Utils::FilePath &newFilePath);
     virtual bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
@@ -382,10 +382,10 @@ public:
     bool isProjectNodeType() const override { return true; }
     bool showInSimpleTree() const override { return true; }
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) final;
-    RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                        QStringList *notRemoved = nullptr) final;
-    bool deleteFiles(const QStringList &filePaths) final;
+    bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded = nullptr) final;
+    RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
+                                        Utils::FilePaths *notRemoved = nullptr) final;
+    bool deleteFiles(const Utils::FilePaths &filePaths) final;
     bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
     bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
     bool addDependencies(const QStringList &dependencies) final;

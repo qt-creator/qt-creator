@@ -163,7 +163,7 @@ public:
     static QList<QPair<Runnable, Utils::ProcessHandle>> runningRunControlProcesses();
     static QList<RunControl *> allRunControls();
 
-    static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
+    static void addExistingFiles(FolderNode *folderNode, const Utils::FilePaths &filePaths);
 
     static void initiateInlineRenaming();
 

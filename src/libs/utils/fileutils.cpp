@@ -1433,6 +1433,27 @@ Environment FilePath::deviceEnvironment() const
     return Environment::systemEnvironment();
 }
 
+QString FilePath::formatFilePaths(const QList<FilePath> &files, const QString &separator)
+{
+    const QStringList nativeFiles = Utils::transform(files, &FilePath::toUserOutput);
+    return nativeFiles.join(separator);
+}
+
+void FilePath::removeDuplicates(QList<FilePath> &files)
+{
+    // FIXME: Improve.
+    QStringList list = Utils::transform<QStringList>(files, &FilePath::toString);
+    list.removeDuplicates();
+    files = Utils::transform(list, &FilePath::fromString);
+}
+
+void FilePath::sort(QList<FilePath> &files)
+{
+    // FIXME: Improve.
+    QStringList list = Utils::transform<QStringList>(files, &FilePath::toString);
+    list.sort();
+    files = Utils::transform(list, &FilePath::fromString);
+}
 
 FilePath FilePath::pathAppended(const QString &path) const
 {
@@ -1590,9 +1611,9 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
     return true;
 }
 
-QStringList FileUtils::CopyAskingForOverwrite::files() const
+FilePaths FileUtils::CopyAskingForOverwrite::files() const
 {
-    return m_files;
+    return transform(m_files, &FilePath::fromString);
 }
 #endif // QT_GUI_LIB
 

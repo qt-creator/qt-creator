@@ -45,6 +45,7 @@
 #include <QMessageBox>
 
 using namespace Core;
+using namespace Utils;
 
 static char KEY_SELECTED_PROJECT[] = "SelectedProject";
 static char KEY_SELECTED_NODE[] = "SelectedFolderNode";
@@ -198,15 +199,14 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
         }
         m_wizard->removeAttributeFromAllFiles(GeneratedFile::OpenProjectAttribute);
     } else {
-        QStringList filePaths = Utils::transform(files, [](const JsonWizard::GeneratorFile &f) {
-            return f.file.path();
+        FilePaths filePaths = Utils::transform(files, [](const JsonWizard::GeneratorFile &f) {
+            return f.file.filePath();
         });
         if (!folder->addFiles(filePaths)) {
-            QStringList nativeFilePaths = Utils::transform(filePaths, &QDir::toNativeSeparators);
             QMessageBox::critical(wizard(), tr("Failed to Add to Project"),
                                   tr("Failed to add one or more files to project\n\"%1\" (%2).")
                                   .arg(folder->filePath().toUserOutput(),
-                                       nativeFilePaths.join(QLatin1String(", "))));
+                                       FilePath::formatFilePaths(filePaths, ", ")));
             return;
         }
         const QStringList dependencies = m_wizard->stringValue("Dependencies")

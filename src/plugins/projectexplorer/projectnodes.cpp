@@ -54,6 +54,8 @@
 
 #include <memory>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 QHash<QString, QIcon> DirectoryIcon::m_cache;
@@ -741,7 +743,7 @@ bool FolderNode::supportsAction(ProjectAction action, const Node *node) const
     return parentFolder && parentFolder->supportsAction(action, node);
 }
 
-bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool FolderNode::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 {
     ProjectNode *pn = managingProject();
     if (pn)
@@ -749,15 +751,14 @@ bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
     return false;
 }
 
-RemovedFilesFromProject FolderNode::removeFiles(const QStringList &filePaths,
-                                                QStringList *notRemoved)
+RemovedFilesFromProject FolderNode::removeFiles(const FilePaths &filePaths, FilePaths *notRemoved)
 {
     if (ProjectNode * const pn = managingProject())
         return pn->removeFiles(filePaths, notRemoved);
     return RemovedFilesFromProject::Error;
 }
 
-bool FolderNode::deleteFiles(const QStringList &filePaths)
+bool FolderNode::deleteFiles(const FilePaths &filePaths)
 {
     ProjectNode *pn = managingProject();
     if (pn)
@@ -885,22 +886,21 @@ bool ProjectNode::removeSubProject(const QString &proFilePath)
     return false;
 }
 
-bool ProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool ProjectNode::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (BuildSystem *bs = buildSystem())
         return bs->addFiles(this, filePaths, notAdded);
     return false;
 }
 
-RemovedFilesFromProject ProjectNode::removeFiles(const QStringList &filePaths,
-                                                 QStringList *notRemoved)
+RemovedFilesFromProject ProjectNode::removeFiles(const FilePaths &filePaths, FilePaths *notRemoved)
 {
     if (BuildSystem *bs = buildSystem())
         return bs->removeFiles(this, filePaths, notRemoved);
     return RemovedFilesFromProject::Error;
 }
 
-bool ProjectNode::deleteFiles(const QStringList &filePaths)
+bool ProjectNode::deleteFiles(const FilePaths &filePaths)
 {
     if (BuildSystem *bs = buildSystem())
         return bs->deleteFiles(this, filePaths);

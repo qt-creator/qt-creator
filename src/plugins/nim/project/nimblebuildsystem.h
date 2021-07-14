@@ -75,11 +75,11 @@ private:
                         ProjectExplorer::ProjectAction action,
                         const ProjectExplorer::Node *node) const override;
     bool addFiles(ProjectExplorer::Node *node,
-                  const QStringList &filePaths, QStringList *) override;
+                  const Utils::FilePaths &filePaths, Utils::FilePaths *) override;
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *node,
-                                                         const QStringList &filePaths,
-                                                         QStringList *) override;
-    bool deleteFiles(ProjectExplorer::Node *, const QStringList &) override;
+                                                         const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *) override;
+    bool deleteFiles(ProjectExplorer::Node *, const Utils::FilePaths &) override;
     bool renameFile(ProjectExplorer::Node *,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
 

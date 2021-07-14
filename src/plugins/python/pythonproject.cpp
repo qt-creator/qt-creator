@@ -63,9 +63,9 @@ public:
     explicit PythonBuildSystem(Target *target);
 
     bool supportsAction(Node *context, ProjectAction action, const Node *node) const override;
-    bool addFiles(Node *, const QStringList &filePaths, QStringList *) override;
-    RemovedFilesFromProject removeFiles(Node *, const QStringList &filePaths, QStringList *) override;
-    bool deleteFiles(Node *, const QStringList &) override;
+    bool addFiles(Node *, const Utils::FilePaths &filePaths, Utils::FilePaths *) override;
+    RemovedFilesFromProject removeFiles(Node *, const Utils::FilePaths &filePaths, Utils::FilePaths *) override;
+    bool deleteFiles(Node *, const Utils::FilePaths &) override;
     bool renameFile(Node *,
                     const Utils::FilePath &oldFilePath,
                     const Utils::FilePath &newFilePath) override;
@@ -349,23 +349,23 @@ bool PythonBuildSystem::writePyProjectFile(const QString &fileName, QString &con
     return true;
 }
 
-bool PythonBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *)
+bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
     QStringList newList = m_rawFileList;
 
     const QDir baseDir(projectDirectory().toString());
-    for (const QString &filePath : filePaths)
-        newList.append(baseDir.relativeFilePath(filePath));
+    for (const FilePath &filePath : filePaths)
+        newList.append(baseDir.relativeFilePath(filePath.toString()));
 
     return saveRawFileList(newList);
 }
 
-RemovedFilesFromProject PythonBuildSystem::removeFiles(Node *, const QStringList &filePaths, QStringList *)
+RemovedFilesFromProject PythonBuildSystem::removeFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
     QStringList newList = m_rawFileList;
 
-    for (const QString &filePath : filePaths) {
-        const QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+    for (const FilePath &filePath : filePaths) {
+        const QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toString());
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
     }
@@ -375,7 +375,7 @@ RemovedFilesFromProject PythonBuildSystem::removeFiles(Node *, const QStringList
     return res ? RemovedFilesFromProject::Ok : RemovedFilesFromProject::Error;
 }
 
-bool PythonBuildSystem::deleteFiles(Node *, const QStringList &)
+bool PythonBuildSystem::deleteFiles(Node *, const FilePaths &)
 {
     return true;
 }

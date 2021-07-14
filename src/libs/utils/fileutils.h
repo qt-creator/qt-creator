@@ -223,6 +223,10 @@ public:
     FilePath searchOnDevice(const QList<FilePath> &dirs) const;
     Environment deviceEnvironment() const;
 
+    static QString formatFilePaths(const QList<FilePath> &files, const QString &separator);
+    static void removeDuplicates(QList<FilePath> &files);
+    static void sort(QList<FilePath> &files);
+
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
@@ -245,7 +249,7 @@ public:
         CopyAskingForOverwrite(QWidget *dialogParent,
                                const std::function<void(QFileInfo)> &postOperation = {});
         bool operator()(const QFileInfo &src, const QFileInfo &dest, QString *error);
-        QStringList files() const;
+        QList<FilePath> files() const;
 
     private:
         QWidget *m_parent;

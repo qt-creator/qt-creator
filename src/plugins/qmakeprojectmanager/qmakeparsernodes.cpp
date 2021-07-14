@@ -505,25 +505,25 @@ bool QmakePriFile::canAddSubProject(const QString &proFilePath) const
     return false;
 }
 
-static QString simplifyProFilePath(const QString &proFilePath)
+static FilePath simplifyProFilePath(const FilePath &proFilePath)
 {
     // if proFilePath is like: _path_/projectName/projectName.pro
     // we simplify it to: _path_/projectName
-    QFileInfo fi(proFilePath);
+    QFileInfo fi = proFilePath.toFileInfo(); // FIXME
     const QString parentPath = fi.absolutePath();
     QFileInfo parentFi(parentPath);
     if (parentFi.fileName() == fi.completeBaseName())
-        return parentPath;
+        return FilePath::fromString(parentPath);
     return proFilePath;
 }
 
 bool QmakePriFile::addSubProject(const QString &proFile)
 {
-    QStringList uniqueProFilePaths;
+    FilePaths uniqueProFilePaths;
     if (!m_recursiveEnumerateFiles.contains(FilePath::fromString(proFile)))
-        uniqueProFilePaths.append(simplifyProFilePath(proFile));
+        uniqueProFilePaths.append(simplifyProFilePath(FilePath::fromString(proFile)));
 
-    QStringList failedFiles;
+    FilePaths failedFiles;
     changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), uniqueProFilePaths, &failedFiles, AddToProFile);
 
     return failedFiles.isEmpty();
@@ -531,57 +531,57 @@ bool QmakePriFile::addSubProject(const QString &proFile)
 
 bool QmakePriFile::removeSubProjects(const QString &proFilePath)
 {
-    QStringList failedOriginalFiles;
-    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), QStringList(proFilePath), &failedOriginalFiles, RemoveFromProFile);
+    FilePaths failedOriginalFiles;
+    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), {FilePath::fromString(proFilePath)}, &failedOriginalFiles, RemoveFromProFile);
 
-    QStringList simplifiedProFiles = Utils::transform(failedOriginalFiles, &simplifyProFilePath);
+    FilePaths simplifiedProFiles = Utils::transform(failedOriginalFiles, &simplifyProFilePath);
 
-    QStringList failedSimplifiedFiles;
+    FilePaths failedSimplifiedFiles;
     changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);
 
     return failedSimplifiedFiles.isEmpty();
 }
 
-bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 {
     // If a file is already referenced in the .pro file then we don't add them.
     // That ignores scopes and which variable was used to reference the file
     // So it's obviously a bit limited, but in those cases you need to edit the
     // project files manually anyway.
 
-    using TypeFileMap = QMap<QString, QStringList>;
+    using TypeFileMap = QMap<QString, FilePaths>;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    foreach (const QString &file, filePaths) {
+    for (const FilePath &file : filePaths) {
         const Utils::MimeType mt = Utils::mimeTypeForFile(file);
         typeFileMap[mt.name()] << file;
     }
 
-    QStringList failedFiles;
+    FilePaths failedFiles;
     foreach (const QString &type, typeFileMap.keys()) {
-        const QStringList typeFiles = typeFileMap.value(type);
-        QStringList qrcFiles; // the list of qrc files referenced from ui files
+        const FilePaths typeFiles = typeFileMap.value(type);
+        FilePaths qrcFiles; // the list of qrc files referenced from ui files
         if (type == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
-            foreach (const QString &formFile, typeFiles) {
-                QStringList resourceFiles = formResources(formFile);
-                foreach (const QString &resourceFile, resourceFiles)
+            for (const FilePath &formFile : typeFiles) {
+                const FilePaths resourceFiles = formResources(formFile);
+                for (const FilePath &resourceFile : resourceFiles)
                     if (!qrcFiles.contains(resourceFile))
                         qrcFiles.append(resourceFile);
             }
         }
 
-        QStringList uniqueQrcFiles;
-        foreach (const QString &file, qrcFiles) {
-            if (!m_recursiveEnumerateFiles.contains(FilePath::fromString(file)))
+        FilePaths uniqueQrcFiles;
+        for (const FilePath &file : qAsConst(qrcFiles)) {
+            if (!m_recursiveEnumerateFiles.contains(file))
                 uniqueQrcFiles.append(file);
         }
 
-        QStringList uniqueFilePaths;
-        foreach (const QString &file, typeFiles) {
-            if (!m_recursiveEnumerateFiles.contains(FilePath::fromString(file)))
+        FilePaths uniqueFilePaths;
+        for (const FilePath &file : typeFiles) {
+            if (!m_recursiveEnumerateFiles.contains(file))
                 uniqueFilePaths.append(file);
         }
-        uniqueFilePaths.sort();
+        FilePath::sort(uniqueFilePaths);
 
         changeFiles(type, uniqueFilePaths, &failedFiles, AddToProFile);
         if (notAdded)
@@ -593,19 +593,18 @@ bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
     return failedFiles.isEmpty();
 }
 
-bool QmakePriFile::removeFiles(const QStringList &filePaths,
-                              QStringList *notRemoved)
+bool QmakePriFile::removeFiles(const FilePaths &filePaths, FilePaths *notRemoved)
 {
-    QStringList failedFiles;
-    using TypeFileMap = QMap<QString, QStringList>;
+    FilePaths failedFiles;
+    using TypeFileMap = QMap<QString, FilePaths>;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    foreach (const QString &file, filePaths) {
+    for (const FilePath &file : filePaths) {
         const Utils::MimeType mt = Utils::mimeTypeForFile(file);
         typeFileMap[mt.name()] << file;
     }
     foreach (const QString &type, typeFileMap.keys()) {
-        const QStringList typeFiles = typeFileMap.value(type);
+        const FilePaths typeFiles = typeFileMap.value(type);
         changeFiles(type, typeFiles, &failedFiles, RemoveFromProFile);
         if (notRemoved)
             *notRemoved = failedFiles;
@@ -613,7 +612,7 @@ bool QmakePriFile::removeFiles(const QStringList &filePaths,
     return failedFiles.isEmpty();
 }
 
-bool QmakePriFile::deleteFiles(const QStringList &filePaths)
+bool QmakePriFile::deleteFiles(const FilePaths &filePaths)
 {
     removeFiles(filePaths);
     return true;
@@ -705,16 +704,16 @@ bool QmakePriFile::saveModifiedEditors()
     return true;
 }
 
-QStringList QmakePriFile::formResources(const QString &formFile) const
+FilePaths QmakePriFile::formResources(const FilePath &formFile) const
 {
     QStringList resourceFiles;
-    QFile file(formFile);
+    QFile file(formFile.toString());
     if (!file.open(QIODevice::ReadOnly))
-        return resourceFiles;
+        return {};
 
     QXmlStreamReader reader(&file);
 
-    QFileInfo fi(formFile);
+    QFileInfo fi(formFile.toString());
     QDir formDir = fi.absoluteDir();
     while (!reader.atEnd()) {
         reader.readNext();
@@ -737,7 +736,7 @@ QStringList QmakePriFile::formResources(const QString &formFile) const
     if (reader.hasError())
         qWarning() << "Could not read form file:" << formFile;
 
-    return resourceFiles;
+    return Utils::transform(resourceFiles, &FilePath::fromString);
 }
 
 bool QmakePriFile::ensureWriteableProFile(const QString &file)
@@ -855,9 +854,9 @@ bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFi
 }
 
 void QmakePriFile::changeFiles(const QString &mimeType,
-                                 const QStringList &filePaths,
-                                 QStringList *notChanged,
-                                 ChangeType change, Change mode)
+                               const FilePaths &filePaths,
+                               FilePaths *notChanged,
+                               ChangeType change, Change mode)
 {
     if (filePaths.isEmpty())
         return;
@@ -879,12 +878,18 @@ void QmakePriFile::changeFiles(const QString &mimeType,
                            << filePaths << "change type:" << int(change) << "mode:" << int(mode);
     if (change == AddToProFile) {
         // Use the first variable for adding.
-        ProWriter::addFiles(includeFile, &lines, filePaths, varNameForAdding(mimeType),
+        ProWriter::addFiles(includeFile, &lines,
+                            Utils::transform(filePaths, &FilePath::toString),
+                            varNameForAdding(mimeType),
                             continuationIndent());
         notChanged->clear();
     } else { // RemoveFromProFile
         QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toString());
-        *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, varNamesForRemoving());
+        *notChanged = Utils::transform(
+                    ProWriter::removeFiles(includeFile, &lines, priFileDir,
+                                           Utils::transform(filePaths, &FilePath::toString),
+                                           varNamesForRemoving()),
+                    &FilePath::fromString);
     }
 
     // save file

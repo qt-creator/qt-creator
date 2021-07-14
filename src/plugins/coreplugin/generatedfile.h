@@ -32,6 +32,8 @@
 #include <QList>
 #include <QSharedDataPointer>
 
+namespace Utils { class FilePath; }
+
 namespace Core {
 class GeneratedFilePrivate;
 
@@ -63,6 +65,7 @@ public:
     // Full path of the file should be created, or the suggested file name
     QString path() const;
     void setPath(const QString &p);
+    Utils::FilePath filePath() const;
 
     // Contents of the file (UTF8)
     QString contents() const;

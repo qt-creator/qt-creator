@@ -38,7 +38,7 @@ public:
     explicit GenericProject(const Utils::FilePath &filename);
 
     void editFilesTriggered();
-    void removeFilesTriggered(const QStringList &filesToRemove);
+    void removeFilesTriggered(const Utils::FilePaths &filesToRemove);
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;

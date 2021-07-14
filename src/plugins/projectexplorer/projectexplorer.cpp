@@ -3593,7 +3593,8 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
     if (fileNames.isEmpty())
         return;
 
-    ProjectExplorerPlugin::addExistingFiles(folderNode, fileNames);
+    ProjectExplorerPlugin::addExistingFiles(folderNode,
+                                            Utils::transform(fileNames, &FilePath::fromString));
 }
 
 void ProjectExplorerPluginPrivate::addExistingDirectory()
@@ -3608,32 +3609,30 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
     dialog.setAddFileFilter({});
 
     if (dialog.exec() == QDialog::Accepted)
-        ProjectExplorerPlugin::addExistingFiles(folderNode, Utils::transform(dialog.selectedFiles(), &Utils::FilePath::toString));
+        ProjectExplorerPlugin::addExistingFiles(folderNode, dialog.selectedFiles());
 }
 
-void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStringList &filePaths)
+void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const FilePaths &filePaths)
 {
     // can happen when project is not yet parsed or finished parsing while the dialog was open:
     if (!folderNode || !ProjectTree::hasNode(folderNode))
         return;
 
     const QString dir = folderNode->directory();
-    QStringList fileNames = filePaths;
-    QStringList notAdded;
+    FilePaths fileNames = filePaths;
+    FilePaths notAdded;
     folderNode->addFiles(fileNames, &notAdded);
 
     if (!notAdded.isEmpty()) {
         const QString message = tr("Could not add following files to project %1:")
                 .arg(folderNode->managingProject()->displayName()) + QLatin1Char('\n');
-        const QStringList nativeFiles
-                = Utils::transform(notAdded, &QDir::toNativeSeparators);
         QMessageBox::warning(ICore::dialogParent(), tr("Adding Files to Project Failed"),
-                             message + nativeFiles.join(QLatin1Char('\n')));
+                             message + FilePath::formatFilePaths(notAdded, "\n"));
         fileNames = Utils::filtered(fileNames,
-                                    [&notAdded](const QString &f) { return !notAdded.contains(f); });
+                                    [&notAdded](const FilePath &f) { return !notAdded.contains(f); });
     }
 
-    VcsManager::promptToAdd(dir, fileNames);
+    VcsManager::promptToAdd(dir, Utils::transform(fileNames, &FilePath::toString));
 }
 
 void ProjectExplorerPluginPrivate::removeProject()
@@ -3752,8 +3751,7 @@ void ProjectExplorerPluginPrivate::removeFile()
         QTC_ASSERT(folderNode, return);
 
         const Utils::FilePath &currentFilePath = file.second;
-        const RemovedFilesFromProject status
-                = folderNode->removeFiles(QStringList(currentFilePath.toString()));
+        const RemovedFilesFromProject status = folderNode->removeFiles({currentFilePath});
         const bool success = status == RemovedFilesFromProject::Ok
                 || (status == RemovedFilesFromProject::Wildcard
                     && removeFileDialog.isDeleteFileChecked());
@@ -3810,7 +3808,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
                                   QDir::toNativeSeparators(newFilePath), sourceFile.errorString()));
         return;
     }
-    if (!folderNode->addFiles(QStringList(newFilePath))) {
+    if (!folderNode->addFiles({FilePath::fromString(newFilePath)})) {
         QMessageBox::critical(ICore::dialogParent(), tr("Duplicating File Failed"),
                               tr("Failed to add new file \"%1\" to the project.")
                               .arg(QDir::toNativeSeparators(newFilePath)));
@@ -3826,12 +3824,12 @@ void ProjectExplorerPluginPrivate::deleteFile()
 
     FileNode *fileNode = currentNode->asFileNode();
 
-    QString filePath = currentNode->filePath().toString();
+    FilePath filePath = currentNode->filePath();
     QMessageBox::StandardButton button =
             QMessageBox::question(ICore::dialogParent(),
                                   tr("Delete File"),
                                   tr("Delete %1 from file system?")
-                                  .arg(QDir::toNativeSeparators(filePath)),
+                                  .arg(filePath.toUserOutput()),
                                   QMessageBox::Yes | QMessageBox::No);
     if (button != QMessageBox::Yes)
         return;
@@ -3839,19 +3837,18 @@ void ProjectExplorerPluginPrivate::deleteFile()
     FolderNode *folderNode = fileNode->parentFolderNode();
     QTC_ASSERT(folderNode, return);
 
-    folderNode->deleteFiles(QStringList(filePath));
+    folderNode->deleteFiles({filePath});
 
     FileChangeBlocker changeGuard(currentNode->filePath());
     if (IVersionControl *vc =
-            VcsManager::findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
-        vc->vcsDelete(filePath);
+            VcsManager::findVersionControlForDirectory(filePath.absolutePath().toString())) {
+        vc->vcsDelete(filePath.toString());
     }
-    QFile file(filePath);
-    if (file.exists()) {
-        if (!file.remove())
+    if (filePath.exists()) {
+        if (!filePath.removeFile())
             QMessageBox::warning(ICore::dialogParent(), tr("Deleting File Failed"),
                                  tr("Could not delete file %1.")
-                                 .arg(QDir::toNativeSeparators(filePath)));
+                                 .arg(filePath.toUserOutput()));
     }
 }
 

@@ -245,10 +245,10 @@ bool QbsBuildSystem::supportsAction(Node *context, ProjectAction action, const N
     return supportsNodeAction(action, node);
 }
 
-bool QbsBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
+bool QbsBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (auto n = dynamic_cast<QbsGroupNode *>(context)) {
-        QStringList notAddedDummy;
+        FilePaths notAddedDummy;
         if (!notAdded)
             notAdded = &notAddedDummy;
 
@@ -258,7 +258,7 @@ bool QbsBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStri
     }
 
     if (auto n = dynamic_cast<QbsProductNode *>(context)) {
-        QStringList notAddedDummy;
+        FilePaths notAddedDummy;
         if (!notAdded)
             notAdded = &notAddedDummy;
         return addFilesToProduct(filePaths, n->productData(), n->mainGroup(), notAdded);
@@ -267,11 +267,11 @@ bool QbsBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStri
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
-RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const QStringList &filePaths,
-                                                    QStringList *notRemoved)
+RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const FilePaths &filePaths,
+                                                    FilePaths *notRemoved)
 {
     if (auto n = dynamic_cast<QbsGroupNode *>(context)) {
-        QStringList notRemovedDummy;
+        FilePaths notRemovedDummy;
         if (!notRemoved)
             notRemoved = &notRemovedDummy;
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
@@ -281,7 +281,7 @@ RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const QString
     }
 
     if (auto n = dynamic_cast<QbsProductNode *>(context)) {
-        QStringList notRemovedDummy;
+        FilePaths notRemovedDummy;
         if (!notRemoved)
             notRemoved = &notRemovedDummy;
         return removeFilesFromProduct(filePaths, n->productData(), n->mainGroup(), notRemoved);
@@ -335,9 +335,9 @@ ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
     return DeploymentKnowledge::Perfect;
 }
 
-QStringList QbsBuildSystem::filesGeneratedFrom(const QString &sourceFile) const
+FilePaths QbsBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    return session()->filesGeneratedFrom(sourceFile);
+    return transform(session()->filesGeneratedFrom(sourceFile.toString()), &FilePath::fromString);
 }
 
 bool QbsBuildSystem::isProjectEditable() const
@@ -367,40 +367,40 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const QString &file)
 }
 
 bool QbsBuildSystem::addFilesToProduct(
-        const QStringList &filePaths,
+        const FilePaths &filePaths,
         const QJsonObject &product,
         const QJsonObject &group,
-        QStringList *notAdded)
+        FilePaths *notAdded)
 {
     const QString groupFilePath = group.value("location").toObject().value("file-path").toString();
     ensureWriteableQbsFile(groupFilePath);
     const FileChangeResult result = session()->addFiles(
-                filePaths,
+                Utils::transform(filePaths, &FilePath::toString),
                 product.value("full-display-name").toString(),
                 group.value("name").toString());
     if (result.error().hasError()) {
         MessageManager::writeDisrupting(result.error().toString());
-        *notAdded = result.failedFiles();
+        *notAdded = Utils::transform(result.failedFiles(), &FilePath::fromString);
     }
     return notAdded->isEmpty();
 }
 
 RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
-        const QStringList &filePaths,
+        const FilePaths &filePaths,
         const QJsonObject &product,
         const QJsonObject &group,
-        QStringList *notRemoved)
+        FilePaths *notRemoved)
 {
     const auto allWildcardsInGroup = transform<QStringList>(
                 group.value("source-artifacts-from-wildcards").toArray(),
                 [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
-    QStringList wildcardFiles;
+    FilePaths wildcardFiles;
     QStringList nonWildcardFiles;
-    for (const QString &filePath : filePaths) {
-        if (allWildcardsInGroup.contains(filePath))
+    for (const FilePath &filePath : filePaths) {
+        if (allWildcardsInGroup.contains(filePath.toString()))
             wildcardFiles << filePath;
         else
-            nonWildcardFiles << filePath;
+            nonWildcardFiles << filePath.toString();
     }
 
     const QString groupFilePath = group.value("location")
@@ -411,7 +411,7 @@ RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
                 product.value("name").toString(),
                 group.value("name").toString());
 
-    *notRemoved = result.failedFiles();
+    *notRemoved = Utils::transform(result.failedFiles(), &FilePath::fromString);
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     const bool success = notRemoved->isEmpty();
@@ -432,12 +432,12 @@ bool QbsBuildSystem::renameFileInProduct(
 {
     if (newPath.isEmpty())
         return false;
-    QStringList dummy;
-    if (removeFilesFromProduct(QStringList(oldPath), product, group, &dummy)
+    FilePaths dummy;
+    if (removeFilesFromProduct({FilePath::fromString(oldPath)}, product, group, &dummy)
             != RemovedFilesFromProject::Ok) {
         return false;
     }
-    return addFilesToProduct(QStringList(newPath), product, group, &dummy);
+    return addFilesToProduct({FilePath::fromString(newPath)}, product, group, &dummy);
 }
 
 QString QbsBuildSystem::profile() const

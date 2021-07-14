@@ -1470,18 +1470,17 @@ void QmakeBuildSystem::triggerParsing()
     asyncUpdate();
 }
 
-QStringList QmakeBuildSystem::filesGeneratedFrom(const QString &input) const
+FilePaths QmakeBuildSystem::filesGeneratedFrom(const FilePath &input) const
 {
     if (!project()->rootProjectNode())
         return {};
 
-    if (const FileNode *file = fileNodeOf(project()->rootProjectNode(), FilePath::fromString(input))) {
+    if (const FileNode *file = fileNodeOf(project()->rootProjectNode(), input)) {
         const QmakeProFileNode *pro = dynamic_cast<QmakeProFileNode *>(file->parentFolderNode());
         QTC_ASSERT(pro, return {});
         if (const QmakeProFile *proFile = pro->proFile())
-            return Utils::transform(proFile->generatedFiles(buildDir(pro->filePath()),
-                                                            file->filePath(), file->fileType()),
-                                    &FilePath::toString);
+            return proFile->generatedFiles(buildDir(pro->filePath()),
+                                           file->filePath(), file->fileType());
     }
     return {};
 }
