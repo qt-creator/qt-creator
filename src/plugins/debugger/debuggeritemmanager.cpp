@@ -432,8 +432,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
         return;
 
     DebuggerItem tmp;
-    QFileInfo fi = QFileInfo(m_binaryChooser->filePath().toString());
-    if (fi.isExecutable()) {
+    if (m_binaryChooser->filePath().isExecutableFile()) {
         tmp = item();
         tmp.reinitializeFromFile();
     }
@@ -800,7 +799,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePath &de
         const QString name = detectionSource.isEmpty() ? tr("System %1 at %2") : tr("Detected %1 at %2");
         item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
         m_model->addDebugger(item);
-        logMessages.append(tr("Found: \"%1\"").arg(name));
+        logMessages.append(tr("Found: \"%1\"").arg(command.toUserOutput()));
     }
     if (logMessage)
         *logMessage = logMessages.join('\n');
