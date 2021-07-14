@@ -27,6 +27,7 @@
 
 #include "clangdiagnosticmanager.h"
 #include "clangtextmark.h"
+#include "clangutils.h"
 
 #include <clangsupport/sourcelocationscontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -35,6 +36,7 @@
 #include <cplusplus/FindUsages.h>
 #include <cpptools/cppeditorwidgetinterface.h>
 #include <cpptools/cppfindreferences.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/cppvirtualfunctionproposalitem.h>
@@ -729,6 +731,13 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
             "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
     setSupportedLanguage(langFilter);
     setActivateDocumentAutomatically(true);
+    if (!project) {
+        QJsonObject initOptions;
+        const auto clangOptions = createClangOptions(
+                    *CppTools::CppModelManager::instance()->fallbackProjectPart(), {});
+        initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions.second));
+        setInitializationOptions(initOptions);
+    }
     ClientCapabilities caps = Client::defaultClientCapabilities();
     Utils::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
     if (textCaps) {

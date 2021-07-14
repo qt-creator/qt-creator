@@ -81,6 +81,23 @@ static CppTools::CppModelManager *cppModelManager()
     return CppTools::CppModelManager::instance();
 }
 
+static const QList<TextEditor::BaseTextEditor *> allCppEditors()
+{
+    QList<TextEditor::BaseTextEditor *> cppEditors;
+    for (const Core::DocumentModel::Entry * const entry : Core::DocumentModel::entries()) {
+        const auto textDocument = qobject_cast<TextEditor::TextDocument *>(entry->document);
+        if (!textDocument)
+            continue;
+        if (const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(Utils::findOrDefault(
+                Core::DocumentModel::editorsForDocument(textDocument), [](Core::IEditor *editor) {
+                    return CppTools::CppModelManager::isCppEditor(editor);
+        }))) {
+            cppEditors << cppEditor;
+        }
+    }
+    return cppEditors;
+}
+
 ClangModelManagerSupport::ClangModelManagerSupport()
     : m_completionAssistProvider(m_communicator, CompletionType::Other)
     , m_functionHintAssistProvider(m_communicator, CompletionType::FunctionHint)
@@ -119,6 +136,11 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             this, &ClangModelManagerSupport::onProjectAdded);
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ClangModelManagerSupport::onAboutToRemoveProject);
+    connect(sessionManager, &ProjectExplorer::SessionManager::projectRemoved,
+            this, [this] {
+        if (ClangdClient * const fallbackClient = clientForProject(nullptr))
+            claimNonProjectSources(fallbackClient);
+    });
 
     CppTools::ClangdSettings::setDefaultClangdPath(Utils::FilePath::fromString(
             Core::ICore::clangdExecutable(CLANG_BINDIR)));
@@ -128,8 +150,9 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ClangModelManagerSupport::onDiagnosticConfigsInvalidated);
 
-    // TODO: Enable this once we do document-level stuff with clangd (highlighting etc)
-    // createClient(nullptr, {});
+    if (CppTools::ClangdSettings::instance().useClangd())
+        createClient(nullptr, {});
+
     m_generatorSynchronizer.setCancelOnWait(true);
     new ClangdQuickFixFactory(); // memory managed by CppEditor::g_cppQuickFixFactories
 }
@@ -291,7 +314,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         if (Client * const oldClient = clientForProject(project))
             LanguageClientManager::shutdownClient(oldClient);
         ClangdClient * const client = createClient(project, jsonDbDir);
-        connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
+        connect(client, &Client::initialized, this, [this, client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
             if (!SessionManager::hasProject(project))
                 return;
@@ -301,22 +324,15 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                 return;
 
             // Acquaint the client with all open C++ documents for this project.
+            ClangdClient * const fallbackClient = clientForProject(nullptr);
             bool hasDocuments = false;
-            for (const Core::DocumentModel::Entry * const entry : Core::DocumentModel::entries()) {
-                const auto textDocument = qobject_cast<TextEditor::TextDocument *>(entry->document);
-                if (!textDocument)
+            for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
+                if (!project->isKnownFile(editor->textDocument()->filePath()))
                     continue;
-                const bool isCppDocument = Utils::contains(
-                            Core::DocumentModel::editorsForDocument(textDocument),
-                            [](Core::IEditor *editor) {
-                                return CppTools::CppModelManager::isCppEditor(editor);
-                            });
-                if (!isCppDocument)
-                    continue;
-                if (!project->isKnownFile(entry->fileName()))
-                    continue;
-                client->openDocument(textDocument);
-                ClangEditorDocumentProcessor::clearTextMarks(textDocument->filePath());
+                if (fallbackClient && fallbackClient->documentOpen(editor->textDocument()))
+                    fallbackClient->closeDocument(editor->textDocument());
+                client->openDocument(editor->textDocument());
+                ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
                 hasDocuments = true;
             }
 
@@ -376,6 +392,18 @@ ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *p
     return client;
 }
 
+void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *fallbackClient)
+{
+    for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
+        if (ProjectExplorer::SessionManager::projectForFile(editor->textDocument()->filePath()))
+            continue;
+        if (!fallbackClient->documentOpen(editor->textDocument())) {
+            ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
+            fallbackClient->openDocument(editor->textDocument());
+        }
+    }
+}
+
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 {
     QTC_ASSERT(editor, return);
@@ -389,6 +417,10 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 
         // TODO: Ensure that not fully loaded documents are updated?
 
+        // TODO: If the file does not belong to any project and it is a header file,
+        //       it might make sense to check whether the file is included by any file
+        //       that does belong to a project, and if so, use the respective client
+        //       instead. Is this feasible?
         ProjectExplorer::Project * const project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
         if (Client * const client = clientForProject(project))
@@ -597,7 +629,6 @@ void ClangModelManagerSupport::onProjectPartsRemoved(const QStringList &projectP
 
 void ClangModelManagerSupport::onClangdSettingsChanged()
 {
-    // TODO: Handle also project-less client
     for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
         const CppTools::ClangdSettings settings(
                     CppTools::ClangdProjectSettings(project).settings());
@@ -613,6 +644,25 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
         }
         if (client->settingsData() != settings.data())
             updateLanguageClient(project, cppModelManager()->projectInfo(project));
+    }
+
+    ClangdClient * const fallbackClient = clientForProject(nullptr);
+    const CppTools::ClangdSettings &settings = CppTools::ClangdSettings::instance();
+    const auto startNewFallbackClient = [this] {
+        claimNonProjectSources(createClient(nullptr, {}));
+    };
+    if (!fallbackClient) {
+        if (settings.useClangd())
+            startNewFallbackClient();
+        return;
+    }
+    if (!settings.useClangd()) {
+        LanguageClientManager::shutdownClient(fallbackClient);
+        return;
+    }
+    if (fallbackClient->settingsData() != settings.data()) {
+        LanguageClientManager::shutdownClient(fallbackClient);
+        startNewFallbackClient();
     }
 }
 
