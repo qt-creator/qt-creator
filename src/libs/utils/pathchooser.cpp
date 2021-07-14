@@ -529,69 +529,69 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
             *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(QDir::toNativeSeparators(path));
         return false;
     }
-    const QFileInfo fi(expandedPath);
+    const FilePath filePath = FilePath::fromString(expandedPath);
 
     // Check if existing
     switch (d->m_acceptingKind) {
     case PathChooser::ExistingDirectory:
-        if (!fi.exists()) {
+        if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
-        if (!fi.isDir()) {
+        if (!filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a directory.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::File:
-        if (!fi.exists()) {
+        if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
-        if (!fi.isFile()) {
+        if (!filePath.isFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a file.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::SaveFile:
-        if (!fi.absoluteDir().exists()) {
+        if (!filePath.parentDir().exists()) {
             if (errorMessage)
-                *errorMessage = tr("The directory \"%1\" does not exist.").arg(QDir::toNativeSeparators(fi.absolutePath()));
+                *errorMessage = tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
-        if (fi.exists() && fi.isDir()) {
+        if (filePath.exists() && filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a file.").arg(QDir::toNativeSeparators(fi.absolutePath()));
+                *errorMessage = tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::ExistingCommand:
-        if (!fi.exists()) {
+        if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
-        if (!fi.isFile() || !fi.isExecutable()) {
+        if (!filePath.isExecutableFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not an executable file.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::Directory:
-        if (fi.exists() && !fi.isDir()) {
+        if (filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a directory.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::Command:
-        if (fi.exists() && !fi.isExecutable()) {
+        if (filePath.exists() && !filePath.isExecutableFile()) {
             if (errorMessage)
-                *errorMessage = tr("Cannot execute \"%1\".").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("Cannot execute \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
         break;
@@ -601,7 +601,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     }
 
     if (errorMessage)
-        *errorMessage = tr("Full path: \"%1\"").arg(QDir::toNativeSeparators(expandedPath));
+        *errorMessage = tr("Full path: \"%1\"").arg(filePath.toUserOutput());
     return true;
 }
 
