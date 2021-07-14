@@ -715,6 +715,14 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
                 .arg(m_container, m_mergedDir)
                     + '\n' + tr("Output: '%1'").arg(out)
                     + '\n' + tr("Error: '%1'").arg(proc.stdErr()));
+        if (HostOsInfo::isWindowsHost()) { // TODO investigate how to make it possible nevertheless
+            m_mergedDir.clear();
+            MessageManager::writeSilently(
+                        tr("Disabling merged channel access. This is not supported and anything "
+                           "related to accessing merged channels on Windows fails due to the need "
+                           "of using wsl or a named pipe."));
+            return;
+        }
     }
 
     m_mergedDirWatcher.addPath(m_mergedDir);
