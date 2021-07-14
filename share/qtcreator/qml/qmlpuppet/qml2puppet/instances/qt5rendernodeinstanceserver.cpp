@@ -77,17 +77,25 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         DesignerSupport::polishItems(quickWindow());
 
         if (quickWindow() && nodeInstanceClient()->bytesToWrite() < 10000) {
+            bool windowDirty = false;
             foreach (QQuickItem *item, allItems()) {
                 if (item) {
-                    if (hasInstanceForObject(item)) {
+                    if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+                        if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
+                            windowDirty = true;
+                            break;
+                        }
+                    } else {
+                        if (hasInstanceForObject(item)) {
                             if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
                                 m_dirtyInstanceSet.insert(instanceForObject(item));
-                    } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
-                        ServerNodeInstance ancestorInstance = findNodeInstanceForItem(item->parentItem());
-                        if (ancestorInstance.isValid())
-                            m_dirtyInstanceSet.insert(ancestorInstance);
+                        } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
+                            ServerNodeInstance ancestorInstance = findNodeInstanceForItem(item->parentItem());
+                            if (ancestorInstance.isValid())
+                                m_dirtyInstanceSet.insert(ancestorInstance);
+                        }
+                        Internal::QuickItemNodeInstance::updateDirtyNode(item);
                     }
-                    Internal::QuickItemNodeInstance::updateDirtyNode(item);
                 }
             }
 
@@ -97,7 +105,8 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 /* QQuickItem::grabToImage render path */
                 /* TODO implement QQuickItem::grabToImage based rendering */
                 /* sheduleRootItemRender(); */
-                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
+                if (windowDirty)
+                    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
             } else {
                 if (!m_dirtyInstanceSet.isEmpty()) {
                     nodeInstanceClient()->pixmapChanged(
