@@ -113,6 +113,7 @@ public:
 
     QString toString() const;
     FilePath onDevice(const FilePath &deviceTemplate) const;
+    FilePath withNewPath(const QString &newPath) const;
 
     QFileInfo toFileInfo() const;
     QVariant toVariant() const;

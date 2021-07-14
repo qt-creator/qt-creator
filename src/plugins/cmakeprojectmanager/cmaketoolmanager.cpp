@@ -185,7 +185,7 @@ void CMakeToolManager::autoDetectCMakeForDevice(const FilePath &deviceRoot,
                                                 QString *logMessage)
 {
     QStringList messages{tr("Searching CMake binaries...")};
-    const FilePaths candidates = {FilePath::fromString("cmake").onDevice(deviceRoot)};
+    const FilePaths candidates = {deviceRoot.withNewPath("cmake")};
     const Environment env = deviceRoot.deviceEnvironment();
     for (const FilePath &candidate : candidates) {
         const FilePath cmake = candidate.searchOnDevice(env.path());

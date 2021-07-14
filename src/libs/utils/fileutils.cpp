@@ -1385,6 +1385,26 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 }
 
 /*!
+    Returns a FilePath with local path \a newPath on the same device
+    as the current object.
+
+    Example usage:
+    \code
+        devicePath = FilePath::fromString("docker://123/tmp");
+        newPath = devicePath.withNewPath("/bin/ls");
+        assert(realDir == FilePath::fromUrl("docker://123/bin/ls"))
+    \endcode
+*/
+FilePath FilePath::withNewPath(const QString &newPath) const
+{
+    FilePath res;
+    res.m_data = newPath;
+    res.m_host = m_host;
+    res.m_scheme = m_scheme;
+    return res;
+}
+
+/*!
     Searched a binary corresponding to this object in the PATH of
     the device implied by this object's scheme and host.
 
