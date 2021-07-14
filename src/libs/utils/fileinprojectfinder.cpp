@@ -88,9 +88,8 @@ void FileInProjectFinder::setProjectDirectory(const FilePath &absoluteProjectPat
     if (absoluteProjectPath == m_projectDir)
         return;
 
-    const QFileInfo infoPath = absoluteProjectPath.toFileInfo();
     QTC_CHECK(absoluteProjectPath.isEmpty()
-              || (infoPath.exists() && infoPath.isAbsolute()));
+              || (absoluteProjectPath.exists() && absoluteProjectPath.isAbsolutePath()));
 
     m_projectDir = absoluteProjectPath;
     m_cache.clear();
