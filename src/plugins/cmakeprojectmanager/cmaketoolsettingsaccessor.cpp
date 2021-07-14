@@ -211,9 +211,9 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
 
     int count = 0;
     for (const CMakeTool *item : cmakeTools) {
-        QFileInfo fi = item->cmakeExecutable().toFileInfo();
+        Utils::FilePath fi = item->cmakeExecutable();
 
-        if (fi.isExecutable()) {
+        if (fi.isExecutableFile()) {
             QVariantMap tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;
