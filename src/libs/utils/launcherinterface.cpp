@@ -69,35 +69,51 @@ private:
     }
 };
 
-} // namespace Internal
-
-using namespace Utils::Internal;
-
 static QString launcherSocketName()
 {
     return QStringLiteral("qtcreator_processlauncher-%1")
             .arg(QString::number(qApp->applicationPid()));
 }
 
-LauncherInterface::LauncherInterface()
+class LauncherInterfacePrivate : public QObject
+{
+    Q_OBJECT
+public:
+    LauncherInterfacePrivate();
+    ~LauncherInterfacePrivate() override;
+
+    void doStart();
+    void doStop();
+    void handleNewConnection();
+    void handleProcessError();
+    void handleProcessFinished();
+    void handleProcessStderr();
+    Internal::LauncherSocket *socket() const { return m_socket; }
+
+signals:
+    void errorOccurred(const QString &error);
+
+private:
+    QLocalServer * const m_server;
+    Internal::LauncherSocket *const m_socket;
+    Internal::LauncherProcess *m_process = nullptr;
+    int m_startRequests = 0;
+
+};
+
+LauncherInterfacePrivate::LauncherInterfacePrivate()
     : m_server(new QLocalServer(this)), m_socket(new LauncherSocket(this))
 {
     QObject::connect(m_server, &QLocalServer::newConnection,
-                     this, &LauncherInterface::handleNewConnection);
+                     this, &LauncherInterfacePrivate::handleNewConnection);
 }
 
-LauncherInterface &LauncherInterface::instance()
-{
-    static LauncherInterface p;
-    return p;
-}
-
-LauncherInterface::~LauncherInterface()
+LauncherInterfacePrivate::~LauncherInterfacePrivate()
 {
     m_server->disconnect();
 }
 
-void LauncherInterface::doStart()
+void LauncherInterfacePrivate::doStart()
 {
     if (++m_startRequests > 1)
         return;
@@ -108,19 +124,19 @@ void LauncherInterface::doStart()
         return;
     }
     m_process = new LauncherProcess(this);
-    connect(m_process, &QProcess::errorOccurred, this, &LauncherInterface::handleProcessError);
+    connect(m_process, &QProcess::errorOccurred, this, &LauncherInterfacePrivate::handleProcessError);
     connect(m_process,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-            this, &LauncherInterface::handleProcessFinished);
+            this, &LauncherInterfacePrivate::handleProcessFinished);
     connect(m_process, &QProcess::readyReadStandardError,
-            this, &LauncherInterface::handleProcessStderr);
+            this, &LauncherInterfacePrivate::handleProcessStderr);
     m_process->start(qApp->applicationDirPath() + QLatin1Char('/')
                             + QLatin1String(RELATIVE_LIBEXEC_PATH)
                             + QLatin1String("/qtcreator_processlauncher"),
                            QStringList(m_server->fullServerName()));
 }
 
-void LauncherInterface::doStop()
+void LauncherInterfacePrivate::doStop()
 {
     if (--m_startRequests > 0)
         return;
@@ -134,7 +150,7 @@ void LauncherInterface::doStop()
     m_process = nullptr;
 }
 
-void LauncherInterface::handleNewConnection()
+void LauncherInterfacePrivate::handleNewConnection()
 {
     QLocalSocket * const socket = m_server->nextPendingConnection();
     if (!socket)
@@ -143,7 +159,7 @@ void LauncherInterface::handleNewConnection()
     m_socket->setSocket(socket);
 }
 
-void LauncherInterface::handleProcessError()
+void LauncherInterfacePrivate::handleProcessError()
 {
     if (m_process->error() == QProcess::FailedToStart) {
         const QString launcherPathForUser
@@ -154,16 +170,60 @@ void LauncherInterface::handleProcessError()
     }
 }
 
-void LauncherInterface::handleProcessFinished()
+void LauncherInterfacePrivate::handleProcessFinished()
 {
     emit errorOccurred(QCoreApplication::translate("Utils::LauncherSocket",
                        "Process launcher closed unexpectedly: %1")
                        .arg(m_process->errorString()));
 }
 
-void LauncherInterface::handleProcessStderr()
+void LauncherInterfacePrivate::handleProcessStderr()
 {
     qDebug() << "[launcher]" << m_process->readAllStandardError();
 }
 
+} // namespace Internal
+
+using namespace Utils::Internal;
+
+LauncherInterface::LauncherInterface()
+    : m_private(new LauncherInterfacePrivate())
+{
+    m_private->moveToThread(&m_thread);
+    connect(m_private, &LauncherInterfacePrivate::errorOccurred,
+            this, &LauncherInterface::errorOccurred);
+    connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
+    m_thread.start();
+}
+
+LauncherInterface &LauncherInterface::instance()
+{
+    static LauncherInterface p;
+    return p;
+}
+
+LauncherInterface::~LauncherInterface()
+{
+    m_thread.quit();
+    m_thread.wait();
+}
+
+void LauncherInterface::startLauncher()
+{
+    QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStart);
+}
+
+void LauncherInterface::stopLauncher()
+{
+    QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStop);
+}
+
+Internal::LauncherSocket *LauncherInterface::socket()
+{
+    return instance().m_private->socket();
+}
+
+
 } // namespace Utils
+
+#include "launcherinterface.moc"

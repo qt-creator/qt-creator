@@ -27,7 +27,8 @@
 
 #include "utils_global.h"
 
-#include <QtCore/qobject.h>
+#include <QObject>
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 class QLocalServer;
@@ -37,6 +38,7 @@ namespace Utils {
 namespace Internal {
 class LauncherProcess;
 class LauncherSocket;
+class LauncherInterfacePrivate;
 }
 
 class QTCREATOR_UTILS_EXPORT LauncherInterface : public QObject
@@ -46,9 +48,9 @@ public:
     static LauncherInterface &instance();
     ~LauncherInterface() override;
 
-    static void startLauncher() { instance().doStart(); }
-    static void stopLauncher() { instance().doStop(); }
-    static Internal::LauncherSocket *socket() { return instance().m_socket; }
+    static void startLauncher();
+    static void stopLauncher();
+    static Internal::LauncherSocket *socket();
 
 signals:
     void errorOccurred(const QString &error);
@@ -56,17 +58,8 @@ signals:
 private:
     LauncherInterface();
 
-    void doStart();
-    void doStop();
-    void handleNewConnection();
-    void handleProcessError();
-    void handleProcessFinished();
-    void handleProcessStderr();
-
-    QLocalServer * const m_server;
-    Internal::LauncherSocket *const m_socket;
-    Internal::LauncherProcess *m_process = nullptr;
-    int m_startRequests = 0;
+    QThread m_thread;
+    Internal::LauncherInterfacePrivate *m_private;
 };
 
 } // namespace Utils
