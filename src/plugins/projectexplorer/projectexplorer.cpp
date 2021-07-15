@@ -1137,36 +1137,48 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // deploy session
     dd->m_deploySessionAction = new QAction(tr("Deploy"), this);
+    dd->m_deploySessionAction->setWhatsThis(tr("Deploy All Projects"));
     cmd = ActionManager::registerAction(dd->m_deploySessionAction, Constants::DEPLOYSESSION);
+    cmd->setDescription(dd->m_deploySessionAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_ALLPROJECTS);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // rebuild session action
     dd->m_rebuildSessionAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild"),
                                              this);
+    dd->m_rebuildSessionAction->setWhatsThis(tr("Rebuild All Projects"));
     cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION);
+    cmd->setDescription(dd->m_rebuildSessionAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_ALLPROJECTS);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     dd->m_rebuildSessionForAllConfigsAction
             = new QAction(Icons::REBUILD.icon(), tr("Rebuild"),
                           this);
+    dd->m_rebuildSessionForAllConfigsAction->setWhatsThis(
+        tr("Rebuild All Projects for All Configurations"));
     cmd = ActionManager::registerAction(dd->m_rebuildSessionForAllConfigsAction,
                                         Constants::REBUILDSESSIONALLCONFIGS);
+    cmd->setDescription(dd->m_rebuildSessionForAllConfigsAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     // clean session
     dd->m_cleanSessionAction = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean"),
                                            this);
+    dd->m_cleanSessionAction->setWhatsThis(tr("Clean All Projects"));
     cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION);
+    cmd->setDescription(dd->m_cleanSessionAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_ALLPROJECTS);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     dd->m_cleanSessionForAllConfigsAction = new QAction(Utils::Icons::CLEAN.icon(),
             tr("Clean"), this);
+    dd->m_cleanSessionForAllConfigsAction->setWhatsThis(
+        tr("Clean All Projects for All Configurations"));
     cmd = ActionManager::registerAction(dd->m_cleanSessionForAllConfigsAction,
                                         Constants::CLEANSESSIONALLCONFIGS);
+    cmd->setDescription(dd->m_cleanSessionForAllConfigsAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
@@ -1212,39 +1224,45 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // deploy action
     dd->m_deployAction = new QAction(tr("Deploy"), this);
+    dd->m_deployAction->setWhatsThis(tr("Deploy Project"));
     cmd = ActionManager::registerAction(dd->m_deployAction, Constants::DEPLOY);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_deployAction->text());
+    cmd->setDescription(dd->m_deployAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // rebuild action
     dd->m_rebuildAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild"), this);
+    dd->m_rebuildAction->setWhatsThis(tr("Rebuild Project"));
     cmd = ActionManager::registerAction(dd->m_rebuildAction, Constants::REBUILD);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_rebuildAction->text());
+    cmd->setDescription(dd->m_rebuildAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     dd->m_rebuildProjectForAllConfigsAction
             = new QAction(Icons::REBUILD.icon(), tr("Rebuild"), this);
+    dd->m_rebuildProjectForAllConfigsAction->setWhatsThis(
+        tr("Rebuild Project for All Configurations"));
     cmd = ActionManager::registerAction(dd->m_rebuildProjectForAllConfigsAction,
                                         Constants::REBUILDALLCONFIGS);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_rebuildProjectForAllConfigsAction->text());
+    cmd->setDescription(dd->m_rebuildProjectForAllConfigsAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT_ALLCONFIGURATIONS);
 
     // clean action
     dd->m_cleanAction = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean"), this);
+    dd->m_cleanAction->setWhatsThis(tr("Clean Project"));
     cmd = ActionManager::registerAction(dd->m_cleanAction, Constants::CLEAN);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_cleanAction->text());
+    cmd->setDescription(dd->m_cleanAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     dd->m_cleanProjectForAllConfigsAction
             = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean"), this);
+    dd->m_cleanProjectForAllConfigsAction->setWhatsThis(tr("Clean Project for All Configurations"));
     cmd = ActionManager::registerAction(dd->m_cleanProjectForAllConfigsAction,
                                         Constants::CLEANALLCONFIGS);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_cleanProjectForAllConfigsAction->text());
+    cmd->setDescription(dd->m_cleanProjectForAllConfigsAction->whatsThis());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT_ALLCONFIGURATIONS);
 
     // cancel build action

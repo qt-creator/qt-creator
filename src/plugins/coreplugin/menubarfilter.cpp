@@ -101,7 +101,9 @@ QList<LocatorFilterEntry> MenuBarFilter::matchesForAction(QAction *action,
     QList<LocatorFilterEntry> entries;
     if (!m_enabledActions.contains(action))
         return entries;
-    const QString text = Utils::stripAccelerator(action->text());
+    const QString whatsThis = action->whatsThis();
+    const QString text = Utils::stripAccelerator(action->text())
+                         + (whatsThis.isEmpty() ? QString() : QString(" (" + whatsThis + ")"));
     if (QMenu *menu = action->menu()) {
         if (processedMenus.contains(menu))
             return entries;
