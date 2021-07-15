@@ -2964,30 +2964,31 @@ void tst_TestCore::testRewriterAddNodeTransaction()
 void tst_TestCore::testRewriterComponentId()
 {
     char qmlString[] = "import QtQuick 2.0\n"
-        "Rectangle {\n"
-        "   Component {\n"
-        "       id: testComponent\n"
-        "       Item {\n"
-        "       }\n"
-        "   }\n"
-        "}\n";
+                       "Rectangle {\n"
+                       "   Component {\n"
+                       "       id: testComponent\n"
+                       "       Item {\n"
+                       "       }\n"
+                       "   }\n"
+                       "}\n";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 2, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
     QVERIFY(model.data());
-    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
-    QVERIFY(model->rewriterView());
+    QVERIFY(!model->rewriterView());
     testRewriterView->setTextModifier(&textModifier);
+
     model->attachView(testRewriterView.data());
+    QVERIFY(model->rewriterView());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
 
@@ -3737,8 +3738,6 @@ void tst_TestCore::testCopyModelRewriter1()
 
     QVERIFY(insertedNode.isValid());
     childNode.nodeListProperty("data").reparentHere(insertedNode);
-
-
 
     const QLatin1String expected(
 
