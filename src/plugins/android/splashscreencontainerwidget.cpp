@@ -489,6 +489,7 @@ void SplashScreenContainerWidget::setSticky(bool sticky)
 void SplashScreenContainerWidget::setBackgroundColor(const QColor &color)
 {
     if (color != m_splashScreenBackgroundColor) {
+        m_splashScreenBackgroundColor = color;
         m_backgroundColor->setStyleSheet(QString("QToolButton {background-color: %1; border: 1px solid gray;}").arg(color.name()));
 
         for (auto &&imageWidget : m_imageWidgets)
@@ -497,8 +498,6 @@ void SplashScreenContainerWidget::setBackgroundColor(const QColor &color)
             imageWidget->setBackgroundColor(color);
         for (auto &&imageWidget : m_landscapeImageWidgets)
             imageWidget->setBackgroundColor(color);
-
-        m_splashScreenBackgroundColor = color;
     }
 }
 
