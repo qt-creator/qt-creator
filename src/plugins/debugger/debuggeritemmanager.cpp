@@ -1063,4 +1063,15 @@ void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource
         *logMessage = logMessages.join('\n');
 }
 
+void DebuggerItemManager::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    QTC_ASSERT(logMessage, return);
+    QStringList logMessages{tr("Debuggers:")};
+    d->m_model->forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
+        if (titem->m_item.detectionSource() == detectionSource)
+            logMessages.append(titem->m_item.displayName());
+    });
+    *logMessage = logMessages.join('\n');
+}
+
 } // namespace Debugger

@@ -248,6 +248,7 @@ public:
 
     void autoDetect();
     void undoAutoDetect() const;
+    void listAutoDetected() const;
 
     QList<BaseQtVersion *> autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
@@ -278,6 +279,12 @@ void KitDetector::undoAutoDetect(const QString &sharedId) const
 {
     d->m_sharedId = sharedId;
     d->undoAutoDetect();
+}
+
+void KitDetector::listAutoDetected(const QString &sharedId) const
+{
+    d->m_sharedId = sharedId;
+    d->listAutoDetected();
 }
 
 class DockerDevicePrivate : public QObject
@@ -387,6 +394,7 @@ public:
 
         auto autoDetectButton = new QPushButton(tr("Auto-detect Kit Items"));
         auto undoAutoDetectButton = new QPushButton(tr("Remove Auto-Detected Kit Items"));
+        auto listAutoDetectedButton = new QPushButton(tr("List Auto-Detected Kit Items"));
 
         connect(autoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id(), dockerDevice] {
             logView->clear();
@@ -409,6 +417,11 @@ public:
             m_kitItemDetector.undoAutoDetect(id);
         });
 
+        connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, id = data.id()] {
+            logView->clear();
+            m_kitItemDetector.listAutoDetected(id);
+        });
+
         using namespace Layouting;
 
         Form {
@@ -419,7 +432,7 @@ public:
             tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
                 Space(20),
-                Row { autoDetectButton, undoAutoDetectButton, Stretch() },
+                Row { autoDetectButton, undoAutoDetectButton, listAutoDetectedButton, Stretch() },
                 new QLabel(tr("Detection log:")),
                 logView
             }
@@ -554,6 +567,52 @@ void KitDetectorPrivate::undoAutoDetect() const
     }
 
     emit q->logOutput('\n' + tr("Removal of previously auto-detected kit items finished.") + "\n\n");
+}
+
+void KitDetectorPrivate::listAutoDetected() const
+{
+    emit q->logOutput(tr("Start listing auto-detected items associated with this docker image."));
+
+    emit q->logOutput('\n' + tr("Kits:"));
+    for (Kit *kit : KitManager::kits()) {
+        if (kit->autoDetectionSource() == m_sharedId)
+            emit q->logOutput(kit->displayName());
+    };
+
+    emit q->logOutput('\n' + tr("Qt versions:"));
+    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+        if (qtVersion->detectionSource() == m_sharedId)
+            emit q->logOutput(qtVersion->displayName());
+    };
+
+    emit q->logOutput('\n' + tr("Toolchains:"));
+    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
+        if (toolChain->detectionSource() == m_sharedId) {
+            emit q->logOutput(toolChain->displayName());
+        }
+    };
+
+    if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                                   "listDetectedCMake",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    if (QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(debuggerPlugin,
+                                                   "listDetectedDebuggers",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    emit q->logOutput('\n' + tr("Listing of previously auto-detected kit items finished.") + "\n\n");
 }
 
 QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const

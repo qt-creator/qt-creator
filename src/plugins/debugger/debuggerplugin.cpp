@@ -1759,6 +1759,11 @@ void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QSt
     dd->m_debuggerItemManager.removeDetectedDebuggers(detectionSource, logMessage);
 }
 
+void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    dd->m_debuggerItemManager.listDetectedDebuggers(detectionSource, logMessage);
+}
+
 void DebuggerPluginPrivate::attachToQmlPort()
 {
     AttachToQmlPortDialog dlg(ICore::dialogParent());

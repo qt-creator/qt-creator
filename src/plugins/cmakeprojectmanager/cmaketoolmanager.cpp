@@ -231,6 +231,17 @@ void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QStri
         *logMessage = logMessages.join('\n');
 }
 
+void CMakeToolManager::listDetectedCMake(const QString &detectionSource, QString *logMessage)
+{
+    QTC_ASSERT(logMessage, return);
+    QStringList logMessages{tr("CMake:")};
+    for (const auto &tool : qAsConst(d->m_cmakeTools)) {
+        if (tool->detectionSource() == detectionSource)
+            logMessages.append(tool->displayName());
+    }
+    *logMessage = logMessages.join('\n');
+}
+
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
 {
     if (!tool || !Utils::contains(d->m_cmakeTools, tool))

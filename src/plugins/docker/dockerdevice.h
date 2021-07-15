@@ -136,6 +136,7 @@ public:
 
     void autoDetect(const QString &sharedId) const;
     void undoAutoDetect(const QString &sharedId) const;
+    void listAutoDetected(const QString &sharedId) const;
 
 signals:
     void logOutput(const QString &msg);
