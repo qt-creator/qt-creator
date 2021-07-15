@@ -297,7 +297,7 @@ public:
 
     ~DockerDevicePrivate() { delete m_shell; }
 
-    int runSynchronously(const CommandLine &cmd) const;
+    bool runInContainer(const CommandLine &cmd) const;
 
     void tryCreateLocalFileAccess();
 
@@ -958,9 +958,7 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-x", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-x", path}});
 }
 
 bool DockerDevice::isReadableFile(const FilePath &filePath) const
@@ -974,9 +972,7 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-r", path, "-a", "-f", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-r", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
@@ -990,9 +986,7 @@ bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-w", path, "-a", "-f", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-w", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
@@ -1006,9 +1000,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-r", path, "-a", "-d", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-r", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
@@ -1022,9 +1014,7 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-w", path, "-a", "-d", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-w", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isFile(const FilePath &filePath) const
@@ -1038,9 +1028,7 @@ bool DockerDevice::isFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-f", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-f", path}});
 }
 
 bool DockerDevice::isDirectory(const FilePath &filePath) const
@@ -1054,9 +1042,7 @@ bool DockerDevice::isDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-d", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-d", path}});
 }
 
 bool DockerDevice::createDirectory(const FilePath &filePath) const
@@ -1070,9 +1056,7 @@ bool DockerDevice::createDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("mkdir", {"-p", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"mkdir", {"-p", path}});
 }
 
 bool DockerDevice::exists(const FilePath &filePath) const
@@ -1086,9 +1070,7 @@ bool DockerDevice::exists(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-e", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-e", path}});
 }
 
 bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
@@ -1102,9 +1084,7 @@ bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("touch", {path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"touch", {path}});
 }
 
 bool DockerDevice::removeFile(const FilePath &filePath) const
@@ -1117,9 +1097,7 @@ bool DockerDevice::removeFile(const FilePath &filePath) const
         LOG("Remove? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const CommandLine cmd("rm", {filePath.path()});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"rm", {filePath.path()}});
 }
 
 bool DockerDevice::removeRecursively(const FilePath &filePath) const
@@ -1134,9 +1112,7 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
         return res;
     }
 // Open this up only when really needed.
-//    const CommandLine cmd("rm", "-rf", {filePath.path()});
-//    const int exitCode = d->runSynchronously(cmd);
-//    return exitCode == 0;
+//   return d->runInContainer({"rm", "-rf", {filePath.path()}});
     return false;
 }
 
@@ -1152,9 +1128,7 @@ bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) co
         LOG("Copy " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
         return res;
     }
-    const CommandLine cmd("cp", {filePath.path(), target.path()});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"cp", {filePath.path(), target.path()}});
 }
 
 bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) const
@@ -1169,9 +1143,7 @@ bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) 
         LOG("Move " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
         return res;
     }
-    const CommandLine cmd("mv", {filePath.path(), target.path()});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"mv", {filePath.path(), target.path()}});
 }
 
 QDateTime DockerDevice::lastModified(const FilePath &filePath) const
@@ -1299,10 +1271,10 @@ void DockerDevicePrivate::fetchSystemEnviroment()
     m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
 }
 
-int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
+bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 {
     if (m_accessible == NoDaemon)
-        return -1;
+        return false;
     CommandLine dcmd{"docker", {"exec", m_container}};
     dcmd.addArgs(cmd);
 
@@ -1313,7 +1285,8 @@ int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
     proc.waitForFinished();
 
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
-    return proc.exitCode();
+    const int exitCode = proc.exitCode();
+    return exitCode == 0;
 }
 
 // Factory
