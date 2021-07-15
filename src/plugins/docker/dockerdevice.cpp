@@ -1192,8 +1192,13 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
         });
     }
 
-    QTC_CHECK(false); // FIXME: Implement
-    return {};
+    QtcProcess proc;
+    proc.setCommand({"ls", {"-1", "-b", "--", filePath.path()}});
+    runProcess(proc);
+    proc.waitForFinished();
+
+    QStringList entries = proc.stdOut().split('\n', Qt::SkipEmptyParts);
+    return FilePath::filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
 }
 
 QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const

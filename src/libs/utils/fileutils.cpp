@@ -969,9 +969,9 @@ bool FilePath::createDir() const
     return dir.mkpath(dir.absolutePath());
 }
 
-QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters,
-                                     QDir::Filters filters,
-                                     QDir::SortFlags sort) const
+FilePaths FilePath::dirEntries(const QStringList &nameFilters,
+                               QDir::Filters filters,
+                               QDir::SortFlags sort) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.dirEntries, return {});
@@ -980,6 +980,41 @@ QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters,
 
     const QFileInfoList entryInfoList = QDir(m_data).entryInfoList(nameFilters, filters, sort);
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
+}
+
+FilePaths FilePath::filterEntriesHelper(const FilePath &base,
+                                        const QStringList &entries,
+                                        const QStringList &nameFilters,
+                                        QDir::Filters filters,
+                                        QDir::SortFlags sort)
+{
+    const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
+        QRegularExpression re;
+        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+        QTC_CHECK(re.isValid());
+        return re;
+    });
+
+    const auto nameMatches = [&nameRegexps](const QString &fileName) {
+        for (const QRegularExpression &re : nameRegexps) {
+            const QRegularExpressionMatch match = re.match(fileName);
+            if (match.hasMatch())
+                return true;
+        }
+        return false;
+    };
+
+    // FIXME: Handle sort and filters. For now bark on unsupported options.
+    QTC_CHECK(filters == QDir::NoFilter);
+    QTC_CHECK(sort == QDir::NoSort);
+
+    FilePaths result;
+    for (const QString &entry : entries) {
+        if (!nameMatches(entry))
+            continue;
+        result.append(base.pathAppended(entry));
+    }
+    return result;
 }
 
 QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
