@@ -72,6 +72,9 @@ namespace ClangCodeModel {
 namespace Internal {
 
 static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
 class AstParams : public JsonObject
@@ -438,7 +441,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
-    if (clangdLog().isDebugEnabled())
+    if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty"});
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
@@ -1367,7 +1370,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
             if (children && !children->isEmpty())
                 node = children->first();
         }
-        if (clangdLog().isDebugEnabled())
+        if (clangdLogAst().isDebugEnabled())
             node.print(0);
 
         QString type = node.type();
@@ -1687,7 +1690,7 @@ void ClangdClient::Private::handleDeclDefSwitchReplies()
     // Find the function declaration or definition associated with the cursor.
     // For instance, the cursor could be somwehere inside a function body or
     // on a function return type, or ...
-    if (clangdLog().isDebugEnabled())
+    if (clangdLogAst().isDebugEnabled())
         switchDeclDefData->ast->print(0);
     const Utils::optional<AstNode> functionNode = switchDeclDefData->getFunctionNode();
     if (!functionNode) {
@@ -1760,7 +1763,7 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
             return;
         const auto it = std::lower_bound(results.begin(), results.end(), result, lessThan);
         if (it == results.end() || *it != result) {
-            qCDebug(clangdLog) << "adding additional highlighting result"
+            qCDebug(clangdLogHighlight) << "adding additional highlighting result"
                                << result.line << result.column << result.length;
             results.insert(it, result);
             return;
@@ -2317,7 +2320,7 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
             styles.mixinStyles.push_back(TextEditor::C_DECLARATION);
         if (isOutputParameter(token))
             styles.mixinStyles.push_back(TextEditor::C_OUTPUT_ARGUMENT);
-        qCDebug(clangdLog) << "adding highlighting result"
+        qCDebug(clangdLogHighlight) << "adding highlighting result"
                            << token.line << token.column << token.length << int(styles.mainStyle);
         return TextEditor::HighlightingResult(token.line, token.column, token.length, styles);
     };
@@ -2350,7 +2353,8 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
 {
     qCDebug(clangdLog()) << "handling LSP tokens" << tokens.size();
     for (const ExpandedSemanticToken &t : tokens)
-        qCDebug(clangdLog) << '\t' << t.line << t.column << t.length << t.type << t.modifiers;
+        qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
+                                      << t.modifiers;
 
     // TODO: Cache ASTs
     AstParams params(TextDocumentIdentifier(DocumentUri::fromFilePath(doc->filePath())));
@@ -2359,7 +2363,7 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         if (!q->documentOpen(doc))
             return;
         const Utils::optional<AstNode> ast = response.result();
-        if (ast && clangdLog().isDebugEnabled())
+        if (ast && clangdLogAst().isDebugEnabled())
             ast->print();
 
         const auto runner = [tokens, text = doc->document()->toPlainText(),
