@@ -56,67 +56,25 @@ public:
         , initializer{database, isInitialized}
     {}
 
-    void synchronizeTypes(Storage::Types types, SourceIds sourceIds)
+    void synchronize(Storage::ImportDependencies importDependencies,
+                     Storage::Documents documents,
+                     Storage::Types types,
+                     SourceIds sourceIds)
     {
         Sqlite::ImmediateTransaction transaction{database};
 
-        std::vector<AliasPropertyDeclaration> insertedAliasPropertyDeclarations;
-        std::vector<AliasPropertyDeclaration> updatedAliasPropertyDeclarations;
-
-        TypeIds updatedTypeIds;
-        updatedTypeIds.reserve(types.size());
-
-        for (auto &&type : types) {
-            if (!type.sourceId)
-                throw TypeHasInvalidSourceId{};
-
-            updatedTypeIds.push_back(declareType(type));
-        }
-
-        for (auto &&type : types)
-            syncPrototypes(type);
-
-        for (auto &&type : types)
-            resetRemovedAliasPropertyDeclarationsToNull(type.typeId, type.propertyDeclarations);
-
-        for (auto &&type : types)
-            syncDeclarations(type, insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
-
-        deleteNotUpdatedTypes(updatedTypeIds, sourceIds);
-
-        linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
-
-        transaction.commit();
-    }
-
-    void synchronizeImports(Storage::Imports imports)
-    {
-        Sqlite::ImmediateTransaction transaction{database};
-
-        synchronizeImportsAndUpdatesImportIds(imports);
-        synchronizeImportDependencies(createSortedImportDependecies(imports));
-
-        transaction.commit();
-    }
-
-    void synchronizeDocuments(Storage::Documents documents)
-    {
-        Sqlite::ImmediateTransaction transaction{database};
-
-        for (auto &&document : documents)
-            synchronizeDocumentImports(document.sourceId, document.importIds);
+        synchronizeImports(importDependencies);
+        synchronizeDocuments(documents);
+        synchronizeTypes(types, sourceIds);
 
         transaction.commit();
     }
 
     ImportIds fetchImportIds(const Storage::Imports &imports)
     {
-        ImportIds importIds;
-
         Sqlite::DeferredTransaction transaction{database};
 
-        for (auto &&import : imports)
-            importIds.push_back(fetchImportId(import));
+        ImportIds importIds = fetchImportIdsUnguarded(imports);
 
         transaction.commit();
 
@@ -295,7 +253,7 @@ public:
 
     auto fetchAllImports() const
     {
-        Storage::Imports imports;
+        Storage::ImportDependencies imports;
         imports.reserve(128);
 
         auto callback = [&](Utils::SmallStringView name, int version, int sourceId, long long importId) {
@@ -304,7 +262,7 @@ public:
                                                     SourceId{sourceId});
 
             lastImport.importDependencies = selectImportsForThatDependentOnThisImportIdStatement
-                                                .template values<Storage::BasicImport>(6, importId);
+                                                .template values<Storage::Import>(6, importId);
 
             return Sqlite::CallbackControl::Continue;
         };
@@ -315,6 +273,50 @@ public:
     }
 
 private:
+    void synchronizeTypes(Storage::Types &types, SourceIds &sourceIds)
+    {
+        std::vector<AliasPropertyDeclaration> insertedAliasPropertyDeclarations;
+        std::vector<AliasPropertyDeclaration> updatedAliasPropertyDeclarations;
+
+        TypeIds updatedTypeIds;
+        updatedTypeIds.reserve(types.size());
+
+        for (auto &&type : types) {
+            if (!type.sourceId)
+                throw TypeHasInvalidSourceId{};
+
+            updatedTypeIds.push_back(declareType(type));
+        }
+
+        for (auto &&type : types)
+            syncPrototypes(type);
+
+        for (auto &&type : types)
+            resetRemovedAliasPropertyDeclarationsToNull(type.typeId, type.propertyDeclarations);
+
+        for (auto &&type : types)
+            syncDeclarations(type, insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+
+        deleteNotUpdatedTypes(updatedTypeIds, sourceIds);
+
+        linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+    }
+
+    void synchronizeImports(Storage::ImportDependencies &imports)
+    {
+        if (imports.empty())
+            return;
+
+        synchronizeImportsAndUpdatesImportIds(imports);
+        synchronizeImportDependencies(createSortedImportDependecies(imports));
+    }
+
+    void synchronizeDocuments(Storage::Documents &documents)
+    {
+        for (auto &&document : documents)
+            synchronizeDocumentImports(document.sourceId, document.imports);
+    }
+
     struct ImportDependency
     {
         ImportDependency(ImportId id, ImportId dependencyId)
@@ -341,7 +343,7 @@ private:
         }
     };
 
-    void synchronizeImportsAndUpdatesImportIds(Storage::Imports &imports)
+    void synchronizeImportsAndUpdatesImportIds(Storage::ImportDependencies &imports)
     {
         auto compareKey = [](auto &&first, auto &&second) {
             auto nameCompare = Sqlite::compare(first.name, second.name);
@@ -358,13 +360,13 @@ private:
 
         auto range = selectAllImportsStatement.template range<Storage::ImportView>();
 
-        auto insert = [&](Storage::Import &import) {
+        auto insert = [&](Storage::ImportDependency &import) {
             import.importId = insertImportStatement.template value<ImportId>(import.name,
                                                                              import.version.version,
                                                                              &import.sourceId);
         };
 
-        auto update = [&](const Storage::ImportView &importView, Storage::Import &import) {
+        auto update = [&](const Storage::ImportView &importView, Storage::ImportDependency &import) {
             if (importView.sourceId.id != import.sourceId.id)
                 updateImportStatement.write(&importView.importId, &import.sourceId);
             import.importId = importView.importId;
@@ -378,13 +380,14 @@ private:
         Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
     }
 
-    std::vector<ImportDependency> createSortedImportDependecies(const Storage::Imports &imports) const
+    std::vector<ImportDependency> createSortedImportDependecies(
+        const Storage::ImportDependencies &imports) const
     {
         std::vector<ImportDependency> importDependecies;
         importDependecies.reserve(imports.size() * 5);
 
-        for (const Storage::Import &import : imports) {
-            for (const Storage::BasicImport &importDependency : import.importDependencies) {
+        for (const Storage::ImportDependency &import : imports) {
+            for (const Storage::Import &importDependency : import.importDependencies) {
                 auto importIdForDependency = fetchImportId(importDependency);
 
                 if (!importIdForDependency)
@@ -427,7 +430,7 @@ private:
         Sqlite::insertUpdateDelete(range, importDependecies, compareKey, insert, update, remove);
     }
 
-    ImportId fetchImportId(const Storage::BasicImport &import) const
+    ImportId fetchImportId(const Storage::Import &import) const
     {
         if (import.version) {
             return selectImportIdByNameAndVersionStatement
@@ -968,8 +971,30 @@ private:
         Sqlite::insertUpdateDelete(range, aliasDeclarations, compareKey, insert, update, remove);
     }
 
-    void synchronizeDocumentImports(SourceId sourceId, ImportIds &importIds)
+    ImportIds createImportIds(const Storage::Imports &imports)
     {
+        ImportIds importIds;
+        importIds.reserve(importIds.size());
+
+        for (const auto &import : imports)
+            selectImportIdByNameAndVersionStatement.readto(importIds, import.name, import.version);
+    }
+
+    ImportIds fetchImportIdsUnguarded(const Storage::Imports &imports)
+    {
+        ImportIds importIds;
+        importIds.reserve(importIds.size());
+
+        for (auto &&import : imports)
+            importIds.push_back(fetchImportId(import));
+
+        return importIds;
+    }
+
+    void synchronizeDocumentImports(SourceId sourceId, const Storage::Imports &imports)
+    {
+        ImportIds importIds = fetchImportIdsUnguarded(imports);
+
         std::sort(importIds.begin(), importIds.end());
 
         auto range = selectImportIdsForSourceIdStatement.template range<ImportId>(&sourceId);

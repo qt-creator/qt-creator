@@ -500,36 +500,20 @@ public:
 
 using Types = std::vector<Type>;
 
-class Document
+class Import
 {
 public:
-    explicit Document() = default;
-    explicit Document(SourceId sourceId, ImportIds importIds)
-        : importIds{std::move(importIds)}
-        , sourceId{sourceId}
-    {}
-
-public:
-    ImportIds importIds;
-    SourceId sourceId;
-};
-
-using Documents = std::vector<Document>;
-
-class BasicImport
-{
-public:
-    explicit BasicImport(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
+    explicit Import(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
         : name{name}
         , version{version}
     {}
 
-    explicit BasicImport(Utils::SmallStringView name, int version)
+    explicit Import(Utils::SmallStringView name, int version)
         : name{name}
         , version{version}
     {}
 
-    friend bool operator==(const BasicImport &first, const BasicImport &second)
+    friend bool operator==(const Import &first, const Import &second)
     {
         return first.name == second.name && first.version == second.version;
     }
@@ -539,39 +523,55 @@ public:
     VersionNumber version;
 };
 
-using BasicImports = std::vector<BasicImport>;
+using Imports = std::vector<Import>;
 
-class Import : public BasicImport
+class Document
 {
 public:
-    explicit Import(Utils::SmallStringView name,
-                    VersionNumber version = VersionNumber{},
-                    SourceId sourceId = SourceId{},
-                    BasicImports importDependencies = {})
-        : BasicImport(name, version)
+    explicit Document() = default;
+    explicit Document(SourceId sourceId, Imports imports)
+        : imports{std::move(imports)}
+        , sourceId{sourceId}
+    {}
+
+public:
+    Imports imports;
+    SourceId sourceId;
+};
+
+using Documents = std::vector<Document>;
+
+class ImportDependency : public Import
+{
+public:
+    explicit ImportDependency(Utils::SmallStringView name,
+                              VersionNumber version = VersionNumber{},
+                              SourceId sourceId = SourceId{},
+                              Imports importDependencies = {})
+        : Import(name, version)
         , importDependencies{std::move(importDependencies)}
         , sourceId{sourceId}
     {}
 
-    explicit Import(Utils::SmallStringView name, int version, int sourceId)
-        : BasicImport(name, version)
+    explicit ImportDependency(Utils::SmallStringView name, int version, int sourceId)
+        : Import(name, version)
         , sourceId{sourceId}
     {}
 
-    friend bool operator==(const Import &first, const Import &second)
+    friend bool operator==(const ImportDependency &first, const ImportDependency &second)
     {
-        return static_cast<const BasicImport &>(first) == static_cast<const BasicImport &>(second)
+        return static_cast<const Import &>(first) == static_cast<const Import &>(second)
                && first.sourceId == second.sourceId
                && first.importDependencies == second.importDependencies;
     }
 
 public:
-    BasicImports importDependencies;
+    Imports importDependencies;
     SourceId sourceId;
     ImportId importId;
 };
 
-using Imports = std::vector<Import>;
+using ImportDependencies = std::vector<ImportDependency>;
 
 class ImportView
 {

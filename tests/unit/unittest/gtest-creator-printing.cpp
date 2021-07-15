@@ -1103,12 +1103,12 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
                << enumerationDeclaration.enumeratorDeclarations << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const BasicImport &import)
+std::ostream &operator<<(std::ostream &out, const Import &import)
 {
     return out << "(" << import.name << ", " << import.version << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const Import &import)
+std::ostream &operator<<(std::ostream &out, const ImportDependency &import)
 {
     return out << "(" << import.name << ", " << import.version << ", " << import.sourceId << ", "
                << import.importDependencies << ")";
