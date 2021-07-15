@@ -67,6 +67,18 @@ if [ -d "$assetimporterSrcDir" ]; then
     fi
 fi
 
+# workaround for Qt 6.2:
+# - QTBUG-94796 macdeployqt does not deploy /Contents/PlugIns/sqldrivers/libqsqlite.dylib anymore
+sqldriversDestDir="$app_path/Contents/PlugIns/sqldrivers"
+sqldriversSrcDir="$plugin_src/sqldrivers"
+if [ -d "$sqldriversSrcDir" ]; then
+    if [ ! -d "$sqldriversDestDir" ]; then
+        echo "- Copying sqlitedriver plugin"
+        mkdir -p "$sqldriversDestDir"
+        cp "$sqldriversSrcDir/libqsqlite.dylib" "$sqldriversDestDir/libqsqlite.dylib"
+    fi
+fi
+
 # copy Qt Quick 2 imports
 imports2Dir="$app_path/Contents/Imports/qtquick2"
 if [ -d "$quick2_src" ]; then
