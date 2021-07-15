@@ -2454,6 +2454,11 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
                 this, &Private::onUndoCommandAdded);
         m_buffer->lastRevision = revision();
     }
+
+#ifndef FAKEVIM_STANDALONE
+    connect(&s.showMarks, &FvBaseAspect::changed,
+            this, &FakeVimHandler::Private::updateSelection);
+#endif
 }
 
 void FakeVimHandler::Private::init()
