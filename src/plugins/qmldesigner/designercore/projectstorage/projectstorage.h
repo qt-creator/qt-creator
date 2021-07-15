@@ -712,7 +712,7 @@ private:
 
     void linkAliasPropertyDeclarationAliasIds(const std::vector<AliasPropertyDeclaration> &aliasDeclarations)
     {
-        for (auto &aliasDeclaration : aliasDeclarations) {
+        for (const auto &aliasDeclaration : aliasDeclarations) {
             auto [aliasTypeId, aliasTypeNameId] = fetchTypeIdByNameUngarded(aliasDeclaration.aliasTypeName,
                                                                             aliasDeclaration.sourceId);
 
@@ -729,7 +729,7 @@ private:
 
     void updateAliasPropertyDeclarationValues(const std::vector<AliasPropertyDeclaration> &aliasDeclarations)
     {
-        for (auto &aliasDeclaration : aliasDeclarations) {
+        for (const auto &aliasDeclaration : aliasDeclarations) {
             updatetPropertiesDeclarationValuesOfAliasStatement.write(
                 &aliasDeclaration.propertyDeclarationId);
             updatePropertyAliasDeclarationRecursivelyStatement.write(
@@ -737,11 +737,20 @@ private:
         }
     }
 
+    void checkAliasPropertyDeclarationCycles(const std::vector<AliasPropertyDeclaration> &aliasDeclarations)
+    {
+        for (const auto &aliasDeclaration : aliasDeclarations)
+            checkForAliasChainCycle(aliasDeclaration.propertyDeclarationId);
+    }
+
     void linkAliases(const std::vector<AliasPropertyDeclaration> &insertedAliasPropertyDeclarations,
                      const std::vector<AliasPropertyDeclaration> &updatedAliasPropertyDeclarations)
     {
         linkAliasPropertyDeclarationAliasIds(insertedAliasPropertyDeclarations);
         linkAliasPropertyDeclarationAliasIds(updatedAliasPropertyDeclarations);
+
+        checkAliasPropertyDeclarationCycles(insertedAliasPropertyDeclarations);
+        checkAliasPropertyDeclarationCycles(updatedAliasPropertyDeclarations);
 
         updateAliasPropertyDeclarationValues(insertedAliasPropertyDeclarations);
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
@@ -1183,7 +1192,7 @@ private:
         synchronizeEnumerationDeclarations(typeId, type.enumerationDeclarations);
     }
 
-    void checkForPrototypeChainCycle(TypeId typeId)
+    void checkForPrototypeChainCycle(TypeId typeId) const
     {
         auto callback = [=](long long currentTypeId) {
             if (typeId == TypeId{currentTypeId})
@@ -1193,6 +1202,19 @@ private:
         };
 
         selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, &typeId);
+    }
+
+    void checkForAliasChainCycle(PropertyDeclarationId propertyDeclarationId) const
+    {
+        auto callback = [=](long long currentPropertyDeclarationId) {
+            if (propertyDeclarationId == PropertyDeclarationId{currentPropertyDeclarationId})
+                throw AliasChainCycle{};
+
+            return Sqlite::CallbackControl::Continue;
+        };
+
+        selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback,
+                                                                        &propertyDeclarationId);
     }
 
     void syncPrototypes(Storage::Type &type)
@@ -2014,6 +2036,16 @@ public:
     WriteStatement updatePropertyDeclarationAliasIdToNullStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=NULL  WHERE "
         "propertyDeclarationId=?1",
+        database};
+    mutable ReadStatement<1> selectPropertyDeclarationIdsForAliasChainStatement{
+        "WITH RECURSIVE "
+        "  properties(propertyDeclarationId) AS ( "
+        "    SELECT aliasPropertyDeclarationId FROM propertyDeclarations WHERE "
+        "     propertyDeclarationId=?1 "
+        "   UNION ALL "
+        "     SELECT aliasPropertyDeclarationId FROM propertyDeclarations JOIN properties "
+        "       USING(propertyDeclarationId)) "
+        "SELECT propertyDeclarationId FROM properties",
         database};
 };
 

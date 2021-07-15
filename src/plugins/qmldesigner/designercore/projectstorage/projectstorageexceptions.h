@@ -95,4 +95,10 @@ public:
     const char *what() const noexcept override { return "There is a prototype chain cycle!"; }
 };
 
+class AliasChainCycle : std::exception
+{
+public:
+    const char *what() const noexcept override { return "There is a prototype chain cycle!"; }
+};
+
 } // namespace QmlDesigner

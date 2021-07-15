@@ -3271,4 +3271,27 @@ TEST_F(ProjectStorageSlowTest, UpdateAliasesAfterChangePropertyToAlias)
                                          "objects"))))));
 }
 
+TEST_F(ProjectStorageSlowTest, CheckForProtoTypeCycle)
+{
+    Storage::Types types{createTypesWithRecursiveAliases()};
+    types[1].propertyDeclarations.clear();
+    types[1].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects", Storage::ExportedType{"AliasItem2"}, "objects"});
+
+    ASSERT_THROW(storage.synchronizeTypes(types,
+                                          {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}),
+                 QmlDesigner::AliasChainCycle);
+}
+
+TEST_F(ProjectStorageSlowTest, CheckForProtoTypeCycleAfterUpdate)
+{
+    Storage::Types types{createTypesWithRecursiveAliases()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    types[1].propertyDeclarations.clear();
+    types[1].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects", Storage::ExportedType{"AliasItem2"}, "objects"});
+
+    ASSERT_THROW(storage.synchronizeTypes({types[1]}, {sourceId2}), QmlDesigner::AliasChainCycle);
+}
+
 } // namespace
