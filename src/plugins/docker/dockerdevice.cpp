@@ -73,6 +73,8 @@
 #include <QToolButton>
 #include <QThread>
 
+#include <numeric>
+
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #include <sys/types.h>
@@ -1201,8 +1203,21 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qi
     if (hasLocalFileAccess())
         return mapToLocalAccess(filePath).fileContents(limit, offset);
 
-    QTC_CHECK(false); // FIXME: Implement
-    return {};
+    QStringList args = {"if=" + filePath.path(), "status=none"};
+    if (limit > 0 || offset > 0) {
+        const qint64 gcd = std::gcd(limit, offset);
+        args += {QString("bs=%1").arg(gcd),
+                 QString("count=%1").arg(limit / gcd),
+                 QString("seek=%1").arg(offset / gcd)};
+    }
+
+    QtcProcess proc;
+    proc.setCommand({"dd", args});
+    runProcess(proc);
+    proc.waitForFinished();
+
+    QByteArray output = proc.readAllStandardOutput();
+    return output;
 }
 
 bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
