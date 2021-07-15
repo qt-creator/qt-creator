@@ -488,7 +488,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
             continue;
         if (FolderNode *subFolderNode = node->asFolderNode()) {
             bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
-            if (!m_showSourceGroups) {
+            if (m_hideSourceGroups) {
                 if (subFolderNode->isVirtualFolderType()) {
                     auto vnode = static_cast<VirtualFolderNode *>(subFolderNode);
                     if (vnode->isSourcesOrHeaders()) {
@@ -899,11 +899,11 @@ void FlatModel::setTrimEmptyDirectories(bool filter)
     rebuildModel();
 }
 
-void FlatModel::setShowSourceGroups(bool filter)
+void FlatModel::setHideSourceGroups(bool filter)
 {
-    if (filter == m_showSourceGroups)
+    if (filter == m_hideSourceGroups)
         return;
-    m_showSourceGroups = filter;
+    m_hideSourceGroups = filter;
     rebuildModel();
 }
 
