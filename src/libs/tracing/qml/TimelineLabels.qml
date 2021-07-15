@@ -115,14 +115,14 @@ Flickable {
                             categories.selectItem(index, eventId)
                         }
 
-                        onSelectNextBySelectionId: {
+                        onSelectNextBySelectionId: (selectionId) => {
                             categories.selectItem(index, modelData.nextItemBySelectionId(
                                     selectionId, zoomer.rangeStart,
                                     categories.selectedModel === index ? categories.selectedItem :
                                                                          -1));
                         }
 
-                        onSelectPrevBySelectionId: {
+                        onSelectPrevBySelectionId: (selectionId) => {
                             categories.selectItem(index,  modelData.prevItemBySelectionId(
                                     selectionId, zoomer.rangeStart,
                                     categories.selectedModel === index ? categories.selectedItem :
