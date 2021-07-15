@@ -92,9 +92,9 @@ QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
 }
 }
 
-static QString customCodeStylesPath()
+static Utils::FilePath customCodeStylesPath()
 {
-    return Core::ICore::userResourcePath("codestyles").toString();
+    return Core::ICore::userResourcePath("codestyles");
 }
 
 CodeStylePool::CodeStylePool(ICodeStylePreferencesFactory *factory, QObject *parent)
@@ -112,7 +112,7 @@ CodeStylePool::~CodeStylePool()
 QString CodeStylePool::settingsDir() const
 {
     const QString suffix = d->m_factory ? d->m_factory->languageId().toString() : QLatin1String("default");
-    return customCodeStylesPath().append(suffix);
+    return customCodeStylesPath().pathAppended(suffix).toString();
 }
 
 Utils::FilePath CodeStylePool::settingsPath(const QByteArray &id) const
@@ -261,7 +261,7 @@ void CodeStylePool::slotSaveCodeStyle()
 
 void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
 {
-    const QString codeStylesPath = customCodeStylesPath();
+    const QString codeStylesPath = customCodeStylesPath().toString();
 
     // Create the base directory when it doesn't exist
     if (!QFile::exists(codeStylesPath) && !QDir().mkpath(codeStylesPath)) {
