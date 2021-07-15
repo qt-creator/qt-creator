@@ -211,9 +211,9 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
 
     int count = 0;
     for (const CMakeTool *item : cmakeTools) {
-        QFileInfo fi = item->cmakeExecutable().toFileInfo();
+        Utils::FilePath fi = item->cmakeExecutable();
 
-        if (fi.isExecutable()) {
+        if (fi.isExecutableFile()) {
             QVariantMap tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;
@@ -239,7 +239,7 @@ CMakeToolSettingsAccessor::cmakeTools(const QVariantMap &data, bool fromSdk) con
 
         const QVariantMap dbMap = data.value(key).toMap();
         auto item = std::make_unique<CMakeTool>(dbMap, fromSdk);
-        if (item->isAutoDetected() && !item->cmakeExecutable().toFileInfo().isExecutable()) {
+        if (item->isAutoDetected() && !item->cmakeExecutable().isExecutableFile()) {
             qWarning() << QString::fromLatin1("CMakeTool \"%1\" (%2) dropped since the command is not executable.")
                           .arg(item->cmakeExecutable().toUserOutput(), item->id().toString());
             continue;

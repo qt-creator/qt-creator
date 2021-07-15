@@ -61,7 +61,7 @@ Item {
                 extendedFunctionButton.color = StudioTheme.Values.themeInteraction
             }
         } else {
-            if (backendValue.complexNode !== null
+            if (backendValue.complexNode !== undefined
                     && backendValue.complexNode.exists) {
 
             } else {

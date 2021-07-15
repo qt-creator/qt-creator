@@ -128,7 +128,7 @@ public:
     Utils::FilePaths files(const NodeMatcher &matcher) const;
     bool isKnownFile(const Utils::FilePath &filename) const;
     const Node *nodeForFilePath(const Utils::FilePath &filePath,
-                                const NodeMatcher &extraMatcher = {});
+                                const NodeMatcher &extraMatcher = {}) const;
 
     virtual QVariantMap toMap() const;
 

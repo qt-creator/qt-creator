@@ -281,6 +281,12 @@ SecondColumnLayout {
         T.Popup {
             id: cePopup
 
+            WheelHandler {
+                onWheel: function(event) {
+                    Controller.mainScrollView.flick(0, event.angleDelta.y * 5)
+                }
+            }
+
             onOpened: {
                 if (Controller.mainScrollView === null)
                     return

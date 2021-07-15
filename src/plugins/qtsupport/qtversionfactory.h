@@ -51,10 +51,10 @@ public:
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
 
-    static BaseQtVersion *createQtVersionFromQMakePath(
-            const Utils::FilePath &qmakePath, bool isAutoDetected = false,
-            const QString &autoDetectionSource = QString(), QString *error = nullptr);
-
+    static BaseQtVersion *createQtVersionFromQMakePath(const Utils::FilePath &qmakePath,
+                                                       bool isAutoDetected = false,
+                                                       const QString &detectionSource = {},
+                                                       QString *error = nullptr);
 protected:
     struct SetupData
     {

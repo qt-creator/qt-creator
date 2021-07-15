@@ -271,7 +271,7 @@ void TestQtProjectImporter::deleteDirectoryData(void *directoryData) const
 
 static Utils::FilePath setupQmake(const BaseQtVersion *qt, const QString &path)
 {
-    const QFileInfo fi = QFileInfo(qt->qmakeCommand().toFileInfo().canonicalFilePath());
+    const QFileInfo fi = QFileInfo(qt->qmakeFilePath().toFileInfo().canonicalFilePath());
     const QString qmakeFile = path + "/" + fi.fileName();
     if (!QFile::copy(fi.absoluteFilePath(), qmakeFile))
         return Utils::FilePath();
@@ -379,12 +379,12 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     SysRootKitAspect::setSysRoot(kitTemplates[1], Utils::FilePath::fromString("/some/path"));
     SysRootKitAspect::setSysRoot(kitTemplates[2], Utils::FilePath::fromString("/some/other/path"));
 
-    QVector<Utils::FilePath> qmakePaths = {defaultQt->qmakeCommand(),
+    QVector<Utils::FilePath> qmakePaths = {defaultQt->qmakeFilePath(),
                                            setupQmake(defaultQt, tempDir1.path().path()),
                                            setupQmake(defaultQt, tempDir2.path().path())};
 
     for (int i = 1; i < qmakePaths.count(); ++i)
-        QVERIFY(!QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePaths.at(i))));
+        QVERIFY(!QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeFilePath, qmakePaths.at(i))));
 
     QList<DirectoryData *> testData;
 
@@ -457,7 +457,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         QVERIFY(newQt);
 
         // VALIDATE: Qt has the expected qmakePath
-        QCOMPARE(dd->qmakePath, newQt->qmakeCommand());
+        QCOMPARE(dd->qmakePath, newQt->qmakeFilePath());
 
         // VALIDATE: All keys are unchanged:
         QList<Utils::Id> newKitKeys = newKit->allKeys();
@@ -569,7 +569,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             QVERIFY(QtVersionManager::version(qtId));
 
             // VALIDATE: Qt points to the expected qmake path:
-            QCOMPARE(QtVersionManager::version(qtId)->qmakeCommand(), dd->qmakePath);
+            QCOMPARE(QtVersionManager::version(qtId)->qmakeFilePath(), dd->qmakePath);
 
             // VALIDATE: Kit uses the expected Qt
             QCOMPARE(QtKitAspect::qtVersionId(newKit), qtId);

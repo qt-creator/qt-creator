@@ -68,6 +68,7 @@ public slots:
                                   QString *logMessage);
     void registerCMakeByPath(const Utils::FilePath &cmakePath,
                              const QString &detectionSource);
+    void removeDetectedCMake(const QString &detectionSource, QString *logMessage);
 
 signals:
     void cmakeAdded (const Utils::Id &id);

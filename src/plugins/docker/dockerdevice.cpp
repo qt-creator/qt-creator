@@ -471,26 +471,54 @@ DockerDeviceData &DockerDevice::data()
 
 void KitDetectorPrivate::undoAutoDetect() const
 {
+    emit q->logOutput(tr("Start removing auto-detected items associated with this docker image."));
+
+    emit q->logOutput('\n' + tr("Removing kits..."));
     for (Kit *kit : KitManager::kits()) {
         if (kit->autoDetectionSource() == m_sharedId) {
-            emit q->logOutput(tr("Removing kit: %1").arg(kit->displayName()));
+            emit q->logOutput(tr("Removed \"%1\"").arg(kit->displayName()));
             KitManager::deregisterKit(kit);
         }
     };
+
+    emit q->logOutput('\n' + tr("Removing Qt version entries..."));
     for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
-        if (qtVersion->autodetectionSource() == m_sharedId) {
-            emit q->logOutput(tr("Removing Qt version: %1").arg(qtVersion->displayName()));
+        if (qtVersion->detectionSource() == m_sharedId) {
+            emit q->logOutput(tr("Removed \"%1\"").arg(qtVersion->displayName()));
             QtVersionManager::removeVersion(qtVersion);
         }
     };
 
-    emit q->logOutput(tr("Tool chains not removed."));
-    //        for (ToolChain *toolChain : ToolChainManager::toolChains()) {
-    //            if (toolChain->autoDetectionSource() == id.toString())
-    //                // FIXME: Implement
-    //        };
+    emit q->logOutput('\n' + tr("Removing toolchain entries..."));
+    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
+        QString detectionSource = toolChain->detectionSource();
+        if (toolChain->detectionSource() == m_sharedId) {
+            emit q->logOutput(tr("Removed \"%1\"").arg(toolChain->displayName()));
+            ToolChainManager::deregisterToolChain(toolChain);
+        }
+    };
 
-    emit q->logOutput(tr("Removal of previously auto-detected kit items finished.") + '\n');
+    if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                                   "removeDetectedCMake",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    if (QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(debuggerPlugin,
+                                                   "removeDetectedDebuggers",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    emit q->logOutput('\n' + tr("Removal of previously auto-detected kit items finished.") + "\n\n");
 }
 
 QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
@@ -510,7 +538,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
             continue;
         qtVersions.append(qtVersion);
         QtVersionManager::addVersion(qtVersion);
-        emit q->logOutput(tr("Found Qt: %1").arg(qtVersion->qmakeFilePath().toUserOutput()));
+        emit q->logOutput(tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
     }
     if (qtVersions.isEmpty())
         emit q->logOutput(tr("No Qt installation found."));
@@ -521,21 +549,24 @@ QList<ToolChain *> KitDetectorPrivate::autoDetectToolChains()
 {
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
-    QList<ToolChain *> toolChains;
+    QList<ToolChain *> alreadyKnown = ToolChainManager::toolChains();
+    QList<ToolChain *> allNewToolChains;
     QApplication::processEvents();
-    emit q->logOutput('\n' + tr("Searching tool chains..."));
+    emit q->logOutput('\n' + tr("Searching toolchains..."));
     for (ToolChainFactory *factory : factories) {
-        const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, m_device.constCast<IDevice>());
-        emit q->logOutput(tr("Searching tool chains of type %1").arg(factory->displayName()));
+        emit q->logOutput(tr("Searching toolchains of type %1").arg(factory->displayName()));
+        const QList<ToolChain *> newToolChains = factory->autoDetect(alreadyKnown, m_device.constCast<IDevice>());
         for (ToolChain *toolChain : newToolChains) {
-            emit q->logOutput(tr("Found tool chain: %1").arg(toolChain->compilerCommand().toUserOutput()));
+            emit q->logOutput(tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
+            toolChain->setDetectionSource(m_sharedId);
             ToolChainManager::registerToolChain(toolChain);
-            toolChains.append(toolChain);
+            alreadyKnown.append(toolChain);
         }
+        allNewToolChains.append(newToolChains);
     }
-    emit q->logOutput(tr("%1 new tool chains found.").arg(toolChains.size()));
+    emit q->logOutput(tr("%1 new toolchains found.").arg(allNewToolChains.size()));
 
-    return toolChains;
+    return allNewToolChains;
 }
 
 void KitDetectorPrivate::autoDetectCMake()
@@ -544,16 +575,15 @@ void KitDetectorPrivate::autoDetectCMake()
     if (!cmakeManager)
         return;
 
-    emit q->logOutput('\n' + tr("Searching CMake binary..."));
     const FilePath deviceRoot = m_device->mapToGlobalPath({});
-    QString error;
+    QString logMessage;
     const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                "autoDetectCMakeForDevice",
                                                Q_ARG(Utils::FilePath, deviceRoot),
                                                Q_ARG(QString, m_sharedId),
-                                               Q_ARG(QString *, &error));
+                                               Q_ARG(QString *, &logMessage));
     QTC_CHECK(res);
-    emit q->logOutput(error);
+    emit q->logOutput('\n' + logMessage);
 }
 
 void KitDetectorPrivate::autoDetectDebugger()
@@ -562,13 +592,15 @@ void KitDetectorPrivate::autoDetectDebugger()
     if (!debuggerPlugin)
         return;
 
-    emit q->logOutput('\n' + tr("Searching debuggers..."));
     const FilePath deviceRoot = m_device->mapToGlobalPath({});
+    QString logMessage;
     const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                "autoDetectDebuggersForDevice",
                                                Q_ARG(Utils::FilePath, deviceRoot),
-                                               Q_ARG(QString, m_sharedId));
+                                               Q_ARG(QString, m_sharedId),
+                                               Q_ARG(QString *, &logMessage));
     QTC_CHECK(res);
+    emit q->logOutput('\n' + logMessage);
 }
 
 void KitDetectorPrivate::autoDetect()
@@ -715,6 +747,15 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
                 .arg(m_container, m_mergedDir)
                     + '\n' + tr("Output: '%1'").arg(out)
                     + '\n' + tr("Error: '%1'").arg(proc.stdErr()));
+        if (HostOsInfo::isWindowsHost()) {
+            // Disabling merged layer access. This is not supported and anything
+            // related to accessing merged layers on Windows fails due to the need
+            // of using wsl or a named pipe.
+            // TODO investigate how to make it possible nevertheless.
+            m_mergedDir.clear();
+            MessageManager::writeSilently(tr("This is expected on Windows."));
+            return;
+        }
     }
 
     m_mergedDirWatcher.addPath(m_mergedDir);

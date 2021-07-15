@@ -42,7 +42,7 @@ Utils::FilePath TestOutputReader::constructSourceFilePath(const Utils::FilePath 
                                                           const QString &file)
 {
     const Utils::FilePath filePath = path.resolvePath(file);
-    return filePath.exists() ? filePath : Utils::FilePath();
+    return filePath.isReadableFile() ? filePath : Utils::FilePath();
 }
 
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,

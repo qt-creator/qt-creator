@@ -851,7 +851,7 @@ bool Project::isKnownFile(const Utils::FilePath &filename) const
 }
 
 const Node *Project::nodeForFilePath(const Utils::FilePath &filePath,
-                                     const Project::NodeMatcher &extraMatcher)
+                                     const Project::NodeMatcher &extraMatcher) const
 {
     const FileNode dummy(filePath, FileType::Unknown);
     const auto range = std::equal_range(d->m_sortedNodeList.cbegin(), d->m_sortedNodeList.cend(),

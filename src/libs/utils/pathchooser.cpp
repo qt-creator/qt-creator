@@ -582,7 +582,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         }
         break;
     case PathChooser::Directory:
-        if (filePath.isDir()) {
+        if (filePath.exists() && !filePath.isDir()) {
             if (errorMessage)
                 *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;

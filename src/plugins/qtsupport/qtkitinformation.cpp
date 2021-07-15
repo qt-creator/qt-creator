@@ -184,7 +184,7 @@ void QtKitAspect::setup(Kit *k)
     const QList<BaseQtVersion *> &candidates = !exactMatches.empty() ? exactMatches : matches;
 
     BaseQtVersion * const qtFromPath = QtVersionManager::version(
-                equal(&BaseQtVersion::autodetectionSource, QString::fromLatin1("PATH")));
+                equal(&BaseQtVersion::detectionSource, QString::fromLatin1("PATH")));
     if (qtFromPath && candidates.contains(qtFromPath))
         k->setValue(id(), qtFromPath->uniqueId());
     else
@@ -343,7 +343,7 @@ int QtKitAspect::qtVersionId(const Kit *k)
             id = -1;
     } else {
         QString source = data.toString();
-        BaseQtVersion *v = QtVersionManager::version([source](const BaseQtVersion *v) { return v->autodetectionSource() == source; });
+        BaseQtVersion *v = QtVersionManager::version([source](const BaseQtVersion *v) { return v->detectionSource() == source; });
         if (v)
             id = v->uniqueId();
     }

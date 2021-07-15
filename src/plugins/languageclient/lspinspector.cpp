@@ -538,7 +538,7 @@ MessageId LspLogMessage::id() const
 QString LspLogMessage::displayText() const
 {
     if (!m_displayText.has_value()) {
-        m_displayText = time.toString("hh:mm:ss.zzz") + '\n';
+        m_displayText = QString(time.toString("hh:mm:ss.zzz") + '\n');
         if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType())
             m_displayText->append(json().value(QString{methodKey}).toString(id().toString()));
         else

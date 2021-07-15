@@ -98,7 +98,7 @@ public:
     virtual bool equals(BaseQtVersion *other);
 
     bool isAutodetected() const;
-    QString autodetectionSource() const;
+    QString detectionSource() const;
 
     QString displayName() const;
     QString unexpandedDisplayName() const;

@@ -168,6 +168,13 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 
+    if (device) {
+        // Only detect toolchains from the emsdk installation device
+        const FilePath deviceRoot = device->mapToGlobalPath({});
+        if (deviceRoot.host() != sdk.host())
+            return {};
+    }
+
     Environment env = sdk.deviceEnvironment();
     WebAssemblyEmSdk::addToEnvironment(sdk, env);
 

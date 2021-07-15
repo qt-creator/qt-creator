@@ -137,21 +137,28 @@ void LanguageClientManager::clientFinished(Client *client)
     constexpr int restartTimeoutS = 5;
     const bool unexpectedFinish = client->state() != Client::Shutdown
                                   && client->state() != Client::ShutdownRequested;
-    if (unexpectedFinish && !managerInstance->m_shuttingDown && client->reset()) {
-        client->disconnect(managerInstance);
-        client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
-        QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
-        for (TextEditor::TextDocument *document : managerInstance->m_clientForDocument.keys(client))
-            client->deactivateDocument(document);
-    } else {
-        if (unexpectedFinish && !managerInstance->m_shuttingDown)
+
+    if (unexpectedFinish) {
+        if (!managerInstance->m_shuttingDown) {
+            const QList<TextEditor::TextDocument *> &clientDocs
+                = managerInstance->m_clientForDocument.keys(client);
+            if (client->reset()) {
+                client->disconnect(managerInstance);
+                client->log(
+                    tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
+                QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
+                for (TextEditor::TextDocument *document : clientDocs)
+                    client->deactivateDocument(document);
+                return;
+            }
             client->log(tr("Unexpectedly finished."));
-        for (TextEditor::TextDocument *document : managerInstance->m_clientForDocument.keys(client))
-            managerInstance->m_clientForDocument.remove(document);
-        deleteClient(client);
-        if (managerInstance->m_shuttingDown && managerInstance->m_clients.isEmpty())
-            emit managerInstance->shutdownFinished();
+            for (TextEditor::TextDocument *document : clientDocs)
+                managerInstance->m_clientForDocument.remove(document);
+        }
     }
+    deleteClient(client);
+    if (managerInstance->m_shuttingDown && managerInstance->m_clients.isEmpty())
+        emit managerInstance->shutdownFinished();
 }
 
 Client *LanguageClientManager::startClient(BaseSettings *setting, ProjectExplorer::Project *project)
@@ -193,6 +200,10 @@ void LanguageClientManager::shutdownClient(Client *client)
 {
     if (!client)
         return;
+    // reset the documents for that client already when requesting the shutdown so they can get
+    // reassigned to another server right after this request to another server
+    for (TextEditor::TextDocument *document : managerInstance->m_clientForDocument.keys(client))
+        managerInstance->m_clientForDocument.remove(document);
     if (client->reachable())
         client->shutdown();
     else if (client->state() != Client::Shutdown && client->state() != Client::ShutdownRequested)

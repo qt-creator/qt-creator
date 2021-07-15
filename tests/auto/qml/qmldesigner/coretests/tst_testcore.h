@@ -29,6 +29,8 @@
 
 #include <QtTest>
 
+#include <extensionsystem/pluginmanager.h>
+
 
 class tst_TestCore : public QObject
 {
@@ -237,4 +239,7 @@ private slots:
     // QMLAnnotations
     void writeAnnotations();
     void readAnnotations();
+
+private:
+    ExtensionSystem::PluginManager pm; // FIXME remove
 };

@@ -184,14 +184,14 @@ void CMakeToolManager::autoDetectCMakeForDevice(const FilePath &deviceRoot,
                                                 const QString &detectionSource,
                                                 QString *logMessage)
 {
-    QStringList messages;
+    QStringList messages{tr("Searching CMake binaries...")};
     const FilePaths candidates = {FilePath::fromString("cmake").onDevice(deviceRoot)};
     const Environment env = deviceRoot.deviceEnvironment();
     for (const FilePath &candidate : candidates) {
         const FilePath cmake = candidate.searchOnDevice(env.path());
         if (!cmake.isEmpty()) {
             registerCMakeByPath(cmake, detectionSource);
-            messages.append(tr("Found CMake binary: %1").arg(cmake.toUserOutput()));
+            messages.append(tr("Found \"%1\"").arg(cmake.toUserOutput()));
         }
     }
     if (logMessage)
@@ -209,9 +209,26 @@ void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QStr
 
     auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
     newTool->setFilePath(cmakePath);
-    newTool->setDisplayName(cmakePath.toUserOutput());
     newTool->setDetectionSource(detectionSource);
+    newTool->setDisplayName(cmakePath.toUserOutput());
     registerCMakeTool(std::move(newTool));
+}
+
+void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QString *logMessage)
+{
+    QStringList logMessages{tr("Removing CMake entries...")};
+    while (true) {
+        auto toRemove = Utils::take(d->m_cmakeTools, Utils::equal(&CMakeTool::detectionSource, detectionSource));
+        if (!toRemove.has_value())
+            break;
+        logMessages.append(tr("Removed \"%1\"").arg((*toRemove)->displayName()));
+        emit m_instance->cmakeRemoved((*toRemove)->id());
+    }
+
+    ensureDefaultCMakeToolIsValid();
+    updateDocumentation();
+    if (logMessage)
+        *logMessage = logMessages.join('\n');
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)

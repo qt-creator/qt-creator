@@ -78,7 +78,7 @@ namespace QtSupport {
 namespace Internal {
 
 const char QTVERSIONAUTODETECTED[] = "isAutodetected";
-const char QTVERSIONAUTODETECTIONSOURCE[] = "autodetectionSource";
+const char QTVERSIONDETECTIONSOURCE[] = "autodetectionSource";
 const char QTVERSION_OVERRIDE_FEATURES[] = "overrideFeatures";
 const char QTVERSIONQMAKEPATH[] = "QMakePath";
 const char QTVERSIONSOURCEPATH[] = "SourcePath";
@@ -223,7 +223,7 @@ public:
     bool m_versionInfoUpToDate = false;
     bool m_qmakeIsExecutable = true;
 
-    QString m_autodetectionSource;
+    QString m_detectionSource;
     QSet<Utils::Id> m_overrideFeatures;
 
     FilePath m_mkspec;
@@ -368,7 +368,7 @@ QString BaseQtVersion::defaultUnexpandedDisplayName() const
         } while (!dir.isRoot() && dir.cdUp());
     }
 
-    return autodetectionSource() == "PATH" ?
+    return detectionSource() == "PATH" ?
         QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} in PATH (%2)").arg(location) :
         QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} (%2)").arg(location);
 }
@@ -724,7 +724,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
         d->m_id = QtVersionManager::getUniqueId();
     d->m_data.unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
-    d->m_autodetectionSource = map.value(QTVERSIONAUTODETECTIONSOURCE).toString();
+    d->m_detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     d->m_qmakeCommand = FilePath::fromVariant(map.value(QTVERSIONQMAKEPATH));
 
@@ -765,7 +765,7 @@ QVariantMap BaseQtVersion::toMap() const
     d->m_data.unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
 
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
-    result.insert(QTVERSIONAUTODETECTIONSOURCE, autodetectionSource());
+    result.insert(QTVERSIONDETECTIONSOURCE, detectionSource());
     if (!d->m_overrideFeatures.isEmpty())
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
@@ -885,9 +885,9 @@ bool BaseQtVersion::isAutodetected() const
     return d->m_isAutodetected;
 }
 
-QString BaseQtVersion::autodetectionSource() const
+QString BaseQtVersion::detectionSource() const
 {
-    return d->m_autodetectionSource;
+    return d->m_detectionSource;
 }
 
 QString BaseQtVersion::displayName() const
@@ -2316,7 +2316,7 @@ void BaseQtVersion::resetCache() const
 static QList<QtVersionFactory *> g_qtVersionFactories;
 
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
-    (const FilePath &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
+    (const FilePath &qmakePath, bool isAutoDetected, const QString &detectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
     const Environment env = qmakePath.deviceEnvironment();
@@ -2353,7 +2353,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
             ver->d->m_id = QtVersionManager::getUniqueId();
             QTC_CHECK(ver->d->m_qmakeCommand.isEmpty()); // Should only be used once.
             ver->d->m_qmakeCommand = qmakePath;
-            ver->d->m_autodetectionSource = autoDetectionSource;
+            ver->d->m_detectionSource = detectionSource;
             ver->d->m_isAutodetected = isAutoDetected;
             ver->updateDefaultDisplayName();
             ProFileCacheManager::instance()->decRefCount();
