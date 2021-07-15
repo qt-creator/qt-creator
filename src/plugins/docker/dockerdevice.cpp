@@ -49,6 +49,7 @@
 #include <utils/basetreeview.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/utilsicons.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overridecursor.h>
 #include <utils/port.h>
@@ -69,6 +70,7 @@
 #include <QLoggingCategory>
 #include <QPushButton>
 #include <QTextBrowser>
+#include <QToolButton>
 #include <QThread>
 
 #ifdef Q_OS_UNIX
@@ -312,6 +314,14 @@ public:
     QFileSystemWatcher m_mergedDirWatcher;
 
     Environment m_cachedEnviroment;
+
+    enum LocalAccessState
+    {
+        NotEvaluated,
+        NoDaemon,
+        Accessible,
+        NotAccessible
+    } m_accessible = NotEvaluated;
 };
 
 class DockerDeviceWidget final : public IDeviceWidget
@@ -336,6 +346,17 @@ public:
         m_repoLineEdit = new QLineEdit;
         m_repoLineEdit->setText(data.repo);
         m_repoLineEdit->setEnabled(false);
+
+        auto daemonStateLabel = new QLabel(tr("Daemon state:"));
+        m_daemonReset = new QToolButton;
+        m_daemonReset->setIcon(Icons::INFO.icon());
+        m_daemonReset->setToolTip(tr("Daemon state not evaluated."));
+
+        connect(m_daemonReset, &QToolButton::clicked, this, [this, dockerDevice] {
+            dockerDevice->resetDaemonState();
+            m_daemonReset->setIcon(Icons::INFO.icon());
+            m_daemonReset->setToolTip(tr("Daemon state not evaluated."));
+        });
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
         m_runAsOutsideUser->setToolTip(tr("Use user ID and group ID of the user running Qt Creator "
@@ -369,6 +390,16 @@ public:
             logView->clear();
             dockerDevice->tryCreateLocalFileAccess();
             m_kitItemDetector.autoDetect(id);
+
+            if (!dockerDevice->isDaemonRunning()) {
+                logView->append(tr("Docker daemon appears to be not running."));
+                m_daemonReset->setToolTip(tr("Daemon not running. Push to reset the state."));
+                m_daemonReset->setIcon(Icons::CRITICAL.icon());
+            } else {
+                m_daemonReset->setToolTip(tr("Docker daemon running."));
+                m_daemonReset->setIcon(Icons::OK.icon());
+
+            }
         });
 
         connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id()] {
@@ -381,6 +412,7 @@ public:
         Form {
             idLabel, m_idLineEdit, Break(),
             repoLabel, m_repoLineEdit, Break(),
+            daemonStateLabel, m_daemonReset, Break(),
             m_runAsOutsideUser, Break(),
             tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
@@ -397,6 +429,7 @@ public:
 private:
     QLineEdit *m_idLineEdit;
     QLineEdit *m_repoLineEdit;
+    QToolButton *m_daemonReset;
     QCheckBox *m_runAsOutsideUser;
     QLineEdit *m_pathsLineEdit;
 
@@ -648,7 +681,7 @@ void DockerDevice::tryCreateLocalFileAccess() const
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    if (m_container.isEmpty())
+    if (m_container.isEmpty() || m_accessible == NoDaemon)
         return;
 
     QtcProcess proc;
@@ -662,7 +695,7 @@ void DockerDevicePrivate::stopCurrentContainer()
 
 void DockerDevicePrivate::tryCreateLocalFileAccess()
 {
-    if (!m_container.isEmpty())
+    if (!m_container.isEmpty() || m_accessible == NoDaemon)
         return;
 
     QString tempFileName;
@@ -701,6 +734,14 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
             LOG("RES: " << m_shell->result()
                 << " STDOUT: " << m_shell->readAllStandardOutput()
                 << " STDERR: " << m_shell->readAllStandardError());
+            if (m_shell->exitCode() != 0) {
+                m_accessible = NoDaemon;
+                LOG("DOCKER DAEMON NOT RUNNING?");
+                MessageManager::writeFlashing(tr("Docker Daemon appears to be not running. "
+                                                 "Verify daemon is up and running and reset the "
+                                                 "docker daemon on the docker device settings page "
+                                                 "or restart Qt Creator."));
+            }
         }
         m_container.clear();
     });
@@ -723,10 +764,11 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
                 break;
             }
         }
-        if (i == 20) {
+        if (i == 20 || m_accessible == NoDaemon) {
             qWarning("Docker cid file empty.");
             return; // No
         }
+        qApp->processEvents(); // FIXME turn this for-loop into QEventLoop
         QThread::msleep(100);
     }
 
@@ -753,17 +795,37 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
             // of using wsl or a named pipe.
             // TODO investigate how to make it possible nevertheless.
             m_mergedDir.clear();
+            m_accessible = NotAccessible;
             MessageManager::writeSilently(tr("This is expected on Windows."));
             return;
         }
     }
 
+    m_accessible = Accessible;
     m_mergedDirWatcher.addPath(m_mergedDir);
 }
 
 bool DockerDevice::hasLocalFileAccess() const
 {
     return !d->m_mergedDir.isEmpty();
+}
+
+bool DockerDevice::isDaemonRunning() const
+{
+    switch (d->m_accessible) {
+    case DockerDevicePrivate::NoDaemon:
+        return false;
+    case DockerDevicePrivate::NotEvaluated: // FIXME?
+    case DockerDevicePrivate::Accessible:
+    case DockerDevicePrivate::NotAccessible:
+        return true;
+    }
+    return false;
+}
+
+void DockerDevice::resetDaemonState()
+{
+    d->m_accessible = DockerDevicePrivate::NotEvaluated;
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
@@ -1183,7 +1245,7 @@ bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByt
 void DockerDevice::runProcess(QtcProcess &process) const
 {
     tryCreateLocalFileAccess();
-    if (d->m_container.isEmpty()) {
+    if (d->m_container.isEmpty() || d->m_accessible == DockerDevicePrivate::NoDaemon) {
         LOG("No container set to run " << process.commandLine().toUserOutput());
         QTC_CHECK(false);
         process.setResult(QtcProcess::StartFailed);
@@ -1237,6 +1299,8 @@ void DockerDevicePrivate::fetchSystemEnviroment()
 
 int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
 {
+    if (m_accessible == NoDaemon)
+        return -1;
     CommandLine dcmd{"docker", {"exec", m_container}};
     dcmd.addArgs(cmd);
 
