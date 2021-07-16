@@ -734,7 +734,9 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
             LOG("RES: " << m_shell->result()
                 << " STDOUT: " << m_shell->readAllStandardOutput()
                 << " STDERR: " << m_shell->readAllStandardError());
-            if (m_shell->exitCode() != 0) {
+            // negative exit codes indicate problems like no docker daemon, missing permissions,
+            // no shell and seem to result in exit codes 125+
+            if (m_shell->exitCode() > 120) {
                 m_accessible = NoDaemon;
                 LOG("DOCKER DAEMON NOT RUNNING?");
                 MessageManager::writeFlashing(tr("Docker Daemon appears to be not running. "

@@ -48,16 +48,16 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       perfprofiler.qrc
   )
 else() # < Qt 6.2
-  if (NOT TARGET PerfProfiler)
-    return()
-  endif()
-
   add_qtc_plugin(PerfProfiler
     DEPENDS Tracing Qt5::QuickWidgets
     PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
     SOURCES
       ${TEST_SOURCES}
   )
+
+  if (NOT TARGET PerfProfiler)
+    return()
+  endif()
 
   qt_add_resources(PerfProfiler perfprofiler
     PREFIX "/perfprofiler"
