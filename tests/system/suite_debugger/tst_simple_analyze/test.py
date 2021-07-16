@@ -64,11 +64,11 @@ def performTest(workingDir, projectName, availableConfigs):
     for kit, config in availableConfigs:
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All Projects'
         # because of differences between MSVC's and MinGW's Makefile (so clean before changing kit)
-        invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
+        selectFromLocator("t clean", "Clean (Clean Project)")
         verifyBuildConfig(kit, config, True, True, True)
         test.log("Selected kit '%s'" % Targets.getStringForTarget(kit))
         # explicitly build before start debugging for adding the executable as allowed program to WinFW
-        invokeMenuItem("Build", "Rebuild All Projects")
+        selectFromLocator("t rebuild", "Rebuild (Rebuild All Projects)")
         waitForCompile()
         if not checkCompile():
             test.fatal("Compile had errors... Skipping current build config")
