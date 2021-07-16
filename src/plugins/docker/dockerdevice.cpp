@@ -1195,9 +1195,15 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
         LOG("Remove recursively? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-// Open this up only when really needed.
-//   return d->runInContainer({"rm", "-rf", {filePath.path()}});
-    return false;
+
+    const QString path = filePath.cleanPath().path();
+    // We are expecting this only to be called in a context of build directories or similar.
+    // Chicken out in some cases that _might_ be user code errors.
+    QTC_ASSERT(path.startsWith('/'), return false);
+    const int levelsNeeded = path.startsWith("/home/" ? 4 : 3);
+    QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
+
+    return d->runInContainer({"rm", {"-rf", "--", path}});
 }
 
 bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) const
