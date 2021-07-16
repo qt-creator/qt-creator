@@ -413,7 +413,7 @@ SecondColumnLayout {
                             id: transparentIndicator
                             icon: StudioTheme.Constants.transparent
                             pixelSize: StudioTheme.Values.myIconFontSize * 1.4
-                            tooltip: qsTr("Transparent TODO")
+                            tooltip: qsTr("Transparent")
                             onClicked: {
                                 colorPicker.alpha = 0
                                 colorPicker.updateColor()
@@ -575,22 +575,29 @@ SecondColumnLayout {
                         onRightMouseButtonClicked: contextMenu.popup(colorPicker)
 
                         onColorInvalidated: {
-                            if (colorPicker.saturation > 0.0 && colorPicker.lightness > 0.0) {
-                                hueSpinBox.value = colorPicker.hue
+                            switch (colorPicker.mode) {
+                            case ColorPicker.Mode.HSLA:
+                                hslHueSpinBox.value = colorPicker.hue
+                                hslSaturationSpinBox.value = colorPicker.saturationHSL
+                                hslLightnessSpinBox.value = colorPicker.lightness
+                                hslAlphaSpinBox.value = colorPicker.alpha
+                                break
+
+                            case ColorPicker.Mode.RGBA:
+                                redSpinBox.value = (colorPicker.color.r * 255)
+                                greenSpinBox.value = (colorPicker.color.g * 255)
+                                blueSpinBox.value = (colorPicker.color.b * 255)
+                                rgbAlphaSpinBox.value = (colorPicker.alpha * 255)
+                                break
+
+                            case ColorPicker.Mode.HSVA:
+                            default:
+                                hsvHueSpinBox.value = colorPicker.hue
+                                hsvSaturationSpinBox.value = colorPicker.saturationHSV
+                                hsvValueSpinBox.value = colorPicker.value
+                                hsvAlphaSpinBox.value = colorPicker.alpha
+                                break
                             }
-
-                            if (colorPicker.lightness > 0.0)
-                                saturationSpinBox.value = colorPicker.saturation
-                            else
-                                colorPicker.saturation = saturationSpinBox.value
-
-                            lightnessSpinBox.value = colorPicker.lightness
-                            hslaAlphaSpinBox.value = colorPicker.alpha
-
-                            redSpinBox.value = (colorPicker.color.r * 255)
-                            greenSpinBox.value = (colorPicker.color.g * 255)
-                            blueSpinBox.value = (colorPicker.color.b * 255)
-                            rgbaAlphaSpinBox.value = (colorPicker.alpha * 255)
                         }
                     }
 
@@ -766,29 +773,22 @@ SecondColumnLayout {
                                                    + 4 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
                                     width: implicitWidth
                                     actionIndicatorVisible: false
-                                    model: ["RGBA", "HSLA"]
-                                    onActivated: {
-                                        switch (colorMode.currentText) {
-                                        case "RGBA":
-                                            rgbaRow.visible = true
-                                            hslaRow.visible = false
-                                            break
-                                        case "HSLA":
-                                            rgbaRow.visible = false
-                                            hslaRow.visible = true
-                                            break
-                                        default:
-                                            console.log("Unknown color mode selected.")
-                                            rgbaRow.visible = true
-                                            hslaRow.visible = false
-                                        }
-                                    }
+                                    textRole: "text"
+                                    valueRole: "value"
+                                    model: [
+                                        { value: ColorPicker.Mode.HSVA, text: "HSVA" },
+                                        { value: ColorPicker.Mode.RGBA, text: "RGBA" },
+                                        { value: ColorPicker.Mode.HSLA, text: "HSLA" }
+                                    ]
+
+                                    onActivated: colorPicker.mode = colorMode.currentValue
                                 }
                             }
 
                             RowLayout {
                                 id: rgbaRow
 
+                                visible: colorPicker.mode === ColorPicker.Mode.RGBA
                                 Layout.fillWidth: true
                                 spacing: StudioTheme.Values.controlGap
 
@@ -847,7 +847,7 @@ SecondColumnLayout {
                                 }
 
                                 DoubleSpinBox {
-                                    id: rgbaAlphaSpinBox
+                                    id: rgbAlphaSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
 
                                     stepSize: 1
@@ -856,7 +856,7 @@ SecondColumnLayout {
                                     decimals: 0
 
                                     onValueModified: {
-                                        var tmp = rgbaAlphaSpinBox.value / 255.0
+                                        var tmp = rgbAlphaSpinBox.value / 255.0
                                         if (colorPicker.alpha !== tmp && !colorPicker.block) {
                                             colorPicker.alpha = tmp
                                             colorPicker.updateColor()
@@ -868,49 +868,109 @@ SecondColumnLayout {
                             RowLayout {
                                 id: hslaRow
 
-                                visible: false
+                                visible: colorPicker.mode === ColorPicker.Mode.HSLA
                                 Layout.fillWidth: true
                                 spacing: StudioTheme.Values.controlGap
 
                                 DoubleSpinBox {
-                                    id: hueSpinBox
+                                    id: hslHueSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
                                     onValueModified: {
-                                        if (colorPicker.hue !== hueSpinBox.value && !colorPicker.block) {
-                                            colorPicker.hue = hueSpinBox.value
+                                        if (colorPicker.hue !== hslHueSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.hue = hslHueSpinBox.value
                                             colorPicker.updateColor()
                                         }
                                     }
                                 }
 
                                 DoubleSpinBox {
-                                    id: saturationSpinBox
+                                    id: hslSaturationSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
                                     onValueModified: {
-                                        if (colorPicker.saturation !== saturationSpinBox.value && !colorPicker.block) {
-                                            colorPicker.saturation = saturationSpinBox.value
+                                        if (colorPicker.saturationHSL !== hslSaturationSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.saturationHSL = hslSaturationSpinBox.value
                                             colorPicker.updateColor()
                                         }
                                     }
                                 }
 
                                 DoubleSpinBox {
-                                    id: lightnessSpinBox
+                                    id: hslLightnessSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
                                     onValueModified: {
-                                        if (colorPicker.lightness !== lightnessSpinBox.value && !colorPicker.block) {
-                                            colorPicker.lightness = lightnessSpinBox.value
+                                        if (colorPicker.lightness !== hslLightnessSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.lightness = hslLightnessSpinBox.value
                                             colorPicker.updateColor()
                                         }
                                     }
                                 }
 
                                 DoubleSpinBox {
-                                    id: hslaAlphaSpinBox
+                                    id: hslAlphaSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
                                     onValueModified: {
-                                        if (colorPicker.alpha !== hslaAlphaSpinBox.value && !colorPicker.block) {
-                                            colorPicker.alpha = hslaAlphaSpinBox.value
+                                        if (colorPicker.alpha !== hslAlphaSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.alpha = hslAlphaSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                id: hsvaRow
+
+                                visible: colorPicker.mode === ColorPicker.Mode.HSVA
+                                Layout.fillWidth: true
+                                spacing: StudioTheme.Values.controlGap
+
+                                DoubleSpinBox {
+                                    id: hsvHueSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.hue !== hsvHueSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.hue = hsvHueSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: hsvSaturationSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.saturationHSV !== hsvSaturationSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.saturationHSV = hsvSaturationSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: hsvValueSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.value !== hsvValueSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.value = hsvValueSpinBox.value
+                                            colorPicker.updateColor()
+                                        }
+                                    }
+                                }
+
+                                DoubleSpinBox {
+                                    id: hsvAlphaSpinBox
+                                    width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                    onValueModified: {
+                                        if (colorPicker.alpha !== hsvAlphaSpinBox.value
+                                                && !colorPicker.block) {
+                                            colorPicker.alpha = hsvAlphaSpinBox.value
                                             colorPicker.updateColor()
                                         }
                                     }
