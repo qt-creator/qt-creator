@@ -198,28 +198,27 @@ void LauncherHandle::handleSocketError(const QString &message)
 
 bool LauncherHandle::waitForState(int msecs, WaitingForState newState, QProcess::ProcessState targetState)
 {
-    bool ok = false;
-    {
-        QMutexLocker locker(&m_mutex);
-        // TODO: ASSERT if we are in Idle state
-        if (m_canceled) // we don't want to wait if we have canceled it before (ASSERT it?)
-            return false;
-
-        if (m_processState == targetState) {
-            qDebug() << "THE TARGET STATE IS ALREADY REACHED";
-            ok = true;
-        } else if (m_finished) { // it may happen, than after calling start() and before calling waitForStarted() we might have finished already
-            qDebug() << "THE PROCESS HAS ALREADY FINISHED";
-            ok = true;
-        }
-        if (!ok) {
-            m_waitingFor = newState;
-            ok = m_waitCondition.wait(&m_mutex, msecs) && !m_failed;
-        }
-    }
-    if (ok) // since we are in caller's thread, m_callerHandle must be still valid
+    const bool ok = doWaitForState(msecs, newState, targetState);
+    if (ok)
         m_callerHandle->flush();
     return ok;
+}
+
+bool LauncherHandle::doWaitForState(int msecs, WaitingForState newState, QProcess::ProcessState targetState)
+{
+    QMutexLocker locker(&m_mutex);
+    // TODO: ASSERT if we are in Idle state
+    if (m_canceled) // we don't want to wait if we have canceled it before (ASSERT it?)
+        return false;
+
+    // It may happen, than after calling start() and before calling waitForStarted() we might have
+    // reached the Running or Finished state already. In this case we return true
+    // and we are going to flush pending signals synchronously.
+    if (m_processState == targetState || m_finished)
+        return true;
+
+    m_waitingFor = newState;
+    return m_waitCondition.wait(&m_mutex, msecs) && !m_failed;
 }
 
 void LauncherHandle::cancel()

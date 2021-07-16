@@ -117,6 +117,7 @@ private:
     };
     // called from other thread
     bool waitForState(int msecs, WaitingForState newState, QProcess::ProcessState targetState);
+    bool doWaitForState(int msecs, WaitingForState newState, QProcess::ProcessState targetState);
 
     void doStart();
 
