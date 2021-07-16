@@ -668,11 +668,10 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
 QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
     QString polishTypeName = typeName;
-    if (typeName == "QtQuick.Controls/Popup"
-            || typeName == "QtQuick.Controls/Drawer"
-            || typeName == "QtQuick.Controls/Dialog"
-            || typeName == "QtQuick.Controls/Menu"
-            || typeName == "QtQuick.Controls/ToolTip")
+    if (typeName == "QtQuick.Controls/Popup" || typeName == "QtQuick.Controls/Drawer"
+        || typeName == "QtQuick.Controls/Dialog" || typeName == "QtQuick.Controls/Menu"
+        || typeName == "QtQuick.Controls/ToolTip"
+        || typeName == "QtQuick.Controls/ApplicationWindow")
         polishTypeName = "QtQuick/Item";
 
     const QHash<QString, QString> mockHash = {{"QtQuick.Controls/SwipeView","qrc:/qtquickplugin/mockfiles/SwipeView.qml"},
