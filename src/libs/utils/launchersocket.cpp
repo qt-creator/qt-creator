@@ -42,6 +42,7 @@ public:
 
     enum class SignalType {
         Started,
+        ReadyRead,
         Finished
     };
 
@@ -59,6 +60,9 @@ public:
             case SignalType::Started:
                 emit started();
                 break;
+            case SignalType::ReadyRead:
+                emit readyRead();
+                break;
             case SignalType::Finished:
                 emit finished();
                 break;
@@ -68,6 +72,7 @@ public:
     void appendSignal(SignalType signalType) { QMutexLocker locker(&m_mutex); m_signals.append(signalType); }
 signals:
     void started();
+    void readyRead();
     void finished();
 private:
     QMutex m_mutex;
@@ -161,13 +166,11 @@ void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
     m_exitCode = packet.exitCode;
     m_stdout = packet.stdOut;
     m_stderr = packet.stdErr;
-    if (!m_stdout.isEmpty())
-        emit readyReadStandardOutput();
-    if (!m_stderr.isEmpty())
-        emit readyReadStandardError();
     m_errorString = packet.errorString;
     m_exitStatus = packet.exitStatus;
     if (m_callerHandle) {
+        if (!m_stdout.isEmpty() || !m_stderr.isEmpty())
+            m_callerHandle->appendSignal(CallerHandle::SignalType::ReadyRead);
         m_callerHandle->appendSignal(CallerHandle::SignalType::Finished);
         flushCaller();
     }
@@ -270,6 +273,7 @@ void LauncherHandle::createCallerHandle()
     QTC_CHECK(m_callerHandle == nullptr);
     m_callerHandle = new CallerHandle();
     connect(m_callerHandle, &CallerHandle::started, this, &LauncherHandle::slotStarted, Qt::DirectConnection);
+    connect(m_callerHandle, &CallerHandle::readyRead, this, &LauncherHandle::slotReadyRead, Qt::DirectConnection);
     connect(m_callerHandle, &CallerHandle::finished, this, &LauncherHandle::slotFinished, Qt::DirectConnection);
 }
 
@@ -284,6 +288,21 @@ void LauncherHandle::destroyCallerHandle()
 void LauncherHandle::slotStarted()
 {
     emit started();
+}
+
+void LauncherHandle::slotReadyRead()
+{
+    bool hasOutput = false;
+    bool hasError = false;
+    {
+        QMutexLocker locker(&m_mutex);
+        hasOutput = !m_stdout.isEmpty();
+        hasError = !m_stderr.isEmpty();
+    }
+    if (hasOutput)
+        emit readyReadStandardOutput();
+    if (hasError)
+        emit readyReadStandardError();
 }
 
 void LauncherHandle::slotFinished()

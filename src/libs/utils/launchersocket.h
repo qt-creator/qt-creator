@@ -121,6 +121,7 @@ private:
     void doStart();
 
     void slotStarted();
+    void slotReadyRead();
     void slotFinished();
 
     // called from this thread
