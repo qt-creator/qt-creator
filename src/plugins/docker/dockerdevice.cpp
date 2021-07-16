@@ -1158,8 +1158,15 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
         LOG("Last modified? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    QTC_CHECK(false);
-    return {};
+
+    QtcProcess proc;
+    proc.setCommand({"stat", {"-c", "%Y", filePath.path()}});
+    runProcess(proc);
+    proc.waitForFinished();
+
+    const qint64 secs = proc.rawStdOut().toLongLong();
+    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
+    return dt;
 }
 
 FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
