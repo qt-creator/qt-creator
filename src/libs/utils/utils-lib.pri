@@ -62,6 +62,7 @@ SOURCES += \
     $$PWD/fancylineedit.cpp \
     $$PWD/qtcolorbutton.cpp \
     $$PWD/savefile.cpp \
+    $$PWD/filepath.cpp \
     $$PWD/fileutils.cpp \
     $$PWD/textfileformat.cpp \
     $$PWD/consoleprocess.cpp \
@@ -193,6 +194,7 @@ HEADERS += \
     $$PWD/qtcolorbutton.h \
     $$PWD/consoleprocess.h \
     $$PWD/savefile.h \
+    $$PWD/filepath.h \
     $$PWD/fileutils.h \
     $$PWD/textfileformat.h \
     $$PWD/uncommentselection.h \

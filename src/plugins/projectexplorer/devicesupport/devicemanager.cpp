@@ -525,7 +525,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->systemEnvironment();
     };
 
-    FilePath::setDeviceFileHooks(deviceHooks);
+    FileUtils::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
 

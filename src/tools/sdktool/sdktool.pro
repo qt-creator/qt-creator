@@ -32,6 +32,7 @@ SOURCES += \
     rmtoolchainoperation.cpp \
     settings.cpp \
     $$UTILS/environment.cpp \
+    $$UTILS/filepath.cpp \
     $$UTILS/fileutils.cpp \
     $$UTILS/hostosinfo.cpp \
     $$UTILS/namevaluedictionary.cpp \
@@ -65,6 +66,7 @@ HEADERS += \
     rmtoolchainoperation.h \
     settings.h \
     $$UTILS/environment.h \
+    $$UTILS/filepath.h \
     $$UTILS/fileutils.h \
     $$UTILS/hostosinfo.h \
     $$UTILS/namevaluedictionary.h \

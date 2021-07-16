@@ -19,6 +19,7 @@ HEADERS += \
     SOURCES += \
         $$UTILSDIR/commandline.cpp \
         $$UTILSDIR/environment.cpp \
+        $$UTILSDIR/filepath.cpp \
         $$UTILSDIR/fileutils.cpp \
         $$UTILSDIR/hostosinfo.cpp \
         $$UTILSDIR/namevaluedictionary.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     HEADERS += \
         $$UTILSDIR/commandline.h \
         $$UTILSDIR/environment.h \
+        $$UTILSDIR/filepath.h \
         $$UTILSDIR/fileutils.h \
         $$UTILSDIR/hostosinfo.h \
         $$UTILSDIR/namevaluedictionary.h \
