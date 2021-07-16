@@ -190,9 +190,11 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, &QbsProjectManagerPlugin::cleanProductContextMenu);
 
     m_cleanProduct = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean"), this);
+    m_cleanProduct->setWhatsThis(tr("Clean Product"));
     command = Core::ActionManager::registerAction(m_cleanProduct, Constants::ACTION_CLEAN_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDescription(m_cleanProduct->whatsThis());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PRODUCT);
     connect(m_cleanProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::cleanProduct);
 
@@ -205,10 +207,12 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, &QbsProjectManagerPlugin::rebuildProductContextMenu);
 
     m_rebuildProduct = new QAction(ProjectExplorer::Icons::REBUILD.icon(), tr("Rebuild"), this);
+    m_rebuildProduct->setWhatsThis(tr("Rebuild Product"));
     command = Core::ActionManager::registerAction(m_rebuildProduct,
                                                   Constants::ACTION_REBUILD_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDescription(m_rebuildProduct->whatsThis());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PRODUCT);
     connect(m_rebuildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::rebuildProduct);
 

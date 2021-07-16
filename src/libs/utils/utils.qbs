@@ -149,6 +149,7 @@ Project {
             "icon.h",
             "id.cpp",
             "id.h",
+            "indexedcontainerproxyconstiterator.h",
             "infobar.cpp",
             "infobar.h",
             "infolabel.cpp",

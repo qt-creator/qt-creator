@@ -246,19 +246,21 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     d->m_rebuildSubProjectAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild"),
                                              this);
+    d->m_rebuildSubProjectAction->setWhatsThis(tr("Rebuild Subproject"));
     command = ActionManager::registerAction(d->m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(d->m_rebuildSubProjectAction->text());
+    command->setDescription(d->m_rebuildSubProjectAction->whatsThis());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
     connect(d->m_rebuildSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::rebuildSubDirContextMenu);
 
     d->m_cleanSubProjectAction = new QAction(Utils::Icons::CLEAN.icon(),tr("Clean"), this);
+    d->m_cleanSubProjectAction->setWhatsThis(tr("Clean Subproject"));
     command = ActionManager::registerAction(d->m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(d->m_cleanSubProjectAction->text());
+    command->setDescription(d->m_cleanSubProjectAction->whatsThis());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
     connect(d->m_cleanSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);

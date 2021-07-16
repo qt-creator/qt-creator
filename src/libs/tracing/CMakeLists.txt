@@ -32,17 +32,13 @@ set(TRACING_CPP_SOURCES
   tracing_global.h
 )
 
-add_qtc_library(Tracing
-  FEATURE_INFO
-  DEPENDS Utils Qt5::Qml Qt5::Quick
-  PUBLIC_DEPENDS Qt5::Widgets
-  SOURCES
-    ${TEST_SOURCES}
-)
-
 if(${Qt5_VERSION} VERSION_LESS "6.2.0")
-  extend_qtc_library(Tracing
+  add_qtc_library(Tracing
+    FEATURE_INFO
+    DEPENDS Utils Qt5::Qml Qt5::Quick
+    PUBLIC_DEPENDS Qt5::Widgets
     SOURCES
+      ${TEST_SOURCES}
       ${TRACING_CPP_SOURCES}
       qml/tracing.qrc
   )
@@ -50,6 +46,14 @@ else() # < Qt 6.2
   if (NOT TARGET Tracing)
     return()
   endif()
+
+  add_qtc_library(Tracing
+    FEATURE_INFO
+    DEPENDS Utils Qt5::Qml Qt5::Quick
+    PUBLIC_DEPENDS Qt5::Widgets
+    SOURCES
+      ${TEST_SOURCES}
+  )
 
   set(TRACING_QML_FILES
     qml/ButtonsBar.qml

@@ -1861,7 +1861,10 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
 QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
                                                     const IDevice::Ptr &device)
 {
-    Q_UNUSED(device)
+    if (!device.isNull()) {
+        // FIXME currently no support for msvc toolchains on a device
+        return {};
+    }
 
     QList<ToolChain *> results;
 
@@ -1969,8 +1972,10 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
                                                        const IDevice::Ptr &device)
 {
     Q_UNUSED(alreadyKnown)
-    Q_UNUSED(device) // FIXME: Use it.
-
+    if (!device.isNull()) {
+        // FIXME currently no support for msvc toolchains on a device
+        return {};
+    }
 #ifdef Q_OS_WIN64
     const char registryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\LLVM\\LLVM";
 #else

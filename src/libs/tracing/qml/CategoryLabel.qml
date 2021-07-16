@@ -72,7 +72,7 @@ Item {
     DropArea {
         id: dropArea
 
-        onPositionChanged: {
+        onPositionChanged: (drag) => {
             var sourceIndex = drag.source.visualIndex;
             if (drag.source.y === 0) {
                 // special case for first position: Always swap, no matter if upper border touched.
@@ -129,7 +129,7 @@ Item {
                             labelContainer.selectNextBySelectionId(label.id);
                         }
                     }
-                    onSetRowHeight: {
+                    onSetRowHeight: (newHeight) => {
                         labelsArea.parentModel.setExpandedRowHeight(index + 1, newHeight);
                         loader.height = labelsArea.parentModel.rowHeight(index + 1);
                     }

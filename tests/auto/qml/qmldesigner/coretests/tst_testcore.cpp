@@ -272,14 +272,14 @@ void tst_TestCore::loadEmptyCoreModel()
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
-void tst_TestCore::testRewriterView()
+void tst_TestCore::testRewriterView2()
 {
     try {
         QPlainTextEdit textEdit;
-        textEdit.setPlainText("import QtQuick 2.15;\n\nItem {\n}\n");
+        textEdit.setPlainText("import QtQuick 2.15;\n\nRectangle {\n}\n");
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+        QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 2, 1));
         QVERIFY(model.data());
 
         QScopedPointer<TestView> view(new TestView(model.data()));
@@ -292,15 +292,20 @@ void tst_TestCore::testRewriterView()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
+        while (testRewriterView->hasIncompleteTypeInformation()) {
+            QApplication::processEvents(QEventLoop::AllEvents, 1000);
+        }
+
+        ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 2, 11, "data"));
+
         QVERIFY(childNode.isValid());
         childNode.setIdWithoutRefactoring("childNode");
 
-        ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data"));
+        ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 2, 11, "data"));
         childNode2.setIdWithoutRefactoring("childNode2");
-        ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 0, "data"));
+        ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 2, 11, "data"));
         childNode3.setIdWithoutRefactoring("childNode3");
-        ModelNode childNode4(addNodeListChild(childNode3, "QtQuick.Rectangle", 1, 0, "data"));
+        ModelNode childNode4(addNodeListChild(childNode3, "QtQuick.Rectangle", 2, 11, "data"));
         childNode4.setIdWithoutRefactoring("childNode4");
 
         QVERIFY(childNode.isValid());
@@ -326,11 +331,98 @@ void tst_TestCore::testRewriterView()
 
         testRewriterView->modelToTextMerger()->applyChanges();
 
-        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 2, 0, "data");
+        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 2, 11, "data");
         QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForAddition(childNode));
 
         testRewriterView->modelToTextMerger()->applyChanges();
 
+        childNode.variantProperty("x").setValue(70);
+        childNode.variantProperty("y").setValue(90);
+
+        QCOMPARE(testRewriterView->modelToTextMerger()
+                     ->findAddedVariantProperty(childNode.variantProperty("x"))
+                     .value(),
+                 QVariant(70));
+        QCOMPARE(testRewriterView->modelToTextMerger()
+                     ->findAddedVariantProperty(childNode.variantProperty("y"))
+                     .value(),
+                 QVariant(90));
+
+        model->detachView(testRewriterView.data());
+    } catch (Exception &e) {
+        QFAIL(qPrintable(e.description()));
+    }
+}
+
+void tst_TestCore::testRewriterView()
+{
+    try {
+        const QLatin1String qmlString("import QtQuick 2.15\n"
+                                      "Rectangle {\n"
+                                      "}\n");
+
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(qmlString);
+        NotIndentingTextEditModifier textModifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 15));
+        QVERIFY(model.data());
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&textModifier);
+        testRewriterView->setCheckSemanticErrors(true);
+        model->attachView(testRewriterView.data());
+
+        while (testRewriterView->hasIncompleteTypeInformation()) {
+            QApplication::processEvents(QEventLoop::AllEvents, 1000);
+        }
+
+        textEdit.setPlainText(qmlString);
+
+        ModelNode rootModelNode = testRewriterView->rootModelNode();
+
+        ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 2, 11, "data"));
+
+        QVERIFY(childNode.isValid());
+        childNode.setIdWithoutRefactoring("childNode");
+
+        ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 2, 11, "data"));
+        childNode2.setIdWithoutRefactoring("childNode2");
+        ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 2, 11, "data"));
+        childNode3.setIdWithoutRefactoring("childNode3");
+        ModelNode childNode4(addNodeListChild(childNode3, "QtQuick.Rectangle", 2, 11, "data"));
+        childNode4.setIdWithoutRefactoring("childNode4");
+
+        QVERIFY(childNode.isValid());
+        QVERIFY(childNode2.isValid());
+        QVERIFY(childNode3.isValid());
+        QVERIFY(childNode4.isValid());
+
+        testRewriterView->setModificationGroupActive(true);
+
+        childNode.destroy();
+
+        QVERIFY(!childNode.isValid());
+        QVERIFY(!childNode2.isValid());
+        QVERIFY(!childNode3.isValid());
+        QVERIFY(!childNode4.isValid());
+
+        QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForRemoval(childNode));
+        QVERIFY(!testRewriterView->modelToTextMerger()->isNodeScheduledForRemoval(childNode2));
+        QVERIFY(!testRewriterView->modelToTextMerger()->isNodeScheduledForRemoval(childNode3));
+        QVERIFY(!testRewriterView->modelToTextMerger()->isNodeScheduledForRemoval(childNode4));
+
+        QVERIFY(!rootModelNode.hasProperty("data"));
+
+        testRewriterView->modelToTextMerger()->applyChanges();
+
+        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 2, 11, "data");
+        QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForAddition(childNode));
+        QVERIFY(childNode.isValid());
+
+        testRewriterView->modelToTextMerger()->applyChanges();
+
+        QVERIFY(childNode.isValid());
         childNode.variantProperty("x").setValue(70);
         childNode.variantProperty("y").setValue(90);
 

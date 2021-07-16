@@ -6,6 +6,7 @@ Project {
         "fileutils/fileutils.qbs",
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
+        "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
         "persistentsettings/persistentsettings.qbs",
         "qtcprocess/qtcprocess.qbs",
         "settings/settings.qbs",

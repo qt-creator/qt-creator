@@ -52,6 +52,8 @@ class WrapperNode : public Utils::TypedTreeItem<WrapperNode>
 public:
     explicit WrapperNode(Node *node) : m_node(node) {}
     Node *m_node = nullptr;
+
+    void appendClone(const WrapperNode &node);
 };
 
 class FlatModel : public Utils::TreeModel<WrapperNode, WrapperNode>

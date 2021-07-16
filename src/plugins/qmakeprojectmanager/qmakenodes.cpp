@@ -377,11 +377,9 @@ QVariant QmakeProFileNode::data(Utils::Id role) const
     if (role == Android::Constants::AndroidSoLibPath) {
         TargetInformation info = targetInformation();
         QStringList res = {info.buildDir.toString()};
-        Utils::FilePath destDir = info.destDir;
+        FilePath destDir = info.destDir;
         if (!destDir.isEmpty()) {
-            if (destDir.toFileInfo().isRelative())
-                destDir = Utils::FilePath::fromString(QDir::cleanPath(info.buildDir.toString()
-                                                                      + '/' + destDir.toString()));
+            destDir = info.buildDir.resolvePath(destDir.path());
             res.append(destDir.toString());
         }
         res.removeDuplicates();

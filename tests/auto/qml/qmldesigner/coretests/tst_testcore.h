@@ -95,6 +95,7 @@ private slots:
     // unit tests Rewriter
     //
     void testRewriterView();
+    void testRewriterView2();
     void testRewriterErrors();
     void testRewriterChangeId();
     void testRewriterRemoveId();

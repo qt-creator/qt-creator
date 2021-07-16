@@ -1,6 +1,7 @@
 add_subdirectory(ansiescapecodehandler)
 add_subdirectory(fileutils)
 add_subdirectory(fuzzymatcher)
+add_subdirectory(indexedcontainerproxyconstiterator)
 add_subdirectory(persistentsettings)
 add_subdirectory(qtcprocess)
 add_subdirectory(settings)

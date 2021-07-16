@@ -151,8 +151,12 @@ Rectangle {
         zoomer: zoomControl
         reverseSelect: shiftPressed
 
-        onMoveCategories: content.moveCategories(sourceIndex, targetIndex)
-        onSelectItem: content.select(modelIndex, eventIndex)
+        onMoveCategories: (sourceIndex, targetIndex) => {
+            content.moveCategories(sourceIndex, targetIndex)
+        }
+        onSelectItem: (modelIndex, eventIndex) => {
+            content.select(modelIndex, eventIndex)
+        }
     }
 
     TimeDisplay {
@@ -206,7 +210,7 @@ Rectangle {
 
         onWidthChanged: selectionRange.update();
 
-        onPropagateSelection: {
+        onPropagateSelection: (newModel, newItem) => {
             if (lockItemSelection || (newModel === selectedModel && newItem === selectedItem))
                 return;
 

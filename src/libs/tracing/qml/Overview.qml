@@ -168,10 +168,10 @@ Rectangle {
             }
         }
 
-        onPressed: {
+        onPressed: (mouse) => {
             jumpTo(mouse.x);
         }
-        onPositionChanged: {
+        onPositionChanged: (mouse) => {
             jumpTo(mouse.x);
         }
     }

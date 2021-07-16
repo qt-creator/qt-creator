@@ -44,7 +44,7 @@ Item {
         anchors.right: parent.right
         height: scaleHeight
 
-        onClicked: {
+        onClicked: (mouse) => {
             rulersModel.append({
                 timestamp: (mouse.x + contentX) * viewTimePerPixel + windowStart
             });
