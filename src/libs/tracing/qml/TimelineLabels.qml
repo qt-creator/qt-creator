@@ -106,12 +106,12 @@ Flickable {
                         height: parent.height
                         dragOffset: loader.y
 
-                        onDropped: {
+                        onDropped: (sourceIndex, targetIndex) => {
                             categories.moveCategories(sourceIndex, targetIndex);
                             labelsModel.items.move(sourceIndex, targetIndex);
                         }
 
-                        onSelectById: {
+                        onSelectById: (eventId) => {
                             categories.selectItem(index, eventId)
                         }
 

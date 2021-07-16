@@ -134,7 +134,9 @@ Rectangle {
 
     focus: true
     property bool shiftPressed: false;
-    Keys.onPressed: shiftPressed = (event.key === Qt.Key_Shift);
+    Keys.onPressed: (event) => {
+        shiftPressed = (event.key === Qt.Key_Shift);
+    }
     Keys.onReleased: shiftPressed = false;
 
     TimelineLabels {
@@ -385,7 +387,7 @@ Rectangle {
             content.propagateSelection(-1, -1);
         }
 
-        onUpdateNote: {
+        onUpdateNote: (text) => {
             if (timelineModelAggregator.notes && selectedModel != -1 && selectedItem != -1) {
                 timelineModelAggregator.notes.setText(
                             timelineModelAggregator.models[selectedModel].modelId,

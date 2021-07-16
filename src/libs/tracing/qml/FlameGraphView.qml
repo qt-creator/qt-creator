@@ -150,7 +150,7 @@ ScrollView {
             maximumDepth: 128
             y: flickable.height > height ? flickable.height - height : 0
 
-            onSelectedTypeIdChanged: {
+            onSelectedTypeIdChanged: (selectedTypeId) => {
                 if (selectedTypeId !== root.selectedTypeId) {
                     // Change originates from inside. Send typeSelected().
                     root.selectedTypeId = selectedTypeId;
