@@ -282,6 +282,7 @@ private:
     void onSourceFilesRefreshed() const;
     void onCurrentEditorChanged(Core::IEditor *editor);
     void onCoreAboutToClose();
+    void setupFallbackProjectPart();
 
     void initializeBuiltinModelManagerSupport();
     void delayedGC();
