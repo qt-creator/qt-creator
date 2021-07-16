@@ -363,12 +363,15 @@ public:
         auto daemonStateLabel = new QLabel(tr("Daemon state:"));
         m_daemonReset = new QToolButton;
         m_daemonReset->setIcon(Icons::INFO.icon());
-        m_daemonReset->setToolTip(tr("Daemon state not evaluated."));
+        m_daemonReset->setToolTip(tr("Clear detected daemon state. "
+            "It will be automatically re-evaluated next time an access is needed."));
+
+        m_daemonState = new QLabel(tr("Daemon state not evaluated."));
 
         connect(m_daemonReset, &QToolButton::clicked, this, [this, dockerDevice] {
             dockerDevice->resetDaemonState();
             m_daemonReset->setIcon(Icons::INFO.icon());
-            m_daemonReset->setToolTip(tr("Daemon state not evaluated."));
+            m_daemonState->setText(tr("Daemon state not evaluated."));
         });
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
@@ -407,10 +410,11 @@ public:
 
             if (!dockerDevice->isDaemonRunning()) {
                 logView->append(tr("Docker daemon appears to be not running."));
-                m_daemonReset->setToolTip(tr("Daemon not running. Push to reset the state."));
+                m_daemonState->setText(tr("Docker daemon not running."));
                 m_daemonReset->setIcon(Icons::CRITICAL.icon());
             } else {
-                m_daemonReset->setToolTip(tr("Docker daemon running."));
+                logView->append(tr("Docker daemon appears to be running."));
+                m_daemonState->setText(tr("Docker daemon running."));
                 m_daemonReset->setIcon(Icons::OK.icon());
 
             }
@@ -431,7 +435,7 @@ public:
         Form {
             idLabel, m_idLineEdit, Break(),
             repoLabel, m_repoLineEdit, Break(),
-            daemonStateLabel, m_daemonReset, Break(),
+            daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
             tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
@@ -449,6 +453,7 @@ private:
     QLineEdit *m_idLineEdit;
     QLineEdit *m_repoLineEdit;
     QToolButton *m_daemonReset;
+    QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
     QLineEdit *m_pathsLineEdit;
 
