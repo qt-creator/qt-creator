@@ -350,8 +350,11 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 } else if (catName == ItemLibraryImport::quick3DAssetsTitle()) {
                     importSection = importHash[ItemLibraryImport::quick3DAssetsTitle()];
                 } else {
-                    if (catName.startsWith("Qt Quick - "))
-                        catName = catName.mid(11); // remove "Qt Quick - "
+                    if (catName.contains("Qt Quick - ")) {
+                        QString sortingName = catName;
+                        catName = catName.mid(11 + catName.indexOf("Qt Quick - ")); // remove "Qt Quick - " or "x.Qt Quick - "
+                        categorySortingHash.insert(catName, sortingName);
+                    }
 
                     importSection = importHash[entry.requiredImport().isEmpty() ? "QtQuick"
                                                                                 : entry.requiredImport()];
