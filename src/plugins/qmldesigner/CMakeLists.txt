@@ -6,7 +6,7 @@ endif()
 add_qtc_plugin(QmlDesigner
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt5::QuickWidgets Qt5::CorePrivate Sqlite Threads::Threads
+    Qt5::QuickWidgets Qt5::CorePrivate Sqlite
   DEFINES
     DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
@@ -14,6 +14,8 @@ add_qtc_plugin(QmlDesigner
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CMAKE_CURRENT_LIST_DIR}/designercore/include"
+    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
+    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/types"
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
     QtSupport TextEditor
@@ -43,6 +45,9 @@ add_qtc_plugin(QmlDesigner
   PROPERTIES
     QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}"
 )
+
+include(qmldesignercore.cmake)
+extend_with_qmldesigner_core(QmlDesigner)
 
 add_qtc_plugin(assetexporterplugin
   CONDITION TARGET QmlDesigner
@@ -102,93 +107,6 @@ add_qtc_plugin(qtquickplugin
     qtquickplugin/qtquickplugin.qrc
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
   SKIP_DEBUG_CMAKE_FILE_CHECK
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/container
-  SOURCES
-    addimportcontainer.cpp addimportcontainer.h
-    idcontainer.cpp idcontainer.h
-    imagecontainer.cpp imagecontainer.h
-    informationcontainer.cpp informationcontainer.h
-    instancecontainer.cpp instancecontainer.h
-    mockuptypecontainer.cpp mockuptypecontainer.h
-    propertyabstractcontainer.cpp propertyabstractcontainer.h
-    propertybindingcontainer.cpp propertybindingcontainer.h
-    propertyvaluecontainer.cpp propertyvaluecontainer.h
-    reparentcontainer.cpp reparentcontainer.h
-    sharedmemory.h
-)
-
-if (UNIX)
-  extend_qtc_plugin(QmlDesigner
-    SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/container
-    SOURCES sharedmemory_unix.cpp
-  )
-  if (NOT APPLE)
-    extend_qtc_plugin(QmlDesigner DEPENDS rt)
-  endif()
-else()
-  extend_qtc_plugin(QmlDesigner
-    SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/container
-    SOURCES sharedmemory_qt.cpp
-  )
-endif()
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/commands
-  SOURCES
-    changeauxiliarycommand.cpp changeauxiliarycommand.h
-    changebindingscommand.cpp changebindingscommand.h
-    changefileurlcommand.cpp changefileurlcommand.h
-    changeidscommand.cpp changeidscommand.h
-    changenodesourcecommand.cpp changenodesourcecommand.h
-    changestatecommand.cpp changestatecommand.h
-    changevaluescommand.cpp changevaluescommand.h
-    childrenchangedcommand.cpp childrenchangedcommand.h
-    clearscenecommand.cpp clearscenecommand.h
-    completecomponentcommand.cpp completecomponentcommand.h
-    componentcompletedcommand.cpp componentcompletedcommand.h
-    createinstancescommand.cpp createinstancescommand.h
-    createscenecommand.cpp createscenecommand.h
-    debugoutputcommand.cpp debugoutputcommand.h
-    endpuppetcommand.cpp endpuppetcommand.h
-    informationchangedcommand.cpp informationchangedcommand.h
-    pixmapchangedcommand.cpp pixmapchangedcommand.h
-    puppetalivecommand.cpp puppetalivecommand.h
-    removeinstancescommand.cpp removeinstancescommand.h
-    removepropertiescommand.cpp removepropertiescommand.h
-    removesharedmemorycommand.cpp removesharedmemorycommand.h
-    reparentinstancescommand.cpp reparentinstancescommand.h
-    statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
-    synchronizecommand.cpp synchronizecommand.h
-    changepreviewimagesizecommand.cpp changepreviewimagesizecommand.h
-    changelanguagecommand.cpp changelanguagecommand.h
-    tokencommand.cpp tokencommand.h
-    valueschangedcommand.cpp valueschangedcommand.h
-    changeselectioncommand.cpp changeselectioncommand.h
-    update3dviewstatecommand.cpp update3dviewstatecommand.h
-    puppettocreatorcommand.cpp puppettocreatorcommand.h
-    inputeventcommand.cpp inputeventcommand.h
-    view3dactioncommand.cpp view3dactioncommand.h
-    requestmodelnodepreviewimagecommand.cpp requestmodelnodepreviewimagecommand.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/interfaces
-  PUBLIC_INCLUDES ../../../share/qtcreator/qml/qmlpuppet/interfaces
-  SOURCES
-    nodeinstanceserverinterface.cpp
-    commondefines.h
-    nodeinstanceclientinterface.h
-    nodeinstanceglobal.h
-    nodeinstanceserverinterface.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/types
-  PUBLIC_INCLUDES ../../../share/qtcreator/qml/qmlpuppet/types
-  SOURCES enumeration.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -408,212 +326,30 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX designercore
   SOURCES
-    exceptions/exception.cpp
-    exceptions/invalidargumentexception.cpp
-    exceptions/invalididexception.cpp
-    exceptions/invalidmetainfoexception.cpp
-    exceptions/invalidmodelnodeexception.cpp
-    exceptions/invalidmodelstateexception.cpp
-    exceptions/invalidpropertyexception.cpp
-    exceptions/invalidqmlsourceexception.cpp
-    exceptions/invalidreparentingexception.cpp
-    exceptions/invalidslideindexexception.cpp
-    exceptions/notimplementedexception.cpp
-    exceptions/removebasestateexception.cpp
-    exceptions/rewritingexception.cpp
-
-    filemanager/addarraymembervisitor.cpp filemanager/addarraymembervisitor.h
-    filemanager/addobjectvisitor.cpp filemanager/addobjectvisitor.h
-    filemanager/addpropertyvisitor.cpp filemanager/addpropertyvisitor.h
-    filemanager/astobjecttextextractor.cpp filemanager/astobjecttextextractor.h
-    filemanager/changeimportsvisitor.cpp filemanager/changeimportsvisitor.h
-    filemanager/changeobjecttypevisitor.cpp filemanager/changeobjecttypevisitor.h
-    filemanager/changepropertyvisitor.cpp filemanager/changepropertyvisitor.h
-    filemanager/firstdefinitionfinder.cpp filemanager/firstdefinitionfinder.h
-    filemanager/moveobjectbeforeobjectvisitor.cpp filemanager/moveobjectbeforeobjectvisitor.h
-    filemanager/moveobjectvisitor.cpp filemanager/moveobjectvisitor.h
-    filemanager/objectlengthcalculator.cpp filemanager/objectlengthcalculator.h
-    filemanager/qmlrefactoring.cpp filemanager/qmlrefactoring.h
-    filemanager/qmlrewriter.cpp filemanager/qmlrewriter.h
-    filemanager/removepropertyvisitor.cpp filemanager/removepropertyvisitor.h
-    filemanager/removeuiobjectmembervisitor.cpp filemanager/removeuiobjectmembervisitor.h
-
-    include/abstractproperty.h
-    include/abstractview.h
-    include/anchorline.h
-    include/annotation.h
-    include/basetexteditmodifier.h
-    include/bindingproperty.h
+    include/asynchronousimagecacheinterface.h
     include/bytearraymodifier.h
-    include/componenttextmodifier.h
-    include/customnotifications.h
-    include/documentmessage.h
-    include/exception.h
-    include/forwardview.h
-    include/import.h
-    include/invalidargumentexception.h
-    include/invalididexception.h
-    include/invalidmetainfoexception.h
-    include/invalidmodelnodeexception.h
-    include/invalidmodelstateexception.h
-    include/invalidpropertyexception.h
-    include/invalidqmlsourceexception.h
-    include/invalidreparentingexception.h
-    include/invalidslideindexexception.h
-    include/itemlibraryinfo.h
     include/iwidgetplugin.h
-    include/mathutils.h
-    include/metainfo.h
-    include/metainforeader.h
-    include/model.h
-    include/modelmerger.h
-    include/modelnode.h
-    include/modelnodepositionstorage.h
     include/modificationgroupexception.h
     include/modificationgrouptoken.h
-    include/nodeabstractproperty.h
     include/nodeanchors.h
-    include/nodehints.h
-    include/nodeinstance.h
-    include/nodeinstanceview.h
-    include/nodelistproperty.h
-    include/nodemetainfo.h
-    include/nodeproperty.h
-    include/notimplementedexception.h
     include/objectpropertybinding.h
-    include/plaintexteditmodifier.h
     include/propertybinding.h
-    include/propertycontainer.h
-    include/propertynode.h
-    include/propertyparser.h
-    include/qmlanchors.h
-    include/qmlchangeset.h
-    include/qmldesignercorelib_global.h
-    include/qmlitemnode.h
-    include/qmlvisualnode.h
     include/qml3dnode.h
-    include/qmlmodelnodefacade.h
-    include/qmlobjectnode.h
-    include/qmlstate.h
-    include/qmlconnections.h
-    include/qmltimeline.h
-    include/qmltimelinekeyframegroup.h
-    include/removebasestateexception.h
-    include/rewriterview.h
-    include/rewritingexception.h
-    include/signalhandlerproperty.h
-    include/stylesheetmerger.h
-    include/subcomponentmanager.h
-    include/textmodifier.h
-    include/variantproperty.h
-    include/viewmanager.h
-    include/asynchronousimagecache.h
-    include/synchronousimagecache.h
-    include/imagecacheauxiliarydata.h
-    include/asynchronousimagecacheinterface.h
+    include/qmlvisualnode.h
 )
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX designercore/instances
   SOURCES
-    nodeinstance.cpp
-    nodeinstanceserverproxy.cpp nodeinstanceserverproxy.h
-    nodeinstanceview.cpp
-    puppetbuildprogressdialog.cpp puppetbuildprogressdialog.h puppetbuildprogressdialog.ui
-    puppetcreator.cpp puppetcreator.h
-    puppetdialog.cpp puppetdialog.h puppetdialog.ui
-    connectionmanagerinterface.cpp connectionmanagerinterface.h
-    baseconnectionmanager.cpp baseconnectionmanager.h
-    connectionmanager.cpp connectionmanager.h
     capturingconnectionmanager.cpp capturingconnectionmanager.h
     interactiveconnectionmanager.cpp interactiveconnectionmanager.h
-    qprocessuniqueptr.h
 )
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX designercore
   PUBLIC_INCLUDES designercore
   SOURCES
-    metainfo/itemlibraryinfo.cpp
-    metainfo/metainfo.cpp
-    metainfo/metainforeader.cpp
-    metainfo/nodehints.cpp
-    metainfo/nodemetainfo.cpp
-    metainfo/subcomponentmanager.cpp
-
-    model/abstractproperty.cpp
-    model/abstractview.cpp
-    model/anchorline.cpp
-    model/annotation.cpp
     model/basetexteditmodifier.cpp
-    model/bindingproperty.cpp
-    model/componenttextmodifier.cpp
-    model/documentmessage.cpp
-    model/import.cpp
-    model/internalbindingproperty.cpp model/internalbindingproperty.h
-    model/internalnode.cpp model/internalnode_p.h
-    model/internalnodeabstractproperty.cpp model/internalnodeabstractproperty.h
-    model/internalnodelistproperty.cpp model/internalnodelistproperty.h
-    model/internalnodeproperty.cpp model/internalnodeproperty.h
-    model/internalproperty.cpp model/internalproperty.h
-    model/internalsignalhandlerproperty.cpp model/internalsignalhandlerproperty.h
-    model/internalvariantproperty.cpp model/internalvariantproperty.h
-    model/model.cpp model/model_p.h
-    model/modelmerger.cpp
-    model/modelnode.cpp
-    model/modelnodepositionrecalculator.cpp model/modelnodepositionrecalculator.h
-    model/modelnodepositionstorage.cpp
-    model/modeltotextmerger.cpp model/modeltotextmerger.h
-    model/nodeabstractproperty.cpp
-    model/nodelistproperty.cpp
-    model/nodeproperty.cpp
-    model/plaintexteditmodifier.cpp
-    model/propertycontainer.cpp
-    model/propertynode.cpp
-    model/propertyparser.cpp
-    model/qmlanchors.cpp
-    model/qmlchangeset.cpp
-    model/qmlitemnode.cpp
-    model/qmlvisualnode.cpp
-    model/qml3dnode.cpp
-    model/qmlmodelnodefacade.cpp
-    model/qmlobjectnode.cpp
-    model/qmlstate.cpp
-    model/qmlconnections.cpp
-    model/qmltextgenerator.cpp model/qmltextgenerator.h
-    model/qmltimeline.cpp
-    model/qmltimelinekeyframegroup.cpp
-    model/rewriteaction.cpp model/rewriteaction.h
-    model/rewriteactioncompressor.cpp model/rewriteactioncompressor.h
-    model/rewriterview.cpp
-    model/signalhandlerproperty.cpp
-    model/stylesheetmerger.cpp
-    model/textmodifier.cpp
-    model/texttomodelmerger.cpp model/texttomodelmerger.h
-    model/variantproperty.cpp
-    model/viewmanager.cpp
-
-    pluginmanager/widgetpluginmanager.cpp pluginmanager/widgetpluginmanager.h
-    pluginmanager/widgetpluginpath.cpp pluginmanager/widgetpluginpath.h
-    rewritertransaction.cpp rewritertransaction.h
-
-    imagecache/imagecachecollector.h
-    imagecache/imagecachecollector.cpp
-    imagecache/imagecachefontcollector.h
-    imagecache/imagecachefontcollector.cpp
-    imagecache/asynchronousimagecache.cpp
-    imagecache/synchronousimagecache.cpp
-    imagecache/imagecachecollectorinterface.h
-    imagecache/imagecacheconnectionmanager.cpp
-    imagecache/imagecacheconnectionmanager.h
-    imagecache/imagecachegenerator.cpp
-    imagecache/imagecachegenerator.h
-    imagecache/imagecachestorage.h
-    imagecache/imagecachegeneratorinterface.h
-    imagecache/imagecachestorageinterface.h
-    imagecache/timestampproviderinterface.h
-    imagecache/timestampprovider.h
-    imagecache/timestampprovider.cpp
 )
 
 extend_qtc_plugin(QmlDesigner

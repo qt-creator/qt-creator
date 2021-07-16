@@ -76,12 +76,6 @@ using namespace QmlDesigner;
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljs/qmljsinterpreter.h>
 
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/Resources"
-#else
-#  define SHARE_PATH "/share/qtcreator"
-#endif
-
 QT_BEGIN_NAMESPACE
 
 //Allow comparison of QByteArray and QString. We always assume utf8 as the encoding.
@@ -112,11 +106,6 @@ static QString stripWhiteSpaces(const QString &str)
         result.append(str.trimmed() + "\n");
 
     return result;
-}
-
-QString resourcePath()
-{
-    return QDir::cleanPath(QTCREATORDIR + QLatin1String(SHARE_PATH));
 }
 
 class TestModelManager : public QmlJSTools::Internal::ModelManager
@@ -191,7 +180,7 @@ void tst_TestCore::initTestCase()
     if (!QmlJS::ModelManagerInterface::instance())
         new TestModelManager;
 
-    initializeMetaTypeSystem(QLatin1String(QTCREATORDIR "/share/qtcreator"));
+    initializeMetaTypeSystem(IDE_DATA_PATH);
 
     QStringList basePaths;
     basePaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
@@ -206,16 +195,16 @@ void tst_TestCore::initTestCase()
    // Load plugins
 
 #ifdef Q_OS_MAC
-    const QString pluginPath = QTCREATORDIR "/bin/Qt Creator.app/Contents/PlugIns/QmlDesigner";
+    const QString pluginPath = IDE_PLUGIN_PATH "/QmlDesigner";
 #else
-    const QString pluginPath = QTCREATORDIR "/lib/qtcreator/plugins/qmldesigner";
+    const QString pluginPath = IDE_PLUGIN_PATH "/qmldesigner";
 #endif
 
     qDebug() << pluginPath;
     Q_ASSERT(QFileInfo::exists(pluginPath));
     MetaInfo::setPluginPaths(QStringList() << pluginPath);
 
-    QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
+    QFileInfo builtins(IDE_DATA_PATH "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
     QmlJS::CppQmlTypesLoader::defaultQtObjects = QmlJS::CppQmlTypesLoader::loadQmlTypes(QFileInfoList{builtins}, &errors, &warnings);
 }
@@ -1281,7 +1270,7 @@ void tst_TestCore::testModelCreateSubNode()
     model->attachView(view.data());
 
     QList<TestView::MethodCall> expectedCalls;
-    expectedCalls << TestView::MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<long>(model.data())));
+    expectedCalls << TestView::MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<qint64>(model.data())));
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     QVERIFY(view->rootModelNode().isValid());
@@ -2557,7 +2546,7 @@ void tst_TestCore::testModelViewNotification()
     QCOMPARE(view2->methodCalls().at(0).name,QString("modelAttached"));
 
     QList<TestView::MethodCall> expectedCalls;
-    expectedCalls << TestView::MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<long>(model.data())));
+    expectedCalls << TestView::MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<qint64>(model.data())));
     QCOMPARE(view1->methodCalls(), expectedCalls);
     QCOMPARE(view2->methodCalls(), expectedCalls);
 
@@ -2609,7 +2598,7 @@ void tst_TestCore::testModelViewNotification()
     QCOMPARE(view2->methodCalls(), expectedCalls);
 
     model->detachView(view1.data());
-    expectedCalls << TestView::MethodCall("modelAboutToBeDetached", QStringList() << QString::number(reinterpret_cast<long>(model.data())));
+    expectedCalls << TestView::MethodCall("modelAboutToBeDetached", QStringList() << QString::number(reinterpret_cast<qint64>(model.data())));
     QCOMPARE(view1->methodCalls(), expectedCalls);
 
     QApplication::processEvents();

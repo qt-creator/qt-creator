@@ -31,8 +31,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 unix:!openbsd:!osx: LIBS += -lrt # posix shared memory
 
-DEFINES+=QTCREATORDIR=\\\"$$IDE_BUILD_TREE\\\"
-DEFINES+=TESTSRCDIR=\\\"$$_PRO_FILE_PWD_\\\"
+DEFINES+=IDE_PLUGIN_PATH=$$system_quote(\"$$IDE_PLUGIN_PATH\")
+DEFINES+=IDE_DATA_PATH=$$system_quote(\"$$IDE_DATA_PATH\")
+DEFINES+=TESTSRCDIR=$$system_quote(\"$$_PRO_FILE_PWD_\")
 
 DEFINES += QTCREATOR_TEST
 DEFINES += QMLDESIGNER_TEST

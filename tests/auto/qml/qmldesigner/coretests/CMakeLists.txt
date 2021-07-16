@@ -1,21 +1,21 @@
-# TODO: fix compiler errors
-return()
-
 add_qtc_test(tst_qml_testcore
-  DEPENDS QmlJS Utils QmlEditorWidgets CPlusPlus Core QmlJSEditor
-  INCLUDES
-    "${PROJECT_SOURCE_DIR}/src/plugins/qmldesigner/designercore/include"
-    "${PROJECT_SOURCE_DIR}/src/plugins/qmldesigner/designercore"
-    "${PROJECT_SOURCE_DIR}/share/qtcreator/qml/qmlpuppet/interfaces"
-    "${PROJECT_SOURCE_DIR}/share/qtcreator/qml/qmlpuppet/types"
   DEFINES
     QT_CREATOR
-    QTCREATORDIR="${PROJECT_SOURCE_DIR}"
+    QMLDESIGNER_TEST
+    IDE_PLUGIN_PATH="${PROJECT_BINARY_DIR}/${IDE_PLUGIN_PATH}"
+    IDE_DATA_PATH="${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}"
     TESTSRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
   SOURCES
     ../data/testfiles.qrc
-    ../testview.cpp ../testview.h
-    testrewriterview.cpp testrewriterview.h
-    tst_testcore.cpp tst_testcore.h
-    ../testconnectionmanager.cpp    ../testconnectionmanager.h
+    ../testview.cpp
+    ../testview.h
+    testrewriterview.cpp
+    testrewriterview.h
+    tst_testcore.cpp
+    tst_testcore.h
+    ../testconnectionmanager.cpp
+    ../testconnectionmanager.h
 )
+
+include(../../../../../src/plugins/qmldesigner/qmldesignercore.cmake)
+extend_with_qmldesigner_core(tst_qml_testcore)

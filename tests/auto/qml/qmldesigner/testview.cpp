@@ -51,13 +51,13 @@ TestView::TestView(QmlDesigner::Model *model)
 void TestView::modelAttached(QmlDesigner::Model *model)
 {
     QmlDesigner::AbstractView::modelAttached(model);
-    m_methodCalls += MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<long>(model)));
+    m_methodCalls += MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<qint64>(model)));
 }
 
 void TestView::modelAboutToBeDetached(QmlDesigner::Model *model)
 {
     QmlDesigner::AbstractView::modelAboutToBeDetached(model);
-    m_methodCalls += MethodCall("modelAboutToBeDetached", QStringList() << QString::number(reinterpret_cast<long>(model)));
+    m_methodCalls += MethodCall("modelAboutToBeDetached", QStringList() << QString::number(reinterpret_cast<qint64>(model)));
 }
 
 void TestView::nodeIdChanged(const QmlDesigner::ModelNode &node, const QString& newId, const QString &oldId)
