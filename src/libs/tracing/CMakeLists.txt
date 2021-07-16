@@ -43,10 +43,6 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       qml/tracing.qrc
   )
 else() # < Qt 6.2
-  if (NOT TARGET Tracing)
-    return()
-  endif()
-
   add_qtc_library(Tracing
     FEATURE_INFO
     DEPENDS Utils Qt5::Qml Qt5::Quick
@@ -54,6 +50,10 @@ else() # < Qt 6.2
     SOURCES
       ${TEST_SOURCES}
   )
+
+  if (NOT TARGET Tracing)
+    return()
+  endif()
 
   set(TRACING_QML_FILES
     qml/ButtonsBar.qml
