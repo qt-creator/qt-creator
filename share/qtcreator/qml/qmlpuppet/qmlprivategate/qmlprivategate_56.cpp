@@ -167,6 +167,26 @@ void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
     QQuickDesignerSupportProperties::registerNodeInstanceMetaObject(object, engine);
 }
 
+static bool isQuickStyleItemMetaObject(const QMetaObject *metaObject)
+{
+    if (metaObject) {
+        if (metaObject->className() == QByteArrayLiteral("QQuickStyleItem"))
+            return true;
+
+        return isQuickStyleItemMetaObject(metaObject->superClass());
+    }
+
+    return false;
+}
+
+static bool isQuickStyleItem(QObject *object)
+{
+    if (object)
+        return isQuickStyleItemMetaObject(object->metaObject());
+
+    return false;
+}
+
 // This is used in share/qtcreator/qml/qmlpuppet/qml2puppet/instances/objectnodeinstance.cpp
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
@@ -357,12 +377,15 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
                 doComponentCompleteRecursive(child, nodeInstanceServer);
         }
 
-        if (item) {
-            static_cast<QQmlParserStatus*>(item)->componentComplete();
-        } else {
-            QQmlParserStatus *qmlParserStatus = dynamic_cast< QQmlParserStatus*>(object);
-            if (qmlParserStatus)
-                qmlParserStatus->componentComplete();
+        if (!isQuickStyleItem(item)) {
+            qDebug() << Q_FUNC_INFO << item;
+            if (item) {
+                static_cast<QQmlParserStatus *>(item)->componentComplete();
+            } else {
+                QQmlParserStatus *qmlParserStatus = dynamic_cast<QQmlParserStatus *>(object);
+                if (qmlParserStatus)
+                    qmlParserStatus->componentComplete();
+            }
         }
     }
 }
