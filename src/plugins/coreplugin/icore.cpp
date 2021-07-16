@@ -214,6 +214,8 @@ ICore::ICore(MainWindow *mainwindow)
         emit coreAboutToClose();
         QCoreApplication::exit(exitCode);
     });
+
+    FileUtils::setDialogParentGetter(&ICore::dialogParent);
 }
 
 /*!

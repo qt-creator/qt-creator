@@ -405,5 +405,76 @@ void withNtfsPermissions(const std::function<void()> &task)
 }
 #endif
 
-} // namespace Utils
 
+#ifdef QT_WIDGETS_LIB
+
+static std::function<QWidget *()> s_dialogParentGetter;
+
+void FileUtils::setDialogParentGetter(const std::function<QWidget *()> &getter)
+{
+    s_dialogParentGetter = getter;
+}
+
+static QWidget *dialogParent()
+{
+    return s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
+}
+
+FilePath FileUtils::getOpenFilePath(const QString &caption,
+                                    const FilePath &dir,
+                                    const QString &filter,
+                                    QString *selectedFilter,
+                                    QFileDialog::Options options)
+{
+    const QString result = QFileDialog::getOpenFileName(dialogParent(),
+                                                        caption,
+                                                        dir.toString(),
+                                                        filter,
+                                                        selectedFilter,
+                                                        options);
+    return FilePath::fromString(result);
+}
+
+FilePath FileUtils::getSaveFilePath(const QString &caption,
+                                   const FilePath &dir,
+                                   const QString &filter,
+                                   QString *selectedFilter,
+                                   QFileDialog::Options options)
+{
+    const QString result = QFileDialog::getSaveFileName(dialogParent(),
+                                                        caption,
+                                                        dir.toString(),
+                                                        filter,
+                                                        selectedFilter,
+                                                        options);
+    return FilePath::fromString(result);
+}
+
+FilePath FileUtils::getExistingDirectory(const QString &caption,
+                                        const FilePath &dir,
+                                        QFileDialog::Options options)
+{
+    const QString result = QFileDialog::getExistingDirectory(dialogParent(),
+                                                             caption,
+                                                             dir.toString(),
+                                                             options);
+    return FilePath::fromString(result);
+}
+
+FilePaths FileUtils::getOpenFilePaths(const QString &caption,
+                                      const FilePath &dir,
+                                      const QString &filter,
+                                      QString *selectedFilter,
+                                      QFileDialog::Options options)
+{
+    const QStringList result = QFileDialog::getOpenFileNames(dialogParent(),
+                                                             caption,
+                                                             dir.toString(),
+                                                             filter,
+                                                             selectedFilter,
+                                                             options);
+    return transform(result, &FilePath::fromString);
+}
+#endif // QT_WIDGETS_LIB
+
+} // namespace Utils

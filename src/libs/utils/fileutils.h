@@ -38,6 +38,10 @@
 #include <QUrl>
 #include <QXmlStreamWriter> // Mac.
 
+#ifdef QT_WIDGETS_LIB
+#include <QFileDialog>
+#endif
+
 #include <functional>
 #include <memory>
 
@@ -128,6 +132,32 @@ public:
     static bool renameFile(const FilePath &srcFilePath, const FilePath &tgtFilePath);
 
     static void setDeviceFileHooks(const DeviceFileHooks &hooks);
+
+#ifdef QT_WIDGETS_LIB
+    static void setDialogParentGetter(const std::function<QWidget *()> &getter);
+
+    static FilePath getOpenFilePath(const QString &caption = {},
+                                    const FilePath &dir = {},
+                                    const QString &filter = {},
+                                    QString *selectedFilter = nullptr,
+                                    QFileDialog::Options options = {});
+
+    static FilePath getSaveFilePath(const QString &caption = {},
+                                    const FilePath &dir = {},
+                                    const QString &filter = {},
+                                    QString *selectedFilter = nullptr,
+                                    QFileDialog::Options options = {});
+
+    static FilePath getExistingDirectory(const QString &caption = {},
+                                         const FilePath &dir = {},
+                                         QFileDialog::Options options = QFileDialog::ShowDirsOnly);
+
+    static FilePaths getOpenFilePaths(const QString &caption = {},
+                                      const FilePath &dir = {},
+                                      const QString &filter = {},
+                                      QString *selectedFilter = nullptr,
+                                      QFileDialog::Options options = {});
+#endif
 };
 
 template<typename T>
