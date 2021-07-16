@@ -984,6 +984,7 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
     d->m_writeData = writeData;
+    setKeepWriteChannelOpen();
 }
 
 #ifdef QT_GUI_LIB
