@@ -79,16 +79,16 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       qml/qmlprofiler.qrc
   )
 else() # < Qt 6.2
-  if (NOT TARGET QmlProfiler)
-    return()
-  endif()
-
   add_qtc_plugin(QmlProfiler
     DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
     PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
     SOURCES
       ${TEST_SOURCES}
   )
+
+  if (NOT TARGET QmlProfiler)
+    return()
+  endif()
 
   set(QMLPROFILER_QML_FILES
     qml/QmlProfilerFlameGraphView.qml
