@@ -1317,15 +1317,35 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qi
     return output;
 }
 
-bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
+bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
     if (hasLocalFileAccess())
         return mapToLocalAccess(filePath).writeFileContents(data);
 
-    QTC_CHECK(false); // FIXME: Implement
-    return {};
+// This following would be the generic Unix solution.
+// But it doesn't pass input. FIXME: Why?
+//    QtcProcess proc;
+//    proc.setCommand({"dd", {"of=" + filePath.path()}});
+//    proc.setWriteData(data);
+//    runProcess(proc);
+//    proc.waitForFinished();
+
+    TemporaryFile tempFile("dockertransport-XXXXXX");
+    tempFile.open();
+    tempFile.write(data);
+
+    const QString tempName = tempFile.fileName();
+    tempFile.close();
+
+    CommandLine cmd{"docker", {"cp", tempName, d->m_container + ':' + filePath.path()}};
+
+    QtcProcess proc;
+    proc.setCommand(cmd);
+    proc.runBlocking();
+
+    return proc.exitCode() == 0;
 }
 
 void DockerDevice::runProcess(QtcProcess &process) const
