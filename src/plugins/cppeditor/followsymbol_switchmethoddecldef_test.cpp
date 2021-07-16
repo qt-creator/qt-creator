@@ -329,7 +329,9 @@ F2TestCase::F2TestCase(CppEditorAction action,
         TestDocument projectFile(projectFileContent.toUtf8(), "project.qbs");
         projectFile.setBaseDirectory(temporaryDir.path());
         QVERIFY(projectFile.writeToDisk());
-        const auto openProjectResult = ProjectExplorerPlugin::openProject(projectFile.filePath());
+        const auto openProjectResult =
+                ProjectExplorerPlugin::openProject(
+                    Utils::FilePath::fromString(projectFile.filePath()));
         QVERIFY2(openProjectResult && openProjectResult.project(),
                  qPrintable(openProjectResult.errorMessage()));
         projectCloser.setProject(openProjectResult.project());

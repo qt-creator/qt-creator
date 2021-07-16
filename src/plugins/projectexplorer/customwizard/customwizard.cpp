@@ -560,7 +560,7 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     foreach (const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
             ProjectExplorerPlugin::OpenProjectResult result
-                    = ProjectExplorerPlugin::openProject(file.path());
+                    = ProjectExplorerPlugin::openProject(file.filePath());
             if (!result) {
                 if (errorMessage)
                     *errorMessage = result.errorMessage();

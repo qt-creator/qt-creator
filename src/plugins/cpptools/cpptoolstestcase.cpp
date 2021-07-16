@@ -50,6 +50,7 @@
 #include <QtTest>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
 {
@@ -282,7 +283,8 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
 ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject,
                                          Kit *kit)
 {
-    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(projectFile);
+    ProjectExplorerPlugin::OpenProjectResult result =
+            ProjectExplorerPlugin::openProject(FilePath::fromString(projectFile));
     if (!result) {
         qWarning() << result.errorMessage() << result.alreadyOpen();
         return ProjectInfo();

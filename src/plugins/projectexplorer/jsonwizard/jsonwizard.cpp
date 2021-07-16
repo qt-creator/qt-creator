@@ -447,18 +447,18 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
         if (!QFileInfo::exists(file.path())) {
             errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                        "\"%1\" does not exist in the file system.")
-                    .arg(QDir::toNativeSeparators(file.path()));
+                    .arg(file.filePath().toUserOutput());
             break;
         }
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
             ProjectExplorerPlugin::OpenProjectResult result
-                    = ProjectExplorerPlugin::openProject(file.path());
+                    = ProjectExplorerPlugin::openProject(file.filePath());
             if (!result) {
                 errorMessage = result.errorMessage();
                 if (errorMessage.isEmpty()) {
                     errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                                "Failed to open \"%1\" as a project.")
-                            .arg(QDir::toNativeSeparators(file.path()));
+                            .arg(file.filePath().toUserOutput());
                 }
                 break;
             }
@@ -470,7 +470,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             if (!editor) {
                 errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                            "Failed to open an editor for \"%1\".")
-                        .arg(QDir::toNativeSeparators(file.path()));
+                        .arg(file.filePath().toUserOutput());
                 break;
             } else if (file.attributes() & Core::GeneratedFile::TemporaryFile) {
                 editor->document()->setTemporary(true);

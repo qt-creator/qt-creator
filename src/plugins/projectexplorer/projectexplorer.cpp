@@ -1998,13 +1998,12 @@ void ProjectExplorerPluginPrivate::loadAction()
         dir = isProject ? fn : QFileInfo(fn).absolutePath();
     }
 
-    QString filename = QFileDialog::getOpenFileName(ICore::dialogParent(),
-                                                    tr("Load Project"), dir,
-                                                    dd->m_projectFilterString);
-    if (filename.isEmpty())
+    FilePath filePath = Utils::FileUtils::getOpenFilePath(tr("Load Project"), FilePath::fromString(dir),
+                                                          dd->m_projectFilterString);
+    if (filePath.isEmpty())
         return;
 
-    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(filename);
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
     if (!result)
         ProjectExplorerPlugin::showOpenProjectError(result);
 
@@ -2088,7 +2087,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         if (fi.isDir())
             fileName = FolderNavigationWidget::projectFilesInDirectory(fi.absoluteFilePath()).value(0, fileName);
 
-        OpenProjectResult result = ProjectExplorerPlugin::openProject(fileName);
+        OpenProjectResult result = ProjectExplorerPlugin::openProject(FilePath::fromString(fileName));
         if (!result)
             showOpenProjectError(result);
         return nullptr;
@@ -2329,18 +2328,18 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
 {
-    OpenProjectResult result = openProject(fileName);
+    OpenProjectResult result = openProject(FilePath::fromString(fileName));
     if (!result)
         showOpenProjectError(result);
 }
 
-ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(const QString &fileName)
+ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath)
 {
-    OpenProjectResult result = openProjects(QStringList(fileName));
+    OpenProjectResult result = openProjects({filePath});
     Project *project = result.project();
     if (!project)
         return result;
-    dd->addToRecentProjects(fileName, project->displayName());
+    dd->addToRecentProjects(filePath.toString(), project->displayName());
     SessionManager::setStartupProject(project);
     return result;
 }
@@ -2384,16 +2383,15 @@ static void appendError(QString &errorString, const QString &error)
     errorString.append(error);
 }
 
-ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
+ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths)
 {
     QList<Project*> openedPro;
     QList<Project *> alreadyOpen;
     QString errorString;
-    foreach (const QString &fileName, fileNames) {
+    for (const FilePath &fileName : filePaths) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
+        const FilePath filePath = fileName.absoluteFilePath();
 
-        const QFileInfo fi(fileName);
-        const auto filePath = Utils::FilePath::fromString(fi.absoluteFilePath());
         Project *found = Utils::findOrDefault(SessionManager::projects(),
                                               Utils::equal(&Project::projectFilePath, filePath));
         if (found) {
@@ -2402,11 +2400,11 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
             continue;
         }
 
-        Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
+        MimeType mt = Utils::mimeTypeForFile(filePath);
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
-            if (!filePath.toFileInfo().isFile()) {
+            if (!filePath.isFile()) {
                 appendError(errorString,
-                            tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
+                            tr("Failed opening project \"%1\": Project is not a file.").arg(filePath.toUserOutput()));
             } else if (Project *pro = ProjectManager::openProject(mt, filePath)) {
                 QString restoreError;
                 Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
@@ -2423,10 +2421,10 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
             }
         } else {
             appendError(errorString, tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
-                        .arg(QDir::toNativeSeparators(fileName))
+                        .arg(filePath.toUserOutput())
                         .arg(mt.name()));
         }
-        if (fileNames.size() > 1)
+        if (filePaths.size() > 1)
             SessionManager::reportProjectLoadingProgress();
     }
     dd->updateActions();
@@ -3286,7 +3284,7 @@ void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
 {
     if (!fileName.isEmpty()) {
         ProjectExplorerPlugin::OpenProjectResult result
-                = ProjectExplorerPlugin::openProject(fileName);
+                = ProjectExplorerPlugin::openProject(FilePath::fromString(fileName));
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
     }

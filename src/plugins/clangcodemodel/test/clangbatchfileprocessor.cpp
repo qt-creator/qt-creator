@@ -232,7 +232,7 @@ bool OpenProjectCommand::run()
     qCDebug(debug) << "line" << context().lineNumber << "OpenProjectCommand" << m_projectFilePath;
 
     const ProjectExplorerPlugin::OpenProjectResult openProjectSucceeded
-            = ProjectExplorerPlugin::openProject(m_projectFilePath);
+            = ProjectExplorerPlugin::openProject(Utils::FilePath::fromString(m_projectFilePath));
     QTC_ASSERT(openProjectSucceeded, return false);
 
     Project *project = openProjectSucceeded.project();

@@ -116,8 +116,8 @@ public:
         QString m_errorMessage;
     };
 
-    static OpenProjectResult openProject(const QString &fileName);
-    static OpenProjectResult openProjects(const QStringList &fileNames);
+    static OpenProjectResult openProject(const Utils::FilePath &filePath);
+    static OpenProjectResult openProjects(const Utils::FilePaths &filePaths);
     static void showOpenProjectError(const OpenProjectResult &result);
     static void openProjectWelcomePage(const QString &fileName);
     static void unloadProject(Project *project);

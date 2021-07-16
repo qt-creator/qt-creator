@@ -1312,8 +1312,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
-    const auto theProject = openProject(projectDir.pathAppended("generic-project.creator")
-                                        .toString());
+    const auto theProject = openProject(projectDir.pathAppended("generic-project.creator"));
     QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
     theProject.project()->configureAsExampleProject(kit);
     QCOMPARE(theProject.project()->targets().size(), 1);

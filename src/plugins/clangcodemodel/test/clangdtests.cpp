@@ -41,7 +41,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <qtsupport/qtkitinformation.h>
+
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/textutils.h>
 
 #include <QEventLoop>
@@ -108,7 +110,7 @@ void ClangdTest::initTestCase()
                                                   .baseName().toLocal8Bit()));
     QVERIFY(m_projectDir->isValid());
     const auto openProjectResult = ProjectExplorerPlugin::openProject(
-                m_projectDir->absolutePath(m_projectFileName.toUtf8()));
+            Utils::FilePath::fromString(m_projectDir->absolutePath(m_projectFileName.toUtf8())));
     QVERIFY2(openProjectResult, qPrintable(openProjectResult.errorMessage()));
     m_project = openProjectResult.project();
     m_project->configureAsExampleProject(m_kit);

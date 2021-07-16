@@ -85,7 +85,7 @@ public:
     void restoreDependencies(const PersistentSettingsReader &reader);
     void restoreStartupProject(const PersistentSettingsReader &reader);
     void restoreEditors(const PersistentSettingsReader &reader);
-    void restoreProjects(const QStringList &fileList);
+    void restoreProjects(const Utils::FilePaths &fileList);
     void askUserAboutFailedProjects();
     void sessionLoadingProgress();
 
@@ -109,7 +109,7 @@ public:
 
     Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
-    QStringList m_failedProjects;
+    FilePaths m_failedProjects;
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
     QFutureInterface<void> m_future;
@@ -501,18 +501,17 @@ bool SessionManager::save()
             data.insert(QLatin1String("Color"), tmp);
         }
 
-        QStringList projectFiles = Utils::transform(projects(), [](Project *p) {
-                return p->projectFilePath().toString();
-        });
+        FilePaths projectFiles = Utils::transform(projects(), &Project::projectFilePath);
         // Restore information on projects that failed to load:
         // don't read projects to the list, which the user loaded
-        foreach (const QString &failed, d->m_failedProjects) {
+        for (const FilePath &failed : qAsConst(d->m_failedProjects)) {
             if (!projectFiles.contains(failed))
                 projectFiles << failed;
         }
 
-        data.insert(QLatin1String("ProjectList"), projectFiles);
-        data.insert(QLatin1String("CascadeSetActive"), d->m_casadeSetActive);
+        data.insert("ProjectList", Utils::transform<QStringList>(projectFiles,
+                                                                 &FilePath::toString));
+        data.insert("CascadeSetActive", d->m_casadeSetActive);
 
         QVariantMap depMap;
         auto i = d->m_depMap.constBegin();
@@ -903,10 +902,9 @@ void SessionManagerPrivate::restoreDependencies(const PersistentSettingsReader &
 
 void SessionManagerPrivate::askUserAboutFailedProjects()
 {
-    QStringList failedProjects = m_failedProjects;
+    FilePaths failedProjects = m_failedProjects;
     if (!failedProjects.isEmpty()) {
-        QString fileList =
-            QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
+        QString fileList = FilePath::formatFilePaths(failedProjects, "<br>");
         QMessageBox box(QMessageBox::Warning,
                                    SessionManager::tr("Failed to restore project files"),
                                    SessionManager::tr("Could not restore the following project files:<br><b>%1</b>").
@@ -954,7 +952,7 @@ void SessionManagerPrivate::restoreEditors(const PersistentSettingsReader &reade
 /*!
      Loads a session, takes a session name (not filename).
 */
-void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
+void SessionManagerPrivate::restoreProjects(const FilePaths &fileList)
 {
     // indirectly adds projects to session
     // Keep projects that failed to load in the session!
@@ -964,7 +962,7 @@ void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
         foreach (Project *p, result.projects())
-            m_failedProjects.removeAll(p->projectFilePath().toString());
+            m_failedProjects.removeAll(p->projectFilePath());
     }
 }
 
@@ -1008,7 +1006,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     if (!loadImplicitDefault && !sessions().contains(session))
         return false;
 
-    QStringList fileList;
+    FilePaths fileList;
     // Try loading the file
     FilePath fileName = sessionNameToFileName(loadImplicitDefault ? "default" : session);
     PersistentSettingsReader reader;
@@ -1026,7 +1024,8 @@ bool SessionManager::loadSession(const QString &session, bool initial)
             return true;
         }
 
-        fileList = reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+        fileList = Utils::transform(reader.restoreValue("ProjectList").toStringList(),
+                                    &FilePath::fromString);
     } else if (loadImplicitDefault) {
         return true;
     }
@@ -1049,12 +1048,12 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
     // find a list of projects to close later
     const QList<Project *> projectsToRemove = Utils::filtered(projects(), [&fileList](Project *p) {
-        return !fileList.contains(p->projectFilePath().toString());
+        return !fileList.contains(p->projectFilePath());
     });
     const QList<Project *> openProjects = projects();
-    const QStringList projectPathsToLoad = Utils::filtered(fileList, [&openProjects](const QString &path) {
+    const FilePaths projectPathsToLoad = Utils::filtered(fileList, [&openProjects](const FilePath &path) {
         return !Utils::contains(openProjects, [&path](Project *p) {
-            return p->projectFilePath().toString() == path;
+            return p->projectFilePath() == path;
         });
     });
     d->m_failedProjects.clear();
@@ -1202,7 +1201,8 @@ void ProjectExplorerPlugin::testSessionSwitch()
         sessionSpec.projectFile.close();
         QVERIFY(SessionManager::loadSession(sessionSpec.name));
         const OpenProjectResult openResult
-                = ProjectExplorerPlugin::openProject(sessionSpec.projectFile.fileName());
+                = ProjectExplorerPlugin::openProject(
+                    FilePath::fromString(sessionSpec.projectFile.fileName()));
         if (openResult.errorMessage().contains("text/plain"))
             QSKIP("This test requires the presence of QmakeProjectManager to be fully functional");
         QVERIFY(openResult);

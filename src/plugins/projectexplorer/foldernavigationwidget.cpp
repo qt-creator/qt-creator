@@ -792,7 +792,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     if (action == actionOpenFile) {
         openItem(current);
     } else if (action == actionOpenAsProject) {
-        ProjectExplorerPlugin::openProject(filePath.toString());
+        ProjectExplorerPlugin::openProject(filePath);
     } else if (action == actionOpenProjects)
         openProjectsInDirectory(current);
     else if (action == newFolder) {
