@@ -210,7 +210,7 @@ protected:
         if (_hasOpenComment) {
             newLine();
         }
-        if (lastLoc.isValid()) {
+        if (lastLoc.length != 0) {
             QList<SourceLocation> comments = _doc->engine()->comments();
             for (; _nextComment < comments.size(); ++_nextComment) {
                 SourceLocation commentLoc = comments.at(_nextComment);
@@ -237,7 +237,7 @@ protected:
 
     void out(const SourceLocation &loc)
     {
-        if (!loc.isValid())
+        if (loc.length == 0)
             return;
         out(toString(loc), loc);
     }
@@ -489,7 +489,7 @@ protected:
         else if (UiImport *import = cast<UiImport *>(ast))
             firstLoc = import->firstSourceLocation();
 
-        if (firstLoc.isValid() && int(firstLoc.offset) != _lastNewlineOffset) {
+        if (firstLoc.length != 0 && int(firstLoc.offset) != _lastNewlineOffset) {
             _lastNewlineOffset = firstLoc.offset;
 
             if (precededByEmptyLine(firstLoc) && !_result.endsWith(QLatin1String("\n\n")))
@@ -511,7 +511,7 @@ protected:
         else if (UiImport *import = cast<UiImport *>(ast))
             lastLoc = import->lastSourceLocation();
 
-        if (lastLoc.isValid()) {
+        if (lastLoc.length != 0) {
             const QList<SourceLocation> &comments = _doc->engine()->comments();
 
             // preserve trailing comments
@@ -566,7 +566,7 @@ protected:
     {
         for (UiEnumMemberList *it = list; it; it = it->next) {
             out(it->memberToken);
-            if (it->valueToken.isValid()) {
+            if (it->valueToken.length != 0) {
                 out(" = ");
                 out(it->valueToken);
             }
@@ -1136,7 +1136,7 @@ protected:
     {
         out(ast->returnToken);
         if (ast->expression) {
-            if (ast->returnToken.isValid())
+            if (ast->returnToken.length != 0)
                 out(" ");
             accept(ast->expression);
         }
@@ -1277,7 +1277,7 @@ protected:
             out("=> ");
         out(ast->lbraceToken);
         if (ast->body) {
-            if (ast->body->next || ast->lbraceToken.isValid()) {
+            if (ast->body->next || ast->lbraceToken.length != 0) {
                 lnAcceptIndented(ast->body);
                 newLine();
             } else {
