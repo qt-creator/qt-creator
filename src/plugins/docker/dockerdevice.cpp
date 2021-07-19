@@ -1258,8 +1258,9 @@ FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
             return {};
         return mapToGlobalPath(target);
     }
-    QTC_CHECK(false);
-    return {};
+
+    const QString output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
+    return output.isEmpty() ? FilePath() : filePath.withNewPath(output);
 }
 
 FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
