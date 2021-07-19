@@ -241,6 +241,19 @@ private slots:
     void test_projectInfoGenerator_useMacroInspectionReportForLanguageVersion();
     void test_projectInfoGenerator_useCompilerFlagsForLanguageExtensions();
     void test_projectInfoGenerator_projectFileKindsMatchProjectPartVersion();
+    void test_headerPathFilter_builtin();
+    void test_headerPathFilter_system();
+    void test_headerPathFilter_user();
+    void test_headerPathFilter_noProjectPathSet();
+    void test_headerPathFilter_dontAddInvalidPath();
+    void test_headerPathFilter_clangHeadersPath();
+    void test_headerPathFilter_clangHeadersPathWitoutClangVersion();
+    void test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderMacOs();
+    void test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderLinux();
+    void test_headerPathFilter_removeGccInternalPaths();
+    void test_headerPathFilter_removeGccInternalPathsExceptForStandardPaths();
+    void test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderNoVersion();
+    void test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderAndroidClang();
 #endif
 
 private:

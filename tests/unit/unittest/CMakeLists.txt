@@ -55,7 +55,6 @@ add_qtc_test(unittest GTEST
     gtest-llvm-printing.h
     gtest-qt-printing.cpp gtest-qt-printing.h
     gtest-std-printing.h
-    headerpathfilter-test.cpp
     highlightingresultreporter-test.cpp
     lastchangedrowid-test.cpp
     lineprefixer-test.cpp
@@ -456,7 +455,6 @@ extend_qtc_test(unittest
     cppprojectfilecategorizer.cpp cppprojectfilecategorizer.h
     projectinfo.cpp projectinfo.h
     cppprojectpartchooser.cpp cppprojectpartchooser.h
-    headerpathfilter.cpp headerpathfilter.h
 )
 
 extend_qtc_test(unittest

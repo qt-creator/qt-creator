@@ -97,7 +97,6 @@ SOURCES += \
     mocktimer.cpp \
     task.cpp \
     compilationdatabaseutils-test.cpp \
-    headerpathfilter-test.cpp \
     sqlitecolumn-test.cpp \
     sqlitedatabasebackend-test.cpp \
     sqlitedatabase-test.cpp \

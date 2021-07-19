@@ -26,12 +26,15 @@
 #include "cppprojectinfogenerator.h"
 #include "cppprojectpartchooser.h"
 #include "cpptoolsplugin.h"
+#include "headerpathfilter.h"
 #include "projectinfo.h"
 
 #include <projectexplorer/toolchainconfigwidget.h>
 #include <utils/algorithm.h>
 
 #include <QtTest>
+
+using namespace ProjectExplorer;
 
 namespace CppTools {
 namespace Internal {
@@ -465,6 +468,251 @@ void CppToolsPlugin::test_projectInfoGenerator_projectFileKindsMatchProjectPartV
         return p->languageVersion == Utils::LanguageVersion::LatestCxx
                 && p->files.first().kind == ProjectFile::ObjCXXHeader;
     }));
+}
+
+namespace {
+class HeaderPathFilterTest
+{
+public:
+    HeaderPathFilterTest() : project({}, Utils::FilePath::fromString("test"))
+    {
+        const auto headerPaths = {HeaderPath{"", HeaderPathType::BuiltIn},
+                                  HeaderPath{"/builtin_path", HeaderPathType::BuiltIn},
+                                  HeaderPath{"/system_path", HeaderPathType::System},
+                                  HeaderPath{"/framework_path", HeaderPathType::Framework},
+                                  HeaderPath{"/outside_project_user_path", HeaderPathType::User},
+                                  HeaderPath{"/build/user_path", HeaderPathType::User},
+                                  HeaderPath{"/buildb/user_path", HeaderPathType::User},
+                                  HeaderPath{"/projectb/user_path", HeaderPathType::User},
+                                  HeaderPath{"/project/user_path", HeaderPathType::User}};
+        projectPart.headerPaths = headerPaths;
+        projectPart.project = &project;
+    }
+
+    static HeaderPath builtIn(const QString &path)
+    {
+        return HeaderPath{path, HeaderPathType::BuiltIn};
+    }
+    static HeaderPath system(const QString &path)
+    {
+        return HeaderPath{path, HeaderPathType::System};
+    }
+    static HeaderPath framework(const QString &path)
+    {
+        return HeaderPath{path, HeaderPathType::Framework};
+    }
+    static HeaderPath user(const QString &path)
+    {
+        return HeaderPath{path, HeaderPathType::User};
+    }
+
+    ProjectExplorer::Project project;
+    CppTools::ProjectPart projectPart;
+    CppTools::HeaderPathFilter filter{
+        projectPart, CppTools::UseTweakedHeaderPaths::No, {}, {}, "/project", "/build"};
+};
+}
+
+void CppToolsPlugin::test_headerPathFilter_builtin()
+{
+    HeaderPathFilterTest t;
+    t.filter.process();
+
+    QCOMPARE(t.filter.builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_system()
+{
+    HeaderPathFilterTest t;
+    t.filter.process();
+
+    QCOMPARE(t.filter.systemHeaderPaths, (HeaderPaths{
+        t.system("/project/.pre_includes"), t.system("/system_path"),
+        t.framework("/framework_path"), t.user("/outside_project_user_path"),
+        t.user("/buildb/user_path"), t.user("/projectb/user_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_user()
+{
+    HeaderPathFilterTest t;
+    t.filter.process();
+
+    QCOMPARE(t.filter.userHeaderPaths, (HeaderPaths{t.user("/build/user_path"),
+                                                    t.user("/project/user_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_noProjectPathSet()
+{
+    HeaderPathFilterTest t;
+    HeaderPathFilter filter{t.projectPart, UseTweakedHeaderPaths::No};
+    filter.process();
+
+    QCOMPARE(filter.userHeaderPaths, (HeaderPaths{
+        t.user("/outside_project_user_path"), t.user("/build/user_path"),
+        t.user("/buildb/user_path"), t.user("/projectb/user_path"),
+        t.user("/project/user_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_dontAddInvalidPath()
+{
+    HeaderPathFilterTest t;
+    t.filter.process();
+    QCOMPARE(t.filter.builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
+    QCOMPARE(t.filter.systemHeaderPaths, HeaderPaths({
+        t.system("/project/.pre_includes"), t.system("/system_path"),
+        t.framework("/framework_path"), t.user("/outside_project_user_path"),
+        t.user("/buildb/user_path"), t.user("/projectb/user_path")}));
+    QCOMPARE(t.filter.userHeaderPaths, HeaderPaths({t.user("/build/user_path"),
+                                                    t.user("/project/user_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_clangHeadersPath()
+{
+    HeaderPathFilterTest t;
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{t.builtIn("clang_dir"),
+                                                     t.builtIn("/builtin_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_clangHeadersPathWitoutClangVersion()
+{
+    HeaderPathFilterTest t;
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes);
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderMacOs()
+{
+    HeaderPathFilterTest t;
+    const auto builtIns = {
+        t.builtIn("/usr/include/c++/4.2.1"), t.builtIn("/usr/include/c++/4.2.1/backward"),
+        t.builtIn("/usr/local/include"),
+        t.builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/6.0/include"),
+        t.builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
+        t.builtIn("/usr/include")
+    };
+    t.projectPart.toolChainTargetTriple = "x86_64-apple-darwin10";
+    std::copy(builtIns.begin(), builtIns.end(),
+              std::inserter(t.projectPart.headerPaths, t.projectPart.headerPaths.begin()));
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{
+        t.builtIn("/usr/include/c++/4.2.1"), t.builtIn("/usr/include/c++/4.2.1/backward"),
+        t.builtIn("/usr/local/include"), t.builtIn("clang_dir"),
+        t.builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
+        t.builtIn("/usr/include"),
+        t.builtIn("/builtin_path")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderLinux()
+{
+    HeaderPathFilterTest t;
+    const auto builtIns = {
+        t.builtIn("/usr/include/c++/4.8"), t.builtIn("/usr/include/c++/4.8/backward"),
+        t.builtIn("/usr/include/x86_64-linux-gnu/c++/4.8"),
+        t.builtIn("/usr/local/include"), t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
+        t.builtIn("/usr/include/x86_64-linux-gnu"), t.builtIn("/usr/include")};
+    std::copy(builtIns.begin(), builtIns.end(),
+              std::inserter(t.projectPart.headerPaths, t.projectPart.headerPaths.begin()));
+    t.projectPart.toolChainTargetTriple = "x86_64-linux-gnu";
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{
+        t.builtIn("/usr/include/c++/4.8"), t.builtIn("/usr/include/c++/4.8/backward"),
+        t.builtIn("/usr/include/x86_64-linux-gnu/c++/4.8"), t.builtIn("/usr/local/include"),
+        t.builtIn("clang_dir"), t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
+        t.builtIn("/usr/include/x86_64-linux-gnu"), t.builtIn("/usr/include"),
+        t.builtIn("/builtin_path")}));
+}
+
+// GCC-internal include paths like <installdir>/include and <installdir/include-next> might confuse
+// clang and should be filtered out. clang on the command line filters them out, too.
+void CppToolsPlugin::test_headerPathFilter_removeGccInternalPaths()
+{
+    HeaderPathFilterTest t;
+    t.projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
+    t.projectPart.toolchainType = ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
+    t.projectPart.headerPaths = {
+        t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/7/include"),
+        t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"),
+    };
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{t.builtIn("clang_dir")}));
+}
+
+// Some distributions ship the standard library headers in "<installdir>/include/c++" (MinGW)
+// or e.g. "<installdir>/include/g++-v8" (Gentoo).
+// Ensure that we do not remove include paths pointing there.
+void CppToolsPlugin::test_headerPathFilter_removeGccInternalPathsExceptForStandardPaths()
+{
+    HeaderPathFilterTest t;
+    t.projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8(
+        "c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0");
+    t.projectPart.toolchainType = ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+    t.projectPart.headerPaths = {
+        t.builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++"),
+        t.builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32"),
+        t.builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward"),
+    };
+
+    HeaderPaths expected = t.projectPart.headerPaths;
+    expected.append(t.builtIn("clang_dir"));
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, expected);
+}
+
+void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderNoVersion()
+{
+    HeaderPathFilterTest t;
+    t.projectPart.headerPaths = {
+        t.builtIn("C:/mingw/i686-w64-mingw32/include"),
+        t.builtIn("C:/mingw/i686-w64-mingw32/include/c++"),
+        t.builtIn("C:/mingw/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
+        t.builtIn("C:/mingw/i686-w64-mingw32/include/c++/backward"),
+    };
+    t.projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{
+        t.builtIn("C:/mingw/i686-w64-mingw32/include/c++"),
+        t.builtIn("C:/mingw/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
+        t.builtIn("C:/mingw/i686-w64-mingw32/include/c++/backward"),
+        t.builtIn("clang_dir"),
+        t.builtIn("C:/mingw/i686-w64-mingw32/include")}));
+}
+
+void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderAndroidClang()
+{
+    HeaderPathFilterTest t;
+    t.projectPart.headerPaths = {
+        t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")
+    };
+    t.projectPart.toolChainTargetTriple = "i686-linux-android";
+    HeaderPathFilter filter(t.projectPart, UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
+    filter.process();
+
+    QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{
+        t.builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
+        t.builtIn("clang_dir"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
+        t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")}));
 }
 
 } // namespace Internal

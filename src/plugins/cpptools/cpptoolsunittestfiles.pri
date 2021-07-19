@@ -9,13 +9,11 @@ HEADERS += \
     $$PWD/senddocumenttracker.h \
     $$PWD/projectpart.h \
     $$PWD/cppprojectfilecategorizer.h \
-    $$PWD/projectinfo.h \
-    $$PWD/headerpathfilter.h
+    $$PWD/projectinfo.h
 
 SOURCES += \
     $$PWD/cppprojectfile.cpp \
     $$PWD/senddocumenttracker.cpp \
     $$PWD/projectpart.cpp \
     $$PWD/cppprojectfilecategorizer.cpp \
-    $$PWD/projectinfo.cpp \
-    $$PWD/headerpathfilter.cpp
+    $$PWD/projectinfo.cpp
