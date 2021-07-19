@@ -148,18 +148,18 @@ QString ClangDiagnosticConfig::clangTidyChecksAsJson() const
         return false;
     };
 
+    QString optionString;
     for (auto it = m_tidyChecksOptions.cbegin(); it != m_tidyChecksOptions.cend(); ++it) {
         if (!checkIsEnabled(it.key()))
             continue;
-        QString optionString;
         for (auto optIt = it.value().begin(); optIt != it.value().end(); ++optIt) {
             if (!optionString.isEmpty())
                 optionString += ',';
             optionString += "{key: '" + it.key() + '.' + optIt.key()
                     + "', value: '" + optIt.value() + "'}";
         }
-        jsonString += optionString;
     }
+    jsonString += optionString;
     return jsonString += "]}";
 }
 
