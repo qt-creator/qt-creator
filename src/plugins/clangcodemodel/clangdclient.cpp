@@ -787,13 +787,15 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         gatherHelpItemForTooltip(response, uri);
     });
 
-    connect(this, &Client::workDone, this, [this, project](const ProgressToken &token) {
+    connect(this, &Client::workDone, this,
+            [this, p = QPointer(project)](const ProgressToken &token) {
         const QString * const val = Utils::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
             emit indexingFinished();
 #ifdef WITH_TESTS
-            emit project->indexingFinished("Indexer.Clangd");
+            if (p)
+                emit p->indexingFinished("Indexer.Clangd");
 #endif
         }
     });
