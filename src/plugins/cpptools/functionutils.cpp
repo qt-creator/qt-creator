@@ -87,10 +87,26 @@ static bool isVirtualFunction_helper(const Function *function,
                 return;
             }
             for (int i = 0; i < c.first->baseClassCount(); ++i) {
-                const ClassOrNamespace * const base = context.lookupType(
-                            c.first->baseClassAt(i)->name(), c.first->enclosingScope());
-                if (base && base->rootClass())
-                    classes.append({base->rootClass(), c.second + 1});
+                const BaseClass * const baseClassSpec = c.first->baseClassAt(i);
+                const ClassOrNamespace * const base = context.lookupType(baseClassSpec->name(),
+                                                                         c.first->enclosingScope());
+                const Class *baseClass = nullptr;
+                if (base) {
+                    baseClass = base->rootClass();
+
+                    // Sometimes, BaseClass::rootClass() is null, and then the class is
+                    // among the symbols. No idea why.
+                    if (!baseClass) {
+                        for (const auto s : base->symbols()) {
+                            if (s->asClass() && Matcher::match(s->name(), baseClassSpec->name())) {
+                                baseClass = s->asClass();
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (baseClass)
+                    classes.append({baseClass, c.second + 1});
             }
         }
     };
