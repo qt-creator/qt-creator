@@ -51,19 +51,19 @@ public:
         QFile pchFile(pchFileNativePath());
         pchFile.open(QIODevice::WriteOnly);
         projectPart.project = project.get();
-        projectPart.toolchainType = ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
+        projectPart.toolchainType = Constants::CLANG_TOOLCHAIN_TYPEID;
         projectPart.languageVersion = Utils::LanguageVersion::CXX17;
-        projectPart.toolChainWordWidth = CppTools::ProjectPart::WordWidth64Bit;
+        projectPart.toolChainWordWidth = ProjectPart::WordWidth64Bit;
         projectPart.toolChainTargetTriple = "x86_64-apple-darwin10";
         projectPart.precompiledHeaders = QStringList{pchFileNativePath()};
-        projectPart.toolChainMacros = {ProjectExplorer::Macro{"foo", "bar"},
-                                       ProjectExplorer::Macro{"__cplusplus", "2"},
-                                       ProjectExplorer::Macro{"__STDC_VERSION__", "2"},
-                                       ProjectExplorer::Macro{"_MSVC_LANG", "2"},
-                                       ProjectExplorer::Macro{"_MSC_BUILD", "2"},
-                                       ProjectExplorer::Macro{"_MSC_FULL_VER", "1900"},
-                                       ProjectExplorer::Macro{"_MSC_VER", "19"}};
-        projectPart.projectMacros = {ProjectExplorer::Macro{"projectFoo", "projectBar"}};
+        projectPart.toolChainMacros = {Macro{"foo", "bar"},
+                                       Macro{"__cplusplus", "2"},
+                                       Macro{"__STDC_VERSION__", "2"},
+                                       Macro{"_MSVC_LANG", "2"},
+                                       Macro{"_MSC_BUILD", "2"},
+                                       Macro{"_MSC_FULL_VER", "1900"},
+                                       Macro{"_MSC_VER", "19"}};
+        projectPart.projectMacros = {Macro{"projectFoo", "projectBar"}};
         projectPart.qtVersion = Utils::QtVersion::Qt5;
 
         projectPart.headerPaths = {HeaderPath{"/tmp/builtin_path", HeaderPathType::BuiltIn},
@@ -87,10 +87,9 @@ public:
                         + "/compileroptionsbuilder.pch");
     }
 
-    std::unique_ptr<Project> project{std::make_unique<ProjectExplorer::Project>(QString(),
-                                                                                Utils::FilePath())};
+    std::unique_ptr<Project> project{std::make_unique<Project>(QString(), Utils::FilePath())};
     ProjectPart projectPart;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+    CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
 };
 }
 
@@ -107,11 +106,9 @@ void CppToolsPlugin::test_optionsBuilder_unknownFlagsAreForwarded()
     CompilerOptionsBuilderTest t;
     ProjectPart part = t.projectPart;
     part.compilerFlags = QStringList{"-fancyFlag"};
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::No,
-                                                            CppTools::UseLanguageDefines::Yes};
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
+                UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     QVERIFY(compilerOptionsBuilder.options().contains(part.compilerFlags.first()));
 }
@@ -121,12 +118,10 @@ void CppToolsPlugin::test_optionsBuilder_warningsFlagsAreNotFilteredIfRequested(
     CompilerOptionsBuilderTest t;
     ProjectPart part = t.projectPart;
     part.compilerFlags = QStringList{"-Whello"};
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::No,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::Yes};
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
+                UseTweakedHeaderPaths::No, UseLanguageDefines::No,
+                UseBuildSystemWarnings::Yes};
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     QVERIFY(compilerOptionsBuilder.options().contains(part.compilerFlags.first()));
 }
@@ -136,11 +131,9 @@ void CppToolsPlugin::test_optionsBuilder_diagnosticOptionsAreRemoved()
     CompilerOptionsBuilderTest t;
     ProjectPart part = t.projectPart;
     part.compilerFlags = QStringList{"-Wbla", "-pedantic"};
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::No,
-                                                            CppTools::UseLanguageDefines::Yes};
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
+                UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     QVERIFY(!compilerOptionsBuilder.options().contains(part.compilerFlags.at(0)));
     QVERIFY(!compilerOptionsBuilder.options().contains(part.compilerFlags.at(1)));
@@ -156,11 +149,9 @@ void CppToolsPlugin::test_optionsBuilder_cLanguageVersionIsRewritten()
     // consistency between ProjectFile::Kind and ProjectPart::LanguageVersion
     part.languageVersion = Utils::LanguageVersion::C18;
 
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::No,
-                                                            CppTools::UseLanguageDefines::Yes};
-    compilerOptionsBuilder.build(ProjectFile::CSource, CppTools::UsePrecompiledHeaders::No);
+    CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
+                UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
+    compilerOptionsBuilder.build(ProjectFile::CSource, UsePrecompiledHeaders::No);
 
     QVERIFY(!compilerOptionsBuilder.options().contains(part.compilerFlags.first()));
     QVERIFY(compilerOptionsBuilder.options().contains("-std=c17"));
@@ -169,11 +160,9 @@ void CppToolsPlugin::test_optionsBuilder_cLanguageVersionIsRewritten()
 void CppToolsPlugin::test_optionsBuilder_languageVersionIsExplicitlySetIfNotProvided()
 {
     CompilerOptionsBuilderTest t;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::No,
-                                                            CppTools::UseLanguageDefines::Yes};
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     QVERIFY(compilerOptionsBuilder.options().contains("-std=c++17"));
 }
@@ -181,12 +170,10 @@ void CppToolsPlugin::test_optionsBuilder_languageVersionIsExplicitlySetIfNotProv
 void CppToolsPlugin::test_optionsBuilder_LanguageVersionIsExplicitlySetIfNotProvidedMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::No,
-                                                            CppTools::UseLanguageDefines::Yes};
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     QVERIFY(compilerOptionsBuilder.options().contains("/std:c++17"));
 }
@@ -202,13 +189,9 @@ void CppToolsPlugin::test_optionsBuilder_addWordWidth()
 void CppToolsPlugin::test_optionsBuilder_headerPathOptionsOrder()
 {
     CompilerOptionsBuilderTest t;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            ""};
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", ""};
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -220,14 +203,10 @@ void CppToolsPlugin::test_optionsBuilder_headerPathOptionsOrder()
 void CppToolsPlugin::test_optionsBuilder_HeaderPathOptionsOrderMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            ""};
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", ""};
     compilerOptionsBuilder.evaluateCompilerFlags();
     compilerOptionsBuilder.addHeaderPathOptions();
 
@@ -241,13 +220,9 @@ void CppToolsPlugin::test_optionsBuilder_HeaderPathOptionsOrderMsvc()
 void CppToolsPlugin::test_optionsBuilder_useSystemHeader()
 {
     CompilerOptionsBuilderTest t;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart,
-                                                            CppTools::UseSystemHeader::Yes,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            ""};
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart, UseSystemHeader::Yes,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", ""};
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -278,13 +253,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderMacO
         t.builtIn("/usr/include")
     };
     t.projectPart.headerPaths.append(defaultPaths);
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -312,13 +283,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderLinu
         t.builtIn("/usr/include"),
     };
     t.projectPart.toolChainTargetTriple = "x86_64-linux-gnu";
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -343,13 +310,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderNoVe
         t.builtIn("C:/mingw530/i686-w64-mingw32/include/c++/backward"),
     };
     t.projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -372,13 +335,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderAndr
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include"),
     };
     t.projectPart.toolChainTargetTriple = "i686-linux-android";
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -394,7 +353,7 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderAndr
 void CppToolsPlugin::test_optionsBuilder_noPrecompiledHeader()
 {
     CompilerOptionsBuilderTest t;
-    t.compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::No);
+    t.compilerOptionsBuilder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::No);
 
     QVERIFY(t.compilerOptionsBuilder.options().empty());
 }
@@ -402,7 +361,7 @@ void CppToolsPlugin::test_optionsBuilder_noPrecompiledHeader()
 void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeader()
 {
     CompilerOptionsBuilderTest t;
-    t.compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::Yes);
+    t.compilerOptionsBuilder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
 
     QCOMPARE(t.compilerOptionsBuilder.options(), (QStringList{"-include", t.pchFileNativePath()}));
 }
@@ -410,10 +369,10 @@ void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeader()
 void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeaderMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
     compilerOptionsBuilder.evaluateCompilerFlags();
-    compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::Yes);
+    compilerOptionsBuilder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
 
     QCOMPARE(compilerOptionsBuilder.options(), (QStringList{"/FI", t.pchFileNativePath()}));
 }
@@ -421,8 +380,7 @@ void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeaderMsvc()
 void CppToolsPlugin::test_optionsBuilder_addMacros()
 {
     CompilerOptionsBuilderTest t;
-    t.compilerOptionsBuilder.addMacros(
-        ProjectExplorer::Macros{ProjectExplorer::Macro{"key", "value"}});
+    t.compilerOptionsBuilder.addMacros(Macros{Macro{"key", "value"}});
 
     QCOMPARE(t.compilerOptionsBuilder.options(), QStringList("-Dkey=value"));
 }
@@ -455,13 +413,9 @@ void CppToolsPlugin::test_optionsBuilder_enableCxxExceptions()
 void CppToolsPlugin::test_optionsBuilder_insertWrappedQtHeaders()
 {
     CompilerOptionsBuilderTest t;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart,
-                                                            CppTools::UseSystemHeader::Yes,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            ""};
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart, UseSystemHeader::Yes,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", ""};
     compilerOptionsBuilder.insertWrappedQtHeaders();
 
     QVERIFY(Utils::contains(compilerOptionsBuilder.options(),
@@ -471,11 +425,11 @@ void CppToolsPlugin::test_optionsBuilder_insertWrappedQtHeaders()
 void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithNonMingwToolchain()
 {
     CompilerOptionsBuilderTest t;
-    CppTools::CompilerOptionsBuilder builder{t.projectPart,
-                                             CppTools::UseSystemHeader::Yes,
-                                             CppTools::UseTweakedHeaderPaths::Yes,
-                                             CppTools::UseLanguageDefines::No,
-                                             CppTools::UseBuildSystemWarnings::No,
+    CompilerOptionsBuilder builder{t.projectPart,
+                                             UseSystemHeader::Yes,
+                                             UseTweakedHeaderPaths::Yes,
+                                             UseLanguageDefines::No,
+                                             UseBuildSystemWarnings::No,
                                              "dummy_version",
                                              ""};
     builder.insertWrappedMingwHeaders();
@@ -487,14 +441,9 @@ void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithNonMingwTo
 void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithMingwToolchain()
 {
     CompilerOptionsBuilderTest t;
-    CppTools::CompilerOptionsBuilder builder{t.projectPart,
-                                             CppTools::UseSystemHeader::Yes,
-                                             CppTools::UseTweakedHeaderPaths::Yes,
-                                             CppTools::UseLanguageDefines::No,
-                                             CppTools::UseBuildSystemWarnings::No,
-                                             "dummy_version",
-                                             ""};
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder builder{t.projectPart, UseSystemHeader::Yes, UseTweakedHeaderPaths::Yes,
+                UseLanguageDefines::No, UseBuildSystemWarnings::No, "dummy_version", ""};
+    t.projectPart.toolchainType = Constants::MINGW_TOOLCHAIN_TYPEID;
     builder.insertWrappedMingwHeaders();
 
     QVERIFY(Utils::contains(builder.options(),
@@ -512,8 +461,8 @@ void CppToolsPlugin::test_optionsBuilder_setLanguageVersion()
 void CppToolsPlugin::test_optionsBuilder_setLanguageVersionMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
     compilerOptionsBuilder.evaluateCompilerFlags();
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
 
@@ -541,8 +490,8 @@ void CppToolsPlugin::test_optionsBuilder_updateLanguageVersion()
 void CppToolsPlugin::test_optionsBuilder_updateLanguageVersionMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
     compilerOptionsBuilder.evaluateCompilerFlags();
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CSource);
@@ -553,8 +502,8 @@ void CppToolsPlugin::test_optionsBuilder_updateLanguageVersionMsvc()
 void CppToolsPlugin::test_optionsBuilder_addMsvcCompatibilityVersion()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    t.projectPart.toolChainMacros.append(ProjectExplorer::Macro{"_MSC_FULL_VER", "190000000"});
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolChainMacros.append(Macro{"_MSC_FULL_VER", "190000000"});
     t.compilerOptionsBuilder.addMsvcCompatibilityVersion();
 
     QCOMPARE(t.compilerOptionsBuilder.options(), QStringList("-fms-compatibility-version=19.00"));
@@ -563,7 +512,7 @@ void CppToolsPlugin::test_optionsBuilder_addMsvcCompatibilityVersion()
 void CppToolsPlugin::test_optionsBuilder_undefineCppLanguageFeatureMacrosForMsvc2015()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.projectPart.isMsvc2015Toolchain = true;
     t.compilerOptionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 
@@ -573,7 +522,7 @@ void CppToolsPlugin::test_optionsBuilder_undefineCppLanguageFeatureMacrosForMsvc
 void CppToolsPlugin::test_optionsBuilder_addDefineFunctionMacrosMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.compilerOptionsBuilder.addDefineFunctionMacrosMsvc();
 
     QVERIFY(t.compilerOptionsBuilder.options().contains(
@@ -593,8 +542,8 @@ void CppToolsPlugin::test_optionsBuilder_addProjectConfigFileIncludeMsvc()
 {
     CompilerOptionsBuilderTest t;
     t.projectPart.projectConfigFile = "dummy_file.h";
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder{t.projectPart};
     compilerOptionsBuilder.evaluateCompilerFlags();
     compilerOptionsBuilder.addProjectConfigFileInclude();
 
@@ -604,7 +553,7 @@ void CppToolsPlugin::test_optionsBuilder_addProjectConfigFileIncludeMsvc()
 void CppToolsPlugin::test_optionsBuilder_noUndefineClangVersionMacrosForNewMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.compilerOptionsBuilder.undefineClangVersionMacrosForMsvc();
 
     QVERIFY(!t.compilerOptionsBuilder.options().contains("-U__clang__"));
@@ -613,9 +562,9 @@ void CppToolsPlugin::test_optionsBuilder_noUndefineClangVersionMacrosForNewMsvc(
 void CppToolsPlugin::test_optionsBuilder_undefineClangVersionMacrosForOldMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    t.projectPart.toolChainMacros = {ProjectExplorer::Macro{"_MSC_FULL_VER", "1300"},
-                                     ProjectExplorer::Macro{"_MSC_VER", "13"}};
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolChainMacros = {Macro{"_MSC_FULL_VER", "1300"},
+                                     Macro{"_MSC_VER", "13"}};
     t.compilerOptionsBuilder.undefineClangVersionMacrosForMsvc();
 
     QVERIFY(t.compilerOptionsBuilder.options().contains("-U__clang__"));
@@ -625,14 +574,10 @@ void CppToolsPlugin::test_optionsBuilder_buildAllOptions()
 {
     CompilerOptionsBuilderTest t;
     t.projectPart.extraCodeModelFlags = QStringList{"-arch", "x86_64"};
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     const QString wrappedQtHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
             [](const QString &o) { return o.contains("wrappedQtHeaders"); });
@@ -652,15 +597,11 @@ void CppToolsPlugin::test_optionsBuilder_buildAllOptions()
 void CppToolsPlugin::test_optionsBuilder_buildAllOptionsMsvc()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     const QString wrappedQtHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
             [](const QString &o) { return o.contains("wrappedQtHeaders"); });
@@ -684,16 +625,12 @@ void CppToolsPlugin::test_optionsBuilder_buildAllOptionsMsvc()
 void CppToolsPlugin::test_optionsBuilder_buildAllOptionsMsvcWithExceptions()
 {
     CompilerOptionsBuilderTest t;
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    t.projectPart.toolChainMacros.append(ProjectExplorer::Macro{"_CPPUNWIND", "1"});
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::No,
-                                                            CppTools::UseBuildSystemWarnings::No,
-                                                            "dummy_version",
-                                                            "");
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+    t.projectPart.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolChainMacros.append(Macro{"_CPPUNWIND", "1"});
+    CompilerOptionsBuilder compilerOptionsBuilder(t.projectPart, UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "dummy_version", "");
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     const QString wrappedQtHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
             [](const QString &o) { return o.contains("wrappedQtHeaders"); });

@@ -67,10 +67,10 @@ public:
         QList<ProjectPart::Ptr> projectParts;
 
         const ProjectPart::Ptr p1{new ProjectPart};
-        p1->project = reinterpret_cast<ProjectExplorer::Project *>(1 << 0);
+        p1->project = reinterpret_cast<Project *>(1 << 0);
         projectParts.append(p1);
         const ProjectPart::Ptr p2{new ProjectPart};
-        p2->project = reinterpret_cast<ProjectExplorer::Project *>(1 << 1);
+        p2->project = reinterpret_cast<Project *>(1 << 1);
         projectParts.append(p2);
 
         return projectParts;
@@ -99,7 +99,7 @@ public:
                                            {currentProjectPart},
                                            ProjectPartInfo::NoHint};
     QString preferredProjectPartId;
-    const ProjectExplorer::Project *activeProject = nullptr;
+    const Project *activeProject = nullptr;
     Language languagePreference = Language::Cxx;
     bool projectsChanged = false;
     ProjectPartChooser chooser;
@@ -327,10 +327,10 @@ void CppToolsPlugin::test_projectPartChooser_doNotIndicateFromDependencies()
 }
 
 namespace {
-class TestToolchain : public ProjectExplorer::ToolChain
+class TestToolchain : public ToolChain
 {
 public:
-    TestToolchain() : ProjectExplorer::ToolChain("dummy") {}
+    TestToolchain() : ToolChain("dummy") {}
 
 private:
     MacroInspectionRunner createMacroInspectionRunner() const override { return {}; }
@@ -341,7 +341,7 @@ private:
     void addToEnvironment(Utils::Environment &) const override {}
     Utils::FilePath makeCommand(const Utils::Environment &) const override { return {}; }
     QList<Utils::OutputLineParser *> createOutputParsers() const override { return {}; }
-    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() override
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override
     {
         return {};
     };
@@ -363,8 +363,8 @@ public:
         return generator.generate();
     }
 
-    ProjectExplorer::ProjectUpdateInfo projectUpdateInfo;
-    ProjectExplorer::RawProjectPart rawProjectPart;
+    ProjectUpdateInfo projectUpdateInfo;
+    RawProjectPart rawProjectPart;
 };
 }
 
@@ -420,8 +420,7 @@ void CppToolsPlugin::test_projectInfoGenerator_useMacroInspectionReportForLangua
 {
     ProjectInfoGeneratorTest t;
     t.projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
-        return TestToolchain::MacroInspectionReport{ProjectExplorer::Macros(),
-                                                    Utils::LanguageVersion::CXX17};
+        return TestToolchain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
     const ProjectInfo projectInfo = t.generate();
@@ -507,10 +506,9 @@ public:
         return HeaderPath{path, HeaderPathType::User};
     }
 
-    ProjectExplorer::Project project;
-    CppTools::ProjectPart projectPart;
-    CppTools::HeaderPathFilter filter{
-        projectPart, CppTools::UseTweakedHeaderPaths::No, {}, {}, "/project", "/build"};
+    Project project;
+    ProjectPart projectPart;
+    HeaderPathFilter filter{projectPart, UseTweakedHeaderPaths::No, {}, {}, "/project", "/build"};
 };
 }
 
@@ -638,7 +636,7 @@ void CppToolsPlugin::test_headerPathFilter_removeGccInternalPaths()
 {
     HeaderPathFilterTest t;
     t.projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
-    t.projectPart.toolchainType = ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
+    t.projectPart.toolchainType = Constants::GCC_TOOLCHAIN_TYPEID;
     t.projectPart.headerPaths = {
         t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/7/include"),
         t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"),
@@ -657,7 +655,7 @@ void CppToolsPlugin::test_headerPathFilter_removeGccInternalPathsExceptForStanda
     HeaderPathFilterTest t;
     t.projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8(
         "c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0");
-    t.projectPart.toolchainType = ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+    t.projectPart.toolchainType = Constants::MINGW_TOOLCHAIN_TYPEID;
     t.projectPart.headerPaths = {
         t.builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++"),
         t.builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32"),
