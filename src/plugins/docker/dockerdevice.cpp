@@ -69,6 +69,7 @@
 #include <QHeaderView>
 #include <QLoggingCategory>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QTextBrowser>
 #include <QToolButton>
 #include <QThread>
@@ -307,6 +308,8 @@ public:
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
     bool runInContainer(const CommandLine &cmd) const;
+    bool runInShell(const CommandLine &cmd) const;
+    QString outputForRunInShell(const CommandLine &cmd) const;
 
     void tryCreateLocalFileAccess();
 
@@ -318,6 +321,7 @@ public:
 
     // For local file access
     QPointer<QtcProcess> m_shell;
+    mutable QMutex m_shellMutex;
     QString m_container;
     QString m_mergedDir;
     QFileSystemWatcher m_mergedDirWatcher;
@@ -746,6 +750,7 @@ void DockerDevicePrivate::stopCurrentContainer()
         return;
 
     if (m_shell) {
+        QMutexLocker l(&m_shellMutex);
         m_shell->write("exit\n");
         m_shell->waitForFinished(2000);
         if (m_shell->state() == QProcess::NotRunning) {
@@ -1032,7 +1037,7 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-x", path}});
+    return d->runInShell({"test", {"-x", path}});
 }
 
 bool DockerDevice::isReadableFile(const FilePath &filePath) const
@@ -1046,7 +1051,7 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-r", path, "-a", "-f", path}});
+    return d->runInShell({"test", {"-r", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
@@ -1060,7 +1065,7 @@ bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-w", path, "-a", "-f", path}});
+    return d->runInShell({"test", {"-w", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
@@ -1074,7 +1079,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-r", path, "-a", "-d", path}});
+    return d->runInShell({"test", {"-r", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
@@ -1088,7 +1093,7 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-w", path, "-a", "-d", path}});
+    return d->runInShell({"test", {"-w", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isFile(const FilePath &filePath) const
@@ -1102,7 +1107,7 @@ bool DockerDevice::isFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-f", path}});
+    return d->runInShell({"test", {"-f", path}});
 }
 
 bool DockerDevice::isDirectory(const FilePath &filePath) const
@@ -1116,7 +1121,7 @@ bool DockerDevice::isDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-d", path}});
+    return d->runInShell({"test", {"-d", path}});
 }
 
 bool DockerDevice::createDirectory(const FilePath &filePath) const
@@ -1144,7 +1149,7 @@ bool DockerDevice::exists(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-e", path}});
+    return d->runInShell({"test", {"-e", path}});
 }
 
 bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
@@ -1158,7 +1163,7 @@ bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"touch", {path}});
+    return d->runInShell({"touch", {path}});
 }
 
 bool DockerDevice::removeFile(const FilePath &filePath) const
@@ -1271,12 +1276,8 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
         });
     }
 
-    QtcProcess proc;
-    proc.setCommand({"ls", {"-1", "-b", "--", filePath.path()}});
-    runProcess(proc);
-    proc.waitForFinished();
-
-    QStringList entries = proc.stdOut().split('\n', Qt::SkipEmptyParts);
+    const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    QStringList entries = output.split('\n', Qt::SkipEmptyParts);
     return FilePath::filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
 }
 
@@ -1386,6 +1387,48 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
     const int exitCode = proc.exitCode();
     return exitCode == 0;
+}
+
+bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
+{
+    if (m_accessible == NoDaemon)
+        return false;
+    QTC_ASSERT(m_shell, return false);
+    QMutexLocker l(&m_shellMutex);
+    m_shell->readAllStandardOutput(); // clean possible left-overs
+    m_shell->write(cmd.toUserOutput().toUtf8() + "\necho $?\n");
+    m_shell->waitForReadyRead();
+    QByteArray output = m_shell->readAllStandardOutput();
+    int result = output.toInt();
+    LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
+    return result == 0;
+}
+
+// generate hex value
+static QByteArray randomHex()
+{
+    quint32 val = QRandomGenerator::global()->generate();
+    return QString::number(val, 16).toUtf8();
+}
+
+QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
+{
+    if (m_accessible == NoDaemon)
+        return {};
+    QTC_ASSERT(m_shell, return {});
+    QMutexLocker l(&m_shellMutex);
+    m_shell->readAllStandardOutput(); // clean possible left-overs
+    const QByteArray markerWithNewLine("___QC_DOCKER_" + randomHex() + "_OUTPUT_MARKER___\n");
+    m_shell->write(cmd.toUserOutput().toUtf8() + "\necho -n \"" + markerWithNewLine + "\"\n");
+    QByteArray output;
+    while (!output.endsWith(markerWithNewLine)) {
+        m_shell->waitForReadyRead();
+        output.append(m_shell->readAllStandardOutput());
+    }
+    LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
+    if (QTC_GUARD(output.endsWith(markerWithNewLine)))
+        output.chop(markerWithNewLine.size());
+    return QString::fromUtf8(output);
 }
 
 // Factory
