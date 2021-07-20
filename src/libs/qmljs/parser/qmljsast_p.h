@@ -880,8 +880,8 @@ struct QML_PARSER_EXPORT BoundName
     };
 
     QString id;
-    Type typeAnnotationType;
     TypeAnnotation *typeAnnotation;
+    Type typeAnnotationType;
     BoundName(const QString &id, TypeAnnotation *typeAnnotation, Type type = Declared)
     : id(id), typeAnnotation(typeAnnotation), typeAnnotationType(type)
     {}

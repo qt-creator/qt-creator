@@ -334,12 +334,12 @@ index ba1f642629..e286571e2e 100644
      SourceLocation majorToken;
      SourceLocation minorToken;
  };
-@@ -880,14 +879,13 @@ struct QML_PARSER_EXPORT BoundName
+@@ -880,12 +879,11 @@ struct QML_PARSER_EXPORT BoundName
      };
 
      QString id;
--    Type typeAnnotationType;
 -    TypeAnnotation *typeAnnotation;
+-    Type typeAnnotationType;
 +    QTaggedPointer<TypeAnnotation, Type> typeAnnotation;
      BoundName(const QString &id, TypeAnnotation *typeAnnotation, Type type = Declared)
 -    : id(id), typeAnnotation(typeAnnotation), typeAnnotationType(type)
