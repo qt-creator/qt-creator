@@ -63,9 +63,24 @@ public:
     {
         Sqlite::ImmediateTransaction transaction{database};
 
-        synchronizeImports(importDependencies);
+        std::vector<AliasPropertyDeclaration> insertedAliasPropertyDeclarations;
+        std::vector<AliasPropertyDeclaration> updatedAliasPropertyDeclarations;
+
+        TypeIds updatedTypeIds;
+        updatedTypeIds.reserve(types.size());
+
+        TypeIds deletedTypeIds;
+
+        synchronizeImports(importDependencies, deletedTypeIds);
         synchronizeDocuments(documents);
-        synchronizeTypes(types, sourceIds);
+        synchronizeTypes(types,
+                         updatedTypeIds,
+                         insertedAliasPropertyDeclarations,
+                         updatedAliasPropertyDeclarations);
+
+        deleteNotUpdatedTypes(updatedTypeIds, sourceIds, deletedTypeIds);
+
+        linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
         transaction.commit();
     }
@@ -273,173 +288,6 @@ public:
     }
 
 private:
-    void synchronizeTypes(Storage::Types &types, SourceIds &sourceIds)
-    {
-        std::vector<AliasPropertyDeclaration> insertedAliasPropertyDeclarations;
-        std::vector<AliasPropertyDeclaration> updatedAliasPropertyDeclarations;
-
-        TypeIds updatedTypeIds;
-        updatedTypeIds.reserve(types.size());
-
-        for (auto &&type : types) {
-            if (!type.sourceId)
-                throw TypeHasInvalidSourceId{};
-
-            updatedTypeIds.push_back(declareType(type));
-        }
-
-        for (auto &&type : types)
-            syncPrototypes(type);
-
-        for (auto &&type : types)
-            resetRemovedAliasPropertyDeclarationsToNull(type.typeId, type.propertyDeclarations);
-
-        for (auto &&type : types)
-            syncDeclarations(type, insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
-
-        deleteNotUpdatedTypes(updatedTypeIds, sourceIds);
-
-        linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
-    }
-
-    void synchronizeImports(Storage::ImportDependencies &imports)
-    {
-        if (imports.empty())
-            return;
-
-        synchronizeImportsAndUpdatesImportIds(imports);
-        synchronizeImportDependencies(createSortedImportDependecies(imports));
-    }
-
-    void synchronizeDocuments(Storage::Documents &documents)
-    {
-        for (auto &&document : documents)
-            synchronizeDocumentImports(document.sourceId, document.imports);
-    }
-
-    struct ImportDependency
-    {
-        ImportDependency(ImportId id, ImportId dependencyId)
-            : id{id}
-            , dependencyId{dependencyId}
-        {}
-
-        ImportDependency(long long id, long long dependencyId)
-            : id{id}
-            , dependencyId{dependencyId}
-        {}
-
-        ImportId id;
-        ImportId dependencyId;
-
-        friend bool operator<(ImportDependency first, ImportDependency second)
-        {
-            return std::tie(first.id, first.dependencyId) < std::tie(second.id, second.dependencyId);
-        }
-
-        friend bool operator==(ImportDependency first, ImportDependency second)
-        {
-            return first.id == second.id && first.dependencyId == second.dependencyId;
-        }
-    };
-
-    void synchronizeImportsAndUpdatesImportIds(Storage::ImportDependencies &imports)
-    {
-        auto compareKey = [](auto &&first, auto &&second) {
-            auto nameCompare = Sqlite::compare(first.name, second.name);
-
-            if (nameCompare != 0)
-                return nameCompare;
-
-            return first.version.version - second.version.version;
-        };
-
-        std::sort(imports.begin(), imports.end(), [&](auto &&first, auto &&second) {
-            return compareKey(first, second) < 0;
-        });
-
-        auto range = selectAllImportsStatement.template range<Storage::ImportView>();
-
-        auto insert = [&](Storage::ImportDependency &import) {
-            import.importId = insertImportStatement.template value<ImportId>(import.name,
-                                                                             import.version.version,
-                                                                             &import.sourceId);
-        };
-
-        auto update = [&](const Storage::ImportView &importView, Storage::ImportDependency &import) {
-            if (importView.sourceId.id != import.sourceId.id)
-                updateImportStatement.write(&importView.importId, &import.sourceId);
-            import.importId = importView.importId;
-        };
-
-        auto remove = [&](const Storage::ImportView &importView) {
-            deleteImportStatement.write(&importView.importId);
-            deleteTypesForImportId(importView.importId);
-        };
-
-        Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
-    }
-
-    std::vector<ImportDependency> createSortedImportDependecies(
-        const Storage::ImportDependencies &imports) const
-    {
-        std::vector<ImportDependency> importDependecies;
-        importDependecies.reserve(imports.size() * 5);
-
-        for (const Storage::ImportDependency &import : imports) {
-            for (const Storage::Import &importDependency : import.importDependencies) {
-                auto importIdForDependency = fetchImportId(importDependency);
-
-                if (!importIdForDependency)
-                    throw ImportDoesNotExists{};
-
-                importDependecies.emplace_back(import.importId, importIdForDependency);
-            }
-        }
-
-        std::sort(importDependecies.begin(), importDependecies.end());
-        importDependecies.erase(std::unique(importDependecies.begin(), importDependecies.end()),
-                                importDependecies.end());
-
-        return importDependecies;
-    }
-
-    void synchronizeImportDependencies(const std::vector<ImportDependency> &importDependecies)
-    {
-        auto compareKey = [](ImportDependency first, ImportDependency second) {
-            auto idCompare = first.id.id - second.id.id;
-
-            if (idCompare != 0)
-                return idCompare;
-
-            return first.dependencyId.id - second.dependencyId.id;
-        };
-
-        auto range = selectAllImportDependenciesStatement.template range<ImportDependency>();
-
-        auto insert = [&](ImportDependency dependency) {
-            insertImportDependencyStatement.write(&dependency.id, &dependency.dependencyId);
-        };
-
-        auto update = [](ImportDependency, ImportDependency) {};
-
-        auto remove = [&](ImportDependency dependency) {
-            deleteImportDependencyStatement.write(&dependency.id, &dependency.dependencyId);
-        };
-
-        Sqlite::insertUpdateDelete(range, importDependecies, compareKey, insert, update, remove);
-    }
-
-    ImportId fetchImportId(const Storage::Import &import) const
-    {
-        if (import.version) {
-            return selectImportIdByNameAndVersionStatement
-                .template value<ImportId>(import.name, import.version.version);
-        }
-
-        return selectImportIdByNameStatement.template value<ImportId>(import.name);
-    }
-
     class AliasPropertyDeclaration
     {
     public:
@@ -508,6 +356,168 @@ private:
         selectTypeNameStatement.readCallback(callback, &typeNameId);
 
         return typeName;
+    }
+
+    struct ImportDependency
+    {
+        ImportDependency(ImportId id, ImportId dependencyId)
+            : id{id}
+            , dependencyId{dependencyId}
+        {}
+
+        ImportDependency(long long id, long long dependencyId)
+            : id{id}
+            , dependencyId{dependencyId}
+        {}
+
+        ImportId id;
+        ImportId dependencyId;
+
+        friend bool operator<(ImportDependency first, ImportDependency second)
+        {
+            return std::tie(first.id, first.dependencyId) < std::tie(second.id, second.dependencyId);
+        }
+
+        friend bool operator==(ImportDependency first, ImportDependency second)
+        {
+            return first.id == second.id && first.dependencyId == second.dependencyId;
+        }
+    };
+
+    void synchronizeTypes(Storage::Types &types,
+                          TypeIds &updatedTypeIds,
+                          std::vector<AliasPropertyDeclaration> &insertedAliasPropertyDeclarations,
+                          std::vector<AliasPropertyDeclaration> &updatedAliasPropertyDeclarations)
+    {
+
+        for (auto &&type : types) {
+            if (!type.sourceId)
+                throw TypeHasInvalidSourceId{};
+
+            updatedTypeIds.push_back(declareType(type));
+        }
+
+        for (auto &&type : types)
+            syncPrototypes(type);
+
+        for (auto &&type : types)
+            resetRemovedAliasPropertyDeclarationsToNull(type.typeId, type.propertyDeclarations);
+
+        for (auto &&type : types)
+            syncDeclarations(type, insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+    }
+
+    void synchronizeImports(Storage::ImportDependencies &imports, TypeIds &deletedTypeIds)
+    {
+        if (imports.empty())
+            return;
+
+        synchronizeImportsAndUpdatesImportIds(imports, deletedTypeIds);
+        synchronizeImportDependencies(createSortedImportDependecies(imports));
+    }
+
+    void synchronizeDocuments(Storage::Documents &documents)
+    {
+        for (auto &&document : documents)
+            synchronizeDocumentImports(document.sourceId, document.imports);
+    }
+
+    void synchronizeImportsAndUpdatesImportIds(Storage::ImportDependencies &imports,
+                                               TypeIds &deletedTypeIds)
+    {
+        auto compareKey = [](auto &&first, auto &&second) {
+            auto nameCompare = Sqlite::compare(first.name, second.name);
+
+            if (nameCompare != 0)
+                return nameCompare;
+
+            return first.version.version - second.version.version;
+        };
+
+        std::sort(imports.begin(), imports.end(), [&](auto &&first, auto &&second) {
+            return compareKey(first, second) < 0;
+        });
+
+        auto range = selectAllImportsStatement.template range<Storage::ImportView>();
+
+        auto insert = [&](Storage::ImportDependency &import) {
+            import.importId = insertImportStatement.template value<ImportId>(import.name,
+                                                                             import.version.version,
+                                                                             &import.sourceId);
+        };
+
+        auto update = [&](const Storage::ImportView &importView, Storage::ImportDependency &import) {
+            if (importView.sourceId.id != import.sourceId.id)
+                updateImportStatement.write(&importView.importId, &import.sourceId);
+            import.importId = importView.importId;
+        };
+
+        auto remove = [&](const Storage::ImportView &importView) {
+            deleteImportStatement.write(&importView.importId);
+            selectTypeIdsForImportIdStatement.readTo(deletedTypeIds, &importView.importId);
+        };
+
+        Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
+    }
+
+    std::vector<ImportDependency> createSortedImportDependecies(
+        const Storage::ImportDependencies &imports) const
+    {
+        std::vector<ImportDependency> importDependecies;
+        importDependecies.reserve(imports.size() * 5);
+
+        for (const Storage::ImportDependency &import : imports) {
+            for (const Storage::Import &importDependency : import.importDependencies) {
+                auto importIdForDependency = fetchImportId(importDependency);
+
+                if (!importIdForDependency)
+                    throw ImportDoesNotExists{};
+
+                importDependecies.emplace_back(import.importId, importIdForDependency);
+            }
+        }
+
+        std::sort(importDependecies.begin(), importDependecies.end());
+        importDependecies.erase(std::unique(importDependecies.begin(), importDependecies.end()),
+                                importDependecies.end());
+
+        return importDependecies;
+    }
+
+    void synchronizeImportDependencies(const std::vector<ImportDependency> &importDependecies)
+    {
+        auto compareKey = [](ImportDependency first, ImportDependency second) {
+            auto idCompare = first.id.id - second.id.id;
+
+            if (idCompare != 0)
+                return idCompare;
+
+            return first.dependencyId.id - second.dependencyId.id;
+        };
+
+        auto range = selectAllImportDependenciesStatement.template range<ImportDependency>();
+
+        auto insert = [&](ImportDependency dependency) {
+            insertImportDependencyStatement.write(&dependency.id, &dependency.dependencyId);
+        };
+
+        auto update = [](ImportDependency, ImportDependency) {};
+
+        auto remove = [&](ImportDependency dependency) {
+            deleteImportDependencyStatement.write(&dependency.id, &dependency.dependencyId);
+        };
+
+        Sqlite::insertUpdateDelete(range, importDependecies, compareKey, insert, update, remove);
+    }
+
+    ImportId fetchImportId(const Storage::Import &import) const
+    {
+        if (import.version) {
+            return selectImportIdByNameAndVersionStatement
+                .template value<ImportId>(import.name, import.version.version);
+        }
+
+        return selectImportIdByNameStatement.template value<ImportId>(import.name);
     }
 
     void handleAliasPropertyDeclarationsWithPropertyType(
@@ -682,7 +692,9 @@ private:
         }
     }
 
-    void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds, const SourceIds &sourceIds)
+    void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
+                               const SourceIds &sourceIds,
+                               const TypeIds &deletedTypeIds)
     {
         std::vector<AliasPropertyDeclaration> relinkableAliasPropertyDeclarations;
         std::vector<PropertyDeclaration> relinkablePropertyDeclarations;
@@ -707,6 +719,8 @@ private:
         selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
                                                              Utils::span(sourceIdValues),
                                                              Utils::span(updatedTypeIdValues));
+        for (TypeId deletedTypeId : deletedTypeIds)
+            callback(&deletedTypeId);
 
         relinkPrototypes(relinkablePrototypes);
         relinkPropertyDeclarations(relinkablePropertyDeclarations);
@@ -757,23 +771,6 @@ private:
 
         updateAliasPropertyDeclarationValues(insertedAliasPropertyDeclarations);
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
-    }
-
-    void deleteTypesForImportId(ImportId importId)
-    {
-        std::vector<AliasPropertyDeclaration> aliasPropertyDeclarations;
-        std::vector<PropertyDeclaration> relinkablePropertyDeclarations;
-        std::vector<Prototype> relinkablePrototypes;
-
-        auto callback = [&](long long typeId) {
-            deleteType(TypeId{typeId},
-                       aliasPropertyDeclarations,
-                       relinkablePropertyDeclarations,
-                       relinkablePrototypes);
-            return Sqlite::CallbackControl::Continue;
-        };
-
-        selectTypeIdsForImportIdStatement.readCallback(callback, &importId);
     }
 
     void upsertExportedType(ImportId importId, Utils::SmallStringView name, TypeId typeId)
