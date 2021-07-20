@@ -1299,20 +1299,23 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         });
 
         if (it != cm.cend()) {
-            const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
-            const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
+            const QByteArrayList initialValueList = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8().split(';');
 
-            const bool pathIsContained
-                = Utils::contains(it->value.split(';'), [samePath, initialPath](const QByteArray &p) {
-                      return samePath(FilePath::fromString(QString::fromUtf8(p)), initialPath);
-                  });
-            if (!initialValue.isEmpty() && !pathIsContained) {
-                CMakeConfigItem item(*it);
-                item.value = initialValue;
-                item.value.append(";");
-                item.value.append(it->value);
+            for (const auto &initialValue: initialValueList) {
+                const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
 
-                config << item;
+                const bool pathIsContained
+                    = Utils::contains(it->value.split(';'), [samePath, initialPath](const QByteArray &p) {
+                          return samePath(FilePath::fromString(QString::fromUtf8(p)), initialPath);
+                      });
+                if (!initialValue.isEmpty() && !pathIsContained) {
+                    CMakeConfigItem item(*it);
+                    item.value = initialValue;
+                    item.value.append(";");
+                    item.value.append(it->value);
+
+                    config << item;
+                }
             }
         }
     }
