@@ -453,8 +453,6 @@ extend_qtc_test(unittest
     senddocumenttracker.cpp senddocumenttracker.h
     projectpart.cpp projectpart.h
     cppprojectfilecategorizer.cpp cppprojectfilecategorizer.h
-    projectinfo.cpp projectinfo.h
-    cppprojectpartchooser.cpp cppprojectpartchooser.h
 )
 
 extend_qtc_test(unittest
