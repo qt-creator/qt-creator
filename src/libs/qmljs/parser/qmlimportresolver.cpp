@@ -25,6 +25,8 @@
 
 #include "qmlimportresolver_p.h"
 
+#include <utils/algorithm.h>
+
 QT_QML_BEGIN_NAMESPACE
 
 enum ImportVersion { FullyVersioned, PartiallyVersioned, Unversioned };
@@ -46,7 +48,14 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
     static const QLatin1Char Slash('/');
     static const QLatin1Char Backslash('\\');
 
-    const QList<QStringView> parts = uri.split(u'.', Qt::SkipEmptyParts);
+    const QList<QStringView> parts
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 2)
+            = uri.split(u'.', Qt::SkipEmptyParts);
+#else
+            = Utils::transform(uri.toString().split('.', Qt::SkipEmptyParts), [](const QString &s) {
+        return QStringView(s);
+    });
+#endif
 
     QStringList importPaths;
     // fully & partially versioned parts + 1 unversioned for each base path
@@ -72,7 +81,7 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
         for (auto it = refs.cbegin(); it != refs.cend(); ++it) {
             if (it != refs.cbegin())
                 str += sep;
-            str += *it;
+            str += (*it).toString();
         }
         return str;
     };
