@@ -304,7 +304,7 @@ public:
         });
     }
 
-    ~DockerDevicePrivate() { delete m_shell; }
+    ~DockerDevicePrivate() { stopCurrentContainer(); }
 
     bool runInContainer(const CommandLine &cmd) const;
 
@@ -744,6 +744,19 @@ void DockerDevicePrivate::stopCurrentContainer()
 {
     if (m_container.isEmpty() || m_accessible == NoDaemon)
         return;
+
+    if (m_shell) {
+        m_shell->write("exit\n");
+        m_shell->waitForFinished(2000);
+        if (m_shell->state() == QProcess::NotRunning) {
+            LOG("Clean exit via shell");
+            m_container.clear();
+            m_mergedDir.clear();
+            delete m_shell;
+            m_shell = nullptr;
+            return;
+        }
+    }
 
     QtcProcess proc;
     proc.setCommand({"docker", {"container", "stop", m_container}});
