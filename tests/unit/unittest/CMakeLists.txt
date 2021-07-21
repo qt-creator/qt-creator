@@ -36,14 +36,12 @@ add_qtc_test(unittest GTEST
     QTC_RESOURCE_DIR="${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator"
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
     ECHOSERVER="$<TARGET_FILE_DIR:echo>/echo"
-    CPPTOOLS_JSON="${CMAKE_CURRENT_BINARY_DIR}/CppTools.json"
   SOURCES
     abstractviewmock.h
     clientserverinprocess-test.cpp
     clientserveroutsideprocess-test.cpp
     compare-operators.h
     conditionally-disabled-tests.h
-    cppprojectfilecategorizer-test.cpp
     dummyclangipcclient.h
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h
@@ -59,7 +57,6 @@ add_qtc_test(unittest GTEST
     lastchangedrowid-test.cpp
     lineprefixer-test.cpp
     matchingtext-test.cpp
-    mimedatabase-utilities.cpp mimedatabase-utilities.h
     mockclangcodemodelclient.h
     mockclangcodemodelserver.h
     mockcppmodelmanager.h
@@ -164,16 +161,6 @@ add_custom_command(TARGET unittest POST_BUILD
           "${CMAKE_CURRENT_SOURCE_DIR}/data"
           "${CMAKE_CURRENT_BINARY_DIR}/data"
 )
-
-# create fake CppTools.json for the mime type definitions
-file(READ "../../../src/plugins/cpptools/CppTools.json.in" plugin_json_in)
-string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
-string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})
-string(REPLACE "$$QTCREATOR_VERSION" "${IDE_VERSION}" plugin_json_in ${plugin_json_in})
-string(REPLACE "$$QTCREATOR_COMPAT_VERSION" "${IDE_VERSION_COMPAT}" plugin_json_in ${plugin_json_in})
-string(REPLACE "$$QTCREATOR_COPYRIGHT_YEAR" "${IDE_COPYRIGHT_YEAR}" plugin_json_in ${plugin_json_in})
-string(REPLACE "$$dependencyList" "\"Dependencies\" : []" plugin_json_in ${plugin_json_in})
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CppTools.json" ${plugin_json_in})
 
 extend_qtc_test(unittest
   CONDITION TARGET libclang
@@ -452,7 +439,6 @@ extend_qtc_test(unittest
     cppprojectfile.cpp cppprojectfile.h
     senddocumenttracker.cpp senddocumenttracker.h
     projectpart.cpp projectpart.h
-    cppprojectfilecategorizer.cpp cppprojectfilecategorizer.h
 )
 
 extend_qtc_test(unittest

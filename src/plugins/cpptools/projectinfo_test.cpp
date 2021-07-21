@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "cppprojectfilecategorizer.h"
 #include "cppprojectinfogenerator.h"
 #include "cppprojectpartchooser.h"
 #include "cpptoolsplugin.h"
@@ -712,6 +713,110 @@ void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderA
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
         t.builtIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")}));
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_c()
+{
+    const ProjectFileCategorizer categorizer({}, {"foo.c", "foo.h"});
+    const ProjectFiles expected {
+        ProjectFile("foo.c", ProjectFile::CSource),
+        ProjectFile("foo.h", ProjectFile::CHeader),
+    };
+
+    QCOMPARE(categorizer.cSources(), expected);
+    QVERIFY(categorizer.cxxSources().isEmpty());
+    QVERIFY(categorizer.objcSources().isEmpty());
+    QVERIFY(categorizer.objcxxSources().isEmpty());
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_cxxWithUnambiguousHeaderSuffix()
+{
+    const ProjectFileCategorizer categorizer({}, {"foo.cpp", "foo.hpp"});
+    const ProjectFiles expected {
+        ProjectFile("foo.cpp", ProjectFile::CXXSource),
+        ProjectFile("foo.hpp", ProjectFile::CXXHeader),
+    };
+
+    QCOMPARE(categorizer.cxxSources(), expected);
+    QVERIFY(categorizer.cSources().isEmpty());
+    QVERIFY(categorizer.objcSources().isEmpty());
+    QVERIFY(categorizer.objcxxSources().isEmpty());
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_cxxWithAmbiguousHeaderSuffix()
+{
+    const ProjectFiles expected {
+        ProjectFile("foo.cpp", ProjectFile::CXXSource),
+        ProjectFile("foo.h", ProjectFile::CXXHeader),
+    };
+
+    const ProjectFileCategorizer categorizer({}, {"foo.cpp", "foo.h"});
+
+    QCOMPARE(categorizer.cxxSources(), expected);
+    QVERIFY(categorizer.cSources().isEmpty());
+    QVERIFY(categorizer.objcSources().isEmpty());
+    QVERIFY(categorizer.objcxxSources().isEmpty());
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_objectiveC()
+{
+    const ProjectFiles expected {
+        ProjectFile("foo.m", ProjectFile::ObjCSource),
+        ProjectFile("foo.h", ProjectFile::ObjCHeader),
+    };
+
+    const ProjectFileCategorizer categorizer({}, {"foo.m", "foo.h"});
+
+    QCOMPARE(categorizer.objcSources(), expected);
+    QVERIFY(categorizer.cxxSources().isEmpty());
+    QVERIFY(categorizer.cSources().isEmpty());
+    QVERIFY(categorizer.objcxxSources().isEmpty());
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_objectiveCxx()
+{
+    const ProjectFiles expected {
+        ProjectFile("foo.mm", ProjectFile::ObjCXXSource),
+        ProjectFile("foo.h", ProjectFile::ObjCXXHeader),
+    };
+
+    const ProjectFileCategorizer categorizer({}, {"foo.mm", "foo.h"});
+
+    QCOMPARE(categorizer.objcxxSources(), expected);
+    QVERIFY(categorizer.objcSources().isEmpty());
+    QVERIFY(categorizer.cSources().isEmpty());
+    QVERIFY(categorizer.cxxSources().isEmpty());
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_mixedCAndCxx()
+{
+    const ProjectFiles expectedCxxSources {
+        ProjectFile("foo.cpp", ProjectFile::CXXSource),
+        ProjectFile("foo.h", ProjectFile::CXXHeader),
+        ProjectFile("bar.h", ProjectFile::CXXHeader),
+    };
+    const ProjectFiles expectedCSources {
+        ProjectFile("bar.c", ProjectFile::CSource),
+        ProjectFile("foo.h", ProjectFile::CHeader),
+        ProjectFile("bar.h", ProjectFile::CHeader),
+    };
+
+    const ProjectFileCategorizer categorizer({}, {"foo.cpp", "foo.h", "bar.c", "bar.h"});
+
+    QCOMPARE(categorizer.cxxSources(), expectedCxxSources);
+    QCOMPARE(categorizer.cSources(), expectedCSources);
+    QVERIFY(categorizer.objcSources().isEmpty());
+    QVERIFY(categorizer.objcxxSources().isEmpty());
+}
+
+void CppToolsPlugin::test_projectFileCategorizer_ambiguousHeaderOnly()
+{
+    const ProjectFileCategorizer categorizer({}, {"foo.h"});
+
+    QCOMPARE(categorizer.cSources(), {ProjectFile("foo.h", ProjectFile::CHeader)});
+    QCOMPARE(categorizer.cxxSources(), {ProjectFile("foo.h", ProjectFile::CXXHeader)});
+    QCOMPARE(categorizer.objcSources(), {ProjectFile("foo.h", ProjectFile::ObjCHeader)});
+    QCOMPARE(categorizer.objcxxSources(), {ProjectFile("foo.h", ProjectFile::ObjCXXHeader)});
 }
 
 } // namespace Internal

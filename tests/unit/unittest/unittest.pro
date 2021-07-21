@@ -55,17 +55,10 @@ QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146 /wd4624
 QMAKE_LFLAGS += /INCREMENTAL
 
 }
-# create fake CppTools.json for the mime type definitions
-dependencyList = "\"Dependencies\" : []"
-cpptoolsjson.input = $$PWD/../../../src/plugins/cpptools/CppTools.json.in
-cpptoolsjson.output = $$OUT_PWD/CppTools.json
-QMAKE_SUBSTITUTES += cpptoolsjson
-DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
 
 SOURCES += \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess-test.cpp \
-    cppprojectfilecategorizer-test.cpp \
     fakeprocess.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
@@ -80,7 +73,6 @@ SOURCES += \
     lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
     listmodeleditor-test.cpp \
-    mimedatabase-utilities.cpp \
     processevents-utilities.cpp \
     readandwritemessageblock-test.cpp \
     sizedarray-test.cpp \
@@ -201,7 +193,6 @@ HEADERS += \
     gtest-qt-printing.h \
     gtest-std-printing.h \
     imagecachecollectormock.h \
-    mimedatabase-utilities.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
     mockimagecachegenerator.h \

@@ -50,14 +50,13 @@ Project {
     QtcProduct {
         name: "Unit test"
         condition: qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent
-        type: ["application", "autotest", "json_copy"]
+        type: ["application", "autotest"]
         consoleApplication: true
         destinationDirectory: FileInfo.joinPaths(project.buildDirectory,
                 FileInfo.relativePath(project.ide_source_tree, sourceDirectory))
         install: false
 
         Depends { name: "echoserver" }
-        Depends { name: "pluginjson" }
         Depends { name: "libclang"; required: false }
         Depends { name: "clang_defines" }
 
@@ -75,7 +74,6 @@ Project {
 
         Depends { name: "qtc_gtest_gmock" }
 
-        pluginjson.useVcsData: false
         sqlite_sources.buildSharedLib: false
 
         cpp.defines: {
@@ -97,7 +95,6 @@ Project {
                                                             "echoserver", "echo") + '"',
                         'RELATIVE_DATA_PATH="' + FileInfo.relativePath(destinationDirectory,
                                                                        FileInfo.joinPaths(project.sourceDirectory, "share", "qtcreator")) + '"',
-                        'CPPTOOLS_JSON="' + FileInfo.joinPaths(destinationDirectory, "CppTools.json") + '"',
                     ];
             if (libclang.present) {
                 defines.push("CLANG_UNIT_TESTS");
@@ -174,7 +171,6 @@ Project {
             "compare-operators.h",
             "compilationdatabaseutils-test.cpp",
             "conditionally-disabled-tests.h",
-            "cppprojectfilecategorizer-test.cpp",
             "createtablesqlstatementbuilder-test.cpp",
             "dummyclangipcclient.h",
             "dynamicastmatcherdiagnosticcontainer-matcher.h",
@@ -192,8 +188,6 @@ Project {
             "gtest-qt-printing.h",
             "lineprefixer-test.cpp",
             "matchingtext-test.cpp",
-            "mimedatabase-utilities.cpp",
-            "mimedatabase-utilities.h",
             "mockclangcodemodelclient.h",
             "mockclangcodemodelserver.h",
             "mockcppmodelmanager.h",
@@ -319,12 +313,6 @@ Project {
                 "data/include/*",
             ]
             fileTags: []
-        }
-
-        Group {
-            name: "json.in file"
-            files: "../../../src/plugins/cpptools/CppTools.json.in"
-            fileTags: "pluginJsonIn"
         }
 
         Group {
@@ -484,8 +472,6 @@ Project {
             files: [
                 "cppprojectfile.cpp",
                 "cppprojectfile.h",
-                "cppprojectfilecategorizer.cpp",
-                "cppprojectfilecategorizer.h",
                 "projectpart.cpp",
                 "projectpart.h",
                 "senddocumenttracker.cpp",
@@ -543,20 +529,6 @@ Project {
                 "diagnosticlocation.cpp",
                 "diagnosticlocation.h",
             ]
-        }
-
-        Rule {
-            inputs: "qt_plugin_metadata"
-            Artifact {
-                filePath: FileInfo.joinPaths(product.destinationDirectory, "CppTools.json")
-                fileTags: "json_copy"
-            }
-            prepare: {
-                var cmd = new JavaScriptCommand;
-                cmd.description = "copying " + input.fileName;
-                cmd.sourceCode = function() { File.copy(input.filePath, output.filePath); };
-                return cmd;
-            }
         }
     }
 }

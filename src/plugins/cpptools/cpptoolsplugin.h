@@ -254,6 +254,13 @@ private slots:
     void test_headerPathFilter_removeGccInternalPathsExceptForStandardPaths();
     void test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderNoVersion();
     void test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderAndroidClang();
+    void test_projectFileCategorizer_c();
+    void test_projectFileCategorizer_cxxWithUnambiguousHeaderSuffix();
+    void test_projectFileCategorizer_cxxWithAmbiguousHeaderSuffix();
+    void test_projectFileCategorizer_objectiveC();
+    void test_projectFileCategorizer_objectiveCxx();
+    void test_projectFileCategorizer_mixedCAndCxx();
+    void test_projectFileCategorizer_ambiguousHeaderOnly();
 #endif
 
 private:
