@@ -213,7 +213,6 @@ HEADERS += \
     rundocumentparse-utility.h \
     mocktimer.h \
     mocksqlitetransactionbackend.h \
-    mockcppmodelmanager.h \
     mockqueue.h \
     mockfutureinterface.h \
     ../mockup/qmldesigner/designercore/include/nodeinstanceview.h \

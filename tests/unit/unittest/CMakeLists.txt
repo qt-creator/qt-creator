@@ -59,7 +59,6 @@ add_qtc_test(unittest GTEST
     matchingtext-test.cpp
     mockclangcodemodelclient.h
     mockclangcodemodelserver.h
-    mockcppmodelmanager.h
     mockfutureinterface.h
     mockmutex.h
     mockqfilesystemwatcher.h
