@@ -162,7 +162,6 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
         const IDevice::Ptr &device)
 {
     Q_UNUSED(alreadyKnown)
-    Q_UNUSED(device)
 
     const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
@@ -187,8 +186,7 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
         const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
         const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
                 + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
-        const FilePath scriptFile =
-                FilePath::fromString(script).onDevice(sdk).searchOnDevice(env.path());
+        const FilePath scriptFile = sdk.withNewPath(script).searchOnDevice(env.path());
         toolChain->setCompilerCommand(scriptFile);
 
         const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")

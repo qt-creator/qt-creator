@@ -192,14 +192,14 @@ QStringList QmakePriFileNode::subProjectFileNamePatterns() const
     return QStringList("*.pro");
 }
 
-bool QmakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
+bool QmakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
         QmakePriFile *pri = n->priFile();
         if (!pri)
             return false;
         QList<Node *> matchingNodes = n->findNodes([filePaths](const Node *nn) {
-            return nn->asFileNode() && filePaths.contains(nn->filePath().toString());
+            return nn->asFileNode() && filePaths.contains(nn->filePath());
         });
         matchingNodes = filtered(matchingNodes, [](const Node *n) {
             for (const Node *parent = n->parentFolderNode(); parent;
@@ -209,11 +209,11 @@ bool QmakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QSt
             }
             return true;
         });
-        QStringList alreadyPresentFiles = transform<QStringList>(matchingNodes,
-                                                                 [](const Node *n) { return n->filePath().toString(); });
-        alreadyPresentFiles.removeDuplicates();
-        QStringList actualFilePaths = filePaths;
-        for (const QString &e : alreadyPresentFiles)
+        FilePaths alreadyPresentFiles = transform(matchingNodes, [](const Node *n) { return n->filePath(); });
+        FilePath::removeDuplicates(alreadyPresentFiles);
+
+        FilePaths actualFilePaths = filePaths;
+        for (const FilePath &e : alreadyPresentFiles)
             actualFilePaths.removeOne(e);
         if (notAdded)
             *notAdded = alreadyPresentFiles;
@@ -226,17 +226,17 @@ bool QmakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QSt
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
-RemovedFilesFromProject QmakeBuildSystem::removeFiles(Node *context, const QStringList &filePaths,
-                                                      QStringList *notRemoved)
+RemovedFilesFromProject QmakeBuildSystem::removeFiles(Node *context, const FilePaths &filePaths,
+                                                      FilePaths *notRemoved)
 {
     if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
         QmakePriFile * const pri = n->priFile();
         if (!pri)
             return RemovedFilesFromProject::Error;
-        QStringList wildcardFiles;
-        QStringList nonWildcardFiles;
-        for (const QString &file : filePaths) {
-            if (pri->proFile()->isFileFromWildcard(file))
+        FilePaths wildcardFiles;
+        FilePaths nonWildcardFiles;
+        for (const FilePath &file : filePaths) {
+            if (pri->proFile()->isFileFromWildcard(file.toString()))
                 wildcardFiles << file;
             else
                 nonWildcardFiles << file;
@@ -254,7 +254,7 @@ RemovedFilesFromProject QmakeBuildSystem::removeFiles(Node *context, const QStri
     return BuildSystem::removeFiles(context, filePaths, notRemoved);
 }
 
-bool QmakeBuildSystem::deleteFiles(Node *context, const QStringList &filePaths)
+bool QmakeBuildSystem::deleteFiles(Node *context, const FilePaths &filePaths)
 {
     if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
         QmakePriFile *pri = n->priFile();

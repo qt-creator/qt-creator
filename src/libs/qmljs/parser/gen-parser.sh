@@ -10,6 +10,21 @@
 # cd src/libs/qmljs/parser
 # QTDIR=~/path/to/qtdeclarative-checkout ./gen-parser.sh
 
+###
+# to update this script:
+# 1. do all changes & commit them
+# 2. run this script commenting out the two patch commands in the last lines below
+# 3. update the first patch using
+#         # git diff > grammar.patch
+# 4. uncomment the first (grammar) patch, re-run script
+# 5. update the second patch with
+#         # git diff > parser.patch
+# 6. parser.patch needs to be manually edited to remove the patching
+#    of non relevant files (gen-parser.sh, grammar.patch, parser.patch, qmljs.g)
+# 7. test by running again with the patch commands activated and verify the diffs.
+# 8. commit the updated .patch files
+###
+
 if [ -z "$QTDIR" -o -z "$QLALR" ]; then
   echo "Usage: QTDIR=~/path/to/qtdeclarative-checkout QLALR=~/path/to/qlalr $0" 1>&2
   exit 1
@@ -18,7 +33,7 @@ fi
 
 me=$(dirname $0)
 
-for i in $QTDIR/src/qml/parser/*.{g,h,cpp,pri}; do
+for i in $QTDIR/src/qml/parser/*.{g,h,cpp}; do
     if ! echo $i | grep -q qmljsglobal; then
         sed -f $me/cmd.sed $i > $me/$(echo $(basename $i) | sed s/qqmljs/qmljs/)
     fi
@@ -59,9 +74,9 @@ sed -i -e 's/qt_qnan/qQNaN/' $me/qmljsengine_p.cpp
 sed -i -e 's|#include <QtCore/private/qnumeric_p.h>|#include <QtCore/qnumeric.h>|' $me/qmljsengine_p.cpp
 perl -p -0777 -i -e 's/QT_QML_BEGIN_NAMESPACE/#include <qmljs\/qmljsconstants.h>\nQT_QML_BEGIN_NAMESPACE/' qmljsengine_p.h
 
-patch -p1 < grammar.patch
+patch -R -p5 < grammar.patch
 $QLALR qmljs.g
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
 
-patch -p1 < parser.patch
+patch -p5 -R < parser.patch

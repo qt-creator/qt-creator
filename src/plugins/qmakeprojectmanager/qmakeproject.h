@@ -90,13 +90,13 @@ public:
                         const ProjectExplorer::Node *node) const override;
 
     bool addFiles(ProjectExplorer::Node *context,
-                  const QStringList &filePaths,
-                  QStringList *notAdded = nullptr) override;
+                  const Utils::FilePaths &filePaths,
+                  Utils::FilePaths *notAdded = nullptr) override;
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
-                                                         const QStringList &filePaths,
-                                                         QStringList *notRemoved = nullptr) override;
+                                                         const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *notRemoved = nullptr) override;
     bool deleteFiles(ProjectExplorer::Node *context,
-                     const QStringList &filePaths) override;
+                     const Utils::FilePaths &filePaths) override;
     bool canRenameFile(ProjectExplorer::Node *context,
                        const Utils::FilePath &oldFilePath,
                        const Utils::FilePath &newFilePath) override;
@@ -107,7 +107,7 @@ public:
                          const QStringList &dependencies) override;
     void triggerParsing() final;
 
-    QStringList filesGeneratedFrom(const QString &file) const final;
+    Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &file) const final;
     QVariant additionalData(Utils::Id id) const final;
 
     void asyncUpdate();

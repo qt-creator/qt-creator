@@ -95,6 +95,11 @@ QString GeneratedFile::path() const
     return m_d->path;
 }
 
+FilePath GeneratedFile::filePath() const
+{
+    return FilePath::fromString(m_d->path);
+}
+
 void GeneratedFile::setPath(const QString &p)
 {
     m_d->path = QDir::cleanPath(p);

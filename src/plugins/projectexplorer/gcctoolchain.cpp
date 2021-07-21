@@ -238,13 +238,13 @@ static QString gccVersion(const FilePath &path,
     return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
 }
 
-static FilePath gccInstallDir(const FilePath &path,
+static FilePath gccInstallDir(const FilePath &compiler,
                               const Environment &env,
                               const QStringList &extraArgs = {})
 {
     QStringList arguments = extraArgs;
     arguments << "-print-search-dirs";
-    QString output = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    QString output = QString::fromLocal8Bit(runGcc(compiler, arguments, env)).trimmed();
     // Expected output looks like this:
     //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
     //   ...
@@ -255,7 +255,7 @@ static FilePath gccInstallDir(const FilePath &path,
     const QString line = QTextStream(&output).readLine();
     if (!line.startsWith(prefix))
         return {};
-    return FilePath::fromString(QDir::cleanPath(line.mid(prefix.size()))).onDevice(path);
+    return compiler.withNewPath(QDir::cleanPath(line.mid(prefix.size())));
 }
 
 // --------------------------------------------------------------------------

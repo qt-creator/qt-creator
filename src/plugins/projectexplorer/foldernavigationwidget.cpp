@@ -546,7 +546,7 @@ void FolderNavigationWidget::removeCurrentItem()
         const QVector<FolderNode *> folderNodes = removableFolderNodes(filePath);
         const QVector<FolderNode *> failedNodes = Utils::filtered(folderNodes,
                 [filePath](FolderNode *folder) {
-                    return folder->removeFiles({filePath.toString()}) != RemovedFilesFromProject::Ok;
+                    return folder->removeFiles({filePath}) != RemovedFilesFromProject::Ok;
         });
         Core::FileChangeBlocker changeGuard(filePath);
         Core::FileUtils::removeFiles({filePath}, true /*delete from disk*/);

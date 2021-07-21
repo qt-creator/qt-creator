@@ -200,22 +200,22 @@ void BuildSystem::requestParseHelper(int delay)
     d->m_delayedParsingTimer.start();
 }
 
-bool BuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *notAdded)
+bool BuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *notAdded)
 {
     Q_UNUSED(filePaths)
     Q_UNUSED(notAdded)
     return false;
 }
 
-RemovedFilesFromProject BuildSystem::removeFiles(Node *, const QStringList &filePaths,
-                                                 QStringList *notRemoved)
+RemovedFilesFromProject BuildSystem::removeFiles(Node *, const FilePaths &filePaths,
+                                                 FilePaths *notRemoved)
 {
     Q_UNUSED(filePaths)
     Q_UNUSED(notRemoved)
     return RemovedFilesFromProject::Error;
 }
 
-bool BuildSystem::deleteFiles(Node *, const QStringList &filePaths)
+bool BuildSystem::deleteFiles(Node *, const FilePaths &filePaths)
 {
     Q_UNUSED(filePaths)
     return false;
@@ -246,7 +246,7 @@ bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
     return false;
 }
 
-QStringList BuildSystem::filesGeneratedFrom(const QString &sourceFile) const
+FilePaths BuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
     Q_UNUSED(sourceFile)
     return {};

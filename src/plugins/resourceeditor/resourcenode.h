@@ -42,9 +42,9 @@ public:
     void addInternalNodes();
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                                        QStringList *notRemoved) override;
+    bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
+                                                        Utils::FilePaths *notRemoved) override;
 
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
@@ -70,9 +70,9 @@ public:
 
     QString displayName() const override;
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                                         QStringList *notRemoved) override;
+    bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *notRemoved) override;
     bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
     bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
 

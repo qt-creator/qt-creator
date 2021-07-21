@@ -84,26 +84,26 @@ public:
                         ProjectExplorer::ProjectAction action,
                         const ProjectExplorer::Node *node) const final;
     bool addFiles(ProjectExplorer::Node *context,
-                  const QStringList &filePaths,
-                  QStringList *notAdded = nullptr) final;
+                  const Utils::FilePaths &filePaths,
+                  Utils::FilePaths *notAdded = nullptr) final;
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
-                                                         const QStringList &filePaths,
-                                                         QStringList *notRemoved = nullptr) final;
+                                                         const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *notRemoved = nullptr) final;
     bool renameFile(ProjectExplorer::Node *context,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
 
-    QStringList filesGeneratedFrom(const QString &sourceFile) const final;
+    Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
 
     bool isProjectEditable() const;
-    bool addFilesToProduct(const QStringList &filePaths,
+    bool addFilesToProduct(const Utils::FilePaths &filePaths,
             const QJsonObject &product,
             const QJsonObject &group,
-            QStringList *notAdded);
-    ProjectExplorer::RemovedFilesFromProject removeFilesFromProduct(const QStringList &filePaths,
+            Utils::FilePaths *notAdded);
+    ProjectExplorer::RemovedFilesFromProject removeFilesFromProduct(const Utils::FilePaths &filePaths,
             const QJsonObject &product,
             const QJsonObject &group,
-            QStringList *notRemoved);
+            Utils::FilePaths *notRemoved);
     bool renameFileInProduct(const QString &oldPath,
             const QString &newPath, const QJsonObject &product,
             const QJsonObject &group);

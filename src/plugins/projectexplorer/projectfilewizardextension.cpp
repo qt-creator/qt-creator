@@ -217,10 +217,11 @@ bool ProjectFileWizardExtension::processProject(
         }
         *removeOpenProjectAttribute = true;
     } else {
-        QStringList filePaths = Utils::transform(files, &GeneratedFile::path);
+        FilePaths filePaths = Utils::transform(files, &GeneratedFile::filePath);
         if (!folder->addFiles(filePaths)) {
-            *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).").
-                    arg(folder->filePath().toUserOutput(), filePaths.join(QLatin1Char(',')));
+            *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).")
+                    .arg(folder->filePath().toUserOutput())
+                    .arg(FilePath::formatFilePaths(filePaths, ","));
             return false;
         }
     }
@@ -257,7 +258,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     Indenter *indenter = nullptr;
     if (factory) {
         indenter = factory->createIndenter(&doc);
-        indenter->setFileName(Utils::FilePath::fromString(file->path()));
+        indenter->setFileName(file->filePath());
     }
     if (!indenter)
         indenter = new TextIndenter(&doc);

@@ -108,9 +108,9 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
         QTC_ASSERT(folderNode, return);
         const auto project = qobject_cast<GenericProject *>(folderNode->getProject());
         QTC_ASSERT(project, return);
-        const QStringList filesToRemove = transform<QStringList>(
+        const FilePaths filesToRemove = transform(
                     folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),
-                    [](const Node *node) { return node->filePath().toString();});
+                    [](const Node *node) { return node->filePath();});
         project->removeFilesTriggered(filesToRemove);
     });
 }

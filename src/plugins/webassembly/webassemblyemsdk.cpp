@@ -60,8 +60,7 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
             emSdkEnv.setCommand(CommandLine(scriptFile));
         } else {
             // File needs to be source'd, not executed.
-            emSdkEnv.setCommand({FilePath::fromString("bash").onDevice(sdkRoot),
-                                 {"-c", ". " + scriptFile}});
+            emSdkEnv.setCommand({sdkRoot.withNewPath("bash"), {"-c", ". " + scriptFile}});
         }
         emSdkEnv.runBlocking();
         const QString output = emSdkEnv.allOutput();
@@ -108,8 +107,7 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
         Environment env;
         WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
         QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
-        FilePath script =
-                FilePath::fromString(scriptFile).onDevice(sdkRoot).searchOnDevice(env.path());
+        FilePath script = sdkRoot.withNewPath(scriptFile).searchOnDevice(env.path());
         const CommandLine command(script, {"-dumpversion"});
         QtcProcess emcc;
         emcc.setCommand(command);

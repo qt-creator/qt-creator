@@ -488,7 +488,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
             continue;
         if (FolderNode *subFolderNode = node->asFolderNode()) {
             bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
-            if (!m_showSourceGroups) {
+            if (m_hideSourceGroups) {
                 if (subFolderNode->isVirtualFolderType()) {
                     auto vnode = static_cast<VirtualFolderNode *>(subFolderNode);
                     if (vnode->isSourcesOrHeaders()) {
@@ -717,8 +717,8 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
         return true;
 
     // Some helper functions for the file operations.
-    const auto targetFilePath = [&targetDir](const QString &sourceFilePath) {
-        return targetDir.pathAppended(QFileInfo(sourceFilePath).fileName()).toString();
+    const auto targetFilePath = [&targetDir](const FilePath &sourceFilePath) {
+        return targetDir.pathAppended(sourceFilePath.fileName());
     };
 
     struct VcsInfo {
@@ -741,25 +741,23 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
     };
 
     // Now do the actual work.
-    const QStringList sourceFiles = transform(fileNodes, [](const Node *n) {
-        return n->filePath().toString();
-    });
-    QStringList failedRemoveFromProject;
-    QStringList failedAddToProject;
-    QStringList failedCopyOrMove;
-    QStringList failedDelete;
-    QStringList failedVcsOp;
+    const FilePaths sourceFiles = transform(fileNodes, [](const Node *n) { return n->filePath(); });
+    FilePaths failedRemoveFromProject;
+    FilePaths failedAddToProject;
+    FilePaths failedCopyOrMove;
+    FilePaths failedDelete;
+    FilePaths failedVcsOp;
     switch (dlg.dropAction()) {
     case DropAction::CopyWithFiles: {
-        QStringList filesToAdd;
+        FilePaths filesToAdd;
         Core::IVersionControl * const vcs = Core::VcsManager::findVersionControlForDirectory(
                     targetDir.toString());
         const bool addToVcs = vcs && vcs->supportsOperation(Core::IVersionControl::AddOperation);
-        for (const QString &sourceFile : sourceFiles) {
-            const QString targetFile = targetFilePath(sourceFile);
-            if (QFile::copy(sourceFile, targetFile)) {
+        for (const FilePath &sourceFile : sourceFiles) {
+            const FilePath targetFile = targetFilePath(sourceFile);
+            if (sourceFile.copyFile(targetFile)) {
                 filesToAdd << targetFile;
-                if (addToVcs && !vcs->vcsAdd(targetFile))
+                if (addToVcs && !vcs->vcsAdd(targetFile.toString()))
                     failedVcsOp << targetFile;
             } else {
                 failedCopyOrMove << sourceFile;
@@ -772,17 +770,17 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
         targetProjectNode->addFiles(sourceFiles, &failedAddToProject);
         break;
     case DropAction::MoveWithFiles: {
-        QStringList filesToAdd;
-        QStringList filesToRemove;
+        FilePaths filesToAdd;
+        FilePaths filesToRemove;
         const VcsInfo targetVcs = vcsInfoForFile(targetDir.toString());
         const bool vcsAddPossible = targetVcs.vcs
                 && targetVcs.vcs->supportsOperation(Core::IVersionControl::AddOperation);
-        for (const QString &sourceFile : sourceFiles) {
-            const QString targetFile = targetFilePath(sourceFile);
-            const VcsInfo sourceVcs = vcsInfoForFile(sourceFile);
+        for (const FilePath &sourceFile : sourceFiles) {
+            const FilePath targetFile = targetFilePath(sourceFile);
+            const VcsInfo sourceVcs = vcsInfoForFile(sourceFile.toString());
             if (sourceVcs.vcs && targetVcs.vcs && sourceVcs == targetVcs
                     && sourceVcs.vcs->supportsOperation(Core::IVersionControl::MoveOperation)) {
-                if (sourceVcs.vcs->vcsMove(sourceFile, targetFile)) {
+                if (sourceVcs.vcs->vcsMove(sourceFile.toString(), targetFile.toString())) {
                     filesToAdd << targetFile;
                     filesToRemove << sourceFile;
                 } else {
@@ -790,21 +788,21 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
                 }
                 continue;
             }
-            if (!QFile::copy(sourceFile, targetFile)) {
+            if (!sourceFile.copyFile(targetFile)) {
                 failedCopyOrMove << sourceFile;
                 continue;
             }
             filesToAdd << targetFile;
             filesToRemove << sourceFile;
-            Core::FileChangeBlocker changeGuard(FilePath::fromString(sourceFile));
+            Core::FileChangeBlocker changeGuard(sourceFile);
             if (sourceVcs.vcs && sourceVcs.vcs->supportsOperation(
                         Core::IVersionControl::DeleteOperation)
-                    && !sourceVcs.vcs->vcsDelete(sourceFile)) {
+                    && !sourceVcs.vcs->vcsDelete(sourceFile.toString())) {
                 failedVcsOp << sourceFile;
             }
-            if (QFile::exists(sourceFile) && !QFile::remove(sourceFile))
+            if (sourceFile.exists() && !sourceFile.removeFile())
                 failedDelete << sourceFile;
-            if (vcsAddPossible && !targetVcs.vcs->vcsAdd(targetFile))
+            if (vcsAddPossible && !targetVcs.vcs->vcsAdd(targetFile.toString()))
                 failedVcsOp << targetFile;
         }
         const RemovedFilesFromProject result
@@ -821,9 +819,8 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
     }
 
     // Summary for the user in case anything went wrong.
-    const auto makeUserFileList = [](const QStringList &files) {
-        return transform(files, [](const QString &f) { return QDir::toNativeSeparators(f); })
-                .join("\n  ");
+    const auto makeUserFileList = [](const FilePaths &files) {
+        return FilePath::formatFilePaths(files, "\n  ");
     };
     if (!failedAddToProject.empty() || !failedRemoveFromProject.empty()
             || !failedCopyOrMove.empty() || !failedDelete.empty() || !failedVcsOp.empty()) {
@@ -902,11 +899,11 @@ void FlatModel::setTrimEmptyDirectories(bool filter)
     rebuildModel();
 }
 
-void FlatModel::setShowSourceGroups(bool filter)
+void FlatModel::setHideSourceGroups(bool filter)
 {
-    if (filter == m_showSourceGroups)
+    if (filter == m_hideSourceGroups)
         return;
-    m_showSourceGroups = filter;
+    m_hideSourceGroups = filter;
     rebuildModel();
 }
 

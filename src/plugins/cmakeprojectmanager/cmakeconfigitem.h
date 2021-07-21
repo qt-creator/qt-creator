@@ -51,12 +51,14 @@ public:
     CMakeConfigItem(const QByteArray &k, const QByteArray &v);
 
     static QByteArray valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
+    static QString stringValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
+    static Utils::FilePath filePathValueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
     static QString expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
                                    const QList<CMakeConfigItem> &input);
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);
     static Type typeStringToType(const QByteArray &typeString);
     static QString typeToTypeString(const Type t);
-    static Utils::optional<bool> toBool(const QByteArray &value);
+    static Utils::optional<bool> toBool(const QString &value);
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;

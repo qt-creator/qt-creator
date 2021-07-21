@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -102,7 +102,7 @@ void QmlDirParser::clear()
     _plugins.clear();
     _designerSupported = false;
     _typeInfos.clear();
-    _className.clear();
+    _classNames.clear();
 }
 
 inline static void scanSpace(const QChar *&ch) {
@@ -258,7 +258,6 @@ bool QmlDirParser::parse(const QString &source)
                                                           "not %1.").arg(sections[1]));
                 continue;
             }
-
         } else if (sections[0] == QLatin1String("classname")) {
             if (sectionCount < 2) {
                 reportError(lineNumber, 0,
@@ -267,7 +266,7 @@ bool QmlDirParser::parse(const QString &source)
                 continue;
             }
 
-            _className = sections[1];
+            _classNames.append(sections[1]);
 
         } else if (sections[0] == QLatin1String("internal")) {
             if (sectionCount != 3) {
@@ -308,19 +307,38 @@ bool QmlDirParser::parse(const QString &source)
                             QStringLiteral("typeinfo requires 1 argument, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
-#ifdef QT_CREATOR
-            TypeInfo typeInfo(sections[1]);
-            _typeInfos.append(typeInfo);
-#endif
-
+            _typeInfos.append(sections[1]);
         } else if (sections[0] == QLatin1String("designersupported")) {
             if (sectionCount != 1)
                 reportError(lineNumber, 0, QStringLiteral("designersupported does not expect any argument"));
             else
                 _designerSupported = true;
-        } else if (sections[0] == QLatin1String("depends") || sections[0] == QLatin1String("import")) {
+        } else if (sections[0] == QLatin1String("import")
+                   || sections[0] == QLatin1String("depends")) {
             if (!readImport(sections, sectionCount, Import::Default))
                 continue;
+        } else if (sections[0] == QLatin1String("prefer")) {
+            if (sectionCount < 2) {
+                reportError(lineNumber, 0,
+                            QStringLiteral("prefer directive requires one argument, "
+                                           "but %1 were provided").arg(sectionCount - 1));
+                continue;
+            }
+
+            if (!_preferredPath.isEmpty()) {
+                reportError(lineNumber, 0, QStringLiteral(
+                                "only one prefer directive may be defined in a qmldir file"));
+                continue;
+            }
+
+            if (!sections[1].endsWith(u'/')) {
+                // Yes. People should realize it's a directory.
+                reportError(lineNumber, 0, QStringLiteral(
+                                "the preferred directory has to end with a '/'"));
+                continue;
+            }
+
+            _preferredPath = sections[1];
         } else if (sectionCount == 2) {
             // No version specified (should only be used for relative qmldir files)
             const Component entry(sections[0], sections[1], -1, -1);
@@ -361,14 +379,6 @@ void QmlDirParser::reportError(quint16 line, quint16 column, const QString &desc
     _errors.append(error);
 }
 
-bool QmlDirParser::hasError() const
-{
-    if (! _errors.isEmpty())
-        return true;
-
-    return false;
-}
-
 void QmlDirParser::setError(const QmlJS::DiagnosticMessage &e)
 {
     _errors.clear();
@@ -386,56 +396,6 @@ QList<QmlJS::DiagnosticMessage> QmlDirParser::errors(const QString &uri) const
         errors << e;
     }
     return errors;
-}
-
-QString QmlDirParser::typeNamespace() const
-{
-    return _typeNamespace;
-}
-
-void QmlDirParser::setTypeNamespace(const QString &s)
-{
-    _typeNamespace = s;
-}
-
-QList<QmlDirParser::Plugin> QmlDirParser::plugins() const
-{
-    return _plugins;
-}
-
-QMultiHash<QString, QmlDirParser::Component> QmlDirParser::components() const
-{
-    return _components;
-}
-
-QList<QmlDirParser::Import> QmlDirParser::dependencies() const
-{
-    return _dependencies;
-}
-
-QList<QmlDirParser::Import> QmlDirParser::imports() const
-{
-    return _imports;
-}
-
-QList<QmlDirParser::Script> QmlDirParser::scripts() const
-{
-    return _scripts;
-}
-
-QList<QmlDirParser::TypeInfo> QmlDirParser::typeInfos() const
-{
-    return _typeInfos;
-}
-
-bool QmlDirParser::designerSupported() const
-{
-    return _designerSupported;
-}
-
-QString QmlDirParser::className() const
-{
-    return _className;
 }
 
 QDebug &operator<< (QDebug &debug, const QmlDirParser::Component &component)

@@ -209,7 +209,7 @@ static CMakeConfig readCacheFile(const FilePath &cacheFile, QString &errorMessag
                 const QJsonObject prop = v.toObject();
                 auto nv = nameValue(prop);
                 if (nv.first == "ADVANCED") {
-                    const auto boolValue = CMakeConfigItem::toBool(nv.second.toUtf8());
+                    const auto boolValue = CMakeConfigItem::toBool(nv.second);
                     item.isAdvanced = boolValue.has_value() && boolValue.value();
                 } else if (nv.first == "HELPSTRING") {
                     item.documentation = nv.second.toUtf8();

@@ -177,6 +177,9 @@ public:
     CppIndexingSupport *m_internalIndexingSupport;
     bool m_indexerEnabled;
 
+    QMutex m_fallbackProjectPartMutex;
+    ProjectPart::Ptr m_fallbackProjectPart;
+
     CppFindReferences *m_findReferences;
 
     SymbolFinder m_symbolFinder;
@@ -678,6 +681,10 @@ CppModelManager::CppModelManager()
 
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
             this, &CppModelManager::onCoreAboutToClose);
+
+    connect(KitManager::instance(), &KitManager::kitsChanged, this,
+            &CppModelManager::setupFallbackProjectPart);
+    setupFallbackProjectPart();
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
@@ -1274,37 +1281,8 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
 
 ProjectPart::Ptr CppModelManager::fallbackProjectPart()
 {
-    ProjectPart::Ptr part(new ProjectPart);
-
-    part->projectMacros = definedMacros();
-    part->headerPaths = headerPaths();
-
-    // Do not activate ObjectiveCExtensions since this will lead to the
-    // "objective-c++" language option for a project-less *.cpp file.
-    part->languageExtensions = Utils::LanguageExtension::All;
-    part->languageExtensions &= ~Utils::LanguageExtensions(
-        Utils::LanguageExtension::ObjectiveC);
-
-    part->qtVersion = Utils::QtVersion::Qt5;
-
-    // TODO: Use different fallback toolchain for different kinds of files
-    const auto * const defaultKit = KitManager::defaultKit();
-    const ToolChain * const defaultTc = ToolChainKitAspect::cxxToolChain(defaultKit);
-    if (defaultKit && defaultTc) {
-        Utils::FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
-        if (sysroot.isEmpty())
-            sysroot = Utils::FilePath::fromString(defaultTc->sysRoot());
-        Utils::Environment env = defaultKit->buildEnvironment();
-        ToolChainInfo tcInfo(defaultTc, sysroot.toString(), env);
-        part->setupToolchainProperties(tcInfo, {});
-        if (part->language == Language::C)
-            part->languageVersion = Utils::LanguageVersion::LatestC;
-        else
-            part->languageVersion = Utils::LanguageVersion::LatestCxx;
-    }
-    part->updateLanguageFeatures();
-
-    return part;
+    QMutexLocker locker(&d->m_fallbackProjectPartMutex);
+    return d->m_fallbackProjectPart;
 }
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor)
@@ -1549,6 +1527,43 @@ void CppModelManager::onCoreAboutToClose()
 {
     Core::ProgressManager::cancelTasks(CppTools::Constants::TASK_INDEX);
     d->m_enableGC = false;
+}
+
+void CppModelManager::setupFallbackProjectPart()
+{
+    ProjectPart::Ptr part(new ProjectPart);
+
+    part->projectMacros = definedMacros();
+    part->headerPaths = headerPaths();
+
+    // Do not activate ObjectiveCExtensions since this will lead to the
+    // "objective-c++" language option for a project-less *.cpp file.
+    part->languageExtensions = Utils::LanguageExtension::All;
+    part->languageExtensions &= ~Utils::LanguageExtensions(
+        Utils::LanguageExtension::ObjectiveC);
+
+    part->qtVersion = Utils::QtVersion::Qt5;
+
+    // TODO: Use different fallback toolchain for different kinds of files?
+    const Kit * const defaultKit = KitManager::isLoaded() ? KitManager::defaultKit() : nullptr;
+    const ToolChain * const defaultTc = defaultKit
+            ? ToolChainKitAspect::cxxToolChain(defaultKit) : nullptr;
+    if (defaultKit && defaultTc) {
+        Utils::FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
+        if (sysroot.isEmpty())
+            sysroot = Utils::FilePath::fromString(defaultTc->sysRoot());
+        Utils::Environment env = defaultKit->buildEnvironment();
+        ToolChainInfo tcInfo(defaultTc, sysroot.toString(), env);
+        part->setupToolchainProperties(tcInfo, {});
+        if (part->language == Language::C)
+            part->languageVersion = Utils::LanguageVersion::LatestC;
+        else
+            part->languageVersion = Utils::LanguageVersion::LatestCxx;
+    }
+    part->updateLanguageFeatures();
+
+    QMutexLocker locker(&d->m_fallbackProjectPartMutex);
+    d->m_fallbackProjectPart = part;
 }
 
 void CppModelManager::GC()

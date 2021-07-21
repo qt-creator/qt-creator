@@ -86,10 +86,13 @@ public:
 
     Utils::Environment activeParseEnvironment() const;
 
-    virtual bool addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded = nullptr);
-    virtual RemovedFilesFromProject removeFiles(Node *context, const QStringList &filePaths,
-                                                QStringList *notRemoved = nullptr);
-    virtual bool deleteFiles(Node *context, const QStringList &filePaths);
+    virtual bool addFiles(Node *context,
+                          const Utils::FilePaths &filePaths,
+                          Utils::FilePaths *notAdded = nullptr);
+    virtual RemovedFilesFromProject removeFiles(Node *context,
+                                                const Utils::FilePaths &filePaths,
+                                                Utils::FilePaths *notRemoved = nullptr);
+    virtual bool deleteFiles(Node *context, const Utils::FilePaths &filePaths);
     virtual bool canRenameFile(Node *context,
                                const Utils::FilePath &oldFilePath,
                                const Utils::FilePath &newFilePath);
@@ -99,7 +102,7 @@ public:
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
 
-    virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
+    virtual Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const;
     virtual QVariant additionalData(Utils::Id id) const;
 
     void setDeploymentData(const DeploymentData &deploymentData);

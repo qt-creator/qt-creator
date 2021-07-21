@@ -59,6 +59,7 @@
 #include <QApplication>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace ResourceEditor {
 namespace Internal {
@@ -322,18 +323,18 @@ void ResourceEditorPluginPrivate::removeFileContextMenu()
 {
     auto rfn = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QTC_ASSERT(rfn, return);
-    QString path = rfn->filePath().toString();
+    FilePath path = rfn->filePath();
     FolderNode *parent = rfn->parentFolderNode();
     QTC_ASSERT(parent, return);
-    if (parent->removeFiles(QStringList() << path) != RemovedFilesFromProject::Ok)
+    if (parent->removeFiles({path}) != RemovedFilesFromProject::Ok)
         QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("File Removal Failed"),
-                             tr("Removing file %1 from the project failed.").arg(path));
+                             tr("Removing file %1 from the project failed.").arg(path.toUserOutput()));
 }
 
 void ResourceEditorPluginPrivate::openEditorContextMenu()
 {
-    Core::EditorManager::openEditor(ProjectTree::currentNode()->filePath().toString());
+    Core::EditorManager::openEditor(ProjectTree::currentNode()->filePath());
 }
 
 void ResourceEditorPluginPrivate::copyPathContextMenu()

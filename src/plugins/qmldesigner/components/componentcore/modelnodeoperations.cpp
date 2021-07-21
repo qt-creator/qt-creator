@@ -1016,7 +1016,7 @@ static bool addFilesToProject(const QStringList &fileNames, const QString &defau
             if (node) {
                 ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
                 if (containingFolder)
-                    containingFolder->addFiles(QStringList(filePair.second));
+                    containingFolder->addFiles({Utils::FilePath::fromString(filePair.second)});
             }
         } else {
             allSuccessful = false;

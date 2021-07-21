@@ -273,11 +273,11 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_trimEmptyDirectoriesAction, &QAction::toggled,
             this, &ProjectTreeWidget::setTrimEmptyDirectories);
 
-    m_showSourceGroupsAction = new QAction(tr("Show Source and Header Groups"), this);
-    m_showSourceGroupsAction->setCheckable(true);
-    m_showSourceGroupsAction->setChecked(true);
-    connect(m_showSourceGroupsAction, &QAction::toggled,
-            this, &ProjectTreeWidget::setShowSourceGroups);
+    m_hideSourceGroupsAction = new QAction(tr("Hide Source and Header Groups"), this);
+    m_hideSourceGroupsAction->setCheckable(true);
+    m_hideSourceGroupsAction->setChecked(false);
+    connect(m_hideSourceGroupsAction, &QAction::toggled,
+            this, &ProjectTreeWidget::setHideSourceGroups);
 
     // connections
     connect(m_model, &FlatModel::renamed,
@@ -448,7 +448,7 @@ QList<QToolButton *> ProjectTreeWidget::createToolButtons()
     filterMenu->addAction(m_filterGeneratedFilesAction);
     filterMenu->addAction(m_filterDisabledFilesAction);
     filterMenu->addAction(m_trimEmptyDirectoriesAction);
-    filterMenu->addAction(m_showSourceGroupsAction);
+    filterMenu->addAction(m_hideSourceGroupsAction);
     filter->setMenu(filterMenu);
 
     auto toggleSync = new QToolButton;
@@ -593,10 +593,10 @@ void ProjectTreeWidget::setTrimEmptyDirectories(bool filter)
     m_trimEmptyDirectoriesAction->setChecked(filter);
 }
 
-void ProjectTreeWidget::setShowSourceGroups(bool filter)
+void ProjectTreeWidget::setHideSourceGroups(bool filter)
 {
-    m_model->setShowSourceGroups(filter);
-    m_showSourceGroupsAction->setChecked(filter);
+    m_model->setHideSourceGroups(filter);
+    m_hideSourceGroupsAction->setChecked(filter);
 }
 
 bool ProjectTreeWidget::generatedFilesFilter()
@@ -614,9 +614,9 @@ bool ProjectTreeWidget::trimEmptyDirectoriesFilter()
     return m_model->trimEmptyDirectoriesEnabled();
 }
 
-bool ProjectTreeWidget::showSourceGroups()
+bool ProjectTreeWidget::hideSourceGroups()
 {
-    return m_model->showSourceGroups();
+    return m_model->hideSourceGroups();
 }
 
 bool ProjectTreeWidget::projectFilter()
@@ -643,7 +643,7 @@ const bool kProjectFilterDefault = false;
 const bool kHideGeneratedFilesDefault = true;
 const bool kHideDisabledFilesDefault = false;
 const bool kTrimEmptyDirsDefault = true;
-const bool kShowSourceGroupsDefault = true;
+const bool kHideSourceGroupsDefault = false;
 const bool kSyncDefault = true;
 const char kBaseKey[] = "ProjectTreeWidget.";
 const char kProjectFilterKey[] = ".ProjectFilter";
@@ -651,7 +651,7 @@ const char kHideGeneratedFilesKey[] = ".GeneratedFilter";
 const char kHideDisabledFilesKey[] = ".DisabledFilesFilter";
 const char kTrimEmptyDirsKey[] = ".TrimEmptyDirsFilter";
 const char kSyncKey[] = ".SyncWithEditor";
-const char kShowSourceGroupsKey[] = ".ShowSourceGroups";
+const char kHideSourceGroupsKey[] = ".HideSourceGroups";
 
 void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position, QWidget *widget)
 {
@@ -670,9 +670,9 @@ void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position,
     settings->setValueWithDefault(baseKey + kTrimEmptyDirsKey,
                                   ptw->trimEmptyDirectoriesFilter(),
                                   kTrimEmptyDirsDefault);
-    settings->setValueWithDefault(baseKey + kShowSourceGroupsKey,
-                                  ptw->showSourceGroups(),
-                                  kShowSourceGroupsDefault);
+    settings->setValueWithDefault(baseKey + kHideSourceGroupsKey,
+                                  ptw->hideSourceGroups(),
+                                  kHideSourceGroupsDefault);
     settings->setValueWithDefault(baseKey + kSyncKey, ptw->autoSynchronization(), kSyncDefault);
 }
 
@@ -689,7 +689,7 @@ void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position
         settings->value(baseKey + kHideDisabledFilesKey, kHideDisabledFilesDefault).toBool());
     ptw->setTrimEmptyDirectories(
         settings->value(baseKey + kTrimEmptyDirsKey, kTrimEmptyDirsDefault).toBool());
-    ptw->setShowSourceGroups(
-        settings->value(baseKey + kShowSourceGroupsKey, kShowSourceGroupsDefault).toBool());
+    ptw->setHideSourceGroups(
+        settings->value(baseKey + kHideSourceGroupsKey, kHideSourceGroupsDefault).toBool());
     ptw->setAutoSynchronization(settings->value(baseKey + kSyncKey, kSyncDefault).toBool());
 }

@@ -154,8 +154,8 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     }
 
     // add typeinfo files listed in qmldir
-    foreach (const QmlDirParser::TypeInfo &typeInfo, libraryInfo.typeInfos()) {
-        QString pathNow = makeAbsolute(typeInfo.fileName, canonicalLibraryPath);
+    foreach (const QString &typeInfo, libraryInfo.typeInfos()) {
+        QString pathNow = makeAbsolute(typeInfo, canonicalLibraryPath);
         if (!plugin.typeInfoPaths.contains(pathNow) && QFile::exists(pathNow))
             plugin.typeInfoPaths += pathNow;
     }

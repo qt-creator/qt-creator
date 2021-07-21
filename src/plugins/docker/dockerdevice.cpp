@@ -73,6 +73,8 @@
 #include <QToolButton>
 #include <QThread>
 
+#include <numeric>
+
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #include <sys/types.h>
@@ -246,6 +248,7 @@ public:
 
     void autoDetect();
     void undoAutoDetect() const;
+    void listAutoDetected() const;
 
     QList<BaseQtVersion *> autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
@@ -278,6 +281,12 @@ void KitDetector::undoAutoDetect(const QString &sharedId) const
     d->undoAutoDetect();
 }
 
+void KitDetector::listAutoDetected(const QString &sharedId) const
+{
+    d->m_sharedId = sharedId;
+    d->listAutoDetected();
+}
+
 class DockerDevicePrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
@@ -297,7 +306,7 @@ public:
 
     ~DockerDevicePrivate() { delete m_shell; }
 
-    int runSynchronously(const CommandLine &cmd) const;
+    bool runInContainer(const CommandLine &cmd) const;
 
     void tryCreateLocalFileAccess();
 
@@ -385,6 +394,7 @@ public:
 
         auto autoDetectButton = new QPushButton(tr("Auto-detect Kit Items"));
         auto undoAutoDetectButton = new QPushButton(tr("Remove Auto-Detected Kit Items"));
+        auto listAutoDetectedButton = new QPushButton(tr("List Auto-Detected Kit Items"));
 
         connect(autoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id(), dockerDevice] {
             logView->clear();
@@ -407,6 +417,11 @@ public:
             m_kitItemDetector.undoAutoDetect(id);
         });
 
+        connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, id = data.id()] {
+            logView->clear();
+            m_kitItemDetector.listAutoDetected(id);
+        });
+
         using namespace Layouting;
 
         Form {
@@ -417,7 +432,7 @@ public:
             tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
                 Space(20),
-                Row { autoDetectButton, undoAutoDetectButton, Stretch() },
+                Row { autoDetectButton, undoAutoDetectButton, listAutoDetectedButton, Stretch() },
                 new QLabel(tr("Detection log:")),
                 logView
             }
@@ -552,6 +567,52 @@ void KitDetectorPrivate::undoAutoDetect() const
     }
 
     emit q->logOutput('\n' + tr("Removal of previously auto-detected kit items finished.") + "\n\n");
+}
+
+void KitDetectorPrivate::listAutoDetected() const
+{
+    emit q->logOutput(tr("Start listing auto-detected items associated with this docker image."));
+
+    emit q->logOutput('\n' + tr("Kits:"));
+    for (Kit *kit : KitManager::kits()) {
+        if (kit->autoDetectionSource() == m_sharedId)
+            emit q->logOutput(kit->displayName());
+    };
+
+    emit q->logOutput('\n' + tr("Qt versions:"));
+    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+        if (qtVersion->detectionSource() == m_sharedId)
+            emit q->logOutput(qtVersion->displayName());
+    };
+
+    emit q->logOutput('\n' + tr("Toolchains:"));
+    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
+        if (toolChain->detectionSource() == m_sharedId) {
+            emit q->logOutput(toolChain->displayName());
+        }
+    };
+
+    if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(cmakeManager,
+                                                   "listDetectedCMake",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    if (QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(debuggerPlugin,
+                                                   "listDetectedDebuggers",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    emit q->logOutput('\n' + tr("Listing of previously auto-detected kit items finished.") + "\n\n");
 }
 
 QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
@@ -958,9 +1019,7 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-x", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-x", path}});
 }
 
 bool DockerDevice::isReadableFile(const FilePath &filePath) const
@@ -974,9 +1033,7 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-r", path, "-a", "-f", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-r", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
@@ -990,9 +1047,7 @@ bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-w", path, "-a", "-f", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-w", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
@@ -1006,9 +1061,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-r", path, "-a", "-d", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-r", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
@@ -1022,9 +1075,7 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-w", path, "-a", "-d", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-w", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isFile(const FilePath &filePath) const
@@ -1038,9 +1089,7 @@ bool DockerDevice::isFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-f", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-f", path}});
 }
 
 bool DockerDevice::isDirectory(const FilePath &filePath) const
@@ -1054,9 +1103,7 @@ bool DockerDevice::isDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-d", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-d", path}});
 }
 
 bool DockerDevice::createDirectory(const FilePath &filePath) const
@@ -1070,9 +1117,7 @@ bool DockerDevice::createDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("mkdir", {"-p", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"mkdir", {"-p", path}});
 }
 
 bool DockerDevice::exists(const FilePath &filePath) const
@@ -1086,9 +1131,7 @@ bool DockerDevice::exists(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("test", {"-e", path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"test", {"-e", path}});
 }
 
 bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
@@ -1102,9 +1145,7 @@ bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    const CommandLine cmd("touch", {path});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"touch", {path}});
 }
 
 bool DockerDevice::removeFile(const FilePath &filePath) const
@@ -1117,9 +1158,7 @@ bool DockerDevice::removeFile(const FilePath &filePath) const
         LOG("Remove? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    const CommandLine cmd("rm", {filePath.path()});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"rm", {filePath.path()}});
 }
 
 bool DockerDevice::removeRecursively(const FilePath &filePath) const
@@ -1134,9 +1173,7 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
         return res;
     }
 // Open this up only when really needed.
-//    const CommandLine cmd("rm", "-rf", {filePath.path()});
-//    const int exitCode = d->runSynchronously(cmd);
-//    return exitCode == 0;
+//   return d->runInContainer({"rm", "-rf", {filePath.path()}});
     return false;
 }
 
@@ -1152,9 +1189,7 @@ bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) co
         LOG("Copy " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
         return res;
     }
-    const CommandLine cmd("cp", {filePath.path(), target.path()});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"cp", {filePath.path(), target.path()}});
 }
 
 bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) const
@@ -1169,9 +1204,7 @@ bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) 
         LOG("Move " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
         return res;
     }
-    const CommandLine cmd("mv", {filePath.path(), target.path()});
-    const int exitCode = d->runSynchronously(cmd);
-    return exitCode == 0;
+    return d->runInContainer({"mv", {filePath.path(), target.path()}});
 }
 
 QDateTime DockerDevice::lastModified(const FilePath &filePath) const
@@ -1184,8 +1217,15 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
         LOG("Last modified? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-    QTC_CHECK(false);
-    return {};
+
+    QtcProcess proc;
+    proc.setCommand({"stat", {"-c", "%Y", filePath.path()}});
+    runProcess(proc);
+    proc.waitForFinished();
+
+    const qint64 secs = proc.rawStdOut().toLongLong();
+    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
+    return dt;
 }
 
 FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
@@ -1218,8 +1258,13 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
         });
     }
 
-    QTC_CHECK(false); // FIXME: Implement
-    return {};
+    QtcProcess proc;
+    proc.setCommand({"ls", {"-1", "-b", "--", filePath.path()}});
+    runProcess(proc);
+    proc.waitForFinished();
+
+    QStringList entries = proc.stdOut().split('\n', Qt::SkipEmptyParts);
+    return FilePath::filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
 }
 
 QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
@@ -1229,8 +1274,21 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qi
     if (hasLocalFileAccess())
         return mapToLocalAccess(filePath).fileContents(limit, offset);
 
-    QTC_CHECK(false); // FIXME: Implement
-    return {};
+    QStringList args = {"if=" + filePath.path(), "status=none"};
+    if (limit > 0 || offset > 0) {
+        const qint64 gcd = std::gcd(limit, offset);
+        args += {QString("bs=%1").arg(gcd),
+                 QString("count=%1").arg(limit / gcd),
+                 QString("seek=%1").arg(offset / gcd)};
+    }
+
+    QtcProcess proc;
+    proc.setCommand({"dd", args});
+    runProcess(proc);
+    proc.waitForFinished();
+
+    QByteArray output = proc.readAllStandardOutput();
+    return output;
 }
 
 bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
@@ -1299,10 +1357,10 @@ void DockerDevicePrivate::fetchSystemEnviroment()
     m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
 }
 
-int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
+bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 {
     if (m_accessible == NoDaemon)
-        return -1;
+        return false;
     CommandLine dcmd{"docker", {"exec", m_container}};
     dcmd.addArgs(cmd);
 
@@ -1313,7 +1371,8 @@ int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
     proc.waitForFinished();
 
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
-    return proc.exitCode();
+    const int exitCode = proc.exitCode();
+    return exitCode == 0;
 }
 
 // Factory

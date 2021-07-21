@@ -77,20 +77,20 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-static void copySourcePathsToClipboard(QStringList srcPaths, const ProjectNode *node)
+static void copySourcePathsToClipboard(const FilePaths &srcPaths, const ProjectNode *node)
 {
     QClipboard *clip = QGuiApplication::clipboard();
 
     QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
-    QString data = Utils::transform(srcPaths, [projDir](const QString &path) {
-        return QDir::cleanPath(projDir.relativeFilePath(path));
+    QString data = Utils::transform(srcPaths, [projDir](const FilePath &path) {
+        return QDir::cleanPath(projDir.relativeFilePath(path.toString()));
     }).join(" ");
     clip->setText(data);
 }
 
-static void noAutoAdditionNotify(const QStringList &filePaths, const ProjectNode *node)
+static void noAutoAdditionNotify(const FilePaths &filePaths, const ProjectNode *node)
 {
-    const QStringList srcPaths = Utils::filtered(filePaths, [](const QString& file) {
+    const FilePaths srcPaths = Utils::filtered(filePaths, [](const FilePath &file) {
         const auto mimeType = Utils::mimeTypeForFile(file).name();
         return mimeType == CppTools::Constants::C_SOURCE_MIMETYPE ||
                mimeType == CppTools::Constants::C_HEADER_MIMETYPE ||
@@ -307,7 +307,7 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
     return BuildSystem::supportsAction(context, action, node);
 }
 
-bool CMakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
+bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (auto n = dynamic_cast<CMakeProjectNode *>(context)) {
         noAutoAdditionNotify(filePaths, n);
@@ -322,9 +322,9 @@ bool CMakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QSt
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
-QStringList CMakeBuildSystem::filesGeneratedFrom(const QString &sourceFile) const
+FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    QFileInfo fi(sourceFile);
+    QFileInfo fi = sourceFile.toFileInfo();
     FilePath project = projectDirectory();
     FilePath baseDirectory = FilePath::fromString(fi.absolutePath());
 
@@ -344,12 +344,13 @@ QStringList CMakeBuildSystem::filesGeneratedFrom(const QString &sourceFile) cons
         generatedFilePath += "/ui_";
         generatedFilePath += fi.completeBaseName();
         generatedFilePath += ".h";
-        return {QDir::cleanPath(generatedFilePath)};
+        return {FilePath::fromString(QDir::cleanPath(generatedFilePath))};
     }
     if (fi.suffix() == "scxml") {
         generatedFilePath += "/";
         generatedFilePath += QDir::cleanPath(fi.completeBaseName());
-        return {generatedFilePath + ".h", generatedFilePath + ".cpp"};
+        return {FilePath::fromString(generatedFilePath + ".h"),
+                FilePath::fromString(generatedFilePath + ".cpp")};
     }
 
     // TODO: Other types will be added when adapters for their compilers become available.
@@ -837,8 +838,8 @@ void CMakeBuildSystem::wireUpConnections()
                     QString errorMessage;
                     const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
                     if (!config.isEmpty() && errorMessage.isEmpty()) {
-                        QByteArray cmakeBuildTypeName = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config);
-                        cmakeBuildConfiguration()->setCMakeBuildType(QString::fromUtf8(cmakeBuildTypeName), true);
+                        QString cmakeBuildTypeName = CMakeConfigItem::stringValueOf("CMAKE_BUILD_TYPE", config);
+                        cmakeBuildConfiguration()->setCMakeBuildType(cmakeBuildTypeName, true);
                     }
                 }
                 setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()), options);
@@ -1173,16 +1174,13 @@ QList<ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
                                                              });
         QTC_ASSERT(factory, continue);
 
-        QStringList generated = filesGeneratedFrom(file.toString());
+        FilePaths generated = filesGeneratedFrom(file);
         qCDebug(cmakeBuildSystemLog)
             << "Finding Extra Compilers:     generated files:" << generated;
         if (generated.isEmpty())
             continue;
 
-        const FilePaths fileNames = transform(generated, [](const QString &s) {
-            return FilePath::fromString(s);
-        });
-        extraCompilers.append(factory->create(p, file, fileNames));
+        extraCompilers.append(factory->create(p, file, generated));
         qCDebug(cmakeBuildSystemLog)
             << "Finding Extra Compilers:     done with" << file.toUserOutput();
     }
@@ -1212,8 +1210,7 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
     };
 
     const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
-    const QString cmakeImports = QString::fromUtf8(CMakeConfigItem::valueOf("QML_IMPORT_PATH", cm));
-    addImports(cmakeImports);
+    addImports(CMakeConfigItem::stringValueOf("QML_IMPORT_PATH", cm));
     addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
 
     for (const QString &extraHeaderPath : extraHeaderPaths)
@@ -1251,6 +1248,18 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
     CMakeConfig config;
 
+    const FilePath projectDirectory = project()->projectDirectory();
+    const auto samePath = [projectDirectory](const FilePath &first, const FilePath &second) {
+        // if a path is relative, resolve it relative to the project directory
+        // this is not 100% correct since CMake resolve them to CMAKE_CURRENT_SOURCE_DIR
+        // depending on context, but we cannot do better here
+        return first == second
+               || projectDirectory.absoluteFilePath(first)
+                      == projectDirectory.absoluteFilePath(second)
+               || projectDirectory.absoluteFilePath(first).canonicalPath()
+                      == projectDirectory.absoluteFilePath(second).canonicalPath();
+    };
+
     // Replace path values that do not  exist on file system
     const QByteArrayList singlePathList = {
         "CMAKE_C_COMPILER",
@@ -1267,9 +1276,10 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
         if (it != cm.cend()) {
             const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
-            if (!initialValue.isEmpty()
-                && it->value != initialValue
-                && !FilePath::fromString(QString::fromUtf8(it->value)).exists()) {
+            const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
+            const FilePath path = FilePath::fromString(QString::fromUtf8(it->value));
+
+            if (!initialValue.isEmpty() && !samePath(path, initialPath) && !path.exists()) {
                 CMakeConfigItem item(*it);
                 item.value = initialValue;
 
@@ -1290,7 +1300,13 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
         if (it != cm.cend()) {
             const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
-            if (!initialValue.isEmpty() && !it->value.contains(initialValue)) {
+            const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
+
+            const bool pathIsContained
+                = Utils::contains(it->value.split(';'), [samePath, initialPath](const QByteArray &p) {
+                      return samePath(FilePath::fromString(QString::fromUtf8(p)), initialPath);
+                  });
+            if (!initialValue.isEmpty() && !pathIsContained) {
                 CMakeConfigItem item(*it);
                 item.value = initialValue;
                 item.value.append(";");

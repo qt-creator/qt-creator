@@ -969,9 +969,9 @@ bool FilePath::createDir() const
     return dir.mkpath(dir.absolutePath());
 }
 
-QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters,
-                                     QDir::Filters filters,
-                                     QDir::SortFlags sort) const
+FilePaths FilePath::dirEntries(const QStringList &nameFilters,
+                               QDir::Filters filters,
+                               QDir::SortFlags sort) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.dirEntries, return {});
@@ -980,6 +980,41 @@ QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters,
 
     const QFileInfoList entryInfoList = QDir(m_data).entryInfoList(nameFilters, filters, sort);
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
+}
+
+FilePaths FilePath::filterEntriesHelper(const FilePath &base,
+                                        const QStringList &entries,
+                                        const QStringList &nameFilters,
+                                        QDir::Filters filters,
+                                        QDir::SortFlags sort)
+{
+    const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
+        QRegularExpression re;
+        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+        QTC_CHECK(re.isValid());
+        return re;
+    });
+
+    const auto nameMatches = [&nameRegexps](const QString &fileName) {
+        for (const QRegularExpression &re : nameRegexps) {
+            const QRegularExpressionMatch match = re.match(fileName);
+            if (match.hasMatch())
+                return true;
+        }
+        return false;
+    };
+
+    // FIXME: Handle sort and filters. For now bark on unsupported options.
+    QTC_CHECK(filters == QDir::NoFilter);
+    QTC_CHECK(sort == QDir::NoSort);
+
+    FilePaths result;
+    for (const QString &entry : entries) {
+        if (!nameMatches(entry))
+            continue;
+        result.append(base.pathAppended(entry));
+    }
+    return result;
 }
 
 QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
@@ -1385,6 +1420,26 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 }
 
 /*!
+    Returns a FilePath with local path \a newPath on the same device
+    as the current object.
+
+    Example usage:
+    \code
+        devicePath = FilePath::fromString("docker://123/tmp");
+        newPath = devicePath.withNewPath("/bin/ls");
+        assert(realDir == FilePath::fromUrl("docker://123/bin/ls"))
+    \endcode
+*/
+FilePath FilePath::withNewPath(const QString &newPath) const
+{
+    FilePath res;
+    res.m_data = newPath;
+    res.m_host = m_host;
+    res.m_scheme = m_scheme;
+    return res;
+}
+
+/*!
     Searched a binary corresponding to this object in the PATH of
     the device implied by this object's scheme and host.
 
@@ -1413,6 +1468,27 @@ Environment FilePath::deviceEnvironment() const
     return Environment::systemEnvironment();
 }
 
+QString FilePath::formatFilePaths(const QList<FilePath> &files, const QString &separator)
+{
+    const QStringList nativeFiles = Utils::transform(files, &FilePath::toUserOutput);
+    return nativeFiles.join(separator);
+}
+
+void FilePath::removeDuplicates(QList<FilePath> &files)
+{
+    // FIXME: Improve.
+    QStringList list = Utils::transform<QStringList>(files, &FilePath::toString);
+    list.removeDuplicates();
+    files = Utils::transform(list, &FilePath::fromString);
+}
+
+void FilePath::sort(QList<FilePath> &files)
+{
+    // FIXME: Improve.
+    QStringList list = Utils::transform<QStringList>(files, &FilePath::toString);
+    list.sort();
+    files = Utils::transform(list, &FilePath::fromString);
+}
 
 FilePath FilePath::pathAppended(const QString &path) const
 {
@@ -1570,9 +1646,9 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
     return true;
 }
 
-QStringList FileUtils::CopyAskingForOverwrite::files() const
+FilePaths FileUtils::CopyAskingForOverwrite::files() const
 {
-    return m_files;
+    return transform(m_files, &FilePath::fromString);
 }
 #endif // QT_GUI_LIB
 

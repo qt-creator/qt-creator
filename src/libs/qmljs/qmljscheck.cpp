@@ -608,9 +608,8 @@ public:
 class UnsupportedTypesByVisualDesigner : public QStringList
 {
 public:
-    UnsupportedTypesByVisualDesigner() : QStringList({"Timer",
-                                                      "Package",
-                                                      "Particles"})
+    UnsupportedTypesByVisualDesigner()
+        : QStringList({"Timer", "Package", "Particles", "ApplicationWindow"})
     {}
 };
 
@@ -628,11 +627,13 @@ public:
 class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
 {
 public:
-    UnsupportedRootObjectTypesByVisualDesigner() : QStringList({"QtObject"
-                                                                "ListModel"
-                                                                "Component"
-                                                                "Timer"
-                                                                "Package"})
+    UnsupportedRootObjectTypesByVisualDesigner()
+        : QStringList({"QtObject"
+                       "ListModel"
+                       "Component"
+                       "Timer"
+                       "Package",
+                       "ApplicationWindow"})
     {}
 };
 

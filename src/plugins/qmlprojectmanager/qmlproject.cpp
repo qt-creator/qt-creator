@@ -500,20 +500,20 @@ bool QmlBuildSystem::forceFreeType() const
     return false;
 }
 
-bool QmlBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *)
+bool QmlBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *)
 {
     if (!dynamic_cast<QmlProjectNode *>(context))
         return false;
 
-    QStringList toAdd;
-    foreach (const QString &filePath, filePaths) {
-        if (!m_projectItem.data()->matchesFile(filePath))
+    FilePaths toAdd;
+    for (const FilePath &filePath : filePaths) {
+        if (!m_projectItem.data()->matchesFile(filePath.toString()))
             toAdd << filePaths;
     }
     return toAdd.isEmpty();
 }
 
-bool QmlBuildSystem::deleteFiles(Node *context, const QStringList &filePaths)
+bool QmlBuildSystem::deleteFiles(Node *context, const FilePaths &filePaths)
 {
     if (dynamic_cast<QmlProjectNode *>(context))
         return true;

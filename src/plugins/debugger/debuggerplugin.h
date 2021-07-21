@@ -63,6 +63,7 @@ private:
                                              const QString &detectionId,
                                              QString *logMessage);
     Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
+    Q_SLOT void listDetectedDebuggers(const QString &detectionId, QString *logMessage);
 
     QVector<QObject *> createTestObjects() const override;
 };

@@ -53,6 +53,7 @@
 using namespace QmlJS::AST;
 using QmlJS::SourceLocation;
 using namespace QmlJSTools;
+using namespace Utils;
 
 namespace QmlJSEditor {
 
@@ -198,7 +199,7 @@ public:
             if (oldFileNode) {
                 ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
                 if (containingFolder)
-                    containingFolder->addFiles(QStringList(newFileName));
+                    containingFolder->addFiles({FilePath::fromString(newFileName)});
             }
         }
 

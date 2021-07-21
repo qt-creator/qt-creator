@@ -245,19 +245,19 @@ bool NimbleBuildSystem::supportsAction(Node *context, ProjectAction action, cons
     return BuildSystem::supportsAction(context, action, node);
 }
 
-bool NimbleBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *)
+bool NimbleBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    return m_projectScanner.addFiles(filePaths);
+    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toString));
 }
 
 RemovedFilesFromProject NimbleBuildSystem::removeFiles(Node *,
-                                                       const QStringList &filePaths,
-                                                       QStringList *)
+                                                       const FilePaths &filePaths,
+                                                       FilePaths *)
 {
-    return m_projectScanner.removeFiles(filePaths);
+    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toString));
 }
 
-bool NimbleBuildSystem::deleteFiles(Node *, const QStringList &)
+bool NimbleBuildSystem::deleteFiles(Node *, const FilePaths &)
 {
     return true;
 }

@@ -133,8 +133,8 @@ static bool hasPriority(const QStringList &files)
 }
 
 static bool addFilesToResource(const FilePath &resourceFile,
-                               const QStringList &filePaths,
-                               QStringList *notAdded,
+                               const FilePaths &filePaths,
+                               FilePaths *notAdded,
                                const QString &prefix,
                                const QString &lang)
 {
@@ -151,12 +151,12 @@ static bool addFilesToResource(const FilePath &resourceFile,
 
     if (notAdded)
         notAdded->clear();
-    foreach (const QString &path, filePaths) {
-        if (file.contains(index, path)) {
+    for (const FilePath &path : filePaths) {
+        if (file.contains(index, path.toString())) {
             if (notAdded)
                 *notAdded << path;
         } else {
-            file.addFile(index, path);
+            file.addFile(index, path.toString());
         }
     }
 
@@ -174,9 +174,9 @@ public:
                      ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode);
 
     bool supportsAction(ProjectAction, const Node *node) const final;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded) final;
-    RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                        QStringList *notRemoved) final;
+    bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded) final;
+    RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
+                                        Utils::FilePaths *notRemoved) final;
     bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
     bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
 
@@ -215,13 +215,13 @@ bool SimpleResourceFolderNode::supportsAction(ProjectAction action, const Node *
         || action == InheritedFromParent; // Do not add to list of projects when adding new file
 }
 
-bool SimpleResourceFolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool SimpleResourceFolderNode::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 {
     return addFilesToResource(m_topLevelNode->filePath(), filePaths, notAdded, m_prefix, m_lang);
 }
 
-RemovedFilesFromProject SimpleResourceFolderNode::removeFiles(const QStringList &filePaths,
-                                                              QStringList *notRemoved)
+RemovedFilesFromProject SimpleResourceFolderNode::removeFiles(const FilePaths &filePaths,
+                                                              FilePaths *notRemoved)
 {
     return prefixNode()->removeFiles(filePaths, notRemoved);
 }
@@ -385,13 +385,13 @@ bool ResourceTopLevelNode::supportsAction(ProjectAction action, const Node *node
         || action == Rename;
 }
 
-bool ResourceTopLevelNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool ResourceTopLevelNode::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 {
-    return addFilesToResource(filePath(), filePaths, notAdded, QLatin1String("/"), QString());
+    return addFilesToResource(filePath(), filePaths, notAdded, "/", QString());
 }
 
-RemovedFilesFromProject ResourceTopLevelNode::removeFiles(const QStringList &filePaths,
-                                                           QStringList *notRemoved)
+RemovedFilesFromProject ResourceTopLevelNode::removeFiles(const FilePaths &filePaths,
+                                                          FilePaths *notRemoved)
 {
     return parentFolderNode()->removeFiles(filePaths, notRemoved);
 }
@@ -498,13 +498,13 @@ bool ResourceFolderNode::supportsAction(ProjectAction action, const Node *node) 
         || action == HidePathActions; // hides open terminal etc.
 }
 
-bool ResourceFolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool ResourceFolderNode::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 {
     return addFilesToResource(m_topLevelNode->filePath(), filePaths, notAdded, m_prefix, m_lang);
 }
 
-RemovedFilesFromProject ResourceFolderNode::removeFiles(const QStringList &filePaths,
-                                                        QStringList *notRemoved)
+RemovedFilesFromProject ResourceFolderNode::removeFiles(const FilePaths &filePaths,
+                                                        FilePaths *notRemoved)
 {
     if (notRemoved)
         *notRemoved = filePaths;
@@ -516,10 +516,10 @@ RemovedFilesFromProject ResourceFolderNode::removeFiles(const QStringList &fileP
         return RemovedFilesFromProject::Error;
     for (int j = 0; j < file.fileCount(index); ++j) {
         QString fileName = file.file(index, j);
-        if (!filePaths.contains(fileName))
+        if (!filePaths.contains(FilePath::fromString(fileName)))
             continue;
         if (notRemoved)
-            notRemoved->removeOne(fileName);
+            notRemoved->removeOne(FilePath::fromString(fileName));
         file.removeFile(index, j);
         --j;
     }

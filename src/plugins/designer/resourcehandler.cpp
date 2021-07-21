@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Designer {
 namespace Internal {
@@ -142,7 +143,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
             }
             if (!qrcPathsToBeAdded.isEmpty()) {
                 m_handlingResources = true;
-                projectNodeForUiFile->addFiles(qrcPathsToBeAdded);
+                projectNodeForUiFile->addFiles(Utils::transform(qrcPathsToBeAdded, &FilePath::fromString));
                 m_handlingResources = false;
                 projectQrcFiles += qrcPathsToBeAdded;
             }

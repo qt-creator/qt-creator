@@ -185,7 +185,7 @@ void CMakeToolManager::autoDetectCMakeForDevice(const FilePath &deviceRoot,
                                                 QString *logMessage)
 {
     QStringList messages{tr("Searching CMake binaries...")};
-    const FilePaths candidates = {FilePath::fromString("cmake").onDevice(deviceRoot)};
+    const FilePaths candidates = {deviceRoot.withNewPath("cmake")};
     const Environment env = deviceRoot.deviceEnvironment();
     for (const FilePath &candidate : candidates) {
         const FilePath cmake = candidate.searchOnDevice(env.path());
@@ -229,6 +229,17 @@ void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QStri
     updateDocumentation();
     if (logMessage)
         *logMessage = logMessages.join('\n');
+}
+
+void CMakeToolManager::listDetectedCMake(const QString &detectionSource, QString *logMessage)
+{
+    QTC_ASSERT(logMessage, return);
+    QStringList logMessages{tr("CMake:")};
+    for (const auto &tool : qAsConst(d->m_cmakeTools)) {
+        if (tool->detectionSource() == detectionSource)
+            logMessages.append(tool->displayName());
+    }
+    *logMessage = logMessages.join('\n');
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)

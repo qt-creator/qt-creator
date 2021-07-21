@@ -1359,9 +1359,8 @@ QString CMakeBuildConfiguration::cmakeBuildType() const
     }
 
     if (!config.isEmpty() && !isMultiConfig()) {
-        cmakeBuildType = QString::fromUtf8(CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config));
-        const_cast<CMakeBuildConfiguration*>(this)
-            ->setCMakeBuildType(cmakeBuildType);
+        cmakeBuildType = CMakeConfigItem::stringValueOf("CMAKE_BUILD_TYPE", config);
+        const_cast<CMakeBuildConfiguration*>(this)->setCMakeBuildType(cmakeBuildType);
     }
 
     return cmakeBuildType;

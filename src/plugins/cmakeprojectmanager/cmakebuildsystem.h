@@ -67,9 +67,9 @@ public:
                         const ProjectExplorer::Node *node) const final;
 
     bool addFiles(ProjectExplorer::Node *context,
-                  const QStringList &filePaths, QStringList *) final;
+                  const Utils::FilePaths &filePaths, Utils::FilePaths *) final;
 
-    QStringList filesGeneratedFrom(const QString &sourceFile) const final;
+    Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
 
     // Actions:
     void runCMake();

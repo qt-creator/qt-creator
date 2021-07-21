@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -90,8 +90,7 @@ public:
     template <typename Tp, typename... Ta> Tp *New(Ta... args)
     { return new (this->allocate(sizeof(Tp))) Tp(args...); }
 
-    QStringView newString(const QString &string)
-    {
+    QStringView newString(const QString &string) {
         strings.append(new QString(string));
         return QStringView(*strings.last());
     }

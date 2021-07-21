@@ -54,9 +54,9 @@ public:
                         ProjectExplorer::ProjectAction action,
                         const ProjectExplorer::Node *node) const override;
     bool addFiles(ProjectExplorer::Node *context,
-                  const QStringList &filePaths, QStringList *notAdded = nullptr) override;
+                  const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded = nullptr) override;
     bool deleteFiles(ProjectExplorer::Node *context,
-                     const QStringList &filePaths) override;
+                     const Utils::FilePaths &filePaths) override;
     bool renameFile(ProjectExplorer::Node *context,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
 

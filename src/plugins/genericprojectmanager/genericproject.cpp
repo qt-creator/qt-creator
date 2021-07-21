@@ -135,11 +135,9 @@ public:
                 || action == Rename;
     }
 
-    RemovedFilesFromProject removeFiles(Node *, const QStringList &filePaths, QStringList *) final;
-    bool renameFile(Node *,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) final;
-    bool addFiles(Node *, const QStringList &filePaths, QStringList *) final;
+    RemovedFilesFromProject removeFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
+    bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
 
     FilePath filesFilePath() const { return ::FilePath::fromString(m_filesFileName); }
 
@@ -157,7 +155,7 @@ public:
     void updateDeploymentData();
 
     bool setFiles(const QStringList &filePaths);
-    void removeFiles(const QStringList &filesToRemove);
+    void removeFiles(const FilePaths &filesToRemove);
 
 private:
     QString m_filesFileName;
@@ -327,8 +325,9 @@ static void insertSorted(QStringList *list, const QString &value)
         list->insert(it, value);
 }
 
-bool GenericBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *)
+bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths *)
 {
+    const QStringList filePaths = Utils::transform(filePaths_, &FilePath::toString);
     const QDir baseDir(projectDirectory().toString());
     QStringList newList = m_rawFileList;
     if (filePaths.size() > m_rawFileList.size()) {
@@ -368,12 +367,12 @@ bool GenericBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringL
     return result;
 }
 
-RemovedFilesFromProject GenericBuildSystem::removeFiles(Node *, const QStringList &filePaths, QStringList *)
+RemovedFilesFromProject GenericBuildSystem::removeFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
     QStringList newList = m_rawFileList;
 
-    for (const QString &filePath : filePaths) {
-        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+    for (const FilePath &filePath : filePaths) {
+        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toString());
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
     }
@@ -609,7 +608,7 @@ void GenericBuildSystem::updateDeploymentData()
     }
 }
 
-void GenericBuildSystem::removeFiles(const QStringList &filesToRemove)
+void GenericBuildSystem::removeFiles(const FilePaths &filesToRemove)
 {
     if (removeFiles(nullptr, filesToRemove, nullptr) == RemovedFilesFromProject::Error) {
         TaskHub::addTask(BuildSystemTask(Task::Error,
@@ -695,7 +694,7 @@ void GenericProject::editFilesTriggered()
     }
 }
 
-void GenericProject::removeFilesTriggered(const QStringList &filesToRemove)
+void GenericProject::removeFilesTriggered(const FilePaths &filesToRemove)
 {
     if (Target *t = activeTarget())
         static_cast<GenericBuildSystem *>(t->buildSystem())->removeFiles(filesToRemove);

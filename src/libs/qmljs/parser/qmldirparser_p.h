@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -55,12 +55,12 @@ public:
     void clear();
     bool parse(const QString &source);
 
-    bool hasError() const;
+    bool hasError() const { return !_errors.isEmpty(); }
     void setError(const QmlJS::DiagnosticMessage &);
     QList<QmlJS::DiagnosticMessage> errors(const QString &uri) const;
 
-    QString typeNamespace() const;
-    void setTypeNamespace(const QString &s);
+    QString typeNamespace() const { return _typeNamespace; }
+    void setTypeNamespace(const QString &s) { _typeNamespace = s; }
 
     static void checkNonRelative(const char *item, const QString &typeName, const QString &fileName)
     {
@@ -141,25 +141,16 @@ public:
         Flags flags;
     };
 
-    QMultiHash<QString,Component> components() const;
-    QList<Import> dependencies() const;
-    QList<Import> imports() const;
-    QList<Script> scripts() const;
-    QList<Plugin> plugins() const;
-    bool designerSupported() const;
+    QMultiHash<QString,Component> components() const { return _components; }
+    QList<Import> dependencies() const { return _dependencies; }
+    QList<Import> imports() const { return _imports; }
+    QList<Script> scripts() const { return _scripts; }
+    QList<Plugin> plugins() const { return _plugins; }
+    bool designerSupported() const { return _designerSupported; }
 
-    struct TypeInfo
-    {
-        TypeInfo() = default;
-        TypeInfo(const QString &fileName)
-            : fileName(fileName) {}
-
-        QString fileName;
-    };
-
-    QList<TypeInfo> typeInfos() const;
-
-    QString className() const;
+    QStringList typeInfos() const { return _typeInfos; }
+    QStringList classNames() const { return _classNames; }
+    QString preferredPath() const { return _preferredPath; }
 
 private:
     bool maybeAddComponent(const QString &typeName, const QString &fileName, const QString &version, QHash<QString,Component> &hash, int lineNumber = -1, bool multi = true);
@@ -168,19 +159,21 @@ private:
 private:
     QList<QmlJS::DiagnosticMessage> _errors;
     QString _typeNamespace;
+    QString _preferredPath;
     QMultiHash<QString,Component> _components;
     QList<Import> _dependencies;
     QList<Import> _imports;
     QList<Script> _scripts;
     QList<Plugin> _plugins;
     bool _designerSupported = false;
-    QList<TypeInfo> _typeInfos;
-    QString _className;
+    QStringList _typeInfos;
+    QStringList _classNames;
 };
 
 using QmlDirComponents = QMultiHash<QString,QmlDirParser::Component>;
 using QmlDirScripts = QList<QmlDirParser::Script>;
 using QmlDirPlugins = QList<QmlDirParser::Plugin>;
+using QmlDirImports = QList<QmlDirParser::Import>;
 
 QDebug &operator<< (QDebug &, const QmlDirParser::Component &);
 QDebug &operator<< (QDebug &, const QmlDirParser::Script &);

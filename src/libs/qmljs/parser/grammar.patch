@@ -1,21 +1,56 @@
-diff -u parser-genOut/qmljs.g parser/qmljs.g
---- parser-genOut/qmljs.g	2020-03-02 13:53:50.000000000 +0100
-+++ parser/qmljs.g	2020-03-02 13:55:50.000000000 +0100
-@@ -379,7 +379,7 @@
+diff --git a/src/libs/qmljs/parser/qmljs.g b/src/libs/qmljs/parser/qmljs.g
+index ae79830d2e..32a2f6f4b0 100644
+--- a/src/libs/qmljs/parser/qmljs.g
++++ b/src/libs/qmljs/parser/qmljs.g
+@@ -380,7 +380,7 @@ public:
      inline DiagnosticMessage diagnosticMessage() const
      {
          for (const DiagnosticMessage &d : diagnostic_messages) {
--            if (d.type != QtWarningMsg)
-+            if (d.kind != Severity::Warning)
+-            if (d.kind != Severity::Warning)
++            if (d.type != QtWarningMsg)
                  return d;
          }
  
-@@ -423,7 +423,7 @@
+@@ -424,7 +424,7 @@ protected:
          DiagnosticMessage error;
          error.loc = location;
          error.message = message;
--        error.type = kind;
-+        error.kind = DiagnosticMessage::qtMsgTypeToKind(kind);
+-        error.kind = DiagnosticMessage::qtMsgTypeToKind(kind);
++        error.type = kind;
          return error;
      }
  
+@@ -445,8 +445,8 @@ protected:
+     Value *sym_stack = nullptr;
+     int *state_stack = nullptr;
+     SourceLocation *location_stack = nullptr;
+-    QVector<QStringView> string_stack;
+-    QVector<QStringView> rawString_stack;
++    QList<QStringView> string_stack;
++    QList<QStringView> rawString_stack;
+ 
+     AST::Node *program = nullptr;
+ 
+@@ -838,7 +838,7 @@ UiVersionSpecifier: T_VERSION_NUMBER T_DOT T_VERSION_NUMBER;
+     case $rule_number: {
+         const int major = sym(1).dval;
+         const int minor = sym(3).dval;
+-        if (major < 0  || major >= 255 || minor < 0 || minor >= 255) {
++        if (!QTypeRevision::isValidSegment(major) || !QTypeRevision::isValidSegment(minor)) {
+             diagnostic_messages.append(
+                     compileError(loc(1),
+                     QLatin1String("Invalid version. Version numbers must be >= 0 and < 255.")));
+@@ -851,11 +851,12 @@ UiVersionSpecifier: T_VERSION_NUMBER T_DOT T_VERSION_NUMBER;
+     } break;
+ ./
+ 
++
+ UiVersionSpecifier: T_VERSION_NUMBER;
+ /.
+     case $rule_number: {
+         const int major = sym(1).dval;
+-        if (major < 0 || major >= 255) {
++        if (!QTypeRevision::isValidSegment(major)) {
+             diagnostic_messages.append(
+                     compileError(loc(1),
+                     QLatin1String("Invalid major version. Version numbers must be >= 0 and < 255.")));

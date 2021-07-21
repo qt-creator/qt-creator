@@ -153,7 +153,7 @@ private:
     Status _status = NotScanned;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
-    QList<QmlDirParser::TypeInfo> _typeinfos;
+    QStringList _typeinfos;
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
     QList<ModuleApiInfo> _moduleApis;
@@ -167,7 +167,7 @@ private:
 public:
     LibraryInfo();
     explicit LibraryInfo(Status status);
-    explicit LibraryInfo(const QmlDirParser::TypeInfo &typeInfo);
+    explicit LibraryInfo(const QString &typeInfo);
     explicit LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint = QByteArray());
     ~LibraryInfo() = default;
     LibraryInfo(const LibraryInfo &other) = default;
@@ -183,7 +183,7 @@ public:
     QList<QmlDirParser::Plugin> plugins() const
     { return _plugins; }
 
-    QList<QmlDirParser::TypeInfo> typeInfos() const
+    QStringList typeInfos() const
     { return _typeinfos; }
 
     FakeMetaObjectList metaObjects() const
