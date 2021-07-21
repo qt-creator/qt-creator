@@ -140,18 +140,17 @@ MATCHER_P4(IsPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
-MATCHER_P2(IsBasicImport,
+MATCHER_P2(IsImport,
            name,
            version,
-           std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::ImportDependency{name, version}))
+           std::string(negation ? "isn't " : "is ") + PrintToString(Storage::Import{name, version}))
 {
     const Storage::Import &import = arg;
 
     return import.name == name && import.version == version;
 }
 
-MATCHER_P3(IsImport,
+MATCHER_P3(IsImportDependency,
            name,
            version,
            sourceId,
@@ -605,18 +604,19 @@ protected:
         importSourceId1 = sourcePathCache.sourceId(importPath1);
         importSourceId2 = sourcePathCache.sourceId(importPath2);
         importSourceId3 = sourcePathCache.sourceId(importPath3);
+        importSourceId5 = sourcePathCache.sourceId("/path/to/.");
 
         return Storage::ImportDependencies{
             Storage::ImportDependency{"Qml", Storage::VersionNumber{2}, importSourceId1, {}},
             Storage::ImportDependency{"QtQuick",
                                       Storage::VersionNumber{},
                                       importSourceId2,
-                                      {Storage::ImportDependency{"Qml", Storage::VersionNumber{2}}}},
+                                      {Storage::Import{"Qml", Storage::VersionNumber{2}}}},
             Storage::ImportDependency{"/path/to",
                                       Storage::VersionNumber{},
-                                      SourceId{},
-                                      {Storage::ImportDependency{"QtQuick"},
-                                       Storage::ImportDependency{"Qml", Storage::VersionNumber{2}}}}};
+                                      importSourceId5,
+                                      {Storage::Import{"QtQuick"},
+                                       Storage::Import{"Qml", Storage::VersionNumber{2}}}}};
     }
 
     Storage::Imports createImports()
@@ -632,7 +632,7 @@ protected:
 
         auto importDependencies = createImportDependencies();
         importDependencies.push_back(
-            Storage::ImportDependency{"Qml2", Storage::VersionNumber{3}, importSourceId1, {}});
+            Storage::ImportDependency{"Qml2", Storage::VersionNumber{3}, importSourceId4, {}});
 
         return importDependencies;
     }
@@ -655,7 +655,17 @@ protected:
                      Storage::Document{sourceId4, imports},
                      Storage::Document{sourceId5, imports}};
 
-        storage.synchronize(importDependencies, documents, {}, {});
+        storage.synchronize(importDependencies,
+                            documents,
+                            {},
+                            {sourceId1,
+                             sourceId2,
+                             sourceId3,
+                             sourceId4,
+                             sourceId5,
+                             importSourceId1,
+                             importSourceId2,
+                             importSourceId5});
         importIds = storage.fetchImportIds(imports);
         importId1 = importIds[0];
         importId2 = importIds[1];
@@ -688,6 +698,7 @@ protected:
     SourceId importSourceId2;
     SourceId importSourceId3;
     SourceId importSourceId4;
+    SourceId importSourceId5;
     Storage::Imports imports;
     ImportId importId1;
     ImportId importId2;
@@ -2089,285 +2100,357 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
 
     ASSERT_THAT(storage.fetchAllImports(),
-                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                                     IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                                     IsImport("/path/to", Storage::VersionNumber{}, SourceId{})));
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5)));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportsAgain)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
 
     ASSERT_THAT(storage.fetchAllImports(),
-                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                                     IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                                     IsImport("/path/to", Storage::VersionNumber{}, SourceId{})));
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5)));
 }
 
-TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImports)
+TEST_F(ProjectStorageSlowTest, SynchronizeImportsUpdateToMoreImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
     importDependencies.push_back(
         Storage::ImportDependency{"QtQuick.Foo", Storage::VersionNumber{1}, importSourceId3});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId3, importSourceId5});
 
     ASSERT_THAT(storage.fetchAllImports(),
-                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                                     IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                                     IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                                     IsImport("QtQuick.Foo", Storage::VersionNumber{1}, importSourceId3)));
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                    IsImportDependency("QtQuick.Foo", Storage::VersionNumber{1}, importSourceId3)));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddOneMoreImports)
+{
+    Storage::ImportDependencies importDependencies{createImportDependencies()};
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto newImportDependency = Storage::ImportDependency{"QtQuick.Foo",
+                                                         Storage::VersionNumber{1},
+                                                         importSourceId3};
+
+    storage.synchronize({newImportDependency}, {}, {}, {importSourceId3});
+
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                    IsImportDependency("QtQuick.Foo", Storage::VersionNumber{1}, importSourceId3)));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddSameImportNameButDifferentVersion)
 {
+    auto importSourceIdQml4 = sourcePathCache.sourceId("/path/Qml.4");
+    auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     Storage::ImportDependencies importDependencies{createImportDependencies()};
     importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{4}, importSourceId3});
-    storage.synchronize(importDependencies, {}, {}, {});
-    importDependencies.pop_back();
-    importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceId3});
+        Storage::ImportDependency{"Qml", Storage::VersionNumber{4}, importSourceIdQml4});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto newImportDependency = Storage::ImportDependency{"Qml",
+                                                         Storage::VersionNumber{3},
+                                                         importSourceIdQml3};
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({newImportDependency}, {}, {}, {importSourceIdQml4, importSourceIdQml3});
 
     ASSERT_THAT(storage.fetchAllImports(),
-                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                                     IsImport("Qml", Storage::VersionNumber{3}, importSourceId3),
-                                     IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                                     IsImport("/path/to", Storage::VersionNumber{}, SourceId{})));
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("Qml", Storage::VersionNumber{3}, importSourceIdQml3),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5)));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsRemoveImport)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
-    importDependencies.pop_back();
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({}, {}, {}, {importSourceId5});
 
     ASSERT_THAT(storage.fetchAllImports(),
-                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                                     IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2)));
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2)));
 }
 
-TEST_F(ProjectStorageSlowTest, SynchronizeImportsUpdateImport)
+TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeSourceId)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
     importDependencies[1].sourceId = importSourceId3;
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({importDependencies[1]}, {}, {}, {importSourceId2, importSourceId3});
 
     ASSERT_THAT(storage.fetchAllImports(),
-                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                                     IsImport("QtQuick", Storage::VersionNumber{}, importSourceId3),
-                                     IsImport("/path/to", Storage::VersionNumber{}, SourceId{})));
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId3),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5)));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeName)
+{
+    Storage::ImportDependencies importDependencies{createImportDependencies()};
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    importDependencies[0].name = "Qml2";
+    importDependencies[1].dependencies[0].name = "Qml2";
+    importDependencies[2].dependencies[1].name = "Qml2";
+
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    IsImportDependency("Qml2", Storage::VersionNumber{2}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5)));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeVersion)
+{
+    Storage::ImportDependencies importDependencies{createImportDependencies()};
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    importDependencies[0].version = Storage::VersionNumber{3};
+    importDependencies[1].dependencies[0].version = Storage::VersionNumber{3};
+    importDependencies[2].dependencies[1].version = Storage::VersionNumber{3};
+
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    IsImportDependency("Qml", Storage::VersionNumber{3}, importSourceId1),
+                    IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                    IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5)));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportDependecies)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
-                    AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                          Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-                    AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                          Field(&Storage::ImportDependency::importDependencies,
-                                ElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2})))),
-                    AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                          Field(&Storage::ImportDependency::importDependencies,
-                                UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                                     IsBasicImport("QtQuick",
-                                                                   Storage::VersionNumber{}))))));
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                          Field(&Storage::ImportDependency::dependencies,
+                                ElementsAre(IsImport("Qml", Storage::VersionNumber{2})))),
+                    AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportDependeciesWhichDoesNotExitsThrows)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    importDependencies[1].importDependencies.push_back(
-        Storage::ImportDependency{"QmlBase", Storage::VersionNumber{2}});
+    importDependencies[1].dependencies.push_back(Storage::Import{"QmlBase", Storage::VersionNumber{2}});
 
-    ASSERT_THROW(storage.synchronize(importDependencies, {}, {}, {}),
+    ASSERT_THROW(storage.synchronize(importDependencies,
+                                     {},
+                                     {},
+                                     {importSourceId1, importSourceId2, importSourceId5}),
                  QmlDesigner::ImportDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsRemovesDependeciesForRemovedImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
     auto last = importDependencies.back();
     importDependencies.pop_back();
-
-    storage.synchronize(importDependencies, {}, {}, {});
-
-    last.importDependencies.pop_back();
+    storage.synchronize({}, {}, {}, {importSourceId5});
+    last.dependencies.pop_back();
     importDependencies.push_back(last);
-    storage.synchronize(importDependencies, {}, {}, {});
+
+    storage.synchronize({importDependencies[2]}, {}, {}, {importSourceId5});
+
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
-                    AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                          Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-                    AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                          Field(&Storage::ImportDependency::importDependencies,
-                                ElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2})))),
-                    AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                          Field(&Storage::ImportDependency::importDependencies,
-                                UnorderedElementsAre(
-                                    IsBasicImport("QtQuick", Storage::VersionNumber{}))))));
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                          Field(&Storage::ImportDependency::dependencies,
+                                ElementsAre(IsImport("Qml", Storage::VersionNumber{2})))),
+                    AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependecies)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto importSourceIdQmlBase = sourcePathCache.sourceId("/path/QmlBase");
     importDependencies.push_back(
-        Storage::ImportDependency{"QmlBase", Storage::VersionNumber{2}, importSourceId1, {}});
-    importDependencies[1].importDependencies.push_back(
-        Storage::ImportDependency{"QmlBase", Storage::VersionNumber{2}});
+        Storage::ImportDependency{"QmlBase", Storage::VersionNumber{2}, importSourceIdQmlBase});
+    importDependencies[1].dependencies.push_back(Storage::Import{"QmlBase", Storage::VersionNumber{2}});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({importDependencies[1], importDependencies[3]},
+                        {},
+                        {},
+                        {importSourceId2, importSourceIdQmlBase});
 
     ASSERT_THAT(
         storage.fetchAllImports(),
         UnorderedElementsAre(
-            AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("QmlBase", Storage::VersionNumber{2}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("QmlBase", Storage::VersionNumber{2})))),
-            AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("QtQuick", Storage::VersionNumber{}))))));
+            AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                  Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+            AllOf(IsImportDependency("QmlBase", Storage::VersionNumber{2}, importSourceIdQmlBase),
+                  Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+            AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                  Field(&Storage::ImportDependency::dependencies,
+                        UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                             IsImport("QmlBase", Storage::VersionNumber{2})))),
+            AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                  Field(&Storage::ImportDependency::dependencies,
+                        UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                             IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependeciesWithDifferentVersionNumber)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceId1, {}});
-    importDependencies[1].importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}});
+        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceIdQml3, {}});
+    importDependencies[1].dependencies.push_back(Storage::Import{"Qml", Storage::VersionNumber{3}});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({importDependencies[1], importDependencies[3]},
+                        {},
+                        {},
+                        {importSourceId2, importSourceIdQml3});
 
-    ASSERT_THAT(
-        storage.fetchAllImports(),
-        UnorderedElementsAre(
-            AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("Qml", Storage::VersionNumber{3}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("Qml", Storage::VersionNumber{3})))),
-            AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("QtQuick", Storage::VersionNumber{}))))));
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{3}, importSourceIdQml3),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("Qml", Storage::VersionNumber{3})))),
+                    AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsHighestVersionIfNoVersionIsSupplied)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceId1, {}});
-    importDependencies[1].importDependencies.push_back(Storage::ImportDependency{"Qml"});
+        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceIdQml3, {}});
+    importDependencies[1].dependencies.push_back(Storage::Import{"Qml"});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({importDependencies[1], importDependencies[3]},
+                        {},
+                        {},
+                        {importSourceId2, importSourceIdQml3});
 
-    ASSERT_THAT(
-        storage.fetchAllImports(),
-        UnorderedElementsAre(
-            AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("Qml", Storage::VersionNumber{3}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("Qml", Storage::VersionNumber{3})))),
-            AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("QtQuick", Storage::VersionNumber{}))))));
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{3}, importSourceIdQml3),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("Qml", Storage::VersionNumber{3})))),
+                    AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsOnlyTheHighestDependency)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto importSourceIdQml1 = sourcePathCache.sourceId("/path/Qml.1");
     importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{1}, importSourceId1, {}});
-    importDependencies[1].importDependencies.push_back(Storage::ImportDependency{"Qml"});
+        Storage::ImportDependency{"Qml", Storage::VersionNumber{1}, importSourceIdQml1, {}});
+    importDependencies[1].dependencies.push_back(Storage::Import{"Qml"});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({importDependencies[1], importDependencies[3]},
+                        {},
+                        {},
+                        {importSourceId2, importSourceIdQml1});
 
-    ASSERT_THAT(
-        storage.fetchAllImports(),
-        UnorderedElementsAre(
-            AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("Qml", Storage::VersionNumber{1}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2})))),
-            AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("QtQuick", Storage::VersionNumber{}))))));
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{1}, importSourceIdQml1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2})))),
+                    AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyRemoveDuplicateDependencies)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceId1, {}});
-    importDependencies[2].importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}});
-    importDependencies[2].importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{2}});
-    importDependencies[2].importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}});
-    importDependencies[2].importDependencies.push_back(
-        Storage::ImportDependency{"Qml", Storage::VersionNumber{2}});
+        Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceIdQml3});
+    importDependencies[2].dependencies.push_back(Storage::Import{"Qml", Storage::VersionNumber{3}});
+    importDependencies[2].dependencies.push_back(Storage::Import{"Qml", Storage::VersionNumber{2}});
+    importDependencies[2].dependencies.push_back(Storage::Import{"Qml", Storage::VersionNumber{3}});
+    importDependencies[2].dependencies.push_back(Storage::Import{"Qml", Storage::VersionNumber{2}});
 
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({importDependencies[2], importDependencies[3]},
+                        {},
+                        {},
+                        {importSourceId5, importSourceIdQml3});
 
-    ASSERT_THAT(
-        storage.fetchAllImports(),
-        UnorderedElementsAre(
-            AllOf(IsImport("Qml", Storage::VersionNumber{2}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("Qml", Storage::VersionNumber{3}, importSourceId1),
-                  Field(&Storage::ImportDependency::importDependencies, IsEmpty())),
-            AllOf(IsImport("QtQuick", Storage::VersionNumber{}, importSourceId2),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2})))),
-            AllOf(IsImport("/path/to", Storage::VersionNumber{}, SourceId{}),
-                  Field(&Storage::ImportDependency::importDependencies,
-                        UnorderedElementsAre(IsBasicImport("Qml", Storage::VersionNumber{2}),
-                                             IsBasicImport("Qml", Storage::VersionNumber{3}),
-                                             IsBasicImport("QtQuick", Storage::VersionNumber{}))))));
+    ASSERT_THAT(storage.fetchAllImports(),
+                UnorderedElementsAre(
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{2}, importSourceId1),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("Qml", Storage::VersionNumber{3}, importSourceIdQml3),
+                          Field(&Storage::ImportDependency::dependencies, IsEmpty())),
+                    AllOf(IsImportDependency("QtQuick", Storage::VersionNumber{}, importSourceId2),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2})))),
+                    AllOf(IsImportDependency("/path/to", Storage::VersionNumber{}, importSourceId5),
+                          Field(&Storage::ImportDependency::dependencies,
+                                UnorderedElementsAre(IsImport("Qml", Storage::VersionNumber{2}),
+                                                     IsImport("Qml", Storage::VersionNumber{3}),
+                                                     IsImport("QtQuick", Storage::VersionNumber{}))))));
 }
 
 TEST_F(ProjectStorageSlowTest, RemovingImportRemovesDependentTypesToo)
@@ -2377,7 +2460,7 @@ TEST_F(ProjectStorageSlowTest, RemovingImportRemovesDependentTypesToo)
     Storage::ImportDependencies importDependencies{createImportDependencies()};
     importDependencies.pop_back();
     importDependencies.pop_back();
-    storage.synchronize(importDependencies, {}, {}, {});
+    storage.synchronize({}, {}, {}, {importSourceId2, importSourceId5});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(importId1,

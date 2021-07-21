@@ -71,6 +71,11 @@ public:
         return first.version == second.version;
     }
 
+    friend bool operator!=(VersionNumber first, VersionNumber second) noexcept
+    {
+        return !(first == second);
+    }
+
 public:
     int version = -1;
 };
@@ -545,11 +550,11 @@ class ImportDependency : public Import
 {
 public:
     explicit ImportDependency(Utils::SmallStringView name,
-                              VersionNumber version = VersionNumber{},
-                              SourceId sourceId = SourceId{},
+                              VersionNumber version,
+                              SourceId sourceId,
                               Imports importDependencies = {})
         : Import(name, version)
-        , importDependencies{std::move(importDependencies)}
+        , dependencies{std::move(importDependencies)}
         , sourceId{sourceId}
     {}
 
@@ -561,14 +566,12 @@ public:
     friend bool operator==(const ImportDependency &first, const ImportDependency &second)
     {
         return static_cast<const Import &>(first) == static_cast<const Import &>(second)
-               && first.sourceId == second.sourceId
-               && first.importDependencies == second.importDependencies;
+               && first.sourceId == second.sourceId && first.dependencies == second.dependencies;
     }
 
 public:
-    Imports importDependencies;
+    Imports dependencies;
     SourceId sourceId;
-    ImportId importId;
 };
 
 using ImportDependencies = std::vector<ImportDependency>;
@@ -576,11 +579,10 @@ using ImportDependencies = std::vector<ImportDependency>;
 class ImportView
 {
 public:
-    explicit ImportView(Utils::SmallStringView name, int version, int sourceId, long long importId)
+    explicit ImportView(Utils::SmallStringView name, int version, int sourceId)
         : name{name}
         , version{version}
         , sourceId{sourceId}
-        , importId{importId}
     {}
 
     friend bool operator==(const ImportView &first, const ImportView &second)
@@ -593,7 +595,6 @@ public:
     Utils::SmallStringView name;
     VersionNumber version;
     SourceId sourceId;
-    ImportId importId;
 };
 
 } // namespace QmlDesigner::Storage
