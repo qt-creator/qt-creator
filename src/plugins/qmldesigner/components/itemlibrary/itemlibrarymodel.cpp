@@ -347,7 +347,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                         importSection = importHash[entry.requiredImport()];
 
                     }
-                } else if (catName == "My Quick3D Components") {
+                } else if (catName == ItemLibraryImport::quick3DAssetsTitle()) {
                     importSection = importHash[ItemLibraryImport::quick3DAssetsTitle()];
                 } else {
                     if (catName.startsWith("Qt Quick - "))
