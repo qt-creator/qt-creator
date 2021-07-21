@@ -476,7 +476,8 @@ class HeaderPathFilterTest
 public:
     HeaderPathFilterTest() : project({}, Utils::FilePath::fromString("test"))
     {
-        const auto headerPaths = {HeaderPath{"", HeaderPathType::BuiltIn},
+        const auto headerPaths = HeaderPaths{
+                                  HeaderPath{"", HeaderPathType::BuiltIn},
                                   HeaderPath{"/builtin_path", HeaderPathType::BuiltIn},
                                   HeaderPath{"/system_path", HeaderPathType::System},
                                   HeaderPath{"/framework_path", HeaderPathType::Framework},
