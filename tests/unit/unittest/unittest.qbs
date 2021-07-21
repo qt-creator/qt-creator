@@ -86,7 +86,6 @@ Project {
                         "CLANGTOOLS_STATIC_LIBRARY",
                         "CPPTOOLS_STATIC_LIBRARY",
                         "DEBUGGER_STATIC_LIBRARY",
-                        "PROJECTEXPLORER_STATIC_LIBRARY",
                         "UNIT_TESTS",
                         "DONT_CHECK_MESSAGE_COUNTER",
                         'QTC_RESOURCE_DIR="' + path + "/../../../share/qtcreator" + '"',
@@ -223,7 +222,6 @@ Project {
             "sqlitewritestatementmock.cpp",
             "sqlitewritestatementmock.h",
             "sqlstatementbuilder-test.cpp",
-            "task.cpp",
             "unittest-utility-functions.h",
             "unittests-main.cpp",
             "utf8-test.cpp",
@@ -481,15 +479,6 @@ Project {
                 "clangtoolsdiagnostic.h",
                 "clangtoolslogfilereader.cpp",
                 "clangtoolslogfilereader.h",
-            ]
-        }
-
-        Group {
-            name: "sources from ProjectExplorer"
-            prefix: "../../../src/plugins/projectexplorer/"
-            files: [
-                "projectmacro.cpp",
-                "projectmacro.h",
             ]
         }
 

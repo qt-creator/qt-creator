@@ -80,7 +80,6 @@ add_qtc_test(unittest GTEST
     sqliteindex-test.cpp
     sqliteteststatement.h
     sqlitetransaction-test.cpp
-    task.cpp
     tokenprocessor-test.cpp
     unittests-main.cpp
     unittest-utility-functions.h
@@ -424,13 +423,6 @@ extend_qtc_test(unittest
   DEFINES CPPTOOLS_STATIC_LIBRARY
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
-)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/projectexplorer
-  DEFINES PROJECTEXPLORER_STATIC_LIBRARY
-  SOURCES
-    projectmacro.cpp projectmacro.h
 )
 
 extend_qtc_test(unittest
