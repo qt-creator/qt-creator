@@ -314,6 +314,7 @@ public:
 
     void tryCreateLocalFileAccess();
 
+    void startContainer();
     void stopCurrentContainer();
     void fetchSystemEnviroment();
 
@@ -778,11 +779,8 @@ void DockerDevicePrivate::stopCurrentContainer()
     proc.runBlocking();
 }
 
-void DockerDevicePrivate::tryCreateLocalFileAccess()
+void DockerDevicePrivate::startContainer()
 {
-    if (!m_container.isEmpty() || m_accessible == NoDaemon)
-        return;
-
     QString tempFileName;
 
     {
@@ -811,6 +809,7 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     dockerRun.addArg("/bin/sh");
 
     LOG("RUNNING: " << dockerRun.toUserOutput());
+    QTC_ASSERT(!m_shell, delete m_shell);
     m_shell = new QtcProcess;
     m_shell->setCommand(dockerRun);
     connect(m_shell, &QtcProcess::finished, this, [this] {
@@ -858,6 +857,14 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         qApp->processEvents(); // FIXME turn this for-loop into QEventLoop
         QThread::msleep(100);
     }
+}
+
+void DockerDevicePrivate::tryCreateLocalFileAccess()
+{
+    if (!m_container.isEmpty() || m_accessible == NoDaemon)
+        return;
+
+    startContainer();
 
     QtcProcess proc;
     proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", m_container}});
