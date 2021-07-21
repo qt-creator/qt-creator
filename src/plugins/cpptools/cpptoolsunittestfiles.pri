@@ -5,9 +5,7 @@ shared {
 }
 
 HEADERS += \
-    $$PWD/cppprojectfile.h \
-    $$PWD/senddocumenttracker.h
+    $$PWD/cppprojectfile.h
 
 SOURCES += \
-    $$PWD/cppprojectfile.cpp \
-    $$PWD/senddocumenttracker.cpp
+    $$PWD/cppprojectfile.cpp

@@ -207,7 +207,6 @@ extend_qtc_test(unittest
     fixit-test.cpp
     gtest-clang-printing.cpp gtest-clang-printing.h
     readexporteddiagnostics-test.cpp
-    senddocumenttracker-test.cpp
     skippedsourceranges-test.cpp
     sourcelocation-test.cpp
     sourcerange-test.cpp
@@ -425,7 +424,6 @@ extend_qtc_test(unittest
   DEFINES CPPTOOLS_STATIC_LIBRARY
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
-    senddocumenttracker.cpp senddocumenttracker.h
 )
 
 extend_qtc_test(unittest

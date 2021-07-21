@@ -142,7 +142,6 @@ SOURCES += \
     fixit-test.cpp \
     gtest-clang-printing.cpp \
     highlightingresultreporter-test.cpp \
-    senddocumenttracker-test.cpp \
     skippedsourceranges-test.cpp \
     sourcelocation-test.cpp \
     sourcerange-test.cpp \

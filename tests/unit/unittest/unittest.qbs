@@ -277,7 +277,6 @@ Project {
                 "gtest-clang-printing.h",
                 "highlightingresultreporter-test.cpp",
                 "readexporteddiagnostics-test.cpp",
-                "senddocumenttracker-test.cpp",
                 "skippedsourceranges-test.cpp",
                 "sourcelocation-test.cpp",
                 "sourcerange-test.cpp",
@@ -470,8 +469,6 @@ Project {
             files: [
                 "cppprojectfile.cpp",
                 "cppprojectfile.h",
-                "senddocumenttracker.cpp",
-                "senddocumenttracker.h",
             ]
         }
 

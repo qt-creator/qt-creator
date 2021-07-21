@@ -261,6 +261,25 @@ private slots:
     void test_projectFileCategorizer_objectiveCxx();
     void test_projectFileCategorizer_mixedCAndCxx();
     void test_projectFileCategorizer_ambiguousHeaderOnly();
+
+    void test_documentTracker_defaultLastSentRevision();
+    void test_documentTracker_setRevision();
+    void test_documentTracker_setLastCompletionPosition();
+    void test_documentTracker_applyContentChange();
+    void test_documentTracker_dontSendCompletionIfPositionIsEqual();
+    void test_documentTracker_sendCompletionIfPositionIsDifferent();
+    void test_documentTracker_sendCompletionIfChangeIsBeforeCompletionPositionAndPositionIsEqual();
+    void test_documentTracker_dontSendCompletionIfChangeIsAfterCompletionPositionAndPositionIsEqual();
+    void test_documentTracker_dontSendRevisionIfRevisionIsEqual();
+    void test_documentTracker_sendRevisionIfRevisionIsDifferent();
+    void test_documentTracker_dontSendRevisionWithDefaults();
+    void test_documentTracker_dontSendIfRevisionIsDifferentAndCompletionPositionIsEqualAndNoContentChange();
+    void test_documentTracker_dontSendIfRevisionIsDifferentAndCompletionPositionIsDifferentAndNoContentChange();
+    void test_documentTracker_dontSendIfRevisionIsEqualAndCompletionPositionIsDifferentAndNoContentChange();
+    void test_documentTracker_sendIfChangeIsBeforeCompletionAndPositionIsEqualAndRevisionIsDifferent();
+    void test_documentTracker_dontSendIfChangeIsAfterCompletionPositionAndRevisionIsDifferent();
+    void test_documentTracker_sendIfChangeIsBeforeCompletionPositionAndRevisionIsDifferent();
+    void test_documentTracker_resetChangedContentStartPositionIfLastRevisionIsSet();
 #endif
 
 private:
