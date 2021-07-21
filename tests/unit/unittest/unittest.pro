@@ -88,7 +88,6 @@ SOURCES += \
     processcreator-test.cpp \
     mocktimer.cpp \
     task.cpp \
-    compilationdatabaseutils-test.cpp \
     sqlitecolumn-test.cpp \
     sqlitedatabasebackend-test.cpp \
     sqlitedatabase-test.cpp \

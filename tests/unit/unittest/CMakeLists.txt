@@ -412,17 +412,6 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/compilationdatabaseprojectmanager
-  SOURCES
-    compilationdatabaseutils.cpp compilationdatabaseutils.h
-)
-
-extend_qtc_test(unittest
-  SOURCES
-    compilationdatabaseutils-test.cpp
-)
-
-extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/coreplugin
   DEFINES CORE_STATIC_LIBRARY
   SOURCES
@@ -437,7 +426,6 @@ extend_qtc_test(unittest
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
     senddocumenttracker.cpp senddocumenttracker.h
-    projectpart.cpp projectpart.h
 )
 
 extend_qtc_test(unittest

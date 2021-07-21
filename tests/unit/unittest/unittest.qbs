@@ -169,7 +169,6 @@ Project {
             "clientserverinprocess-test.cpp",
             "clientserveroutsideprocess-test.cpp",
             "compare-operators.h",
-            "compilationdatabaseutils-test.cpp",
             "conditionally-disabled-tests.h",
             "createtablesqlstatementbuilder-test.cpp",
             "dummyclangipcclient.h",
@@ -471,8 +470,6 @@ Project {
             files: [
                 "cppprojectfile.cpp",
                 "cppprojectfile.h",
-                "projectpart.cpp",
-                "projectpart.h",
                 "senddocumenttracker.cpp",
                 "senddocumenttracker.h",
             ]
@@ -487,15 +484,6 @@ Project {
                 "clangtoolsdiagnostic.h",
                 "clangtoolslogfilereader.cpp",
                 "clangtoolslogfilereader.h",
-            ]
-        }
-
-        Group {
-            name: "sources from clangdbpm"
-            prefix: "../../../src/plugins/compilationdatabaseprojectmanager/"
-            files: [
-                "compilationdatabaseutils.cpp",
-                "compilationdatabaseutils.h",
             ]
         }
 

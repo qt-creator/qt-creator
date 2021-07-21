@@ -11,7 +11,6 @@ include($$PWD/../../../src/plugins/coreplugin/corepluginunittestfiles.pri)
 include($$PWD/../../../src/plugins/projectexplorer/projectexplorerunittestfiles.pri)
 include($$PWD/../../../src/plugins/cpptools/cpptoolsunittestfiles.pri)
 include($$PWD/../../../src/plugins/debugger/debuggerunittestfiles.pri)
-include($$PWD/../../../src/plugins/compilationdatabaseprojectmanager/compilationdatabaseunittestfiles.pri)
 include($$PWD/../../../src/plugins/qmldesigner/qmldesignerunittestfiles.pri)
 !isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):include(cplusplus.pri)
 !isEmpty(LLVM_VERSION) {

@@ -31,6 +31,7 @@
 namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 
 namespace CompilationDatabaseProjectManager {
+namespace Internal {
 
 class CompilationDatabaseTests : public QObject
 {
@@ -44,6 +45,15 @@ private slots:
     void cleanupTestCase();
     void testProject();
     void testProject_data();
+    void testFilterEmptyFlags();
+    void testFilterFromFilename();
+    void testFilterArguments();
+    void testSplitFlags();
+    void testSplitFlagsWithEscapedQuotes();
+    void testFilterCommand();
+    void testFileKindDifferentFromExtension();
+    void testFileKindDifferentFromExtension2();
+    void testSkipOutputFiles();
 
 private:
     void addTestRow(const QByteArray &relativeFilePath);
@@ -51,4 +61,5 @@ private:
     std::unique_ptr<CppTools::Tests::TemporaryCopiedDir> m_tmpDir;
 };
 
+} // namespace Internal
 } // namespace CompilationDatabaseProjectManager
