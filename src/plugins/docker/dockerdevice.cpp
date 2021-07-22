@@ -1200,7 +1200,7 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
     // We are expecting this only to be called in a context of build directories or similar.
     // Chicken out in some cases that _might_ be user code errors.
     QTC_ASSERT(path.startsWith('/'), return false);
-    const int levelsNeeded = path.startsWith("/home/" ? 4 : 3);
+    const int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
     QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
 
     return d->runInContainer({"rm", {"-rf", "--", path}});
