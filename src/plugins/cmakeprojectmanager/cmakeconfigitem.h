@@ -43,8 +43,6 @@ class Kit;
 
 namespace CMakeProjectManager {
 
-class CMakeConfig;
-
 class CMAKE_EXPORT CMakeConfigItem
 {
 public:
@@ -79,6 +77,8 @@ public:
     QByteArray documentation;
     QStringList values;
 };
+
+uint qHash(const CMakeConfigItem &it);  // needed for MSVC
 
 class CMAKE_EXPORT CMakeConfig : public QList<CMakeConfigItem>
 {
