@@ -45,6 +45,7 @@ Label 2.0 Label.qml
 LineEdit 2.0 LineEdit.qml
 LinkIndicator2D 2.0 LinkIndicator2D.qml
 ListViewComboBox 2.0 ListViewComboBox.qml
+LuminanceSlider 2.0 LuminanceSlider.qml
 MarginSection 2.0 MarginSection.qml
 MultiIconLabel 2.0 MultiIconLabel.qml
 OpacitySlider 2.0 OpacitySlider.qml

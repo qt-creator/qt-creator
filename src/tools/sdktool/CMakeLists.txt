@@ -79,6 +79,7 @@ extend_qtc_executable(sdktool
   DEFINES QTCREATOR_UTILS_STATIC_LIB
   SOURCES
     environment.cpp environment.h
+    filepath.cpp filepath.h
     fileutils.cpp fileutils.h
     hostosinfo.cpp hostosinfo.h
     namevaluedictionary.cpp namevaluedictionary.h

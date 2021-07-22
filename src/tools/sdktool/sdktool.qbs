@@ -70,6 +70,7 @@ QtcTool {
         files: [
             "commandline.cpp", "commandline.h",
             "environment.cpp", "environment.h",
+            "filepath.cpp", "filepath.h",
             "fileutils.cpp", "fileutils.h",
             "hostosinfo.cpp", "hostosinfo.h",
             "namevaluedictionary.cpp", "namevaluedictionary.h",

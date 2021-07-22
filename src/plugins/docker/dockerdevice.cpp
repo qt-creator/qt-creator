@@ -69,6 +69,8 @@
 #include <QHeaderView>
 #include <QLoggingCategory>
 #include <QPushButton>
+#include <QRandomGenerator>
+#include <QRegularExpression>
 #include <QTextBrowser>
 #include <QToolButton>
 #include <QThread>
@@ -304,9 +306,11 @@ public:
         });
     }
 
-    ~DockerDevicePrivate() { delete m_shell; }
+    ~DockerDevicePrivate() { stopCurrentContainer(); }
 
     bool runInContainer(const CommandLine &cmd) const;
+    bool runInShell(const CommandLine &cmd) const;
+    QString outputForRunInShell(const CommandLine &cmd) const;
 
     void tryCreateLocalFileAccess();
 
@@ -318,6 +322,7 @@ public:
 
     // For local file access
     QPointer<QtcProcess> m_shell;
+    mutable QMutex m_shellMutex;
     QString m_container;
     QString m_mergedDir;
     QFileSystemWatcher m_mergedDirWatcher;
@@ -359,12 +364,15 @@ public:
         auto daemonStateLabel = new QLabel(tr("Daemon state:"));
         m_daemonReset = new QToolButton;
         m_daemonReset->setIcon(Icons::INFO.icon());
-        m_daemonReset->setToolTip(tr("Daemon state not evaluated."));
+        m_daemonReset->setToolTip(tr("Clear detected daemon state. "
+            "It will be automatically re-evaluated next time an access is needed."));
+
+        m_daemonState = new QLabel(tr("Daemon state not evaluated."));
 
         connect(m_daemonReset, &QToolButton::clicked, this, [this, dockerDevice] {
             dockerDevice->resetDaemonState();
             m_daemonReset->setIcon(Icons::INFO.icon());
-            m_daemonReset->setToolTip(tr("Daemon state not evaluated."));
+            m_daemonState->setText(tr("Daemon state not evaluated."));
         });
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
@@ -403,10 +411,11 @@ public:
 
             if (!dockerDevice->isDaemonRunning()) {
                 logView->append(tr("Docker daemon appears to be not running."));
-                m_daemonReset->setToolTip(tr("Daemon not running. Push to reset the state."));
+                m_daemonState->setText(tr("Docker daemon not running."));
                 m_daemonReset->setIcon(Icons::CRITICAL.icon());
             } else {
-                m_daemonReset->setToolTip(tr("Docker daemon running."));
+                logView->append(tr("Docker daemon appears to be running."));
+                m_daemonState->setText(tr("Docker daemon running."));
                 m_daemonReset->setIcon(Icons::OK.icon());
 
             }
@@ -427,7 +436,7 @@ public:
         Form {
             idLabel, m_idLineEdit, Break(),
             repoLabel, m_repoLineEdit, Break(),
-            daemonStateLabel, m_daemonReset, Break(),
+            daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
             tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
@@ -445,6 +454,7 @@ private:
     QLineEdit *m_idLineEdit;
     QLineEdit *m_repoLineEdit;
     QToolButton *m_daemonReset;
+    QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
     QLineEdit *m_pathsLineEdit;
 
@@ -745,6 +755,20 @@ void DockerDevicePrivate::stopCurrentContainer()
     if (m_container.isEmpty() || m_accessible == NoDaemon)
         return;
 
+    if (m_shell) {
+        QMutexLocker l(&m_shellMutex);
+        m_shell->write("exit\n");
+        m_shell->waitForFinished(2000);
+        if (m_shell->state() == QProcess::NotRunning) {
+            LOG("Clean exit via shell");
+            m_container.clear();
+            m_mergedDir.clear();
+            delete m_shell;
+            m_shell = nullptr;
+            return;
+        }
+    }
+
     QtcProcess proc;
     proc.setCommand({"docker", {"container", "stop", m_container}});
 
@@ -1019,7 +1043,7 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-x", path}});
+    return d->runInShell({"test", {"-x", path}});
 }
 
 bool DockerDevice::isReadableFile(const FilePath &filePath) const
@@ -1033,7 +1057,7 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-r", path, "-a", "-f", path}});
+    return d->runInShell({"test", {"-r", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
@@ -1047,7 +1071,7 @@ bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-w", path, "-a", "-f", path}});
+    return d->runInShell({"test", {"-w", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
@@ -1061,7 +1085,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-r", path, "-a", "-d", path}});
+    return d->runInShell({"test", {"-r", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
@@ -1075,7 +1099,7 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-w", path, "-a", "-d", path}});
+    return d->runInShell({"test", {"-w", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isFile(const FilePath &filePath) const
@@ -1089,7 +1113,7 @@ bool DockerDevice::isFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-f", path}});
+    return d->runInShell({"test", {"-f", path}});
 }
 
 bool DockerDevice::isDirectory(const FilePath &filePath) const
@@ -1103,7 +1127,7 @@ bool DockerDevice::isDirectory(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-d", path}});
+    return d->runInShell({"test", {"-d", path}});
 }
 
 bool DockerDevice::createDirectory(const FilePath &filePath) const
@@ -1131,7 +1155,7 @@ bool DockerDevice::exists(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"test", {"-e", path}});
+    return d->runInShell({"test", {"-e", path}});
 }
 
 bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
@@ -1145,7 +1169,7 @@ bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
         return res;
     }
     const QString path = filePath.path();
-    return d->runInContainer({"touch", {path}});
+    return d->runInShell({"touch", {path}});
 }
 
 bool DockerDevice::removeFile(const FilePath &filePath) const
@@ -1172,9 +1196,15 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
         LOG("Remove recursively? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
         return res;
     }
-// Open this up only when really needed.
-//   return d->runInContainer({"rm", "-rf", {filePath.path()}});
-    return false;
+
+    const QString path = filePath.cleanPath().path();
+    // We are expecting this only to be called in a context of build directories or similar.
+    // Chicken out in some cases that _might_ be user code errors.
+    QTC_ASSERT(path.startsWith('/'), return false);
+    const int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
+    QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
+
+    return d->runInContainer({"rm", {"-rf", "--", path}});
 }
 
 bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) const
@@ -1240,8 +1270,44 @@ FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
             return {};
         return mapToGlobalPath(target);
     }
-    QTC_CHECK(false);
-    return {};
+
+    const QString output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
+    return output.isEmpty() ? FilePath() : filePath.withNewPath(output);
+}
+
+static FilePaths filterEntriesHelper(const FilePath &base,
+                                     const QStringList &entries,
+                                     const QStringList &nameFilters,
+                                     QDir::Filters filters,
+                                     QDir::SortFlags sort)
+{
+    const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
+        QRegularExpression re;
+        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+        QTC_CHECK(re.isValid());
+        return re;
+    });
+
+    const auto nameMatches = [&nameRegexps](const QString &fileName) {
+        for (const QRegularExpression &re : nameRegexps) {
+            const QRegularExpressionMatch match = re.match(fileName);
+            if (match.hasMatch())
+                return true;
+        }
+        return false;
+    };
+
+    // FIXME: Handle sort and filters. For now bark on unsupported options.
+    QTC_CHECK(filters == QDir::NoFilter);
+    QTC_CHECK(sort == QDir::NoSort);
+
+    FilePaths result;
+    for (const QString &entry : entries) {
+        if (!nameMatches(entry))
+            continue;
+        result.append(base.pathAppended(entry));
+    }
+    return result;
 }
 
 FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
@@ -1258,13 +1324,9 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
         });
     }
 
-    QtcProcess proc;
-    proc.setCommand({"ls", {"-1", "-b", "--", filePath.path()}});
-    runProcess(proc);
-    proc.waitForFinished();
-
-    QStringList entries = proc.stdOut().split('\n', Qt::SkipEmptyParts);
-    return FilePath::filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
+    const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    QStringList entries = output.split('\n', Qt::SkipEmptyParts);
+    return filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
 }
 
 QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
@@ -1291,15 +1353,35 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qi
     return output;
 }
 
-bool DockerDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
+bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     tryCreateLocalFileAccess();
     if (hasLocalFileAccess())
         return mapToLocalAccess(filePath).writeFileContents(data);
 
-    QTC_CHECK(false); // FIXME: Implement
-    return {};
+// This following would be the generic Unix solution.
+// But it doesn't pass input. FIXME: Why?
+//    QtcProcess proc;
+//    proc.setCommand({"dd", {"of=" + filePath.path()}});
+//    proc.setWriteData(data);
+//    runProcess(proc);
+//    proc.waitForFinished();
+
+    TemporaryFile tempFile("dockertransport-XXXXXX");
+    tempFile.open();
+    tempFile.write(data);
+
+    const QString tempName = tempFile.fileName();
+    tempFile.close();
+
+    CommandLine cmd{"docker", {"cp", tempName, d->m_container + ':' + filePath.path()}};
+
+    QtcProcess proc;
+    proc.setCommand(cmd);
+    proc.runBlocking();
+
+    return proc.exitCode() == 0;
 }
 
 void DockerDevice::runProcess(QtcProcess &process) const
@@ -1373,6 +1455,48 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
     const int exitCode = proc.exitCode();
     return exitCode == 0;
+}
+
+bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
+{
+    if (m_accessible == NoDaemon)
+        return false;
+    QTC_ASSERT(m_shell, return false);
+    QMutexLocker l(&m_shellMutex);
+    m_shell->readAllStandardOutput(); // clean possible left-overs
+    m_shell->write(cmd.toUserOutput().toUtf8() + "\necho $?\n");
+    m_shell->waitForReadyRead();
+    QByteArray output = m_shell->readAllStandardOutput();
+    int result = output.toInt();
+    LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
+    return result == 0;
+}
+
+// generate hex value
+static QByteArray randomHex()
+{
+    quint32 val = QRandomGenerator::global()->generate();
+    return QString::number(val, 16).toUtf8();
+}
+
+QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
+{
+    if (m_accessible == NoDaemon)
+        return {};
+    QTC_ASSERT(m_shell, return {});
+    QMutexLocker l(&m_shellMutex);
+    m_shell->readAllStandardOutput(); // clean possible left-overs
+    const QByteArray markerWithNewLine("___QC_DOCKER_" + randomHex() + "_OUTPUT_MARKER___\n");
+    m_shell->write(cmd.toUserOutput().toUtf8() + "\necho -n \"" + markerWithNewLine + "\"\n");
+    QByteArray output;
+    while (!output.endsWith(markerWithNewLine)) {
+        m_shell->waitForReadyRead();
+        output.append(m_shell->readAllStandardOutput());
+    }
+    LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
+    if (QTC_GUARD(output.endsWith(markerWithNewLine)))
+        output.chop(markerWithNewLine.size());
+    return QString::fromUtf8(output);
 }
 
 // Factory

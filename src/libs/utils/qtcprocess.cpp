@@ -554,7 +554,13 @@ void QtcProcess::start()
 {
     d->clearForRun();
 
-    QTC_CHECK(d->m_writeData.isEmpty()); // FIXME: Use it.
+    if (!d->m_writeData.isEmpty()) {
+        connect(d->m_process, &ProcessInterface::started, this, [this] {
+            const qint64 bytesWritten = write(d->m_writeData);
+            QTC_CHECK(bytesWritten == d->m_writeData.size());
+            closeWriteChannel(); // FIXME: Is this good?
+        });
+    }
 
     if (d->m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
@@ -1219,6 +1225,7 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
     d->m_writeData = writeData;
+    setKeepWriteChannelOpen();
 }
 
 #ifdef QT_GUI_LIB
@@ -1231,11 +1238,9 @@ static bool isGuiThread()
 void QtcProcess::runBlocking()
 {
     // FIXME: Implement properly
+
     if (d->m_commandLine.executable().needsDevice()) {
-
-        // writeData ?
         QtcProcess::start();
-
         waitForFinished();
         return;
     };

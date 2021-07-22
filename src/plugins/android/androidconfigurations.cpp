@@ -1066,13 +1066,20 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
         if (!serialNumber.isEmpty())
             break;
     }
+
+    const AndroidDeviceInfo defaultDevice = AndroidDeviceDialog::defaultDeviceInfo(serialNumber);
+    if (defaultDevice.isValid())
+        return defaultDevice;
+
     AndroidDeviceDialog dialog(apiLevel, abis, serialNumber, Core::ICore::dialogParent());
-    AndroidDeviceInfo info = dialog.device();
+    AndroidDeviceInfo info = dialog.showAndGetSelectedDevice();
     if (dialog.saveDeviceSelection() && info.isValid()) {
-        const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?
+        const QString newSerialNumber = info.type == AndroidDeviceInfo::Hardware ?
                     info.serialNumber : info.avdname;
-        if (!serialNumber.isEmpty())
-            AndroidConfigurations::setDefaultDevice(project, AndroidManager::devicePreferredAbi(info.cpuAbi, abis), serialNumber);
+        if (!newSerialNumber.isEmpty()) {
+            const QString preferredAbi = AndroidManager::devicePreferredAbi(info.cpuAbi, abis);
+            AndroidConfigurations::setDefaultDevice(project, preferredAbi, newSerialNumber);
+        }
     }
     return info;
 }

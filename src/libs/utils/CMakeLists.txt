@@ -52,6 +52,7 @@ add_qtc_library(Utils
     filecrumblabel.cpp filecrumblabel.h
     fileinprojectfinder.cpp fileinprojectfinder.h
     filenamevalidatinglineedit.cpp filenamevalidatinglineedit.h
+    filepath.cpp filepath.h
     filesearch.cpp filesearch.h
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h

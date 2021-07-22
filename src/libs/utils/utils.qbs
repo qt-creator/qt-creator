@@ -115,6 +115,8 @@ Project {
             "fileinprojectfinder.h",
             "filenamevalidatinglineedit.cpp",
             "filenamevalidatinglineedit.h",
+            "filepath.cpp",
+            "filepath.h",
             "filesearch.cpp",
             "filesearch.h",
             "filesystemwatcher.cpp",
