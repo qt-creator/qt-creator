@@ -43,6 +43,16 @@
 
 #include <enumeration.h>
 
+#ifndef QMLDESIGNER_TEST
+#include <projectexplorer/kit.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
+#endif
+
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -793,6 +803,8 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 {
     QList<Import> existingImports = m_rewriterView->model()->imports();
 
+    m_hasVersionlessImport = false;
+
     for (AST::UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
         auto import = AST::cast<AST::UiImport *>(iter->headerItem);
         if (!import)
@@ -812,8 +824,10 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
                 differenceHandler.modelMissesImport(newImport);
         } else {
             QString importUri = toString(import->importUri);
-            if (version.isEmpty())
+            if (version.isEmpty()) {
                 version = getHighestPossibleImport(importUri);
+                m_hasVersionlessImport = true;
+            }
             const Import newImport = Import::createLibraryImport(importUri,
                                                                  version,
                                                                  as,
@@ -2099,10 +2113,49 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 
             if (supportedQtQuickVersion(import.version())) {
                 hasQtQuick = true;
+
+#ifndef QMLDESIGNER_TEST
+                auto target = ProjectExplorer::SessionManager::startupTarget();
+                if (target) {
+                    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(
+                        target->kit());
+                    if (currentQtVersion && currentQtVersion->isValid()) {
+                        const bool qt6import = import.version().startsWith("6");
+
+                        if (currentQtVersion->qtVersion().majorVersion == 5
+                            && (m_hasVersionlessImport || qt6import)) {
+                            const QmlJS::DiagnosticMessage diagnosticMessage(
+                                QmlJS::Severity::Error,
+                                SourceLocation(0, 0, 0, 0),
+                                QCoreApplication::translate(
+                                    "QmlDesigner::TextToModelMerger",
+                                    "QtQuick 6 is not supported with a Qt 5 kit."));
+                            errors->prepend(
+                                DocumentMessage(diagnosticMessage,
+                                                QUrl::fromLocalFile(m_document->fileName())));
+                        }
+                    } else {
+                        const QmlJS::DiagnosticMessage
+                            diagnosticMessage(QmlJS::Severity::Error,
+                                              SourceLocation(0, 0, 0, 0),
+                                              QCoreApplication::translate(
+                                                  "QmlDesigner::TextToModelMerger",
+                                                  "The Design Mode requires a valid Qt kit."));
+                        errors->prepend(
+                            DocumentMessage(diagnosticMessage,
+                                            QUrl::fromLocalFile(m_document->fileName())));
+                    }
+                }
+#endif
+
             } else {
-                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0),
-                                                                 QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
-                errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+                const QmlJS::DiagnosticMessage
+                    diagnosticMessage(QmlJS::Severity::Error,
+                                      SourceLocation(0, 0, 0, 0),
+                                      QCoreApplication::translate("QmlDesigner::TextToModelMerger",
+                                                                  "Unsupported QtQuick version"));
+                errors->append(DocumentMessage(diagnosticMessage,
+                                               QUrl::fromLocalFile(m_document->fileName())));
             }
         }
     }
