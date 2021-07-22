@@ -110,6 +110,33 @@ public:
     VersionNumber minor;
 };
 
+class Import
+{
+public:
+    explicit Import() = default;
+
+    explicit Import(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
+        : name{name}
+        , version{version}
+    {}
+
+    explicit Import(Utils::SmallStringView name, int version)
+        : name{name}
+        , version{version}
+    {}
+
+    friend bool operator==(const Import &first, const Import &second)
+    {
+        return first.name == second.name && first.version == second.version;
+    }
+
+public:
+    Utils::PathString name;
+    VersionNumber version;
+};
+
+using Imports = std::vector<Import>;
+
 class ExportedType
 {
 public:
@@ -126,14 +153,14 @@ class ExplicitExportedType
 {
 public:
     explicit ExplicitExportedType() = default;
-    explicit ExplicitExportedType(Utils::SmallStringView name, ImportId importId)
+    explicit ExplicitExportedType(Utils::SmallStringView name, Import import)
         : name{name}
-        , importId{importId}
+        , import{std::move(import)}
     {}
 
 public:
     Utils::SmallString name;
-    ImportId importId;
+    Import import;
 };
 
 using ExportedTypes = std::vector<ExportedType>;
@@ -436,7 +463,7 @@ class Type
 {
 public:
     explicit Type() = default;
-    explicit Type(ImportId importId,
+    explicit Type(Import import,
                   Utils::SmallStringView typeName,
                   TypeName prototype,
                   TypeAccessSemantics accessSemantics,
@@ -457,23 +484,25 @@ public:
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
-        , importId{importId}
+        , import{std::move(import)}
     {}
 
-    explicit Type(long long importId,
+    explicit Type(Utils::SmallStringView importName,
+                  int importVersion,
                   Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
+        , import{importName, importVersion}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
-        , importId{importId}
 
     {}
 
-    explicit Type(long long importId,
+    explicit Type(Utils::SmallStringView importName,
+                  int importVersion,
                   Utils::SmallStringView typeName,
                   long long typeId,
                   Utils::SmallStringView prototype,
@@ -481,10 +510,10 @@ public:
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
+        , import{importName, importVersion}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
-        , importId{importId}
     {}
 
 public:
@@ -496,39 +525,14 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
+    Import import;
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;
-    ImportId importId;
     bool isCreatable = false;
 };
 
 using Types = std::vector<Type>;
-
-class Import
-{
-public:
-    explicit Import(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
-        : name{name}
-        , version{version}
-    {}
-
-    explicit Import(Utils::SmallStringView name, int version)
-        : name{name}
-        , version{version}
-    {}
-
-    friend bool operator==(const Import &first, const Import &second)
-    {
-        return first.name == second.name && first.version == second.version;
-    }
-
-public:
-    Utils::PathString name;
-    VersionNumber version;
-};
-
-using Imports = std::vector<Import>;
 
 class Document
 {

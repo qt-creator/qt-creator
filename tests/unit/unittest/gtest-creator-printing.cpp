@@ -1022,7 +1022,7 @@ std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 
 std::ostream &operator<<(std::ostream &out, const ExplicitExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.name << "\"" << exportedType.importId << ")";
+    return out << "(\"" << exportedType.name << "\", " << exportedType.import << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
@@ -1033,7 +1033,7 @@ std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using Utils::operator<<;
-    return out << "(import: " << type.importId << ", typename: \"" << type.typeName
+    return out << "(import: " << type.import << ", typename: \"" << type.typeName
                << "\", prototype: " << type.prototype << ", " << type.accessSemantics
                << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
                << ", properties: " << type.propertyDeclarations
