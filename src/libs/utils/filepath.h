@@ -173,11 +173,6 @@ public:
     static void removeDuplicates(QList<FilePath> &files);
     static void sort(QList<FilePath> &files);
 
-    static QList<FilePath> filterEntriesHelper(const FilePath &base,
-                                               const QStringList &entries,
-                                               const QStringList &nameFilters,
-                                               QDir::Filters filters,
-                                               QDir::SortFlags sort);
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);

@@ -36,7 +36,6 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QOperatingSystemVersion>
-#include <QRegularExpression>
 #include <QTimer>
 #include <QUrl>
 #include <qplatformdefs.h>
