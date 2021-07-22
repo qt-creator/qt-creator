@@ -71,14 +71,18 @@ public:
 
         TypeIds deletedTypeIds;
 
-        synchronizeImports(importDependencies, deletedTypeIds, sourceIds);
-        synchronizeDocuments(documents);
+        auto sourceIdValues = Utils::transform<std::vector>(sourceIds, [](SourceId sourceId) {
+            return &sourceId;
+        });
+
+        synchronizeImports(importDependencies, deletedTypeIds, sourceIdValues);
+        synchronizeDocuments(documents, sourceIdValues);
         synchronizeTypes(types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
                          updatedAliasPropertyDeclarations);
 
-        deleteNotUpdatedTypes(updatedTypeIds, sourceIds, deletedTypeIds);
+        deleteNotUpdatedTypes(updatedTypeIds, sourceIdValues, deletedTypeIds);
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
@@ -409,20 +413,35 @@ private:
 
     void synchronizeImports(Storage::ImportDependencies &imports,
                             TypeIds &deletedTypeIds,
-                            const SourceIds &sourceIds)
+                            std::vector<int> &importIdValues)
     {
-        auto importIdValues = Utils::transform<std::vector>(sourceIds, [](SourceId sourceId) {
-            return &sourceId;
-        });
-
         synchronizeImportsAndUpdatesImportIds(imports, deletedTypeIds, importIdValues);
         synchronizeImportDependencies(createSortedImportDependecies(imports), importIdValues);
     }
 
-    void synchronizeDocuments(Storage::Documents &documents)
+    void synchronizeDocuments(Storage::Documents &documents, std::vector<int> &sourceIdValues)
     {
+        deleteDocumentImportsForDeletedDocuments(documents, sourceIdValues);
+
         for (auto &&document : documents)
             synchronizeDocumentImports(document.sourceId, document.imports);
+    }
+
+    void deleteDocumentImportsForDeletedDocuments(Storage::Documents &documents,
+                                                  const std::vector<int> &sourceIdValues)
+    {
+        const std::vector<int> documentSourceIds = Utils::transform<std::vector<int>>(
+            documents, [](const auto &document) { return &document.sourceId; });
+
+        std::vector<int> documentSourceIdsToBeDeleted;
+
+        std::set_difference(sourceIdValues.begin(),
+                            sourceIdValues.end(),
+                            documentSourceIds.begin(),
+                            documentSourceIds.end(),
+                            std::back_inserter(documentSourceIdsToBeDeleted));
+
+        deleteDocumentImportsWithSourceIdsStatement.write(Utils::span{documentSourceIdsToBeDeleted});
     }
 
     void synchronizeImportsAndUpdatesImportIds(Storage::ImportDependencies &imports,
@@ -693,7 +712,7 @@ private:
     }
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
-                               const SourceIds &sourceIds,
+                               std::vector<int> &sourceIdValues,
                                const TypeIds &deletedTypeIds)
     {
         std::vector<AliasPropertyDeclaration> relinkableAliasPropertyDeclarations;
@@ -702,10 +721,6 @@ private:
 
         auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
             return &typeId;
-        });
-
-        auto sourceIdValues = Utils::transform<std::vector>(sourceIds, [](SourceId sourceId) {
-            return &sourceId;
         });
 
         auto callback = [&](long long typeId) {
@@ -1660,7 +1675,7 @@ private:
             Sqlite::Table table;
             table.setUseIfNotExists(true);
             table.setUseWithoutRowId(true);
-            table.setName("sourceImports");
+            table.setName("documentImports");
             auto &sourceIdColumn = table.addColumn("sourceId");
             auto &importIdColumn = table.addColumn("importId");
 
@@ -1748,8 +1763,9 @@ public:
     mutable ReadStatement<1> selectTypeIdByImportIdsAndNameStatement{
         "SELECT typeId FROM types WHERE importId IN carray(?1, ?2, 'int64') AND name=?3", database};
     mutable ReadStatement<2> selectTypeIdByImportIdsFromSourceIdAndNameStatement{
-        "SELECT typeId, typeNameId FROM typeNames JOIN sourceImports USING(importId) WHERE name=?2 "
-        "AND kind=0 AND sourceImports.sourceId=?1",
+        "SELECT typeId, typeNameId FROM typeNames JOIN documentImports USING(importId) WHERE "
+        "name=?2 "
+        "AND kind=0 AND documentImports.sourceId=?1",
         database};
     mutable ReadStatement<5> selectTypeByTypeIdStatement{
         "SELECT importId, name, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId), "
@@ -1942,8 +1958,9 @@ public:
         "kind=1",
         database};
     mutable ReadStatement<2> selectTypeIdByImportIdsFromSourceIdAndExportedNameStatement{
-        "SELECT typeId, typeNameId FROM typeNames JOIN sourceImports USING(importId) WHERE name=?2 "
-        "AND kind=1 AND sourceImports.sourceId=?1",
+        "SELECT typeId, typeNameId FROM typeNames JOIN documentImports USING(importId) WHERE "
+        "name=?2 "
+        "AND kind=1 AND documentImports.sourceId=?1",
         database};
     mutable ReadStatement<2> selectTypeIdByImportIdAndExportedNameStatement{
         "SELECT typeId, typeNameId FROM typeNames WHERE importId=?1 AND name=?2 AND kind=1", database};
@@ -1956,11 +1973,13 @@ public:
         "SELECT importId FROM importIds",
         database};
     mutable ReadStatement<1> selectImportIdsForSourceIdStatement{
-        "SELECT importId FROM sourceImports WHERE sourceId=? ORDER BY importId", database};
+        "SELECT importId FROM documentImports WHERE sourceId=? ORDER BY importId", database};
     WriteStatement insertImportIdForSourceIdStatement{
-        "INSERT INTO sourceImports(sourceId, importId) VALUES (?1, ?2)", database};
+        "INSERT INTO documentImports(sourceId, importId) VALUES (?1, ?2)", database};
     WriteStatement deleteImportIdForSourceIdStatement{
-        "DELETE FROM sourceImports WHERE sourceId=?1 AND importId=?2", database};
+        "DELETE FROM documentImports WHERE sourceId=?1 AND importId=?2", database};
+    WriteStatement deleteDocumentImportsWithSourceIdsStatement{
+        "DELETE FROM documentImports WHERE sourceId=?1 IN carray(?1)", database};
     ReadStatement<1> selectPropertyDeclarationIdPrototypeChainDownStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("

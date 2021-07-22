@@ -630,11 +630,11 @@ protected:
     {
         importSourceId4 = sourcePathCache.sourceId(importPath4);
 
-        auto importDependencies = createImportDependencies();
-        importDependencies.push_back(
+        auto newImportDependencies = createImportDependencies();
+        newImportDependencies.push_back(
             Storage::ImportDependency{"Qml2", Storage::VersionNumber{3}, importSourceId4, {}});
 
-        return importDependencies;
+        return newImportDependencies;
     }
 
     void setUpImportDependenciesAndDocuments()
@@ -973,7 +973,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithMissingImportAndE
                                   TypeAccessSemantics::Reference,
                                   sourceId4,
                                   {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1});
     types[1].prototype = Storage::ExportedType{"Object2"};
 
     ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
@@ -983,7 +983,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithMissingImportAndE
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithMissingImport)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1});
 
     ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
                  QmlDesigner::TypeNameDoesNotExists);
@@ -1280,7 +1280,7 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesAddPropertyDeclarationsWithMissingImportIdsForNativeTypes)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[1]}}}, {}, {});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[1]}}}, {}, {sourceId1});
     types[0].propertyDeclarations.pop_back();
 
     ASSERT_THROW(storage.synchronize({}, {}, types, {}), QmlDesigner::TypeNameDoesNotExists);
@@ -1290,7 +1290,7 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesAddPropertyDeclarationsWithMissingImportIdsForExportedTypes)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1});
     types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Obj"};
 
     ASSERT_THROW(storage.synchronize({}, {}, types, {}), QmlDesigner::TypeNameDoesNotExists);
