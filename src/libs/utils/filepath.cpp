@@ -1279,6 +1279,15 @@ bool FilePath::renameFile(const FilePath &target) const
     return QFile::rename(path(), target.path());
 }
 
+qint64 FilePath::fileSize() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.fileSize, return false);
+        return s_deviceHooks.fileSize(*this);
+    }
+    return QFileInfo(m_data).size();
+}
+
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toString();

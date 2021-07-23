@@ -86,6 +86,7 @@ public:
     std::function<QFile::Permissions(const FilePath &)> permissions;
     std::function<OsType(const FilePath &)> osType;
     std::function<Environment(const FilePath &)> environment;
+    std::function<qint64(const FilePath &)> fileSize;
 };
 
 class QTCREATOR_UTILS_EXPORT FileUtils {

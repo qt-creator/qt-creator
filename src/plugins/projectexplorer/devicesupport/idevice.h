@@ -267,6 +267,7 @@ public:
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
+    virtual qint64 fileSize(const Utils::FilePath &filePath) const;
 
     virtual void aboutToBeRemoved() const {}
 

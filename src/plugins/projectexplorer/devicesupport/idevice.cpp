@@ -409,6 +409,12 @@ Environment IDevice::systemEnvironment() const
     return Environment::systemEnvironment();
 }
 
+qint64 IDevice::fileSize(const FilePath &filePath) const
+{
+    QTC_CHECK(false);
+    return -1;
+}
+
 IDevice::~IDevice() = default;
 
 /*!

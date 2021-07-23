@@ -1275,6 +1275,20 @@ FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
     return output.isEmpty() ? FilePath() : filePath.withNewPath(output);
 }
 
+qint64 DockerDevice::fileSize(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return -1);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        LOG("File size? " << filePath.toUserOutput() << localAccess.toUserOutput() << localAccess.fileSize());
+        return localAccess.fileSize();
+    }
+
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
+    return output.toLongLong();
+}
+
 static FilePaths filterEntriesHelper(const FilePath &base,
                                      const QStringList &entries,
                                      const QStringList &nameFilters,

@@ -99,6 +99,7 @@ public:
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     void runProcess(Utils::QtcProcess &process) const override;
+    qint64 fileSize(const Utils::FilePath &filePath) const override;
 
     Utils::Environment systemEnvironment() const override;
 

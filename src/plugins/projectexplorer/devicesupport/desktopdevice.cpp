@@ -190,6 +190,12 @@ QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
     return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
 }
 
+qint64 DesktopDevice::fileSize(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return -1);
+    return filePath.fileSize();
+}
+
 Environment DesktopDevice::systemEnvironment() const
 {
     return Environment::systemEnvironment();

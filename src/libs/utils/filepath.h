@@ -139,6 +139,7 @@ public:
     bool removeRecursively(QString *error = nullptr) const;
     bool copyFile(const FilePath &target) const;
     bool renameFile(const FilePath &target) const;
+    qint64 fileSize() const;
 
     Qt::CaseSensitivity caseSensitivity() const;
 

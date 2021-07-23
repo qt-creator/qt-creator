@@ -525,6 +525,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->systemEnvironment();
     };
 
+    deviceHooks.fileSize = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return qint64(-1));
+        return device->fileSize(filePath);
+    };
+
     FileUtils::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
