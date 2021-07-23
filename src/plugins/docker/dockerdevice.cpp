@@ -1296,6 +1296,33 @@ qint64 DockerDevice::fileSize(const FilePath &filePath) const
     return output.toLongLong();
 }
 
+QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        LOG("Permissions? " << filePath.toUserOutput() << localAccess.toUserOutput() << localAccess.permissions());
+        return localAccess.permissions();
+    }
+
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
+    const uint bits = output.toUInt(nullptr, 8);
+    QFileDevice::Permissions perm = {};
+#define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
+    BIT(0, ExeOther);
+    BIT(1, WriteOther);
+    BIT(2, ReadOther);
+    BIT(3, ExeGroup);
+    BIT(4, WriteGroup);
+    BIT(5, ReadGroup);
+    BIT(6, ExeUser);
+    BIT(7, WriteUser);
+    BIT(8, ReadUser);
+#undef BIT
+    return perm;
+}
+
 static FilePaths filterEntriesHelper(const FilePath &base,
                                      const QStringList &entries,
                                      const QStringList &nameFilters,

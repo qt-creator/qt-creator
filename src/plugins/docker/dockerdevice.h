@@ -100,6 +100,7 @@ public:
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     void runProcess(Utils::QtcProcess &process) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
+    QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;
 
     Utils::Environment systemEnvironment() const override;
 
