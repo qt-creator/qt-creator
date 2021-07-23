@@ -366,6 +366,19 @@ static void warnAboutInvalidKit()
                                                                        ).arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
+static Utils::FilePath pathForBinPuppet(ProjectExplorer::Target *target)
+{
+    if (!target || !target->kit())
+        return {};
+
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+
+    if (currentQtVersion)
+        return currentQtVersion->binPath() / Utils::HostOsInfo::withExecutableSuffix("qml2puppet");
+
+    return {};
+}
+
 void PuppetCreator::createQml2PuppetExecutableIfMissing()
 {
     m_availablePuppetType = FallbackPuppet;
@@ -387,6 +400,10 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
                 m_qml2PuppetForKitPuppetHash.insert(m_target->id(), m_availablePuppetType);
             }
         }
+    } else if (m_target->kit()->isValid()) {
+        if (pathForBinPuppet(m_target).isExecutableFile())
+            m_availablePuppetType = BinPathPuppet;
+
     }
 }
 
@@ -415,6 +432,9 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
                 + '/' + QString::fromLatin1(qtHash());
 
 #ifndef QMLDESIGNER_TEST
+    if (puppetType == BinPathPuppet)
+        return pathForBinPuppet(m_target).toFileInfo().absoluteDir().canonicalPath();
+
     return qmlPuppetFallbackDirectory(m_designerSettings);
 #else
     return QString();
@@ -461,13 +481,14 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     static const QString pathSep = Utils::HostOsInfo::pathListSeparator();
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (QTC_GUARD(m_target)) {
-        if (!useOnlyFallbackPuppet())
+        if (!useOnlyFallbackPuppet() || m_availablePuppetType == BinPathPuppet) {
             m_target->kit()->addToBuildEnvironment(environment);
-        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
-        if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
-            // Update PATH to include QT_HOST_BINS
-            const Utils::FilePath qtBinPath = qt->hostBinPath();
-            environment.prependOrSetPath(qtBinPath.toString());
+            const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+            if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
+                // Update PATH to include QT_HOST_BINS
+                const Utils::FilePath qtBinPath = qt->hostBinPath();
+                environment.prependOrSetPath(qtBinPath.toString());
+            }
         }
     }
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
