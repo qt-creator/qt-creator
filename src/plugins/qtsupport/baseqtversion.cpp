@@ -1901,7 +1901,8 @@ FilePath BaseQtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProStri
 
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
 
-    if (HostOsInfo::isWindowsHost()) {
+    OsType osInfo = mkspecFullPath.osType();
+    if (osInfo == OsTypeWindows) {
         if (!qt5) {
             QFile f2(mkspecFullPath.toString() + "/qmake.conf");
             if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
@@ -1931,7 +1932,7 @@ FilePath BaseQtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProStri
             }
         }
     } else {
-        if (HostOsInfo::isMacHost()) {
+        if (osInfo == OsTypeMac) {
             QFile f2(mkspecFullPath.toString() + "/qmake.conf");
             if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
                 while (!f2.atEnd()) {
