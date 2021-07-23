@@ -46,10 +46,10 @@ const QList<IDocumentFactory *> IDocumentFactory::allDocumentFactories()
     return g_documentFactories;
 }
 
-IDocument *IDocumentFactory::open(const QString &filename)
+IDocument *IDocumentFactory::open(const Utils::FilePath &filePath)
 {
     QTC_ASSERT(m_opener, return nullptr);
-    return m_opener(filename);
+    return m_opener(filePath);
 }
 
 } // namespace Core

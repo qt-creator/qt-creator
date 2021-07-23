@@ -892,7 +892,7 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
         const QFileInfo fi(workingDir, fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
-            IDocument *document = documentFactory->open(absoluteFilePath);
+            IDocument *document = documentFactory->open(FilePath::fromString(absoluteFilePath));
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)
                     return res;

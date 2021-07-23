@@ -209,8 +209,8 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     TaskHub::addCategory(Constants::TASKLISTTASK_ID, tr("My Tasks"));
 
     d->m_fileFactory.addMimeType(QLatin1String("text/x-tasklist"));
-    d->m_fileFactory.setOpener([this](const QString &fileName) {
-        return openTasks(FilePath::fromString(fileName));
+    d->m_fileFactory.setOpener([this](const FilePath &filePath) {
+        return openTasks(filePath);
     });
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,

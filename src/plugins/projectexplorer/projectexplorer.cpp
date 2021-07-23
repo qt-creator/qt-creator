@@ -2081,12 +2081,15 @@ void ProjectExplorerPlugin::extensionsInitialized()
     const QString filterSeparator = QLatin1String(";;");
     QStringList filterStrings;
 
-    dd->m_documentFactory.setOpener([](QString fileName) {
-        const QFileInfo fi(fileName);
-        if (fi.isDir())
-            fileName = FolderNavigationWidget::projectFilesInDirectory(fi.absoluteFilePath()).value(0, fileName);
+    dd->m_documentFactory.setOpener([](FilePath filePath) {
+        if (filePath.isDir()) {
+            const QStringList files =
+                FolderNavigationWidget::projectFilesInDirectory(filePath.absoluteFilePath().toString());
+            if (!files.isEmpty())
+                filePath = FilePath::fromString(files.front());
+        }
 
-        OpenProjectResult result = ProjectExplorerPlugin::openProject(FilePath::fromString(fileName));
+        OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
         if (!result)
             showOpenProjectError(result);
         return nullptr;

@@ -33,6 +33,8 @@
 
 #include <functional>
 
+namespace Utils { class FilePath; }
+
 namespace Core {
 
 class IDocument;
@@ -45,8 +47,8 @@ public:
 
     static const QList<IDocumentFactory *> allDocumentFactories();
 
-    using Opener = std::function<IDocument *(const QString &fileName)>;
-    IDocument *open(const QString &filename);
+    using Opener = std::function<IDocument *(const Utils::FilePath &filePath)>;
+    IDocument *open(const Utils::FilePath &filePath);
 
     QStringList mimeTypes() const { return m_mimeTypes; }
 
