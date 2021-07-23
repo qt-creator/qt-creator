@@ -416,8 +416,9 @@ void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
                                                EditorManager::DoNotChangeCurrentEditor
                                                    | EditorManager::DoNotMakeVisible);
         } else {
-            auto *factory = IEditorFactory::preferredEditorFactories(spec.filePath).value(0);
-            DocumentModelPrivate::addSuspendedDocument(spec.filePath,
+            auto factory = IEditorFactory::preferredEditorFactories(
+                FilePath::fromString(spec.filePath)).value(0);
+            DocumentModelPrivate::addSuspendedDocument(FilePath::fromString(spec.filePath),
                                                        {},
                                                        factory ? factory->id() : Id());
         }

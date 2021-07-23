@@ -922,8 +922,9 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
                 res = editor->document();
             }
         } else {
-            auto *factory = IEditorFactory::preferredEditorFactories(absoluteFilePath).value(0);
-            DocumentModelPrivate::addSuspendedDocument(absoluteFilePath,
+            auto factory = IEditorFactory::preferredEditorFactories(
+                    FilePath::fromString(absoluteFilePath)).value(0);
+            DocumentModelPrivate::addSuspendedDocument(FilePath::fromString(absoluteFilePath),
                                                        {},
                                                        factory ? factory->id() : Id());
         }

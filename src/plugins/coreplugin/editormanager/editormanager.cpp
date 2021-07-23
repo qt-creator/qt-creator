@@ -1162,7 +1162,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
     // Built-in
-    const EditorFactoryList editors = IEditorFactory::preferredEditorFactories(fileName);
+    const EditorFactoryList editors = IEditorFactory::preferredEditorFactories(FilePath::fromString(fileName));
     const int size = editors.size();
     allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
@@ -1400,7 +1400,7 @@ EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString
 
     EditorFactoryList factories;
     if (!editorId.isValid()) {
-        factories = IEditorFactory::preferredEditorFactories(fileName);
+        factories = IEditorFactory::preferredEditorFactories(FilePath::fromString(fileName));
     } else {
         // Find by editor id
         IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
@@ -2894,7 +2894,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
     menu->clear();
 
-    const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(fileName);
+    const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(FilePath::fromString(fileName));
     const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
     const bool anyMatches = !factories.empty() || !extEditors.empty();
@@ -3573,7 +3573,8 @@ bool EditorManager::restoreState(const QByteArray &state)
                 if (IEditor *editor = openEditor(fileName, id, DoNotMakeVisible))
                     DocumentModelPrivate::setPinned(DocumentModel::entryForDocument(editor->document()), pinned);
             } else {
-                 if (DocumentModel::Entry *entry = DocumentModelPrivate::addSuspendedDocument(fileName, displayName, id))
+                 if (DocumentModel::Entry *entry = DocumentModelPrivate::addSuspendedDocument(
+                        FilePath::fromString(fileName), displayName, id))
                      DocumentModelPrivate::setPinned(entry, pinned);
             }
         }

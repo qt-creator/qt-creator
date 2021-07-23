@@ -68,7 +68,7 @@ public:
     static QIcon lockedIcon();
     static QIcon pinnedIcon();
     static void addEditor(IEditor *editor, bool *isNewDocument);
-    static DocumentModel::Entry *addSuspendedDocument(const QString &fileName,
+    static DocumentModel::Entry *addSuspendedDocument(const Utils::FilePath &filePath,
                                                       const QString &displayName,
                                                       Utils::Id id);
     static DocumentModel::Entry *firstSuspendedEntry();

@@ -421,14 +421,14 @@ void DocumentModelPrivate::addEditor(IEditor *editor, bool *isNewDocument)
     \internal
 */
 
-DocumentModel::Entry *DocumentModelPrivate::addSuspendedDocument(const QString &fileName,
+DocumentModel::Entry *DocumentModelPrivate::addSuspendedDocument(const FilePath &filePath,
                                                                  const QString &displayName,
                                                                  Id id)
 {
     QTC_CHECK(id.isValid());
     auto entry = new DocumentModel::Entry;
     entry->document = new IDocument;
-    entry->document->setFilePath(Utils::FilePath::fromString(fileName));
+    entry->document->setFilePath(filePath);
     if (!displayName.isEmpty())
         entry->document->setPreferredDisplayName(displayName);
     entry->document->setId(id);

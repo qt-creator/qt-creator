@@ -151,7 +151,8 @@ void FilePropertiesDialog::refresh()
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
         m_ui->mimeType->setText(mimeType.name());
 
-        const Core::EditorFactoryList factories = Core::IEditorFactory::preferredEditorFactories(m_fileName);
+        const Core::EditorFactoryList factories =
+            Core::IEditorFactory::preferredEditorFactories(Utils::FilePath::fromString(m_fileName));
         m_ui->defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName() : tr("Undefined"));
 
         m_ui->owner->setText(fileInfo.owner());

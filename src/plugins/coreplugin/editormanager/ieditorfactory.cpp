@@ -32,6 +32,8 @@
 
 #include <QFileInfo>
 
+using namespace Utils;
+
 namespace Core {
 
 /*!
@@ -165,11 +167,10 @@ const EditorFactoryList IEditorFactory::defaultEditorFactories(const Utils::Mime
     a user overridden default editor first, and the binary editor as the very
     first item if a text document is too large to be opened as a text file.
 */
-const EditorFactoryList IEditorFactory::preferredEditorFactories(const QString &fileName)
+const EditorFactoryList IEditorFactory::preferredEditorFactories(const FilePath &filePath)
 {
-    const QFileInfo fileInfo(fileName);
     // default factories by mime type
-    const Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
     EditorFactoryList factories = defaultEditorFactories(mimeType);
     const auto factories_moveToFront = [&factories](IEditorFactory *f) {
         factories.removeAll(f);
@@ -180,7 +181,7 @@ const EditorFactoryList IEditorFactory::preferredEditorFactories(const QString &
     if (userPreferred)
         factories_moveToFront(userPreferred);
     // open text files > 48 MB in binary editor
-    if (fileInfo.size() > EditorManager::maxTextFileSize()
+    if (filePath.fileSize() > EditorManager::maxTextFileSize()
             && mimeType.inherits("text/plain")) {
         const Utils::MimeType binary = Utils::mimeTypeForName("application/octet-stream");
         const EditorFactoryList binaryEditors = defaultEditorFactories(binary);

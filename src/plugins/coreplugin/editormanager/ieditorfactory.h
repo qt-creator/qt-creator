@@ -35,6 +35,8 @@
 
 #include <functional>
 
+namespace Utils { class FilePath; }
+
 namespace Core {
 
 class IEditor;
@@ -52,7 +54,7 @@ public:
 
     static const EditorFactoryList allEditorFactories();
     static const EditorFactoryList defaultEditorFactories(const Utils::MimeType &mimeType);
-    static const EditorFactoryList preferredEditorFactories(const QString &fileName);
+    static const EditorFactoryList preferredEditorFactories(const Utils::FilePath &filePath);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
