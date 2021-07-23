@@ -404,7 +404,7 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
         if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
             continue;
         Bookmark *bookMark = m_bookmarksList.at(index.row());
-        data->addFile(bookMark->fileName().toString(), bookMark->lineNumber());
+        data->addFile(bookMark->fileName(), bookMark->lineNumber());
     }
     return data;
 }

@@ -387,7 +387,7 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
     foreach (const QModelIndex &index, indexes) {
         auto link = index.data(LinkRole).value<Link>();
         if (link.hasValidTarget())
-            data->addFile(link.targetFilePath.toString(), link.targetLine, link.targetColumn);
+            data->addFile(link.targetFilePath, link.targetLine, link.targetColumn);
     }
     return data;
 }

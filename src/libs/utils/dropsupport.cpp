@@ -70,7 +70,7 @@ static bool isFileDrop(const QMimeData *d, QList<DropSupport::FileSpec> *files =
         if (!fileName.isEmpty()) {
             hasFiles = true;
             if (files)
-                files->append(DropSupport::FileSpec(fileName));
+                files->append(DropSupport::FileSpec(FilePath::fromString(fileName)));
             else
                 break; // No result list, sufficient for checking
         }
@@ -203,11 +203,11 @@ bool DropMimeData::isOverridingFileDropAction() const
     return m_isOverridingDropAction;
 }
 
-void DropMimeData::addFile(const QString &filePath, int line, int column)
+void DropMimeData::addFile(const FilePath &filePath, int line, int column)
 {
     // standard mime data
     QList<QUrl> currentUrls = urls();
-    currentUrls.append(QUrl::fromLocalFile(filePath));
+    currentUrls.append(QUrl::fromLocalFile(filePath.toString()));
     setUrls(currentUrls);
     // special mime data
     m_files.append(DropSupport::FileSpec(filePath, line, column));

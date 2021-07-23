@@ -102,7 +102,7 @@ void EditorDiagramView::dropFiles(const QList<Utils::DropSupport::FileSpec> &fil
     for (const auto &fileSpec : files) {
         QPointF scenePos = mapToScene(pos);
         d->pxNodeController->addFileSystemEntry(
-                    fileSpec.filePath, fileSpec.line, fileSpec.column,
+                    fileSpec.filePath.toString(), fileSpec.line, fileSpec.column,
                     diagramSceneModel()->findTopmostElement(scenePos),
                     scenePos, diagramSceneModel()->diagram());
     }

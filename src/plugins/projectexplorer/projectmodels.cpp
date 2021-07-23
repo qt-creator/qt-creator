@@ -546,10 +546,10 @@ QStringList FlatModel::mimeTypes() const
 QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
 {
     auto data = new DropMimeData;
-    foreach (const QModelIndex &index, indexes) {
+    for (const QModelIndex &index : indexes) {
         if (Node *node = nodeForIndex(index)) {
             if (node->asFileNode())
-                data->addFile(node->filePath().toString());
+                data->addFile(node->filePath());
             data->addValue(QVariant::fromValue(node));
         }
     }

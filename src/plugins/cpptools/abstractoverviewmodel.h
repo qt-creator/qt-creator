@@ -84,7 +84,8 @@ public:
             const QVariant lineNumber = data(index, LineNumberRole);
             if (!lineNumber.canConvert<unsigned>())
                 continue;
-            mimeData->addFile(fileName.toString(), static_cast<int>(lineNumber.value<unsigned>()));
+            mimeData->addFile(Utils::FilePath::fromVariant(fileName),
+                              static_cast<int>(lineNumber.value<unsigned>()));
         }
         return mimeData;
     }

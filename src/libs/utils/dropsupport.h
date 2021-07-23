@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QObject>
 #include <QMimeData>
 #include <QPoint>
@@ -45,8 +47,8 @@ class QTCREATOR_UTILS_EXPORT DropSupport : public QObject
     Q_OBJECT
 public:
     struct FileSpec {
-        FileSpec(const QString &path, int r = -1, int c = -1) : filePath(path), line(r), column(c) {}
-        QString filePath;
+        FileSpec(const FilePath &path, int r = -1, int c = -1) : filePath(path), line(r), column(c) {}
+        FilePath filePath;
         int line;
         int column;
     };
@@ -89,7 +91,7 @@ public:
     Qt::DropAction overrideFileDropAction() const;
     bool isOverridingFileDropAction() const;
 
-    void addFile(const QString &filePath, int line = -1, int column = -1);
+    void addFile(const FilePath &filePath, int line = -1, int column = -1);
     QList<DropSupport::FileSpec> files() const;
 
     void addValue(const QVariant &value);

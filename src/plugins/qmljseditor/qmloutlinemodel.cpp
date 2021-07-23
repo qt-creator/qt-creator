@@ -354,7 +354,7 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 
     for (const auto &index : indexes) {
         SourceLocation location = sourceLocation(index);
-        data->addFile(m_editorDocument->filePath().toString(), location.startLine,
+        data->addFile(m_editorDocument->filePath(), location.startLine,
                       location.startColumn - 1 /*editors have 0-based column*/);
 
         QList<int> rowPath;

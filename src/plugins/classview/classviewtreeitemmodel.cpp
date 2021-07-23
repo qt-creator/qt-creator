@@ -177,13 +177,13 @@ QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
 {
     auto mimeData = new ::Utils::DropMimeData;
     mimeData->setOverrideFileDropAction(Qt::CopyAction);
-    foreach (const QModelIndex &index, indexes) {
+    for (const QModelIndex &index : indexes) {
         const QSet<SymbolLocation> locations = Internal::roleToLocations(
                     data(index, Constants::SymbolLocationsRole).toList());
         if (locations.isEmpty())
             continue;
         const SymbolLocation loc = *locations.constBegin();
-        mimeData->addFile(loc.fileName(), loc.line(), loc.column());
+        mimeData->addFile(Utils::FilePath::fromString(loc.fileName()), loc.line(), loc.column());
     }
     if (mimeData->files().isEmpty()) {
         delete mimeData;

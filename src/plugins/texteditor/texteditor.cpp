@@ -8695,7 +8695,7 @@ void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
         return;
 
     auto data = new DropMimeData;
-    data->addFile(m_link.targetFilePath.toString(), m_link.targetLine, m_link.targetColumn);
+    data->addFile(m_link.targetFilePath, m_link.targetLine, m_link.targetColumn);
     auto drag = new QDrag(this);
     drag->setMimeData(data);
     drag->exec(Qt::CopyAction);

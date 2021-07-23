@@ -280,7 +280,7 @@ QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
         const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
         if (!e || e->fileName().isEmpty())
             continue;
-        data->addFile(e->fileName().toString());
+        data->addFile(e->fileName());
     }
     return data;
 }

@@ -403,7 +403,7 @@ void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     bool first = true;
     auto specToLink = [](const DropSupport::FileSpec &spec) {
-        return Utils::Link(FilePath::fromString(spec.filePath), spec.line, spec.column);
+        return Utils::Link(spec.filePath, spec.line, spec.column);
     };
     auto openEntry = [&](const DropSupport::FileSpec &spec) {
         if (first) {
@@ -416,10 +416,8 @@ void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
                                                EditorManager::DoNotChangeCurrentEditor
                                                    | EditorManager::DoNotMakeVisible);
         } else {
-            auto factory = IEditorFactory::preferredEditorFactories(
-                FilePath::fromString(spec.filePath)).value(0);
-            DocumentModelPrivate::addSuspendedDocument(FilePath::fromString(spec.filePath),
-                                                       {},
+            auto factory = IEditorFactory::preferredEditorFactories(spec.filePath).value(0);
+            DocumentModelPrivate::addSuspendedDocument(spec.filePath, {},
                                                        factory ? factory->id() : Id());
         }
     };
