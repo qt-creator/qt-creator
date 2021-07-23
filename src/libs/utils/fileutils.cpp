@@ -197,7 +197,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
 {
     m_filePath = filePath;
     // Workaround an assert in Qt -- and provide a useful error message, too:
-    if (HostOsInfo::isWindowsHost()) {
+    if (m_filePath.osType() == OsType::OsTypeWindows) {
         // Taken from: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
         static const QStringList reservedNames
                 = {"CON", "PRN", "AUX", "NUL",
@@ -206,16 +206,23 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
         const QString fn = filePath.baseName().toUpper();
         if (reservedNames.contains(fn)) {
             m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.")
-                                .arg(filePath.toString());
+                                .arg(filePath.toUserOutput());
             m_hasError = true;
             return;
         }
     }
-    if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
-        m_file.reset(new QFile{filePath.toString()});
+    if (filePath.needsDevice()) {
+        // Write to a local temporary file first. Actual saving to the selected location
+        // is done via m_filePath.writeFileContents() in finalize()
+        m_isSafe = false;
+        auto tf = new QTemporaryFile(QDir::tempPath() + "/remotefilesaver-XXXXXX");
+        tf->setAutoRemove(false);
+        m_file.reset(tf);
+    } else if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
+        m_file.reset(new QFile{filePath.path()});
         m_isSafe = false;
     } else {
-        m_file.reset(new SaveFile{filePath.toString()});
+        m_file.reset(new SaveFile{filePath.path()});
         m_isSafe = true;
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
@@ -228,6 +235,16 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
 
 bool FileSaver::finalize()
 {
+    if (m_filePath.needsDevice()) {
+        m_file->close();
+        m_file->open(QIODevice::ReadOnly);
+        const QByteArray data = m_file->readAll();
+        const bool res = m_filePath.writeFileContents(data);
+        m_file->remove();
+        m_file.reset();
+        return res;
+    }
+
     if (!m_isSafe)
         return FileSaverBase::finalize();
 
