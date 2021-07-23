@@ -856,9 +856,9 @@ void MainWindow::openFile()
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
-                                     const QFileInfo &fi)
+                                             const FilePath &filePath)
 {
-    const QString typeName = Utils::mimeTypeForFile(fi).name();
+    const QString typeName = Utils::mimeTypeForFile(filePath).name();
     return Utils::findOrDefault(fileFactories, [typeName](IDocumentFactory *f) {
         return f->mimeTypes().contains(typeName);
     });
@@ -891,7 +891,7 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
         const QDir workingDir(workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory);
         const QFileInfo fi(workingDir, fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
-        if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, fi)) {
+        if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)
