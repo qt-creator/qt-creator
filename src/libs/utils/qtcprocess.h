@@ -80,6 +80,7 @@ public:
     };
 
     void setEnvironment(const Environment &env);
+    void unsetEnvironment();
     const Environment &environment() const;
 
     void setCommand(const CommandLine &cmdLine);
