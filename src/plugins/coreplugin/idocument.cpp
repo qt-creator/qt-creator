@@ -447,7 +447,7 @@ void IDocument::checkPermissions()
 {
     bool previousReadOnly = d->fileIsReadOnly.value_or(false);
     if (!filePath().isEmpty()) {
-        d->fileIsReadOnly = !filePath().toFileInfo().isWritable();
+        d->fileIsReadOnly = !filePath().isWritableFile();
     } else {
         d->fileIsReadOnly = false;
     }
