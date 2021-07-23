@@ -527,13 +527,16 @@ class DumperBase():
         return res
 
     # Hex decoding operating on str, return str.
-    def hexdecode(self, s):
+    @staticmethod
+    def hexdecode(s, encoding='utf8'):
         if sys.version_info[0] == 2:
-            return s.decode('hex')
-        return bytes.fromhex(s).decode('utf8')
+            # For python2 we need an extra str() call to return str instead of unicode
+            return str(s.decode('hex').decode(encoding))
+        return bytes.fromhex(s).decode(encoding)
 
     # Hex encoding operating on str or bytes, return str.
-    def hexencode(self, s):
+    @staticmethod
+    def hexencode(s):
         if s is None:
             s = ''
         if sys.version_info[0] == 2:

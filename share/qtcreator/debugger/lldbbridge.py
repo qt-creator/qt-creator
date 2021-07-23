@@ -2220,11 +2220,13 @@ class SummaryProvider(LogMixin):
 
             if encoding in text_encodings:
                 try:
-                    binaryvalue = summaryValue.decode('hex')
-                    # LLDB expects UTF-8
-                    return "\"%s\"" % (binaryvalue.decode(encoding).encode('utf8'))
+                    decodedValue = Dumper.hexdecode(summaryValue, encoding)
+                    # LLDB expects UTF-8 for python 2
+                    if sys.version_info[0] < 3:
+                        return "\"%s\"" % (decodedValue.encode('utf8'))
+                    return '"' + decodedValue + '"'
                 except:
-                    return "<failed to decode '%s' as '%s'>" % (summaryValue, encoding)
+                    return "<failed to decode '%s' as '%s': %s>" % (summaryValue, encoding, sys.exc_info()[1])
 
             # FIXME: Support these
             other_encodings = [
