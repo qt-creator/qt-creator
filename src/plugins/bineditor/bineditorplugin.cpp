@@ -241,48 +241,51 @@ public:
         return false;
     }
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override
+    OpenResult open(QString *errorString, const FilePath &filePath,
+                    const FilePath &realFilePath) override
     {
         QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
         return openImpl(errorString, filePath);
     }
 
-    OpenResult openImpl(QString *errorString, const Utils::FilePath &filePath, quint64 offset = 0)
+    OpenResult openImpl(QString *errorString, const FilePath &filePath, quint64 offset = 0)
     {
-        QFile file(filePath.toString());
-        if (file.open(QIODevice::ReadOnly)) {
-            file.close();
-            quint64 size = static_cast<quint64>(file.size());
-            if (size == 0) {
-                QString msg = tr("The Binary Editor cannot open empty files.");
-                if (errorString)
-                    *errorString = msg;
-                else
-                    QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
-                return OpenResult::CannotHandle;
-            }
-            if (size / 16 >= qint64(1) << 31) {
-                // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
-                QString msg = tr("The file is too big for the Binary Editor (max. 32GB).");
-                if (errorString)
-                    *errorString = msg;
-                else
-                    QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
-                return OpenResult::CannotHandle;
-            }
-            if (offset >= size)
-                return OpenResult::CannotHandle;
-            setFilePath(filePath);
-            m_widget->setSizes(offset, file.size());
-            return OpenResult::Success;
+        const qint64 size = filePath.fileSize();
+        if (size < 0) {
+            QString msg = tr("Cannot open %1: %2").arg(filePath.toUserOutput(), tr("File Error"));
+            // FIXME: Was: file.errorString(), but we don't have a file anymore.
+            if (errorString)
+                *errorString = msg;
+            else
+                QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
+            return OpenResult::ReadError;
         }
-        QString errStr = tr("Cannot open %1: %2").arg(filePath.toUserOutput(), file.errorString());
-        if (errorString)
-            *errorString = errStr;
-        else
-            QMessageBox::critical(ICore::dialogParent(), tr("File Error"), errStr);
-        return OpenResult::ReadError;
+
+        if (size == 0) {
+            QString msg = tr("The Binary Editor cannot open empty files.");
+            if (errorString)
+                *errorString = msg;
+            else
+                QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
+            return OpenResult::CannotHandle;
+        }
+
+        if (size / 16 >= qint64(1) << 31) {
+            // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
+            QString msg = tr("The file is too big for the Binary Editor (max. 32GB).");
+            if (errorString)
+                *errorString = msg;
+            else
+                QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
+            return OpenResult::CannotHandle;
+        }
+
+        if (offset >= size)
+            return OpenResult::CannotHandle;
+
+        setFilePath(filePath);
+        m_widget->setSizes(offset, size);
+        return OpenResult::Success;
     }
 
     void provideData(quint64 address)
@@ -290,21 +293,15 @@ public:
         const FilePath fn = filePath();
         if (fn.isEmpty())
             return;
-        QFile file(fn.toString());
-        if (file.open(QIODevice::ReadOnly)) {
-            int blockSize = m_widget->dataBlockSize();
-            file.seek(address);
-            QByteArray data = file.read(blockSize);
-            file.close();
-            const int dataSize = data.size();
-            if (dataSize != blockSize)
-                data += QByteArray(blockSize - dataSize, 0);
-            m_widget->addData(address, data);
-        } else {
-            QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
-                                  tr("Cannot open %1: %2").arg(
-                                        fn.toUserOutput(), file.errorString()));
-        }
+        const int blockSize = m_widget->dataBlockSize();
+        QByteArray data = fn.fileContents(blockSize, address);
+        const int dataSize = data.size();
+        if (dataSize != blockSize)
+            data += QByteArray(blockSize - dataSize, 0);
+        m_widget->addData(address, data);
+//       QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
+//                             tr("Cannot open %1: %2").arg(
+//                                   fn.toUserOutput(), file.errorString()));
     }
 
     void provideNewRange(quint64 offset)
