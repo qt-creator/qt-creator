@@ -47,6 +47,9 @@ public:
     static Link fromString(const QString &fileName,
                            bool canContainLineNumber = false,
                            QString *postfix = nullptr);
+    static Link fromFilePath(const FilePath &filePath,
+                             bool canContainLineNumber = false,
+                             QString *postfix = nullptr);
 
     bool hasValidTarget() const
     { return !targetFilePath.isEmpty(); }

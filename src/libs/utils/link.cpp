@@ -41,14 +41,26 @@ namespace Utils {
 Link Link::fromString(const QString &fileName, bool canContainLineNumber, QString *postfix)
 {
     if (!canContainLineNumber)
-        return {Utils::FilePath::fromString(fileName)};
+        return {FilePath::fromString(fileName)};
     int postfixPos = -1;
     const LineColumn lineColumn = LineColumn::extractFromFileName(fileName, postfixPos);
     if (postfix && postfixPos >= 0)
         *postfix = fileName.mid(postfixPos);
-    return {Utils::FilePath::fromString(fileName.left(postfixPos)),
+    return {FilePath::fromString(fileName.left(postfixPos)),
             lineColumn.line,
             lineColumn.column};
+}
+
+Link Link::fromFilePath(const FilePath &filePath, bool canContainLineNumber, QString *postfix)
+{
+    if (!canContainLineNumber)
+        return {filePath};
+    int postfixPos = -1;
+    QString fileName = filePath.path();
+    const LineColumn lineColumn = LineColumn::extractFromFileName(fileName, postfixPos);
+    if (postfix && postfixPos >= 0)
+        *postfix = fileName.mid(postfixPos);
+    return Link{FilePath::fromString(fileName.left(postfixPos)), lineColumn.line, lineColumn.column};
 }
 
 uint qHash(const Link &l)
