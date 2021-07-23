@@ -207,7 +207,7 @@ void ExamplesWelcomePage::openProject(const ExampleItem *item)
     ProjectExplorerPlugin::OpenProjectResult result =
             ProjectExplorerPlugin::openProject(FilePath::fromString(proFile));
     if (result) {
-        ICore::openFiles(filesToOpen);
+        ICore::openFiles(Utils::transform(filesToOpen, &FilePath::fromString));
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
         QUrl docUrl = QUrl::fromUserInput(item->docUrl);
         if (docUrl.isValid())

@@ -399,7 +399,7 @@ bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
     const QList<QUrl> localUrls = Utils::filtered(urls, &QUrl::isLocalFile);
     if (!localUrls.isEmpty()) {
         QTimer::singleShot(0, [localUrls]() {
-            ICore::openFiles(Utils::transform(localUrls, &QUrl::toLocalFile), ICore::SwitchMode);
+            ICore::openFiles(Utils::transform(localUrls, &FilePath::fromUrl), ICore::SwitchMode);
         });
         return true;
     }

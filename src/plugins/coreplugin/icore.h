@@ -133,7 +133,7 @@ public:
         StopOnLoadFail = 4,
         SwitchSplitIfAlreadyVisible = 8
     };
-    static void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None);
+    static void openFiles(const Utils::FilePaths &filePaths, OpenFilesFlags flags = None);
 
     static void addPreCloseListener(const std::function<bool()> &listener);
 

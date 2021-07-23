@@ -75,6 +75,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 const int PATH_ROLE = Qt::UserRole;
 const int ID_ROLE = Qt::UserRole + 1;
 const int SORT_ROLE = Qt::UserRole + 2;
@@ -679,7 +681,7 @@ void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
 {
     const QStringList projectFiles = projectsInDirectory(index);
     if (!projectFiles.isEmpty())
-        Core::ICore::openFiles(projectFiles);
+        Core::ICore::openFiles(Utils::transform(projectFiles, &FilePath::fromString));
 }
 
 void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)

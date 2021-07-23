@@ -2566,7 +2566,8 @@ void ProjectExplorerPluginPrivate::restoreSession()
     dd->m_arguments = arguments;
     // delay opening projects from the command line even more
     QTimer::singleShot(0, m_instance, []() {
-        ICore::openFiles(dd->m_arguments, ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
+        ICore::openFiles(Utils::transform(dd->m_arguments, &FilePath::fromString),
+                         ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
         emit m_instance->finishedInitialization();
     });
     updateActions();
@@ -4075,10 +4076,10 @@ bool ProjectExplorerPlugin::isProjectFile(const FilePath &filePath)
 
 void ProjectExplorerPlugin::openOpenProjectDialog()
 {
-    const QString path = DocumentManager::useProjectsDirectory()
-                             ? DocumentManager::projectsDirectory().toString()
-                             : QString();
-    const QStringList files = DocumentManager::getOpenFileNames(dd->m_projectFilterString, path);
+    const FilePath path = DocumentManager::useProjectsDirectory()
+                             ? DocumentManager::projectsDirectory()
+                             : FilePath();
+    const FilePaths files = DocumentManager::getOpenFileNames(dd->m_projectFilterString, path);
     if (!files.isEmpty())
         ICore::openFiles(files, ICore::SwitchMode);
 }

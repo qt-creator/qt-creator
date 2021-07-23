@@ -118,7 +118,7 @@ public:
     static bool openExternalEditor(const Utils::FilePath &filePath, Utils::Id editorId);
     static void addCloseEditorListener(const std::function<bool(IEditor *)> &listener);
 
-    static QStringList getOpenFileNames();
+    static Utils::FilePaths getOpenFilePaths();
 
     static IDocument *currentDocument();
     static IEditor *currentEditor();

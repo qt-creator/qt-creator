@@ -44,7 +44,6 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
@@ -1034,17 +1033,17 @@ void DocumentManager::showFilePropertiesDialog(const FilePath &filePath)
     dialog in if that is not overridden by the user's policy.
 */
 
-QStringList DocumentManager::getOpenFileNames(const QString &filters,
-                                              const QString &pathIn,
-                                              QString *selectedFilter)
+FilePaths DocumentManager::getOpenFileNames(const QString &filters,
+                                            const FilePath &pathIn,
+                                            QString *selectedFilter)
 {
-    const QString &path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
-    const QStringList files = QFileDialog::getOpenFileNames(ICore::dialogParent(),
-                                                      tr("Open File"),
-                                                      path, filters,
-                                                      selectedFilter);
+    const FilePath path = pathIn.isEmpty() ? FilePath::fromString(fileDialogInitialDirectory())
+                                           : pathIn;
+    const FilePaths files = FileUtils::getOpenFilePaths(tr("Open File"),
+                                                        path, filters,
+                                                        selectedFilter);
     if (!files.isEmpty())
-        setFileDialogLastVisitedDirectory(QFileInfo(files.front()).absolutePath());
+        setFileDialogLastVisitedDirectory(files.front().absolutePath().toString());
     return files;
 }
 

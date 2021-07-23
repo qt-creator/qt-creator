@@ -3190,13 +3190,13 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 /*!
     Asks the user for a list of files to open and returns the choice.
 
-    \sa DocumentManager::getOpenFileNames()
+    \sa DocumentManager::getOpenFilePaths()
 */
-QStringList EditorManager::getOpenFileNames()
+FilePaths EditorManager::getOpenFilePaths()
 {
     QString selectedFilter;
     const QString &fileFilters = DocumentManager::allDocumentFactoryFiltersString(&selectedFilter);
-    return DocumentManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
+    return DocumentManager::getOpenFileNames(fileFilters, {}, &selectedFilter);
 }
 
 static QString makeTitleUnique(QString *titlePattern)

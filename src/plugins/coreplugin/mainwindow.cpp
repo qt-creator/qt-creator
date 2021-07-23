@@ -390,7 +390,7 @@ void MainWindow::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     raiseWindow();
     QStringList filePaths = Utils::transform(files, &DropSupport::FileSpec::filePath);
-    openFiles(filePaths, ICore::SwitchMode);
+    openFiles(Utils::transform(filePaths, &FilePath::fromString), ICore::SwitchMode);
 }
 
 IContext *MainWindow::currentContextObject() const
@@ -852,7 +852,7 @@ void MainWindow::registerModeSelectorStyleActions()
 
 void MainWindow::openFile()
 {
-    openFiles(EditorManager::getOpenFileNames(), ICore::SwitchMode);
+    openFiles(EditorManager::getOpenFilePaths(), ICore::SwitchMode);
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
@@ -866,7 +866,7 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
 
 /*!
  * \internal
- * Either opens \a fileNames with editors or loads a project.
+ * Either opens \a filePaths with editors or loads a project.
  *
  *  \a flags can be used to stop on first failure, indicate that a file name
  *  might include line numbers and/or switch mode to edit mode.
@@ -879,14 +879,15 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  *
  *  \sa IPlugin::remoteArguments()
  */
-IDocument *MainWindow::openFiles(const QStringList &fileNames,
+IDocument *MainWindow::openFiles(const FilePaths &filePaths,
                                  ICore::OpenFilesFlags flags,
                                  const QString &workingDirectory)
 {
     const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
 
-    for (const QString &fileName : fileNames) {
+    for (const FilePath &filePath : filePaths) {
+        const QString fileName = filePath.toString();
         const QDir workingDir(workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory);
         const QFileInfo fi(workingDir, fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
@@ -947,15 +948,16 @@ void MainWindow::exit()
 
 void MainWindow::openFileWith()
 {
-    foreach (const QString &fileName, EditorManager::getOpenFileNames()) {
+    const FilePaths filePaths = EditorManager::getOpenFilePaths();
+    for (const FilePath &filePath : filePaths) {
         bool isExternal;
-        const Id editorId = EditorManagerPrivate::getOpenWithEditorId(fileName, &isExternal);
+        const Id editorId = EditorManagerPrivate::getOpenWithEditorId(filePath.toString(), &isExternal);
         if (!editorId.isValid())
             continue;
         if (isExternal)
-            EditorManager::openExternalEditor(FilePath::fromString(fileName), editorId);
+            EditorManager::openExternalEditor(filePath, editorId);
         else
-            EditorManagerPrivate::openEditorWith(FilePath::fromString(fileName), editorId);
+            EditorManagerPrivate::openEditorWith(filePath, editorId);
     }
 }
 

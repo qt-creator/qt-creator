@@ -804,14 +804,14 @@ void ICore::registerWindow(QWidget *window, const Context &context)
 }
 
 /*!
-    Opens files using \a arguments and \a flags like it would be
+    Opens files using \a filePaths and \a flags like it would be
     done if they were given to \QC on the command line, or
     they were opened via \uicontrol File > \uicontrol Open.
 */
 
-void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
+void ICore::openFiles(const FilePaths &filePaths, ICore::OpenFilesFlags flags)
 {
-    MainWindow::openFiles(arguments, flags);
+    MainWindow::openFiles(filePaths, flags);
 }
 
 /*!

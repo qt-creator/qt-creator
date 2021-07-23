@@ -89,7 +89,7 @@ public:
     void addContextObject(IContext *context);
     void removeContextObject(IContext *context);
 
-    static IDocument *openFiles(const QStringList &fileNames,
+    static IDocument *openFiles(const Utils::FilePaths &filePaths,
                                 ICore::OpenFilesFlags flags,
                                 const QString &workingDirectory = QString());
 

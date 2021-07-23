@@ -84,9 +84,9 @@ public:
 
     static QString allDocumentFactoryFiltersString(QString *allFilesFilter);
 
-    static QStringList getOpenFileNames(const QString &filters,
-                                        const QString &path = QString(),
-                                        QString *selectedFilter = nullptr);
+    static Utils::FilePaths getOpenFileNames(const QString &filters,
+                                             const Utils::FilePath &path = {},
+                                             QString *selectedFilter = nullptr);
     static QString getSaveFileName(const QString &title,
                                    const QString &pathIn,
                                    const QString &filter = QString(),
