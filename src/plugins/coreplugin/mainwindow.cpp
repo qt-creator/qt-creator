@@ -886,13 +886,18 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
     const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
 
+    const QString workingDirBase = workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory;
     for (const FilePath &filePath : filePaths) {
-        const QString fileName = filePath.toString();
-        const QDir workingDir(workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory);
-        const QFileInfo fi(workingDir, fileName);
-        const QString absoluteFilePath = fi.absoluteFilePath();
+        const FilePath workingDir = filePath.withNewPath(workingDirBase);
+        FilePath absoluteFilePath;
+        if (filePath.isAbsolutePath()) {
+            absoluteFilePath = filePath;
+        } else {
+            QTC_CHECK(!filePath.needsDevice());
+            absoluteFilePath = FilePath::fromString(workingDirBase).resolvePath(filePath.path());
+        }
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
-            IDocument *document = documentFactory->open(FilePath::fromString(absoluteFilePath));
+            IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)
                     return res;
@@ -909,11 +914,10 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;
             IEditor *editor = nullptr;
             if (flags & ICore::CanContainLineAndColumnNumbers) {
-                const Link &link = Link::fromString(absoluteFilePath, true);
+                const Link &link = Link::fromFilePath(absoluteFilePath, true);
                 editor = EditorManager::openEditorAt(link, {}, emFlags);
             } else {
-                const FilePath &filePath = FilePath::fromString(absoluteFilePath);
-                editor = EditorManager::openEditor(filePath, {}, emFlags);
+                editor = EditorManager::openEditor(absoluteFilePath, {}, emFlags);
             }
             if (!editor) {
                 if (flags & ICore::StopOnLoadFail)
@@ -922,10 +926,8 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
                 res = editor->document();
             }
         } else {
-            auto factory = IEditorFactory::preferredEditorFactories(
-                    FilePath::fromString(absoluteFilePath)).value(0);
-            DocumentModelPrivate::addSuspendedDocument(FilePath::fromString(absoluteFilePath),
-                                                       {},
+            auto factory = IEditorFactory::preferredEditorFactories(absoluteFilePath).value(0);
+            DocumentModelPrivate::addSuspendedDocument(absoluteFilePath, {},
                                                        factory ? factory->id() : Id());
         }
     }
