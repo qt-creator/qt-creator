@@ -353,9 +353,9 @@ static RunConfiguration *activeRunConfiguration()
     return target ? target->activeRunConfiguration() : nullptr;
 }
 
-static bool isTextFile(const QString &fileName)
+static bool isTextFile(const FilePath &filePath)
 {
-    return Utils::mimeTypeForFile(fileName).inherits(
+    return Utils::mimeTypeForFile(filePath).inherits(
                 TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 }
 
@@ -3425,8 +3425,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(canEditProject && !isTypeProject && supports(Rename));
-            const bool currentNodeIsTextFile = isTextFile(
-                        currentNode->filePath().toString());
+            const bool currentNodeIsTextFile = isTextFile(currentNode->filePath());
             m_diffFileAction->setEnabled(DiffService::instance()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
@@ -3435,8 +3434,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             m_duplicateFileAction->setVisible(canDuplicate);
             m_duplicateFileAction->setEnabled(canDuplicate);
 
-            EditorManager::populateOpenWithMenu(m_openWithMenu,
-                                                currentNode->filePath().toString());
+            EditorManager::populateOpenWithMenu(m_openWithMenu, currentNode->filePath());
         }
 
         if (supports(HidePathActions)) {

@@ -293,7 +293,7 @@ void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 
 void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
 {
-    Core::EditorManager::populateOpenWithMenu(m_openWithMenu, fileName);
+    Core::EditorManager::populateOpenWithMenu(m_openWithMenu, FilePath::fromString(fileName));
     m_currentFileName = fileName;
     m_renameAction->setEnabled(!document()->isFileReadOnly());
     m_contextMenu->popup(globalPoint);

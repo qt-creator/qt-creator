@@ -168,7 +168,7 @@ public:
                                              IEditor *editor = nullptr);
     static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
-    static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
+    static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
 public: // for tests
     static IDocument::ReloadSetting reloadSetting();

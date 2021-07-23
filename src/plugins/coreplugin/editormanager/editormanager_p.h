@@ -192,8 +192,8 @@ private:
     static OpenEditorsWindow *windowPopup();
     static void showPopupOrSelectDocument();
 
-    static EditorFactoryList findFactories(Utils::Id editorId, const QString &fileName);
-    static IEditor *createEditor(IEditorFactory *factory, const QString &fileName);
+    static EditorFactoryList findFactories(Utils::Id editorId, const Utils::FilePath &filePath);
+    static IEditor *createEditor(IEditorFactory *factory, const Utils::FilePath &filePath);
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor, bool removeSusependedEntry);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);

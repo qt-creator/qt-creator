@@ -818,7 +818,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
         realFn = fn;
     }
 
-    EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), fn);
+    EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), FilePath::fromString(fn));
     if (factories.isEmpty()) {
         Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
@@ -848,7 +848,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
 
     IEditorFactory *factory = factories.takeFirst();
     while (factory) {
-        editor = createEditor(factory, fn);
+        editor = createEditor(factory, fp);
         if (!editor) {
             factory = factories.takeFirst();
             continue;
@@ -1393,14 +1393,14 @@ void EditorManagerPrivate::setBigFileSizeLimit(int limitInMB)
     d->m_settings.bigFileSizeLimitInMB = limitInMB;
 }
 
-EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString &fileName)
+EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const FilePath &filePath)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorId.name() << fileName;
+        qDebug() << Q_FUNC_INFO << editorId.name() << filePath;
 
     EditorFactoryList factories;
     if (!editorId.isValid()) {
-        factories = IEditorFactory::preferredEditorFactories(FilePath::fromString(fileName));
+        factories = IEditorFactory::preferredEditorFactories(filePath);
     } else {
         // Find by editor id
         IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
@@ -1410,13 +1410,13 @@ EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString
     }
     if (factories.empty()) {
         qWarning("%s: unable to find an editor factory for the file '%s', editor Id '%s'.",
-                 Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
+                 Q_FUNC_INFO, filePath.toString().toUtf8().constData(), editorId.name().constData());
     }
 
     return factories;
 }
 
-IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const QString &fileName)
+IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const FilePath &filePath)
 {
     if (!factory)
         return nullptr;
@@ -1425,7 +1425,7 @@ IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const QStri
     if (editor) {
         QTC_CHECK(editor->document()->id().isValid()); // sanity check that the editor has an id set
         connect(editor->document(), &IDocument::changed, d, &EditorManagerPrivate::handleDocumentStateChange);
-        emit m_instance->editorCreated(editor, fileName);
+        emit m_instance->editorCreated(editor, filePath.toString());
     }
 
     return editor;
@@ -2880,28 +2880,28 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     QMenu *openWith = contextMenu->addMenu(tr("Open With"));
     openWith->setEnabled(enabled);
     if (enabled)
-        populateOpenWithMenu(openWith, entry->fileName().toString());
+        populateOpenWithMenu(openWith, entry->fileName());
 }
 
 /*!
     Populates the \uicontrol {Open With} menu \a menu with editors that are
-    suitable for opening the document \a fileName.
+    suitable for opening the document \a filePath.
 */
-void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
+void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
 {
     using EditorFactoryList = QList<IEditorFactory*>;
     using ExternalEditorList = QList<IExternalEditor*>;
 
     menu->clear();
 
-    const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(FilePath::fromString(fileName));
-    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
+    const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(filePath);
+    const MimeType mt = Utils::mimeTypeForFile(filePath);
     const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
     const bool anyMatches = !factories.empty() || !extEditors.empty();
     if (anyMatches) {
         // Add all suitable editors
-        foreach (IEditorFactory *editorFactory, factories) {
-            Utils::Id editorId = editorFactory->id();
+        for (IEditorFactory *editorFactory : factories) {
+            Id editorId = editorFactory->id();
             // Add action to open with this very editor factory
             QString const actionTitle = editorFactory->displayName();
             QAction *action = menu->addAction(actionTitle);
@@ -2910,16 +2910,16 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
             // crashes happen, because the editor instance is deleted by openEditorWith
             // while the menu is still being processed.
             connect(action, &QAction::triggered, d,
-                    [fileName, editorId]() {
-                        EditorManagerPrivate::openEditorWith(FilePath::fromString(fileName), editorId);
+                    [filePath, editorId]() {
+                        EditorManagerPrivate::openEditorWith(filePath, editorId);
                     }, Qt::QueuedConnection);
         }
         // Add all suitable external editors
-        foreach (IExternalEditor *externalEditor, extEditors) {
+        for (IExternalEditor *externalEditor : extEditors) {
             QAction *action = menu->addAction(externalEditor->displayName());
             Utils::Id editorId = externalEditor->id();
-            connect(action, &QAction::triggered, [fileName, editorId]() {
-                EditorManager::openExternalEditor(FilePath::fromString(fileName), editorId);
+            connect(action, &QAction::triggered, [filePath, editorId] {
+                EditorManager::openExternalEditor(filePath, editorId);
             });
         }
     }
@@ -3278,11 +3278,12 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
             }
     }
 
-    EditorFactoryList factories = EditorManagerPrivate::findFactories(editorId, title);
+    const FilePath filePath = FilePath::fromString(title);
+    EditorFactoryList factories = EditorManagerPrivate::findFactories(editorId, filePath);
     if (factories.isEmpty())
         return nullptr;
 
-    edt = EditorManagerPrivate::createEditor(factories.first(), title);
+    edt = EditorManagerPrivate::createEditor(factories.first(), filePath);
     if (!edt)
         return nullptr;
     if (!edt->document()->setContents(contents)) {

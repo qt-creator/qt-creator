@@ -403,7 +403,7 @@ void ResourceEditorPluginPrivate::updateContextActions(Node *node)
     m_removeNonExisting->setVisible(isResourceNode);
 
     if (isResourceNode)
-        Core::EditorManager::populateOpenWithMenu(m_openWithMenu, node->filePath().toString());
+        Core::EditorManager::populateOpenWithMenu(m_openWithMenu, node->filePath());
     else
         m_openWithMenu->clear();
     m_openWithMenu->menuAction()->setVisible(!m_openWithMenu->actions().isEmpty());
