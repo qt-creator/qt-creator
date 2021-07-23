@@ -144,6 +144,12 @@ class PlainDumper():
         self.typeCache = {}
 
     def __call__(self, d, value):
+        if value.nativeValue is None:
+            # warn('PlainDumper(gdb): value.nativeValue is missing (%s)'%value)
+            nativeType        = theDumper.lookupNativeType(value.type.name)
+            nativeTypePointer = nativeType.pointer()
+            nativePointer     = gdb.Value(value.laddress)
+            value.nativeValue = nativePointer.cast(nativeTypePointer).dereference()
         try:
             printer = self.printer.gen_printer(value.nativeValue)
         except:
