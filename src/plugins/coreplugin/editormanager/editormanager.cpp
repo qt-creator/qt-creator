@@ -371,9 +371,9 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 static EditorManager *m_instance = nullptr;
 static EditorManagerPrivate *d;
 
-static QString autoSaveName(const QString &fileName)
+static FilePath autoSaveName(const FilePath &filePath)
 {
-    return fileName + ".autosave";
+    return filePath.stringAppended(".autosave");
 }
 
 static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
@@ -786,15 +786,13 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << filePath << editorId.name();
 
-    const QString fn = Utils::FileUtils::normalizePathName(filePath.toString());
-    if (fn.isEmpty())
+    if (filePath.isEmpty())
         return nullptr;
-    const QFileInfo fi(fn);
 
     if (newEditor)
         *newEditor = false;
 
-    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(FilePath::fromString(fn));
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
         if (flags & EditorManager::SwitchSplitIfAlreadyVisible) {
@@ -811,19 +809,18 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
         return activateEditor(view, editor, flags);
     }
 
-    QString realFn = autoSaveName(fn);
-    QFileInfo rfi(realFn);
-    if (!fi.exists() || !rfi.exists() || fi.lastModified() >= rfi.lastModified()) {
-        QFile::remove(realFn);
-        realFn = fn;
+    FilePath realFp = autoSaveName(filePath);
+    if (!filePath.exists() || !realFp.exists() || filePath.lastModified() >= realFp.lastModified()) {
+        realFp.removeFile();
+        realFp = filePath;
     }
 
-    EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), FilePath::fromString(fn));
+    EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), filePath);
     if (factories.isEmpty()) {
-        Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
+        Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
                            tr("Could not open \"%1\": Cannot open files of type \"%2\".")
-                           .arg(FilePath::fromString(realFn).toUserOutput(), mimeType.name()),
+                           .arg(realFp.toUserOutput(), mimeType.name()),
                            QMessageBox::Ok, ICore::dialogParent());
         msgbox.exec();
         return nullptr;
@@ -843,19 +840,16 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     IEditor *editor = nullptr;
     auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
 
-    auto fp = Utils::FilePath::fromString(fn);
-    auto realFp = Utils::FilePath::fromString(realFn);
-
     IEditorFactory *factory = factories.takeFirst();
     while (factory) {
-        editor = createEditor(factory, fp);
+        editor = createEditor(factory, filePath);
         if (!editor) {
             factory = factories.takeFirst();
             continue;
         }
 
         QString errorString;
-        IDocument::OpenResult openResult = editor->document()->open(&errorString, fp, realFp);
+        IDocument::OpenResult openResult = editor->document()->open(&errorString, filePath, realFp);
         if (openResult == IDocument::OpenResult::Success)
             break;
 
@@ -868,17 +862,15 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                                tr("Could not open \"%1\" for reading. "
                                   "Either the file does not exist or you do not have "
                                   "the permissions to open it.")
-                               .arg(FilePath::fromString(realFn).toUserOutput()),
+                               .arg(realFp.toUserOutput()),
                                QMessageBox::Ok, ICore::dialogParent());
             msgbox.exec();
             return nullptr;
         }
         QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
 
-        if (errorString.isEmpty()) {
-            errorString = tr("Could not open \"%1\": Unknown error.")
-                    .arg(FilePath::fromString(realFn).toUserOutput());
-        }
+        if (errorString.isEmpty())
+            errorString = tr("Could not open \"%1\": Unknown error.").arg(realFp.toUserOutput());
 
         QMessageBox msgbox(QMessageBox::Critical,
                            EditorManager::tr("File Error"),
@@ -917,7 +909,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     if (!editor)
         return nullptr;
 
-    if (realFn != fn)
+    if (realFp != filePath)
         editor->document()->setRestoredFrom(realFp);
     addEditor(editor);
 
@@ -2327,13 +2319,13 @@ void EditorManagerPrivate::autoSave()
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
         if (!document->isModified() || !document->shouldAutoSave())
             continue;
-        const QString saveName = autoSaveName(document->filePath().toString());
-        const QString savePath = QFileInfo(saveName).absolutePath();
+        const FilePath saveName = autoSaveName(document->filePath());
+        const FilePath savePath = saveName.absolutePath();
         if (document->filePath().isEmpty()
-                || !QFileInfo(savePath).isWritable()) // FIXME: save them to a dedicated directory
+                || !savePath.isWritableDir()) // FIXME: save them to a dedicated directory
             continue;
         QString errorString;
-        if (!document->autoSave(&errorString, Utils::FilePath::fromUserInput(saveName)))
+        if (!document->autoSave(&errorString, saveName))
             errors << errorString;
     }
     if (!errors.isEmpty())
@@ -3566,16 +3558,16 @@ bool EditorManager::restoreState(const QByteArray &state)
             stream >> pinned;
 
         if (!fileName.isEmpty() && !displayName.isEmpty()) {
-            QFileInfo fi(fileName);
-            if (!fi.exists())
+            const FilePath filePath = FilePath::fromUserInput(fileName);
+            if (!filePath.exists())
                 continue;
-            QFileInfo rfi(autoSaveName(fileName));
-            if (rfi.exists() && fi.lastModified() < rfi.lastModified()) {
+            const FilePath rfp = autoSaveName(filePath);
+            if (rfp.exists() && filePath.lastModified() < rfp.lastModified()) {
                 if (IEditor *editor = openEditor(fileName, id, DoNotMakeVisible))
                     DocumentModelPrivate::setPinned(DocumentModel::entryForDocument(editor->document()), pinned);
             } else {
                  if (DocumentModel::Entry *entry = DocumentModelPrivate::addSuspendedDocument(
-                        FilePath::fromString(fileName), displayName, id))
+                        filePath, displayName, id))
                      DocumentModelPrivate::setPinned(entry, pinned);
             }
         }
