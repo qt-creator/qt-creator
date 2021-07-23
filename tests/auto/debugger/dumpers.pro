@@ -18,6 +18,7 @@ msvc {
     SOURCES += \
         $$IDE_SOURCE_TREE/src/libs/utils/commandline.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/environment.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/filepath.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/fileutils.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.cpp \
@@ -31,6 +32,7 @@ msvc {
     HEADERS += \
         $$IDE_SOURCE_TREE/src/libs/utils/commandline.h \
         $$IDE_SOURCE_TREE/src/libs/utils/environment.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/filepath.h \
         $$IDE_SOURCE_TREE/src/libs/utils/fileutils.h \
         $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.h \
