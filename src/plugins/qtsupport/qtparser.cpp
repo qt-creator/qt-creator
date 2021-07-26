@@ -41,12 +41,12 @@ using namespace ProjectExplorer;
 namespace QtSupport {
 
 // opt. drive letter + filename: (2 brackets)
-#define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
+#define FILE_PATTERN "^(?<file>(?:[A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(FILE_PATTERN R"([:\(](\d+?)\)?:\s([Ww]arning|[Ee]rror|[Nn]ote):\s(.+?)$)"),
+    m_mocRegExp(FILE_PATTERN R"([:\(](?<line>\d+?)\)?:\s(?<level>[Ww]arning|[Ee]rror|[Nn]ote):\s(?<description>.+?)$)"),
     m_uicRegExp(FILE_PATTERN R"(: Warning:\s(?<msg>.+?)$)"),
-    m_translationRegExp(R"(^([Ww]arning|[Ee]rror):\s+(.*?) in '(.*?)'$)")
+    m_translationRegExp(R"(^(?<level>[Ww]arning|[Ee]rror):\s+(?<description>.*?) in '(?<file>.*?)'$)")
 {
     setObjectName(QLatin1String("QtParser"));
 }
@@ -60,20 +60,20 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
     QRegularExpressionMatch match = m_mocRegExp.match(lne);
     if (match.hasMatch()) {
         bool ok;
-        int lineno = match.captured(3).toInt(&ok);
+        int lineno = match.captured("line").toInt(&ok);
         if (!ok)
             lineno = -1;
         Task::TaskType type = Task::Error;
-        const QString level = match.captured(4);
+        const QString level = match.captured("level");
         if (level.compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             type = Task::Warning;
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
         LinkSpecs linkSpecs;
         const Utils::FilePath file
-                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1)));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, 1);
-        CompileTask task(type, match.captured(5).trimmed() /* description */, file, lineno);
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, "file");
+        CompileTask task(type, match.captured("description").trimmed(), file, lineno);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
@@ -88,7 +88,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
             message.prepend(": ").prepend(fileName);
         } else if (fileName.endsWith(".ui")) {
             filePath = absoluteFilePath(Utils::FilePath::fromUserInput(fileName));
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 1);
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, "file");
         } else {
             isUicMessage = false;
         }
@@ -100,13 +100,13 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
     match = m_translationRegExp.match(line);
     if (match.hasMatch()) {
         Task::TaskType type = Task::Warning;
-        if (match.captured(1) == QLatin1String("Error"))
+        if (match.captured("level") == QLatin1String("Error"))
             type = Task::Error;
         LinkSpecs linkSpecs;
         const Utils::FilePath file
-                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(3)));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, match, 3);
-        CompileTask task(type, match.captured(2), file);
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, match, "file");
+        CompileTask task(type, match.captured("description"), file);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
