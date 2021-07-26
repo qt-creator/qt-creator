@@ -166,7 +166,23 @@ ClangTidyInfo::ClangTidyInfo(const QString &executablePath)
 ClazyStandaloneInfo::ClazyStandaloneInfo(const QString &executablePath)
     : defaultChecks(queryClangTidyChecks(executablePath, {})) // Yup, behaves as clang-tidy.
     , supportedChecks(querySupportedClazyChecks(executablePath))
-{}
+{
+    QString output = runExecutable(CommandLine(executablePath, {"--version"}),
+                                   QueryFailMode::Silent);
+    QTextStream stream(&output);
+    while (!stream.atEnd()) {
+        // It's just "clazy version " right now, but let's be prepared for someone adding a colon
+        // later on.
+        static const QStringList versionPrefixes{"clazy version ", "clazy version: "};
+        const QString line = stream.readLine().simplified();
+        for (const QString &prefix : versionPrefixes) {
+            if (line.startsWith(prefix)) {
+                version = QVersionNumber::fromString(line.mid(prefix.length()));
+                break;
+            }
+        }
+    }
+}
 
 static FilePath queryResourceDir(const FilePath &clangToolPath)
 {

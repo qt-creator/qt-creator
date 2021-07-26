@@ -629,8 +629,7 @@ private:
             if (role == LinkRole || role == Qt::ToolTipRole) {
                 if (node->check.name.isEmpty())
                     return QVariant();
-                return QString::fromUtf8(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE)
-                    .arg(node->name);
+                return clazyDocUrl(node->name);
             }
             if (role == Qt::DisplayRole && node->kind != ClazyChecksTree::CheckNode)
                 return QVariant();
