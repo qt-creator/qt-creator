@@ -87,9 +87,9 @@ public:
     void bind(int index, long long value);
     void bind(int index, double value);
     void bind(int index, void *pointer);
-    void bind(int index, Utils::span<int> values);
-    void bind(int index, Utils::span<long long> values);
-    void bind(int index, Utils::span<double> values);
+    void bind(int index, Utils::span<const int> values);
+    void bind(int index, Utils::span<const long long> values);
+    void bind(int index, Utils::span<const double> values);
     void bind(int index, Utils::span<const char *> values);
     void bind(int index, Utils::SmallStringView value);
     void bind(int index, const Value &value);

@@ -185,11 +185,11 @@ void BaseStatement::bind(int index, void *pointer)
         checkForBindingError(resultCode);
 }
 
-void BaseStatement::bind(int index, Utils::span<int> values)
+void BaseStatement::bind(int index, Utils::span<const int> values)
 {
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
-                                         values.data(),
+                                         const_cast<int *>(values.data()),
                                          static_cast<int>(values.size()),
                                          CARRAY_INT32,
                                          SQLITE_STATIC);
@@ -197,11 +197,11 @@ void BaseStatement::bind(int index, Utils::span<int> values)
         checkForBindingError(resultCode);
 }
 
-void BaseStatement::bind(int index, Utils::span<long long> values)
+void BaseStatement::bind(int index, Utils::span<const long long> values)
 {
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
-                                         values.data(),
+                                         const_cast<long long *>(values.data()),
                                          static_cast<int>(values.size()),
                                          CARRAY_INT64,
                                          SQLITE_STATIC);
@@ -209,11 +209,11 @@ void BaseStatement::bind(int index, Utils::span<long long> values)
         checkForBindingError(resultCode);
 }
 
-void BaseStatement::bind(int index, Utils::span<double> values)
+void BaseStatement::bind(int index, Utils::span<const double> values)
 {
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
-                                         values.data(),
+                                         const_cast<double *>(values.data()),
                                          static_cast<int>(values.size()),
                                          CARRAY_DOUBLE,
                                          SQLITE_STATIC);
