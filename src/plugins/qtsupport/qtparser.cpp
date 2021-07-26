@@ -41,10 +41,10 @@ using namespace ProjectExplorer;
 namespace QtSupport {
 
 // opt. drive letter + filename: (2 brackets)
-#define FILE_PATTERN "^(?<file>(?:[A-Za-z]:)?[^:]+\\.[^:]+)"
+#define FILE_PATTERN R"(^(?<file>(?:[A-Za-z]:)?[^:\(]+\.[^:\(]+))"
 
 QtParser::QtParser() :
-    m_mocRegExp(FILE_PATTERN R"([:\(](?<line>\d+?)\)?:\s(?<level>[Ww]arning|[Ee]rror|[Nn]ote):\s(?<description>.+?)$)"),
+    m_mocRegExp(FILE_PATTERN R"([:\(](?<line>\d+)?(?::(?<column>\d+))?\)?:\s(?<level>[Ww]arning|[Ee]rror|[Nn]ote):\s(?<description>.+?)$)"),
     m_uicRegExp(FILE_PATTERN R"(: Warning:\s(?<msg>.+?)$)"),
     m_translationRegExp(R"(^(?<level>[Ww]arning|[Ee]rror):\s+(?<description>.*?) in '(?<file>.*?)'$)")
 {
@@ -74,6 +74,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
                 = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
         addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, "file");
         CompileTask task(type, match.captured("description").trimmed(), file, lineno);
+        task.column = match.captured("column").toInt();
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
@@ -176,6 +177,22 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
                                                        Utils::FilePath::fromUserInput(QLatin1String("c:\\code\\test.h")), 96))
+            << QString();
+    QTest::newRow("moc warning (Qt 6/Windows)")
+            << QString::fromLatin1(R"(C:/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h(38:1): error: Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks() << CompileTask(Task::Error,
+                                       R"(Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)",
+                                       Utils::FilePath::fromUserInput("C:/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h"), 38, 1))
+            << QString();
+    QTest::newRow("moc warning (Qt 6/Unix)")
+            << QString::fromLatin1(R"(/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h:38:1: error: Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks() << CompileTask(Task::Error,
+                                       R"(Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)",
+                                       Utils::FilePath::fromUserInput("/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h"), 38, 1))
             << QString();
     QTest::newRow("moc note")
             << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
