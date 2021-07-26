@@ -566,32 +566,28 @@ void DiffEditorPluginPrivate::diffOpenFiles()
 
 void DiffEditorPluginPrivate::diffExternalFiles()
 {
-    const QString fileName1 = QFileDialog::getOpenFileName(ICore::dialogParent(),
-                                                     tr("Select First File for Diff"),
-                                                     QString());
-    if (fileName1.isNull())
+    const FilePath filePath1 = FileUtils::getOpenFilePath(tr("Select First File for Diff"));
+    if (filePath1.isEmpty())
         return;
-    if (EditorManager::skipOpeningBigTextFile(FilePath::fromString(fileName1)))
+    if (EditorManager::skipOpeningBigTextFile(filePath1))
         return;
 
-    const QString fileName2 = QFileDialog::getOpenFileName(ICore::dialogParent(),
-                                                     tr("Select Second File for Diff"),
-                                                     QString());
-    if (fileName2.isNull())
+    const FilePath filePath2 = FileUtils::getOpenFilePath(tr("Select Second File for Diff"));
+    if (filePath2.isEmpty())
         return;
-    if (EditorManager::skipOpeningBigTextFile(FilePath::fromString(fileName2)))
+    if (EditorManager::skipOpeningBigTextFile(filePath2))
         return;
 
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
-            + QLatin1String(".DiffExternalFiles.") + fileName1 + QLatin1Char('.') + fileName2;
-    const QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1, fileName2);
+    const QString documentId = QLatin1String(Constants::DIFF_EDITOR_PLUGIN)
+            + ".DiffExternalFiles." + filePath1.toString() + '.' + filePath2.toString();
+    const QString title = tr("Diff \"%1\", \"%2\"").arg(filePath1.toString(), filePath2.toString());
     auto const document = qobject_cast<DiffEditorDocument *>(
                 DiffEditorController::findOrCreateDocument(documentId, title));
     if (!document)
         return;
 
     if (!DiffEditorController::controller(document))
-        new DiffExternalFilesController(document, fileName1, fileName2);
+        new DiffExternalFilesController(document, filePath1.toString(), filePath2.toString());
     EditorManager::activateEditorForDocument(document);
     document->reload();
 }

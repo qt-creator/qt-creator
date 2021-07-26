@@ -754,15 +754,13 @@ public:
         ProjectImporter *projectImporter = project ? project->projectImporter() : nullptr;
         QTC_ASSERT(projectImporter, return);
 
-        QString dir = project->projectDirectory().toString();
-        QString importDir = QFileDialog::getExistingDirectory(ICore::dialogParent(),
-                                                              ProjectWindow::tr("Import Directory"),
-                                                              dir);
-        FilePath path = FilePath::fromString(importDir);
+        FilePath importDir =
+                Utils::FileUtils::getExistingDirectory(ProjectWindow::tr("Import Directory"),
+                                                       project->projectDirectory());
 
         Target *lastTarget = nullptr;
         BuildConfiguration *lastBc = nullptr;
-        for (const BuildInfo &info : projectImporter->import(path, false)) {
+        for (const BuildInfo &info : projectImporter->import(importDir, false)) {
             Target *target = project->target(info.kitId);
             if (!target)
                 target = project->addTargetForKit(KitManager::kit(info.kitId));

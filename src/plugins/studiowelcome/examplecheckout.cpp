@@ -239,12 +239,11 @@ QString FileExtractor::targetPath() const
 
 void FileExtractor::browse()
 {
-    const QString path = QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
-                                                           (tr("Choose Directory")),
-                                                           m_targetPath.toString());
+    const Utils::FilePath path =
+            Utils::FileUtils::getExistingDirectory(tr("Choose Directory"), m_targetPath);
 
     if (!path.isEmpty())
-        m_targetPath = Utils::FilePath::fromString(path);
+        m_targetPath = path;
 
     emit targetPathChanged();
     emit targetFolderExistsChanged();

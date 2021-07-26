@@ -720,12 +720,10 @@ Utils::FilePath Project::projectDirectory(const Utils::FilePath &top)
 
 void Project::changeRootProjectDirectory()
 {
-    Utils::FilePath rootPath = Utils::FilePath::fromString(
-        QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
-                                          tr("Select the Root Directory"),
-                                          rootProjectDirectory().toString(),
-                                          QFileDialog::ShowDirsOnly
-                                              | QFileDialog::DontResolveSymlinks));
+    Utils::FilePath rootPath = Utils::FileUtils::getExistingDirectory(
+          tr("Select the Root Directory"),
+          rootProjectDirectory(),
+          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (rootPath != d->m_rootProjectDirectory) {
         d->m_rootProjectDirectory = rootPath;
         setNamedSettings(Constants::PROJECT_ROOT_PATH_KEY, d->m_rootProjectDirectory.toString());

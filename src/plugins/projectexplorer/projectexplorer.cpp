@@ -3577,24 +3577,24 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
         projectNode = currentNode->asContainerNode()->rootProjectNode();
     QTC_ASSERT(projectNode, return);
     const FilePath dir = currentNode->directory();
-    QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
-                ICore::dialogParent(), tr("Choose Project File"), dir.toString(),
+    FilePaths subProjectFilePaths = Utils::FileUtils::getOpenFilePaths(
+                tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;
     const QList<Node *> childNodes = projectNode->nodes();
-    Utils::erase(subProjectFilePaths, [childNodes](const QString &filePath) {
+    Utils::erase(subProjectFilePaths, [childNodes](const FilePath &filePath) {
         return Utils::anyOf(childNodes, [filePath](const Node *n) {
-            return n->filePath().toString() == filePath;
+            return n->filePath() == filePath;
         });
     });
     if (subProjectFilePaths.empty())
         return;
-    QStringList failedProjects;
+    FilePaths failedProjects;
     QStringList addedProjects;
-    for (const QString &filePath : qAsConst(subProjectFilePaths)) {
-        if (projectNode->addSubProject(filePath))
-            addedProjects << filePath;
+    for (const FilePath &filePath : qAsConst(subProjectFilePaths)) {
+        if (projectNode->addSubProject(filePath.toString()))
+            addedProjects << filePath.toString();
         else
             failedProjects << filePath;
     }
@@ -3602,7 +3602,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
         const QString message = tr("The following subprojects could not be added to project "
                                    "\"%1\":").arg(projectNode->managingProject()->displayName());
         QMessageBox::warning(ICore::dialogParent(), tr("Adding Subproject Failed"),
-                             message + "\n  " + failedProjects.join("\n  "));
+                             message + "\n  " + FilePath::formatFilePaths(failedProjects, "\n  "));
         return;
     }
     VcsManager::promptToAdd(dir.toString(), addedProjects);
@@ -3615,13 +3615,12 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 
     QTC_ASSERT(folderNode, return);
 
-    QStringList fileNames = QFileDialog::getOpenFileNames(ICore::dialogParent(),
-        tr("Add Existing Files"), node->directory().toString());
-    if (fileNames.isEmpty())
+    const FilePaths filePaths =
+            Utils::FileUtils::getOpenFilePaths(tr("Add Existing Files"), node->directory());
+    if (filePaths.isEmpty())
         return;
 
-    ProjectExplorerPlugin::addExistingFiles(folderNode,
-                                            Utils::transform(fileNames, &FilePath::fromString));
+    ProjectExplorerPlugin::addExistingFiles(folderNode, filePaths);
 }
 
 void ProjectExplorerPluginPrivate::addExistingDirectory()
