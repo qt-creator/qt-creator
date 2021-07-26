@@ -203,6 +203,7 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2();
     void test_quickfix_MoveFuncDefOutside_macroUses();
     void test_quickfix_MoveFuncDefOutside_template();
+    void test_quickfix_MoveFuncDefOutside_template_specializedClass();
     void test_quickfix_MoveFuncDefOutside_unnamedTemplate();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_Static();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_WithInlinePartOfName();

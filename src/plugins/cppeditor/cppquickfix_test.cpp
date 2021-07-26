@@ -6521,6 +6521,33 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template_specializedClass()
+{
+    QByteArray original = R"(
+template<typename T> class base {};
+template<>
+class base<int>
+{
+public:
+    void @bar() {}
+};
+)";
+    QByteArray expected = R"(
+template<typename T> class base {};
+template<>
+class base<int>
+{
+public:
+    void bar();
+};
+
+void base<int>::bar() {}
+)";
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_unnamedTemplate()
 {
     QByteArray original =
