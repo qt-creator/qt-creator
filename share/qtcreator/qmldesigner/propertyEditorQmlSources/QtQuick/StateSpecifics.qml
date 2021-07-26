@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import HelperWidgets 2.0
 import QtQuick.Layouts 1.15
+import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
@@ -37,42 +38,53 @@ Column {
         caption: qsTr("State")
 
         SectionLayout {
-            Label {
+            PropertyLabel {
                 text: qsTr("When")
                 tooltip: qsTr("Sets when the state should be applied.")
             }
+
             SecondColumnLayout {
                 CheckBox {
                     text: backendValues.when.valueToString
                     backendValue: backendValues.when
-                    implicitWidth: 180
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
+
                 ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Name")
                 tooltip: qsTr("The name of the state.")
             }
+
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.name
-                    Layout.fillWidth: true
                     showTranslateCheckBox: false
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                 }
+
                 ExpandingSpacer {}
             }
 
-            Label {
+            PropertyLabel {
                 text: qsTr("Extend")
                 tooltip: qsTr("The state that this state extends.")
             }
+
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.extend
-                    Layout.fillWidth: true
                     showTranslateCheckBox: false
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
                 }
+
                 ExpandingSpacer {}
             }
         }

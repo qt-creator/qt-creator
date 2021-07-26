@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,121 +23,104 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
-Column {
+Section {
     anchors.left: parent.left
     anchors.right: parent.right
+    caption: qsTr("Window")
 
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: qsTr("Window")
+    SectionLayout {
+        PropertyLabel { text: qsTr("Title") }
 
-        SectionLayout {
-            Label {
-                text: qsTr("Title")
+        SecondColumnLayout {
+            LineEdit {
+                backendValue: backendValues.title
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
             }
 
-            SecondColumnLayout {
-                LineEdit {
-                    backendValue: backendValues.title
-                    Layout.fillWidth: true
-                }
-
-                ExpandingSpacer {
-
-                }
-            }
-
-            Label {
-                text: qsTr("Size")
-            }
-
-            SecondColumnLayout {
-                Label {
-                    text: "W"
-                    width: 12
-                }
-
-                SpinBox {
-                    backendValue: backendValues.width
-                    minimumValue: 0
-                    maximumValue: 10000
-                    decimals: 0
-                }
-
-                Label {
-                    text: "H"
-                    width: 12
-                }
-
-                SpinBox {
-                    backendValue: backendValues.height
-                    minimumValue: 0
-                    maximumValue: 10000
-                    decimals: 0
-                }
-
-                ExpandingSpacer {
-
-                }
-            }
-
+            ExpandingSpacer {}
         }
-    }
 
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: qsTr("Color")
+        PropertyLabel { text: qsTr("Size") }
+
+        SecondColumnLayout {
+            SpinBox {
+                backendValue: backendValues.width
+                minimumValue: 0
+                maximumValue: 10000
+                decimals: 0
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                //: The width of the object
+                text: qsTr("W", "width")
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+            SpinBox {
+                backendValue: backendValues.height
+                minimumValue: 0
+                maximumValue: 10000
+                decimals: 0
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                //: The height of the object
+                text: qsTr("H", "height")
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel { text: qsTr("Color") }
 
         ColorEditor {
-            caption: qsTr("Color")
             backendValue: backendValues.color
             supportGradient: false
         }
 
-    }
+        PropertyLabel { text: qsTr("Visible") }
 
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: "Rectangle"
+        SecondColumnLayout {
+            CheckBox {
+                backendValue: backendValues.visible
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
 
-        SectionLayout {
-            rows: 2
-            Label {
-                text: qsTr("Visible")
-            }
-            SecondColumnLayout {
-                CheckBox {
-                    backendValue: backendValues.visible
-                    Layout.preferredWidth: 80
-                }
-                ExpandingSpacer {
+            ExpandingSpacer {}
+        }
 
-                }
-            }
-            Label {
-                text: qsTr("Opacity")
-            }
-            SecondColumnLayout {
-                SpinBox {
-                    backendValue: backendValues.opacity
-                    hasSlider: true
-                    Layout.preferredWidth: 80
-                    minimumValue: 0
-                    maximumValue: 1
-                    stepSize: 0.1
-                    decimals: 2
-                }
-                ExpandingSpacer {
+        PropertyLabel { text: qsTr("Opacity") }
 
-                }
+        SecondColumnLayout {
+            SpinBox {
+                backendValue: backendValues.opacity
+                hasSlider: true
+                minimumValue: 0
+                maximumValue: 1
+                stepSize: 0.1
+                decimals: 2
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
+
+            ExpandingSpacer {}
         }
     }
 }
