@@ -44,9 +44,9 @@ namespace QtSupport {
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+?)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+?)$")),
-    m_uicRegExp(QLatin1String(FILE_PATTERN": Warning:\\s(?<msg>.+?)$")),
-    m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*?) in '(.*?)'$"))
+    m_mocRegExp(FILE_PATTERN R"([:\(](\d+?)\)?:\s([Ww]arning|[Ee]rror|[Nn]ote):\s(.+?)$)"),
+    m_uicRegExp(FILE_PATTERN R"(: Warning:\s(?<msg>.+?)$)"),
+    m_translationRegExp(R"(^([Ww]arning|[Ee]rror):\s+(.*?) in '(.*?)'$)")
 {
     setObjectName(QLatin1String("QtParser"));
 }
