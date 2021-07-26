@@ -77,7 +77,8 @@ NimProjectScanner::NimProjectScanner(Project *project)
         }
 
         // Sync watched dirs
-        const QSet<QString> fsDirs = Utils::transform<QSet>(nodes, &FileNode::directory);
+        const QSet<QString> fsDirs = Utils::transform<QSet>(nodes,
+            [](const std::unique_ptr<FileNode> &fn) { return fn->directory().toString(); });
         const QSet<QString> projectDirs = Utils::toSet(m_directoryWatcher.directories());
         m_directoryWatcher.addDirectories(Utils::toList(fsDirs - projectDirs), FileSystemWatcher::WatchAllChanges);
         m_directoryWatcher.removeDirectories(Utils::toList(projectDirs - fsDirs));

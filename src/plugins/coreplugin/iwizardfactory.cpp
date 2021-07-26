@@ -141,7 +141,7 @@ class NewItemDialogData
 {
 public:
     void setData(const QString &t, const QList<IWizardFactory *> &f,
-                 const QString &dl, const QVariantMap &ev)
+                 const FilePath &dl, const QVariantMap &ev)
     {
         QTC_ASSERT(!hasData(), return);
 
@@ -173,7 +173,7 @@ public:
 private:
     QString title;
     QList<IWizardFactory *> factories;
-    QString defaultLocation;
+    FilePath defaultLocation;
     QVariantMap extraVariables;
 };
 
@@ -358,7 +358,7 @@ QWidget *IWizardFactory::currentWizard()
 
 void IWizardFactory::requestNewItemDialog(const QString &title,
                                           const QList<IWizardFactory *> &factories,
-                                          const QString &defaultLocation,
+                                          const FilePath &defaultLocation,
                                           const QVariantMap &extraVariables)
 {
     s_reopenData.setData(title, factories, defaultLocation, extraVariables);

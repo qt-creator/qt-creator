@@ -3515,7 +3515,7 @@ void ProjectExplorerPluginPrivate::addNewFile()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    QString location = currentNode->directory();
+    FilePath location = currentNode->directory();
 
     QVariantMap map;
     // store void pointer to avoid QVariant to use qobject_cast, which might core-dump when trying
@@ -3541,7 +3541,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
 {
     Node* currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    QString location = currentNode->directory();
+    FilePath location = currentNode->directory();
 
     if (currentNode->isProjectNodeType()
             && currentNode->supportsAction(AddSubProject, currentNode)) {
@@ -3576,9 +3576,9 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     if (!projectNode && currentNode->asContainerNode())
         projectNode = currentNode->asContainerNode()->rootProjectNode();
     QTC_ASSERT(projectNode, return);
-    const QString dir = currentNode->directory();
+    const FilePath dir = currentNode->directory();
     QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
-                ICore::dialogParent(), tr("Choose Project File"), dir,
+                ICore::dialogParent(), tr("Choose Project File"), dir.toString(),
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;
@@ -3605,7 +3605,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
                              message + "\n  " + failedProjects.join("\n  "));
         return;
     }
-    VcsManager::promptToAdd(dir, addedProjects);
+    VcsManager::promptToAdd(dir.toString(), addedProjects);
 }
 
 void ProjectExplorerPluginPrivate::handleAddExistingFiles()
@@ -3616,7 +3616,7 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
     QTC_ASSERT(folderNode, return);
 
     QStringList fileNames = QFileDialog::getOpenFileNames(ICore::dialogParent(),
-        tr("Add Existing Files"), node->directory());
+        tr("Add Existing Files"), node->directory().toString());
     if (fileNames.isEmpty())
         return;
 
@@ -3631,8 +3631,7 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
 
     QTC_ASSERT(folderNode, return);
 
-    SelectableFilesDialogAddDirectory dialog(FilePath::fromString(node->directory()),
-                                             FilePaths(), ICore::dialogParent());
+    SelectableFilesDialogAddDirectory dialog(node->directory(), FilePaths(), ICore::dialogParent());
     dialog.setAddFileFilter({});
 
     if (dialog.exec() == QDialog::Accepted)
@@ -3645,7 +3644,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const FileP
     if (!folderNode || !ProjectTree::hasNode(folderNode))
         return;
 
-    const QString dir = folderNode->directory();
+    const FilePath dir = folderNode->directory();
     FilePaths fileNames = filePaths;
     FilePaths notAdded;
     folderNode->addFiles(fileNames, &notAdded);
@@ -3659,7 +3658,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const FileP
                                     [&notAdded](const FilePath &f) { return !notAdded.contains(f); });
     }
 
-    VcsManager::promptToAdd(dir, Utils::transform(fileNames, &FilePath::toString));
+    VcsManager::promptToAdd(dir.toString(), Utils::transform(fileNames, &FilePath::toString));
 }
 
 void ProjectExplorerPluginPrivate::removeProject()
@@ -3687,14 +3686,14 @@ void ProjectExplorerPluginPrivate::searchOnFileSystem()
 {
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    TextEditor::FindInFiles::findOnFileSystem(currentNode->path());
+    TextEditor::FindInFiles::findOnFileSystem(currentNode->path().toString());
 }
 
 void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
+    Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path().toString());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
@@ -3706,7 +3705,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     if (!environment)
         return;
 
-    Core::FileUtils::openTerminal(currentNode->directory(), environment.value());
+    Core::FileUtils::openTerminal(currentNode->directory().toString(), environment.value());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3728,7 +3727,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
         device = DeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);
     const QString workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
-            ? currentNode->directory() : runnable.workingDirectory;
+            ? currentNode->directory().toString() : runnable.workingDirectory;
     device->openTerminal(runnable.environment, workingDir);
 }
 

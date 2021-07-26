@@ -176,8 +176,8 @@ public:
     static FileType fileTypeForMimeType(const Utils::MimeType &mt);
     static FileType fileTypeForFileName(const Utils::FilePath &file);
 
-    QString path() const { return pathOrDirectory(false); }
-    QString directory() const { return pathOrDirectory(true); }
+    Utils::FilePath path() const { return pathOrDirectory(false); }
+    Utils::FilePath directory() const { return pathOrDirectory(true); }
 
 protected:
     Node();
@@ -187,7 +187,7 @@ protected:
     void setFilePath(const Utils::FilePath &filePath);
 
 private:
-    QString pathOrDirectory(bool dir) const;
+    Utils::FilePath pathOrDirectory(bool dir) const;
 
     FolderNode *m_parentFolderNode = nullptr;
     Utils::FilePath m_filePath;

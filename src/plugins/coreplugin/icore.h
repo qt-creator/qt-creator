@@ -78,8 +78,8 @@ public:
     static QWidget *newItemDialog();
     static void showNewItemDialog(const QString &title,
                                   const QList<IWizardFactory *> &factories,
-                                  const QString &defaultLocation = QString(),
-                                  const QVariantMap &extraVariables = QVariantMap());
+                                  const Utils::FilePath &defaultLocation = {},
+                                  const QVariantMap &extraVariables = {});
 
     static bool showOptionsDialog(const Utils::Id page, QWidget *parent = nullptr);
     static QString msgShowOptionsDialog();

@@ -95,7 +95,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
     m_canAdd(false)
 {
     if (node)
-        m_toolTip = node->directory();
+        m_toolTip = node->directory().toString();
     foreach (AddNewTree *child, children)
         appendChild(child);
 }
@@ -107,7 +107,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
     m_priority(info.priority)
 {
     if (node)
-        m_toolTip = node->directory();
+        m_toolTip = node->directory().toString();
     foreach (AddNewTree *child, children)
         appendChild(child);
 }
@@ -180,7 +180,7 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
     if (m_deploys)
         return;
 
-    const QString projectDirectory = node->directory();
+    const QString projectDirectory = node->directory().toString();
     const int projectDirectorySize = projectDirectory.size();
     if (m_commonDirectory != projectDirectory
             && !m_commonDirectory.startsWith(projectDirectory + QLatin1Char('/'))

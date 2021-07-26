@@ -96,7 +96,8 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
                                                              [](Core::IWizardFactory *f) {
                                                                  return f->supportedProjectTypes().contains(Constants::QMAKEPROJECT_ID);
                                                              }),
-                                             wizard->parameters().projectPath(), map);
+                                             Utils::FilePath::fromString(wizard->parameters().projectPath()),
+                                             map);
     } else {
         return false;
     }

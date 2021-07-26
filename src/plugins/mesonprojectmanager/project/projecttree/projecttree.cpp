@@ -58,7 +58,7 @@ void addTargetNode(std::unique_ptr<MesonProjectNode> &root, const Target &target
             if (asFolder) {
                 auto targetNode = std::make_unique<MesonTargetNode>(
                     path.absolutePath().pathAppended(target.name),
-                    Target::fullName(Utils::FilePath::fromString(root->path()), target));
+                    Target::fullName(root->path(), target));
                 targetNode->setDisplayName(target.name);
                 asFolder->addNode(std::move(targetNode));
             }

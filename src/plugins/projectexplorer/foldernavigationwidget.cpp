@@ -512,7 +512,7 @@ void FolderNavigationWidget::addNewItem()
                                    Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                    Utils::equal(&Core::IWizardFactory::kind,
                                                                 Core::IWizardFactory::FileWizard)),
-                                   path.toString());
+                                   path);
 }
 
 void FolderNavigationWidget::editCurrentItem()

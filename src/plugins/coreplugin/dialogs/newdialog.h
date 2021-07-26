@@ -27,6 +27,8 @@
 
 #include "../iwizardfactory.h"
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 #include <QIcon>
 #include <QList>
@@ -54,7 +56,9 @@ public:
     explicit NewDialog(QWidget *parent);
     ~NewDialog() override;
 
-    void setWizardFactories(QList<IWizardFactory*> factories, const QString &defaultLocation, const QVariantMap &extraVariables);
+    void setWizardFactories(QList<IWizardFactory*> factories,
+                            const Utils::FilePath &defaultLocation,
+                            const QVariantMap &extraVariables);
 
     void showDialog();
     Utils::Id selectedPlatform() const;
@@ -84,7 +88,7 @@ private:
     QPushButton *m_okButton = nullptr;
     QIcon m_dummyIcon;
     QList<QStandardItem*> m_categoryItems;
-    QString m_defaultLocation;
+    Utils::FilePath m_defaultLocation;
     QVariantMap m_extraVariables;
 };
 

@@ -311,28 +311,30 @@ FileType Node::fileTypeForFileName(const Utils::FilePath &file)
     return fileTypeForMimeType(Utils::mimeTypeForFile(file, Utils::MimeMatchMode::MatchExtension));
 }
 
-QString Node::pathOrDirectory(bool dir) const
+FilePath Node::pathOrDirectory(bool dir) const
 {
-    QString location;
+    FilePath location;
     const FolderNode *folder = asFolderNode();
     if (isVirtualFolderType() && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
-            location = m_filePath.toString();
+            location = m_filePath;
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             QStringList list;
             foreach (FolderNode *f, folder->folderNodes())
                 list << f->filePath().toString() + QLatin1Char('/');
-            location = Utils::commonPath(list);
+            location = FilePath::fromString(Utils::commonPath(list));
         }
 
-        QFileInfo fi(location);
+        QTC_CHECK(!location.needsDevice());
+        QFileInfo fi = location.toFileInfo();
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
             fi.setFile(fi.absolutePath());
-        location = fi.absoluteFilePath();
+        location = FilePath::fromString(fi.absoluteFilePath());
     } else if (!m_filePath.isEmpty()) {
+        QTC_CHECK(!m_filePath.needsDevice());
         QFileInfo fi = m_filePath.toFileInfo();
         // remove any /suffixes, which e.g. ResourceNode uses
         // Note this could be removed again by making path() a true path again
@@ -341,9 +343,9 @@ QString Node::pathOrDirectory(bool dir) const
             fi.setFile(fi.absolutePath());
 
         if (dir)
-            location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+            location = FilePath::fromString(fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
         else
-            location = fi.absoluteFilePath();
+            location = FilePath::fromString(fi.absoluteFilePath());
     }
     return location;
 }

@@ -525,7 +525,7 @@ void MainWindow::registerDefaultActions()
     connect(m_newAction, &QAction::triggered, this, []() {
         if (!ICore::isNewItemDialogRunning()) {
             ICore::showNewItemDialog(tr("New File or Project", "Title of dialog"),
-                                     IWizardFactory::allWizardFactories(), QString());
+                                     IWizardFactory::allWizardFactories(), FilePath());
         } else {
             ICore::raiseWindow(ICore::newItemDialog());
         }

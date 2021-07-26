@@ -36,7 +36,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
-namespace Utils { class Wizard; }
+namespace Utils {
+class FilePath;
+class Wizard;
+} // Utils
 
 namespace Core {
 
@@ -107,7 +110,7 @@ public:
 
     static void requestNewItemDialog(const QString &title,
                                      const QList<IWizardFactory *> &factories,
-                                     const QString &defaultLocation,
+                                     const Utils::FilePath &defaultLocation,
                                      const QVariantMap &extraVariables);
 
 protected:

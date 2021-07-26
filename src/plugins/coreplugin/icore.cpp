@@ -245,7 +245,7 @@ ICore::~ICore()
 */
 void ICore::showNewItemDialog(const QString &title,
                               const QList<IWizardFactory *> &factories,
-                              const QString &defaultLocation,
+                              const FilePath &defaultLocation,
                               const QVariantMap &extraVariables)
 {
     QTC_ASSERT(!isNewItemDialogRunning(), return);

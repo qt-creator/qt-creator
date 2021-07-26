@@ -242,7 +242,7 @@ static bool wizardFactoryLessThan(const IWizardFactory *f1, const IWizardFactory
 }
 
 void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
-                                   const QString &defaultLocation,
+                                   const FilePath &defaultLocation,
                                    const QVariantMap &extraVariables)
 {
     m_defaultLocation = defaultLocation;
@@ -501,7 +501,7 @@ void NewDialog::accept()
     if (m_ui->templatesView->currentIndex().isValid()) {
         IWizardFactory *wizard = currentWizardFactory();
         if (QTC_GUARD(wizard)) {
-            QMetaObject::invokeMethod(wizard, std::bind(&runWizard, wizard, m_defaultLocation,
+            QMetaObject::invokeMethod(wizard, std::bind(&runWizard, wizard, m_defaultLocation.toString(),
                                       selectedPlatform(), m_extraVariables), Qt::QueuedConnection);
         }
     }
