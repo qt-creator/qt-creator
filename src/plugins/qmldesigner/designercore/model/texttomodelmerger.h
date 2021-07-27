@@ -166,6 +166,7 @@ private:
     QmlJS::ViewerContext m_vContext;
     QSet<QPair<QString, QString> > m_qrcMapping;
     QSet<QmlJS::ImportKey> m_possibleImportKeys;
+    bool m_hasVersionlessImport = false;
 };
 
 class DifferenceHandler

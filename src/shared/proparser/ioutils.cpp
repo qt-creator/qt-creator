@@ -60,6 +60,9 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
         return fileType(fileName.mid(pos));
     }
 
+    if (!QFileInfo::exists(fileName)) // FIXME make pro parser work with non-local
+        return FileNotFound;
+
     Q_ASSERT(fileName.isEmpty() || isAbsolutePath(fileName));
 #ifdef Q_OS_WIN
     DWORD attr = GetFileAttributesW((WCHAR*)fileName.utf16());

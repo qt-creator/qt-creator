@@ -1410,12 +1410,24 @@ void DockerDevice::runProcess(QtcProcess &process) const
 
     const FilePath workingDir = process.workingDirectory();
     const CommandLine origCmd = process.commandLine();
+    const Environment env = process.environment();
 
     CommandLine cmd{"docker", {"exec"}};
     if (!workingDir.isEmpty())
         cmd.addArgs({"-w", workingDir.path()});
     if (process.keepsWriteChannelOpen())
         cmd.addArg("-i");
+    if (env.size() != 0 && d->m_accessible != DockerDevicePrivate::Accessible) {
+        process.unsetEnvironment();
+        // FIXME the below would be probably correct if the respective tools would use correct
+        //       environment already, but most are using the host environment which usually makes
+        //       no sense on the device and may degrade performance
+        // const QStringList envList = env.toStringList();
+        // for (const QString &keyValue : envList) {
+        //     cmd.addArg("-e");
+        //     cmd.addArg(keyValue);
+        // }
+    }
     cmd.addArg(d->m_container);
     cmd.addArg(origCmd.executable().path()); // Cut off the docker://.../ bits.
     cmd.addArgs(origCmd.splitArguments(osType()));

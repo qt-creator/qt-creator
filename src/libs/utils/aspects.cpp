@@ -1010,6 +1010,8 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
     d->m_validator = validator;
     if (d->m_lineEditDisplay)
         d->m_lineEditDisplay->setValidationFunction(d->m_validator);
+    else if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setValidationFunction(d->m_validator);
 }
 
 void StringAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
@@ -1060,6 +1062,8 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+        if (d->m_validator)
+            d->m_pathChooserDisplay->setValidationFunction(d->m_validator);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);

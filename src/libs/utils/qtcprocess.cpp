@@ -496,6 +496,12 @@ void QtcProcess::setEnvironment(const Environment &env)
     d->m_haveEnv = true;
 }
 
+void QtcProcess::unsetEnvironment()
+{
+    d->m_environment = Environment();
+    d->m_haveEnv = false;
+}
+
 const Environment &QtcProcess::environment() const
 {
     return d->m_environment;

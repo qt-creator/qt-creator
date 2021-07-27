@@ -34,6 +34,7 @@
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <QLayout>
 
@@ -56,6 +57,12 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc) : d(new
     setLabelText(tr("Build directory:"));
     setDisplayStyle(PathChooserDisplay);
     setExpectedKind(Utils::PathChooser::Directory);
+    setValidationFunction([this](FancyLineEdit *edit, QString *error) {
+        const FilePath fixedDir = fixupDir(FilePath::fromString(edit->text()));
+        if (!fixedDir.isEmpty())
+            edit->setText(fixedDir.toUserOutput());
+        return pathChooser() ? pathChooser()->defaultValidationFunction()(edit, error) : true;
+    });
     setOpenTerminalHandler([this, bc] {
         Core::FileUtils::openTerminal(value(), bc->environment());
     });
@@ -121,6 +128,28 @@ void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
             }
         });
     }
+}
+
+FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
+{
+    if (dir.needsDevice() || !HostOsInfo::isWindowsHost())
+        return {};
+    const QString dirString = dir.toString().toLower();
+    if (dirString.length() < 2)
+        return {};
+    if (!dirString.at(0).isLetter())
+        return {};
+    const QStringList drives = Utils::transform(QDir::drives(), [](const QFileInfo &fi) {
+        return fi.absoluteFilePath().toLower().chopped(1);
+    });
+    if (!Utils::contains(drives, [&dirString](const QString &drive) {
+            return dirString.startsWith(drive);
+        }) && !drives.isEmpty()) {
+        QString newDir = dirString;
+        newDir.replace(0, 2, drives.first());
+        return FilePath::fromString(newDir);
+    }
+    return {};
 }
 
 void BuildDirectoryAspect::updateProblemLabel()
