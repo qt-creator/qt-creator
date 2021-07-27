@@ -34,6 +34,7 @@ const char * const QMLPROJECT_MIMETYPE = QmlJSTools::Constants::QMLPROJECT_MIMET
 const char customFileSelectorsData[] = "CustomFileSelectorsData";
 const char customForceFreeTypeData[] = "CustomForceFreeType";
 const char customQtForMCUs[] = "CustomQtForMCUs";
+const char customQt6Project[] = "CustomQt6Project";
 
 } // namespace Constants
 } // namespace QmlProjectManager

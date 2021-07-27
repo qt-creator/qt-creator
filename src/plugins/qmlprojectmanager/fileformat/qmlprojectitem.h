@@ -54,6 +54,9 @@ public:
     bool qtForMCUs() const { return m_qtForMCUs; }
     void setQtForMCUs(bool qtForMCUs);
 
+    bool qt6Project() const { return m_qt6Project; }
+    void setQt6Project(bool qt6Project);
+
     QStringList importPaths() const { return m_importPaths; }
     void setImportPaths(const QStringList &paths);
 
@@ -87,6 +90,7 @@ protected:
     QVector<QmlProjectContentItem *> m_content; // content property
     bool m_forceFreeType = false;
     bool m_qtForMCUs = false;
+    bool m_qt6Project = false;
 };
 
 } // namespace QmlProjectManager

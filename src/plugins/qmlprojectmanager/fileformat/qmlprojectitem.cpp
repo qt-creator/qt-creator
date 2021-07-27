@@ -60,6 +60,11 @@ void QmlProjectItem::setQtForMCUs(bool b)
     m_qtForMCUs = b;
 }
 
+void QmlProjectItem::setQt6Project(bool qt6Project)
+{
+    m_qt6Project = qt6Project;
+}
+
 void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
     if (m_importPaths != importPaths)

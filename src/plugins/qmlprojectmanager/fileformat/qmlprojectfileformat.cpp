@@ -105,6 +105,10 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
         if (qtForMCUProperty.isValid() && qtForMCUProperty.toBool())
             projectItem->setQtForMCUs(qtForMCUProperty.toBool());
 
+        const QVariant qt6ProjectProperty = rootNode->property("qt6Project");
+        if (qt6ProjectProperty.isValid() && qt6ProjectProperty.toBool())
+            projectItem->setQt6Project(qt6ProjectProperty.toBool());
+
         if (debug)
             qDebug() << "importPath:" << importPathsProperty << "mainFile:" << mainFileProperty;
 
