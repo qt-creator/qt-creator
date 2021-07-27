@@ -1519,7 +1519,6 @@ static void filterEntriesHelper(const FilePath &base,
     // FIXME: Handle filters. For now bark on unsupported options.
     QTC_CHECK(filters == QDir::NoFilter);
 
-    FilePaths result;
     for (const QString &entry : entries) {
         if (!nameMatches(entry))
             continue;

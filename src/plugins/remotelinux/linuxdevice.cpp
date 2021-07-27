@@ -40,7 +40,9 @@
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocessrunner.h>
+#include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -48,14 +50,28 @@
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/temporaryfile.h>
+
+#include <QDateTime>
+#include <QLoggingCategory>
+#include <QMutex>
+#include <QRegularExpression>
+#include <QThread>
 
 using namespace ProjectExplorer;
+using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {
 
 const char Delimiter0[] = "x--";
 const char Delimiter1[] = "---";
+
+static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
+#define LOG(x) qCDebug(linuxDeviceLog) << x << '\n'
+//#define DEBUG(x) qDebug() << x;
+//#define DEBUG(x) LOG(x)
+#define DEBUG(x)
 
 static QString visualizeNull(QString s)
 {
@@ -170,12 +186,104 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
     }
 };
 
-IDeviceWidget *LinuxDevice::createWidget()
+// ShellThreadHandler
+
+class ShellThreadHandler : public QObject
 {
-    return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
-}
+public:
+    ~ShellThreadHandler()
+    {
+        if (m_shell)
+            delete m_shell;
+    }
+
+    bool start(const SshConnectionParameters &parameters)
+    {
+        m_shell = new SshRemoteProcess("/bin/sh",
+                  parameters.connectionOptions(SshSettings::sshFilePath()) << parameters.host(),
+                  ProcessMode::Writer);
+        m_shell->start();
+        const bool ret = m_shell->waitForStarted();
+        if (!ret) {
+            delete m_shell;
+            m_shell = nullptr;
+            DEBUG("Failed to connect to " << parameters.host());
+        }
+        return ret;
+    }
+
+    bool runInShell(const CommandLine &cmd, const QByteArray &data = {})
+    {
+        QTC_ASSERT(m_shell, return false);
+        const QByteArray prefix = !data.isEmpty() ? QByteArray("echo " + data + " | ")
+                                                  : QByteArray("");
+
+        m_shell->readAllStandardOutput(); // clean possible left-overs
+        m_shell->write(prefix + cmd.toUserOutput().toUtf8() + "\necho $?\n");
+        DEBUG("RUN1 " << cmd.toUserOutput());
+        m_shell->waitForReadyRead();
+        const QByteArray output = m_shell->readAllStandardOutput();
+        DEBUG("GOT1 " << output);
+        bool ok = false;
+        const int result = output.toInt(&ok);
+        LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
+        return ok && result == 0;
+    }
+
+    QString outputForRunInShell(const CommandLine &cmd)
+    {
+        QTC_ASSERT(m_shell, return {});
+
+        static int val = 0;
+        const QByteArray delim = QString::number(++val, 16).toUtf8();
+
+        DEBUG("RUN2 " << cmd.toUserOutput());
+        m_shell->readAllStandardOutput(); // clean possible left-overs
+        const QByteArray marker = "___QTC___" + delim + "_OUTPUT_MARKER___";
+        DEBUG(" CMD: " << cmd.toUserOutput().toUtf8() + "\necho " + marker + "\n");
+        m_shell->write(cmd.toUserOutput().toUtf8() + "\necho " + marker + "\n");
+        QByteArray output;
+        while (!output.contains(marker)) {
+            DEBUG("OUTPUT" << output);
+            m_shell->waitForReadyRead();
+            output.append(m_shell->readAllStandardOutput());
+        }
+        DEBUG("GOT2 " << output);
+        LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
+        const int pos = output.indexOf(marker);
+        if (pos >= 0)
+            output = output.left(pos);
+        DEBUG("CHOPPED2 " << output);
+        return QString::fromUtf8(output);
+    }
+
+    bool isRunning() const { return m_shell; }
+private:
+    SshRemoteProcess *m_shell = nullptr;
+};
+
+// LinuxDevicePrivate
+
+class LinuxDevicePrivate
+{
+public:
+    explicit LinuxDevicePrivate(LinuxDevice *parent);
+    ~LinuxDevicePrivate();
+
+    bool setupShell();
+    bool runInShell(const CommandLine &cmd, const QByteArray &data = {});
+    QString outputForRunInShell(const CommandLine &cmd);
+
+    LinuxDevice *q = nullptr;
+    QThread m_shellThread;
+    ShellThreadHandler *m_handler = nullptr;
+    mutable QMutex m_shellMutex;
+};
+
+// LinuxDevice
 
 LinuxDevice::LinuxDevice()
+    : d(new LinuxDevicePrivate(this))
 {
     setDisplayType(tr("Generic Linux"));
     setDefaultDisplayName(tr("Generic Linux Device"));
@@ -220,6 +328,16 @@ LinuxDevice::LinuxDevice()
             device->openTerminal(Environment(), FilePath());
         }});
     }
+}
+
+LinuxDevice::~LinuxDevice()
+{
+    delete d;
+}
+
+IDeviceWidget *LinuxDevice::createWidget()
+{
+    return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
 DeviceProcess *LinuxDevice::createProcess(QObject *parent) const
@@ -275,6 +393,305 @@ private:
 DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
 {
     return DeviceEnvironmentFetcher::Ptr(new LinuxDeviceEnvironmentFetcher(sharedFromThis()));
+}
+
+QString LinuxDevice::userAtHost() const
+{
+    if (sshParameters().userName().isEmpty())
+        return sshParameters().host();
+    return sshParameters().userName() + '@' + sshParameters().host();
+}
+
+bool LinuxDevice::handlesFile(const FilePath &filePath) const
+{
+    DEBUG("handlesFile " << filePath.scheme() << filePath.host() << userAtHost());
+    return filePath.scheme() == "ssh" && filePath.host() == userAtHost();
+}
+
+void LinuxDevice::runProcess(QtcProcess &process) const
+{
+    QTC_CHECK(false); // FIXME: Implement
+}
+
+LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
+    : q(parent)
+{
+    m_handler = new ShellThreadHandler();
+    m_handler->moveToThread(&m_shellThread);
+    QObject::connect(&m_shellThread, &QThread::finished, m_handler, &QObject::deleteLater);
+    m_shellThread.start();
+}
+
+LinuxDevicePrivate::~LinuxDevicePrivate()
+{
+    m_shellThread.quit();
+    m_shellThread.wait();
+}
+
+bool LinuxDevicePrivate::setupShell()
+{
+    bool ok = false;
+    QMetaObject::invokeMethod(m_handler, [this, parameters = q->sshParameters()] {
+        return m_handler->start(parameters);
+    }, Qt::BlockingQueuedConnection, &ok);
+    return ok;
+}
+
+bool LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &data)
+{
+    QMutexLocker locker(&m_shellMutex);
+    DEBUG(cmd.toUserOutput());
+    if (!m_handler->isRunning()) {
+        const bool ok = setupShell();
+        QTC_ASSERT(ok, return false);
+    }
+
+    bool ret = false;
+    QMetaObject::invokeMethod(m_handler, [this, &cmd, &data] {
+        return m_handler->runInShell(cmd, data);
+    }, Qt::BlockingQueuedConnection, &ret);
+    return ret;
+}
+
+QString LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
+{
+    QMutexLocker locker(&m_shellMutex);
+    DEBUG(cmd.toUserOutput());
+    if (!m_handler->isRunning()) {
+        const bool ok = setupShell();
+        QTC_ASSERT(ok, return {});
+    }
+
+    QString ret;
+    QMetaObject::invokeMethod(m_handler, [this, &cmd] {
+        return m_handler->outputForRunInShell(cmd);
+    }, Qt::BlockingQueuedConnection, &ret);
+    return ret;
+}
+
+bool LinuxDevice::isExecutableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-x", path}});
+}
+
+bool LinuxDevice::isReadableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-r", path, "-a", "-f", path}});
+}
+
+bool LinuxDevice::isWritableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-w", path, "-a", "-f", path}});
+}
+
+bool LinuxDevice::isReadableDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-r", path, "-a", "-d", path}});
+}
+
+bool LinuxDevice::isWritableDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-w", path, "-a", "-d", path}});
+}
+
+bool LinuxDevice::isFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-f", path}});
+}
+
+bool LinuxDevice::isDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-d", path}});
+}
+
+bool LinuxDevice::createDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"mkdir", {"-p", path}});
+}
+
+bool LinuxDevice::exists(const FilePath &filePath) const
+{
+    DEBUG("filepath " << filePath.path());
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"test", {"-e", path}});
+}
+
+bool LinuxDevice::ensureExistingFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const QString path = filePath.path();
+    return d->runInShell({"touch", {path}});
+}
+
+bool LinuxDevice::removeFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    return d->runInShell({"rm", {filePath.path()}});
+}
+
+bool LinuxDevice::removeRecursively(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(filePath.path().startsWith('/'), return false);
+
+    const QString path = filePath.cleanPath().path();
+    // We are expecting this only to be called in a context of build directories or similar.
+    // Chicken out in some cases that _might_ be user code errors.
+    QTC_ASSERT(path.startsWith('/'), return false);
+    const int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
+    QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
+
+    return d->runInShell({"rm", {"-rf", "--", path}});
+}
+
+bool LinuxDevice::copyFile(const FilePath &filePath, const FilePath &target) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(handlesFile(target), return false);
+    return d->runInShell({"cp", {filePath.path(), target.path()}});
+}
+
+bool LinuxDevice::renameFile(const FilePath &filePath, const FilePath &target) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    QTC_ASSERT(handlesFile(target), return false);
+    return d->runInShell({"mv", {filePath.path(), target.path()}});
+}
+
+QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    const qint64 secs = output.toLongLong();
+    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
+    return dt;
+}
+
+FilePath LinuxDevice::symLinkTarget(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    const QString output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
+    return output.isEmpty() ? FilePath() : filePath.withNewPath(output);
+}
+
+qint64 LinuxDevice::fileSize(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return -1);
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
+    return output.toLongLong();
+}
+
+QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
+    const uint bits = output.toUInt(nullptr, 8);
+    QFileDevice::Permissions perm = {};
+#define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
+    BIT(0, ExeOther);
+    BIT(1, WriteOther);
+    BIT(2, ReadOther);
+    BIT(3, ExeGroup);
+    BIT(4, WriteGroup);
+    BIT(5, ReadGroup);
+    BIT(6, ExeUser);
+    BIT(7, WriteUser);
+    BIT(8, ReadUser);
+#undef BIT
+    return perm;
+}
+
+bool LinuxDevice::setPermissions(const Utils::FilePath &filePath, QFileDevice::Permissions permissions) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    const int flags = int(permissions);
+    return d->runInShell({"chmod", {QString::number(flags, 16), filePath.path()}});
+}
+
+static void filterEntriesHelper(const FilePath &base,
+                                const std::function<bool(const FilePath &)> &callBack,
+                                const QStringList &entries,
+                                const QStringList &nameFilters,
+                                QDir::Filters filters)
+{
+    const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
+        QRegularExpression re;
+        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+        QTC_CHECK(re.isValid());
+        return re;
+    });
+
+    const auto nameMatches = [&nameRegexps](const QString &fileName) {
+        for (const QRegularExpression &re : nameRegexps) {
+            const QRegularExpressionMatch match = re.match(fileName);
+            if (match.hasMatch())
+                return true;
+        }
+        return nameRegexps.isEmpty();
+    };
+
+    // FIXME: Handle filters. For now bark on unsupported options.
+    QTC_CHECK(filters == QDir::NoFilter);
+
+    for (const QString &entry : entries) {
+        if (!nameMatches(entry))
+            continue;
+        if (!callBack(base.pathAppended(entry)))
+            break;
+    }
+}
+
+void LinuxDevice::iterateDirectory(const FilePath &filePath,
+                                   const std::function<bool(const FilePath &)> &callBack,
+                                   const QStringList &nameFilters,
+                                   QDir::Filters filters) const
+{
+    QTC_ASSERT(handlesFile(filePath), return);
+    // if we do not have find - use ls as fallback
+    const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
+    filterEntriesHelper(filePath, callBack, entries, nameFilters, filters);
+}
+
+QByteArray LinuxDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    QString args = "if=" + filePath.path() + " status=none";
+    if (limit > 0 || offset > 0) {
+        const qint64 gcd = std::gcd(limit, offset);
+        args += QString(" bs=%1 count=%2 seek=%3").arg(gcd).arg(limit / gcd).arg(offset / gcd);
+    }
+    CommandLine cmd(FilePath::fromString("dd"), args, CommandLine::Raw);
+
+    const QString output = d->outputForRunInShell(cmd);
+    DEBUG(output << output.toLatin1() << QByteArray::fromHex(output.toLatin1()));
+    return output.toLatin1();
+}
+
+bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+
+// This following would be the generic Unix solution.
+// But it doesn't pass input. FIXME: Why?
+    return d->runInShell({"dd", {"of=" + filePath.path()}}, data);
 }
 
 namespace Internal {

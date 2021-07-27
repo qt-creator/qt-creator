@@ -65,6 +65,8 @@ public:
     void setPort(int port) { url.setPort(port); }
     void setUserName(const QString &name) { url.setUserName(name); }
 
+    QStringList connectionOptions(const Utils::FilePath &binary) const;
+
     QUrl url;
     Utils::FilePath privateKeyFile;
     QString x11DisplayName;

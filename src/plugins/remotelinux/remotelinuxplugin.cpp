@@ -43,6 +43,10 @@
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
+#ifdef WITH_TESTS
+#include "filesystemaccess_test.h"
+#endif
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 
@@ -119,6 +123,15 @@ RemoteLinuxPlugin::RemoteLinuxPlugin()
 RemoteLinuxPlugin::~RemoteLinuxPlugin()
 {
     delete dd;
+}
+
+QVector<QObject *> RemoteLinuxPlugin::createTestObjects() const
+{
+    return {
+#ifdef WITH_TESTS
+        new FileSystemAccessTest,
+#endif
+    };
 }
 
 bool RemoteLinuxPlugin::initialize(const QStringList &arguments, QString *errorMessage)

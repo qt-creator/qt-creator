@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,37 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+
+#include <utils/fileutils.h>
 
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxPlugin final : public ExtensionSystem::IPlugin
+class TestLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "RemoteLinux.json")
-
 public:
-    RemoteLinuxPlugin();
-    ~RemoteLinuxPlugin() final;
+    TestLinuxDeviceFactory();
 
-    QVector<QObject *> createTestObjects() const override;
+    Utils::FilePaths defaultKeys() const;
 
-private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+class FileSystemAccessTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+
+    void testDirStatuses();
+    void testFileActions();
+
+private:
+    TestLinuxDeviceFactory m_testLinuxDeviceFactory;
+};
+
+} // Internal
+} // RemoteLinux

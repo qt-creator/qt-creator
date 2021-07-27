@@ -40,6 +40,8 @@ public:
     using Ptr = QSharedPointer<LinuxDevice>;
     using ConstPtr = QSharedPointer<const LinuxDevice>;
 
+    ~LinuxDevice();
+
     static Ptr create() { return Ptr(new LinuxDevice); }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
@@ -55,8 +57,39 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
 
+    QString userAtHost() const;
+    bool handlesFile(const Utils::FilePath &filePath) const override;
+    bool isExecutableFile(const Utils::FilePath &filePath) const override;
+    bool isReadableFile(const Utils::FilePath &filePath) const override;
+    bool isWritableFile(const Utils::FilePath &filePath) const override;
+    bool isReadableDirectory(const Utils::FilePath &filePath) const override;
+    bool isWritableDirectory(const Utils::FilePath &filePath) const override;
+    bool isFile(const Utils::FilePath &filePath) const override;
+    bool isDirectory(const Utils::FilePath &filePath) const override;
+    bool createDirectory(const Utils::FilePath &filePath) const override;
+    bool exists(const Utils::FilePath &filePath) const override;
+    bool ensureExistingFile(const Utils::FilePath &filePath) const override;
+    bool removeFile(const Utils::FilePath &filePath) const override;
+    bool removeRecursively(const Utils::FilePath &filePath) const override;
+    bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
+    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
+    Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
+    void iterateDirectory(const Utils::FilePath &filePath,
+                          const std::function<bool(const Utils::FilePath &)> &callBack,
+                          const QStringList &nameFilters,
+                          QDir::Filters filters) const override;
+    QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
+    bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
+    QDateTime lastModified(const Utils::FilePath &filePath) const override;
+    void runProcess(Utils::QtcProcess &process) const override;
+    qint64 fileSize(const Utils::FilePath &filePath) const override;
+    QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;
+    bool setPermissions(const Utils::FilePath &filePath, QFileDevice::Permissions permissions) const override;
+
 protected:
     LinuxDevice();
+
+    class LinuxDevicePrivate *d;
 };
 
 namespace Internal {

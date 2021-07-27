@@ -66,6 +66,46 @@ SshConnectionParameters::SshConnectionParameters()
     url.setPort(0);
 }
 
+QStringList SshConnectionParameters::connectionOptions(const FilePath &binary) const
+{
+    QString hostKeyCheckingString;
+    switch (hostKeyCheckingMode) {
+    case SshHostKeyCheckingNone:
+    case SshHostKeyCheckingAllowNoMatch:
+        // There is "accept-new" as well, but only since 7.6.
+        hostKeyCheckingString = "no";
+        break;
+    case SshHostKeyCheckingStrict:
+        hostKeyCheckingString = "yes";
+        break;
+    }
+
+    QStringList args{"-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
+                     "-o", "Port=" + QString::number(port())};
+
+    if (!userName().isEmpty())
+        args.append({"-o", "User=" + userName()});
+
+    const bool keyOnly = authenticationType ==
+            SshConnectionParameters::AuthenticationTypeSpecificKey;
+    if (keyOnly) {
+        args << "-o" << "IdentitiesOnly=yes";
+        args << "-i" << privateKeyFile.path();
+    }
+    if (keyOnly || SshSettings::askpassFilePath().isEmpty())
+        args << "-o" << "BatchMode=yes";
+
+    bool useTimeout = timeout != 0;
+    if (useTimeout && HostOsInfo::isWindowsHost()
+            && binary.toString().toLower().contains("/system32/")) {
+        useTimeout = false;
+    }
+    if (useTimeout)
+        args << "-o" << ("ConnectTimeout=" + QString::number(timeout));
+
+    return args;
+}
+
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
 {
     return p1.url == p2.url
@@ -113,38 +153,10 @@ struct SshConnection::SshConnectionPrivate
 
     QStringList connectionOptions(const FilePath &binary) const
     {
-        QString hostKeyCheckingString;
-        switch (connParams.hostKeyCheckingMode) {
-        case SshHostKeyCheckingNone:
-        case SshHostKeyCheckingAllowNoMatch:
-            // There is "accept-new" as well, but only since 7.6.
-            hostKeyCheckingString = "no";
-            break;
-        case SshHostKeyCheckingStrict:
-            hostKeyCheckingString = "yes";
-            break;
-        }
-        QStringList args{"-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
-                    "-o", "User=" + connParams.userName(),
-                    "-o", "Port=" + QString::number(connParams.port())};
-        const bool keyOnly = connParams.authenticationType ==
-                SshConnectionParameters::AuthenticationTypeSpecificKey;
-        if (keyOnly) {
-            args << "-o" << "IdentitiesOnly=yes";
-            args << "-i" << connParams.privateKeyFile.path();
-        }
-        if (keyOnly || SshSettings::askpassFilePath().isEmpty())
-            args << "-o" << "BatchMode=yes";
+        QStringList options = connParams.connectionOptions(binary);
         if (sharingEnabled)
-            args << "-o" << ("ControlPath=" + socketFilePath());
-        bool useTimeout = connParams.timeout != 0;
-        if (useTimeout && HostOsInfo::isWindowsHost()
-                && binary.toString().toLower().contains("/system32/")) {
-            useTimeout = false;
-        }
-        if (useTimeout)
-            args << "-o" << ("ConnectTimeout=" + QString::number(connParams.timeout));
-        return args;
+            options << "-o" << ("ControlPath=" + socketFilePath());
+        return options;
     }
 
     QStringList connectionArgs(const FilePath &binary) const
