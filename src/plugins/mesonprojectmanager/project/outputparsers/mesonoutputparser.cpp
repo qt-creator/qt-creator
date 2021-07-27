@@ -148,8 +148,8 @@ Utils::OutputLineParser::Result MesonOutputParser::handleLine(const QString &lin
 
 void MesonOutputParser::readStdo(const QByteArray &data)
 {
-    auto str = QString::fromLocal8Bit(data);
-    for (const auto &line : str.split('\n'))
+    const QStringList strList = QString::fromLocal8Bit(data).split('\n');
+    for (const auto &line : strList)
         handleLine(line, Utils::OutputFormat::StdOutFormat);
 }
 
