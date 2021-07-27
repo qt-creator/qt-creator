@@ -51,7 +51,9 @@ T.SpinBox {
 
     property bool edit: spinBoxInput.activeFocus
     // This property is used to indicate the global hover state
-    property bool hover: (mySpinBox.hovered || actionIndicator.hover) && mySpinBox.enabled
+    property bool hover: (spinBoxInput.hover || actionIndicator.hover || spinBoxIndicatorUp.hover
+                         || spinBoxIndicatorDown.hover || sliderIndicator.hover)
+                         && mySpinBox.enabled
     property bool drag: false
     property bool sliderDrag: sliderPopup.drag
 
