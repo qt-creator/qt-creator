@@ -907,6 +907,34 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks: Complete switch statement where enum is return type of a template function
+    //         which is outside the scope of the return value.
+    // TODO: Type minimization.
+    QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG-25998")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "template <typename T> T enumCast(int value) { return static_cast<T>(value); }\n"
+        "class Test {\n"
+        "    enum class E { V1, V2 };"
+        "    void func(int i) {\n"
+        "        @switch (enumCast<E>(i)) {\n"
+        "        }\n"
+        "    }\n"
+        "};\n"
+        ) << _(
+        "template <typename T> T enumCast(int value) { return static_cast<T>(value); }\n"
+        "class Test {\n"
+        "    enum class E { V1, V2 };"
+        "    void func(int i) {\n"
+        "        switch (enumCast<E>(i)) {\n"
+        "        case Test::E::V1:\n"
+        "            break;\n"
+        "        case Test::E::V2:\n"
+        "            break;\n"
+        "        }\n"
+        "    }\n"
+        "};\n"
+    );
+
     // Checks: No special treatment for reference to non const.
 
     // Check: Quick fix is not triggered on a member function.
