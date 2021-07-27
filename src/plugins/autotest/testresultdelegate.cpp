@@ -102,11 +102,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QString output = testResult->outputString(selected);
 
     if (selected) {
+        limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
-
-        if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit)
-            output = output.left(outputLimit).append("...");
-
         recalculateTextLayout(index, output, painter->font(), positions.textAreaWidth());
 
         m_lastCalculatedLayout.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
@@ -154,11 +151,8 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         const TestResult *testResult = resultFilterModel->testResult(index);
         QTC_ASSERT(testResult, return QSize());
         QString output = testResult->outputString(selected);
+        limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
-
-        if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit)
-            output = output.left(outputLimit).append("...");
-
         recalculateTextLayout(index, output, opt.font, positions.textAreaWidth());
 
         s.setHeight(m_lastCalculatedHeight + 3);
@@ -183,6 +177,38 @@ void TestResultDelegate::clearCache()
     m_lastProcessedIndex = QModelIndex();
     m_lastProcessedFont = QFont();
     m_lastWidth = -1;
+}
+
+void TestResultDelegate::limitTextOutput(QString &output) const
+{
+    int maxLineCount = Internal::AutotestPlugin::settings()->resultDescriptionMaxSize;
+    bool limited = false;
+
+    if (Internal::AutotestPlugin::settings()->limitResultDescription && maxLineCount > 0) {
+        int index = -1;
+        int lastChar = output.size() - 1;
+
+        for (int i = 0; i < maxLineCount; i++) {
+            index = output.indexOf('\n', index + 1);
+            if (index == -1 || index == lastChar) {
+                index = -1;
+                break;
+            }
+        }
+
+        if (index > 0) {
+            output = output.left(index);
+            limited = true;
+        }
+    }
+
+    if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit) {
+        output = output.left(outputLimit);
+        limited = true;
+    }
+
+    if (limited)
+        output.append("...");
 }
 
 void TestResultDelegate::recalculateTextLayout(const QModelIndex &index, const QString &output,

@@ -35,18 +35,20 @@
 namespace Autotest {
 namespace Internal {
 
-static const char timeoutKey[]              = "Timeout";
-static const char omitInternalKey[]         = "OmitInternal";
-static const char omitRunConfigWarnKey[]    = "OmitRCWarnings";
-static const char limitResultOutputKey[]    = "LimitResultOutput";
-static const char autoScrollKey[]           = "AutoScrollResults";
-static const char processArgsKey[]          = "ProcessArgs";
-static const char displayApplicationKey[]   = "DisplayApp";
-static const char popupOnStartKey[]         = "PopupOnStart";
-static const char popupOnFinishKey[]        = "PopupOnFinish";
-static const char popupOnFailKey[]          = "PopupOnFail";
-static const char runAfterBuildKey[]        = "RunAfterBuild";
-static const char groupSuffix[]             = ".group";
+static const char timeoutKey[]                  = "Timeout";
+static const char omitInternalKey[]             = "OmitInternal";
+static const char omitRunConfigWarnKey[]        = "OmitRCWarnings";
+static const char limitResultOutputKey[]        = "LimitResultOutput";
+static const char limitResultDescriptionKey[]   = "LimitResultDescription";
+static const char resultDescriptionMaxSizeKey[] = "ResultDescriptionMaxSize";
+static const char autoScrollKey[]               = "AutoScrollResults";
+static const char processArgsKey[]              = "ProcessArgs";
+static const char displayApplicationKey[]       = "DisplayApp";
+static const char popupOnStartKey[]             = "PopupOnStart";
+static const char popupOnFinishKey[]            = "PopupOnFinish";
+static const char popupOnFailKey[]              = "PopupOnFail";
+static const char runAfterBuildKey[]            = "RunAfterBuild";
+static const char groupSuffix[]                 = ".group";
 
 constexpr int defaultTimeout = 60000;
 
@@ -62,6 +64,8 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(omitInternalKey, omitInternalMssg);
     s->setValue(omitRunConfigWarnKey, omitRunConfigWarn);
     s->setValue(limitResultOutputKey, limitResultOutput);
+    s->setValue(limitResultDescriptionKey, limitResultDescription);
+    s->setValue(resultDescriptionMaxSizeKey, resultDescriptionMaxSize);
     s->setValue(autoScrollKey, autoScroll);
     s->setValue(processArgsKey, processArgs);
     s->setValue(displayApplicationKey, displayApplication);
@@ -88,6 +92,8 @@ void TestSettings::fromSettings(QSettings *s)
     omitInternalMssg = s->value(omitInternalKey, true).toBool();
     omitRunConfigWarn = s->value(omitRunConfigWarnKey, false).toBool();
     limitResultOutput = s->value(limitResultOutputKey, true).toBool();
+    limitResultDescription = s->value(limitResultDescriptionKey, false).toBool();
+    resultDescriptionMaxSize = s->value(resultDescriptionMaxSizeKey, 10).toInt();
     autoScroll = s->value(autoScrollKey, true).toBool();
     processArgs = s->value(processArgsKey, false).toBool();
     displayApplication = s->value(displayApplicationKey, false).toBool();

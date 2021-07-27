@@ -54,6 +54,8 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
             this, [] { AutotestPlugin::clearChoiceCache(); });
     connect(m_ui.openResultsOnFinishCB, &QCheckBox::toggled,
             m_ui.openResultsOnFailCB, &QCheckBox::setEnabled);
+    connect(m_ui.limitResultDescriptionCb, &QCheckBox::toggled,
+            m_ui.limitResultDescriptionSpinBox, &QSpinBox::setEnabled);
 }
 
 void TestSettingsWidget::setSettings(const TestSettings &settings)
@@ -62,6 +64,9 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.omitInternalMsgCB->setChecked(settings.omitInternalMssg);
     m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
+    m_ui.limitResultDescriptionCb->setChecked(settings.limitResultDescription);
+    m_ui.limitResultDescriptionSpinBox->setEnabled(settings.limitResultDescription);
+    m_ui.limitResultDescriptionSpinBox->setValue(settings.resultDescriptionMaxSize);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
     m_ui.processArgsCB->setChecked(settings.processArgs);
     m_ui.displayAppCB->setChecked(settings.displayApplication);
@@ -79,6 +84,8 @@ TestSettings TestSettingsWidget::settings() const
     result.omitInternalMssg = m_ui.omitInternalMsgCB->isChecked();
     result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
+    result.limitResultDescription = m_ui.limitResultDescriptionCb->isChecked();
+    result.resultDescriptionMaxSize = m_ui.limitResultDescriptionSpinBox->value();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.processArgs = m_ui.processArgsCB->isChecked();
     result.displayApplication = m_ui.displayAppCB->isChecked();

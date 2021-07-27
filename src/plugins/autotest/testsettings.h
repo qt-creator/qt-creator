@@ -55,6 +55,8 @@ struct TestSettings
     bool omitInternalMssg = true;
     bool omitRunConfigWarn = false;
     bool limitResultOutput = true;
+    bool limitResultDescription = false;
+    int resultDescriptionMaxSize = 10;
     bool autoScroll = true;
     bool processArgs = false;
     bool displayApplication = false;

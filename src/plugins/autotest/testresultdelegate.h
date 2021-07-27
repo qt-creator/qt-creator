@@ -45,6 +45,7 @@ public:
     void clearCache();
 
 private:
+    void limitTextOutput(QString &output) const;
     void recalculateTextLayout(const QModelIndex &index, const QString &output,
                                const QFont &font, int width) const;
 
