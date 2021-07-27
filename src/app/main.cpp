@@ -476,6 +476,8 @@ int main(int argc, char **argv)
         QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #else
     qputenv("QSG_RHI_BACKEND", "opengl");
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
+                Qt::HighDpiScaleFactorRoundingPolicy::Round);
 #endif
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
