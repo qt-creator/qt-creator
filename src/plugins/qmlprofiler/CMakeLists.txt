@@ -79,7 +79,10 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       qml/qmlprofiler.qrc
   )
 else() # < Qt 6.2
+  find_package(Qt6 COMPONENTS ShaderTools QUIET)
+
   add_qtc_plugin(QmlProfiler
+    CONDITION TARGET Tracing AND TARGET Qt6::ShaderTools
     DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
     PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
     SOURCES
@@ -94,15 +97,19 @@ else() # < Qt 6.2
     qml/QmlProfilerFlameGraphView.qml
   )
 
-  set(QMLPROFILER_QML_RESOURCES
-    qml/bindingloops.frag
-    qml/bindingloops.vert
-  )
-
-  foreach(file IN LISTS QMLPROFILER_QML_FILES QMLPROFILER_QML_RESOURCES)
+  foreach(file IN LISTS QMLPROFILER_QML_FILES)
     get_filename_component(fileName "${file}" NAME)
     set_source_files_properties("${file}" PROPERTIES QT_RESOURCE_ALIAS "${fileName}")
   endforeach()
+
+  qt_add_shaders(QmlProfiler "res_qmlprofilershaders"
+    BATCHABLE
+    PREFIX
+      "/QtCreator/QmlProfiler"
+    FILES
+      qml/bindingloops_qt6.frag
+      qml/bindingloops_qt6.vert
+  )
 
   qt_add_qml_module(QmlProfiler
     URI "QtCreator.QmlProfiler"

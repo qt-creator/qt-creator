@@ -326,8 +326,8 @@ BindingLoopMaterialShader::BindingLoopMaterialShader()
     setShaderSourceFile(QOpenGLShader::Fragment,
                         QStringLiteral(":/QtCreator/QmlProfiler/bindingloops.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/QtCreator/QmlProfiler/bindingloops.vert");
-    setShaderFileName(FragmentStage, ":/QtCreator/QmlProfiler/bindingloops.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/QmlProfiler/bindingloops_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/QtCreator/QmlProfiler/bindingloops_qt6.frag.qsb");
 #endif // < Qt 6
 }
 
@@ -348,8 +348,20 @@ void BindingLoopMaterialShader::updateState(const RenderState &state, QSGMateria
 #else // < Qt 6
 bool BindingLoopMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)
 {
-    // TODO: Make this work
-    return state.isMatrixDirty();
+    QByteArray *buf = state.uniformData();
+
+    // mat4 matrix
+    if (state.isMatrixDirty()) {
+        const QMatrix4x4 m = state.combinedMatrix();
+        memcpy(buf->data(), m.constData(), 64);
+    }
+
+    // vec4 bindingLoopsColor
+    const QColor color = bindingLoopsColor();
+    const float colorArray[] = { color.redF(), color.greenF(), color.blueF(), color.alphaF() };
+    memcpy(buf->data() + 64, colorArray, 16);
+
+    return true;
 }
 #endif // < Qt 6
 
@@ -371,6 +383,9 @@ void BindingLoopMaterialShader::initialize()
 BindingLoopMaterial::BindingLoopMaterial()
 {
     setFlag(QSGMaterial::Blending, false);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    setFlag(QSGMaterial::CustomCompileStep, true);
+#endif // >= Qt 6
 }
 
 QSGMaterialType *BindingLoopMaterial::type() const

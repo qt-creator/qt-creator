@@ -178,6 +178,9 @@ TimelineNotesRenderPassState::TimelineNotesRenderPassState(int numExpandedRows) 
     m_nullGeometry(NotesGeometry::point2DWithDistanceFromTop(), 0)
 {
     m_material.setFlag(QSGMaterial::Blending, true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    m_material.setFlag(QSGMaterial::CustomCompileStep, true);
+#endif // >= Qt 6
     m_expandedRows.reserve(numExpandedRows);
     for (int i = 0; i < numExpandedRows; ++i)
         m_expandedRows << createNode();
@@ -254,8 +257,8 @@ NotesMaterialShader::NotesMaterialShader()
     setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/QtCreator/Tracing/notes.vert"));
     setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/QtCreator/Tracing/notes.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes.vert");
-    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes_qt6.frag.qsb");
 #endif // < Qt 6
 }
 
@@ -278,9 +281,20 @@ void NotesMaterialShader::updateState(const RenderState &state, QSGMaterial *, Q
 #else // < Qt 6
 bool NotesMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)
 {
+    QByteArray *buf = state.uniformData();
+
+    // mat4 matrix
     if (state.isMatrixDirty()) {
+        const QMatrix4x4 m = state.combinedMatrix();
+        memcpy(buf->data(), m.constData(), 64);
     }
-    return state.isMatrixDirty();
+
+    // vec4 notesColor
+    const QColor color = notesColor();
+    const float colorArray[] = { color.redF(), color.greenF(), color.blueF(), color.alphaF() };
+    memcpy(buf->data() + 64, colorArray, 16);
+
+    return true;
 }
 #endif // < Qt 6
 

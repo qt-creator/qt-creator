@@ -43,7 +43,10 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
       qml/tracing.qrc
   )
 else() # < Qt 6.2
+  find_package(Qt6 COMPONENTS ShaderTools QUIET)
+
   add_qtc_library(Tracing
+    CONDITION TARGET Qt6::ShaderTools
     FEATURE_INFO
     DEPENDS Utils Qt5::Qml Qt5::Quick
     PUBLIC_DEPENDS Qt5::Widgets
@@ -86,18 +89,25 @@ else() # < Qt 6.2
     qml/ico_rangeselection@2x.png
     qml/ico_selectionmode.png
     qml/ico_selectionmode@2x.png
-    qml/notes.frag
-    qml/notes.vert
     qml/range_handle.png
     qml/range_handle@2.png
-    qml/timelineitems.frag
-    qml/timelineitems.vert
   )
 
   foreach(file IN LISTS TRACING_QML_FILES TRACING_QML_RESOURCES)
     get_filename_component(fileName "${file}" NAME)
     set_source_files_properties("${file}" PROPERTIES QT_RESOURCE_ALIAS "${fileName}")
   endforeach()
+
+  qt_add_shaders(Tracing "res_tracingshaders"
+    BATCHABLE
+    PREFIX
+      "/QtCreator/Tracing"
+    FILES
+      qml/notes_qt6.vert
+      qml/notes_qt6.frag
+      qml/timelineitems_qt6.vert
+      qml/timelineitems_qt6.frag
+  )
 
   qt_add_qml_module(Tracing
     URI "QtCreator.Tracing"

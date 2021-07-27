@@ -474,8 +474,8 @@ TimelineItemsMaterialShader::TimelineItemsMaterialShader()
     setShaderSourceFile(QOpenGLShader::Fragment,
                         QStringLiteral(":/QtCreator/Tracing/timelineitems.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/QtCreator/Tracing/timelineitems.vert");
-    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/timelineitems.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/Tracing/timelineitems_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/timelineitems_qt6.frag.qsb");
 #endif // < Qt 6
 }
 
@@ -496,11 +496,29 @@ void TimelineItemsMaterialShader::updateState(const RenderState &state, QSGMater
 bool TimelineItemsMaterialShader::updateUniformData(RenderState &state,
                                                     QSGMaterial *newMaterial, QSGMaterial *)
 {
-    // TODO: Make this work
+    QByteArray *buf = state.uniformData();
+    auto material = static_cast<const TimelineItemsMaterial *>(newMaterial);
+
+    // mat4 matrix
     if (state.isMatrixDirty()) {
-        TimelineItemsMaterial *material = static_cast<TimelineItemsMaterial *>(newMaterial);
+        const QMatrix4x4 m = state.combinedMatrix();
+        memcpy(buf->data(), m.constData(), 64);
     }
-    return state.isMatrixDirty();
+
+    // vec2 scale
+    const QVector2D scale = material->scale();
+    memcpy(buf->data() + 64, &scale, 8);
+
+    // vec4 selectionColor
+    const QColor color = material->selectionColor();
+    const float colorArray[] = { color.redF(), color.greenF(), color.blueF(), color.alphaF() };
+    memcpy(buf->data() + 80, colorArray, 16);
+
+    // float selectedItem
+    const float selectedItem = material->selectedItem();
+    memcpy(buf->data() + 96, &selectedItem, 4);
+
+    return true;
 }
 #endif // < Qt 6
 
@@ -524,6 +542,9 @@ void TimelineItemsMaterialShader::initialize()
 TimelineItemsMaterial::TimelineItemsMaterial() : m_selectedItem(-1)
 {
     setFlag(QSGMaterial::Blending, false);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    setFlag(QSGMaterial::CustomCompileStep, true);
+#endif // >= Qt 6
 }
 
 QVector2D TimelineItemsMaterial::scale() const
