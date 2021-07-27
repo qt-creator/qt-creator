@@ -435,6 +435,12 @@ void SubmitEditorWidget::updateSubmitAction()
     }
 }
 
+void SubmitEditorWidget::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::EnabledChange)
+        verifyDescription();
+}
+
 // Enable diff depending on selected files
 void SubmitEditorWidget::updateDiffAction()
 {
@@ -506,6 +512,12 @@ void SubmitEditorWidget::hideDescription()
 
 void SubmitEditorWidget::verifyDescription()
 {
+    if (!isEnabled()) {
+        d->m_ui.descriptionHint->setText(QString());
+        d->m_ui.descriptionHint->setToolTip(QString());
+        return;
+    }
+
     auto fontColor = [](Utils::Theme::Color color) {
         return QString("<font color=\"%1\">")
                 .arg(Utils::creatorTheme()->color(color).name());
