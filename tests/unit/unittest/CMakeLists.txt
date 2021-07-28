@@ -1,6 +1,10 @@
-if (NOT QTC_CLANG_BUILDMODE_MATCH)
-    message(STATUS "Skipping unittest due to build mode mismatch")
-    return()
+if (TARGET libclang)
+  set(HAVE_LIBCLANG ON)
+endif()
+
+if (HAVE_LIBCLANG AND NOT QTC_CLANG_BUILDMODE_MATCH)
+    message(STATUS "Disabling libclang tests due to build mode mismatch.")
+    set(HAVE_LIBCLANG OFF)
 endif()
 
 find_package(Googletest MODULE)
@@ -53,7 +57,6 @@ add_qtc_test(unittest GTEST
     gtest-llvm-printing.h
     gtest-qt-printing.cpp gtest-qt-printing.h
     gtest-std-printing.h
-    highlightingresultreporter-test.cpp
     lastchangedrowid-test.cpp
     lineprefixer-test.cpp
     matchingtext-test.cpp
@@ -80,7 +83,6 @@ add_qtc_test(unittest GTEST
     sqliteindex-test.cpp
     sqliteteststatement.h
     sqlitetransaction-test.cpp
-    tokenprocessor-test.cpp
     unittests-main.cpp
     unittest-utility-functions.h
     utf8-test.cpp
@@ -135,10 +137,10 @@ function(extend_qtc_test_with_target_sources target)
   )
 endfunction()
 
-if (NOT TARGET clangbackend_lib)
+if (HAVE_LIBCLANG AND NOT TARGET clangbackend_lib)
   add_subdirectory(../../../src/tools/clangbackend/source ${CMAKE_CURRENT_BINARY_DIR}/clangbackend)
 endif()
-extend_qtc_test(unittest DEPENDS clangbackend_lib)
+extend_qtc_test(unittest DEPENDS clangbackend_lib CONDITION HAVE_LIBCLANG)
 
 if (NOT TARGET Sqlite)
   add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
@@ -161,7 +163,7 @@ add_custom_command(TARGET unittest POST_BUILD
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET libclang
+  CONDITION HAVE_LIBCLANG
   INCLUDES "${CLANG_INCLUDE_DIRS}"
   DEFINES CLANG_UNIT_TESTS
   DEPENDS libclang
@@ -205,11 +207,13 @@ extend_qtc_test(unittest
     diagnostic-test.cpp
     fixit-test.cpp
     gtest-clang-printing.cpp gtest-clang-printing.h
+    highlightingresultreporter-test.cpp
     readexporteddiagnostics-test.cpp
     skippedsourceranges-test.cpp
     sourcelocation-test.cpp
     sourcerange-test.cpp
     token-test.cpp
+    tokenprocessor-test.cpp
     translationunitupdater-test.cpp
     unsavedfile-test.cpp
     unsavedfiles-test.cpp
@@ -427,7 +431,7 @@ extend_qtc_test(unittest
 
 extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/clangformat
-  CONDITION TARGET libclang
+  CONDITION HAVE_LIBCLANG
   DEPENDS ${CLANG_TOOLING_LIBS}
   SOURCES
     clangformatconstants.h
@@ -435,7 +439,7 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET libclang
+  CONDITION HAVE_LIBCLANG
   SOURCES
     clangformat-test.cpp
 )

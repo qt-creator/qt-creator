@@ -48,6 +48,6 @@ elseif(TARGET clangTooling)
   set(QTC_CLANG_BUILDMODE_MATCH ON)
 endif()
 
-if (NOT QTC_CLANG_BUILDMODE_MATCH)
+if (TARGET clangTooling AND NOT QTC_CLANG_BUILDMODE_MATCH)
   message("Clang build mode mismatch (debug vs release): limiting clangTooling")
 endif()
