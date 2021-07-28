@@ -7079,17 +7079,25 @@ private:
         return false;
     }
 
-    static QByteArray escapeString(const QByteArray &contents)
+    static QByteArrayList escapeString(const QByteArray &contents)
     {
-        QByteArray newContents;
+        QByteArrayList newContents;
+        QByteArray chunk;
+        bool wasEscaped = false;
         for (const quint8 c : contents) {
-            if (isascii(c) && isprint(c)) {
-                newContents += c;
-            } else {
-                newContents += QByteArray("\\x") +
-                        QByteArray::number(c, 16).rightJustified(2, '0');
+            const bool needsEscape = !isascii(c) || !isprint(c);
+            if (!needsEscape && wasEscaped && std::isxdigit(c) && !chunk.isEmpty()) {
+                newContents << chunk;
+                chunk.clear();
             }
+            if (needsEscape)
+                chunk += QByteArray("\\x") + QByteArray::number(c, 16).rightJustified(2, '0');
+            else
+                chunk += c;
+            wasEscaped = needsEscape;
         }
+        if (!chunk.isEmpty())
+            newContents << chunk;
         return newContents;
     }
 
@@ -7154,25 +7162,35 @@ public:
         QTC_ASSERT(stringLiteral, return);
         const QByteArray oldContents(currentFile->tokenAt(stringLiteral->literal_token).
                                      identifier->chars());
-        QByteArray newContents;
+        QByteArrayList newContents;
         if (m_escape)
             newContents = escapeString(oldContents);
         else
-            newContents = unescapeString(oldContents);
+            newContents = {unescapeString(oldContents)};
 
-        if (oldContents != newContents) {
-            // Check UTF-8 byte array is correct or not.
-            QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
-            QScopedPointer<QTextDecoder> decoder(utf8codec->makeDecoder());
-            const QString str = decoder->toUnicode(newContents);
-            const QByteArray utf8buf = str.toUtf8();
-            if (utf8codec->canEncode(str) && newContents == utf8buf) {
-                ChangeSet changes;
-                changes.replace(startPos + 1, endPos - 1, str);
-                currentFile->setChangeSet(changes);
-                currentFile->apply();
-            }
+        if (newContents.isEmpty()
+                || (newContents.size() == 1 && newContents.first() == oldContents)) {
+            return;
         }
+
+        QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
+        QScopedPointer<QTextDecoder> decoder(utf8codec->makeDecoder());
+        ChangeSet changes;
+
+        bool replace = true;
+        for (const QByteArray &chunk : qAsConst(newContents)) {
+            const QString str = decoder->toUnicode(chunk);
+            const QByteArray utf8buf = str.toUtf8();
+            if (!utf8codec->canEncode(str) || chunk != utf8buf)
+                return;
+            if (replace)
+                changes.replace(startPos + 1, endPos - 1, str);
+            else
+                changes.insert(endPos, "\"" + str + "\"");
+            replace = false;
+        }
+        currentFile->setChangeSet(changes);
+        currentFile->apply();
     }
 
 private:
