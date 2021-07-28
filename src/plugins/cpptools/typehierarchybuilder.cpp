@@ -146,7 +146,9 @@ TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBa
     return hierarchy;
 }
 
-LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, const Name *symbolName, Scope *enclosingScope)
+LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, const Name *symbolName,
+                                               Scope *enclosingScope,
+                                               std::set<const Symbol *> typedefs)
 {
     QList<LookupItem> items = context.lookup(symbolName, enclosingScope);
 
@@ -158,6 +160,8 @@ LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, con
         if (!s)
             continue;
         if (!s->isClass() && !s->isTemplate() && !s->isTypedef())
+            continue;
+        if (!typedefs.insert(s).second)
             continue;
         actualBaseSymbol = s;
         matchingItem = item;
@@ -173,7 +177,8 @@ LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, con
             // Anonymous aggregate such as: typedef struct {} Empty;
             return LookupItem();
         }
-        return followTypedef(context, namedType->name(), actualBaseSymbol->enclosingScope());
+        return followTypedef(context, namedType->name(), actualBaseSymbol->enclosingScope(),
+                             typedefs);
     }
 
     return matchingItem;

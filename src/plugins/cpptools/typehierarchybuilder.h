@@ -34,6 +34,8 @@
 #include <QList>
 #include <QSet>
 
+#include <set>
+
 namespace CPlusPlus {
 class LookupContext;
 class LookupItem;
@@ -72,7 +74,8 @@ public:
                                             const CPlusPlus::Snapshot &snapshot);
     static CPlusPlus::LookupItem followTypedef(const CPlusPlus::LookupContext &context,
                                                const CPlusPlus::Name *symbolName,
-                                               CPlusPlus::Scope *enclosingScope);
+                                               CPlusPlus::Scope *enclosingScope,
+                                               std::set<const CPlusPlus::Symbol *> typedefs = {});
 private:
     TypeHierarchyBuilder() = default;
     void buildDerived(QFutureInterfaceBase &futureInterface, TypeHierarchy *typeHierarchy,
