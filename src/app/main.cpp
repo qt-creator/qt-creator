@@ -201,31 +201,6 @@ static inline int askMsgSendFailed()
                 QMessageBox::Retry);
 }
 
-// taken from utils/fileutils.cpp. We cannot use utils here since that depends app_version.h.
-static bool copyRecursively(const QString &srcFilePath, const QString &tgtFilePath)
-{
-    QFileInfo srcFileInfo(srcFilePath);
-    if (srcFileInfo.isDir()) {
-        QDir targetDir(tgtFilePath);
-        targetDir.cdUp();
-        if (!targetDir.mkdir(Utils::FilePath::fromString(tgtFilePath).fileName()))
-            return false;
-        QDir sourceDir(srcFilePath);
-        const QStringList fileNames = sourceDir.entryList
-                (QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-        for (const QString &fileName : fileNames) {
-            const QString newSrcFilePath = srcFilePath + '/' + fileName;
-            const QString newTgtFilePath = tgtFilePath + '/' + fileName;
-            if (!copyRecursively(newSrcFilePath, newTgtFilePath))
-                return false;
-        }
-    } else {
-        if (!QFile::copy(srcFilePath, tgtFilePath))
-            return false;
-    }
-    return true;
-}
-
 static inline QStringList getPluginPaths()
 {
     QStringList rc(QDir::cleanPath(QApplication::applicationDirPath()
