@@ -284,7 +284,7 @@ Section {
         PropertyLabel {
             text: qsTr("Letter spacing")
             tooltip: qsTr("Letter spacing for the font.")
-            blockedByTemplate: getBackendValue("letterSpacing").isAvailable
+            blockedByTemplate: !getBackendValue("letterSpacing").isAvailable
         }
 
         SecondColumnLayout {

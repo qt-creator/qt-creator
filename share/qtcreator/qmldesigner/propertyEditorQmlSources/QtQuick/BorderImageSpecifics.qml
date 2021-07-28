@@ -199,23 +199,23 @@ Column {
                 ExpandingSpacer {}
             }
 
-           PropertyLabel {
-               text: qsTr("Mirror")
-               tooltip: qsTr("Specifies whether the image should be horizontally inverted.")
-               blockedByTemplate: !backendValues.mirror.isAvailable
-           }
+            PropertyLabel {
+                text: qsTr("Mirror")
+                tooltip: qsTr("Specifies whether the image should be horizontally inverted.")
+                blockedByTemplate: !backendValues.mirror.isAvailable
+            }
 
-           SecondColumnLayout {
-               CheckBox {
-                   text: backendValues.mirror.valueToString
-                   implicitWidth: StudioTheme.Values.twoControlColumnWidth
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.mirror.valueToString
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                   + StudioTheme.Values.actionIndicatorWidth
-                   backendValue: backendValues.mirror
-                   enabled: backendValue.isAvailable
-               }
+                    backendValue: backendValues.mirror
+                    enabled: backendValue.isAvailable
+                }
 
-               ExpandingSpacer {}
-           }
+                ExpandingSpacer {}
+            }
 
             PropertyLabel {
                 text: qsTr("Smooth")
