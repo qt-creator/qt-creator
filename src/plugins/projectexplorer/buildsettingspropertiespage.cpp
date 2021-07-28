@@ -300,16 +300,13 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     bc->setDisplayName(name);
-    const std::function<bool(const QString &)> isBuildDirOk = [this](const QString &candidate) {
-        const auto fp = FilePath::fromString(candidate);
-        if (fp.exists())
+    const std::function<bool(const FilePath &)> isBuildDirOk = [this](const FilePath &candidate) {
+        if (candidate.exists())
             return false;
-        return !anyOf(m_target->buildConfigurations(), [&fp](const BuildConfiguration *bc) {
-            return bc->buildDirectory() == fp; });
+        return !anyOf(m_target->buildConfigurations(), [&candidate](const BuildConfiguration *bc) {
+            return bc->buildDirectory() == candidate; });
     };
-    bc->setBuildDirectory(FilePath::fromString(makeUniquelyNumbered(
-                                                   bc->buildDirectory().toString(),
-                                                   isBuildDirOk)));
+    bc->setBuildDirectory(makeUniquelyNumbered(bc->buildDirectory(), isBuildDirOk));
     m_target->addBuildConfiguration(bc);
     SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
 }
