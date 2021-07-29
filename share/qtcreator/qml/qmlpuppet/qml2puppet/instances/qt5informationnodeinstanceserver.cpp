@@ -103,6 +103,10 @@
 #endif
 #endif
 
+#ifdef QUICK3D_PARTICLES_MODULE
+#include <QtQuick3DParticles/private/qquick3dparticlesystem_p.h>
+#endif
+
 #ifdef IMPORT_QUICK3D_ASSETS
 #include <QtQuick3DAssetImport/private/qssgassetimportmanager_p.h>
 #endif
@@ -618,6 +622,11 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
     } else if (qobject_cast<QQuick3DAbstractLight *>(obj)) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseLightGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
+#ifdef QUICK3D_PARTICLES_MODULE
+    } else if (qobject_cast<QQuick3DParticleSystem *>(obj)) {
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseParticleSystemGizmo",
+                                  Q_ARG(QVariant, objectToVariant(obj)));
+#endif
     }
     removeNode3D(obj);
 #else
@@ -720,6 +729,12 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
                 QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateLightGizmoScene",
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
                                           Q_ARG(QVariant, objectToVariant(node)));
+#ifdef QUICK3D_PARTICLES_MODULE
+            } else if (qobject_cast<QQuick3DParticleSystem *>(node)) {
+                QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateParticleSystemGizmoScene",
+                                          Q_ARG(QVariant, objectToVariant(newRoot)),
+                                          Q_ARG(QVariant, objectToVariant(node)));
+#endif
             }
         }
         ++it;
@@ -1231,12 +1246,16 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
 {
     QHash<QObject *, QObjectList> cameras;
     QHash<QObject *, QObjectList> lights;
+    QHash<QObject *, QObjectList> particleSystems;
 
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DCamera"))
             cameras[find3DSceneRoot(instance)] << instance.internalObject();
         else if (instance.isSubclassOf("QQuick3DAbstractLight"))
             lights[find3DSceneRoot(instance)] << instance.internalObject();
+        else if (instance.isSubclassOf("QQuick3DParticleSystem"))
+            particleSystems[find3DSceneRoot(instance)] << instance.internalObject();
+
     }
 
     auto cameraIt = cameras.constBegin();
@@ -1258,6 +1277,16 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
                                       Q_ARG(QVariant, objectToVariant(obj)));
         }
         ++lightIt;
+    }
+    auto particleIt = particleSystems.constBegin();
+    while (particleIt != particleSystems.constEnd()) {
+        const auto particleObjs = particleIt.value();
+        for (auto &obj : particleObjs) {
+            QMetaObject::invokeMethod(m_editView3DData.rootItem, "addParticleSystemGizmo",
+                                      Q_ARG(QVariant, objectToVariant(particleIt.key())),
+                                      Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        ++particleIt;
     }
 }
 
@@ -1740,6 +1769,9 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
 #ifdef QUICK3D_MODULE
                 if (qobject_cast<QQuick3DModel *>(object)
                     || qobject_cast<QQuick3DCamera *>(object)
+#ifdef QUICK3D_PARTICLES_MODULE
+                    || qobject_cast<QQuick3DParticleSystem *>(object)
+#endif
                     || qobject_cast<QQuick3DAbstractLight *>(object)) {
                     return true;
                 }

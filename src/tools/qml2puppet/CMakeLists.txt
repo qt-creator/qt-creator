@@ -160,6 +160,14 @@ extend_qtc_executable(qml2puppet
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
+find_package(Qt5 5.15.0 COMPONENTS Quick3DParticles QUIET)
+extend_qtc_executable(qml2puppet
+  CONDITION TARGET Qt5::Quick3DParticles
+  FEATURE_INFO "Qt Quick 3D particles"
+  DEPENDS Qt5::Quick3DParticles Qt5::Quick3DParticlesPrivate
+  DEFINES QUICK3D_PARTICLES_MODULE
+)
+
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
 
