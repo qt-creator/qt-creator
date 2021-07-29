@@ -186,22 +186,25 @@ static QString defaultCommand()
     return "locate";
 }
 
-static QString defaultArguments()
-{
-    if (HostOsInfo::isMacHost())
-        return "\"kMDItemFSName = '*%{Query:Escaped}*'c\"";
-    if (HostOsInfo::isWindowsHost())
-        return "-n 10000 -r \"%{Query:Regex}\"";
-    return "-i -l 10000 -r \"%{Query:Regex}\"";
-}
+/*!
+    For the tools es [1] and locate [2], interpret space as AND operator.
 
-static QString defaultCaseSensitiveArguments()
+    Currently doesn't support fine picking a file with a space in the path by escaped space.
+
+    [1]: https://www.voidtools.com/support/everything/command_line_interface/
+    [2]: https://www.gnu.org/software/findutils/manual/html_node/find_html/Invoking-locate.html
+ */
+
+static QString defaultArguments(Qt::CaseSensitivity sens = Qt::CaseInsensitive)
 {
     if (HostOsInfo::isMacHost())
-        return "\"kMDItemFSName = '*%{Query:Escaped}*'\"";
+        return QString("\"kMDItemFSName = '*%{Query:Escaped}*'%1\"")
+            .arg(sens == Qt::CaseInsensitive ? QString("c") : "");
     if (HostOsInfo::isWindowsHost())
-        return "-i -n 10000 -r \"%{Query:Regex}\"";
-    return "-l 10000 -r \"%{Query:Regex}\"";
+        return QString("%1 -n 10000 %{Query:Escaped}")
+            .arg(sens == Qt::CaseInsensitive ? QString() : "-i ");
+    return QString("%1 -A -l 10000 %{Query:Escaped}")
+        .arg(sens == Qt::CaseInsensitive ? QString() : "-i ");
 }
 
 const char kCommandKey[] = "command";
@@ -230,6 +233,7 @@ static MacroExpander *createMacroExpander(const QString &query)
                                [query] {
                                    QString regex = query;
                                    regex = regex.replace('*', ".*");
+                                   regex = regex.replace(' ', ".*");
                                    return regex;
                                });
     return expander;
@@ -306,7 +310,7 @@ void SpotlightLocatorFilter::saveState(QJsonObject &obj) const
         obj.insert(kCommandKey, m_command);
     if (m_arguments != defaultArguments())
         obj.insert(kArgumentsKey, m_arguments);
-    if (m_caseSensitiveArguments != defaultCaseSensitiveArguments())
+    if (m_caseSensitiveArguments != defaultArguments(Qt::CaseSensitive))
         obj.insert(kCaseSensitiveKey, m_caseSensitiveArguments);
 }
 
@@ -314,14 +318,14 @@ void SpotlightLocatorFilter::restoreState(const QJsonObject &obj)
 {
     m_command = obj.value(kCommandKey).toString(defaultCommand());
     m_arguments = obj.value(kArgumentsKey).toString(defaultArguments());
-    m_caseSensitiveArguments = obj.value(kCaseSensitiveKey).toString(defaultCaseSensitiveArguments());
+    m_caseSensitiveArguments = obj.value(kCaseSensitiveKey).toString(defaultArguments(Qt::CaseSensitive));
 }
 
 void SpotlightLocatorFilter::reset()
 {
     m_command = defaultCommand();
     m_arguments = defaultArguments();
-    m_caseSensitiveArguments = defaultCaseSensitiveArguments();
+    m_caseSensitiveArguments = defaultArguments(Qt::CaseSensitive);
 }
 
 } // Internal
