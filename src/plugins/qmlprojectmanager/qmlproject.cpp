@@ -272,6 +272,13 @@ bool QmlBuildSystem::qtForMCUs() const
     return false;
 }
 
+bool QmlBuildSystem::qt6Project() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->qt6Project();
+    return false;
+}
+
 void QmlBuildSystem::setMainFile(const QString &mainFilePath)
 {
     if (m_projectItem)
@@ -466,6 +473,8 @@ QVariant QmlBuildSystem::additionalData(Id id) const
         return forceFreeType();
     if (id == Constants::customQtForMCUs)
         return qtForMCUs();
+    if (id == Constants::customQt6Project)
+        return qt6Project();
     return {};
 }
 

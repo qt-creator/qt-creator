@@ -53,21 +53,23 @@ Item {
                     model: ProjectModel {
                         id: projectModel
                     }
-                    onItemSelected: projectModel.openProjectAt(index)
+                    onItemSelected: function(index, item) { projectModel.openProjectAt(index) }
                 }
             }
 
             CustomScrollView {
                 ProjectsGrid {
                     model: ExamplesModel {}
-                    onItemSelected: projectModel.openExample(item.projectName, item.qmlFileName, item.url)
+                    onItemSelected: function(index, item) {
+                        projectModel.openExample(item.projectName, item.qmlFileName, item.url)
+                    }
                 }
             }
 
             CustomScrollView{
                 ProjectsGrid {
                     model: TutorialsModel {}
-                    onItemSelected: Qt.openUrlExternally(item.url)
+                    onItemSelected: function(index, item) { Qt.openUrlExternally(item.url) }
                 }
             }
         }

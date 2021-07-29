@@ -10,7 +10,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Item"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
 
@@ -25,7 +25,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Rectangle"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/rect-icon.png"
             version: "2.0"
 
@@ -41,7 +41,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Text"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/text-icon.png"
             version: "2.0"
 
@@ -56,7 +56,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Text Edit"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/text-edit-icon.png"
             version: "2.0"
 
@@ -73,7 +73,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Text Input"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/text-input-icon.png"
             version: "2.0"
 
@@ -90,7 +90,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Mouse Area"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/mouse-area-icon.png"
             version: "2.0"
 
@@ -105,7 +105,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Image"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/image-icon.png"
             version: "2.0"
 
@@ -122,7 +122,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Animated Image"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/animated-image-icon.png"
             version: "2.0"
 
@@ -138,7 +138,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Border Image"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/border-image-icon.png"
             version: "2.0"
 
@@ -154,7 +154,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Flickable"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/flickable-icon.png"
             version: "2.0"
 
@@ -169,7 +169,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Grid View"
-            category: "Qt Quick - Views"
+            category: "b.Qt Quick - Views"
             libraryIcon: ":/qtquickplugin/images/gridview-icon.png"
             version: "2.0"
 
@@ -183,7 +183,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "List View"
-            category: "Qt Quick - Views"
+            category: "b.Qt Quick - Views"
             libraryIcon: ":/qtquickplugin/images/listview-icon.png"
             version: "2.0"
 
@@ -197,7 +197,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Path View"
-            category: "Qt Quick - Views"
+            category: "b.Qt Quick - Views"
             libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
             version: "2.0"
 
@@ -211,7 +211,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Focus Scope"
-            category: "Qt Quick - Basic"
+            category: "a.Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/focusscope-icon.png"
             version: "2.0"
 
@@ -226,7 +226,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Column"
-            category: "Qt Quick - Positioner"
+            category: "c.Qt Quick - Positioner"
             libraryIcon: ":/qtquickplugin/images/column-positioner-icon.png"
             version: "2.0"
 
@@ -241,7 +241,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Row"
-            category: "Qt Quick - Positioner"
+            category: "c.Qt Quick - Positioner"
             libraryIcon: ":/qtquickplugin/images/row-positioner-icon.png"
             version: "2.0"
 
@@ -256,7 +256,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Grid"
-            category: "Qt Quick - Positioner"
+            category: "c.Qt Quick - Positioner"
             libraryIcon: ":/qtquickplugin/images/grid-positioner-icon.png"
             version: "2.0"
 
@@ -271,7 +271,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Flow"
-            category: "Qt Quick - Positioner"
+            category: "c.Qt Quick - Positioner"
             libraryIcon: ":/qtquickplugin/images/flow-positioner-icon.png"
             version: "2.0"
 
@@ -293,7 +293,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Property Animation"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -312,7 +312,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Pause Animation"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -330,7 +330,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Sequential Animation"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -348,7 +348,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Parallel Animation"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -367,7 +367,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Property Action"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -386,7 +386,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Script Action"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -405,7 +405,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "ColorAnimation"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
         }
@@ -424,7 +424,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Number Animation"
-            category: "Qt Quick - Animation"
+            category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
             Property { name: "to"; type: "int"; value: 0; }

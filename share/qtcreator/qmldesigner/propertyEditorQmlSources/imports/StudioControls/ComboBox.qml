@@ -134,7 +134,7 @@ T.ComboBox {
                                                    + 2 : 0) // TODO Magic number
         height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
         padding: 0
-        enabled: model.test === "undefined" ? true : model.test // TODO modelData
+        enabled: model.enabled === undefined ? true : model.enabled
 
         contentItem: Text {
             leftPadding: itemDelegateIconArea.width

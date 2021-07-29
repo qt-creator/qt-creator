@@ -43,6 +43,7 @@ namespace ClangTools {
 namespace Internal {
 
 QString clangTidyDocUrl(const QString &check);
+QString clazyDocUrl(const QString &check);
 
 class Diagnostic;
 

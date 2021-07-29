@@ -729,11 +729,18 @@ void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &co
     for (const MockupTypeContainer &mockupType :  container) {
         if (!isTypeAvailable(mockupType, engine()))
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+            if (mockupType.majorVersion() == -1 && mockupType.minorVersion() == -1) {
+                QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
+                                                                1,
+                                                                0,
+                                                                mockupType.typeName());
+            } else {
+                QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
+                                                                mockupType.majorVersion(),
+                                                                mockupType.minorVersion(),
+                                                                mockupType.typeName());
+            }
 
-            QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
-                                                            mockupType.majorVersion(),
-                                                            mockupType.minorVersion(),
-                                                            mockupType.typeName());
 #else
             qmlRegisterType(QUrl("qrc:/qtquickplugin/mockfiles/GenericBackend.qml"),
                         mockupType.importUri().toUtf8(),

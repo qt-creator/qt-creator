@@ -389,18 +389,22 @@ void TypePrettyPrinter::visit(Function *type)
         for (Scope *s = type->enclosingScope(); s && i >= 0; s = s->enclosingScope()) {
             if (Template *templ = s->asTemplate()) {
                 QString &n = nameParts[i];
-                n += '<';
-                for (int index = 0; index < templ->templateParameterCount(); ++index) {
-                    if (index)
-                        n += QLatin1String(", ");
-                    QString arg = _overview->prettyName(templ->templateParameterAt(index)->name());
-                    if (arg.isEmpty()) {
-                        arg += 'T';
-                        arg += QString::number(index + 1);
+                const int paramCount = templ->templateParameterCount();
+                if (paramCount > 0) {
+                    n += '<';
+                    for (int index = 0; index < paramCount; ++index) {
+                        if (index)
+                            n += QLatin1String(", ");
+                        QString arg = _overview->prettyName(
+                                    templ->templateParameterAt(index)->name());
+                        if (arg.isEmpty()) {
+                            arg += 'T';
+                            arg += QString::number(index + 1);
+                        }
+                        n += arg;
                     }
-                    n += arg;
+                    n += '>';
                 }
-                n += '>';
             }
             if (s->identifier())
                 --i;
@@ -435,7 +439,8 @@ void TypePrettyPrinter::visit(Function *type)
     if (_overview->showEnclosingTemplate) {
         if (Template *templ = type->enclosingTemplate()) {
             QString templateScope = "template<";
-            for (int i = 0, total = templ->templateParameterCount(); i < total; ++i) {
+            const int paramCount = templ->templateParameterCount();
+            for (int i = 0; i < paramCount; ++i) {
                 if (Symbol *param = templ->templateParameterAt(i)) {
                     if (i > 0)
                         templateScope.append(", ");
@@ -452,7 +457,8 @@ void TypePrettyPrinter::visit(Function *type)
                     }
                 }
             }
-            _text.prepend(templateScope + ">\n");
+            if (paramCount > 0)
+                _text.prepend(templateScope + ">\n");
         }
     }
 

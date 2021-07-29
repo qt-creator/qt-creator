@@ -131,6 +131,7 @@ private:
     void updateLanguageClient(ProjectExplorer::Project *project,
                               const CppTools::ProjectInfo &projectInfo);
     ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
+    void claimNonProjectSources(ClangdClient *fallbackClient);
 
 private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;

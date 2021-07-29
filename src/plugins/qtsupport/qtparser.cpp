@@ -41,12 +41,12 @@ using namespace ProjectExplorer;
 namespace QtSupport {
 
 // opt. drive letter + filename: (2 brackets)
-#define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
+#define FILE_PATTERN R"(^(?<file>(?:[A-Za-z]:)?[^:\(]+\.[^:\(]+))"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+?)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+?)$")),
-    m_uicRegExp(QLatin1String(FILE_PATTERN": Warning:\\s(?<msg>.+?)$")),
-    m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*?) in '(.*?)'$"))
+    m_mocRegExp(FILE_PATTERN R"([:\(](?<line>\d+)?(?::(?<column>\d+))?\)?:\s(?<level>[Ww]arning|[Ee]rror|[Nn]ote):\s(?<description>.+?)$)"),
+    m_uicRegExp(FILE_PATTERN R"(: Warning:\s(?<msg>.+?)$)"),
+    m_translationRegExp(R"(^(?<level>[Ww]arning|[Ee]rror):\s+(?<description>.*?) in '(?<file>.*?)'$)")
 {
     setObjectName(QLatin1String("QtParser"));
 }
@@ -60,20 +60,21 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
     QRegularExpressionMatch match = m_mocRegExp.match(lne);
     if (match.hasMatch()) {
         bool ok;
-        int lineno = match.captured(3).toInt(&ok);
+        int lineno = match.captured("line").toInt(&ok);
         if (!ok)
             lineno = -1;
         Task::TaskType type = Task::Error;
-        const QString level = match.captured(4);
+        const QString level = match.captured("level");
         if (level.compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             type = Task::Warning;
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
         LinkSpecs linkSpecs;
         const Utils::FilePath file
-                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1)));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, 1);
-        CompileTask task(type, match.captured(5).trimmed() /* description */, file, lineno);
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, "file");
+        CompileTask task(type, match.captured("description").trimmed(), file, lineno);
+        task.column = match.captured("column").toInt();
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
@@ -88,7 +89,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
             message.prepend(": ").prepend(fileName);
         } else if (fileName.endsWith(".ui")) {
             filePath = absoluteFilePath(Utils::FilePath::fromUserInput(fileName));
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 1);
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, "file");
         } else {
             isUicMessage = false;
         }
@@ -100,13 +101,13 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
     match = m_translationRegExp.match(line);
     if (match.hasMatch()) {
         Task::TaskType type = Task::Warning;
-        if (match.captured(1) == QLatin1String("Error"))
+        if (match.captured("level") == QLatin1String("Error"))
             type = Task::Error;
         LinkSpecs linkSpecs;
         const Utils::FilePath file
-                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(3)));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, match, 3);
-        CompileTask task(type, match.captured(2), file);
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, match, "file");
+        CompileTask task(type, match.captured("description"), file);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
@@ -176,6 +177,22 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
                                                        Utils::FilePath::fromUserInput(QLatin1String("c:\\code\\test.h")), 96))
+            << QString();
+    QTest::newRow("moc warning (Qt 6/Windows)")
+            << QString::fromLatin1(R"(C:/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h(38:1): error: Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks() << CompileTask(Task::Error,
+                                       R"(Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)",
+                                       Utils::FilePath::fromUserInput("C:/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h"), 38, 1))
+            << QString();
+    QTest::newRow("moc warning (Qt 6/Unix)")
+            << QString::fromLatin1(R"(/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h:38:1: error: Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks() << CompileTask(Task::Error,
+                                       R"(Plugin Metadata file "QmlProfiler.json" does not exist. Declaration will be ignored)",
+                                       Utils::FilePath::fromUserInput("/Users/alportal/dev/qt-creator-qt6/src/plugins/qmlprofiler/qmlprofilerplugin.h"), 38, 1))
             << QString();
     QTest::newRow("moc note")
             << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")

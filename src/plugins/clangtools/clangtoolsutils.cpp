@@ -304,7 +304,7 @@ QString documentationUrl(const QString &checkName)
     const QString clangStaticAnalyzerPrefix = "clang-analyzer-core.";
     if (name.startsWith(clazyPrefix)) {
         name = checkName.mid(clazyPrefix.length());
-        url = QString(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(name);
+        url = clazyDocUrl(name);
     } else if (name.startsWith(clangStaticAnalyzerPrefix)) {
         url = CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
     } else {
@@ -360,6 +360,17 @@ QString clangTidyDocUrl(const QString &check)
     static const char urlTemplate[]
             = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/clang-tidy/checks/%2.html";
     return QString::fromLatin1(urlTemplate).arg(version.toString(), check);
+}
+
+QString clazyDocUrl(const QString &check)
+{
+    QVersionNumber version = ClangToolsSettings::clazyVersion();
+    if (!version.isNull())
+        version = QVersionNumber(version.majorVersion(), version.minorVersion(), 0);
+    const QString versionString = version.isNull() ? "master" : version.toString();
+    static const char urlTemplate[]
+            = "https://github.com/KDE/clazy/blob/%1/docs/checks/README-%2.md";
+    return QString::fromLatin1(urlTemplate).arg(versionString, check);
 }
 
 } // namespace Internal

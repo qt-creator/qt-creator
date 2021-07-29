@@ -139,22 +139,22 @@ SecondColumnLayout {
         ceMode.items.append({
             value: "Solid",
             text: qsTr("Solid"),
-            test: true
+            enabled: true
         })
         ceMode.items.append({
             value: "LinearGradient",
             text: qsTr("Linear"),
-            test: colorEditor.supportGradient
+            enabled: colorEditor.supportGradient
         })
         ceMode.items.append({
             value: "RadialGradient",
             text: qsTr("Radial"),
-            test: colorEditor.supportGradient && colorEditor.shapeGradients
+            enabled: colorEditor.supportGradient && colorEditor.shapeGradients
         })
         ceMode.items.append({
             value: "ConicalGradient",
             text: qsTr("Conical"),
-            test: colorEditor.supportGradient && colorEditor.shapeGradients
+            enabled: colorEditor.supportGradient && colorEditor.shapeGradients
         })
     }
 

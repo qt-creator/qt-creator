@@ -522,7 +522,9 @@ private:
     void addLanguageOptions()
     {
         // Determine file kind with respect to ambiguous headers.
-        CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(m_filePath);
+        CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::Unclassified;
+        if (!m_filePath.isEmpty())
+            fileKind = CppTools::ProjectFile::classify(m_filePath);
         if (fileKind == CppTools::ProjectFile::AmbiguousHeader) {
             fileKind = m_projectPart.languageVersion <= ::Utils::LanguageVersion::LatestC
                  ? CppTools::ProjectFile::CHeader

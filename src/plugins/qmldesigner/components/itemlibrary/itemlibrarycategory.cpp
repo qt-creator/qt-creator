@@ -48,6 +48,9 @@ bool ItemLibraryCategory::categoryExpanded() const
 
 QString ItemLibraryCategory::sortingName() const
 {
+    if (ItemLibraryModel::categorySortingHash.contains(categoryName()))
+        return ItemLibraryModel::categorySortingHash.value(categoryName());
+
     return categoryName();
 }
 

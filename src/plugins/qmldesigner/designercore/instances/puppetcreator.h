@@ -46,10 +46,7 @@ class Model;
 class PuppetCreator
 {
 public:
-    enum PuppetType {
-        FallbackPuppet,
-        UserSpacePuppet
-    };
+    enum PuppetType { FallbackPuppet, UserSpacePuppet, BinPathPuppet };
 
     PuppetCreator(ProjectExplorer::Target *target, const Model *model);
 

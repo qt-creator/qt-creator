@@ -27,6 +27,7 @@
 #include "buildinfo.h"
 #include "buildstepspage.h"
 #include "target.h"
+#include "project.h"
 #include "buildconfiguration.h"
 #include "projectconfigurationmodel.h"
 #include "session.h"
@@ -300,16 +301,16 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     bc->setDisplayName(name);
-    const std::function<bool(const QString &)> isBuildDirOk = [this](const QString &candidate) {
-        const auto fp = FilePath::fromString(candidate);
-        if (fp.exists())
-            return false;
-        return !anyOf(m_target->buildConfigurations(), [&fp](const BuildConfiguration *bc) {
-            return bc->buildDirectory() == fp; });
-    };
-    bc->setBuildDirectory(FilePath::fromString(makeUniquelyNumbered(
-                                                   bc->buildDirectory().toString(),
-                                                   isBuildDirOk)));
+    const FilePath buildDirectory = bc->buildDirectory();
+    if (buildDirectory != m_target->project()->projectDirectory()) {
+        const std::function<bool(const FilePath &)> isBuildDirOk = [this](const FilePath &candidate) {
+            if (candidate.exists())
+                return false;
+            return !anyOf(m_target->buildConfigurations(), [&candidate](const BuildConfiguration *bc) {
+                return bc->buildDirectory() == candidate; });
+        };
+        bc->setBuildDirectory(makeUniquelyNumbered(buildDirectory, isBuildDirOk));
+    }
     m_target->addBuildConfiguration(bc);
     SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
 }

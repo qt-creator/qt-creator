@@ -30,6 +30,7 @@
 #include <QPair>
 #include <QStringList>
 #include <QVector>
+#include <QVersionNumber>
 
 namespace ClangTools {
 namespace Internal {
@@ -60,6 +61,8 @@ class ClazyStandaloneInfo
 {
 public:
     ClazyStandaloneInfo(const QString &executablePath);
+
+    QVersionNumber version;
     QStringList defaultChecks;
     ClazyChecks supportedChecks;
 };

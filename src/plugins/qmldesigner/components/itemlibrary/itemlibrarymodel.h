@@ -80,6 +80,8 @@ public:
 
     Import entryToImport(const ItemLibraryEntry &entry);
 
+    inline static QHash<QString, QString> categorySortingHash;
+
 signals:
     void isAnyCategoryHiddenChanged();
 

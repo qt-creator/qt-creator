@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,9 +22,11 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-import QtQuick 2.1
+
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     anchors.left: parent.left
@@ -41,36 +43,41 @@ Column {
         caption: qsTr("Drawer")
 
         SectionLayout {
-            Label {
+            PropertyLabel {
                 text: qsTr("Edge")
                 tooltip: qsTr("Defines the edge of the window the drawer will open from.")
             }
 
             SecondColumnLayout {
                 ComboBox {
-                    Layout.fillWidth: true
                     backendValue: backendValues.edge
                     scope: "Qt"
                     model: ["TopEdge", "LeftEdge", "RightEdge", "BottomEdge"]
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
+
+                ExpandingSpacer {}
             }
 
-            Label {
-                text: qsTr("Drag Margin")
+            PropertyLabel {
+                text: qsTr("Drag margin")
                 tooltip: qsTr("Defines the distance from the screen edge within which drag actions will open the drawer.")
             }
+
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.dragMargin
                     hasSlider: true
-                    Layout.preferredWidth: 80
                     minimumValue: 0
                     maximumValue: 400
                     stepSize: 1
                     decimals: 0
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
-                ExpandingSpacer {
-                }
+
+                ExpandingSpacer {}
             }
         }
     }
@@ -85,6 +92,5 @@ Column {
         anchors.right: parent.right
     }
 
-    FontSection {
-    }
+    FontSection {}
 }
