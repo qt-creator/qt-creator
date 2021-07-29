@@ -604,8 +604,10 @@ void ClangdTestTooltips::test()
     QCOMPARE(editor->document(), doc);
     QVERIFY(editor->editorWidget());
 
-    if (QLatin1String(QTest::currentDataTag()) == QLatin1String("IncludeDirective"))
+    if (client()->versionNumber() < QVersionNumber(14)
+            && QLatin1String(QTest::currentDataTag()) == QLatin1String("IncludeDirective")) {
         QSKIP("FIXME: clangd sends empty or no hover data for includes");
+    }
 
     QTimer timer;
     timer.setSingleShot(true);
@@ -631,7 +633,6 @@ void ClangdTestTooltips::test()
     QEXPECT_FAIL("TypeName_ResolveTemplateTypeAlias", "typedef already resolved in AST", Abort);
     QCOMPARE(int(helpItem.category()), expectedCategory);
     QEXPECT_FAIL("TemplateClassQualified", "Additional look-up needed?", Abort);
-    QEXPECT_FAIL("AutoTypeTemplate", "Additional look-up needed?", Abort);
     QCOMPARE(helpItem.helpIds(), expectedIds);
     QCOMPARE(helpItem.docMark(), expectedMark);
 }
