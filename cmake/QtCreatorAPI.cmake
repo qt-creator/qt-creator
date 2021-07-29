@@ -110,7 +110,7 @@ function(qtc_source_dir varName)
 endfunction()
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;UNVERSIONED;FEATURE_INFO;SKIP_PCH"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
@@ -260,17 +260,6 @@ function(add_qtc_library name)
 
   if (NOT _arg_SKIP_PCH)
     enable_pch(${name})
-  endif()
-
-  if (WIN32 AND library_type STREQUAL "SHARED" AND NOT _arg_UNVERSIONED)
-    # Match qmake naming scheme e.g. Library4.dll
-    set_target_properties(${name} PROPERTIES
-      SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-      PREFIX ""
-      IMPORT_SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
-      IMPORT_PREFIX ""
-      PDB_NAME "${name}${IDE_VERSION_MAJOR}${.pdb}"
-    )
   endif()
 
   unset(NAMELINK_OPTION)
@@ -518,17 +507,6 @@ function(add_qtc_plugin target_name)
     ${_arg_PROPERTIES}
   )
 
-  if (WIN32)
-    # Match qmake naming scheme e.g. Plugin4.dll
-    string(REGEX MATCH "^[0-9]*" IDE_VERSION_MAJOR ${IDE_VERSION})
-    set_target_properties(${target_name} PROPERTIES
-      SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-      PREFIX ""
-      IMPORT_SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
-      IMPORT_PREFIX ""
-      PDB_NAME "${name}${IDE_VERSION_MAJOR}${.pdb}"
-    )
-  endif()
   if (NOT _arg_SKIP_PCH)
     enable_pch(${target_name})
   endif()
