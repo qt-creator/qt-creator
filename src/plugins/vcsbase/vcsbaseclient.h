@@ -186,7 +186,7 @@ public:
                         const QString &commitMessageFile,
                         const QStringList &extraOptions = QStringList());
 
-    virtual QString findTopLevelForFile(const QFileInfo &/*file*/) const { return {}; }
+    virtual Utils::FilePath findTopLevelForFile(const Utils::FilePath &/*file*/) const { return {}; }
 
     virtual void view(const QString &source, const QString &id,
                       const QStringList &extraOptions = QStringList());

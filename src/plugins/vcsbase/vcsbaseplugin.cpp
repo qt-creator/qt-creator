@@ -695,15 +695,16 @@ bool VcsBasePluginPrivate::raiseSubmitEditor() const
 // AutoFS is used (due its automatically creating mountpoints when querying
 // a directory). In addition, bail out when reaching the home directory
 // of the user or root (generally avoid '/', where mountpoints are created).
-QString findRepositoryForDirectory(const QString &dirS, const QString &checkFile)
+FilePath findRepositoryForFile(const FilePath &fileOrDir, const QString &checkFile)
 {
+    const FilePath dirS = fileOrDir.isDir() ? fileOrDir : fileOrDir.parentDir();
     qCDebug(findRepoLog) << ">" << dirS << checkFile;
-    QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return QString());
+    QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return {});
 
     const QString root = QDir::rootPath();
     const QString home = QDir::homePath();
 
-    QDir directory(dirS);
+    QDir directory(dirS.toString());
     do {
         const QString absDirPath = directory.absolutePath();
         if (absDirPath == root || absDirPath == home)
@@ -711,11 +712,11 @@ QString findRepositoryForDirectory(const QString &dirS, const QString &checkFile
 
         if (QFileInfo(directory, checkFile).isFile()) {
             qCDebug(findRepoLog) << "<" << absDirPath;
-            return absDirPath;
+            return FilePath::fromString(absDirPath);
         }
     } while (!directory.isRoot() && directory.cdUp());
     qCDebug(findRepoLog) << "< bailing out at" << directory.absolutePath();
-    return QString();
+    return {};
 }
 
 // Is SSH prompt configured?

@@ -404,12 +404,10 @@ void MercurialClient::view(const QString &source, const QString &id,
     VcsBaseClient::view(source, id, args << extraOptions);
 }
 
-QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
+FilePath MercurialClient::findTopLevelForFile(const FilePath &file) const
 {
     const QString repositoryCheckFile = QLatin1String(Constants::MERCURIALREPO) + QLatin1String("/requires");
-    return file.isDir() ?
-                VcsBase::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
-                VcsBase::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
+    return VcsBase::findRepositoryForFile(file, repositoryCheckFile);
 }
 
 Utils::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const

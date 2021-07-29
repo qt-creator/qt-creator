@@ -754,10 +754,9 @@ bool MercurialPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) cons
 
 bool MercurialPluginPrivate::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
 {
-    QFileInfo dir = filePath.toFileInfo();
-    const QString topLevelFound = m_client.findTopLevelForFile(dir);
+    const FilePath topLevelFound = m_client.findTopLevelForFile(filePath);
     if (topLevel)
-        *topLevel = FilePath::fromString(topLevelFound);
+        *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
 }
 

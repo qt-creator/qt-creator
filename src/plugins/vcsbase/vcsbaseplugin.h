@@ -125,7 +125,8 @@ inline bool operator!=(const VcsBasePluginState &s1, const VcsBasePluginState &s
 // systems that do not have directories like "CVS" in each managed subdirectory
 // but have a directory at the top of the repository like ".git" containing
 // a well known file. See implementation for gory details.
-VCSBASE_EXPORT QString findRepositoryForDirectory(const QString &dir, const QString &checkFile);
+VCSBASE_EXPORT Utils::FilePath findRepositoryForFile(const Utils::FilePath &fileOrDir,
+                                                     const QString &checkFile);
 
 // Returns SSH prompt configured in settings.
 VCSBASE_EXPORT QString sshPrompt();

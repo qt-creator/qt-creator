@@ -75,7 +75,7 @@ public:
                    const QStringList &extraOptions = QStringList()) override;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
-    QString findTopLevelForFile(const QFileInfo &file) const override;
+    Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
 
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;

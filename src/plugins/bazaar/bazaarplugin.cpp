@@ -852,10 +852,9 @@ bool BazaarPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) 
 
 bool BazaarPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    QFileInfo dir(directory.toString());
-    const QString topLevelFound = m_client.findTopLevelForFile(dir);
+    const FilePath topLevelFound = m_client.findTopLevelForFile(directory);
     if (topLevel)
-        *topLevel = FilePath::fromString(topLevelFound);
+        *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
 }
 

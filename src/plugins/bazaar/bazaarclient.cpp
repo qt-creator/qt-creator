@@ -177,13 +177,11 @@ bool BazaarClient::isVcsDirectory(const FilePath &fileName) const
             && !fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
-QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const
+FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
 {
     const QString repositoryCheckFile =
             QLatin1String(Constants::BAZAARREPO) + QLatin1String("/branch-format");
-    return file.isDir() ?
-                VcsBase::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
-                VcsBase::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
+    return VcsBase::findRepositoryForFile(file, repositoryCheckFile);
 }
 
 bool BazaarClient::managesFile(const QString &workingDirectory, const QString &fileName) const
