@@ -36,8 +36,10 @@
 #include <clangtools/clangtoolsdiagnostic.h>
 #include <debugger/analyzer/diagnosticlocation.h>
 #include <modelnode.h>
+#include <projectstorage/projectstoragepathwatchertypes.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/sourcepathcachetypes.h>
+#include <sqlite.h>
 #include <sqlitesessionchangeset.h>
 #include <sqlitevalue.h>
 #include <tooltipinfo.h>
@@ -45,8 +47,6 @@
 #include <utils/linecolumn.h>
 #include <variantproperty.h>
 #include <qmldesigner/designercore/imagecache/imagecachestorageinterface.h>
-
-#include <sqlite.h>
 
 void PrintTo(const Utf8String &text, ::std::ostream *os)
 {
@@ -931,6 +931,43 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag) {
 } // namespace ClangTools
 
 namespace QmlDesigner {
+
+const char *sourceTypeToText(SourceType sourceType)
+{
+    switch (sourceType) {
+    case SourceType::Qml:
+        return "Qml";
+    case SourceType::QmlUi:
+        return "QmlUi";
+    case SourceType::QmlDir:
+        return "QmlDir";
+    case SourceType::QmlTypes:
+        return "QmlTypes";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, SourceType sourceType)
+{
+    return out << sourceTypeToText(sourceType);
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectChunkId &id)
+{
+    return out << "(" << id.id << ", " << id.sourceType << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
+{
+    return out << idPaths.id << ", " << idPaths.sourceIds << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
+{
+    return out << "(" << entry.sourceId << ", " << entry.sourceContextId << ", " << entry.id << ", "
+               << entry.lastModified << ")";
+}
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node)
 {

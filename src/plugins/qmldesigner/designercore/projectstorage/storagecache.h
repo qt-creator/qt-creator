@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "nonlockingmutex.h"
 #include "projectstorageids.h"
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
@@ -46,18 +47,6 @@ class StorageCacheException : public std::exception
     {
         return "StorageCache entries are in invalid state.";
     }
-};
-
-class NonLockingMutex
-{
-public:
-    constexpr NonLockingMutex() noexcept {}
-    NonLockingMutex(const NonLockingMutex &) = delete;
-    NonLockingMutex &operator=(const NonLockingMutex &) = delete;
-    void lock() {}
-    void unlock() {}
-    void lock_shared() {}
-    void unlock_shared() {}
 };
 
 template<typename Type,

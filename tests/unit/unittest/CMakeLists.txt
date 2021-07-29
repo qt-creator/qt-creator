@@ -332,9 +332,20 @@ extend_qtc_test(unittest
     model/nodeproperty.cpp
     model/signalhandlerproperty.cpp
     model/variantproperty.cpp
+    projectstorage/directorypathcompressor.h
+    projectstorage/filesysteminterface.h
+    projectstorage/filesystem.cpp projectstorage/filesystem.h
+    projectstorage/filestatus.h
+    projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
+    projectstorage/nonlockingmutex.h
     projectstorage/projectstorage.h
+    projectstorage/projectstoragepathwatcher.h
+    projectstorage/projectstoragepathwatcherinterface.h
+    projectstorage/projectstoragepathwatchernotifierinterface.h
     projectstorage/projectstoragesqlitefunctionregistry.cpp
     projectstorage/projectstoragesqlitefunctionregistry.h
+    projectstorage/projectstoragepathwatcher.h
+    projectstorage/projectstoragepathwatchertypes.h
     projectstorage/projectstoragetypes.h
     projectstorage/sourcepath.h
     projectstorage/sourcepathcache.h
@@ -354,13 +365,21 @@ extend_qtc_test(unittest
 
 extend_qtc_test(unittest
   SOURCES
+    directorypathcompressor-test.cpp
+    filesystemmock.h
+    filestatuscache-test.cpp
     listmodeleditor-test.cpp
     projectstorage-test.cpp
     projectstoragesqlitefunctionregistry-test.cpp
+    projectstoragepathwatchermock.h
+    projectstoragepathwatchernotifiermock.h
+    projectstoragepathwatcher-test.cpp
     sourcepath-test.cpp
     sourcepathcache-test.cpp
+    sourcepathcachemock.h
     sourcepathview-test.cpp
     storagecache-test.cpp
+
 )
 
 # QmlDesigner tests END
