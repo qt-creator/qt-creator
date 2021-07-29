@@ -414,8 +414,6 @@ bool hasSnippet(TextEditor::ProposalModelPtr model, const QByteArray &text)
 
 class MonitorGeneratedUiFile : public QObject
 {
-    Q_OBJECT
-
 public:
     MonitorGeneratedUiFile();
     bool waitUntilGenerated(int timeout = 10000) const;
@@ -836,5 +834,3 @@ void ClangCodeCompletionTest::testSignalCompletion()
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#include "clangcodecompletion_test.moc"

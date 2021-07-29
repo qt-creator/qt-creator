@@ -280,8 +280,6 @@ OpenDocumentCommand::OpenDocumentCommand(const CommandContext &context,
 
 class WaitForUpdatedCodeWarnings : public QObject
 {
-    Q_OBJECT
-
 public:
     WaitForUpdatedCodeWarnings(ClangEditorDocumentProcessor *processor);
 
@@ -794,5 +792,3 @@ bool runClangBatchFile(const QString &filePath)
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#include "clangbatchfileprocessor.moc"
