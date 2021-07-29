@@ -89,14 +89,14 @@ public:
     { }
 
 protected:
-    QString trackFile(const QString &repository) final
+    FilePath trackFile(const FilePath &repository) final
     {
-        return repository + "/" + Constants::FOSSILREPO;
+        return repository.pathAppended(Constants::FOSSILREPO);
     }
 
-    QString refreshTopic(const QString &repository) final
+    QString refreshTopic(const FilePath &repository) final
     {
-        return m_client->synchronousTopic(repository);
+        return m_client->synchronousTopic(repository.toString());
     }
 
 private:
@@ -148,24 +148,24 @@ public:
     QString displayName() const final;
     Id id() const final;
 
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool managesDirectory(const FilePath &directory, FilePath *topLevel) const final;
+    bool managesFile(const FilePath &workingDirectory, const QString &fileName) const final;
 
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &fileName) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsOpen(const FilePath &fileName) final;
+    bool vcsAdd(const FilePath &fileName) final;
+    bool vcsDelete(const FilePath &filename) final;
+    bool vcsMove(const FilePath &from, const FilePath &to) final;
+    bool vcsCreateRepository(const FilePath &directory) final;
 
-    void vcsAnnotate(const QString &file, int line) final;
-    void vcsDescribe(const QString &source, const QString &id) final { m_client.view(source, id); }
+    void vcsAnnotate(const FilePath &file, int line) final;
+    void vcsDescribe(const FilePath &source, const QString &id) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
+                                                     const FilePath &baseDirectory,
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
 
@@ -782,7 +782,7 @@ void FossilPluginPrivate::createRepository()
             return;
     } while (true);
     // Create
-    const bool rc = vcsCreateRepository(directory);
+    const bool rc = vcsCreateRepository(FilePath::fromString(directory));
     const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),
@@ -900,23 +900,23 @@ Id FossilPluginPrivate::id() const
     return Id(Constants::VCS_ID_FOSSIL);
 }
 
-bool FossilPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) const
+bool FossilPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
     return m_client.isVcsFileOrDirectory(filePath);
 }
 
-bool FossilPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    QFileInfo dir(directory);
+    QFileInfo dir(directory.toString());
     const QString topLevelFound = m_client.findTopLevelForFile(dir);
     if (topLevel)
-        *topLevel = topLevelFound;
+        *topLevel = FilePath::fromString(topLevelFound);
     return !topLevelFound.isEmpty();
 }
 
-bool FossilPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory, fileName);
+    return m_client.managesFile(workingDirectory.toString(), fileName);
 }
 
 bool FossilPluginPrivate::isConfigured() const
@@ -960,48 +960,50 @@ bool FossilPluginPrivate::supportsOperation(Operation operation) const
     return supported;
 }
 
-bool FossilPluginPrivate::vcsOpen(const QString &filename)
+bool FossilPluginPrivate::vcsOpen(const FilePath &filePath)
 {
-    Q_UNUSED(filename)
+    Q_UNUSED(filePath)
     return true;
 }
 
-bool FossilPluginPrivate::vcsAdd(const QString &filename)
+bool FossilPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi(filename);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_client.synchronousAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool FossilPluginPrivate::vcsDelete(const QString &filename)
+bool FossilPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi(filename);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_client.synchronousRemove(fi.absolutePath(), fi.fileName());
 }
 
-bool FossilPluginPrivate::vcsMove(const QString &from, const QString &to)
+bool FossilPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo(from);
-    const QFileInfo toInfo(to);
+    const QFileInfo fromInfo = from.toFileInfo();
+    const QFileInfo toInfo = to.toFileInfo();
     return m_client.synchronousMove(fromInfo.absolutePath(),
                                      fromInfo.absoluteFilePath(),
                                      toInfo.absoluteFilePath());
 }
 
-bool FossilPluginPrivate::vcsCreateRepository(const QString &directory)
+bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory);
+    return m_client.synchronousCreateRepository(directory.toString());
 }
 
-void FossilPluginPrivate::vcsAnnotate(const QString &file, int line)
+void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi(file);
+    const QFileInfo fi = filePath.toFileInfo();
     m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 
+void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id) { m_client.view(source.toString(), id); }
+
 Core::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
-                                                                const Utils::FilePath &baseDirectory,
-                                                                const QString &localName,
-                                                                const QStringList &extraArgs)
+                                                                      const FilePath &baseDirectory,
+                                                                      const QString &localName,
+                                                                      const QStringList &extraArgs)
 {
     QMap<QString, QString> options;
     FossilJsExtension::parseArgOptions(extraArgs, options);
