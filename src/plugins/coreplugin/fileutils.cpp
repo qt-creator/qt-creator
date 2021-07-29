@@ -205,7 +205,7 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
 
     bool result = false;
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))
-        result = vc->vcsMove(orgFilePath.toString(), newFilePath.toString());
+        result = vc->vcsMove(orgFilePath, newFilePath);
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
         result = Utils::FileUtils::renameFile(orgFilePath, newFilePath);
     if (result) {

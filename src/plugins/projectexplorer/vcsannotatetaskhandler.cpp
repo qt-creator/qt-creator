@@ -35,6 +35,7 @@
 #include <QFileInfo>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -56,7 +57,7 @@ void VcsAnnotateTaskHandler::handle(const Task &task)
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(fi.absolutePath());
     QTC_ASSERT(vc, return);
     QTC_ASSERT(vc->supportsOperation(IVersionControl::AnnotateOperation), return);
-    vc->vcsAnnotate(fi.absoluteFilePath(), task.movedLine);
+    vc->vcsAnnotate(FilePath::fromString(fi.absoluteFilePath()), task.movedLine);
 }
 
 QAction *VcsAnnotateTaskHandler::createAction(QObject *parent) const

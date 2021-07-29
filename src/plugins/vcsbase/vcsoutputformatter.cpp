@@ -34,6 +34,8 @@
 #include <QTextCursor>
 #include <QUrl>
 
+using namespace Utils;
+
 namespace VcsBase {
 
 VcsOutputLineParser::VcsOutputLineParser() :
@@ -73,7 +75,7 @@ bool VcsOutputLineParser::handleVcsLink(const QString &workingDirectory, const Q
         return true;
     }
     if (IVersionControl *vcs = VcsManager::findVersionControlForDirectory(workingDirectory))
-        return vcs->handleLink(workingDirectory, href);
+        return vcs->handleLink(FilePath::fromString(workingDirectory), href);
     return false;
 }
 
@@ -89,7 +91,7 @@ void VcsOutputLineParser::fillLinkContextMenu(
         return;
     }
     if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(workingDirectory))
-        vcs->fillLinkContextMenu(menu, workingDirectory, href);
+        vcs->fillLinkContextMenu(menu, FilePath::fromString(workingDirectory), href);
 }
 
 }

@@ -59,6 +59,8 @@
 #include <aggregation/aggregate.h>
 
 #include <texteditor/texteditor.h>
+
+#include <utils/algorithm.h>
 #include <utils/infobar.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
@@ -112,15 +114,15 @@ public:
     { }
 
 protected:
-    QString trackFile(const QString &repository) override
+    FilePath trackFile(const FilePath &repository) override
     {
-        const QString gitDir = m_client->findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? QString() : (gitDir + "/HEAD");
+        const QString gitDir = m_client->findGitDirForRepository(repository.toString());
+        return gitDir.isEmpty() ? FilePath() : FilePath::fromString(gitDir + "/HEAD");
     }
 
-    QString refreshTopic(const QString &repository) override
+    QString refreshTopic(const FilePath &repository) override
     {
-        return m_client->synchronousTopic(repository);
+        return m_client->synchronousTopic(repository.toString());
     }
 
 private:
@@ -234,23 +236,23 @@ public:
     QString displayName() const final;
     Utils::Id id() const final;
 
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
-    QStringList unmanagedFiles(const QStringList &filePaths) const final;
+    bool managesDirectory(const FilePath &directory, FilePath *topLevel) const final;
+    bool managesFile(const FilePath &workingDirectory, const QString &fileName) const final;
+    FilePaths unmanagedFiles(const FilePaths &filePaths) const final;
 
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &fileName) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsOpen(const FilePath &fileName) final;
+    bool vcsAdd(const FilePath &fileName) final;
+    bool vcsDelete(const FilePath &filename) final;
+    bool vcsMove(const FilePath &from, const FilePath &to) final;
+    bool vcsCreateRepository(const FilePath &directory) final;
 
-    void vcsAnnotate(const QString &file, int line) final;
-    void vcsDescribe(const QString &source, const QString &id) final { m_gitClient.show(source, id); };
-    QString vcsTopic(const QString &directory) final;
+    void vcsAnnotate(const FilePath &file, int line) final;
+    void vcsDescribe(const FilePath &source, const QString &id) final { m_gitClient.show(source.toString(), id); };
+    QString vcsTopic(const FilePath &directory) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -258,7 +260,7 @@ public:
                                                      const QStringList &extraArgs) final;
 
     void fillLinkContextMenu(QMenu *menu,
-                             const QString &workingDirectory,
+                             const FilePath &workingDirectory,
                              const QString &reference) final
     {
         menu->addAction(tr("&Copy \"%1\"").arg(reference),
@@ -266,15 +268,15 @@ public:
         QAction *action = menu->addAction(tr("&Describe Change %1").arg(reference),
                                           [=] { vcsDescribe(workingDirectory, reference); });
         menu->setDefaultAction(action);
-        GitClient::addChangeActions(menu, workingDirectory, reference);
+        GitClient::addChangeActions(menu, workingDirectory.toString(), reference);
     }
 
-    bool handleLink(const QString &workingDirectory, const QString &reference) final
+    bool handleLink(const FilePath &workingDirectory, const QString &reference) final
     {
         if (reference.contains(".."))
-            GitClient::instance()->log(workingDirectory, {}, false, {reference});
+            GitClient::instance()->log(workingDirectory.toString(), {}, false, {reference});
         else
-            GitClient::instance()->show(workingDirectory, reference);
+            GitClient::instance()->show(workingDirectory.toString(), reference);
         return true;
     }
 
@@ -1836,13 +1838,13 @@ Utils::Id GitPluginPrivate::id() const
     return Utils::Id(VcsBase::Constants::VCS_ID_GIT);
 }
 
-bool GitPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+bool GitPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
-    if (fileName.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity()))
+    if (filePath.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity()))
         return false;
-    if (fileName.isDir())
+    if (filePath.isDir())
         return true;
-    QFile file(fileName.toString());
+    QFile file(filePath.toString());
     if (!file.open(QFile::ReadOnly))
         return false;
     return file.read(8) == "gitdir: ";
@@ -1871,39 +1873,39 @@ bool GitPluginPrivate::supportsOperation(Operation operation) const
     return false;
 }
 
-bool GitPluginPrivate::vcsOpen(const QString & /*fileName*/)
+bool GitPluginPrivate::vcsOpen(const FilePath & /*filePath*/)
 {
     return false;
 }
 
-bool GitPluginPrivate::vcsAdd(const QString &fileName)
+bool GitPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_gitClient.synchronousAdd(fi.absolutePath(), {fi.fileName()}, {"--intent-to-add"});
 }
 
-bool GitPluginPrivate::vcsDelete(const QString &fileName)
+bool GitPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_gitClient.synchronousDelete(fi.absolutePath(), true, {fi.fileName()});
 }
 
-bool GitPluginPrivate::vcsMove(const QString &from, const QString &to)
+bool GitPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo(from);
-    const QFileInfo toInfo(to);
+    const QFileInfo fromInfo = from.toFileInfo();
+    const QFileInfo toInfo = to.toFileInfo();
     return m_gitClient.synchronousMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
-bool GitPluginPrivate::vcsCreateRepository(const QString &directory)
+bool GitPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_gitClient.synchronousInit(directory);
+    return m_gitClient.synchronousInit(directory.toString());
 }
 
-QString GitPluginPrivate::vcsTopic(const QString &directory)
+QString GitPluginPrivate::vcsTopic(const FilePath &directory)
 {
     QString topic = Core::IVersionControl::vcsTopic(directory);
-    const QString commandInProgress = m_gitClient.commandInProgressDescription(directory);
+    const QString commandInProgress = m_gitClient.commandInProgressDescription(directory.toString());
     if (!commandInProgress.isEmpty())
         topic += " (" + commandInProgress + ')';
     return topic;
@@ -1937,27 +1939,27 @@ QStringList GitPluginPrivate::additionalToolsPath() const
     return res;
 }
 
-bool GitPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+bool GitPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    const QString topLevelFound = m_gitClient.findRepositoryForDirectory(directory);
+    const QString topLevelFound = m_gitClient.findRepositoryForDirectory(directory.toString());
     if (topLevel)
-        *topLevel = topLevelFound;
+        *topLevel = FilePath::fromString(topLevelFound);
     return !topLevelFound.isEmpty();
 }
 
-bool GitPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool GitPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_gitClient.managesFile(workingDirectory, fileName);
+    return m_gitClient.managesFile(workingDirectory.toString(), fileName);
 }
 
-QStringList GitPluginPrivate::unmanagedFiles(const QStringList &filePaths) const
+FilePaths GitPluginPrivate::unmanagedFiles(const FilePaths &filePaths) const
 {
     return m_gitClient.unmanagedFiles(filePaths);
 }
 
-void GitPluginPrivate::vcsAnnotate(const QString &file, int line)
+void GitPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi(file);
+    const QFileInfo fi = filePath.toFileInfo();
     m_gitClient.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 

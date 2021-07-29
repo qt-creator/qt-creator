@@ -149,17 +149,17 @@ public:
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
-    bool managesDirectory(const QString &filename, QString *topLevel) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool managesDirectory(const Utils::FilePath &filePath, Utils::FilePath *topLevel) const final;
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const final;
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &filename) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
-    void vcsAnnotate(const QString &file, int line) final;
-    void vcsDescribe(const QString &source, const QString &id) final { m_client.view(source, id); }
+    bool vcsOpen(const Utils::FilePath &fileName) final;
+    bool vcsAdd(const Utils::FilePath &filePath) final;
+    bool vcsDelete(const Utils::FilePath &filePath) final;
+    bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) final;
+    bool vcsCreateRepository(const Utils::FilePath &directory) final;
+    void vcsAnnotate(const Utils::FilePath &file, int line) final;
+    void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -850,18 +850,18 @@ bool BazaarPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) 
     return m_client.isVcsDirectory(fileName);
 }
 
-bool BazaarPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+bool BazaarPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    QFileInfo dir(directory);
+    QFileInfo dir(directory.toString());
     const QString topLevelFound = m_client.findTopLevelForFile(dir);
     if (topLevel)
-        *topLevel = topLevelFound;
+        *topLevel = FilePath::fromString(topLevelFound);
     return !topLevelFound.isEmpty();
 }
 
-bool BazaarPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool BazaarPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory, fileName);
+    return m_client.managesFile(workingDirectory.toString(), fileName);
 }
 
 bool BazaarPluginPrivate::isConfigured() const
@@ -892,41 +892,41 @@ bool BazaarPluginPrivate::supportsOperation(Operation operation) const
     return supported;
 }
 
-bool BazaarPluginPrivate::vcsOpen(const QString &filename)
+bool BazaarPluginPrivate::vcsOpen(const FilePath &filePath)
 {
-    Q_UNUSED(filename)
+    Q_UNUSED(filePath)
     return true;
 }
 
-bool BazaarPluginPrivate::vcsAdd(const QString &filename)
+bool BazaarPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi(filename);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_client.synchronousAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool BazaarPluginPrivate::vcsDelete(const QString &filename)
+bool BazaarPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi(filename);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_client.synchronousRemove(fi.absolutePath(), fi.fileName());
 }
 
-bool BazaarPluginPrivate::vcsMove(const QString &from, const QString &to)
+bool BazaarPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo(from);
-    const QFileInfo toInfo(to);
+    const QFileInfo fromInfo = from.toFileInfo();
+    const QFileInfo toInfo = to.toFileInfo();
     return m_client.synchronousMove(fromInfo.absolutePath(),
                                            fromInfo.absoluteFilePath(),
                                            toInfo.absoluteFilePath());
 }
 
-bool BazaarPluginPrivate::vcsCreateRepository(const QString &directory)
+bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory);
+    return m_client.synchronousCreateRepository(directory.toString());
 }
 
-void BazaarPluginPrivate::vcsAnnotate(const QString &file, int line)
+void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
 {
-    const QFileInfo fi(file);
+    const QFileInfo fi = file.toFileInfo();
     m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 

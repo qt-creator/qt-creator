@@ -28,7 +28,7 @@
 #include "core_global.h"
 
 #include <utils/id.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDateTime>
 #include <QFlags>
@@ -71,11 +71,11 @@ public:
     {
     public:
         virtual ~TopicCache();
-        QString topic(const QString &topLevel);
+        QString topic(const Utils::FilePath &topLevel);
 
     protected:
-        virtual QString trackFile(const QString &repository) = 0;
-        virtual QString refreshTopic(const QString &repository) = 0;
+        virtual Utils::FilePath trackFile(const Utils::FilePath &repository) = 0;
+        virtual QString refreshTopic(const Utils::FilePath &repository) = 0;
 
     private:
         class TopicData
@@ -85,7 +85,7 @@ public:
             QString topic;
         };
 
-        QHash<QString, TopicData> m_cache;
+        QHash<Utils::FilePath, TopicData> m_cache;
 
     };
 
@@ -97,8 +97,8 @@ public:
 
     /*!
      * \brief isVcsFileOrDirectory
-     * \param fileName
-     * \return True if filename is a file or directory that is maintained by the
+     * \param filePath
+     * \return True if filePath is a file or directory that is maintained by the
      * version control system.
      *
      * It will return true only for exact matches of the name, not for e.g. files in a
@@ -106,7 +106,7 @@ public:
      *
      * This method needs to be thread safe!
      */
-    virtual bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const = 0;
+    virtual bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const = 0;
 
     /*!
      * Returns whether files in this directory should be managed with this
@@ -116,22 +116,24 @@ public:
      * that all files in the returned directory are managed by the same IVersionControl.
      */
 
-    virtual bool managesDirectory(const QString &filename, QString *topLevel = nullptr) const = 0;
+    virtual bool managesDirectory(const Utils::FilePath &filePath,
+                                  Utils::FilePath *topLevel = nullptr) const = 0;
 
     /*!
-     * Returns whether \a fileName is managed by this version control.
+     * Returns whether \a relativeFilePath is managed by this version control.
      *
      * \a workingDirectory is assumed to be part of a valid repository (not necessarily its
      * top level). \a fileName is expected to be relative to workingDirectory.
      */
-    virtual bool managesFile(const QString &workingDirectory, const QString &fileName) const = 0;
+    virtual bool managesFile(const Utils::FilePath &workingDirectory,
+                             const QString &fileName) const = 0;
 
     /*!
      * Returns the subset of \a filePaths that is not managed by this version control.
      *
      * The \a filePaths are expected to be absolute paths.
      */
-    virtual QStringList unmanagedFiles(const QStringList &filePaths) const;
+    virtual Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
 
     /*!
      * Returns true is the VCS is configured to run.
@@ -145,9 +147,9 @@ public:
     virtual bool supportsOperation(Operation operation) const = 0;
 
     /*!
-     * Returns the open support mode for \a fileName.
+     * Returns the open support mode for \a filePath.
      */
-    virtual OpenSupportMode openSupportMode(const QString &fileName) const;
+    virtual OpenSupportMode openSupportMode(const Utils::FilePath &filepath) const;
 
     /*!
      * Called prior to save, if the file is read only. Should be implemented if
@@ -155,7 +157,7 @@ public:
      *
      * \note The EditorManager calls this for the editors.
      */
-    virtual bool vcsOpen(const QString &fileName) = 0;
+    virtual bool vcsOpen(const Utils::FilePath &filePath) = 0;
 
     /*!
      * Returns settings.
@@ -171,34 +173,34 @@ public:
      * \note This function should be called from IProject subclasses after
      *       files are added to the project.
      */
-    virtual bool vcsAdd(const QString &filename) = 0;
+    virtual bool vcsAdd(const Utils::FilePath &filePath) = 0;
 
     /*!
      * Called after a file has been removed from the project (if the user
      * wants), e.g. 'p4 delete', 'svn delete'.
      */
-    virtual bool vcsDelete(const QString &filename) = 0;
+    virtual bool vcsDelete(const Utils::FilePath &filePath) = 0;
 
     /*!
      * Called to rename a file, should do the actual on disk renaming
      * (e.g. git mv, svn move, p4 move)
      */
-    virtual bool vcsMove(const QString &from, const QString &to) = 0;
+    virtual bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) = 0;
 
     /*!
      * Called to initialize the version control system in a directory.
      */
-    virtual bool vcsCreateRepository(const QString &directory) = 0;
+    virtual bool vcsCreateRepository(const Utils::FilePath &directory) = 0;
 
     /*!
      * Topic (e.g. name of the current branch)
      */
-    virtual QString vcsTopic(const QString &topLevel);
+    virtual QString vcsTopic(const Utils::FilePath &topLevel);
 
     /*!
      * Display annotation for a file and scroll to line
      */
-    virtual void vcsAnnotate(const QString &file, int line) = 0;
+    virtual void vcsAnnotate(const Utils::FilePath &file, int line) = 0;
 
     /*!
      * Display text for Open operation
@@ -213,7 +215,7 @@ public:
     /*!
      * Display details of reference
      */
-    virtual void vcsDescribe(const QString &workingDirectory, const QString &reference) = 0;
+    virtual void vcsDescribe(const Utils::FilePath &workingDirectory, const QString &reference) = 0;
 
     /*!
      * Return a list of paths where tools that came with the VCS may be installed.
@@ -233,10 +235,10 @@ public:
                                                        const QStringList &extraArgs);
 
     virtual void fillLinkContextMenu(QMenu *menu,
-                                     const QString &workingDirectory,
+                                     const Utils::FilePath &workingDirectory,
                                      const QString &reference);
 
-    virtual bool handleLink(const QString &workingDirectory, const QString &reference);
+    virtual bool handleLink(const Utils::FilePath &workingDirectory, const QString &reference);
 
     class CORE_EXPORT RepoUrl {
     public:
@@ -281,11 +283,11 @@ public:
     { }
     ~TestVersionControl() override;
 
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final
-    { Q_UNUSED(fileName) return false; }
+    bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const final
+    { Q_UNUSED(filePath) return false; }
 
-    void setManagedDirectories(const QHash<QString, QString> &dirs);
-    void setManagedFiles(const QSet<QString> &files);
+    void setManagedDirectories(const QHash<Utils::FilePath, Utils::FilePath> &dirs);
+    void setManagedFiles(const QSet<Utils::FilePath> &files);
 
     int dirCount() const { return m_dirCount; }
     int fileCount() const { return m_fileCount; }
@@ -293,23 +295,23 @@ public:
     // IVersionControl interface
     QString displayName() const override { return m_displayName; }
     Utils::Id id() const override { return m_id; }
-    bool managesDirectory(const QString &filename, QString *topLevel) const override;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
+    bool managesDirectory(const Utils::FilePath &filePath, Utils::FilePath *topLevel) const override;
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const override;
     bool isConfigured() const override { return true; }
     bool supportsOperation(Operation) const override { return false; }
-    bool vcsOpen(const QString &) override { return false; }
-    bool vcsAdd(const QString &) override { return false; }
-    bool vcsDelete(const QString &) override { return false; }
-    bool vcsMove(const QString &, const QString &) override { return false; }
-    bool vcsCreateRepository(const QString &) override { return false; }
-    void vcsAnnotate(const QString &, int) override {}
-    void vcsDescribe(const QString &, const QString &) override {}
+    bool vcsOpen(const Utils::FilePath &) override { return false; }
+    bool vcsAdd(const Utils::FilePath &) override { return false; }
+    bool vcsDelete(const Utils::FilePath &) override { return false; }
+    bool vcsMove(const Utils::FilePath &, const Utils::FilePath &) override { return false; }
+    bool vcsCreateRepository(const Utils::FilePath &) override { return false; }
+    void vcsAnnotate(const Utils::FilePath &, int) override {}
+    void vcsDescribe(const Utils::FilePath &, const QString &) override {}
 
 private:
     Utils::Id m_id;
     QString m_displayName;
-    QHash<QString, QString> m_managedDirs;
-    QSet<QString> m_managedFiles;
+    QHash<Utils::FilePath, Utils::FilePath> m_managedDirs;
+    QSet<Utils::FilePath> m_managedFiles;
     mutable int m_dirCount = 0;
     mutable int m_fileCount = 0;
 };

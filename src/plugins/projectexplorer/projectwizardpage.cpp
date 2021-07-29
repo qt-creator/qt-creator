@@ -418,7 +418,7 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     // Create repository?
     if (!m_repositoryExists) {
         QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
-        if (!versionControl->vcsCreateRepository(m_commonDirectory)) {
+        if (!versionControl->vcsCreateRepository(FilePath::fromString(m_commonDirectory))) {
             *errorMessage = tr("A version control system repository could not be created in \"%1\".").arg(m_commonDirectory);
             return false;
         }
@@ -426,7 +426,7 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     // Add files if supported.
     if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
         foreach (const GeneratedFile &generatedFile, files) {
-            if (!versionControl->vcsAdd(generatedFile.path())) {
+            if (!versionControl->vcsAdd(generatedFile.filePath())) {
                 *errorMessage = tr("Failed to add \"%1\" to the version control system.").arg(generatedFile.path());
                 return false;
             }

@@ -52,6 +52,8 @@
 
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(documentManagerLog, "qtc.qtquickdesigner.documentmanager", QtWarningMsg)
@@ -315,7 +317,7 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
                                     Core::VcsManager::msgPromptToAddToVcs(QStringList(newFilePath),
                                                                           versionControl),
                                     QMessageBox::Yes | QMessageBox::No);
-        if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFilePath)) {
+        if (button == QMessageBox::Yes && !versionControl->vcsAdd(FilePath::fromString(newFilePath))) {
             Core::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
                                                    Core::VcsManager::msgToAddToVcsFailed(QStringList(newFilePath), versionControl));
         }

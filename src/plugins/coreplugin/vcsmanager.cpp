@@ -241,9 +241,9 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     StringVersionControlPairs allThatCanManage;
 
     foreach (IVersionControl * versionControl, versionControls()) {
-        QString topLevel;
-        if (versionControl->managesDirectory(directory, &topLevel))
-            allThatCanManage.push_back(StringVersionControlPair(topLevel, versionControl));
+        FilePath topLevel;
+        if (versionControl->managesDirectory(FilePath::fromString(directory), &topLevel))
+            allThatCanManage.push_back(StringVersionControlPair(topLevel.toString(), versionControl));
     }
 
     // To properly find a nested repository (say, git checkout inside SVN),
@@ -386,7 +386,7 @@ FilePaths VcsManager::promptToDelete(IVersionControl *vc, const FilePaths &fileP
 
     FilePaths failedFiles;
     for (const FilePath &fp : filePaths) {
-        if (!vc->vcsDelete(fp.toString()))
+        if (!vc->vcsDelete(fp))
             failedFiles << fp;
     }
     return failedFiles;
@@ -437,7 +437,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (!vc || !vc->supportsOperation(IVersionControl::AddOperation))
         return;
 
-    const QStringList unmanagedFiles = vc->unmanagedFiles(fileNames);
+    const FilePaths unmanagedFiles = vc->unmanagedFiles(Utils::transform(fileNames, &FilePath::fromString));
     if (unmanagedFiles.isEmpty())
         return;
 
@@ -445,9 +445,9 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
                                  unmanagedFiles, vc->displayName());
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
-        foreach (const QString &file, unmanagedFiles) {
-            if (!vc->vcsAdd(QDir(directory).filePath(file)))
-                notAddedToVc << file;
+        for (const FilePath &file : unmanagedFiles) {
+            if (!vc->vcsAdd(FilePath::fromString(QDir(directory).filePath(file.path()))))
+                notAddedToVc << file.toUserOutput();
         }
 
         if (!notAddedToVc.isEmpty()) {
@@ -495,16 +495,16 @@ namespace Internal {
 const char ID_VCS_A[] = "A";
 const char ID_VCS_B[] = "B";
 
-using FileHash = QHash<QString, QString>;
+using FileHash = QHash<FilePath, FilePath>;
 
 static FileHash makeHash(const QStringList &list)
 {
     FileHash result;
-    foreach (const QString &i, list) {
+    for (const QString &i : list) {
         QStringList parts = i.split(QLatin1Char(':'));
         QTC_ASSERT(parts.count() == 2, continue);
-        result.insert(QString::fromLatin1(TEST_PREFIX) + parts.at(0),
-                      QString::fromLatin1(TEST_PREFIX) + parts.at(1));
+        result.insert(FilePath::fromString(QString::fromLatin1(TEST_PREFIX) + parts.at(0)),
+                      FilePath::fromString(QString::fromLatin1(TEST_PREFIX) + parts.at(1)));
     }
     return result;
 }

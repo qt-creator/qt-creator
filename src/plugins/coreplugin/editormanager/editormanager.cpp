@@ -2006,7 +2006,7 @@ void EditorManagerPrivate::updateMakeWritableWarning()
         bool promptVCS = false;
         const QString directory = document->filePath().toFileInfo().absolutePath();
         IVersionControl *versionControl = VcsManager::findVersionControlForDirectory(directory);
-        if (versionControl && versionControl->openSupportMode(document->filePath().toString()) != IVersionControl::NoOpen) {
+        if (versionControl && versionControl->openSupportMode(document->filePath()) != IVersionControl::NoOpen) {
             if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
                 vcsOpenCurrentEditor();
                 ww = false;
@@ -2258,10 +2258,10 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
 
     const QString directory = document->filePath().toFileInfo().absolutePath();
     IVersionControl *versionControl = VcsManager::findVersionControlForDirectory(directory);
-    if (!versionControl || versionControl->openSupportMode(document->filePath().toString()) == IVersionControl::NoOpen)
+    if (!versionControl || versionControl->openSupportMode(document->filePath()) == IVersionControl::NoOpen)
         return;
 
-    if (!versionControl->vcsOpen(document->filePath().toString())) {
+    if (!versionControl->vcsOpen(document->filePath())) {
         // TODO: wrong dialog parent
         QMessageBox::warning(ICore::dialogParent(), tr("Cannot Open File"),
                              tr("Cannot open the file for editing with VCS."));

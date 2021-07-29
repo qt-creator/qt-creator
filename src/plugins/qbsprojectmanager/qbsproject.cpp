@@ -353,7 +353,7 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const QString &file)
         // Try via vcs manager
         IVersionControl *versionControl =
             VcsManager::findVersionControlForDirectory(fi.absolutePath());
-        if (!versionControl || !versionControl->vcsOpen(file)) {
+        if (!versionControl || !versionControl->vcsOpen(FilePath::fromString(file))) {
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(ICore::dialogParent(),

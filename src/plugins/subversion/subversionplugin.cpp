@@ -187,9 +187,9 @@ public:
     { }
 
 protected:
-    QString trackFile(const QString &repository) override;
+    FilePath trackFile(const FilePath &repository) override;
 
-    QString refreshTopic(const QString &repository) override;
+    QString refreshTopic(const FilePath &repository) override;
 
 private:
     SubversionPluginPrivate *m_plugin;
@@ -206,21 +206,21 @@ public:
     // IVersionControl
     QString displayName() const final;
     Utils::Id id() const final;
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool managesDirectory(const FilePath &directory, FilePath *topLevel) const final;
+    bool managesFile(const FilePath &workingDirectory, const QString &fileName) const final;
 
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &fileName) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsOpen(const FilePath &filePath) final;
+    bool vcsAdd(const FilePath &filePath) final;
+    bool vcsDelete(const FilePath &filePath) final;
+    bool vcsMove(const FilePath &from, const FilePath &to) final;
+    bool vcsCreateRepository(const FilePath &directory) final;
 
-    void vcsAnnotate(const QString &file, int line) final;
-    void vcsDescribe(const QString &source, const QString &changeNr) final;
+    void vcsAnnotate(const FilePath &file, int line) final;
+    void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -967,13 +967,13 @@ void SubversionPluginPrivate::projectStatus()
     svnStatus(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-void SubversionPluginPrivate::vcsDescribe(const QString &source, const QString &changeNr)
+void SubversionPluginPrivate::vcsDescribe(const FilePath &source, const QString &changeNr)
 {
     // To describe a complete change, find the top level and then do
     //svn diff -r 472958:472959 <top level>
-    const QFileInfo fi(source);
-    QString topLevel;
-    const bool manages = managesDirectory(fi.isDir() ? source : fi.absolutePath(), &topLevel);
+    const QFileInfo fi = source.toFileInfo();
+    FilePath topLevel;
+    const bool manages = managesDirectory(fi.isDir() ? source : FilePath::fromString(fi.absolutePath()), &topLevel);
     if (!manages || topLevel.isEmpty())
         return;
     if (Subversion::Constants::debug)
@@ -987,7 +987,7 @@ void SubversionPluginPrivate::vcsDescribe(const QString &source, const QString &
 
     const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
 
-    m_client->describe(topLevel, number, title);
+    m_client->describe(topLevel.toString(), number, title);
 }
 
 void SubversionPluginPrivate::slotDescribe()
@@ -1004,7 +1004,7 @@ void SubversionPluginPrivate::slotDescribe()
         return;
 
     const int revision = inputDialog.intValue();
-    vcsDescribe(state.topLevel(), QString::number(revision));
+    vcsDescribe(FilePath::fromString(state.topLevel()), QString::number(revision));
 }
 
 void SubversionPluginPrivate::commitFromEditor()
@@ -1155,9 +1155,9 @@ bool SubversionPluginPrivate::vcsCheckout(const QString &directory, const QByteA
 
 }
 
-bool SubversionPluginPrivate::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
+bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel /* = 0 */) const
 {
-    const QDir dir(directory);
+    const QDir dir(directory.toString());
     if (topLevel)
         topLevel->clear();
 
@@ -1168,7 +1168,7 @@ bool SubversionPluginPrivate::managesDirectory(const QString &directory, QString
     while (!parentDir.isRoot()) {
         if (checkSVNSubDir(parentDir)) {
             if (topLevel)
-                *topLevel = parentDir.absolutePath();
+                *topLevel = FilePath::fromString(parentDir.absolutePath());
             return true;
         }
         if (!parentDir.cdUp())
@@ -1178,14 +1178,14 @@ bool SubversionPluginPrivate::managesDirectory(const QString &directory, QString
     return false;
 }
 
-bool SubversionPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     QStringList args;
     args << QLatin1String("status");
     args << SubversionClient::addAuthenticationOptions(m_settings)
          << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
     SubversionResponse response
-            = runSvn(workingDirectory, args, m_settings.timeout.value(), 0);
+            = runSvn(workingDirectory.toString(), args, m_settings.timeout.value(), 0);
     return response.stdOut.isEmpty() || response.stdOut.at(0) != QLatin1Char('?');
 }
 
@@ -1214,9 +1214,9 @@ Utils::Id SubversionPluginPrivate::id() const
     return Utils::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
 }
 
-bool SubversionPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+bool SubversionPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
-    return isVcsDirectory(fileName);
+    return isVcsDirectory(filePath);
 }
 
 bool SubversionPluginPrivate::isConfigured() const
@@ -1246,39 +1246,39 @@ bool SubversionPluginPrivate::supportsOperation(Operation operation) const
     return rc;
 }
 
-bool SubversionPluginPrivate::vcsOpen(const QString & /* fileName */)
+bool SubversionPluginPrivate::vcsOpen(const FilePath & /* filePath */)
 {
     // Open for edit: N/A
     return true;
 }
 
-bool SubversionPluginPrivate::vcsAdd(const QString &fileName)
+bool SubversionPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool SubversionPluginPrivate::vcsDelete(const QString &fileName)
+bool SubversionPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
-bool SubversionPluginPrivate::vcsMove(const QString &from, const QString &to)
+bool SubversionPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo(from);
-    const QFileInfo toInfo(to);
+    const QFileInfo fromInfo = from.toFileInfo();
+    const QFileInfo toInfo = to.toFileInfo();
     return vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
-bool SubversionPluginPrivate::vcsCreateRepository(const QString &)
+bool SubversionPluginPrivate::vcsCreateRepository(const FilePath &)
 {
     return false;
 }
 
-void SubversionPluginPrivate::vcsAnnotate(const QString &file, int line)
+void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi(file);
+    const QFileInfo fi = filePath.toFileInfo();
     vcsAnnotateHelper(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 
@@ -1298,14 +1298,14 @@ Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const 
     return command;
 }
 
-QString SubversionTopicCache::trackFile(const QString &repository)
+FilePath SubversionTopicCache::trackFile(const FilePath &repository)
 {
-    return m_plugin->monitorFile(repository);
+    return FilePath::fromString(m_plugin->monitorFile(repository.toString()));
 }
 
-QString SubversionTopicCache::refreshTopic(const QString &repository)
+QString SubversionTopicCache::refreshTopic(const FilePath &repository)
 {
-    return m_plugin->synchronousTopic(repository);
+    return m_plugin->synchronousTopic(repository.toString());
 }
 
 

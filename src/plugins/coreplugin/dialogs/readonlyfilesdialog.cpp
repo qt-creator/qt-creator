@@ -308,7 +308,7 @@ int ReadOnlyFilesDialog::exec()
             }
             break;
         case RO_OpenVCS:
-            if (!d->versionControls[buttongroup.filePath]->vcsOpen(buttongroup.filePath.toString())) {
+            if (!d->versionControls[buttongroup.filePath]->vcsOpen(buttongroup.filePath)) {
                 failedToMakeWritable << buttongroup.filePath;
                 continue;
             }
@@ -429,7 +429,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
         IVersionControl *versionControlForFile =
                 VcsManager::findVersionControlForDirectory(directory.toString());
         const bool fileManagedByVCS = versionControlForFile
-                && versionControlForFile->openSupportMode(filePath.toString()) != IVersionControl::NoOpen;
+                && versionControlForFile->openSupportMode(filePath) != IVersionControl::NoOpen;
         if (fileManagedByVCS) {
             const QString vcsOpenTextForFile =
                     Utils::stripAccelerator(versionControlForFile->vcsOpenText());
@@ -447,7 +447,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
                     vcsMakeWritableTextForAll.clear();
             }
             // Add make writable if it is supported by the reposetory.
-            if (versionControlForFile->openSupportMode(filePath.toString()) == IVersionControl::OpenOptional) {
+            if (versionControlForFile->openSupportMode(filePath) == IVersionControl::OpenOptional) {
                 useMakeWritable = true;
                 createRadioButtonForItem(item, radioButtonGroup, MakeWritable);
             }

@@ -844,14 +844,13 @@ bool GitClient::managesFile(const QString &workingDirectory, const QString &file
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
-QStringList GitClient::unmanagedFiles(const QStringList &filePaths) const
+FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
 {
     QMap<QString, QStringList> filesForDir;
-    for (const QString &filePath : filePaths) {
-        const FilePath fp = FilePath::fromString(filePath);
+    for (const FilePath &fp : filePaths) {
         filesForDir[fp.parentDir().toString()] << fp.fileName();
     }
-    QStringList res;
+    FilePaths res;
     for (auto it = filesForDir.begin(), end = filesForDir.end(); it != end; ++it) {
         QStringList args({"ls-files", "-z"});
         const QDir wd(it.key());
@@ -863,9 +862,10 @@ QStringList GitClient::unmanagedFiles(const QStringList &filePaths) const
         const QStringList managedFilePaths
             = transform(proc.stdOut().split('\0', Qt::SkipEmptyParts),
                             [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
-        res += filtered(it.value(), [&managedFilePaths, &wd](const QString &fp) {
+        const QStringList filtered = Utils::filtered(it.value(), [&managedFilePaths, &wd](const QString &fp) {
             return !managedFilePaths.contains(wd.absoluteFilePath(fp));
         });
+        res += transform(filtered, &FilePath::fromString);
     }
     return res;
 }

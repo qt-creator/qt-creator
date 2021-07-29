@@ -236,18 +236,18 @@ public:
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool managesDirectory(const Utils::FilePath &directory, Utils::FilePath *topLevel) const final;
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const final;
 
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    OpenSupportMode openSupportMode(const QString &fileName) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &fileName) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &, const QString &) final { return false; }
-    bool vcsCreateRepository(const QString &directory) final;
-    void vcsAnnotate(const QString &file, int line) final;
+    OpenSupportMode openSupportMode(const Utils::FilePath &filePath) const final;
+    bool vcsOpen(const Utils::FilePath &filePath) final;
+    bool vcsAdd(const Utils::FilePath &filePath) final;
+    bool vcsDelete(const Utils::FilePath &filePath) final;
+    bool vcsMove(const Utils::FilePath &, const Utils::FilePath &) final { return false; }
+    bool vcsCreateRepository(const Utils::FilePath &directory) final;
+    void vcsAnnotate(const Utils::FilePath &filePath, int line) final;
 
     QString vcsOpenText() const final;
 
@@ -268,7 +268,7 @@ public:
 
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
-    void vcsDescribe(const QString &source, const QString &changeNr) final;
+    void vcsDescribe(const Utils::FilePath &source, const QString &changeNr) final;
 
 protected:
     void updateActions(ActionState) final;
@@ -436,38 +436,38 @@ bool CvsPluginPrivate::supportsOperation(Operation operation) const
     return rc;
 }
 
-Core::IVersionControl::OpenSupportMode CvsPluginPrivate::openSupportMode(const QString &fileName) const
+Core::IVersionControl::OpenSupportMode CvsPluginPrivate::openSupportMode(const FilePath &filePath) const
 {
-    Q_UNUSED(fileName)
+    Q_UNUSED(filePath)
     return OpenOptional;
 }
 
-bool CvsPluginPrivate::vcsOpen(const QString &fileName)
+bool CvsPluginPrivate::vcsOpen(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return edit(fi.absolutePath(), QStringList(fi.fileName()));
 }
 
-bool CvsPluginPrivate::vcsAdd(const QString &fileName)
+bool CvsPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool CvsPluginPrivate::vcsDelete(const QString &fileName)
+bool CvsPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi(fileName);
+    const QFileInfo fi = filePath.toFileInfo();
     return vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
-bool CvsPluginPrivate::vcsCreateRepository(const QString &)
+bool CvsPluginPrivate::vcsCreateRepository(const FilePath &)
 {
     return false;
 }
 
-void CvsPluginPrivate::vcsAnnotate(const QString &file, int line)
+void CvsPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi(file);
+    const QFileInfo fi = filePath.toFileInfo();
     vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 
@@ -740,10 +740,10 @@ CvsPluginPrivate::CvsPluginPrivate()
     connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
-void CvsPluginPrivate::vcsDescribe(const QString &source, const QString &changeNr)
+void CvsPluginPrivate::vcsDescribe(const FilePath &source, const QString &changeNr)
 {
     QString errorMessage;
-    if (!describe(source, changeNr, &errorMessage))
+    if (!describe(source.toString(), changeNr, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);
 };
 
@@ -1284,15 +1284,14 @@ void CvsPluginPrivate::updateRepository()
 
 bool CvsPluginPrivate::describe(const QString &file, const QString &changeNr, QString *errorMessage)
 {
-
-    QString toplevel;
-    const bool manages = managesDirectory(QFileInfo(file).absolutePath(), &toplevel);
+    FilePath toplevel;
+    const bool manages = managesDirectory(FilePath::fromString(QFileInfo(file).absolutePath()), &toplevel);
     if (!manages || toplevel.isEmpty()) {
         *errorMessage = tr("Cannot find repository for \"%1\".")
                 .arg(QDir::toNativeSeparators(file));
         return false;
     }
-    return describe(toplevel, QDir(toplevel).relativeFilePath(file), changeNr, errorMessage);
+    return describe(toplevel.toString(), QDir(toplevel.toString()).relativeFilePath(file), changeNr, errorMessage);
 }
 
 bool CvsPluginPrivate::describe(const QString &toplevel, const QString &file, const
@@ -1518,12 +1517,12 @@ bool CvsPluginPrivate::vcsDelete(const QString &workingDir, const QString &rawFi
 
 /* CVS has a "CVS" directory in each directory it manages. The top level
  * is the first directory under the directory that does not have it. */
-bool CvsPluginPrivate::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
+bool CvsPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel /* = 0 */) const
 {
     if (topLevel)
         topLevel->clear();
     bool manages = false;
-    const QDir dir(directory);
+    const QDir dir(directory.toString());
     do {
         if (!dir.exists() || !checkCVSDirectory(dir))
             break;
@@ -1538,7 +1537,7 @@ bool CvsPluginPrivate::managesDirectory(const QString &directory, QString *topLe
              !parentDir.isRoot() && parentDir.cdUp();
              lastDirectory = parentDir) {
             if (!checkCVSDirectory(parentDir)) {
-                *topLevel = lastDirectory.absolutePath();
+                *topLevel = FilePath::fromString(lastDirectory.absolutePath());
                 break;
             }
         }
@@ -1547,12 +1546,12 @@ bool CvsPluginPrivate::managesDirectory(const QString &directory, QString *topLe
     return manages;
 }
 
-bool CvsPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool CvsPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     QStringList args;
     args << QLatin1String("status") << fileName;
     const CvsResponse response =
-            runCvs(workingDirectory, args, m_settings.timeout.value(), VcsCommand::SshPasswordPrompt);
+            runCvs(workingDirectory.toString(), args, m_settings.timeout.value(), VcsCommand::SshPasswordPrompt);
     if (response.result != CvsResponse::Ok)
         return false;
     return !response.stdOut.contains(QLatin1String("Status: Unknown"));

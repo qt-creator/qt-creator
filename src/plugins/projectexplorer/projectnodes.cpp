@@ -1003,7 +1003,7 @@ QString ContainerNode::displayName() const
     const QFileInfo fi = m_project->projectFilePath().toFileInfo();
     const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
     if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir)) {
-        QString vcsTopic = vc->vcsTopic(dir);
+        QString vcsTopic = vc->vcsTopic(FilePath::fromString(dir));
         if (!vcsTopic.isEmpty())
             name += " [" + vcsTopic + ']';
     }

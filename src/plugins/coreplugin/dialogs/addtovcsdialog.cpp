@@ -33,7 +33,7 @@ namespace Core {
 namespace Internal {
 
 AddToVcsDialog::AddToVcsDialog(QWidget *parent, const QString &title,
-                               const QStringList &files, const QString &vcsDisplayName) :
+                               const Utils::FilePaths &files, const QString &vcsDisplayName) :
     QDialog(parent),
     ui(new Ui::AddToVcsDialog)
 {
@@ -45,8 +45,8 @@ AddToVcsDialog::AddToVcsDialog(QWidget *parent, const QString &title,
     ui->addFilesLabel->setText(addTo);
     setWindowTitle(title);
 
-    foreach (const QString &file, files) {
-        QListWidgetItem *item = new QListWidgetItem(QDir::toNativeSeparators(file));
+    for (const Utils::FilePath &file : files) {
+        QListWidgetItem *item = new QListWidgetItem(file.toUserOutput());
         ui->filesListWidget->addItem(item);
     }
 }

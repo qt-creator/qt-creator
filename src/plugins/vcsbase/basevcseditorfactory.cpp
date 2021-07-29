@@ -52,7 +52,7 @@ namespace VcsBase {
 VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                                    // Force copy, see QTCREATORBUG-13218
                                    const EditorWidgetCreator editorWidgetCreator,
-                                   std::function<void(const QString &, const QString &)> describeFunc)
+                                   std::function<void (const Utils::FilePath &, const QString &)> describeFunc)
 {
     setId(parameters->id);
     setDisplayName(QCoreApplication::translate("VCS", parameters->displayName));

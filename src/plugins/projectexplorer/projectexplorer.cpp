@@ -3868,7 +3868,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
     FileChangeBlocker changeGuard(currentNode->filePath());
     if (IVersionControl *vc =
             VcsManager::findVersionControlForDirectory(filePath.absolutePath().toString())) {
-        vc->vcsDelete(filePath.toString());
+        vc->vcsDelete(filePath);
     }
     if (filePath.exists()) {
         if (!filePath.removeFile())

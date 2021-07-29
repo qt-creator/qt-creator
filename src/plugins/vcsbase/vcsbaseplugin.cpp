@@ -241,7 +241,7 @@ QString StateListener::windowTitleVcsTopic(const QString &filePath)
     QString topLevelPath;
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(
                 searchPath, &topLevelPath);
-    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(topLevelPath) : QString();
+    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(FilePath::fromString(topLevelPath)) : QString();
 }
 
 static inline QString displayNameOfEditor(const QString &fileName)
@@ -657,7 +657,7 @@ void VcsBasePluginPrivate::createRepository()
             return;
     } while (true);
     // Create
-    const bool rc = vcsCreateRepository(directory);
+    const bool rc = vcsCreateRepository(FilePath::fromString(directory));
     const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),

@@ -68,6 +68,9 @@
     \fn Core::IVersionControl::TopicCache::refreshTopic(const QString &repository)
     Returns the current topic for \a repository.
  */
+
+using namespace Utils;
+
 namespace Core {
 
 QString IVersionControl::vcsOpenText() const
@@ -146,7 +149,7 @@ void IVersionControl::setTopicCache(TopicCache *topicCache)
     m_topicCache = topicCache;
 }
 
-QString IVersionControl::vcsTopic(const QString &topLevel)
+QString IVersionControl::vcsTopic(const FilePath &topLevel)
 {
     return m_topicCache ? m_topicCache->topic(topLevel) : QString();
 }
@@ -161,17 +164,16 @@ IVersionControl::~IVersionControl()
     delete m_topicCache;
 }
 
-QStringList IVersionControl::unmanagedFiles(const QStringList &filePaths) const
+FilePaths IVersionControl::unmanagedFiles(const FilePaths &filePaths) const
 {
-    return Utils::filtered(filePaths, [this](const QString &f) {
-        const Utils::FilePath fp = Utils::FilePath::fromString(f);
-        return !managesFile(fp.parentDir().toString(), fp.fileName());
+    return Utils::filtered(filePaths, [this](const FilePath &fp) {
+        return !managesFile(fp.parentDir(), fp.fileName());
     });
 }
 
-IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString &fileName) const
+IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const FilePath &filePath) const
 {
-    Q_UNUSED(fileName)
+    Q_UNUSED(filePath)
     return NoOpen;
 }
 
@@ -182,26 +184,26 @@ IVersionControl::TopicCache::~TopicCache() = default;
 
    If the cache for \a topLevel is valid, it will be used. Otherwise it will be refreshed.
  */
-QString IVersionControl::TopicCache::topic(const QString &topLevel)
+QString IVersionControl::TopicCache::topic(const FilePath &topLevel)
 {
     QTC_ASSERT(!topLevel.isEmpty(), return QString());
     TopicData &data = m_cache[topLevel];
-    QString file = trackFile(topLevel);
+    const FilePath file = trackFile(topLevel);
 
     if (file.isEmpty())
         return QString();
-    const QDateTime lastModified = QFileInfo(file).lastModified();
+    const QDateTime lastModified = file.lastModified();
     if (lastModified == data.timeStamp)
         return data.topic;
     data.timeStamp = lastModified;
     return data.topic = refreshTopic(topLevel);
 }
 
-void IVersionControl::fillLinkContextMenu(QMenu *, const QString &, const QString &)
+void IVersionControl::fillLinkContextMenu(QMenu *, const FilePath &, const QString &)
 {
 }
 
-bool IVersionControl::handleLink(const QString &workingDirectory, const QString &reference)
+bool IVersionControl::handleLink(const FilePath &workingDirectory, const QString &reference)
 {
     QTC_ASSERT(!reference.isEmpty(), return false);
     vcsDescribe(workingDirectory, reference);
@@ -221,42 +223,40 @@ TestVersionControl::~TestVersionControl()
     VcsManager::clearVersionControlCache();
 }
 
-void TestVersionControl::setManagedDirectories(const QHash<QString, QString> &dirs)
+void TestVersionControl::setManagedDirectories(const QHash<FilePath, FilePath> &dirs)
 {
     m_managedDirs = dirs;
     m_dirCount = 0;
     VcsManager::clearVersionControlCache();
 }
 
-void TestVersionControl::setManagedFiles(const QSet<QString> &files)
+void TestVersionControl::setManagedFiles(const QSet<FilePath> &files)
 {
     m_managedFiles = files;
     m_fileCount = 0;
     VcsManager::clearVersionControlCache();
 }
 
-bool TestVersionControl::managesDirectory(const QString &filename, QString *topLevel) const
+bool TestVersionControl::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
 {
     ++m_dirCount;
 
-    if (m_managedDirs.contains(filename)) {
+    if (m_managedDirs.contains(filePath)) {
         if (topLevel)
-            *topLevel = m_managedDirs.value(filename);
+            *topLevel = m_managedDirs.value(filePath);
         return true;
     }
     return false;
 }
 
-bool TestVersionControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool TestVersionControl::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     ++m_fileCount;
 
-    QFileInfo fi(workingDirectory + QLatin1Char('/') + fileName);
-    QString dir = fi.absolutePath();
-    if (!managesDirectory(dir, nullptr))
+    FilePath full = workingDirectory.pathAppended(fileName);
+    if (!managesDirectory(full.parentDir(), nullptr))
         return false;
-    QString file = fi.absoluteFilePath();
-    return m_managedFiles.contains(file);
+    return m_managedFiles.contains(full.absoluteFilePath());
 }
 
 } // namespace Core

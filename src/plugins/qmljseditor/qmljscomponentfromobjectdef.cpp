@@ -224,7 +224,7 @@ public:
                 Core::VcsManager::msgAddToVcsTitle(),
                 Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName), versionControl),
                 QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
+            if (button == QMessageBox::Yes && !versionControl->vcsAdd(FilePath::fromString(newFileName))) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Core::VcsManager::msgAddToVcsFailedTitle(),
                                      Core::VcsManager::msgToAddToVcsFailed(QStringList(newFileName),

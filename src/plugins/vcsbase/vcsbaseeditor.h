@@ -157,7 +157,7 @@ protected:
     int lineNumberDigits() const override;
 
 public:
-    typedef std::function<void(const QString &, const QString &)> DescribeFunc;
+    typedef std::function<void(const Utils::FilePath &, const QString &)> DescribeFunc;
 
     void finalizeInitialization() override;
     // FIXME: Consolidate these into finalizeInitialization
@@ -219,7 +219,7 @@ signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted
     // for LogOutput/AnnotateOutput content types.
-    void describeRequested(const QString &source, const QString &change);
+    void describeRequested(const Utils::FilePath &source, const QString &change);
     void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
                                    const QString &change, int lineNumber);
     void diffChunkApplied(const VcsBase::DiffChunk &dc);

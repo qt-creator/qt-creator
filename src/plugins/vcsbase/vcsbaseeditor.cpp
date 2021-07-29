@@ -329,7 +329,8 @@ QString ChangeTextCursorHandler::currentContents() const
 
 void ChangeTextCursorHandler::slotDescribe()
 {
-    emit editorWidget()->describeRequested(editorWidget()->source(), m_currentChange);
+    emit editorWidget()->describeRequested(FilePath::fromString(editorWidget()->source()),
+                                           m_currentChange);
 }
 
 void ChangeTextCursorHandler::slotCopyRevision()

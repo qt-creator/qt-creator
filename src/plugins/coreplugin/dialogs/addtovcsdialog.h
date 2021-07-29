@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 namespace Core {
@@ -38,7 +40,7 @@ class AddToVcsDialog : public QDialog
 
 public:
     explicit AddToVcsDialog(QWidget *parent, const QString &title,
-                            const QStringList &files, const QString &vcsDisplayName);
+                            const Utils::FilePaths &files, const QString &vcsDisplayName);
     ~AddToVcsDialog() override;
 
 private:

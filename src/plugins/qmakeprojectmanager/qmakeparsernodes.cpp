@@ -746,7 +746,7 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
     if (!fi.isWritable()) {
         // Try via vcs manager
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
-        if (!versionControl || !versionControl->vcsOpen(file)) {
+        if (!versionControl || !versionControl->vcsOpen(FilePath::fromString(file))) {
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(Core::ICore::dialogParent(),

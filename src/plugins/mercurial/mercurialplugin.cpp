@@ -80,14 +80,14 @@ public:
     MercurialTopicCache(MercurialClient *client) : m_client(client) {}
 
 protected:
-    QString trackFile(const QString &repository) override
+    FilePath trackFile(const FilePath &repository) override
     {
-        return repository + QLatin1String("/.hg/branch");
+        return repository.pathAppended(".hg/branch");
     }
 
-    QString refreshTopic(const QString &repository) override
+    QString refreshTopic(const FilePath &repository) override
     {
-        return m_client->branchQuerySync(repository);
+        return m_client->branchQuerySync(repository.toString());
     }
 
 private:
@@ -132,19 +132,19 @@ public:
     // IVersionControl
     QString displayName() const final;
     Utils::Id id() const final;
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
-    bool managesDirectory(const QString &filename, QString *topLevel = nullptr) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool managesDirectory(const FilePath &filePath, FilePath *topLevel = nullptr) const final;
+    bool managesFile(const FilePath &workingDirectory, const QString &fileName) const final;
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &filename) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
-    void vcsAnnotate(const QString &file, int line) final;
-    void vcsDescribe(const QString &source, const QString &id) final { m_client.view(source, id); }
+    bool vcsOpen(const FilePath &filePath) final;
+    bool vcsAdd(const FilePath &filePath) final;
+    bool vcsDelete(const FilePath &filePath) final;
+    bool vcsMove(const FilePath &from, const FilePath &to) final;
+    bool vcsCreateRepository(const FilePath &directory) final;
+    void vcsAnnotate(const FilePath &filePath, int line) final;
+    void vcsDescribe(const FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -661,7 +661,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
                         arg(QDir::toNativeSeparators(m_submitRepository));
     commitEditor->document()->setPreferredDisplayName(msg);
 
-    const QString branch = vcsTopic(m_submitRepository);
+    const QString branch = vcsTopic(FilePath::fromString(m_submitRepository));
     commitEditor->setFields(QFileInfo(m_submitRepository), branch,
                             m_settings.userName.value(),
                             m_settings.userEmail.value(), status);
@@ -747,23 +747,23 @@ Utils::Id MercurialPluginPrivate::id() const
     return {VcsBase::Constants::VCS_ID_MERCURIAL};
 }
 
-bool MercurialPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+bool MercurialPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
-    return m_client.isVcsDirectory(fileName);
+    return m_client.isVcsDirectory(filePath);
 }
 
-bool MercurialPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+bool MercurialPluginPrivate::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
 {
-    QFileInfo dir(directory);
+    QFileInfo dir = filePath.toFileInfo();
     const QString topLevelFound = m_client.findTopLevelForFile(dir);
     if (topLevel)
-        *topLevel = topLevelFound;
+        *topLevel = FilePath::fromString(topLevelFound);
     return !topLevelFound.isEmpty();
 }
 
-bool MercurialPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool MercurialPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory, fileName);
+    return m_client.managesFile(workingDirectory.toString(), fileName);
 }
 
 bool MercurialPluginPrivate::isConfigured() const
@@ -793,41 +793,41 @@ bool MercurialPluginPrivate::supportsOperation(Operation operation) const
     return supported;
 }
 
-bool MercurialPluginPrivate::vcsOpen(const QString &filename)
+bool MercurialPluginPrivate::vcsOpen(const FilePath &filePath)
 {
-    Q_UNUSED(filename)
+    Q_UNUSED(filePath)
     return true;
 }
 
-bool MercurialPluginPrivate::vcsAdd(const QString &filename)
+bool MercurialPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi(filename);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_client.synchronousAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool MercurialPluginPrivate::vcsDelete(const QString &filename)
+bool MercurialPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi(filename);
+    const QFileInfo fi = filePath.toFileInfo();
     return m_client.synchronousRemove(fi.absolutePath(), fi.fileName());
 }
 
-bool MercurialPluginPrivate::vcsMove(const QString &from, const QString &to)
+bool MercurialPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo(from);
-    const QFileInfo toInfo(to);
+    const QFileInfo fromInfo = from.toFileInfo();
+    const QFileInfo toInfo = to.toFileInfo();
     return m_client.synchronousMove(fromInfo.absolutePath(),
                                             fromInfo.absoluteFilePath(),
                                             toInfo.absoluteFilePath());
 }
 
-bool MercurialPluginPrivate::vcsCreateRepository(const QString &directory)
+bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory);
+    return m_client.synchronousCreateRepository(directory.toString());
 }
 
-void MercurialPluginPrivate::vcsAnnotate(const QString &file, int line)
+void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi(file);
+    const QFileInfo fi = filePath.toFileInfo();
     m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 
@@ -847,12 +847,12 @@ Core::ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const Q
 bool MercurialPluginPrivate::sccManaged(const QString &filename)
 {
     const QFileInfo fi(filename);
-    QString topLevel;
-    const bool managed = managesDirectory(fi.absolutePath(), &topLevel);
+    FilePath topLevel;
+    const bool managed = managesDirectory(FilePath::fromString(fi.absolutePath()), &topLevel);
     if (!managed || topLevel.isEmpty())
         return false;
-    const QDir topLevelDir(topLevel);
-    return m_client.manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
+    const QDir topLevelDir(topLevel.toString());
+    return m_client.manifestSync(topLevel.toString(), topLevelDir.relativeFilePath(filename));
 }
 
 void MercurialPluginPrivate::changed(const QVariant &v)

@@ -52,6 +52,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace VcsBase {
 namespace Internal {
@@ -122,7 +123,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             QString topLevel;
             if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(), &topLevel);
-            return vc ? vc->vcsTopic(topLevel) : QString();
+            return vc ? vc->vcsTopic(FilePath::fromString(topLevel)) : QString();
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,

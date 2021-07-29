@@ -757,7 +757,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
             const FilePath targetFile = targetFilePath(sourceFile);
             if (sourceFile.copyFile(targetFile)) {
                 filesToAdd << targetFile;
-                if (addToVcs && !vcs->vcsAdd(targetFile.toString()))
+                if (addToVcs && !vcs->vcsAdd(targetFile))
                     failedVcsOp << targetFile;
             } else {
                 failedCopyOrMove << sourceFile;
@@ -780,7 +780,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
             const VcsInfo sourceVcs = vcsInfoForFile(sourceFile.toString());
             if (sourceVcs.vcs && targetVcs.vcs && sourceVcs == targetVcs
                     && sourceVcs.vcs->supportsOperation(Core::IVersionControl::MoveOperation)) {
-                if (sourceVcs.vcs->vcsMove(sourceFile.toString(), targetFile.toString())) {
+                if (sourceVcs.vcs->vcsMove(sourceFile, targetFile)) {
                     filesToAdd << targetFile;
                     filesToRemove << sourceFile;
                 } else {
@@ -797,12 +797,12 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
             Core::FileChangeBlocker changeGuard(sourceFile);
             if (sourceVcs.vcs && sourceVcs.vcs->supportsOperation(
                         Core::IVersionControl::DeleteOperation)
-                    && !sourceVcs.vcs->vcsDelete(sourceFile.toString())) {
+                    && !sourceVcs.vcs->vcsDelete(sourceFile)) {
                 failedVcsOp << sourceFile;
             }
             if (sourceFile.exists() && !sourceFile.removeFile())
                 failedDelete << sourceFile;
-            if (vcsAddPossible && !targetVcs.vcs->vcsAdd(targetFile.toString()))
+            if (vcsAddPossible && !targetVcs.vcs->vcsAdd(targetFile))
                 failedVcsOp << targetFile;
         }
         const RemovedFilesFromProject result
