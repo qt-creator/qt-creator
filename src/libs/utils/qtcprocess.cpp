@@ -540,15 +540,15 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
         finished = waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1)
                 || state() == QProcess::NotRunning;
         // First check 'stdout'
-        if (d->m_process->bytesAvailable()) { // applies to readChannel() only
+        const QByteArray newStdOut = readAllStandardOutput();
+        if (!newStdOut.isEmpty()) {
             hasData = true;
-            const QByteArray newStdOut = d->m_process->readAllStandardOutput();
             if (stdOut)
                 stdOut->append(newStdOut);
         }
         // Check 'stderr' separately. This is a special handling
         // for 'git pull' and the like which prints its progress on stderr.
-        const QByteArray newStdErr = d->m_process->readAllStandardError();
+        const QByteArray newStdErr = readAllStandardError();
         if (!newStdErr.isEmpty()) {
             hasData = true;
             if (stdErr)
