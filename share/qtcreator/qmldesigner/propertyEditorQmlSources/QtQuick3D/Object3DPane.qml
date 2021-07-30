@@ -28,7 +28,6 @@ import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
-import "../QtQuick" as Q
 
 Rectangle {
     id: itemPane
@@ -49,7 +48,7 @@ Rectangle {
             y: -1
             width: itemPane.width
 
-            Q.ComponentSection {}
+            ComponentSection {}
 
             Column {
                 anchors.left: parent.left
