@@ -30,7 +30,14 @@ import StudioTheme 1.0 as StudioTheme
 ScrollBar {
     id: scrollBar
 
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+
     property bool scrollBarVisible: parent.childrenRect.height > parent.height
+
+    minimumSize: orientation == Qt.Horizontal ? height / width : width / height
 
     orientation: Qt.Vertical
     policy: scrollBar.scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
