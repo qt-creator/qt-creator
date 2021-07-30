@@ -1,7 +1,7 @@
 AbstractButton 2.0 AbstractButton.qml
 ActionIndicator 2.0 ActionIndicator.qml
-AligmentHorizontalButtons 2.0 AligmentHorizontalButtons.qml
-AligmentVerticalButtons 2.0 AligmentVerticalButtons.qml
+AlignmentHorizontalButtons 2.0 AlignmentHorizontalButtons.qml
+AlignmentVerticalButtons 2.0 AlignmentVerticalButtons.qml
 AnchorButtons 2.0 AnchorButtons.qml
 BoolButtonRowButton 2.0 BoolButtonRowButton.qml
 Button 2.0 Button.qml

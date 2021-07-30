@@ -181,22 +181,20 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Alignment") }
+        PropertyLabel { text: qsTr("Alignment H") }
 
         SecondColumnLayout {
-            AligmentHorizontalButtons { id: horizontalAlignmentButtons }
+            AlignmentHorizontalButtons {}
 
-            Spacer {
-                visible: root.showVerticalAlignment
-                implicitWidth: StudioTheme.Values.controlGap
-                               + StudioTheme.Values.controlLabelWidth
-                               + StudioTheme.Values.controlGap
-                               + StudioTheme.Values.twoControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
-                               - horizontalAlignmentButtons.implicitWidth
-            }
+            ExpandingSpacer {}
+        }
 
-            AligmentVerticalButtons { visible: root.showVerticalAlignment }
+        PropertyLabel { text: qsTr("Alignment V") }
+
+        SecondColumnLayout {
+            AlignmentVerticalButtons { visible: root.showVerticalAlignment }
+
+            ExpandingSpacer {}
         }
 
         PropertyLabel {
