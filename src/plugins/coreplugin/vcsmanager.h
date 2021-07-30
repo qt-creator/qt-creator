@@ -63,7 +63,7 @@ public:
     static const QList<IVersionControl *> versionControls();
     static IVersionControl *versionControl(Utils::Id id);
 
-    static void resetVersionControlForDirectory(const QString &inputDirectory);
+    static void resetVersionControlForDirectory(const Utils::FilePath &inputDirectory);
     static IVersionControl *findVersionControlForDirectory(const QString &directory,
                                                            QString *topLevelDirectory = nullptr);
     static QString findTopLevelForDirectory(const QString &directory);

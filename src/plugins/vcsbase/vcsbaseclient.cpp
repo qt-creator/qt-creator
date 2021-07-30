@@ -145,6 +145,20 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 }
 
 void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
+                                                const QString &workingDir, const QStringList &args,
+                                                unsigned flags, int timeoutS, QTextCodec *codec) const
+{
+    vcsFullySynchronousExec(proc, workingDir, {vcsBinary(), args}, flags, timeoutS, codec);
+}
+
+void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
+                                                const FilePath &workingDir, const QStringList &args,
+                                                unsigned flags, int timeoutS, QTextCodec *codec) const
+{
+    vcsFullySynchronousExec(proc, workingDir.toString(), {vcsBinary(), args}, flags, timeoutS, codec);
+}
+
+void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
                                                 const QString &workingDir, const CommandLine &cmdLine,
                                                 unsigned flags, int timeoutS, QTextCodec *codec) const
 {
@@ -156,7 +170,7 @@ void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
     command.runCommand(proc, cmdLine);
 }
 
-void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
+void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
 }
@@ -172,13 +186,6 @@ void VcsBaseClientImpl::annotateRevisionRequested(const QString &workingDirector
     if (blankPos != -1)
         changeCopy.truncate(blankPos);
     annotate(workingDirectory, file, changeCopy, line);
-}
-
-void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
-                                                const QString &workingDir, const QStringList &args,
-                                                unsigned flags, int timeoutS, QTextCodec *codec) const
-{
-    vcsFullySynchronousExec(proc, workingDir, {vcsBinary(), args}, flags, timeoutS, codec);
 }
 
 VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QStringList &arguments,
@@ -254,7 +261,7 @@ VcsBaseClient::VcsBaseClient(VcsBaseSettings *baseSettings)
     qRegisterMetaType<QVariant>();
 }
 
-bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
+bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory,
                                                 const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(CreateRepositoryCommand));
@@ -270,7 +277,7 @@ bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
     return true;
 }
 
-bool VcsBaseClient::synchronousClone(const QString &workingDir,
+bool VcsBaseClient::synchronousClone(const FilePath &workingDir,
                                      const QString &srcLocation,
                                      const QString &dstLocation,
                                      const QStringList &extraOptions)

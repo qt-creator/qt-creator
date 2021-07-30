@@ -42,7 +42,7 @@ class MercurialClient : public VcsBase::VcsBaseClient
 public:
     explicit MercurialClient(MercurialSettings *settings);
 
-    bool synchronousClone(const QString &workingDir,
+    bool synchronousClone(const Utils::FilePath &workingDir,
                           const QString &srcLocation,
                           const QString &dstLocation,
                           const QStringList &extraOptions = QStringList()) override;

@@ -821,7 +821,7 @@ bool MercurialPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 
 bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory.toString());
+    return m_client.synchronousCreateRepository(directory);
 }
 
 void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)

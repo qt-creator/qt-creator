@@ -200,7 +200,7 @@ public:
                               QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
     bool synchronousApplyPatch(const QString &workingDirectory, const QString &file,
                                QString *errorMessage, const QStringList &extraArguments = QStringList());
-    bool synchronousInit(const QString &workingDirectory);
+    bool synchronousInit(const Utils::FilePath &workingDirectory);
     bool synchronousCheckoutFiles(const QString &workingDirectory, QStringList files = QStringList(),
                                   QString revision = QString(), QString *errorMessage = nullptr,
                                   bool revertStaging = true);

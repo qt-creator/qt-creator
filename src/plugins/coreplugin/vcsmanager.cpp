@@ -203,12 +203,12 @@ static QString absoluteWithNoTrailingSlash(const QString &directory)
     return res;
 }
 
-void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
+void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 {
     if (inputDirectory.isEmpty())
         return;
 
-    const QString directory = absoluteWithNoTrailingSlash(inputDirectory);
+    const QString directory = absoluteWithNoTrailingSlash(inputDirectory.toString());
     d->resetCache(directory);
     emit m_instance->repositoryChanged(directory);
 }

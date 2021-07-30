@@ -101,6 +101,9 @@ public:
     void vcsFullySynchronousExec(Utils::QtcProcess &process,
                                  const QString &workingDir, const Utils::CommandLine &cmdLine,
                                  unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    void vcsFullySynchronousExec(Utils::QtcProcess &process,
+                                 const Utils::FilePath &workingDir, const QStringList &args,
+                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
@@ -109,7 +112,7 @@ public:
                         unsigned additionalFlags = 0, const QVariant &cookie = QVariant()) const;
 
 protected:
-    void resetCachedVcsInfo(const QString &workingDir);
+    void resetCachedVcsInfo(const Utils::FilePath &workingDir);
     virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
                                            const QString &change, int line);
 
@@ -142,12 +145,12 @@ public:
 
     explicit VcsBaseClient(VcsBaseSettings *baseSettings);
 
-    virtual bool synchronousCreateRepository(const QString &workingDir,
-                                             const QStringList &extraOptions = QStringList());
-    virtual bool synchronousClone(const QString &workingDir,
+    virtual bool synchronousCreateRepository(const Utils::FilePath &workingDir,
+                                             const QStringList &extraOptions = {});
+    virtual bool synchronousClone(const Utils::FilePath &workingDir,
                                   const QString &srcLocation,
                                   const QString &dstLocation,
-                                  const QStringList &extraOptions = QStringList());
+                                  const QStringList &extraOptions = {});
     virtual bool synchronousAdd(const QString &workingDir, const QString &fileName,
                                 const QStringList &extraOptions = QStringList());
     virtual bool synchronousRemove(const QString &workingDir, const QString &fileName,

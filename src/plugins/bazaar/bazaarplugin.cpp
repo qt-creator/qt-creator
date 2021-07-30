@@ -920,7 +920,7 @@ bool BazaarPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 
 bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory.toString());
+    return m_client.synchronousCreateRepository(directory);
 }
 
 void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)

@@ -112,7 +112,7 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
 }
 
 //bool MercurialClient::clone(const QString &directory, const QString &url)
-bool MercurialClient::synchronousClone(const QString &workingDir,
+bool MercurialClient::synchronousClone(const FilePath &workingDir,
                                        const QString &srcLocation,
                                        const QString &dstLocation,
                                        const QStringList &extraOptions)

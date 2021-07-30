@@ -1529,7 +1529,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
 }
 
 // Initialize repository
-bool GitClient::synchronousInit(const QString &workingDirectory)
+bool GitClient::synchronousInit(const FilePath &workingDirectory)
 {
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, QStringList{"init"});

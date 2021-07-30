@@ -1899,7 +1899,7 @@ bool GitPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 
 bool GitPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_gitClient.synchronousInit(directory.toString());
+    return m_gitClient.synchronousInit(directory);
 }
 
 QString GitPluginPrivate::vcsTopic(const FilePath &directory)
