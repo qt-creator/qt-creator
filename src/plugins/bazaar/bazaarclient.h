@@ -41,20 +41,20 @@ class BazaarClient : public VcsBase::VcsBaseClient
 public:
     explicit BazaarClient(BazaarSettings *settings);
 
-    BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
-    bool synchronousUncommit(const QString &workingDir,
-                             const QString& revision = QString(),
-                             const QStringList &extraOptions = QStringList());
-    void commit(const QString &repositoryRoot, const QStringList &files,
-                const QString &commitMessageFile, const QStringList &extraOptions = QStringList()) override;
+    BranchInfo synchronousBranchQuery(const Utils::FilePath &repositoryRoot) const;
+    bool synchronousUncommit(const Utils::FilePath &workingDir,
+                             const QString &revision = {},
+                             const QStringList &extraOptions = {});
+    void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
+                const QString &commitMessageFile, const QStringList &extraOptions = {}) override;
     VcsBase::VcsBaseEditorWidget *annotate(
-            const QString &workingDir, const QString &file, const QString &revision = QString(),
-            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
-    bool isVcsDirectory(const Utils::FilePath &fileName) const;
+            const Utils::FilePath &workingDir, const QString &file, const QString &revision = {},
+            int lineNumber = -1, const QStringList &extraOptions ={}) override;
+    bool isVcsDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void view(const QString &source, const QString &id,
-              const QStringList &extraOptions = QStringList()) override;
+              const QStringList &extraOptions = {}) override;
 
     Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;
     QString vcsCommandString(VcsCommandTag cmd) const override;

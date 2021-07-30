@@ -42,6 +42,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace Git {
@@ -75,9 +76,9 @@ public:
         return QStandardItemModel::data(index, role);
     }
 
-    void setWorkingDirectory(const QString &workingDir) { m_workingDirectory = workingDir; }
+    void setWorkingDirectory(const FilePath &workingDir) { m_workingDirectory = workingDir; }
 private:
-    QString m_workingDirectory;
+    FilePath m_workingDirectory;
     mutable QHash<QString, QString> m_descriptions;
 };
 
@@ -99,7 +100,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setFocus();
 }
 
-bool LogChangeWidget::init(const QString &repository, const QString &commit, LogFlags flags)
+bool LogChangeWidget::init(const FilePath &repository, const QString &commit, LogFlags flags)
 {
     m_model->setWorkingDirectory(repository);
     if (!populateLog(repository, commit, flags))
@@ -171,7 +172,7 @@ void LogChangeWidget::selectionChanged(const QItemSelection &selected,
     }
 }
 
-bool LogChangeWidget::populateLog(const QString &repository, const QString &commit, LogFlags flags)
+bool LogChangeWidget::populateLog(const FilePath &repository, const QString &commit, LogFlags flags)
 {
     const QString currentCommit = this->commit();
     int selected = currentCommit.isEmpty() ? 0 : -1;
@@ -232,6 +233,7 @@ const QStandardItem *LogChangeWidget::currentItem(int column) const
 LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     QDialog(parent)
     , m_widget(new LogChangeWidget)
+
     , m_dialogButtonBox(new QDialogButtonBox(this))
 {
     auto layout = new QVBoxLayout(this);
@@ -262,7 +264,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     resize(600, 400);
 }
 
-bool LogChangeDialog::runDialog(const QString &repository,
+bool LogChangeDialog::runDialog(const FilePath &repository,
                                 const QString &commit,
                                 LogChangeWidget::LogFlags flags)
 {

@@ -745,7 +745,8 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
     QFileInfo fi(file);
     if (!fi.isWritable()) {
         // Try via vcs manager
-        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
+        Core::IVersionControl *versionControl =
+            Core::VcsManager::findVersionControlForDirectory(FilePath::fromString(fi.absolutePath()));
         if (!versionControl || !versionControl->vcsOpen(FilePath::fromString(file))) {
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {

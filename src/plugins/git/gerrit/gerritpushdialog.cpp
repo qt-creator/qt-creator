@@ -124,14 +124,14 @@ void GerritPushDialog::initRemoteBranches()
     m_ui->remoteComboBox->updateRemotes(false);
 }
 
-GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &reviewerList,
+GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QString &reviewerList,
                                    QSharedPointer<GerritParameters> parameters, QWidget *parent) :
     QDialog(parent),
     m_workingDir(workingDir),
     m_ui(new Ui::GerritPushDialog)
 {
     m_ui->setupUi(this);
-    m_ui->repositoryLabel->setText(QDir::toNativeSeparators(workingDir));
+    m_ui->repositoryLabel->setText(workingDir.toUserOutput());
     m_ui->remoteComboBox->setRepository(workingDir);
     m_ui->remoteComboBox->setParameters(parameters);
     m_ui->remoteComboBox->setAllowDups(true);

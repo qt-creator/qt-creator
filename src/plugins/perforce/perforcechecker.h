@@ -54,7 +54,7 @@ public:
     void setUseOverideCursor(bool v);
 
 signals:
-    void succeeded(const QString &repositoryRoot);
+    void succeeded(const Utils::FilePath &repositoryRoot);
     void failed(const QString &errorMessage);
 
 private:

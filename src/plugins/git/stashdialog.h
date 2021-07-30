@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -51,7 +53,7 @@ public:
     explicit StashDialog(QWidget *parent = nullptr);
     ~StashDialog() override;
 
-    void refresh(const QString &repository, bool force);
+    void refresh(const Utils::FilePath &repository, bool force);
 
 private:
     // Prompt dialog for modified repositories. Ask to undo or stash away.
@@ -85,7 +87,7 @@ private:
     QPushButton *m_restoreCurrentButton;
     QPushButton *m_restoreCurrentInBranchButton;
     QPushButton *m_refreshButton;
-    QString m_repository;
+    Utils::FilePath m_repository;
 };
 
 } // namespace Internal

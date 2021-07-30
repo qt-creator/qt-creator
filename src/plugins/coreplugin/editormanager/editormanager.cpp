@@ -1996,7 +1996,7 @@ void EditorManagerPrivate::updateMakeWritableWarning()
         // Do this after setWriteWarning so we don't re-evaluate this part even
         // if we do not really show a warning.
         bool promptVCS = false;
-        const QString directory = document->filePath().toFileInfo().absolutePath();
+        const FilePath directory = document->filePath().parentDir();
         IVersionControl *versionControl = VcsManager::findVersionControlForDirectory(directory);
         if (versionControl && versionControl->openSupportMode(document->filePath()) != IVersionControl::NoOpen) {
             if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
@@ -2248,7 +2248,7 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
     if (!document)
         return;
 
-    const QString directory = document->filePath().toFileInfo().absolutePath();
+    const FilePath directory = document->filePath().parentDir();
     IVersionControl *versionControl = VcsManager::findVersionControlForDirectory(directory);
     if (!versionControl || versionControl->openSupportMode(document->filePath()) == IVersionControl::NoOpen)
         return;

@@ -91,7 +91,7 @@ MercurialClient::MercurialClient(MercurialSettings *settings) : VcsBaseClient(se
 {
 }
 
-bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
+bool MercurialClient::manifestSync(const FilePath &repository, const QString &relativeFilename)
 {
     // This  only works when called from the repo and outputs paths relative to it.
     const QStringList args(QLatin1String("manifest"));
@@ -99,7 +99,7 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
     QtcProcess proc;
     vcsFullySynchronousExec(proc, repository, args);
 
-    const QDir repositoryDir(repository);
+    const QDir repositoryDir(repository.toString());
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
     const QStringList files = proc.stdOut().split(QLatin1Char('\n'));
@@ -112,14 +112,12 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
 }
 
 //bool MercurialClient::clone(const QString &directory, const QString &url)
-bool MercurialClient::synchronousClone(const FilePath &workingDir,
+bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
                                        const QString &srcLocation,
                                        const QString &dstLocation,
                                        const QStringList &extraOptions)
 {
-    Q_UNUSED(workingDir)
     Q_UNUSED(extraOptions)
-    QDir workingDirectory(srcLocation);
     const unsigned flags = VcsCommand::SshPasswordPrompt |
             VcsCommand::ShowStdOut |
             VcsCommand::ShowSuccessMessage;
@@ -128,7 +126,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDir,
         // Let's make first init
         QStringList arguments(QLatin1String("init"));
         QtcProcess proc;
-        vcsFullySynchronousExec(proc, workingDirectory.path(), arguments);
+        vcsFullySynchronousExec(proc, workingDirectory, arguments);
         if (proc.result() != QtcProcess::FinishedWithSuccess)
             return false;
 
@@ -136,12 +134,12 @@ bool MercurialClient::synchronousClone(const FilePath &workingDir,
         arguments.clear();
         arguments << QLatin1String("pull") << dstLocation;
         QtcProcess proc1;
-        vcsSynchronousExec(proc1, workingDirectory.path(), arguments, flags);
+        vcsSynchronousExec(proc1, workingDirectory, arguments, flags);
         if (proc1.result() != QtcProcess::FinishedWithSuccess)
             return false;
 
         // By now, there is no hgrc file -> create it
-        FileSaver saver(Utils::FilePath::fromString(workingDirectory.path() + "/.hg/hgrc"));
+        FileSaver saver(workingDirectory.pathAppended(".hg/hgrc"));
         const QString hgrc = QLatin1String("[paths]\ndefault = ") + dstLocation + QLatin1Char('\n');
         saver.write(hgrc.toUtf8());
         if (!saver.finalize()) {
@@ -153,19 +151,18 @@ bool MercurialClient::synchronousClone(const FilePath &workingDir,
         arguments.clear();
         arguments << QLatin1String("update");
         QtcProcess proc2;
-        vcsSynchronousExec(proc2, workingDirectory.path(), arguments, flags);
+        vcsSynchronousExec(proc2, workingDirectory, arguments, flags);
         return proc2.result() == QtcProcess::FinishedWithSuccess;
     } else {
         QStringList arguments(QLatin1String("clone"));
-        arguments << dstLocation << workingDirectory.dirName();
-        workingDirectory.cdUp();
+        arguments << dstLocation << workingDirectory.parentDir().toString();
         QtcProcess proc;
-        vcsSynchronousExec(proc, workingDirectory.path(), arguments, flags);
+        vcsSynchronousExec(proc, workingDirectory.parentDir(), arguments, flags);
         return proc.result() == QtcProcess::FinishedWithSuccess;
     }
 }
 
-bool MercurialClient::synchronousPull(const QString &workingDir, const QString &srcLocation, const QStringList &extraOptions)
+bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
@@ -202,12 +199,12 @@ QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
     return QLatin1String("Unknown Branch");
 }
 
-static inline QString msgParentRevisionFailed(const QString &workingDirectory,
-                                              const QString &revision,
-                                              const QString &why)
+static QString msgParentRevisionFailed(const FilePath &workingDirectory,
+                                       const QString &revision,
+                                       const QString &why)
 {
     return MercurialClient::tr("Unable to find parent revisions of %1 in %2: %3").
-            arg(revision, QDir::toNativeSeparators(workingDirectory), why);
+            arg(revision, workingDirectory.toUserOutput(), why);
 }
 
 static inline QString msgParseParentsOutputFailed(const QString &output)
@@ -215,9 +212,9 @@ static inline QString msgParseParentsOutputFailed(const QString &output)
     return MercurialClient::tr("Cannot parse output: %1").arg(output);
 }
 
-QStringList MercurialClient::parentRevisionsSync(const QString &workingDirectory,
-                                          const QString &file /* = QString() */,
-                                          const QString &revision)
+QStringList MercurialClient::parentRevisionsSync(const FilePath &workingDirectory,
+                                                 const QString &file /* = QString() */,
+                                                 const QString &revision)
 {
     QStringList parents;
     QStringList args;
@@ -258,9 +255,9 @@ user: ...
 }
 
 // Describe a change using an optional format
-QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
-                                           const QString &revision,
-                                           const QString &format)
+QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,
+                                              const QString &revision,
+                                              const QString &format)
 {
     QStringList args;
     args << QLatin1String("log") <<  QLatin1String("-r") <<revision;
@@ -277,13 +274,13 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
 // Default format: "SHA1 (author summmary)"
 static const char defaultFormatC[] = "{node} ({author|person} {desc|firstline})";
 
-QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
-                                           const QString &revision)
+QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,
+                                              const QString &revision)
 {
     return shortDescriptionSync(workingDirectory, revision, QLatin1String(defaultFormatC));
 }
 
-bool MercurialClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool MercurialClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     QStringList args;
     args << QLatin1String("status") << QLatin1String("--unknown") << fileName;
@@ -292,44 +289,43 @@ bool MercurialClient::managesFile(const QString &workingDirectory, const QString
     return proc.stdOut().isEmpty();
 }
 
-void MercurialClient::incoming(const QString &repositoryRoot, const QString &repository)
+void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &repository)
 {
     QStringList args;
     args << QLatin1String("incoming") << QLatin1String("-g") << QLatin1String("-p");
     if (!repository.isEmpty())
         args.append(repository);
 
-    QString id = repositoryRoot;
+    QString id = repositoryRoot.toString();
     if (!repository.isEmpty())
         id += QLatin1Char('/') + repository;
 
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
-                                                  VcsBaseEditor::getCodec(repositoryRoot),
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
+                                                  VcsBaseEditor::getCodec(repositoryRoot.toString()),
                                                   "incoming", id);
-    VcsCommand *cmd = createCommand(repository, editor);
+    VcsCommand *cmd = createCommand(FilePath::fromString(repository), editor);
     enqueueJob(cmd, args);
 }
 
-void MercurialClient::outgoing(const QString &repositoryRoot)
+void MercurialClient::outgoing(const FilePath &repositoryRoot)
 {
     QStringList args;
     args << QLatin1String("outgoing") << QLatin1String("-g") << QLatin1String("-p");
 
-    const QString title = tr("Hg outgoing %1").
-            arg(QDir::toNativeSeparators(repositoryRoot));
+    const QString title = tr("Hg outgoing %1").arg(repositoryRoot.toUserOutput());
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
-                                                  VcsBaseEditor::getCodec(repositoryRoot),
-                                                  "outgoing", repositoryRoot);
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
+                                                  VcsBaseEditor::getCodec(repositoryRoot.toString()),
+                                                  "outgoing", repositoryRoot.toString());
 
     VcsCommand *cmd = createCommand(repositoryRoot, editor);
     enqueueJob(cmd, args);
 }
 
 VcsBaseEditorWidget *MercurialClient::annotate(
-        const QString &workingDir, const QString &file, const QString &revision,
+        const FilePath &workingDir, const QString &file, const QString &revision,
         int lineNumber, const QStringList &extraOptions)
 {
     QStringList args(extraOptions);
@@ -337,7 +333,7 @@ VcsBaseEditorWidget *MercurialClient::annotate(
     return VcsBaseClient::annotate(workingDir, file, revision, lineNumber, args);
 }
 
-void MercurialClient::commit(const QString &repositoryRoot, const QStringList &files,
+void MercurialClient::commit(const FilePath &repositoryRoot, const QStringList &files,
                              const QString &commitMessageFile,
                              const QStringList &extraOptions)
 {
@@ -346,7 +342,7 @@ void MercurialClient::commit(const QString &repositoryRoot, const QStringList &f
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
 }
 
-void MercurialClient::diff(const QString &workingDir, const QStringList &files,
+void MercurialClient::diff(const FilePath &workingDir, const QStringList &files,
                            const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)
@@ -358,41 +354,41 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files,
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffRepo." + sourceFile;
-        requestReload(documentId, sourceFile, title, workingDir, {"diff"});
+        requestReload(documentId, sourceFile, title, workingDir.toString(), {"diff"});
     } else if (files.size() == 1) {
         fileName = files.at(0);
         const QString title = tr("Mercurial Diff \"%1\"").arg(fileName);
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + sourceFile;
-        requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
+        requestReload(documentId, sourceFile, title, workingDir.toString(), {"diff", fileName});
     } else {
-        const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir);
+        const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffFile." + workingDir;
-        requestReload(documentId, sourceFile, title, workingDir, QStringList{"diff"} + files);
+                + ".DiffFile." + workingDir.toString();
+        requestReload(documentId, sourceFile, title, workingDir.toString(), QStringList{"diff"} + files);
     }
 }
 
-void MercurialClient::import(const QString &repositoryRoot, const QStringList &files,
+void MercurialClient::import(const FilePath &repositoryRoot, const QStringList &files,
                              const QStringList &extraOptions)
 {
     VcsBaseClient::import(repositoryRoot, files,
                           QStringList(extraOptions) << QLatin1String("--no-commit"));
 }
 
-void MercurialClient::revertAll(const QString &workingDir, const QString &revision,
+void MercurialClient::revertAll(const FilePath &workingDir, const QString &revision,
                                 const QStringList &extraOptions)
 {
     VcsBaseClient::revertAll(workingDir, revision,
                              QStringList(extraOptions) << QLatin1String("--all"));
 }
 
-bool MercurialClient::isVcsDirectory(const FilePath &fileName) const
+bool MercurialClient::isVcsDirectory(const FilePath &filePath) const
 {
-    return fileName.isDir()
-            && !fileName.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());
+    return filePath.isDir()
+            && !filePath.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
 void MercurialClient::view(const QString &source, const QString &id,

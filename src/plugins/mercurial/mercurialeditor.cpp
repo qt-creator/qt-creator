@@ -39,6 +39,8 @@
 #include <QFileInfo>
 #include <QDebug>
 
+using namespace Utils;
+
 namespace Mercurial {
 namespace Internal  {
 
@@ -80,7 +82,7 @@ QString MercurialEditorWidget::decorateVersion(const QString &revision) const
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Format with short summary
-    return m_client->shortDescriptionSync(workingDirectory, revision);
+    return m_client->shortDescriptionSync(FilePath::fromString(workingDirectory), revision);
 }
 
 QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &revision) const
@@ -88,7 +90,7 @@ QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &rev
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Retrieve parent revisions
-    return m_client->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
+    return m_client->parentRevisionsSync(FilePath::fromString(workingDirectory), fi.fileName(), revision);
 }
 
 } // namespace Internal

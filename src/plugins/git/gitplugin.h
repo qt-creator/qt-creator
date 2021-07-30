@@ -61,19 +61,19 @@ public:
     static const GitSettings &settings();
     static const VcsBase::VcsBasePluginState &currentState();
 
-    static QString msgRepositoryLabel(const QString &repository);
+    static QString msgRepositoryLabel(const Utils::FilePath &repository);
     static QString invalidBranchAndRemoteNamePattern();
     static bool isCommitEditorOpen();
 
     static void emitFilesChanged(const QStringList &);
     static void emitRepositoryChanged(const QString &);
-    static void startRebaseFromCommit(const QString &workingDirectory, const QString &commit);
+    static void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
     static void manageRemotes();
     static void initRepository();
     static void startCommit();
     static void updateCurrentBranch();
-    static void updateBranches(const QString &repository);
-    static void gerritPush(const QString &topLevel);
+    static void updateBranches(const Utils::FilePath &repository);
+    static void gerritPush(const Utils::FilePath &topLevel);
 
 #ifdef WITH_TESTS
 private slots:

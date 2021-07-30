@@ -177,7 +177,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     if (!repository.isEmpty()) {
         if (VcsOutputLineParser * const p = parser()) {
             if (!href.isEmpty())
-                p->fillLinkContextMenu(menu, repository, href);
+                p->fillLinkContextMenu(menu, FilePath::fromString(repository), href);
         }
     }
     QAction *openAction = nullptr;
@@ -229,7 +229,7 @@ void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
     if (outputFormatter()->handleFileLink(href))
         return;
     if (VcsOutputLineParser * const p = parser())
-        p->handleVcsLink(repository, href);
+        p->handleVcsLink(FilePath::fromString(repository), href);
 }
 
 void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &repository)

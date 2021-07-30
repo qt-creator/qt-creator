@@ -309,7 +309,8 @@ bool DocumentManager::createFile(const QString &filePath, const QString &content
 
 void DocumentManager::addFileToVersionControl(const QString &directoryPath, const QString &newFilePath)
 {
-    Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(directoryPath);
+    Core::IVersionControl *versionControl =
+        Core::VcsManager::findVersionControlForDirectory(FilePath::fromString(directoryPath));
     if (versionControl && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
         const QMessageBox::StandardButton button
             = QMessageBox::question(Core::ICore::dialogParent(),

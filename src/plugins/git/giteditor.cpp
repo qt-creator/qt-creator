@@ -54,6 +54,7 @@
 
 #define CHANGE_PATTERN "[a-f0-9]{7,40}"
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace Git {
@@ -235,7 +236,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     if (!patchFile.open())
         return;
 
-    const QString baseDir = workingDirectory();
+    const FilePath baseDir = workingDirectory();
     patchFile.write(chunk.header);
     patchFile.write(chunk.chunk);
     patchFile.close();
@@ -290,8 +291,8 @@ void GitEditorWidget::aboutToOpen(const Utils::FilePath &filePath,
     Utils::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
-        const QString gitPath = filePath.absolutePath().toString();
-        setSource(gitPath);
+        const FilePath gitPath = filePath.absolutePath();
+        setSource(gitPath.toString());
         textDocument()->setCodec(
                     GitClient::instance()->encoding(gitPath, "i18n.commitEncoding"));
     }
@@ -361,7 +362,7 @@ QString GitEditorWidget::fileNameForLine(int line) const
     return source();
 }
 
-QString GitEditorWidget::sourceWorkingDirectory() const
+FilePath GitEditorWidget::sourceWorkingDirectory() const
 {
     return GitClient::fileWorkingDirectory(source());
 }

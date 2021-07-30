@@ -31,6 +31,7 @@
 
 #include <texteditor/syntaxhighlighter.h>
 #include <vcsbase/submiteditorwidget.h>
+#include <utils/filepath.h>
 
 #include <QSyntaxHighlighter>
 
@@ -64,11 +65,11 @@ public:
     QString amendSHA1() const;
     void setHasUnmerged(bool e);
     void initialize(CommitType commitType,
-                    const QString &repository,
+                    const Utils::FilePath &repository,
                     const GitSubmitEditorPanelData &data,
                     const GitSubmitEditorPanelInfo &info,
                     bool enablePush);
-    void refreshLog(const QString &repository);
+    void refreshLog(const Utils::FilePath &repository);
 
 protected:
     bool canSubmit(QString *whyNot) const override;

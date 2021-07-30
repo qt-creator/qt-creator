@@ -37,11 +37,11 @@ using namespace Utils;
 
 namespace VcsBase {
 
-VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &environment) :
-    Core::ShellCommand(workingDirectory, environment),
+VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
+    Core::ShellCommand(workingDirectory.toString(), environment),
     m_preventRepositoryChanged(false)
 {
-    VcsOutputWindow::setRepository(workingDirectory);
+    VcsOutputWindow::setRepository(workingDirectory.toString());
     setDisableUnixTerminal();
     m_sshPrompt = VcsBase::sshPrompt();
 

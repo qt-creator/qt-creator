@@ -36,8 +36,8 @@ class VcsOutputLineParser : public Utils::OutputLineParser
     Q_OBJECT
 public:
     VcsOutputLineParser();
-    void fillLinkContextMenu(QMenu *menu, const QString &workingDirectory, const QString &href);
-    bool handleVcsLink(const QString &workingDirectory, const QString &href);
+    void fillLinkContextMenu(QMenu *menu, const Utils::FilePath &workingDirectory, const QString &href);
+    bool handleVcsLink(const Utils::FilePath &workingDirectory, const QString &href);
 
 private:
     Result handleLine(const QString &text, Utils::OutputFormat format) override;

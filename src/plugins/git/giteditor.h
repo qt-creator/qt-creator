@@ -29,7 +29,10 @@
 
 #include <QRegularExpression>
 
-namespace Utils { class FancyLineEdit; }
+namespace Utils {
+class FancyLineEdit;
+class FilePath;
+} // Utils
 
 namespace Git {
 namespace Internal {
@@ -69,7 +72,7 @@ private:
     QString revisionSubject(const QTextBlock &inBlock) const override;
     bool supportChangeLinks() const override;
     QString fileNameForLine(int line) const override;
-    QString sourceWorkingDirectory() const;
+    Utils::FilePath sourceWorkingDirectory() const;
 
     const QRegularExpression m_changeNumberPattern;
     GitLogFilterWidget *m_logFilterWidget = nullptr;

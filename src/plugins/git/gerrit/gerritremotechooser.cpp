@@ -28,11 +28,14 @@
 #include "gerritserver.h"
 #include "../gitclient.h"
 
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QFileInfo>
 #include <QHBoxLayout>
+
+using namespace Utils;
 
 namespace Gerrit {
 namespace Internal {
@@ -64,7 +67,7 @@ GerritRemoteChooser::GerritRemoteChooser(QWidget *parent) :
             this, [this] { updateRemotes(true); });
 }
 
-void GerritRemoteChooser::setRepository(const QString &repository)
+void GerritRemoteChooser::setRepository(const FilePath &repository)
 {
     m_repository = repository;
 }

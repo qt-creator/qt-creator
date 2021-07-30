@@ -216,7 +216,8 @@ public:
         currentFile->appendIndentRange(Range(start, end + 1));
         currentFile->apply();
 
-        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(path);
+        Core::IVersionControl *versionControl =
+            Core::VcsManager::findVersionControlForDirectory(FilePath::fromString(path));
         if (versionControl
                 && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
             const QMessageBox::StandardButton button = QMessageBox::question(

@@ -27,6 +27,8 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <utils/filepath.h>
+
 #include <QPointer>
 #include <QWidget>
 
@@ -55,8 +57,8 @@ class BranchView : public QWidget
 public:
     explicit BranchView();
 
-    void refreshIfSame(const QString &repository);
-    void refresh(const QString &repository, bool force);
+    void refreshIfSame(const Utils::FilePath &repository);
+    void refresh(const Utils::FilePath &repository, bool force);
     void refreshCurrentBranch();
 
     QList<QToolButton *> createToolButtons();
@@ -94,7 +96,7 @@ private:
     Utils::NavigationTreeView *m_branchView = nullptr;
     BranchModel *m_model = nullptr;
     BranchFilterModel *m_filterModel = nullptr;
-    QString m_repository;
+    Utils::FilePath m_repository;
 };
 
 class BranchViewFactory : public Core::INavigationWidgetFactory

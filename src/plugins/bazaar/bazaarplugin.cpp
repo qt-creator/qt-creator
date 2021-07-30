@@ -147,13 +147,13 @@ public:
     QString displayName() const final;
     Utils::Id id() const final;
 
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const final;
 
     bool managesDirectory(const Utils::FilePath &filePath, Utils::FilePath *topLevel) const final;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const final;
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const Utils::FilePath &fileName) final;
+    bool vcsOpen(const Utils::FilePath &filePath) final;
     bool vcsAdd(const Utils::FilePath &filePath) final;
     bool vcsDelete(const Utils::FilePath &filePath) final;
     bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) final;
@@ -228,7 +228,7 @@ public:
 
     QAction *m_menuAction = nullptr;
 
-    QString m_submitRepository;
+    FilePath m_submitRepository;
     bool m_submitActionTriggered = false;
 
     VcsEditorFactory logEditorFactory {
@@ -672,12 +672,11 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
             this, &BazaarPluginPrivate::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 
-    const QString msg = tr("Commit changes for \"%1\".").
-            arg(QDir::toNativeSeparators(m_submitRepository));
+    const QString msg = tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
-    commitEditor->setFields(m_submitRepository, branch,
+    commitEditor->setFields(m_submitRepository.toString(), branch,
                             m_settings.userName.value(),
                             m_settings.userEmail.value(), status);
 }
@@ -860,7 +859,7 @@ bool BazaarPluginPrivate::managesDirectory(const FilePath &directory, FilePath *
 
 bool BazaarPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory.toString(), fileName);
+    return m_client.managesFile(workingDirectory, fileName);
 }
 
 bool BazaarPluginPrivate::isConfigured() const
@@ -899,23 +898,21 @@ bool BazaarPluginPrivate::vcsOpen(const FilePath &filePath)
 
 bool BazaarPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return m_client.synchronousAdd(fi.absolutePath(), fi.fileName());
+    return m_client.synchronousAdd(filePath.parentDir(), filePath.fileName());
 }
 
 bool BazaarPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return m_client.synchronousRemove(fi.absolutePath(), fi.fileName());
+    return m_client.synchronousRemove(filePath.parentDir(), filePath.fileName());
 }
 
 bool BazaarPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(fromInfo.absolutePath(),
-                                           fromInfo.absoluteFilePath(),
-                                           toInfo.absoluteFilePath());
+    return m_client.synchronousMove(from.parentDir().absoluteFilePath(),
+                                    fromInfo.absoluteFilePath(),
+                                    toInfo.absoluteFilePath());
 }
 
 bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
@@ -925,14 +922,14 @@ bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
 {
-    const QFileInfo fi = file.toFileInfo();
-    m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    m_client.annotate(file.parentDir(), file.fileName(), QString(), line);
 }
 
-Core::ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                const Utils::FilePath &baseDirectory,
-                                                                const QString &localName,
-                                                                const QStringList &extraArgs)
+Core::ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(
+        const QString &url,
+        const FilePath &baseDirectory,
+        const QString &localName,
+        const QStringList &extraArgs)
 {
     QStringList args;
     args << m_client.vcsCommandString(BazaarClient::CloneCommand)
@@ -940,7 +937,7 @@ Core::ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QStr
 
     Environment env = m_client.processEnvironment();
     env.set("BZR_PROGRESS_BAR", "text");
-    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), env);
+    auto command = new VcsBase::VcsCommand(baseDirectory, env);
     command->addJob({m_client.vcsBinary(), args}, -1);
     return command;
 }
@@ -949,7 +946,7 @@ void BazaarPluginPrivate::changed(const QVariant &v)
 {
     switch (v.type()) {
     case QVariant::String:
-        emit repositoryChanged(v.toString());
+        emit repositoryChanged(FilePath::fromVariant(v));
         break;
     case QVariant::StringList:
         emit filesChanged(v.toStringList());

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 #include <QMultiMap>
 #include <QDate>
@@ -46,7 +48,7 @@ class GerritPushDialog : public QDialog
     Q_OBJECT
 
 public:
-    GerritPushDialog(const QString &workingDir, const QString &reviewerList,
+    GerritPushDialog(const Utils::FilePath &workingDir, const QString &reviewerList,
                      QSharedPointer<GerritParameters> parameters, QWidget *parent);
     ~GerritPushDialog() override;
 
@@ -72,7 +74,7 @@ private:
     QString determineRemoteBranch(const QString &localBranch);
     void initRemoteBranches();
     QString calculateChangeRange(const QString &branch);
-    QString m_workingDir;
+    Utils::FilePath m_workingDir;
     QString m_suggestedRemoteBranch;
     QString m_initErrorMessage;
     Ui::GerritPushDialog *m_ui;

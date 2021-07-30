@@ -144,14 +144,14 @@ bool PerforceSettings::defaultEnv() const
     return !customEnv.value(); // Note: negated
 }
 
-QString PerforceSettings::topLevel() const
+FilePath PerforceSettings::topLevel() const
 {
-    return m_topLevel;
+    return FilePath::fromString(m_topLevel);
 }
 
-QString PerforceSettings::topLevelSymLinkTarget() const
+FilePath PerforceSettings::topLevelSymLinkTarget() const
 {
-    return m_topLevelSymLinkTarget;
+    return FilePath::fromString(m_topLevelSymLinkTarget);
 }
 
 void PerforceSettings::setTopLevel(const QString &t)
@@ -252,10 +252,10 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
                 checker->deleteLater();
             });
             connect(checker, &PerforceChecker::succeeded, errorLabel,
-                    [errorLabel, testButton, checker](const QString &repo) {
+                    [errorLabel, testButton, checker](const FilePath &repo) {
                 errorLabel->setStyleSheet({});
                 errorLabel->setText(PerforceSettings::tr("Test succeeded (%1).")
-                                        .arg(QDir::toNativeSeparators(repo)));
+                                        .arg(repo.toUserOutput()));
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });

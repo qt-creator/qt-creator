@@ -120,7 +120,7 @@ public:
         enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                            Stashed, NotStashed /* User did not want it */ };
 
-        bool init(const QString &workingDirectory, const QString &command,
+        bool init(const Utils::FilePath &workingDirectory, const QString &command,
                   StashFlag flag = Default, PushAction pushAction = NoPush);
         bool stashingFailed() const;
         void end();
@@ -133,7 +133,7 @@ public:
 
         StashResult m_stashResult = NotStashed;
         QString m_message;
-        QString m_workingDir;
+        Utils::FilePath m_workingDir;
         StashFlag m_flags = Default;
         PushAction m_pushAction = NoPush;
     };
@@ -145,178 +145,178 @@ public:
     Utils::FilePath vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = nullptr) const;
 
-    VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory,
+    VcsBase::VcsCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
                                           const QStringList &arguments,
                                           bool isRebase = false,
-                                          QString abortCommand = QString());
+                                          QString abortCommand = {});
 
     QString findRepositoryForDirectory(const QString &directory) const;
-    QString findGitDirForRepository(const QString &repositoryDir) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    QString findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
 
-    void diffFile(const QString &workingDirectory, const QString &fileName) const;
-    void diffFiles(const QString &workingDirectory,
+    void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
+    void diffFiles(const Utils::FilePath &workingDirectory,
                    const QStringList &unstagedFileNames,
                    const QStringList &stagedFileNames) const;
-    void diffProject(const QString &workingDirectory,
+    void diffProject(const Utils::FilePath &workingDirectory,
                      const QString &projectDirectory) const;
-    void diffRepository(const QString &workingDirectory) const
+    void diffRepository(const Utils::FilePath &workingDirectory) const
     {
         return diffRepository(workingDirectory, {}, {});
     }
-    void diffRepository(const QString &workingDirectory,
+    void diffRepository(const Utils::FilePath &workingDirectory,
                         const QString &leftCommit,
                         const QString &rightCommit) const;
-    void diffBranch(const QString &workingDirectory,
+    void diffBranch(const Utils::FilePath &workingDirectory,
                     const QString &branchName) const;
-    void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
+    void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});
 
-    void status(const QString &workingDirectory) const;
-    void log(const QString &workingDirectory, const QString &fileName = QString(),
-             bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
-    void reflog(const QString &workingDirectory, const QString &branch = {});
-    VcsBase::VcsBaseEditorWidget *annotate(
-            const QString &workingDir, const QString &file, const QString &revision = QString(),
-            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
-    void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
-    void removeStaleRemoteBranches(const QString &workingDirectory, const QString &remote);
-    void recoverDeletedFiles(const QString &workingDirectory);
-    void addFile(const QString &workingDirectory, const QString &fileName);
-    bool synchronousLog(const QString &workingDirectory, const QStringList &arguments,
+    void status(const Utils::FilePath &workingDirectory) const;
+    void log(const Utils::FilePath &workingDirectory, const QString &fileName = {},
+             bool enableAnnotationContextMenu = false, const QStringList &args = {});
+    void reflog(const Utils::FilePath &workingDirectory, const QString &branch = {});
+    VcsBase::VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir, const QString &file,
+                                           const QString &revision = {}, int lineNumber = -1,
+                                           const QStringList &extraOptions = {}) override;
+    void reset(const Utils::FilePath &workingDirectory, const QString &argument, const QString &commit = {});
+    void removeStaleRemoteBranches(const Utils::FilePath &workingDirectory, const QString &remote);
+    void recoverDeletedFiles(const Utils::FilePath &workingDirectory);
+    void addFile(const Utils::FilePath &workingDirectory, const QString &fileName);
+    bool synchronousLog(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                         QString *output, QString *errorMessage = nullptr,
                         unsigned flags = 0);
-    bool synchronousAdd(const QString &workingDirectory, const QStringList &files,
+    bool synchronousAdd(const Utils::FilePath &workingDirectory, const QStringList &files,
                         const QStringList &extraOptions = {});
-    bool synchronousDelete(const QString &workingDirectory,
+    bool synchronousDelete(const Utils::FilePath &workingDirectory,
                            bool force,
                            const QStringList &files);
-    bool synchronousMove(const QString &workingDirectory,
+    bool synchronousMove(const Utils::FilePath &workingDirectory,
                          const QString &from,
                          const QString &to);
-    bool synchronousReset(const QString &workingDirectory, const QStringList &files = QStringList(),
+    bool synchronousReset(const Utils::FilePath &workingDirectory, const QStringList &files = {},
                           QString *errorMessage = nullptr);
-    bool synchronousCleanList(const QString &workingDirectory, const QString &modulePath,
+    bool synchronousCleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                               QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
-    bool synchronousApplyPatch(const QString &workingDirectory, const QString &file,
-                               QString *errorMessage, const QStringList &extraArguments = QStringList());
+    bool synchronousApplyPatch(const Utils::FilePath &workingDirectory, const QString &file,
+                               QString *errorMessage, const QStringList &extraArguments = {});
     bool synchronousInit(const Utils::FilePath &workingDirectory);
-    bool synchronousCheckoutFiles(const QString &workingDirectory, QStringList files = QStringList(),
-                                  QString revision = QString(), QString *errorMessage = nullptr,
+    bool synchronousCheckoutFiles(const Utils::FilePath &workingDirectory, QStringList files = {},
+                                  QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);
     enum class StashMode { NoStash, TryStash };
-    VcsBase::VcsCommand *checkout(const QString &workingDirectory, const QString &ref,
+    VcsBase::VcsCommand *checkout(const Utils::FilePath &workingDirectory, const QString &ref,
                                   StashMode stashMode = StashMode::TryStash);
 
-    QStringList setupCheckoutArguments(const QString &workingDirectory, const QString &ref);
-    void updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt);
+    QStringList setupCheckoutArguments(const Utils::FilePath &workingDirectory, const QString &ref);
+    void updateSubmodulesIfNeeded(const Utils::FilePath &workingDirectory, bool prompt);
 
     // Do a stash and return identier.
     enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };
-    QString synchronousStash(const QString &workingDirectory,
-                             const QString &messageKeyword = QString(),
+    QString synchronousStash(const Utils::FilePath &workingDirectory,
+                             const QString &messageKeyword = {},
                              unsigned flags = 0, bool *unchanged = nullptr) const;
 
-    bool executeSynchronousStash(const QString &workingDirectory,
-                                 const QString &message = QString(),
+    bool executeSynchronousStash(const Utils::FilePath &workingDirectory,
+                                 const QString &message = {},
                                  bool unstagedOnly = false,
                                  QString *errorMessage = nullptr) const;
-    bool synchronousStashRestore(const QString &workingDirectory,
+    bool synchronousStashRestore(const Utils::FilePath &workingDirectory,
                                  const QString &stash,
                                  bool pop = false,
-                                 const QString &branch = QString()) const;
-    bool synchronousStashRemove(const QString &workingDirectory,
-                                const QString &stash = QString(),
+                                 const QString &branch = {}) const;
+    bool synchronousStashRemove(const Utils::FilePath &workingDirectory,
+                                const QString &stash = {},
                                 QString *errorMessage = nullptr) const;
-    bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
+    bool synchronousBranchCmd(const Utils::FilePath &workingDirectory, QStringList branchArgs,
                               QString *output, QString *errorMessage) const;
-    bool synchronousTagCmd(const QString &workingDirectory, QStringList tagArgs,
+    bool synchronousTagCmd(const Utils::FilePath &workingDirectory, QStringList tagArgs,
                            QString *output, QString *errorMessage) const;
-    bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
+    bool synchronousForEachRefCmd(const Utils::FilePath &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage = nullptr) const;
-    VcsBase::VcsCommand *asyncForEachRefCmd(const QString &workingDirectory, QStringList args) const;
-    bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
+    VcsBase::VcsCommand *asyncForEachRefCmd(const Utils::FilePath &workingDirectory, QStringList args) const;
+    bool synchronousRemoteCmd(const Utils::FilePath &workingDirectory, QStringList remoteArgs,
                               QString *output = nullptr, QString *errorMessage = nullptr,
                               bool silent = false) const;
 
-    QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
+    QMap<QString,QString> synchronousRemotesList(const Utils::FilePath &workingDirectory,
                                                  QString *errorMessage = nullptr) const;
-    QStringList synchronousSubmoduleStatus(const QString &workingDirectory,
+    QStringList synchronousSubmoduleStatus(const Utils::FilePath &workingDirectory,
                                            QString *errorMessage = nullptr) const;
-    SubmoduleDataMap submoduleList(const QString &workingDirectory) const;
-    QByteArray synchronousShow(const QString &workingDirectory, const QString &id,
+    SubmoduleDataMap submoduleList(const Utils::FilePath &workingDirectory) const;
+    QByteArray synchronousShow(const Utils::FilePath &workingDirectory, const QString &id,
                                unsigned flags = 0) const;
 
-    bool synchronousRevListCmd(const QString &workingDirectory, const QStringList &extraArguments,
+    bool synchronousRevListCmd(const Utils::FilePath &workingDirectory, const QStringList &extraArguments,
                                QString *output, QString *errorMessage = nullptr) const;
 
-    bool synchronousParentRevisions(const QString &workingDirectory,
+    bool synchronousParentRevisions(const Utils::FilePath &workingDirectory,
                                     const QString &revision,
                                     QStringList *parents,
                                     QString *errorMessage) const;
-    QString synchronousShortDescription(const QString &workingDirectory, const QString &revision) const;
-    QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+    QString synchronousShortDescription(const Utils::FilePath &workingDirectory, const QString &revision) const;
+    QString synchronousShortDescription(const Utils::FilePath &workingDirectory, const QString &revision,
                                      const QString &format) const;
 
-    QString synchronousCurrentLocalBranch(const QString &workingDirectory) const;
+    QString synchronousCurrentLocalBranch(const Utils::FilePath &workingDirectory) const;
 
-    bool synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
+    bool synchronousHeadRefs(const Utils::FilePath &workingDirectory, QStringList *output,
                              QString *errorMessage = nullptr) const;
-    QString synchronousTopic(const QString &workingDirectory) const;
-    bool synchronousRevParseCmd(const QString &workingDirectory, const QString &ref,
+    QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
+    bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    QString synchronousTopRevision(const QString &workingDirectory, QDateTime *dateTime = nullptr);
-    void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
+    QString synchronousTopRevision(const Utils::FilePath &workingDirectory, QDateTime *dateTime = nullptr);
+    void synchronousTagsForCommit(const Utils::FilePath &workingDirectory, const QString &revision,
                                   QString &precedes, QString &follows) const;
-    bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
-    bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
+    bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
+    bool isFastForwardMerge(const Utils::FilePath &workingDirectory, const QString &branch);
 
-    void fetch(const QString &workingDirectory, const QString &remote);
-    void pull(const QString &workingDirectory, bool rebase);
-    void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
-    bool synchronousMerge(const QString &workingDirectory, const QString &branch,
+    void fetch(const Utils::FilePath &workingDirectory, const QString &remote);
+    void pull(const Utils::FilePath &workingDirectory, bool rebase);
+    void push(const Utils::FilePath &workingDirectory, const QStringList &pushArgs = {});
+    bool synchronousMerge(const Utils::FilePath &workingDirectory, const QString &branch,
                           bool allowFastForward = true);
-    bool canRebase(const QString &workingDirectory) const;
-    void rebase(const QString &workingDirectory, const QString &argument);
-    void cherryPick(const QString &workingDirectory, const QString &argument);
-    void revert(const QString &workingDirectory, const QString &argument);
+    bool canRebase(const Utils::FilePath &workingDirectory) const;
+    void rebase(const Utils::FilePath &workingDirectory, const QString &argument);
+    void cherryPick(const Utils::FilePath &workingDirectory, const QString &argument);
+    void revert(const Utils::FilePath &workingDirectory, const QString &argument);
 
-    bool synchronousRevert(const QString &workingDirectory, const QString &commit);
-    bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
-    void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);
-    void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
-    QString synchronousTrackingBranch(const QString &workingDirectory,
-                                      const QString &branch = QString());
-    bool synchronousSetTrackingBranch(const QString &workingDirectory,
+    bool synchronousRevert(const Utils::FilePath &workingDirectory, const QString &commit);
+    bool synchronousCherryPick(const Utils::FilePath &workingDirectory, const QString &commit);
+    void interactiveRebase(const Utils::FilePath &workingDirectory, const QString &commit, bool fixup);
+    void synchronousAbortCommand(const Utils::FilePath &workingDir, const QString &abortCommand);
+    QString synchronousTrackingBranch(const Utils::FilePath &workingDirectory,
+                                      const QString &branch = {});
+    bool synchronousSetTrackingBranch(const Utils::FilePath &workingDirectory,
                                       const QString &branch,
                                       const QString &tracking);
 
     // git svn support (asynchronous).
-    void synchronousSubversionFetch(const QString &workingDirectory) const;
-    void subversionLog(const QString &workingDirectory) const;
-    void subversionDeltaCommit(const QString &workingDirectory) const;
+    void synchronousSubversionFetch(const Utils::FilePath &workingDirectory) const;
+    void subversionLog(const Utils::FilePath &workingDirectory) const;
+    void subversionDeltaCommit(const Utils::FilePath &workingDirectory) const;
 
-    void stashPop(const QString &workingDirectory, const QString &stash = QString());
+    void stashPop(const Utils::FilePath &workingDirectory, const QString &stash = {});
     void revert(const QStringList &files, bool revertStaging);
-    bool synchronousStashList(const QString &workingDirectory, QList<Stash> *stashes,
+    bool synchronousStashList(const Utils::FilePath &workingDirectory, QList<Stash> *stashes,
                               QString *errorMessage = nullptr) const;
     // Resolve a stash name from message (for IVersionControl's names).
-    bool stashNameFromMessage(const QString &workingDirectory, const QString &messge, QString *name,
+    bool stashNameFromMessage(const Utils::FilePath &workingDirectory, const QString &messge, QString *name,
                               QString *errorMessage = nullptr) const;
 
-    QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
-    QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
-    void setConfigValue(const QString &workingDirectory, const QString &configVar,
+    QString readGitVar(const Utils::FilePath &workingDirectory, const QString &configVar) const;
+    QString readConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar) const;
+    void setConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar,
                         const QString &value) const;
 
-    QTextCodec *encoding(const QString &workingDirectory, const QString &configVar) const;
-    bool readDataFromCommit(const QString &repoDirectory, const QString &commit,
+    QTextCodec *encoding(const Utils::FilePath &workingDirectory, const QString &configVar) const;
+    bool readDataFromCommit(const Utils::FilePath &repoDirectory, const QString &commit,
                             CommitData &commitData, QString *errorMessage = nullptr,
                             QString *commitTemplate = nullptr);
-    bool getCommitData(const QString &workingDirectory, QString *commitTemplate,
+    bool getCommitData(const Utils::FilePath &workingDirectory, QString *commitTemplate,
                        CommitData &commitData, QString *errorMessage);
 
-    bool addAndCommit(const QString &workingDirectory,
+    bool addAndCommit(const Utils::FilePath &workingDirectory,
                       const GitSubmitEditorPanelData &data,
                       CommitType commitType,
                       const QString &amendSHA1,
@@ -324,53 +324,54 @@ public:
                       VcsBase::SubmitFileModel *model);
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
-    StatusResult gitStatus(const QString &workingDirectory, StatusMode mode,
+    StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusMode mode,
                            QString *output = nullptr, QString *errorMessage = nullptr) const;
 
-    CommandInProgress checkCommandInProgress(const QString &workingDirectory) const;
-    QString commandInProgressDescription(const QString &workingDirectory) const;
+    CommandInProgress checkCommandInProgress(const Utils::FilePath &workingDirectory) const;
+    QString commandInProgressDescription(const Utils::FilePath &workingDirectory) const;
 
-    void continueCommandIfNeeded(const QString &workingDirectory, bool allowContinue = true);
+    void continueCommandIfNeeded(const Utils::FilePath &workingDirectory, bool allowContinue = true);
 
-    QString extendedShowDescription(const QString &workingDirectory, const QString &text) const;
+    QString extendedShowDescription(const Utils::FilePath &workingDirectory, const QString &text) const;
 
-    void launchGitK(const QString &workingDirectory, const QString &fileName) const;
-    void launchGitK(const QString &workingDirectory) const { launchGitK(workingDirectory, QString()); }
-    bool launchGitGui(const QString &workingDirectory);
+    void launchGitK(const Utils::FilePath &workingDirectory, const QString &fileName) const;
+    void launchGitK(const Utils::FilePath &workingDirectory) const { launchGitK(workingDirectory, QString()); }
+    bool launchGitGui(const Utils::FilePath &workingDirectory);
     Utils::FilePath gitBinDirectory() const;
-    bool launchGitBash(const QString &workingDirectory);
+    bool launchGitBash(const Utils::FilePath &workingDirectory);
 
-    void launchRepositoryBrowser(const QString &workingDirectory) const;
+    void launchRepositoryBrowser(const Utils::FilePath &workingDirectory) const;
 
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
-                                              const QString &workingDirectory = QString()) const;
+                                              const Utils::FilePath &workingDirectory = {}) const;
 
     Utils::Environment processEnvironment() const override;
 
-    bool beginStashScope(const QString &workingDirectory, const QString &command,
+    bool beginStashScope(const Utils::FilePath &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
-    StashInfo &stashInfo(const QString &workingDirectory);
-    void endStashScope(const QString &workingDirectory);
+    StashInfo &stashInfo(const Utils::FilePath &workingDirectory);
+    void endStashScope(const Utils::FilePath &workingDirectory);
     bool isValidRevision(const QString &revision) const;
-    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QStringList &files, const QString &abortCommand);
+    void handleMergeConflicts(const Utils::FilePath &workingDir, const QString &commit,
+                              const QStringList &files, const QString &abortCommand);
     void addFuture(const QFuture<void> &future);
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
-    void show(const QString &source, const QString &id, const QString &name = QString());
-    void archive(const QString &workingDirectory, QString commit);
+    void show(const QString &source, const QString &id, const QString &name = {});
+    void archive(const Utils::FilePath &workingDirectory, QString commit);
 
-    VcsBase::VcsCommand *asyncUpstreamStatus(const QString &workingDirectory,
+    VcsBase::VcsCommand *asyncUpstreamStatus(const Utils::FilePath &workingDirectory,
                                              const QString &branch, const QString &upstream);
 
     enum class BranchTargetType { Remote, Commit };
     static QString suggestedLocalBranchName(
-            const QString &workingDirectory, const QStringList &existingLocalNames,
+            const Utils::FilePath &workingDirectory, const QStringList &existingLocalNames,
             const QString &target, BranchTargetType targetType);
     static void addChangeActions(QMenu *menu, const QString &source, const QString &change);
-    static QString fileWorkingDirectory(const QString &file);
+    static Utils::FilePath fileWorkingDirectory(const QString &file);
     enum class ShowEditor { OnlyIfDifferent, Always };
-    Core::IEditor *openShowEditor(const QString &workingDirectory, const QString &ref,
+    Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
                                   const QString &path, ShowEditor showSetting = ShowEditor::Always);
 
 private:
@@ -382,15 +383,16 @@ private:
                const QString &patch, bool revert);
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-    QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
+    QTextCodec *codecFor(CodecType codecType, const Utils::FilePath &source = {}) const;
 
-    void requestReload(const QString &documentId, const QString &source, const QString &title, const QString &workingDirectory,
-           std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
+    void requestReload(const QString &documentId, const QString &source, const QString &title,
+                       const Utils::FilePath &workingDirectory,
+                       std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
 
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = nullptr) const;
 
-    QString readOneLine(const QString &workingDirectory, const QStringList &arguments) const;
+    QString readOneLine(const Utils::FilePath &workingDirectory, const QStringList &arguments) const;
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files,
@@ -398,13 +400,14 @@ private:
                          QString *errorMessage,
                          bool revertStaging);
     void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
-    bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
-                                   const QString &abortCommand = QString()) const;
+    bool executeAndHandleConflicts(const Utils::FilePath &workingDirectory, const QStringList &arguments,
+                                   const QString &abortCommand = {}) const;
     bool tryLauchingGitK(const Utils::Environment &env,
-                         const QString &workingDirectory,
+                         const Utils::FilePath &workingDirectory,
                          const QString &fileName,
                          const QString &gitBinDirectory) const;
-    bool cleanList(const QString &workingDirectory, const QString &modulePath, const QString &flag, QStringList *files, QString *errorMessage);
+    bool cleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
+                   const QString &flag, QStringList *files, QString *errorMessage);
 
     enum ContinueCommandMode {
         ContinueOnly,
@@ -412,7 +415,7 @@ private:
         SkipIfNoChanges
     };
 
-    void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle,
+    void continuePreviousGitCommand(const Utils::FilePath &workingDirectory, const QString &msgBoxTitle,
                                     QString msgBoxText, const QString &buttonName,
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
@@ -420,10 +423,10 @@ private:
     mutable unsigned m_cachedGitVersion = 0;
 
     QString m_gitQtcEditor;
-    QMap<QString, StashInfo> m_stashInfo;
+    QMap<Utils::FilePath, StashInfo> m_stashInfo;
     QString m_pushFallbackCommand;
     QString m_diffCommit;
-    QStringList m_updatedSubmodules;
+    Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;
     Utils::FutureSynchronizer m_synchronizer; // for commit updates
 };

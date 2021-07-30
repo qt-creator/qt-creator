@@ -234,7 +234,7 @@ public:
     QString displayName() const final { return QLatin1String("cvs"); }
     Utils::Id id() const final;
 
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const final;
 
     bool managesDirectory(const Utils::FilePath &directory, Utils::FilePath *topLevel) const final;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const final;
@@ -261,12 +261,12 @@ public:
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
     // IVersionControl
-    bool vcsAdd(const QString &workingDir, const QString &fileName);
-    bool vcsDelete(const QString &workingDir, const QString &fileName);
+    bool vcsAdd(const FilePath &workingDir, const QString &fileName);
+    bool vcsDelete(const FilePath &workingDir, const QString &fileName);
     // cvs 'edit' is used to implement 'open' (cvsnt).
-    bool edit(const QString &topLevel, const QStringList &files);
+    bool edit(const FilePath &topLevel, const QStringList &files);
 
-    void vcsAnnotate(const QString &workingDirectory, const QString &file,
+    void vcsAnnotate(const FilePath &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
     void vcsDescribe(const Utils::FilePath &source, const QString &changeNr) final;
 
@@ -305,28 +305,28 @@ private:
                                       Utils::Id id, const QString &source,
                                       QTextCodec *codec);
 
-    CvsResponse runCvs(const QString &workingDirectory,
+    CvsResponse runCvs(const FilePath &workingDirectory,
                        const QStringList &arguments,
                        int timeOutS,
                        unsigned flags,
                        QTextCodec *outputCodec = nullptr) const;
 
-    void annotate(const QString &workingDir, const QString &file,
+    void annotate(const FilePath &workingDir, const QString &file,
                   const QString &revision = QString(), int lineNumber= -1);
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
-    bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
-    bool describe(const QString &repository, QList<CvsLogEntry> entries, QString *errorMessage);
-    void filelog(const QString &workingDir,
-                 const QString &file = QString(),
+    bool describe(const Utils::FilePath &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
+    bool describe(const Utils::FilePath &repository, QList<CvsLogEntry> entries, QString *errorMessage);
+    void filelog(const Utils::FilePath &workingDir,
+                 const QString &file = {},
                  bool enableAnnotationContextMenu = false);
-    bool unedit(const QString &topLevel, const QStringList &files);
-    bool status(const QString &topLevel, const QString &file, const QString &title);
-    bool update(const QString &topLevel, const QString &file);
+    bool unedit(const Utils::FilePath &topLevel, const QStringList &files);
+    bool status(const Utils::FilePath &topLevel, const QString &file, const QString &title);
+    bool update(const Utils::FilePath &topLevel, const QString &file);
     bool checkCVSDirectory(const QDir &directory) const;
     // Quick check if files are modified
-    bool diffCheckModified(const QString &topLevel, const QStringList &files, bool *modified);
+    bool diffCheckModified(const Utils::FilePath &topLevel, const QStringList &files, bool *modified);
     QString findTopLevelForDirectoryI(const QString &directory) const;
-    void startCommit(const QString &workingDir, const QString &file = QString());
+    void startCommit(const Utils::FilePath &workingDir, const QString &file = {});
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
 
@@ -334,7 +334,7 @@ private:
     CvsClient *m_client = nullptr;
 
     QString m_commitMessageFileName;
-    QString m_commitRepository;
+    FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
     Utils::ParameterAction *m_addAction = nullptr;
@@ -403,10 +403,10 @@ Utils::Id CvsPluginPrivate::id() const
     return Utils::Id(VcsBase::Constants::VCS_ID_CVS);
 }
 
-bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) const
 {
-    return fileName.isDir()
-            && !fileName.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
+    return filePath.isDir()
+            && !filePath.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 bool CvsPluginPrivate::isConfigured() const
@@ -444,20 +444,17 @@ Core::IVersionControl::OpenSupportMode CvsPluginPrivate::openSupportMode(const F
 
 bool CvsPluginPrivate::vcsOpen(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return edit(fi.absolutePath(), QStringList(fi.fileName()));
+    return edit(filePath.parentDir(), QStringList(filePath.fileName()));
 }
 
 bool CvsPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return vcsAdd(fi.absolutePath(), fi.fileName());
+    return vcsAdd(filePath.parentDir(), filePath.fileName());
 }
 
 bool CvsPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return vcsDelete(fi.absolutePath(), fi.fileName());
+    return vcsDelete(filePath.parentDir(), filePath.fileName());
 }
 
 bool CvsPluginPrivate::vcsCreateRepository(const FilePath &)
@@ -467,8 +464,7 @@ bool CvsPluginPrivate::vcsCreateRepository(const FilePath &)
 
 void CvsPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    vcsAnnotate(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
 QString CvsPluginPrivate::vcsOpenText() const
@@ -486,8 +482,7 @@ Core::ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString
     QStringList args;
     args << QLatin1String("checkout") << url << extraArgs;
 
-    auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
-                                           Environment::systemEnvironment());
+    auto command = new VcsBase::VcsCommand(baseDirectory, Environment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
     command->addJob({m_settings.binaryPath.filePath(), m_settings.addOptions(args)}, -1);
     return command;
@@ -799,7 +794,7 @@ void CvsPluginPrivate::diffCommitFiles(const QStringList &files)
     m_client->diff(m_commitRepository, files);
 }
 
-static void setDiffBaseDirectory(IEditor *editor, const QString &db)
+static void setDiffBaseDirectory(IEditor *editor, const FilePath &db)
 {
     if (auto ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
         ve->setWorkingDirectory(db);
@@ -845,7 +840,7 @@ void CvsPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     m_commitProjectAction->setParameter(currentProjectName);
 
     // TODO: Find a more elegant way to shorten the path
-    QString currentDirectoryName = QDir::toNativeSeparators(currentState().currentFileDirectory());
+    QString currentDirectoryName = currentState().currentFileDirectory().toUserOutput();
     if (currentDirectoryName.size() > 15)
         currentDirectoryName.replace(0, currentDirectoryName.size() - 15, QLatin1String("..."));
     m_updateDirectoryAction->setParameter(currentDirectoryName);
@@ -874,7 +869,7 @@ void CvsPluginPrivate::revertAll()
     if (!messageBoxQuestion(title, tr("Revert all pending changes to the repository?")))
         return;
     QStringList args;
-    args << QLatin1String("update") << QLatin1String("-C") << state.topLevel();
+    args << QLatin1String("update") << QLatin1String("-C") << state.topLevel().toString();
     const CvsResponse revertResponse =
             runCvs(state.topLevel(), args, m_settings.timeout.value(),
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
@@ -963,7 +958,7 @@ void CvsPluginPrivate::startCommitAll()
 /* Start commit of files of a single repository by displaying
  * template and files in a submit editor. On closing, the real
  * commit will start. */
-void CvsPluginPrivate::startCommit(const QString &workingDir, const QString &file)
+void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &file)
 {
     if (!promptBeforeCommit())
         return;
@@ -1051,9 +1046,9 @@ void CvsPluginPrivate::logRepository()
     filelog(state.topLevel());
 }
 
-void CvsPluginPrivate::filelog(const QString &workingDir,
-                        const QString &file,
-                        bool enableAnnotationContextMenu)
+void CvsPluginPrivate::filelog(const FilePath &workingDir,
+                               const QString &file,
+                               bool enableAnnotationContextMenu)
 {
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
     // no need for temp file
@@ -1070,7 +1065,7 @@ void CvsPluginPrivate::filelog(const QString &workingDir,
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir, QStringList(file));
+    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir.toString(), QStringList(file));
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
         EditorManager::activateEditor(editor);
@@ -1097,7 +1092,7 @@ void CvsPluginPrivate::updateProject()
     update(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-bool CvsPluginPrivate::update(const QString &topLevel, const QString &file)
+bool CvsPluginPrivate::update(const FilePath &topLevel, const QString &file)
 {
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String("-dR"));
@@ -1140,13 +1135,13 @@ void CvsPluginPrivate::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void CvsPluginPrivate::vcsAnnotate(const QString &workingDirectory, const QString &file,
-                            const QString &revision, int lineNumber)
+void CvsPluginPrivate::vcsAnnotate(const FilePath &workingDirectory, const QString &file,
+                                   const QString &revision, int lineNumber)
 {
     annotate(workingDirectory, file, revision, lineNumber);
 }
 
-bool CvsPluginPrivate::edit(const QString &topLevel, const QStringList &files)
+bool CvsPluginPrivate::edit(const FilePath &topLevel, const QStringList &files)
 {
     QStringList args(QLatin1String("edit"));
     args.append(files);
@@ -1156,7 +1151,7 @@ bool CvsPluginPrivate::edit(const QString &topLevel, const QStringList &files)
     return response.result == CvsResponse::Ok;
 }
 
-bool CvsPluginPrivate::diffCheckModified(const QString &topLevel, const QStringList &files, bool *modified)
+bool CvsPluginPrivate::diffCheckModified(const FilePath &topLevel, const QStringList &files, bool *modified)
 {
     // Quick check for modified files using diff
     *modified = false;
@@ -1170,7 +1165,7 @@ bool CvsPluginPrivate::diffCheckModified(const QString &topLevel, const QStringL
     return true;
 }
 
-bool CvsPluginPrivate::unedit(const QString &topLevel, const QStringList &files)
+bool CvsPluginPrivate::unedit(const FilePath &topLevel, const QStringList &files)
 {
     bool modified;
     // Prompt and use force flag if modified
@@ -1178,8 +1173,8 @@ bool CvsPluginPrivate::unedit(const QString &topLevel, const QStringList &files)
         return false;
     if (modified) {
         const QString question = files.isEmpty() ?
-                      tr("Would you like to discard your changes to the repository \"%1\"?").arg(topLevel) :
-                      tr("Would you like to discard your changes to the file \"%1\"?").arg(files.front());
+                tr("Would you like to discard your changes to the repository \"%1\"?").arg(topLevel.toUserOutput()) :
+                tr("Would you like to discard your changes to the file \"%1\"?").arg(files.front());
         if (!messageBoxQuestion(tr("Unedit"), question))
             return false;
     }
@@ -1196,9 +1191,9 @@ bool CvsPluginPrivate::unedit(const QString &topLevel, const QStringList &files)
     return response.result == CvsResponse::Ok;
 }
 
-void CvsPluginPrivate::annotate(const QString &workingDir, const QString &file,
-                         const QString &revision /* = QString() */,
-                         int lineNumber /* = -1 */)
+void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
+                                const QString &revision /* = QString() */,
+                                int lineNumber /* = -1 */)
 {
     const QStringList files(file);
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, files);
@@ -1220,7 +1215,7 @@ void CvsPluginPrivate::annotate(const QString &workingDir, const QString &file,
     if (lineNumber < 1)
         lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(file);
 
-    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, QStringList(file), revision);
+    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir.toString(), QStringList(file), revision);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
         VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);
@@ -1233,7 +1228,7 @@ void CvsPluginPrivate::annotate(const QString &workingDir, const QString &file,
     }
 }
 
-bool CvsPluginPrivate::status(const QString &topLevel, const QString &file, const QString &title)
+bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, const QString &title)
 {
     QStringList args(QLatin1String("status"));
     if (!file.isEmpty())
@@ -1242,7 +1237,7 @@ bool CvsPluginPrivate::status(const QString &topLevel, const QString &file, cons
             runCvs(topLevel, args, m_settings.timeout.value(), 0);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        showOutputInEditor(title, response.stdOut, commandLogEditorParameters.id, topLevel, nullptr);
+        showOutputInEditor(title, response.stdOut, commandLogEditorParameters.id, topLevel.toString(), nullptr);
     return ok;
 }
 
@@ -1291,10 +1286,10 @@ bool CvsPluginPrivate::describe(const QString &file, const QString &changeNr, QS
                 .arg(QDir::toNativeSeparators(file));
         return false;
     }
-    return describe(toplevel.toString(), QDir(toplevel.toString()).relativeFilePath(file), changeNr, errorMessage);
+    return describe(toplevel, QDir(toplevel.toString()).relativeFilePath(file), changeNr, errorMessage);
 }
 
-bool CvsPluginPrivate::describe(const QString &toplevel, const QString &file, const
+bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file, const
                          QString &changeNr, QString *errorMessage)
 {
 
@@ -1356,9 +1351,9 @@ bool CvsPluginPrivate::describe(const QString &toplevel, const QString &file, co
 
 // Describe a set of files and revisions by
 // concatenating log and diffs to previous revisions
-bool CvsPluginPrivate::describe(const QString &repositoryPath,
-                         QList<CvsLogEntry> entries,
-                         QString *errorMessage)
+bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
+                                QList<CvsLogEntry> entries,
+                                QString *errorMessage)
 {
     // Collect logs
     QString output;
@@ -1431,11 +1426,11 @@ void CvsPluginPrivate::commitFromEditor()
 
 // Run CVS. At this point, file arguments must be relative to
 // the working directory (see above).
-CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
-                              const QStringList &arguments,
-                              int timeOutS,
-                              unsigned flags,
-                              QTextCodec *outputCodec) const
+CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
+                                     const QStringList &arguments,
+                                     int timeOutS,
+                                     unsigned flags,
+                                     QTextCodec *outputCodec) const
 {
     const FilePath executable = m_settings.binaryPath.filePath();
     CvsResponse response;
@@ -1495,7 +1490,7 @@ IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QStrin
     return editor;
 }
 
-bool CvsPluginPrivate::vcsAdd(const QString &workingDir, const QString &rawFileName)
+bool CvsPluginPrivate::vcsAdd(const FilePath &workingDir, const QString &rawFileName)
 {
     QStringList args;
     args << QLatin1String("add") << rawFileName;
@@ -1505,7 +1500,7 @@ bool CvsPluginPrivate::vcsAdd(const QString &workingDir, const QString &rawFileN
     return response.result == CvsResponse::Ok;
 }
 
-bool CvsPluginPrivate::vcsDelete(const QString &workingDir, const QString &rawFileName)
+bool CvsPluginPrivate::vcsDelete(const FilePath &workingDir, const QString &rawFileName)
 {
     QStringList args;
     args << QLatin1String("remove") << QLatin1String("-f") << rawFileName;
@@ -1551,7 +1546,7 @@ bool CvsPluginPrivate::managesFile(const FilePath &workingDirectory, const QStri
     QStringList args;
     args << QLatin1String("status") << fileName;
     const CvsResponse response =
-            runCvs(workingDirectory.toString(), args, m_settings.timeout.value(), VcsCommand::SshPasswordPrompt);
+            runCvs(workingDirectory, args, m_settings.timeout.value(), VcsCommand::SshPasswordPrompt);
     if (response.result != CvsResponse::Ok)
         return false;
     return !response.stdOut.contains(QLatin1String("Status: Unknown"));

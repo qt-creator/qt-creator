@@ -66,7 +66,6 @@ class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
-    Q_PROPERTY(QString checkScriptWorkingDirectory READ checkScriptWorkingDirectory WRITE setCheckScriptWorkingDirectory DESIGNABLE true)
     Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
 
 protected:
@@ -106,7 +105,7 @@ public:
     void setLineWrapWidth(int);
 
     QString checkScriptWorkingDirectory() const;
-    void setCheckScriptWorkingDirectory(const QString &);
+    void setCheckScriptWorkingDirectory(const Utils::FilePath &);
 
     Core::IDocument *document() const override;
 

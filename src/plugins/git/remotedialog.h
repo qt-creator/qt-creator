@@ -27,6 +27,8 @@
 
 #include <QDialog>
 
+namespace Utils { class FilePath; }
+
 namespace Git {
 namespace Internal {
 
@@ -42,7 +44,7 @@ public:
     explicit RemoteDialog(QWidget *parent = nullptr);
     ~RemoteDialog() override;
 
-    void refresh(const QString &repository, bool force);
+    void refresh(const Utils::FilePath &repository, bool force);
 
 private:
     void refreshRemotes();

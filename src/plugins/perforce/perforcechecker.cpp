@@ -222,7 +222,7 @@ void PerforceChecker::emitFailed(const QString &m)
 void PerforceChecker::emitSucceeded(const QString &m)
 {
     resetOverrideCursor();
-    emit succeeded(m);
+    emit succeeded(FilePath::fromString(m));
 }
 
 bool PerforceChecker::useOverideCursor() const

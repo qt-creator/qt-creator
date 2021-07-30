@@ -376,7 +376,8 @@ void ProjectWizardPage::initializeVersionControls()
 
     QStringList versionControlChoices = QStringList(tr("<None>"));
     if (!m_commonDirectory.isEmpty()) {
-        IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(m_commonDirectory);
+        IVersionControl *managingControl =
+                VcsManager::findVersionControlForDirectory(FilePath::fromString(m_commonDirectory));
         if (managingControl) {
             // Under VCS
             if (managingControl->supportsOperation(IVersionControl::AddOperation)) {

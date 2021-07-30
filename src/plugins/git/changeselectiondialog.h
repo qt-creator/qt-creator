@@ -54,12 +54,12 @@ class ChangeSelectionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    ChangeSelectionDialog(const QString &workingDirectory, Utils::Id id, QWidget *parent);
+    ChangeSelectionDialog(const Utils::FilePath &workingDirectory, Utils::Id id, QWidget *parent);
     ~ChangeSelectionDialog() override;
 
     QString change() const;
 
-    QString workingDirectory() const;
+    Utils::FilePath workingDirectory() const;
     ChangeCommand command() const;
 
 private:
@@ -80,7 +80,7 @@ private:
     Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;
     QStringListModel *m_changeModel = nullptr;
-    QString m_oldWorkingDir;
+    Utils::FilePath m_oldWorkingDir;
 };
 
 } // namespace Internal

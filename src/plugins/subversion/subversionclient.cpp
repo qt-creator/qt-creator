@@ -78,7 +78,7 @@ SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient
     });
 }
 
-bool SubversionClient::doCommit(const QString &repositoryRoot,
+bool SubversionClient::doCommit(const FilePath &repositoryRoot,
                                 const QStringList &files,
                                 const QString &commitMessageFile,
                                 const QStringList &extraOptions) const
@@ -97,7 +97,7 @@ bool SubversionClient::doCommit(const QString &repositoryRoot,
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
-void SubversionClient::commit(const QString &repositoryRoot,
+void SubversionClient::commit(const FilePath &repositoryRoot,
                               const QStringList &files,
                               const QString &commitMessageFile,
                               const QStringList &extraOptions)
@@ -140,7 +140,7 @@ QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings 
     return rc;
 }
 
-QString SubversionClient::synchronousTopic(const QString &repository) const
+QString SubversionClient::synchronousTopic(const FilePath &repository) const
 {
     QStringList args;
 
@@ -278,7 +278,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     return controller;
 }
 
-void SubversionClient::diff(const QString &workingDirectory, const QStringList &files, const QStringList &extraOptions)
+void SubversionClient::diff(const FilePath &workingDirectory, const QStringList &files, const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)
 
@@ -287,13 +287,13 @@ void SubversionClient::diff(const QString &workingDirectory, const QStringList &
             + QLatin1String(".Diff.") + VcsBaseEditor::getTitleId(workingDirectory, files);
     const QString title = vcsEditorTitle(vcsCmdString, documentId);
 
-    SubversionDiffEditorController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title,
-                                                        workingDirectory);
+    SubversionDiffEditorController *controller =
+            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory.toString());
     controller->setFilesList(files);
     controller->requestReload();
 }
 
-void SubversionClient::log(const QString &workingDir,
+void SubversionClient::log(const FilePath &workingDir,
                            const QStringList &files,
                            const QStringList &extraOptions,
                            bool enableAnnotationContextMenu)
@@ -310,15 +310,16 @@ void SubversionClient::log(const QString &workingDir,
     VcsBaseClient::log(workingDir, escapeFiles(files), svnExtraOptions, enableAnnotationContextMenu);
 }
 
-void SubversionClient::describe(const QString &workingDirectory, int changeNumber, const QString &title)
+void SubversionClient::describe(const FilePath &workingDirectory, int changeNumber, const QString &title)
 {
     const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
             + QLatin1String(".Describe.") + VcsBaseEditor::editorTag(DiffOutput,
-                                                        workingDirectory,
+                                                        workingDirectory.toString(),
                                                         QStringList(),
                                                         QString::number(changeNumber));
 
-    SubversionDiffEditorController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title, workingDirectory);
+    SubversionDiffEditorController *controller =
+            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory.toString());
     controller->setChangeNumber(changeNumber);
     controller->requestReload();
 }

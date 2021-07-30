@@ -210,10 +210,10 @@ void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 
     const QString directory = absoluteWithNoTrailingSlash(inputDirectory.toString());
     d->resetCache(directory);
-    emit m_instance->repositoryChanged(directory);
+    emit m_instance->repositoryChanged(FilePath::fromString(directory));
 }
 
-IVersionControl* VcsManager::findVersionControlForDirectory(const QString &inputDirectory,
+IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inputDirectory,
                                                             QString *topLevelDirectory)
 {
     using StringVersionControlPair = QPair<QString, IVersionControl *>;
@@ -225,7 +225,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     }
 
     // Make sure we an absolute path:
-    QString directory = absoluteWithNoTrailingSlash(inputDirectory);
+    QString directory = absoluteWithNoTrailingSlash(inputDirectory.toString());
 #ifdef WITH_TESTS
     if (directory[0].isLetter() && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1)
         directory = directory.mid(2);
@@ -321,11 +321,11 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     return versionControl;
 }
 
-QString VcsManager::findTopLevelForDirectory(const QString &directory)
+FilePath VcsManager::findTopLevelForDirectory(const FilePath &directory)
 {
     QString result;
     findVersionControlForDirectory(directory, &result);
-    return result;
+    return FilePath::fromString(result);
 }
 
 QStringList VcsManager::repositories(const IVersionControl *vc)
@@ -354,7 +354,7 @@ FilePaths VcsManager::promptToDelete(const FilePaths &filePaths)
     // Categorize by version control system.
     QHash<IVersionControl *, FilePaths> filesByVersionControl;
     for (auto it = filesByParentDir.cbegin(); it != filesByParentDir.cend(); ++it) {
-        IVersionControl * const vc = findVersionControlForDirectory(it.key().toString());
+        IVersionControl * const vc = findVersionControlForDirectory(it.key());
         if (vc)
             filesByVersionControl[vc] << it.value();
     }
@@ -433,7 +433,7 @@ QStringList VcsManager::additionalToolsPath()
 
 void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNames)
 {
-    IVersionControl *vc = findVersionControlForDirectory(directory);
+    IVersionControl *vc = findVersionControlForDirectory(FilePath::fromString(directory));
     if (!vc || !vc->supportsOperation(IVersionControl::AddOperation))
         return;
 
@@ -460,7 +460,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
 
 void VcsManager::emitRepositoryChanged(const QString &repository)
 {
-    emit m_instance->repositoryChanged(repository);
+    emit m_instance->repositoryChanged(FilePath::fromString(repository));
 }
 
 void VcsManager::clearVersionControlCache()
@@ -468,7 +468,7 @@ void VcsManager::clearVersionControlCache()
     QStringList repoList = d->m_cachedMatches.keys();
     d->clearCache();
     foreach (const QString &repo, repoList)
-        emit m_instance->repositoryChanged(repo);
+        emit m_instance->repositoryChanged(FilePath::fromString(repo));
 }
 
 void VcsManager::handleConfigurationChanges()
@@ -606,7 +606,8 @@ void CorePlugin::testVcsManager()
             ++expectedCount;
 
         IVersionControl *vcs;
-        vcs = VcsManager::findVersionControlForDirectory(makeString(directory), &realTopLevel);
+        vcs = VcsManager::findVersionControlForDirectory(
+            FilePath::fromString(makeString(directory)), &realTopLevel);
         QCOMPARE(realTopLevel, makeString(topLevel));
         if (vcs)
             QCOMPARE(vcs->id().toString(), vcsId);

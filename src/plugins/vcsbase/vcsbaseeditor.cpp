@@ -91,6 +91,7 @@
     \sa VcsBase::VcsBaseEditorWidget
 */
 
+using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -836,14 +837,14 @@ void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
     dh->setEnabled(e);
 }
 
-QString VcsBaseEditorWidget::workingDirectory() const
+FilePath VcsBaseEditorWidget::workingDirectory() const
 {
-    return d->m_workingDirectory;
+    return FilePath::fromString(d->m_workingDirectory);
 }
 
-void VcsBaseEditorWidget::setWorkingDirectory(const QString &wd)
+void VcsBaseEditorWidget::setWorkingDirectory(const FilePath &wd)
 {
-    d->m_workingDirectory = wd;
+    d->m_workingDirectory = wd.toString();
 }
 
 QTextCodec *VcsBaseEditorWidget::codec() const
@@ -1297,6 +1298,11 @@ QTextCodec *VcsBaseEditor::getCodec(const QString &source)
     return sys;
 }
 
+QTextCodec *VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
+{
+    return getCodec(workingDirectory.toString(), files);
+}
+
 QTextCodec *VcsBaseEditor::getCodec(const QString &workingDirectory, const QStringList &files)
 {
     if (files.empty())
@@ -1349,13 +1355,12 @@ bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
 
 // Return source file or directory string depending on parameters
 // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-QString VcsBaseEditor::getSource(const QString &workingDirectory,
-                                 const QString &fileName)
+QString VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
 {
     if (fileName.isEmpty())
-        return workingDirectory;
+        return workingDirectory.toString();
 
-    QString rc = workingDirectory;
+    QString rc = workingDirectory.toString();
     const QChar slash = QLatin1Char('/');
     if (!rc.isEmpty() && !(rc.endsWith(slash) || rc.endsWith(QLatin1Char('\\'))))
         rc += slash;
@@ -1363,15 +1368,14 @@ QString VcsBaseEditor::getSource(const QString &workingDirectory,
     return rc;
 }
 
-QString VcsBaseEditor::getSource(const QString &workingDirectory,
-                                 const QStringList &fileNames)
+QString VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)
 {
-    return fileNames.size() == 1 ?
-            getSource(workingDirectory, fileNames.front()) :
-            workingDirectory;
+    return fileNames.size() == 1
+            ? getSource(workingDirectory, fileNames.front())
+            : workingDirectory.toString();
 }
 
-QString VcsBaseEditor::getTitleId(const QString &workingDirectory,
+QString VcsBaseEditor::getTitleId(const FilePath &workingDirectory,
                                   const QStringList &fileNames,
                                   const QString &revision)
 {
@@ -1384,7 +1388,7 @@ QString VcsBaseEditor::getTitleId(const QString &workingDirectory,
     QString rc;
     switch (nonEmptyFileNames.size()) {
     case 0:
-        rc = workingDirectory;
+        rc = workingDirectory.toString();
         break;
     case 1:
         rc = nonEmptyFileNames.front();
@@ -1454,13 +1458,14 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
         if (sourceFileInfo.isFile())
             return sourceFileInfo.absoluteFilePath();
 
-        const QString topLevel = Core::VcsManager::findTopLevelForDirectory(sourceDir);
+        const FilePath topLevel =
+            VcsManager::findTopLevelForDirectory(FilePath::fromString(sourceDir));
         if (topLevel.isEmpty())
             return QString();
 
-        const QFileInfo topLevelFileInfo(topLevel + slash + f);
-        if (topLevelFileInfo.isFile())
-            return topLevelFileInfo.absoluteFilePath();
+        const FilePath topLevelFile = topLevel.pathAppended(f);
+        if (topLevelFile.isFile())
+            return topLevelFile.absoluteFilePath().toString();
     }
 
     // 3) Try working directory
@@ -1488,7 +1493,7 @@ void VcsBaseEditorWidget::slotAnnotateRevision()
         QString workingDirectory = d->m_workingDirectory;
         if (workingDirectory.isEmpty())
             workingDirectory = QFileInfo(fileName).absolutePath();
-        emit annotateRevisionRequested(workingDirectory,
+        emit annotateRevisionRequested(FilePath::fromString(workingDirectory),
                                        QDir(workingDirectory).relativeFilePath(fileName),
                                        a->data().toString(), currentLine);
     }

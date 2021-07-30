@@ -38,6 +38,8 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Git {
 namespace Internal {
 
@@ -152,7 +154,7 @@ RemoteDialog::~RemoteDialog()
     delete m_ui;
 }
 
-void RemoteDialog::refresh(const QString &repository, bool force)
+void RemoteDialog::refresh(const FilePath &repository, bool force)
 {
     if (m_remoteModel->workingDirectory() == repository && !force)
         return;

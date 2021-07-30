@@ -227,14 +227,14 @@ StateListener::StateListener(QObject *parent) : QObject(parent)
 
 QString StateListener::windowTitleVcsTopic(const QString &filePath)
 {
-    QString searchPath;
+    FilePath searchPath;
     if (!filePath.isEmpty()) {
-        searchPath = QFileInfo(filePath).absolutePath();
+        searchPath = FilePath::fromString(filePath).absolutePath();
     } else {
         // use single project's information if there is only one loaded.
         const QList<Project *> projects = SessionManager::projects();
         if (projects.size() == 1)
-            searchPath = projects.first()->projectDirectory().toString();
+            searchPath = projects.first()->projectDirectory();
     }
     if (searchPath.isEmpty())
         return QString();
@@ -291,8 +291,8 @@ void StateListener::slotStateChanged()
                 state.currentFileDirectory = currentFi.absolutePath();
                 state.currentFileName = currentFi.fileName();
             }
-            fileControl = VcsManager::findVersionControlForDirectory(state.currentFileDirectory,
-                                                                     &state.currentFileTopLevel);
+            fileControl = VcsManager::findVersionControlForDirectory(
+                FilePath::fromString(state.currentFileDirectory), &state.currentFileTopLevel);
         }
 
         if (!fileControl)
@@ -308,8 +308,8 @@ void StateListener::slotStateChanged()
     if (currentProject) {
         state.currentProjectPath = currentProject->projectDirectory().toString();
         state.currentProjectName = currentProject->displayName();
-        projectControl = VcsManager::findVersionControlForDirectory(state.currentProjectPath,
-                                                                    &state.currentProjectTopLevel);
+        projectControl = VcsManager::findVersionControlForDirectory(
+            FilePath::fromString(state.currentProjectPath), &state.currentProjectTopLevel);
         if (projectControl) {
             // If we have both, let the file's one take preference
             if (fileControl && projectControl != fileControl)
@@ -381,14 +381,14 @@ QString VcsBasePluginState::currentFileName() const
     return data->m_state.currentFileName;
 }
 
-QString VcsBasePluginState::currentFileTopLevel() const
+FilePath VcsBasePluginState::currentFileTopLevel() const
 {
-    return data->m_state.currentFileTopLevel;
+    return FilePath::fromString(data->m_state.currentFileTopLevel);
 }
 
-QString VcsBasePluginState::currentFileDirectory() const
+FilePath VcsBasePluginState::currentFileDirectory() const
 {
-    return data->m_state.currentFileDirectory;
+    return FilePath::fromString(data->m_state.currentFileDirectory);
 }
 
 QString VcsBasePluginState::relativeCurrentFile() const
@@ -407,9 +407,9 @@ QString VcsBasePluginState::currentPatchFileDisplayName() const
     return data->m_state.currentPatchFileDisplayName;
 }
 
-QString VcsBasePluginState::currentProjectPath() const
+FilePath VcsBasePluginState::currentProjectPath() const
 {
-    return data->m_state.currentProjectPath;
+    return FilePath::fromString(data->m_state.currentProjectPath);
 }
 
 QString VcsBasePluginState::currentProjectName() const
@@ -417,9 +417,9 @@ QString VcsBasePluginState::currentProjectName() const
     return data->m_state.currentProjectName;
 }
 
-QString VcsBasePluginState::currentProjectTopLevel() const
+FilePath VcsBasePluginState::currentProjectTopLevel() const
 {
-    return data->m_state.currentProjectTopLevel;
+    return FilePath::fromString(data->m_state.currentProjectTopLevel);
 }
 
 QString VcsBasePluginState::relativeCurrentProject() const
@@ -435,9 +435,9 @@ bool VcsBasePluginState::hasTopLevel() const
     return data->m_state.hasFile() || data->m_state.hasProject();
 }
 
-QString VcsBasePluginState::topLevel() const
+FilePath VcsBasePluginState::topLevel() const
 {
-    return hasFile() ? data->m_state.currentFileTopLevel : data->m_state.currentProjectTopLevel;
+    return FilePath::fromString(hasFile() ? data->m_state.currentFileTopLevel : data->m_state.currentProjectTopLevel);
 }
 
 bool VcsBasePluginState::equals(const Internal::State &rhs) const
@@ -638,27 +638,28 @@ void VcsBasePluginPrivate::createRepository()
 {
     QTC_ASSERT(supportsOperation(IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
-    QString directory;
+    FilePath directory;
     if (const Project *currentProject = ProjectTree::currentProject())
-        directory = currentProject->projectFilePath().absolutePath().toString();
+        directory = currentProject->projectFilePath().absolutePath();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {
-        directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
+        directory = FileUtils::getExistingDirectory(tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == nullptr)
             break;
         const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
-                                    " Would you like to specify another directory?").arg(directory, managingControl->displayName());
+                                    " Would you like to specify another directory?")
+                                    .arg(directory.toUserOutput(), managingControl->displayName());
 
         if (!ask(mw, tr("Repository already under version control"), question))
             return;
     } while (true);
     // Create
-    const bool rc = vcsCreateRepository(FilePath::fromString(directory));
-    const QString nativeDir = QDir::toNativeSeparators(directory);
+    const bool rc = vcsCreateRepository(directory);
+    const QString nativeDir = directory.toUserOutput();
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),
                                  tr("A version control repository has been created in %1.").

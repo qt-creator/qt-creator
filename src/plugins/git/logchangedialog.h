@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <utils/icon.h>
 #include <utils/itemviews.h>
 
@@ -62,7 +63,7 @@ public:
     Q_DECLARE_FLAGS(LogFlags, LogFlag)
 
     explicit LogChangeWidget(QWidget *parent = nullptr);
-    bool init(const QString &repository, const QString &commit = QString(), LogFlags flags = None);
+    bool init(const Utils::FilePath &repository, const QString &commit = {}, LogFlags flags = None);
     QString commit() const;
     int commitIndex() const;
     QString earliestCommit() const;
@@ -76,7 +77,7 @@ private:
     void emitCommitActivated(const QModelIndex &index);
 
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
-    bool populateLog(const QString &repository, const QString &commit, LogFlags flags);
+    bool populateLog(const Utils::FilePath &repository, const QString &commit, LogFlags flags);
     const QStandardItem *currentItem(int column = 0) const;
 
     LogChangeModel *m_model;
@@ -91,7 +92,7 @@ class LogChangeDialog : public QDialog
 public:
     LogChangeDialog(bool isReset, QWidget *parent);
 
-    bool runDialog(const QString &repository, const QString &commit = QString(),
+    bool runDialog(const Utils::FilePath &repository, const QString &commit = QString(),
                    LogChangeWidget::LogFlags flags = LogChangeWidget::None);
 
     QString commit() const;

@@ -112,7 +112,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         []() -> QString {
             IVersionControl *vc = nullptr;
             if (Project *project = ProjectTree::currentProject())
-                vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString());
+                vc = VcsManager::findVersionControlForDirectory(project->projectDirectory());
             return vc ? vc->displayName() : QString();
         });
 
@@ -122,7 +122,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             IVersionControl *vc = nullptr;
             QString topLevel;
             if (Project *project = ProjectTree::currentProject())
-                vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(), &topLevel);
+                vc = VcsManager::findVersionControlForDirectory(project->projectDirectory(), &topLevel);
             return vc ? vc->vcsTopic(FilePath::fromString(topLevel)) : QString();
         });
 
@@ -130,7 +130,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         tr("The top level path to the repository the current project is in."),
         []() -> QString {
             if (Project *project = ProjectTree::currentProject())
-                return VcsManager::findTopLevelForDirectory(project->projectDirectory().toString());
+                return VcsManager::findTopLevelForDirectory(project->projectDirectory()).toString();
             return QString();
         });
 

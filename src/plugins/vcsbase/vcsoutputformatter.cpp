@@ -66,7 +66,7 @@ Utils::OutputLineParser::Result VcsOutputLineParser::handleLine(const QString &t
     return {Status::Done, linkSpecs};
 }
 
-bool VcsOutputLineParser::handleVcsLink(const QString &workingDirectory, const QString &href)
+bool VcsOutputLineParser::handleVcsLink(const FilePath &workingDirectory, const QString &href)
 {
     using namespace Core;
     QTC_ASSERT(!href.isEmpty(), return false);
@@ -75,12 +75,12 @@ bool VcsOutputLineParser::handleVcsLink(const QString &workingDirectory, const Q
         return true;
     }
     if (IVersionControl *vcs = VcsManager::findVersionControlForDirectory(workingDirectory))
-        return vcs->handleLink(FilePath::fromString(workingDirectory), href);
+        return vcs->handleLink(workingDirectory, href);
     return false;
 }
 
 void VcsOutputLineParser::fillLinkContextMenu(
-        QMenu *menu, const QString &workingDirectory, const QString &href)
+        QMenu *menu, const FilePath &workingDirectory, const QString &href)
 {
     QTC_ASSERT(!href.isEmpty(), return);
     if (href.startsWith("http://") || href.startsWith("https://")) {
@@ -91,7 +91,7 @@ void VcsOutputLineParser::fillLinkContextMenu(
         return;
     }
     if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(workingDirectory))
-        vcs->fillLinkContextMenu(menu, FilePath::fromString(workingDirectory), href);
+        vcs->fillLinkContextMenu(menu, workingDirectory, href);
 }
 
 }

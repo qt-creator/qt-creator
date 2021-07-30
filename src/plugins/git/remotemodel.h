@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QAbstractTableModel>
 #include <QList>
 #include <QVariant>
@@ -38,7 +40,7 @@ public:
     explicit RemoteModel(QObject *parent = nullptr);
 
     void clear();
-    bool refresh(const QString &workingDirectory, QString *errorMessage);
+    bool refresh(const Utils::FilePath &workingDirectory, QString *errorMessage);
 
     QStringList allRemoteNames() const;
     QString remoteName(int row) const;
@@ -60,7 +62,7 @@ public:
 
     int remoteCount() const;
 
-    QString workingDirectory() const;
+    Utils::FilePath workingDirectory() const;
     int findRemoteByName(const QString &name) const;
 
 protected:
@@ -74,7 +76,7 @@ protected:
 private:
     const Qt::ItemFlags m_flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 
-    QString m_workingDirectory;
+    Utils::FilePath m_workingDirectory;
     RemoteList m_remotes;
 };
 

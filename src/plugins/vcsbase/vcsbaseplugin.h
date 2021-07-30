@@ -79,8 +79,8 @@ public:
     // Current file.
     QString currentFile() const;
     QString currentFileName() const;
-    QString currentFileDirectory() const;
-    QString currentFileTopLevel() const;
+    Utils::FilePath currentFileDirectory() const;
+    Utils::FilePath currentFileTopLevel() const;
     // Convenience: Returns file relative to top level.
     QString relativeCurrentFile() const;
 
@@ -90,9 +90,9 @@ public:
     QString currentPatchFileDisplayName() const;
 
     // Current project.
-    QString currentProjectPath() const;
+    Utils::FilePath currentProjectPath() const;
     QString currentProjectName() const;
-    QString currentProjectTopLevel() const;
+    Utils::FilePath currentProjectTopLevel() const;
     /* Convenience: Returns project path relative to top level if it
      * differs from top level (else empty string) as an argument list to do
      * eg a 'vcs diff <args>' */
@@ -100,7 +100,7 @@ public:
 
     // Top level directory for actions on the top level. Preferably
     // the file one.
-    QString topLevel() const;
+    Utils::FilePath topLevel() const;
 
     bool equals(const VcsBasePluginState &rhs) const;
 

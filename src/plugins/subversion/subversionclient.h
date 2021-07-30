@@ -44,29 +44,30 @@ class SubversionClient : public VcsBase::VcsBaseClient
 public:
     SubversionClient(SubversionSettings *settings);
 
-    bool doCommit(const QString &repositoryRoot,
+    bool doCommit(const Utils::FilePath &repositoryRoot,
                   const QStringList &files,
                   const QString &commitMessageFile,
-                  const QStringList &extraOptions = QStringList()) const;
-    void commit(const QString &repositoryRoot,
+                  const QStringList &extraOptions = {}) const;
+    void commit(const Utils::FilePath &repositoryRoot,
                 const QStringList &files,
                 const QString &commitMessageFile,
-                const QStringList &extraOptions = QStringList()) override;
+                const QStringList &extraOptions = {}) override;
 
-    void diff(const QString &workingDirectory, const QStringList &files,
+    void diff(const Utils::FilePath &workingDirectory,
+              const QStringList &files,
               const QStringList &extraOptions) override;
 
-    void log(const QString &workingDir,
-             const QStringList &files = QStringList(),
-             const QStringList &extraOptions = QStringList(),
+    void log(const Utils::FilePath &workingDir,
+             const QStringList &files = {},
+             const QStringList &extraOptions = {},
              bool enableAnnotationContextMenu = false) override;
 
-    void describe(const QString &workingDirectory, int changeNumber, const QString &title);
+    void describe(const Utils::FilePath &workingDirectory, int changeNumber, const QString &title);
 
     // Add authorization options to the command line arguments.
     static QStringList addAuthenticationOptions(const SubversionSettings &settings);
 
-    QString synchronousTopic(const QString &repository) const;
+    QString synchronousTopic(const Utils::FilePath &repository) const;
 
     static QString escapeFile(const QString &file);
     static QStringList escapeFiles(const QStringList &files);

@@ -46,6 +46,8 @@
 #include <QStringListModel>
 #include <QUrl>
 
+using namespace Utils;
+
 namespace Gerrit {
 namespace Internal {
 
@@ -53,7 +55,7 @@ static const int maxTitleWidth = 350;
 
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
                            const QSharedPointer<GerritServer> &s,
-                           const QString &repository,
+                           const FilePath &repository,
                            QWidget *parent)
     : QDialog(parent)
     , m_parameters(p)
@@ -127,12 +129,12 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_refreshButton->setDefault(true);
 }
 
-QString GerritDialog::repositoryPath() const
+FilePath GerritDialog::repositoryPath() const
 {
     return m_repository;
 }
 
-void GerritDialog::setCurrentPath(const QString &path)
+void GerritDialog::setCurrentPath(const FilePath &path)
 {
     if (path == m_repository)
         return;
@@ -244,7 +246,7 @@ void GerritDialog::remoteChanged()
 void GerritDialog::updateRemotes(bool forceReload)
 {
     m_ui->remoteComboBox->setRepository(m_repository);
-    if (m_repository.isEmpty() || !QFileInfo(m_repository).isDir())
+    if (m_repository.isEmpty() || !m_repository.isDir())
         return;
     *m_server = m_parameters->server;
     m_ui->remoteComboBox->updateRemotes(forceReload);

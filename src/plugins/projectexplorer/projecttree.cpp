@@ -329,7 +329,7 @@ void ProjectTree::updateExternalFileWarning()
             return;
         // External file. Test if it under the same VCS
         QString topLevel;
-        if (Core::VcsManager::findVersionControlForDirectory(projectDir.toString(), &topLevel)
+        if (Core::VcsManager::findVersionControlForDirectory(projectDir, &topLevel)
                 && fileName.isChildOf(FilePath::fromString(topLevel))) {
             return;
         }

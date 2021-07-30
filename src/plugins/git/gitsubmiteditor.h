@@ -27,6 +27,8 @@
 
 #include "commitdata.h"
 
+#include <utils/filepath.h>
+
 #include <vcsbase/vcsbasesubmiteditor.h>
 
 #include <QFutureWatcher>
@@ -43,7 +45,7 @@ class GitSubmitEditorPanelData;
 class CommitDataFetchResult
 {
 public:
-    static CommitDataFetchResult fetch(CommitType commitType, const QString &workingDirectory);
+    static CommitDataFetchResult fetch(CommitType commitType, const Utils::FilePath &workingDirectory);
 
     QString errorMessage;
     CommitData commitData;
@@ -80,7 +82,7 @@ private:
     QTextCodec *m_commitEncoding = nullptr;
     CommitType m_commitType = SimpleCommit;
     QString m_amendSHA1;
-    QString m_workingDirectory;
+    Utils::FilePath m_workingDirectory;
     bool m_firstUpdate = true;
     QFutureWatcher<CommitDataFetchResult> m_fetchWatcher;
 };

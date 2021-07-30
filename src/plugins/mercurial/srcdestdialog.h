@@ -45,7 +45,7 @@ public:
 
     void setPathChooserKind(Utils::PathChooser::Kind kind);
     QString getRepositoryString() const;
-    QString workingDir() const;
+    Utils::FilePath workingDir() const;
 
 private:
     QUrl getRepoUrl() const;

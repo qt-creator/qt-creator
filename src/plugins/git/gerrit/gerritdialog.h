@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 #include <QSharedPointer>
 #include <QTimer>
@@ -54,11 +56,11 @@ class GerritDialog : public QDialog
 public:
     explicit GerritDialog(const QSharedPointer<GerritParameters> &p,
                           const QSharedPointer<GerritServer> &s,
-                          const QString &repository,
+                          const Utils::FilePath &repository,
                           QWidget *parent = nullptr);
     ~GerritDialog() override;
-    QString repositoryPath() const;
-    void setCurrentPath(const QString &path);
+    Utils::FilePath repositoryPath() const;
+    void setCurrentPath(const Utils::FilePath &path);
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
     void refresh();
@@ -100,7 +102,7 @@ private:
     QPushButton *m_refreshButton;
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer m_progressIndicatorTimer;
-    QString m_repository;
+    Utils::FilePath m_repository;
     bool m_fetchRunning = false;
     bool m_updatingRemotes = false;
     bool m_shouldUpdateRemotes = false;

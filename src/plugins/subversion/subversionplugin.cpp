@@ -235,20 +235,20 @@ public:
     SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
 
     // IVersionControl
-    bool vcsAdd(const QString &workingDir, const QString &fileName);
-    bool vcsDelete(const QString &workingDir, const QString &fileName);
-    bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
-    bool vcsCheckout(const QString &directory, const QByteArray &url);
+    bool vcsAdd(const FilePath &workingDir, const QString &fileName);
+    bool vcsDelete(const FilePath &workingDir, const QString &fileName);
+    bool vcsMove(const FilePath &workingDir, const QString &from, const QString &to);
+    bool vcsCheckout(const FilePath &directory, const QByteArray &url);
 
     static SubversionPluginPrivate *instance();
 
-    QString monitorFile(const QString &repository) const;
-    QString synchronousTopic(const QString &repository) const;
-    SubversionResponse runSvn(const QString &workingDir,
+    QString monitorFile(const FilePath &repository) const;
+    QString synchronousTopic(const FilePath &repository) const;
+    SubversionResponse runSvn(const FilePath &workingDir,
                               const QStringList &arguments, int timeOutS,
                               unsigned flags, QTextCodec *outputCodec = nullptr) const;
-    void vcsAnnotateHelper(const QString &workingDir, const QString &file,
-                     const QString &revision = QString(), int lineNumber = -1);
+    void vcsAnnotateHelper(const FilePath &workingDir, const QString &file,
+                           const QString &revision = {}, int lineNumber = -1);
 
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
@@ -282,20 +282,20 @@ private:
                                       Utils::Id id, const QString &source,
                                       QTextCodec *codec);
 
-    void filelog(const QString &workingDir,
-                 const QString &file = QString(),
+    void filelog(const FilePath &workingDir,
+                 const QString &file = {},
                  bool enableAnnotationContextMenu = false);
-    void svnStatus(const QString &workingDir, const QString &relativePath = QString());
-    void svnUpdate(const QString &workingDir, const QString &relativePath = QString());
+    void svnStatus(const FilePath &workingDir, const QString &relativePath = {});
+    void svnUpdate(const FilePath &workingDir, const QString &relativePath = {});
     bool checkSVNSubDir(const QDir &directory) const;
-    void startCommit(const QString &workingDir, const QStringList &files = QStringList());
+    void startCommit(const FilePath &workingDir, const QStringList &files = {});
 
     const QStringList m_svnDirectories;
 
     SubversionSettings m_settings;
     SubversionClient *m_client = nullptr;
     QString m_commitMessageFileName;
-    QString m_commitRepository;
+    FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
     Utils::ParameterAction *m_addAction = nullptr;
@@ -690,7 +690,7 @@ void SubversionPluginPrivate::revertAll()
     QStringList args;
     args << QLatin1String("revert");
     args << SubversionClient::addAuthenticationOptions(m_settings);
-    args << QLatin1String("--recursive") << state.topLevel();
+    args << QLatin1String("--recursive") << state.topLevel().toString();
     const SubversionResponse revertResponse
             = runSvn(state.topLevel(), args, m_settings.timeout.value(),
                      VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
@@ -781,7 +781,7 @@ void SubversionPluginPrivate::startCommitProject()
 /* Start commit of files of a single repository by displaying
  * template and files in a submit editor. On closing, the real
  * commit will start. */
-void SubversionPluginPrivate::startCommit(const QString &workingDir, const QStringList &files)
+void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStringList &files)
 {
     if (!promptBeforeCommit())
         return;
@@ -869,7 +869,7 @@ void SubversionPluginPrivate::updateRepository()
     svnUpdate(state.topLevel());
 }
 
-void SubversionPluginPrivate::svnStatus(const QString &workingDir, const QString &relativePath)
+void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QString &relativePath)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -877,15 +877,15 @@ void SubversionPluginPrivate::svnStatus(const QString &workingDir, const QString
     args << SubversionClient::addAuthenticationOptions(m_settings);
     if (!relativePath.isEmpty())
         args.append(SubversionClient::escapeFile(relativePath));
-    VcsOutputWindow::setRepository(workingDir);
+    VcsOutputWindow::setRepository(workingDir.toString());
     runSvn(workingDir, args, m_settings.timeout.value(),
            VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
     VcsOutputWindow::clearRepository();
 }
 
-void SubversionPluginPrivate::filelog(const QString &workingDir,
-                               const QString &file,
-                               bool enableAnnotationContextMenu)
+void SubversionPluginPrivate::filelog(const FilePath &workingDir,
+                                      const QString &file,
+                                      bool enableAnnotationContextMenu)
 {
     m_client->log(workingDir, QStringList(file), QStringList(), enableAnnotationContextMenu);
 }
@@ -897,7 +897,7 @@ void SubversionPluginPrivate::updateProject()
     svnUpdate(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-void SubversionPluginPrivate::svnUpdate(const QString &workingDir, const QString &relativePath)
+void SubversionPluginPrivate::svnUpdate(const FilePath &workingDir, const QString &relativePath)
 {
     QStringList args(QLatin1String("update"));
     args << SubversionClient::addAuthenticationOptions(m_settings);
@@ -918,7 +918,7 @@ void SubversionPluginPrivate::annotateCurrentFile()
     vcsAnnotateHelper(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void SubversionPluginPrivate::vcsAnnotateHelper(const QString &workingDir, const QString &file,
+void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const QString &file,
                                                 const QString &revision /* = QString() */,
                                                 int lineNumber /* = -1 */)
 {
@@ -947,7 +947,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const QString &workingDir, const
     // Determine id
     const QStringList files = QStringList(file);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
-    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, files);
+    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir.toString(), files);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
         VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);
@@ -987,7 +987,7 @@ void SubversionPluginPrivate::vcsDescribe(const FilePath &source, const QString 
 
     const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
 
-    m_client->describe(topLevel.toString(), number, title);
+    m_client->describe(topLevel, number, title);
 }
 
 void SubversionPluginPrivate::slotDescribe()
@@ -1004,7 +1004,7 @@ void SubversionPluginPrivate::slotDescribe()
         return;
 
     const int revision = inputDialog.intValue();
-    vcsDescribe(FilePath::fromString(state.topLevel()), QString::number(revision));
+    vcsDescribe(state.topLevel(), QString::number(revision));
 }
 
 void SubversionPluginPrivate::commitFromEditor()
@@ -1014,10 +1014,10 @@ void SubversionPluginPrivate::commitFromEditor()
     EditorManager::closeDocuments({submitEditor()->document()});
 }
 
-SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
-                                            const QStringList &arguments,
-                                            int timeOutS, unsigned flags,
-                                            QTextCodec *outputCodec) const
+SubversionResponse SubversionPluginPrivate::runSvn(const FilePath &workingDir,
+                                                   const QStringList &arguments,
+                                                   int timeOutS, unsigned flags,
+                                                   QTextCodec *outputCodec) const
 {
     SubversionResponse response;
     if (m_settings.binaryPath.value().isEmpty()) {
@@ -1067,10 +1067,10 @@ SubversionPluginPrivate *SubversionPluginPrivate::instance()
     return dd;
 }
 
-QString SubversionPluginPrivate::monitorFile(const QString &repository) const
+QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return QString());
-    QDir repoDir(repository);
+    QDir repoDir(repository.toString());
     foreach (const QString &svnDir, m_svnDirectories) {
         if (repoDir.exists(svnDir)) {
             QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
@@ -1081,12 +1081,12 @@ QString SubversionPluginPrivate::monitorFile(const QString &repository) const
     return QString();
 }
 
-QString SubversionPluginPrivate::synchronousTopic(const QString &repository) const
+QString SubversionPluginPrivate::synchronousTopic(const FilePath &repository) const
 {
     return m_client->synchronousTopic(repository);
 }
 
-bool SubversionPluginPrivate::vcsAdd(const QString &workingDir, const QString &rawFileName)
+bool SubversionPluginPrivate::vcsAdd(const FilePath &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(SubversionClient::escapeFile(rawFileName));
     QStringList args;
@@ -1099,7 +1099,7 @@ bool SubversionPluginPrivate::vcsAdd(const QString &workingDir, const QString &r
     return !response.error;
 }
 
-bool SubversionPluginPrivate::vcsDelete(const QString &workingDir, const QString &rawFileName)
+bool SubversionPluginPrivate::vcsDelete(const FilePath &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(SubversionClient::escapeFile(rawFileName));
 
@@ -1114,7 +1114,7 @@ bool SubversionPluginPrivate::vcsDelete(const QString &workingDir, const QString
     return !response.error;
 }
 
-bool SubversionPluginPrivate::vcsMove(const QString &workingDir, const QString &from, const QString &to)
+bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString &from, const QString &to)
 {
     QStringList args(QLatin1String("move"));
     args << SubversionClient::addAuthenticationOptions(m_settings);
@@ -1127,7 +1127,7 @@ bool SubversionPluginPrivate::vcsMove(const QString &workingDir, const QString &
     return !response.error;
 }
 
-bool SubversionPluginPrivate::vcsCheckout(const QString &directory, const QByteArray &url)
+bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByteArray &url)
 {
     QUrl tempUrl = QUrl::fromEncoded(url);
     QString username = tempUrl.userName();
@@ -1147,7 +1147,7 @@ bool SubversionPluginPrivate::vcsCheckout(const QString &directory, const QByteA
             args << QLatin1String("--password") << password;
     }
 
-    args << QLatin1String(tempUrl.toEncoded()) << directory;
+    args << QLatin1String(tempUrl.toEncoded()) << directory.toString();
 
     const SubversionResponse response
             = runSvn(directory, args, 10 * m_settings.timeout.value(), VcsCommand::SshPasswordPrompt);
@@ -1184,8 +1184,7 @@ bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, cons
     args << QLatin1String("status");
     args << SubversionClient::addAuthenticationOptions(m_settings)
          << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
-    SubversionResponse response
-            = runSvn(workingDirectory.toString(), args, m_settings.timeout.value(), 0);
+    SubversionResponse response = runSvn(workingDirectory, args, m_settings.timeout.value(), 0);
     return response.stdOut.isEmpty() || response.stdOut.at(0) != QLatin1Char('?');
 }
 
@@ -1254,21 +1253,19 @@ bool SubversionPluginPrivate::vcsOpen(const FilePath & /* filePath */)
 
 bool SubversionPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return vcsAdd(fi.absolutePath(), fi.fileName());
+    return vcsAdd(filePath.parentDir(), filePath.fileName());
 }
 
 bool SubversionPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return vcsDelete(fi.absolutePath(), fi.fileName());
+    return vcsDelete(filePath.parentDir(), filePath.fileName());
 }
 
 bool SubversionPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+    return vcsMove(from.parentDir(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool SubversionPluginPrivate::vcsCreateRepository(const FilePath &)
@@ -1278,8 +1275,7 @@ bool SubversionPluginPrivate::vcsCreateRepository(const FilePath &)
 
 void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    vcsAnnotateHelper(fi.absolutePath(), fi.fileName(), QString(), line);
+    vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
 Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
@@ -1293,19 +1289,19 @@ Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const 
     args << QLatin1String(Subversion::Constants::NON_INTERACTIVE_OPTION);
     args << extraArgs << url << localName;
 
-    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_client->processEnvironment());
+    auto command = new VcsBase::VcsCommand(baseDirectory, m_client->processEnvironment());
     command->addJob({m_settings.binaryPath.filePath(), args}, -1);
     return command;
 }
 
 FilePath SubversionTopicCache::trackFile(const FilePath &repository)
 {
-    return FilePath::fromString(m_plugin->monitorFile(repository.toString()));
+    return FilePath::fromString(m_plugin->monitorFile(repository));
 }
 
 QString SubversionTopicCache::refreshTopic(const FilePath &repository)
 {
-    return m_plugin->synchronousTopic(repository.toString());
+    return m_plugin->synchronousTopic(repository);
 }
 
 

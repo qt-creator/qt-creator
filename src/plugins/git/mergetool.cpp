@@ -36,6 +36,7 @@
 #include <QProcess>
 #include <QPushButton>
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace Git {
@@ -263,7 +264,7 @@ void MergeTool::done()
         VcsOutputWindow::appendError(tr("Merge tool process terminated with exit code %1")
                                   .arg(exitCode));
     }
-    GitClient::instance()->continueCommandIfNeeded(workingDirectory, exitCode == 0);
+    GitClient::instance()->continueCommandIfNeeded(FilePath::fromString(workingDirectory), exitCode == 0);
     GitPlugin::emitRepositoryChanged(workingDirectory);
     deleteLater();
 }

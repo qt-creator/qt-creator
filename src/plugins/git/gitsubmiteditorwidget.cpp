@@ -29,7 +29,9 @@
 #include "logchangedialog.h"
 
 #include <coreplugin/coreconstants.h>
+
 #include <utils/completingtextedit.h>
+#include <utils/filepath.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -40,6 +42,8 @@
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QMenu>
+
+using namespace Utils;
 
 namespace Git {
 namespace Internal {
@@ -65,7 +69,7 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
-    m_gitSubmitPanelUi.repositoryLabel->setText(QDir::toNativeSeparators(info.repository));
+    m_gitSubmitPanelUi.repositoryLabel->setText(info.repository.toUserOutput());
     if (info.branch.contains("(no branch)")) {
         const QString errorColor =
                 Utils::creatorTheme()->color(Utils::Theme::TextColorError).name();
@@ -87,7 +91,7 @@ void GitSubmitEditorWidget::setHasUnmerged(bool e)
 }
 
 void GitSubmitEditorWidget::initialize(CommitType commitType,
-                                       const QString &repository,
+                                       const FilePath &repository,
                                        const GitSubmitEditorPanelData &data,
                                        const GitSubmitEditorPanelInfo &info,
                                        bool enablePush)
@@ -123,7 +127,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     }
 }
 
-void GitSubmitEditorWidget::refreshLog(const QString &repository)
+void GitSubmitEditorWidget::refreshLog(const FilePath &repository)
 {
     if (m_logChangeWidget)
         m_logChangeWidget->init(repository);

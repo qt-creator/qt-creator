@@ -427,7 +427,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
         // Add a button for opening the file with a version control system
         // if the file is managed by an version control system which allows opening files.
         IVersionControl *versionControlForFile =
-                VcsManager::findVersionControlForDirectory(directory.toString());
+                VcsManager::findVersionControlForDirectory(directory);
         const bool fileManagedByVCS = versionControlForFile
                 && versionControlForFile->openSupportMode(filePath) != IVersionControl::NoOpen;
         if (fileManagedByVCS) {

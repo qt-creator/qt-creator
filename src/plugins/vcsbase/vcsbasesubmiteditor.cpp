@@ -141,7 +141,7 @@ public:
     QToolBar *m_toolWidget = nullptr;
     VcsBaseSubmitEditorParameters m_parameters;
     QString m_displayName;
-    QString m_checkScriptWorkingDirectory;
+    FilePath m_checkScriptWorkingDirectory;
     SubmitEditorFile m_file;
 
     QPointer<QAction> m_diffAction;
@@ -352,10 +352,10 @@ Core::IDocument *VcsBaseSubmitEditor::document() const
 
 QString VcsBaseSubmitEditor::checkScriptWorkingDirectory() const
 {
-    return d->m_checkScriptWorkingDirectory;
+    return d->m_checkScriptWorkingDirectory.toString();
 }
 
-void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
+void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const FilePath &s)
 {
     d->m_checkScriptWorkingDirectory = s;
 }
@@ -638,13 +638,13 @@ bool VcsBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
     return rc;
 }
 
-static inline QString msgCheckScript(const QString &workingDir, const QString &cmd)
+static QString msgCheckScript(const FilePath &workingDir, const QString &cmd)
 {
     const QString nativeCmd = QDir::toNativeSeparators(cmd);
     return workingDir.isEmpty() ?
            VcsBaseSubmitEditor::tr("Executing %1").arg(nativeCmd) :
            VcsBaseSubmitEditor::tr("Executing [%1] %2").
-           arg(QDir::toNativeSeparators(workingDir), nativeCmd);
+           arg(workingDir.toUserOutput(), nativeCmd);
 }
 
 bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const

@@ -69,8 +69,8 @@ public:
     int longTimeOutS() const { return timeOutS.value() * 10; }
     int timeOutMS() const { return timeOutS.value() * 1000;  }
 
-    QString topLevel() const;
-    QString topLevelSymLinkTarget() const;
+    Utils::FilePath topLevel() const;
+    Utils::FilePath topLevelSymLinkTarget() const;
 
     void setTopLevel(const QString &);
 

@@ -52,7 +52,7 @@ using namespace Utils;
 namespace Git {
 namespace Internal {
 
-ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Utils::Id id,
+ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, Id id,
                                              QWidget *parent) :
     QDialog(parent), m_ui(new Ui::ChangeSelectionDialog)
 {
@@ -60,7 +60,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Ut
     m_ui->setupUi(this);
     m_ui->workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_ui->workingDirectoryChooser->setPromptDialogTitle(tr("Select Git Directory"));
-    m_ui->workingDirectoryChooser->setPath(workingDirectory);
+    m_ui->workingDirectoryChooser->setFilePath(workingDirectory);
     m_gitEnvironment = GitClient::instance()->processEnvironment();
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
@@ -116,7 +116,7 @@ QString ChangeSelectionDialog::change() const
 
 void ChangeSelectionDialog::selectCommitFromRecentHistory()
 {
-    QString workingDir = workingDirectory();
+    FilePath workingDir = workingDirectory();
     if (workingDir.isEmpty())
         return;
 
@@ -135,11 +135,11 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     m_ui->changeNumberEdit->setText(dialog.commit());
 }
 
-QString ChangeSelectionDialog::workingDirectory() const
+FilePath ChangeSelectionDialog::workingDirectory() const
 {
-    const QString workingDir = m_ui->workingDirectoryChooser->filePath().toString();
-    if (workingDir.isEmpty() || !QDir(workingDir).exists())
-        return QString();
+    const FilePath workingDir = m_ui->workingDirectoryChooser->filePath();
+    if (workingDir.isEmpty() || !workingDir.exists())
+        return {};
 
     return Core::VcsManager::findTopLevelForDirectory(workingDir);
 }
@@ -193,7 +193,7 @@ void ChangeSelectionDialog::terminateProcess()
 
 void ChangeSelectionDialog::recalculateCompletion()
 {
-    const QString workingDir = workingDirectory();
+    const FilePath workingDir = workingDirectory();
     if (workingDir == m_oldWorkingDir)
         return;
     m_oldWorkingDir = workingDir;
@@ -216,7 +216,7 @@ void ChangeSelectionDialog::recalculateDetails()
     terminateProcess();
     enableButtons(true);
 
-    const QString workingDir = workingDirectory();
+    const FilePath workingDir = workingDirectory();
     if (workingDir.isEmpty()) {
         m_ui->detailsText->setPlainText(tr("Error: Bad working directory."));
         return;
@@ -229,7 +229,7 @@ void ChangeSelectionDialog::recalculateDetails()
     }
 
     m_process = new QProcess(this);
-    m_process->setWorkingDirectory(workingDir);
+    m_process->setWorkingDirectory(workingDir.toString());
     m_process->setProcessEnvironment(m_gitEnvironment.toProcessEnvironment());
 
     connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),

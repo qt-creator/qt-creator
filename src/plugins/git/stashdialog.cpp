@@ -41,6 +41,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+using namespace Utils;
+
 enum { NameColumn, BranchColumn, MessageColumn, ColumnCount };
 
 namespace Git {
@@ -150,7 +152,7 @@ StashDialog::~StashDialog()
     delete ui;
 }
 
-void StashDialog::refresh(const QString &repository, bool force)
+void StashDialog::refresh(const FilePath &repository, bool force)
 {
     if (m_repository == repository && !force)
         return;
@@ -205,7 +207,7 @@ void StashDialog::showCurrent()
 {
     const int index = currentRow();
     QTC_ASSERT(index >= 0, return);
-    GitClient::instance()->show(m_repository, QString(m_model->at(index).name));
+    GitClient::instance()->show(m_repository.toString(), QString(m_model->at(index).name));
 }
 
 // Suggest Branch name to restore 'stash@{0}' -> 'stash0-date'

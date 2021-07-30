@@ -3867,10 +3867,9 @@ void ProjectExplorerPluginPrivate::deleteFile()
     folderNode->deleteFiles({filePath});
 
     FileChangeBlocker changeGuard(currentNode->filePath());
-    if (IVersionControl *vc =
-            VcsManager::findVersionControlForDirectory(filePath.absolutePath().toString())) {
+    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath.absolutePath()))
         vc->vcsDelete(filePath);
-    }
+
     if (filePath.exists()) {
         if (!filePath.removeFile())
             QMessageBox::warning(ICore::dialogParent(), tr("Deleting File Failed"),

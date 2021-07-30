@@ -201,7 +201,7 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
         return false;
 
     FilePath dir = orgFilePath.absolutePath();
-    IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir.toString());
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir);
 
     bool result = false;
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))

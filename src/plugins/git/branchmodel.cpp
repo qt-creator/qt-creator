@@ -39,6 +39,7 @@
 
 #include <set>
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace Git {
@@ -240,7 +241,7 @@ public:
 
     BranchModel *q;
     GitClient *client;
-    QString workingDirectory;
+    FilePath workingDirectory;
     BranchNode *rootNode;
     BranchNode *currentBranch = nullptr;
     BranchNode *headNode = nullptr;
@@ -422,7 +423,7 @@ void BranchModel::clear()
     d->obsoleteLocalBranches.clear();
 }
 
-bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
+bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessage)
 {
     beginResetModel();
     clear();
@@ -510,7 +511,7 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
     }
 }
 
-QString BranchModel::workingDirectory() const
+FilePath BranchModel::workingDirectory() const
 {
     return d->workingDirectory;
 }

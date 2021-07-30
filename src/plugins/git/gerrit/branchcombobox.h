@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QComboBox>
 
 namespace Git {
@@ -38,10 +40,10 @@ class BranchComboBox : public QComboBox
 {
 public:
     explicit BranchComboBox(QWidget *parent = nullptr);
-    void init(const QString &repository);
+    void init(const Utils::FilePath &repository);
 
 private:
-    QString m_repository;
+    Utils::FilePath m_repository;
     bool m_detached = false;
 };
 

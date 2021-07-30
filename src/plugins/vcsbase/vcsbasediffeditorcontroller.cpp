@@ -241,7 +241,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     // and "Waiting for data..." will be shown.
     d->cancelReload();
 
-    d->m_command = new VcsCommand(workingDirectory(), d->m_processEnvironment);
+    d->m_command = new VcsCommand(FilePath::fromString(workingDirectory()), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     d->m_commandResultProxy = new VcsCommandResultProxy(d->m_command.data(), d);

@@ -45,36 +45,36 @@ public:
     bool synchronousClone(const Utils::FilePath &workingDir,
                           const QString &srcLocation,
                           const QString &dstLocation,
-                          const QStringList &extraOptions = QStringList()) override;
-    bool synchronousPull(const QString &workingDir,
+                          const QStringList &extraOptions = {}) override;
+    bool synchronousPull(const Utils::FilePath &workingDir,
                          const QString &srcLocation,
-                         const QStringList &extraOptions = QStringList()) override;
-    bool manifestSync(const QString &repository, const QString &filename);
+                         const QStringList &extraOptions = {}) override;
+    bool manifestSync(const Utils::FilePath &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
-    QStringList parentRevisionsSync(const QString &workingDirectory,
+    QStringList parentRevisionsSync(const Utils::FilePath &workingDirectory,
                              const QString &file /* = QString() */,
                              const QString &revision);
-    QString shortDescriptionSync(const QString &workingDirectory, const QString &revision,
+    QString shortDescriptionSync(const Utils::FilePath &workingDirectory, const QString &revision,
                               const QString &format /* = QString() */);
-    QString shortDescriptionSync(const QString &workingDirectory, const QString &revision);
-    void incoming(const QString &repositoryRoot, const QString &repository = QString());
-    void outgoing(const QString &repositoryRoot);
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    QString shortDescriptionSync(const Utils::FilePath &workingDirectory, const QString &revision);
+    void incoming(const Utils::FilePath &repositoryRoot, const QString &repository = {});
+    void outgoing(const Utils::FilePath &repositoryRoot);
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
 
     VcsBase::VcsBaseEditorWidget *annotate(
-            const QString &workingDir, const QString &file, const QString &revision = QString(),
-            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
-    void commit(const QString &repositoryRoot, const QStringList &files,
+            const Utils::FilePath &workingDir, const QString &file, const QString &revision = {},
+            int lineNumber = -1, const QStringList &extraOptions = {}) override;
+    void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = QStringList()) override;
-    void diff(const QString &workingDir, const QStringList &files = QStringList(),
-              const QStringList &extraOptions = QStringList()) override;
-    void import(const QString &repositoryRoot, const QStringList &files,
-                const QStringList &extraOptions = QStringList()) override;
-    void revertAll(const QString &workingDir, const QString &revision = QString(),
-                   const QStringList &extraOptions = QStringList()) override;
+    void diff(const Utils::FilePath &workingDir, const QStringList &files = {},
+              const QStringList &extraOptions = {}) override;
+    void import(const Utils::FilePath &repositoryRoot, const QStringList &files,
+                const QStringList &extraOptions = {}) override;
+    void revertAll(const Utils::FilePath &workingDir, const QString &revision = {},
+                   const QStringList &extraOptions = {}) override;
 
-    bool isVcsDirectory(const Utils::FilePath &fileName) const;
+    bool isVcsDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
 
     void view(const QString &source, const QString &id,

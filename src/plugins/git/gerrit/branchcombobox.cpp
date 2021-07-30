@@ -28,11 +28,12 @@
 
 using namespace Git::Internal;
 using namespace Gerrit::Internal;
+using namespace Utils;
 
 BranchComboBox::BranchComboBox(QWidget *parent) : QComboBox(parent)
 { }
 
-void BranchComboBox::init(const QString &repository)
+void BranchComboBox::init(const FilePath &repository)
 {
     m_repository = repository;
     QString currentBranch = GitClient::instance()->synchronousCurrentLocalBranch(repository);

@@ -58,9 +58,9 @@ public:
     void initialize(Core::ActionContainer *ac);
 
     static Utils::FilePath gitBinDirectory();
-    static QString branch(const QString &repository);
+    static QString branch(const Utils::FilePath &repository);
     void addToLocator(Core::CommandLocator *locator);
-    void push(const QString &topLevel);
+    void push(const Utils::FilePath &topLevel);
 
     void updateActions(const VcsBase::VcsBasePluginState &state);
 

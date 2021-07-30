@@ -56,6 +56,7 @@
 #include <QVBoxLayout>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Git {
 namespace Internal {
@@ -139,13 +140,13 @@ BranchView::BranchView()
     refreshCurrentRepository();
 }
 
-void BranchView::refreshIfSame(const QString &repository)
+void BranchView::refreshIfSame(const FilePath &repository)
 {
     if (m_repository == repository)
         refreshCurrentRepository();
 }
 
-void BranchView::refresh(const QString &repository, bool force)
+void BranchView::refresh(const FilePath &repository, bool force)
 {
     if (m_repository == repository && !force)
         return;
@@ -156,7 +157,7 @@ void BranchView::refresh(const QString &repository, bool force)
         m_addAction->setToolTip(tr("Create Git Repository..."));
         m_branchView->setEnabled(false);
     } else {
-        m_repositoryLabel->setText(QDir::toNativeSeparators(m_repository));
+        m_repositoryLabel->setText(m_repository.toUserOutput());
         m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
         m_addAction->setToolTip(tr("Add Branch..."));
         m_branchView->setEnabled(true);

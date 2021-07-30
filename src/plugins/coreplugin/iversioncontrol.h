@@ -256,7 +256,7 @@ public:
     void setTopicCache(TopicCache *topicCache);
 
 signals:
-    void repositoryChanged(const QString &repository);
+    void repositoryChanged(const Utils::FilePath &repository);
     void filesChanged(const QStringList &files);
     void configurationChanged();
 

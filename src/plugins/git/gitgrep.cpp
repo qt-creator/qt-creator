@@ -79,7 +79,7 @@ public:
     GitGrepRunner(const TextEditor::FileFindParameters &parameters)
         : m_parameters(parameters)
     {
-        m_directory = parameters.additionalParameters.toString();
+        m_directory = FilePath::fromString(parameters.additionalParameters.toString());
         m_command.reset(GitClient::instance()->createCommand(m_directory));
         m_vcsBinary = GitClient::instance()->vcsBinary();
     }
@@ -106,7 +106,7 @@ public:
         QString filePath = line.left(lineSeparator);
         if (!m_ref.isEmpty() && filePath.startsWith(m_ref))
             filePath.remove(0, m_ref.length());
-        single.fileName = m_directory + '/' + filePath;
+        single.fileName = m_directory.pathAppended(filePath).toString();
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
@@ -217,7 +217,7 @@ public:
 
 private:
     FilePath m_vcsBinary;
-    QString m_directory;
+    FilePath m_directory;
     QString m_ref;
     TextEditor::FileFindParameters m_parameters;
     std::unique_ptr<VcsCommand> m_command;
@@ -225,7 +225,7 @@ private:
 
 } // namespace
 
-static bool isGitDirectory(const QString &path)
+static bool isGitDirectory(const FilePath &path)
 {
     static IVersionControl *gitVc = VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
     QTC_ASSERT(gitVc, return false);
@@ -253,7 +253,7 @@ GitGrep::GitGrep(GitClient *client)
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
             m_widget, [this](const QString &path) {
-        setEnabled(isGitDirectory(path));
+        setEnabled(isGitDirectory(FilePath::fromString(path)));
     });
     connect(this, &SearchEngine::enabledChanged, m_widget, &QWidget::setEnabled);
     findInFiles->addSearchEngine(this);
@@ -314,7 +314,7 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     if (params.ref.isEmpty() || item.path().isEmpty())
         return nullptr;
     const QString path = QDir::fromNativeSeparators(item.path().first());
-    const QString topLevel = parameters.additionalParameters.toString();
+    const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
     IEditor *editor = m_client->openShowEditor(
                 topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
     if (editor)

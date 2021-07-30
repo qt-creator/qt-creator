@@ -65,6 +65,7 @@
 #include <tuple>
 #include <vector>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -735,7 +736,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
         if (it != vcsHash.constEnd())
             return it.value();
         VcsInfo vcsInfo;
-        vcsInfo.vcs = Core::VcsManager::findVersionControlForDirectory(dir, &vcsInfo.repoDir);
+        vcsInfo.vcs = VcsManager::findVersionControlForDirectory(FilePath::fromString(dir), &vcsInfo.repoDir);
         vcsHash.insert(dir, vcsInfo);
         return vcsInfo;
     };
@@ -750,8 +751,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
     switch (dlg.dropAction()) {
     case DropAction::CopyWithFiles: {
         FilePaths filesToAdd;
-        Core::IVersionControl * const vcs = Core::VcsManager::findVersionControlForDirectory(
-                    targetDir.toString());
+        IVersionControl * const vcs = VcsManager::findVersionControlForDirectory(targetDir);
         const bool addToVcs = vcs && vcs->supportsOperation(Core::IVersionControl::AddOperation);
         for (const FilePath &sourceFile : sourceFiles) {
             const FilePath targetFile = targetFilePath(sourceFile);

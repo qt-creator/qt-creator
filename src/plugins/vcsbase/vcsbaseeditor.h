@@ -93,7 +93,8 @@ public:
     // The codec should be set on editors displaying diff or annotation
     // output.
     static QTextCodec *getCodec(const QString &source);
-    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
+    static QTextCodec *getCodec(const Utils::FilePath &workingDirectory, const QStringList &files);
+    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files); // FIXME: Remove
 
     // Utility to return the widget from the IEditor returned by the editor
     // manager which is a BaseTextEditor.
@@ -111,13 +112,13 @@ public:
     // Convenience functions to determine the source to pass on to a diff
     // editor if one has a call consisting of working directory and file arguments.
     // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-    static QString getSource(const QString &workingDirectory, const QString &fileName);
-    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
+    static QString getSource(const Utils::FilePath &workingDirectory, const QString &fileName);
+    static QString getSource(const Utils::FilePath &workingDirectory, const QStringList &fileNames);
     // Convenience functions to determine an title/id to identify the editor
     // from the arguments (','-joined arguments or directory) + revision.
-    static QString getTitleId(const QString &workingDirectory,
+    static QString getTitleId(const Utils::FilePath &workingDirectory,
                               const QStringList &fileNames,
-                              const QString &revision = QString());
+                              const QString &revision = {});
 
     /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
      * a diff of the same file with different diff-options. In order to be able to find
@@ -132,7 +133,7 @@ public:
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
-    Q_PROPERTY(QString workingDirectory READ workingDirectory WRITE setWorkingDirectory)
+    Q_PROPERTY(Utils::FilePath workingDirectory READ workingDirectory WRITE setWorkingDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
     Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
@@ -198,8 +199,8 @@ public:
     void setCodec(QTextCodec *);
 
     // Base directory for diff views
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &wd);
+    Utils::FilePath workingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &wd);
 
     int firstLineNumber() const;
     void setFirstLineNumber(int firstLineNumber);
@@ -220,7 +221,7 @@ signals:
     // handled by the editor manager for convenience. They are emitted
     // for LogOutput/AnnotateOutput content types.
     void describeRequested(const Utils::FilePath &source, const QString &change);
-    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+    void annotateRevisionRequested(const Utils::FilePath &workingDirectory, const QString &file,
                                    const QString &change, int lineNumber);
     void diffChunkApplied(const VcsBase::DiffChunk &dc);
     void diffChunkReverted(const VcsBase::DiffChunk &dc);

@@ -28,6 +28,8 @@
 
 #include <utils/algorithm.h>
 
+using namespace Utils;
+
 namespace Git {
 namespace Internal {
 
@@ -97,7 +99,7 @@ bool RemoteModel::updateUrl(const QString &name, const QString &newUrl)
     return success;
 }
 
-QString RemoteModel::workingDirectory() const
+FilePath RemoteModel::workingDirectory() const
 {
     return m_workingDirectory;
 }
@@ -179,7 +181,7 @@ void RemoteModel::clear()
     endResetModel();
 }
 
-bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage)
+bool RemoteModel::refresh(const FilePath &workingDirectory, QString *errorMessage)
 {
     m_workingDirectory = workingDirectory;
 

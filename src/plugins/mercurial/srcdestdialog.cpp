@@ -90,16 +90,16 @@ QString SrcDestDialog::getRepositoryString() const
     return m_ui->urlLineEdit->text();
 }
 
-QString SrcDestDialog::workingDir() const
+Utils::FilePath SrcDestDialog::workingDir() const
 {
-    return m_workingdir;
+    return Utils::FilePath::fromString(m_workingdir);
 }
 
 QUrl SrcDestDialog::getRepoUrl() const
 {
     // Repo to use: Default to the project repo, but use the current
-    const QString projectLoc = m_state.currentProjectPath();
-    const QString fileLoc = m_state.currentFileTopLevel();
+    const QString projectLoc = m_state.currentProjectPath().toString();
+    const QString fileLoc = m_state.currentFileTopLevel().toString();
     m_workingdir = projectLoc;
     if (!fileLoc.isEmpty())
         m_workingdir = fileLoc;

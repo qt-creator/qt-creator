@@ -27,6 +27,8 @@
 
 #include "gerritserver.h"
 
+#include <utils/filepath.h>
+
 #include <QComboBox>
 #include <QSharedPointer>
 #include <QToolButton>
@@ -45,7 +47,7 @@ class GerritRemoteChooser : public QWidget
 
 public:
     GerritRemoteChooser(QWidget *parent = nullptr);
-    void setRepository(const QString  &repository);
+    void setRepository(const Utils::FilePath &repository);
     void setParameters(QSharedPointer<GerritParameters> parameters);
     void setFallbackEnabled(bool value);
     void setAllowDups(bool value);
@@ -63,7 +65,7 @@ private:
     void addRemote(const GerritServer &server, const QString &name);
     void handleRemoteChanged();
 
-    QString m_repository;
+    Utils::FilePath m_repository;
     QSharedPointer<GerritParameters> m_parameters;
     QComboBox *m_remoteComboBox = nullptr;
     QToolButton *m_resetRemoteButton = nullptr;

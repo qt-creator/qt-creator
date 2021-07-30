@@ -75,7 +75,7 @@ public:
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
-    VcsCommand *createCommand(const QString &workingDirectory,
+    VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
                               VcsBaseEditorWidget *editor = nullptr,
                               JobOutputBindMode mode = NoOutputBind) const;
 
@@ -86,9 +86,11 @@ public:
     virtual Utils::Environment processEnvironment() const;
 
     // VCS functionality:
-    virtual VcsBaseEditorWidget *annotate(
-            const QString &workingDir, const QString &file, const QString &revision = QString(),
-            int lineNumber = -1, const QStringList &extraOptions = QStringList()) = 0;
+    virtual VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir,
+                                          const QString &file,
+                                          const QString &revision = {},
+                                          int lineNumber = -1,
+                                          const QStringList &extraOptions = {}) = 0;
 
     static QStringList splitLines(const QString &s);
 
@@ -96,30 +98,26 @@ public:
 
     // Fully synchronous VCS execution (QProcess-based)
     void vcsFullySynchronousExec(Utils::QtcProcess &process,
-                                 const QString &workingDir, const QStringList &args,
-                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    void vcsFullySynchronousExec(Utils::QtcProcess &process,
-                                 const QString &workingDir, const Utils::CommandLine &cmdLine,
-                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    void vcsFullySynchronousExec(Utils::QtcProcess &process,
                                  const Utils::FilePath &workingDir, const QStringList &args,
                                  unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
-
+    void vcsFullySynchronousExec(Utils::QtcProcess &process,
+                                 const Utils::FilePath &workingDir, const Utils::CommandLine &cmdLine,
+                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
-    VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
+    VcsCommand *vcsExec(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                         VcsBaseEditorWidget *editor = nullptr, bool useOutputToWindow = false,
-                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant()) const;
+                        unsigned additionalFlags = 0, const QVariant &cookie = {}) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
-    virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+    virtual void annotateRevisionRequested(const Utils::FilePath &workingDirectory, const QString &file,
                                            const QString &change, int line);
 
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
     void vcsSynchronousExec(Utils::QtcProcess &proc,
-                            const QString &workingDir,
+                            const Utils::FilePath &workingDir,
                             const QStringList &args,
                             unsigned flags = 0,
                             QTextCodec *outputCodec = nullptr) const;
@@ -151,43 +149,55 @@ public:
                                   const QString &srcLocation,
                                   const QString &dstLocation,
                                   const QStringList &extraOptions = {});
-    virtual bool synchronousAdd(const QString &workingDir, const QString &fileName,
-                                const QStringList &extraOptions = QStringList());
-    virtual bool synchronousRemove(const QString &workingDir, const QString &fileName,
-                                   const QStringList &extraOptions = QStringList());
-    virtual bool synchronousMove(const QString &workingDir,
+    virtual bool synchronousAdd(const Utils::FilePath &workingDir,
+                                const QString &relFileName,
+                                const QStringList &extraOptions = {});
+    virtual bool synchronousRemove(const Utils::FilePath &workingDir,
+                                   const QString &fileName,
+                                   const QStringList &extraOptions = {});
+    virtual bool synchronousMove(const Utils::FilePath &workingDir,
                                  const QString &from, const QString &to,
-                                 const QStringList &extraOptions = QStringList());
-    virtual bool synchronousPull(const QString &workingDir,
+                                 const QStringList &extraOptions = {});
+    virtual bool synchronousPull(const Utils::FilePath &workingDir,
                                  const QString &srcLocation,
-                                 const QStringList &extraOptions = QStringList());
-    virtual bool synchronousPush(const QString &workingDir,
+                                 const QStringList &extraOptions = {});
+    virtual bool synchronousPush(const Utils::FilePath &workingDir,
                                  const QString &dstLocation,
-                                 const QStringList &extraOptions = QStringList());
-    VcsBaseEditorWidget *annotate(
-            const QString &workingDir, const QString &file, const QString &revision = QString(),
-            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
-    virtual void diff(const QString &workingDir, const QStringList &files = QStringList(),
-                      const QStringList &extraOptions = QStringList());
-    virtual void log(const QString &workingDir, const QStringList &files = QStringList(),
-                     const QStringList &extraOptions = QStringList(),
+                                 const QStringList &extraOptions = {});
+    VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir,
+                                  const QString &file,
+                                  const QString &revision = {},
+                                  int lineNumber = -1,
+                                  const QStringList &extraOptions = {}) override;
+    virtual void diff(const Utils::FilePath &workingDir,
+                      const QStringList &files = {},
+                      const QStringList &extraOptions = {});
+    virtual void log(const Utils::FilePath &workingDir,
+                     const QStringList &files = {},
+                     const QStringList &extraOptions = {},
                      bool enableAnnotationContextMenu = false);
-    virtual void status(const QString &workingDir, const QString &file = QString(),
-                        const QStringList &extraOptions = QStringList());
-    virtual void emitParsedStatus(const QString &repository,
-                                  const QStringList &extraOptions = QStringList());
-    virtual void revertFile(const QString &workingDir, const QString &file,
-                            const QString &revision = QString(),
-                            const QStringList &extraOptions = QStringList());
-    virtual void revertAll(const QString &workingDir, const QString &revision = QString(),
-                           const QStringList &extraOptions = QStringList());
-    virtual void import(const QString &repositoryRoot, const QStringList &files,
-                        const QStringList &extraOptions = QStringList());
-    virtual void update(const QString &repositoryRoot, const QString &revision = QString(),
-                        const QStringList &extraOptions = QStringList());
-    virtual void commit(const QString &repositoryRoot, const QStringList &files,
+    virtual void status(const Utils::FilePath &workingDir,
+                        const QString &file = {},
+                        const QStringList &extraOptions = {});
+    virtual void emitParsedStatus(const Utils::FilePath &repository,
+                                  const QStringList &extraOptions = {});
+    virtual void revertFile(const Utils::FilePath &workingDir,
+                            const QString &file,
+                            const QString &revision = {},
+                            const QStringList &extraOptions = {});
+    virtual void revertAll(const Utils::FilePath &workingDir,
+                           const QString &revision = {},
+                           const QStringList &extraOptions = {});
+    virtual void import(const Utils::FilePath &repositoryRoot,
+                        const QStringList &files,
+                        const QStringList &extraOptions = {});
+    virtual void update(const Utils::FilePath &repositoryRoot,
+                        const QString &revision = {},
+                        const QStringList &extraOptions = {});
+    virtual void commit(const Utils::FilePath &repositoryRoot,
+                        const QStringList &files,
                         const QString &commitMessageFile,
-                        const QStringList &extraOptions = QStringList());
+                        const QStringList &extraOptions = {});
 
     virtual Utils::FilePath findTopLevelForFile(const Utils::FilePath &/*file*/) const { return {}; }
 

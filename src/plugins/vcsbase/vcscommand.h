@@ -43,7 +43,7 @@ public:
         ExpectRepoChanges = 0x2000, // Expect changes in repository by the command
     };
 
-    VcsCommand(const QString &defaultWorkingDirectory, const Utils::Environment &environment);
+    VcsCommand(const Utils::FilePath &defaultWorkingDirectory, const Utils::Environment &environment);
 
     const Utils::Environment processEnvironment() const override;
 

@@ -64,9 +64,9 @@ public:
     static IVersionControl *versionControl(Utils::Id id);
 
     static void resetVersionControlForDirectory(const Utils::FilePath &inputDirectory);
-    static IVersionControl *findVersionControlForDirectory(const QString &directory,
+    static IVersionControl *findVersionControlForDirectory(const Utils::FilePath &directory,
                                                            QString *topLevelDirectory = nullptr);
-    static QString findTopLevelForDirectory(const QString &directory);
+    static Utils::FilePath findTopLevelForDirectory(const Utils::FilePath &directory);
 
     static QStringList repositories(const IVersionControl *);
 
@@ -99,7 +99,7 @@ public:
     static void clearVersionControlCache();
 
 signals:
-    void repositoryChanged(const QString &repository);
+    void repositoryChanged(const Utils::FilePath &repository);
     void configurationChanged(const IVersionControl *vcs);
 
 private:

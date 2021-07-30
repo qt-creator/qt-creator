@@ -45,7 +45,7 @@ bool VcsAnnotateTaskHandler::canHandle(const Task &task) const
     QFileInfo fi(task.file.toFileInfo());
     if (!fi.exists() || !fi.isFile() || !fi.isReadable())
         return false;
-    IVersionControl *vc = VcsManager::findVersionControlForDirectory(fi.absolutePath());
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file.absolutePath());
     if (!vc)
         return false;
     return vc->supportsOperation(IVersionControl::AnnotateOperation);
@@ -53,11 +53,10 @@ bool VcsAnnotateTaskHandler::canHandle(const Task &task) const
 
 void VcsAnnotateTaskHandler::handle(const Task &task)
 {
-    QFileInfo fi(task.file.toFileInfo());
-    IVersionControl *vc = VcsManager::findVersionControlForDirectory(fi.absolutePath());
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file.absolutePath());
     QTC_ASSERT(vc, return);
     QTC_ASSERT(vc->supportsOperation(IVersionControl::AnnotateOperation), return);
-    vc->vcsAnnotate(FilePath::fromString(fi.absoluteFilePath()), task.movedLine);
+    vc->vcsAnnotate(task.file.absoluteFilePath(), task.movedLine);
 }
 
 QAction *VcsAnnotateTaskHandler::createAction(QObject *parent) const

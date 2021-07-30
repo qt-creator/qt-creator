@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <utils/optional.h>
 
 #include <QAbstractListModel>
@@ -60,12 +61,12 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void clear();
-    bool refresh(const QString &workingDirectory, QString *errorMessage);
+    bool refresh(const Utils::FilePath &workingDirectory, QString *errorMessage);
 
     void renameBranch(const QString &oldName, const QString &newName);
     void renameTag(const QString &oldName, const QString &newName);
 
-    QString workingDirectory() const;
+    Utils::FilePath workingDirectory() const;
 
     QModelIndex currentBranch() const;
     QString fullName(const QModelIndex &idx, bool includePrefix = false) const;

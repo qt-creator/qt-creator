@@ -109,9 +109,9 @@ BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(settings)
     });
 }
 
-BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) const
+BranchInfo BazaarClient::synchronousBranchQuery(const FilePath &repositoryRoot) const
 {
-    QFile branchConfFile(repositoryRoot + QLatin1Char('/') +
+    QFile branchConfFile(repositoryRoot.toString() + QLatin1Char('/') +
                          QLatin1String(Constants::BAZAARREPO) +
                          QLatin1String("/branch/branch.conf"));
     if (!branchConfFile.open(QIODevice::ReadOnly))
@@ -135,11 +135,11 @@ BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) c
     }
     if (isBranchBound.simplified().toLower() == QLatin1String("true"))
         return BranchInfo(branchLocation, true);
-    return BranchInfo(repositoryRoot, false);
+    return BranchInfo(repositoryRoot.toString(), false);
 }
 
 //! Removes the last committed revision(s)
-bool BazaarClient::synchronousUncommit(const QString &workingDir,
+bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
                                        const QString &revision,
                                        const QStringList &extraOptions)
 {
@@ -156,7 +156,7 @@ bool BazaarClient::synchronousUncommit(const QString &workingDir,
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
-void BazaarClient::commit(const QString &repositoryRoot, const QStringList &files,
+void BazaarClient::commit(const FilePath &repositoryRoot, const QStringList &files,
                           const QString &commitMessageFile, const QStringList &extraOptions)
 {
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile,
@@ -164,17 +164,17 @@ void BazaarClient::commit(const QString &repositoryRoot, const QStringList &file
 }
 
 VcsBaseEditorWidget *BazaarClient::annotate(
-        const QString &workingDir, const QString &file, const QString &revision,
+        const FilePath &workingDir, const QString &file, const QString &revision,
         int lineNumber, const QStringList &extraOptions)
 {
     return VcsBaseClient::annotate(workingDir, file, revision, lineNumber,
                                    QStringList(extraOptions) << QLatin1String("--long"));
 }
 
-bool BazaarClient::isVcsDirectory(const FilePath &fileName) const
+bool BazaarClient::isVcsDirectory(const FilePath &filePath) const
 {
-    return fileName.isDir()
-            && !fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
+    return filePath.isDir()
+            && !filePath.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
 FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
@@ -184,7 +184,7 @@ FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
     return VcsBase::findRepositoryForFile(file, repositoryCheckFile);
 }
 
-bool BazaarClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     QStringList args(QLatin1String("status"));
     args << fileName;

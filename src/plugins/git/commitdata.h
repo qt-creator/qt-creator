@@ -27,6 +27,8 @@
 
 #include "gitsettings.h" // CommitType
 
+#include <utils/filepath.h>
+
 #include <QCoreApplication>
 #include <QStringList>
 #include <QPair>
@@ -43,7 +45,7 @@ class GitSubmitEditorPanelInfo
 {
 public:
     void clear();
-    QString repository;
+    Utils::FilePath repository;
     QString branch;
 };
 

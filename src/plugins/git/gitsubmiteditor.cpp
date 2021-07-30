@@ -43,6 +43,7 @@
 
 static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace Git {
@@ -83,7 +84,7 @@ private:
     }
 };
 
-CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const QString &workingDirectory)
+CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const FilePath &workingDirectory)
 {
     CommitDataFetchResult result;
     result.commitData.commitType = commitType;
@@ -135,7 +136,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
-    m_model->setRepositoryRoot(d.panelInfo.repository);
+    m_model->setRepositoryRoot(d.panelInfo.repository.toString());
     m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData)
                                     -> SubmitFileModel::FileStatusHint
     {
@@ -196,7 +197,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             }
             stagedFiles.push_back(fileName);
         } else if (state == UntrackedFile) {
-            Core::EditorManager::openEditor(m_workingDirectory + '/' + fileName);
+            Core::EditorManager::openEditor(m_workingDirectory.pathAppended(fileName));
         } else {
             unstagedFiles.push_back(fileName);
         }
@@ -210,7 +211,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        GitClient::instance()->show(m_workingDirectory, commit);
+        GitClient::instance()->show(m_workingDirectory.toString(), commit);
 }
 
 void GitSubmitEditor::updateFileModel()
