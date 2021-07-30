@@ -183,6 +183,7 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
                             int leftParenIndex = tk.startOfMatchingBrace(currentIndex);
                             if (tk[leftParenIndex-1].is(T_THROW)) {
                                 currentIndex = leftParenIndex-1;
+                                continue;
                             } else if (tk[leftParenIndex-1].is(T_RBRACKET)) {
                                 int leftBracketIndex = tk.startOfMatchingBrace(leftParenIndex);
                                 if (leftBracketIndex != leftParenIndex-1)
@@ -192,9 +193,8 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
                             int leftBracketIndex = tk.startOfMatchingBrace(currentIndex);
                             if (leftBracketIndex != currentIndex-1)
                                 return leftBracketIndex;
-                        } else {
-                            --currentIndex;
                         }
+                        --currentIndex;
                     }
                 }
             }
