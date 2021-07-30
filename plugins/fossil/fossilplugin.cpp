@@ -165,7 +165,7 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const FilePath &baseDirectory,
+                                                     const Utils::FilePath &baseDirectory,
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
 
@@ -907,10 +907,9 @@ bool FossilPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 
 bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    QFileInfo dir(directory.toString());
-    const QString topLevelFound = m_client.findTopLevelForFile(dir);
+    const FilePath topLevelFound = m_client.findTopLevelForFile(directory);
     if (topLevel)
-        *topLevel = FilePath::fromString(topLevelFound);
+        *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
 }
 

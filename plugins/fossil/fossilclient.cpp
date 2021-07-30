@@ -847,12 +847,9 @@ bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
                                            HostOsInfo::fileNameCaseSensitivity());
 }
 
-QString FossilClient::findTopLevelForFile(const QFileInfo &file) const
+FilePath FossilClient::findTopLevelForFile(const FilePath &file) const
 {
-    const QString repositoryCheckFile = Constants::FOSSILREPO;
-    return file.isDir() ?
-                VcsBase::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
-                VcsBase::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
+    return VcsBase::findRepositoryForFile(file, Constants::FOSSILREPO);
 }
 
 bool FossilClient::managesFile(const QString &workingDirectory, const QString &fileName) const
