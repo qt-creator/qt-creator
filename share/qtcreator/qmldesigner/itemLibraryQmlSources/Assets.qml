@@ -186,6 +186,7 @@ Item {
 
                     readonly property string suffix: fileName.substr(-4)
                     readonly property bool isFont: suffix === ".ttf" || suffix === ".otf"
+                    property bool currFileSelected: false
 
                     MouseArea {
                         id: mouseArea
@@ -203,7 +204,8 @@ Item {
                                 var ctrlDown = mouse.modifiers & Qt.ControlModifier
                                 if (!selectedAssets[filePath] && !ctrlDown)
                                     selectedAssets = {}
-                                selectedAssets[filePath] = true
+                                currFileSelected = ctrlDown ? !selectedAssets[filePath] : true
+                                selectedAssets[filePath] = currFileSelected
                                 selectedAssetsChanged()
 
                                 var selectedAssetsArr = []
@@ -212,7 +214,8 @@ Item {
                                         selectedAssetsArr.push(assetPath)
                                 }
 
-                                rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
+                                if (currFileSelected)
+                                    rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
                             } else {
                                 delFilePath = filePath
                                 tooltipBackend.hideTooltip()
@@ -224,7 +227,7 @@ Item {
                             if (mouse.button === Qt.LeftButton) {
                                 if (!(mouse.modifiers & Qt.ControlModifier))
                                     selectedAssets = {}
-                                selectedAssets[filePath] = true
+                                selectedAssets[filePath] = currFileSelected
                                 selectedAssetsChanged()
                             }
                         }
