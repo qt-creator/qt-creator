@@ -956,7 +956,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
-        if (device->osType() == Utils::OsTypeMac) {
+        if (device && device->osType() == Utils::OsTypeMac) {
             if (isIos(k)) {
                 QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
                 if (qt && qt->qtVersion().majorVersion >= 6) {
