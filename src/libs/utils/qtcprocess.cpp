@@ -579,7 +579,6 @@ void QtcProcess::start()
     }
 
     Environment env;
-    const OsType osType = HostOsInfo::hostOs();
     if (d->m_haveEnv) {
         if (d->m_environment.size() == 0)
             qWarning("QtcProcess::start: Empty environment set when running '%s'.",
@@ -595,11 +594,10 @@ void QtcProcess::start()
 
     QString command;
     ProcessArgs arguments;
-    bool success = ProcessArgs::prepareCommand(d->m_commandLine.executable().toString(),
-                                               d->m_commandLine.arguments(),
-                                               &command, &arguments, osType, &env,
+    bool success = ProcessArgs::prepareCommand(d->m_commandLine, &command, &arguments, &env,
                                                &d->m_workingDirectory);
-    if (osType == OsTypeWindows) {
+
+    if (d->m_commandLine.executable().osType() == OsTypeWindows) {
         QString args;
         if (d->m_useCtrlCStub) {
             if (d->m_process->lowPriority())

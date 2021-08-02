@@ -35,6 +35,7 @@
 namespace Utils {
 
 class AbstractMacroExpander;
+class CommandLine;
 class Environment;
 
 class QTCREATOR_UTILS_EXPORT ProcessArgs
@@ -67,8 +68,7 @@ public:
                                    const Environment *env = nullptr, const FilePath *pwd = nullptr,
                                    bool abortOnMeta = true);
     //! Prepare a shell command for feeding into QProcess
-    static bool prepareCommand(const QString &command, const QString &arguments,
-                               QString *outCmd, ProcessArgs *outArgs, OsType osType = HostOsInfo::hostOs(),
+    static bool prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
                                const Environment *env = nullptr, const FilePath *pwd = nullptr);
     //! Quote and append each argument to a shell command
     static void addArgs(QString *args, const QStringList &inArgs);

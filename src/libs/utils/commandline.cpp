@@ -643,20 +643,20 @@ void ProcessArgs::addArgs(QString *args, const QStringList &inArgs)
         addArg(args, arg);
 }
 
-bool ProcessArgs::prepareCommand(const QString &command, const QString &arguments,
-                                 QString *outCmd, ProcessArgs *outArgs, OsType osType,
+bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
                                  const Environment *env, const FilePath *pwd)
 {
+    const FilePath executable = cmdLine.executable();
+    const QString arguments = cmdLine.arguments();
     ProcessArgs::SplitError err;
-    *outArgs = ProcessArgs::prepareArgs(arguments, &err, osType, env, pwd);
+    *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
     if (err == ProcessArgs::SplitOk) {
-        *outCmd = command;
+        *outCmd = executable.toString();
     } else {
-        if (osType == OsTypeWindows) {
+        if (executable.osType() == OsTypeWindows) {
             *outCmd = QString::fromLatin1(qgetenv("COMSPEC"));
             *outArgs = ProcessArgs::createWindowsArgs(QLatin1String("/v:off /s /c \"")
-                    + quoteArg(QDir::toNativeSeparators(command)) + QLatin1Char(' ') + arguments
-                    + QLatin1Char('"'));
+                    + quoteArg(executable.toUserOutput()) + ' ' + arguments + '"');
         } else {
             if (err != ProcessArgs::FoundMeta)
                 return false;
@@ -667,8 +667,7 @@ bool ProcessArgs::prepareCommand(const QString &command, const QString &argument
             *outCmd = qEnvironmentVariableIsSet("SHELL") ? QString::fromLocal8Bit(qgetenv("SHELL"))
                                                          : QString("/bin/sh");
 #endif
-            *outArgs = ProcessArgs::createUnixArgs(
-                        QStringList({"-c", (quoteArg(command) + ' ' + arguments)}));
+            *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toString()) + ' ' + arguments});
         }
     }
     return true;
