@@ -275,11 +275,17 @@ private:
     ProcessHelper m_process;
 };
 
+static uint uniqueToken()
+{
+    static std::atomic_uint globalUniqueToken = 0;
+    return ++globalUniqueToken;
+}
+
 class ProcessLauncherImpl : public ProcessInterface
 {
     Q_OBJECT
 public:
-    ProcessLauncherImpl() : ProcessInterface()
+    ProcessLauncherImpl() : ProcessInterface(), m_token(uniqueToken())
     {
         m_handle = LauncherInterface::socket()->registerHandle(token());
         connect(m_handle, &LauncherHandle::errorOccurred,
@@ -351,8 +357,9 @@ private:
     void handleSocketError(const QString &message);
     void handleSocketReady();
 
-    quintptr token() const { return reinterpret_cast<quintptr>(this); }
+    quintptr token() const { return m_token; }
 
+    const uint m_token = 0;
     LauncherHandle *m_handle = nullptr; // This object lives in a different thread!
 };
 
