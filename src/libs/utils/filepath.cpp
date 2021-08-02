@@ -824,15 +824,6 @@ FilePath FilePath::absoluteFilePath(const FilePath &tail) const
     return tail;
 }
 
-/// Constructs an absolute FilePath from this path which
-/// is interpreted as being relative to \a anchor.
-FilePath FilePath::absoluteFromRelativePath(const FilePath &anchor) const
-{
-    QDir anchorDir = QFileInfo(anchor.m_data).absoluteDir();
-    QString absoluteFilePath = QFileInfo(anchorDir, m_data).canonicalFilePath();
-    return FilePath::fromString(absoluteFilePath);
-}
-
 /// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
 FilePath FilePath::fromString(const QString &filename)
