@@ -411,6 +411,7 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
     if (Utils::HostOsInfo::isMacHost())
         m_tree->setFrameStyle(QFrame::NoFrame); // tool tip already includes a frame
     m_tree->setModel(locatorWidget->model());
+    m_tree->setTextElideMode(Qt::ElideMiddle);
 
     auto layout = new QVBoxLayout;
     layout->setSizeConstraint(QLayout::SetMinimumSize);
