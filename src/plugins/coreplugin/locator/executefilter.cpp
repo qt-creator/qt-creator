@@ -154,8 +154,7 @@ void ExecuteFilter::readStandardOutput()
 
 void ExecuteFilter::readStandardError()
 {
-    static QTextCodec::ConverterState state;
-    QByteArray data = m_process->readAllStandardError();
+    const QByteArray data = m_process->readAllStandardError();
     MessageManager::writeSilently(
         QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stderrState));
 }
