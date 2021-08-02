@@ -1941,9 +1941,9 @@ QStringList GitPluginPrivate::additionalToolsPath() const
 
 bool GitPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    const QString topLevelFound = m_gitClient.findRepositoryForDirectory(directory.toString());
+    const FilePath topLevelFound = m_gitClient.findRepositoryForDirectory(directory);
     if (topLevel)
-        *topLevel = FilePath::fromString(topLevelFound);
+        *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
 }
 

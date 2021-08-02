@@ -150,7 +150,7 @@ public:
                                           bool isRebase = false,
                                           QString abortCommand = {});
 
-    QString findRepositoryForDirectory(const QString &directory) const;
+    Utils::FilePath findRepositoryForDirectory(const Utils::FilePath &directory) const;
     QString findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
