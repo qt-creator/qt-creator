@@ -54,6 +54,8 @@ private:
     void handleSocketClosed();
     void handleProcessError();
     void handleProcessStarted();
+    void handleReadyReadStandardOutput();
+    void handleReadyReadStandardError();
     void handleProcessFinished();
     void handleStopFailure();
 

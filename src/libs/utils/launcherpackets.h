@@ -37,7 +37,16 @@ namespace Utils {
 namespace Internal {
 
 enum class LauncherPacketType {
-    Shutdown, StartProcess, ProcessStarted, StopProcess, ProcessError, ProcessFinished
+    // client -> launcher packets:
+    Shutdown,
+    StartProcess,
+    StopProcess,
+    // launcher -> client packets:
+    ProcessError,
+    ProcessStarted,
+    ReadyReadStandardOutput,
+    ReadyReadStandardError,
+    ProcessFinished
 };
 
 class PacketParser
@@ -151,6 +160,33 @@ public:
 private:
     void doSerialize(QDataStream &stream) const override;
     void doDeserialize(QDataStream &stream) override;
+};
+
+class ReadyReadPacket : public LauncherPacket
+{
+public:
+    QByteArray standardChannel;
+
+protected:
+    ReadyReadPacket(LauncherPacketType type, quintptr token) : LauncherPacket(type, token) { }
+
+private:
+    void doSerialize(QDataStream &stream) const override;
+    void doDeserialize(QDataStream &stream) override;
+};
+
+class ReadyReadStandardOutputPacket : public ReadyReadPacket
+{
+public:
+    ReadyReadStandardOutputPacket(quintptr token)
+        : ReadyReadPacket(LauncherPacketType::ReadyReadStandardOutput, token) { }
+};
+
+class ReadyReadStandardErrorPacket : public ReadyReadPacket
+{
+public:
+    ReadyReadStandardErrorPacket(quintptr token)
+        : ReadyReadPacket(LauncherPacketType::ReadyReadStandardError, token) { }
 };
 
 class ProcessFinishedPacket : public LauncherPacket

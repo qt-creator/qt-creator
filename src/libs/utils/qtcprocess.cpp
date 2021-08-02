@@ -332,7 +332,7 @@ public:
     void setErrorString(const QString &str) override { m_handle->setErrorString(str); }
 
     bool waitForStarted(int msecs) override { return m_handle->waitForStarted(msecs); }
-    bool waitForReadyRead(int msecs) override { QTC_CHECK(false); return false; }
+    bool waitForReadyRead(int msecs) override { return m_handle->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) override { return m_handle->waitForFinished(msecs); }
 
     void setLowPriority() override { QTC_CHECK(false); }

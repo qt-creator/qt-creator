@@ -118,6 +118,17 @@ void ProcessErrorPacket::doDeserialize(QDataStream &stream)
 }
 
 
+void ReadyReadPacket::doSerialize(QDataStream &stream) const
+{
+    stream << standardChannel;
+}
+
+void ReadyReadPacket::doDeserialize(QDataStream &stream)
+{
+    stream >> standardChannel;
+}
+
+
 ProcessFinishedPacket::ProcessFinishedPacket(quintptr token)
     : LauncherPacket(LauncherPacketType::ProcessFinished, token)
 {

@@ -186,6 +186,22 @@ void LauncherSocketHandler::handleProcessStarted()
     sendPacket(packet);
 }
 
+void LauncherSocketHandler::handleReadyReadStandardOutput()
+{
+    Process * proc = senderProcess();
+    ReadyReadStandardOutputPacket packet(proc->token());
+    packet.standardChannel = proc->readAllStandardOutput();
+    sendPacket(packet);
+}
+
+void LauncherSocketHandler::handleReadyReadStandardError()
+{
+    Process * proc = senderProcess();
+    ReadyReadStandardErrorPacket packet(proc->token());
+    packet.standardChannel = proc->readAllStandardError();
+    sendPacket(packet);
+}
+
 void LauncherSocketHandler::handleProcessFinished()
 {
     Process * proc = senderProcess();
@@ -276,6 +292,10 @@ Process *LauncherSocketHandler::setupProcess(quintptr token)
     const auto p = new Process(token, this);
     connect(p, &QProcess::errorOccurred, this, &LauncherSocketHandler::handleProcessError);
     connect(p, &QProcess::started, this, &LauncherSocketHandler::handleProcessStarted);
+    connect(p, &QProcess::readyReadStandardOutput,
+            this, &LauncherSocketHandler::handleReadyReadStandardOutput);
+    connect(p, &QProcess::readyReadStandardError,
+            this, &LauncherSocketHandler::handleReadyReadStandardError);
     connect(p, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &LauncherSocketHandler::handleProcessFinished);
     connect(p, &Process::failedToStop, this, &LauncherSocketHandler::handleStopFailure);

@@ -103,6 +103,12 @@ void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &pay
     case LauncherPacketType::ProcessStarted:
         handleStartedPacket(payload);
         break;
+    case LauncherPacketType::ReadyReadStandardOutput:
+        handleReadyReadStandardOutput(payload);
+        break;
+    case LauncherPacketType::ReadyReadStandardError:
+        handleReadyReadStandardError(payload);
+        break;
     case LauncherPacketType::ProcessFinished:
         handleFinishedPacket(payload);
         break;
@@ -165,10 +171,47 @@ void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
     m_processState = QProcess::Running;
     const auto packet = LauncherPacket::extractPacket<ProcessStartedPacket>(m_token, packetData);
     m_processId = packet.processId;
-    if (m_callerHandle) {
-        m_callerHandle->appendSignal(SignalType::Started);
-        flushCaller();
-    }
+    if (!m_callerHandle)
+        return;
+
+    m_callerHandle->appendSignal(SignalType::Started);
+    flushCaller();
+}
+
+void LauncherHandle::handleReadyReadStandardOutput(const QByteArray &packetData)
+{
+    QMutexLocker locker(&m_mutex);
+    wakeUpIfWaitingFor(SignalType::ReadyRead);
+    if (m_canceled)
+        return;
+    const auto packet = LauncherPacket::extractPacket<ReadyReadStandardOutputPacket>(m_token, packetData);
+    if (packet.standardChannel.isEmpty())
+        return;
+
+    m_stdout += packet.standardChannel;
+    if (!m_callerHandle)
+        return;
+
+    m_callerHandle->appendSignal(SignalType::ReadyRead);
+    flushCaller();
+}
+
+void LauncherHandle::handleReadyReadStandardError(const QByteArray &packetData)
+{
+    QMutexLocker locker(&m_mutex);
+    wakeUpIfWaitingFor(SignalType::ReadyRead);
+    if (m_canceled)
+        return;
+    const auto packet = LauncherPacket::extractPacket<ReadyReadStandardErrorPacket>(m_token, packetData);
+    if (packet.standardChannel.isEmpty())
+        return;
+
+    m_stderr += packet.standardChannel;
+    if (!m_callerHandle)
+        return;
+
+    m_callerHandle->appendSignal(SignalType::ReadyRead);
+    flushCaller();
 }
 
 void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
@@ -180,16 +223,17 @@ void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
     m_processState = QProcess::NotRunning;
     const auto packet = LauncherPacket::extractPacket<ProcessFinishedPacket>(m_token, packetData);
     m_exitCode = packet.exitCode;
-    m_stdout = packet.stdOut;
-    m_stderr = packet.stdErr;
+    m_stdout += packet.stdOut;
+    m_stderr += packet.stdErr;
     m_errorString = packet.errorString;
     m_exitStatus = packet.exitStatus;
-    if (m_callerHandle) {
-        if (!m_stdout.isEmpty() || !m_stderr.isEmpty())
-            m_callerHandle->appendSignal(SignalType::ReadyRead);
-        m_callerHandle->appendSignal(SignalType::Finished);
-        flushCaller();
-    }
+    if (!m_callerHandle)
+        return;
+
+    if (!m_stdout.isEmpty() || !m_stderr.isEmpty())
+        m_callerHandle->appendSignal(SignalType::ReadyRead);
+    m_callerHandle->appendSignal(SignalType::Finished);
+    flushCaller();
 }
 
 void LauncherHandle::handleSocketReady()
@@ -476,6 +520,8 @@ void LauncherSocket::handleSocketDataAvailable()
         switch (m_packetParser.type()) {
         case LauncherPacketType::ProcessError:
         case LauncherPacketType::ProcessStarted:
+        case LauncherPacketType::ReadyReadStandardOutput:
+        case LauncherPacketType::ReadyReadStandardError:
         case LauncherPacketType::ProcessFinished:
             handle->handlePacket(m_packetParser.type(), m_packetParser.packetData());
             break;

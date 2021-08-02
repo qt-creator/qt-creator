@@ -139,6 +139,8 @@ private:
     void handlePacket(LauncherPacketType type, const QByteArray &payload);
     void handleErrorPacket(const QByteArray &packetData);
     void handleStartedPacket(const QByteArray &packetData);
+    void handleReadyReadStandardOutput(const QByteArray &packetData);
+    void handleReadyReadStandardError(const QByteArray &packetData);
     void handleFinishedPacket(const QByteArray &packetData);
 
     void handleSocketReady();
