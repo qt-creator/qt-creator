@@ -947,7 +947,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
 
-            if (qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
+            if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
                 initialArgs.append("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
                 initialArgs.append("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
             } else {
