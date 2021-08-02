@@ -223,7 +223,7 @@ public:
     void setupId(Origin origin, Utils::Id id = Utils::Id());
 
     bool canOpenTerminal() const;
-    void openTerminal(const Utils::Environment &env, const QString &workingDir) const;
+    void openTerminal(const Utils::Environment &env, const Utils::FilePath &workingDir) const;
 
     bool isEmptyCommandAllowed() const;
     void setAllowEmptyCommand(bool allow);
@@ -274,7 +274,7 @@ public:
 protected:
     IDevice();
 
-    using OpenTerminal = std::function<void(const Utils::Environment &, const QString &)>;
+    using OpenTerminal = std::function<void(const Utils::Environment &, const Utils::FilePath &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);

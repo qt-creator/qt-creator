@@ -56,6 +56,8 @@
 #include <QTreeWidgetItem>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 class PathTreeWidget : public QTreeWidget
@@ -320,7 +322,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
         if (d->m_openTerminalFunc)
             d->m_openTerminalFunc(env);
         else
-            Core::FileUtils::openTerminal(QDir::currentPath(), env);
+            Core::FileUtils::openTerminal(FilePath::fromString(QDir::currentPath()), env);
     });
     connect(d->m_detailsContainer, &Utils::DetailsWidget::linkActivated,
             this, &EnvironmentWidget::linkActivated);

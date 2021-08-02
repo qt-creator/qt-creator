@@ -213,7 +213,7 @@ void LldbEngine::setupEngine()
     Environment environment = runParameters().debugger.environment;
     environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
     m_lldbProc.setEnvironment(environment);
-    if (QFileInfo(runParameters().debugger.workingDirectory).isDir())
+    if (runParameters().debugger.workingDirectory.isDir())
         m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
 
     if (HostOsInfo::isRunningUnderRosetta())

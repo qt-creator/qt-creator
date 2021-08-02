@@ -72,7 +72,7 @@ public:
 
     Utils::FilePath executable;
     QString commandLineArguments;
-    QString workingDirectory;
+    Utils::FilePath workingDirectory;
     Utils::Environment environment;
     IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
     QHash<Utils::Id, QVariant> extraData;

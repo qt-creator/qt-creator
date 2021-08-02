@@ -207,7 +207,7 @@ void CallgrindController::getLocalDataFile()
 {
     // we look for callgrind.out.PID, but there may be updated ones called ~.PID.NUM
     const QString baseFileName = QString("callgrind.out.%1").arg(m_pid);
-    const QString workingDir = m_valgrindRunnable.workingDirectory;
+    const QString workingDir = m_valgrindRunnable.workingDirectory.toString();
     // first, set the to-be-parsed file to callgrind.out.PID
     QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + '/' + baseFileName);
 

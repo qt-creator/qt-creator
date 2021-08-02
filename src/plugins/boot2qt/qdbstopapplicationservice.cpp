@@ -32,6 +32,8 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+using namespace Utils;
+
 namespace Qdb {
 namespace Internal {
 
@@ -102,7 +104,7 @@ void QdbStopApplicationService::doDeploy()
     ProjectExplorer::Runnable runnable;
     runnable.executable = Utils::FilePath::fromString(Constants::AppcontrollerFilepath);
     runnable.commandLineArguments = QStringLiteral("--stop");
-    runnable.workingDirectory = QStringLiteral("/usr/bin");
+    runnable.workingDirectory = FilePath::fromString("/usr/bin");
 
     d->applicationLauncher.start(runnable,
                                  ProjectExplorer::DeviceKitAspect::device(target()->kit()));

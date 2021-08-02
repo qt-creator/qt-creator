@@ -60,7 +60,7 @@ public:
 
     void setEnvironment(const Utils::Environment &env) { m_runnable.environment = env; }
     Utils::Environment environment() const { return m_runnable.environment; }
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     Utils::FilePath workingDirectory() const;
     bool hasExecutable() const;
     Utils::FilePath executableFilePath() const;

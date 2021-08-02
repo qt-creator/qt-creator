@@ -334,7 +334,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
             if (pathChooser->openTerminalHandler())
                 pathChooser->openTerminalHandler()();
             else
-                FileUtils::openTerminal(pathChooser->filePath().toString());
+                FileUtils::openTerminal(pathChooser->filePath());
         });
         menu->insertAction(firstAction, showInTerminal);
 

@@ -57,7 +57,7 @@ ITestConfiguration::ITestConfiguration(Autotest::ITestBase *testBase)
 {
 }
 
-void ITestConfiguration::setWorkingDirectory(const QString &workingDirectory)
+void ITestConfiguration::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_runnable.workingDirectory = workingDirectory;
 }
@@ -65,9 +65,8 @@ void ITestConfiguration::setWorkingDirectory(const QString &workingDirectory)
 Utils::FilePath ITestConfiguration::workingDirectory() const
 {
     if (!m_runnable.workingDirectory.isEmpty()) {
-        const QFileInfo info(m_runnable.workingDirectory);
-        if (info.isDir()) // ensure wanted working dir does exist
-            return Utils::FilePath::fromString(info.absoluteFilePath());
+        if (m_runnable.workingDirectory.isDir()) // ensure wanted working dir does exist
+            return m_runnable.workingDirectory.absoluteFilePath();
     }
 
     const Utils::FilePath executable = executableFilePath();

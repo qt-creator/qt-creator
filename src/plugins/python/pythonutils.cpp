@@ -517,10 +517,10 @@ void openPythonRepl(const FilePath &file, ReplType type)
     static const auto workingDir = [](const FilePath &file) {
         if (file.isEmpty()) {
             if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject())
-                return project->projectDirectory().toFileInfo().filePath();
-            return QDir::currentPath();
+                return project->projectDirectory();
+            return FilePath::fromString(QDir::currentPath());
         }
-        return file.toFileInfo().path();
+        return file;
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);

@@ -64,7 +64,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc) : d(new
         return pathChooser() ? pathChooser()->defaultValidationFunction()(edit, error) : true;
     });
     setOpenTerminalHandler([this, bc] {
-        Core::FileUtils::openTerminal(value(), bc->environment());
+        Core::FileUtils::openTerminal(FilePath::fromString(value()), bc->environment());
     });
 }
 

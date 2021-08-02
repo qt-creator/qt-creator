@@ -83,7 +83,7 @@ public:
 
     static QString m_defaultConsoleProcess;
     ConsoleProcess::Mode m_mode = ConsoleProcess::Run;
-    QString m_workingDir;
+    FilePath m_workingDir;
     Environment m_environment;
     qint64 m_appPid = 0;
     int m_appCode;
@@ -462,7 +462,7 @@ bool ConsoleProcess::start()
     d->m_pid = new PROCESS_INFORMATION;
     ZeroMemory(d->m_pid, sizeof(PROCESS_INFORMATION));
 
-    QString workDir = QDir::toNativeSeparators(workingDirectory());
+    QString workDir = workingDirectory().toUserOutput();
     if (!workDir.isEmpty() && !workDir.endsWith(QLatin1Char('\\')))
         workDir.append(QLatin1Char('\\'));
 
@@ -583,7 +583,7 @@ bool ConsoleProcess::start()
             << modeOption(d->m_mode)
             << d->m_stubServer.fullServerName()
             << msgPromptToClose()
-            << workingDirectory()
+            << workingDirectory().path()
             << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
             << QString::number(getpid())
             << pcmd
@@ -958,12 +958,12 @@ QProcess::ExitStatus ConsoleProcess::exitStatus() const
     return d->m_appStatus;
 }
 
-void ConsoleProcess::setWorkingDirectory(const QString &dir)
+void ConsoleProcess::setWorkingDirectory(const FilePath &dir)
 {
     d->m_workingDir = dir;
 }
 
-QString ConsoleProcess::workingDirectory() const
+FilePath ConsoleProcess::workingDirectory() const
 {
     return d->m_workingDir;
 }
@@ -1025,9 +1025,9 @@ QString ConsoleProcess::msgUnexpectedOutput(const QByteArray &what)
     return tr("Unexpected output from helper program (%1).").arg(QString::fromLatin1(what));
 }
 
-QString ConsoleProcess::msgCannotChangeToWorkDir(const QString & dir, const QString &why)
+QString ConsoleProcess::msgCannotChangeToWorkDir(const FilePath &dir, const QString &why)
 {
-    return tr("Cannot change to working directory \"%1\": %2").arg(dir, why);
+    return tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
 }
 
 QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)

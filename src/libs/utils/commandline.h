@@ -64,12 +64,12 @@ public:
     //! Prepare argument of a shell command for feeding into QProcess
     static ProcessArgs prepareArgs(const QString &cmd, SplitError *err,
                                    OsType osType = HostOsInfo::hostOs(),
-                                   const Environment *env = nullptr, const QString *pwd = nullptr,
+                                   const Environment *env = nullptr, const FilePath *pwd = nullptr,
                                    bool abortOnMeta = true);
     //! Prepare a shell command for feeding into QProcess
     static bool prepareCommand(const QString &command, const QString &arguments,
                                QString *outCmd, ProcessArgs *outArgs, OsType osType = HostOsInfo::hostOs(),
-                               const Environment *env = nullptr, const QString *pwd = nullptr);
+                               const Environment *env = nullptr, const FilePath *pwd = nullptr);
     //! Quote and append each argument to a shell command
     static void addArgs(QString *args, const QStringList &inArgs);
     //! Append already quoted arguments to a shell command

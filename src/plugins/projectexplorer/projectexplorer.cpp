@@ -3704,7 +3704,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     if (!environment)
         return;
 
-    Core::FileUtils::openTerminal(currentNode->directory().toString(), environment.value());
+    Core::FileUtils::openTerminal(currentNode->directory(), environment.value());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3725,8 +3725,8 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     if (!device)
         device = DeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);
-    const QString workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
-            ? currentNode->directory().toString() : runnable.workingDirectory;
+    const FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
+            ? currentNode->directory() : runnable.workingDirectory;
     device->openTerminal(runnable.environment, workingDir);
 }
 

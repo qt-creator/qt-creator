@@ -96,7 +96,7 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
     }
 
     if (!runnable.workingDirectory.isEmpty()) {
-        cmd.addArgs({"cd", runnable.workingDirectory});
+        cmd.addArgs({"cd", runnable.workingDirectory.path()});
         cmd.addArgs("&&", CommandLine::Raw);
     }
 

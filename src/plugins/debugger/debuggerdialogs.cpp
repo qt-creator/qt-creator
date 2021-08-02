@@ -176,7 +176,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastServerAddress", serverAddress);
     settings->setValue("LastExternalExecutable", runnable.executable.toVariant());
     settings->setValue("LastExternalExecutableArguments", runnable.commandLineArguments);
-    settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory);
+    settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory.toVariant());
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
     settings->setValue("LastExternalRunInTerminal", runInTerminal);
     settings->setValue("LastExternalUseTargetExtended", useTargetExtendedRemote);
@@ -193,7 +193,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     serverAddress = settings->value("LastServerAddress").toString();
     runnable.executable = FilePath::fromVariant(settings->value("LastExternalExecutable"));
     runnable.commandLineArguments = settings->value("LastExternalExecutableArguments").toString();
-    runnable.workingDirectory = settings->value("LastExternalWorkingDirectory").toString();
+    runnable.workingDirectory = FilePath::fromVariant(settings->value("LastExternalWorkingDirectory"));
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
     runInTerminal = settings->value("LastExternalRunInTerminal").toBool();
     useTargetExtendedRemote = settings->value("LastExternalUseTargetExtended").toBool();
@@ -490,7 +490,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.kitId = d->kitChooser->currentKitId();
     result.debugInfoLocation = d->debuginfoPathChooser->filePath().toString();
     result.runnable.commandLineArguments = d->arguments->text();
-    result.runnable.workingDirectory = d->workingDirectory->filePath().toString();
+    result.runnable.workingDirectory = d->workingDirectory->filePath();
     result.breakAtMain = d->breakAtMainCheckBox->isChecked();
     result.runInTerminal = d->runInTerminalCheckBox->isChecked();
     result.useTargetExtendedRemote = d->useTargetExtendedRemoteCheckBox->isChecked();
@@ -508,7 +508,7 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->serverResetCommandsTextEdit->setPlainText(p.serverResetCommands);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
     d->arguments->setText(p.runnable.commandLineArguments);
-    d->workingDirectory->setPath(p.runnable.workingDirectory);
+    d->workingDirectory->setFilePath(p.runnable.workingDirectory);
     d->breakAtMainCheckBox->setChecked(p.breakAtMain);
     d->runInTerminalCheckBox->setChecked(p.runInTerminal);
     d->useTargetExtendedRemoteCheckBox->setChecked(p.useTargetExtendedRemote);

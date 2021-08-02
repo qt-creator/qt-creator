@@ -186,7 +186,7 @@ bool IDevice::canOpenTerminal() const
     return bool(d->openTerminal);
 }
 
-void IDevice::openTerminal(const Utils::Environment &env, const QString &workingDir) const
+void IDevice::openTerminal(const Environment &env, const FilePath &workingDir) const
 {
     QTC_ASSERT(canOpenTerminal(), return);
     d->openTerminal(env, workingDir);

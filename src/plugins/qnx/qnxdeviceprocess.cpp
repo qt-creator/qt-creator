@@ -55,7 +55,8 @@ QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
         "test -f $HOME/profile && . $HOME/profile ; ";
 
     if (!runnable.workingDirectory.isEmpty())
-        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(ProcessArgs::quoteArg(runnable.workingDirectory));
+        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(
+            ProcessArgs::quoteArg(runnable.workingDirectory.toString()));
 
     const Environment env = runnable.environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {

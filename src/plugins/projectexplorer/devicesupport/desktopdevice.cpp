@@ -64,7 +64,7 @@ DesktopDevice::DesktopDevice()
     const QString portRange =
             QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
-    setOpenTerminal([](const Utils::Environment &env, const QString &workingDir) {
+    setOpenTerminal([](const Environment &env, const FilePath &workingDir) {
         Core::FileUtils::openTerminal(workingDir, env);
     });
 }

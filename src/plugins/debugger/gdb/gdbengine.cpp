@@ -3848,7 +3848,7 @@ void GdbEngine::setupEngine()
     showMessage("STARTING " + gdbCommand.toUserOutput());
 
     m_gdbProc.setCommand(gdbCommand);
-    if (QFileInfo(rp.debugger.workingDirectory).isDir())
+    if (rp.debugger.workingDirectory.isDir())
         m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
     m_gdbProc.setEnvironment(gdbEnv);
     m_gdbProc.setKeepWriteChannelOpen();
@@ -4463,7 +4463,7 @@ void GdbEngine::setupInferior()
 
         setEnvironmentVariables();
         if (!rp.inferior.workingDirectory.isEmpty())
-            runCommand({"cd " + rp.inferior.workingDirectory});
+            runCommand({"cd " + rp.inferior.workingDirectory.path()});
         if (!rp.inferior.commandLineArguments.isEmpty()) {
             QString args = rp.inferior.commandLineArguments;
             runCommand({"-exec-arguments " + args});

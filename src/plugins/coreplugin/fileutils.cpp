@@ -124,14 +124,14 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
     }
 }
 
-void FileUtils::openTerminal(const QString &path)
+void FileUtils::openTerminal(const FilePath &path)
 {
     openTerminal(path, Environment::systemEnvironment());
 }
 
-void FileUtils::openTerminal(const QString &path, const Environment &env)
+void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
-    const QFileInfo fileInfo(path);
+    const QFileInfo fileInfo = path.toFileInfo();
     const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
                                                  fileInfo.absoluteFilePath() :
                                                  fileInfo.absolutePath());

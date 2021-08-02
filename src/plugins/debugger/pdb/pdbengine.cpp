@@ -134,7 +134,7 @@ void PdbEngine::setupEngine()
     }
 
     QStringList args = {bridge, scriptFile.fileName()};
-    args.append(Utils::ProcessArgs::splitArgs(runParameters().inferior.workingDirectory));
+    args.append(Utils::ProcessArgs::splitArgs(runParameters().inferior.workingDirectory.path()));
     showMessage("STARTING " + m_interpreter + ' ' + args.join(' '));
     m_proc.setEnvironment(runParameters().debugger.environment.toStringList());
     m_proc.start(m_interpreter, args);

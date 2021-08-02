@@ -164,7 +164,7 @@ QString ProcessParameters::prettyCommand() const
 QString ProcessParameters::prettyArguments() const
 {
     QString margs = effectiveArguments();
-    QString workDir = effectiveWorkingDirectory().toString();
+    FilePath workDir = effectiveWorkingDirectory();
     ProcessArgs::SplitError err;
     ProcessArgs args =
             ProcessArgs::prepareArgs(margs, &err, HostOsInfo::hostOs(), &m_environment, &workDir);

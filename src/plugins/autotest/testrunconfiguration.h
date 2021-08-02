@@ -67,7 +67,7 @@ public:
         QTC_ASSERT(m_testConfig, return r);
         r.executable = m_testConfig->executableFilePath();
         r.commandLineArguments = m_testConfig->argumentsForTestRunner().join(' ');
-        r.workingDirectory = m_testConfig->workingDirectory().toString();
+        r.workingDirectory = m_testConfig->workingDirectory();
         r.environment = m_testConfig->environment();
         return r;
     }

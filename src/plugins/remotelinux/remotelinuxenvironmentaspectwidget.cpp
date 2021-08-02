@@ -41,6 +41,7 @@
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux::Internal;
+using namespace Utils;
 
 namespace {
 const QString FetchEnvButtonText
@@ -79,7 +80,7 @@ RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget
         }
         const auto linuxDevice = device.dynamicCast<const LinuxDevice>();
         QTC_ASSERT(linuxDevice, return);
-        linuxDevice->openTerminal(env, QString());
+        linuxDevice->openTerminal(env, FilePath());
     };
     envWidget()->setOpenTerminalFunc(openTerminalFunc);
 }

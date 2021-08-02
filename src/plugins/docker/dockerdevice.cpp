@@ -481,7 +481,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
     setDisplayName(tr("Docker Image \"%1\" (%2)").arg(data.repo).arg(data.imageId));
     setAllowEmptyCommand(true);
 
-    setOpenTerminal([this](const Environment &env, const QString &workingDir) {
+    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
         DeviceProcess * const proc = createProcess(nullptr);
         QObject::connect(proc, &DeviceProcess::finished, [proc] {
             if (!proc->errorString().isEmpty()) {
@@ -508,7 +508,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
 
     if (HostOsInfo::isAnyUnixHost()) {
         addDeviceAction({tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
-            device->openTerminal(Environment(), QString());
+            device->openTerminal(Environment(), FilePath());
         }});
     }
 }

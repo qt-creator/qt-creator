@@ -2627,8 +2627,7 @@ QString DebuggerEngine::formatStartParameters() const
             str << " [terminal]";
         str << '\n';
         if (!sp.inferior.workingDirectory.isEmpty())
-            str << "Directory: " << QDir::toNativeSeparators(sp.inferior.workingDirectory)
-                << '\n';
+            str << "Directory: " << sp.inferior.workingDirectory.toUserOutput() << '\n';
     }
     if (!sp.debugger.executable.isEmpty())
         str << "Debugger: " << sp.debugger.executable.toUserOutput() << '\n';

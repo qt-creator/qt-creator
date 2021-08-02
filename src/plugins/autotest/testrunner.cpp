@@ -911,7 +911,7 @@ void RunConfigurationSelectionDialog::populate()
                 auto runnable = rc->runnable();
                 const QStringList rcDetails = { runnable.executable.toString(),
                                                 runnable.commandLineArguments,
-                                                runnable.workingDirectory };
+                                                runnable.workingDirectory.toString() };
                 m_rcCombo->addItem(rc->displayName(), rcDetails);
             }
         }

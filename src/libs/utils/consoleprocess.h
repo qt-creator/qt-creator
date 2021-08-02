@@ -36,8 +36,9 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class Environment;
 class CommandLine;
+class Environment;
+class FilePath;
 
 class QTCREATOR_UTILS_EXPORT TerminalCommand
 {
@@ -69,8 +70,8 @@ public:
 
     void setAbortOnMetaChars(bool abort);
 
-    void setWorkingDirectory(const QString &dir);
-    QString workingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &dir);
+    Utils::FilePath workingDirectory() const;
 
     void setEnvironment(const Environment &env);
     Environment environment() const;
@@ -135,7 +136,7 @@ private:
     static QString msgCannotWriteTempFile();
     static QString msgCannotCreateTempDir(const QString & dir, const QString &why);
     static QString msgUnexpectedOutput(const QByteArray &what);
-    static QString msgCannotChangeToWorkDir(const QString & dir, const QString &why);
+    static QString msgCannotChangeToWorkDir(const Utils::FilePath &dir, const QString &why);
     static QString msgCannotExecute(const QString & p, const QString &why);
 
     void emitError(QProcess::ProcessError err, const QString &errorString);

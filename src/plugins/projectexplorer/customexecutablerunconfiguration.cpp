@@ -103,7 +103,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
     Runnable r;
     r.setCommandLine(commandLine());
     r.environment = aspect<EnvironmentAspect>()->environment();
-    r.workingDirectory = workingDirectory.toString();
+    r.workingDirectory = workingDirectory;
     r.device = DeviceManager::defaultDesktopDevice();
 
     if (!r.executable.isEmpty()) {

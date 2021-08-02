@@ -591,14 +591,14 @@ void QtcProcess::start()
         env = Environment::systemEnvironment();
     }
 
-    const QString workDir = d->m_workingDirectory.path();
-    d->m_process->setWorkingDirectory(workDir);
+    d->m_process->setWorkingDirectory(d->m_workingDirectory.path());
 
     QString command;
     ProcessArgs arguments;
     bool success = ProcessArgs::prepareCommand(d->m_commandLine.executable().toString(),
                                                d->m_commandLine.arguments(),
-                                               &command, &arguments, osType, &env, &workDir);
+                                               &command, &arguments, osType, &env,
+                                               &d->m_workingDirectory);
     if (osType == OsTypeWindows) {
         QString args;
         if (d->m_useCtrlCStub) {

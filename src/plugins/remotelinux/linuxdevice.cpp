@@ -189,7 +189,7 @@ LinuxDevice::LinuxDevice()
         }
     }});
 
-    setOpenTerminal([this](const Utils::Environment &env, const QString &workingDir) {
+    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
         DeviceProcess * const proc = createProcess(nullptr);
         QObject::connect(proc, &DeviceProcess::finished, [proc] {
             if (!proc->errorString().isEmpty()) {
@@ -218,7 +218,7 @@ LinuxDevice::LinuxDevice()
 
     if (Utils::HostOsInfo::isAnyUnixHost()) {
         addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
-            device->openTerminal(Utils::Environment(), QString());
+            device->openTerminal(Environment(), FilePath());
         }});
     }
 }

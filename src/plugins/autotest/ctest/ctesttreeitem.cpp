@@ -125,7 +125,7 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
     }
     const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     if (QTC_GUARD(buildConfig))
-        config->setWorkingDirectory(buildConfig->buildDirectory().toString());
+        config->setWorkingDirectory(buildConfig->buildDirectory());
 
     if (selected.isEmpty())
         config->setTestCaseCount(testBase()->asTestTool()->rootNode()->childCount());

@@ -97,9 +97,8 @@ public:
                         runControl->runConfiguration()->aspect<StringAspect>()->value(),
                         CommandLine::Raw);
             Runnable r;
-            r.workingDirectory =
-                    target->activeBuildConfiguration()->buildDirectory().toUserOutput();
             r.setCommandLine(cmd);
+            r.workingDirectory = target->activeBuildConfiguration()->buildDirectory();
             r.environment = target->activeBuildConfiguration()->environment();
             SimpleTargetRunner::doStart(r, {});
         });

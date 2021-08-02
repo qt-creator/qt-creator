@@ -2573,7 +2573,7 @@ void EditorManagerPrivate::openTerminal()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    FileUtils::openTerminal(d->m_contextMenuEntry->fileName().parentDir().toString());
+    FileUtils::openTerminal(d->m_contextMenuEntry->fileName().parentDir());
 }
 
 void EditorManagerPrivate::findInDirectory()
