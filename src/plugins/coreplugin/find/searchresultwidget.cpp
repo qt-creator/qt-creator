@@ -414,6 +414,7 @@ void SearchResultWidget::restart()
     m_replaceTextEdit->setEnabled(false);
     m_replaceButton->setEnabled(false);
     m_searchResultTreeView->clear();
+    m_searching = true;
     m_count = 0;
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
@@ -467,6 +468,8 @@ void SearchResultWidget::finishSearch(bool canceled)
     m_cancelButton->setVisible(false);
     m_messageWidget->setVisible(canceled);
     m_searchAgainButton->setVisible(m_searchAgainSupported);
+    m_searching = false;
+    updateMatchesFoundLabel();
 }
 
 void SearchResultWidget::sendRequestPopup()
@@ -539,10 +542,13 @@ QList<SearchResultItem> SearchResultWidget::checkedItems() const
 
 void SearchResultWidget::updateMatchesFoundLabel()
 {
-    if (m_count == 0)
-        m_matchesFoundLabel->setText(tr("No matches found."));
-    else
+    if (m_count > 0) {
         m_matchesFoundLabel->setText(tr("%n matches found.", nullptr, m_count));
+    } else if (m_searching) {
+        m_matchesFoundLabel->setText(tr("Searching..."));
+    } else {
+        m_matchesFoundLabel->setText(tr("No matches found."));
+    }
 }
 
 } // namespace Internal

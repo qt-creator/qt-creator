@@ -124,6 +124,7 @@ private:
     void updateMatchesFoundLabel();
 
     SearchResultTreeView *m_searchResultTreeView = nullptr;
+    bool m_searching = true;
     int m_count = 0;
     QString m_dontAskAgainGroup;
     QFrame *m_messageWidget = nullptr;
