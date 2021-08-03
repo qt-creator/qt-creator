@@ -174,7 +174,7 @@ public:
     void setExecutablePathStyle(Utils::OsType osType);
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
-    void setEnvironment(const Utils::Environment &env);
+    void setEnvironmentChange(const Utils::EnvironmentChange &change);
     void setDisplayStyle(Utils::StringAspect::DisplayStyle style);
 
 protected:

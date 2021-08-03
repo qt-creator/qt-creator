@@ -317,10 +317,9 @@ void SystemSettingsWidget::resetFileBrowser()
 
 void SystemSettingsWidget::updatePath()
 {
-    Environment env = Environment::systemEnvironment();
-    QStringList toAdd = VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
-    m_ui.patchChooser->setEnvironment(env);
+    EnvironmentChange change;
+    change.addAppendToPath(VcsManager::additionalToolsPath());
+    m_ui.patchChooser->setEnvironmentChange(change);
 }
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()

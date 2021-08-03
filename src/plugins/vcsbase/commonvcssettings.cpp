@@ -155,10 +155,9 @@ CommonSettingsWidget::CommonSettingsWidget(CommonOptionsPage *page)
 
 void CommonSettingsWidget::updatePath()
 {
-    Environment env = Environment::systemEnvironment();
-    QStringList toAdd = Core::VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
-    m_page->settings().sshPasswordPrompt.setEnvironment(env);
+    EnvironmentChange change;
+    change.addAppendToPath(Core::VcsManager::additionalToolsPath());
+    m_page->settings().sshPasswordPrompt.setEnvironmentChange(change);
 }
 
 void CommonSettingsWidget::apply()

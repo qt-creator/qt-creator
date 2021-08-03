@@ -195,9 +195,9 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
 
     if (m_envAspect) {
         connect(m_envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this] {
-            m_chooser->setEnvironment(m_envAspect->environment());
+            m_chooser->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(m_envAspect->environment()));
         });
-        m_chooser->setEnvironment(m_envAspect->environment());
+        m_chooser->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(m_envAspect->environment()));
     }
 
     builder.addItems({tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
@@ -566,13 +566,13 @@ void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
    of paths is chosen as PathChooser::Command or PathChooser::ExistingCommand
    to \a env.
 
-   \sa Utils::StringAspect::setEnvironment()
+   \sa Utils::StringAspect::setEnvironmentChange()
 */
-void ExecutableAspect::setEnvironment(const Environment &env)
+void ExecutableAspect::setEnvironmentChange(const EnvironmentChange &change)
 {
-    m_executable.setEnvironment(env);
+    m_executable.setEnvironmentChange(change);
     if (m_alternativeExecutable)
-        m_alternativeExecutable->setEnvironment(env);
+        m_alternativeExecutable->setEnvironmentChange(change);
 }
 
 /*!

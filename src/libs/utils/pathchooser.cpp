@@ -191,7 +191,7 @@ public:
     FilePath m_initialBrowsePathOverride;
     QString m_defaultValue;
     FilePath m_baseDirectory;
-    Environment m_environment;
+    EnvironmentChange m_environmentChange;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
     MacroExpander *m_macroExpander = globalMacroExpander();
@@ -209,18 +209,22 @@ FilePath PathChooserPrivate::expandedPath(const QString &input) const
     if (input.isEmpty())
         return {};
 
-    QString expandedInput = m_environment.expandVariables(input);
-    if (m_macroExpander)
-        expandedInput = m_macroExpander->expand(expandedInput);
+    FilePath path = FilePath::fromUserInput(input);
 
-    const FilePath path = FilePath::fromUserInput(expandedInput);
+    Environment env = path.deviceEnvironment();
+    m_environmentChange.applyToEnvironment(env);
+    path = env.expandVariables(path);
+
+    if (m_macroExpander)
+        path = m_macroExpander->expand(path);
+
     if (path.isEmpty())
         return path;
 
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        FilePaths searchPaths = m_environment.path();
+        FilePaths searchPaths = env.path();
         searchPaths.append(m_baseDirectory);
         const FilePath expanded = path.searchOnDevice(searchPaths);
         return expanded.isEmpty() ? path : expanded;
@@ -277,7 +281,6 @@ PathChooser::PathChooser(QWidget *parent) :
     setLayout(d->m_hLayout);
     setFocusProxy(d->m_lineEdit);
     setFocusPolicy(d->m_lineEdit->focusPolicy());
-    setEnvironment(Environment::systemEnvironment());
 
     d->m_lineEdit->setValidationFunction(defaultValidationFunction());
 }
@@ -328,10 +331,10 @@ FilePath PathChooser::baseDirectory() const
     return d->m_baseDirectory;
 }
 
-void PathChooser::setEnvironment(const Environment &env)
+void PathChooser::setEnvironmentChange(const EnvironmentChange &env)
 {
     QString oldExpand = filePath().toString();
-    d->m_environment = env;
+    d->m_environmentChange = env;
     if (filePath().toString() != oldExpand) {
         triggerChanged();
         emit rawPathChanged(rawPath());

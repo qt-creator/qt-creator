@@ -93,12 +93,14 @@ public:
 
     EnvironmentChange() = default;
 
+    static EnvironmentChange fromFixedEnvironment(const Environment &fixedEnv);
+
     void applyToEnvironment(Environment &) const;
 
     void addSetValue(const QString &key, const QString &value);
     void addUnsetValue(const QString &key);
-    void addPrependToPath(const QString &value);
-    void addAppendToPath(const QString &value);
+    void addPrependToPath(const QStringList &values);
+    void addAppendToPath(const QStringList &values);
     void addModify(const NameValueItems &items);
     void addChange(const Item &item) { m_changeItems.append(item); }
 

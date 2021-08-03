@@ -413,19 +413,30 @@ void EnvironmentChange::addUnsetValue(const QString &key)
     m_changeItems.append([key](Environment &env) { env.unset(key); });
 }
 
-void EnvironmentChange::addPrependToPath(const QString &value)
+void EnvironmentChange::addPrependToPath(const QStringList &values)
 {
-    m_changeItems.append([value](Environment &env) { env.prependOrSetPath(value); });
+    for (int i = values.size(); --i >= 0; ) {
+        const QString value = values.at(i);
+        m_changeItems.append([value](Environment &env) { env.prependOrSetPath(value); });
+    }
 }
 
-void EnvironmentChange::addAppendToPath(const QString &value)
+void EnvironmentChange::addAppendToPath(const QStringList &values)
 {
-    m_changeItems.append([value](Environment &env) { env.appendOrSetPath(value); });
+    for (const QString &value : values)
+        m_changeItems.append([value](Environment &env) { env.appendOrSetPath(value); });
 }
 
 void EnvironmentChange::addModify(const NameValueItems &items)
 {
     m_changeItems.append([items](Environment &env) { env.modify(items); });
+}
+
+EnvironmentChange EnvironmentChange::fromFixedEnvironment(const Environment &fixedEnv)
+{
+    EnvironmentChange change;
+    change.m_changeItems.append([fixedEnv](Environment &env) { env = fixedEnv; });
+    return change;
 }
 
 void EnvironmentChange::applyToEnvironment(Environment &env) const

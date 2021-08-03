@@ -73,14 +73,15 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     exeAspect->setHistoryCompleter("Qt.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::ExistingCommand);
-    exeAspect->setEnvironment(envAspect->environment());
+    exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
 
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
-    connect(envAspect, &EnvironmentAspect::environmentChanged,
-            this, [exeAspect, envAspect] { exeAspect->setEnvironment(envAspect->environment()); });
+    connect(envAspect, &EnvironmentAspect::environmentChanged, this, [exeAspect, envAspect]  {
+         exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
+    });
 
     setDefaultDisplayName(defaultDisplayName());
 }

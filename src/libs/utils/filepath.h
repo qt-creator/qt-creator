@@ -47,6 +47,7 @@ class tst_fileutils; // This becomes a friend of Utils::FilePath for testing pri
 namespace Utils {
 
 class Environment;
+class EnvironmentChange;
 
 class QTCREATOR_UTILS_EXPORT FilePath
 {

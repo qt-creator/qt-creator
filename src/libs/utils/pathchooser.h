@@ -41,6 +41,7 @@ namespace Utils {
 class FancyLineEdit;
 class MacroExpander;
 class Environment;
+class EnvironmentChange;
 class PathChooserPrivate;
 
 class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
@@ -99,7 +100,7 @@ public:
     FilePath baseDirectory() const;
     void setBaseDirectory(const FilePath &base);
 
-    void setEnvironment(const Environment &env);
+    void setEnvironmentChange(const EnvironmentChange &change);
 
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
