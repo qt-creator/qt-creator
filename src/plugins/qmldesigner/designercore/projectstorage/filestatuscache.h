@@ -25,51 +25,19 @@
 
 #pragma once
 
+#include "filestatus.h"
 #include "filesysteminterface.h"
-#include "vector"
 
 #include <QtGlobal>
 
 QT_FORWARD_DECLARE_CLASS(QFileInfo)
 
 namespace QmlDesigner {
-namespace Internal {
-class FileStatusCacheEntry
-{
-public:
-    FileStatusCacheEntry(QmlDesigner::SourceId sourceId, long long lastModified = 0)
-        : sourceId(sourceId)
-        , lastModified(lastModified)
-    {}
-
-    friend bool operator<(FileStatusCacheEntry first, FileStatusCacheEntry second)
-    {
-        return first.sourceId < second.sourceId;
-    }
-
-    friend bool operator<(FileStatusCacheEntry first, SourceId second)
-    {
-        return first.sourceId < second;
-    }
-
-    friend bool operator<(SourceId first, FileStatusCacheEntry second)
-    {
-        return first < second.sourceId;
-    }
-
-public:
-    SourceId sourceId;
-    long long lastModified;
-};
-
-using FileStatusCacheEntries = std::vector<FileStatusCacheEntry>;
-
-}
 
 class FileStatusCache
 {
 public:
-    using size_type = Internal::FileStatusCacheEntries::size_type;
+    using size_type = FileStatuses::size_type;
 
     FileStatusCache(FileSystemInterface &fileSystem)
         : m_fileSystem(fileSystem)
@@ -78,6 +46,9 @@ public:
     FileStatusCache(const FileStatusCache &) = delete;
 
     long long lastModifiedTime(SourceId sourceId) const;
+    long long fileSize(SourceId sourceId) const;
+    const FileStatus &find(SourceId sourceId) const;
+
     void update(SourceId sourceId);
     void update(SourceIds sourceIds);
     SourceIds modified(SourceIds sourceIds) const;
@@ -85,10 +56,7 @@ public:
     size_type size() const;
 
 private:
-    Internal::FileStatusCacheEntry findEntry(SourceId sourceId) const;
-
-private:
-    mutable Internal::FileStatusCacheEntries m_cacheEntries;
+    mutable FileStatuses m_cacheEntries;
     FileSystemInterface &m_fileSystem;
 };
 

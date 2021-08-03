@@ -36,20 +36,25 @@ namespace QmlDesigner {
 
 long long FileStatusCache::lastModifiedTime(SourceId sourceId) const
 {
-    return findEntry(sourceId).lastModified;
+    return find(sourceId).lastModified;
+}
+
+long long FileStatusCache::fileSize(SourceId sourceId) const
+{
+    return find(sourceId).size;
 }
 
 void FileStatusCache::update(SourceId sourceId)
 {
     auto found = std::lower_bound(m_cacheEntries.begin(),
                                   m_cacheEntries.end(),
-                                  Internal::FileStatusCacheEntry{sourceId},
+                                  sourceId,
                                   [](const auto &first, const auto &second) {
-                                      return first.sourceId < second.sourceId;
+                                      return first < second;
                                   });
 
     if (found != m_cacheEntries.end() && found->sourceId == sourceId)
-        found->lastModified = m_fileSystem.lastModified(sourceId);
+        *found = m_fileSystem.fileStatus(sourceId);
 }
 
 void FileStatusCache::update(SourceIds sourceIds)
@@ -59,7 +64,7 @@ void FileStatusCache::update(SourceIds sourceIds)
                           sourceIds.begin(),
                           sourceIds.end(),
                           Utils::make_iterator([&](auto &entry) {
-                              entry.lastModified = m_fileSystem.lastModified(entry.sourceId);
+                              entry = m_fileSystem.fileStatus(entry.sourceId);
                           }));
 }
 
@@ -73,14 +78,14 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
                           sourceIds.begin(),
                           sourceIds.end(),
                           Utils::make_iterator([&](auto &entry) {
-                              auto newLastModified = m_fileSystem.lastModified(entry.sourceId);
-                              if (newLastModified > entry.lastModified) {
+                              auto fileStatus = m_fileSystem.fileStatus(entry.sourceId);
+                              if (fileStatus != entry) {
                                   modifiedSourceIds.push_back(entry.sourceId);
-                                  entry.lastModified = newLastModified;
+                                  entry = fileStatus;
                               }
                           }));
 
-    Internal::FileStatusCacheEntries newEntries;
+    FileStatuses newEntries;
     newEntries.reserve(sourceIds.size());
 
     std::set_difference(sourceIds.begin(),
@@ -88,13 +93,12 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
                         m_cacheEntries.begin(),
                         m_cacheEntries.end(),
                         Utils::make_iterator([&](SourceId newSourceId) {
-                            newEntries.emplace_back(newSourceId,
-                                                    m_fileSystem.lastModified(newSourceId));
+                            newEntries.push_back(m_fileSystem.fileStatus(newSourceId));
                             modifiedSourceIds.push_back(newSourceId);
                         }));
 
     if (newEntries.size()) {
-        Internal::FileStatusCacheEntries mergedEntries;
+        FileStatuses mergedEntries;
         mergedEntries.reserve(m_cacheEntries.size() + newEntries.size());
 
         std::set_union(newEntries.begin(),
@@ -116,19 +120,19 @@ FileStatusCache::size_type FileStatusCache::size() const
     return m_cacheEntries.size();
 }
 
-Internal::FileStatusCacheEntry FileStatusCache::findEntry(SourceId sourceId) const
+const FileStatus &FileStatusCache::find(SourceId sourceId) const
 {
     auto found = std::lower_bound(m_cacheEntries.begin(),
                                   m_cacheEntries.end(),
-                                  Internal::FileStatusCacheEntry{sourceId},
+                                  sourceId,
                                   [](const auto &first, const auto &second) {
-                                      return first.sourceId < second.sourceId;
+                                      return first < second;
                                   });
 
     if (found != m_cacheEntries.end() && found->sourceId == sourceId)
         return *found;
 
-    auto inserted = m_cacheEntries.emplace(found, sourceId, m_fileSystem.lastModified(sourceId));
+    auto inserted = m_cacheEntries.insert(found, m_fileSystem.fileStatus(sourceId));
 
     return *inserted;
 }

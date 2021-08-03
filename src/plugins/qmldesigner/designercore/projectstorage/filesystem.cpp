@@ -64,6 +64,19 @@ long long FileSystem::lastModified(SourceId sourceId) const
     return 0;
 }
 
+FileStatus FileSystem::fileStatus(SourceId sourceId) const
+{
+    QFileInfo fileInfo(QString(m_sourcePathCache.sourcePath(sourceId)));
+
+    fileInfo.refresh();
+
+    if (fileInfo.exists()) {
+        return FileStatus{sourceId, fileInfo.size(), fileInfo.lastModified().toMSecsSinceEpoch()};
+    }
+
+    return FileStatus{sourceId, -1, -1};
+}
+
 void FileSystem::remove(const SourceIds &sourceIds)
 {
     for (SourceId sourceId : sourceIds)

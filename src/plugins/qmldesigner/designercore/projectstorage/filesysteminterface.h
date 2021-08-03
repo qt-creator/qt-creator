@@ -31,11 +31,14 @@
 
 namespace QmlDesigner {
 
+class FileStatus;
+
 class FileSystemInterface
 {
 public:
     virtual SourceIds directoryEntries(const QString &directoryPath) const = 0;
     virtual long long lastModified(SourceId sourceId) const = 0;
+    virtual FileStatus fileStatus(SourceId sourceId) const = 0;
     virtual void remove(const SourceIds &sourceIds) = 0;
 
 protected:

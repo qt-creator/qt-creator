@@ -3915,4 +3915,28 @@ TEST_F(ProjectStorageSlowTest, ThrowForInvalidSourceId)
                  Sqlite::ConstraintPreventsModification);
 }
 
+TEST_F(ProjectStorageSlowTest, FetchAllFileStatuses)
+{
+    setUpSourceIds();
+    FileStatus fileStatus1{sourceId1, 100, 100};
+    FileStatus fileStatus2{sourceId2, 101, 101};
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+
+    auto fileStatuses = convert(storage.fetchAllFileStatuses());
+
+    ASSERT_THAT(fileStatuses, ElementsAre(fileStatus1, fileStatus2));
+}
+
+TEST_F(ProjectStorageSlowTest, FetchAllFileStatusesReverse)
+{
+    setUpSourceIds();
+    FileStatus fileStatus1{sourceId1, 100, 100};
+    FileStatus fileStatus2{sourceId2, 101, 101};
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus2, fileStatus1});
+
+    auto fileStatuses = convert(storage.fetchAllFileStatuses());
+
+    ASSERT_THAT(fileStatuses, ElementsAre(fileStatus1, fileStatus2));
+}
+
 } // namespace

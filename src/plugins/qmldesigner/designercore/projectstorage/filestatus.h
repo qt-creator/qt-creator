@@ -27,8 +27,6 @@
 
 #include "projectstorageids.h"
 
-#include <ctime>
-#include <sys/types.h>
 #include <vector>
 
 namespace QmlDesigner {
@@ -36,13 +34,13 @@ namespace QmlDesigner {
 class FileStatus
 {
 public:
-    explicit FileStatus(SourceId sourceId, off_t size, std::time_t lastModified)
+    explicit FileStatus(SourceId sourceId, long long size, long long lastModified)
         : sourceId{sourceId}
         , size{size}
         , lastModified{lastModified}
     {}
 
-    explicit FileStatus(int sourceId, off_t size, std::time_t lastModified)
+    explicit FileStatus(int sourceId, long long size, long long lastModified)
         : sourceId{sourceId}
         , size{size}
         , lastModified{lastModified}
@@ -54,15 +52,30 @@ public:
                && first.lastModified == second.lastModified;
     }
 
+    friend bool operator!=(const FileStatus &first, const FileStatus &second)
+    {
+        return !(first == second);
+    }
+
     friend bool operator<(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId < second.sourceId;
     }
 
+    friend bool operator<(SourceId first, const FileStatus &second)
+    {
+        return first < second.sourceId;
+    }
+
+    friend bool operator<(const FileStatus &first, SourceId second)
+    {
+        return first.sourceId < second;
+    }
+
 public:
     SourceId sourceId;
-    off_t size;
-    std::time_t lastModified;
+    long long size;
+    long long lastModified;
 };
 
 using FileStatuses = std::vector<FileStatus>;

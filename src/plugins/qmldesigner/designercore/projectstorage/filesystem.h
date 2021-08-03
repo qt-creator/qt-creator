@@ -52,6 +52,7 @@ public:
 
     SourceIds directoryEntries(const QString &directoryPath) const override;
     long long lastModified(SourceId sourceId) const override;
+    FileStatus fileStatus(SourceId sourceId) const override;
 
     void remove(const SourceIds &sourceIds) override;
 

@@ -2181,7 +2181,7 @@ public:
         "SELECT propertyDeclarationId FROM properties",
         database};
     mutable ReadStatement<3> selectAllFileStatusesStatement{
-        "SELECT sourceId, size, lastModified FROM fileStatuses", database};
+        "SELECT sourceId, size, lastModified FROM fileStatuses ORDER BY sourceId", database};
     mutable ReadStatement<3> selectFileStatusesForSourceIdsStatement{
         "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) ORDER "
         "BY sourceId",
