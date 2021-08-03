@@ -40,43 +40,58 @@ class CallerHandle : public QObject
 public:
     CallerHandle() : QObject() {}
 
-    enum class SignalType {
-        Started,
-        ReadyRead,
-        Finished
-    };
-
     // always called in caller's thread
     void flush()
     {
-        QList<SignalType> oldSignals;
+        QList<LauncherHandle::SignalType> oldSignals;
         {
             QMutexLocker locker(&m_mutex);
             oldSignals = m_signals;
             m_signals = {};
         }
-        for (SignalType signalType : qAsConst(oldSignals)) {
+        for (LauncherHandle::SignalType signalType : qAsConst(oldSignals)) {
             switch (signalType) {
-            case SignalType::Started:
+            case LauncherHandle::SignalType::NoSignal:
+                break;
+            case LauncherHandle::SignalType::Started:
                 emit started();
                 break;
-            case SignalType::ReadyRead:
+            case LauncherHandle::SignalType::ReadyRead:
                 emit readyRead();
                 break;
-            case SignalType::Finished:
+            case LauncherHandle::SignalType::Finished:
                 emit finished();
                 break;
             }
         }
     }
-    void appendSignal(SignalType signalType) { QMutexLocker locker(&m_mutex); m_signals.append(signalType); }
+    void appendSignal(LauncherHandle::SignalType signalType)
+    {
+        if (signalType == LauncherHandle::SignalType::NoSignal)
+            return;
+
+        QMutexLocker locker(&m_mutex);
+        if (m_signals.contains(signalType))
+            return;
+
+        m_signals.append(signalType);
+    }
+    bool shouldFlushFor(LauncherHandle::SignalType signalType)
+    {
+        QMutexLocker locker(&m_mutex);
+        if (m_signals.contains(signalType))
+            return true;
+        if (m_signals.contains(LauncherHandle::SignalType::Finished))
+            return true;
+        return false;
+    }
 signals:
     void started();
     void readyRead();
     void finished();
 private:
     QMutex m_mutex;
-    QList<SignalType> m_signals;
+    QList<LauncherHandle::SignalType> m_signals;
 };
 
 void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &payload)
@@ -101,9 +116,9 @@ void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
     QMutexLocker locker(&m_mutex);
     if (!m_canceled)
         m_processState = QProcess::NotRunning;
-    if (m_waitingFor != WaitingForState::Idle) {
+    if (m_waitingFor != SignalType::NoSignal) {
         m_waitCondition.wakeOne();
-        m_waitingFor = WaitingForState::Idle;
+        m_waitingFor = SignalType::NoSignal;
     }
     m_failed = true;
 
@@ -115,14 +130,14 @@ void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 }
 
 // call me with mutex locked
-void LauncherHandle::stateReached(WaitingForState wakeUpState, QProcess::ProcessState newState)
+void LauncherHandle::wakeUpIfWaitingFor(SignalType wakeUpSignal)
 {
-    if (!m_canceled)
-        m_processState = newState;
-    const bool shouldWake = m_waitingFor == wakeUpState;
+    // e.g. if we are waiting for ReadyRead and we got Finished signal instead -> wake it, too.
+    const bool shouldWake = m_waitingFor == wakeUpSignal
+            || m_waitingFor != SignalType::NoSignal && wakeUpSignal == SignalType::Finished;
     if (shouldWake) {
         m_waitCondition.wakeOne();
-        m_waitingFor = WaitingForState::Idle;
+        m_waitingFor = SignalType::NoSignal;
     }
 }
 
@@ -144,13 +159,14 @@ void LauncherHandle::flushCaller()
 void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
-    stateReached(WaitingForState::Started, QProcess::Running);
+    wakeUpIfWaitingFor(SignalType::Started);
     if (m_canceled)
         return;
+    m_processState = QProcess::Running;
     const auto packet = LauncherPacket::extractPacket<ProcessStartedPacket>(m_token, packetData);
     m_processId = packet.processId;
     if (m_callerHandle) {
-        m_callerHandle->appendSignal(CallerHandle::SignalType::Started);
+        m_callerHandle->appendSignal(SignalType::Started);
         flushCaller();
     }
 }
@@ -158,10 +174,10 @@ void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
 void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
-    stateReached(WaitingForState::Finished, QProcess::NotRunning);
+    wakeUpIfWaitingFor(SignalType::Finished);
     if (m_canceled)
         return;
-    m_finished = true;
+    m_processState = QProcess::NotRunning;
     const auto packet = LauncherPacket::extractPacket<ProcessFinishedPacket>(m_token, packetData);
     m_exitCode = packet.exitCode;
     m_stdout = packet.stdOut;
@@ -170,8 +186,8 @@ void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
     m_exitStatus = packet.exitStatus;
     if (m_callerHandle) {
         if (!m_stdout.isEmpty() || !m_stderr.isEmpty())
-            m_callerHandle->appendSignal(CallerHandle::SignalType::ReadyRead);
-        m_callerHandle->appendSignal(CallerHandle::SignalType::Finished);
+            m_callerHandle->appendSignal(SignalType::ReadyRead);
+        m_callerHandle->appendSignal(SignalType::Finished);
         flushCaller();
     }
 }
@@ -196,29 +212,51 @@ void LauncherHandle::handleSocketError(const QString &message)
     }
 }
 
-bool LauncherHandle::waitForState(int msecs, WaitingForState newState, QProcess::ProcessState targetState)
+bool LauncherHandle::waitForSignal(int msecs, SignalType newSignal)
 {
-    const bool ok = doWaitForState(msecs, newState, targetState);
+    const bool ok = doWaitForSignal(msecs, newSignal);
     if (ok)
         m_callerHandle->flush();
     return ok;
 }
 
-bool LauncherHandle::doWaitForState(int msecs, WaitingForState newState, QProcess::ProcessState targetState)
+bool LauncherHandle::doWaitForSignal(int msecs, SignalType newSignal)
 {
     QMutexLocker locker(&m_mutex);
-    // TODO: ASSERT if we are in Idle state
+    QTC_ASSERT(m_waitingFor == SignalType::NoSignal, return false);
     if (m_canceled) // we don't want to wait if we have canceled it before (ASSERT it?)
         return false;
 
-    // It may happen, than after calling start() and before calling waitForStarted() we might have
-    // reached the Running or Finished state already. In this case we return true
+    // It may happen, that after calling start() and before calling waitForStarted() we might have
+    // reached the Running (or even Finished) state already. In this case we should have
+    // collected Started (or even Finished) signal to be flushed - so we return true
     // and we are going to flush pending signals synchronously.
-    if (m_processState == targetState || m_finished)
+    // It could also happen, that some new readyRead data has appeared, so before we wait for
+    // more we flush it, too.
+    if (m_callerHandle->shouldFlushFor(newSignal))
         return true;
 
-    m_waitingFor = newState;
-    return m_waitCondition.wait(&m_mutex, msecs) && !m_failed;
+    if (canWaitFor(newSignal)) { // e.g. can't wait for started if we are in not running state.
+        m_waitingFor = newSignal;
+        return m_waitCondition.wait(&m_mutex, msecs) && !m_failed;
+    }
+
+    return false;
+}
+
+// call me with mutex locked
+bool LauncherHandle::canWaitFor(SignalType newSignal) const
+{
+    switch (newSignal) {
+    case SignalType::Started:
+        return m_processState == QProcess::Starting;
+    case SignalType::ReadyRead:
+    case SignalType::Finished:
+        return m_processState != QProcess::NotRunning;
+    default:
+        break;
+    }
+    return false;
 }
 
 void LauncherHandle::cancel()
