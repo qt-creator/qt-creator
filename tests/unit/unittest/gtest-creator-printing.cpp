@@ -36,6 +36,7 @@
 #include <clangtools/clangtoolsdiagnostic.h>
 #include <debugger/analyzer/diagnosticlocation.h>
 #include <modelnode.h>
+#include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragepathwatchertypes.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/sourcepathcachetypes.h>
@@ -946,6 +947,12 @@ const char *sourceTypeToText(SourceType sourceType)
     }
 
     return "";
+}
+
+std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus)
+{
+    return out << "(" << fileStatus.sourceId << ", " << fileStatus.size << ", "
+               << fileStatus.lastModified << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, SourceType sourceType)

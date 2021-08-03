@@ -36,21 +36,25 @@ namespace QmlDesigner {
 class FileStatus
 {
 public:
-    FileStatus(SourceId sourceId, off_t size, std::time_t lastModified)
-        : sourceId(sourceId)
-        , size(size)
-        , lastModified(lastModified)
+    explicit FileStatus(SourceId sourceId, off_t size, std::time_t lastModified)
+        : sourceId{sourceId}
+        , size{size}
+        , lastModified{lastModified}
     {}
 
-    friend
-    bool operator==(const FileStatus &first, const FileStatus &second)
+    explicit FileStatus(int sourceId, off_t size, std::time_t lastModified)
+        : sourceId{sourceId}
+        , size{size}
+        , lastModified{lastModified}
+    {}
+
+    friend bool operator==(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId == second.sourceId && first.size == second.size
                && first.lastModified == second.lastModified;
     }
 
-    friend
-    bool operator<(const FileStatus &first, const FileStatus &second)
+    friend bool operator<(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId < second.sourceId;
     }

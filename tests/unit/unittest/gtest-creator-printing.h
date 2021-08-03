@@ -220,6 +220,7 @@ class WatcherEntry;
 class IdPaths;
 class ProjectChunkId;
 enum class SourceType : int;
+class FileStatus;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
@@ -234,6 +235,7 @@ std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
 std::ostream &operator<<(std::ostream &out, const ProjectChunkId &id);
 std::ostream &operator<<(std::ostream &out, SourceType sourceType);
+std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus);
 
 namespace Cache {
 class SourceContext;

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "filestatus.h"
 #include "projectstorageexceptions.h"
 #include "projectstorageids.h"
 #include "projectstoragetypes.h"
@@ -59,7 +60,8 @@ public:
     void synchronize(Storage::ImportDependencies importDependencies,
                      Storage::Documents documents,
                      Storage::Types types,
-                     SourceIds sourceIds)
+                     SourceIds sourceIds,
+                     FileStatuses fileStatuses)
     {
         Sqlite::ImmediateTransaction transaction{database};
 
@@ -75,6 +77,7 @@ public:
             return &sourceId;
         });
 
+        synchronizeFileStatuses(fileStatuses, sourceIdValues);
         synchronizeImports(importDependencies, deletedTypeIds, sourceIdValues);
         synchronizeDocuments(documents, sourceIdValues);
         synchronizeTypes(types,
@@ -291,6 +294,11 @@ public:
         return imports;
     }
 
+    auto fetchAllFileStatuses() const
+    {
+        return selectAllFileStatusesStatement.template rangeWithTransaction<FileStatus>();
+    }
+
 private:
     class AliasPropertyDeclaration
     {
@@ -419,6 +427,41 @@ private:
 
         for (auto &&type : types)
             syncDeclarations(type, insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+    }
+
+    void synchronizeFileStatuses(FileStatuses &fileStatuses, const std::vector<int> &sourceIdValues)
+    {
+        auto compareKey = [](auto &&first, auto &&second) {
+            return first.sourceId.id - second.sourceId.id;
+        };
+
+        std::sort(fileStatuses.begin(), fileStatuses.end(), [&](auto &&first, auto &&second) {
+            return first.sourceId < second.sourceId;
+        });
+
+        auto range = selectFileStatusesForSourceIdsStatement.template range<FileStatus>(
+            Utils::span(sourceIdValues));
+
+        auto insert = [&](const FileStatus &fileStatus) {
+            insertFileStatusStatement.write(&fileStatus.sourceId,
+                                            fileStatus.size,
+                                            fileStatus.lastModified);
+        };
+
+        auto update = [&](const FileStatus &fileStatusFromDatabase, const FileStatus &fileStatus) {
+            if (fileStatusFromDatabase.lastModified != fileStatus.lastModified
+                || fileStatusFromDatabase.size != fileStatus.size) {
+                updateFileStatusStatement.write(&fileStatus.sourceId,
+                                                fileStatus.size,
+                                                fileStatus.lastModified);
+            }
+        };
+
+        auto remove = [&](const FileStatus &fileStatus) {
+            deleteFileStatusStatement.write(&fileStatus.sourceId);
+        };
+
+        Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
     void synchronizeImports(Storage::ImportDependencies &imports,
@@ -1498,6 +1541,7 @@ private:
                 createFunctionsTable(database);
                 createSignalsTable(database);
                 createSourceImportsTable(database);
+                createFileStatusesTable(database);
 
                 transaction.commit();
 
@@ -1691,6 +1735,24 @@ private:
             auto &importIdColumn = table.addColumn("importId");
 
             table.addPrimaryKeyContraint({sourceIdColumn, importIdColumn});
+
+            table.initialize(database);
+        }
+
+        void createFileStatusesTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setName("fileStatuses");
+            table.addColumn("sourceId",
+                            Sqlite::ColumnType::Integer,
+                            {Sqlite::PrimaryKey{},
+                             Sqlite::ForeignKey{"sources",
+                                                "sourceId",
+                                                Sqlite::ForeignKeyAction::NoAction,
+                                                Sqlite::ForeignKeyAction::Cascade}});
+            table.addColumn("size");
+            table.addColumn("lastModified");
 
             table.initialize(database);
         }
@@ -2118,6 +2180,17 @@ public:
         "       USING(propertyDeclarationId)) "
         "SELECT propertyDeclarationId FROM properties",
         database};
+    mutable ReadStatement<3> selectAllFileStatusesStatement{
+        "SELECT sourceId, size, lastModified FROM fileStatuses", database};
+    mutable ReadStatement<3> selectFileStatusesForSourceIdsStatement{
+        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) ORDER "
+        "BY sourceId",
+        database};
+    WriteStatement insertFileStatusStatement{
+        "INSERT INTO fileStatuses(sourceId, size, lastModified) VALUES(?1, ?2, ?3)", database};
+    WriteStatement deleteFileStatusStatement{"DELETE FROM fileStatuses WHERE sourceId=?1", database};
+    WriteStatement updateFileStatusStatement{
+        "UPDATE fileStatuses SET size=?2, lastModified=?3 WHERE sourceId=?1", database};
 };
 
 } // namespace QmlDesigner

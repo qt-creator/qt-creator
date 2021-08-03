@@ -36,6 +36,8 @@
 
 namespace {
 
+using QmlDesigner::FileStatus;
+using QmlDesigner::FileStatuses;
 using QmlDesigner::ImportId;
 using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::SourceContextId;
@@ -637,15 +639,19 @@ protected:
         return newImportDependencies;
     }
 
-    void setUpImportDependenciesAndDocuments()
+    void setUpSourceIds()
     {
-        setUpImports();
-
         sourceId1 = sourcePathCache.sourceId(path1);
         sourceId2 = sourcePathCache.sourceId(path2);
         sourceId3 = sourcePathCache.sourceId(path3);
         sourceId4 = sourcePathCache.sourceId(path4);
         sourceId5 = sourcePathCache.sourceId(path5);
+    }
+
+    void setUpImportDependenciesAndDocuments()
+    {
+        setUpImports();
+        setUpSourceIds();
 
         importDependencies = createImportDependencies();
 
@@ -665,7 +671,8 @@ protected:
                              sourceId5,
                              importSourceId1,
                              importSourceId2,
-                             importSourceId5});
+                             importSourceId5},
+                            {});
         importIds = storage.fetchImportIds(imports);
         importId1 = importIds[0];
         importId2 = importIds[1];
@@ -673,6 +680,12 @@ protected:
     }
 
     void setUpImports() { imports = createImports(); }
+
+    template<typename Range>
+    static FileStatuses convert(const Range &range)
+    {
+        return FileStatuses(range.begin(), range.end());
+    }
 
 protected:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
@@ -910,7 +923,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypes)
 {
     Storage::Types types{createTypes()};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -935,7 +948,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithExportedPrototype
     Storage::Types types{createTypes()};
     types[0].prototype = Storage::ExportedType{"Object"};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -960,7 +973,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesThrowsWithWrongExport
     Storage::Types types{createTypes()};
     types[0].prototype = Storage::ExportedType{"Objec"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -973,19 +986,19 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithMissingImportAndE
                                   TypeAccessSemantics::Reference,
                                   sourceId4,
                                   {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1}, {});
     types[1].prototype = Storage::ExportedType{"Object2"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesWithMissingImport)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1}, {});
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -994,7 +1007,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesReverseOrder)
     Storage::Types types{createTypes()};
     std::reverse(types.begin(), types.end());
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1017,11 +1030,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesReverseOrder)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesTypeAccessSemantics)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[0].accessSemantics = TypeAccessSemantics::Value;
     types[1].accessSemantics = TypeAccessSemantics::Value;
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1044,11 +1057,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesTypeAccessSemantics)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesSources)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[0].sourceId = sourceId3;
     types[1].sourceId = sourceId4;
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1071,7 +1084,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesSources)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesInsertTypeIntoPrototypeChain)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[0].prototype = Storage::NativeType{"QQuickObject"};
     types.push_back(Storage::Type{Storage::Import{"QtQuick"},
                                   "QQuickObject",
@@ -1080,7 +1093,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesInsertTypeIntoPrototypeChain)
                                   sourceId1,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1118,7 +1131,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddExplicitPrototype)
                                   sourceId1,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1156,7 +1169,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForMissingPrototype)
                                        sourceId1,
                                        {Storage::ExportedType{"Item"}}}};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1}, {}),
+                 QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForMissingImport)
@@ -1169,7 +1183,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForMissingImport)
                                        sourceId1,
                                        {Storage::ExportedType{"Item"}}}};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1}), QmlDesigner::ImportDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1}, {}),
+                 QmlDesigner::ImportDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, TypeWithInvalidSourceIdThrows)
@@ -1181,16 +1196,16 @@ TEST_F(ProjectStorageSlowTest, TypeWithInvalidSourceIdThrows)
                                        SourceId{},
                                        {Storage::ExportedType{"Item"}}}};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {}), QmlDesigner::TypeHasInvalidSourceId);
+    ASSERT_THROW(storage.synchronize({}, {}, types, {}, {}), QmlDesigner::TypeHasInvalidSourceId);
 }
 
 TEST_F(ProjectStorageSlowTest, DeleteTypeIfSourceIdIsSynchronized)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types.erase(types.begin());
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1206,10 +1221,10 @@ TEST_F(ProjectStorageSlowTest, DeleteTypeIfSourceIdIsSynchronized)
 TEST_F(ProjectStorageSlowTest, DontDeleteTypeIfSourceIdIsNotSynchronized)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types.pop_back();
 
-    storage.synchronize({}, {}, types, {sourceId1});
+    storage.synchronize({}, {}, types, {sourceId1}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1232,10 +1247,10 @@ TEST_F(ProjectStorageSlowTest, DontDeleteTypeIfSourceIdIsNotSynchronized)
 TEST_F(ProjectStorageSlowTest, UpdateExportedTypesIfTypeNameChanges)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[0].typeName = "QQuickItem2";
 
-    storage.synchronize({}, {}, {types[0]}, {sourceId1});
+    storage.synchronize({}, {}, {types[0]}, {sourceId1}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -1258,10 +1273,10 @@ TEST_F(ProjectStorageSlowTest, UpdateExportedTypesIfTypeNameChanges)
 TEST_F(ProjectStorageSlowTest, BreakingPrototypeChainByDeletingBaseComponentThrows)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -1269,7 +1284,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarations)
 {
     Storage::Types types{createTypes()};
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1294,20 +1309,20 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesAddPropertyDeclarationsWithMissingImportIdsForNativeTypes)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {Storage::Document{sourceId1, {}}}, {}, {sourceId1});
+    storage.synchronize({}, {Storage::Document{sourceId1, {}}}, {}, {sourceId1}, {});
     types[0].propertyDeclarations.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, types, {}, {}), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesAddPropertyDeclarationsWithMissingImportIdsForExportedTypes)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1});
+    storage.synchronize({}, {Storage::Document{sourceId1, {imports[0]}}}, {}, {sourceId1}, {});
     types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Obj"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, types, {}, {}), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarationExplicitType)
@@ -1323,7 +1338,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarationExplicitTyp
                                   sourceId1,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1347,10 +1362,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarationExplicitTyp
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesPropertyDeclarationType)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].propertyDeclarations[0].typeName = Storage::NativeType{"QQuickItem"};
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1374,10 +1389,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesPropertyDeclarationType)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraits)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1401,11 +1416,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraits)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraitsAndType)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
     types[0].propertyDeclarations[0].typeName = Storage::NativeType{"QQuickItem"};
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1429,10 +1444,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraitsAndType)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesAPropertyDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].propertyDeclarations.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1450,13 +1465,13 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesAPropertyDeclaration)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsAPropertyDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"object",
                                      Storage::NativeType{"QObject"},
                                      Storage::PropertyDeclarationTraits::IsPointer});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -1483,10 +1498,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsAPropertyDeclaration)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRenameAPropertyDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].propertyDeclarations[1].name = "objects";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1513,7 +1528,7 @@ TEST_F(ProjectStorageSlowTest, UsingNonExistingNativePropertyTypeThrows)
     types[0].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -1523,7 +1538,7 @@ TEST_F(ProjectStorageSlowTest, UsingNonExistingExportedPropertyTypeThrows)
     types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"QObject2"};
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -1535,7 +1550,7 @@ TEST_F(ProjectStorageSlowTest, UsingNonExistingExplicitExportedPropertyTypeWithW
                                                                                   "Qml"}};
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -1547,18 +1562,18 @@ TEST_F(ProjectStorageSlowTest, UsingNonExistingExplicitExportedPropertyTypeWithW
                                                                                   "QtQuick"}};
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, BreakingPropertyDeclarationTypeDependencyByDeletingTypeThrows)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[0].prototype = Storage::NativeType{};
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -1566,7 +1581,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddFunctionDeclarations)
 {
     Storage::Types types{createTypes()};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1582,10 +1597,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddFunctionDeclarations)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationReturnType)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].returnTypeName = "item";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1601,10 +1616,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationReturnT
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].name = "name";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1620,10 +1635,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationName)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationPopParameters)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].parameters.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1639,10 +1654,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationPopPara
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationAppendParameters)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].parameters.push_back(Storage::ParameterDeclaration{"arg4", "int"});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1658,10 +1673,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationAppendP
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeParameterName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].parameters[0].name = "other";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1677,10 +1692,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeP
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeParameterTypeName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].parameters[0].name = "long long";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1696,10 +1711,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeP
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeParameterTraits)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1715,10 +1730,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeP
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesFunctionDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1733,11 +1748,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesFunctionDeclaration)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddFunctionDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].functionDeclarations.push_back(
         Storage::FunctionDeclaration{"name", "string", {Storage::ParameterDeclaration{"arg", "int"}}});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1755,7 +1770,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddSignalDeclarations)
 {
     Storage::Types types{createTypes()};
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1771,10 +1786,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddSignalDeclarations)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations[1].name = "name";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1790,10 +1805,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationName)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationPopParameters)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations[1].parameters.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1809,10 +1824,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationPopParame
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationAppendParameters)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations[1].parameters.push_back(Storage::ParameterDeclaration{"arg4", "int"});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1828,10 +1843,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationAppendPar
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangeParameterName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations[1].parameters[0].name = "other";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1847,10 +1862,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangePar
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangeParameterTypeName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations[1].parameters[0].typeName = "long long";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1866,10 +1881,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangePar
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangeParameterTraits)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1885,10 +1900,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangePar
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesSignalDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1903,11 +1918,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesSignalDeclaration)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddSignalDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].signalDeclarations.push_back(
         Storage::SignalDeclaration{"name", {Storage::ParameterDeclaration{"arg", "int"}}});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1925,7 +1940,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddEnumerationDeclarations)
 {
     Storage::Types types{createTypes()};
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1941,10 +1956,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddEnumerationDeclarations)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].name = "Name";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1960,10 +1975,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationName
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationPopEnumeratorDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].enumeratorDeclarations.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -1979,11 +1994,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationPopE
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationAppendEnumeratorDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].enumeratorDeclarations.push_back(
         Storage::EnumeratorDeclaration{"Haa", 54});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2000,10 +2015,10 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].enumeratorDeclarations[0].name = "Hoo";
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2020,10 +2035,10 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationValue)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].enumeratorDeclarations[1].value = 11;
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2040,11 +2055,11 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesChangesEnumerationDeclarationAddThatEnumeratorDeclarationHasValue)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].enumeratorDeclarations[0].value = 11;
     types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = true;
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2061,10 +2076,10 @@ TEST_F(ProjectStorageSlowTest,
        SynchronizeTypesChangesEnumerationDeclarationRemoveThatEnumeratorDeclarationHasValue)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = false;
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2080,10 +2095,10 @@ TEST_F(ProjectStorageSlowTest,
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesEnumerationDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations.pop_back();
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2098,11 +2113,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesEnumerationDeclaration)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddEnumerationDeclaration)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
     types[0].enumerationDeclarations.push_back(
         Storage::EnumerationDeclaration{"name", {Storage::EnumeratorDeclaration{"Foo", 98, true}}});
 
-    storage.synchronize({}, {}, types, {});
+    storage.synchronize({}, {}, types, {}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -2120,7 +2135,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
 
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2132,9 +2151,17 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImports)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportsAgain)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2146,14 +2173,19 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportsAgain)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsUpdateToMoreImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     importDependencies.push_back(
         Storage::ImportDependency{"QtQuick.Foo", Storage::VersionNumber{1}, importSourceId3});
 
     storage.synchronize(importDependencies,
                         {},
                         {},
-                        {importSourceId1, importSourceId2, importSourceId3, importSourceId5});
+                        {importSourceId1, importSourceId2, importSourceId3, importSourceId5},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2166,12 +2198,16 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsUpdateToMoreImports)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddOneMoreImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto newImportDependency = Storage::ImportDependency{"QtQuick.Foo",
                                                          Storage::VersionNumber{1},
                                                          importSourceId3};
 
-    storage.synchronize({newImportDependency}, {}, {}, {importSourceId3});
+    storage.synchronize({newImportDependency}, {}, {}, {importSourceId3}, {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2188,12 +2224,16 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddSameImportNameButDifferentVe
     Storage::ImportDependencies importDependencies{createImportDependencies()};
     importDependencies.push_back(
         Storage::ImportDependency{"Qml", Storage::VersionNumber{4}, importSourceIdQml4});
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto newImportDependency = Storage::ImportDependency{"Qml",
                                                          Storage::VersionNumber{3},
                                                          importSourceIdQml3};
 
-    storage.synchronize({newImportDependency}, {}, {}, {importSourceIdQml4, importSourceIdQml3});
+    storage.synchronize({newImportDependency}, {}, {}, {importSourceIdQml4, importSourceIdQml3}, {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2206,9 +2246,13 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddSameImportNameButDifferentVe
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsRemoveImport)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
-    storage.synchronize({}, {}, {}, {importSourceId5});
+    storage.synchronize({}, {}, {}, {importSourceId5}, {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2219,10 +2263,14 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsRemoveImport)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeSourceId)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     importDependencies[1].sourceId = importSourceId3;
 
-    storage.synchronize({importDependencies[1]}, {}, {}, {importSourceId2, importSourceId3});
+    storage.synchronize({importDependencies[1]}, {}, {}, {importSourceId2, importSourceId3}, {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2234,12 +2282,20 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeSourceId)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeName)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     importDependencies[0].name = "Qml2";
     importDependencies[1].dependencies[0].name = "Qml2";
     importDependencies[2].dependencies[1].name = "Qml2";
 
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2251,12 +2307,20 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeName)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsChangeVersion)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     importDependencies[0].version = Storage::VersionNumber{3};
     importDependencies[1].dependencies[0].version = Storage::VersionNumber{3};
     importDependencies[2].dependencies[1].version = Storage::VersionNumber{3};
 
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2269,7 +2333,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportDependecies)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
 
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2292,21 +2360,26 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddImportDependeciesWhichDoesNo
     ASSERT_THROW(storage.synchronize(importDependencies,
                                      {},
                                      {},
-                                     {importSourceId1, importSourceId2, importSourceId5}),
+                                     {importSourceId1, importSourceId2, importSourceId5},
+                                     {}),
                  QmlDesigner::ImportDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsRemovesDependeciesForRemovedImports)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto last = importDependencies.back();
     importDependencies.pop_back();
-    storage.synchronize({}, {}, {}, {importSourceId5});
+    storage.synchronize({}, {}, {}, {importSourceId5}, {});
     last.dependencies.pop_back();
     importDependencies.push_back(last);
 
-    storage.synchronize({importDependencies[2]}, {}, {}, {importSourceId5});
+    storage.synchronize({importDependencies[2]}, {}, {}, {importSourceId5}, {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2323,7 +2396,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsRemovesDependeciesForRemovedImp
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependecies)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto importSourceIdQmlBase = sourcePathCache.sourceId("/path/QmlBase");
     importDependencies.push_back(
         Storage::ImportDependency{"QmlBase", Storage::VersionNumber{2}, importSourceIdQmlBase});
@@ -2332,7 +2409,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependecies)
     storage.synchronize({importDependencies[1], importDependencies[3]},
                         {},
                         {},
-                        {importSourceId2, importSourceIdQmlBase});
+                        {importSourceId2, importSourceIdQmlBase},
+                        {});
 
     ASSERT_THAT(
         storage.fetchAllImports(),
@@ -2354,7 +2432,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependecies)
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependeciesWithDifferentVersionNumber)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     importDependencies.push_back(
         Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceIdQml3, {}});
@@ -2363,7 +2445,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependeciesWithDif
     storage.synchronize({importDependencies[1], importDependencies[3]},
                         {},
                         {},
-                        {importSourceId2, importSourceIdQml3});
+                        {importSourceId2, importSourceIdQml3},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2384,7 +2467,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsAddMoreImportDependeciesWithDif
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsHighestVersionIfNoVersionIsSupplied)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     importDependencies.push_back(
         Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceIdQml3, {}});
@@ -2393,7 +2480,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsHighestVersionIfN
     storage.synchronize({importDependencies[1], importDependencies[3]},
                         {},
                         {},
-                        {importSourceId2, importSourceIdQml3});
+                        {importSourceId2, importSourceIdQml3},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2414,7 +2502,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsHighestVersionIfN
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsOnlyTheHighestDependency)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto importSourceIdQml1 = sourcePathCache.sourceId("/path/Qml.1");
     importDependencies.push_back(
         Storage::ImportDependency{"Qml", Storage::VersionNumber{1}, importSourceIdQml1, {}});
@@ -2423,7 +2515,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsOnlyTheHighestDep
     storage.synchronize({importDependencies[1], importDependencies[3]},
                         {},
                         {},
-                        {importSourceId2, importSourceIdQml1});
+                        {importSourceId2, importSourceIdQml1},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2443,7 +2536,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyGetsOnlyTheHighestDep
 TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyRemoveDuplicateDependencies)
 {
     Storage::ImportDependencies importDependencies{createImportDependencies()};
-    storage.synchronize(importDependencies, {}, {}, {importSourceId1, importSourceId2, importSourceId5});
+    storage.synchronize(importDependencies,
+                        {},
+                        {},
+                        {importSourceId1, importSourceId2, importSourceId5},
+                        {});
     auto importSourceIdQml3 = sourcePathCache.sourceId("/path/Qml.3");
     importDependencies.push_back(
         Storage::ImportDependency{"Qml", Storage::VersionNumber{3}, importSourceIdQml3});
@@ -2455,7 +2552,8 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyRemoveDuplicateDepend
     storage.synchronize({importDependencies[2], importDependencies[3]},
                         {},
                         {},
-                        {importSourceId5, importSourceIdQml3});
+                        {importSourceId5, importSourceIdQml3},
+                        {});
 
     ASSERT_THAT(storage.fetchAllImports(),
                 UnorderedElementsAre(
@@ -2476,11 +2574,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeImportsDependencyRemoveDuplicateDepend
 TEST_F(ProjectStorageSlowTest, RemovingImportRemovesDependentTypesToo)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     Storage::ImportDependencies importDependencies{createImportDependencies()};
     importDependencies.pop_back();
     importDependencies.pop_back();
-    storage.synchronize({}, {}, {}, {importSourceId2, importSourceId5});
+    storage.synchronize({}, {}, {}, {importSourceId2, importSourceId5}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(AllOf(IsStorageType(Storage::Import{"Qml", 2},
@@ -2496,7 +2594,7 @@ TEST_F(ProjectStorageSlowTest, RemovingImportRemovesDependentTypesToo)
 TEST_F(ProjectStorageSlowTest, FetchTypeIdByImportIdAndName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto typeId = storage.fetchTypeIdByName(importId1, "QObject");
 
@@ -2506,7 +2604,7 @@ TEST_F(ProjectStorageSlowTest, FetchTypeIdByImportIdAndName)
 TEST_F(ProjectStorageSlowTest, FetchTypeIdByExportedName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto typeId = storage.fetchTypeIdByExportedName("Object");
 
@@ -2516,7 +2614,7 @@ TEST_F(ProjectStorageSlowTest, FetchTypeIdByExportedName)
 TEST_F(ProjectStorageSlowTest, FetchTypeIdByImporIdsAndExportedName)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto typeId = storage.fetchTypeIdByImportIdsAndExportedName({importId1, importId2}, "Object");
 
@@ -2526,7 +2624,7 @@ TEST_F(ProjectStorageSlowTest, FetchTypeIdByImporIdsAndExportedName)
 TEST_F(ProjectStorageSlowTest, FetchInvalidTypeIdByImporIdsAndExportedNameIfImportIdsAreEmpty)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto typeId = storage.fetchTypeIdByImportIdsAndExportedName({}, "Object");
 
@@ -2536,7 +2634,7 @@ TEST_F(ProjectStorageSlowTest, FetchInvalidTypeIdByImporIdsAndExportedNameIfImpo
 TEST_F(ProjectStorageSlowTest, FetchInvalidTypeIdByImporIdsAndExportedNameIfImportIdsAreInvalid)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto typeId = storage.fetchTypeIdByImportIdsAndExportedName({ImportId{}}, "Object");
 
@@ -2546,7 +2644,7 @@ TEST_F(ProjectStorageSlowTest, FetchInvalidTypeIdByImporIdsAndExportedNameIfImpo
 TEST_F(ProjectStorageSlowTest, FetchInvalidTypeIdByImporIdsAndExportedNameIfNotInImport)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto typeId = storage.fetchTypeIdByImportIdsAndExportedName({importId2, importId3}, "Object");
 
@@ -2556,7 +2654,7 @@ TEST_F(ProjectStorageSlowTest, FetchInvalidTypeIdByImporIdsAndExportedNameIfNotI
 TEST_F(ProjectStorageSlowTest, FetchImportDepencencyIds)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto importIds = storage.fetchImportDependencyIds({importId3});
 
@@ -2566,7 +2664,7 @@ TEST_F(ProjectStorageSlowTest, FetchImportDepencencyIds)
 TEST_F(ProjectStorageSlowTest, FetchImportDepencencyIdsForRootDepencency)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     auto importIds = storage.fetchImportDependencyIds({importId1});
 
@@ -2577,7 +2675,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarations)
 {
     Storage::Types types{createTypesWithAliases()};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2603,9 +2701,9 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarations)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsAgain)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2631,10 +2729,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsAgain)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveAliasDeclarations)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[2].propertyDeclarations.pop_back();
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2659,7 +2757,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsThrowsForWron
     Storage::Types types{createTypesWithAliases()};
     types[2].propertyDeclarations[1].typeName = Storage::NativeType{"QQuickItemWrong"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[2]}, {sourceId4}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[2]}, {sourceId4}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropertyName)
@@ -2667,17 +2765,17 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddAliasDeclarationsThrowsForWron
     Storage::Types types{createTypesWithAliases()};
     types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId4}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId4}, {}),
                  QmlDesigner::PropertyNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsTypeName)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[2].propertyDeclarations[2].typeName = Storage::ExportedType{"Obj2"};
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2703,10 +2801,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsTypeName)
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsPropertyName)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[2].propertyDeclarations[2].aliasPropertyName = "children";
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3}, {});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2734,7 +2832,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsPropertyNa
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsToPropertyDeclaration)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[2].propertyDeclarations.pop_back();
     types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
@@ -2742,7 +2840,7 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasDeclarationsToProperty
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3}, {});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2777,9 +2875,9 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangePropertyDeclarationsToAlias
                                      Storage::NativeType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
-    storage.synchronize({}, {}, typesChanged, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, typesChanged, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2805,11 +2903,11 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangePropertyDeclarationsToAlias
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasTargetPropertyDeclarationTraits)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[1].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
                                               | Storage::PropertyDeclarationTraits::IsReadOnly;
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2837,10 +2935,10 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasTargetPropertyDeclarat
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasTargetPropertyDeclarationTypeName)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[1].propertyDeclarations[0].typeName = Storage::ExportedType{"Item"};
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2866,21 +2964,21 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangeAliasTargetPropertyDeclarat
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovePropertyDeclarationWithAnAliasThrows)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[1].propertyDeclarations.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}, {}),
                  Sqlite::ConstraintPreventsModification);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovePropertyDeclarationAndAlias)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[1].propertyDeclarations.pop_back();
     types[2].propertyDeclarations.pop_back();
 
-    storage.synchronize({}, {}, {types[1], types[2]}, {sourceId2, sourceId3});
+    storage.synchronize({}, {}, {types[1], types[2]}, {sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2904,19 +3002,19 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveTypeWithAliasTargetProperty
 {
     Storage::Types types{createTypesWithAliases()};
     types[2].propertyDeclarations[2].typeName = Storage::ExportedType{"Object2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
-    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId4}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId4}, {}), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
 {
     Storage::Types types{createTypesWithAliases()};
     types[2].propertyDeclarations[2].typeName = Storage::ExportedType{"Object2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[2].propertyDeclarations.pop_back();
 
-    storage.synchronize({}, {}, {types[0], types[2]}, {sourceId1, sourceId3});
+    storage.synchronize({}, {}, {types[0], types[2]}, {sourceId1, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2939,14 +3037,14 @@ TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemoveTypeAndAliasPropertyDeclara
 TEST_F(ProjectStorageSlowTest, UpdateAliasPropertyIfPropertyIsOverloaded)
 {
     Storage::Types types{createTypesWithAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::NativeType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize({}, {}, {types[0]}, {sourceId1});
+    storage.synchronize({}, {}, {types[0]}, {sourceId1}, {});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2980,7 +3078,7 @@ TEST_F(ProjectStorageSlowTest, AliasPropertyIsOverloaded)
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -3013,10 +3111,10 @@ TEST_F(ProjectStorageSlowTest, UpdateAliasPropertyIfOverloadedPropertyIsRemoved)
                                      Storage::NativeType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[0].propertyDeclarations.pop_back();
 
-    storage.synchronize({}, {}, {types[0]}, {sourceId1});
+    storage.synchronize({}, {}, {types[0]}, {sourceId1}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -3043,10 +3141,10 @@ TEST_F(ProjectStorageSlowTest, RelinkAliasProperty)
 {
     Storage::Types types{createTypesWithAliases()};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[3].import = Storage::Import{"QtQuick"};
 
-    storage.synchronize({}, {}, {types[3]}, {sourceId4});
+    storage.synchronize({}, {}, {types[3]}, {sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -3075,10 +3173,10 @@ TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForExplicitExportedTypeNa
     types[1].propertyDeclarations[0].typeName = Storage::ExplicitExportedType{"Object2",
                                                                               Storage::Import{
                                                                                   "/path/to"}};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[3].import = Storage::Import{"QtQuick"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[3]}, {sourceId4}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[3]}, {sourceId4}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3096,7 +3194,7 @@ TEST_F(ProjectStorageSlowTest,
                                   sourceId5,
                                   {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -3124,10 +3222,10 @@ TEST_F(ProjectStorageSlowTest, RelinkAliasPropertyReactToTypeNameChange)
     Storage::Types types{createTypesWithAliases2()};
     types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"items", Storage::ExportedType{"Item"}, "children"});
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types[0].typeName = "QQuickItem2";
 
-    storage.synchronize({}, {}, {types[0]}, {sourceId1});
+    storage.synchronize({}, {}, {types[0]}, {sourceId1}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -3154,11 +3252,11 @@ TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForDeletedType)
 {
     Storage::Types types{createTypesWithAliases()};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types.erase(std::next(types.begin(), 2));
     types[2].import = Storage::Import{"QtQuick"};
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3, sourceId4});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3, sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Not(Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3172,12 +3270,12 @@ TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForDeletedTypeAndProperty
 {
     Storage::Types types{createTypesWithAliases()};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types.pop_back();
     types.pop_back();
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject"};
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2, sourceId3, sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(), SizeIs(2));
 }
@@ -3186,12 +3284,12 @@ TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyForDeletedTypeAndProperty
 {
     Storage::Types types{createTypesWithAliases()};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types.erase(std::next(types.begin(), 2));
     types[2].import = Storage::Import{"QtQuick"};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject"};
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3, sourceId4});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3, sourceId4}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Not(Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3205,29 +3303,29 @@ TEST_F(ProjectStorageSlowTest, DoNotRelinkPropertyTypeDoesNotExists)
 {
     Storage::Types types{createTypesWithAliases()};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types.pop_back();
 
-    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId4}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId4}, {}), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, DoNotRelinkAliasPropertyTypeDoesNotExists)
 {
     Storage::Types types{createTypesWithAliases2()};
     types[1].propertyDeclarations[0].typeName = Storage::NativeType{"QObject2"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
     types.erase(types.begin());
 
-    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId1}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId1}, {}), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeName)
 {
     Storage::Types types{createTypesWithExportedTypeNamesOnly()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].typeName = "QObject3";
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3240,10 +3338,10 @@ TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeName)
 TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeImportId)
 {
     Storage::Types types{createTypes()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].import = Storage::Import{"QtQuick"};
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3257,10 +3355,10 @@ TEST_F(ProjectStorageSlowTest, ChangeExplicitPrototypeTypeImportIdThows)
 {
     Storage::Types types{createTypes()};
     types[0].prototype = Storage::ExplicitExportedType{"Object", Storage::Import{"Qml"}};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].import = Storage::Import{"QtQuick"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3268,11 +3366,11 @@ TEST_F(ProjectStorageSlowTest, ChangeExplicitPrototypeTypeImportId)
 {
     Storage::Types types{createTypes()};
     types[0].prototype = Storage::ExplicitExportedType{"Object", Storage::Import{"Qml"}};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].import = Storage::Import{"QtQuick"};
     types[0].prototype = Storage::ExplicitExportedType{"Object", Storage::Import{"QtQuick"}};
 
-    storage.synchronize({}, {}, {types[0], types[1]}, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, {types[0], types[1]}, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3285,11 +3383,11 @@ TEST_F(ProjectStorageSlowTest, ChangeExplicitPrototypeTypeImportId)
 TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeNameAndImportId)
 {
     Storage::Types types{createTypesWithExportedTypeNamesOnly()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].import = Storage::Import{"QtQuick"};
     types[1].typeName = "QObject3";
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3303,10 +3401,10 @@ TEST_F(ProjectStorageSlowTest, ChangePrototypeTypeNameThrowsForWrongNativeProtot
 {
     Storage::Types types{createTypes()};
     types[0].propertyDeclarations[0].typeName = Storage::ExportedType{"Object"};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].typeName = "QObject3";
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3321,7 +3419,7 @@ TEST_F(ProjectStorageSlowTest, ThrowForPrototypeChainCycles)
                                   sourceId3,
                                   {Storage::ExportedType{"Object2"}, Storage::ExportedType{"Obj2"}}});
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {}),
                  QmlDesigner::PrototypeChainCycle);
 }
 
@@ -3330,18 +3428,18 @@ TEST_F(ProjectStorageSlowTest, ThrowForTypeIdAndPrototypeIdAreTheSame)
     Storage::Types types{createTypes()};
     types[1].prototype = Storage::ExportedType{"Object"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {}),
                  QmlDesigner::PrototypeChainCycle);
 }
 
 TEST_F(ProjectStorageSlowTest, ThrowForTypeIdAndPrototypeIdAreTheSameForRelinking)
 {
     Storage::Types types{createTypesWithExportedTypeNamesOnly()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].prototype = Storage::ExportedType{"Item"};
     types[1].typeName = "QObject2";
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}, {}),
                  QmlDesigner::PrototypeChainCycle);
 }
 
@@ -3349,7 +3447,7 @@ TEST_F(ProjectStorageSlowTest, RecursiveAliases)
 {
     Storage::Types types{createTypesWithRecursiveAliases()};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3367,10 +3465,10 @@ TEST_F(ProjectStorageSlowTest, RecursiveAliases)
 TEST_F(ProjectStorageSlowTest, RecursiveAliasesChangePropertyType)
 {
     Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
     types[1].propertyDeclarations[0].typeName = Storage::ExportedType{"Object2"};
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3388,14 +3486,14 @@ TEST_F(ProjectStorageSlowTest, RecursiveAliasesChangePropertyType)
 TEST_F(ProjectStorageSlowTest, UpdateAliasesAfterInjectingProperty)
 {
     Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
     types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ExportedType{"Item"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize({}, {}, {types[0]}, {sourceId1});
+    storage.synchronize({}, {}, {types[0]}, {sourceId1}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3414,7 +3512,7 @@ TEST_F(ProjectStorageSlowTest, UpdateAliasesAfterInjectingProperty)
 TEST_F(ProjectStorageSlowTest, UpdateAliasesAfterChangeAliasToProperty)
 {
     Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
     types[2].propertyDeclarations.clear();
     types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
@@ -3422,7 +3520,7 @@ TEST_F(ProjectStorageSlowTest, UpdateAliasesAfterChangeAliasToProperty)
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize({}, {}, {types[2]}, {sourceId3});
+    storage.synchronize({}, {}, {types[2]}, {sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 AllOf(Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3456,12 +3554,12 @@ TEST_F(ProjectStorageSlowTest, UpdateAliasesAfterChangePropertyToAlias)
     Storage::Types types{createTypesWithRecursiveAliases()};
     types[3].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
                                               | Storage::PropertyDeclarationTraits::IsReadOnly;
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
     types[1].propertyDeclarations.clear();
     types[1].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects", Storage::ExportedType{"Object2"}, "objects"});
 
-    storage.synchronize({}, {}, {types[1]}, {sourceId2});
+    storage.synchronize({}, {}, {types[1]}, {sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3485,22 +3583,21 @@ TEST_F(ProjectStorageSlowTest, CheckForProtoTypeCycleThrows)
     types[1].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects", Storage::ExportedType{"AliasItem2"}, "objects"});
 
-    ASSERT_THROW(storage.synchronize({},
-                                     {},
-                                     types,
-                                     {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}),
+    ASSERT_THROW(storage.synchronize(
+                     {}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {}),
                  QmlDesigner::AliasChainCycle);
 }
 
 TEST_F(ProjectStorageSlowTest, CheckForProtoTypeCycleAfterUpdateThrows)
 {
     Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3, sourceId4, sourceId5}, {});
     types[1].propertyDeclarations.clear();
     types[1].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects", Storage::ExportedType{"AliasItem2"}, "objects"});
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}), QmlDesigner::AliasChainCycle);
+    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}, {}),
+                 QmlDesigner::AliasChainCycle);
 }
 
 TEST_F(ProjectStorageSlowTest, ExplicitPrototype)
@@ -3514,7 +3611,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototype)
                                   sourceId3,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3529,7 +3626,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototypeUpperDownTheImportChainThrows)
     Storage::Types types{createTypes()};
     types[0].prototype = Storage::ExplicitExportedType{"Object", Storage::Import{"QtQuick"}};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3544,7 +3641,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototypeUpperInTheImportChain)
                                   sourceId3,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3565,7 +3662,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototypeWithWrongVersionThrows)
                                   sourceId3,
                                   {Storage::ExportedType{"Object"}}});
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3580,7 +3677,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototypeWithVersion)
                                   sourceId3,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick"},
@@ -3609,7 +3706,8 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototypeWithVersionInTheProtoTypeChain)
     storage.synchronize({importDependencyQtQuick2},
                         {},
                         types,
-                        {sourceId1, sourceId2, sourceId3, importSourceId2});
+                        {sourceId1, sourceId2, sourceId3, importSourceId2},
+                        {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(Storage::Import{"QtQuick", 2},
@@ -3632,7 +3730,8 @@ TEST_F(ProjectStorageSlowTest, ExplicitPrototypeWithVersionDownTheProtoTypeChain
     ASSERT_THROW(storage.synchronize({importDependencyQtQuick2},
                                      {},
                                      types,
-                                     {sourceId1, sourceId2, sourceId3, importSourceId2}),
+                                     {sourceId1, sourceId2, sourceId3, importSourceId2},
+                                     {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3649,7 +3748,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPropertyDeclarationTypeName)
                                   sourceId3,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -3666,7 +3765,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPropertyDeclarationTypeNameDownTheImportC
                                                                               Storage::Import{
                                                                                   "QtQuick"}};
 
-    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}),
+    ASSERT_THROW(storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3683,7 +3782,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPropertyDeclarationTypeNameInTheImportCha
                                   sourceId3,
                                   {Storage::ExportedType{"Object"}}});
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -3700,7 +3799,7 @@ TEST_F(ProjectStorageSlowTest, ExplicitPropertyDeclarationTypeNameWithVersion)
                                                                               Storage::Import{"Qml",
                                                                                               2}};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2, sourceId3}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -3724,7 +3823,8 @@ TEST_F(ProjectStorageSlowTest, PrototypeWithVersionDownTheProtoTypeChainThrows)
     ASSERT_THROW(storage.synchronize({importDependencyQtQuick2},
                                      {document},
                                      types,
-                                     {sourceId1, sourceId2, sourceId3, importSourceId2}),
+                                     {sourceId1, sourceId2, sourceId3, importSourceId2},
+                                     {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3734,10 +3834,10 @@ TEST_F(ProjectStorageSlowTest, ChangePropertyTypeImportIdWithExplicitTypeThrows)
     types[0].propertyDeclarations[0].typeName = Storage::ExplicitExportedType{"Object",
                                                                               Storage::Import{
                                                                                   "Qml"}};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[1].import = Storage::Import{"QtQuick"};
 
-    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}),
+    ASSERT_THROW(storage.synchronize({}, {}, {types[1]}, {sourceId2}, {}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
@@ -3747,13 +3847,13 @@ TEST_F(ProjectStorageSlowTest, ChangePropertyTypeImportIdWithExplicitType)
     types[0].propertyDeclarations[0].typeName = Storage::ExplicitExportedType{"Object",
                                                                               Storage::Import{
                                                                                   "Qml"}};
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
     types[0].propertyDeclarations[0].typeName = Storage::ExplicitExportedType{"Object",
                                                                               Storage::Import{
                                                                                   "QtQuick"}};
     types[1].import = Storage::Import{"QtQuick"};
 
-    storage.synchronize({}, {}, types, {sourceId1, sourceId2});
+    storage.synchronize({}, {}, types, {sourceId1, sourceId2}, {});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(Storage::Import{"QtQuick"},
@@ -3766,6 +3866,53 @@ TEST_F(ProjectStorageSlowTest, ChangePropertyTypeImportIdWithExplicitType)
                                          "data",
                                          Storage::NativeType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, AddFileStatuses)
+{
+    setUpSourceIds();
+    FileStatus fileStatus1{sourceId1, 100, 100};
+    FileStatus fileStatus2{sourceId2, 101, 101};
+
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+
+    ASSERT_THAT(convert(storage.fetchAllFileStatuses()),
+                UnorderedElementsAre(fileStatus1, fileStatus2));
+}
+
+TEST_F(ProjectStorageSlowTest, RemoveFileStatus)
+{
+    setUpSourceIds();
+    FileStatus fileStatus1{sourceId1, 100, 100};
+    FileStatus fileStatus2{sourceId2, 101, 101};
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus1});
+
+    ASSERT_THAT(convert(storage.fetchAllFileStatuses()), UnorderedElementsAre(fileStatus1));
+}
+
+TEST_F(ProjectStorageSlowTest, UpdateFileStatus)
+{
+    setUpSourceIds();
+    FileStatus fileStatus1{sourceId1, 100, 100};
+    FileStatus fileStatus2{sourceId2, 101, 101};
+    FileStatus fileStatus2b{sourceId2, 102, 102};
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+
+    storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2b});
+
+    ASSERT_THAT(convert(storage.fetchAllFileStatuses()),
+                UnorderedElementsAre(fileStatus1, fileStatus2b));
+}
+
+TEST_F(ProjectStorageSlowTest, ThrowForInvalidSourceId)
+{
+    setUpSourceIds();
+    FileStatus fileStatus1{SourceId{}, 100, 100};
+
+    ASSERT_THROW(storage.synchronize({}, {}, {}, {sourceId1}, {fileStatus1}),
+                 Sqlite::ConstraintPreventsModification);
 }
 
 } // namespace
