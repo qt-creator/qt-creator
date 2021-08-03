@@ -73,6 +73,23 @@ Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 
 namespace QmlProjectManager {
 
+static bool isQtDesignStudio()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
+
+    return settings->value(qdsStandaloneEntry, false).toBool();
+}
+static int preferedQtTarget(Target *target)
+{
+    if (target) {
+        const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(target->buildSystem());
+        if (buildSystem && buildSystem->qt6Project())
+            return 6;
+    }
+    return 5;
+}
+
 const char openInQDSAppSetting[] = "OpenInQDSApp";
 
 static void openQDS(const QString &qdsPath, const Utils::FilePath &fileName)
@@ -102,12 +119,9 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
     QSettings *settings = Core::ICore::settings();
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
     const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
 
-    const bool isDesigner = settings->value(qdsStandaloneEntry, false).toBool();
-
-    if (!isDesigner) {
+    if (!isQtDesignStudio()) {
         const QString qdsPath = settings->value(qdsInstallationEntry).toString();
         const bool foundQDS = Utils::FilePath::fromString(qdsPath).exists();
 
@@ -406,8 +420,10 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
 
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
-        const QList<Kit*> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
-            return !containsType(projectIssues(k), Task::TaskType::Error);
+        const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
+            return !containsType(projectIssues(k), Task::TaskType::Error)
+                   && DeviceTypeKitAspect::deviceTypeId(k)
+                          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
         });
 
         if (!kits.isEmpty()) {
@@ -415,6 +431,29 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                 addTargetForDefaultKit();
             else
                 addTargetForKit(kits.first());
+        }
+
+        if (isQtDesignStudio()) {
+            auto setKitWithVersion = [&](int qtMajorVersion) {
+                const QList<Kit *> qtVersionkits
+                    = Utils::filtered(kits, [qtMajorVersion](const Kit *k) {
+                          QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+                          return (version && version->qtVersion().majorVersion == qtMajorVersion);
+                      });
+                if (!qtVersionkits.isEmpty()) {
+                    if (qtVersionkits.contains(KitManager::defaultKit()))
+                        addTargetForDefaultKit();
+                    else
+                        addTargetForKit(qtVersionkits.first());
+                }
+            };
+
+            int preferedVersion = preferedQtTarget(activeTarget());
+
+            if (activeTarget())
+                removeTarget(activeTarget());
+
+            setKitWithVersion(preferedVersion);
         }
     }
 
