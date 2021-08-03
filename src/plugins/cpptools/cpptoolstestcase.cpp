@@ -64,8 +64,7 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QSt
 {
     foreach (const QString &filePath, filePaths) {
         if (!snapshot.contains(filePath)) {
-            const QString warning = QLatin1String("Missing file in snapshot: ") + filePath;
-            qWarning(qPrintable(warning));
+            qWarning() << "Missing file in snapshot:" << qPrintable(filePath);
             return false;
         }
     }
@@ -247,8 +246,7 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
 {
     Utils::FileSaver saver(Utils::FilePath::fromString(filePath));
     if (!saver.write(contents) || !saver.finalize()) {
-        const QString warning = QLatin1String("Failed to write file to disk: ") + filePath;
-        qWarning(qPrintable(warning));
+        qWarning() << "Failed to write file to disk:" << qPrintable(filePath);
         return false;
     }
     return true;
@@ -363,7 +361,7 @@ TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
 
     QString errorMessage;
     if (!copyRecursively(sourceDirPath, path(), &errorMessage)) {
-        qWarning(qPrintable(errorMessage));
+        qWarning() << qPrintable(errorMessage);
         m_isValid = false;
     }
 }
@@ -377,11 +375,8 @@ FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteA
     : m_filePath(filePath)
 {
     if (QFileInfo::exists(filePath)) {
-        const QString warning = QString::fromLatin1(
-            "Will not overwrite existing file: \"%1\"."
-            " If this file is left over due to a(n) abort/crash, please remove manually.")
-                .arg(m_filePath);
-        qWarning(qPrintable(warning));
+        qWarning().nospace() << "Will not overwrite existing file: " << m_filePath << "."
+            << " If this file is left over due to a(n) abort/crash, please remove manually.";
         m_writtenSuccessfully = false;
     } else {
         m_writtenSuccessfully = TestCase::writeFile(filePath, contents);
@@ -390,10 +385,8 @@ FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteA
 
 FileWriterAndRemover::~FileWriterAndRemover()
 {
-    if (m_writtenSuccessfully && !QFile::remove(m_filePath)) {
-        const QString warning = QLatin1String("Failed to remove file from disk: ") + m_filePath;
-        qWarning(qPrintable(warning));
-    }
+    if (m_writtenSuccessfully && !QFile::remove(m_filePath))
+        qWarning() << "Failed to remove file from disk:" << qPrintable(m_filePath);
 }
 
 VerifyCleanCppModelManager::VerifyCleanCppModelManager()

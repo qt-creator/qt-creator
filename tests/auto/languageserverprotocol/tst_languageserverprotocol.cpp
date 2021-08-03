@@ -308,7 +308,7 @@ void tst_LanguageServerProtocol::baseMessageParse()
     BaseMessage::parse(&buffer, parseError, partial);
 
     if (!parseError.isEmpty() && !error) // show message if there is an error message we do not expect
-        qWarning(parseError.toLatin1());
+        qWarning() << qPrintable(parseError);
     QCOMPARE(!parseError.isEmpty(), error);
     QCOMPARE(partial.content, content);
     QCOMPARE(partial.isValid(), valid);
