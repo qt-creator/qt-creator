@@ -151,7 +151,7 @@ static bool isUVisionExecutable(const QFileInfo &fileInfo)
     return baseName == "UV4";
 }
 
-void DebuggerItem::reinitializeFromFile(const Environment &sysEnv)
+void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *error)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
@@ -190,12 +190,14 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv)
     proc.setEnvironment(sysEnv);
     proc.setCommand({m_command, {version}});
     proc.runBlocking();
+    const QString output = proc.allOutput().trimmed();
     if (proc.result() != QtcProcess::FinishedWithSuccess) {
+        if (error)
+            *error = output;
         m_engineType = NoEngineType;
         return;
     }
     m_abis.clear();
-    const QString output = proc.allOutput().trimmed();
     if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
 
@@ -263,6 +265,8 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv)
         m_engineType = PdbEngineType;
         return;
     }
+    if (error)
+        *error = output;
     m_engineType = NoEngineType;
 }
 

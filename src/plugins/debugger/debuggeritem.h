@@ -98,7 +98,8 @@ public:
     bool operator==(const DebuggerItem &other) const;
     bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 
-    void reinitializeFromFile(const Utils::Environment &sysEnv = Utils::Environment::systemEnvironment());
+    void reinitializeFromFile(const Utils::Environment &sysEnv = Utils::Environment::systemEnvironment(),
+                              QString *error = nullptr);
 
     Utils::FilePath workingDirectory() const { return m_workingDirectory; }
     void setWorkingDirectory(const Utils::FilePath &workingPath) { m_workingDirectory = workingPath; }

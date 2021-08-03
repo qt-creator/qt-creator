@@ -314,6 +314,15 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
     m_binaryChooser->setHistoryCompleter("DebuggerPaths");
+    m_binaryChooser->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
+        if (!m_binaryChooser->defaultValidationFunction()(edit, errorMessage))
+            return false;
+        DebuggerItem item;
+        item.setCommand(m_binaryChooser->filePath());
+        errorMessage->clear();
+        item.reinitializeFromFile({}, errorMessage);
+        return errorMessage->isEmpty();
+    });
 
     m_workingDirectoryChooser = new PathChooser(this);
     m_workingDirectoryChooser->setExpectedKind(PathChooser::Directory);
