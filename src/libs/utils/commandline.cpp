@@ -588,8 +588,8 @@ static QString quoteArgWin(const QString &arg)
     return ret;
 }
 
-ProcessArgs ProcessArgs::prepareArgs(const QString &cmd, SplitError *err, OsType osType,
-                                   const Environment *env, const FilePath *pwd, bool abortOnMeta)
+ProcessArgs ProcessArgs::prepareArgs(const QString &args, SplitError *err, OsType osType,
+                                     const Environment *env, const FilePath *pwd, bool abortOnMeta)
 {
     QString wdcopy;
     QString *wd = nullptr;
@@ -599,9 +599,9 @@ ProcessArgs ProcessArgs::prepareArgs(const QString &cmd, SplitError *err, OsType
     }
     ProcessArgs res;
     if (osType == OsTypeWindows)
-        res = prepareArgsWin(cmd, err, env, wd);
+        res = prepareArgsWin(args, err, env, wd);
     else
-        res = createUnixArgs(splitArgs(cmd, osType, abortOnMeta, err, env, wd));
+        res = createUnixArgs(splitArgs(args, osType, abortOnMeta, err, env, wd));
     return res;
 }
 
