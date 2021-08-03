@@ -29,57 +29,36 @@ import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
-Rectangle {
+PropertyEditorPane {
     id: itemPane
-    width: 320
-    height: 400
-    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: forceActiveFocus()
-    }
+    ComponentSection {}
 
-    ScrollView {
-        id: mainScrollView
-        clip: true
-        anchors.fill: parent
+    Column {
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-        onWidthChanged: StudioTheme.Values.responsiveResize(itemPane.width)
-        Component.onCompleted: StudioTheme.Values.responsiveResize(itemPane.width)
+        Loader {
+            id: specificsTwo
 
-        Column {
-            id: rootColumn
-            y: -1
-            width: itemPane.width
+            property string theSource: specificQmlData
 
-            ComponentSection {}
+            anchors.left: parent.left
+            anchors.right: parent.right
+            visible: specificsTwo.theSource !== ""
+            sourceComponent: specificQmlComponent
 
-            Column {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                Loader {
-                    id: specificsTwo
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    visible: theSource !== ""
-                    sourceComponent: specificQmlComponent
-
-                    property string theSource: specificQmlData
-
-                    onTheSourceChanged: {
-                        active = false
-                        active = true
-                    }
-                }
-
-                Loader {
-                    id: specificsOne
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    source: specificsUrl
-                }
+            onTheSourceChanged: {
+                specificsTwo.active = false
+                specificsTwo.active = true
             }
+        }
+
+        Loader {
+            id: specificsOne
+            anchors.left: parent.left
+            anchors.right: parent.right
+            source: specificsUrl
         }
     }
 }

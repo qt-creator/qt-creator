@@ -24,6 +24,39 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import "../QtQuick" as Original
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
-Original.ConnectionsSpecifics {}
+Rectangle {
+    id: itemPane
+    width: 320
+    height: 400
+    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+
+    Component.onCompleted: Controller.mainScrollView = mainScrollView
+
+    default property alias content: mainColumn.children
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: forceActiveFocus()
+    }
+
+    ScrollView {
+        id: mainScrollView
+        clip: true
+        anchors.fill: parent
+
+        Column {
+            id: mainColumn
+            y: -1
+            width: itemPane.width
+
+            onWidthChanged: StudioTheme.Values.responsiveResize(itemPane.width)
+            Component.onCompleted: StudioTheme.Values.responsiveResize(itemPane.width)
+        }
+    }
+}
