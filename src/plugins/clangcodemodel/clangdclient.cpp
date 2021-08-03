@@ -2246,7 +2246,7 @@ static void cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextD
             continue;
         }
 
-        if (wasInDisabled && (it == results.end()
+        if (wasInDisabled && (it + 1 == results.end()
                 || (it + 1)->textStyles.mainStyle != TextEditor::C_DISABLED_CODE)) {
             // The #else or #endif that ends disabled code should not be disabled.
             it = results.erase(it);
