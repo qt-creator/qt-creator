@@ -253,6 +253,8 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<QuickFixTestDocument::P
         // Check
         QString result = testDocument->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
+        QEXPECT_FAIL("escape string literal: raw string literal", "FIXME", Continue);
+        QEXPECT_FAIL("escape string literal: unescape adjacent literals", "FIXME", Continue);
         if (!expectedFailMessage.isEmpty())
             QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
         else if (result != testDocument->m_expectedSource) {
@@ -1750,6 +1752,26 @@ void CppEditorPlugin::test_quickfix_data()
         << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
         << _("void @WhAt_TODO_hErE();\n")
         << _("void WhAtTODOHErE();\n");
+    QTest::newRow("escape string literal: simple case")
+        << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+        << _(R"(const char *str = @"àxyz";)")
+        << _(R"(const char *str = "\xc3\xa0xyz";)");
+    QTest::newRow("escape string literal: simple case reverse")
+        << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+        << _(R"(const char *str = @"\xc3\xa0xyz";)")
+        << _(R"(const char *str = "àxyz";)");
+    QTest::newRow("escape string literal: raw string literal")
+        << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+        << _(R"x(const char *str = @R"(àxyz)";)x")
+        << _(R"x(const char *str = R"(\xc3\xa0xyz)";)x");
+    QTest::newRow("escape string literal: splitting required")
+        << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+        << _(R"(const char *str = @"àf23бgб1";)")
+        << _(R"(const char *str = "\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)");
+    QTest::newRow("escape string literal: unescape adjacent literals")
+        << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+        << _(R"(const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)")
+        << _(R"(const char *str = "àf23бgб1";)");
 }
 
 void CppEditorPlugin::test_quickfix()

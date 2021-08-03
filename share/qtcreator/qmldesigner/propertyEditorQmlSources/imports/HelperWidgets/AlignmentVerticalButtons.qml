@@ -29,8 +29,9 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Row {
-    id: alignmentVerticalButtons
+    id: root
 
+    property string scope: "Text"
     property bool blueHighlight: false
     property variant backendValue: backendValues.verticalAlignment
     property variant value: backendValue.enumeration
@@ -75,7 +76,7 @@ Row {
 
     ExtendedFunctionLogic {
         id: extFuncLogic
-        backendValue: alignmentVerticalButtons.backendValue
+        backendValue: root.backendValue
     }
 
     StudioControls.ButtonRow {
@@ -100,7 +101,7 @@ Row {
             iconColor: __currentColor
             onClicked: {
                 if (checked)
-                    backendValue.setEnumeration("Text", "AlignTop")
+                    backendValue.setEnumeration(root.scope, "AlignTop")
             }
         }
         StudioControls.AbstractButton {
@@ -112,7 +113,7 @@ Row {
             iconColor: __currentColor
             onClicked: {
                 if (checked)
-                    backendValue.setEnumeration("Text", "AlignVCenter")
+                    backendValue.setEnumeration(root.scope, "AlignVCenter")
             }
         }
         StudioControls.AbstractButton {
@@ -124,7 +125,7 @@ Row {
             iconColor: __currentColor
             onClicked: {
                 if (checked)
-                    backendValue.setEnumeration("Text", "AlignBottom")
+                    backendValue.setEnumeration(root.scope, "AlignBottom")
             }
         }
     }

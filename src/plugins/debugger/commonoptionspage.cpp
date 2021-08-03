@@ -84,12 +84,25 @@ public:
         }.attachTo(this);
     }
 
-    void apply() final { m_group.apply(); m_group.writeSettings(ICore::settings()); }
+    void apply() final;
     void finish() final { m_group.finish(); }
 
 private:
     AspectContainer &m_group = debuggerSettings()->page1;
 };
+
+void CommonOptionsPageWidget::apply()
+{
+    const DebuggerSettings *s = debuggerSettings();
+    const bool originalPostMortem = s->registerForPostMortem->value();
+    const bool currentPostMortem = s->registerForPostMortem->volatileValue().toBool();
+    // explicitly trigger setValue() to override the setValueSilently() and trigger the registration
+    if (originalPostMortem != currentPostMortem)
+        s->registerForPostMortem->setValue(currentPostMortem);
+
+    m_group.apply();
+    m_group.writeSettings(ICore::settings());
+}
 
 CommonOptionsPage::CommonOptionsPage()
 {

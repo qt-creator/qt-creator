@@ -210,7 +210,13 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         }
         QTC_ASSERT(paren.pos != -1, continue);
         paren.source = parenSource();
-        parentheses.second << paren;
+
+        static const auto posCmp = [](const Parenthesis &p1, const Parenthesis &p2) {
+            return p1.pos < p2.pos;
+        };
+        const auto it = std::lower_bound(parentheses.second.begin(), parentheses.second.end(),
+                                         paren, posCmp);
+        parentheses.second.insert(it, paren);
     }
     if (parentheses.first.isValid())
         TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);

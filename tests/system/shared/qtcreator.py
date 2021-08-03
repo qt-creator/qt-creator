@@ -178,6 +178,14 @@ def substituteTildeWithinToolchains(settingsDir):
     __substitute__(toolchains, "~", home)
     test.log("Substituted all tildes with '%s' inside toolchains.xml..." % home)
 
+
+def substituteTildeWithinQtVersion(settingsDir):
+    toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'qtversion.xml')
+    home = os.path.expanduser("~")
+    __substitute__(toolchains, "~", home)
+    test.log("Substituted all tildes with '%s' inside qtversion.xml..." % home)
+
+
 def substituteDefaultCompiler(settingsDir):
     compiler = None
     if platform.system() == 'Darwin':
@@ -309,6 +317,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
                 shutil.copy(os.path.join(r, ff), currentPath)
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
+        substituteTildeWithinQtVersion(tmpSettingsDir)
         substituteDefaultCompiler(tmpSettingsDir)
     elif platform.system() in ('Windows', 'Microsoft'):
         substituteCdb(tmpSettingsDir)

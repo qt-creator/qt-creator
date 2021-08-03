@@ -358,9 +358,12 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     setPriority(isError ? TextEditor::TextMark::HighPriority
                         : TextEditor::TextMark::NormalPriority);
     setIcon(isError ? Icons::CODEMODEL_ERROR.icon() : Icons::CODEMODEL_WARNING.icon());
-    setLineAnnotation(diagnostic.message());
-    setColor(isError ? Theme::CodeModel_Error_TextMarkColor
-                     : Theme::CodeModel_Warning_TextMarkColor);
+    if (client->project()) {
+        setLineAnnotation(diagnostic.message());
+        setColor(isError ? Theme::CodeModel_Error_TextMarkColor
+                         : Theme::CodeModel_Warning_TextMarkColor);
+        ClangDiagnosticManager::addTask(m_diagnostic);
+    }
 
     // Copy to clipboard action
     QVector<QAction *> actions;
@@ -387,8 +390,6 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     }
 
     setActions(actions);
-
-    ClangDiagnosticManager::addTask(m_diagnostic);
 }
 
 bool ClangdTextMark::addToolTipContent(QLayout *target) const

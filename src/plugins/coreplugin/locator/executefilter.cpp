@@ -110,7 +110,8 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
         d.executable = value;
     } else {
         d.executable = value.left(pos);
-        d.arguments = value.right(value.length() - pos - 1);
+        d.arguments = Utils::globalMacroExpander()->expand(
+                    value.right(value.length() - pos - 1));
     }
 
     if (m_process->state() != QProcess::NotRunning) {

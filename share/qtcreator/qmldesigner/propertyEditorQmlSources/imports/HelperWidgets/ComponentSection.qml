@@ -29,7 +29,6 @@ import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import QtQuick.Templates 2.15 as T
 import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
@@ -213,22 +212,24 @@ Section {
                     onActiveFocusChanged: annotationEdit.z = activeFocus ? 10 : 0
                 }
 
-                StudioControls.AbstractButton {
+                AbstractButton {
                     id: editAnnotationButton
                     buttonIcon: StudioTheme.Constants.edit
+                    tooltip: qsTr("Edit annotation")
                     onClicked: annotationEditor.showWidget()
                     onHoveredChanged: annotationEditor.checkAux()
                 }
 
-                StudioControls.AbstractButton {
+                AbstractButton {
                     id: removeAnnotationButton
                     buttonIcon: StudioTheme.Constants.closeCross
+                    tooltip: qsTr("Remove annotation")
                     onClicked: annotationEditor.removeFullAnnotation()
                     onHoveredChanged: annotationEditor.checkAux()
                 }
             }
 
-            StudioControls.AbstractButton {
+            AbstractButton {
                 id: addAnnotationButton
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: StudioTheme.Values.singleControlColumnWidth

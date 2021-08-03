@@ -34,6 +34,7 @@ import StudioTheme 1.0 as StudioTheme
 Item {
     property var selectedAssets: ({})
     property int allExpandedState: 0
+    property string delFilePath: ""
 
     DropArea {
         id: dropArea
@@ -83,13 +84,24 @@ Item {
                 StudioControls.MenuItem {
                     text: qsTr("Expand All")
                     enabled: allExpandedState !== 1
+                    visible: !delFilePath
+                    height: visible ? implicitHeight : 0
                     onTriggered: assetsModel.toggleExpandAll(true)
                 }
 
                 StudioControls.MenuItem {
                     text: qsTr("Collapse All")
                     enabled: allExpandedState !== 2
+                    visible: !delFilePath
+                    height: visible ? implicitHeight : 0
                     onTriggered: assetsModel.toggleExpandAll(false)
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Delete File")
+                    visible: delFilePath
+                    height: visible ? implicitHeight : 0
+                    onTriggered: assetsModel.removeFile(delFilePath)
                 }
             }
         }
@@ -121,6 +133,7 @@ Item {
                         dirExpanded = !dirExpanded
                     }
                     onShowContextMenu: {
+                        delFilePath = ""
                         allExpandedState = assetsModel.getAllExpandedState()
                         contextMenu.popup()
                     }
@@ -173,6 +186,7 @@ Item {
 
                     readonly property string suffix: fileName.substr(-4)
                     readonly property bool isFont: suffix === ".ttf" || suffix === ".otf"
+                    property bool currFileSelected: false
 
                     MouseArea {
                         id: mouseArea
@@ -190,7 +204,8 @@ Item {
                                 var ctrlDown = mouse.modifiers & Qt.ControlModifier
                                 if (!selectedAssets[filePath] && !ctrlDown)
                                     selectedAssets = {}
-                                selectedAssets[filePath] = true
+                                currFileSelected = ctrlDown ? !selectedAssets[filePath] : true
+                                selectedAssets[filePath] = currFileSelected
                                 selectedAssetsChanged()
 
                                 var selectedAssetsArr = []
@@ -199,9 +214,12 @@ Item {
                                         selectedAssetsArr.push(assetPath)
                                 }
 
-                                rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
+                                if (currFileSelected)
+                                    rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
                             } else {
-                                print("TODO: impl context menu")
+                                delFilePath = filePath
+                                tooltipBackend.hideTooltip()
+                                contextMenu.popup()
                             }
                         }
 
@@ -209,13 +227,13 @@ Item {
                             if (mouse.button === Qt.LeftButton) {
                                 if (!(mouse.modifiers & Qt.ControlModifier))
                                     selectedAssets = {}
-                                selectedAssets[filePath] = true
+                                selectedAssets[filePath] = currFileSelected
                                 selectedAssetsChanged()
                             }
                         }
 
                         ToolTip {
-                            visible: !isFont && mouseArea.containsMouse
+                            visible: !isFont && mouseArea.containsMouse && !contextMenu.visible
                             text: filePath
                             delay: 1000
                         }

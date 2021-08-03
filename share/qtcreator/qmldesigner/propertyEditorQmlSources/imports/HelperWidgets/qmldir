@@ -1,7 +1,7 @@
 AbstractButton 2.0 AbstractButton.qml
 ActionIndicator 2.0 ActionIndicator.qml
-AligmentHorizontalButtons 2.0 AligmentHorizontalButtons.qml
-AligmentVerticalButtons 2.0 AligmentVerticalButtons.qml
+AlignmentHorizontalButtons 2.0 AlignmentHorizontalButtons.qml
+AlignmentVerticalButtons 2.0 AlignmentVerticalButtons.qml
 AnchorButtons 2.0 AnchorButtons.qml
 BoolButtonRowButton 2.0 BoolButtonRowButton.qml
 Button 2.0 Button.qml
@@ -16,6 +16,7 @@ ColorPalette 2.0 ColorPalette.qml
 ColorPicker 2.0 ColorPicker.qml
 ComboBox 2.0 ComboBox.qml
 ComponentButton 2.0 ComponentButton.qml
+ComponentSection 2.0 ComponentSection.qml
 ControlLabel 2.0 ControlLabel.qml
 singleton Controller 2.0 Controller.qml
 DoubleSpinBox 2.0 DoubleSpinBox.qml

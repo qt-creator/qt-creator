@@ -29,8 +29,9 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Row {
-    id: alignmentHorizontalButtons
+    id: root
 
+    property string scope: "Text"
     property bool blueHighlight: false
     property variant backendValue: backendValues.horizontalAlignment
     property variant value: backendValue.enumeration
@@ -42,6 +43,7 @@ Row {
         buttonAlignLeft.checked = true
         buttonAlignHCenter.checked = false
         buttonAlignRight.checked = false
+        buttonAlignJustify.checked = false
 
         if (value !== undefined) {
             if (value === "AlignLeft")
@@ -50,6 +52,8 @@ Row {
                 buttonAlignHCenter.checked = true
             else if (value === "AlignRight")
                 buttonAlignRight.checked = true
+            else if (value === "AlignJustify")
+                buttonAlignJustify.checked = true
         }
         evaluate()
     }
@@ -75,7 +79,7 @@ Row {
 
     ExtendedFunctionLogic {
         id: extFuncLogic
-        backendValue: alignmentHorizontalButtons.backendValue
+        backendValue: root.backendValue
     }
 
     StudioControls.ButtonRow {
@@ -98,7 +102,7 @@ Row {
             iconColor: __currentColor
             onClicked: {
                 if (checked)
-                    backendValue.setEnumeration("Text", "AlignLeft")
+                    backendValue.setEnumeration(root.scope, "AlignLeft")
             }
         }
 
@@ -111,7 +115,7 @@ Row {
             iconColor: __currentColor
             onClicked: {
                 if (checked)
-                    backendValue.setEnumeration("Text", "AlignHCenter")
+                    backendValue.setEnumeration(root.scope, "AlignHCenter")
             }
         }
 
@@ -124,7 +128,20 @@ Row {
             iconColor: __currentColor
             onClicked: {
                 if (checked)
-                    backendValue.setEnumeration("Text", "AlignRight")
+                    backendValue.setEnumeration(root.scope, "AlignRight")
+            }
+        }
+
+        StudioControls.AbstractButton {
+            id: buttonAlignJustify
+            buttonIcon: StudioTheme.Constants.textAlignJustified
+            checkable: true
+            autoExclusive: true
+            StudioControls.ButtonGroup.group: group
+            iconColor: __currentColor
+            onClicked: {
+                if (checked)
+                    backendValue.setEnumeration(root.scope, "AlignJustify")
             }
         }
     }

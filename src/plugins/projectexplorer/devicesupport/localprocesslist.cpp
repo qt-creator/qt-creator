@@ -161,7 +161,7 @@ static QMap<qint64, QString> getLocalProcessDataUsingPs(const QString &column)
     psProcess.start();
     if (psProcess.waitForStarted()) {
         QByteArray output;
-        if (psProcess.readDataFromProcess(30000, &output, nullptr, false)) {
+        if (psProcess.readDataFromProcess(30, &output, nullptr, false)) {
             // Split "457 /Users/foo.app arg1 arg2"
             const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
             const int lineCount = lines.size();

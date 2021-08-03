@@ -178,6 +178,8 @@ DesignerSettings SettingsPageWidget::settings() const
                     m_ui.featureTimelineEditorCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ALWAYS_DESIGN_MODE,
                     m_ui.designerAlwaysDesignModeCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET,
+                    m_ui.askBeforeDeletingAssetCheckBox->isChecked());
 
     return settings;
 }
@@ -247,6 +249,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
     m_ui.featureTimelineEditorCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
+    m_ui.askBeforeDeletingAssetCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
 
     if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
         m_ui.debugGroupBox->hide();

@@ -157,6 +157,7 @@ void FileDownloader::start()
                 m_url = reply->url();
                 start();
             } else {
+                qDebug() << Q_FUNC_INFO << m_url << reply->errorString();
                 emit downloadFailed();
             }
         } else {

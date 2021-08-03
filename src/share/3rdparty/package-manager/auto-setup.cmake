@@ -1,3 +1,8 @@
+#
+# Internal Qt Creator variable reference
+#
+set(__just_reference_QT_QMAKE_EXECUTABLE ${QT_QMAKE_EXECUTABLE})
+
 if (EXISTS "${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
   include("${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
 endif()

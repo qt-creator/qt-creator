@@ -682,6 +682,8 @@ public:
     Private(ClangdClient *q, Project *project)
         : q(q), settings(CppTools::ClangdProjectSettings(project).settings()) {}
 
+    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                    const QString &searchTerm, const Utils::optional<QString> &replacement);
     void handleFindUsagesResult(quint64 key, const QList<Location> &locations);
     static void handleRenameRequest(const SearchResult *search,
                                     const ReplacementData &replacementData,
@@ -868,69 +870,31 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                               const Utils::optional<QString> &replacement)
 {
-    // TODO: This will be wrong for e.g. operators. Use a Symbol info request to get the real symbol string.
-    const QString searchTerm = d->searchTermFromCursor(cursor);
-    if (searchTerm.isEmpty())
+    // Quick check: Are we even on anything searchable?
+    if (d->searchTermFromCursor(cursor).isEmpty())
         return;
 
-    ReferencesData refData;
-    refData.key = d->nextJobId++;
-    if (replacement) {
-        ReplacementData replacementData;
-        replacementData.oldSymbolName = searchTerm;
-        replacementData.newSymbolName = *replacement;
-        if (replacementData.newSymbolName.isEmpty())
-            replacementData.newSymbolName = replacementData.oldSymbolName;
-        refData.replacementData = replacementData;
-    }
-    refData.search = SearchResultWindow::instance()->startNewSearch(
-                tr("C++ Usages:"),
-                {},
-                searchTerm,
-                replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
-                SearchResultWindow::PreserveCaseDisabled,
-                "CppEditor");
-    if (refData.categorize)
-        refData.search->setFilter(new CppTools::CppSearchResultFilter);
-    if (refData.replacementData) {
-        refData.search->setTextToReplace(refData.replacementData->newSymbolName);
-        const auto renameFilesCheckBox = new QCheckBox;
-        renameFilesCheckBox->setVisible(false);
-        refData.search->setAdditionalReplaceWidget(renameFilesCheckBox);
-        const auto renameHandler =
-                [search = refData.search](const QString &newSymbolName,
-                                          const QList<SearchResultItem> &checkedItems,
-                                          bool preserveCase) {
-            const auto replacementData = search->userData().value<ReplacementData>();
-            Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
-                                         preserveCase);
-        };
-        connect(refData.search, &SearchResult::replaceButtonClicked, renameHandler);
-    }
-    connect(refData.search, &SearchResult::activated, [](const SearchResultItem& item) {
-        Core::EditorManager::openEditorAtSearchResult(item);
-    });
-    SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    d->runningFindUsages.insert(refData.key, refData);
-
-    const Utils::optional<MessageId> requestId = symbolSupport().findUsages(
-                document, cursor, [this, key = refData.key](const QList<Location> &locations) {
-        d->handleFindUsagesResult(key, locations);
-    });
-
-    if (!requestId) {
-        d->finishSearch(refData, false);
-        return;
-    }
-    connect(refData.search, &SearchResult::cancelled, this, [this, requestId, key = refData.key] {
-        const auto refData = d->runningFindUsages.find(key);
-        if (refData == d->runningFindUsages.end())
+    // Get the proper spelling of the search term from clang, so we can put it into the
+    // search widget.
+    const TextDocumentIdentifier docId(DocumentUri::fromFilePath(document->filePath()));
+    const TextDocumentPositionParams params(docId, Range(cursor).start());
+    SymbolInfoRequest symReq(params);
+    symReq.setResponseCallback([this, doc = QPointer(document), cursor, replacement]
+                               (const SymbolInfoRequest::Response &response) {
+        if (!doc)
             return;
-        cancelRequest(*requestId);
-        refData->canceled = true;
-        refData->search->disconnect(this);
-        d->finishSearch(*refData, true);
+        const auto result = response.result();
+        if (!result)
+            return;
+        const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value());
+        if (!list || list->isEmpty())
+            return;
+        const SymbolDetails &sd = list->first();
+        if (sd.name().isEmpty())
+            return;
+        d->findUsages(doc.data(), cursor, sd.name(), replacement);
     });
+    sendContent(symReq);
 }
 
 void ClangdClient::enableTesting() { d->isTesting = true; }
@@ -970,6 +934,71 @@ QVersionNumber ClangdClient::versionNumber() const
 }
 
 CppTools::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }
+
+void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
+        const QTextCursor &cursor, const QString &searchTerm,
+        const Utils::optional<QString> &replacement)
+{
+    ReferencesData refData;
+    refData.key = nextJobId++;
+    if (replacement) {
+        ReplacementData replacementData;
+        replacementData.oldSymbolName = searchTerm;
+        replacementData.newSymbolName = *replacement;
+        if (replacementData.newSymbolName.isEmpty())
+            replacementData.newSymbolName = replacementData.oldSymbolName;
+        refData.replacementData = replacementData;
+    }
+
+    refData.search = SearchResultWindow::instance()->startNewSearch(
+                tr("C++ Usages:"),
+                {},
+                searchTerm,
+                replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
+                SearchResultWindow::PreserveCaseDisabled,
+                "CppEditor");
+    if (refData.categorize)
+        refData.search->setFilter(new CppTools::CppSearchResultFilter);
+    if (refData.replacementData) {
+        refData.search->setTextToReplace(refData.replacementData->newSymbolName);
+        const auto renameFilesCheckBox = new QCheckBox;
+        renameFilesCheckBox->setVisible(false);
+        refData.search->setAdditionalReplaceWidget(renameFilesCheckBox);
+        const auto renameHandler =
+                [search = refData.search](const QString &newSymbolName,
+                                          const QList<SearchResultItem> &checkedItems,
+                                          bool preserveCase) {
+            const auto replacementData = search->userData().value<ReplacementData>();
+            Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
+                                         preserveCase);
+        };
+        connect(refData.search, &SearchResult::replaceButtonClicked, renameHandler);
+    }
+    connect(refData.search, &SearchResult::activated, [](const SearchResultItem& item) {
+        Core::EditorManager::openEditorAtSearchResult(item);
+    });
+    SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
+    runningFindUsages.insert(refData.key, refData);
+
+    const Utils::optional<MessageId> requestId = q->symbolSupport().findUsages(
+                document, cursor, [this, key = refData.key](const QList<Location> &locations) {
+        handleFindUsagesResult(key, locations);
+    });
+
+    if (!requestId) {
+        finishSearch(refData, false);
+        return;
+    }
+    QObject::connect(refData.search, &SearchResult::cancelled, q, [this, requestId, key = refData.key] {
+        const auto refData = runningFindUsages.find(key);
+        if (refData == runningFindUsages.end())
+            return;
+        q->cancelRequest(*requestId);
+        refData->canceled = true;
+        refData->search->disconnect(q);
+        finishSearch(*refData, true);
+    });
+}
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
 {
@@ -2217,7 +2246,7 @@ static void cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextD
             continue;
         }
 
-        if (wasInDisabled && (it == results.end()
+        if (wasInDisabled && (it + 1 == results.end()
                 || (it + 1)->textStyles.mainStyle != TextEditor::C_DISABLED_CODE)) {
             // The #else or #endif that ends disabled code should not be disabled.
             it = results.erase(it);
