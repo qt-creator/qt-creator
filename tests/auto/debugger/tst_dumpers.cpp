@@ -306,12 +306,12 @@ struct Value
         if (context.qtVersion) {
             if (qtVersion == 4) {
                 if (context.qtVersion < 0x40000 || context.qtVersion >= 0x50000) {
-                    //QWARN("Qt 4 specific case skipped");
+                    //qWarning("Qt 4 specific case skipped");
                     return true;
                 }
             } else if (qtVersion == 5) {
                 if (context.qtVersion < 0x50000 || context.qtVersion >= 0x60000) {
-                    //QWARN("Qt 5 specific case skipped");
+                    //qWarning("Qt 5 specific case skipped");
                     return true;
                 }
             }
@@ -325,8 +325,8 @@ struct Value
 
         if (isPattern) {
             const QString anchoredPattern = QRegularExpression::anchoredPattern(expectedValue);
-            //QWARN(qPrintable("MATCH EXP: " + expectedValue + "   ACT: " + actualValue));
-            //QWARN(QRegularExpression(anchoredPattern).match(actualValue).hasMatch() ? "OK" : "NOT OK");
+            //qWarning(qPrintable("MATCH EXP: " + expectedValue + "   ACT: " + actualValue));
+            //qWarning(QRegularExpression(anchoredPattern).match(actualValue).hasMatch() ? "OK" : "NOT OK");
             return QRegularExpression(anchoredPattern).match(actualValue).hasMatch();
         }
 
@@ -409,12 +409,12 @@ struct Type
         if (context.qtVersion) {
             if (qtVersion == 4) {
                 if (context.qtVersion < 0x40000 || context.qtVersion >= 0x50000) {
-                    //QWARN("Qt 4 specific case skipped");
+                    //qWarning("Qt 4 specific case skipped");
                     return true;
                 }
             } else if (qtVersion == 5) {
                 if (context.qtVersion < 0x50000 || context.qtVersion >= 0x60000) {
-                    //QWARN("Qt 5 specific case skipped");
+                    //qWarning("Qt 5 specific case skipped");
                     return true;
                 }
             }

@@ -41,7 +41,7 @@ void Foo::initTestCase()
 
 void Foo::cleanupTestCase()
 {
-    QWARN("Warning!");
+    qWarning("Warning!");
 }
 
 void Foo::test_caseZero()
