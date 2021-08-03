@@ -214,6 +214,7 @@ void LauncherSocketHandler::handleProcessFinished()
     packet.stdErr = proc->readAllStandardError();
     packet.stdOut = proc->readAllStandardOutput();
     sendPacket(packet);
+    removeProcess(proc->token());
 }
 
 void LauncherSocketHandler::handleStopFailure()
@@ -221,8 +222,6 @@ void LauncherSocketHandler::handleStopFailure()
     // Process did not react to a kill signal. Rare, but not unheard of.
     // Forget about the associated Process object and report process exit to the client.
     Process * proc = senderProcess();
-    proc->disconnect();
-    m_processes.remove(proc->token());
     ProcessFinishedPacket packet(proc->token());
     packet.error = QProcess::Crashed;
     packet.exitCode = -1;
@@ -263,9 +262,8 @@ void LauncherSocketHandler::handleStopPacket()
         // This can happen if the process finishes on its own at about the same time the client
         // sends the request.
         logDebug("got stop request when process was not running");
-        return;
     }
-    process->cancel();
+    removeProcess(process->token());
 }
 
 void LauncherSocketHandler::handleShutdownPacket()
@@ -300,6 +298,21 @@ Process *LauncherSocketHandler::setupProcess(quintptr token)
             this, &LauncherSocketHandler::handleProcessFinished);
     connect(p, &Process::failedToStop, this, &LauncherSocketHandler::handleStopFailure);
     return p;
+}
+
+void LauncherSocketHandler::removeProcess(quintptr token)
+{
+    const auto it = m_processes.find(token);
+    if (it == m_processes.end())
+        return;
+
+    Process *process = it.value();
+    m_processes.erase(it);
+    process->disconnect();
+    if (process->state() != QProcess::NotRunning)
+        process->cancel();
+    else
+        delete process;
 }
 
 Process *LauncherSocketHandler::senderProcess() const

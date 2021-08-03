@@ -66,6 +66,7 @@ private:
     void sendPacket(const LauncherPacket &packet);
 
     Process *setupProcess(quintptr token);
+    void removeProcess(quintptr token);
     Process *senderProcess() const;
 
     const QString m_serverPath;
