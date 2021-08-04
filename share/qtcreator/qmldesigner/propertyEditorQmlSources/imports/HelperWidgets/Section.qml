@@ -27,6 +27,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Item {
@@ -54,18 +55,50 @@ Item {
     property bool addTopPadding: true
     property bool addBottomPadding: true
 
+    property bool useDefaulContextMenu: true
+
     clip: true
+
+    Connections {
+        id: connection
+        target: section
+        enabled: section.useDefaulContextMenu
+        function onShowContextMenu() { contextMenu.popup() }
+    }
+
+    Connections {
+        target: Controller
+        function onCollapseAll() { section.expanded = false }
+        function onExpandAll() { section.expanded = true }
+    }
 
     signal showContextMenu()
     signal toggleExpand()
 
+
     Rectangle {
         id: header
-        height: hideHeader ? 0 : StudioTheme.Values.sectionHeadHeight
-        visible: !hideHeader
+        height: section.hideHeader ? 0 : StudioTheme.Values.sectionHeadHeight
+        visible: !section.hideHeader
         anchors.left: parent.left
         anchors.right: parent.right
         color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * section.level))
+
+        Item {
+            StudioControls.Menu {
+                id: contextMenu
+
+                StudioControls.MenuItem {
+                    text: qsTr("Expand All")
+                    onTriggered: Controller.expandAll()
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Collapse All")
+                    onTriggered: Controller.collapseAll()
+                }
+            }
+        }
 
         Image {
             id: arrow
@@ -92,9 +125,9 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: function(mouse) {
                 if (mouse.button === Qt.LeftButton) {
-                    trans.enabled = true
-                    if (expandOnClick)
-                        expanded = !expanded
+                    transition.enabled = true
+                    if (section.expandOnClick)
+                        section.expanded = !section.expanded
                     else
                         section.toggleExpand()
                 } else {
@@ -109,8 +142,8 @@ Item {
         height: 1
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.rightMargin: 5 + leftPadding
-        anchors.leftMargin: 5 - leftPadding
+        anchors.rightMargin: 5 + section.leftPadding
+        anchors.leftMargin: 5 - section.leftPadding
         visible: false
         color: StudioTheme.Values.themeControlOutline
     }
@@ -166,7 +199,7 @@ Item {
     ]
 
     transitions: Transition {
-        id: trans
+        id: transition
         enabled: false
         NumberAnimation {
             properties: "implicitHeight,rotation"

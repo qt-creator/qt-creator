@@ -217,6 +217,8 @@ ScrollView {
                 rightPadding: 0
                 expanded: importExpanded
                 expandOnClick: false
+                useDefaulContextMenu: false
+
                 onToggleExpand: {
                     if (categoryModel.rowCount() > 0)
                         importExpanded = !importExpanded

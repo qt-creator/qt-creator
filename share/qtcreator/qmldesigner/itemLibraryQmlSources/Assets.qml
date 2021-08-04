@@ -129,6 +129,8 @@ Item {
                     expanded: dirExpanded
                     visible: dirVisible
                     expandOnClick: false
+                    useDefaulContextMenu: false
+
                     onToggleExpand: {
                         dirExpanded = !dirExpanded
                     }
