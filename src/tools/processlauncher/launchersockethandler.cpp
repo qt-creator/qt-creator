@@ -48,6 +48,10 @@ public:
 
     void cancel()
     {
+        if (state() == QProcess::NotRunning) {
+            deleteLater();
+            return;
+        }
         switch (m_stopState) {
         case StopState::Inactive:
             m_stopState = StopState::Terminating;
@@ -61,7 +65,7 @@ public:
             break;
         case StopState::Killing:
             m_stopState = StopState::Inactive;
-            emit failedToStop();
+            deleteLater(); // TODO: employ something like Core::Reaper here
             break;
         }
     }
@@ -73,9 +77,6 @@ public:
     }
 
     quintptr token() const { return m_token; }
-
-signals:
-    void failedToStop();
 
 private:
     const quintptr m_token;
@@ -217,20 +218,6 @@ void LauncherSocketHandler::handleProcessFinished()
     removeProcess(proc->token());
 }
 
-void LauncherSocketHandler::handleStopFailure()
-{
-    // Process did not react to a kill signal. Rare, but not unheard of.
-    // Forget about the associated Process object and report process exit to the client.
-    Process * proc = senderProcess();
-    ProcessFinishedPacket packet(proc->token());
-    packet.error = QProcess::Crashed;
-    packet.exitCode = -1;
-    packet.exitStatus = QProcess::CrashExit;
-    packet.stdErr = proc->readAllStandardError();
-    packet.stdOut = proc->readAllStandardOutput();
-    sendPacket(packet);
-}
-
 void LauncherSocketHandler::handleStartPacket()
 {
     Process *& process = m_processes[m_packetParser.token()];
@@ -262,6 +249,16 @@ void LauncherSocketHandler::handleStopPacket()
         // This can happen if the process finishes on its own at about the same time the client
         // sends the request.
         logDebug("got stop request when process was not running");
+    } else {
+        // We got the client request to stop the starting / running process.
+        // We report process exit to the client.
+        ProcessFinishedPacket packet(process->token());
+        packet.error = QProcess::Crashed;
+        packet.exitCode = -1;
+        packet.exitStatus = QProcess::CrashExit;
+        packet.stdErr = process->readAllStandardError();
+        packet.stdOut = process->readAllStandardOutput();
+        sendPacket(packet);
     }
     removeProcess(process->token());
 }
@@ -296,7 +293,6 @@ Process *LauncherSocketHandler::setupProcess(quintptr token)
             this, &LauncherSocketHandler::handleReadyReadStandardError);
     connect(p, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &LauncherSocketHandler::handleProcessFinished);
-    connect(p, &Process::failedToStop, this, &LauncherSocketHandler::handleStopFailure);
     return p;
 }
 

@@ -57,7 +57,6 @@ private:
     void handleReadyReadStandardOutput();
     void handleReadyReadStandardError();
     void handleProcessFinished();
-    void handleStopFailure();
 
     void handleStartPacket();
     void handleStopPacket();

@@ -72,7 +72,6 @@ public:
     QProcess::ProcessState state() const
     { QMutexLocker locker(&m_mutex); return m_processState; }
     void cancel();
-    bool isCanceled() const { return m_canceled; }
 
     QByteArray readAllStandardOutput()
     { QMutexLocker locker(&m_mutex); return readAndClear(m_stdout); }
@@ -163,7 +162,6 @@ private:
     SignalType m_waitingFor = SignalType::NoSignal;
 
     QProcess::ProcessState m_processState = QProcess::NotRunning;
-    std::atomic_bool m_canceled = false;
     std::atomic_bool m_failed = false;
     int m_processId = 0;
     int m_exitCode = 0;

@@ -120,8 +120,6 @@ void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &pay
 void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
-    if (!m_canceled)
-        m_processState = QProcess::NotRunning;
     if (m_waitingFor != SignalType::NoSignal) {
         m_waitCondition.wakeOne();
         m_waitingFor = SignalType::NoSignal;
@@ -166,8 +164,6 @@ void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::Started);
-    if (m_canceled)
-        return;
     m_processState = QProcess::Running;
     const auto packet = LauncherPacket::extractPacket<ProcessStartedPacket>(m_token, packetData);
     m_processId = packet.processId;
@@ -182,8 +178,6 @@ void LauncherHandle::handleReadyReadStandardOutput(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::ReadyRead);
-    if (m_canceled)
-        return;
     const auto packet = LauncherPacket::extractPacket<ReadyReadStandardOutputPacket>(m_token, packetData);
     if (packet.standardChannel.isEmpty())
         return;
@@ -200,8 +194,6 @@ void LauncherHandle::handleReadyReadStandardError(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::ReadyRead);
-    if (m_canceled)
-        return;
     const auto packet = LauncherPacket::extractPacket<ReadyReadStandardErrorPacket>(m_token, packetData);
     if (packet.standardChannel.isEmpty())
         return;
@@ -218,8 +210,6 @@ void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::Finished);
-    if (m_canceled)
-        return;
     m_processState = QProcess::NotRunning;
     const auto packet = LauncherPacket::extractPacket<ProcessFinishedPacket>(m_token, packetData);
     m_exitCode = packet.exitCode;
@@ -268,9 +258,6 @@ bool LauncherHandle::doWaitForSignal(int msecs, SignalType newSignal)
 {
     QMutexLocker locker(&m_mutex);
     QTC_ASSERT(m_waitingFor == SignalType::NoSignal, return false);
-    if (m_canceled) // we don't want to wait if we have canceled it before (ASSERT it?)
-        return false;
-
     // It may happen, that after calling start() and before calling waitForStarted() we might have
     // reached the Running (or even Finished) state already. In this case we should have
     // collected Started (or even Finished) signal to be flushed - so we return true
@@ -325,7 +312,6 @@ void LauncherHandle::cancel()
     }
 
     m_processState = QProcess::NotRunning;
-    m_canceled = true;
 }
 
 void LauncherHandle::start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode)
