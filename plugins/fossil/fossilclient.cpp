@@ -261,8 +261,8 @@ unsigned int FossilClient::synchronousBinaryVersion() const
 
     QStringList args("version");
 
-    SynchronousProcess proc;
-    vcsFullySynchronousExec(proc, QString(), args);
+    QtcProcess proc;
+    vcsFullySynchronousExec(proc, FilePath(), args);
     if (proc.result() != QtcProcess::Finished)
         return 0;
 
@@ -294,13 +294,13 @@ QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output, cons
     });
 }
 
-BranchInfo FossilClient::synchronousCurrentBranch(const QString &workingDirectory)
+BranchInfo FossilClient::synchronousCurrentBranch(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
         return BranchInfo();
 
     // First try to get the current branch from the list of open branches
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list"});
     if (proc.result() != QtcProcess::Finished)
         return BranchInfo();
@@ -312,7 +312,7 @@ BranchInfo FossilClient::synchronousCurrentBranch(const QString &workingDirector
 
     if (!currentBranch.isCurrent()) {
         // If not available from open branches, request it from the list of closed branches.
-        SynchronousProcess proc;
+        QtcProcess proc;
         vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list", "--closed"});
         if (proc.result() != QtcProcess::Finished)
             return BranchInfo();
@@ -326,7 +326,7 @@ BranchInfo FossilClient::synchronousCurrentBranch(const QString &workingDirector
     return currentBranch;
 }
 
-QList<BranchInfo> FossilClient::synchronousBranchQuery(const QString &workingDirectory)
+QList<BranchInfo> FossilClient::synchronousBranchQuery(const FilePath &workingDirectory)
 {
     // Return a list of all branches, including the closed ones.
     // Sort the list by branch name.
@@ -335,7 +335,7 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const QString &workingDir
         return QList<BranchInfo>();
 
     // First get list of open branches
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list"});
     if (proc.result() != QtcProcess::Finished)
         return QList<BranchInfo>();
@@ -371,7 +371,8 @@ QStringList FossilClient::parseRevisionCommentLine(const QString &commentLine)
     return QStringList({match.captured(1), match.captured(2)});
 }
 
-RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirectory, const QString &id,
+RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirectory,
+                                                    const QString &id,
                                                     bool getCommentMsg) const
 {
     // Query details of the given revision/check-out id,
@@ -383,7 +384,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     if (!id.isEmpty())
         args << id;
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args, ShellCommand::SuppressCommandLogging);
     if (proc.result() != QtcProcess::Finished)
         return RevisionInfo();
@@ -433,7 +434,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     return RevisionInfo(revisionId, parentId, mergeParentIds, commentMsg, committer);
 }
 
-QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, const QString &id)
+QStringList FossilClient::synchronousTagQuery(const FilePath &workingDirectory, const QString &id)
 {
     // Return a list of tags for the given revision.
     // If no revision specified, all defined tags are listed.
@@ -447,7 +448,7 @@ QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, c
     if (!id.isEmpty())
         args << id;
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::Finished)
         return QStringList();
@@ -457,7 +458,7 @@ QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, c
     return output.split('\n', Qt::SkipEmptyParts);
 }
 
-RepositorySettings FossilClient::synchronousSettingsQuery(const QString &workingDirectory)
+RepositorySettings FossilClient::synchronousSettingsQuery(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
         return RepositorySettings();
@@ -470,7 +471,7 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
 
     const QStringList args("settings");
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::Finished)
         return RepositorySettings();
@@ -507,7 +508,7 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
     return repoSettings;
 }
 
-bool FossilClient::synchronousSetSetting(const QString &workingDirectory,
+bool FossilClient::synchronousSetSetting(const FilePath &workingDirectory,
                                          const QString &property, const QString &value, bool isGlobal)
 {
     // set a repository property to the given value
@@ -525,13 +526,13 @@ bool FossilClient::synchronousSetSetting(const QString &workingDirectory,
     if (isGlobal)
         args << "--global";
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     return (proc.result() == QtcProcess::Finished);
 }
 
 
-bool FossilClient::synchronousConfigureRepository(const QString &workingDirectory, const RepositorySettings &newSettings,
+bool FossilClient::synchronousConfigureRepository(const FilePath &workingDirectory, const RepositorySettings &newSettings,
                                                   const RepositorySettings &currentSettings)
 {
     if (workingDirectory.isEmpty())
@@ -575,14 +576,14 @@ bool FossilClient::synchronousConfigureRepository(const QString &workingDirector
     return true;
 }
 
-QString FossilClient::synchronousUserDefaultQuery(const QString &workingDirectory)
+QString FossilClient::synchronousUserDefaultQuery(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
         return QString();
 
     const QStringList args({"user", "default"});
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::Finished)
         return QString();
@@ -592,26 +593,26 @@ QString FossilClient::synchronousUserDefaultQuery(const QString &workingDirector
     return output.trimmed();
 }
 
-bool FossilClient::synchronousSetUserDefault(const QString &workingDirectory, const QString &userName)
+bool FossilClient::synchronousSetUserDefault(const FilePath &workingDirectory, const QString &userName)
 {
     if (workingDirectory.isEmpty() || userName.isEmpty())
         return false;
 
     // set repository-default user
     const QStringList args({"user", "default", userName, "--user", userName});
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     return (proc.result() == QtcProcess::Finished);
 }
 
-QString FossilClient::synchronousGetRepositoryURL(const QString &workingDirectory)
+QString FossilClient::synchronousGetRepositoryURL(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
         return QString();
 
     const QStringList args("remote-url");
 
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::Finished)
         return QString();
@@ -626,7 +627,7 @@ QString FossilClient::synchronousGetRepositoryURL(const QString &workingDirector
     return output;
 }
 
-QString FossilClient::synchronousTopic(const QString &workingDirectory)
+QString FossilClient::synchronousTopic(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
         return QString();
@@ -640,7 +641,7 @@ QString FossilClient::synchronousTopic(const QString &workingDirectory)
     return branchInfo.name();
 }
 
-bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, const QStringList &extraOptions)
+bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory, const QStringList &extraOptions)
 {
     VcsBase::VcsOutputWindow *outputWindow = VcsBase::VcsOutputWindow::instance();
 
@@ -648,7 +649,7 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     // use the configured default repository location for path
     // use the configured default user for admin
 
-    const QString repoName = QDir(workingDirectory).dirName().simplified();
+    const QString repoName = workingDirectory.fileName().simplified();
     const QString repoPath = settings().defaultRepoPath.value();
     const QString adminUser = settings().userName.value();
 
@@ -665,7 +666,7 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
     args << extraOptions << repoFilePath.toUserOutput();
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::Finished)
         return false;
@@ -706,7 +707,7 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     return true;
 }
 
-bool FossilClient::synchronousMove(const QString &workingDir,
+bool FossilClient::synchronousMove(const FilePath &workingDir,
                                    const QString &from, const QString &to,
                                    const QStringList &extraOptions)
 {
@@ -719,12 +720,12 @@ bool FossilClient::synchronousMove(const QString &workingDir,
 
     QStringList args(vcsCommandString(MoveCommand));
     args << extraOptions << from << to;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     return (proc.result() == QtcProcess::Finished);
 }
 
-bool FossilClient::synchronousPull(const QString &workingDir, const QString &srcLocation, const QStringList &extraOptions)
+bool FossilClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(PullCommand));
     if (srcLocation.isEmpty()) {
@@ -741,15 +742,15 @@ bool FossilClient::synchronousPull(const QString &workingDir, const QString &src
             VcsBase::VcsCommand::SshPasswordPrompt
             | VcsBase::VcsCommand::ShowStdOut
             | VcsBase::VcsCommand::ShowSuccessMessage;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
     const bool success = (proc.result() == QtcProcess::Finished);
     if (success)
-        emit changed(QVariant(workingDir));
+        emit changed(workingDir.toVariant());
     return success;
 }
 
-bool FossilClient::synchronousPush(const QString &workingDir, const QString &dstLocation, const QStringList &extraOptions)
+bool FossilClient::synchronousPush(const FilePath &workingDir, const QString &dstLocation, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(PushCommand));
     if (dstLocation.isEmpty()) {
@@ -766,20 +767,19 @@ bool FossilClient::synchronousPush(const QString &workingDir, const QString &dst
             VcsBase::VcsCommand::SshPasswordPrompt
             | VcsBase::VcsCommand::ShowStdOut
             | VcsBase::VcsCommand::ShowSuccessMessage;
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
     return (proc.result() == QtcProcess::Finished);
 }
 
-void FossilClient::commit(const QString &repositoryRoot, const QStringList &files,
+void FossilClient::commit(const FilePath &repositoryRoot, const QStringList &files,
                           const QString &commitMessageFile, const QStringList &extraOptions)
 {
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile,
                           QStringList(extraOptions) << "-M" << commitMessageFile);
 }
 
-VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
-        const QString &workingDir, const QString &file, const QString &revision,
+VcsBase::VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QString &file, const QString &revision,
         int lineNumber, const QStringList &extraOptions)
 {
     // 'fossil annotate' command has a variant 'fossil blame'.
@@ -852,10 +852,10 @@ FilePath FossilClient::findTopLevelForFile(const FilePath &file) const
     return VcsBase::findRepositoryForFile(file, Constants::FOSSILREPO);
 }
 
-bool FossilClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const QStringList args({"finfo", fileName});
-    SynchronousProcess proc;
+    QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != QtcProcess::Finished)
         return false;
@@ -927,8 +927,8 @@ void FossilClient::view(const QString &source, const QString &id, const QStringL
 {
     QStringList args("diff");
 
-    const QFileInfo fi(source);
-    const QString workingDirectory = fi.isFile() ? fi.absolutePath() : source;
+    const FilePath fPath = FilePath::fromString(source);
+    const FilePath workingDirectory = fPath.isFile() ? fPath.absolutePath() : fPath;
 
     RevisionInfo revisionInfo = synchronousRevisionQuery(workingDirectory,id);
 
@@ -992,7 +992,7 @@ void FossilLogHighlighter::highlightBlock(const QString &text)
     }
 }
 
-void FossilClient::log(const QString &workingDir, const QStringList &files,
+void FossilClient::log(const FilePath &workingDir, const QStringList &files,
                        const QStringList &extraOptions,
                        bool enableAnnotationContextMenu)
 {
@@ -1045,7 +1045,7 @@ void FossilClient::log(const QString &workingDir, const QStringList &files,
     enqueueJob(createCommand(workingDir, fossilEditor), args);
 }
 
-void FossilClient::logCurrentFile(const QString &workingDir, const QStringList &files,
+void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
                                   const QStringList &extraOptions,
                                   bool enableAnnotationContextMenu)
 {
@@ -1095,7 +1095,7 @@ void FossilClient::logCurrentFile(const QString &workingDir, const QStringList &
     enqueueJob(createCommand(workingDir, fossilEditor), args);
 }
 
-void FossilClient::revertFile(const QString &workingDir,
+void FossilClient::revertFile(const FilePath &workingDir,
                               const QString &file,
                               const QString &revision,
                               const QStringList &extraOptions)
@@ -1108,12 +1108,12 @@ void FossilClient::revertFile(const QString &workingDir,
 
     // Indicate file list
     VcsBase::VcsCommand *cmd = createCommand(workingDir);
-    cmd->setCookie(QStringList(workingDir + "/" + file));
+    cmd->setCookie(QStringList(workingDir.toString() + "/" + file));
     connect(cmd, &VcsBase::VcsCommand::success, this, &VcsBase::VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
-void FossilClient::revertAll(const QString &workingDir, const QString &revision, const QStringList &extraOptions)
+void FossilClient::revertAll(const FilePath &workingDir, const QString &revision, const QStringList &extraOptions)
 {
     // Fossil allows whole tree revert to latest revision (effectively undoing uncommitted changes).
     // However it disallows revert to a specific revision for the whole tree, only for selected files.
@@ -1134,7 +1134,7 @@ void FossilClient::revertAll(const QString &workingDir, const QString &revision,
 
     // Indicate repository change
     VcsBase::VcsCommand *cmd = createCommand(workingDir);
-    cmd->setCookie(QStringList(workingDir));
+    cmd->setCookie(QStringList(workingDir.toString()));
     connect(cmd, &VcsBase::VcsCommand::success, this, &VcsBase::VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
 }

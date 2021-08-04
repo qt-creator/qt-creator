@@ -32,7 +32,7 @@ namespace Internal {
 
 class FossilEditorWidgetPrivate;
 
-class FossilEditorWidget : public VcsBase::VcsBaseEditorWidget
+class FossilEditorWidget final : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 

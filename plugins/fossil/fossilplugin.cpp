@@ -96,7 +96,7 @@ protected:
 
     QString refreshTopic(const FilePath &repository) final
     {
-        return m_client->synchronousTopic(repository.toString());
+        return m_client->synchronousTopic(repository);
     }
 
 private:
@@ -255,7 +255,7 @@ public:
     // Submit editor actions
     QAction *m_menuAction = nullptr;
 
-    QString m_submitRepository;
+    Utils::FilePath m_submitRepository;
     bool m_submitActionTriggered = false;
 
     // To be connected to the VcsTask's success signal to emit the repository/
@@ -729,8 +729,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
     }
     setSubmitEditor(commitEditor);
 
-    const QString msg = tr("Commit changes for \"%1\".").
-            arg(QDir::toNativeSeparators(m_submitRepository));
+    const QString msg = tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const RevisionInfo currentRevision = m_client.synchronousRevisionQuery(m_submitRepository);
@@ -739,7 +738,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
     QStringList tags = m_client.synchronousTagQuery(m_submitRepository, currentRevision.id);
     // Fossil includes branch name in tag list -- remove.
     tags.removeAll(currentBranch.name());
-    commitEditor->setFields(m_submitRepository, currentBranch, tags, currentUser, status);
+    commitEditor->setFields(m_submitRepository.toString(), currentBranch, tags, currentUser, status);
 
     connect(commitEditor, &VcsBase::VcsBaseSubmitEditor::diffSelectedFiles,
             this, &FossilPluginPrivate::diffFromEditorSelected);
@@ -763,27 +762,27 @@ void FossilPluginPrivate::createRepository()
     // re-implemented from void VcsBasePlugin::createRepository()
 
     // Find current starting directory
-    QString directory;
+    Utils::FilePath directory;
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject())
-        directory = currentProject->projectDirectory().toString();
+        directory = currentProject->projectDirectory();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = Core::ICore::mainWindow();
     do {
-        directory = QFileDialog::getExistingDirectory(mw, tr("Choose Checkout Directory"), directory);
+        directory = FileUtils::getExistingDirectory(tr("Choose Checkout Directory"), directory);
         if (directory.isEmpty())
             return;
         const Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == 0)
             break;
         const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
-                                    " Would you like to specify another directory?").arg(directory, managingControl->displayName());
+                                    " Would you like to specify another directory?").arg(directory.toUserOutput(), managingControl->displayName());
 
         if (!ask(mw, tr("Repository already under version control"), question))
             return;
     } while (true);
     // Create
-    const bool rc = vcsCreateRepository(FilePath::fromString(directory));
-    const QString nativeDir = QDir::toNativeSeparators(directory);
+    const bool rc = vcsCreateRepository(directory);
+    const QString nativeDir = directory.toUserOutput();
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),
                                  tr("A version control repository has been created in %1.").
@@ -915,7 +914,7 @@ bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *
 
 bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory.toString(), fileName);
+    return m_client.managesFile(workingDirectory, fileName);
 }
 
 bool FossilPluginPrivate::isConfigured() const
@@ -967,34 +966,31 @@ bool FossilPluginPrivate::vcsOpen(const FilePath &filePath)
 
 bool FossilPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return m_client.synchronousAdd(fi.absolutePath(), fi.fileName());
+    return m_client.synchronousAdd(filePath.absolutePath(), filePath.fileName());
 }
 
 bool FossilPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    return m_client.synchronousRemove(fi.absolutePath(), fi.fileName());
+    return m_client.synchronousRemove(filePath.absolutePath(), filePath.fileName());
 }
 
 bool FossilPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(fromInfo.absolutePath(),
-                                     fromInfo.absoluteFilePath(),
-                                     toInfo.absoluteFilePath());
+    return m_client.synchronousMove(from.absolutePath(),
+                                    fromInfo.absoluteFilePath(),
+                                    toInfo.absoluteFilePath());
 }
 
 bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory.toString());
+    return m_client.synchronousCreateRepository(directory);
 }
 
 void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    const QFileInfo fi = filePath.toFileInfo();
-    m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    m_client.annotate(filePath.absolutePath(), filePath.fileName(), QString(), line);
 }
 
 void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id) { m_client.view(source.toString(), id); }
@@ -1018,7 +1014,7 @@ Core::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QStr
     //  -- open/checkout an existing local fossil
     //  Clone URL is an absolute local path and is the same as the local fossil.
 
-    const QString checkoutPath = baseDirectory.pathAppended(localName).toString();
+    const Utils::FilePath checkoutPath = baseDirectory.pathAppended(localName);
     const QString fossilFile = options.value("fossil-file");
     const Utils::FilePath fossilFilePath = Utils::FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
     const QString fossilFileNative = fossilFilePath.toUserOutput();
@@ -1043,12 +1039,10 @@ Core::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QStr
 
     // first create the checkout directory,
     // as it needs to become a working directory for wizard command jobs
-
-    const QDir checkoutDir(checkoutPath);
-    checkoutDir.mkpath(checkoutPath);
+    checkoutPath.createDir();
 
     // Setup the wizard page command job
-    auto command = new VcsBase::VcsCommand(checkoutDir.path(), m_client.processEnvironment());
+    auto command = new VcsBase::VcsCommand(checkoutPath, m_client.processEnvironment());
 
     if (!isLocalRepository
         && !cloneRepository.exists()) {
@@ -1116,7 +1110,7 @@ void FossilPluginPrivate::changed(const QVariant &v)
 {
     switch (v.type()) {
     case QVariant::String:
-        emit repositoryChanged(v.toString());
+        emit repositoryChanged(Utils::FilePath::fromVariant(v));
         break;
     case QVariant::StringList:
         emit filesChanged(v.toStringList());

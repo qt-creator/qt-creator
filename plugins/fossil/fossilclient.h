@@ -67,50 +67,51 @@ public:
     FossilSettings &settings() const;
 
     unsigned int synchronousBinaryVersion() const;
-    BranchInfo synchronousCurrentBranch(const QString &workingDirectory);
-    QList<BranchInfo> synchronousBranchQuery(const QString &workingDirectory);
-    RevisionInfo synchronousRevisionQuery(const QString &workingDirectory, const QString &id = QString(),
+    BranchInfo synchronousCurrentBranch(const Utils::FilePath &workingDirectory);
+    QList<BranchInfo> synchronousBranchQuery(const Utils::FilePath &workingDirectory);
+    RevisionInfo synchronousRevisionQuery(const Utils::FilePath &workingDirectory,
+                                          const QString &id = QString(),
                                           bool getCommentMsg = false) const;
-    QStringList synchronousTagQuery(const QString &workingDirectory, const QString &id = QString());
-    RepositorySettings synchronousSettingsQuery(const QString &workingDirectory);
-    bool synchronousSetSetting(const QString &workingDirectory, const QString &property,
+    QStringList synchronousTagQuery(const Utils::FilePath &workingDirectory, const QString &id = {});
+    RepositorySettings synchronousSettingsQuery(const Utils::FilePath &workingDirectory);
+    bool synchronousSetSetting(const Utils::FilePath &workingDirectory, const QString &property,
                                const QString &value = QString(), bool isGlobal = false);
-    bool synchronousConfigureRepository(const QString &workingDirectory, const RepositorySettings &newSettings,
+    bool synchronousConfigureRepository(const Utils::FilePath &workingDirectory, const RepositorySettings &newSettings,
                                         const RepositorySettings &currentSettings = RepositorySettings());
-    QString synchronousUserDefaultQuery(const QString &workingDirectory);
-    bool synchronousSetUserDefault(const QString &workingDirectory, const QString &userName);
-    QString synchronousGetRepositoryURL(const QString &workingDirectory);
-    QString synchronousTopic(const QString &workingDirectory);
-    bool synchronousCreateRepository(const QString &workingDirectory,
+    QString synchronousUserDefaultQuery(const Utils::FilePath &workingDirectory);
+    bool synchronousSetUserDefault(const Utils::FilePath &workingDirectory, const QString &userName);
+    QString synchronousGetRepositoryURL(const Utils::FilePath &workingDirectory);
+    QString synchronousTopic(const Utils::FilePath &workingDirectory);
+    bool synchronousCreateRepository(const Utils::FilePath &workingDirectory,
                                      const QStringList &extraOptions = QStringList()) final;
-    bool synchronousMove(const QString &workingDir,
+    bool synchronousMove(const Utils::FilePath &workingDir,
                          const QString &from, const QString &to,
                          const QStringList &extraOptions = QStringList()) final;
-    bool synchronousPull(const QString &workingDir,
+    bool synchronousPull(const Utils::FilePath &workingDir,
                          const QString &srcLocation,
                          const QStringList &extraOptions = QStringList()) final;
-    bool synchronousPush(const QString &workingDir,
+    bool synchronousPush(const Utils::FilePath &workingDir,
                          const QString &dstLocation,
                          const QStringList &extraOptions = QStringList()) final;
-    void commit(const QString &repositoryRoot, const QStringList &files,
+    void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = QStringList()) final;
     VcsBase::VcsBaseEditorWidget *annotate(
-            const QString &workingDir, const QString &file, const QString &revision = QString(),
+            const Utils::FilePath &workingDir, const QString &file, const QString &revision = {},
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) final;
-    void log(const QString &workingDir, const QStringList &files = QStringList(),
+    void log(const Utils::FilePath &workingDir, const QStringList &files = QStringList(),
              const QStringList &extraOptions = QStringList(),
              bool enableAnnotationContextMenu = false) final;
-    void logCurrentFile(const QString &workingDir, const QStringList &files = QStringList(),
+    void logCurrentFile(const Utils::FilePath &workingDir, const QStringList &files = QStringList(),
                         const QStringList &extraOptions = QStringList(),
                         bool enableAnnotationContextMenu = false);
-    void revertFile(const QString &workingDir, const QString &file,
+    void revertFile(const Utils::FilePath &workingDir, const QString &file,
                     const QString &revision = QString(),
                     const QStringList &extraOptions = QStringList()) final;
-    void revertAll(const QString &workingDir, const QString &revision = QString(),
+    void revertAll(const Utils::FilePath &workingDir, const QString &revision = QString(),
                    const QStringList &extraOptions = QStringList()) final;
     bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     unsigned int binaryVersion() const;
     QString binaryVersionString() const;
     SupportedFeatures supportedFeatures() const;
