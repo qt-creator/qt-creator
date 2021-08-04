@@ -24,8 +24,11 @@
 ****************************************************************************/
 
 import QtQuick 2.15
+import QtQuick.Controls 2.15 as Controls
+import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
 import QtQuickDesignerTheme 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: itemPane
@@ -33,18 +36,22 @@ Rectangle {
     height: 400
     color: Theme.qmlDesignerBackgroundColorDarkAlternate()
 
-    Section {
-        y: -1
-        anchors.left: parent.left
-        anchors.right: parent.right
+    ColumnLayout {
+        id: mainColumn
+        anchors.fill: parent
 
-        SectionLayout {
+        Controls.Label {
+            text: qsTr("Select an Item in the Form Editor, Navigator or Text Edit View to see its properties.")
+            font.pixelSize: StudioTheme.Values.myFontSize * 1.5
+            color: StudioTheme.Values.themeTextColor
+            wrapMode: Text.WordWrap
 
-            Label {
-                id: test
-                text: qsTr("None or multiple components selected.")
-                anchors.fill: parent // TODO
-            }
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignCenter
+            Layout.margins: 20
         }
     }
 }
