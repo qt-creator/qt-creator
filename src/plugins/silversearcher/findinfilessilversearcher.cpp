@@ -29,6 +29,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/findinfiles.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -83,10 +84,20 @@ QString convertWildcardToRegex(const QString &wildcard)
     return regex;
 }
 
+QString silverSearcherExecutable()
+{
+    return Utils::Environment::systemEnvironment().searchInPath("ag").toString();
+}
+
 bool isSilverSearcherAvailable()
 {
+    const QString exe = silverSearcherExecutable();
+    if (exe.isEmpty())
+        return false;
     QProcess silverSearcherProcess;
-    silverSearcherProcess.start("ag", {"--version"});
+    silverSearcherProcess.setProcessEnvironment(
+        Utils::Environment::systemEnvironment().toProcessEnvironment());
+    silverSearcherProcess.start(exe, {"--version"});
     if (silverSearcherProcess.waitForFinished(1000)) {
         if (silverSearcherProcess.readAll().contains("ag version"))
             return true;
@@ -131,7 +142,8 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     arguments << "--" << parameters.text << path.toString();
 
     QProcess process;
-    process.start("ag", arguments);
+    process.setProcessEnvironment(Utils::Environment::systemEnvironment().toProcessEnvironment());
+    process.start(silverSearcherExecutable(), arguments);
     if (process.waitForFinished()) {
         typedef QList<FileSearchResult> FileSearchResultList;
         QRegularExpression regexp;
