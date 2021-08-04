@@ -33,8 +33,18 @@ QtObject {
     property color textColor: StudioTheme.Values.themeTextColor
     property variant valueFromBackend: backendValue === undefined ? 0 : backendValue.value
     property bool baseStateFlag: isBaseState
-    property bool isInModel: backendValue === undefined ? false : backendValue.isInModel
-    property bool isInSubState: backendValue === undefined ? false : backendValue.isInSubState
+    property bool isInModel: {
+        if (backendValue !== undefined && backendValue.isInModel !== undefined)
+            return backendValue.isInModel
+
+        return false
+    }
+    property bool isInSubState: {
+        if (backendValue !== undefined && backendValue.isInSubState !== undefined)
+            return backendValue.isInSubState
+
+        return false
+    }
     property bool highlight: textColor === __changedTextColor
     property bool errorState: false
 

@@ -39,6 +39,9 @@ SecondColumnLayout {
     property bool supportGradient: false
     property variant backendValue
     property variant value: {
+        if (colorEditor.backendValue === undefined || colorEditor.backendValue.value === undefined)
+            return "white" // default color for Rectangle
+
         if (colorEditor.isVector3D)
             return Qt.rgba(colorEditor.backendValue.value.x,
                            colorEditor.backendValue.value.y,

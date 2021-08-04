@@ -58,9 +58,19 @@ Row {
         evaluate()
     }
 
-    property bool isInModel: backendValue.isInModel
+    property bool isInModel: {
+        if (backendValue !== undefined && backendValue.isInModel !== undefined)
+            return backendValue.isInModel
+
+        return false
+    }
     onIsInModelChanged: evaluate()
-    property bool isInSubState: backendValue.isInSubState
+    property bool isInSubState: {
+        if (backendValue !== undefined && backendValue.isInSubState !== undefined)
+            return backendValue.isInSubState
+
+        return false
+    }
     onIsInSubStateChanged: evaluate()
 
     function evaluate() {
