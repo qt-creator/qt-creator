@@ -27,7 +27,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/reaper.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 
 #include <QMessageBox>
 
@@ -46,15 +48,11 @@ ExecuteFilter::ExecuteFilter()
     setDefaultShortcutString("!");
     setPriority(High);
     setDefaultIncludedByDefault(false);
+}
 
-    m_process = new Utils::QtcProcess(this);
-    m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    connect(m_process, &QtcProcess::finished, this, &ExecuteFilter::finished);
-    connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
-    connect(m_process, &QtcProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
-
-    m_runTimer.setSingleShot(true);
-    connect(&m_runTimer, &QTimer::timeout, this, &ExecuteFilter::runHeadCommand);
+ExecuteFilter::~ExecuteFilter()
+{
+    removeProcess();
 }
 
 QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
@@ -114,17 +112,19 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
                     value.right(value.length() - pos - 1));
     }
 
-    if (m_process->state() != QProcess::NotRunning) {
+    if (m_process) {
         const QString info(tr("Previous command is still running (\"%1\").\nDo you want to kill it?")
                            .arg(p->headCommand()));
         int r = QMessageBox::question(ICore::dialogParent(), tr("Kill Previous Process?"), info,
                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                                       QMessageBox::Yes);
-        if (r == QMessageBox::Yes)
-            m_process->kill();
-        if (r != QMessageBox::Cancel)
+        if (r == QMessageBox::Cancel)
+            return;
+        if (r == QMessageBox::No) {
             p->m_taskQueue.enqueue(d);
-        return;
+            return;
+        }
+        p->removeProcess();
     }
 
     p->m_taskQueue.enqueue(d);
@@ -133,6 +133,7 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
 
 void ExecuteFilter::finished()
 {
+    QTC_ASSERT(m_process, return);
     const QString commandName = headCommand();
     QString message;
     if (m_process->result() == QtcProcess::FinishedWithSuccess)
@@ -141,13 +142,13 @@ void ExecuteFilter::finished()
         message = tr("Command \"%1\" failed.").arg(commandName);
     MessageManager::writeFlashing(message);
 
-    m_taskQueue.dequeue();
-    if (!m_taskQueue.isEmpty())
-        m_runTimer.start(500);
+    removeProcess();
+    runHeadCommand();
 }
 
 void ExecuteFilter::readStandardOutput()
 {
+    QTC_ASSERT(m_process, return);
     const QByteArray data = m_process->readAllStandardOutput();
     MessageManager::writeSilently(
         QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stdoutState));
@@ -155,6 +156,7 @@ void ExecuteFilter::readStandardOutput()
 
 void ExecuteFilter::readStandardError()
 {
+    QTC_ASSERT(m_process, return);
     static QTextCodec::ConverterState state;
     QByteArray data = m_process->readAllStandardError();
     MessageManager::writeSilently(
@@ -174,6 +176,8 @@ void ExecuteFilter::runHeadCommand()
             return;
         }
         MessageManager::writeDisrupting(tr("Starting command \"%1\".").arg(headCommand()));
+        QTC_CHECK(!m_process);
+        createProcess();
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand({fullPath, d.arguments, Utils::CommandLine::Raw});
         m_process->start();
@@ -181,10 +185,37 @@ void ExecuteFilter::runHeadCommand()
         if (!m_process->waitForStarted(1000)) {
             MessageManager::writeFlashing(
                 tr("Could not start process: %1.").arg(m_process->errorString()));
-            m_taskQueue.dequeue();
+            removeProcess();
             runHeadCommand();
         }
     }
+}
+
+void ExecuteFilter::createProcess()
+{
+    if (m_process)
+        return;
+
+    m_process = new Utils::QtcProcess();
+    m_process->setEnvironment(Utils::Environment::systemEnvironment());
+    connect(m_process, &QtcProcess::finished, this, &ExecuteFilter::finished);
+    connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
+    connect(m_process, &QtcProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
+}
+
+void ExecuteFilter::removeProcess()
+{
+    if (!m_process)
+        return;
+
+    m_taskQueue.dequeue();
+    m_process->disconnect();
+    if (m_process->state() == QProcess::NotRunning)
+        m_process->deleteLater();
+    else
+        Reaper::reap(m_process);
+
+    m_process = nullptr;
 }
 
 QString ExecuteFilter::headCommand() const

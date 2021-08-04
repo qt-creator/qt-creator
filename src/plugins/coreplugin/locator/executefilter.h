@@ -31,7 +31,6 @@
 
 #include <QQueue>
 #include <QStringList>
-#include <QTimer>
 #include <QTextCodec>
 
 namespace Core {
@@ -49,6 +48,7 @@ class ExecuteFilter : public Core::ILocatorFilter
 
 public:
     ExecuteFilter();
+    ~ExecuteFilter() override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
     void accept(LocatorFilterEntry selection,
@@ -60,12 +60,14 @@ private:
     void readStandardError();
     void runHeadCommand();
 
+    void createProcess();
+    void removeProcess();
+
     QString headCommand() const;
 
     QQueue<ExecuteData> m_taskQueue;
     QStringList m_commandHistory;
     Utils::QtcProcess *m_process = nullptr;
-    QTimer m_runTimer;
     QTextCodec::ConverterState m_stdoutState;
     QTextCodec::ConverterState m_stderrState;
 };
