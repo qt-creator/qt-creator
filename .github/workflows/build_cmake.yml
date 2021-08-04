@@ -5,10 +5,10 @@ on: [push]
 env:
   PLUGIN_NAME: Fossil
   QT_VERSION: 5.15.2
-  QT_CREATOR_VERSION: 4.15.0-beta1
+  QT_CREATOR_VERSION: 5.0.0-rc1
   QT_CREATOR_SNAPSHOT: latest
-  CMAKE_VERSION: 3.18.3
-  NINJA_VERSION: 1.10.1
+  CMAKE_VERSION: 3.21.1
+  NINJA_VERSION: 1.10.2
 
 jobs:
   build:
@@ -45,16 +45,16 @@ jobs:
 
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(ninja_suffix "win.zip")
-          set(cmake_suffix "win64-x64.zip")
-          set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
+          set(cmake_suffix "windows-x86_64.zip")
+          set(cmake_dir "cmake-${cmake_version}-windows-x86_64/bin")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(ninja_suffix "linux.zip")
-          set(cmake_suffix "Linux-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
+          set(cmake_suffix "linux-x86_64.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-linux-x86_64/bin")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(ninja_suffix "mac.zip")
-          set(cmake_suffix "Darwin-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
+          set(cmake_suffix "macos-universal.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-macos-universal/CMake.app/Contents/bin")
         endif()
 
         set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
@@ -212,10 +212,18 @@ jobs:
 
         set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
 
+        set(build_plugin_py "scripts/build_plugin.py")
+        foreach(dir "share/qtcreator/scripts" "Qt Creator.app/Contents/Resources/scripts" "Contents/Resources/scripts")
+          if(EXISTS "${{ steps.qt_creator.outputs.qtc_dir }}/${dir}/build_plugin.py")
+            set(build_plugin_py "${dir}/build_plugin.py")
+            break()
+          endif()
+        endforeach()
+
         execute_process(
           COMMAND python
             -u
-            ${{ steps.qt_creator.outputs.qtc_dir }}/scripts/build_plugin.py
+            ${{ steps.qt_creator.outputs.qtc_dir }}/${build_plugin_py}
             --name "$ENV{PLUGIN_NAME}-$ENV{QT_CREATOR_VERSION}-${{ matrix.config.artifact }}"
             --src .
             --build build
