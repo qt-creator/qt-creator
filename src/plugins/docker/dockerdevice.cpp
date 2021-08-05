@@ -1301,7 +1301,7 @@ static FilePaths filterEntriesHelper(const FilePath &base,
             if (match.hasMatch())
                 return true;
         }
-        return false;
+        return nameRegexps.isEmpty();
     };
 
     // FIXME: Handle sort and filters. For now bark on unsupported options.
