@@ -231,8 +231,19 @@ FilePath PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::ExistingDirectory:
     case PathChooser::File:
     case PathChooser::SaveFile:
-        if (!m_baseDirectory.isEmpty())
-            return m_baseDirectory.resolvePath(path.path()).absoluteFilePath();
+        if (!m_baseDirectory.isEmpty()) {
+            Utils::FilePath fp = m_baseDirectory.resolvePath(path.path()).absoluteFilePath();
+            // FIXME bad hotfix for manually editing PathChooser (invalid paths, jumping cursor)
+            // examples: have an absolute path and try to change the device letter by typing the new
+            // letter and removing the original afterwards ends up in
+            // D:\\dev\\project\\cD:\\dev\\build-project (before trying to remove the original)
+            // as 'cD:\\dev\\build-project' is considered is handled as being relative
+            // input = "cD:\\dev\build-project"; // prepended 'c' to change the device letter
+            // m_baseDirectory = "D:\\dev\\project"
+            if (!fp.needsDevice() && HostOsInfo::isWindowsHost() && fp.toString().count(':') > 1)
+                return path;
+            return fp;
+        }
         break;
     }
     return path;
@@ -586,6 +597,12 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         if (filePath.exists() && !filePath.isDir()) {
             if (errorMessage)
                 *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
+            return false;
+        }
+        if (HostOsInfo::isWindowsHost() && !filePath.startsWithDriveLetter()
+                && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
+            if (errorMessage)
+                *errorMessage = tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
         break;
