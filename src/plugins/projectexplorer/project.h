@@ -174,7 +174,6 @@ public:
 
     void setDisplayName(const QString &name);
     void setProjectLanguage(Utils::Id id, bool enabled);
-    void addProjectLanguage(Utils::Id id);
 
     void setExtraData(const QString &key, const QVariant &data);
     QVariant extraData(const QString &key) const;
@@ -221,7 +220,6 @@ protected:
 
     void setId(Utils::Id id);
     void setProjectLanguages(Core::Context language);
-    void removeProjectLanguage(Utils::Id id);
     void setHasMakeInstallEquivalent(bool enabled);
 
     void setNeedsBuildConfigurations(bool value);
@@ -234,6 +232,9 @@ protected:
 
 private:
     void addTarget(std::unique_ptr<Target> &&target);
+
+    void addProjectLanguage(Utils::Id id);
+    void removeProjectLanguage(Utils::Id id);
 
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);

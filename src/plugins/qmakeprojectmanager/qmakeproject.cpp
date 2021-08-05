@@ -454,8 +454,7 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
     // library then chances of the project being a QML project is quite high.
     // This assumption fails when there are no QDeclarativeEngine/QDeclarativeView (QtQuick 1)
     // or QQmlEngine/QQuickView (QtQuick 2) instances.
-    if (hasQmlLib)
-        project()->addProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
+    project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID, hasQmlLib);
 
     projectInfo.activeResourceFiles.removeDuplicates();
     projectInfo.allResourceFiles.removeDuplicates();
