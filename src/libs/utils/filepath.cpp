@@ -993,6 +993,15 @@ bool FilePath::endsWith(const QString &s) const
     return m_data.endsWith(s, caseSensitivity());
 }
 
+/// \returns whether FilePath starts with a drive letter
+/// \note defaults to \c false if it is a non-Windows host or represents a path on device
+bool FilePath::startsWithDriveLetter() const
+{
+    if (needsDevice() || !HostOsInfo::isWindowsHost())
+        return false;
+    return m_data.length() >= 2 && m_data.at(0).isLetter() && m_data.at(1) == ':';
+}
+
 /// \returns the relativeChildPath of FilePath to parent if FilePath is a child of parent
 /// \note returns a empty FilePath if FilePath is not a child of parent
 /// That is, this never returns a path starting with "../"

@@ -130,6 +130,7 @@ public:
     bool isChildOf(const QDir &dir) const;
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
+    bool startsWithDriveLetter() const;
 
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
