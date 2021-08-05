@@ -1073,7 +1073,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
                 if (nodeCanBeMovedToParentProperty) {
                     reparentModelNodeToNodeProperty(parentProperty, modelNode);
-                    slideModelNodeInList(parentProperty, modelNode, idx++);
+                    if (targetIndex > 0)
+                        slideModelNodeInList(parentProperty, modelNode, idx++);
                 }
             }
         }
