@@ -217,6 +217,7 @@ public:
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
     bool prependLineFeed = false;
+    bool forwardStdOutToStdError = false;
 };
 
 OutputFormatter::OutputFormatter() : d(new Private) { }
@@ -574,6 +575,11 @@ void OutputFormatter::setBoldFontEnabled(bool enabled)
     d->formats[ErrorMessageFormat].setFontWeight(fontWeight);
 }
 
+void OutputFormatter::setForwardStdOutToStdError(bool enabled)
+{
+    d->forwardStdOutToStdError = enabled;
+}
+
 void OutputFormatter::flush()
 {
     if (!d->incompleteLine.first.isEmpty())
@@ -608,7 +614,7 @@ void OutputFormatter::dropSearchDir(const FilePath &dir)
 OutputFormat OutputFormatter::outputTypeForParser(const OutputLineParser *parser,
                                                   OutputFormat type) const
 {
-    if (type == StdOutFormat && parser->needsRedirection())
+    if (type == StdOutFormat && (parser->needsRedirection() || d->forwardStdOutToStdError))
         return StdErrFormat;
     return type;
 }

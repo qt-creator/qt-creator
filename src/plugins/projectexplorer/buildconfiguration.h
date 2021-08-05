@@ -79,6 +79,8 @@ public:
 
     virtual void addToEnvironment(Utils::Environment &env) const;
 
+    bool parseStdOut() const;
+    void setParseStdOut(bool b);
     const QList<Utils::Id> customParsers() const;
     void setCustomParsers(const QList<Utils::Id> &parsers);
 

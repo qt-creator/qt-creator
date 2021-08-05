@@ -69,6 +69,7 @@ const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildS
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
 const char CUSTOM_PARSERS_KEY[] = "ProjectExplorer.BuildConfiguration.CustomParsers";
+const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStandardOutput";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -117,9 +118,17 @@ class CustomParsersBuildWidget : public NamedWidget
 public:
     CustomParsersBuildWidget(BuildConfiguration *bc) : NamedWidget(tr("Custom Output Parsers"))
     {
-        const auto selectionWidget = new CustomParsersSelectionWidget(this);
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
+
+        const auto pasteStdOutCB = new QCheckBox(tr("Parse standard output during build"), this);
+        pasteStdOutCB->setToolTip(tr("Check this to make output parsers look for diagnostics "
+                                     "on stdout rather than stderr"));
+        pasteStdOutCB->setChecked(bc->parseStdOut());
+        layout->addWidget(pasteStdOutCB);
+
+        connect(pasteStdOutCB, &QCheckBox::clicked, bc, &BuildConfiguration::setParseStdOut);
+        const auto selectionWidget = new CustomParsersSelectionWidget(this);
         layout->addWidget(selectionWidget);
 
         connect(selectionWidget, &CustomParsersSelectionWidget::selectionChanged,
@@ -152,6 +161,7 @@ public:
     QList<Utils::Id> m_initialBuildSteps;
     QList<Utils::Id> m_initialCleanSteps;
     Utils::MacroExpander m_macroExpander;
+    bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
 
     // FIXME: Remove.
@@ -387,6 +397,7 @@ QVariantMap BuildConfiguration::toMap() const
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(0), d->m_buildSteps.toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(1), d->m_cleanSteps.toMap());
 
+    map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
 
     return map;
@@ -421,6 +432,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         }
     }
 
+    d->m_parseStdOut = map.value(PARSE_STD_OUT_KEY).toBool();
     d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Utils::Id::fromSetting);
 
     const bool res = ProjectConfiguration::fromMap(map);
@@ -517,6 +529,9 @@ void BuildConfiguration::setCustomParsers(const QList<Utils::Id> &parsers)
 {
     d->m_customParsers = parsers;
 }
+
+bool BuildConfiguration::parseStdOut() const { return d->m_parseStdOut; }
+void BuildConfiguration::setParseStdOut(bool b) { d->m_parseStdOut = b; }
 
 bool BuildConfiguration::useSystemEnvironment() const
 {

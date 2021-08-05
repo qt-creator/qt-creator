@@ -282,6 +282,8 @@ void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
             if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
                 formatter->addLineParser(parser);
         }
+
+        formatter->setForwardStdOutToStdError(buildConfiguration()->parseStdOut());
     }
     Utils::FileInProjectFinder fileFinder;
     fileFinder.setProjectDirectory(project()->projectDirectory());

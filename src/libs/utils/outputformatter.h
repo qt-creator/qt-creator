@@ -155,6 +155,7 @@ public:
     bool handleFileLink(const QString &href);
     void handleLink(const QString &href);
     void setBoldFontEnabled(bool enabled);
+    void setForwardStdOutToStdError(bool enabled);
 
     bool hasFatalErrors() const;
 
