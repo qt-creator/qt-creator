@@ -714,7 +714,10 @@ QObject *ObjectNodeInstance::createPrimitiveFromSource(const QString &typeName, 
     if (parts.isEmpty())
         return nullptr;
 
-    QString importString = parts.join(".") + " " + QString::number(majorNumber) + "." + QString::number(minorNumber);
+    QString importString = parts.join(".");
+    if (majorNumber >= 0)
+        importString = importString + " " + QString::number(majorNumber) + "."
+                       + QString::number(minorNumber);
     if (importString == "QtQuick 1.0") /* Workaround for implicit QQml import */
         importString = "QtQuick 2.0";
     QString source = "import " + importString + "\n" + unqualifiedTypeName + " {\n" + "}\n";
