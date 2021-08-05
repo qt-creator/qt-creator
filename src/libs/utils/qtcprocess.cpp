@@ -118,7 +118,6 @@ public:
     virtual void setStandardInputFile(const QString &fileName) = 0;
     virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode) = 0;
 
-    virtual qint64 bytesAvailable() const = 0;
     virtual QString program() const = 0;
     virtual QProcess::ProcessError error() const = 0;
     virtual QProcess::ProcessState state() const = 0;
@@ -226,8 +225,6 @@ public:
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override
     { m_process.setProcessChannelMode(mode); }
 
-    qint64 bytesAvailable() const override
-    { return m_process.bytesAvailable(); }
     QString program() const override
     { return m_process.program(); }
     QProcess::ProcessError error() const override
@@ -315,7 +312,6 @@ public:
     void setStandardInputFile(const QString &fileName) override { m_handle->setStandardInputFile(fileName); }
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override { m_handle->setProcessChannelMode(mode); }
 
-    qint64 bytesAvailable() const override { QTC_CHECK(false); return 0; }
     QString program() const override { return m_handle->program(); }
     QProcess::ProcessError error() const override { return m_handle->error(); }
     QProcess::ProcessState state() const override { return m_handle->state(); }
