@@ -71,7 +71,7 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
 static int parseVersion(const QString &text)
 {
     // The version in Artistic Style is printed like "Artistic Style Version 2.04"
-    const QRegularExpression rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
+    const QRegularExpression rx("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$");
     const QRegularExpressionMatch match = rx.match(text);
     if (match.hasMatch()) {
         const int major = match.captured(1).toInt() * 100;
