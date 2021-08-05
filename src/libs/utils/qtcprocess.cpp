@@ -134,8 +134,6 @@ public:
     virtual void setLowPriority() = 0;
     virtual bool lowPriority() const = 0;
     virtual void setDisableUnixTerminal() = 0;
-    virtual void setKeepWriteChannelOpen() = 0;
-    virtual bool keepsWriteChannelOpen() const = 0;
 
 #ifdef Q_OS_WIN
     virtual void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) = 0;
@@ -184,7 +182,6 @@ public:
 
     bool m_lowPriority = false;
     bool m_disableUnixTerminal = false;
-    bool m_keepStdInOpen = false;
 };
 
 class QProcessImpl : public ProcessInterface
@@ -259,10 +256,6 @@ public:
     { return m_process.m_lowPriority; }
     void setDisableUnixTerminal() override
     { m_process.m_disableUnixTerminal = true; }
-    void setKeepWriteChannelOpen() override
-    { m_process.m_keepStdInOpen = true; }
-    bool keepsWriteChannelOpen() const override
-    { return m_process.m_keepStdInOpen; }
 
 #ifdef Q_OS_WIN
     void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) override
@@ -338,8 +331,6 @@ public:
     void setLowPriority() override { QTC_CHECK(false); }
     bool lowPriority() const override { QTC_CHECK(false); return false; }
     void setDisableUnixTerminal() override { QTC_CHECK(false); }
-    void setKeepWriteChannelOpen() override { QTC_CHECK(false); }
-    bool keepsWriteChannelOpen() const override { QTC_CHECK(false); return false; }
 
 #ifdef Q_OS_WIN
     void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) override
@@ -448,6 +439,7 @@ public:
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
     bool m_processUserEvents = false;
+    bool m_keepStdInOpen = false;
 };
 
 void QtcProcessPrivate::clearForRun()
@@ -697,12 +689,12 @@ void QtcProcess::setDisableUnixTerminal()
 
 void QtcProcess::setKeepWriteChannelOpen()
 {
-    d->m_process->setKeepWriteChannelOpen();
+    d->m_keepStdInOpen = true;
 }
 
 bool QtcProcess::keepsWriteChannelOpen() const
 {
-    return d->m_process->keepsWriteChannelOpen();
+    return d->m_keepStdInOpen;
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)
