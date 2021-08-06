@@ -48,17 +48,17 @@ class AutotoolsBuildConfiguration : public BuildConfiguration
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration)
 
 public:
-    AutotoolsBuildConfiguration(Target *target, Utils::Id id)
+    AutotoolsBuildConfiguration(Target *target, Id id)
         : BuildConfiguration(target, id)
     {
         // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
         // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
-        setBuildDirectory(Utils::FilePath::fromString("/<foobar>"));
+        setBuildDirectory(FilePath::fromString("/<foobar>"));
         setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
         setConfigWidgetDisplayName(tr("Autotools Manager"));
 
         // ### Build Steps Build ###
-        QFile autogenFile(target->project()->projectDirectory().toString() + "/autogen.sh");
+        const FilePath autogenFile = target->project()->projectDirectory() / "autogen.sh";
         if (autogenFile.exists())
             appendInitialBuildStep(Constants::AUTOGEN_STEP_ID); // autogen.sh
         else
