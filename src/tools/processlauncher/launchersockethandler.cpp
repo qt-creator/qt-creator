@@ -132,6 +132,9 @@ void LauncherSocketHandler::handleSocketData()
     case LauncherPacketType::StartProcess:
         handleStartPacket();
         break;
+    case LauncherPacketType::WriteIntoProcess:
+        handleWritePacket();
+        break;
     case LauncherPacketType::StopProcess:
         handleStopPacket();
         break;
@@ -235,7 +238,26 @@ void LauncherSocketHandler::handleStartPacket()
     process->setProcessChannelMode(packet.channelMode);
     process->setStandardInputFile(packet.standardInputFile);
     process->start(packet.command, packet.arguments, packet.openMode);
-    process->closeWriteChannel();
+    const bool shouldCloseWriteChannel = !(packet.openMode & QIODevice::WriteOnly);
+    if (shouldCloseWriteChannel)
+        process->closeWriteChannel();
+}
+
+void LauncherSocketHandler::handleWritePacket()
+{
+    Process * const process = m_processes.value(m_packetParser.token());
+    if (!process) {
+        logWarn("got write request for unknown process");
+        return;
+    }
+    if (process->state() != QProcess::Running) {
+        logDebug("can't write into not running process");
+        return;
+    }
+    const auto packet = LauncherPacket::extractPacket<WritePacket>(
+                m_packetParser.token(),
+                m_packetParser.packetData());
+    process->write(packet.inputData);
 }
 
 void LauncherSocketHandler::handleStopPacket()

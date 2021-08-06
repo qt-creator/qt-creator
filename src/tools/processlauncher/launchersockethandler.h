@@ -59,6 +59,7 @@ private:
     void handleProcessFinished();
 
     void handleStartPacket();
+    void handleWritePacket();
     void handleStopPacket();
     void handleShutdownPacket();
 

@@ -89,6 +89,8 @@ public:
     // Who should remove this object? deleteLater()?
     void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode);
 
+    qint64 write(const QByteArray &data);
+
     QProcess::ProcessError error() const { QMutexLocker locker(&m_mutex); return m_error; }
     QString program() const { QMutexLocker locker(&m_mutex); return m_command; }
     void setStandardInputFile(const QString &fileName) { QMutexLocker locker(&m_mutex); m_standardInputFile = fileName; }

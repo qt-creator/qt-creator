@@ -306,7 +306,7 @@ public:
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
     void kill() override { cancel(); } // TODO: see above
     void close() override { cancel(); } // TODO: see above
-    qint64 write(const QByteArray &data) override { QTC_CHECK(false); return -1; }
+    qint64 write(const QByteArray &data) override { return m_handle->write(data); }
     void closeWriteChannel() override { /*QTC_CHECK(false);*/ }
 
     void setStandardInputFile(const QString &fileName) override { m_handle->setStandardInputFile(fileName); }

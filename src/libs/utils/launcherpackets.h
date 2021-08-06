@@ -40,6 +40,7 @@ enum class LauncherPacketType {
     // client -> launcher packets:
     Shutdown,
     StartProcess,
+    WriteIntoProcess,
     StopProcess,
     // launcher -> client packets:
     ProcessError,
@@ -133,6 +134,18 @@ class StopProcessPacket : public LauncherPacket
 {
 public:
     StopProcessPacket(quintptr token);
+
+private:
+    void doSerialize(QDataStream &stream) const override;
+    void doDeserialize(QDataStream &stream) override;
+};
+
+class WritePacket : public LauncherPacket
+{
+public:
+    WritePacket(quintptr token) : LauncherPacket(LauncherPacketType::WriteIntoProcess, token) { }
+
+    QByteArray inputData;
 
 private:
     void doSerialize(QDataStream &stream) const override;

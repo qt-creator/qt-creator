@@ -333,6 +333,18 @@ void LauncherHandle::start(const QString &program, const QStringList &arguments,
         doStart();
 }
 
+qint64 LauncherHandle::write(const QByteArray &data)
+{
+    QMutexLocker locker(&m_mutex);
+
+    if (m_processState != QProcess::Running)
+        return -1;
+
+    WritePacket p(m_token);
+    p.inputData = data;
+    sendPacket(p);
+}
+
 // Ensure it's called from caller's thread, after moving LauncherHandle into the launcher's thread
 void LauncherHandle::createCallerHandle()
 {

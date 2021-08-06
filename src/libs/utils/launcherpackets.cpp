@@ -98,6 +98,15 @@ void StopProcessPacket::doDeserialize(QDataStream &stream)
     Q_UNUSED(stream);
 }
 
+void WritePacket::doSerialize(QDataStream &stream) const
+{
+    stream << inputData;
+}
+
+void WritePacket::doDeserialize(QDataStream &stream)
+{
+    stream >> inputData;
+}
 
 ProcessErrorPacket::ProcessErrorPacket(quintptr token)
     : LauncherPacket(LauncherPacketType::ProcessError, token)
