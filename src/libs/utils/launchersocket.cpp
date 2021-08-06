@@ -343,6 +343,7 @@ qint64 LauncherHandle::write(const QByteArray &data)
     WritePacket p(m_token);
     p.inputData = data;
     sendPacket(p);
+    return data.size();
 }
 
 // Ensure it's called from caller's thread, after moving LauncherHandle into the launcher's thread
