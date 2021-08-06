@@ -37,10 +37,14 @@
 #include <QFileInfo>
 #include <QLocale>
 
-FilePropertiesDialog::FilePropertiesDialog(const Utils::FilePath &fileName, QWidget *parent) :
+using namespace Utils;
+
+namespace Core {
+
+FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::FilePropertiesDialog),
-    m_fileName(fileName.toString())
+    m_filePath(filePath)
 {
     m_ui->setupUi(this);
 
@@ -64,7 +68,7 @@ FilePropertiesDialog::~FilePropertiesDialog()
 
 void FilePropertiesDialog::detectTextFileSettings()
 {
-    QFile file(m_fileName);
+    QFile file(m_filePath.toString());
     if (!file.open(QIODevice::ReadOnly)) {
         m_ui->lineEndings->setText(tr("Unknown"));
         m_ui->indentation->setText(tr("Unknown"));
@@ -142,7 +146,7 @@ void FilePropertiesDialog::detectTextFileSettings()
 void FilePropertiesDialog::refresh()
 {
     Utils::withNtfsPermissions<void>([this] {
-        const QFileInfo fileInfo(m_fileName);
+        const QFileInfo fileInfo = m_filePath.toFileInfo();
         QLocale locale;
 
         m_ui->name->setText(fileInfo.fileName());
@@ -151,8 +155,7 @@ void FilePropertiesDialog::refresh()
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
         m_ui->mimeType->setText(mimeType.name());
 
-        const Core::EditorFactoryList factories =
-            Core::IEditorFactory::preferredEditorFactories(Utils::FilePath::fromString(m_fileName));
+        const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(m_filePath);
         m_ui->defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName() : tr("Undefined"));
 
         m_ui->owner->setText(fileInfo.owner());
@@ -176,15 +179,17 @@ void FilePropertiesDialog::refresh()
 void FilePropertiesDialog::setPermission(QFile::Permissions newPermissions, bool set)
 {
     Utils::withNtfsPermissions<void>([this, newPermissions, set] {
-        QFile::Permissions permissions = QFile::permissions(m_fileName);
+        QFile::Permissions permissions = m_filePath.permissions();
         if (set)
             permissions |= newPermissions;
         else
             permissions &= ~newPermissions;
 
-        if (!QFile::setPermissions(m_fileName, permissions))
-            qWarning() << "Cannot change permissions for file" << m_fileName;
+        if (!QFile::setPermissions(m_filePath.toString(), permissions))
+            qWarning() << "Cannot change permissions for file" << m_filePath;
     });
 
     refresh();
 }
+
+} // Core
