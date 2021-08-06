@@ -105,8 +105,6 @@ Item {
     function updateActiveScene()
     {
         if (editView) {
-            // Destroy is async, so make sure we don't get any more updates for the old editView
-            _generalHelper.enableItemUpdate(editView, false);
             editView.visible = false;
             editView.destroy();
         }
@@ -155,14 +153,6 @@ Item {
 
         if (needExplicitUpdate)
             updateActiveScene();
-    }
-
-    // Disables edit view update if scene doesn't match current activeScene.
-    // If it matches, updates are enabled.
-    function enableEditViewUpdate(scene)
-    {
-        if (editView)
-            _generalHelper.enableItemUpdate(editView, (scene && scene === activeScene));
     }
 
     function handleActiveSceneIdChange(newId)

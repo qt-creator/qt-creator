@@ -642,12 +642,13 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
     if (!m_editView3DSetupDone)
         return;
 
+    QVariant activeSceneVar = objectToVariant(m_active3DScene);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     // Active scene change handling on qml side is async, so a deleted importScene would crash
     // editView when it updates next. Disable/enable edit view update synchronously to avoid this.
-    QVariant activeSceneVar = objectToVariant(m_active3DScene);
     QMetaObject::invokeMethod(m_editView3DData.rootItem, "enableEditViewUpdate",
                               Q_ARG(QVariant, activeSceneVar));
-
+#endif
     ServerNodeInstance sceneInstance = active3DSceneInstance();
     const QString sceneId = sceneInstance.id();
 
