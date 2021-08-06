@@ -727,7 +727,7 @@ static bool isTypeAvailable(const MockupTypeContainer &mockupType, QQmlEngine *e
 void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &container)
 {
     for (const MockupTypeContainer &mockupType :  container) {
-        if (!isTypeAvailable(mockupType, engine()))
+        if (!isTypeAvailable(mockupType, engine())) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
             if (mockupType.majorVersion() == -1 && mockupType.minorVersion() == -1) {
                 QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
@@ -748,7 +748,7 @@ void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &co
                         mockupType.minorVersion(),
                         mockupType.typeName());
 #endif
-
+        }
     }
 }
 

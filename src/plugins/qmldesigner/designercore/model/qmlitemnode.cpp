@@ -668,7 +668,7 @@ bool QmlFlowItemNode::isValidQmlFlowItemNode(const ModelNode &modelNode)
 QList<QmlFlowActionAreaNode> QmlFlowItemNode::flowActionAreas() const
 {
     QList<QmlFlowActionAreaNode> list;
-    for (const ModelNode &node : allDirectSubModelNodes())
+    for (const ModelNode node : allDirectSubModelNodes())
         if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(node))
             list.append(node);
     return list;
@@ -751,7 +751,7 @@ bool QmlFlowViewNode::isValidQmlFlowViewNode(const ModelNode &modelNode)
 QList<QmlFlowItemNode> QmlFlowViewNode::flowItems() const
 {
     QList<QmlFlowItemNode> list;
-    for (const ModelNode &node : allDirectSubModelNodes())
+    for (const ModelNode node : allDirectSubModelNodes())
         if (QmlFlowItemNode::isValidQmlFlowItemNode(node)
                 || QmlVisualNode::isFlowDecision(node)
                 || QmlVisualNode::isFlowWildcard(node))
