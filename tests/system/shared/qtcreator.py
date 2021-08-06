@@ -204,24 +204,24 @@ def substituteDefaultCompiler(settingsDir):
         test.log("Injected default compiler '%s' to qtversion.xml..." % compiler)
 
 def substituteCdb(settingsDir):
-    def canUse32bitCdb():
+    def canUse64bitCdb():
         try:
             serverIni = readFile(os.path.join(os.getenv("APPDATA"), "froglogic",
                                               "Squish", "ver1", "server.ini"))
             autLine = filter(lambda line: "AUT/qtcreator" in line, serverIni.splitlines())[0]
             autPath = autLine.split("\"")[1]
-            return os.path.exists(os.path.join(autPath, "..", "lib", "qtcreatorcdbext32"))
+            return os.path.exists(os.path.join(autPath, "..", "lib", "qtcreatorcdbext64"))
         except:
             test.fatal("Something went wrong when determining debugger bitness",
                        "Did Squish's file structure change? Guessing 32-bit cdb can be used...")
             return True
 
-    if canUse32bitCdb():
-        architecture = "x86"
-        bitness = "32"
-    else:
+    if canUse64bitCdb():
         architecture = "x64"
         bitness = "64"
+    else:
+        architecture = "x86"
+        bitness = "32"
     debuggers = os.path.join(settingsDir, "QtProject", 'qtcreator', 'debuggers.xml')
     __substitute__(debuggers, "SQUISH_DEBUGGER_ARCHITECTURE", architecture)
     __substitute__(debuggers, "SQUISH_DEBUGGER_BITNESS", bitness)
