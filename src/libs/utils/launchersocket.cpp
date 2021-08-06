@@ -314,7 +314,7 @@ void LauncherHandle::cancel()
     m_processState = QProcess::NotRunning;
 }
 
-void LauncherHandle::start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode)
+void LauncherHandle::start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -328,7 +328,7 @@ void LauncherHandle::start(const QString &program, const QStringList &arguments,
     // TODO: check if state is not running
     // TODO: check if m_canceled is not true
     m_processState = QProcess::Starting;
-    m_openMode = mode;
+    m_writeData = writeData;
     if (LauncherInterface::socket()->isReady())
         doStart();
 }
@@ -405,7 +405,8 @@ void LauncherHandle::doStart()
     p.arguments = m_arguments;
     p.env = m_environment.toStringList();
     p.workingDir = m_workingDirectory;
-    p.openMode = m_openMode;
+    p.processMode = m_processMode;
+    p.writeData = m_writeData;
     p.channelMode = m_channelMode;
     p.standardInputFile = m_standardInputFile;
     sendPacket(p);
@@ -427,13 +428,13 @@ void LauncherSocket::sendData(const QByteArray &data)
         QMetaObject::invokeMethod(this, &LauncherSocket::handleRequests);
 }
 
-LauncherHandle *LauncherSocket::registerHandle(quintptr token)
+LauncherHandle *LauncherSocket::registerHandle(quintptr token, ProcessMode mode)
 {
     QMutexLocker locker(&m_mutex);
     if (m_handles.contains(token))
         return nullptr; // TODO: issue a warning
 
-    LauncherHandle *handle = new LauncherHandle(token);
+    LauncherHandle *handle = new LauncherHandle(token, mode);
     handle->moveToThread(thread());
     // Call it after moving LauncherHandle to the launcher's thread.
     // Since this method is invoked from caller's thread, CallerHandle will live in caller's thread.

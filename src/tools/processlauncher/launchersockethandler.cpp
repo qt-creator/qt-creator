@@ -77,11 +77,13 @@ public:
     }
 
     quintptr token() const { return m_token; }
+    ProcessStartHandler *processStartHandler() { return &m_processStartHandler; }
 
 private:
     const quintptr m_token;
     QTimer * const m_stopTimer;
     enum class StopState { Inactive, Terminating, Killing } m_stopState = StopState::Inactive;
+    ProcessStartHandler m_processStartHandler;
 };
 
 LauncherSocketHandler::LauncherSocketHandler(QString serverPath, QObject *parent)
@@ -187,6 +189,7 @@ void LauncherSocketHandler::handleProcessStarted()
     Process *proc = senderProcess();
     ProcessStartedPacket packet(proc->token());
     packet.processId = proc->processId();
+    proc->processStartHandler()->handleProcessStarted(proc);
     sendPacket(packet);
 }
 
@@ -237,10 +240,11 @@ void LauncherSocketHandler::handleStartPacket()
     process->setWorkingDirectory(packet.workingDir);
     process->setProcessChannelMode(packet.channelMode);
     process->setStandardInputFile(packet.standardInputFile);
-    process->start(packet.command, packet.arguments, packet.openMode);
-    const bool shouldCloseWriteChannel = !(packet.openMode & QIODevice::WriteOnly);
-    if (shouldCloseWriteChannel)
-        process->closeWriteChannel();
+    ProcessStartHandler *handler = process->processStartHandler();
+    handler->setProcessMode(packet.processMode);
+    handler->setWriteData(packet.writeData);
+    process->start(packet.command, packet.arguments, handler->openMode());
+    handler->handleProcessStart(process);
 }
 
 void LauncherSocketHandler::handleWritePacket()

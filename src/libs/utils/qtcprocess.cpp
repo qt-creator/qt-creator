@@ -101,14 +101,17 @@ class ProcessInterface : public QObject
 {
     Q_OBJECT
 public:
-    ProcessInterface() : QObject() {}
+    ProcessInterface(ProcessMode processMode)
+        : QObject()
+        , m_processMode(processMode) {}
 
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
 
     virtual void setProcessEnvironment(const QProcessEnvironment &environment) = 0;
     virtual void setWorkingDirectory(const QString &dir) = 0;
-    virtual void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) = 0;
+    virtual void start(const QString &program, const QStringList &arguments,
+                       const QByteArray &writeData) = 0;
     virtual void terminate() = 0;
     virtual void kill() = 0;
     virtual void close() = 0;
@@ -145,6 +148,11 @@ signals:
     void errorOccurred(QProcess::ProcessError error);
     void readyReadStandardOutput();
     void readyReadStandardError();
+
+protected:
+    ProcessMode processMode() const { return m_processMode; }
+private:
+    const ProcessMode m_processMode;
 };
 
 class ProcessHelper : public QProcess
@@ -186,10 +194,10 @@ public:
 class QProcessImpl : public ProcessInterface
 {
 public:
-    QProcessImpl() : ProcessInterface()
+    QProcessImpl(ProcessMode processMode) : ProcessInterface(processMode)
     {
         connect(&m_process, &QProcess::started,
-                this, &ProcessInterface::started);
+                this, &QProcessImpl::handleStarted);
         connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &ProcessInterface::finished);
         connect(&m_process, &QProcess::errorOccurred,
@@ -207,8 +215,13 @@ public:
     { m_process.setProcessEnvironment(environment); }
     void setWorkingDirectory(const QString &dir) override
     { m_process.setWorkingDirectory(dir); }
-    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) override
-    { m_process.start(program, arguments, mode); }
+    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
+    {
+        m_processStartHandler.setProcessMode(processMode());
+        m_processStartHandler.setWriteData(writeData);
+        m_process.start(program, arguments, m_processStartHandler.openMode());
+        m_processStartHandler.handleProcessStart(&m_process);
+    }
     void terminate() override
     { m_process.terminate(); }
     void kill() override
@@ -262,7 +275,13 @@ public:
 #endif
 
 private:
+    void handleStarted()
+    {
+        m_processStartHandler.handleProcessStarted(&m_process);
+        emit started();
+    }
     ProcessHelper m_process;
+    ProcessStartHandler m_processStartHandler;
 };
 
 static uint uniqueToken()
@@ -275,9 +294,10 @@ class ProcessLauncherImpl : public ProcessInterface
 {
     Q_OBJECT
 public:
-    ProcessLauncherImpl() : ProcessInterface(), m_token(uniqueToken())
+    ProcessLauncherImpl(ProcessMode processMode)
+        : ProcessInterface(processMode), m_token(uniqueToken())
     {
-        m_handle = LauncherInterface::socket()->registerHandle(token());
+        m_handle = LauncherInterface::socket()->registerHandle(token(), processMode);
         connect(m_handle, &LauncherHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
         connect(m_handle, &LauncherHandle::started,
@@ -301,8 +321,8 @@ public:
     void setProcessEnvironment(const QProcessEnvironment &environment) override
     { m_handle->setProcessEnvironment(environment); }
     void setWorkingDirectory(const QString &dir) override { m_handle->setWorkingDirectory(dir); }
-    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode) override
-    { m_handle->start(program, arguments, mode); }
+    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
+    { m_handle->start(program, arguments, writeData); }
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
     void kill() override { cancel(); } // TODO: see above
     void close() override { cancel(); } // TODO: see above
@@ -355,18 +375,20 @@ void ProcessLauncherImpl::cancel()
     m_handle->cancel();
 }
 
-static ProcessInterface *newProcessInstance(QtcProcess::ProcessImpl processImpl)
+static ProcessInterface *newProcessInstance(QtcProcess::ProcessImpl processImpl, ProcessMode mode)
 {
     if (processImpl == QtcProcess::QProcessImpl)
-        return new QProcessImpl;
-    return new ProcessLauncherImpl;
+        return new QProcessImpl(mode);
+    return new ProcessLauncherImpl(mode);
 }
 
 class QtcProcessPrivate : public QObject
 {
 public:
-    explicit QtcProcessPrivate(QtcProcess *parent, QtcProcess::ProcessImpl processImpl)
-        : q(parent), m_process(newProcessInstance(processImpl))
+    explicit QtcProcessPrivate(QtcProcess *parent,
+                               QtcProcess::ProcessImpl processImpl,
+                               ProcessMode processMode)
+        : q(parent), m_process(newProcessInstance(processImpl, processMode)), m_processMode(processMode)
     {
         connect(m_process, &ProcessInterface::started,
                 q, &QtcProcess::started);
@@ -403,6 +425,7 @@ public:
 
     QtcProcess *q;
     ProcessInterface *m_process;
+    const ProcessMode m_processMode;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
@@ -469,8 +492,8 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
     \sa Utils::ProcessArgs
 */
 
-QtcProcess::QtcProcess(ProcessImpl processImpl, QObject *parent)
-    : QObject(parent), d(new QtcProcessPrivate(this, processImpl))
+QtcProcess::QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject *parent)
+    : QObject(parent), d(new QtcProcessPrivate(this, processImpl, processMode))
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
@@ -478,7 +501,11 @@ QtcProcess::QtcProcess(ProcessImpl processImpl, QObject *parent)
     Q_UNUSED(qProcessProcessErrorMeta)
 }
 
-QtcProcess::QtcProcess(QObject *parent) : QtcProcess(QtcProcess::QProcessImpl, parent) {}
+QtcProcess::QtcProcess(ProcessMode processMode, QObject *parent)
+    : QtcProcess(QtcProcess::QProcessImpl, processMode, parent) {}
+
+QtcProcess::QtcProcess(QObject *parent)
+    : QtcProcess(QtcProcess::QProcessImpl, ProcessMode::Reader, parent) {}
 
 QtcProcess::~QtcProcess()
 {
@@ -615,7 +642,7 @@ void QtcProcess::start()
 #endif
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
-        d->m_process->start(command, QStringList(), d->m_openMode);
+        d->m_process->start(command, QStringList(), d->m_writeData);
     } else {
         if (!success) {
             setErrorString(tr("Error in command line."));
@@ -624,7 +651,7 @@ void QtcProcess::start()
             emit errorOccurred(QProcess::UnknownError);
             return;
         }
-        d->m_process->start(command, arguments.toUnixArgs(), d->m_openMode);
+        d->m_process->start(command, arguments.toUnixArgs(), d->m_writeData);
     }
 }
 

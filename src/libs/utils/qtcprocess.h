@@ -29,6 +29,7 @@
 
 #include "environment.h"
 #include "commandline.h"
+#include "processutils.h"
 
 #include <QProcess>
 #include <QTextCodec>
@@ -64,7 +65,8 @@ public:
         ProcessLauncherImpl
     };
 
-    QtcProcess(ProcessImpl processImpl, QObject *parent = nullptr);
+    QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject *parent = nullptr);
+    QtcProcess(ProcessMode processMode, QObject *parent = nullptr);
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 

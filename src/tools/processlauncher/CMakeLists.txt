@@ -11,4 +11,6 @@ add_qtc_executable(qtcreator_processlauncher
     processlauncher-main.cpp
     ${UTILSDIR}/launcherpackets.cpp
     ${UTILSDIR}/launcherpackets.h
+    ${UTILSDIR}/processutils.cpp
+    ${UTILSDIR}/processutils.h
     )

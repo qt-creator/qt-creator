@@ -220,6 +220,8 @@ Project {
             "portlist.h",
             "processhandle.cpp",
             "processhandle.h",
+            "processutils.cpp",
+            "processutils.h",
             "progressindicator.cpp",
             "progressindicator.h",
             "projectintropage.cpp",

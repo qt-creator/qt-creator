@@ -26,6 +26,7 @@
 #pragma once
 
 #include "launcherpackets.h"
+#include "processutils.h"
 
 #include <QtCore/qobject.h>
 
@@ -82,12 +83,7 @@ public:
     QString errorString() const { QMutexLocker locker(&m_mutex); return m_errorString; }
     void setErrorString(const QString &str) { QMutexLocker locker(&m_mutex); m_errorString = str; }
 
-    // Called from other thread. Create a temp object receiver which lives in caller's thread.
-    // Add started and finished signals to it and post a flush to it.
-    // When we are in waitForSignal() which is called from the same thread,
-    // we may flush the signal queue and emit these signals immediately.
-    // Who should remove this object? deleteLater()?
-    void start(const QString &program, const QStringList &arguments, QIODevice::OpenMode mode);
+    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData);
 
     qint64 write(const QByteArray &data);
 
@@ -131,7 +127,7 @@ private:
     void slotFinished();
 
     // called from this thread
-    LauncherHandle(quintptr token) : m_token(token) {}
+    LauncherHandle(quintptr token, ProcessMode mode) : m_token(token), m_processMode(mode) {}
     void createCallerHandle();
     void destroyCallerHandle();
 
@@ -161,6 +157,7 @@ private:
     mutable QMutex m_mutex;
     QWaitCondition m_waitCondition;
     const quintptr m_token;
+    const ProcessMode m_processMode;
     SignalType m_waitingFor = SignalType::NoSignal;
 
     QProcess::ProcessState m_processState = QProcess::NotRunning;
@@ -178,7 +175,7 @@ private:
     QStringList m_arguments;
     QProcessEnvironment m_environment;
     QString m_workingDirectory;
-    QIODevice::OpenMode m_openMode = QIODevice::ReadWrite;
+    QByteArray m_writeData;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     QString m_standardInputFile;
 
@@ -196,7 +193,7 @@ public:
     bool isReady() const { return m_socket.load(); }
     void sendData(const QByteArray &data);
 
-    LauncherHandle *registerHandle(quintptr token);
+    LauncherHandle *registerHandle(quintptr token, ProcessMode mode);
     void unregisterHandle(quintptr token);
 
 signals:

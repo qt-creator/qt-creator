@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "processutils.h"
+
 #include <QtCore/qdatastream.h>
 #include <QtCore/qprocess.h>
 #include <QtCore/qstringlist.h>
@@ -109,7 +111,8 @@ public:
     QStringList arguments;
     QString workingDir;
     QStringList env;
-    QIODevice::OpenMode openMode = QIODevice::ReadWrite;
+    ProcessMode processMode = ProcessMode::Reader;
+    QByteArray writeData;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     QString standardInputFile;
 

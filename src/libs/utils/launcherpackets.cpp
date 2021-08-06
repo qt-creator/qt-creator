@@ -58,12 +58,14 @@ StartProcessPacket::StartProcessPacket(quintptr token)
 
 void StartProcessPacket::doSerialize(QDataStream &stream) const
 {
-    stream << command << arguments << workingDir << env << openMode << channelMode << standardInputFile;
+    stream << command << arguments << workingDir << env << processMode << writeData << channelMode
+           << standardInputFile;
 }
 
 void StartProcessPacket::doDeserialize(QDataStream &stream)
 {
-    stream >> command >> arguments >> workingDir >> env >> openMode >> channelMode >> standardInputFile;
+    stream >> command >> arguments >> workingDir >> env >> processMode >> writeData >> channelMode
+           >> standardInputFile;
 }
 
 

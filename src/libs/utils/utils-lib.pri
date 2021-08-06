@@ -93,6 +93,7 @@ SOURCES += \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
     $$PWD/processhandle.cpp \
+    $$PWD/processutils.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
@@ -230,6 +231,7 @@ HEADERS += \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
     $$PWD/processhandle.h \
+    $$PWD/processutils.h \
     $$PWD/appmainwindow.h \
     $$PWD/basetreeview.h \
     $$PWD/elfreader.h \

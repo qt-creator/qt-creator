@@ -23,6 +23,8 @@ QtcTool {
         files: [
             "launcherpackets.cpp",
             "launcherpackets.h",
+            "processutils.cpp",
+            "processutils.h",
         ]
     }
 }
