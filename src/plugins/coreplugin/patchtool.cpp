@@ -105,6 +105,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
                  QDir::toNativeSeparators(patch),
                  args.join(QLatin1Char(' '))));
     patchProcess.setCommand({patch, args});
+    patchProcess.setWriteData(input);
     patchProcess.start();
     if (!patchProcess.waitForStarted()) {
         MessageManager::writeFlashing(
@@ -112,10 +113,6 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
                 .arg(patch, patchProcess.errorString()));
         return false;
     }
-
-
-    patchProcess.write(input);
-    patchProcess.closeWriteChannel();
 
     QByteArray stdOut;
     QByteArray stdErr;

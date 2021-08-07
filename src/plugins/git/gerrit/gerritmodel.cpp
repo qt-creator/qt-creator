@@ -325,7 +325,6 @@ void QueryContext::start()
     m_timer.start();
     m_process.setCommand({m_binary, m_arguments});
     m_process.start();
-    m_process.closeWriteChannel();
 }
 
 void QueryContext::errorTermination(const QString &msg)

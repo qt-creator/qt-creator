@@ -40,6 +40,7 @@ namespace Internal {
 DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &device,
                                            QObject *parent)
     : DeviceProcess(device, parent)
+    , m_process(ProcessMode::Writer)
 {
     connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
     connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);

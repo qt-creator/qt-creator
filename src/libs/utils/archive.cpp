@@ -260,7 +260,6 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         : CommandLine{tool->executable, tool->arguments};
     archive->m_process->setCommand(cmd);
     archive->m_process->setWorkingDirectory(workingDirectory);
-    archive->m_process->setOpenMode(QProcess::ReadOnly);
     archive->m_process->start();
     return archive;
 }

@@ -1310,25 +1310,13 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
 
     PerforceResponse response;
     process.setCommand({m_settings.p4BinaryPath.value(), args});
+    process.setWriteData(stdInput);
     process.start();
-    if (stdInput.isEmpty())
-        process.closeWriteChannel();
 
     if (!process.waitForStarted(3000)) {
         response.error = true;
         response.message = msgNotStarted(m_settings.p4BinaryPath.value());
         return response;
-    }
-    if (!stdInput.isEmpty()) {
-        if (process.write(stdInput) == -1) {
-            process.stopProcess();
-            response.error = true;
-            response.message = tr("Unable to write input data to process %1: %2").
-                               arg(QDir::toNativeSeparators(m_settings.p4BinaryPath.value()),
-                                   process.errorString());
-            return response;
-        }
-        process.closeWriteChannel();
     }
 
     QByteArray stdOut;

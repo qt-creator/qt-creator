@@ -145,6 +145,7 @@ const char tracepointCapturePropertyName[] = "GDB.TracepointCapture";
 ///////////////////////////////////////////////////////////////////////
 
 GdbEngine::GdbEngine()
+    : m_gdbProc(ProcessMode::Writer)
 {
     setObjectName("GdbEngine");
     setDebuggerName("GDB");
@@ -3851,7 +3852,6 @@ void GdbEngine::setupEngine()
     if (rp.debugger.workingDirectory.isDir())
         m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
     m_gdbProc.setEnvironment(gdbEnv);
-    m_gdbProc.setKeepWriteChannelOpen();
     m_gdbProc.start();
 
     if (!m_gdbProc.waitForStarted()) {

@@ -1795,7 +1795,6 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
 
     QtcProcess process;
     process.setEnvironment(env);
-    process.setOpenMode(QIODevice::ReadOnly);
     process.setCommand({binary, {"-query"}});
     process.start();
 

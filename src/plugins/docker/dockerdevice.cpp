@@ -122,6 +122,7 @@ private:
 DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
                                            QObject *parent)
     : DeviceProcess(device, parent)
+    , m_process(ProcessMode::Writer)
 {
 }
 
@@ -1449,7 +1450,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
     CommandLine cmd{"docker", {"exec"}};
     if (!workingDir.isEmpty())
         cmd.addArgs({"-w", workingDir.path()});
-    if (process.keepsWriteChannelOpen())
+    if (process.processMode() == ProcessMode::Writer)
         cmd.addArg("-i");
     if (env.size() != 0 && d->m_accessible != DockerDevicePrivate::Accessible) {
         process.unsetEnvironment();

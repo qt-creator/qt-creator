@@ -402,7 +402,6 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             m_consoleProcess.start();
         } else {
             m_guiProcess.setCommand(cmdLine);
-            m_guiProcess.closeWriteChannel();
             m_guiProcess.start();
         }
     } else {

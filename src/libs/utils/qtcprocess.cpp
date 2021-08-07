@@ -116,7 +116,6 @@ public:
     virtual void kill() = 0;
     virtual void close() = 0;
     virtual qint64 write(const QByteArray &data) = 0;
-    virtual void closeWriteChannel() = 0;
 
     virtual void setStandardInputFile(const QString &fileName) = 0;
     virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode) = 0;
@@ -230,8 +229,6 @@ public:
     { m_process.close(); }
     qint64 write(const QByteArray &data) override
     { return m_process.write(data); }
-    void closeWriteChannel() override
-    { m_process.closeWriteChannel(); }
 
     void setStandardInputFile(const QString &fileName) override
     { m_process.setStandardInputFile(fileName); }
@@ -327,7 +324,6 @@ public:
     void kill() override { cancel(); } // TODO: see above
     void close() override { cancel(); } // TODO: see above
     qint64 write(const QByteArray &data) override { return m_handle->write(data); }
-    void closeWriteChannel() override { /*QTC_CHECK(false);*/ }
 
     void setStandardInputFile(const QString &fileName) override { m_handle->setStandardInputFile(fileName); }
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override { m_handle->setProcessChannelMode(mode); }
@@ -433,8 +429,6 @@ public:
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;
 
-    QProcess::OpenMode m_openMode = QProcess::ReadWrite;
-
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
     void slotError(QProcess::ProcessError);
@@ -458,7 +452,6 @@ public:
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
     bool m_processUserEvents = false;
-    bool m_keepStdInOpen = false;
 };
 
 void QtcProcessPrivate::clearForRun()
@@ -510,6 +503,11 @@ QtcProcess::QtcProcess(QObject *parent)
 QtcProcess::~QtcProcess()
 {
     delete d;
+}
+
+ProcessMode QtcProcess::processMode() const
+{
+    return d->m_processMode;
 }
 
 void QtcProcess::setEnvironment(const Environment &env)
@@ -581,14 +579,6 @@ void QtcProcess::start(const QString &cmd, const QStringList &args)
 void QtcProcess::start()
 {
     d->clearForRun();
-
-    if (!d->m_writeData.isEmpty()) {
-        connect(d->m_process, &ProcessInterface::started, this, [this] {
-            const qint64 bytesWritten = write(d->m_writeData);
-            QTC_CHECK(bytesWritten == d->m_writeData.size());
-            closeWriteChannel(); // FIXME: Is this good?
-        });
-    }
 
     if (d->m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
@@ -708,16 +698,6 @@ void QtcProcess::setDisableUnixTerminal()
     d->m_process->setDisableUnixTerminal();
 }
 
-void QtcProcess::setKeepWriteChannelOpen()
-{
-    d->m_keepStdInOpen = true;
-}
-
-bool QtcProcess::keepsWriteChannelOpen() const
-{
-    return d->m_keepStdInOpen;
-}
-
 void QtcProcess::setStandardInputFile(const QString &inputFile)
 {
     d->m_process->setStandardInputFile(inputFile);
@@ -726,11 +706,6 @@ void QtcProcess::setStandardInputFile(const QString &inputFile)
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 {
     s_deviceHooks = hooks;
-}
-
-void QtcProcess::setOpenMode(QIODevice::OpenMode mode)
-{
-    d->m_openMode = mode;
 }
 
 bool QtcProcess::stopProcess()
@@ -1004,12 +979,8 @@ void QtcProcess::kill()
 
 qint64 QtcProcess::write(const QByteArray &input)
 {
+    QTC_ASSERT(processMode() == ProcessMode::Writer, return -1);
     return d->m_process->write(input);
-}
-
-void QtcProcess::closeWriteChannel()
-{
-    d->m_process->closeWriteChannel();
 }
 
 void QtcProcess::close()
@@ -1251,7 +1222,6 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
     d->m_writeData = writeData;
-    setKeepWriteChannelOpen();
 }
 
 #ifdef QT_GUI_LIB
@@ -1276,13 +1246,6 @@ void QtcProcess::runBlocking()
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     if (d->m_processUserEvents) {
-        if (!d->m_writeData.isEmpty()) {
-            connect(d->m_process, &ProcessInterface::started, this, [this] {
-                write(d->m_writeData);
-                closeWriteChannel();
-            });
-        }
-        setOpenMode(d->m_writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
         QtcProcess::start();
 
         // On Windows, start failure is triggered immediately if the
@@ -1305,13 +1268,11 @@ void QtcProcess::runBlocking()
 #endif
         }
     } else {
-        setOpenMode(QIODevice::ReadOnly);
         QtcProcess::start();
         if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
             d->m_result = QtcProcess::StartFailed;
             return;
         }
-        closeWriteChannel();
         if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
             d->m_result = QtcProcess::Hang;
             terminate();

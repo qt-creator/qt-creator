@@ -150,7 +150,6 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     m_watcher.setFuture(m_progress.future());
     m_process.setWorkingDirectory(repository);
     m_process.setEnvironment(GitClient::instance()->processEnvironment());
-    m_process.closeWriteChannel();
 }
 
 FetchContext::~FetchContext()
@@ -173,7 +172,6 @@ void FetchContext::start()
     VcsBase::VcsOutputWindow::appendCommand(m_repository.toString(), {m_git, args});
     m_process.setCommand({m_git, args});
     m_process.start();
-    m_process.closeWriteChannel();
 }
 
 void FetchContext::processFinished()

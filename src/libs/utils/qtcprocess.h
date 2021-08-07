@@ -70,6 +70,8 @@ public:
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
+    ProcessMode processMode() const;
+
     enum Result {
         // Finished successfully. Unless an ExitCodeInterpreter is set
         // this corresponds to a return code 0.
@@ -131,8 +133,6 @@ public:
 
     static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 
-    void setOpenMode(QIODevice::OpenMode mode);
-
     bool stopProcess();
     bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
                              bool showTimeOutMessageBox);
@@ -185,11 +185,7 @@ public:
     void kill();
 
     qint64 write(const QByteArray &input);
-    void closeWriteChannel();
     void close();
-
-    void setKeepWriteChannelOpen();
-    bool keepsWriteChannelOpen() const;
 
     void setStandardInputFile(const QString &inputFile);
 

@@ -91,7 +91,6 @@ void PerforceChecker::start(const QString &binary, const QString &workingDirecto
 
     m_process.setCommand({m_binary, args});
     m_process.start();
-    m_process.closeWriteChannel();
     // Timeout handling
     m_timeOutMS = timeoutMS;
     m_timedOut = false;

@@ -109,7 +109,6 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
             scheduleKillProcess();
         m_waitForItems.wakeAll();
     });
-    m_process->setOpenMode(QIODevice::ReadOnly);
     m_process->start();
 }
 

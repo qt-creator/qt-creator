@@ -653,7 +653,6 @@ void ExternalToolRunner::run()
         }
     }
     m_process = new QtcProcess(this);
-    connect(m_process, &QtcProcess::started, this, &ExternalToolRunner::started);
     connect(m_process, &QtcProcess::finished, this, &ExternalToolRunner::finished);
     connect(m_process, &QtcProcess::errorOccurred, this, &ExternalToolRunner::error);
     connect(m_process, &QtcProcess::readyReadStandardOutput,
@@ -669,14 +668,9 @@ void ExternalToolRunner::run()
                            ? QOverload<const QString &>::of(MessageManager::writeDisrupting)
                            : QOverload<const QString &>::of(MessageManager::writeSilently);
     write(tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
-    m_process->start();
-}
-
-void ExternalToolRunner::started()
-{
     if (!m_resolvedInput.isEmpty())
-        m_process->write(m_resolvedInput.toLocal8Bit());
-    m_process->closeWriteChannel();
+        m_process->setWriteData(m_resolvedInput.toLocal8Bit());
+    m_process->start();
 }
 
 void ExternalToolRunner::finished()

@@ -451,7 +451,6 @@ static QString findQtInstallPath(const FilePath &qmakePath)
            qPrintable(proc.errorString()));
         return QString();
     }
-    proc.closeWriteChannel();
     if (!proc.waitForFinished()) {
         proc.stopProcess();
         qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));

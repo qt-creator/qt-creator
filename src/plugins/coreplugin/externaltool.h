@@ -134,7 +134,6 @@ public:
     QString errorString() const;
 
 private:
-    void started();
     void finished();
     void error(QProcess::ProcessError error);
     void readStandardOutput();

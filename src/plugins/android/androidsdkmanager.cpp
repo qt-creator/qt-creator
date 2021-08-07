@@ -1041,7 +1041,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     fi.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseWorkflow;
-    QtcProcess licenseCommand;
+    QtcProcess licenseCommand(ProcessMode::Writer);
     licenseCommand.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;
     licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
