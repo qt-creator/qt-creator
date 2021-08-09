@@ -434,6 +434,10 @@ QString PluginManager::systemInformation()
         result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->name(), size) +
                   " " + spec->version() + "\n";
     }
+    QString settingspath = QFileInfo(settings()->fileName()).path();
+    if (settingspath.startsWith(QDir::homePath()))
+        settingspath.replace(QDir::homePath(), "~");
+    result += "\nUsed settingspath: " + settingspath + "\n";
     return result;
 }
 
