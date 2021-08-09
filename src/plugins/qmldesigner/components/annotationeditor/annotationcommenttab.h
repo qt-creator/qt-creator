@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "annotation.h"
+#include <annotation.h>
 
 #include <QWidget>
 #include <QPointer>
@@ -68,15 +68,16 @@ signals:
     void titleChanged(const QString &text, QWidget *widget);
 
 private:
+    QString backupFile(const QString &filePath);
+    void ensureDir(const QDir &dir);
+    int compareFileChecksum(const QString &firstFile, const QString &secondFile);
+
+private:
     std::unique_ptr<Ui::AnnotationCommentTab> ui;
     RichTextEditor *m_editor;
 
     Comment m_comment;
     QPointer<DefaultAnnotationsModel> m_defaults;
-
-    QString backupFile(const QString &filePath);
-    void ensureDir(const QDir &dir);
-    int compareFileChecksum(const QString &firstFile, const QString &secondFile);
 };
 
 } //namespace QmlDesigner
