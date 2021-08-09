@@ -60,6 +60,7 @@
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include <QClipboard>
@@ -918,14 +919,15 @@ void CMakeBuildSystem::runCTest()
 
     const CommandLine cmd { m_ctestPath, { "-N", "--show-only=json-v1" } };
     const QString workingDirectory = buildDirectory(parameters).toString();
-    const QStringList environment = cmakeBuildConfiguration()->environment().toStringList();
+    const Environment environment = cmakeBuildConfiguration()->environment();
 
     auto future = Utils::runAsync([cmd, workingDirectory, environment]
                                   (QFutureInterface<QByteArray> &futureInterface) {
-        QProcess process;
+        QtcProcess process;
         process.setEnvironment(environment);
         process.setWorkingDirectory(workingDirectory);
-        process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
+        process.setCommand(cmd);
+        process.start();
 
         if (!process.waitForStarted(1000) || !process.waitForFinished()) {
             if (process.state() == QProcess::NotRunning)
