@@ -1471,8 +1471,11 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             ++it;
         }
         if (toolStates.contains(helper->globalStateId())) {
-            if (toolStates[helper->globalStateId()].contains(helper->rootSizeKey()))
-                m_editView3DData.rootItem->setSize(toolStates[helper->globalStateId()][helper->rootSizeKey()].value<QSize>());
+            if (toolStates[helper->globalStateId()].contains(helper->rootSizeKey())) {
+                QSize size = toolStates[helper->globalStateId()][helper->rootSizeKey()].value<QSize>();
+                m_editView3DData.rootItem->setSize(size);
+                m_editView3DData.window->setGeometry(0, 0, size.width(), size.height());
+            }
             if (toolStates[helper->globalStateId()].contains(helper->lastSceneIdKey()))
                 lastSceneId = toolStates[helper->globalStateId()][helper->lastSceneIdKey()].toString();
         }

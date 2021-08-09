@@ -328,7 +328,7 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
             handlePendingToolStateUpdate();
         QVariant theState;
         // Convert JS arrays to QVariantLists for easier handling down the line
-        if (state.canConvert(QMetaType::QVariantList))
+        if (state.metaType().id() != QMetaType::QString && state.canConvert(QMetaType::QVariantList))
             theState = state.value<QVariantList>();
         else
             theState = state;
