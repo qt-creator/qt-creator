@@ -144,13 +144,12 @@ static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
 bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgtFilePath, QString *error)
 {
     return copyRecursively(
-        srcFilePath, tgtFilePath, error, [](const QFileInfo &src, const QFileInfo &dest, QString *error) {
-            if (!QFile::copy(src.filePath(), dest.filePath())) {
+        srcFilePath, tgtFilePath, error, [](const FilePath &src, const FilePath &dest, QString *error) {
+            if (!src.copyFile(dest)) {
                 if (error) {
                     *error = QCoreApplication::translate("Utils::FileUtils",
                                                          "Could not copy file \"%1\" to \"%2\".")
-                                 .arg(FilePath::fromFileInfo(src).toUserOutput(),
-                                      FilePath::fromFileInfo(dest).toUserOutput());
+                                 .arg(src.toUserOutput(), dest.toUserOutput());
                 }
                 return false;
             }

@@ -322,20 +322,18 @@ static bool copyRecursively(const QString &sourceDirPath,
                             const QString &targetDirPath,
                             QString *error)
 {
-    auto copyHelper = [](QFileInfo sourceInfo, QFileInfo targetInfo, QString *error) -> bool {
-        const QString sourcePath = sourceInfo.absoluteFilePath();
-        const QString targetPath = targetInfo.absoluteFilePath();
-        if (!QFile::copy(sourcePath, targetPath)) {
+    auto copyHelper = [](const FilePath &sourcePath, const FilePath &targetPath, QString *error) -> bool {
+        if (!sourcePath.copyFile(targetPath)) {
             if (error) {
                 *error = QString::fromLatin1("copyRecursively() failed: \"%1\" to \"%2\".")
-                            .arg(sourcePath, targetPath);
+                            .arg(sourcePath.toUserOutput(), targetPath.toUserOutput());
             }
             return false;
         }
 
         // Copied files from Qt resources are read-only. Make them writable
         // so that their parent directory can be removed without warnings.
-        QFile file(targetPath);
+        QFile file(targetPath.toString());
         return file.setPermissions(file.permissions() | QFile::WriteUser);
     };
 

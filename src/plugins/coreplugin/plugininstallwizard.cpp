@@ -420,16 +420,16 @@ private:
     Data *m_data = nullptr;
 };
 
-static std::function<void(QFileInfo)> postCopyOperation()
+static std::function<void(FilePath)> postCopyOperation()
 {
-    return [](const QFileInfo &fi) {
+    return [](const FilePath &filePath) {
         if (!HostOsInfo::isMacHost())
             return;
         // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
         // to get it loaded as a plugin in Qt Creator.
         QtcProcess xattr;
         xattr.setTimeoutS(1);
-        xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", fi.absoluteFilePath()}});
+        xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
         xattr.runBlocking();
     };
 }
@@ -437,7 +437,7 @@ static std::function<void(QFileInfo)> postCopyOperation()
 static bool copyPluginFile(const FilePath &src, const FilePath &dest)
 {
     const FilePath destFile = dest.pathAppended(src.fileName());
-    if (QFile::exists(destFile.toString())) {
+    if (destFile.exists()) {
         QMessageBox box(QMessageBox::Question,
                         PluginInstallWizard::tr("Overwrite File"),
                         PluginInstallWizard::tr("The file \"%1\" exists. Overwrite?")
@@ -450,17 +450,17 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
         box.exec();
         if (box.clickedButton() != acceptButton)
             return false;
-        QFile::remove(destFile.toString());
+        destFile.removeFile();
     }
-    QDir(dest.toString()).mkpath(".");
-    if (!QFile::copy(src.toString(), destFile.toString())) {
+    dest.parentDir().ensureWritableDir();
+    if (!src.copyFile(destFile)) {
         QMessageBox::warning(ICore::dialogParent(),
                              PluginInstallWizard::tr("Failed to Write File"),
                              PluginInstallWizard::tr("Failed to write file \"%1\".")
                                  .arg(destFile.toUserOutput()));
         return false;
     }
-    postCopyOperation()(destFile.toFileInfo());
+    postCopyOperation()(destFile);
     return true;
 }
 

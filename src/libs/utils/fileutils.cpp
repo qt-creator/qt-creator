@@ -283,14 +283,13 @@ TempFileSaver::~TempFileSaver()
 }
 
 #ifdef QT_GUI_LIB
-FileUtils::CopyAskingForOverwrite::CopyAskingForOverwrite(
-    QWidget *dialogParent, const std::function<void(QFileInfo)> &postOperation)
+FileUtils::CopyAskingForOverwrite::CopyAskingForOverwrite(QWidget *dialogParent, const std::function<void (FilePath)> &postOperation)
     : m_parent(dialogParent)
     , m_postOperation(postOperation)
 {}
 
-bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
-                                                   const QFileInfo &dest,
+bool FileUtils::CopyAskingForOverwrite::operator()(const FilePath &src,
+                                                   const FilePath &dest,
                                                    QString *error)
 {
     bool copyFile = true;
@@ -302,7 +301,7 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
                 m_parent,
                 QCoreApplication::translate("Utils::FileUtils", "Overwrite File?"),
                 QCoreApplication::translate("Utils::FileUtils", "Overwrite existing file \"%1\"?")
-                    .arg(FilePath::fromFileInfo(dest).toUserOutput()),
+                    .arg(dest.toUserOutput()),
                 QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::NoToAll
                     | QMessageBox::Cancel);
             if (res == QMessageBox::Cancel) {
@@ -316,18 +315,16 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
                 m_overwriteAll = true;
             }
             if (copyFile)
-                QFile::remove(dest.filePath());
+                dest.removeFile();
         }
     }
     if (copyFile) {
-        if (!dest.absoluteDir().exists())
-            dest.absoluteDir().mkpath(dest.absolutePath());
-        if (!QFile::copy(src.filePath(), dest.filePath())) {
+        dest.parentDir().ensureWritableDir();
+        if (!src.copyFile(dest)) {
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils",
                                                      "Could not copy file \"%1\" to \"%2\".")
-                             .arg(FilePath::fromFileInfo(src).toUserOutput(),
-                                  FilePath::fromFileInfo(dest).toUserOutput());
+                             .arg(src.toUserOutput(), dest.toUserOutput());
             }
             return false;
         }
@@ -340,7 +337,7 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
 
 FilePaths FileUtils::CopyAskingForOverwrite::files() const
 {
-    return transform(m_files, &FilePath::fromString);
+    return m_files;
 }
 #endif // QT_GUI_LIB
 

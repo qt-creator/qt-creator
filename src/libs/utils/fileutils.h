@@ -89,21 +89,22 @@ public:
     std::function<qint64(const FilePath &)> fileSize;
 };
 
-class QTCREATOR_UTILS_EXPORT FileUtils {
+class QTCREATOR_UTILS_EXPORT FileUtils
+{
 public:
 #ifdef QT_GUI_LIB
     class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
     {
     public:
         CopyAskingForOverwrite(QWidget *dialogParent,
-                               const std::function<void(QFileInfo)> &postOperation = {});
-        bool operator()(const QFileInfo &src, const QFileInfo &dest, QString *error);
+                               const std::function<void(FilePath)> &postOperation = {});
+        bool operator()(const FilePath &src, const FilePath &dest, QString *error);
         QList<FilePath> files() const;
 
     private:
         QWidget *m_parent;
-        QStringList m_files;
-        std::function<void(QFileInfo)> m_postOperation;
+        FilePaths m_files;
+        std::function<void(FilePath)> m_postOperation;
         bool m_overwriteAll = false;
         bool m_skipAll = false;
     };
@@ -167,11 +168,9 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath,
                                 QString *error,
                                 T &&copyHelper)
 {
-    const QFileInfo srcFileInfo = srcFilePath.toFileInfo();
-    if (srcFileInfo.isDir()) {
+    if (srcFilePath.isDir()) {
         if (!tgtFilePath.exists()) {
-            const QDir targetDir(tgtFilePath.parentDir().toString());
-            if (!targetDir.mkpath(tgtFilePath.fileName())) {
+            if (!tgtFilePath.parentDir().ensureWritableDir()) {
                 if (error) {
                     *error = QCoreApplication::translate("Utils::FileUtils",
                                                          "Failed to create directory \"%1\".")
@@ -190,7 +189,7 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath,
                 return false;
         }
     } else {
-        if (!copyHelper(srcFileInfo, tgtFilePath.toFileInfo(), error))
+        if (!copyHelper(srcFilePath, tgtFilePath, error))
             return false;
     }
     return true;
