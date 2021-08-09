@@ -288,7 +288,7 @@ public:
     using FileSaverBase::finalize;
 
 private:
-    bool m_isSafe;
+    bool m_isSafe = false;
 };
 
 class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
