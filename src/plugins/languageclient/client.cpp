@@ -1354,6 +1354,7 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 void Client::rehighlight()
 {
     using namespace TextEditor;
+    m_tokentSupport.rehighlight();
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
         if (TextDocument *doc = TextDocument::textDocumentForFilePath(it.key().toFilePath())) {
             if (LanguageClientManager::clientForDocument(doc) == this)
