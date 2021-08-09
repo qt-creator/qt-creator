@@ -191,35 +191,35 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
 }
 
 // Copy helper source files to a target directory, replacing older files.
-bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
-                                     const QStringList &files,
-                                     const QString &targetDirectory,
-                                     QString *errorMessage)
+bool BuildableHelperLibrary::copyFiles(const FilePath &sourcePath,
+                                       const QStringList &files,
+                                       const FilePath &targetDirectory,
+                                       QString *errorMessage)
 {
     // try remove the directory
-    if (!FilePath::fromString(targetDirectory).removeRecursively(errorMessage))
+    if (!targetDirectory.removeRecursively(errorMessage))
         return false;
-    if (!QDir().mkpath(targetDirectory)) {
-        *errorMessage = tr("The target directory %1 could not be created.").arg(targetDirectory);
+    if (!targetDirectory.ensureWritableDir()) {
+        *errorMessage = tr("The target directory %1 could not be created.")
+                .arg(targetDirectory.toUserOutput());
         return false;
     }
     for (const QString &file : files) {
-        const QString source = sourcePath + file;
-        const QString dest = targetDirectory + file;
-        const QFileInfo destInfo(dest);
-        if (destInfo.exists()) {
-            if (destInfo.lastModified() >= QFileInfo(source).lastModified())
+        const FilePath source = sourcePath.pathAppended(file);
+        const FilePath dest = targetDirectory.pathAppended(file);
+        if (dest.exists()) {
+            if (dest.lastModified() >= source.lastModified())
                 continue;
-            if (!QFile::remove(dest)) {
-                *errorMessage = tr("The existing file %1 could not be removed.").arg(destInfo.absoluteFilePath());
+            if (!dest.removeFile()) {
+                *errorMessage = tr("The existing file %1 could not be removed.")
+                    .arg(dest.toUserOutput());
                 return false;
             }
         }
-        if (!destInfo.dir().exists())
-            QDir().mkpath(destInfo.dir().absolutePath());
-
-        if (!QFile::copy(source, dest)) {
-            *errorMessage = tr("The file %1 could not be copied to %2.").arg(source, dest);
+        dest.parentDir().ensureWritableDir();
+        if (!source.copyFile(dest)) {
+            *errorMessage = tr("The file %1 could not be copied to %2.")
+                .arg(source.toUserOutput(), dest.toUserOutput());
             return false;
         }
     }
