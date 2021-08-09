@@ -54,7 +54,7 @@ public slots:
     void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues) override;
 
 private:
-    Node *findWizardContextNode(Node *contextNode, Project *project, const QString &path);
+    Node *findWizardContextNode(Node *contextNode, Project *project, const Utils::FilePath &path);
     bool processProject(const QList<Core::GeneratedFile> &files,
                         bool *removeOpenProjectAttribute, QString *errorMessage);
 

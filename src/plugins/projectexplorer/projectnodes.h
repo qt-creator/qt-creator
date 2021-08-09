@@ -317,7 +317,7 @@ public:
         int priority;
     };
 
-    virtual AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
+    virtual AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const;
 
 
     // determines if node will be shown in the flat view, by default folder and projects aren't shown
@@ -370,10 +370,10 @@ class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 public:
     explicit ProjectNode(const Utils::FilePath &projectFilePath);
 
-    virtual bool canAddSubProject(const QString &proFilePath) const;
-    virtual bool addSubProject(const QString &proFile);
+    virtual bool canAddSubProject(const Utils::FilePath &proFilePath) const;
+    virtual bool addSubProject(const Utils::FilePath &proFile);
     virtual QStringList subProjectFileNamePatterns() const;
-    virtual bool removeSubProject(const QString &proFilePath);
+    virtual bool removeSubProject(const Utils::FilePath &proFilePath);
     virtual Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const {
         return Utils::nullopt;
     }

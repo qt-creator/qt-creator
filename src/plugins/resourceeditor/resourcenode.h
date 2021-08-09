@@ -49,7 +49,7 @@ public:
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
 
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;
     bool showInSimpleTree() const override;
     bool removeNonExistingFiles();
 
@@ -78,7 +78,7 @@ public:
 
     bool renamePrefix(const QString &prefix, const QString &lang);
 
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;
 
     QString prefix() const;
     QString lang() const;

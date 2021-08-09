@@ -496,13 +496,9 @@ void QmakePriFile::setIncludedInExactParse(bool b)
     m_includedInExactParse = b;
 }
 
-bool QmakePriFile::canAddSubProject(const QString &proFilePath) const
+bool QmakePriFile::canAddSubProject(const FilePath &proFilePath) const
 {
-    QFileInfo fi(proFilePath);
-    if (fi.suffix() == QLatin1String("pro")
-        || fi.suffix() == QLatin1String("pri"))
-        return true;
-    return false;
+    return proFilePath.suffix() == "pro" || proFilePath.suffix() == "pri";
 }
 
 static FilePath simplifyProFilePath(const FilePath &proFilePath)
@@ -517,11 +513,11 @@ static FilePath simplifyProFilePath(const FilePath &proFilePath)
     return proFilePath;
 }
 
-bool QmakePriFile::addSubProject(const QString &proFile)
+bool QmakePriFile::addSubProject(const FilePath &proFile)
 {
     FilePaths uniqueProFilePaths;
-    if (!m_recursiveEnumerateFiles.contains(FilePath::fromString(proFile)))
-        uniqueProFilePaths.append(simplifyProFilePath(FilePath::fromString(proFile)));
+    if (!m_recursiveEnumerateFiles.contains(proFile))
+        uniqueProFilePaths.append(simplifyProFilePath(proFile));
 
     FilePaths failedFiles;
     changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), uniqueProFilePaths, &failedFiles, AddToProFile);
@@ -529,10 +525,10 @@ bool QmakePriFile::addSubProject(const QString &proFile)
     return failedFiles.isEmpty();
 }
 
-bool QmakePriFile::removeSubProjects(const QString &proFilePath)
+bool QmakePriFile::removeSubProjects(const FilePath &proFilePath)
 {
     FilePaths failedOriginalFiles;
-    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), {FilePath::fromString(proFilePath)}, &failedOriginalFiles, RemoveFromProFile);
+    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), {proFilePath}, &failedOriginalFiles, RemoveFromProFile);
 
     FilePaths simplifiedProFiles = Utils::transform(failedOriginalFiles, &simplifyProFilePath);
 

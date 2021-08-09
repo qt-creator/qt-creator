@@ -59,12 +59,12 @@ namespace ProjectExplorer {
 // Helper:
 // --------------------------------------------------------------------
 
-static QString generatedProjectFilePath(const QList<JsonWizard::GeneratorFile> &files)
+static FilePath generatedProjectFilePath(const QList<JsonWizard::GeneratorFile> &files)
 {
-    foreach (const JsonWizard::GeneratorFile &file, files)
+    for (const JsonWizard::GeneratorFile &file : files)
         if (file.file.attributes() & GeneratedFile::OpenProjectAttribute)
-            return file.file.path();
-    return QString();
+            return file.file.filePath();
+    return {};
 }
 
 static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
@@ -118,17 +118,17 @@ void JsonSummaryPage::initializePage()
     IWizardFactory::WizardKind kind = wizardKind(m_wizard);
     bool isProject = (kind == IWizardFactory::ProjectWizard);
 
-    QStringList files;
+    FilePaths files;
     if (isProject) {
         JsonWizard::GeneratorFile f
                 = Utils::findOrDefault(m_fileList, [](const JsonWizard::GeneratorFile &f) {
             return f.file.attributes() & GeneratedFile::OpenProjectAttribute;
         });
-        files << f.file.path();
+        files << f.file.filePath();
     } else {
         files = Utils::transform(m_fileList,
                                  [](const JsonWizard::GeneratorFile &f) {
-                                    return f.file.path();
+                                    return f.file.filePath();
                                  });
     }
 
@@ -183,7 +183,7 @@ void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)
 void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
 {
     QTC_CHECK(m_fileList.isEmpty()); // Happens after this page is done
-    QString generatedProject = generatedProjectFilePath(files);
+    const FilePath generatedProject = generatedProjectFilePath(files);
     IWizardFactory::WizardKind kind = wizardKind(m_wizard);
 
     FolderNode *folder = currentNode();
@@ -193,7 +193,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
         if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
             QMessageBox::critical(m_wizard, tr("Failed to Add to Project"),
                                   tr("Failed to add subproject \"%1\"\nto project \"%2\".")
-                                  .arg(QDir::toNativeSeparators(generatedProject))
+                                  .arg(generatedProject.toUserOutput())
                                   .arg(folder->filePath().toUserOutput()));
             return;
         }

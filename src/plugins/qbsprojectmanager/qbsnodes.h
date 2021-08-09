@@ -46,7 +46,7 @@ public:
 
 private:
     friend class QbsBuildSystem;
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;
     QVariant data(Utils::Id role) const override;
 
     const QJsonObject m_groupData;

@@ -157,10 +157,10 @@ public:
 
     void update(const Internal::QmakePriFileEvalResult &result);
 
-    bool canAddSubProject(const QString &proFilePath) const;
+    bool canAddSubProject(const Utils::FilePath &proFilePath) const;
 
-    bool addSubProject(const QString &proFile);
-    bool removeSubProjects(const QString &proFilePath);
+    bool addSubProject(const Utils::FilePath &proFile);
+    bool removeSubProjects(const Utils::FilePath &proFilePath);
 
     bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded = nullptr);
     bool removeFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notRemoved = nullptr);

@@ -119,7 +119,7 @@ static int getPriorityFromContextNode(const ProjectExplorer::Node *resourceNode,
     return -1;
 }
 
-static bool hasPriority(const QStringList &files)
+static bool hasPriority(const FilePaths &files)
 {
     if (files.isEmpty())
         return false;
@@ -446,7 +446,7 @@ bool ResourceTopLevelNode::removeNonExistingFiles()
     return true;
 }
 
-FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files, Node *context) const
+FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const FilePaths &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
             .arg(filePath().fileName())
@@ -587,7 +587,7 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
     return true;
 }
 
-FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStringList &files, Node *context) const
+FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const FilePaths &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
             .arg(m_topLevelNode->filePath().fileName())

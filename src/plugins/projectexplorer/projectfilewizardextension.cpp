@@ -103,12 +103,12 @@ ProjectFileWizardExtension::~ProjectFileWizardExtension()
     delete m_context;
 }
 
-static QString generatedProjectFilePath(const QList<GeneratedFile> &files)
+static FilePath generatedProjectFilePath(const QList<GeneratedFile> &files)
 {
-    foreach (const GeneratedFile &file, files)
+    for (const GeneratedFile &file : files)
         if (file.attributes() & GeneratedFile::OpenProjectAttribute)
-            return file.path();
-    return QString();
+            return file.filePath();
+    return {};
 }
 
 void ProjectFileWizardExtension::firstExtensionPageShown(
@@ -121,7 +121,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     QStringList fileNames = Utils::transform(files, &GeneratedFile::path);
     m_context->page->setFiles(fileNames);
 
-    QStringList filePaths;
+    FilePaths filePaths;
     ProjectAction projectAction;
     const IWizardFactory::WizardKind kind = m_context->wizard->kind();
     if (kind == IWizardFactory::ProjectWizard) {
@@ -129,13 +129,13 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         filePaths << generatedProjectFilePath(files);
     } else {
         projectAction = AddNewFile;
-        filePaths = Utils::transform(files, &GeneratedFile::path);
+        filePaths = Utils::transform(files, &GeneratedFile::filePath);
     }
 
     // Static cast from void * to avoid qobject_cast (which needs a valid object) in value().
     auto contextNode = static_cast<Node *>(extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<void *>());
     auto project = static_cast<Project *>(extraValues.value(Constants::PROJECT_POINTER).value<void *>());
-    const QString path = extraValues.value(Constants::PREFERRED_PROJECT_NODE_PATH).toString();
+    const FilePath path = FilePath::fromVariant(extraValues.value(Constants::PREFERRED_PROJECT_NODE_PATH));
 
     m_context->page->initializeProjectTree(findWizardContextNode(contextNode, project, path),
                                            filePaths, m_context->wizard->kind(),
@@ -152,12 +152,12 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 }
 
 Node *ProjectFileWizardExtension::findWizardContextNode(Node *contextNode, Project *project,
-                                                        const QString &path)
+                                                        const FilePath &path)
 {
     if (contextNode && !ProjectTree::hasNode(contextNode)) {
         if (SessionManager::projects().contains(project) && project->rootProjectNode()) {
             contextNode = project->rootProjectNode()->findNode([path](const Node *n) {
-                return path == n->filePath().toString();
+                return path == n->filePath();
             });
         }
     }
@@ -204,7 +204,7 @@ bool ProjectFileWizardExtension::processProject(
 {
     *removeOpenProjectAttribute = false;
 
-    QString generatedProject = generatedProjectFilePath(files);
+    const FilePath generatedProject = generatedProjectFilePath(files);
 
     FolderNode *folder = m_context->page->currentNode();
     if (!folder)
@@ -212,7 +212,7 @@ bool ProjectFileWizardExtension::processProject(
     if (m_context->wizard->kind() == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
             *errorMessage = tr("Failed to add subproject \"%1\"\nto project \"%2\".")
-                            .arg(generatedProject).arg(folder->filePath().toUserOutput());
+                            .arg(generatedProject.toUserOutput()).arg(folder->filePath().toUserOutput());
             return false;
         }
         *removeOpenProjectAttribute = true;

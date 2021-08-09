@@ -3593,7 +3593,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     FilePaths failedProjects;
     QStringList addedProjects;
     for (const FilePath &filePath : qAsConst(subProjectFilePaths)) {
-        if (projectNode->addSubProject(filePath.toString()))
+        if (projectNode->addSubProject(filePath))
             addedProjects << filePath.toString();
         else
             failedProjects << filePath;
@@ -3670,7 +3670,7 @@ void ProjectExplorerPluginPrivate::removeProject()
         RemoveFileDialog removeFileDialog(node->filePath().toString(), ICore::dialogParent());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
-            projectNode->removeSubProject(node->filePath().toString());
+            projectNode->removeSubProject(node->filePath());
     }
 }
 

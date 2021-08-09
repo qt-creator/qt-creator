@@ -78,7 +78,7 @@ QbsGroupNode::QbsGroupNode(const QJsonObject &grp) : ProjectNode(FilePath()), m_
     setEnabled(grp.value("is-enabled").toBool());
 }
 
-FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList &files,
+FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const FilePaths &files,
                                                               Node *context) const
 {
     AddNewInformation info = ProjectNode::addNewInformation(files, context);

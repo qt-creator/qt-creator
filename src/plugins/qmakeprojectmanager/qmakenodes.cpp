@@ -169,19 +169,19 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
     return BuildSystem::supportsAction(context, action, node);
 }
 
-bool QmakePriFileNode::canAddSubProject(const QString &proFilePath) const
+bool QmakePriFileNode::canAddSubProject(const FilePath &proFilePath) const
 {
     const QmakePriFile *pri = priFile();
     return pri ? pri->canAddSubProject(proFilePath) : false;
 }
 
-bool QmakePriFileNode::addSubProject(const QString &proFilePath)
+bool QmakePriFileNode::addSubProject(const FilePath &proFilePath)
 {
     QmakePriFile *pri = priFile();
     return pri ? pri->addSubProject(proFilePath) : false;
 }
 
-bool QmakePriFileNode::removeSubProject(const QString &proFilePath)
+bool QmakePriFileNode::removeSubProject(const FilePath &proFilePath)
 {
     QmakePriFile *pri = priFile();
     return pri ? pri->removeSubProjects(proFilePath) : false;
@@ -299,7 +299,7 @@ bool QmakeBuildSystem::addDependencies(Node *context, const QStringList &depende
     return BuildSystem::addDependencies(context, dependencies);
 }
 
-FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
+FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const FilePaths &files, Node *context) const
 {
     Q_UNUSED(files)
     return FolderNode::AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 90);
@@ -483,7 +483,7 @@ bool QmakeProFileNode::includedInExactParse() const
     return pro && pro->includedInExactParse();
 }
 
-FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
+FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const FilePaths &files, Node *context) const
 {
     Q_UNUSED(files)
     return AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 100);

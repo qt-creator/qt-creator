@@ -48,12 +48,12 @@ public:
 
     bool showInSimpleTree() const override { return false; }
 
-    bool canAddSubProject(const QString &proFilePath) const override;
-    bool addSubProject(const QString &proFilePath) override;
-    bool removeSubProject(const QString &proFilePath) override;
+    bool canAddSubProject(const Utils::FilePath &proFilePath) const override;
+    bool addSubProject(const Utils::FilePath &proFilePath) override;
+    bool removeSubProject(const Utils::FilePath &proFilePath) override;
     QStringList subProjectFileNamePatterns() const override;
 
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;
 
     bool deploysFolder(const QString &folder) const override;
 
@@ -93,7 +93,7 @@ public:
     void build() override;
 
     QStringList targetApplications() const override;
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;
     QVariant data(Utils::Id role) const override;
     bool setData(Utils::Id role, const QVariant &value) const override;
 

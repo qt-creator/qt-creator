@@ -141,7 +141,7 @@ Qt::ItemFlags AddNewTree::flags(int) const
 class BestNodeSelector
 {
 public:
-    BestNodeSelector(const QString &commonDirectory, const QStringList &files);
+    BestNodeSelector(const QString &commonDirectory, const FilePaths &files);
     void inspect(AddNewTree *tree, bool isContextNode);
     AddNewTree *bestChoice() const;
     bool deploys();
@@ -149,7 +149,7 @@ public:
 
 private:
     QString m_commonDirectory;
-    QStringList m_files;
+    FilePaths m_files;
     bool m_deploys = false;
     QString m_deployText;
     AddNewTree *m_bestChoice = nullptr;
@@ -157,7 +157,7 @@ private:
     int m_bestMatchPriority = -1;
 };
 
-BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QStringList &files) :
+BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const FilePaths &files) :
     m_commonDirectory(commonDirectory),
     m_files(files),
     m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n'))
@@ -230,7 +230,8 @@ static inline AddNewTree *createNoneNode(BestNodeSelector *selector)
     return new AddNewTree(displayName);
 }
 
-static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
+static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const FilePath &projectPath,
+                                              Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
     for (Node *node : root->nodes()) {
@@ -242,7 +243,7 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
 
     if (root->supportsAction(AddSubProject, root) && !root->supportsAction(InheritedFromParent, root)) {
         if (projectPath.isEmpty() || root->canAddSubProject(projectPath)) {
-            FolderNode::AddNewInformation info = root->addNewInformation(QStringList() << projectPath, contextNode);
+            FolderNode::AddNewInformation info = root->addNewInformation({projectPath}, contextNode);
             auto item = new AddNewTree(root, children, info);
             selector->inspect(item, root == contextNode);
             return item;
@@ -254,8 +255,8 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
     return new AddNewTree(root, children, root->displayName());
 }
 
-static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList &files,
-                                            Node *contextNode, BestNodeSelector *selector)
+static AddNewTree *buildAddFilesTree(FolderNode *root, const FilePaths &files,
+                                     Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
     foreach (FolderNode *fn, root->folderNodes()) {
@@ -436,7 +437,7 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     return true;
 }
 
-void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &paths,
+void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &paths,
                                               IWizardFactory::WizardKind kind,
                                               ProjectAction action)
 {

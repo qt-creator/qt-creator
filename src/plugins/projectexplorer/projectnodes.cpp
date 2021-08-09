@@ -768,7 +768,7 @@ bool FolderNode::deleteFiles(const FilePaths &filePaths)
     return false;
 }
 
-bool FolderNode::canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
+bool FolderNode::canRenameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     ProjectNode *pn = managingProject();
     if (pn)
@@ -776,7 +776,7 @@ bool FolderNode::canRenameFile(const Utils::FilePath &oldFilePath, const Utils::
     return false;
 }
 
-bool FolderNode::renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
+bool FolderNode::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     ProjectNode *pn = managingProject();
     if (pn)
@@ -791,7 +791,7 @@ bool FolderNode::addDependencies(const QStringList &dependencies)
     return false;
 }
 
-FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
+FolderNode::AddNewInformation FolderNode::addNewInformation(const FilePaths &files, Node *context) const
 {
     Q_UNUSED(files)
     return AddNewInformation(displayName(), context == this ? 120 : 100);
@@ -839,7 +839,7 @@ bool FolderNode::showWhenEmpty() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const Utils::FilePath &folderPath) :
+VirtualFolderNode::VirtualFolderNode(const FilePath &folderPath) :
     FolderNode(folderPath)
 {
 }
@@ -857,7 +857,7 @@ VirtualFolderNode::VirtualFolderNode(const Utils::FilePath &folderPath) :
 /*!
   Creates an uninitialized project node object.
   */
-ProjectNode::ProjectNode(const Utils::FilePath &projectFilePath) :
+ProjectNode::ProjectNode(const FilePath &projectFilePath) :
     FolderNode(projectFilePath)
 {
     setPriority(DefaultProjectPriority);
@@ -865,13 +865,13 @@ ProjectNode::ProjectNode(const Utils::FilePath &projectFilePath) :
     setDisplayName(projectFilePath.fileName());
 }
 
-bool ProjectNode::canAddSubProject(const QString &proFilePath) const
+bool ProjectNode::canAddSubProject(const FilePath &proFilePath) const
 {
     Q_UNUSED(proFilePath)
     return false;
 }
 
-bool ProjectNode::addSubProject(const QString &proFilePath)
+bool ProjectNode::addSubProject(const FilePath &proFilePath)
 {
     Q_UNUSED(proFilePath)
     return false;
@@ -882,7 +882,7 @@ QStringList ProjectNode::subProjectFileNamePatterns() const
     return QStringList();
 }
 
-bool ProjectNode::removeSubProject(const QString &proFilePath)
+bool ProjectNode::removeSubProject(const FilePath &proFilePath)
 {
     Q_UNUSED(proFilePath)
     return false;
