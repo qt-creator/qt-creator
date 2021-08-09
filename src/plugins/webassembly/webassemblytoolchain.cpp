@@ -186,7 +186,7 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
         const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
         const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
                 + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
-        const FilePath scriptFile = sdk.withNewPath(script).searchOnDevice(env.path());
+        const FilePath scriptFile = sdk.withNewPath(script).searchInDirectories(env.path());
         toolChain->setCompilerCommand(scriptFile);
 
         const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")

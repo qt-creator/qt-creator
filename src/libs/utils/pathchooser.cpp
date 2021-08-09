@@ -226,7 +226,7 @@ FilePath PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::ExistingCommand: {
         FilePaths searchPaths = env.path();
         searchPaths.append(m_baseDirectory);
-        const FilePath expanded = path.searchOnDevice(searchPaths);
+        const FilePath expanded = path.searchInDirectories(searchPaths);
         return expanded.isEmpty() ? path : expanded;
     }
     case PathChooser::Any:

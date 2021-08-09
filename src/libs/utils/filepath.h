@@ -168,7 +168,7 @@ public:
     static FilePath fromUrl(const QUrl &url);
     QUrl toUrl() const;
 
-    FilePath searchOnDevice(const QList<FilePath> &dirs) const;
+    FilePath searchInDirectories(const QList<FilePath> &dirs) const;
     Environment deviceEnvironment() const;
 
     static QString formatFilePaths(const QList<FilePath> &files, const QString &separator);

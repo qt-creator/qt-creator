@@ -1139,11 +1139,11 @@ FilePath FilePath::withNewPath(const QString &newPath) const
     Example usage:
     \code
         binary = FilePath::fromUrl("docker://123/./make);
-        fullPath = binary.searchOnDevice();
+        fullPath = binary.searchInDirectories(binary.deviceEnvironment().path());
         assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
     \endcode
 */
-FilePath FilePath::searchOnDevice(const FilePaths &dirs) const
+FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.searchInPath, return {});

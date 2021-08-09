@@ -107,7 +107,7 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
         Environment env;
         WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
         QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
-        FilePath script = sdkRoot.withNewPath(scriptFile).searchOnDevice(env.path());
+        FilePath script = sdkRoot.withNewPath(scriptFile).searchInDirectories(env.path());
         const CommandLine command(script, {"-dumpversion"});
         QtcProcess emcc;
         emcc.setCommand(command);
