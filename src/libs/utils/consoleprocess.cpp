@@ -396,9 +396,7 @@ bool ConsoleProcess::start()
         pargs = d->m_commandLine.arguments();
     } else {
         ProcessArgs outArgs;
-        ProcessArgs::prepareCommand(d->m_commandLine.executable().toString(),
-                                    d->m_commandLine.arguments(),
-                                    &pcmd, &outArgs, OsTypeWindows,
+        ProcessArgs::prepareCommand(d->m_commandLine, &pcmd, &outArgs,
                                     &d->m_environment, &d->m_workingDir);
         pargs = outArgs.toWindowsArgs();
     }
