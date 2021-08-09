@@ -35,9 +35,14 @@ Editing
   (QTCREATORBUG-25715)
 * Fixed code model for changed but not yet built `.ui` and `.scxml` files
   (QTCREATORBUG-25937)
+* Fixed lookup of toplevel virtual function declarations (QTCREATORBUG-25749)
+* Fixed `switch` statement completion for templates (QTCREATORBUG-25998)
+* Fixed `Escape String Literal as UTF-8` if literal contains numbers
+  (QTCREATORBUG-26003)
 
 ### QML
 
+* Updated parser to Qt 6.2
 * Fixed handling of multiline template strings (QTCREATORBUG-22766)
 * Fixed handling of required and readonly properties (QTCREATORBUG-24144)
 * Fixed reformatting of inline components (QTCREATORBUG-24144)
@@ -61,6 +66,7 @@ Projects
 --------
 
 * Added experimental support for building and running on Docker devices
+* Added find support to `Issues` pane
 * Added option `Show Source and Header Groups` to project tree
   (QTCREATORBUG-25313)
 * Fixed crash when closing project while changing current configuration
@@ -112,11 +118,13 @@ Analyzer
 
 * Fixed URL for `clang-tidy` checks (QTCREATORBUG-25902)
 * Fixed application of options to checks (QTCREATORBUG-25827)
+* Fixed links to clazy documentation (QTCREATORBUG-25869)
 
 FakeVim
 -------
 
 * Fixed backspace option
+* Fixed updating visual marks when mark settings change
 
 Platforms
 ---------
@@ -127,10 +135,12 @@ Platforms
 
 ### macOS
 
+* Improved experience on ARM based macOS with Intel based Qt Creator build
 * Fixed performance issue with registering file watches after loading projects
 
 ### Android
 
+* Added detection of Android 12
 * Fixed detection of `_prepare_apk_dir` target for CMake projects
   (QTCREATORBUG-25216)
 
