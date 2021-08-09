@@ -983,15 +983,6 @@ private:
         Sqlite::insertUpdateDelete(range, aliasDeclarations, compareKey, insert, update, remove);
     }
 
-    ImportIds createImportIds(const Storage::Imports &imports)
-    {
-        ImportIds importIds;
-        importIds.reserve(importIds.size());
-
-        for (const auto &import : imports)
-            selectImportIdByNameAndVersionStatement.readto(importIds, import.name, import.version);
-    }
-
     ImportIds fetchImportIdsUnguarded(const Storage::Imports &imports)
     {
         ImportIds importIds;
