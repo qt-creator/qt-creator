@@ -96,11 +96,13 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
     m_instance = this;
+    m_reaper = new ProcessReapers;
     setupSystemEnvironment();
 }
 
 CorePlugin::~CorePlugin()
 {
+    delete m_reaper;
     IWizardFactory::destroyFeatureProvider();
     Find::destroy();
 
