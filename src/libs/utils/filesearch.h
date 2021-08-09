@@ -210,3 +210,5 @@ QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceTex
 QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText, const QString &replaceText);
 
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::FileSearchResultList)
