@@ -30,6 +30,7 @@ HEADERS += \
         $$UTILSDIR/qtcassert.cpp \
         $$UTILSDIR/qtcprocess.cpp \
         $$UTILSDIR/processhandle.cpp \
+        $$UTILSDIR/processutils.cpp \
         $$UTILSDIR/savefile.cpp \
 
     HEADERS += \
@@ -46,6 +47,7 @@ HEADERS += \
         $$UTILSDIR/qtcassert.h \
         $$UTILSDIR/qtcprocess.h \
         $$UTILSDIR/processhandle.h \
+        $$UTILSDIR/processutils.h \
         $$UTILSDIR/savefile.h \
 
     macos: {

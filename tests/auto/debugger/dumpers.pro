@@ -30,6 +30,7 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/processutils.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/savefile.cpp
 
     HEADERS += \
@@ -47,6 +48,7 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.h \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.h \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/processutils.h \
         $$IDE_SOURCE_TREE/src/libs/utils/savefile.h
 
     macos: {
