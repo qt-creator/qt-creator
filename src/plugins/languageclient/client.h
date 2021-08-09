@@ -276,7 +276,7 @@ private:
     SymbolSupport m_symbolSupport;
     ProgressManager m_progressManager;
     bool m_activateDocAutomatically = false;
-    SemanticTokenSupport m_tokentSupport;
+    SemanticTokenSupport m_tokenSupport;
     QString m_serverName;
     QString m_serverVersion;
     LanguageServerProtocol::SymbolStringifier m_symbolStringifier;

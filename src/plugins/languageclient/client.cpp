@@ -85,7 +85,7 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)
-    , m_tokentSupport(this)
+    , m_tokenSupport(this)
 {
     m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(this);
     m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
@@ -106,8 +106,8 @@ Client::Client(BaseClientInterface *clientInterface)
             this,
             &Client::rehighlight);
 
-    m_tokentSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
-    m_tokentSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
+    m_tokenSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
+    m_tokenSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
 }
 
 QString Client::name() const
@@ -557,7 +557,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     auto uri = DocumentUri::fromFilePath(filePath);
     m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(filePath));
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
-    m_tokentSupport.updateSemanticTokens(document);
+    m_tokenSupport.updateSemanticTokens(document);
     // only replace the assist provider if the language server support it
     updateCompletionProvider(document);
     updateFunctionHintProvider(document);
@@ -742,9 +742,9 @@ void Client::registerCapabilities(const QList<Registration> &registrations)
         if (registration.method() == "textDocument/semanticTokens") {
             SemanticTokensOptions options(registration.registerOptions());
             if (options.isValid())
-                m_tokentSupport.setLegend(options.legend());
+                m_tokenSupport.setLegend(options.legend());
             for (auto document : m_openedDocument.keys())
-                m_tokentSupport.updateSemanticTokens(document);
+                m_tokenSupport.updateSemanticTokens(document);
         }
     }
     emit capabilitiesChanged(m_dynamicCapabilities);
@@ -764,7 +764,7 @@ void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations
         }
         if (unregistration.method() == "textDocument/semanticTokens") {
             for (auto document : m_openedDocument.keys())
-                m_tokentSupport.updateSemanticTokens(document);
+                m_tokenSupport.updateSemanticTokens(document);
         }
     }
     emit capabilitiesChanged(m_dynamicCapabilities);
@@ -1009,7 +1009,7 @@ void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
 
 void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
 {
-    m_tokentSupport.setTokensHandler(handler);
+    m_tokenSupport.setTokensHandler(handler);
 }
 
 void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
@@ -1197,7 +1197,7 @@ void Client::sendPostponedDocumentUpdates()
         if (currentWidget && currentWidget->textDocument() == update.document)
             requestDocumentHighlights(currentWidget);
 
-        m_tokentSupport.updateSemanticTokens(update.document);
+        m_tokenSupport.updateSemanticTokens(update.document);
     }
 }
 
@@ -1354,7 +1354,7 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 void Client::rehighlight()
 {
     using namespace TextEditor;
-    m_tokentSupport.rehighlight();
+    m_tokenSupport.rehighlight();
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
         if (TextDocument *doc = TextDocument::textDocumentForFilePath(it.key().toFilePath())) {
             if (LanguageClientManager::clientForDocument(doc) == this)
@@ -1437,7 +1437,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
     auto tokenProvider = m_serverCapabilities.semanticTokensProvider().value_or(
         SemanticTokensOptions());
     if (tokenProvider.isValid())
-        m_tokentSupport.setLegend(tokenProvider.legend());
+        m_tokenSupport.setLegend(tokenProvider.legend());
 
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
