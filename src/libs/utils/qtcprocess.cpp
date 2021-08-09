@@ -441,6 +441,13 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
     \sa Utils::ProcessArgs
 */
 
+static QtcProcess::ProcessImpl defaultProcessImpl()
+{
+    if (qEnvironmentVariableIsSet("QTC_USE_QPROCESS"))
+        return QtcProcess::QProcessImpl;
+    return QtcProcess::ProcessLauncherImpl;
+}
+
 QtcProcess::QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject *parent)
     : QObject(parent), d(new QtcProcessPrivate(this, processImpl, processMode))
 {
@@ -451,10 +458,10 @@ QtcProcess::QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject
 }
 
 QtcProcess::QtcProcess(ProcessMode processMode, QObject *parent)
-    : QtcProcess(QtcProcess::QProcessImpl, processMode, parent) {}
+    : QtcProcess(defaultProcessImpl(), processMode, parent) {}
 
 QtcProcess::QtcProcess(QObject *parent)
-    : QtcProcess(QtcProcess::QProcessImpl, ProcessMode::Reader, parent) {}
+    : QtcProcess(defaultProcessImpl(), ProcessMode::Reader, parent) {}
 
 QtcProcess::~QtcProcess()
 {
