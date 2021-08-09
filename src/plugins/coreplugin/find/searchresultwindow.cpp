@@ -190,8 +190,6 @@ namespace Internal {
                 return;
             m_searchResultWidgets.at(visibleSearchIndex())->showFilterWidget(m_filterButton);
         });
-        connect(m_widget, &QStackedWidget::currentChanged,
-                this, &SearchResultWindowPrivate::updateFilterButton);
     }
 
     void SearchResultWindowPrivate::setCurrentIndex(int index, bool focus)
@@ -214,16 +212,17 @@ namespace Internal {
             m_newSearchButton->setEnabled(true);
         }
         q->navigateStateChanged();
+        updateFilterButton();
     }
 
     void SearchResultWindowPrivate::moveWidgetToTop()
     {
         auto widget = qobject_cast<SearchResultWidget *>(sender());
         QTC_ASSERT(widget, return);
-        int index = m_searchResultWidgets.indexOf(widget);
+        const int index = m_searchResultWidgets.indexOf(widget);
         if (index == 0)
             return; // nothing to do
-        int internalIndex = index + 1/*account for "new search" entry*/;
+        const int internalIndex = index + 1/*account for "new search" entry*/;
         QString searchEntry = m_recentSearchesBox->itemText(internalIndex);
 
         m_searchResultWidgets.removeAt(index);
