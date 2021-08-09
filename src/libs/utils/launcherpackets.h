@@ -117,6 +117,8 @@ public:
     QString standardInputFile;
     bool belowNormalPriority = false;
     QString nativeArguments;
+    bool lowPriority = false;
+    bool unixTerminalDisabled = false;
 
 private:
     void doSerialize(QDataStream &stream) const override;

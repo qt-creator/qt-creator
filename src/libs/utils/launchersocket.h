@@ -105,6 +105,8 @@ public:
 
     void setBelowNormalPriority() { m_belowNormalPriority = true; }
     void setNativeArguments(const QString &arguments) { m_nativeArguments = arguments; }
+    void setLowPriority() { m_lowPriority = true; }
+    void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
 
 signals:
     void errorOccurred(QProcess::ProcessError error);
@@ -187,6 +189,8 @@ private:
 
     bool m_belowNormalPriority = false;
     QString m_nativeArguments;
+    bool m_lowPriority = false;
+    bool m_unixTerminalDisabled = false;
 
     friend class LauncherSocket;
     friend class CallerHandle;

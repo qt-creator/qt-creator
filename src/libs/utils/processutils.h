@@ -26,10 +26,7 @@
 #pragma once
 
 #include <QIODevice>
-
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
+#include <QProcess>
 
 namespace Utils {
 
@@ -54,6 +51,30 @@ private:
     QByteArray m_writeData;
 };
 
+class ProcessHelper : public QProcess
+{
+public:
+    ProcessHelper(QObject *parent = nullptr) : QProcess(parent)
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
+        setChildProcessModifier([this] { setupChildProcess_impl(); });
+#endif
+    }
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    void setupChildProcess() override { setupChildProcess_impl(); }
+#endif
+
+    using QProcess::setErrorString;
+
+    void setLowPriority() { m_lowPriority = true; }
+    void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
+
+private:
+    void setupChildProcess_impl();
+    bool m_lowPriority = false;
+    bool m_unixTerminalDisabled = false;
+};
 
 } // namespace Utils
 

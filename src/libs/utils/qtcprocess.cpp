@@ -57,12 +57,7 @@
 #define CALLBACK WINAPI
 #endif
 #include <qt_windows.h>
-#else
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
 #endif
-
 
 using namespace Utils::Internal;
 
@@ -132,9 +127,10 @@ public:
     virtual bool waitForReadyRead(int msecs) = 0;
     virtual bool waitForFinished(int msecs) = 0;
 
-    virtual void setLowPriority() = 0;
-    virtual bool lowPriority() const = 0;
-    virtual void setDisableUnixTerminal() = 0;
+    void setLowPriority() { m_lowPriority = true; }
+    bool isLowPriority() const { return m_lowPriority; }
+    void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
+    bool isUnixTerminalDisabled() const { return m_unixTerminalDisabled; }
 
     void setBelowNormalPriority() { m_belowNormalPriority = true; }
     bool isBelowNormalPriority() const { return m_belowNormalPriority; }
@@ -154,42 +150,8 @@ private:
     const ProcessMode m_processMode;
     bool m_belowNormalPriority = false;
     QString m_nativeArguments;
-};
-
-class ProcessHelper : public QProcess
-{
-public:
-    ProcessHelper()
-    {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
-        setChildProcessModifier([this] { setupChildProcess_impl(); });
-#endif
-    }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override { setupChildProcess_impl(); }
-#endif
-
-    void setupChildProcess_impl()
-    {
-#if defined Q_OS_UNIX
-        // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
-        if (m_lowPriority) {
-            errno = 0;
-            if (::nice(5) == -1 && errno != 0)
-                perror("Failed to set nice value");
-        }
-
-        // Disable terminal by becoming a session leader.
-        if (m_disableUnixTerminal)
-            setsid();
-#endif
-    }
-
-    using QProcess::setErrorString;
-
     bool m_lowPriority = false;
-    bool m_disableUnixTerminal = false;
+    bool m_unixTerminalDisabled = false;
 };
 
 class QProcessImpl : public ProcessInterface
@@ -223,6 +185,10 @@ public:
         if (isBelowNormalPriority())
             m_processStartHandler.setBelowNormalPriority(&m_process);
         m_processStartHandler.setNativeArguments(&m_process, nativeArguments());
+        if (isLowPriority())
+            m_process.setLowPriority();
+        if (isUnixTerminalDisabled())
+            m_process.setUnixTerminalDisabled();
         m_process.start(program, arguments, m_processStartHandler.openMode());
         m_processStartHandler.handleProcessStart(&m_process);
     }
@@ -261,13 +227,6 @@ public:
     { return m_process.waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) override
     { return m_process.waitForFinished(msecs); }
-
-    void setLowPriority() override
-    { m_process.m_lowPriority = true; }
-    bool lowPriority() const override
-    { return m_process.m_lowPriority; }
-    void setDisableUnixTerminal() override
-    { m_process.m_disableUnixTerminal = true; }
 
 private:
     void handleStarted()
@@ -321,6 +280,10 @@ public:
         if (isBelowNormalPriority())
             m_handle->setBelowNormalPriority();
         m_handle->setNativeArguments(nativeArguments());
+        if (isLowPriority())
+            m_handle->setLowPriority();
+        if (isUnixTerminalDisabled())
+            m_handle->setUnixTerminalDisabled();
         m_handle->start(program, arguments, writeData);
     }
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
@@ -342,10 +305,6 @@ public:
     bool waitForStarted(int msecs) override { return m_handle->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) override { return m_handle->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) override { return m_handle->waitForFinished(msecs); }
-
-    void setLowPriority() override { QTC_CHECK(false); }
-    bool lowPriority() const override { QTC_CHECK(false); return false; }
-    void setDisableUnixTerminal() override { QTC_CHECK(false); }
 
 private:
     typedef void (ProcessLauncherImpl::*PreSignal)(void);
@@ -610,12 +569,12 @@ void QtcProcess::start()
     if (d->m_commandLine.executable().osType() == OsTypeWindows) {
         QString args;
         if (d->m_useCtrlCStub) {
-            if (d->m_process->lowPriority())
+            if (d->m_process->isLowPriority())
                 ProcessArgs::addArg(&args, "-nice");
             ProcessArgs::addArg(&args, QDir::toNativeSeparators(command));
             command = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else if (d->m_process->lowPriority()) {
+        } else if (d->m_process->isLowPriority()) {
             d->m_process->setBelowNormalPriority();
         }
         ProcessArgs::addArgs(&args, arguments.toWindowsArgs());
@@ -687,7 +646,7 @@ void QtcProcess::setLowPriority()
 
 void QtcProcess::setDisableUnixTerminal()
 {
-    d->m_process->setDisableUnixTerminal();
+    d->m_process->setUnixTerminalDisabled();
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)

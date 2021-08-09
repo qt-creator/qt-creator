@@ -24,13 +24,13 @@
 ****************************************************************************/
 
 #include "processutils.h"
-#include <QProcess>
 
 #ifdef Q_OS_WIN
-#ifdef QTCREATOR_PCH_H
-#define CALLBACK WINAPI
-#endif
 #include <qt_windows.h>
+#else
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 #endif
 
 namespace Utils {
@@ -84,6 +84,23 @@ void ProcessStartHandler::setNativeArguments(QProcess *process, const QString &a
     Q_UNUSED(process)
     Q_UNUSED(arguments)
 #endif // Q_OS_WIN
+}
+
+
+void ProcessHelper::setupChildProcess_impl()
+{
+#if defined Q_OS_UNIX
+    // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
+    if (m_lowPriority) {
+        errno = 0;
+        if (::nice(5) == -1 && errno != 0)
+            perror("Failed to set nice value");
+    }
+
+    // Disable terminal by becoming a session leader.
+    if (m_unixTerminalDisabled)
+        setsid();
+#endif
 }
 
 } // namespace Utils

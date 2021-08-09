@@ -26,6 +26,7 @@
 #include "launchersockethandler.h"
 
 #include "launcherlogging.h"
+#include "processutils.h"
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qprocess.h>
@@ -35,12 +36,12 @@
 namespace Utils {
 namespace Internal {
 
-class Process : public QProcess
+class Process : public ProcessHelper
 {
     Q_OBJECT
 public:
     Process(quintptr token, QObject *parent = nullptr) :
-        QProcess(parent), m_token(token), m_stopTimer(new QTimer(this))
+        ProcessHelper(parent), m_token(token), m_stopTimer(new QTimer(this))
     {
         m_stopTimer->setSingleShot(true);
         connect(m_stopTimer, &QTimer::timeout, this, &Process::cancel);
@@ -246,6 +247,10 @@ void LauncherSocketHandler::handleStartPacket()
     if (packet.belowNormalPriority)
         handler->setBelowNormalPriority(process);
     handler->setNativeArguments(process, packet.nativeArguments);
+    if (packet.lowPriority)
+        process->setLowPriority();
+    if (packet.unixTerminalDisabled)
+        process->setUnixTerminalDisabled();
     process->start(packet.command, packet.arguments, handler->openMode());
     handler->handleProcessStart(process);
 }
