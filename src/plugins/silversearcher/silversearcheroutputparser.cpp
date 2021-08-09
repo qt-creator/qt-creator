@@ -46,7 +46,7 @@ QList<Utils::FileSearchResult> SilverSearcherOutputParser::parse()
             continue;
         }
         parseFilePath();
-        while (output[index] != '\n') {
+        while (index < outputSize && output[index] != '\n') {
             parseLineNumber();
             if (index >= outputSize - 1)
                 break;
