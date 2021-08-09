@@ -200,7 +200,7 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
     if (!FilePath::fromString(targetDirectory).removeRecursively(errorMessage))
         return false;
     if (!QDir().mkpath(targetDirectory)) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The target directory %1 could not be created.").arg(targetDirectory);
+        *errorMessage = tr("The target directory %1 could not be created.").arg(targetDirectory);
         return false;
     }
     for (const QString &file : files) {
@@ -211,7 +211,7 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
             if (destInfo.lastModified() >= QFileInfo(source).lastModified())
                 continue;
             if (!QFile::remove(dest)) {
-                *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The existing file %1 could not be removed.").arg(destInfo.absoluteFilePath());
+                *errorMessage = tr("The existing file %1 could not be removed.").arg(destInfo.absoluteFilePath());
                 return false;
             }
         }
@@ -219,7 +219,7 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
             QDir().mkpath(destInfo.dir().absolutePath());
 
         if (!QFile::copy(source, dest)) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The file %1 could not be copied to %2.").arg(source, dest);
+            *errorMessage = tr("The file %1 could not be copied to %2.").arg(source, dest);
             return false;
         }
     }
@@ -303,22 +303,17 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     proc.setWorkingDirectory(arguments.directory);
     proc.setProcessChannelMode(QProcess::MergedChannels);
 
-    log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                          "Building helper \"%1\" in %2\n").arg(arguments.helperName,
-                                                                              arguments.directory));
+    log->append(tr("Building helper \"%1\" in %2\n").arg(arguments.helperName, arguments.directory));
     log->append(newline);
 
     const FilePath makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
     if (QFileInfo::exists(arguments.directory + QLatin1String("/Makefile"))) {
         if (makeFullPath.isEmpty()) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
-                                                       "%1 not found in PATH\n").arg(arguments.makeCommand);
+            *errorMessage = tr("%1 not found in PATH\n").arg(arguments.makeCommand);
             return false;
         }
         const QString cleanTarget = QLatin1String("distclean");
-        log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                   "Running %1 %2...\n")
-                    .arg(makeFullPath.toUserOutput(), cleanTarget));
+        log->append(tr("Running %1 %2...\n").arg(makeFullPath.toUserOutput(), cleanTarget));
         if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30, true, log, errorMessage))
             return false;
     }
@@ -331,20 +326,17 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     qmakeArgs << arguments.qmakeArguments;
 
     log->append(newline);
-    log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
-                                                                       qmakeArgs.join(QLatin1Char(' '))));
+    log->append(tr("Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
+                                              qmakeArgs.join(' ')));
 
     if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30, false, log, errorMessage))
         return false;
     log->append(newline);
     if (makeFullPath.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                "%1 not found in PATH\n").arg(arguments.makeCommand);
+        *errorMessage = tr("%1 not found in PATH\n").arg(arguments.makeCommand);
         return false;
     }
-    log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Running %1 %2 ...\n")
+    log->append(tr("Running %1 %2 ...\n")
                 .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1Char(' '))));
     return runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120, false, log, errorMessage);
 }
