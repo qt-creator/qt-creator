@@ -240,7 +240,7 @@ static inline QString scriptWorkingDirectory(const QSharedPointer<CustomWizardCo
                                              const QSharedPointer<CustomWizardParameters> &p)
 {
     if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
-        return ctx->targetPath;
+        return ctx->targetPath.toString();
     QString path = p->filesGeneratorScriptWorkingDirectory;
     CustomWizardContext::replaceFields(ctx->replacements, &path);
     return path;
@@ -253,7 +253,7 @@ GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *error
     QTC_ASSERT(cwp, return {});
 
     CustomWizardContextPtr ctx = context();
-    ctx->path = ctx->targetPath = cwp->path();
+    ctx->path = ctx->targetPath = cwp->filePath();
     ctx->replacements = replacementMap(dialog);
     if (CustomWizardPrivate::verbose) {
         QString logText;
@@ -330,7 +330,8 @@ GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
     }
     // Add the template files specified by the <file> elements.
     for (const CustomWizardFile &file : qAsConst(d->m_parameters->files))
-        if (!createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc, errorMessage))
+        if (!createFile(file, d->m_parameters->directory, ctx->targetPath.toString(), context()->replacements,
+                        &rc, errorMessage))
             return {};
 
     return rc;
@@ -525,7 +526,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
     }
     for (QWizardPage *ep : extensionPages)
         w->addPage(ep);
-    w->setPath(defaultPath);
+    w->setFilePath(FilePath::fromString(defaultPath));
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 
     connect(w, &BaseProjectWizardDialog::projectParametersChanged,
@@ -541,8 +542,8 @@ GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *err
     QTC_ASSERT(dialog, return {});
     // Add project name as macro. Path is here under project directory
     CustomWizardContextPtr ctx = context();
-    ctx->path = dialog->path();
-    ctx->targetPath = ctx->path + QLatin1Char('/') + dialog->projectName();
+    ctx->path = dialog->filePath();
+    ctx->targetPath = ctx->path.pathAppended(dialog->projectName());
     FieldReplacementMap fieldReplacementMap = replacementMap(dialog);
     fieldReplacementMap.insert(QLatin1String("ProjectName"), dialog->projectName());
     ctx->replacements = fieldReplacementMap;

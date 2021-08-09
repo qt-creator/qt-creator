@@ -24,7 +24,10 @@
 ****************************************************************************/
 
 #include "subdirsprojectwizarddialog.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/filepath.h>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -52,7 +55,7 @@ QtProjectParameters SubdirsProjectWizardDialog::parameters() const
     QtProjectParameters rc;
     rc.type = QtProjectParameters::EmptyProject;
     rc.fileName = projectName();
-    rc.path = path();
+    rc.path = filePath().toString();
     return rc;
 }
 

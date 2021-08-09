@@ -404,8 +404,8 @@ QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
         fieldReplacementMap.insert(field.name, value);
     }
     // Insert paths for generator scripts.
-    fieldReplacementMap.insert(QLatin1String("Path"), QDir::toNativeSeparators(ctx->path));
-    fieldReplacementMap.insert(QLatin1String("TargetPath"), QDir::toNativeSeparators(ctx->targetPath));
+    fieldReplacementMap.insert(QLatin1String("Path"), ctx->path.toUserOutput());
+    fieldReplacementMap.insert(QLatin1String("TargetPath"), ctx->targetPath.toUserOutput());
 
     return fieldReplacementMap;
 }
@@ -432,9 +432,9 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
     connect(m_pathChooser, &PathChooser::validChanged, this, &QWizardPage::completeChanged);
 }
 
-QString CustomWizardPage::path() const
+FilePath CustomWizardPage::filePath() const
 {
-    return m_pathChooser->filePath().toString();
+    return m_pathChooser->filePath();
 }
 
 void CustomWizardPage::setPath(const QString &path)

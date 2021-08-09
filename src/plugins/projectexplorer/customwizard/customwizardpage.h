@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QComboBox>
 #include <QCheckBox>
 #include <QWizardPage>
@@ -115,14 +117,16 @@ private:
 };
 
 // Documentation inside.
-class CustomWizardPage : public CustomWizardFieldPage {
+class CustomWizardPage : public CustomWizardFieldPage
+{
     Q_OBJECT
+
 public:
     explicit CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
                               const QSharedPointer<CustomWizardParameters> &parameters,
                               QWidget *parent = nullptr);
 
-    QString path() const;
+    Utils::FilePath filePath() const;
     void setPath(const QString &path);
 
     bool isComplete() const override;

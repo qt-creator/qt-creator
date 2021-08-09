@@ -34,35 +34,34 @@
 #include <QDir>
 #include <QVariant>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
-JsonProjectPage::JsonProjectPage(QWidget *parent) : Utils::ProjectIntroPage(parent)
+JsonProjectPage::JsonProjectPage(QWidget *parent) : ProjectIntroPage(parent)
 { }
 
 void JsonProjectPage::initializePage()
 {
     auto wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
-    setPath(wiz->stringValue(QLatin1String("InitialPath")));
+    setFilePath(FilePath::fromString(wiz->stringValue(QLatin1String("InitialPath"))));
 
-    setProjectName(uniqueProjectName(path()));
+    setProjectName(uniqueProjectName(filePath().toString()));
 }
 
 bool JsonProjectPage::validatePage()
 {
     if (isComplete() && useAsDefaultPath()) {
         // Store the path as default path for new projects if desired.
-        Core::DocumentManager::setProjectsDirectory(Utils::FilePath::fromString(path()));
+        Core::DocumentManager::setProjectsDirectory(filePath());
         Core::DocumentManager::setUseProjectsDirectory(true);
     }
 
-    QString target = path();
-    if (!target.endsWith(QLatin1Char('/')))
-        target += QLatin1Char('/');
-    target += projectName();
+    const FilePath target = filePath().pathAppended(projectName());
 
-    wizard()->setProperty("ProjectDirectory", target);
-    wizard()->setProperty("TargetPath", target);
+    wizard()->setProperty("ProjectDirectory", target.toString());
+    wizard()->setProperty("TargetPath", target.toString());
 
     return Utils::ProjectIntroPage::validatePage();
 }

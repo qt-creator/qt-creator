@@ -114,14 +114,14 @@ QString ProjectIntroPage::projectName() const
     return d->m_ui.nameLineEdit->text();
 }
 
-QString ProjectIntroPage::path() const
+FilePath ProjectIntroPage::filePath() const
 {
-    return d->m_ui.pathChooser->filePath().toString();
+    return d->m_ui.pathChooser->filePath();
 }
 
-void ProjectIntroPage::setPath(const QString &path)
+void ProjectIntroPage::setFilePath(const FilePath &path)
 {
-    d->m_ui.pathChooser->setPath(path);
+    d->m_ui.pathChooser->setFilePath(path);
 }
 
 void ProjectIntroPage::setProjectNameRegularExpression(const QRegularExpression &regEx)
@@ -178,14 +178,15 @@ bool ProjectIntroPage::validate()
     }
 
     // Check existence of the directory
-    const QFileInfo projectDirFile(path() + QLatin1Char('/')
-                                   + QDir::fromNativeSeparators(d->m_ui.nameLineEdit->text()));
-    if (!projectDirFile.exists()) { // All happy
+    const FilePath projectDir =
+        filePath().pathAppended(QDir::fromNativeSeparators(d->m_ui.nameLineEdit->text()));
+
+    if (!projectDir.exists()) { // All happy
         hideStatusLabel();
         return true;
     }
 
-    if (projectDirFile.isDir()) {
+    if (projectDir.isDir()) {
         displayStatusMessage(InfoLabel::Warning, tr("The project already exists."));
         return true;
     }

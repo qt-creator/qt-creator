@@ -41,6 +41,8 @@
     as default projects' folder should the user wish to do that.
 */
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 struct BaseProjectWizardDialogPrivate {
@@ -66,20 +68,20 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFacto
     Core::BaseFileWizard(factory, parameters.extraValues(), parent),
     d(std::make_unique<BaseProjectWizardDialogPrivate>(new Utils::ProjectIntroPage))
 {
-    setPath(parameters.defaultPath());
+    setFilePath(FilePath::fromString(parameters.defaultPath()));
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
     init();
 }
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                                 Utils::ProjectIntroPage *introPage, int introId,
+                                                 ProjectIntroPage *introPage, int introId,
                                                  QWidget *parent,
                                                  const Core::WizardDialogParameters &parameters) :
     Core::BaseFileWizard(factory, parameters.extraValues(), parent),
     d(std::make_unique<BaseProjectWizardDialogPrivate>(introPage, introId))
 {
-    setPath(parameters.defaultPath());
+    setFilePath(FilePath::fromString(parameters.defaultPath()));
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
     init();
@@ -103,9 +105,9 @@ QString BaseProjectWizardDialog::projectName() const
     return d->introPage->projectName();
 }
 
-QString BaseProjectWizardDialog::path() const
+FilePath BaseProjectWizardDialog::filePath() const
 {
-    return d->introPage->path();
+    return d->introPage->filePath();
 }
 
 void BaseProjectWizardDialog::setIntroDescription(const QString &des)
@@ -113,9 +115,9 @@ void BaseProjectWizardDialog::setIntroDescription(const QString &des)
     d->introPage->setDescription(des);
 }
 
-void BaseProjectWizardDialog::setPath(const QString &path)
+void BaseProjectWizardDialog::setFilePath(const FilePath &path)
 {
-    d->introPage->setPath(path);
+    d->introPage->setFilePath(path);
 }
 
 void BaseProjectWizardDialog::setProjectName(const QString &name)
@@ -142,7 +144,7 @@ void BaseProjectWizardDialog::slotAccepted()
 {
     if (d->introPage->useAsDefaultPath()) {
         // Store the path as default path for new projects if desired.
-        Core::DocumentManager::setProjectsDirectory(Utils::FilePath::fromString(path()));
+        Core::DocumentManager::setProjectsDirectory(filePath());
         Core::DocumentManager::setUseProjectsDirectory(true);
     }
 }
@@ -150,7 +152,7 @@ void BaseProjectWizardDialog::slotAccepted()
 bool BaseProjectWizardDialog::validateCurrentPage()
 {
     if (currentId() == d->introPageId)
-        emit projectParametersChanged(d->introPage->projectName(), d->introPage->path());
+        emit projectParametersChanged(d->introPage->projectName(), d->introPage->filePath().toString());
     return Core::BaseFileWizard::validateCurrentPage();
 }
 

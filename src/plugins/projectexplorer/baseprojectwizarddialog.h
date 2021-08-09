@@ -32,7 +32,10 @@
 
 #include <memory>
 
-namespace Utils { class ProjectIntroPage; }
+namespace Utils {
+class FilePath;
+class ProjectIntroPage;
+} // Utils
 
 namespace ProjectExplorer {
 
@@ -55,14 +58,14 @@ public:
     ~BaseProjectWizardDialog() override;
 
     QString projectName() const;
-    QString path() const;
+    Utils::FilePath filePath() const;
 
     // Generate a new project name (untitled<n>) in path.
     static QString uniqueProjectName(const QString &path);
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
     void setIntroDescription(const QString &d);
-    void setPath(const QString &path);
+    void setFilePath(const Utils::FilePath &path);
     void setProjectName(const QString &name);
     void setProjectList(const QStringList &projectList);
     void setProjectDirectories(const QStringList &directories);

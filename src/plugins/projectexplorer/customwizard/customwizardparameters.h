@@ -27,6 +27,8 @@
 
 #include <coreplugin/iwizardfactory.h>
 
+#include <utils/filepath.h>
+
 #include <QStringList>
 #include <QMap>
 #include <QSharedPointer>
@@ -151,10 +153,10 @@ public:
     FieldReplacementMap baseReplacements;
     FieldReplacementMap replacements;
 
-    QString path;
+    Utils::FilePath path;
     // Where files should be created, that is, 'path' for simple wizards
     // or "path + project" for project wizards.
-    QString targetPath;
+    Utils::FilePath targetPath;
 };
 
 extern const char customWizardFileOpenEditorAttributeC[];
