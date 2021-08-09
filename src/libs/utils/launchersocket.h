@@ -104,6 +104,7 @@ public:
     QProcess::ExitStatus exitStatus() const { QMutexLocker locker(&m_mutex); return m_exitStatus; }
 
     void setBelowNormalPriority() { m_belowNormalPriority = true; }
+    void setNativeArguments(const QString &arguments) { m_nativeArguments = arguments; }
 
 signals:
     void errorOccurred(QProcess::ProcessError error);
@@ -185,6 +186,7 @@ private:
     CallerHandle *m_callerHandle = nullptr;
 
     bool m_belowNormalPriority = false;
+    QString m_nativeArguments;
 
     friend class LauncherSocket;
     friend class CallerHandle;

@@ -410,6 +410,7 @@ void LauncherHandle::doStart()
     p.channelMode = m_channelMode;
     p.standardInputFile = m_standardInputFile;
     p.belowNormalPriority = m_belowNormalPriority;
+    p.nativeArguments = m_nativeArguments;
     sendPacket(p);
 }
 

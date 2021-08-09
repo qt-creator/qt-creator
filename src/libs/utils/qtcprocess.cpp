@@ -138,10 +138,8 @@ public:
 
     void setBelowNormalPriority() { m_belowNormalPriority = true; }
     bool isBelowNormalPriority() const { return m_belowNormalPriority; }
-
-#ifdef Q_OS_WIN
-    virtual void setNativeArguments(const QString &arguments) = 0;
-#endif
+    void setNativeArguments(const QString &arguments) { m_nativeArguments = arguments; }
+    QString nativeArguments() const { return m_nativeArguments; }
 
 signals:
     void started();
@@ -155,6 +153,7 @@ protected:
 private:
     const ProcessMode m_processMode;
     bool m_belowNormalPriority = false;
+    QString m_nativeArguments;
 };
 
 class ProcessHelper : public QProcess
@@ -223,6 +222,7 @@ public:
         m_processStartHandler.setWriteData(writeData);
         if (isBelowNormalPriority())
             m_processStartHandler.setBelowNormalPriority(&m_process);
+        m_processStartHandler.setNativeArguments(&m_process, nativeArguments());
         m_process.start(program, arguments, m_processStartHandler.openMode());
         m_processStartHandler.handleProcessStart(&m_process);
     }
@@ -268,11 +268,6 @@ public:
     { return m_process.m_lowPriority; }
     void setDisableUnixTerminal() override
     { m_process.m_disableUnixTerminal = true; }
-
-#ifdef Q_OS_WIN
-    void setNativeArguments(const QString &arguments) override
-    { m_process.setNativeArguments(arguments); }
-#endif
 
 private:
     void handleStarted()
@@ -325,6 +320,7 @@ public:
     {
         if (isBelowNormalPriority())
             m_handle->setBelowNormalPriority();
+        m_handle->setNativeArguments(nativeArguments());
         m_handle->start(program, arguments, writeData);
     }
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
@@ -350,10 +346,6 @@ public:
     void setLowPriority() override { QTC_CHECK(false); }
     bool lowPriority() const override { QTC_CHECK(false); return false; }
     void setDisableUnixTerminal() override { QTC_CHECK(false); }
-
-#ifdef Q_OS_WIN
-    void setNativeArguments(const QString &arguments) override { QTC_CHECK(false); }
-#endif
 
 private:
     typedef void (ProcessLauncherImpl::*PreSignal)(void);

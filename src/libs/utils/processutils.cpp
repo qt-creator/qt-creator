@@ -70,8 +70,20 @@ void ProcessStartHandler::setBelowNormalPriority(QProcess *process)
         [](QProcess::CreateProcessArguments *args) {
             args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
     });
+#else
+    Q_UNUSED(process)
 #endif // Q_OS_WIN
 }
 
+void ProcessStartHandler::setNativeArguments(QProcess *process, const QString &arguments)
+{
+#ifdef Q_OS_WIN
+    if (!arguments.isEmpty())
+        process->setNativeArguments(arguments);
+#else
+    Q_UNUSED(process)
+    Q_UNUSED(arguments)
+#endif // Q_OS_WIN
+}
 
 } // namespace Utils

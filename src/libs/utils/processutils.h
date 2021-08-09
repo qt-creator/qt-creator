@@ -47,6 +47,7 @@ public:
     void handleProcessStart(QProcess *process);
     void handleProcessStarted(QProcess *process);
     void setBelowNormalPriority(QProcess *process);
+    void setNativeArguments(QProcess *process, const QString &arguments);
 
 private:
     ProcessMode m_processMode = ProcessMode::Reader;

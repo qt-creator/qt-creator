@@ -116,6 +116,7 @@ public:
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     QString standardInputFile;
     bool belowNormalPriority = false;
+    QString nativeArguments;
 
 private:
     void doSerialize(QDataStream &stream) const override;

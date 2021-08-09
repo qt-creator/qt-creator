@@ -245,6 +245,7 @@ void LauncherSocketHandler::handleStartPacket()
     handler->setWriteData(packet.writeData);
     if (packet.belowNormalPriority)
         handler->setBelowNormalPriority(process);
+    handler->setNativeArguments(process, packet.nativeArguments);
     process->start(packet.command, packet.arguments, handler->openMode());
     handler->handleProcessStart(process);
 }
