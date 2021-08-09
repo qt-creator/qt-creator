@@ -48,11 +48,15 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 
-static const char templatePathC[] = "templates/wizards";
-static const char configFileC[] = "wizard.xml";
+using namespace Core;
+using namespace Utils;
 
-namespace {
-bool enableLoadTemplateFiles()
+namespace ProjectExplorer {
+
+const char templatePathC[] = "templates/wizards";
+const char configFileC[] = "wizard.xml";
+
+static bool enableLoadTemplateFiles()
 {
 #ifdef WITH_TESTS
     static bool value = qEnvironmentVariableIsEmpty("QTC_DISABLE_LOAD_TEMPLATES_FOR_TEST");
@@ -61,13 +65,10 @@ bool enableLoadTemplateFiles()
 #endif
     return value;
 }
-}
-
-namespace ProjectExplorer {
 
 static QList<ICustomWizardMetaFactory *> g_customWizardMetaFactories;
 
-ICustomWizardMetaFactory::ICustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
+ICustomWizardMetaFactory::ICustomWizardMetaFactory(const QString &klass, IWizardFactory::WizardKind kind) :
     m_klass(klass), m_kind(kind)
 {
     g_customWizardMetaFactories.append(this);
@@ -147,8 +148,8 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
     d->m_parameters = p;
 
     setId(p->id);
-    setSupportedProjectTypes((p->kind == Core::IWizardFactory::FileWizard)
-                             ?  QSet<Utils::Id>() : QSet<Utils::Id>() << "UNKNOWN_PROJECT");
+    setSupportedProjectTypes((p->kind == IWizardFactory::FileWizard)
+                             ?  QSet<Id>() : QSet<Id>() << "UNKNOWN_PROJECT");
     setIcon(p->icon);
     setDescription(p->description);
     setDisplayName(p->displayName);
@@ -158,10 +159,10 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
     setFlags(p->flags);
 }
 
-Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &p) const
+BaseFileWizard *CustomWizard::create(QWidget *parent, const WizardDialogParameters &p) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return nullptr);
-    auto wizard = new Core::BaseFileWizard(this, p.extraValues(), parent);
+    auto wizard = new BaseFileWizard(this, p.extraValues(), parent);
 
     d->m_context->reset();
     auto customPage = new CustomWizardPage(d->m_context, parameters());
@@ -179,12 +180,12 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
 }
 
 // Read out files and store contents with field contents replaced.
-static inline bool createFile(CustomWizardFile cwFile,
-                              const QString &sourceDirectory,
-                              const QString &targetDirectory,
-                              const CustomProjectWizard::FieldReplacementMap &fm,
-                              Core::GeneratedFiles *files,
-                              QString *errorMessage)
+static bool createFile(CustomWizardFile cwFile,
+                       const QString &sourceDirectory,
+                       const QString &targetDirectory,
+                       const CustomProjectWizard::FieldReplacementMap &fm,
+                       GeneratedFiles *files,
+                       QString *errorMessage)
 {
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
@@ -197,11 +198,11 @@ static inline bool createFile(CustomWizardFile cwFile,
     // Read contents of source file
     const QFile::OpenMode openMode
             = cwFile.binary ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(sourcePath), openMode, errorMessage))
+    FileReader reader;
+    if (!reader.fetch(FilePath::fromString(sourcePath), openMode, errorMessage))
         return false;
 
-    Core::GeneratedFile generatedFile;
+    GeneratedFile generatedFile;
     generatedFile.setPath(targetPath);
     if (cwFile.binary) {
         // Binary file: Set data.
@@ -213,11 +214,11 @@ static inline bool createFile(CustomWizardFile cwFile,
         generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
-    Core::GeneratedFile::Attributes attributes;
+    GeneratedFile::Attributes attributes;
     if (cwFile.openEditor)
-        attributes |= Core::GeneratedFile::OpenEditorAttribute;
+        attributes |= GeneratedFile::OpenEditorAttribute;
     if (cwFile.openProject)
-        attributes |= Core::GeneratedFile::OpenProjectAttribute;
+        attributes |= GeneratedFile::OpenProjectAttribute;
     generatedFile.setAttributes(attributes);
     files->push_back(generatedFile);
     return true;
@@ -245,11 +246,11 @@ static inline QString scriptWorkingDirectory(const QSharedPointer<CustomWizardCo
     return path;
 }
 
-Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
+GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
 {
     // Look for the Custom field page to find the path
     const CustomWizardPage *cwp = findWizardPage<CustomWizardPage>(dialog);
-    QTC_ASSERT(cwp, return Core::GeneratedFiles());
+    QTC_ASSERT(cwp, return {});
 
     CustomWizardContextPtr ctx = context();
     ctx->path = ctx->targetPath = cwp->path();
@@ -266,9 +267,9 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     return generateWizardFiles(errorMessage);
 }
 
-bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage) const
+bool CustomWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage) const
 {
-    if (!Core::BaseFileWizardFactory::writeFiles(files, errorMessage))
+    if (!BaseFileWizardFactory::writeFiles(files, errorMessage))
         return false;
     if (d->m_parameters->filesGeneratorScript.isEmpty())
         return true;
@@ -276,7 +277,7 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
     // project wizard that is entirely created by a script,
     // the target project directory might not exist.
     // Known issue: By nature, the script does not honor
-    // Core::GeneratedFile::KeepExistingFileAttribute.
+    // GeneratedFile::KeepExistingFileAttribute.
     const CustomWizardContextPtr ctx = context();
     const QString scriptWorkingDir = scriptWorkingDirectory(ctx, d->m_parameters);
     const QDir scriptWorkingDirDir(scriptWorkingDir);
@@ -295,19 +296,20 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
                                                   ctx->replacements, errorMessage))
         return false;
     // Paranoia: Check on the files generated by the script:
-    foreach (const Core::GeneratedFile &generatedFile, files)
-        if (generatedFile.attributes() & Core::GeneratedFile::CustomGeneratorAttribute)
+    for (const GeneratedFile &generatedFile : files) {
+        if (generatedFile.attributes() & GeneratedFile::CustomGeneratorAttribute)
             if (!QFileInfo(generatedFile.path()).isFile()) {
                 *errorMessage = QString::fromLatin1("%1 failed to generate %2").
                         arg(d->m_parameters->filesGeneratorScript.back(), generatedFile.path());
                 return false;
             }
+    }
     return true;
 }
 
-Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
+GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
 {
-    Core::GeneratedFiles rc;
+    GeneratedFiles rc;
     const CustomWizardContextPtr ctx = context();
 
     QTC_ASSERT(!ctx->targetPath.isEmpty(), return rc);
@@ -327,9 +329,10 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
             return rc;
     }
     // Add the template files specified by the <file> elements.
-    foreach (const CustomWizardFile &file, d->m_parameters->files)
+    for (const CustomWizardFile &file : qAsConst(d->m_parameters->files))
         if (!createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc, errorMessage))
-            return Core::GeneratedFiles();
+            return {};
+
     return rc;
 }
 
@@ -379,13 +382,13 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
     containing valid configuration files and parse them into wizards.
 */
 
-QList<Core::IWizardFactory *> CustomWizard::createWizards()
+QList<IWizardFactory *> CustomWizard::createWizards()
 {
     QString errorMessage;
     QString verboseLog;
 
-    const QString templateDirName = Core::ICore::resourcePath(templatePathC).toString();
-    const QString userTemplateDirName = Core::ICore::userResourcePath(templatePathC).toString();
+    const QString templateDirName = ICore::resourcePath(templatePathC).toString();
+    const QString userTemplateDirName = ICore::userResourcePath(templatePathC).toString();
 
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
@@ -393,7 +396,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
-        return QList<Core::IWizardFactory *>();
+        return {};
     }
 
     const QDir userTemplateDir(userTemplateDirName);
@@ -453,8 +456,8 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
         }
     }
 
-    QList<Core::IWizardFactory *> rc;
-    foreach (CustomWizardParametersPtr p, toCreate) {
+    QList<IWizardFactory *> rc;
+    for (CustomWizardParametersPtr p : qAsConst(toCreate)) {
         if (CustomWizard *w = createWizard(p)) {
             rc.push_back(w);
         } else {
@@ -466,7 +469,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
         qWarning("%s", qPrintable(verboseLog));
-        Core::MessageManager::writeDisrupting(verboseLog);
+        MessageManager::writeDisrupting(verboseLog);
     }
     return rc;
 }
@@ -491,8 +494,8 @@ CustomProjectWizard::CustomProjectWizard() = default;
     initProjectWizardDialog() needs to be called.
 */
 
-Core::BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
-                                     const Core::WizardDialogParameters &parameters) const
+BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
+                                            const WizardDialogParameters &parameters) const
 {
     auto projectDialog = new BaseProjectWizardDialog(this, parent, parameters);
     initProjectWizardDialog(projectDialog,
@@ -520,7 +523,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         else
             w->addPage(new CustomWizardFieldPage(ctx, pa));
     }
-    foreach (QWizardPage *ep, extensionPages)
+    for (QWizardPage *ep : extensionPages)
         w->addPage(ep);
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
@@ -532,10 +535,10 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
 }
 
-Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *errorMessage) const
+GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *errorMessage) const
 {
     const auto *dialog = qobject_cast<const BaseProjectWizardDialog *>(w);
-    QTC_ASSERT(dialog, return Core::GeneratedFiles());
+    QTC_ASSERT(dialog, return {});
     // Add project name as macro. Path is here under project directory
     CustomWizardContextPtr ctx = context();
     ctx->path = dialog->path();
@@ -545,7 +548,7 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     ctx->replacements = fieldReplacementMap;
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << ctx->targetPath << ctx->replacements;
-    const Core::GeneratedFiles generatedFiles = generateWizardFiles(errorMessage);
+    const GeneratedFiles generatedFiles = generateWizardFiles(errorMessage);
     return generatedFiles;
 }
 
@@ -554,11 +557,11 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     the respective attributes set.
 */
 
-bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage)
+bool CustomProjectWizard::postGenerateOpen(const GeneratedFiles &l, QString *errorMessage)
 {
     // Post-Generate: Open the project and the editors as desired
-    foreach (const Core::GeneratedFile &file, l) {
-        if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+    for (const GeneratedFile &file : l) {
+        if (file.attributes() & GeneratedFile::OpenProjectAttribute) {
             ProjectExplorerPlugin::OpenProjectResult result
                     = ProjectExplorerPlugin::openProject(file.filePath());
             if (!result) {
@@ -571,7 +574,7 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
 }
 
-bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) const
+bool CustomProjectWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage) const
 {
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::postGenerateFiles()";
