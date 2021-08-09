@@ -28,113 +28,53 @@
 
 #include <QtTest>
 
+using namespace Utils;
+
 namespace SilverSearcher {
 namespace Internal {
 
-void OutputParserTest::testNoResults()
+void OutputParserTest::test_data()
 {
-    const char parserOutput[] = "\n";
-    const QByteArray output(parserOutput);
-    SilverSearcher::SilverSearcherOutputParser ssop(output);
-    const QList<Utils::FileSearchResult> items = ssop.parse();
-    QCOMPARE(items.size(), 0);
+    QTest::addColumn<QByteArray>("parserOutput");
+    QTest::addColumn<FileSearchResultList>("results");
+
+    QTest::addRow("nothing") << QByteArray("\n") << FileSearchResultList();
+    QTest::addRow("oneFileOneMatch")
+        << QByteArray(":/file/path/to/filename.h\n"
+                      "1;1 5:match\n")
+        << FileSearchResultList({{"/file/path/to/filename.h", 1, "match", 1, 5, {}}});
+    QTest::addRow("multipleFilesWithOneMatch")
+        << QByteArray(":/file/path/to/filename1.h\n"
+                      "1;1 5:match\n"
+                      "\n"
+                      ":/file/path/to/filename2.h\n"
+                      "2;2 5: match\n")
+        << FileSearchResultList({{"/file/path/to/filename1.h", 1, "match", 1, 5, {}},
+                                 {"/file/path/to/filename2.h", 2, " match", 2, 5, {}}});
+    QTest::addRow("oneFileMultipleMatches")
+        << QByteArray(":/file/path/to/filename.h\n"
+                      "1;1 5,7 5:match match\n")
+        << FileSearchResultList({{"/file/path/to/filename.h", 1, "match match", 1, 5, {}},
+                                 {"/file/path/to/filename.h", 1, "match match", 7, 5, {}}});
+    QTest::addRow("multipleFilesWithMultipleMatches")
+        << QByteArray(":/file/path/to/filename1.h\n"
+                      "1;1 5,7 5:match match\n"
+                      "\n"
+                      ":/file/path/to/filename2.h\n"
+                      "2;2 5,8 5: match match\n")
+        << FileSearchResultList({{"/file/path/to/filename1.h", 1, "match match", 1, 5, {}},
+                                 {"/file/path/to/filename1.h", 1, "match match", 7, 5, {}},
+                                 {"/file/path/to/filename2.h", 2, " match match", 2, 5, {}},
+                                 {"/file/path/to/filename2.h", 2, " match match", 8, 5, {}}});
 }
 
-void OutputParserTest::testOneFileWithOneMatch()
+void OutputParserTest::test()
 {
-    const char parserOutput[] = ":/file/path/to/filename.h\n"
-                                "1;1 5:match\n";
-    const QByteArray output(parserOutput);
-    SilverSearcher::SilverSearcherOutputParser ssop(output);
+    QFETCH(QByteArray, parserOutput);
+    QFETCH(FileSearchResultList, results);
+    SilverSearcher::SilverSearcherOutputParser ssop(parserOutput);
     const QList<Utils::FileSearchResult> items = ssop.parse();
-    QCOMPARE(items.size(), 1);
-    QCOMPARE(items[0].fileName, QStringLiteral("/file/path/to/filename.h"));
-    QCOMPARE(items[0].lineNumber, 1);
-    QCOMPARE(items[0].matchingLine, QStringLiteral("match"));
-    QCOMPARE(items[0].matchStart, 1);
-    QCOMPARE(items[0].matchLength, 5);
-}
-
-void OutputParserTest::testMultipleFilesWithOneMatch()
-{
-    const char parserOutput[] = ":/file/path/to/filename1.h\n"
-                                "1;1 5:match\n"
-                                "\n"
-                                ":/file/path/to/filename2.h\n"
-                                "2;2 5: match\n"
-            ;
-    const QByteArray output(parserOutput);
-    SilverSearcher::SilverSearcherOutputParser ssop(output);
-    const QList<Utils::FileSearchResult> items = ssop.parse();
-    QCOMPARE(items.size(), 2);
-    QCOMPARE(items[0].fileName, QStringLiteral("/file/path/to/filename1.h"));
-    QCOMPARE(items[0].lineNumber, 1);
-    QCOMPARE(items[0].matchingLine, QStringLiteral("match"));
-    QCOMPARE(items[0].matchStart, 1);
-    QCOMPARE(items[0].matchLength, 5);
-
-    QCOMPARE(items[1].fileName, QStringLiteral("/file/path/to/filename2.h"));
-    QCOMPARE(items[1].lineNumber, 2);
-    QCOMPARE(items[1].matchingLine, QStringLiteral(" match"));
-    QCOMPARE(items[1].matchStart, 2);
-    QCOMPARE(items[1].matchLength, 5);
-}
-
-void OutputParserTest::testOneFileWithMultipleMatches()
-{
-    const char parserOutput[] = ":/file/path/to/filename.h\n"
-                                "1;1 5,7 5:match match\n";
-    const QByteArray output(parserOutput);
-    SilverSearcher::SilverSearcherOutputParser ssop(output);
-    const QList<Utils::FileSearchResult> items = ssop.parse();
-    QCOMPARE(items.size(), 2);
-    QCOMPARE(items[0].fileName, QStringLiteral("/file/path/to/filename.h"));
-    QCOMPARE(items[0].lineNumber, 1);
-    QCOMPARE(items[0].matchingLine, QStringLiteral("match match"));
-    QCOMPARE(items[0].matchStart, 1);
-    QCOMPARE(items[0].matchLength, 5);
-
-    QCOMPARE(items[1].fileName, QStringLiteral("/file/path/to/filename.h"));
-    QCOMPARE(items[1].lineNumber, 1);
-    QCOMPARE(items[1].matchingLine, QStringLiteral("match match"));
-    QCOMPARE(items[1].matchStart, 7);
-    QCOMPARE(items[1].matchLength, 5);
-}
-
-void OutputParserTest::testMultipleFilesWithMultipleMatches()
-{
-    const char parserOutput[] = ":/file/path/to/filename1.h\n"
-                                "1;1 5,7 5:match match\n"
-                                "\n"
-                                ":/file/path/to/filename2.h\n"
-                                "2;2 5,8 5: match match\n";
-    const QByteArray output(parserOutput);
-    SilverSearcher::SilverSearcherOutputParser ssop(output);
-    const QList<Utils::FileSearchResult> items = ssop.parse();
-    QCOMPARE(items.size(), 4);
-    QCOMPARE(items[0].fileName, QStringLiteral("/file/path/to/filename1.h"));
-    QCOMPARE(items[0].lineNumber, 1);
-    QCOMPARE(items[0].matchingLine, QStringLiteral("match match"));
-    QCOMPARE(items[0].matchStart, 1);
-    QCOMPARE(items[0].matchLength, 5);
-
-    QCOMPARE(items[1].fileName, QStringLiteral("/file/path/to/filename1.h"));
-    QCOMPARE(items[1].lineNumber, 1);
-    QCOMPARE(items[1].matchingLine, QStringLiteral("match match"));
-    QCOMPARE(items[1].matchStart, 7);
-    QCOMPARE(items[1].matchLength, 5);
-
-    QCOMPARE(items[2].fileName, QStringLiteral("/file/path/to/filename2.h"));
-    QCOMPARE(items[2].lineNumber, 2);
-    QCOMPARE(items[2].matchingLine, QStringLiteral(" match match"));
-    QCOMPARE(items[2].matchStart, 2);
-    QCOMPARE(items[2].matchLength, 5);
-
-    QCOMPARE(items[3].fileName, QStringLiteral("/file/path/to/filename2.h"));
-    QCOMPARE(items[3].lineNumber, 2);
-    QCOMPARE(items[3].matchingLine, QStringLiteral(" match match"));
-    QCOMPARE(items[3].matchStart, 8);
-    QCOMPARE(items[3].matchLength, 5);
+    QCOMPARE(items, results);
 }
 
 } // namespace Internal

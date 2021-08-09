@@ -28,18 +28,6 @@
 #include <QTextCodec>
 #include <QtTest>
 
-namespace Utils {
-bool operator==(const Utils::FileSearchResult &r1, const Utils::FileSearchResult &r2)
-{
-    return r1.fileName == r2.fileName
-            && r1.lineNumber == r2.lineNumber
-            && r1.matchingLine == r2.matchingLine
-            && r1.matchStart == r2.matchStart
-            && r1.matchLength == r2.matchLength
-            && r1.regexpCapturedTexts == r2.regexpCapturedTexts;
-}
-} // Utils
-
 class tst_FileSearch : public QObject
 {
     Q_OBJECT

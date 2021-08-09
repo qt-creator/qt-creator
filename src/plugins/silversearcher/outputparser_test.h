@@ -33,11 +33,8 @@ class OutputParserTest : public QObject
     Q_OBJECT
 
 private slots:
-    void testNoResults();
-    void testOneFileWithOneMatch();
-    void testMultipleFilesWithOneMatch();
-    void testOneFileWithMultipleMatches();
-    void testMultipleFilesWithMultipleMatches();
+    void test_data();
+    void test();
 };
 
 } // namespace Internal

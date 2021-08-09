@@ -180,8 +180,16 @@ public:
             matchStart(matchStart),
             matchLength(matchLength),
             regexpCapturedTexts(regexpCapturedTexts)
+    {}
+
+    bool operator==(const FileSearchResult &o) const
     {
+        return fileName == o.fileName && lineNumber == o.lineNumber
+               && matchingLine == o.matchingLine && matchStart == o.matchStart
+               && matchLength == o.matchLength && regexpCapturedTexts == o.regexpCapturedTexts;
     }
+    bool operator!=(const FileSearchResult &o) const { return !(*this == o); }
+
     QString fileName;
     int lineNumber;
     QString matchingLine;
