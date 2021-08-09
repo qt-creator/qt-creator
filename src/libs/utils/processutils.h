@@ -46,6 +46,7 @@ public:
     QIODevice::OpenMode openMode() const;
     void handleProcessStart(QProcess *process);
     void handleProcessStarted(QProcess *process);
+    void setBelowNormalPriority(QProcess *process);
 
 private:
     ProcessMode m_processMode = ProcessMode::Reader;

@@ -136,8 +136,10 @@ public:
     virtual bool lowPriority() const = 0;
     virtual void setDisableUnixTerminal() = 0;
 
+    void setBelowNormalPriority() { m_belowNormalPriority = true; }
+    bool isBelowNormalPriority() const { return m_belowNormalPriority; }
+
 #ifdef Q_OS_WIN
-    virtual void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) = 0;
     virtual void setNativeArguments(const QString &arguments) = 0;
 #endif
 
@@ -152,6 +154,7 @@ protected:
     ProcessMode processMode() const { return m_processMode; }
 private:
     const ProcessMode m_processMode;
+    bool m_belowNormalPriority = false;
 };
 
 class ProcessHelper : public QProcess
@@ -218,6 +221,8 @@ public:
     {
         m_processStartHandler.setProcessMode(processMode());
         m_processStartHandler.setWriteData(writeData);
+        if (isBelowNormalPriority())
+            m_processStartHandler.setBelowNormalPriority(&m_process);
         m_process.start(program, arguments, m_processStartHandler.openMode());
         m_processStartHandler.handleProcessStart(&m_process);
     }
@@ -265,8 +270,6 @@ public:
     { m_process.m_disableUnixTerminal = true; }
 
 #ifdef Q_OS_WIN
-    void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) override
-    { m_process.setCreateProcessArgumentsModifier(modifier); }
     void setNativeArguments(const QString &arguments) override
     { m_process.setNativeArguments(arguments); }
 #endif
@@ -319,7 +322,11 @@ public:
     { m_handle->setProcessEnvironment(environment); }
     void setWorkingDirectory(const QString &dir) override { m_handle->setWorkingDirectory(dir); }
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
-    { m_handle->start(program, arguments, writeData); }
+    {
+        if (isBelowNormalPriority())
+            m_handle->setBelowNormalPriority();
+        m_handle->start(program, arguments, writeData);
+    }
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
     void kill() override { cancel(); } // TODO: see above
     void close() override { cancel(); } // TODO: see above
@@ -345,8 +352,6 @@ public:
     void setDisableUnixTerminal() override { QTC_CHECK(false); }
 
 #ifdef Q_OS_WIN
-    void setCreateProcessArgumentsModifier(QProcess::CreateProcessArgumentModifier modifier) override
-    { QTC_CHECK(false); }
     void setNativeArguments(const QString &arguments) override { QTC_CHECK(false); }
 #endif
 
@@ -619,12 +624,7 @@ void QtcProcess::start()
             command = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
         } else if (d->m_process->lowPriority()) {
-#ifdef Q_OS_WIN
-            d->m_process->setCreateProcessArgumentsModifier(
-                [](QProcess::CreateProcessArguments *args) {
-                    args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
-            });
-#endif
+            d->m_process->setBelowNormalPriority();
         }
         ProcessArgs::addArgs(&args, arguments.toWindowsArgs());
 #ifdef Q_OS_WIN

@@ -409,6 +409,7 @@ void LauncherHandle::doStart()
     p.writeData = m_writeData;
     p.channelMode = m_channelMode;
     p.standardInputFile = m_standardInputFile;
+    p.belowNormalPriority = m_belowNormalPriority;
     sendPacket(p);
 }
 

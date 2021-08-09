@@ -243,6 +243,8 @@ void LauncherSocketHandler::handleStartPacket()
     ProcessStartHandler *handler = process->processStartHandler();
     handler->setProcessMode(packet.processMode);
     handler->setWriteData(packet.writeData);
+    if (packet.belowNormalPriority)
+        handler->setBelowNormalPriority(process);
     process->start(packet.command, packet.arguments, handler->openMode());
     handler->handleProcessStart(process);
 }

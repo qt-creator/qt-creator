@@ -102,6 +102,9 @@ public:
     { QMutexLocker locker(&m_mutex); m_environment = environment; }
     void setWorkingDirectory(const QString &dir) { QMutexLocker locker(&m_mutex); m_workingDirectory = dir; }
     QProcess::ExitStatus exitStatus() const { QMutexLocker locker(&m_mutex); return m_exitStatus; }
+
+    void setBelowNormalPriority() { m_belowNormalPriority = true; }
+
 signals:
     void errorOccurred(QProcess::ProcessError error);
     void started();
@@ -180,6 +183,8 @@ private:
     QString m_standardInputFile;
 
     CallerHandle *m_callerHandle = nullptr;
+
+    bool m_belowNormalPriority = false;
 
     friend class LauncherSocket;
     friend class CallerHandle;

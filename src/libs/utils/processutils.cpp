@@ -26,6 +26,13 @@
 #include "processutils.h"
 #include <QProcess>
 
+#ifdef Q_OS_WIN
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
+#include <qt_windows.h>
+#endif
+
 namespace Utils {
 
 QIODevice::OpenMode ProcessStartHandler::openMode() const
@@ -54,5 +61,17 @@ void ProcessStartHandler::handleProcessStarted(QProcess *process)
             process->closeWriteChannel();
     }
 }
+
+
+void ProcessStartHandler::setBelowNormalPriority(QProcess *process)
+{
+#ifdef Q_OS_WIN
+    process->setCreateProcessArgumentsModifier(
+        [](QProcess::CreateProcessArguments *args) {
+            args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
+    });
+#endif // Q_OS_WIN
+}
+
 
 } // namespace Utils

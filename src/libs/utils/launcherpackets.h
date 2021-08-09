@@ -115,6 +115,7 @@ public:
     QByteArray writeData;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     QString standardInputFile;
+    bool belowNormalPriority = false;
 
 private:
     void doSerialize(QDataStream &stream) const override;
