@@ -482,14 +482,17 @@ void ToolChainKitAspect::setup(Kit *k)
     QTC_ASSERT(k, return);
 
     QVariantMap value = k->value(id()).toMap();
+    bool lockToolchains = k->isSdkProvided() && !value.isEmpty();
     if (value.empty())
         value = defaultToolChainValue().toMap();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
         Utils::Id l = findLanguage(i.key());
 
-        if (!l.isValid())
+        if (!l.isValid()) {
+            lockToolchains = false;
             continue;
+        }
 
         const QByteArray id = i.value().toByteArray();
         ToolChain *tc = ToolChainManager::findToolChain(id);
@@ -497,6 +500,7 @@ void ToolChainKitAspect::setup(Kit *k)
             continue;
 
         // ID is not found: Might be an ABI string...
+        lockToolchains = false;
         const QString abi = QString::fromUtf8(id);
         tc = ToolChainManager::toolChain([abi, l](const ToolChain *t) {
                  return t->targetAbi().toString() == abi && t->language() == l;
@@ -506,6 +510,8 @@ void ToolChainKitAspect::setup(Kit *k)
         else
             clearToolChain(k, l);
     }
+
+    k->setSticky(id(), lockToolchains);
 }
 
 KitAspectWidget *ToolChainKitAspect::createConfigWidget(Kit *k) const

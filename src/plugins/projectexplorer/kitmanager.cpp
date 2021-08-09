@@ -222,10 +222,9 @@ void KitManager::restoreKits()
                 // Overwrite settings that the SDK sets to those values:
                 for (const KitAspect *aspect : KitManager::kitAspects()) {
                     // Copy sticky settings over:
-                    if (ptr->isSticky(aspect->id())) {
+                    ptr->setSticky(aspect->id(), toStore->isSticky(aspect->id()));
+                    if (ptr->isSticky(aspect->id()))
                         ptr->setValue(aspect->id(), toStore->value(aspect->id()));
-                        ptr->setSticky(aspect->id(), true);
-                    }
                 }
                 toStore = std::move(*i);
                 kitsToCheck.erase(i);
