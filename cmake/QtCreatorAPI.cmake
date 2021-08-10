@@ -269,6 +269,7 @@ function(add_qtc_library name)
       PREFIX ""
       IMPORT_SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
       IMPORT_PREFIX ""
+      PDB_NAME "${name}${IDE_VERSION_MAJOR}${.pdb}"
     )
   endif()
 
@@ -525,6 +526,7 @@ function(add_qtc_plugin target_name)
       PREFIX ""
       IMPORT_SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
       IMPORT_PREFIX ""
+      PDB_NAME "${name}${IDE_VERSION_MAJOR}${.pdb}"
     )
   endif()
   if (NOT _arg_SKIP_PCH)
