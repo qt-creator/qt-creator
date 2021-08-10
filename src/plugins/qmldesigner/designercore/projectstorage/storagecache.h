@@ -69,8 +69,6 @@ template<typename Type,
          class CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>>
 class StorageCache
 {
-    friend StorageCache;
-
     using ResultType = std::conditional_t<std::is_base_of<NonLockingMutex, Mutex>::value, ViewType, Type>;
     using IndexDatabaseType = typename IndexType::DatabaseType;
     class StorageCacheIndex
