@@ -107,8 +107,6 @@ public:
 
     void tryCreateLocalFileAccess() const;
     bool hasLocalFileAccess() const;
-    bool isDaemonRunning() const;
-    void resetDaemonState();
     void setMounts(const QStringList &mounts) const;
 
     Utils::FilePath mapToLocalAccess(const Utils::FilePath &filePath) const;
