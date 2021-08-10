@@ -109,6 +109,15 @@ const MsvcPlatform platforms[]
 
 static QList<const MsvcToolChain *> g_availableMsvcToolchains;
 
+static const MsvcPlatform *platformEntryFromName(const QString &name)
+{
+    for (const MsvcPlatform &p : platforms) {
+        if (name == QLatin1String(p.name))
+            return &p;
+    }
+    return nullptr;
+}
+
 static const MsvcPlatform *platformEntry(MsvcToolChain::Platform t)
 {
     for (const MsvcPlatform &p : platforms) {
@@ -125,25 +134,35 @@ static QString platformName(MsvcToolChain::Platform t)
     return QString();
 }
 
-static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
+static bool hostPrefersPlatform(MsvcToolChain::Platform platform)
 {
-    switch (Utils::HostOsInfo::hostArchitecture()) {
-    case Utils::HostOsInfo::HostArchitectureAMD64:
-        if (platform == MsvcToolChain::amd64 || platform == MsvcToolChain::amd64_arm
-            || platform == MsvcToolChain::amd64_x86 || platform == MsvcToolChain::amd64_arm64)
-            return true;
-        Q_FALLTHROUGH(); // all x86 toolchains are also working on an amd64 host
-    case Utils::HostOsInfo::HostArchitectureX86:
+    switch (HostOsInfo::hostArchitecture()) {
+    case HostOsInfo::HostArchitectureAMD64:
+        return platform == MsvcToolChain::amd64 || platform == MsvcToolChain::amd64_arm
+               || platform == MsvcToolChain::amd64_x86 || platform == MsvcToolChain::amd64_arm64;
+    case HostOsInfo::HostArchitectureX86:
         return platform == MsvcToolChain::x86 || platform == MsvcToolChain::x86_amd64
                || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm
                || platform == MsvcToolChain::x86_arm64;
-    case Utils::HostOsInfo::HostArchitectureArm:
+    case HostOsInfo::HostArchitectureArm:
         return platform == MsvcToolChain::arm;
-    case Utils::HostOsInfo::HostArchitectureItanium:
+    case HostOsInfo::HostArchitectureItanium:
         return platform == MsvcToolChain::ia64;
     default:
         return false;
     }
+}
+
+static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
+{
+    if (hostPrefersPlatform(platform))
+        return true;
+    // The x86 host toolchains are not the preferred toolchains on amd64 but they are still
+    // supported by that host
+    return HostOsInfo::hostArchitecture() == HostOsInfo::HostArchitectureAMD64
+           && (platform == MsvcToolChain::x86 || platform == MsvcToolChain::x86_amd64
+               || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm
+               || platform == MsvcToolChain::x86_arm64);
 }
 
 static QString fixRegistryPath(const QString &path)
@@ -985,6 +1004,11 @@ std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget(
     return std::make_unique<MsvcToolChainConfigWidget>(this);
 }
 
+bool MsvcToolChain::hostPrefersToolchain() const
+{
+    return hostPrefersPlatform(platform());
+}
+
 bool static hasFlagEffectOnMacros(const QString &flag)
 {
     if (flag.startsWith("-") || flag.startsWith("/")) {
@@ -1210,6 +1234,15 @@ void MsvcToolChain::resetVarsBat()
     setTargetAbiNoSignal(Abi());
     m_vcvarsBat.clear();
     m_varsBatArg.clear();
+}
+
+MsvcToolChain::Platform MsvcToolChain::platform() const
+{
+    QStringList args = m_varsBatArg.split(' ');
+    if (const MsvcPlatform *entry = platformEntryFromName(args.value(0)))
+        return entry->platform;
+    return Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64 ? amd64
+                                                                                             : x86;
 }
 
 // --------------------------------------------------------------------------

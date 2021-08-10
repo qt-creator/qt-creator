@@ -74,6 +74,7 @@ public:
     bool fromMap(const QVariantMap &data) override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+    bool hostPrefersToolchain() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
@@ -91,6 +92,7 @@ public:
     QString varsBat() const { return m_vcvarsBat; }
     void setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg);
     void resetVarsBat();
+    Platform platform() const;
 
     bool operator==(const ToolChain &) const override;
 

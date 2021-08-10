@@ -502,11 +502,15 @@ void ToolChainKitAspect::setup(Kit *k)
         // ID is not found: Might be an ABI string...
         lockToolchains = false;
         const QString abi = QString::fromUtf8(id);
-        tc = ToolChainManager::toolChain([abi, l](const ToolChain *t) {
-                 return t->targetAbi().toString() == abi && t->language() == l;
-             });
-        if (tc)
-            setToolChain(k, tc);
+        QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
+            [abi, l](const ToolChain *t) {
+                return t->targetAbi().toString() == abi && t->language() == l;
+            });
+        Utils::sort(possibleTcs, [](const ToolChain *tc1, const ToolChain *tc2) {
+            return tc1->hostPrefersToolchain() && !tc2->hostPrefersToolchain();
+        });
+        if (!possibleTcs.isEmpty())
+            setToolChain(k, possibleTcs.first());
         else
             clearToolChain(k, l);
     }
