@@ -87,7 +87,7 @@ SshDeviceProcess::~SshDeviceProcess()
 void SshDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
-    QTC_ASSERT(runInTerminal() || !runnable.executable.isEmpty(), return);
+    QTC_ASSERT(runInTerminal() || !runnable.command.isEmpty(), return);
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
@@ -187,7 +187,7 @@ void SshDeviceProcess::handleConnected()
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connecting, return);
     d->setState(SshDeviceProcessPrivate::Connected);
 
-    d->process = runInTerminal() && d->runnable.executable.isEmpty()
+    d->process = runInTerminal() && d->runnable.command.isEmpty()
             ? d->connection->createRemoteShell()
             : d->connection->createRemoteProcess(fullCommandLine(d->runnable));
     const QString display = d->displayName();
@@ -300,15 +300,16 @@ void SshDeviceProcess::handleKillOperationTimeout()
 
 QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
-    QString cmdLine = runnable.executable.toString();
-    if (!runnable.commandLineArguments.isEmpty())
-        cmdLine.append(QLatin1Char(' ')).append(runnable.commandLineArguments);
+    QString cmdLine = runnable.command.executable().toString();
+    // FIXME: That quotes wrongly.
+    if (!runnable.command.arguments().isEmpty())
+        cmdLine.append(QLatin1Char(' ')).append(runnable.command.arguments());
     return cmdLine;
 }
 
 void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
 {
-    if (runnable.executable.isEmpty())
+    if (runnable.command.isEmpty())
         return;
     switch (state) {
     case SshDeviceProcessPrivate::Inactive:
@@ -327,7 +328,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
             if (processId != 0)
                 signalOperation->interruptProcess(processId);
             else
-                signalOperation->interruptProcess(runnable.executable.toString());
+                signalOperation->interruptProcess(runnable.command.executable().toString());
         } else {
             if (killOperation) // We are already in the process of killing the app.
                 return;
@@ -338,7 +339,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
             if (processId != 0)
                 signalOperation->killProcess(processId);
             else
-                signalOperation->killProcess(runnable.executable.toString());
+                signalOperation->killProcess(runnable.command.executable().toString());
         }
         break;
     }

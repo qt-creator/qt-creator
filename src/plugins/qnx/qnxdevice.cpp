@@ -62,8 +62,7 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
     {
         Q_UNUSED(protocol)
         Runnable runnable;
-        runnable.executable = FilePath::fromString("netstat");
-        runnable.commandLineArguments = "-na";
+        runnable.command = {"netstat", {"-na"}};
         return runnable;
     }
 
@@ -108,8 +107,7 @@ void QnxDevice::updateVersionNumber() const
     QObject::connect(&versionNumberProcess, &DeviceProcess::error, &eventLoop, &QEventLoop::quit);
 
     Runnable r;
-    r.executable = FilePath::fromString("uname");
-    r.commandLineArguments = QLatin1String("-r");
+    r.command = {"uname", {"-r"}};
     versionNumberProcess.start(r);
 
     bool isGuiThread = QThread::currentThread() == QCoreApplication::instance()->thread();

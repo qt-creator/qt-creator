@@ -138,13 +138,13 @@ bool ValgrindRunner::Private::run()
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
         cmd.addArg("--dsymutil=yes");
-    cmd.addArg(m_debuggee.executable.toString());
-    cmd.addArgs(m_debuggee.commandLineArguments, CommandLine::Raw);
+    cmd.addArg(m_debuggee.command.executable().toString());
+    cmd.addArgs(m_debuggee.command.arguments(), CommandLine::Raw);
 
     emit q->valgrindExecuted(cmd.toUserOutput());
 
     Runnable valgrind;
-    valgrind.setCommandLine(cmd);
+    valgrind.command = cmd;
     valgrind.workingDirectory = m_debuggee.workingDirectory;
     valgrind.environment = m_debuggee.environment;
     valgrind.device = m_device;
@@ -190,17 +190,17 @@ void ValgrindRunner::Private::remoteProcessStarted()
     const QString proc = m_valgrindCommand.executable().toString().split(' ').last();
 
     Runnable findPid;
-    findPid.executable = FilePath::fromString("/bin/sh");
     // sleep required since otherwise we might only match "bash -c..."
     //  and not the actual valgrind run
-    findPid.commandLineArguments = QString("-c \""
+    findPid.command.setExecutable(FilePath::fromString("/bin/sh"));
+    findPid.command.setArguments(QString("-c \""
                                            "sleep 1; ps ax" // list all processes with aliased name
                                            " | grep '\\b%1.*%2'" // find valgrind process
                                            " | tail -n 1" // limit to single process
                                            // we pick the last one, first would be "bash -c ..."
                                            " | awk '{print $1;}'" // get pid
                                            "\""
-                                           ).arg(proc, m_debuggee.executable.fileName());
+                                           ).arg(proc, m_debuggee.command.executable().fileName()));
 
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(&m_findPID, &ApplicationLauncher::remoteStderr,

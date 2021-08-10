@@ -59,7 +59,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     QStringList arguments;
     if (AutotestPlugin::settings()->processArgs) {
         arguments.append(QTestUtils::filterInterfering
-                         (runnable().commandLineArguments.split(' ', Qt::SkipEmptyParts),
+                         (runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                           omitted, true));
     }
 

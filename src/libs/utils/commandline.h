@@ -149,8 +149,18 @@ public:
     QString toUserOutput() const;
 
     FilePath executable() const { return m_executable; }
+    void setExecutable(const FilePath &executable) { m_executable = executable; }
+
     QString arguments() const { return m_arguments; }
+    void setArguments(const QString &args) { m_arguments = args; }
+
     QStringList splitArguments(OsType osType = HostOsInfo::hostOs()) const;
+
+    bool isEmpty() const { return m_executable.isEmpty(); }
+
+    friend bool operator==(const CommandLine &first, const CommandLine &second) {
+        return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;
+    }
 
 private:
     FilePath m_executable;

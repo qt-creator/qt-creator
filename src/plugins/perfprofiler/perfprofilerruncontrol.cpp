@@ -150,13 +150,11 @@ public:
         QStringList arguments;
         arguments << "record";
         arguments += m_perfRecordArguments;
-        arguments << "-o" << "-" << "--" << perfRunnable.executable.toString()
-                  << Utils::ProcessArgs::splitArgs(perfRunnable.commandLineArguments,
-                                                  Utils::OsTypeLinux);
+        arguments << "-o" << "-" << "--" << perfRunnable.command.executable().toString()
+                  << ProcessArgs::splitArgs(perfRunnable.command.arguments(), OsTypeLinux);
 
-        perfRunnable.executable = FilePath::fromString("perf");
-        perfRunnable.commandLineArguments = Utils::ProcessArgs::joinArgs(arguments,
-                                                                        Utils::OsTypeLinux);
+        perfRunnable.command.setExecutable(FilePath::fromString("perf"));
+        perfRunnable.command.setArguments(ProcessArgs::joinArgs(arguments, OsTypeLinux));
         m_process->start(perfRunnable);
     }
 

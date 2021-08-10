@@ -28,6 +28,7 @@
 #include "../projectexplorer_export.h"
 
 #include <utils/id.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
 #include <QAbstractSocket>
@@ -51,7 +52,6 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils {
 class CommandLine;
 class Environment;
-class FilePath;
 class Icon;
 class PortList;
 class Port;
@@ -82,7 +82,7 @@ public:
     virtual void interruptProcess(qint64 pid) = 0;
     virtual void interruptProcess(const QString &filePath) = 0;
 
-    void setDebuggerCommand(const QString &cmd);
+    void setDebuggerCommand(const Utils::FilePath &cmd);
 
 signals:
     // If the error message is empty the operation was successful
@@ -91,7 +91,7 @@ signals:
 protected:
     explicit DeviceProcessSignalOperation();
 
-    QString m_debuggerCommand;
+    Utils::FilePath m_debuggerCommand;
     QString m_errorMessage;
 };
 

@@ -132,8 +132,7 @@ Runnable StartRemoteDialog::runnable() const
     Kit *kit = d->kitChooser->currentKit();
     Runnable r;
     r.device = DeviceKitAspect::device(kit);
-    r.executable = FilePath::fromString(d->executable->text());
-    r.commandLineArguments = d->arguments->text();
+    r.command = {FilePath::fromString(d->executable->text()), d->arguments->text(), CommandLine::Raw};
     r.workingDirectory = FilePath::fromString(d->workingDirectory->text());
     return r;
 }

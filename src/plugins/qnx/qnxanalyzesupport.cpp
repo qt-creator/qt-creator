@@ -61,9 +61,8 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
         profiler->recordData("QmlServerUrl", serverUrl);
 
         Runnable r = runControl->runnable();
-        ProcessArgs::addArg(&r.commandLineArguments,
-                           QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl),
-                           Utils::OsTypeOtherUnix);
+        r.command.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl),
+                         Utils::OsTypeOtherUnix);
 
         doStart(r, runControl->device());
     });

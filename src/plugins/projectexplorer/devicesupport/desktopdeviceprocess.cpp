@@ -56,8 +56,8 @@ void DesktopDeviceProcess::start(const Runnable &runnable)
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
     m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
-    m_process.start(runnable.executable.toString(),
-                    Utils::ProcessArgs::splitArgs(runnable.commandLineArguments));
+    m_process.setCommand(runnable.command);
+    m_process.start();
 }
 
 void DesktopDeviceProcess::interrupt()

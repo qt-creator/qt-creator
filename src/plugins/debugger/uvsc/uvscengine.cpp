@@ -110,16 +110,16 @@ void UvscEngine::setupEngine()
     }
 
     // Check for valid uVision executable.
-    if (rp.debugger.executable.isEmpty()) {
+    if (rp.debugger.command.isEmpty()) {
         handleSetupFailure(tr("Internal error: No uVision executable specified."));
         return;
-    } else if (!rp.debugger.executable.exists()) {
+    } else if (!rp.debugger.command.executable().exists()) {
         handleSetupFailure(tr("Internal error: The specified uVision executable does not exist."));
         return;
     }
 
     showMessage("UVSC: RESOLVING LIBRARY SYMBOLS...");
-    m_client.reset(new UvscClient(rp.debugger.executable.parentDir().toString()));
+    m_client.reset(new UvscClient(rp.debugger.command.executable().parentDir().toString()));
     if (m_client->error() != UvscClient::NoError) {
         handleSetupFailure(tr("Internal error: Cannot resolve the library: %1.")
                            .arg(m_client->errorString()));
@@ -375,7 +375,7 @@ void UvscEngine::insertBreakpoint(const Breakpoint &bp)
     if (requested.type == BreakpointByFileAndLine) {
         // Add target executable name.
         const DebuggerRunParameters &rp = runParameters();
-        QString exe = rp.inferior.executable.baseName();
+        QString exe = rp.inferior.command.executable().baseName();
         exe.replace('-', '_');
         expression += "\\\\" + exe;
         // Add file name.
@@ -568,9 +568,8 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
 
     // We need to use the relative output target path.
     showMessage("UVSC: SETTING PROJECT OUTPUT TARGET...");
-    const FilePath targetPath = rp.inferior.executable.relativeChildPath(
-                projectPath.parentDir());
-    if (!rp.inferior.executable.exists()) {
+    const FilePath targetPath = rp.inferior.command.executable().relativeChildPath(projectPath.parentDir());
+    if (!rp.inferior.command.executable().exists()) {
         handleSetupFailure(tr("Internal error: The specified output file does not exist."));
         return false;
     } else if (!m_client->setProjectOutputTarget(targetPath)) {
@@ -626,7 +625,7 @@ void UvscEngine::handleProjectClosed()
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.inferior.executable.toString();
+    module.modulePath = rp.inferior.command.executable().toString();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 

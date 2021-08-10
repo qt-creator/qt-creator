@@ -125,8 +125,8 @@ void CallgrindController::run(Option option)
             this, &CallgrindController::controllerProcessClosed);
 
     Runnable controller = m_valgrindRunnable;
-    controller.executable =  FilePath::fromString(CALLGRIND_CONTROL_BINARY);
-    controller.commandLineArguments = QString("%1 %2").arg(toOptionString(option)).arg(m_pid);
+    controller.command.setExecutable(FilePath::fromString(CALLGRIND_CONTROL_BINARY));
+    controller.command.setArguments(QString("%1 %2").arg(toOptionString(option)).arg(m_pid));
 
     if (!m_valgrindRunnable.device
             || m_valgrindRunnable.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)

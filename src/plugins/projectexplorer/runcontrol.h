@@ -67,18 +67,14 @@ class PROJECTEXPLORER_EXPORT Runnable
 public:
     Runnable() = default;
 
-    Utils::CommandLine commandLine() const;
-    void setCommandLine(const Utils::CommandLine &cmdLine);
-
-    Utils::FilePath executable;
-    QString commandLineArguments;
+    Utils::CommandLine command;
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
     IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
     QHash<Utils::Id, QVariant> extraData;
 
     // FIXME: Not necessarily a display name
-    QString displayName() const { return executable.toString(); }
+    QString displayName() const;
 };
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject

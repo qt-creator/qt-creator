@@ -180,11 +180,11 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
     }
 
     Runnable inferior;
-    inferior.executable = bin;
+    inferior.command.setExecutable(bin);
     inferior.extraData.insert(Debugger::Constants::kPeripheralDescriptionFile,
                               m_peripheralDescriptionFile.toVariant());
     if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
-        inferior.commandLineArguments = argAspect->arguments(runControl->macroExpander());
+        inferior.command.setArguments(argAspect->arguments(runControl->macroExpander()));
     runTool->setInferior(inferior);
     runTool->setSymbolFile(bin);
     runTool->setStartMode(AttachToRemoteServer);
@@ -202,7 +202,7 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
         return nullptr;
 
     Runnable r;
-    r.setCommandLine(command());
+    r.command = command();
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
     return new GdbServerProviderRunner(runControl, r);

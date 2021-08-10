@@ -438,7 +438,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
     RunConfiguration *runConfig = nullptr;
     const QList<RunConfiguration *> runConfigurations
             = Utils::filtered(target->runConfigurations(), [] (const RunConfiguration *rc) {
-        return !rc->runnable().executable.isEmpty();
+        return !rc->runnable().command.isEmpty();
     });
 
     const ChoicePair oldChoice = AutotestPlugin::cachedChoiceFor(buildTargetKey);
@@ -464,7 +464,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
         runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe] (const RunConfiguration *rc) {
             if (rc->displayName() != dName)
                 return false;
-            return rc->runnable().executable.toString() == exe;
+            return rc->runnable().command.executable().toString() == exe;
         });
         if (runConfig && dialog.rememberChoice())
             AutotestPlugin::cacheRunConfigChoice(buildTargetKey, ChoicePair(dName, exe));
@@ -638,10 +638,10 @@ void TestRunner::debugTests()
 
     QStringList omitted;
     Runnable inferior = config->runnable();
-    inferior.executable = commandFilePath;
+    inferior.command.setExecutable(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
-    inferior.commandLineArguments = Utils::ProcessArgs::joinArgs(args);
+    inferior.command.setArguments(Utils::ProcessArgs::joinArgs(args));
     if (!omitted.isEmpty()) {
         const QString &details = constructOmittedDetailsString(omitted);
         reportResult(ResultType::MessageWarn, details.arg(config->displayName()));
@@ -677,7 +677,7 @@ void TestRunner::debugTests()
 
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, nullptr);
-        outputreader->setId(inferior.executable.toString());
+        outputreader->setId(inferior.command.executable().toString());
         connect(outputreader, &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);
         connect(runControl, &RunControl::appendMessage,
@@ -909,8 +909,8 @@ void RunConfigurationSelectionDialog::populate()
         if (auto target = project->activeTarget()) {
             for (RunConfiguration *rc : target->runConfigurations()) {
                 auto runnable = rc->runnable();
-                const QStringList rcDetails = { runnable.executable.toString(),
-                                                runnable.commandLineArguments,
+                const QStringList rcDetails = { runnable.command.executable().toString(),
+                                                runnable.command.arguments(),
                                                 runnable.workingDirectory.toString() };
                 m_rcCombo->addItem(rc->displayName(), rcDetails);
             }

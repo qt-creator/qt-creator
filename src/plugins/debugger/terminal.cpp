@@ -218,7 +218,7 @@ void TerminalRunner::start()
     }
 
     // Error message for user is delivered via a signal.
-    m_stubProc.setCommand(stub.commandLine());
+    m_stubProc.setCommand(stub.command);
     m_stubProc.start();
 }
 

@@ -101,7 +101,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
     arguments << "--reporter" << "xml";
 
     if (AutotestPlugin::settings()->processArgs) {
-        arguments << filterInterfering(runnable().commandLineArguments.split(
+        arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }
 

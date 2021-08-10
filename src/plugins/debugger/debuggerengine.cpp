@@ -119,9 +119,9 @@ QDebug operator<<(QDebug d, DebuggerState state)
 QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
 {
     QDebug nospace = str.nospace();
-    nospace << "executable=" << sp.inferior.executable
+    nospace << "executable=" << sp.inferior.command.executable()
             << " coreFile=" << sp.coreFile
-            << " processArgs=" << sp.inferior.commandLineArguments
+            << " processArgs=" << sp.inferior.command.arguments()
             << " inferior environment=<" << sp.inferior.environment.size() << " variables>"
             << " debugger environment=<" << sp.debugger.environment.size() << " variables>"
             << " workingDir=" << sp.inferior.workingDirectory
@@ -2621,16 +2621,16 @@ QString DebuggerEngine::formatStartParameters() const
     if (sp.isQmlDebugging)
         str << "qml";
     str << '\n';
-    if (!sp.inferior.executable.isEmpty()) {
-        str << "Executable: " << sp.inferior.commandLine().toUserOutput();
+    if (!sp.inferior.command.isEmpty()) {
+        str << "Executable: " << sp.inferior.command.toUserOutput();
         if (d->m_terminalRunner)
             str << " [terminal]";
         str << '\n';
         if (!sp.inferior.workingDirectory.isEmpty())
             str << "Directory: " << sp.inferior.workingDirectory.toUserOutput() << '\n';
     }
-    if (!sp.debugger.executable.isEmpty())
-        str << "Debugger: " << sp.debugger.executable.toUserOutput() << '\n';
+    if (!sp.debugger.command.isEmpty())
+        str << "Debugger: " << sp.debugger.command.toUserOutput() << '\n';
     if (!sp.coreFile.isEmpty())
         str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
     if (sp.attachPID.isValid())

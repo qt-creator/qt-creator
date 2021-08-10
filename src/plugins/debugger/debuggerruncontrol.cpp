@@ -376,7 +376,7 @@ void DebuggerRunTool::setInferior(const Runnable &runnable)
 
 void DebuggerRunTool::setInferiorExecutable(const FilePath &executable)
 {
-    m_runParameters.inferior.executable = executable;
+    m_runParameters.inferior.command.setExecutable(executable);
 }
 
 void DebuggerRunTool::setInferiorEnvironment(const Utils::Environment &env)
@@ -451,17 +451,17 @@ void DebuggerRunTool::start()
             QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
             QString mode = QString("port:%1").arg(qmlServerPort);
 
-            CommandLine cmd{m_runParameters.inferior.executable};
+            CommandLine cmd{m_runParameters.inferior.command.executable()};
             cmd.addArg(qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, mode, true));
-            cmd.addArgs(m_runParameters.inferior.commandLineArguments, CommandLine::Raw);
+            cmd.addArgs(m_runParameters.inferior.command.arguments(), CommandLine::Raw);
 
-            m_runParameters.inferior.setCommandLine(cmd);
+            m_runParameters.inferior.command = cmd;
         }
     }
 
     // User canceled input dialog asking for executable when working on library project.
     if (m_runParameters.startMode == StartInternal
-            && m_runParameters.inferior.executable.isEmpty()
+            && m_runParameters.inferior.command.isEmpty()
             && m_runParameters.interpreter.isEmpty()) {
         reportFailure(tr("No executable specified."));
         return;
@@ -484,19 +484,19 @@ void DebuggerRunTool::start()
         return;
 
     if (m_runParameters.cppEngineType == CdbEngineType
-            && Utils::is64BitWindowsBinary(m_runParameters.inferior.executable.toString())
-            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.executable.toString())) {
+            && Utils::is64BitWindowsBinary(m_runParameters.inferior.command.executable().toString())
+            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable().toString())) {
         reportFailure(
             DebuggerPlugin::tr(
                 "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
                 "Please select a 64 bit Debugger in the kit settings for this kit.")
-                .arg(m_runParameters.inferior.executable.toUserOutput()));
+                .arg(m_runParameters.inferior.command.executable().toUserOutput()));
         return;
     }
 
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", tr("Debugged executable"),
-                [this] { return m_runParameters.inferior.executable; }
+                [this] { return m_runParameters.inferior.command.executable(); }
     );
 
     runControl()->setDisplayName(m_runParameters.displayName);
@@ -637,7 +637,7 @@ void DebuggerRunTool::start()
         }
     }
 
-    appendMessage(tr("Debugging %1 ...").arg(m_runParameters.inferior.commandLine().toUserOutput()),
+    appendMessage(tr("Debugging %1 ...").arg(m_runParameters.inferior.command.toUserOutput()),
                   NormalMessageFormat);
     QString debuggerName = m_engine->objectName();
     if (m_engine2)
@@ -682,7 +682,7 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
 {
     engine->prepareForRestart();
     if (--d->engineStopsNeeded == 0) {
-        QString cmd = m_runParameters.inferior.commandLine().toUserOutput();
+        QString cmd = m_runParameters.inferior.command.toUserOutput();
         QString msg = engine->runParameters().exitCode // Main engine.
             ? tr("Debugging of %1 has finished with exit code %2.")
                 .arg(cmd).arg(engine->runParameters().exitCode.value())
@@ -730,7 +730,7 @@ bool DebuggerRunTool::fixupParameters()
 {
     DebuggerRunParameters &rp = m_runParameters;
     if (rp.symbolFile.isEmpty())
-        rp.symbolFile = rp.inferior.executable;
+        rp.symbolFile = rp.inferior.command.executable();
 
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
@@ -788,7 +788,7 @@ bool DebuggerRunTool::fixupParameters()
             QString qmlarg = rp.isCppDebugging() && rp.nativeMixedEnabled
                     ? QmlDebug::qmlDebugNativeArguments(service, false)
                     : QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer);
-            ProcessArgs::addArg(&rp.inferior.commandLineArguments, qmlarg);
+            rp.inferior.command.addArg(qmlarg);
         }
     }
 
@@ -802,10 +802,10 @@ bool DebuggerRunTool::fixupParameters()
 
     if (HostOsInfo::isWindowsHost()) {
         ProcessArgs::SplitError perr;
-        rp.inferior.commandLineArguments =
-                ProcessArgs::prepareArgs(rp.inferior.commandLineArguments, &perr,
+        rp.inferior.command.setArguments(
+                ProcessArgs::prepareArgs(rp.inferior.command.arguments(), &perr,
                                          HostOsInfo::hostOs(), nullptr,
-                                         &rp.inferior.workingDirectory).toWindowsArgs();
+                                         &rp.inferior.workingDirectory).toWindowsArgs());
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -894,7 +894,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
-        m_runParameters.debugger.executable = FilePath::fromString(QString::fromLocal8Bit(envBinary));
+        m_runParameters.debugger.command.setExecutable(FilePath::fromString(QString::fromLocal8Bit(envBinary)));
 
     if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
@@ -924,11 +924,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
             m_runParameters.mainScript = mainScript;
             m_runParameters.interpreter = interpreter;
             const QString args = runConfig->property("arguments").toString();
-            if (!args.isEmpty()) {
-                if (!m_runParameters.inferior.commandLineArguments.isEmpty())
-                    m_runParameters.inferior.commandLineArguments.append(' ');
-                m_runParameters.inferior.commandLineArguments.append(args);
-            }
+            m_runParameters.inferior.command.addArgs(args, CommandLine::Raw);
             m_engine = createPdbEngine();
         }
     }
@@ -1028,7 +1024,7 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
         debugServer.environment = mainRunnable.environment;
         debugServer.workingDirectory = mainRunnable.workingDirectory;
 
-        QStringList args = ProcessArgs::splitArgs(mainRunnable.commandLineArguments, OsTypeLinux);
+        QStringList args = ProcessArgs::splitArgs(mainRunnable.command.arguments(), OsTypeLinux);
 
         const bool isQmlDebugging = portsGatherer->useQmlServer();
         const bool isCppDebugging = portsGatherer->useGdbServer();
@@ -1038,13 +1034,13 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                                                         portsGatherer->qmlServer()));
         }
         if (isQmlDebugging && !isCppDebugging) {
-            debugServer.executable = mainRunnable.executable; // FIXME: Case should not happen?
+            debugServer.command.setExecutable(mainRunnable.command.executable()); // FIXME: Case should not happen?
         } else {
-            debugServer.executable = FilePath::fromString(runControl->device()->debugServerPath());
-            if (debugServer.executable.isEmpty())
-                debugServer.executable = FilePath::fromString("gdbserver");
+            debugServer.command.setExecutable(FilePath::fromString(runControl->device()->debugServerPath()));
+            if (debugServer.command.isEmpty())
+                debugServer.command.setExecutable(FilePath::fromString("gdbserver"));
             args.clear();
-            if (debugServer.executable.toString().contains("lldb-server")) {
+            if (debugServer.command.executable().toString().contains("lldb-server")) {
                 args.append("platform");
                 args.append("--listen");
                 args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
@@ -1060,7 +1056,7 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     args.append(QString::number(m_pid.pid()));
             }
         }
-        debugServer.commandLineArguments = ProcessArgs::joinArgs(args, OsTypeLinux);
+        debugServer.command.setArguments(ProcessArgs::joinArgs(args, OsTypeLinux));
 
         doStart(debugServer, runControl->device());
     });

@@ -508,7 +508,7 @@ QVector<QObject *> AutotestPlugin::createTestObjects() const
 
 bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const
 {
-    return rc && rc->displayName() == displayName && rc->runnable().executable.toString() == executable;
+    return rc && rc->displayName() == displayName && rc->runnable().command.executable().toString() == executable;
 }
 
 } // Internal

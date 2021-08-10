@@ -286,7 +286,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
         runControl->createMainWorker();
         const auto runnable = dlg.runnable();
         runControl->setRunnable(runnable);
-        runControl->setDisplayName(runnable.executable.toUserOutput());
+        runControl->setDisplayName(runnable.command.executable().toUserOutput());
         ProjectExplorerPlugin::startRunControl(runControl);
     });
 

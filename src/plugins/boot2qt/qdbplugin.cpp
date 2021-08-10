@@ -144,8 +144,9 @@ public:
     {
         setStarter([this, runControl] {
             Runnable r = runControl->runnable();
-            r.commandLineArguments = r.executable.toString() + ' ' + r.commandLineArguments;
-            r.executable = Utils::FilePath::fromString(Constants::AppcontrollerFilepath);
+            // FIXME: Spaces!
+            r.command.setArguments(r.command.executable().toString() + ' ' + r.command.arguments());
+            r.command.setExecutable(Utils::FilePath::fromString(Constants::AppcontrollerFilepath));
             doStart(r, runControl->device());
         });
     }

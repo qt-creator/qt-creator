@@ -208,7 +208,7 @@ void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    const FilePath lldbCmd = runParameters().debugger.executable;
+    const FilePath lldbCmd = runParameters().debugger.command.executable();
 
     showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
     Environment environment = runParameters().debugger.environment;
@@ -280,14 +280,14 @@ void LldbEngine::setupEngine()
     }
 
     DebuggerCommand cmd2("setupInferior");
-    cmd2.arg("executable", rp.inferior.executable.toString());
+    cmd2.arg("executable", rp.inferior.command.executable().toString());
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", bool(terminal()));
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
     cmd2.arg("environment", rp.inferior.environment.toStringList());
-    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.commandLineArguments).join(QChar(0))));
+    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments()).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
     cmd2.arg("symbolfile", rp.symbolFile);
 
@@ -805,7 +805,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The LLDB process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(runParameters().debugger.executable.toUserOutput());
+                .arg(runParameters().debugger.command.executable().toUserOutput());
         case QProcess::Crashed:
             return tr("The LLDB process crashed some time after starting "
                 "successfully.");

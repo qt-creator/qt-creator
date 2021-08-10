@@ -128,7 +128,7 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
 
     setStarter([this, runControl, serverUrl] {
         ProjectExplorer::Runnable runnable = runControl->runnable();
-        QStringList qmlProjectRunConfigurationArguments = runnable.commandLine().splitArguments();
+        QStringList qmlProjectRunConfigurationArguments = runnable.command.splitArguments();
 
         const auto currentTarget = runControl->target();
         const auto *qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(currentTarget->buildSystem());
@@ -142,15 +142,13 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
 
             if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
                 qmlProjectRunConfigurationArguments.removeLast();
-                auto commandLine = Utils::CommandLine(runnable.commandLine().executable(), qmlProjectRunConfigurationArguments);
-                commandLine.addArg(currentFile);
-                runnable.setCommandLine(commandLine);
+                runnable.command = Utils::CommandLine(runnable.command.executable(), qmlProjectRunConfigurationArguments);
+                runnable.command.addArg(currentFile);
             }
         }
 
-        Utils::ProcessArgs::addArg(&runnable.commandLineArguments,
-                                  QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
-                                                                   serverUrl.path()));
+        runnable.command.addArg(QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
+                                                                 serverUrl.path()));
         doStart(runnable, {});
     });
 }

@@ -125,7 +125,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
                             continue;
                         for (const BuildConfiguration * const bc
                              : buildConfigsForSelection(t, configSelection)) {
-                            if (rc->runnable().executable.isChildOf(bc->buildDirectory()))
+                            if (rc->runnable().command.executable().isChildOf(bc->buildDirectory()))
                                 return true;
                         }
                     }

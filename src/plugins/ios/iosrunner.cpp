@@ -197,7 +197,7 @@ void IosRunner::start()
             this, &IosRunner::handleFinished);
 
     const Runnable runnable = runControl()->runnable();
-    QStringList args = ProcessArgs::splitArgs(runnable.commandLineArguments, OsTypeMac);
+    QStringList args = ProcessArgs::splitArgs(runnable.command.arguments(), OsTypeMac);
     if (m_qmlServerPort.isValid()) {
         QUrl qmlServer;
         qmlServer.setPort(m_qmlServerPort.number());

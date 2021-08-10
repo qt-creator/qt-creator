@@ -1198,12 +1198,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
     m_launcher.setRunAsRoot(m_runAsRoot);
 
     const bool isDesktop = device.isNull() || device.dynamicCast<const DesktopDevice>();
-    const QString rawDisplayName = runnable.displayName();
-    const QString displayName = isDesktop
-            ? QDir::toNativeSeparators(rawDisplayName)
-            : rawDisplayName;
-    const QString msg = RunControl::tr("Starting %1 %2...")
-            .arg(displayName).arg(runnable.commandLineArguments);
+    const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
     if (isDesktop) {
@@ -1220,12 +1215,13 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
         });
 
         connect(&m_launcher, &ApplicationLauncher::processExited,
-            this, [this, displayName](int exitCode, QProcess::ExitStatus status) {
+            this, [this, runnable](int exitCode, QProcess::ExitStatus status) {
             QString msg;
             if (status == QProcess::CrashExit)
                 msg = tr("%1 crashed.");
             else
                 msg = tr("%2 exited with code %1").arg(exitCode);
+            const QString displayName = runnable.command.executable().toUserOutput();
             appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
             if (!m_stopReported) {
                 m_stopReported = true;
@@ -1237,7 +1233,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
             this, [this, runnable](QProcess::ProcessError error) {
             if (error == QProcess::Timedout)
                 return; // No actual change on the process side.
-            const QString msg = userMessageForProcessError(error, runnable.executable);
+            const QString msg = userMessageForProcessError(error, runnable.command.executable());
             appendMessage(msg, Utils::NormalMessageFormat);
             if (!m_stopReported) {
                 m_stopReported = true;
@@ -1245,7 +1241,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
             }
         });
 
-        if (runnable.executable.isEmpty()) {
+        if (runnable.command.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
         } else {
             m_launcher.start(runnable);
@@ -1630,15 +1626,9 @@ void RunWorker::stop()
     reportStopped();
 }
 
-CommandLine Runnable::commandLine() const
+QString Runnable::displayName() const
 {
-    return CommandLine(executable, commandLineArguments, CommandLine::Raw);
-}
-
-void Runnable::setCommandLine(const CommandLine &cmdLine)
-{
-    executable = cmdLine.executable();
-    commandLineArguments = cmdLine.arguments();
+    return command.executable().toString();
 }
 
 // OutputFormatterFactory

@@ -92,12 +92,10 @@ public:
     {
         setStarter([this, runControl] {
             const Target *target = runControl->target();
-            const CommandLine cmd(
-                        cmakeFilePath(target),
-                        runControl->runConfiguration()->aspect<StringAspect>()->value(),
-                        CommandLine::Raw);
             Runnable r;
-            r.setCommandLine(cmd);
+            r.command = {cmakeFilePath(target),
+                         runControl->runConfiguration()->aspect<StringAspect>()->value(),
+                         CommandLine::Raw};
             r.workingDirectory = target->activeBuildConfiguration()->buildDirectory();
             r.environment = target->activeBuildConfiguration()->environment();
             SimpleTargetRunner::doStart(r, {});

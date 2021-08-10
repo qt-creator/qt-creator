@@ -82,7 +82,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
 
     Runnable debuggee;
     const QString &binPath = binPathFileInfo.canonicalFilePath();
-    debuggee.executable = Utils::FilePath::fromString(binPath);
+    debuggee.command.setExecutable(Utils::FilePath::fromString(binPath));
     debuggee.environment = Utils::Environment::systemEnvironment();
 
     CommandLine valgrind{"valgrind", {"--num-callers=50", "--track-origins=yes"}};

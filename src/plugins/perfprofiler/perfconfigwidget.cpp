@@ -174,9 +174,7 @@ void PerfConfigWidget::readTracePoints()
     messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (messageBox.exec() == QMessageBox::Yes) {
         ProjectExplorer::Runnable runnable;
-        runnable.executable = Utils::FilePath::fromString("perf");
-        runnable.commandLineArguments = QLatin1String("probe -l");
-
+        runnable.command = {"perf", {"probe", "-l"}};
         m_process->start(runnable);
         useTracePointsButton->setEnabled(false);
     }

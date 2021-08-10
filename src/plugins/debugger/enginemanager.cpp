@@ -245,7 +245,7 @@ QVariant EngineItem::data(int column, int role) const
                 return myName;
             }
             case 1:
-                return rp.coreFile.isEmpty() ? rp.inferior.executable.toUserOutput() : rp.coreFile;
+                return rp.coreFile.isEmpty() ? rp.inferior.command.executable().toUserOutput() : rp.coreFile;
             }
             return QVariant();
 

@@ -109,14 +109,14 @@ public:
             QStringList arguments;
             if (portsGatherer->useGdbServer()) {
                 int pdebugPort = portsGatherer->gdbServer().port();
-                r.executable = FilePath::fromString(QNX_DEBUG_EXECUTABLE);
+                r.command.setExecutable(FilePath::fromString(QNX_DEBUG_EXECUTABLE));
                 arguments.append(QString::number(pdebugPort));
             }
             if (portsGatherer->useQmlServer()) {
                 arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
                                                                 portsGatherer->qmlServer()));
             }
-            r.commandLineArguments = ProcessArgs::joinArgs(arguments);
+            r.command.setArguments(ProcessArgs::joinArgs(arguments));
 
             doStart(r, runControl->device());
         });
@@ -202,8 +202,7 @@ public:
             const int pdebugPort = portsGatherer->gdbServer().port();
 
             Runnable r;
-            r.executable = FilePath::fromString(QNX_DEBUG_EXECUTABLE);
-            r.commandLineArguments = QString::number(pdebugPort);
+            r.command = {QString(QNX_DEBUG_EXECUTABLE), {QString::number(pdebugPort)}};
             doStart(r, runControl->device());
         });
     }

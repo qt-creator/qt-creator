@@ -110,8 +110,8 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
     if (!runInTerminal())
         cmd.addArg("exec");
 
-    cmd.addArg(runnable.executable.toString());
-    cmd.addArgs(runnable.commandLineArguments, CommandLine::Raw);
+    cmd.addArg(runnable.command.executable().toString());
+    cmd.addArgs(runnable.command.arguments(), CommandLine::Raw);
 
     return cmd.arguments();
 }

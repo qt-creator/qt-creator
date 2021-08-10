@@ -251,10 +251,10 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
         QString arguments = Utils::ProcessArgs::quoteArg(
                                 QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
 
-        if (!debuggee.commandLineArguments.isEmpty())
-            arguments += ' ' + debuggee.commandLineArguments;
+        if (!debuggee.command.arguments().isEmpty())
+            arguments += ' ' + debuggee.command.arguments();
 
-        debuggee.commandLineArguments = arguments;
+        debuggee.command.setArguments(arguments);
 
         doStart(debuggee, {});
     });

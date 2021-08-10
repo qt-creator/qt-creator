@@ -102,14 +102,14 @@ Runnable CustomExecutableRunConfiguration::runnable() const
             aspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
 
     Runnable r;
-    r.setCommandLine(commandLine());
+    r.command = commandLine();
     r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory;
     r.device = DeviceManager::defaultDesktopDevice();
 
-    if (!r.executable.isEmpty()) {
-        const QString expanded = macroExpander()->expand(r.executable.toString());
-        r.executable = r.environment.searchInPath(expanded, {workingDirectory});
+    if (!r.command.isEmpty()) {
+        const FilePath expanded = macroExpander()->expand(r.command.executable());
+        r.command.setExecutable(r.environment.searchInPath(expanded.toString(), {workingDirectory}));
     }
 
     return r;

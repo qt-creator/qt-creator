@@ -692,7 +692,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
         rc->createMainWorker();
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
-        rc->setDisplayName(runnable.executable.toUserOutput());
+        rc->setDisplayName(runnable.command.executable().toUserOutput());
         ProjectExplorerPlugin::startRunControl(rc);
     });
 
@@ -751,9 +751,9 @@ void MemcheckToolPrivate::heobAction()
         return;
     }
 
-    QString executable = sr.executable.toString();
+    QString executable = sr.command.executable().toString();
     const QString workingDirectory = Utils::FileUtils::normalizePathName(sr.workingDirectory.toString());
-    const QString commandLineArguments = sr.commandLineArguments;
+    const QString commandLineArguments = sr.command.arguments();
     const QStringList envStrings = sr.environment.toStringList();
 
     // target executable

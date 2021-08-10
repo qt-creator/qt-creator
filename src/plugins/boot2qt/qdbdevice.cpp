@@ -65,8 +65,7 @@ public:
     void terminate() override
     {
         ProjectExplorer::Runnable r;
-        r.executable = FilePath::fromString(Constants::AppcontrollerFilepath);
-        r.commandLineArguments = QStringLiteral("--stop");
+        r.command = {QString(Constants::AppcontrollerFilepath), {"--stop"}};
 
         (new ApplicationLauncher(this))->start(r, device());
     }
@@ -91,7 +90,7 @@ public:
         m_deviceName = device->displayName();
 
         Runnable r;
-        r.setCommandLine(command);
+        r.command = command;
         m_appRunner.start(r, device);
         showMessage(QdbDevice::tr("Starting command \"%1\" on device \"%2\".")
                     .arg(command.toUserOutput(), m_deviceName));

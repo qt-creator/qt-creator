@@ -500,7 +500,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
 
     ProjectExplorer::Runnable debuggee;
-    debuggee.executable = FilePath::fromString(executable);
+    debuggee.command.setExecutable(FilePath::fromString(executable));
     debuggee.environment = sysEnv;
     ValgrindRunner runner;
     runner.setValgrindCommand({"valgrind", {}});
@@ -537,9 +537,9 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     QFETCH(QString, debuggeeArgs);
 
     ProjectExplorer::Runnable debuggeeExecutable;
-    debuggeeExecutable.executable = FilePath::fromString(debuggee);
+    debuggeeExecutable.command.setExecutable(FilePath::fromString(debuggee));
+    debuggeeExecutable.command.setArguments(debuggeeArgs);
     debuggeeExecutable.environment = Utils::Environment::systemEnvironment();
-    debuggeeExecutable.commandLineArguments = debuggeeArgs;
 
     ValgrindRunner runner;
     runner.setValgrindCommand({valgrindExe, valgrindArgs});

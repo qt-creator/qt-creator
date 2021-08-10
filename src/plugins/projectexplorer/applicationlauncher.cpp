@@ -390,7 +390,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             WinDebugInterface::instance()->start(); // Try to start listener again...
     #endif
 
-        CommandLine cmdLine = runnable.commandLine();
+        CommandLine cmdLine = runnable.command;
         if (m_runAsRoot) {
             CommandLine wrapped("sudo", {"-A"});
             wrapped.addArgs(cmdLine);
@@ -420,7 +420,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             return;
         }
 
-        if (!device->isEmptyCommandAllowed() && runnable.executable.isEmpty()) {
+        if (!device->isEmptyCommandAllowed() && runnable.command.isEmpty()) {
             doReportError(ApplicationLauncher::tr("Cannot run: No command given."));
             setFinished();
             return;

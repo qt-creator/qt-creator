@@ -138,13 +138,10 @@ class DesktopPortsGatheringMethod : public PortsGatheringMethod
         Q_UNUSED(protocol)
 
         Runnable runnable;
-        if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
-            runnable.executable = FilePath::fromString("netstat");
-            runnable.commandLineArguments =  "-a -n";
-        } else if (HostOsInfo::isLinuxHost()) {
-            runnable.executable = FilePath::fromString("/bin/sh");
-            runnable.commandLineArguments = "-c 'cat /proc/net/tcp*'";
-        }
+        if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
+            runnable.command = CommandLine{"netstat", {"-a", "-n"}};
+        else if (HostOsInfo::isLinuxHost())
+            runnable.command = CommandLine{"/bin/sh", {"-c", "cat /proc/net/tcp*"}};
         return runnable;
     }
 

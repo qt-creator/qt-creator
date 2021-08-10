@@ -56,7 +56,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     int runCount = 0;
     int stopCount = 0;
 
-    debuggee.executable = Utils::FilePath::fromString("\\-/|\\-/");
+    debuggee.command.setExecutable(Utils::FilePath::fromString("\\-/|\\-/"));
     debuggee.environment = Utils::Environment::systemEnvironment();
 
     // should not be used anywhere but cannot be empty
@@ -109,10 +109,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QVERIFY(profiler.isNull());
 
     serverUrl = Utils::urlFromLocalSocket();
-    debuggee.executable = Utils::FilePath::fromString(QCoreApplication::applicationFilePath());
-
     // comma is used to specify a test function. In this case, an invalid one.
-    debuggee.commandLineArguments = QString("-test QmlProfiler,");
+    debuggee.command = Utils::CommandLine(QCoreApplication::applicationFilePath(), {"-test", "QmlProfiler,"});
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
     profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
@@ -129,7 +127,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
-    debuggee.commandLineArguments.clear();
+    debuggee.command.setArguments({});
     serverUrl.clear();
     serverUrl = Utils::urlFromLocalHostAndFreePort();
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
@@ -149,7 +147,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
-    debuggee.commandLineArguments = QString("-test QmlProfiler,");
+    debuggee.command.setArguments("-test QmlProfiler,");
     serverUrl.setScheme(Utils::urlSocketScheme());
     {
         Utils::TemporaryFile file("file with spaces");

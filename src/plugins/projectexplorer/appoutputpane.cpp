@@ -392,8 +392,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         if (!tab.runControl || tab.runControl->isRunning())
             return false;
         const Runnable otherRunnable = tab.runControl->runnable();
-        return thisRunnable.executable == otherRunnable.executable
-                && thisRunnable.commandLineArguments == otherRunnable.commandLineArguments
+        return thisRunnable.command == otherRunnable.command
                 && thisRunnable.workingDirectory == otherRunnable.workingDirectory
                 && thisRunnable.environment == otherRunnable.environment;
     });

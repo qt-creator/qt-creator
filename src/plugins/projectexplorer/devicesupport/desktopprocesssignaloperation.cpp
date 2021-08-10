@@ -126,7 +126,7 @@ void DesktopProcessSignalOperation::interruptProcessSilently(qint64 pid)
     bool is64BitSystem = Utils::is64BitWindowsSystem();
     SpecialInterrupt si = NoSpecialInterrupt;
     if (is64BitSystem)
-        si = Utils::is64BitWindowsBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
+        si = Utils::is64BitWindowsBinary(m_debuggerCommand.path()) ? Win64Interrupt : Win32Interrupt;
     /*
     Windows 64 bit has a 32 bit subsystem (WOW64) which makes it possible to run a
     32 bit application inside a 64 bit environment.

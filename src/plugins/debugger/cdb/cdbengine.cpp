@@ -331,8 +331,7 @@ void CdbEngine::setupEngine()
     DebuggerRunParameters sp = runParameters();
     if (terminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
-        sp.inferior.executable.clear();
-        sp.inferior.commandLineArguments.clear();
+        sp.inferior.command = CommandLine();
         sp.attachPID = ProcessHandle(terminal()->applicationPid());
         sp.startMode = AttachToLocalProcess;
         sp.useTerminal = false; // Force no terminal.
@@ -345,12 +344,12 @@ void CdbEngine::setupEngine()
     // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    if (sp.debugger.executable.isEmpty()) {
+    if (sp.debugger.command.isEmpty()) {
         handleSetupFailure(tr("There is no CDB executable specified."));
         return;
     }
 
-    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.executable.toString());
+    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.command.executable().toString());
     if (!cdbIs64Bit)
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
@@ -370,7 +369,7 @@ void CdbEngine::setupEngine()
     }
 
     // Prepare command line.
-    CommandLine debugger{sp.debugger.executable};
+    CommandLine debugger{sp.debugger.command};
 
     const QString extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode == AttachToRemoteServer;
@@ -403,9 +402,9 @@ void CdbEngine::setupEngine()
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
-        debugger.addArg(sp.inferior.executable.toUserOutput());
+        debugger.addArg(sp.inferior.command.executable().toUserOutput());
         // Complete native argument string.
-        debugger.addArgs(sp.inferior.commandLineArguments, CommandLine::Raw);
+        debugger.addArgs(sp.inferior.command.arguments(), CommandLine::Raw);
         break;
     case AttachToRemoteServer:
         break;
@@ -489,7 +488,7 @@ void CdbEngine::handleInitialSessionIdle()
     if (rp.breakOnMain) {
         BreakpointParameters bp(BreakpointAtMain);
         if (rp.startMode == StartInternal || rp.startMode == StartExternal) {
-            const QString &moduleFileName = rp.inferior.executable.fileName();
+            const QString &moduleFileName = rp.inferior.command.executable().fileName();
             bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
         }
         QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings);
@@ -835,7 +834,7 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &CdbEngine::handleDoInterruptInferior);
 
-    m_signalOperation->setDebuggerCommand(runParameters().debugger.executable.toString());
+    m_signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
     m_signalOperation->interruptProcess(inferiorPid());
 }
 

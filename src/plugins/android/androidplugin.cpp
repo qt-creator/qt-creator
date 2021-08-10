@@ -100,7 +100,7 @@ class AndroidQmlPreviewWorker : public AndroidQmlToolingSupport
 {
 public:
     AndroidQmlPreviewWorker(RunControl *runControl)
-        : AndroidQmlToolingSupport(runControl, runControl->runnable().executable.toString())
+        : AndroidQmlToolingSupport(runControl, runControl->runnable().command.executable().toString())
     {}
 };
 

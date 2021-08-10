@@ -398,7 +398,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 Runnable RunConfiguration::runnable() const
 {
     Runnable r;
-    r.setCommandLine(commandLine());
+    r.command = commandLine();
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
         r.workingDirectory = workingDirectoryAspect->workingDirectory(macroExpander());
     if (auto environmentAspect = aspect<EnvironmentAspect>())

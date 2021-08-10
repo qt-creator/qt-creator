@@ -144,7 +144,7 @@ void DockerDeviceProcess::start(const Runnable &runnable)
 
     disconnect(&m_process);
 
-    m_process.setCommand(runnable.commandLine());
+    m_process.setCommand(runnable.command);
     m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
     connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
@@ -214,9 +214,8 @@ class DockerPortsGatheringMethod : public PortsGatheringMethod
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
         Runnable runnable;
-        runnable.executable = FilePath::fromString("sed");
-        runnable.commandLineArguments
-                = "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
+        runnable.command.setExecutable(FilePath::fromString("sed"));
+        runnable.command.setArguments("-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*");
         return runnable;
     }
 
@@ -485,7 +484,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
         });
 
         Runnable runnable;
-        runnable.executable = FilePath::fromString("/bin/sh");
+        runnable.command = {"/bin/sh", {}};
         runnable.device = sharedFromThis();
         runnable.environment = env;
         runnable.workingDirectory = workingDir;

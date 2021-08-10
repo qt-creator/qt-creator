@@ -276,7 +276,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << m_extraEnvVars.toStringList();
 
     if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release) {
-        m_extraAppParams = runControl->runnable().commandLineArguments;
+        m_extraAppParams = runControl->runnable().command.arguments();
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS)) {

@@ -59,7 +59,7 @@ void RemoteLinuxEnvironmentReader::start()
     connect(m_deviceProcess, &DeviceProcess::finished,
             this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
     Runnable runnable;
-    runnable.executable = FilePath::fromString("env");
+    runnable.command.setExecutable(FilePath::fromString("env"));
     m_deviceProcess->start(runnable);
 }
 

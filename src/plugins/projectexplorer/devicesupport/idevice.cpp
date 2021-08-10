@@ -766,7 +766,7 @@ QString IDevice::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
-void DeviceProcessSignalOperation::setDebuggerCommand(const QString &cmd)
+void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 {
     m_debuggerCommand = cmd;
 }

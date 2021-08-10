@@ -114,11 +114,10 @@ public:
         addStartDependency(portsGatherer);
 
         setStarter([this, runControl, portsGatherer] {
-            CommandLine cmd = emrunCommand(runControl->target(),
-                                           runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
-                                           QString::number(portsGatherer->findEndPoint().port()));
             Runnable r;
-            r.setCommandLine(cmd);
+            r.command = emrunCommand(runControl->target(),
+                                     runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
+                                     QString::number(portsGatherer->findEndPoint().port()));
             SimpleTargetRunner::doStart(r, {});
         });
     }

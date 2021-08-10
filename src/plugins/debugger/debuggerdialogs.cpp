@@ -135,9 +135,8 @@ public:
 
 bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) const
 {
-    return runnable.executable == rhs.runnable.executable
+    return runnable.command == rhs.runnable.command
         && serverPort == rhs.serverPort
-        && runnable.commandLineArguments == rhs.runnable.commandLineArguments
         && runnable.workingDirectory == rhs.runnable.workingDirectory
         && breakAtMain == rhs.breakAtMain
         && runInTerminal == rhs.runInTerminal
@@ -153,8 +152,8 @@ QString StartApplicationParameters::displayName() const
 {
     const int maxLength = 60;
 
-    QString name = runnable.executable.fileName()
-            + ' ' + runnable.commandLineArguments;
+    QString name = runnable.command.executable().fileName()
+            + ' ' + runnable.command.arguments();
     if (name.size() > 60) {
         int index = name.lastIndexOf(' ', maxLength);
         if (index == -1)
@@ -174,8 +173,8 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastKitId", kitId.toSetting());
     settings->setValue("LastServerPort", serverPort);
     settings->setValue("LastServerAddress", serverAddress);
-    settings->setValue("LastExternalExecutable", runnable.executable.toVariant());
-    settings->setValue("LastExternalExecutableArguments", runnable.commandLineArguments);
+    settings->setValue("LastExternalExecutable", runnable.command.executable().toVariant());
+    settings->setValue("LastExternalExecutableArguments", runnable.command.arguments());
     settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory.toVariant());
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
     settings->setValue("LastExternalRunInTerminal", runInTerminal);
@@ -191,8 +190,8 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     kitId = Id::fromSetting(settings->value("LastKitId"));
     serverPort = settings->value("LastServerPort").toUInt();
     serverAddress = settings->value("LastServerAddress").toString();
-    runnable.executable = FilePath::fromVariant(settings->value("LastExternalExecutable"));
-    runnable.commandLineArguments = settings->value("LastExternalExecutableArguments").toString();
+    runnable.command.setExecutable(FilePath::fromVariant(settings->value("LastExternalExecutable")));
+    runnable.command.setArguments(settings->value("LastExternalExecutableArguments").toString());
     runnable.workingDirectory = FilePath::fromVariant(settings->value("LastExternalWorkingDirectory"));
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
     runInTerminal = settings->value("LastExternalRunInTerminal").toBool();
@@ -349,7 +348,7 @@ void StartApplicationDialog::setHistory(const QList<StartApplicationParameters> 
     d->historyComboBox->clear();
     for (int i = l.size(); --i >= 0; ) {
         const StartApplicationParameters &p = l.at(i);
-        if (!p.runnable.executable.isEmpty())
+        if (!p.runnable.command.isEmpty())
             d->historyComboBox->addItem(p.displayName(), QVariant::fromValue(p));
     }
 }
@@ -483,13 +482,13 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     StartApplicationParameters result;
     result.serverPort = d->serverPortSpinBox->value();
     result.serverAddress = d->channelOverrideEdit->text();
-    result.runnable.executable = d->localExecutablePathChooser->filePath();
+    result.runnable.command.setExecutable(d->localExecutablePathChooser->filePath());
     result.sysRoot = d->sysRootPathChooser->filePath();
     result.serverInitCommands = d->serverInitCommandsTextEdit->toPlainText();
     result.serverResetCommands = d->serverResetCommandsTextEdit->toPlainText();
     result.kitId = d->kitChooser->currentKitId();
     result.debugInfoLocation = d->debuginfoPathChooser->filePath().toString();
-    result.runnable.commandLineArguments = d->arguments->text();
+    result.runnable.command.setArguments(d->arguments->text());
     result.runnable.workingDirectory = d->workingDirectory->filePath();
     result.breakAtMain = d->breakAtMainCheckBox->isChecked();
     result.runInTerminal = d->runInTerminalCheckBox->isChecked();
@@ -502,12 +501,12 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->kitChooser->setCurrentKitId(p.kitId);
     d->serverPortSpinBox->setValue(p.serverPort);
     d->channelOverrideEdit->setText(p.serverAddress);
-    d->localExecutablePathChooser->setFilePath(p.runnable.executable);
+    d->localExecutablePathChooser->setFilePath(p.runnable.command.executable());
     d->sysRootPathChooser->setFilePath(p.sysRoot);
     d->serverInitCommandsTextEdit->setPlainText(p.serverInitCommands);
     d->serverResetCommandsTextEdit->setPlainText(p.serverResetCommands);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
-    d->arguments->setText(p.runnable.commandLineArguments);
+    d->arguments->setText(p.runnable.command.arguments());
     d->workingDirectory->setFilePath(p.runnable.workingDirectory);
     d->breakAtMainCheckBox->setChecked(p.breakAtMain);
     d->runInTerminalCheckBox->setChecked(p.runInTerminal);
