@@ -190,42 +190,6 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
     return commands;
 }
 
-// Copy helper source files to a target directory, replacing older files.
-bool BuildableHelperLibrary::copyFiles(const FilePath &sourcePath,
-                                       const QStringList &files,
-                                       const FilePath &targetDirectory,
-                                       QString *errorMessage)
-{
-    // try remove the directory
-    if (!targetDirectory.removeRecursively(errorMessage))
-        return false;
-    if (!targetDirectory.ensureWritableDir()) {
-        *errorMessage = tr("The target directory %1 could not be created.")
-                .arg(targetDirectory.toUserOutput());
-        return false;
-    }
-    for (const QString &file : files) {
-        const FilePath source = sourcePath.pathAppended(file);
-        const FilePath dest = targetDirectory.pathAppended(file);
-        if (dest.exists()) {
-            if (dest.lastModified() >= source.lastModified())
-                continue;
-            if (!dest.removeFile()) {
-                *errorMessage = tr("The existing file %1 could not be removed.")
-                    .arg(dest.toUserOutput());
-                return false;
-            }
-        }
-        dest.parentDir().ensureWritableDir();
-        if (!source.copyFile(dest)) {
-            *errorMessage = tr("The file %1 could not be copied to %2.")
-                .arg(source.toUserOutput(), dest.toUserOutput());
-            return false;
-        }
-    }
-    return true;
-}
-
 // Helper: Run a build process with merged stdout/stderr
 static inline bool runBuildProcessI(QtcProcess &proc,
                                     int timeoutS,

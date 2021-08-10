@@ -55,9 +55,6 @@ public:
                                        const QStringList &validBinaryFilenames,
                                        bool acceptOutdatedHelper);
 
-    static bool copyFiles(const FilePath &sourcePath, const QStringList &files,
-                          const FilePath &targetDirectory, QString *errorMessage);
-
     struct BuildHelperArguments {
         QString helperName;
         QString directory;
