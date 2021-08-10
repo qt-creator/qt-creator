@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-#pragma once
-
 #include "googletest.h"
 
 #include "mocklistmodeleditorview.h"
