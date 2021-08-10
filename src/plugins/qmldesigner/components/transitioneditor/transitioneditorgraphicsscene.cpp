@@ -425,6 +425,11 @@ void TransitionEditorGraphicsScene::invalidateSections()
     invalidateLayout();
 }
 
+TimelineRulerSectionItem *TransitionEditorGraphicsScene::layoutRuler() const
+{
+    return m_layout->ruler();
+}
+
 TransitionEditorView *TransitionEditorGraphicsScene::transitionEditorView() const
 {
     return m_parent->transitionEditorView();

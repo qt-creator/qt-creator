@@ -131,6 +131,16 @@ TimelineKeyframeItem *TimelineMovableAbstractItem::asTimelineKeyframeItem(QGraph
     return nullptr;
 }
 
+TimelineBarItem *TimelineMovableAbstractItem::asTimelineBarItem(QGraphicsItem *item)
+{
+    auto movableItem = TimelineMovableAbstractItem::cast(item);
+
+    if (movableItem)
+        return movableItem->asTimelineBarItem();
+
+    return nullptr;
+}
+
 qreal TimelineMovableAbstractItem::rulerScaling() const
 {
     return qobject_cast<AbstractScrollGraphicsScene *>(scene())->rulerScaling();
@@ -152,6 +162,12 @@ TimelineKeyframeItem *TimelineMovableAbstractItem::asTimelineKeyframeItem()
 }
 
 TimelineFrameHandle *TimelineMovableAbstractItem::asTimelineFrameHandle()
+{
+    return nullptr;
+}
+
+
+TimelineBarItem *TimelineMovableAbstractItem::asTimelineBarItem()
 {
     return nullptr;
 }

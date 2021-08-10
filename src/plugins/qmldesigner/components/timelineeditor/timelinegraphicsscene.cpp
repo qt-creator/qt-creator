@@ -598,6 +598,9 @@ void TimelineGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void TimelineGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     auto topItem = TimelineMovableAbstractItem::topMoveableItem(itemsAt(event->scenePos()));
+
+    m_layout->ruler()->updatePlaybackLoop(event);
+
     m_tools.mouseMoveEvent(topItem, event);
     QGraphicsScene::mouseMoveEvent(event);
 }
@@ -605,6 +608,10 @@ void TimelineGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void TimelineGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     auto topItem = TimelineMovableAbstractItem::topMoveableItem(itemsAt(event->scenePos()));
+
+
+    m_layout->ruler()->updatePlaybackLoop(event);
+
     /* The tool has handle the event last. */
     QGraphicsScene::mouseReleaseEvent(event);
     m_tools.mouseReleaseEvent(topItem, event);
@@ -693,6 +700,11 @@ void TimelineGraphicsScene::invalidateSections()
 
     clearSelection();
     invalidateLayout();
+}
+
+TimelineRulerSectionItem *TimelineGraphicsScene::layoutRuler() const
+{
+    return m_layout->ruler();
 }
 
 TimelineView *TimelineGraphicsScene::timelineView() const

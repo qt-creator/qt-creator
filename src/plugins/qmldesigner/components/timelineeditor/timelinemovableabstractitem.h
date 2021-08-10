@@ -35,6 +35,7 @@ namespace QmlDesigner {
 class AbstractScrollGraphicsScene;
 class TimelineKeyframeItem;
 class TimelineFrameHandle;
+class TimelineBarItem;
 
 class TimelineMovableAbstractItem : public QGraphicsRectItem
 {
@@ -51,6 +52,7 @@ public:
     static TimelineMovableAbstractItem *topMoveableItem(const QList<QGraphicsItem *> &items);
     static void emitScrollOffsetChanged(QGraphicsItem *item);
     static TimelineKeyframeItem *asTimelineKeyframeItem(QGraphicsItem *item);
+    static TimelineBarItem *asTimelineBarItem(QGraphicsItem *item);
 
     qreal rulerScaling() const;
 
@@ -68,6 +70,7 @@ public:
 
     virtual TimelineKeyframeItem *asTimelineKeyframeItem();
     virtual TimelineFrameHandle *asTimelineFrameHandle();
+    virtual TimelineBarItem *asTimelineBarItem();
 
     virtual bool isLocked() const;
 

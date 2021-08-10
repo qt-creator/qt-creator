@@ -37,7 +37,7 @@ namespace QmlDesigner {
 class TimelineToolDelegate;
 
 class TimelineKeyframeItem;
-
+class TimelineBarItem;
 class TimelineGraphicsScene;
 
 enum class SelectionMode { New, Add, Remove, Toggle };
@@ -81,6 +81,7 @@ private:
     QGraphicsRectItem *m_selectionRect;
 
     QList<TimelineKeyframeItem *> m_aboutToSelectBuffer;
+    QList<qreal> m_playbackLoopTimeSteps;
 };
 
 } // namespace QmlDesigner

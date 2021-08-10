@@ -72,6 +72,7 @@ public:
     void invalidateLayout();
     void setDuration(int duration);
 
+    TimelineRulerSectionItem *layoutRuler() const;
     TransitionEditorView *transitionEditorView() const;
     TransitionEditorWidget *transitionEditorWidget() const;
     TransitionEditorToolBar *toolBar() const;

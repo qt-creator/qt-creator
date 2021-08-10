@@ -130,6 +130,7 @@ public:
     void setStartFrame(int frame);
     void setEndFrame(int frame);
 
+    TimelineRulerSectionItem *layoutRuler() const;
     TimelineView *timelineView() const;
     TimelineWidget *timelineWidget() const;
     TimelineToolBar *toolBar() const;

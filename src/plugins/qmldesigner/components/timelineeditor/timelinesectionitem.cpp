@@ -638,12 +638,23 @@ qreal TimelineRulerSectionItem::endFrame() const
     return m_end;
 }
 
+qreal TimelineRulerSectionItem::playbackLoopStart() const
+{
+    return m_playbackLoopStart > m_playbackLoopEnd ? m_playbackLoopEnd : m_playbackLoopStart;
+}
+
+qreal TimelineRulerSectionItem::playbackLoopEnd() const
+{
+    return m_playbackLoopEnd < m_playbackLoopStart ? m_playbackLoopStart : m_playbackLoopEnd;
+}
+
 void TimelineRulerSectionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
     static const QColor penColor = Theme::getColor(Theme::PanelTextColorLight);
     static const QColor highlightColor = Theme::instance()->Theme::qmlDesignerButtonColor();
     static const QColor handleColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
+    static const QColor playbackLoopColor = QColor(0, 255, 0, 255); // TODO: Timeline looping range color. Select color for this QDS-4941
 
     const int scrollOffset = TimelineGraphicsScene::getScrollOffset(scene());
 
@@ -685,15 +696,22 @@ void TimelineRulerSectionItem::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setPen(penColor);
 
     const int height = size().height() - 1;
-
-
-
     drawLine(painter,
              TimelineConstants::sectionWidth + scrollOffset
                  - TimelineConstants::timelineLeftOffset,
              height,
              size().width() + scrollOffset,
              height);
+    if (m_playbackLoopEnabled) {
+        painter->setPen(playbackLoopColor);
+        drawLine(painter,
+                 TimelineConstants::sectionWidth + (playbackLoopStart() * m_scaling),
+                 height,
+                 TimelineConstants::sectionWidth + (playbackLoopEnd() * m_scaling),
+                 height);
+    }
+
+    painter->setPen(penColor);
 
     QFont font = painter->font();
     font.setPixelSize(8);
@@ -775,9 +793,112 @@ qreal TimelineRulerSectionItem::getFrameTick() const
     return m_frameTick;
 }
 
+void TimelineRulerSectionItem::setPlaybackLoopEnabled(bool value)
+{
+    m_playbackLoopEnabled = value;
+    if (m_playbackLoopStart == m_playbackLoopEnd) {
+        m_playbackLoopStart = 0.;
+        m_playbackLoopEnd = m_duration;
+    }
+    update();
+}
+
+void TimelineRulerSectionItem::setPlaybackLoopTimes(float startFrame, float endFrame)
+{
+    if (m_playbackLoopEnabled) {
+        startFrame = startFrame;
+        endFrame = endFrame;
+        m_playbackLoopStart = startFrame > m_duration ? m_duration : startFrame < 0.0 ? 0.0 : startFrame;
+        m_playbackLoopEnd = endFrame > m_duration ? m_duration : endFrame < 0.0 ? 0.0 : endFrame;
+        emit playbackLoopValuesChanged();
+        update();
+    }
+}
+
+void TimelineRulerSectionItem::extendPlaybackLoop(const QList<qreal> &positions, bool reset)
+{
+    if (m_playbackLoopEnabled) {
+        qreal originalLeft, left = m_playbackLoopStart;
+        qreal originalRight, right = m_playbackLoopEnd;
+
+        if (reset) {
+            if (positions.count() >= 2) {
+                left = m_duration;
+                right = 0;
+            } else {
+                return;
+            }
+        }
+
+        for (auto pos : positions) {
+            qreal mapPos = pos;
+            right = mapPos > right ? mapPos : right;
+            left = mapPos < left ? mapPos : left;
+        }
+
+        if (left != originalLeft && right != originalRight && (left != right))
+            setPlaybackLoopTimes(left, right);
+    }
+}
+
+void TimelineRulerSectionItem::updatePlaybackLoop(QGraphicsSceneMouseEvent *event)
+{
+    if (m_playbackLoopEnabled && event->modifiers().testFlag(Qt::ControlModifier)) { // Placeholder modifier
+        QPointF pos = event->scenePos();
+        TimelineGraphicsScene *graphicsScene = timelineScene();
+
+        qreal x = (qRound(pos.x()) - TimelineConstants::sectionWidth + graphicsScene->getScrollOffset(scene())
+                   - TimelineConstants::timelineLeftOffset) / m_scaling;
+        x = x > m_duration ? m_duration : x;
+        x = x < 0.0 ? 0.0 : x;
+        if (event->modifiers().testFlag(Qt::ShiftModifier)) {  // Placeholder modifier
+            // snap to ruler markers
+            x = graphicsScene->snap(x / m_scaling) * m_scaling;
+        }
+
+        bool nearStart = abs(m_playbackLoopStart - x) < m_frameTick;
+        bool nearEnd = abs(m_playbackLoopEnd - x) < m_frameTick;
+
+        int Type = event->type();
+        if (Type == QEvent::GraphicsSceneMousePress) {
+            if (nearStart) {
+                m_isMovingPlaybackStart = true;
+            } else {
+                if (!nearEnd)
+                    m_playbackLoopStart = x;
+                m_playbackLoopEnd = x;
+                m_isPaintingPlaybackLoopRange = true;
+            }
+            emit playbackLoopValuesChanged();
+            update();
+        } else if (Type == QEvent::GraphicsSceneMouseMove) {
+            if (!m_isPaintingPlaybackLoopRange && (nearStart || nearEnd)) {
+                if (cursor().shape() != Qt::SizeHorCursor)
+                    setCursor(QCursor(Qt::SizeHorCursor));
+            } else if (cursor().shape() != Qt::ArrowCursor) {
+                setCursor(QCursor(Qt::ArrowCursor));
+            }
+            if (m_isMovingPlaybackStart) {
+                m_playbackLoopStart = x;
+                emit playbackLoopValuesChanged();
+                update();
+            } else if (m_isPaintingPlaybackLoopRange){
+                m_playbackLoopEnd = x;
+                emit playbackLoopValuesChanged();
+                update();
+            }
+        } else if (Type == QEvent::GraphicsSceneMouseRelease) {
+            m_isPaintingPlaybackLoopRange = m_isMovingPlaybackStart = false;
+        }
+    } else if (cursor().shape() != Qt::ArrowCursor) {
+        setCursor(QCursor(Qt::ArrowCursor));
+    }
+}
+
 void TimelineRulerSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     TimelineItem::mousePressEvent(event);
+    updatePlaybackLoop(event);
     emit rulerClicked(event->pos());
 }
 
@@ -867,6 +988,11 @@ void TimelineBarItem::commitPosition(const QPointF & /*point*/)
 bool TimelineBarItem::isLocked() const
 {
     return sectionItem()->targetNode().isValid() && sectionItem()->targetNode().locked();
+}
+
+TimelineBarItem *TimelineBarItem::asTimelineBarItem()
+{
+    return this;
 }
 
 void TimelineBarItem::scrollOffsetChanged()

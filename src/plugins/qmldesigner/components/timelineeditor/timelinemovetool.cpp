@@ -73,10 +73,25 @@ void TimelineMoveTool::mousePressEvent(TimelineMovableAbstractItem *item,
     if (currentItem() && currentItem()->isLocked())
         return;
 
+    TimelineGraphicsScene *graphicsScene = qobject_cast<TimelineGraphicsScene *>(scene());
+    if (event->modifiers().testFlag(Qt::ControlModifier) && graphicsScene) { // TODO: Timeline bar animation is set as loop range. Select shortcut for this QDS-4941
+        if (auto *current = currentItem()->asTimelineBarItem()) {
+            qreal left = qRound(current->mapFromSceneToFrame(current->rect().left()));
+            qreal right = qRound(current->mapFromSceneToFrame(current->rect().right()));
+            const QList<qreal> positions = {left, right};
+            graphicsScene->layoutRuler()->extendPlaybackLoop(positions, event->modifiers().testFlag(Qt::ShiftModifier));
+        }
+    }
+
     if (auto *current = currentItem()->asTimelineKeyframeItem()) {
         const qreal sourceFrame = qRound(current->mapFromSceneToFrame(current->rect().center().x()));
         const qreal targetFrame = qRound(current->mapFromSceneToFrame(event->scenePos().x()));
         m_pressKeyframeDelta = targetFrame - sourceFrame;
+
+        if (event->modifiers().testFlag(Qt::ControlModifier) && graphicsScene) {
+            const QList<qreal> positions = {sourceFrame};
+            graphicsScene->layoutRuler()->extendPlaybackLoop(positions, false);
+        }
     }
 }
 

@@ -162,6 +162,7 @@ void TimelineSelectionTool::resetHighlights()
 void TimelineSelectionTool::aboutToSelect(SelectionMode mode, QList<QGraphicsItem *> items)
 {
     resetHighlights();
+    m_playbackLoopTimeSteps.clear();
 
     for (auto *item : items) {
         if (auto *keyframe = TimelineMovableAbstractItem::asTimelineKeyframeItem(item)) {
@@ -179,15 +180,38 @@ void TimelineSelectionTool::aboutToSelect(SelectionMode mode, QList<QGraphicsIte
             else
                 keyframe->setHighlighted(true);
 
+            if (mode == SelectionMode::Toggle || mode == SelectionMode::Add)  // TODO: Timeline keyframe highlight with selection tool is set as or added to loop range. Select shortcut for this QDS-4941
+                m_playbackLoopTimeSteps << keyframe->mapFromSceneToFrame((keyframe->rect().center() + item->scenePos()).x());
+
             m_aboutToSelectBuffer << keyframe;
+        } else if (auto *barItem = TimelineMovableAbstractItem::asTimelineBarItem(item)) {
+            QRectF rect = barItem->rect();
+            QPointF center = rect.center() + item->scenePos();
+            QPointF left = QPointF(rect.left(), 0) + item->scenePos();
+            QPointF right = QPointF(rect.right(), 0) + item->scenePos();
+            if (mode == SelectionMode::Add) {  // TODO: Timeline bar item highlight with selection tool is added to loop range. Select shortcut for this QDS-4941
+                if (m_selectionRect->rect().contains(left))
+                    m_playbackLoopTimeSteps << barItem->mapFromSceneToFrame(left.x());
+                if (m_selectionRect->rect().contains(right))
+                    m_playbackLoopTimeSteps << barItem->mapFromSceneToFrame(right.x());
+                if (m_selectionRect->rect().contains(center))
+                    m_playbackLoopTimeSteps << barItem->mapFromSceneToFrame(center.x());
+            } else if (mode == SelectionMode::Toggle && m_selectionRect->rect().contains(center)) { // TODO: Timeline bar item highlight with selection tool is set as loop range. Select shortcut for this QDS-4941
+                m_playbackLoopTimeSteps << barItem->mapFromSceneToFrame(left.x());
+                m_playbackLoopTimeSteps << barItem->mapFromSceneToFrame(right.x());
+            }
         }
     }
 }
 
 void TimelineSelectionTool::commitSelection(SelectionMode mode)
 {
+    if (m_playbackLoopTimeSteps.count())
+        qobject_cast<TimelineGraphicsScene *>(scene())->layoutRuler()->extendPlaybackLoop(m_playbackLoopTimeSteps,
+                                                                                          mode == SelectionMode::Toggle);  // TODO: Highlighting items with selection tool is set or added to loop range. Select shortcut for this QDS-4941
     scene()->selectKeyframes(mode, m_aboutToSelectBuffer);
     m_aboutToSelectBuffer.clear();
+    m_playbackLoopTimeSteps.clear();
 }
 
 } // End namespace QmlDesigner.

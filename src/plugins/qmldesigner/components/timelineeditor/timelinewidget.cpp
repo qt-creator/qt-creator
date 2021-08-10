@@ -60,6 +60,7 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 #include <QSpacerItem>
+#include <QVariantAnimation>
 
 #include <cmath>
 
@@ -123,6 +124,9 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     , m_graphicsScene(new TimelineGraphicsScene(this))
     , m_addButton(new QPushButton(this))
     , m_onboardingContainer(new QWidget(this))
+    , m_loopPlayback(false)
+    , m_playbackSpeed(1)
+    , m_playbackAnimation(new QVariantAnimation(this))
 {
     setWindowTitle(tr("Timeline", "Title of timeline view"));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -277,6 +281,23 @@ TimelineWidget::TimelineWidget(TimelineView *view)
         m_graphicsScene->setZoom(std::clamp(m_graphicsScene->zoom() + s, 0, 100), ps);
     });
     installEventFilter(filter);
+
+    m_playbackAnimation->stop();
+    auto playAnimation = [this](QVariant frame) { graphicsScene()->setCurrentFrame(qRound(frame.toDouble())); };
+    connect(m_playbackAnimation, &QVariantAnimation::valueChanged, playAnimation);
+
+    auto updatePlaybackLoopValues = [this]() {
+        updatePlaybackValues();
+    };
+    connect(graphicsScene()->layoutRuler(), &TimelineRulerSectionItem::playbackLoopValuesChanged, updatePlaybackLoopValues);
+
+    auto setPlaybackState = [this](QAbstractAnimation::State newState, QAbstractAnimation::State oldState) {
+        m_toolbar->setPlayState(newState == QAbstractAnimation::State::Running);
+    };
+    connect(m_playbackAnimation, &QVariantAnimation::stateChanged, setPlaybackState);
+
+    auto onFinish = [this]() { graphicsScene()->setCurrentFrame(m_playbackAnimation->startValue().toInt()); };
+    connect(m_playbackAnimation, &QVariantAnimation::finished, onFinish);
 }
 
 void TimelineWidget::connectToolbar()
@@ -320,6 +341,21 @@ void TimelineWidget::connectToolbar()
 
     connect(m_toolbar, &TimelineToolBar::recordToggled, this, &TimelineWidget::setTimelineRecording);
 
+    connect(m_toolbar, &TimelineToolBar::playTriggered, this, &TimelineWidget::toggleAnimationPlayback);
+
+    auto setLoopAnimation = [this](bool loop) {
+        graphicsScene()->layoutRuler()->setPlaybackLoopEnabled(loop);
+        if (m_playbackAnimation->state() == QAbstractAnimation::Running)
+            m_playbackAnimation->pause();
+        m_loopPlayback = loop;
+    };
+    connect(m_toolbar, &TimelineToolBar::loopPlaybackToggled, setLoopAnimation);
+    auto setPlaybackSpeed = [this](float val) {
+        m_playbackSpeed = val;
+        updatePlaybackValues();
+    };
+    connect(m_toolbar, &TimelineToolBar::playbackSpeedChanged, setPlaybackSpeed);
+
     connect(m_toolbar,
             &TimelineToolBar::openEasingCurveEditor,
             this,
@@ -329,19 +365,6 @@ void TimelineWidget::connectToolbar()
             &TimelineToolBar::settingDialogClicked,
             m_timelineView,
             &TimelineView::openSettingsDialog);
-
-    for (auto action : QmlDesignerPlugin::instance()->designerActionManager().designerActions()) {
-        if (action->menuId() == "LivePreview") {
-            QObject::connect(m_toolbar,
-                             &TimelineToolBar::playTriggered,
-                             action->action(),
-                             [action]() {
-                                 action->action()->setChecked(false);
-                                 action->action()->triggered(true);
-                             });
-        }
-    }
-
     setTimelineActive(false);
 }
 
@@ -380,6 +403,55 @@ void TimelineWidget::openEasingCurveEditor()
         for (auto *item : graphicsScene()->selectedKeyframes())
             frames.append(item->frameNode());
         EasingCurveDialog::runDialog(frames, Core::ICore::dialogParent());
+    }
+}
+
+void TimelineWidget::updatePlaybackValues()
+{
+    QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
+    qreal endFrame = currentTimeline.endKeyframe();
+    qreal startFrame = currentTimeline.startKeyframe();
+    qreal duration = currentTimeline.duration();
+
+    if (m_loopPlayback) {
+        m_playbackAnimation->setLoopCount(-1);
+        qreal loopStart = graphicsScene()->layoutRuler()->playbackLoopStart();
+        qreal loopEnd = graphicsScene()->layoutRuler()->playbackLoopEnd();
+        startFrame = qRound(startFrame + loopStart);
+        endFrame = qRound(startFrame + (loopEnd - loopStart));
+        duration = endFrame - startFrame;
+    } else {
+        m_playbackAnimation->setLoopCount(1);
+    }
+
+    if (duration > 0.0f) {
+        qreal animationDuration = duration * (1.0 / m_playbackSpeed);
+        m_playbackAnimation->setDuration(animationDuration);
+    } else {
+        if (m_playbackAnimation->state() == QAbstractAnimation::Running)
+            m_playbackAnimation->stop();
+    }
+    qreal a = m_playbackAnimation->duration();
+    qreal newCurrentTime = (currentTimeline.currentKeyframe() - startFrame) * (1.0 / m_playbackSpeed);
+    if (qRound(m_playbackAnimation->startValue().toDouble()) != qRound(startFrame)
+        || qRound(m_playbackAnimation->endValue().toDouble()) != qRound(endFrame)) {
+        newCurrentTime = 0;
+    }
+    m_playbackAnimation->setStartValue(qRound(startFrame));
+    m_playbackAnimation->setEndValue(qRound(endFrame));
+    m_playbackAnimation->setCurrentTime(newCurrentTime);
+}
+
+void TimelineWidget::toggleAnimationPlayback()
+{
+    QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
+    if (currentTimeline.isValid() && m_playbackSpeed > 0.0) {
+        if (m_playbackAnimation->state() == QAbstractAnimation::Running) {
+            m_playbackAnimation->pause();
+        } else {
+            updatePlaybackValues();
+            m_playbackAnimation->start();
+        }
     }
 }
 

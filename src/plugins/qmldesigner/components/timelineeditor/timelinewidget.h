@@ -39,6 +39,7 @@ QT_FORWARD_DECLARE_CLASS(QResizeEvent)
 QT_FORWARD_DECLARE_CLASS(QShowEvent)
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
 
 namespace QmlDesigner {
 
@@ -74,9 +75,11 @@ public:
 public slots:
     void selectionChanged();
     void openEasingCurveEditor();
+    void toggleAnimationPlayback();
     void setTimelineRecording(bool value);
     void changeScaleFactor(int factor);
     void scroll(const TimelineUtils::Side &side);
+    void updatePlaybackValues();
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -105,6 +108,10 @@ private:
     QPushButton *m_addButton = nullptr;
 
     QWidget *m_onboardingContainer = nullptr;
+
+    bool m_loopPlayback;
+    qreal m_playbackSpeed;
+    QVariantAnimation *m_playbackAnimation;
 };
 
 } // namespace QmlDesigner

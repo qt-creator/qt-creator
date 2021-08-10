@@ -64,6 +64,7 @@ const char C_TO_START[] = "QmlDesigner.ToStart";
 const char C_TO_END[] = "QmlDesigner.ToEnd";
 const char C_PREVIOUS[] = "QmlDesigner.Previous";
 const char C_PLAY[] = "QmlDesigner.Play";
+const char C_LOOP_PLAYBACK[] = "QmlDesigner.LoopPlayback";
 const char C_NEXT[] = "QmlDesigner.Next";
 const char C_AUTO_KEYFRAME[] = "QmlDesigner.AutoKeyframe";
 const char C_CURVE_PICKER[] = "QmlDesigner.CurvePicker";

@@ -52,6 +52,7 @@ public:
 
     bool isLocked() const override;
 
+    TimelineBarItem *asTimelineBarItem() override;
 protected:
     void scrollOffsetChanged() override;
     void paint(QPainter *painter,
@@ -148,7 +149,7 @@ class TimelineRulerSectionItem : public TimelineItem
 
 signals:
     void rulerClicked(const QPointF &pos);
-
+    void playbackLoopValuesChanged();
     void zoomChanged(int zoom);
 
 public:
@@ -167,10 +168,17 @@ public:
     qreal durationViewportLength() const;
     qreal startFrame() const;
     qreal endFrame() const;
+    qreal playbackLoopStart() const;
+    qreal playbackLoopEnd() const;
 
     QComboBox *comboBox() const;
 
     void setSizeHints(int width);
+    void setPlaybackLoopEnabled(bool value);
+    void setPlaybackLoopTimes(float start, float end);
+    void extendPlaybackLoop(const QList<qreal> &positions, bool reset);
+    void updatePlaybackLoop(QGraphicsSceneMouseEvent *event);
+
 
 signals:
     void addTimelineClicked();
@@ -194,6 +202,11 @@ private:
     qreal m_end = 0;
     qreal m_scaling = 1;
     qreal m_frameTick = 1.; // distance between 2 tick steps (in frames) on the ruler at current scale
+    qreal m_playbackLoopStart = 0.;
+    qreal m_playbackLoopEnd = 0.;
+    bool m_playbackLoopEnabled = false;
+    bool m_isPaintingPlaybackLoopRange = false;
+    bool m_isMovingPlaybackStart = false;
 };
 
 } // namespace QmlDesigner

@@ -58,6 +58,7 @@ signals:
 
     void recordToggled(bool val);
     void loopPlaybackToggled(bool val);
+    void playbackSpeedChanged(float val);
 
     void scaleFactorChanged(int value);
     void startFrameChanged(int value);
@@ -80,6 +81,7 @@ public:
     void setCurrentFrame(qreal frame);
     void setEndFrame(qreal frame);
     void setScaleFactor(int factor);
+    void setPlayState(bool state);
 
     void setActionEnabled(const QString &name, bool enabled);
     void removeTimeline(const QmlTimeline &timeline);
@@ -102,7 +104,9 @@ private:
     QLineEdit *m_firstFrame = nullptr;
     QLineEdit *m_currentFrame = nullptr;
     QLineEdit *m_lastFrame = nullptr;
+    QLineEdit *m_animationPlaybackSpeed = nullptr;
 
+    QAction *m_playing = nullptr;
     QAction *m_recording = nullptr;
     bool m_blockReflection = false;
 };

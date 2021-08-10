@@ -56,6 +56,20 @@
 
 namespace QmlDesigner {
 
+class LineEditDoubleValidator : public QDoubleValidator
+{
+public:
+    LineEditDoubleValidator(double bottom, double top, int decimals, QLineEdit *parent)
+        : QDoubleValidator(bottom, top, decimals, parent),
+          m_value(1.0) { parent->setText(locale().toString(1.0, 'f', 1)); }
+    ~LineEditDoubleValidator() {};
+
+    void fixup(QString &input) const override { input = locale().toString(m_value, 'f', 1); };
+    void setValue(double value) { m_value = value; };
+private:
+    double m_value;
+};
+
 static bool isSpacer(QObject *object)
 {
     return object->property("spacer_widget").toBool();
@@ -189,6 +203,11 @@ void TimelineToolBar::setScaleFactor(int factor)
     m_scale->setValue(factor);
 }
 
+void TimelineToolBar::setPlayState(bool state)
+{
+    m_playing->setChecked(state);
+}
+
 void TimelineToolBar::setActionEnabled(const QString &name, bool enabled)
 {
     for (auto *action : actions())
@@ -277,14 +296,15 @@ void TimelineToolBar::createCenterControls()
     addAction(previous);
 
     addSpacing(2);
-
-    auto *play = createAction(TimelineConstants::C_PLAY,
-                              TimelineIcons::START_PLAYBACK.icon(),
-                              tr("Play"),
-                              QKeySequence(Qt::Key_Space));
-
-    connect(play, &QAction::triggered, this, &TimelineToolBar::playTriggered);
-    addAction(play);
+    QIcon playbackIcon = TimelineUtils::mergeIcons(TimelineIcons::PAUSE_PLAYBACK,
+                                                   TimelineIcons::START_PLAYBACK);
+    m_playing = createAction(TimelineConstants::C_PLAY,
+                             playbackIcon,
+                             tr("Play"),
+                             QKeySequence(Qt::Key_Space));
+    m_playing->setCheckable(true);
+    connect(m_playing, &QAction::triggered, this, &TimelineToolBar::playTriggered);
+    addAction(m_playing);
 
     addSpacing(2);
 
@@ -306,12 +326,39 @@ void TimelineToolBar::createCenterControls()
     connect(toEnd, &QAction::triggered, this, &TimelineToolBar::toLastFrameTriggered);
     addAction(toEnd);
 
-#if 0
-    auto *loop = new QAction(TimelineIcons::LOOP_PLAYBACK.icon(), tr("Loop"), this);
-    addAction(loop);
-#endif
+    addSpacing(10);
+
+    addSeparator();
+
+    addSpacing(10);
+
+    auto *loopAnimation = createAction(TimelineConstants::C_LOOP_PLAYBACK,
+                                      TimelineIcons::LOOP_PLAYBACK.icon(),
+                                      tr("Loop Playback"),
+                                      QKeySequence((Qt::ControlModifier | Qt::ShiftModifier) + Qt::Key_Space)); // TODO: Toggles looping. Select shortcut for this QDS-4941
+
+    loopAnimation->setCheckable(true);
+    connect(loopAnimation, &QAction::toggled, [&](bool value) { emit loopPlaybackToggled(value);} );
+
+    addAction(loopAnimation);
 
     addSpacing(5);
+
+    m_animationPlaybackSpeed = createToolBarLineEdit(this);
+    LineEditDoubleValidator *validator = new LineEditDoubleValidator(0.1, 100.0, 1, m_animationPlaybackSpeed);
+    m_animationPlaybackSpeed->setValidator(validator);
+    m_animationPlaybackSpeed->setToolTip(tr("Playback Speed"));
+    addWidget(m_animationPlaybackSpeed);
+
+    auto emitPlaybackSpeedChanged = [this, validator]() {
+        bool ok = false;
+        if (double res = validator->locale().toDouble(m_animationPlaybackSpeed->text(), &ok); ok==true) {
+            validator->setValue(res);
+            m_animationPlaybackSpeed->setText(locale().toString(res, 'f', 1));
+            emit playbackSpeedChanged(res);
+        }
+     };
+    connect(m_animationPlaybackSpeed, &QLineEdit::editingFinished, emitPlaybackSpeedChanged);
 
     addSeparator();
 
