@@ -275,7 +275,8 @@ public:
             auto getStartedButton = new WelcomePageButton(this);
             getStartedButton->setText(tr("Get Started Now"));
             getStartedButton->setOnClicked([] {
-                QDesktopServices::openUrl(QString("qthelp://org.qt-project.qtcreator/doc/index.html"));
+                QDesktopServices::openUrl(
+                    QString("qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html"));
             });
             l->addWidget(getStartedButton);
 
