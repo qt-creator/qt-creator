@@ -270,7 +270,11 @@ PathChooser::PathChooser(QWidget *parent) :
             [this] { emit rawPathChanged(rawPath()); });
     connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
     connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit pathChanged(d->m_lineEdit->text()); });
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] {
+        const QString text = d->m_lineEdit->text();
+        emit pathChanged(text);
+        emit filePathChanged(FilePath::fromString(text));
+    });
 
     d->m_lineEdit->setMinimumWidth(120);
     d->m_hLayout->addWidget(d->m_lineEdit);

@@ -167,6 +167,7 @@ signals:
     void validChanged(bool validState);
     void rawPathChanged(const QString &text);
     void pathChanged(const QString &path);
+    void filePathChanged(const FilePath &path);
     void editingFinished();
     void beforeBrowsing();
     void browsingFinished();

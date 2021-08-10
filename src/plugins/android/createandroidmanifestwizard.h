@@ -48,7 +48,7 @@ public:
     void accept();
     bool copyGradle();
 
-    void setDirectory(const QString &directory);
+    void setDirectory(const Utils::FilePath &directory);
     void setCopyGradle(bool copy);
 
     ProjectExplorer::BuildSystem *buildSystem() const;
@@ -58,7 +58,7 @@ private:
     void createAndroidTemplateFiles();
     ProjectExplorer::BuildSystem *m_buildSystem;
     QString m_buildKey;
-    QString m_directory;
+    Utils::FilePath m_directory;
     bool m_copyGradle;
 };
 

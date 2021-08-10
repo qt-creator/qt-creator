@@ -177,7 +177,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_sourceDirectoryWarning->setWordWrap(true);
     m_layout->addRow(m_sourceDirectoryWarning);
 
-    connect(m_androidPackageSourceDir, &PathChooser::pathChanged,
+    connect(m_androidPackageSourceDir, &PathChooser::filePathChanged,
             m_wizard, &CreateAndroidManifestWizard::setDirectory);
 
     if (wizard->copyGradle()) {
@@ -239,7 +239,7 @@ void ChooseDirectoryPage::initializePage()
     }
 
 
-    m_wizard->setDirectory(m_androidPackageSourceDir->filePath().toString());
+    m_wizard->setDirectory(m_androidPackageSourceDir->filePath());
 }
 
 //
@@ -276,7 +276,7 @@ void CreateAndroidManifestWizard::setBuildKey(const QString &buildKey)
     m_buildKey = buildKey;
 }
 
-void CreateAndroidManifestWizard::setDirectory(const QString &directory)
+void CreateAndroidManifestWizard::setDirectory(const FilePath &directory)
 {
     m_directory = directory;
 }
@@ -302,25 +302,21 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     if (!version)
         return;
     if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
-        const QString src = version->prefix().toString() + "/src/android/java/AndroidManifest.xml";
-        FileUtils::copyRecursively(FilePath::fromString(src),
-                                   FilePath::fromString(m_directory
-                                                        + QLatin1String("/AndroidManifest.xml")),
+        FileUtils::copyRecursively(version->prefix() / "src/android/java/AndroidManifest.xml",
+                                   m_directory / "AndroidManifest.xml",
                                    nullptr,
                                    copy);
     } else {
-        const QString src = version->prefix().toString() + "/src/android/templates";
-
-        FileUtils::copyRecursively(FilePath::fromString(src),
-                                   FilePath::fromString(m_directory),
+        FileUtils::copyRecursively(version->prefix() / "src/android/templates",
+                                   m_directory,
                                    nullptr,
                                    copy);
 
         if (m_copyGradle) {
-            FilePath gradlePath = version->prefix().pathAppended("src/3rdparty/gradle");
+            FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
             if (!gradlePath.exists())
-                gradlePath = AndroidConfigurations::currentConfig().sdkLocation().pathAppended("/tools/templates/gradle/wrapper");
-            FileUtils::copyRecursively(gradlePath, FilePath::fromString(m_directory), nullptr, copy);
+                gradlePath = AndroidConfigurations::currentConfig().sdkLocation() / "/tools/templates/gradle/wrapper";
+            FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy);
         }
 
         AndroidManager::updateGradleProperties(target, m_buildKey);
@@ -338,7 +334,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
             const BuildTargetInfo bti = target->buildTarget(m_buildKey);
             const QString value = "$$PWD/"
                                   + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(
-                                      m_directory);
+                                      m_directory.toString());
             bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 
             if (!result) {
@@ -349,7 +345,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
             }
         }
     }
-    Core::EditorManager::openEditor(m_directory + QLatin1String("/AndroidManifest.xml"));
+    Core::EditorManager::openEditor(m_directory / "AndroidManifest.xml");
 }
 
 BuildSystem *CreateAndroidManifestWizard::buildSystem() const
