@@ -701,9 +701,9 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
                                                 bool deleteOnFinish)
 {
     std::unique_ptr<QProcess> p(new QProcess);
-    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
+    const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
     qCDebug(androidManagerLog) << "Running command (async):" << CommandLine(adb, args).toUserOutput();
-    p->start(adb, args);
+    p->start(adb.toString(), args);
     if (p->waitForStarted(500) && p->state() == QProcess::Running) {
         if (deleteOnFinish) {
             connect(p.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),

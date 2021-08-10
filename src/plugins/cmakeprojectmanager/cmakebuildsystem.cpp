@@ -755,7 +755,7 @@ void CMakeBuildSystem::handleParsingSucceeded()
         checkAndReportError(errorMessage);
     }
 
-    m_ctestPath = m_reader.ctestPath();
+    m_ctestPath = FilePath::fromString(m_reader.ctestPath());
 
     setApplicationTargets(appTargets());
     setDeploymentData(deploymentData());

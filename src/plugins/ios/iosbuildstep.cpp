@@ -246,7 +246,7 @@ QStringList IosBuildStep::defaultArguments() const
 
 FilePath IosBuildStep::buildCommand() const
 {
-    return FilePath::fromString("xcodebuild"); // add path?
+    return "xcodebuild"; // add path?
 }
 
 void IosBuildStep::doRun()

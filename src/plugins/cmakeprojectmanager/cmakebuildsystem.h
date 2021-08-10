@@ -180,7 +180,7 @@ private:
     mutable bool m_isHandlingError = false;
 
     // CTest integration
-    QString m_ctestPath;
+    Utils::FilePath m_ctestPath;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
     Utils::FutureSynchronizer m_futureSynchronizer;
 };

@@ -83,9 +83,7 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Id id)
     });
 
     setCommandLineProvider([arguments] {
-        return CommandLine(FilePath::fromString("autoreconf"),
-                           arguments->value(),
-                           CommandLine::Raw);
+        return CommandLine("autoreconf", arguments->value(), CommandLine::Raw);
     });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });

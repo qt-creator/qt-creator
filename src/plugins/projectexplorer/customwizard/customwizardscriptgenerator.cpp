@@ -36,6 +36,8 @@
 #include <QDebug>
 #include <QSharedPointer>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -108,7 +110,7 @@ static bool
     }
     process.setWorkingDirectory(workingDirectory);
     process.setTimeoutS(30);
-    const Utils::CommandLine cmd(binary, arguments);
+    const Utils::CommandLine cmd(FilePath::fromString(binary), arguments);
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory),
                qPrintable(cmd.toUserOutput()));

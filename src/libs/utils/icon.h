@@ -40,7 +40,6 @@ QT_FORWARD_DECLARE_CLASS(QString)
 namespace Utils {
 
 using IconMaskAndColor = QPair<FilePath, Theme::Color>;
-using IconStringMaskAndColor = QPair<QString, Theme::Color>;
 
 // Returns a recolored icon with shadow and custom disabled state for a
 // series of grayscalemask|Theme::Color mask pairs
@@ -61,9 +60,7 @@ public:
 
     Icon();
     Icon(std::initializer_list<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
-    Icon(std::initializer_list<IconStringMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
     Icon(const FilePath &imageFileName);
-    Icon(const QString &imageFileName);
 
     Icon(const Icon &other) = default;
 

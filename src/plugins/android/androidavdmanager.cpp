@@ -115,15 +115,15 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     if (result.overwrite)
         arguments << "-f";
 
-    const QString avdManagerTool = config.avdManagerToolPath().toString();
+    const FilePath avdManagerTool = config.avdManagerToolPath();
     qCDebug(avdManagerLog)
             << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
     QProcess proc;
-    proc.start(avdManagerTool, arguments);
+    proc.start(avdManagerTool.toString(), arguments);
     if (!proc.waitForStarted()) {
         result.error = QApplication::translate("AndroidAvdManager",
                                                "Could not start process \"%1 %2\"")
-                .arg(avdManagerTool, arguments.join(' '));
+                .arg(avdManagerTool.toString(), arguments.join(' '));
         return result;
     }
     QTC_CHECK(proc.state() == QProcess::Running);

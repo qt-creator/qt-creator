@@ -214,7 +214,7 @@ class DockerPortsGatheringMethod : public PortsGatheringMethod
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
         Runnable runnable;
-        runnable.command.setExecutable(FilePath::fromString("sed"));
+        runnable.command.setExecutable("sed");
         runnable.command.setArguments("-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*");
         return runnable;
     }

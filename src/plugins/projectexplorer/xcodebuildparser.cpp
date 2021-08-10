@@ -239,7 +239,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                XcodebuildParser::tr("Replacing signature"),
-                               FilePath::fromString("/somepath/somefile.app")))
+                               "/somepath/somefile.app"))
             << QString()
             << XcodebuildParser::InXcodebuild;
 

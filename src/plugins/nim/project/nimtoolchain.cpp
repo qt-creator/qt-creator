@@ -83,7 +83,7 @@ void NimToolChain::addToEnvironment(Environment &env) const
 FilePath NimToolChain::makeCommand(const Environment &env) const
 {
     const FilePath tmp = env.searchInPath("make");
-    return tmp.isEmpty() ? FilePath::fromString("make") : tmp;
+    return tmp.isEmpty() ? FilePath("make") : tmp;
 }
 
 QList<Utils::OutputLineParser *> NimToolChain::createOutputParsers() const

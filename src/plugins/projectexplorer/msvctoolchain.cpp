@@ -241,7 +241,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
-    vsWhereProcess.setCommand({vswhere,
+    vsWhereProcess.setCommand({FilePath::fromString(vswhere),
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking();
     switch (vsWhereProcess.result()) {
@@ -1504,7 +1504,7 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
 static QVersionNumber clangClVersion(const QString &clangClPath)
 {
     QtcProcess clangClProcess;
-    clangClProcess.setCommand({clangClPath, {"--version"}});
+    clangClProcess.setCommand({FilePath::fromString(clangClPath), {"--version"}});
     clangClProcess.runBlocking();
     if (clangClProcess.result() != QtcProcess::FinishedWithSuccess)
         return {};

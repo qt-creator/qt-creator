@@ -77,7 +77,7 @@ static FilePath fallbackClangdFilePath()
 {
     if (g_defaultClangdFilePath.exists())
         return g_defaultClangdFilePath;
-    return FilePath::fromString("clangd");
+    return "clangd";
 }
 
 static Utils::Id clangDiagnosticConfigIdFromSettings(QSettings *s)

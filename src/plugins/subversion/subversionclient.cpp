@@ -152,7 +152,7 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
         svnVersionBinary = svnVersionBinary.left(pos + 1);
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
     QtcProcess proc;
-    vcsFullySynchronousExec(proc, repository, {svnVersionBinary, args});
+    vcsFullySynchronousExec(proc, repository, {FilePath::fromString(svnVersionBinary), args});
     if (proc.result() != QtcProcess::FinishedWithSuccess)
         return QString();
 

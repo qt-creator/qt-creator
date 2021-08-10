@@ -202,7 +202,7 @@ public:
             const int pdebugPort = portsGatherer->gdbServer().port();
 
             Runnable r;
-            r.command = {QString(QNX_DEBUG_EXECUTABLE), {QString::number(pdebugPort)}};
+            r.command = {QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}};
             doStart(r, runControl->device());
         });
     }

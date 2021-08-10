@@ -192,7 +192,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
     Runnable findPid;
     // sleep required since otherwise we might only match "bash -c..."
     //  and not the actual valgrind run
-    findPid.command.setExecutable(FilePath::fromString("/bin/sh"));
+    findPid.command.setExecutable("/bin/sh");
     findPid.command.setArguments(QString("-c \""
                                            "sleep 1; ps ax" // list all processes with aliased name
                                            " | grep '\\b%1.*%2'" // find valgrind process

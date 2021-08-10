@@ -104,7 +104,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
             .arg(QDir::toNativeSeparators(workingDirectory),
                  QDir::toNativeSeparators(patch),
                  args.join(QLatin1Char(' '))));
-    patchProcess.setCommand({patch, args});
+    patchProcess.setCommand({FilePath::fromString(patch), args});
     patchProcess.setWriteData(input);
     patchProcess.start();
     if (!patchProcess.waitForStarted()) {

@@ -236,7 +236,7 @@ void tst_fileutils::calcRelativePath()
 
 void tst_fileutils::relativePath_specials()
 {
-    QString path = FilePath::fromString("").relativePath(FilePath::fromString("")).toString();
+    QString path = FilePath("").relativePath("").toString();
     QCOMPARE(path, "");
 }
 
@@ -391,52 +391,52 @@ void tst_fileutils::linkFromString_data()
     QTest::addColumn<int>("column");
 
     QTest::newRow("no-line-no-column")
-        << QString::fromLatin1("someFile.txt") << Utils::FilePath::fromString("someFile.txt")
+        << QString("someFile.txt") << FilePath("someFile.txt")
         << QString() << -1 << -1;
     QTest::newRow(": at end") << QString::fromLatin1("someFile.txt:")
-                              << Utils::FilePath::fromString("someFile.txt")
+                              << FilePath("someFile.txt")
                               << QString::fromLatin1(":") << 0 << -1;
     QTest::newRow("+ at end") << QString::fromLatin1("someFile.txt+")
-                              << Utils::FilePath::fromString("someFile.txt")
+                              << FilePath("someFile.txt")
                               << QString::fromLatin1("+") << 0 << -1;
     QTest::newRow(": for column") << QString::fromLatin1("someFile.txt:10:")
-                                  << Utils::FilePath::fromString("someFile.txt")
+                                  << FilePath("someFile.txt")
                                   << QString::fromLatin1(":10:") << 10 << -1;
     QTest::newRow("+ for column") << QString::fromLatin1("someFile.txt:10+")
-                                  << Utils::FilePath::fromString("someFile.txt")
+                                  << FilePath("someFile.txt")
                                   << QString::fromLatin1(":10+") << 10 << -1;
     QTest::newRow(": and + at end")
-        << QString::fromLatin1("someFile.txt:+") << Utils::FilePath::fromString("someFile.txt")
+        << QString::fromLatin1("someFile.txt:+") << FilePath("someFile.txt")
         << QString::fromLatin1(":+") << 0 << -1;
     QTest::newRow("empty line") << QString::fromLatin1("someFile.txt:+10")
-                                << Utils::FilePath::fromString("someFile.txt")
+                                << FilePath("someFile.txt")
                                 << QString::fromLatin1(":+10") << 0 << 9;
     QTest::newRow(":line-no-column") << QString::fromLatin1("/some/path/file.txt:42")
-                                     << Utils::FilePath::fromString("/some/path/file.txt")
+                                     << FilePath("/some/path/file.txt")
                                      << QString::fromLatin1(":42") << 42 << -1;
     QTest::newRow("+line-no-column") << QString::fromLatin1("/some/path/file.txt+42")
-                                     << Utils::FilePath::fromString("/some/path/file.txt")
+                                     << FilePath("/some/path/file.txt")
                                      << QString::fromLatin1("+42") << 42 << -1;
     QTest::newRow(":line-:column") << QString::fromLatin1("/some/path/file.txt:42:3")
-                                   << Utils::FilePath::fromString("/some/path/file.txt")
+                                   << FilePath("/some/path/file.txt")
                                    << QString::fromLatin1(":42:3") << 42 << 2;
     QTest::newRow(":line-+column") << QString::fromLatin1("/some/path/file.txt:42+33")
-                                   << Utils::FilePath::fromString("/some/path/file.txt")
+                                   << FilePath("/some/path/file.txt")
                                    << QString::fromLatin1(":42+33") << 42 << 32;
     QTest::newRow("+line-:column") << QString::fromLatin1("/some/path/file.txt+142:30")
-                                   << Utils::FilePath::fromString("/some/path/file.txt")
+                                   << FilePath("/some/path/file.txt")
                                    << QString::fromLatin1("+142:30") << 142 << 29;
     QTest::newRow("+line-+column") << QString::fromLatin1("/some/path/file.txt+142+33")
-                                   << Utils::FilePath::fromString("/some/path/file.txt")
+                                   << FilePath("/some/path/file.txt")
                                    << QString::fromLatin1("+142+33") << 142 << 32;
     QTest::newRow("( at end") << QString::fromLatin1("/some/path/file.txt(")
-                              << Utils::FilePath::fromString("/some/path/file.txt")
+                              << FilePath("/some/path/file.txt")
                               << QString::fromLatin1("(") << -1 << -1;
     QTest::newRow("(42 at end") << QString::fromLatin1("/some/path/file.txt(42")
-                                << Utils::FilePath::fromString("/some/path/file.txt")
+                                << FilePath("/some/path/file.txt")
                                 << QString::fromLatin1("(42") << 42 << -1;
     QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")
-                                 << Utils::FilePath::fromString("/some/path/file.txt")
+                                 << FilePath("/some/path/file.txt")
                                  << QString::fromLatin1("(42)") << 42 << -1;
 }
 

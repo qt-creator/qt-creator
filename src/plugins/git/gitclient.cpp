@@ -2593,7 +2593,8 @@ bool GitClient::tryLauchingGitK(const Environment &env,
         arguments.append(ProcessArgs::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
-    VcsOutputWindow::appendCommand(workingDirectory.toString(), {binary, arguments});
+    VcsOutputWindow::appendCommand(workingDirectory.toString(),
+                                   {FilePath::fromString(binary), arguments});
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;

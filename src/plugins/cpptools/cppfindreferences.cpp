@@ -58,6 +58,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CppTools {
 
@@ -618,7 +619,7 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
     QByteArray source = getSource(Utils::FilePath::fromString(newSymbolDocument->fileName()),
                                   m_modelManager->workingCopy());
     CPlusPlus::Document::Ptr doc =
-            snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
+            snapshot.preprocessedDocument(source, FilePath::fromString(newSymbolDocument->fileName()));
     doc->check();
 
     // find matching symbol in new document and return the new parameters

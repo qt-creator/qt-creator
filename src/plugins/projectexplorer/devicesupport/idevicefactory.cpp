@@ -28,6 +28,8 @@
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 /*!
@@ -105,7 +107,7 @@ void IDeviceFactory::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
-void IDeviceFactory::setCombinedIcon(const QString &small, const QString &large)
+void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &large)
 {
     using namespace Utils;
     m_icon = Icon::combinedIcon({Icon({{small, Theme::PanelTextColorDark}}, Icon::Tint),

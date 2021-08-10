@@ -58,7 +58,7 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    Utils::FilePath m_executableFile = Utils::FilePath::fromString("");
+    Utils::FilePath m_executableFile;
     QString m_jlinkDevice;
     QString m_jlinkHost = {"USB"};
     QString m_jlinkHostAddr;

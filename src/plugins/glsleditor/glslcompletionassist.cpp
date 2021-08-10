@@ -150,7 +150,7 @@ static QIcon glslIcon(IconTypes iconType)
     using namespace CPlusPlus;
     using namespace Utils;
 
-    const QString member = QLatin1String(":/codemodel/images/member.png");
+    const char member[] = ":/codemodel/images/member.png";
 
     switch (iconType) {
     case IconTypeType:

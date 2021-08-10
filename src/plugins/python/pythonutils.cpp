@@ -140,10 +140,8 @@ QList<const StdIOSettings *> configuredPythonLanguageServer()
     using namespace LanguageClient;
     QList<const StdIOSettings *> result;
     for (const BaseSettings *setting : LanguageClientManager::currentSettings()) {
-        if (setting->m_languageFilter.isSupported(FilePath::fromString("foo.py"),
-                                                  Constants::C_PY_MIMETYPE)) {
+        if (setting->m_languageFilter.isSupported("foo.py", Constants::C_PY_MIMETYPE))
             result << dynamic_cast<const StdIOSettings *>(setting);
-        }
     }
     return result;
 }

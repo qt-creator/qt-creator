@@ -309,7 +309,7 @@ public:
         setLanguage(Constants::CXX_LANGUAGE_ID);
         setTypeDisplayName("Test Tool Chain");
         setTargetAbiNoSignal(Abi::hostAbi());
-        setCompilerCommand(FilePath::fromString("/tmp/test/gcc"));
+        setCompilerCommand("/tmp/test/gcc");
     }
 
     static QList<TTC *> toolChains() { return m_toolChains; }
@@ -321,7 +321,7 @@ public:
     WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags) return WarningFlags::NoWarnings; }
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &) const override { return BuiltInHeaderPathsRunner(); }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env) }
-    FilePath makeCommand(const Environment &) const override { return FilePath::fromString("make"); }
+    FilePath makeCommand(const Environment &) const override { return "make"; }
     QList<OutputLineParser *> createOutputParsers() const override { return {}; }
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override { return nullptr; }
     bool operator ==(const ToolChain &other) const override {

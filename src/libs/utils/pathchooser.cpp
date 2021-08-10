@@ -126,7 +126,7 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
     const QString binary = le->text();
     if (!binary.isEmpty()) {
         const QString version = BinaryVersionToolTipEventFilter::toolVersion(
-                    CommandLine(QDir::cleanPath(binary), m_arguments));
+                    CommandLine(FilePath::fromString(QDir::cleanPath(binary)), m_arguments));
         if (!version.isEmpty()) {
             // Concatenate tooltips.
             QString tooltip = "<html><head/><body>";
@@ -720,7 +720,7 @@ FancyLineEdit *PathChooser::lineEdit() const
 
 QString PathChooser::toolVersion(const QString &binary, const QStringList &arguments)
 {
-    return BinaryVersionToolTipEventFilter::toolVersion({binary, arguments});
+    return BinaryVersionToolTipEventFilter::toolVersion({FilePath::fromString(binary), arguments});
 }
 
 void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)

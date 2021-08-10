@@ -58,7 +58,7 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    Utils::FilePath m_executableFile = Utils::FilePath::fromString("openocd");
+    Utils::FilePath m_executableFile = "openocd";
     QString m_rootScriptsDir;
     QString m_configurationFile;
     QString m_additionalArguments;

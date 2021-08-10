@@ -428,14 +428,6 @@ public:
     Document::Ptr preprocessedDocument(const QByteArray &source,
                                        const Utils::FilePath &fileName,
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const;
-    Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const QString &fileName,
-                                       int withDefinedMacrosFromDocumentUntilLine = -1) const
-    {
-        return preprocessedDocument(source,
-                                    Utils::FilePath::fromString(fileName),
-                                    withDefinedMacrosFromDocumentUntilLine);
-    }
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
                                      const QString &fileName) const;

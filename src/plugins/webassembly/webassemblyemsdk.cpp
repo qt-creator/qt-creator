@@ -53,14 +53,14 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
     const QString cacheKey = sdkRoot.toString();
     const bool isWindows = sdkRoot.osType() == OsTypeWindows;
     if (!emSdkEnvCache()->contains(cacheKey)) {
-        const QString scriptFile = sdkRoot.pathAppended(QLatin1String("emsdk_env") +
-                                        (isWindows ? ".bat" : ".sh")).path();
+        const FilePath scriptFile = sdkRoot.pathAppended(QLatin1String("emsdk_env") +
+                                        (isWindows ? ".bat" : ".sh"));
         QtcProcess emSdkEnv;
         if (isWindows) {
             emSdkEnv.setCommand(CommandLine(scriptFile));
         } else {
             // File needs to be source'd, not executed.
-            emSdkEnv.setCommand({sdkRoot.withNewPath("bash"), {"-c", ". " + scriptFile}});
+            emSdkEnv.setCommand({sdkRoot.withNewPath("bash"), {"-c", ". " + scriptFile.path()}});
         }
         emSdkEnv.runBlocking();
         const QString output = emSdkEnv.allOutput();

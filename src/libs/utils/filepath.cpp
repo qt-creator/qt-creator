@@ -825,30 +825,35 @@ FilePath FilePath::absoluteFilePath(const FilePath &tail) const
 
 /// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
-FilePath FilePath::fromString(const QString &filename)
+FilePath FilePath::fromString(const QString &filepath)
 {
     FilePath fn;
+    fn.setFromString(filepath);
+    return fn;
+}
+
+void FilePath::setFromString(const QString &filename)
+{
     if (filename.startsWith('/')) {
-        fn.m_data = filename;  // fast track: absolute local paths
+        m_data = filename;  // fast track: absolute local paths
     } else {
         int pos1 = filename.indexOf("://");
         if (pos1 >= 0) {
-            fn.m_scheme = filename.left(pos1);
+            m_scheme = filename.left(pos1);
             pos1 += 3;
             int pos2 = filename.indexOf('/', pos1);
             if (pos2 == -1) {
-                fn.m_data = filename.mid(pos1);
+                m_data = filename.mid(pos1);
             } else {
-                fn.m_host = filename.mid(pos1, pos2 - pos1);
-                fn.m_data = filename.mid(pos2);
+                m_host = filename.mid(pos1, pos2 - pos1);
+                m_data = filename.mid(pos2);
             }
-            if (fn.m_data.startsWith("/./"))
-                fn.m_data = fn.m_data.mid(3);
+            if (m_data.startsWith("/./"))
+                m_data = m_data.mid(3);
         } else {
-            fn.m_data = filename; // treat everything else as local, too.
+            m_data = filename; // treat everything else as local, too.
         }
     }
-    return fn;
 }
 
 /// Constructs a FilePath from \a filePath. The \a defaultExtension is appended
@@ -1097,7 +1102,7 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 
     Example usage:
     \code
-        localDir = FilePath::fromString("/tmp/workingdir");
+        localDir = FilePath("/tmp/workingdir");
         executable = FilePath::fromUrl("docker://123/bin/ls")
         realDir = localDir.onDevice(executable)
         assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
@@ -1118,7 +1123,7 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 
     Example usage:
     \code
-        devicePath = FilePath::fromString("docker://123/tmp");
+        devicePath = FilePath("docker://123/tmp");
         newPath = devicePath.withNewPath("/bin/ls");
         assert(realDir == FilePath::fromUrl("docker://123/bin/ls"))
     \endcode

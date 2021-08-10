@@ -1003,7 +1003,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                      "Undefined symbols for architecture x86_64:\n"
                                   "  \"SvgLayoutTest()\", referenced from:\n"
                                   "      _main in main.cpp.o",
-                                  FilePath::fromString("main.cpp.o"))})
+                                  "main.cpp.o")})
             << QString();
 
     QTest::newRow("ld: undefined member function reference")
@@ -1013,7 +1013,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "error: undefined reference to 'llvm::DisableABIBreakingChecks'",
-                               FilePath::fromString("gtest-clang-printing.cpp")))
+                               "gtest-clang-printing.cpp"))
             << QString();
 
     const auto task = [](Task::TaskType type, const QString &msg,
@@ -1364,7 +1364,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << Tasks{
                    CompileTask(Task::Error, "one or more PCH files were found, but they were invalid"),
                    CompileTask(Task::Error, "use -Winvalid-pch for more information"),
-                   CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", FilePath::fromString(".pch/Qt6Core5Compat")),
+                   CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", ".pch/Qt6Core5Compat"),
                    CompileTask(Task::Warning, "-Wformat-security ignored without -Wformat [-Wformat-security]")}
             << QString();
 }

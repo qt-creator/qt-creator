@@ -151,7 +151,7 @@ namespace {
         if (HostOsInfo::isLinuxHost()) {
             if (QSysInfo::WordSize == 32 ) {
                 Environment env = Environment::systemEnvironment();
-                QString executable = env.searchInPath(QLatin1String("file")).toString();
+                FilePath executable = env.searchInPath("file");
                 QString shell = env.value(QLatin1String("SHELL"));
                 if (executable.isEmpty() || shell.isEmpty())
                     return true; // we can't detect, but creator is 32bit so assume 32bit

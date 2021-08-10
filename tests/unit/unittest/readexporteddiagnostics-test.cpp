@@ -72,7 +72,7 @@ protected:
 
 TEST_F(ReadExportedDiagnostics, NotExistingFile)
 {
-    Diagnostics diags = readExportedDiagnostics(Utils::FilePath::fromString("notExistingFile.yaml"),
+    Diagnostics diags = readExportedDiagnostics("notExistingFile.yaml",
                                                 {},
                                                 &errorMessage);
 
@@ -82,7 +82,7 @@ TEST_F(ReadExportedDiagnostics, NotExistingFile)
 
 TEST_F(ReadExportedDiagnostics, EmptyFile)
 {
-    Diagnostics diags = readExportedDiagnostics(Utils::FilePath::fromString(TESTDATA "empty.yaml"),
+    Diagnostics diags = readExportedDiagnostics(TESTDATA "empty.yaml",
                                                 {},
                                                 &errorMessage);
 

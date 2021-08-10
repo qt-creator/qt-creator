@@ -61,12 +61,10 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    Utils::FilePath m_executableFile =
-        Utils::FilePath::fromString("eblink"); // server execute filename
+    Utils::FilePath m_executableFile = "eblink"; // server execute filename
     int  m_verboseLevel = 0;                // verbose <0..7>  Specify generally verbose logging
     InterfaceType m_interfaceType = SWD;    // -I stlink ;swd(default) jtag
-    Utils::FilePath m_deviceScript =
-        Utils::FilePath::fromString("stm32-auto.script");  // -D <script> ;Select the device script <>.script
+    Utils::FilePath m_deviceScript = "stm32-auto.script";  // -D <script> ;Select the device script <>.script
     bool m_interfaceResetOnConnect = true;  // (inversed)-I stlink,dr ;Disable reset at connection (hotplug)
     int  m_interfaceSpeed = 4000;           // -I stlink,speed=4000
     QString m_interfaceExplicidDevice;      // device=<usb_bus>:<usb_addr> ; Set device explicit

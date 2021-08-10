@@ -454,7 +454,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     const QString pathPattern = "^([a-z\\./]+):(\\d+): error: ([^\\s].+)$";
     QString workingDir = "/home/src/project";
-    FilePath expandedFileName = FilePath::fromString("/home/src/project/main.c");
+    FilePath expandedFileName = "/home/src/project/main.c";
 
     QTest::newRow("simple error with expanded path")
             << "main.c:9: error: `sfasdf' undeclared (first use this function)"
@@ -467,7 +467,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
             << QString();
 
-    expandedFileName = FilePath::fromString("/home/src/project/subdir/main.c");
+    expandedFileName = "/home/src/project/subdir/main.c";
     QTest::newRow("simple error with subdir path")
             << "subdir/main.c:9: error: `sfasdf' undeclared (first use this function)"
             << workingDir

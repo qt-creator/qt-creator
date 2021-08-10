@@ -163,10 +163,9 @@ Document::Ptr CppRefactoringFile::cppDocument() const
     if (!m_cppDocument || !m_cppDocument->translationUnit() ||
             !m_cppDocument->translationUnit()->ast()) {
         const QByteArray source = document()->toPlainText().toUtf8();
-        const QString name = filePath().toString();
         const Snapshot &snapshot = data()->m_snapshot;
 
-        m_cppDocument = snapshot.preprocessedDocument(source, name);
+        m_cppDocument = snapshot.preprocessedDocument(source, filePath());
         m_cppDocument->check();
     }
 

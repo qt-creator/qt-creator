@@ -192,7 +192,7 @@ private:
 LanguageClient::BaseClientInterface *JLSSettings::createInterface() const
 {
     auto interface = new JLSInterface();
-    CommandLine cmd{m_executable};
+    CommandLine cmd{FilePath::fromString(m_executable)};
     cmd.addArgs(arguments(), CommandLine::Raw);
     cmd.addArgs({"-data", interface->workspaceDir()});
     interface->setCommandLine(cmd);

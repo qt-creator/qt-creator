@@ -61,7 +61,7 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    Utils::FilePath m_executableFile = Utils::FilePath::fromString("st-util");
+    Utils::FilePath m_executableFile = "st-util";
     int m_verboseLevel = 0; // 0..99
     bool m_extendedMode = false; // Listening for connections after disconnect
     bool m_resetBoard = true;

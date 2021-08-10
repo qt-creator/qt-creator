@@ -65,7 +65,7 @@ public:
     void terminate() override
     {
         ProjectExplorer::Runnable r;
-        r.command = {QString(Constants::AppcontrollerFilepath), {"--stop"}};
+        r.command = {Constants::AppcontrollerFilepath, {"--stop"}};
 
         (new ApplicationLauncher(this))->start(r, device());
     }

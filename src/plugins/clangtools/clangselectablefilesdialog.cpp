@@ -124,7 +124,7 @@ public:
             // Add files outside of the base directory to a separate node
             Tree *externalFilesNode = createDirNode(SelectableFilesDialog::tr(
                                                         "Files outside of the base directory"),
-                                                    FilePath::fromString("/"));
+                                                    "/");
             linkDirNode(m_root, externalFilesNode);
             for (const FileInfo &fileInfo : outOfBaseDirFiles)
                 linkFileNode(externalFilesNode, createFileNode(fileInfo, true));

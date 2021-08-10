@@ -106,7 +106,7 @@ private:
         MacroExpander *expander = target()->kit()->macroExpander();
         CommandLine cmd;
         if (dockerBuildDevice()) {
-            CommandLine dockerCmd(QString::fromLatin1(DOCKER_COMMAND));
+            CommandLine dockerCmd(DOCKER_COMMAND);
             QString dockerCommand = m_dockerCommand->value();
 
             // Sneak working directory into docker "run" or "exec" call
@@ -119,7 +119,7 @@ private:
             dockerCmd.addArgs(expander->expand(m_command->value()), CommandLine::Raw);
             cmd = dockerCmd;
         } else {
-            CommandLine localCmd(expander->expand(m_command->value()));
+            CommandLine localCmd(FilePath::fromString(expander->expand(m_command->value())));
             cmd = localCmd;
         }
         cmd.addArgs(expander->expand(m_arguments->value()), CommandLine::Raw);

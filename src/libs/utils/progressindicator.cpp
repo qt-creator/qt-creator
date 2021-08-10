@@ -73,24 +73,21 @@
            Very large progress indicator that can be used to cover large parts of a UI.
 */
 
-namespace {
+namespace Utils {
 
-static QString imageFileNameForIndicatorSize(Utils::ProgressIndicatorSize size)
+static FilePath imageFileNameForIndicatorSize(ProgressIndicatorSize size)
 {
     switch (size) {
-    case Utils::ProgressIndicatorSize::Large:
-        return QLatin1String(":/utils/images/progressindicator_big.png");
-    case Utils::ProgressIndicatorSize::Medium:
-        return QLatin1String(":/utils/images/progressindicator_medium.png");
-    case Utils::ProgressIndicatorSize::Small:
+    case ProgressIndicatorSize::Large:
+        return ":/utils/images/progressindicator_big.png";
+    case ProgressIndicatorSize::Medium:
+        return ":/utils/images/progressindicator_medium.png";
+    case ProgressIndicatorSize::Small:
     default:
-            return QLatin1String(":/utils/images/progressindicator_small.png");
+        return ":/utils/images/progressindicator_small.png";
     }
 }
 
-} // namespace
-
-namespace Utils {
 
 /*!
     Constructs a progress indicator painter for the indicator \a size.

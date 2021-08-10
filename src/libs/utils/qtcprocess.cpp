@@ -535,7 +535,7 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start(const QString &cmd, const QStringList &args)
 {
-    setCommand({cmd, args});
+    setCommand({FilePath::fromString(cmd), args});
     start();
 }
 

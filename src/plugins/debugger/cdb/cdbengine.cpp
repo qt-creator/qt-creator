@@ -2453,7 +2453,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePat
     else
         src = QString::fromLocal8Bit(filePath.fileContents()).toUtf8();
 
-    CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, filePath.toString());
+    CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, filePath);
     doc->parse();
     return doc;
 }

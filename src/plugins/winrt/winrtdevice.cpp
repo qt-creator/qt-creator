@@ -149,7 +149,7 @@ void WinRtDeviceFactory::autoDetect()
         connect(m_process, &QtcProcess::finished, this, &WinRtDeviceFactory::onProcessFinished);
     }
 
-    const CommandLine cmd{runnerFilePath, {"--list-devices"}};
+    const CommandLine cmd{FilePath::fromString(runnerFilePath), {"--list-devices"}};
     m_process->setCommand(cmd);
     qCDebug(winrtDeviceLog) << __FUNCTION__ << "Starting process" << cmd.toUserOutput();
     m_process->start();

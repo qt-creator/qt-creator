@@ -153,7 +153,7 @@ public:
         arguments << "-o" << "-" << "--" << perfRunnable.command.executable().toString()
                   << ProcessArgs::splitArgs(perfRunnable.command.arguments(), OsTypeLinux);
 
-        perfRunnable.command.setExecutable(FilePath::fromString("perf"));
+        perfRunnable.command.setExecutable("perf");
         perfRunnable.command.setArguments(ProcessArgs::joinArgs(arguments, OsTypeLinux));
         m_process->start(perfRunnable);
     }

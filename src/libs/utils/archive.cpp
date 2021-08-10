@@ -251,13 +251,13 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
     QTimer::singleShot(0, archive, [archive, tool, workingDirectory] {
         archive->outputReceived(
             tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
-                .arg(CommandLine(tool->executable, tool->arguments).toUserOutput(),
+                .arg(CommandLine(FilePath::fromString(tool->executable), tool->arguments).toUserOutput(),
                      workingDirectory));
     });
 
     CommandLine cmd = tool->nativeWindowsArguments
         ? CommandLine{FilePath::fromString(tool->executable), tool->arguments[0], CommandLine::Raw}
-        : CommandLine{tool->executable, tool->arguments};
+        : CommandLine{FilePath::fromString(tool->executable), tool->arguments};
     archive->m_process->setCommand(cmd);
     archive->m_process->setWorkingDirectory(workingDirectory);
     archive->m_process->start();

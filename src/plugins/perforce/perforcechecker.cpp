@@ -89,7 +89,7 @@ void PerforceChecker::start(const QString &binary, const QString &workingDirecto
     if (!workingDirectory.isEmpty())
         m_process.setWorkingDirectory(workingDirectory);
 
-    m_process.setCommand({m_binary, args});
+    m_process.setCommand({FilePath::fromString(m_binary), args});
     m_process.start();
     // Timeout handling
     m_timeOutMS = timeoutMS;

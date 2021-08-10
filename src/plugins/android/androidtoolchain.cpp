@@ -146,7 +146,7 @@ FilePath AndroidToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     FilePath makePath = AndroidConfigurations::currentConfig().makePathFromNdk(m_ndkLocation);
-    return makePath.exists() ? makePath : FilePath::fromString("make");
+    return makePath.exists() ? makePath : FilePath("make");
 }
 
 GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const

@@ -195,7 +195,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 
         const Snapshot snapshot = globalSnapshot();
         Document::Ptr document = snapshot.preprocessedDocument(
-            editorWidget->document()->toPlainText().toUtf8(), filePath);
+            editorWidget->document()->toPlainText().toUtf8(), Utils::FilePath::fromString(filePath));
         QVERIFY(document);
         document->parse();
         TranslationUnit *translationUnit = document->translationUnit();

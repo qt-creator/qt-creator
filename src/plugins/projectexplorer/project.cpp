@@ -1100,7 +1100,7 @@ static Utils::FilePath constructTestPath(const char *basePath)
 {
     Utils::FilePath drive;
     if (Utils::HostOsInfo::isWindowsHost())
-        drive = Utils::FilePath::fromString("C:");
+        drive = "C:";
     return drive + QLatin1String(basePath);
 }
 
@@ -1304,7 +1304,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     QVERIFY(tempDir->isValid());
     QString error;
     const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
-    FileUtils::copyRecursively(FilePath::fromString(":/projectexplorer/testdata/generic-project"),
+    FileUtils::copyRecursively(":/projectexplorer/testdata/generic-project",
                                projectDir, &error);
     QVERIFY2(error.isEmpty(), qPrintable(error));
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);

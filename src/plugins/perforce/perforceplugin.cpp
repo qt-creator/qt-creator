@@ -1264,7 +1264,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
             process.setStdOutCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
     }
     process.setTimeOutMessageBoxEnabled(true);
-    process.setCommand({m_settings.p4BinaryPath.value(), args});
+    process.setCommand({m_settings.p4BinaryPath.filePath(), args});
     process.setProcessUserEventWhileRunning();
     process.runBlocking();
 
@@ -1309,7 +1309,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
         process.setWorkingDirectory(workingDir);
 
     PerforceResponse response;
-    process.setCommand({m_settings.p4BinaryPath.value(), args});
+    process.setCommand({m_settings.p4BinaryPath.filePath(), args});
     process.setWriteData(stdInput);
     process.start();
 
@@ -1377,7 +1377,7 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        VcsOutputWindow::appendCommand(workingDir.toString(), {m_settings.p4BinaryPath.value(), actualArgs});
+        VcsOutputWindow::appendCommand(workingDir.toString(), {m_settings.p4BinaryPath.filePath(), actualArgs});
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

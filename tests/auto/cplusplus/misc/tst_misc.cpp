@@ -207,7 +207,7 @@ void tst_Misc::findBreakpoints3()
 static Document::Ptr documentCreatedWithFastPreprocessor(const QByteArray source)
 {
     Snapshot snapshot;
-    auto document = snapshot.preprocessedDocument(source, QLatin1String("test.cpp"));
+    auto document = snapshot.preprocessedDocument(source, "test.cpp");
     document->check();
     return document;
 }

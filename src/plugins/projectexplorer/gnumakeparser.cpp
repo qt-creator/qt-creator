@@ -344,7 +344,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "overriding commands for target `xxxx.app/Contents/Info.plist'",
-                                   FilePath::fromString("Makefile"), 794))
+                                   "Makefile", 794))
             << QString()
             << QStringList();
 }

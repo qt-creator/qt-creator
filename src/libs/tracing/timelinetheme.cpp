@@ -37,6 +37,8 @@
 #include <QQuickImageProvider>
 #include <QtQml>
 
+using namespace Utils;
+
 namespace Timeline {
 
 class TimelineImageIconProvider : public QQuickImageProvider
@@ -59,40 +61,35 @@ public:
                                       && idElements.at(1) == QLatin1String("disabled"))
                 ? QIcon::Disabled : QIcon::Normal;
 
-        Utils::Icon icon;
-        if (iconName == QLatin1String("prev"))
-            icon = Utils::Icons::PREV_TOOLBAR;
-        else if (iconName == QLatin1String("next"))
-            icon = Utils::Icons::NEXT_TOOLBAR;
-        else if (iconName == QLatin1String("zoom"))
-            icon = Utils::Icons::ZOOM_TOOLBAR;
-        else if (iconName == QLatin1String("rangeselection"))
-            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_rangeselection.png"),
-                                 Utils::Theme::IconsBaseColor}});
-        else if (iconName == QLatin1String("rangeselected"))
-            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_rangeselected.png"),
-                                 Utils::Theme::IconsBaseColor}});
-        else if (iconName == QLatin1String("selectionmode"))
-            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_selectionmode.png"),
-                                 Utils::Theme::IconsBaseColor}});
-        else if (iconName == QLatin1String("edit"))
-            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/ico_edit.png"),
-                                 Utils::Theme::IconsBaseColor}});
-        else if (iconName == QLatin1String("lock_open"))
-            icon = Utils::Icons::UNLOCKED_TOOLBAR;
-        else if (iconName == QLatin1String("lock_closed"))
-            icon = Utils::Icons::LOCKED_TOOLBAR;
-        else if (iconName == QLatin1String("range_handle"))
-            icon = Utils::Icon({{QLatin1String(":/QtCreator/Tracing/range_handle.png"),
-                                 Utils::Theme::IconsBaseColor}});
-        else if (iconName == QLatin1String("note"))
-            icon = Utils::Icons::INFO_TOOLBAR;
-        else if (iconName == QLatin1String("split"))
-            icon = Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR;
-        else if (iconName == QLatin1String("close_split"))
-            icon = Utils::Icons::CLOSE_SPLIT_TOP;
-        else if (iconName == QLatin1String("close_window"))
-            icon = Utils::Icons::CLOSE_TOOLBAR;
+        Icon icon;
+        if (iconName == "prev")
+            icon = Icons::PREV_TOOLBAR;
+        else if (iconName == "next")
+            icon = Icons::NEXT_TOOLBAR;
+        else if (iconName == "zoom")
+            icon = Icons::ZOOM_TOOLBAR;
+        else if (iconName == "rangeselection")
+            icon = Icon({{":/QtCreator/Tracing/ico_rangeselection.png", Theme::IconsBaseColor}});
+        else if (iconName == "rangeselected")
+            icon = Icon({{":/QtCreator/Tracing/ico_rangeselected.png", Theme::IconsBaseColor}});
+        else if (iconName == "selectionmode")
+            icon = Icon({{":/QtCreator/Tracing/ico_selectionmode.png", Theme::IconsBaseColor}});
+        else if (iconName == "edit")
+            icon = Icon({{":/QtCreator/Tracing/ico_edit.png", Theme::IconsBaseColor}});
+        else if (iconName == "lock_open")
+            icon = Icons::UNLOCKED_TOOLBAR;
+        else if (iconName == "lock_closed")
+            icon = Icons::LOCKED_TOOLBAR;
+        else if (iconName == "range_handle")
+            icon = Icon({{":/QtCreator/Tracing/range_handle.png", Theme::IconsBaseColor}});
+        else if (iconName == "note")
+            icon = Icons::INFO_TOOLBAR;
+        else if (iconName == "split")
+            icon = Icons::SPLIT_HORIZONTAL_TOOLBAR;
+        else if (iconName == "close_split")
+            icon = Icons::CLOSE_SPLIT_TOP;
+        else if (iconName == "close_window")
+            icon = Icons::CLOSE_TOOLBAR;
 
         const QSize iconSize(16, 16);
         const QPixmap result = icon.icon().pixmap(iconSize, iconMode);

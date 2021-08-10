@@ -831,7 +831,7 @@ void tst_QtcProcess::exitCode()
     env.set(kExitCodeSubProcessCode, QString::number(exitCode));
     QStringList args = QCoreApplication::arguments();
     const QString binary = args.takeFirst();
-    const CommandLine command(binary, args);
+    const CommandLine command(FilePath::fromString(binary), args);
 
     {
         QtcProcess qtcP;
@@ -879,7 +879,7 @@ void tst_QtcProcess::runBlockingStdOut()
     QtcProcess sp;
     QStringList args = QCoreApplication::arguments();
     const QString binary = args.takeFirst();
-    sp.setCommand(CommandLine(binary, args));
+    sp.setCommand(CommandLine(FilePath::fromString(binary), args));
     Environment env = Environment::systemEnvironment();
     env.set(kRunBlockingStdOutSubProcessWithEndl, withEndl ? "true" : "false");
     sp.setEnvironment(env);
@@ -906,7 +906,7 @@ void tst_QtcProcess::lineCallback()
     QtcProcess process;
     QStringList args = QCoreApplication::arguments();
     const QString binary = args.takeFirst();
-    process.setCommand(CommandLine(binary, args));
+    process.setCommand(CommandLine(FilePath::fromString(binary), args));
     Environment env = Environment::systemEnvironment();
     env.set(kLineCallback, "Yes");
     process.setEnvironment(env);

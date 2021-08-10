@@ -74,7 +74,7 @@ public:
     SourceToolAction() : AbstractAction(QCoreApplication::translate("SourceToolAction","Change Source URL..."))
     {
         const Utils::Icon prevIcon({
-                {QLatin1String(":/utils/images/fileopen.png"), Utils::Theme::OutputPanes_NormalMessageTextColor}}, Utils::Icon::MenuTintedStyle);
+                {":/utils/images/fileopen.png", Utils::Theme::OutputPanes_NormalMessageTextColor}}, Utils::Icon::MenuTintedStyle);
 
         action()->setIcon(prevIcon.icon());
     }

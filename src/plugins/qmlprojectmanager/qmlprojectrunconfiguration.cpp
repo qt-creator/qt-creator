@@ -190,7 +190,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
-        return isDesktop ? version->qmlRuntimeFilePath() : FilePath::fromString("qmlscene");
+        return isDesktop ? version->qmlRuntimeFilePath() : "qmlscene";
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit);

@@ -70,7 +70,7 @@ public:
 class BasicTestSettingsAccessor : public Utils::MergingSettingsAccessor
 {
 public:
-    BasicTestSettingsAccessor(const Utils::FilePath &baseName = Utils::FilePath::fromString("/foo/bar"),
+    BasicTestSettingsAccessor(const FilePath &baseName = "/foo/bar",
                               const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID));
 
     using Utils::MergingSettingsAccessor::addVersionUpgrader;
@@ -153,7 +153,7 @@ public:
 class TestSettingsAccessor : public BasicTestSettingsAccessor
 {
 public:
-    TestSettingsAccessor(const Utils::FilePath &baseName = Utils::FilePath::fromString("/foo/baz"),
+    TestSettingsAccessor(const FilePath &baseName = "/foo/baz",
                          const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
         BasicTestSettingsAccessor(baseName, id)
     {
@@ -241,11 +241,11 @@ static Utils::SettingsAccessor::RestoreData restoreData(const Utils::FilePath &p
     return Utils::SettingsAccessor::RestoreData(path, data);
 }
 
-static Utils::SettingsAccessor::RestoreData restoreData(const QByteArray &path,
-                                                        const QVariantMap &data)
-{
-    return restoreData(Utils::FilePath::fromUtf8(path), data);
-}
+//static Utils::SettingsAccessor::RestoreData restoreData(const QByteArray &path,
+//                                                        const QVariantMap &data)
+//{
+//    return restoreData(Utils::FilePath::fromUtf8(path), data);
+//}
 
 void tst_SettingsAccessor::addVersionUpgrader()
 {
@@ -365,7 +365,7 @@ void tst_SettingsAccessor::RestoreDataCompare_idMismatch()
 
 void tst_SettingsAccessor::RestoreDataCompare_noId()
 {
-    const TestSettingsAccessor accessor(Utils::FilePath::fromString("/foo/baz"), QByteArray());
+    const TestSettingsAccessor accessor("/foo/baz", QByteArray());
 
     Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
     Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
@@ -602,7 +602,7 @@ void tst_SettingsAccessor::findIssues_ok()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = Utils::FilePath::fromString("/foo/baz.user");
+    const Utils::FilePath path = "/foo/baz.user";
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -613,7 +613,7 @@ void tst_SettingsAccessor::findIssues_emptyData()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data;
-    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
+    const Utils::FilePath path = "/foo/bar.user";
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -624,7 +624,7 @@ void tst_SettingsAccessor::findIssues_tooNew()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(42, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
+    const Utils::FilePath path = "/foo/bar.user";
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -635,7 +635,7 @@ void tst_SettingsAccessor::findIssues_tooOld()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(2, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
+    const Utils::FilePath path = "/foo/bar.user";
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -646,7 +646,7 @@ void tst_SettingsAccessor::findIssues_wrongId()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, "foo");
-    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
+    const Utils::FilePath path = "/foo/bar.user";
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -657,7 +657,7 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user.foobar");
+    const Utils::FilePath path = "/foo/bar.user.foobar";
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -667,7 +667,7 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
 
 void tst_SettingsAccessor::saveSettings()
 {
-    const Utils::FilePath baseFile = Utils::FilePath::fromString("/tmp/foo/saveSettings");
+    const FilePath baseFile = "/tmp/foo/saveSettings";
     const TestSettingsAccessor accessor(baseFile);
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
 
@@ -691,7 +691,7 @@ void tst_SettingsAccessor::saveSettings()
 void tst_SettingsAccessor::loadSettings()
 {
     const QVariantMap data = versionedMap(6, "loadSettings", generateExtraData());
-    const Utils::FilePath path = Utils::FilePath::fromString("/tmp/foo/loadSettings");
+    const FilePath path = "/tmp/foo/loadSettings";
     const TestSettingsAccessor accessor(path, "loadSettings");
     accessor.addFile(path, data);
     QCOMPARE(accessor.files().count(), 1); // Catch changes early:-)
@@ -719,17 +719,17 @@ void tst_SettingsAccessor::loadSettings()
 
 void tst_SettingsAccessor::loadSettings_pickBest()
 {
-    const Utils::FilePath path = Utils::FilePath::fromString("/tmp/foo/loadSettings");
+    const FilePath path = "/tmp/foo/loadSettings";
     const TestSettingsAccessor accessor(path, "loadSettings");
 
     accessor.addFile(path, versionedMap(10, "loadSettings", generateExtraData())); // too new
     const QVariantMap data = versionedMap(7, "loadSettings", generateExtraData());
-    accessor.addFile(Utils::FilePath::fromString("/tmp/foo/loadSettings.foo"), data); // pick this!
-    accessor.addFile(Utils::FilePath::fromString("/tmp/foo/loadSettings.foo1"),
+    accessor.addFile("/tmp/foo/loadSettings.foo", data); // pick this!
+    accessor.addFile("/tmp/foo/loadSettings.foo1",
                      versionedMap(8, "fooSettings", generateExtraData())); // wrong environment
-    accessor.addFile(Utils::FilePath::fromString("/tmp/foo/loadSettings.bar"),
+    accessor.addFile("/tmp/foo/loadSettings.bar",
                      versionedMap(6, "loadSettings", generateExtraData())); // too old
-    accessor.addFile(Utils::FilePath::fromString("/tmp/foo/loadSettings.baz"),
+    accessor.addFile("/tmp/foo/loadSettings.baz",
                      versionedMap(1, "loadSettings", generateExtraData())); // much too old
     QCOMPARE(accessor.files().count(), 5); // Catch changes early:-)
 

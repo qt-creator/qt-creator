@@ -163,22 +163,9 @@ Icon::Icon(std::initializer_list<IconMaskAndColor> args, Icon::IconStyleOptions 
 {
 }
 
-Icon::Icon(std::initializer_list<IconStringMaskAndColor> args, Icon::IconStyleOptions style)
-    : m_style(style)
-{
-    reserve(int(args.size()));
-    for (const IconStringMaskAndColor &i : args)
-        append({FilePath::fromString(i.first), i.second});
-}
-
 Icon::Icon(const FilePath &imageFileName)
 {
     append({imageFileName, Theme::Color(-1)});
-}
-
-Icon::Icon(const QString &imageFileName)
-    : Icon(FilePath::fromString(imageFileName))
-{
 }
 
 QIcon Icon::icon() const

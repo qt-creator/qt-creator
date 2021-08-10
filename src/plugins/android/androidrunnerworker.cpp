@@ -535,10 +535,10 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     }
 
     const QStringList logcatArgs = selector() << "logcat" << timeArg;
-    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
+    const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
     qCDebug(androidRunWorkerLog) << "Running logcat command (async):"
                                  << CommandLine(adb, logcatArgs).toUserOutput();
-    m_adbLogcatProcess->start(adb, logcatArgs);
+    m_adbLogcatProcess->start(adb.toString(), logcatArgs);
     if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
         m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
 }

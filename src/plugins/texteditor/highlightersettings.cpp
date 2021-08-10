@@ -70,8 +70,8 @@ QString findFallbackDefinitionsLocation()
         }
 
         // Try kde-config.
-        const QStringList programs = {"kde-config", "kde4-config"};
-        for (auto &program : programs) {
+        const Utils::FilePath programs[] = {"kde-config", "kde4-config"};
+        for (const auto &program : programs) {
             Utils::QtcProcess process;
             process.setTimeoutS(5);
             process.setCommand({program, {"--prefix"}});

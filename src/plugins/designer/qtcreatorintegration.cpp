@@ -66,6 +66,7 @@ using namespace Designer::Internal;
 using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 static QString msgClassNotFound(const QString &uiClassName, const QList<Document::Ptr> &docList)
 {
@@ -413,7 +414,7 @@ static Document::Ptr getParsedDocument(const QString &fileName,
             src = QString::fromLocal8Bit(reader.data()).toUtf8();
     }
 
-    Document::Ptr doc = snapshot.preprocessedDocument(src, fileName);
+    Document::Ptr doc = snapshot.preprocessedDocument(src, FilePath::fromString(fileName));
     doc->check();
     snapshot.insert(doc);
     return doc;

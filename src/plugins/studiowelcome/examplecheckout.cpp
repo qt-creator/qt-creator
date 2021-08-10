@@ -219,7 +219,7 @@ FileExtractor::FileExtractor(QObject *parent)
     if (Core::DocumentManager::instance())
         m_targetPath = Core::DocumentManager::projectsDirectory();
     else
-        m_targetPath = Utils::FilePath::fromString("/temp/");
+        m_targetPath = "/temp/";
 
     m_timer.setInterval(500);
     m_timer.setSingleShot(false);

@@ -103,7 +103,7 @@ void ImageViewer::ctor()
     d->ui_toolbar.toolButtonExportImage->setIcon(Utils::Icons::EXPORTFILE_TOOLBAR.icon());
     d->ui_toolbar.toolButtonMultiExportImages->setIcon(Utils::Icons::MULTIEXPORTFILE_TOOLBAR.icon());
     const Utils::Icon backgroundIcon({
-            {QLatin1String(":/utils/images/desktopdevicesmall.png"), Utils::Theme::IconsBaseColor}});
+            {":/utils/images/desktopdevicesmall.png", Utils::Theme::IconsBaseColor}});
     d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
     d->ui_toolbar.toolButtonOutline->setIcon(Utils::Icons::BOUNDING_RECT.icon());
     d->ui_toolbar.toolButtonZoomIn->setIcon(

@@ -185,7 +185,7 @@ void IOptionsPage::finish()
 */
 void IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 {
-    m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
+    m_categoryIcon = Icon({{FilePath::fromString(categoryIconPath), Theme::PanelTextColorDark}}, Icon::Tint);
 }
 
 void IOptionsPage::setSettings(AspectContainer *settings)

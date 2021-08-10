@@ -164,7 +164,8 @@ bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
             return false;
         source = file.readAll();
     }
-    const auto doc = snapshot.preprocessedDocument(source, item->fileName());
+    const auto doc = snapshot.preprocessedDocument(source,
+                                                   Utils::FilePath::fromString(item->fileName()));
     if (!doc)
         return false;
     doc->check();

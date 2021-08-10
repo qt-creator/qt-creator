@@ -178,10 +178,9 @@ void QmlProfilerDetailsRewriterTest::testPopulateFileFinder()
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"), QString());
 
     // Test that the rewriter will populate from available projects if given nullptr as parameter.
-    DummyProject *project1 = new DummyProject(Utils::FilePath::fromString(":/nix.nix"));
+    DummyProject *project1 = new DummyProject(":/nix.nix");
     ProjectExplorer::SessionManager::addProject(project1);
-    DummyProject *project2 = new DummyProject(
-                Utils::FilePath::fromString(":/qmlprofiler/tests/Test.qml"));
+    DummyProject *project2 = new DummyProject(":/qmlprofiler/tests/Test.qml");
     ProjectExplorer::SessionManager::addProject(project2);
     m_rewriter.populateFileFinder(nullptr);
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"),
@@ -216,8 +215,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     QVERIFY(!doc->source().isEmpty());
 
     auto kit = std::make_unique<ProjectExplorer::Kit>();
-    ProjectExplorer::SysRootKitAspect::setSysRoot(
-                kit.get(), Utils::FilePath::fromString("/nowhere"));
+    ProjectExplorer::SysRootKitAspect::setSysRoot(kit.get(), "/nowhere");
 
     DummyProject *project = new DummyProject(Utils::FilePath::fromString(filename));
     ProjectExplorer::SessionManager::addProject(project);

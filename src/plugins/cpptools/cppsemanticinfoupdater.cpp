@@ -118,7 +118,8 @@ SemanticInfo SemanticInfoUpdaterPrivate::update(const SemanticInfo::Source &sour
     newSemanticInfo.revision = source.revision;
     newSemanticInfo.snapshot = source.snapshot;
 
-    Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code, source.fileName);
+    Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code,
+                                          Utils::FilePath::fromString(source.fileName));
     if (processor)
         doc->control()->setTopLevelDeclarationProcessor(processor);
     doc->check();

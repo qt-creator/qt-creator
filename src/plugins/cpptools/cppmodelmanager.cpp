@@ -364,7 +364,8 @@ bool CppModelManager::positionRequiresSignal(const QString &filePath, const QByt
         fixedContent.insert(position, 'x');
 
     const Snapshot snapshot = this->snapshot();
-    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent, filePath);
+    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent,
+                                                                 Utils::FilePath::fromString(filePath));
     document->check();
     QTextDocument textDocument(QString::fromUtf8(fixedContent));
     QTextCursor cursor(&textDocument);

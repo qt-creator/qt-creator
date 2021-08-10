@@ -564,10 +564,7 @@ bool AndroidBuildApkStep::init()
 
     qCDebug(buildapkstepLog) << "APK or AAB path:" << m_packagePath;
 
-    QString command = version->hostBinPath().toString();
-    if (!command.endsWith('/'))
-        command += '/';
-    command += Utils::HostOsInfo::withExecutableSuffix("androiddeployqt");
+    FilePath command = version->hostBinPath().pathAppended(HostOsInfo::withExecutableSuffix("androiddeployqt"));
 
     QString outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 

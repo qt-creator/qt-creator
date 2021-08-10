@@ -376,8 +376,8 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     // Customize kit numbers 1 and 2:
     QtKitAspect::setQtVersion(kitTemplates[1], nullptr);
     QtKitAspect::setQtVersion(kitTemplates[2], nullptr);
-    SysRootKitAspect::setSysRoot(kitTemplates[1], Utils::FilePath::fromString("/some/path"));
-    SysRootKitAspect::setSysRoot(kitTemplates[2], Utils::FilePath::fromString("/some/other/path"));
+    SysRootKitAspect::setSysRoot(kitTemplates[1], "/some/path");
+    SysRootKitAspect::setSysRoot(kitTemplates[2], "/some/other/path");
 
     QVector<Utils::FilePath> qmakePaths = {defaultQt->qmakeFilePath(),
                                            setupQmake(defaultQt, tempDir1.path().path()),

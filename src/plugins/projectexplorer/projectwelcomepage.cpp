@@ -199,7 +199,7 @@ static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
 static QPixmap pixmap(const QString &id, const Theme::Color &color)
 {
     const QString fileName = QString(":/welcome/images/%1.png").arg(id);
-    return Icon({{fileName, color}}, Icon::Tint).pixmap();
+    return Icon({{FilePath::fromString(fileName), color}}, Icon::Tint).pixmap();
 }
 
 class BaseDelegate : public QAbstractItemDelegate

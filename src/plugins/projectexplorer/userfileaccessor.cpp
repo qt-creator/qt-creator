@@ -924,9 +924,7 @@ private:
 class TestProject : public Project
 {
 public:
-    TestProject() : Project("x-test/testproject", Utils::FilePath::fromString("/test/project")) {
-        setDisplayName("Test Project");
-    }
+    TestProject() : Project("x-test/testproject", "/test/project") { setDisplayName("Test Project"); }
 
     bool needsConfiguration() const final { return false; }
 };
@@ -1021,7 +1019,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
     sharedData.insert("shared1", "bar");
     sharedData.insert("shared2", "baz");
     sharedData.insert("shared3", "foooo");
-    TestUserFileAccessor::RestoreData shared(FilePath::fromString("/shared/data"), sharedData);
+    TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
 
     QVariantMap data;
     data.insert("Version", accessor.currentVersion());
@@ -1030,7 +1028,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
     data.insert("shared3", "foo");
-    TestUserFileAccessor::RestoreData user(FilePath::fromString("/user/data"), data);
+    TestUserFileAccessor::RestoreData user("/user/data", data);
     TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
 
     QVERIFY(!result.hasIssue());
@@ -1056,10 +1054,10 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyUser()
     sharedData.insert("shared1", "bar");
     sharedData.insert("shared2", "baz");
     sharedData.insert("shared3", "foooo");
-    TestUserFileAccessor::RestoreData shared(FilePath::fromString("/shared/data"), sharedData);
+    TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
 
     QVariantMap data;
-    TestUserFileAccessor::RestoreData user(FilePath::fromString("/shared/data"), data);
+    TestUserFileAccessor::RestoreData user("/shared/data", data);
 
     TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
 
@@ -1073,7 +1071,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
     TestUserFileAccessor accessor(&project);
 
     QVariantMap sharedData;
-    TestUserFileAccessor::RestoreData shared(FilePath::fromString("/shared/data"), sharedData);
+    TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
 
     QVariantMap data;
     data.insert("Version", accessor.currentVersion());
@@ -1083,7 +1081,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
     data.insert("shared3", "foo");
-    TestUserFileAccessor::RestoreData user(FilePath::fromString("/shared/data"), data);
+    TestUserFileAccessor::RestoreData user("/shared/data", data);
 
     TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
 

@@ -56,7 +56,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     int runCount = 0;
     int stopCount = 0;
 
-    debuggee.command.setExecutable(Utils::FilePath::fromString("\\-/|\\-/"));
+    debuggee.command.setExecutable("\\-/|\\-/");
     debuggee.environment = Utils::Environment::systemEnvironment();
 
     // should not be used anywhere but cannot be empty
@@ -110,7 +110,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     serverUrl = Utils::urlFromLocalSocket();
     // comma is used to specify a test function. In this case, an invalid one.
-    debuggee.command = Utils::CommandLine(QCoreApplication::applicationFilePath(), {"-test", "QmlProfiler,"});
+    debuggee.command = Utils::CommandLine(Utils::FilePath::fromString(QCoreApplication::applicationFilePath()),
+                                          {"-test", "QmlProfiler,"});
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
     profiler = new LocalQmlProfilerSupport(runControl, serverUrl);

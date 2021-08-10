@@ -77,7 +77,7 @@ void ValgrindToolRunner::start()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
 #endif
 
-    CommandLine valgrind{m_settings.valgrindExecutable.value()};
+    CommandLine valgrind{m_settings.valgrindExecutable.filePath()};
     valgrind.addArgs(m_settings.valgrindArguments.value(), CommandLine::Raw);
     valgrind.addArgs(genericToolArguments());
     valgrind.addArgs(toolArguments());

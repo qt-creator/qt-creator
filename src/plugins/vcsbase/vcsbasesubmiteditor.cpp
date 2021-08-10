@@ -660,7 +660,7 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     QtcProcess checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
-    checkProcess.setCommand({checkScript, {saver.filePath().toString()}});
+    checkProcess.setCommand({FilePath::fromString(checkScript), {saver.filePath().toString()}});
     checkProcess.start();
     if (!checkProcess.waitForStarted()) {
         *errorMessage = tr("The check script \"%1\" could not be started: %2").arg(checkScript, checkProcess.errorString());

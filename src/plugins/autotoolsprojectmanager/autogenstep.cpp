@@ -83,7 +83,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
     });
 
     setCommandLineProvider([arguments] {
-        return CommandLine(FilePath::fromString("./autogen.sh"),
+        return CommandLine(FilePath("./autogen.sh"),
                            arguments->value(),
                            CommandLine::Raw);
     });

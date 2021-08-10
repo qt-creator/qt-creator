@@ -54,6 +54,8 @@ class QTCREATOR_UTILS_EXPORT FilePath
 public:
     FilePath();
 
+    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(literal); }
+
     static FilePath fromString(const QString &filepath);
     static FilePath fromFileInfo(const QFileInfo &info);
     static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
@@ -178,6 +180,7 @@ public:
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
+    void setFromString(const QString &filepath);
 
     QString m_scheme;
     QString m_host;

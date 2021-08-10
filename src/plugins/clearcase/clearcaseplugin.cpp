@@ -1672,7 +1672,7 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
     VcsCommand command(workingDir, Environment::systemEnvironment());
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    command.runCommand(proc, {executable, arguments});
+    command.runCommand(proc, {FilePath::fromString(executable), arguments});
 
     response.error = proc.result() != QtcProcess::FinishedWithSuccess;
     if (response.error)

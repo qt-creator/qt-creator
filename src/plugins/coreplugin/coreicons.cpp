@@ -31,28 +31,28 @@ namespace Core {
 namespace Icons {
 
 const Icon QTCREATORLOGO_BIG(
-        QLatin1String(":/core/images/qtcreatorlogo-big.png"));
+        ":/core/images/qtcreatorlogo-big.png");
 const Icon FIND_CASE_INSENSITIVELY(
-        QLatin1String(":/find/images/casesensitively.png"));
+        ":/find/images/casesensitively.png");
 const Icon FIND_WHOLE_WORD(
-        QLatin1String(":/find/images/wholewords.png"));
+        ":/find/images/wholewords.png");
 const Icon FIND_REGEXP(
-        QLatin1String(":/find/images/regexp.png"));
+        ":/find/images/regexp.png");
 const Icon FIND_PRESERVE_CASE(
-        QLatin1String(":/find/images/preservecase.png"));
+        ":/find/images/preservecase.png");
 
 const Icon MODE_EDIT_CLASSIC(
-        QLatin1String(":/fancyactionbar/images/mode_Edit.png"));
+        ":/fancyactionbar/images/mode_Edit.png");
 const Icon MODE_EDIT_FLAT({
-        {QLatin1String(":/fancyactionbar/images/mode_edit_mask.png"), Theme::IconsBaseColor}});
+        {":/fancyactionbar/images/mode_edit_mask.png", Theme::IconsBaseColor}});
 const Icon MODE_EDIT_FLAT_ACTIVE({
-        {QLatin1String(":/fancyactionbar/images/mode_edit_mask.png"), Theme::IconsModeEditActiveColor}});
+        {":/fancyactionbar/images/mode_edit_mask.png", Theme::IconsModeEditActiveColor}});
 const Icon MODE_DESIGN_CLASSIC(
-        QLatin1String(":/fancyactionbar/images/mode_Design.png"));
+        ":/fancyactionbar/images/mode_Design.png");
 const Icon MODE_DESIGN_FLAT({
-        {QLatin1String(":/fancyactionbar/images/mode_design_mask.png"), Theme::IconsBaseColor}});
+        {":/fancyactionbar/images/mode_design_mask.png", Theme::IconsBaseColor}});
 const Icon MODE_DESIGN_FLAT_ACTIVE({
-        {QLatin1String(":/fancyactionbar/images/mode_design_mask.png"), Theme::IconsModeDesignActiveColor}});
+        {":/fancyactionbar/images/mode_design_mask.png", Theme::IconsModeDesignActiveColor}});
 
 } // namespace Icons
 } // namespace Core

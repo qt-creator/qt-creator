@@ -109,7 +109,7 @@ void Slog2InfoRunner::handleTestProcessCompleted()
 void Slog2InfoRunner::readLaunchTime()
 {
     Runnable r;
-    r.command = CommandLine(FilePath::fromString("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw);
+    r.command = CommandLine("date", "+\"%d %H:%M:%S\"", CommandLine::Raw);
     m_launchDateTimeProcess->start(r);
 }
 

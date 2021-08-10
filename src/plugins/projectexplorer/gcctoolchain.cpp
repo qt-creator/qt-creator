@@ -687,7 +687,7 @@ QStringList GccToolChain::suggestedMkspecList() const
 FilePath GccToolChain::makeCommand(const Environment &environment) const
 {
     const FilePath tmp = environment.searchInPath("make");
-    return tmp.isEmpty() ? FilePath::fromString("make") : tmp;
+    return tmp.isEmpty() ? "make" : tmp;
 }
 
 QList<OutputLineParser *> GccToolChain::createOutputParsers() const
@@ -1081,9 +1081,9 @@ static FilePaths findCompilerCandidates(const IDevice::Ptr &device,
         searchPaths << atmelSearchPathsFromRegistry();
         searchPaths << renesasRl78SearchPathsFromRegistry();
         if (HostOsInfo::isAnyUnixHost()) {
-            FilePath ccachePath = FilePath::fromString("/usr/lib/ccache/bin");
+            FilePath ccachePath = "/usr/lib/ccache/bin";
             if (!ccachePath.exists())
-                ccachePath = FilePath::fromString("/usr/lib/ccache");
+                ccachePath = "/usr/lib/ccache";
             if (ccachePath.exists() && !searchPaths.contains(ccachePath))
                 searchPaths << ccachePath;
         }

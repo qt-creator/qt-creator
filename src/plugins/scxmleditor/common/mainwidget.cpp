@@ -83,6 +83,8 @@ using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
 using namespace ScxmlEditor::OutputPane;
 
+using namespace Utils;
+
 void msgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QString strOutput;
@@ -159,7 +161,7 @@ static QIcon toolButtonIcon(ActionType actionType)
         return QIcon();
     }
 
-    return Utils::Icon({{iconFileName, Utils::Theme::IconsBaseColor}}).icon();
+    return Icon({{FilePath::fromString(iconFileName), Theme::IconsBaseColor}}).icon();
 }
 
 MainWidget::MainWidget(QWidget *parent)

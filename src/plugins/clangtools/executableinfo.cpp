@@ -66,7 +66,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine, QueryFailMod
     return cpp.stdOut();
 }
 
-static QStringList queryClangTidyChecks(const QString &executable,
+static QStringList queryClangTidyChecks(const FilePath &executable,
                                         const QString &checksArgument)
 {
     QStringList arguments = QStringList("-list-checks");
@@ -100,7 +100,7 @@ static QStringList queryClangTidyChecks(const QString &executable,
     return checks;
 }
 
-static ClazyChecks querySupportedClazyChecks(const QString &executablePath)
+static ClazyChecks querySupportedClazyChecks(const FilePath &executablePath)
 {
     static const QString queryFlag = "-supported-checks-json";
     QString jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag}),
@@ -159,15 +159,15 @@ static ClazyChecks querySupportedClazyChecks(const QString &executablePath)
 }
 
 ClangTidyInfo::ClangTidyInfo(const QString &executablePath)
-    : defaultChecks(queryClangTidyChecks(executablePath, {}))
-    , supportedChecks(queryClangTidyChecks(executablePath, "-checks=*"))
+    : defaultChecks(queryClangTidyChecks(FilePath::fromString(executablePath), {}))
+    , supportedChecks(queryClangTidyChecks(FilePath::fromString(executablePath), "-checks=*"))
 {}
 
 ClazyStandaloneInfo::ClazyStandaloneInfo(const QString &executablePath)
-    : defaultChecks(queryClangTidyChecks(executablePath, {})) // Yup, behaves as clang-tidy.
-    , supportedChecks(querySupportedClazyChecks(executablePath))
+    : defaultChecks(queryClangTidyChecks(FilePath::fromString(executablePath), {})) // Yup, behaves as clang-tidy.
+    , supportedChecks(querySupportedClazyChecks(FilePath::fromString(executablePath)))
 {
-    QString output = runExecutable(CommandLine(executablePath, {"--version"}),
+    QString output = runExecutable(CommandLine(FilePath::fromString(executablePath), {"--version"}),
                                    QueryFailMode::Silent);
     QTextStream stream(&output);
     while (!stream.atEnd()) {

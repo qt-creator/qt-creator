@@ -41,10 +41,11 @@
 #include <QPushButton>
 #include <QTimer>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace PerfProfiler {
 namespace Internal {
-
-using namespace ProjectExplorer;
 
 PerfTracePointDialog::PerfTracePointDialog() :
     m_ui(new Ui::PerfTracePointDialog)
@@ -102,7 +103,7 @@ void PerfTracePointDialog::runScript()
     Runnable runnable;
     const QString elevate = m_ui->privilegesChooser->currentText();
     if (elevate != QLatin1String("n.a."))
-        runnable.command = {elevate, {"sh"}};
+        runnable.command = {FilePath::fromString(elevate), {"sh"}};
     else
         runnable.command = {"sh", {}};
 
