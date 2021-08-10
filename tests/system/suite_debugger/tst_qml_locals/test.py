@@ -52,12 +52,12 @@ def main():
                         "Verifying Run and Debug are enabled (Qt5 is available).")
             and test.compare(target, Targets.getStringForTarget(Targets.getDefaultKit()),
                              "Verifying selected Target is Qt5.")
-            and test.compare(exe, "QML Utility", "Verifying selected executable is QML Utility.")):
+            and test.compare(exe, "QML Runtime", "Verifying selected executable is QML Runtime.")):
         earlyExit("Something went wrong opening Qml project - probably missing Qt5.")
         return
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(Targets.getDefaultKit(), ProjectSettings.RUN)
-    ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
+    ensureChecked("{container=':Qt Creator_Core::Internal::MainWindow' text='Enable QML' "
                   "type='QCheckBox' unnamed='1' visible='1'}")
     switchViewTo(ViewConstants.EDIT)
     clickButton(fancyDebugButton)
