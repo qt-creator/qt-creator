@@ -128,6 +128,7 @@ public:
 
     void setLocatorsEnabled(bool enabled) { m_locatorsEnabled = enabled; }
     bool locatorsEnabled() const { return m_locatorsEnabled; }
+    void setAutoRequestCodeActions(bool enabled) { m_autoRequestCodeActions = enabled; }
 
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
@@ -281,6 +282,7 @@ private:
     QString m_serverVersion;
     LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
     bool m_locatorsEnabled = true;
+    bool m_autoRequestCodeActions = true;
 };
 
 } // namespace LanguageClient

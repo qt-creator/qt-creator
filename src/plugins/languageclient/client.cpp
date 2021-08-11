@@ -1317,7 +1317,8 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     m_diagnosticManager.setDiagnostics(uri, diagnostics, params.version());
     if (LanguageClientManager::clientForUri(uri) == this) {
         m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(uri.toFilePath()));
-        requestCodeActions(uri, diagnostics);
+        if (m_autoRequestCodeActions)
+            requestCodeActions(uri, diagnostics);
     }
 }
 
