@@ -357,14 +357,16 @@ QVector<Comment> AnnotationTableView::fetchComments() const
 
 Comment AnnotationTableView::fetchComment(int row) const
 {
-    auto *item = m_model->item(row, ColumnId::Title);
-    if (item->text().isEmpty())
+    const auto *item = m_model->item(row, ColumnId::Title);
+    Comment comment = item->data().value<Comment>();
+
+    if (comment.isEmpty())
         return {};
 
-    Comment comment = item->data().value<Comment>();
     comment.setTitle(item->text());
     comment.setAuthor(m_model->item(row, ColumnId::Author)->text());
     comment.setText(dataToCommentText(m_model->item(row, ColumnId::Value)->data(Qt::DisplayRole)));
+
     return comment;
 }
 
