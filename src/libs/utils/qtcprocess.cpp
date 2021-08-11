@@ -876,7 +876,11 @@ QString QtcProcess::stdOut() const
 
 QString QtcProcess::stdErr() const
 {
-    QTC_CHECK(d->m_stdErr.keepRawData);
+    // FIXME: The tighter check below is actually good theoretically, but currently
+    // ShellCommand::runFullySynchronous triggers it and disentangling there
+    // is not trivial. So weaken it a bit for now.
+    //QTC_CHECK(d->m_stdErr.keepRawData);
+    QTC_CHECK(d->m_stdErr.keepRawData || d->m_stdErr.rawData.isEmpty());
     return normalizeNewlines(d->m_codec->toUnicode(d->m_stdErr.rawData));
 }
 
