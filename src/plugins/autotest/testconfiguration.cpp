@@ -52,7 +52,7 @@ using namespace Utils;
 namespace Autotest {
 
 
-ITestConfiguration::ITestConfiguration(Autotest::ITestBase *testBase)
+ITestConfiguration::ITestConfiguration(ITestBase *testBase)
     : m_testBase(testBase)
 {
 }
@@ -62,14 +62,14 @@ void ITestConfiguration::setWorkingDirectory(const FilePath &workingDirectory)
     m_runnable.workingDirectory = workingDirectory;
 }
 
-Utils::FilePath ITestConfiguration::workingDirectory() const
+FilePath ITestConfiguration::workingDirectory() const
 {
     if (!m_runnable.workingDirectory.isEmpty()) {
         if (m_runnable.workingDirectory.isDir()) // ensure wanted working dir does exist
             return m_runnable.workingDirectory.absoluteFilePath();
     }
 
-    const Utils::FilePath executable = executableFilePath();
+    const FilePath executable = executableFilePath();
     return executable.isEmpty() ? executable : executable.absolutePath();
 }
 
@@ -78,7 +78,7 @@ bool ITestConfiguration::hasExecutable() const
     return !m_runnable.command.isEmpty();
 }
 
-Utils::FilePath ITestConfiguration::executableFilePath() const
+FilePath ITestConfiguration::executableFilePath() const
 {
     if (!hasExecutable())
         return {};
@@ -89,7 +89,7 @@ Utils::FilePath ITestConfiguration::executableFilePath() const
         QString fullCommandFileName = m_runnable.command.executable().toString();
         // TODO: check if we can use searchInPath() from Utils::Environment
         const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
-                .split(Utils::HostOsInfo::pathListSeparator());
+                .split(HostOsInfo::pathListSeparator());
 
         for (const QString &path : pathList) {
             QString filePath(path + QDir::separator() + fullCommandFileName);
@@ -156,7 +156,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
     if (!targetInfo.targetFilePath.isEmpty())
         m_runnable.command.setExecutable(ensureExeEnding(targetInfo.targetFilePath));
 
-    Utils::FilePath buildBase;
+    FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
         const QString projBase = startupProject->projectDirectory().toString();
@@ -222,7 +222,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     if (localExecutable.isEmpty())
         return;
 
-    Utils::FilePath buildBase;
+    FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
         const QString projBase = startupProject->projectDirectory().toString();
@@ -315,12 +315,7 @@ void TestConfiguration::setTestCases(const QStringList &testCases)
     setTestCaseCount(m_testCases.size());
 }
 
-void TestConfiguration::setExecutableFile(const QString &executableFile)
-{
-    m_runnable.command.setExecutable(Utils::FilePath::fromString(executableFile));
-}
-
-void TestConfiguration::setProjectFile(const Utils::FilePath &projectFile)
+void TestConfiguration::setProjectFile(const FilePath &projectFile)
 {
     m_projectFile = projectFile;
 }

@@ -98,7 +98,6 @@ public:
     void completeTestInformation(ProjectExplorer::RunConfiguration *rc, TestRunMode runMode);
 
     void setTestCases(const QStringList &testCases);
-    void setExecutableFile(const QString &executableFile);
     void setProjectFile(const Utils::FilePath &projectFile);
     void setBuildDirectory(const Utils::FilePath &buildDirectory);
     void setInternalTarget(const QString &target);
