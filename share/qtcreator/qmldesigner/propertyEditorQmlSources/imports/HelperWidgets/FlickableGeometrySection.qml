@@ -73,11 +73,12 @@ Section {
                 text: qsTr("H", "height")
                 tooltip: qsTr("Content height used for calculating the total implicit height.")
             }
-
+/*
+            TODO QDS-4836
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             LinkIndicator2D {}
-
+*/
             ExpandingSpacer {}
         }
 
@@ -109,11 +110,12 @@ Section {
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
             ControlLabel { text: "Y" }
-
+/*
+            TODO QDS-4836
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             LinkIndicator2D {}
-
+*/
             ExpandingSpacer {}
         }
 
@@ -157,11 +159,12 @@ Section {
                 text: "Y"
                 enabled: backendValues.originY.isAvailable
             }
-
+/*
+            TODO QDS-4836
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             LinkIndicator2D {}
-
+*/
             ExpandingSpacer {}
         }
 

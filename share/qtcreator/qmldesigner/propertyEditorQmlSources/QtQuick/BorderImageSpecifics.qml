@@ -93,11 +93,12 @@ Column {
                     text: qsTr("H", "height")
                     enabled: backendValues.sourceSize_height.isAvailable
                 }
-
+/*
+                TODO QDS-4836
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
                 LinkIndicator2D {}
-
+*/
                 ExpandingSpacer {}
             }
 

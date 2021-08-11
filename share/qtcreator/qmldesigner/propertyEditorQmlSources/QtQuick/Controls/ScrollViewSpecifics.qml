@@ -83,11 +83,12 @@ Column {
                     text: qsTr("H", "height")
                     tooltip: qsTr("Content height used for calculating the total implicit height.")
                 }
-
+/*
+                TODO QDS-4836
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
                 LinkIndicator2D {}
-
+*/
                 ExpandingSpacer {}
             }
         }
