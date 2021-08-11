@@ -246,6 +246,7 @@ private:
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
+    QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
     QMap<TextEditor::TextDocument *,
          QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
