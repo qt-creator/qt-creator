@@ -130,6 +130,7 @@ ProcessReapers::~ProcessReapers()
             if (alreadyWaited < timeoutMs) {
                 const unsigned long toSleep = static_cast<unsigned long>(timeoutMs - alreadyWaited);
                 QThread::msleep(toSleep);
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
                 alreadyWaited += toSleep;
             }
 

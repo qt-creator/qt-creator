@@ -100,7 +100,7 @@ def performDebugging(projectName):
         test.log("Selecting '%s' as build config" % config)
         verifyBuildConfig(kit, config, True, True)
         waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton")
-        invokeMenuItem("Build", "Rebuild All Projects")
+        selectFromLocator("t rebuild", "Rebuild (Rebuild All Projects)")
         waitForCompile()
         isMsvc = isMsvcConfig(kit)
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))

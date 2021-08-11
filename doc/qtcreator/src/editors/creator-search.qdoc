@@ -243,6 +243,14 @@
         \li When searching, select \uicontrol {Silver Searcher} in the
             \uicontrol {Search engine} field.
 
+        \li If Silver Searcher is not found, you might have installed it in a
+            location that is not found via the \c{PATH} environment variable.
+            Select \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+            \uicontrol System (or \uicontrol {\QC} > \uicontrol Preferences >
+            \uicontrol Environment > \uicontrol System on macOS), then select
+            \uicontrol Change in the \uicontrol Environment field and add an entry
+            \c{PATH=/path/to/bin:${PATH}}.
+
     \endlist
     \endif
 */

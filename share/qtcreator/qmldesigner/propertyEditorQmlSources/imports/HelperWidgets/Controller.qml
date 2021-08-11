@@ -30,4 +30,7 @@ QtObject {
     id: values
 
     property Item mainScrollView
+
+    signal collapseAll()
+    signal expandAll()
 }

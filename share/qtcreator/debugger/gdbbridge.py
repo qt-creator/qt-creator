@@ -1165,7 +1165,8 @@ class Dumper(DumperBase):
     def appendSolibSearchPath(self, args):
         new = list(map(self.hexdecode, args['path']))
         old = [gdb.parameter('solib-search-path')]
-        gdb.execute('set solib-search-path %s' % args['separator'].join(old + new))
+        joined = os.pathsep.join([item for item in old + new if item != ''])
+        gdb.execute('set solib-search-path %s' % joined)
 
     def watchPoint(self, args):
         self.reportToken(args)

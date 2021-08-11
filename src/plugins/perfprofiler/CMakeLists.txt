@@ -49,6 +49,7 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
   )
 else() # < Qt 6.2
   add_qtc_plugin(PerfProfiler
+    CONDITION TARGET Tracing
     DEPENDS Tracing Qt5::QuickWidgets
     PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
     SOURCES

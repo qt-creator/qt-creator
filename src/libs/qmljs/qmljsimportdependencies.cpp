@@ -38,7 +38,7 @@
 #include <algorithm>
 
 static Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports", QtWarningMsg)
-static Q_LOGGING_CATEGORY(importsBenchmark, "qtc.qmljs.imports.benchmark", QtDebugMsg)
+static Q_LOGGING_CATEGORY(importsBenchmark, "qtc.qmljs.imports.benchmark", QtWarningMsg)
 
 
 class ImportsBenchmarker

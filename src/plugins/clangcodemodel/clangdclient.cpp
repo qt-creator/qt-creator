@@ -2298,15 +2298,21 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
                 styles.mainStyle = TextEditor::C_GLOBAL;
             }
         } else if (token.type == "function" || token.type == "method") {
-            styles.mainStyle = TextEditor::C_FUNCTION;
+            if (token.modifiers.contains("virtual"))
+                styles.mainStyle = TextEditor::C_VIRTUAL_METHOD;
+            else
+                styles.mainStyle = TextEditor::C_FUNCTION;
             if (ast.isValid()) {
                 const Position pos(token.line - 1, token.column - 1);
                 const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
                 if (path.length() > 1) {
                     const AstNode declNode = path.at(path.length() - 2);
                     if (declNode.kind() == "Function" || declNode.kind() == "CXXMethod") {
+
+                        // TODO: Remove this once we can assume clangd >= 14.
                         if (declNode.arcanaContains("' virtual"))
                             styles.mainStyle = TextEditor::C_VIRTUAL_METHOD;
+
                         if (declNode.hasChildWithRole("statement"))
                             styles.mixinStyles.push_back(TextEditor::C_FUNCTION_DEFINITION);
                     }

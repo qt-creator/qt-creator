@@ -58,10 +58,31 @@ public:
 //    };
 
 //    DockerBuildStepFactory buildStepFactory;
+    Utils::optional<bool> daemonRunning;
 };
+
+static DockerPlugin *s_instance = nullptr;
+
+DockerPlugin::DockerPlugin()
+{
+    s_instance = this;
+}
+
+// Utils::null_opt for not evaluated, true or false if it had been evaluated already
+Utils::optional<bool> DockerPlugin::isDaemonRunning()
+{
+    return s_instance ? s_instance->d->daemonRunning : Utils::nullopt;
+}
+
+void DockerPlugin::setGlobalDaemonState(Utils::optional<bool> state)
+{
+    QTC_ASSERT(s_instance, return);
+    s_instance->d->daemonRunning = state;
+}
 
 DockerPlugin::~DockerPlugin()
 {
+    s_instance = nullptr;
     delete d;
 }
 

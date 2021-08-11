@@ -68,7 +68,7 @@
             "enabled": "%{JS: !value('IsSubproject')}",
             "data": {
                  "projectFilePath": "%{ProjectFile}",
-                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQt.5"]
+                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuick", "QtSupport.Wizards.FeatureQtQuick.2" ]
             }
         },
         {

@@ -1,7 +1,11 @@
 #
 # Internal Qt Creator variable reference
 #
-set(__just_reference_QT_QMAKE_EXECUTABLE ${QT_QMAKE_EXECUTABLE})
+foreach(qtcreator_var
+    QT_QMAKE_EXECUTABLE CMAKE_PREFIX_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER
+    CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+  set(__just_reference_${qtcreator_var} ${${qtcreator_var}})
+endforeach()
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
   include("${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")

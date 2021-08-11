@@ -374,8 +374,9 @@ void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = *tokens;
         highlight(filePath);
+    } else {
+        m_tokens.remove(filePath);
     }
-    m_tokens.remove(filePath);
 }
 
 void SemanticTokenSupport::handleSemanticTokensDelta(

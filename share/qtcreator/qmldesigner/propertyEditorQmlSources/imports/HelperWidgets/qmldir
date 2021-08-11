@@ -53,6 +53,7 @@ OpacitySlider 2.0 OpacitySlider.qml
 OriginControl 2.0 OriginControl.qml
 OriginIndicator 2.0 OriginIndicator.qml
 OriginSelector 2.0 OriginSelector.qml
+PropertyEditorPane 2.0 PropertyEditorPane.qml
 PropertyLabel 2.0 PropertyLabel.qml
 PaddingSection 2.0 PaddingSection.qml
 RoundedPanel 2.0 RoundedPanel.qml

@@ -318,7 +318,7 @@ void Locator::saveSettings() const
     s->remove(QString());
     s->setValue("RefreshInterval", refreshInterval());
     for (ILocatorFilter *filter : m_filters) {
-        if (!m_customFilters.contains(filter)) {
+        if (!m_customFilters.contains(filter) && filter->id().isValid()) {
             const QByteArray state = filter->saveState();
             s->setValueWithDefault(filter->id().toString(), state);
         }

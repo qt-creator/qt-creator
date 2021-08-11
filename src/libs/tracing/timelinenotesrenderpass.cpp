@@ -32,7 +32,8 @@
 namespace Timeline {
 
 struct Point2DWithDistanceFromTop {
-    float x, y, d;
+    float x, y; // vec4 vertexCoord
+    float d; // float distanceFromTop
     void set(float nx, float ny, float nd);
 };
 
@@ -43,7 +44,7 @@ public:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSGMaterialShader *createShader() const final;
 #else // < Qt 6
-    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode renderMode) const final;
+    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode) const final;
 #endif // < Qt 6
 };
 
@@ -82,12 +83,16 @@ private:
 
 const QSGGeometry::AttributeSet &NotesGeometry::point2DWithDistanceFromTop()
 {
-    static QSGGeometry::Attribute data[] = {
-        QSGGeometry::Attribute::create(0, 2, QSGGeometry::FloatType, true),
-        QSGGeometry::Attribute::create(1, 1, QSGGeometry::FloatType),
+    static const QSGGeometry::Attribute data[] = {
+        // vec4 vertexCoord
+        QSGGeometry::Attribute::createWithAttributeType(0, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::PositionAttribute),
+        // float distanceFromTop
+        QSGGeometry::Attribute::createWithAttributeType(1, 1, QSGGeometry::FloatType,
+                                                        QSGGeometry::UnknownAttribute),
     };
-    static QSGGeometry::AttributeSet attrs = {
-        2,
+    static const QSGGeometry::AttributeSet attrs = {
+        sizeof(data) / sizeof(data[0]),
         sizeof(Point2DWithDistanceFromTop),
         data
     };
@@ -173,6 +178,9 @@ TimelineNotesRenderPassState::TimelineNotesRenderPassState(int numExpandedRows) 
     m_nullGeometry(NotesGeometry::point2DWithDistanceFromTop(), 0)
 {
     m_material.setFlag(QSGMaterial::Blending, true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    m_material.setFlag(QSGMaterial::CustomCompileStep, true);
+#endif // >= Qt 6
     m_expandedRows.reserve(numExpandedRows);
     for (int i = 0; i < numExpandedRows; ++i)
         m_expandedRows << createNode();
@@ -229,18 +237,17 @@ public:
                      QSGMaterial *oldEffect) override;
     char const *const *attributeNames() const override;
 #else // < Qt 6
-    bool updateUniformData(RenderState &state,
-                           QSGMaterial *newMaterial, QSGMaterial *oldMaterial) override;
+    bool updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *) override;
 #endif // < Qt 6
 
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void initialize() override;
-#endif // < Qt 6
 
     int m_matrix_id;
     int m_z_range_id;
     int m_color_id;
+#endif // < Qt 6
 };
 
 NotesMaterialShader::NotesMaterialShader()
@@ -250,9 +257,16 @@ NotesMaterialShader::NotesMaterialShader()
     setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/QtCreator/Tracing/notes.vert"));
     setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/QtCreator/Tracing/notes.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes.vert");
-    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes_qt6.frag.qsb");
 #endif // < Qt 6
+}
+
+static QColor notesColor()
+{
+    return Utils::creatorTheme()
+            ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
+            : QColor(255, 165, 0);
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -261,18 +275,26 @@ void NotesMaterialShader::updateState(const RenderState &state, QSGMaterial *, Q
     if (state.isMatrixDirty()) {
         program()->setUniformValue(m_matrix_id, state.combinedMatrix());
         program()->setUniformValue(m_z_range_id, GLfloat(1.0));
-        const QColor notesColor = Utils::creatorTheme()
-                ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
-                : QColor(255, 165, 0);
-        program()->setUniformValue(m_color_id, notesColor);
+        program()->setUniformValue(m_color_id, notesColor());
     }
 }
 #else // < Qt 6
-bool NotesMaterialShader::updateUniformData(QSGMaterialShader::RenderState &state, QSGMaterial *, QSGMaterial *)
+bool NotesMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)
 {
+    QByteArray *buf = state.uniformData();
+
+    // mat4 matrix
     if (state.isMatrixDirty()) {
+        const QMatrix4x4 m = state.combinedMatrix();
+        memcpy(buf->data(), m.constData(), 64);
     }
-    return state.isMatrixDirty();
+
+    // vec4 notesColor
+    const QColor color = notesColor();
+    const float colorArray[] = { color.redF(), color.greenF(), color.blueF(), color.alphaF() };
+    memcpy(buf->data() + 64, colorArray, 16);
+
+    return true;
 }
 #endif // < Qt 6
 
@@ -299,16 +321,12 @@ QSGMaterialType *NotesMaterial::type() const
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 QSGMaterialShader *NotesMaterial::createShader() const
-{
-    return new NotesMaterialShader;
-}
 #else // < Qt 6
-QSGMaterialShader *NotesMaterial::createShader(QSGRendererInterface::RenderMode renderMode) const
+QSGMaterialShader *NotesMaterial::createShader(QSGRendererInterface::RenderMode) const
+#endif // < Qt 6
 {
-    Q_UNUSED(renderMode);
     return new NotesMaterialShader;
 }
-#endif // < Qt 6
 
 void Point2DWithDistanceFromTop::set(float nx, float ny, float nd)
 {

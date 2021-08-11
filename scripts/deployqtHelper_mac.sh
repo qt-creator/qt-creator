@@ -67,6 +67,17 @@ if [ -d "$assetimporterSrcDir" ]; then
     fi
 fi
 
+# collect tls plugins to have ssl download feature available
+tlsDestDir="$app_path/Contents/PlugIns/tls"
+tlssrcDir="$plugin_src/tls"
+if [ -d "$tlssrcDir" ]; then
+    if [ ! -d "$tlsDestDir" ]; then
+        echo "- Copying tls plugins to have ssl download feature available"
+        mkdir -p "$tlsDestDir"
+        find "$tlssrcDir" -iname "*.dylib" -maxdepth 1 -exec cp {} "$tlsDestDir"/ \;
+    fi
+fi
+
 # workaround for Qt 6.2:
 # - QTBUG-94796 macdeployqt does not deploy /Contents/PlugIns/sqldrivers/libqsqlite.dylib anymore
 sqldriversDestDir="$app_path/Contents/PlugIns/sqldrivers"

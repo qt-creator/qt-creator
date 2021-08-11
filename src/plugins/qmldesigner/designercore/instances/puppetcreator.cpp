@@ -400,10 +400,9 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
                 m_qml2PuppetForKitPuppetHash.insert(m_target->id(), m_availablePuppetType);
             }
         }
-    } else if (m_target->kit()->isValid()) {
+    } else if (m_target && m_target->kit() && m_target->kit()->isValid()) {
         if (pathForBinPuppet(m_target).isExecutableFile())
             m_availablePuppetType = BinPathPuppet;
-
     }
 }
 

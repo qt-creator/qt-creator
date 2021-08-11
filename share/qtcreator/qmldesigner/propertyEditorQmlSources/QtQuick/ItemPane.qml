@@ -26,185 +26,158 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Templates 2.15 as T
-import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
-Rectangle {
+PropertyEditorPane {
     id: itemPane
-    width: 320
-    height: 400
-    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
 
-    Component.onCompleted: Controller.mainScrollView = mainScrollView
+    ComponentSection {}
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: forceActiveFocus()
+    GeometrySection {}
+
+    Section {
+        caption: qsTr("Visibility")
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        SectionLayout {
+            PropertyLabel { text: qsTr("Visibility") }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: qsTr("Visible")
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.visible
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+                CheckBox {
+                    text: qsTr("Clip")
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    backendValue: backendValues.clip
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("Opacity") }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    sliderIndicatorVisible: true
+                    backendValue: backendValues.opacity
+                    decimals: 2
+                    minimumValue: 0
+                    maximumValue: 1
+                    hasSlider: true
+                    stepSize: 0.1
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel { text: qsTr("State") }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    editable: true
+                    backendValue: backendValues.state
+                    model: allStateNames
+                    valueType: ComboBox.String
+                }
+
+                ExpandingSpacer {}
+            }
+        }
     }
 
-    ScrollView {
-        id: mainScrollView
-        clip: true
-        anchors.fill: parent
+    Item {
+        height: 4
+        width: 4
+    }
+
+    StudioControls.TabBar {
+        id: tabBar
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        StudioControls.TabButton {
+            text: backendValues.className.value
+        }
+        StudioControls.TabButton {
+            text: qsTr("Layout")
+        }
+    }
+
+    StackLayout {
+        id: tabView
+        property int currentHeight: children[tabView.currentIndex].implicitHeight
+        property int extraHeight: 40
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        currentIndex: tabBar.currentIndex
+        height: currentHeight + extraHeight
 
         Column {
-            id: mainColumn
-            y: -1
-            width: itemPane.width
+            width: parent.width
 
-            onWidthChanged: StudioTheme.Values.responsiveResize(itemPane.width)
-            Component.onCompleted: StudioTheme.Values.responsiveResize(itemPane.width)
+            Loader {
+                id: specificsTwo
 
-            ComponentSection {}
-
-            GeometrySection {}
-
-            Section {
-                caption: qsTr("Visibility")
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                SectionLayout {
-                    PropertyLabel { text: qsTr("Visibility") }
-
-                    SecondColumnLayout {
-                        CheckBox {
-                            text: qsTr("Visible")
-                            implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                           + StudioTheme.Values.actionIndicatorWidth
-                            backendValue: backendValues.visible
-                        }
-
-                        Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
-
-                        CheckBox {
-                            text: qsTr("Clip")
-                            implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                           + StudioTheme.Values.actionIndicatorWidth
-                            backendValue: backendValues.clip
-                        }
-
-                        ExpandingSpacer {}
-                    }
-
-                    PropertyLabel { text: qsTr("Opacity") }
-
-                    SecondColumnLayout {
-                        SpinBox {
-                            implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                           + StudioTheme.Values.actionIndicatorWidth
-                            sliderIndicatorVisible: true
-                            backendValue: backendValues.opacity
-                            decimals: 2
-                            minimumValue: 0
-                            maximumValue: 1
-                            hasSlider: true
-                            stepSize: 0.1
-                        }
-
-                        ExpandingSpacer {}
-                    }
-
-                    PropertyLabel { text: qsTr("State") }
-
-                    SecondColumnLayout {
-                        ComboBox {
-                            implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                           + StudioTheme.Values.actionIndicatorWidth
-                            width: implicitWidth
-                            editable: true
-                            backendValue: backendValues.state
-                            model: allStateNames
-                            valueType: ComboBox.String
-                        }
-
-                        ExpandingSpacer {}
-                    }
-                }
-            }
-
-            Item {
-                height: 4
-                width: 4
-            }
-
-            StudioControls.TabBar {
-                id: tabBar
+                property string theSource: specificQmlData
 
                 anchors.left: parent.left
                 anchors.right: parent.right
+                visible: theSource !== ""
+                sourceComponent: specificQmlComponent
 
-                StudioControls.TabButton {
-                    text: backendValues.className.value
-                }
-                StudioControls.TabButton {
-                    text: qsTr("Layout")
+                onTheSourceChanged: {
+                    active = false
+                    active = true
                 }
             }
 
-            StackLayout {
-                id: tabView
-                property int currentHeight: children[tabView.currentIndex].implicitHeight
-                property int extraHeight: 40
-
+            Loader {
+                id: specificsOne
                 anchors.left: parent.left
                 anchors.right: parent.right
-                currentIndex: tabBar.currentIndex
-                height: currentHeight + extraHeight
+                source: specificsUrl
+                visible: specificsOne.source.toString() !== ""
+            }
 
-                Column {
-                    width: parent.width
+            AdvancedSection {}
 
-                    Loader {
-                        id: specificsTwo
+            LayerSection {}
+        }
 
-                        property string theSource: specificQmlData
+        Column {
+            width: parent.width
 
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        visible: theSource !== ""
-                        sourceComponent: specificQmlComponent
+            LayoutSection {}
 
-                        onTheSourceChanged: {
-                            active = false
-                            active = true
-                        }
-                    }
+            MarginSection {
+                visible: anchorBackend.isInLayout
+                backendValueTopMargin: backendValues.Layout_topMargin
+                backendValueBottomMargin: backendValues.Layout_bottomMargin
+                backendValueLeftMargin: backendValues.Layout_leftMargin
+                backendValueRightMargin: backendValues.Layout_rightMargin
+                backendValueMargins: backendValues.Layout_margins
+            }
 
-                    Loader {
-                        id: specificsOne
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        source: specificsUrl
-                        visible: specificsOne.source.toString() !== ""
-                    }
-
-                    AdvancedSection {}
-
-                    LayerSection {}
-                }
-
-                Column {
-                    width: parent.width
-
-                    LayoutSection {}
-
-                    MarginSection {
-                        visible: anchorBackend.isInLayout
-                        backendValueTopMargin: backendValues.Layout_topMargin
-                        backendValueBottomMargin: backendValues.Layout_bottomMargin
-                        backendValueLeftMargin: backendValues.Layout_leftMargin
-                        backendValueRightMargin: backendValues.Layout_rightMargin
-                        backendValueMargins: backendValues.Layout_margins
-                    }
-
-                    AlignDistributeSection {
-                        visible: !anchorBackend.isInLayout
-                    }
-                }
+            AlignDistributeSection {
+                visible: !anchorBackend.isInLayout
             }
         }
     }

@@ -136,10 +136,10 @@ public:
 
     void updateErrorFlags()
     {
-        const QFileInfo fi = CMakeTool::cmakeExecutable(m_executable).toFileInfo();
-        m_pathExists = fi.exists();
-        m_pathIsFile = fi.isFile();
-        m_pathIsExecutable = fi.isExecutable();
+        const FilePath filePath = CMakeTool::cmakeExecutable(m_executable);
+        m_pathExists = filePath.exists();
+        m_pathIsFile = filePath.isFile();
+        m_pathIsExecutable = filePath.isExecutableFile();
 
         CMakeTool cmake(m_autodetected ? CMakeTool::AutoDetection
                                        : CMakeTool::ManualDetection, m_id);

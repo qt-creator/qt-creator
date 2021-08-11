@@ -760,7 +760,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("virtual function call via pointer") << 192 << 33 << 192 << 48
         << QList<int>{C_VIRTUAL_METHOD} << 0;
     QTest::newRow("final virtual function call via pointer") << 202 << 38 << 202 << 58
-        << QList<int>{C_FUNCTION} << 0;
+        << QList<int>{C_VIRTUAL_METHOD} << 0;
     QTest::newRow("non-final virtual function call via pointer") << 207 << 41 << 207 << 61
         << QList<int>{C_VIRTUAL_METHOD} << 0;
     QTest::newRow("operator+ declaration") << 220 << 18 << 220 << 19
@@ -1299,12 +1299,18 @@ void ClangdTestHighlighting::test()
         for (const TextEditor::TextStyle s : result.textStyles.mixinStyles)
             actualStyles << s;
     }
-    QEXPECT_FAIL("virtual member function definition outside of class body",
-                 "FIXME: send virtual info in clangd", Continue);
-    QEXPECT_FAIL("virtual function call via pointer",
-                 "FIXME: send virtual info in clangd", Continue);
-    QEXPECT_FAIL("non-final virtual function call via pointer",
-                 "FIXME: send virtual info in clangd", Continue);
+
+
+    if (client()->versionNumber() < QVersionNumber(14)) {
+        QEXPECT_FAIL("final virtual function call via pointer",
+                     "clangd < 14 does not send virtual modifier", Continue);
+        QEXPECT_FAIL("virtual member function definition outside of class body",
+                     "clangd < 14 does not send virtual modifier", Continue);
+        QEXPECT_FAIL("virtual function call via pointer",
+                     "clangd < 14 does not send virtual modifier", Continue);
+        QEXPECT_FAIL("non-final virtual function call via pointer",
+                     "clangd < 14 does not send virtual modifier", Continue);
+    }
     QEXPECT_FAIL("template non-type parameter",
                  "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
                  Continue);

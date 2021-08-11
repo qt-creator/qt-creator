@@ -1061,8 +1061,8 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     const CMakeConfig config = configuration(k);
 
     const bool isQt4 = version && version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0);
-    FilePath qmakePath;
-    QStringList qtInstallDirs;
+    FilePath qmakePath; // This is relative to the cmake used for building.
+    QStringList qtInstallDirs; // This is relativ to the cmake used for building.
     FilePath tcCPath;
     FilePath tcCxxPath;
     for (const CMakeConfigItem &i : config) {
@@ -1076,7 +1076,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
             tcCxxPath = expandedValue;
         else if (i.key == CMAKE_PREFIX_PATH_KEY)
-            qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.toString());
+            qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.path());
     }
 
     Tasks result;
@@ -1100,7 +1100,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
                           "configured in the Qt version."));
         }
     }
-    if (version && !qtInstallDirs.contains(version->prefix().toString()) && !isQt4) {
+    if (version && !qtInstallDirs.contains(version->prefix().path()) && !isQt4) {
         if (version->isValid()) {
             addWarning(tr("CMake configuration has no CMAKE_PREFIX_PATH set "
                           "that points to the kit Qt version."));

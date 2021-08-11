@@ -134,22 +134,18 @@ void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
 
 FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
-    if (dir.needsDevice() || !HostOsInfo::isWindowsHost())
+    if (!dir.startsWithDriveLetter())
         return {};
     const QString dirString = dir.toString().toLower();
-    if (dirString.length() < 2)
-        return {};
-    if (!dirString.at(0).isLetter())
-        return {};
     const QStringList drives = Utils::transform(QDir::drives(), [](const QFileInfo &fi) {
         return fi.absoluteFilePath().toLower().chopped(1);
     });
     if (!Utils::contains(drives, [&dirString](const QString &drive) {
             return dirString.startsWith(drive);
         }) && !drives.isEmpty()) {
-        QString newDir = dirString;
+        QString newDir = dir.path();
         newDir.replace(0, 2, drives.first());
-        return FilePath::fromString(newDir);
+        return dir.withNewPath(newDir);
     }
     return {};
 }

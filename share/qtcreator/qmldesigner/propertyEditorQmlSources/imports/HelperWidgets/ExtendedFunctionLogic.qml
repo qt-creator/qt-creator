@@ -33,8 +33,18 @@ Item {
     id: extendedFunctionButton
 
     property variant backendValue
-    property bool isBoundBackend: backendValue === undefined ? false : backendValue.isBound
-    property string backendExpression: backendValue === undefined ? "" : backendValue.expression
+    property bool isBoundBackend: {
+        if (backendValue !== undefined && backendValue.isBound !== undefined)
+            return backendValue.isBound
+
+        return false
+    }
+    property string backendExpression: {
+        if (backendValue !== undefined && backendValue.expression !== undefined)
+            return backendValue.expression
+
+        return ""
+    }
 
     property string glyph: StudioTheme.Constants.actionIcon
     property string color: StudioTheme.Values.themeTextColor

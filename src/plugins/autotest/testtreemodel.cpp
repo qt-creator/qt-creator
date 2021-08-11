@@ -732,6 +732,8 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
 
     // restore former check state and fail state if available
     newItem->forAllChildItems([this](TestTreeItem *childItem) {
+        if (!m_checkStateCache) // parse results may arrive after session switch / project close
+            return;
         Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
         if (cached.has_value())
             childItem->setData(0, cached.value(), Qt::CheckStateRole);

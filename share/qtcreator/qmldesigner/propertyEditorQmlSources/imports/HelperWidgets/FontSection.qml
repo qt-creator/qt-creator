@@ -305,7 +305,7 @@ Section {
         PropertyLabel {
             text: qsTr("Word spacing")
             tooltip: qsTr("Word spacing for the font.")
-            blockedByTemplate: !backendValue.isAvailable
+            blockedByTemplate: !getBackendValue("wordSpacing").isAvailable
         }
 
         SecondColumnLayout {

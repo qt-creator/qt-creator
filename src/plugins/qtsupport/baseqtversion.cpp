@@ -934,6 +934,7 @@ QString BaseQtVersion::toHtml(bool verbose) const
                 str << "<td>" << abis.at(i).toString() << "</td></tr>";
             }
         }
+        const OsType osType = d->m_qmakeCommand.osType();
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "Source:")
             << "</b></td><td>" << sourcePath().toUserOutput() << "</td></tr>";
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "mkspec:")
@@ -977,7 +978,7 @@ QString BaseQtVersion::toHtml(bool verbose) const
                             isPath = false;
                         if (isPath) {
                             str << "<a href=\"" << QUrl::fromLocalFile(value).toString()
-                                << "\">" << QDir::toNativeSeparators(value) << "</a>";
+                                << "\">" << OsSpecificAspects::pathWithNativeSeparators(osType, value) << "</a>";
                         } else {
                             str << value;
                         }

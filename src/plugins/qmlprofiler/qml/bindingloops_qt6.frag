@@ -23,7 +23,14 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import "../QtQuick" as Original
+#version 440
 
-Original.ConnectionsSpecifics {}
+layout (location = 0) in vec4 color;
+
+layout (location = 0) out vec4 fragColor;
+
+void main()
+{
+    fragColor.rgb = color.rgb;
+    fragColor.a = 1.0;
+}

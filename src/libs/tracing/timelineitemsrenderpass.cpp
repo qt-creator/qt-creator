@@ -357,14 +357,22 @@ static qint64 endTime(const TimelineModel *model, const TimelineRenderState *par
 
 const QSGGeometry::AttributeSet &OpaqueColoredPoint2DWithSize::attributes()
 {
-    static QSGGeometry::Attribute data[] = {
-        QSGGeometry::Attribute::create(0, 2, QSGGeometry::FloatType, true),
-        QSGGeometry::Attribute::create(1, 2, QSGGeometry::FloatType),
-        QSGGeometry::Attribute::create(2, 1, QSGGeometry::FloatType),
-        QSGGeometry::Attribute::create(3, 4, QSGGeometry::UnsignedByteType)
+    static const QSGGeometry::Attribute data[] = {
+        // vec4 vertexCoord
+        QSGGeometry::Attribute::createWithAttributeType(0, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::PositionAttribute),
+        // vec2 rectSize
+        QSGGeometry::Attribute::createWithAttributeType(1, 2, QSGGeometry::FloatType,
+                                                        QSGGeometry::UnknownAttribute),
+        // float selectionId
+        QSGGeometry::Attribute::createWithAttributeType(2, 1, QSGGeometry::FloatType,
+                                                        QSGGeometry::UnknownAttribute),
+        // vec4 vertexColor
+        QSGGeometry::Attribute::createWithAttributeType(3, 4, QSGGeometry::UnsignedByteType,
+                                                        QSGGeometry::ColorAttribute),
     };
-    static QSGGeometry::AttributeSet attrs = {
-        4,
+    static const QSGGeometry::AttributeSet attrs = {
+        sizeof(data) / sizeof(data[0]),
         sizeof(OpaqueColoredPoint2DWithSize),
         data
     };
@@ -448,13 +456,13 @@ public:
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void initialize() override;
-#endif // < Qt 6
 
     int m_matrix_id;
     int m_scale_id;
     int m_selection_color_id;
     int m_selected_item_id;
     int m_z_range_id;
+#endif // < Qt 6
 };
 
 TimelineItemsMaterialShader::TimelineItemsMaterialShader()
@@ -466,8 +474,8 @@ TimelineItemsMaterialShader::TimelineItemsMaterialShader()
     setShaderSourceFile(QOpenGLShader::Fragment,
                         QStringLiteral(":/QtCreator/Tracing/timelineitems.frag"));
 #else // < Qt 6
-    setShaderFileName(VertexStage, ":/QtCreator/Tracing/timelineitems.vert");
-    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/timelineitems.frag");
+    setShaderFileName(VertexStage, ":/QtCreator/Tracing/timelineitems_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/timelineitems_qt6.frag.qsb");
 #endif // < Qt 6
 }
 
@@ -488,11 +496,29 @@ void TimelineItemsMaterialShader::updateState(const RenderState &state, QSGMater
 bool TimelineItemsMaterialShader::updateUniformData(RenderState &state,
                                                     QSGMaterial *newMaterial, QSGMaterial *)
 {
-    // TODO: Make this work
+    QByteArray *buf = state.uniformData();
+    auto material = static_cast<const TimelineItemsMaterial *>(newMaterial);
+
+    // mat4 matrix
     if (state.isMatrixDirty()) {
-        TimelineItemsMaterial *material = static_cast<TimelineItemsMaterial *>(newMaterial);
+        const QMatrix4x4 m = state.combinedMatrix();
+        memcpy(buf->data(), m.constData(), 64);
     }
-    return state.isMatrixDirty();
+
+    // vec2 scale
+    const QVector2D scale = material->scale();
+    memcpy(buf->data() + 64, &scale, 8);
+
+    // vec4 selectionColor
+    const QColor color = material->selectionColor();
+    const float colorArray[] = { color.redF(), color.greenF(), color.blueF(), color.alphaF() };
+    memcpy(buf->data() + 80, colorArray, 16);
+
+    // float selectedItem
+    const float selectedItem = material->selectedItem();
+    memcpy(buf->data() + 96, &selectedItem, 4);
+
+    return true;
 }
 #endif // < Qt 6
 
@@ -516,6 +542,9 @@ void TimelineItemsMaterialShader::initialize()
 TimelineItemsMaterial::TimelineItemsMaterial() : m_selectedItem(-1)
 {
     setFlag(QSGMaterial::Blending, false);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    setFlag(QSGMaterial::CustomCompileStep, true);
+#endif // >= Qt 6
 }
 
 QVector2D TimelineItemsMaterial::scale() const
@@ -556,17 +585,12 @@ QSGMaterialType *TimelineItemsMaterial::type() const
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 QSGMaterialShader *TimelineItemsMaterial::createShader() const
-{
-    return new TimelineItemsMaterialShader;
-}
 #else // < Qt 6
-QSGMaterialShader *TimelineItemsMaterial::createShader(
-        QSGRendererInterface::RenderMode renderMode) const
+QSGMaterialShader *TimelineItemsMaterial::createShader(QSGRendererInterface::RenderMode) const
+#endif // < Qt 6
 {
-    Q_UNUSED(renderMode);
     return new TimelineItemsMaterialShader;
 }
-#endif // < Qt 6
 
 TimelineItemsRenderPassState::TimelineItemsRenderPassState(const TimelineModel *model) :
     m_indexFrom(std::numeric_limits<int>::max()), m_indexTo(-1)

@@ -40,7 +40,7 @@ namespace LanguageClient {
 class LspLogMessage
 {
 public:
-    enum MessageSender { ClientMessage, ServerMessage } sender;
+    enum MessageSender { ClientMessage, ServerMessage } sender = ClientMessage;
 
     LspLogMessage();
     LspLogMessage(MessageSender sender,

@@ -134,7 +134,7 @@ def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQ
         expectedLabelTexts.append("Running\.")
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.RUN)
-    ensureChecked(waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
+    ensureChecked(waitForObject("{container=':Qt Creator_Core::Internal::MainWindow' text='Enable QML' "
                                 "type='QCheckBox' unnamed='1' visible='1'}"), enableQml)
     switchViewTo(ViewConstants.EDIT)
     if not __startDebugger__(currentKit, currentConfigName):
@@ -175,7 +175,8 @@ def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQ
 def isMsvcConfig(currentKit):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.BUILD)
-    isMsvc = " -spec win32-msvc" in str(waitForObject(":qmakeCallEdit").text)
+    clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
+    isMsvc = " -spec win32-msvc" in str(waitForObject(":Qt Creator.Effective qmake call:_QTextEdit").plainText)
     switchViewTo(ViewConstants.EDIT)
     return isMsvc
 

@@ -58,6 +58,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QPixmap>
+#include <QTimer>
 
 #include <coreplugin/messagebox.h>
 
@@ -646,6 +647,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             return;
 
         bool validContainer = false;
+        bool showMatToCompInfo = false;
         QmlObjectNode newQmlObjectNode;
         m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
             newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
@@ -692,6 +694,11 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         targetModel = targetProperty.parentModelNode();
                         insertIntoList("materials", targetModel);
                         validContainer = true;
+                    } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Node")
+                               && targetProperty.parentModelNode().isComponent()) {
+                        // Inserting materials under imported components is likely a mistake, so
+                        // notify user with a helpful messagebox that suggests the correct action.
+                        showMatToCompInfo = true;
                     }
                 } else {
                     const bool isShader = newModelNode.isSubclassOf("QtQuick3D.Shader");
@@ -722,7 +729,8 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     }
                 }
                 if (!validContainer) {
-                    validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
+                    if (!showMatToCompInfo)
+                        validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
                     if (!validContainer)
                         newQmlObjectNode.destroy();
                 }
@@ -753,6 +761,30 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     if (!QFile::copy(copyFile, targetFile))
                         qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFile);
                 }
+            }
+        }
+
+        if (showMatToCompInfo) {
+            QMessageBox::StandardButton selectedButton = QMessageBox::information(
+                        Core::ICore::dialogParent(),
+                        QCoreApplication::translate("NavigatorTreeModel", "Warning"),
+                        QCoreApplication::translate(
+                            "NavigatorTreeModel",
+                            "Inserting materials under imported 3D component nodes is not supported. "
+                            "Materials used in imported 3D components have to be modified inside the component itself.\n\n"
+                            "Would you like to go into component '%1'?")
+                        .arg(targetProperty.parentModelNode().id()),
+                        QMessageBox::Yes | QMessageBox::No,
+                        QMessageBox::No);
+            if (selectedButton == QMessageBox::Yes) {
+                qint32 internalId = targetProperty.parentModelNode().internalId();
+                QTimer::singleShot(0, this, [internalId, this]() {
+                    if (!m_view.isNull() && m_view->model()) {
+                        ModelNode node = m_view->modelNodeForInternalId(internalId);
+                        if (node.isValid() && node.isComponent())
+                            DocumentManager::goIntoComponent(node);
+                    }
+                });
             }
         }
     }
@@ -1041,7 +1073,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
                 if (nodeCanBeMovedToParentProperty) {
                     reparentModelNodeToNodeProperty(parentProperty, modelNode);
-                    slideModelNodeInList(parentProperty, modelNode, idx++);
+                    if (targetIndex > 0)
+                        slideModelNodeInList(parentProperty, modelNode, idx++);
                 }
             }
         }
