@@ -183,9 +183,9 @@ void IOptionsPage::finish()
     Sets \a categoryIconPath as the path to the category icon of the options
     page.
 */
-void IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
+void IOptionsPage::setCategoryIconPath(const FilePath &categoryIconPath)
 {
-    m_categoryIcon = Icon({{FilePath::fromString(categoryIconPath), Theme::PanelTextColorDark}}, Icon::Tint);
+    m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
 }
 
 void IOptionsPage::setSettings(AspectContainer *settings)

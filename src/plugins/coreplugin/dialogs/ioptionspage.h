@@ -79,7 +79,7 @@ protected:
     void setCategory(Utils::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
-    void setCategoryIconPath(const QString &categoryIconPath);
+    void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettings(Utils::AspectContainer *settings);
     void setLayouter(const std::function<void(QWidget *w)> &layouter);
 
