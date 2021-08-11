@@ -47,23 +47,12 @@ namespace Internal {
 
 struct Context // XML parsing context with strings.
 {
-    Context();
-
-    const QString mappingElement;
-    const QString shortCutElement;
-    const QString idAttribute;
-    const QString keyElement;
-    const QString valueAttribute;
+    const QString mappingElement = "mapping";
+    const QString shortCutElement = "shortcut";
+    const QString idAttribute = "id";
+    const QString keyElement = "key";
+    const QString valueAttribute = "value";
 };
-
-Context::Context() :
-    mappingElement(QLatin1String("mapping")),
-    shortCutElement(QLatin1String("shortcut")),
-    idAttribute(QLatin1String("id")),
-    keyElement(QLatin1String("key")),
-    valueAttribute(QLatin1String("value"))
-{
-}
 
 /*!
     \class Core::Internal::CommandsFile
@@ -76,8 +65,8 @@ Context::Context() :
 /*!
     \internal
 */
-CommandsFile::CommandsFile(const QString &filename)
-    : m_filename(filename)
+CommandsFile::CommandsFile(const FilePath &filename)
+    : m_filePath(filename)
 {
 
 }
@@ -89,7 +78,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
 {
     QMap<QString, QList<QKeySequence>> result;
 
-    QFile file(m_filename);
+    QFile file(m_filePath.toString());
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
         return result;
 
@@ -130,7 +119,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
 
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
-    Utils::FileSaver saver(Utils::FilePath::fromString(m_filename), QIODevice::Text);
+    FileSaver saver(m_filePath, QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
         QXmlStreamWriter w(saver.file());

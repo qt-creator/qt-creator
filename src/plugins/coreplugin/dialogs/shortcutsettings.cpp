@@ -490,10 +490,10 @@ void ShortcutSettingsWidget::resetToDefault()
 
 void ShortcutSettingsWidget::importAction()
 {
-    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(),
-                                                    tr("Import Keyboard Mapping Scheme"),
-                                                    schemesPath().toString(),
-                                                    tr("Keyboard Mapping Scheme (*.kms)"));
+    FilePath fileName = FileUtils::getOpenFilePath(nullptr,
+                                                   tr("Import Keyboard Mapping Scheme"),
+                                                   schemesPath(),
+                                                   tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
 
         CommandsFile cf(fileName);
@@ -535,7 +535,7 @@ void ShortcutSettingsWidget::exportAction()
                                                         schemesPath().toString(),
                                                         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
-        CommandsFile cf(fileName);
+        CommandsFile cf(FilePath::fromString(fileName));
         cf.exportCommands(m_scitems);
     }
 }

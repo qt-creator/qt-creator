@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QObject>
 #include <QString>
 #include <QMap>
@@ -41,13 +43,13 @@ class CommandsFile : public QObject
     Q_OBJECT
 
 public:
-    CommandsFile(const QString &filename);
+    CommandsFile(const Utils::FilePath &filePath);
 
     QMap<QString, QList<QKeySequence> > importCommands() const;
     bool exportCommands(const QList<ShortcutItem *> &items);
 
 private:
-    QString m_filename;
+    Utils::FilePath m_filePath;
 };
 
 } // namespace Internal
