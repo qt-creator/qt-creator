@@ -37,7 +37,11 @@
 #include <QDesktopServices>
 #include <QTimer>
 #include <QVBoxLayout>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+#include <QWebEngineContextMenuRequest>
+#else
 #include <QWebEngineContextMenuData>
+#endif
 #include <QWebEngineHistory>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
@@ -335,7 +339,11 @@ bool WebView::eventFilter(QObject *src, QEvent *e)
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    QMenu *menu = createStandardContextMenu();
+#else
     QMenu *menu = page()->createStandardContextMenu();
+#endif
     // insert Open as New Page etc if OpenLinkInThisWindow is also there
     const QList<QAction*> actions = menu->actions();
     auto it = std::find(actions.cbegin(), actions.cend(),
@@ -344,7 +352,11 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         // insert after
         ++it;
         QAction *before = (it == actions.cend() ? 0 : *it);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+        QUrl url = lastContextMenuRequest()->linkUrl();
+#else
         QUrl url = page()->contextMenuData().linkUrl();
+#endif
         if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
             auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
                                         Constants::TR_OPEN_LINK_AS_NEW_PAGE), menu);
