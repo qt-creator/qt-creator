@@ -100,12 +100,12 @@
 
 using namespace Utils;
 
-static Utils::Id newId()
-{
-    return Utils::Id::fromString(QUuid::createUuid().toString());
-}
-
 namespace ProjectExplorer {
+
+static Id newId()
+{
+    return Id::fromString(QUuid::createUuid().toString());
+}
 
 const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
@@ -140,23 +140,23 @@ class IDevicePrivate
 public:
     IDevicePrivate() = default;
 
-    Utils::DisplayName displayName;
+    DisplayName displayName;
     QString displayType;
-    Utils::Id type;
+    Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
-    Utils::Id id;
+    Id id;
     IDevice::DeviceState deviceState = IDevice::DeviceStateUnknown;
     IDevice::MachineType machineType = IDevice::Hardware;
-    Utils::OsType osType = Utils::OsTypeOther;
+    OsType osType = OsTypeOther;
     int version = 0; // This is used by devices that have been added by the SDK.
 
     QSsh::SshConnectionParameters sshParameters;
-    Utils::PortList freePorts;
-    Utils::FilePath debugServerPath;
-    QString qmlRunCommand;
+    PortList freePorts;
+    FilePath debugServerPath;
+    FilePath qmlRunCommand;
     bool emptyCommandAllowed = false;
 
-    QList<Utils::Icon> deviceIcons;
+    QList<Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
     QVariantMap extraData;
     IDevice::OpenTerminal openTerminal;
@@ -174,7 +174,7 @@ void IDevice::setOpenTerminal(const IDevice::OpenTerminal &openTerminal)
     d->openTerminal = openTerminal;
 }
 
-void IDevice::setupId(Origin origin, Utils::Id id)
+void IDevice::setupId(Origin origin, Id id)
 {
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
@@ -232,7 +232,7 @@ bool IDevice::isReadableFile(const FilePath &filePath) const
     return false;
 }
 
-bool IDevice::isWritableFile(const Utils::FilePath &filePath) const
+bool IDevice::isWritableFile(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
     QTC_CHECK(false);
@@ -390,7 +390,7 @@ QDateTime IDevice::lastModified(const FilePath &filePath) const
     return {};
 }
 
-QFileDevice::Permissions IDevice::permissions(const Utils::FilePath &filePath) const
+QFileDevice::Permissions IDevice::permissions(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
     QTC_CHECK(false);
@@ -446,7 +446,7 @@ void IDevice::setDisplayType(const QString &type)
     d->displayType = type;
 }
 
-void IDevice::setOsType(Utils::OsType osType)
+void IDevice::setOsType(OsType osType)
 {
     d->osType = osType;
 }
@@ -464,12 +464,12 @@ IDevice::DeviceInfo IDevice::deviceInformation() const
     \sa ProjectExplorer::IDeviceFactory
  */
 
-Utils::Id IDevice::type() const
+Id IDevice::type() const
 {
     return d->type;
 }
 
-void IDevice::setType(Utils::Id type)
+void IDevice::setType(Id type)
 {
     d->type = type;
 }
@@ -495,7 +495,7 @@ bool IDevice::isAutoDetected() const
     \sa ProjectExplorer::DeviceManager::findInactiveAutoDetectedDevice()
 */
 
-Utils::Id IDevice::id() const
+Id IDevice::id() const
 {
     return d->id;
 }
@@ -538,7 +538,7 @@ DeviceTester *IDevice::createDeviceTester() const
     return nullptr;
 }
 
-Utils::OsType IDevice::osType() const
+OsType IDevice::osType() const
 {
     return d->osType;
 }
@@ -566,14 +566,14 @@ void IDevice::setDeviceState(const IDevice::DeviceState state)
     d->deviceState = state;
 }
 
-Utils::Id IDevice::typeFromMap(const QVariantMap &map)
+Id IDevice::typeFromMap(const QVariantMap &map)
 {
-    return Utils::Id::fromSetting(map.value(QLatin1String(TypeKey)));
+    return Id::fromSetting(map.value(QLatin1String(TypeKey)));
 }
 
-Utils::Id IDevice::idFromMap(const QVariantMap &map)
+Id IDevice::idFromMap(const QVariantMap &map)
 {
-    return Utils::Id::fromSetting(map.value(QLatin1String(IdKey)));
+    return Id::fromSetting(map.value(QLatin1String(IdKey)));
 }
 
 /*!
@@ -586,7 +586,7 @@ void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);
     d->displayName.fromMap(map, DisplayNameKey);
-    d->id = Utils::Id::fromSetting(map.value(QLatin1String(IdKey)));
+    d->id = Id::fromSetting(map.value(QLatin1String(IdKey)));
     if (!d->id.isValid())
         d->id = newId();
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
@@ -611,12 +611,12 @@ void IDevice::fromMap(const QVariantMap &map)
     QString portsSpec = map.value(PortsSpecKey).toString();
     if (portsSpec.isEmpty())
         portsSpec = "10000-10100";
-    d->freePorts = Utils::PortList::fromString(portsSpec);
+    d->freePorts = PortList::fromString(portsSpec);
     d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
     d->debugServerPath = FilePath::fromVariant(map.value(QLatin1String(DebugServerKey)));
-    d->qmlRunCommand = map.value(QLatin1String(QmlRuntimeKey)).toString();
+    d->qmlRunCommand = FilePath::fromVariant(map.value(QLatin1String(QmlRuntimeKey)));
     d->extraData = map.value(ExtraDataKey).toMap();
 }
 
@@ -647,7 +647,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(VersionKey), d->version);
 
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath.toVariant());
-    map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand);
+    map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand.toVariant());
     map.insert(ExtraDataKey, d->extraData);
 
     return map;
@@ -700,12 +700,12 @@ QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
-void IDevice::setFreePorts(const Utils::PortList &freePorts)
+void IDevice::setFreePorts(const PortList &freePorts)
 {
     d->freePorts = freePorts;
 }
 
-Utils::PortList IDevice::freePorts() const
+PortList IDevice::freePorts() const
 {
     return d->freePorts;
 }
@@ -730,22 +730,22 @@ void IDevice::setDebugServerPath(const FilePath &path)
     d->debugServerPath = path;
 }
 
-QString IDevice::qmlRunCommand() const
+FilePath IDevice::qmlRunCommand() const
 {
     return d->qmlRunCommand;
 }
 
-void IDevice::setQmlRunCommand(const QString &path)
+void IDevice::setQmlRunCommand(const FilePath &path)
 {
     d->qmlRunCommand = path;
 }
 
-void IDevice::setExtraData(Utils::Id kind, const QVariant &data)
+void IDevice::setExtraData(Id kind, const QVariant &data)
 {
     d->extraData.insert(kind.toString(), data);
 }
 
-QVariant IDevice::extraData(Utils::Id kind) const
+QVariant IDevice::extraData(Id kind) const
 {
     return d->extraData.value(kind.toString());
 }

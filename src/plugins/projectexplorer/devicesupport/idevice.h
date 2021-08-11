@@ -214,8 +214,8 @@ public:
     Utils::FilePath debugServerPath() const;
     void setDebugServerPath(const Utils::FilePath &path);
 
-    QString qmlRunCommand() const;
-    void setQmlRunCommand(const QString &path);
+    Utils::FilePath qmlRunCommand() const;
+    void setQmlRunCommand(const Utils::FilePath &path);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;

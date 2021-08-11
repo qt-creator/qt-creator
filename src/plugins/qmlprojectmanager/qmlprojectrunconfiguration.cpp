@@ -197,9 +197,9 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (dev.isNull()) // No device set. We don't know where a QML utility is.
         return {};
 
-    const QString qmlRuntime = dev->qmlRunCommand();
+    const FilePath qmlRuntime = dev->qmlRunCommand();
     // If not given explicitly by device, try to pick it from $PATH.
-    return FilePath::fromString(qmlRuntime.isEmpty() ? QString("qmlscene") : qmlRuntime);
+    return qmlRuntime.isEmpty() ? "qmlscene" : qmlRuntime;
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
