@@ -31,6 +31,7 @@ T.AbstractButton {
     id: myButton
 
     property bool globalHover: false
+    property bool hover: myButton.hovered
 
     property alias buttonIcon: buttonIcon.text
     property alias iconColor: buttonIcon.color
@@ -51,7 +52,7 @@ T.AbstractButton {
     z: myButton.checked ? 10 : 3
     activeFocusOnTab: false
 
-    onHoveredChanged: {
+    onHoverChanged: {
         if (parent !== undefined && parent.hoverCallback !== undefined && myButton.enabled)
             parent.hoverCallback()
     }
@@ -119,7 +120,7 @@ T.AbstractButton {
     states: [
         State {
             name: "default"
-            when: myButton.enabled && !myButton.globalHover && !myButton.hovered
+            when: myButton.enabled && !myButton.globalHover && !myButton.hover
                   && !myButton.pressed && !myButton.checked
             PropertyChanges {
                 target: buttonBackground
@@ -132,7 +133,7 @@ T.AbstractButton {
         },
         State {
             name: "globalHover"
-            when: myButton.globalHover && !myButton.hovered && !myButton.pressed && myButton.enabled
+            when: myButton.globalHover && !myButton.hover && !myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
@@ -140,7 +141,7 @@ T.AbstractButton {
         },
         State {
             name: "hover"
-            when: myButton.hovered && !myButton.pressed && myButton.enabled
+            when: myButton.hover && !myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundHover
@@ -148,7 +149,7 @@ T.AbstractButton {
         },
         State {
             name: "press"
-            when: myButton.hovered && myButton.pressed
+            when: myButton.hover && myButton.pressed
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction

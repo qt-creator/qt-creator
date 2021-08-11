@@ -32,6 +32,8 @@ StudioControls.AbstractButton {
 
     property alias tooltip: toolTipArea.tooltip
 
+    hover: toolTipArea.containsMouse
+
     ToolTipArea {
         id: toolTipArea
         anchors.fill: parent
