@@ -99,10 +99,12 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
 
         // Find out if the previous members ends with semicolon.
         if (auto member = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(insertAfter->member)) {
-            if (auto stmt = QmlJS::AST::cast<QmlJS::AST::ExpressionStatement*>(member->statement))
-                previousMemberSemicolon = stmt->semicolonToken.isValid();
-            else
+            if (auto stmt = QmlJS::AST::cast<QmlJS::AST::ExpressionStatement *>(member->statement)) {
+                previousMemberSemicolon = stmt->semicolonToken.isValid()
+                                          && stmt->semicolonToken.length > 0;
+            } else {
                 previousMemberSemicolon = endOfPreviousMember.isValid();
+            }
         } else {
             previousMemberSemicolon = endOfPreviousMember.isValid();
         }
