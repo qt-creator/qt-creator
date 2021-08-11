@@ -175,6 +175,14 @@
     git clone "https://codereview.qt-project.org/qt/qtquicktimeline"
     \endcode
 
+    To use qmake, you need to check out a branch or tag that contains the
+    qmake configuration files.
+
+    For example:
+    \badcode
+    git checkout v5.15.2
+    \endcode
+
     Then build the module and add it to your Qt as described in the previous
     section.
 */
