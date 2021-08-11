@@ -1448,7 +1448,7 @@ void EditorManagerPrivate::addEditor(IEditor *editor)
     DocumentModelPrivate::addEditor(editor, &isNewDocument);
     if (isNewDocument) {
         IDocument *document = editor->document();
-        const bool isTemporary = document->isTemporary();
+        const bool isTemporary = (document->isTemporary() || document->filePath().isEmpty());
         const bool addWatcher = !isTemporary;
         DocumentManager::addDocument(document, addWatcher);
         if (!isTemporary)
