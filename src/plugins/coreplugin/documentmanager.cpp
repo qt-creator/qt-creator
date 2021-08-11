@@ -1039,8 +1039,7 @@ FilePaths DocumentManager::getOpenFileNames(const QString &filters,
 {
     const FilePath path = pathIn.isEmpty() ? FilePath::fromString(fileDialogInitialDirectory())
                                            : pathIn;
-    const FilePaths files = FileUtils::getOpenFilePaths(tr("Open File"),
-                                                        path, filters,
+    const FilePaths files = FileUtils::getOpenFilePaths(nullptr, tr("Open File"), path, filters,
                                                         selectedFilter);
     if (!files.isEmpty())
         setFileDialogLastVisitedDirectory(files.front().absolutePath().toString());

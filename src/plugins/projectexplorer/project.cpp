@@ -721,6 +721,7 @@ Utils::FilePath Project::projectDirectory(const Utils::FilePath &top)
 void Project::changeRootProjectDirectory()
 {
     Utils::FilePath rootPath = Utils::FileUtils::getExistingDirectory(
+          nullptr,
           tr("Select the Root Directory"),
           rootProjectDirectory(),
           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);

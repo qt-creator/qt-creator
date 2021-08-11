@@ -41,6 +41,8 @@
 #include <QQuickItem>
 #include <QQuickWidget>
 
+using namespace Utils;
+
 ExampleCheckout::ExampleCheckout(QObject *) {}
 
 void ExampleCheckout::checkoutExample(const QUrl &url)
@@ -239,8 +241,8 @@ QString FileExtractor::targetPath() const
 
 void FileExtractor::browse()
 {
-    const Utils::FilePath path =
-            Utils::FileUtils::getExistingDirectory(tr("Choose Directory"), m_targetPath);
+    const FilePath path =
+            FileUtils::getExistingDirectory(nullptr, tr("Choose Directory"), m_targetPath);
 
     if (!path.isEmpty())
         m_targetPath = path;

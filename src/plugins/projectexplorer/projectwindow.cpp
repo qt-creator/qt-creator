@@ -755,8 +755,8 @@ public:
         QTC_ASSERT(projectImporter, return);
 
         FilePath importDir =
-                Utils::FileUtils::getExistingDirectory(ProjectWindow::tr("Import Directory"),
-                                                       project->projectDirectory());
+                FileUtils::getExistingDirectory(nullptr, ProjectWindow::tr("Import Directory"),
+                                                project->projectDirectory());
 
         Target *lastTarget = nullptr;
         BuildConfiguration *lastBc = nullptr;

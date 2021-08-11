@@ -1997,7 +1997,8 @@ void ProjectExplorerPluginPrivate::loadAction()
         dir = isProject ? fn : QFileInfo(fn).absolutePath();
     }
 
-    FilePath filePath = Utils::FileUtils::getOpenFilePath(tr("Load Project"), FilePath::fromString(dir),
+    FilePath filePath = Utils::FileUtils::getOpenFilePath(nullptr,
+                                                          tr("Load Project"), FilePath::fromString(dir),
                                                           dd->m_projectFilterString);
     if (filePath.isEmpty())
         return;
@@ -3578,7 +3579,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     QTC_ASSERT(projectNode, return);
     const FilePath dir = currentNode->directory();
     FilePaths subProjectFilePaths = Utils::FileUtils::getOpenFilePaths(
-                tr("Choose Project File"), dir,
+                nullptr, tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;
@@ -3616,7 +3617,7 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
     QTC_ASSERT(folderNode, return);
 
     const FilePaths filePaths =
-            Utils::FileUtils::getOpenFilePaths(tr("Add Existing Files"), node->directory());
+            Utils::FileUtils::getOpenFilePaths(nullptr, tr("Add Existing Files"), node->directory());
     if (filePaths.isEmpty())
         return;
 

@@ -566,13 +566,13 @@ void DiffEditorPluginPrivate::diffOpenFiles()
 
 void DiffEditorPluginPrivate::diffExternalFiles()
 {
-    const FilePath filePath1 = FileUtils::getOpenFilePath(tr("Select First File for Diff"));
+    const FilePath filePath1 = FileUtils::getOpenFilePath(nullptr, tr("Select First File for Diff"));
     if (filePath1.isEmpty())
         return;
     if (EditorManager::skipOpeningBigTextFile(filePath1))
         return;
 
-    const FilePath filePath2 = FileUtils::getOpenFilePath(tr("Select Second File for Diff"));
+    const FilePath filePath2 = FileUtils::getOpenFilePath(nullptr, tr("Select Second File for Diff"));
     if (filePath2.isEmpty())
         return;
     if (EditorManager::skipOpeningBigTextFile(filePath2))

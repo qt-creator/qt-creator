@@ -885,7 +885,7 @@ void PerforcePluginPrivate::filelogCurrentFile()
 
 void PerforcePluginPrivate::filelogFile()
 {
-    const FilePath file = FileUtils::getOpenFilePath(tr("p4 filelog"));
+    const FilePath file = FileUtils::getOpenFilePath(nullptr, tr("p4 filelog"));
     if (!file.isEmpty())
         filelog(file.parentDir(), file.fileName());
 }

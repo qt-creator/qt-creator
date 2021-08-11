@@ -138,23 +138,27 @@ public:
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
 
-    static FilePath getOpenFilePath(const QString &caption = {},
+    static FilePath getOpenFilePath(QWidget *parent,
+                                    const QString &caption,
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
                                     QFileDialog::Options options = {});
 
-    static FilePath getSaveFilePath(const QString &caption = {},
+    static FilePath getSaveFilePath(QWidget *parent,
+                                    const QString &caption,
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
                                     QFileDialog::Options options = {});
 
-    static FilePath getExistingDirectory(const QString &caption = {},
+    static FilePath getExistingDirectory(QWidget *parent,
+                                         const QString &caption,
                                          const FilePath &dir = {},
                                          QFileDialog::Options options = QFileDialog::ShowDirsOnly);
 
-    static FilePaths getOpenFilePaths(const QString &caption = {},
+    static FilePaths getOpenFilePaths(QWidget *parent,
+                                      const QString &caption,
                                       const FilePath &dir = {},
                                       const QString &filter = {},
                                       QString *selectedFilter = nullptr,

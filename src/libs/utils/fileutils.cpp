@@ -429,18 +429,19 @@ void FileUtils::setDialogParentGetter(const std::function<QWidget *()> &getter)
     s_dialogParentGetter = getter;
 }
 
-static QWidget *dialogParent()
+static QWidget *dialogParent(QWidget *parent)
 {
-    return s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
+    return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
-FilePath FileUtils::getOpenFilePath(const QString &caption,
+FilePath FileUtils::getOpenFilePath(QWidget *parent,
+                                    const QString &caption,
                                     const FilePath &dir,
                                     const QString &filter,
                                     QString *selectedFilter,
                                     QFileDialog::Options options)
 {
-    const QString result = QFileDialog::getOpenFileName(dialogParent(),
+    const QString result = QFileDialog::getOpenFileName(dialogParent(parent),
                                                         caption,
                                                         dir.toString(),
                                                         filter,
@@ -449,13 +450,14 @@ FilePath FileUtils::getOpenFilePath(const QString &caption,
     return FilePath::fromString(result);
 }
 
-FilePath FileUtils::getSaveFilePath(const QString &caption,
-                                   const FilePath &dir,
-                                   const QString &filter,
-                                   QString *selectedFilter,
-                                   QFileDialog::Options options)
+FilePath FileUtils::getSaveFilePath(QWidget *parent,
+                                    const QString &caption,
+                                    const FilePath &dir,
+                                    const QString &filter,
+                                    QString *selectedFilter,
+                                    QFileDialog::Options options)
 {
-    const QString result = QFileDialog::getSaveFileName(dialogParent(),
+    const QString result = QFileDialog::getSaveFileName(dialogParent(parent),
                                                         caption,
                                                         dir.toString(),
                                                         filter,
@@ -464,24 +466,26 @@ FilePath FileUtils::getSaveFilePath(const QString &caption,
     return FilePath::fromString(result);
 }
 
-FilePath FileUtils::getExistingDirectory(const QString &caption,
-                                        const FilePath &dir,
-                                        QFileDialog::Options options)
+FilePath FileUtils::getExistingDirectory(QWidget *parent,
+                                         const QString &caption,
+                                         const FilePath &dir,
+                                         QFileDialog::Options options)
 {
-    const QString result = QFileDialog::getExistingDirectory(dialogParent(),
+    const QString result = QFileDialog::getExistingDirectory(dialogParent(parent),
                                                              caption,
                                                              dir.toString(),
                                                              options);
     return FilePath::fromString(result);
 }
 
-FilePaths FileUtils::getOpenFilePaths(const QString &caption,
+FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
+                                      const QString &caption,
                                       const FilePath &dir,
                                       const QString &filter,
                                       QString *selectedFilter,
                                       QFileDialog::Options options)
 {
-    const QStringList result = QFileDialog::getOpenFileNames(dialogParent(),
+    const QStringList result = QFileDialog::getOpenFileNames(dialogParent(parent),
                                                              caption,
                                                              dir.toString(),
                                                              filter,
