@@ -29,7 +29,11 @@
 
 #include  <coreplugin/ioutputpane.h>
 
-namespace Utils { class CommandLine; }
+namespace Utils {
+class CommandLine;
+class FilePath;
+} // Utils
+
 namespace VcsBase {
 
 namespace Internal { class VcsPlugin; }
@@ -64,7 +68,7 @@ public:
     // Helper to consistently format log entries for commands as
     // 'Executing <dir>: <cmd> <args>'. Hides well-known password option
     // arguments.
-    static QString msgExecutionLogEntry(const QString &workingDir,
+    static QString msgExecutionLogEntry(const Utils::FilePath &workingDir,
                                         const Utils::CommandLine &command);
 
     enum MessageStyle {
@@ -104,7 +108,7 @@ public slots:
 
     // Append a standard-formatted entry for command execution
     // (see msgExecutionLogEntry).
-    static void appendCommand(const QString &workingDirectory,
+    static void appendCommand(const Utils::FilePath &workingDirectory,
                               const Utils::CommandLine &command);
 
     // Append a blue message text and pop up.

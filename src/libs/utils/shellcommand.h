@@ -82,24 +82,24 @@ public:
     };
 
 
-    ShellCommand(const QString &workingDirectory, const Environment &environment);
+    ShellCommand(const FilePath &workingDirectory, const Environment &environment);
     ~ShellCommand() override;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
 
     void addJob(const CommandLine &command,
-                const QString &workingDirectory = QString(),
+                const FilePath &workingDirectory = {},
                 const ExitCodeInterpreter &interpreter = {});
     void addJob(const CommandLine &command, int timeoutS,
-                const QString &workingDirectory = QString(),
+                const FilePath &workingDirectory = {},
                 const ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
     void abort();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
-    const QString &defaultWorkingDirectory() const;
+    const FilePath &defaultWorkingDirectory() const;
     virtual const Environment processEnvironment() const;
 
     int defaultTimeoutS() const;
@@ -123,9 +123,9 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    virtual void runCommand(Utils::QtcProcess &process,
+    virtual void runCommand(QtcProcess &process,
                             const CommandLine &command,
-                            const QString &workingDirectory = QString());
+                            const FilePath &workingDirectory = {});
 
     void cancel();
 
@@ -141,23 +141,21 @@ signals:
     void append(const QString &text);
     void appendSilently(const QString &text);
     void appendError(const QString &text);
-    void appendCommand(const QString &workingDirectory, const Utils::CommandLine &command);
+    void appendCommand(const Utils::FilePath &workingDirectory, const Utils::CommandLine &command);
     void appendMessage(const QString &text);
 
 protected:
     virtual void addTask(QFuture<void> &future);
     int timeoutS() const;
-    QString workDirectory(const QString &wd) const;
+    FilePath workDirectory(const FilePath &wd) const;
 
 private:
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
-    void runFullySynchronous(QtcProcess &proc,
-                             const QString &workingDirectory);
+    void runFullySynchronous(QtcProcess &proc, const FilePath &workingDirectory);
     // Run with an event loop. Signals will be delivered.
-    void runSynchronous(QtcProcess &proc,
-                        const QString &workingDirectory);
+    void runSynchronous(QtcProcess &proc, const FilePath &workingDirectory);
 
     class Internal::ShellCommandPrivate *const d;
 };

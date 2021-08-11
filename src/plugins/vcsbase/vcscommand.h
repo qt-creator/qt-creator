@@ -49,13 +49,13 @@ public:
 
     void runCommand(Utils::QtcProcess &process,
                     const Utils::CommandLine &command,
-                    const QString &workDirectory = {}) override;
+                    const Utils::FilePath &workDirectory = {}) override;
 
 protected:
     void addTask(QFuture<void> &future) override;
 
 private:
-    void emitRepositoryChanged(const QString &workingDirectory);
+    void emitRepositoryChanged(const Utils::FilePath &workingDirectory);
 
     void coreAboutToClose() override;
 

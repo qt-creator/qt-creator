@@ -50,7 +50,7 @@ MergeTool::~MergeTool()
     delete m_process;
 }
 
-bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
+bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
@@ -58,7 +58,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     env.insert("LANG", "C");
     env.insert("LANGUAGE", "C");
     m_process = new QProcess(this);
-    m_process->setWorkingDirectory(workingDirectory);
+    m_process->setWorkingDirectory(workingDirectory.toString());
     m_process->setProcessEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     const Utils::FilePath binary = GitClient::instance()->vcsBinary();

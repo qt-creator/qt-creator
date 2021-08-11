@@ -169,7 +169,7 @@ void FetchContext::start()
     m_progress.reportStarted();
     // Order: initialize future before starting the process in case error handling is invoked.
     const QStringList args = m_change->gitFetchArguments(m_server);
-    VcsBase::VcsOutputWindow::appendCommand(m_repository.toString(), {m_git, args});
+    VcsBase::VcsOutputWindow::appendCommand(m_repository, {m_git, args});
     m_process.setCommand({m_git, args});
     m_process.start();
 }

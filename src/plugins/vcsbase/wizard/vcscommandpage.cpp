@@ -100,7 +100,7 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
     foreach (const QVariant &value, tmp.value(QLatin1String(VCSCOMMAND_JOBS)).toList()) {
         const QVariantMap job = value.toMap();
         const bool skipEmpty = job.value(QLatin1String(JOB_SKIP_EMPTY), true).toBool();
-        const QString workDir = job.value(QLatin1String(JOB_WORK_DIRECTORY)).toString();
+        const FilePath workDir = FilePath::fromVariant(job.value(QLatin1String(JOB_WORK_DIRECTORY)));
 
         const QString cmdString = job.value(QLatin1String(JOB_COMMAND)).toString();
         QTC_ASSERT(!cmdString.isEmpty(), continue);
@@ -307,7 +307,7 @@ void VcsCommandPage::delayedInitialize()
             args << tmp;
         }
 
-        const QString dir = wiz->expander()->expand(job.workDirectory);
+        const FilePath dir = wiz->expander()->expand(job.workDirectory);
         const int timeoutS = command->defaultTimeoutS() * job.timeOutFactor;
         command->addJob({FilePath::fromUserInput(commandString), args}, timeoutS, dir);
     }
@@ -324,10 +324,10 @@ void VcsCommandPage::setCheckoutData(const QString &repo, const QString &baseDir
     m_arguments = args;
 }
 
-void VcsCommandPage::appendJob(bool skipEmpty, const QString &workDir, const QStringList &command,
+void VcsCommandPage::appendJob(bool skipEmpty, const FilePath &workDir, const QStringList &command,
                                const QVariant &condition, int timeoutFactor)
 {
-    m_additionalJobs.append(JobData(skipEmpty, workDir, command, condition, timeoutFactor));
+    m_additionalJobs.append(JobData{skipEmpty, workDir, command, condition, timeoutFactor});
 }
 
 void VcsCommandPage::setVersionControlId(const QString &id)

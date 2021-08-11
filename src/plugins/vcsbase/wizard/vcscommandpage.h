@@ -29,9 +29,12 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
+#include <utils/filepath.h>
 #include <utils/shellcommandpage.h>
 
 #include <QCoreApplication>
+
+namespace Utils { class FilePath; }
 
 namespace VcsBase {
 namespace Internal {
@@ -59,7 +62,7 @@ public:
 
     void setCheckoutData(const QString &repo, const QString &baseDir, const QString &name,
                          const QStringList &args);
-    void appendJob(bool skipEmpty, const QString &workDir, const QStringList &command,
+    void appendJob(bool skipEmpty, const Utils::FilePath &workDir, const QStringList &command,
                    const QVariant &condition, int timeoutFactor);
     void setVersionControlId(const QString &id);
     void setRunMessage(const QString &msg);
@@ -68,24 +71,21 @@ private slots:
     void delayedInitialize();
 
 private:
+    struct JobData
+    {
+        bool skipEmptyArguments = false;
+        Utils::FilePath workDirectory;
+        QStringList job;
+        QVariant condition;
+        int timeOutFactor;
+    };
+
     QString m_vcsId;
     QString m_repository;
     QString m_directory;
     QString m_name;
     QString m_runMessage;
     QStringList m_arguments;
-
-    struct JobData {
-        JobData(bool s, const QString &wd, const QStringList &c, const QVariant &cnd, int toF) :
-            workDirectory(wd), job(c), condition(cnd), timeOutFactor(toF), skipEmptyArguments(s)
-        { }
-
-        QString workDirectory;
-        QStringList job;
-        QVariant condition;
-        int timeOutFactor;
-        bool skipEmptyArguments = false;
-    };
     QList<JobData> m_additionalJobs;
 };
 

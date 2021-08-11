@@ -31,9 +31,11 @@
 #include <QFutureInterface>
 #include <QFutureWatcher>
 
+using namespace Utils;
+
 namespace Core {
 
-ShellCommand::ShellCommand(const QString &workingDirectory, const Utils::Environment &environment) :
+ShellCommand::ShellCommand(const FilePath &workingDirectory, const Environment &environment) :
     Utils::ShellCommand(workingDirectory, environment)
 {
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,

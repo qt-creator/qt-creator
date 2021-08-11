@@ -458,9 +458,9 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     }
 }
 
-void VcsManager::emitRepositoryChanged(const QString &repository)
+void VcsManager::emitRepositoryChanged(const FilePath &repository)
 {
-    emit m_instance->repositoryChanged(FilePath::fromString(repository));
+    emit m_instance->repositoryChanged(repository);
 }
 
 void VcsManager::clearVersionControlCache()

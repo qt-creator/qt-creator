@@ -38,7 +38,7 @@ using namespace Utils;
 namespace VcsBase {
 
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
-    Core::ShellCommand(workingDirectory.toString(), environment),
+    Core::ShellCommand(workingDirectory, environment),
     m_preventRepositoryChanged(false)
 {
     VcsOutputWindow::setRepository(workingDirectory.toString());
@@ -73,7 +73,7 @@ const Environment VcsCommand::processEnvironment() const
 
 void VcsCommand::runCommand(QtcProcess &proc,
                             const CommandLine &command,
-                            const QString &workingDirectory)
+                            const FilePath &workingDirectory)
 {
     ShellCommand::runCommand(proc, command, workingDirectory);
     emitRepositoryChanged(workingDirectory);
@@ -85,7 +85,7 @@ void VcsCommand::addTask(QFuture<void> &future)
     Internal::VcsPlugin::addFuture(future);
 }
 
-void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)
+void VcsCommand::emitRepositoryChanged(const FilePath &workingDirectory)
 {
     if (m_preventRepositoryChanged || !(flags() & VcsCommand::ExpectRepoChanges))
         return;

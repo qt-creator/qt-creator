@@ -33,6 +33,8 @@ class QMessageBox;
 class QProcess;
 QT_END_NAMESPACE
 
+namespace Utils { class FilePath; }
+
 namespace Git {
 namespace Internal {
 
@@ -52,7 +54,7 @@ class MergeTool : public QObject
 public:
     explicit MergeTool(QObject *parent = nullptr);
     ~MergeTool() override;
-    bool start(const QString &workingDirectory, const QStringList &files = QStringList());
+    bool start(const Utils::FilePath &workingDirectory, const QStringList &files = {});
 
     enum MergeType {
         NormalMerge,

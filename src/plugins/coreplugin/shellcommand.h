@@ -40,7 +40,7 @@ class CORE_EXPORT ShellCommand : public Utils::ShellCommand
     Q_OBJECT
 
 public:
-    ShellCommand(const QString &workingDirectory, const Utils::Environment &environment);
+    ShellCommand(const Utils::FilePath &workingDirectory, const Utils::Environment &environment);
 
     FutureProgress *futureProgress() const;
 

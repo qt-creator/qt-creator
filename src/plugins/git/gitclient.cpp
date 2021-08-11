@@ -663,7 +663,7 @@ class ConflictHandler final : public QObject
     Q_OBJECT
 public:
     static void attachToCommand(VcsCommand *command, const QString &abortCommand = QString()) {
-        auto handler = new ConflictHandler(FilePath::fromString(command->defaultWorkingDirectory()), abortCommand);
+        auto handler = new ConflictHandler(command->defaultWorkingDirectory(), abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);
@@ -1059,7 +1059,7 @@ void GitClient::diffBranch(const FilePath &workingDirectory, const QString &bran
 void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmergedFileNames)
 {
     auto mergeTool = new MergeTool(this);
-    if (!mergeTool->start(workingDirectory.toString(), unmergedFileNames))
+    if (!mergeTool->start(workingDirectory, unmergedFileNames))
         delete mergeTool;
 }
 
@@ -2593,8 +2593,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
         arguments.append(ProcessArgs::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
-    VcsOutputWindow::appendCommand(workingDirectory.toString(),
-                                   {FilePath::fromString(binary), arguments});
+    VcsOutputWindow::appendCommand(workingDirectory, {FilePath::fromString(binary), arguments});
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
