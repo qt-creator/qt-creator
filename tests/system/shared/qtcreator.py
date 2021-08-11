@@ -34,7 +34,10 @@ import subprocess;
 import sys
 import errno;
 from datetime import datetime,timedelta;
-import __builtin__
+try:
+    import __builtin__                  # Python 2
+except ImportError:
+    import builtins as __builtin__      # Python 3
 
 srcPath = ''
 SettingsPath = []
@@ -120,7 +123,7 @@ def waitForCleanShutdown(timeOut=10):
         while not shutdownDone:
             try:
                 os.kill(appCtxt.pid,0)
-            except OSError, err:
+            except OSError as err:
                 if err.errno == errno.EPERM or err.errno == errno.ESRCH:
                     shutdownDone=True
             if not shutdownDone and datetime.utcnow() > endtime:
@@ -208,7 +211,7 @@ def substituteCdb(settingsDir):
         try:
             serverIni = readFile(os.path.join(os.getenv("APPDATA"), "froglogic",
                                               "Squish", "ver1", "server.ini"))
-            autLine = filter(lambda line: "AUT/qtcreator" in line, serverIni.splitlines())[0]
+            autLine = list(filter(lambda line: "AUT/qtcreator" in line, serverIni.splitlines()))[0]
             autPath = autLine.split("\"")[1]
             return os.path.exists(os.path.join(autPath, "..", "lib", "qtcreatorcdbext64"))
         except:

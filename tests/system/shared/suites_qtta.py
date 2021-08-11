@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-import __builtin__
-
 # appends to line, by typing <typeWhat> after <insertAfterLine> text into <codeArea> widget
 def appendToLine(codeArea, insertAfterLine, typeWhat):
     if not placeCursorToLine(codeArea, insertAfterLine):
