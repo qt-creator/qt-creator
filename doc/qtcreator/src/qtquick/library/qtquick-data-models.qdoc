@@ -25,7 +25,7 @@
 
 /*!
     \page quick-data-models.html
-    \previouspage quick-user-interaction-methods.html
+    \previouspage quick-controls.html
     \if defined(qtdesignstudio)
     \nextpage quick-2d-effects.html
     \else
