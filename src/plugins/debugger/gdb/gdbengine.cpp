@@ -3979,8 +3979,8 @@ void GdbEngine::setupEngine()
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
-    const QFileInfo gdbBinaryFile = rp.debugger.command.executable().toFileInfo();
-    const QString uninstalledData = gdbBinaryFile.absolutePath() + "/data-directory/python";
+    const QString uninstalledData =
+            rp.debugger.command.executable().pathAppended("data-directory/python").path();
 
     runCommand({"python sys.path.insert(1, '" + dumperSourcePath + "')"});
     runCommand({"python sys.path.append('" + uninstalledData + "')"});
@@ -4430,7 +4430,7 @@ void GdbEngine::setupInferior()
                 return;
             }
 
-            executable = FilePath::fromString(cinfo.foundExecutableName);
+            executable = cinfo.foundExecutableName;
             if (executable.isEmpty()) {
                 AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
                                                 tr("No executable to load symbols from specified core."));
@@ -4469,7 +4469,7 @@ void GdbEngine::setupInferior()
             runCommand({"-exec-arguments " + args});
         }
 
-        QString executable = runParameters().inferior.command.executable().toFileInfo().absoluteFilePath();
+        QString executable = runParameters().inferior.command.executable().path();
         runCommand({"-file-exec-and-symbols \"" + executable + '"',
                     CB(handleFileExecAndSymbols)});
     }
@@ -5002,7 +5002,8 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
             if (pos2 != -1) {
                 cinfo.isCore = true;
                 cinfo.rawStringFromCore = output.mid(pos1, pos2 - pos1);
-                cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
+                cinfo.foundExecutableName =
+                        FilePath::fromString(findExecutableFromName(cinfo.rawStringFromCore, coreFile));
             }
         }
     }

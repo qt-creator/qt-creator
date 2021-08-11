@@ -57,7 +57,7 @@ class MemoryAgentCookie;
 struct CoreInfo
 {
     QString rawStringFromCore;
-    QString foundExecutableName; // empty if no corresponding exec could be found
+    Utils::FilePath foundExecutableName; // empty if no corresponding exec could be found
     bool isCore = false;
 
     static CoreInfo readExecutableNameFromCore(const ProjectExplorer::Runnable &debugger,
