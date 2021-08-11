@@ -137,8 +137,8 @@ void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 void LauncherHandle::wakeUpIfWaitingFor(SignalType wakeUpSignal)
 {
     // e.g. if we are waiting for ReadyRead and we got Finished signal instead -> wake it, too.
-    const bool shouldWake = m_waitingFor == wakeUpSignal
-            || m_waitingFor != SignalType::NoSignal && wakeUpSignal == SignalType::Finished;
+    const bool shouldWake = (m_waitingFor == wakeUpSignal)
+            || ((m_waitingFor != SignalType::NoSignal) && (wakeUpSignal == SignalType::Finished));
     if (shouldWake) {
         m_waitCondition.wakeOne();
         m_waitingFor = SignalType::NoSignal;
