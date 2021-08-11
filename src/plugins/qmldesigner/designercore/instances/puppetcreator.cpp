@@ -374,7 +374,7 @@ static Utils::FilePath pathForBinPuppet(ProjectExplorer::Target *target)
     QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
 
     if (currentQtVersion)
-        return currentQtVersion->binPath() / Utils::HostOsInfo::withExecutableSuffix("qml2puppet");
+        return currentQtVersion->binPath().pathAppended("qml2puppet").withExecutableSuffix();
 
     return {};
 }

@@ -400,9 +400,7 @@ void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
             m_qnxHost = FilePath::fromString(item.value).canonicalPath();
     }
 
-    FilePath qccPath = FilePath::fromString(HostOsInfo::withExecutableSuffix(
-                                                m_qnxHost.toString() + QLatin1String("/usr/bin/qcc")));
-
+    const FilePath qccPath = m_qnxHost.pathAppended("usr/bin/qcc").withExecutableSuffix();
     if (qccPath.exists())
         m_qccCompiler = qccPath;
 

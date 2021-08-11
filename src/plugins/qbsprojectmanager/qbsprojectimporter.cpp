@@ -201,7 +201,7 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
     qCDebug(qbsPmLog) << "creating kit for imported build" << bgData->bgFilePath.toUserOutput();
     QtVersionData qtVersionData;
     if (!bgData->qtBinPath.isEmpty()) {
-        const FilePath qmakeFilePath = bgData->qtBinPath.pathAppended(HostOsInfo::withExecutableSuffix("qmake"));
+        const FilePath qmakeFilePath = bgData->qtBinPath.pathAppended("qmake").withExecutableSuffix();
         qtVersionData = findOrCreateQtVersion(qmakeFilePath);
     }
     return createTemporaryKit(qtVersionData,[this, bgData](Kit *k) -> void {

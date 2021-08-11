@@ -43,6 +43,8 @@
 #include <QJsonObject>
 #include <QVariant>
 
+using namespace Utils;
+
 namespace McuSupport {
 namespace Internal {
 namespace Sdk {
@@ -65,7 +67,7 @@ McuPackage *createQtForMCUsPackage()
     auto result = new McuPackage(
                 McuPackage::tr("Qt for MCUs SDK"),
                 QDir::homePath(),
-                Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
+                FilePath("bin/qmltocpp").withExecutableSuffix().toString(),
                 Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
     result->setEnvironmentVariableName("Qul_DIR");
     return result;

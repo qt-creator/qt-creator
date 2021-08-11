@@ -1044,9 +1044,9 @@ FilePath BaseQtVersion::qmlRuntimeFilePath() const
 
     FilePath path = binPath();
     if (qtVersion() >= QtVersionNumber(6, 2, 0))
-        path = path / HostOsInfo::withExecutableSuffix("qml");
+        path = path.pathAppended("qml").withExecutableSuffix();
     else
-        path = path / HostOsInfo::withExecutableSuffix("qmlscene");
+        path = path.pathAppended("qmlscene").withExecutableSuffix();
 
     d->m_qmlRuntimePath = path.isExecutableFile() ? path : FilePath();
 
@@ -1061,7 +1061,7 @@ FilePath BaseQtVersion::qmlplugindumpFilePath() const
     if (!d->m_qmlplugindumpPath.isEmpty())
         return d->m_qmlplugindumpPath;
 
-    const FilePath path = binPath() / HostOsInfo::withExecutableSuffix("qmlplugindump");
+    const FilePath path = binPath().pathAppended("qmlplugindump").withExecutableSuffix();
     d->m_qmlplugindumpPath = path.isExecutableFile() ? path : FilePath();
 
     return d->m_qmlplugindumpPath;

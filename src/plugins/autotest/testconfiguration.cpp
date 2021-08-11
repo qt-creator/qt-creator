@@ -125,7 +125,7 @@ static FilePath ensureExeEnding(const FilePath &file)
 {
     if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.toString().toLower().endsWith(".exe"))
         return file;
-    return FilePath::fromString(HostOsInfo::withExecutableSuffix(file.toString()));
+    return file.withExecutableSuffix();
 }
 
 void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguration *rc,

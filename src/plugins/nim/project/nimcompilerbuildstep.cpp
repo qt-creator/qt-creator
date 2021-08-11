@@ -213,7 +213,7 @@ CommandLine NimCompilerBuildStep::commandLine()
 FilePath NimCompilerBuildStep::outFilePath() const
 {
     const QString targetName = m_targetNimFile.baseName();
-    return buildDirectory().pathAppended(HostOsInfo::withExecutableSuffix(targetName));
+    return buildDirectory().pathAppended(targetName).withExecutableSuffix();
 }
 
 void NimCompilerBuildStep::updateTargetNimFile()

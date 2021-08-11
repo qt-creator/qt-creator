@@ -214,7 +214,7 @@ bool AndroidDeployQtStep::init()
                 TaskHub::addTask(DeploymentTask(Task::Error, error));
                 return false;
             }
-            m_command = m_command.pathAppended(HostOsInfo::withExecutableSuffix("androiddeployqt"));
+            m_command = m_command.pathAppended("androiddeployqt").withExecutableSuffix();
 
             m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
 

@@ -391,11 +391,10 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
         regVal = pythonRegistry.value("InstallPath/.");
         if (regVal.isValid()) {
             const FilePath &path = FilePath::fromUserInput(regVal.toString());
-            const FilePath &python = path.pathAppended(HostOsInfo::withExecutableSuffix("python"));
+            const FilePath python = path.pathAppended("python").withExecutableSuffix();
             if (python.exists() && !alreadyRegistered(pythons, python))
                 pythons << Interpreter(python, "Python " + versionGroup);
-            const FilePath &pythonw = path.pathAppended(
-                HostOsInfo::withExecutableSuffix("pythonw"));
+            const FilePath pythonw = path.pathAppended("pythonw").withExecutableSuffix();
             if (pythonw.exists() && !alreadyRegistered(pythons, pythonw))
                 pythons << Interpreter(pythonw, "Python " + versionGroup, true);
         }
