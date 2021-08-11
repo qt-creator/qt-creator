@@ -1036,7 +1036,7 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
         if (isQmlDebugging && !isCppDebugging) {
             debugServer.command.setExecutable(mainRunnable.command.executable()); // FIXME: Case should not happen?
         } else {
-            debugServer.command.setExecutable(FilePath::fromString(runControl->device()->debugServerPath()));
+            debugServer.command.setExecutable(runControl->device()->debugServerPath());
             if (debugServer.command.isEmpty())
                 debugServer.command.setExecutable("gdbserver");
             args.clear();

@@ -211,8 +211,8 @@ public:
     MachineType machineType() const;
     void setMachineType(MachineType machineType);
 
-    QString debugServerPath() const;
-    void setDebugServerPath(const QString &path);
+    Utils::FilePath debugServerPath() const;
+    void setDebugServerPath(const Utils::FilePath &path);
 
     QString qmlRunCommand() const;
     void setQmlRunCommand(const QString &path);

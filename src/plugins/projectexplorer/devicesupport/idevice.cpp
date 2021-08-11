@@ -152,7 +152,7 @@ public:
 
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
-    QString debugServerPath;
+    Utils::FilePath debugServerPath;
     QString qmlRunCommand;
     bool emptyCommandAllowed = false;
 
@@ -615,7 +615,7 @@ void IDevice::fromMap(const QVariantMap &map)
     d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
-    d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
+    d->debugServerPath = FilePath::fromVariant(map.value(QLatin1String(DebugServerKey)));
     d->qmlRunCommand = map.value(QLatin1String(QmlRuntimeKey)).toString();
     d->extraData = map.value(ExtraDataKey).toMap();
 }
@@ -646,7 +646,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);
 
-    map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
+    map.insert(QLatin1String(DebugServerKey), d->debugServerPath.toVariant());
     map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand);
     map.insert(ExtraDataKey, d->extraData);
 
@@ -720,12 +720,12 @@ void IDevice::setMachineType(MachineType machineType)
     d->machineType = machineType;
 }
 
-QString IDevice::debugServerPath() const
+FilePath IDevice::debugServerPath() const
 {
     return d->debugServerPath;
 }
 
-void IDevice::setDebugServerPath(const QString &path)
+void IDevice::setDebugServerPath(const FilePath &path)
 {
     d->debugServerPath = path;
 }

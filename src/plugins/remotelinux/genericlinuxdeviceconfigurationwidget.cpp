@@ -129,7 +129,7 @@ void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 
 void GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished()
 {
-    device()->setDebugServerPath(m_ui->gdbServerLineEdit->text());
+    device()->setDebugServerPath(FilePath::fromString(m_ui->gdbServerLineEdit->text()));
 }
 
 void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
@@ -212,6 +212,6 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->userLineEdit->setText(sshParams.userName());
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
-    m_ui->gdbServerLineEdit->setText(device()->debugServerPath());
+    m_ui->gdbServerLineEdit->setText(device()->debugServerPath().toString());
     updatePortsWarningLabel();
 }
