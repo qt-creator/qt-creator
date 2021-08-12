@@ -79,11 +79,12 @@ Column {
                     //: The height of the object
                     text: qsTr("H", "height")
                 }
-
+/*
+                TODO QDS-4836
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
                 LinkIndicator2D {}
-
+*/
                 ExpandingSpacer {}
             }
 

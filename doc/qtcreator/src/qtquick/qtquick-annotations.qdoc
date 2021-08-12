@@ -63,11 +63,13 @@
     \list 1
         \li Select the component to annotate in \uicontrol Navigator or in
             \uicontrol {Form Editor}.
-        \li In \uicontrol Properties, select \uicontrol {Add Annotation}.
+        \li In \uicontrol Properties, select \uicontrol {Add Annotation} to
+            open \uicontrol {Annotation Editor}.
             \image qtquick-annotation-editor.png "Annotation Editor"
         \li The \uicontrol {Selected Item} field displays the ID of the
-            component. Enter a name for the annotation in the
-            \uicontrol {Custom ID} field.
+            component.
+        \li In the the \uicontrol Name field, enter a free-form text that
+            describes the component.
         \li In the \uicontrol Title field, enter the text to display in
             the tab for this comment.
         \li In the \uicontrol Author field, enter the author's name.
@@ -81,6 +83,8 @@
     To remove the active comment, select the \inlineimage minus.png
     (\uicontrol {Remove Comment}) button. To remove the annotation, right-click
     the annotation icon, and then select \uicontrol {Remove Annotation}.
+
+    To view the annotations in table format, select \uicontrol {Table view}.
 
     To edit annotations, select \uicontrol {Edit Annotation} in the context
     menu of the component.

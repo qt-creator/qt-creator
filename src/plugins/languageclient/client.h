@@ -128,6 +128,7 @@ public:
 
     void setLocatorsEnabled(bool enabled) { m_locatorsEnabled = enabled; }
     bool locatorsEnabled() const { return m_locatorsEnabled; }
+    void setAutoRequestCodeActions(bool enabled) { m_autoRequestCodeActions = enabled; }
 
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
@@ -245,6 +246,7 @@ private:
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
+    QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
     QMap<TextEditor::TextDocument *,
          QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
@@ -281,6 +283,7 @@ private:
     QString m_serverVersion;
     LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
     bool m_locatorsEnabled = true;
+    bool m_autoRequestCodeActions = true;
 };
 
 } // namespace LanguageClient

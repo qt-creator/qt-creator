@@ -250,7 +250,7 @@
             \image qmldesigner-borderimage-bindings.png "Active state when condition"
         \li Select the text component in \uicontrol Navigator to specify that the
             text size is scaled up when the button is pressed down.
-        \li In \uicontrol Properties, select the \uicontrol Advanced tab, and
+        \li In \uicontrol Properties, select the \uicontrol Advanced section, and
             increase the value of the \uicontrol Scale property.
         \li Select \e inactiveButton in \uicontrol Navigator to hide
             it in the \e active state by changing the value of its

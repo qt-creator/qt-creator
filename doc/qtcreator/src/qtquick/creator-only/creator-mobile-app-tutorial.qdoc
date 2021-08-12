@@ -114,7 +114,7 @@
 
             \image qtquick-mobile-app-tutorial-image.png "Image file in different views"
 
-        \li Select the \inlineimage export_unchecked.png
+        \li Select the \inlineimage icons/alias.png
             (\uicontrol Export) button in \uicontrol Navigator to export
             \e mainWindow and \e bubble as properties.
 

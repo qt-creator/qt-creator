@@ -331,7 +331,8 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                     continue;
                 if (fallbackClient && fallbackClient->documentOpen(editor->textDocument()))
                     fallbackClient->closeDocument(editor->textDocument());
-                client->openDocument(editor->textDocument());
+                if (!client->documentOpen(editor->textDocument()))
+                    client->openDocument(editor->textDocument());
                 ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
                 hasDocuments = true;
             }

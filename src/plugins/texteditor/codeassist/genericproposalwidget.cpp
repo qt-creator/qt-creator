@@ -143,12 +143,13 @@ public:
     // Workaround QTCREATORBUG-11653
     void calculateMaximumWidth()
     {
-        const int desktopWidth = screen()->availableGeometry().width();
+        const QRect screenGeometry = screen()->availableGeometry();
+        const int xOnScreen = this->pos().x() - screenGeometry.x();
         const QMargins widgetMargins = contentsMargins();
         const QMargins layoutMargins = layout()->contentsMargins();
         const int margins = widgetMargins.left() + widgetMargins.right()
                 + layoutMargins.left() + layoutMargins.right();
-        m_label->setMaximumWidth(desktopWidth - this->pos().x() - margins);
+        m_label->setMaximumWidth(qMax(0, screenGeometry.width() - xOnScreen - margins));
     }
 
 private:

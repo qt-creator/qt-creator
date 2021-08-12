@@ -252,7 +252,7 @@ void QtKitAspect::fix(Kit *k)
             return systemEnvironment.path().contains(t->compilerCommand().parentDir());
         });
         if (!bestTc) {
-            bestTc = goodTcs.isEmpty() ? possibleTcs.last() : goodTcs.last();
+            bestTc = goodTcs.isEmpty() ? possibleTcs.first() : goodTcs.first();
         }
         if (bestTc)
             ToolChainKitAspect::setAllToolChainsToMatch(k, bestTc);

@@ -135,7 +135,7 @@
     \uicontrol {Alignment H} and \uicontrol {Alignment V}
     fields. By default, images are centered.
 
-    Select the \uicontrol Mirrored check box to horizontally invert the image,
+    Select the \uicontrol Mirror check box to horizontally invert the image,
     effectively displaying a mirrored image.
 
     \section1 Performance

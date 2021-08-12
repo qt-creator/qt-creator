@@ -33,7 +33,7 @@
     The \uicontrol Properties view displays all the properties of the selected
     \l{glossary-component}{component}. The properties are grouped by type. The
     top part of the view displays properties that are common to all components,
-    such as type name, ID, position, size, and visibility.
+    such as component type, ID, name, geometry, and visibility.
 
     \image qtquick-item-properties-common.png "Basic component properties"
 
@@ -54,7 +54,7 @@
         \li Tooltip
         \li Read More
     \row
-        \li \inlineimage export_unchecked.png
+        \li \inlineimage icons/alias.png
         \li Adds a property alias that you can use from outside of the
             component for the root component. You can use a menu item
             in the actions menu to add property aliases for property
@@ -99,7 +99,7 @@
     the current state and which values are derived from the base state.
 
     The following images illustrate this. In the base state, the
-    \uicontrol Position (1) and \uicontrol Size (2) values are explicitly set
+    \uicontrol Position and \uicontrol Size values are explicitly set
     and highlighted.
 
     \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
@@ -141,7 +141,8 @@
     \section1 Multiselection
 
     To modify the values of common properties of multiple components
-    simultaneously, select the components in \l Navigator or \l {Form Editor}:
+    simultaneously, select the components in \l Navigator, \l {Form Editor}
+    or \uicontrol {3D Editor}:
 
     \list
         \li On Windows, press and hold \key Ctrl and \key Shift, and then click
@@ -158,7 +159,7 @@
     \list
         \li For information about setting common component properties, see
             \l{Specifying Component Properties}.
-        \li For more information on the properties available for a
+        \li For more information about the properties available for a
             component, press \key {F1} or see \l{Component Types}
             and \l{Scalable Layouts}.
     \endlist

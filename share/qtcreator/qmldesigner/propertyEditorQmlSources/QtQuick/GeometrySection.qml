@@ -112,11 +112,12 @@ Section {
                 tooltip: xSpinBox.enabled ? "Y" : root.disbaledTooltip
                 enabled: ySpinBox.enabled
             }
-
+/*
+            TODO QDS-4836
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             LinkIndicator2D {}
-
+*/
             ExpandingSpacer {}
         }
 
@@ -167,11 +168,12 @@ Section {
                 tooltip: heightSpinBox.enabled ? qsTr("Height") : root.disbaledTooltip
                 enabled: heightSpinBox.enabled
             }
-
+/*
+            TODO QDS-4836
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             LinkIndicator2D {}
-
+*/
             ExpandingSpacer {}
         }
 
@@ -197,7 +199,8 @@ Section {
                 text: "°"
                 enabled: backendValues.rotation.isAvailable
             }
-
+/*
+            TODO QDS-4835
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             StudioControls.ButtonRow {
@@ -223,7 +226,7 @@ Section {
                     iconRotation: 90
                 }
             }
-
+*/
             ExpandingSpacer {}
         }
 

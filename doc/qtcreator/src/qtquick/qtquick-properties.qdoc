@@ -34,7 +34,7 @@
     \l{glossary-component}{component}.
 
     \target basic-item
-    \section1 Specifying Basic Component Properties
+    \section1 Basic Component Properties
 
     All components share a set of properties that you can specify in the
     \uicontrol Properties view.
@@ -43,7 +43,7 @@
 
     \section2 Type
 
-    When you create a component using a \l{Component Types}{preset component},
+    When you create an instance of a \l{Component Types}{preset component},
     it has all the properties of the preset you used. If you realize later that
     another preset component with another set of default properties would be
     more suitable for your purposes, you can change the component type by
@@ -68,10 +68,23 @@
 
     For more technical information about IDs, see \l{The id Attribute}.
 
-    The value of the \uicontrol {Custom ID} field specifies the name of an
-    \l{Annotating Designs}{annotation}.
+    To add a \l{Adding Property Aliases}{property alias} that you can use
+    from  outside of the component, select \inlineimage icons/alias.png
+    . You can use a menu item in the \uicontrol Actions menu to add property
+    aliases for property values of child components.
 
-    \section2 2D Geometry
+    \section2 Name
+
+    The value of the \uicontrol {Name} field specifies the component name
+    used in an \l{Annotating Designs}{annotation}. It is a free-form text
+    that descibes the component.
+
+    \section1 2D Geometry
+
+    Set the properties in the \uicontrol {Geometry - 2D} section to determine
+    the position and size of a component.
+
+    \image qtquick-properties-2d-geometry.png "2D Geometry properties"
 
     In the \uicontrol Position group, you can set the position of a component on
     the x and y axis. The position of a component in the UI can be either
@@ -80,7 +93,7 @@
 
     In the 2D space, the z position of a component determines its position in
     relation to its sibling components in the component hierarchy. You can set
-    it in the \uicontrol Z field in the \uicontrol Advanced tab.
+    the z position in the \uicontrol {Z stack} field.
 
     In the \uicontrol Size group, you can set the width and height of a
     component. You can also use the resize cursor to \l{Resizing 2D Components}
@@ -96,7 +109,7 @@
     if its final size is determined by property bindings. For more
     information, see \l {Previewing Component Size}.
 
-    \section3 Resetting Component Position and Size
+    \section2 Resetting Component Position and Size
 
     To return a component to its default position after moving it,
     select the \inlineimage qtcreator-reset-position-icon.png
@@ -105,20 +118,44 @@
     \inlineimage qtcreator-reset-size-icon.png
     (\uicontrol {Reset Size}) button.
 
-    \section2 Visibility
+    \section2 Managing 2D Transformations
 
-    You can use the properties in the \uicontrol Visibility group to show and
+    You can assign any number of transformations, such as rotation and scaling,
+    to a component. Each transformation is applied in order, one at a time.
+
+    In the \uicontrol Origin field, select the origin point for scaling and
+    rotation.
+
+    Set the scale factor in the \uicontrol Scale field. A value of less than
+    1.0 makes the component smaller, whereas a value greater than 1.0 makes
+    it larger. A negative value causes the component to be mirrored in
+    \uicontrol {Form Editor}.
+
+    In the \uicontrol Rotation field, specify the rotation of the component
+    in degrees clockwise around the origin point.
+
+    Alternatively, you can move, resize, or rotate components by dragging them
+    in \l{Form Editor}.
+
+    For more information about transforming 3D components, see
+    \l{Managing 3D Transformations} and \l{3D Editor}.
+
+    \section1 Visibility
+
+    Set the properties in the \uicontrol Visibility section to show and
     hide components.
 
-    Deselect the \uicontrol {Is visible} check box to hide a component and all
+    \image qtquick-properties-visibility.png "Visibility properties"
+
+    Deselect the \uicontrol Visible check box to hide a component and all
     its child components, unless they have explicitly been set to be visible.
     This might have surprise effects when using property bindings. In such
     cases, it may be better to use the \uicontrol Opacity property instead.
 
     If this property is disabled, the component will no longer receive
-    \l{Mouse Area}{mouse events} but will continue to receive key events
-    and will retain the keyboard focus events, if it has been set by
-    selecting the \uicontrol Enabled check box in the \uicontrol Advanced tab.
+    \l{Mouse Area}{mouse events}. However, it will continue to receive key
+    events and will retain the keyboard focus events if the \uicontrol Enabled
+    check box in the \uicontrol Advanced section is selected.
 
     The visibility value is only affected by changes to this property or the
     parent's visible property. It does not change, for example, if this
@@ -138,30 +175,8 @@
     If the \uicontrol Clip check box is selected, the component and its children
     are clipped to the bounding rectangle of the component.
 
-    \section1 Managing 2D Transformations
-
-    You can assign any number of transformations, such as rotation and scaling,
-    to a component in the \uicontrol Advanced tab of the \uicontrol Properties
-    view. Each transformation is applied in order, one at a time.
-
-    \image qtquick-item-properties-advanced.png "Advanced component properties"
-
-    In the \uicontrol Origin field, select the origin point for scaling and
-    rotation.
-
-    Set the scale factor in the \uicontrol Scale field. A value of less than
-    1.0 makes the component smaller, whereas a value greater than 1.0 makes
-    it larger. A negative value causes the component to be mirrored in
-    \uicontrol {Form Editor}.
-
-    In the \uicontrol Rotation field, specify the rotation of the component
-    in degrees clockwise around the origin point.
-
-    Alternatively, you can move, resize, or rotate components by dragging them
-    in \l{Form Editor}.
-
-    For more information about transforming 3D components, see
-    \l{Managing 3D Transformations} and \l{3D Editor}.
+    in the \uicontrol State field, select the \l{Adding States}{state} to
+    change the value of a property in that state.
 
     \section1 Picking Colors
 
@@ -261,47 +276,22 @@
     By default, a linear gradient (4) is used, but you can select another
     supported gradient type in the \uicontrol Properties view.
 
-    \section1 Marking Text Components for Translation
-
-    To support translators, mark each text component that should be translated.
-    In the \uicontrol Properties view, \uicontrol Text field, select \uicontrol tr (1).
-
-    \image qmldesigner-text-property-tr.png "Text properties"
-
-    By default, the text string is enclosed in a \c qsTr() call.
-
-    \image qml-translate.png "Text marked for translation"
-
-    If you use text IDs instead of plain text, change the default call to
-    \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
-    \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
-    group. For more information about text ID based translations, see
-    \l {Qt Linguist Manual: Text ID Based Translations}.
-
-    To preserve the context when editing the text or to change the context
-    by setting a binding on the text property, change the default call to
-    \c qsTranslate() by selecting the \uicontrol {qsTranslate()} radio button.
-
-    For more information, see
-    \l {Internationalization and Localization with Qt Quick}.
-
-    \if defined(qtcreator)
-    When you \l{Creating Qt Quick Projects}{create a new project}, you can
-    automatically generate a translation source file (TS) for one language.
-    You can add other languages later by editing the project file.
-    \endif
-
     \section1 Specifying Developer Properties
 
-    In the \uicontrol Advanced tab of the \uicontrol Properties view, you can
-    manage the more advanced properties of components that are based on the
-    \l Item component and that are mostly used by application developers.
+    In the \uicontrol Advanced and \uicontrol Layer sections of the
+    \uicontrol Properties view, you can manage the more advanced
+    properties of components that are inherited from the \l Item
+    component and that are mostly used by application developers.
+
+    \image qtquick-properties-advanced.png "Advanced section in Properties"
 
     Select the \uicontrol Smooth check box to activate smooth sampling. Smooth
     sampling is performed using linear interpolation, while non-smooth sampling
     is performed using the nearest neighbor. Because smooth sampling has minimal
     impact on performance, it is activated by default.
+
+    Antialiasing is used to make curved lines smoother on the screen. Select
+    the \uicontrol Antialising check box to turn on antialiasing.
 
     The value of the \uicontrol {Baseline offset} specifies the position of the
     component's baseline in local coordinates. The baseline of a \l Text
@@ -316,7 +306,7 @@
     behavior, unless you explicitly set this value for them.
 
     You can enable the \uicontrol Focus check box to specify that the component
-    has active focus and the \uicontrol {Active focus on tab} check box to add
+    has active focus and the \uicontrol {Focus on tab} check box to add
     the component to the \e {tab focus chain}. The tab focus chain traverses
     components by first visiting the parent, and then its children in the order
     they are defined. Pressing \key Tab on a component in the tab focus chain
@@ -351,7 +341,7 @@
 
     Components are normally rendered directly into the window they belong to.
     However, by selecting the \uicontrol Enabled check box in the
-    \uicontrol Layer group, you can delegate the component and its entire subtree
+    \uicontrol Layer section, you can delegate the component and its entire subtree
     into an offscreen surface. Only the offscreen surface, a texture, will
     then be drawn into the window. For more information, see \l{Item Layers}.
 
@@ -397,9 +387,9 @@
     The component will use linear interpolation for scaling if the
     \uicontrol Smooth check box is selected. To use a mipmap for downsampling,
     select the \uicontrol Mipmap check box. Mipmapping may improve the visual
-    quality of downscaled components. For mipmapping of single Image components,
-    select the \uicontrol Mipmap check box in the \l{Images}{image properties},
-    instead.
+    quality of downscaled components. For mipmapping of single \uicontrol Image
+    components, select the \uicontrol Mipmap check box in the \l{Images}
+    {image properties}, instead.
 
     To use a texture with a size different from that of the component, specify
     the width and height of the texture in the \uicontrol {Texture size} field.

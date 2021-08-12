@@ -136,6 +136,7 @@ debug/
 ipch/
 release/
 tmp/
+.cache/clangd/
 # ignore both a directory as well as a symlink
 /share/qtcreator/QtProject
 

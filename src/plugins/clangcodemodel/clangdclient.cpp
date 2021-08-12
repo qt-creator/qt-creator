@@ -755,6 +755,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     caps.clearExperimental();
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
+    setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
     setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
 

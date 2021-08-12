@@ -354,10 +354,12 @@ void Client::openDocument(TextEditor::TextDocument *document)
     if (!isSupportedDocument(document))
         return;
 
-    m_openedDocument[document] = document->plainText();
-
-    if (m_state != Initialized)
+    if (m_state != Initialized) {
+        m_postponedDocuments << document;
         return;
+    }
+
+    QTC_ASSERT(!m_openedDocument.contains(document), return);
 
     const FilePath &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
@@ -377,6 +379,8 @@ void Client::openDocument(TextEditor::TextDocument *document)
                 return;
         }
     }
+
+    m_openedDocument[document] = document->plainText();
     connect(document, &TextDocument::contentsChangedWithPosition, this,
             [this, document](int position, int charsRemoved, int charsAdded) {
         documentContentsChanged(document, position, charsRemoved, charsAdded);
@@ -427,6 +431,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     deactivateDocument(document);
     const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     m_highlights[uri].clear();
+    m_postponedDocuments.remove(document);
     if (m_openedDocument.remove(document) != 0) {
         handleDocumentClosed(document);
         if (m_state == Initialized) {
@@ -1317,7 +1322,8 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     m_diagnosticManager.setDiagnostics(uri, diagnostics, params.version());
     if (LanguageClientManager::clientForUri(uri) == this) {
         m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(uri.toFilePath()));
-        requestCodeActions(uri, diagnostics);
+        if (m_autoRequestCodeActions)
+            requestCodeActions(uri, diagnostics);
     }
 }
 
@@ -1451,8 +1457,9 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         }
     }
 
-    for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
-        openDocument(it.key());
+    for (TextEditor::TextDocument *doc : m_postponedDocuments)
+        openDocument(doc);
+    m_postponedDocuments.clear();
 
     emit initialized(m_serverCapabilities);
 }
