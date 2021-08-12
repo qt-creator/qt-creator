@@ -27,7 +27,7 @@
 
 #include "gerritserver.h"
 
-#include <QStringList>
+#include <utils/filepath.h>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 
@@ -47,8 +47,8 @@ public:
     void setPortFlagBySshType();
 
     GerritServer server;
-    QString ssh;
-    QString curl;
+    Utils::FilePath ssh;
+    Utils::FilePath curl;
     QStringList savedQueries;
     bool https = true;
     QString portFlag;

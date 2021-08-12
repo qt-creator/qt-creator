@@ -161,7 +161,7 @@ bool GerritServer::fillFromRemote(const QString &remote,
         return true;
     }
     curlBinary = parameters.curl;
-    if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
+    if (curlBinary.isEmpty() || !curlBinary.exists())
         return false;
     const StoredHostValidity validity = forceReload ? Invalid : loadSettings();
     switch (validity) {
@@ -245,7 +245,7 @@ int GerritServer::testConnection()
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     QtcProcess proc;
-    client->vcsFullySynchronousExec(proc, {}, {FilePath::fromString(curlBinary), arguments},
+    client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments},
                                     Core::ShellCommand::NoOutput);
     if (proc.result() == QtcProcess::FinishedWithSuccess) {
         QString output = proc.stdOut();
@@ -346,15 +346,14 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         if (port)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
-        client->vcsFullySynchronousExec(proc, {}, {FilePath::fromString(p.ssh), arguments},
-                                        Core::ShellCommand::NoOutput);
+        client->vcsFullySynchronousExec(proc, {}, {p.ssh, arguments}, Core::ShellCommand::NoOutput);
         QString stdOut = proc.stdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
         QtcProcess proc;
-        client->vcsFullySynchronousExec(proc, {}, {FilePath::fromString(curlBinary), arguments},
+        client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments},
                                         Core::ShellCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.

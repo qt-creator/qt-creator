@@ -25,6 +25,7 @@
 
 #include "pathchooser.h"
 
+#include "commandline.h"
 #include "environment.h"
 #include "hostosinfo.h"
 #include "macroexpander.h"
@@ -718,9 +719,9 @@ FancyLineEdit *PathChooser::lineEdit() const
     return d->m_lineEdit;
 }
 
-QString PathChooser::toolVersion(const QString &binary, const QStringList &arguments)
+QString PathChooser::toolVersion(const CommandLine &cmd)
 {
-    return BinaryVersionToolTipEventFilter::toolVersion({FilePath::fromString(binary), arguments});
+    return BinaryVersionToolTipEventFilter::toolVersion(cmd);
 }
 
 void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)

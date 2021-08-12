@@ -251,9 +251,9 @@ private:
 
     void errorTermination(const QString &msg);
 
-    Utils::QtcProcess m_process;
+    QtcProcess m_process;
     QTimer m_timer;
-    QString m_binary;
+    FilePath m_binary;
     QByteArray m_output;
     QString m_error;
     QFutureInterface<void> m_progress;
@@ -321,10 +321,9 @@ void QueryContext::start()
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
     // Order: synchronous call to error handling if something goes wrong.
-    VcsOutputWindow::appendCommand(m_process.workingDirectory(),
-                                   {FilePath::fromString(m_binary), m_arguments});
+    VcsOutputWindow::appendCommand(m_process.workingDirectory(), {m_binary, m_arguments});
     m_timer.start();
-    m_process.setCommand({FilePath::fromString(m_binary), m_arguments});
+    m_process.setCommand({m_binary, m_arguments});
     m_process.start();
 }
 
@@ -344,7 +343,7 @@ void QueryContext::terminate()
 
 void QueryContext::processError(QProcess::ProcessError e)
 {
-    const QString msg = tr("Error running %1: %2").arg(m_binary, m_process.errorString());
+    const QString msg = tr("Error running %1: %2").arg(m_binary.toUserOutput(), m_process.errorString());
     if (e == QProcess::FailedToStart)
         errorTermination(msg);
     else
@@ -357,10 +356,10 @@ void QueryContext::processFinished()
         m_timer.stop();
     emit errorText(m_error);
     if (m_process.exitStatus() != QProcess::NormalExit) {
-        errorTermination(tr("%1 crashed.").arg(m_binary));
+        errorTermination(tr("%1 crashed.").arg(m_binary.toUserOutput()));
         return;
     } else if (m_process.exitCode()) {
-        errorTermination(tr("%1 returned %2.").arg(m_binary).arg(m_process.exitCode()));
+        errorTermination(tr("%1 returned %2.").arg(m_binary.toUserOutput()).arg(m_process.exitCode()));
         return;
     }
     emit resultRetrieved(m_output);

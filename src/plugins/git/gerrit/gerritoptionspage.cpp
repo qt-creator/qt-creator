@@ -124,8 +124,8 @@ GerritParameters GerritOptionsWidget::parameters() const
                                  static_cast<unsigned short>(m_portSpinBox->value()),
                                  m_userLineEdit->text().trimmed(),
                                  GerritServer::Ssh);
-    result.ssh = m_sshChooser->filePath().toString();
-    result.curl = m_curlChooser->filePath().toString();
+    result.ssh = m_sshChooser->filePath();
+    result.curl = m_curlChooser->filePath();
     result.https = m_httpsCheckBox->isChecked();
     return result;
 }
@@ -134,8 +134,8 @@ void GerritOptionsWidget::setParameters(const GerritParameters &p)
 {
     m_hostLineEdit->setText(p.server.host);
     m_userLineEdit->setText(p.server.user.userName);
-    m_sshChooser->setPath(p.ssh);
-    m_curlChooser->setPath(p.curl);
+    m_sshChooser->setFilePath(p.ssh);
+    m_curlChooser->setFilePath(p.curl);
     m_portSpinBox->setValue(p.server.port);
     m_httpsCheckBox->setChecked(p.https);
 }

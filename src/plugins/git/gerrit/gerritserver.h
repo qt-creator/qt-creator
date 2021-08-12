@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QStringList>
+#include <utils/filepath.h>
 
 namespace Gerrit {
 namespace Internal {
@@ -88,7 +88,7 @@ public:
     bool validateCert = true;
 
 private:
-    QString curlBinary;
+    Utils::FilePath curlBinary;
     StoredHostValidity loadSettings();
     void saveSettings(StoredHostValidity validity) const;
     bool setupAuthentication();
