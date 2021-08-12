@@ -759,9 +759,9 @@ static inline QString msgParseFilesFailed()
     return  GitClient::tr("Cannot parse the file output.");
 }
 
-static inline QString msgCannotLaunch(const QString &binary)
+static QString msgCannotLaunch(const FilePath &binary)
 {
-    return GitClient::tr("Cannot launch \"%1\".").arg(QDir::toNativeSeparators(binary));
+    return GitClient::tr("Cannot launch \"%1\".").arg(binary.toUserOutput());
 }
 
 static inline void msgCannotRun(const QString &message, QString *errorMessage)
@@ -2532,36 +2532,29 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
 void GitClient::launchGitK(const FilePath &workingDirectory, const QString &fileName) const
 {
-    const QFileInfo binaryInfo = vcsBinary().toFileInfo();
-    QDir foundBinDir(binaryInfo.dir());
-    const bool foundBinDirIsBinDir = foundBinDir.dirName() == "bin";
+    FilePath foundBinDir = vcsBinary().parentDir();
     Environment env = processEnvironment();
-    if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path()))
+    if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir))
         return;
 
-    QString gitkPath = foundBinDir.path() + "/gitk";
-    VcsOutputWindow::appendSilently(msgCannotLaunch(gitkPath));
+    VcsOutputWindow::appendSilently(msgCannotLaunch(foundBinDir / "gitk"));
 
-    if (foundBinDirIsBinDir) {
-        foundBinDir.cdUp();
-        const QString binDirName = foundBinDir.dirName();
+    if (foundBinDir.fileName() == "bin") {
+        foundBinDir = foundBinDir.parentDir();
+        const QString binDirName = foundBinDir.fileName();
         if (binDirName == "usr" || binDirName.startsWith("mingw"))
-            foundBinDir.cdUp();
-        if (tryLauchingGitK(env, workingDirectory, fileName,
-                            foundBinDir.path() + "/cmd")) {
+            foundBinDir = foundBinDir.parentDir();
+        if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir / "cmd"))
             return;
-        }
-        gitkPath = foundBinDir.path() + "/cmd/gitk";
-        VcsOutputWindow::appendSilently(msgCannotLaunch(gitkPath));
+
+        VcsOutputWindow::appendSilently(msgCannotLaunch(foundBinDir / "cmd/gitk"));
     }
 
     Environment sysEnv = Environment::systemEnvironment();
     const FilePath exec = sysEnv.searchInPath("gitk");
 
-    if (!exec.isEmpty() && tryLauchingGitK(env, workingDirectory, fileName,
-                                           exec.parentDir().toString())) {
+    if (!exec.isEmpty() && tryLauchingGitK(env, workingDirectory, fileName, exec.parentDir()))
         return;
-    }
 
     VcsOutputWindow::appendError(msgCannotLaunch("gitk"));
 }
@@ -2576,15 +2569,15 @@ void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
 bool GitClient::tryLauchingGitK(const Environment &env,
                                 const FilePath &workingDirectory,
                                 const QString &fileName,
-                                const QString &gitBinDirectory) const
+                                const FilePath &gitBinDirectory) const
 {
-    QString binary = gitBinDirectory + "/gitk";
+    FilePath binary = gitBinDirectory.pathAppended("gitk").withExecutableSuffix();
     QStringList arguments;
     if (HostOsInfo::isWindowsHost()) {
         // If git/bin is in path, use 'wish' shell to run. Otherwise (git/cmd), directly run gitk
-        QString wish = gitBinDirectory + "/wish";
-        if (QFileInfo::exists(wish + ".exe")) {
-            arguments << binary;
+        FilePath wish = gitBinDirectory.pathAppended("wish").withExecutableSuffix();
+        if (wish.withExecutableSuffix().exists()) {
+            arguments << binary.toString();
             binary = wish;
         }
     }
@@ -2593,7 +2586,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
         arguments.append(ProcessArgs::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
-    VcsOutputWindow::appendCommand(workingDirectory, {FilePath::fromString(binary), arguments});
+    VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
@@ -2601,7 +2594,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
         auto process = new QProcess;
         process->setWorkingDirectory(workingDirectory.toString());
         process->setProcessEnvironment(env.toProcessEnvironment());
-        process->start(binary, arguments);
+        process->start(binary.toString(), arguments);
         success = process->waitForStarted();
         if (success)
             connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -2609,7 +2602,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
         else
             delete process;
     } else {
-        success = QProcess::startDetached(binary, arguments, workingDirectory.toString());
+        success = QProcess::startDetached(binary.toString(), arguments, workingDirectory.toString());
     }
 
     return success;

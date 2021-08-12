@@ -405,7 +405,7 @@ private:
     bool tryLauchingGitK(const Utils::Environment &env,
                          const Utils::FilePath &workingDirectory,
                          const QString &fileName,
-                         const QString &gitBinDirectory) const;
+                         const Utils::FilePath &gitBinDirectory) const;
     bool cleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                    const QString &flag, QStringList *files, QString *errorMessage);
 
