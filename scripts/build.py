@@ -185,7 +185,7 @@ def build_qtcreator(args, paths):
     ide_revision = common.get_commit_SHA(paths.src)
     if ide_revision:
         cmake_args += ['-DIDE_REVISION=ON',
-                       '-DIDE_REVISION_STR=' + ide_revision,
+                       '-DIDE_REVISION_STR=' + ide_revision[:10],
                        '-DIDE_REVISION_URL=https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=' + ide_revision]
 
     cmake_args += args.config_args
