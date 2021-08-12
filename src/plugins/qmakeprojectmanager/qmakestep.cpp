@@ -220,19 +220,21 @@ bool QMakeStep::init()
 
     // The Makefile is used by qmake and make on the build device, from that
     // perspective it is local.
-    QString makefile = workingDirectory.path() + '/';
 
+    QString make;
     if (qmakeBc->subNodeBuild()) {
         QmakeProFileNode *pro = qmakeBc->subNodeBuild();
         if (pro && !pro->makefile().isEmpty())
-            makefile.append(pro->makefile());
+            make = pro->makefile();
         else
-            makefile.append("Makefile");
+            make = "Makefile";
     } else if (!qmakeBc->makefile().isEmpty()) {
-        makefile.append(qmakeBc->makefile());
+        make = qmakeBc->makefile().path();
     } else {
-        makefile.append("Makefile");
+        make = "Makefile";
     }
+
+    FilePath makeFile = workingDirectory / make;
 
     if (m_runMakeQmake) {
         const FilePath make = makeCommand();
@@ -242,14 +244,14 @@ bool QMakeStep::init()
                            BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
-        m_makeCommand = CommandLine{make, makeArguments(makefile), CommandLine::Raw};
+        m_makeCommand = CommandLine{make, makeArguments(makeFile.path()), CommandLine::Raw};
     } else {
         m_makeCommand = {};
     }
 
     // Check whether we need to run qmake
     if (m_forced || QmakeSettings::alwaysRunQmake()
-            || qmakeBc->compareToImportFrom(makefile) != QmakeBuildConfiguration::MakefileMatches) {
+            || qmakeBc->compareToImportFrom(makeFile) != QmakeBuildConfiguration::MakefileMatches) {
         m_needToRunQMake = true;
     }
     m_forced = false;
@@ -433,20 +435,22 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 QString QMakeStep::effectiveQMakeCall() const
 {
     BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
-    QString qmake = qtVersion ? qtVersion->qmakeFilePath().toUserOutput() : QString();
+    FilePath qmake = qtVersion ? qtVersion->qmakeFilePath() : FilePath();
     if (qmake.isEmpty())
-        qmake = tr("<no Qt version>");
-    QString make = makeCommand().toUserOutput();
+        qmake = FilePath::fromString(tr("<no Qt version>"));
+    FilePath make = makeCommand();
     if (make.isEmpty())
-        make = tr("<no Make step found>");
+        make = FilePath::fromString(tr("<no Make step found>"));
 
-    QString result = qmake;
+    CommandLine cmd(qmake, {});
+
+    QString result = qmake.toString();
     if (qtVersion) {
         QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
-        const QString makefile = qmakeBc ? qmakeBc->makefile() : QString();
+        const FilePath makefile = qmakeBc ? qmakeBc->makefile() : FilePath();
         result += ' ' + allArguments(qtVersion, ArgumentFlag::Expand);
         if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
-            result.append(QString::fromLatin1(" && %1 %2").arg(make).arg(makeArguments(makefile)));
+            result.append(QString(" && %1 %2").arg(make.path()).arg(makeArguments(makefile.path())));
     }
     return result;
 }

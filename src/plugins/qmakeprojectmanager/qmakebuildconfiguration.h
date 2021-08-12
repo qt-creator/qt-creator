@@ -79,12 +79,12 @@ public:
 
     QmakeBuildSystem *qmakeBuildSystem() const;
 
-    QString makefile() const;
+    Utils::FilePath makefile() const;
 
     enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };
-    MakefileState compareToImportFrom(const QString &makefile, QString *errorString = nullptr);
+    MakefileState compareToImportFrom(const Utils::FilePath &makefile, QString *errorString = nullptr);
     static QString extractSpecFromArguments(
-            QString *arguments, const QString &directory, const QtSupport::BaseQtVersion *version,
+            QString *arguments, const Utils::FilePath &directory, const QtSupport::BaseQtVersion *version,
             QStringList *outArgs = nullptr);
 
     QVariantMap toMap() const override;

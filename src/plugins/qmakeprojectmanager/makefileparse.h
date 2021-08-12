@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-#include <qtsupport/baseqtversion.h>
 #include <qmakeprojectmanager/qmakestep.h>
+#include <qtsupport/baseqtversion.h>
+#include <utils/filepath.h>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -43,13 +43,13 @@ class MakeFileParse
 {
 public:
     enum class Mode { FilterKnownConfigValues, DoNotFilterKnownConfigValues };
-    MakeFileParse(const QString &makefile, Mode mode);
+    MakeFileParse(const Utils::FilePath &makefile, Mode mode);
 
     enum MakefileState { MakefileMissing, CouldNotParse, Okay };
 
     MakefileState makeFileState() const;
     Utils::FilePath qmakePath() const;
-    QString srcProFile() const;
+    Utils::FilePath srcProFile() const;
     QMakeStepConfig config() const;
 
     QString unparsedArguments() const;
@@ -78,7 +78,7 @@ private:
     const Mode m_mode;
     MakefileState m_state;
     Utils::FilePath m_qmakePath;
-    QString m_srcProFile;
+    Utils::FilePath m_srcProFile;
 
     QmakeBuildConfig m_qmakeBuildConfig;
     QMakeStepConfig m_config;

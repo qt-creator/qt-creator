@@ -138,10 +138,10 @@ bool QmakeMakeStep::init()
 
         m_makeFileToCheck = workingDirectory / makefile;
     } else {
-        QString makefile = bc->makefile();
+        FilePath makefile = bc->makefile();
         if (!makefile.isEmpty()) {
-            makeCmd.addArgs({"-f", makefile});
-            m_makeFileToCheck = workingDirectory / makefile;
+            makeCmd.addArgs({"-f", makefile.path()});
+            m_makeFileToCheck = workingDirectory / makefile.path();
         } else {
             m_makeFileToCheck = workingDirectory / "Makefile";
         }
@@ -257,7 +257,7 @@ QStringList QmakeMakeStep::displayArguments() const
 {
     const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
     if (bc && !bc->makefile().isEmpty())
-        return {"-f", bc->makefile()};
+        return {"-f", bc->makefile().path()};
     return {};
 }
 

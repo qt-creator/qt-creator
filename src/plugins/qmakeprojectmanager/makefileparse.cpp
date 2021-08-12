@@ -26,28 +26,26 @@
 #include "makefileparse.h"
 
 #include <qtsupport/qtversionmanager.h>
-#include <qtsupport/baseqtversion.h>
+
 #include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QTextStream>
-#include <QLoggingCategory>
 
 using namespace ProjectExplorer;
-using namespace Utils;;
-
-using QtSupport::QtVersionManager;
-using QtSupport::BaseQtVersion;
+using namespace QtSupport;
+using namespace Utils;
 
 namespace QmakeProjectManager {
 namespace Internal {
 
-static QString findQMakeLine(const QString &makefile, const QString &key)
+static QString findQMakeLine(const FilePath &makefile, const QString &key)
 {
-    QFile fi(makefile);
+    QFile fi(makefile.toString());
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         QTextStream ts(&fi);
         while (!ts.atEnd()) {
@@ -247,9 +245,9 @@ QList<QMakeAssignment> MakeFileParse::parseAssignments(const QList<QMakeAssignme
     return filteredAssignments;
 }
 
-static FilePath findQMakeBinaryFromMakefile(const QString &makefile)
+static FilePath findQMakeBinaryFromMakefile(const FilePath &makefile)
 {
-    QFile fi(makefile);
+    QFile fi(makefile.toString());
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         QTextStream ts(&fi);
         const QRegularExpression r1(QLatin1String("^QMAKE\\s*=(.*)$"));
@@ -273,10 +271,10 @@ static FilePath findQMakeBinaryFromMakefile(const QString &makefile)
     return FilePath();
 }
 
-MakeFileParse::MakeFileParse(const QString &makefile, Mode mode) : m_mode(mode)
+MakeFileParse::MakeFileParse(const FilePath &makefile, Mode mode) : m_mode(mode)
 {
     qCDebug(logging()) << "Parsing makefile" << makefile;
-    if (!QFileInfo::exists(makefile)) {
+    if (!makefile.exists()) {
         qCDebug(logging()) << "**doesn't exist";
         m_state = MakefileMissing;
         return;
@@ -297,7 +295,7 @@ MakeFileParse::MakeFileParse(const QString &makefile, Mode mode) : m_mode(mode)
     project = project.trimmed();
 
     // Src Pro file
-    m_srcProFile = QDir::cleanPath(QFileInfo(makefile).absoluteDir().filePath(project));
+    m_srcProFile = makefile.parentDir().resolvePath(project);
     qCDebug(logging()) << "  source .pro file:" << m_srcProFile;
 
     QString command = findQMakeLine(makefile, QLatin1String("# Command:")).trimmed();
@@ -318,12 +316,12 @@ MakeFileParse::MakefileState MakeFileParse::makeFileState() const
     return m_state;
 }
 
-Utils::FilePath MakeFileParse::qmakePath() const
+FilePath MakeFileParse::qmakePath() const
 {
     return m_qmakePath;
 }
 
-QString MakeFileParse::srcProFile() const
+FilePath MakeFileParse::srcProFile() const
 {
     return m_srcProFile;
 }

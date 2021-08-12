@@ -127,19 +127,18 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         qCDebug(logs) << "  Parsing makefile" << file;
         // find interesting makefiles
-        QString makefile = importPath.toString() + QLatin1Char('/') + file;
+        const FilePath makefile = importPath / file;
         MakeFileParse parse(makefile, MakeFileParse::Mode::FilterKnownConfigValues);
         if (parse.makeFileState() != MakeFileParse::Okay) {
             qCDebug(logs) << "  Parsing the makefile failed" << makefile;
             continue;
         }
-        if (parse.srcProFile() != projectFilePath().toString()) {
+        if (parse.srcProFile() != projectFilePath()) {
             qCDebug(logs) << "  pro files doesn't match" << parse.srcProFile() << projectFilePath();
             continue;
         }
 
-        QFileInfo qmakeFi = parse.qmakePath().toFileInfo();
-        data->canonicalQmakeBinary = FilePath::fromString(qmakeFi.canonicalFilePath());
+        data->canonicalQmakeBinary = parse.qmakePath().canonicalPath();
         if (data->canonicalQmakeBinary.isEmpty()) {
             qCDebug(logs) << "  " << parse.qmakePath() << "doesn't exist anymore";
             continue;
@@ -184,7 +183,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->additionalArguments = parse.unparsedArguments();
         qCDebug(logs) << "  Unparsed arguments:" << data->additionalArguments;
         data->parsedSpec =
-                QmakeBuildConfiguration::extractSpecFromArguments(&(data->additionalArguments), importPath.toString(), version);
+                QmakeBuildConfiguration::extractSpecFromArguments(&(data->additionalArguments), importPath, version);
         qCDebug(logs) << "  Extracted spec:" << data->parsedSpec;
         qCDebug(logs) << "  Arguments now:" << data->additionalArguments;
 

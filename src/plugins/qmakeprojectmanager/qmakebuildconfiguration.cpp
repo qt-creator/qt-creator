@@ -171,9 +171,9 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
             this, &QmakeBuildConfiguration::kitChanged);
     MacroExpander *expander = macroExpander();
     expander->registerVariable("Qmake:Makefile", "Qmake makefile", [this]() -> QString {
-        const QString file = makefile();
+        const FilePath file = makefile();
         if (!file.isEmpty())
-            return file;
+            return file.path();
         return QLatin1String("Makefile");
     });
 
@@ -275,13 +275,8 @@ void QmakeBuildConfiguration::updateProblemLabel()
     // we only show if we actually have a qmake and makestep
     QString errorString;
     if (qmakeStep() && makeStep()) {
-        QString makefile = buildDirectory().toString() + QLatin1Char('/');
-        if (this->makefile().isEmpty())
-            makefile.append(QLatin1String("Makefile"));
-        else
-            makefile.append(this->makefile());
-
-        switch (compareToImportFrom(makefile, &errorString)) {
+        const QString makeFile = this->makefile().isEmpty() ? "Makefile" : makefile().path();
+        switch (compareToImportFrom(buildDirectory() / makeFile, &errorString)) {
         case QmakeBuildConfiguration::MakefileMatches:
             allGood = true;
             break;
@@ -382,9 +377,9 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
     m_fileNodeBuild = node;
 }
 
-QString QmakeBuildConfiguration::makefile() const
+FilePath QmakeBuildConfiguration::makefile() const
 {
-    return m_buildSystem->rootProFile()->singleVariableValue(Variable::Makefile);
+    return FilePath::fromString(m_buildSystem->rootProFile()->singleVariableValue(Variable::Makefile));
 }
 
 BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
@@ -507,7 +502,7 @@ QmakeBuildSystem *QmakeBuildConfiguration::qmakeBuildSystem() const
 }
 
 // Returns true if both are equal.
-QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile, QString *errorString)
+QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const FilePath &makefile, QString *errorString)
 {
     const QLoggingCategory &logs = MakeFileParse::logging();
     qCDebug(logs) << "QMakeBuildConfiguration::compareToImport";
@@ -537,9 +532,9 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileForWrongProject;
     }
 
-    const Utils::FilePath projectPath =
+    const FilePath projectPath =
             m_subNodeBuild ? m_subNodeBuild->filePath() : qs->project()->projectFilePath();
-    if (parse.srcProFile() != projectPath.toString()) {
+    if (parse.srcProFile() != projectPath) {
         qCDebug(logs) << "**Different profile used to generate the Makefile:"
                       << parse.srcProFile() << " expected profile:" << projectPath;
         if (errorString)
@@ -548,8 +543,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     }
 
     if (version->qmakeFilePath() != parse.qmakePath()) {
-        qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeFilePath().toString()
-                      << " Makefile:"<< parse.qmakePath().toString();
+        qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeFilePath()
+                      << " Makefile:" << parse.qmakePath();
         return MakefileForWrongProject;
     }
 
@@ -567,7 +562,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // now compare arguments lists
     // we have to compare without the spec/platform cmd argument
     // and compare that on its own
-    QString workingDirectory = QFileInfo(makefile).absolutePath();
+    FilePath workingDirectory = makefile.parentDir();
     QStringList actualArgs;
     QString allArgs = macroExpander()->expandProcessArgs(qs->allArguments(
         QtKitAspect::qtVersion(target()->kit()), QMakeStep::ArgumentFlag::Expand));
@@ -639,7 +634,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
 }
 
 QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
-                                                         const QString &directory, const BaseQtVersion *version,
+                                                         const FilePath &directory,
+                                                         const BaseQtVersion *version,
                                                          QStringList *outArgs)
 {
     FilePath parsedSpec;
@@ -684,8 +680,8 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
     if (parsedSpec.toFileInfo().isRelative()) {
-        if (QFileInfo::exists(directory + QLatin1Char('/') + parsedSpec.toString()))
-            parsedSpec = FilePath::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
+        if (QFileInfo::exists(directory.path() + QLatin1Char('/') + parsedSpec.toString()))
+            parsedSpec = FilePath::fromUserInput(directory.path() + QLatin1Char('/') + parsedSpec.toString());
         else
             parsedSpec = FilePath::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
     }
