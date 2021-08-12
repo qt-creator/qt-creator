@@ -3841,7 +3841,7 @@ void GdbEngine::setupEngine()
     Environment gdbEnv = rp.debugger.environment;
     if (rp.runAsRoot) {
         CommandLine wrapped("sudo", {"-A"});
-        wrapped.addArgs(gdbCommand);
+        wrapped.addCommandLineAsArgs(gdbCommand);
         gdbCommand = wrapped;
         RunControl::provideAskPassEntry(gdbEnv);
     }

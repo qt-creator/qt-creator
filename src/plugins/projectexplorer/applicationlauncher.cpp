@@ -393,7 +393,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
         CommandLine cmdLine = runnable.command;
         if (m_runAsRoot) {
             CommandLine wrapped("sudo", {"-A"});
-            wrapped.addArgs(cmdLine);
+            wrapped.addCommandLineAsArgs(cmdLine);
             cmdLine = wrapped;
         }
 

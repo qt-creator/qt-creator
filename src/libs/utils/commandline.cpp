@@ -1434,23 +1434,23 @@ CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
     addArgs(args, Raw);
 }
 
-void CommandLine::addArg(const QString &arg, OsType osType)
+void CommandLine::addArg(const QString &arg)
 {
-    ProcessArgs::addArg(&m_arguments, arg, osType);
+    ProcessArgs::addArg(&m_arguments, arg, m_executable.osType());
 }
 
-void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
+void CommandLine::addArgs(const QStringList &inArgs)
 {
     for (const QString &arg : inArgs)
-        addArg(arg, osType);
+        addArg(arg);
 }
 
 // Adds cmd's executable and arguments one by one to this commandline.
 // Useful for 'sudo', 'nice', etc
-void CommandLine::addArgs(const CommandLine &cmd, OsType osType)
+void CommandLine::addCommandLineAsArgs(const CommandLine &cmd)
 {
-    addArg(cmd.executable().toString());
-    addArgs(cmd.splitArguments(osType));
+    addArg(cmd.executable().path());
+    addArgs(cmd.splitArguments());
 }
 
 void CommandLine::addArgs(const QString &inArgs, RawType)
@@ -1466,9 +1466,9 @@ QString CommandLine::toUserOutput() const
     return res;
 }
 
-QStringList CommandLine::splitArguments(OsType osType) const
+QStringList CommandLine::splitArguments() const
 {
-    return ProcessArgs::splitArgs(m_arguments, osType);
+    return ProcessArgs::splitArgs(m_arguments, m_executable.osType());
 }
 
 } // namespace Utils

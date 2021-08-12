@@ -58,7 +58,7 @@ RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(RunControl *runContro
         QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
 
         Runnable r = runControl->runnable();
-        r.command.addArg(QmlDebug::qmlDebugTcpArguments(services, serverUrl), OsTypeLinux);
+        r.command.addArg(QmlDebug::qmlDebugTcpArguments(services, serverUrl));
 
         doStart(r, runControl->device());
     });

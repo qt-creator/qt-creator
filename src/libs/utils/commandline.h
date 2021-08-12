@@ -138,9 +138,10 @@ public:
     CommandLine(const FilePath &exe, const QStringList &args);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 
-    void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
-    void addArgs(const QStringList &inArgs, OsType osType = HostOsInfo::hostOs());
-    void addArgs(const CommandLine &cmd, OsType osType = HostOsInfo::hostOs());
+    void addArg(const QString &arg);
+    void addArgs(const QStringList &inArgs);
+
+    void addCommandLineAsArgs(const CommandLine &cmd);
 
     void addArgs(const QString &inArgs, RawType);
 
@@ -152,7 +153,7 @@ public:
     QString arguments() const { return m_arguments; }
     void setArguments(const QString &args) { m_arguments = args; }
 
-    QStringList splitArguments(OsType osType = HostOsInfo::hostOs()) const;
+    QStringList splitArguments() const;
 
     bool isEmpty() const { return m_executable.isEmpty(); }
 

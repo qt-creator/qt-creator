@@ -1430,7 +1430,6 @@ void DockerDevice::runProcess(QtcProcess &process) const
     }
 
     const FilePath workingDir = process.workingDirectory();
-    const CommandLine origCmd = process.commandLine();
     const Environment env = process.environment();
 
     CommandLine cmd{"docker", {"exec"}};
@@ -1450,8 +1449,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
         // }
     }
     cmd.addArg(d->m_container);
-    cmd.addArg(origCmd.executable().path()); // Cut off the docker://.../ bits.
-    cmd.addArgs(origCmd.splitArguments(osType()));
+    cmd.addCommandLineAsArgs(process.commandLine());
 
     LOG("Run" << cmd.toUserOutput() << " in " << workingDir.toUserOutput());
 
@@ -1491,7 +1489,7 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
     if (!DockerPlugin::isDaemonRunning().value_or(false))
         return false;
     CommandLine dcmd{"docker", {"exec", m_container}};
-    dcmd.addArgs(cmd);
+    dcmd.addCommandLineAsArgs(cmd);
 
     QtcProcess proc;
     proc.setCommand(dcmd);
