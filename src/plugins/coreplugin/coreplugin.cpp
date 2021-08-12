@@ -327,7 +327,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
     if (QDir().exists(pathChooser->filePath().toString())) {
         auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
         connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
-            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath().toString());
+            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
         });
         menu->insertAction(firstAction, showInGraphicalShell);
 

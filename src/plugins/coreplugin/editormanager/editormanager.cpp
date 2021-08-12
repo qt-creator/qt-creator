@@ -534,7 +534,7 @@ void EditorManagerPrivate::init()
             return;
         const FilePath fp = EditorManager::currentDocument()->filePath();
         if (!fp.isEmpty())
-            FileUtils::showInGraphicalShell(ICore::dialogParent(), fp.toString());
+            FileUtils::showInGraphicalShell(ICore::dialogParent(), fp);
     });
 
     //Save XXX Context Actions
@@ -564,8 +564,7 @@ void EditorManagerPrivate::init()
     connect(m_openGraphicalShellContextAction, &QAction::triggered, this, [this] {
         if (!m_contextMenuEntry || m_contextMenuEntry->fileName().isEmpty())
             return;
-        FileUtils::showInGraphicalShell(ICore::dialogParent(),
-                                        m_contextMenuEntry->fileName().toString());
+        FileUtils::showInGraphicalShell(ICore::dialogParent(), m_contextMenuEntry->fileName());
     });
     connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
     connect(m_findInDirectoryAction, &QAction::triggered,

@@ -91,7 +91,7 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_ui->exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));
     m_ui->exportPath->lineEdit()->setReadOnly(true);
     m_ui->exportPath->addButton(tr("Open"), this, [this]() {
-        Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_ui->exportPath->path());
+        Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_ui->exportPath->filePath());
     });
 
     auto optionsWidget = new QWidget;

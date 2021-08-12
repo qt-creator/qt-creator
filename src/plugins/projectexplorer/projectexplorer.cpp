@@ -3693,7 +3693,7 @@ void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path().toString());
+    Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)

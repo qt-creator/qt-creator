@@ -70,9 +70,9 @@ static void showGraphicalShellError(QWidget *parent, const QString &app, const Q
         ICore::showOptionsDialog(Constants::SETTINGS_ID_INTERFACE, parent);
 }
 
-void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
+void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
 {
-    const QFileInfo fileInfo(pathIn);
+    const QFileInfo fileInfo = pathIn.toFileInfo();
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
         const FilePath explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
@@ -85,7 +85,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
             return;
         }
         QStringList param;
-        if (!fileInfo.isDir())
+        if (!pathIn.isDir())
             param += QLatin1String("/select,");
         param += QDir::toNativeSeparators(fileInfo.canonicalFilePath());
         QProcess::startDetached(explorer.toString(), param);
