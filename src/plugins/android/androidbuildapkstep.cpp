@@ -557,9 +557,9 @@ bool AndroidBuildApkStep::init()
                                                                       : QLatin1String("debug");
         m_packagePath = buildDirectory()
                 .pathAppended(Constants::ANDROID_BUILDDIRECTORY)
-                .pathAppended(QString("build/outputs/bundle/%1/android-build-%1.aab").arg(bt)).toString();
+                .pathAppended(QString("build/outputs/bundle/%1/android-build-%1.aab").arg(bt));
     } else {
-        m_packagePath = AndroidManager::apkPath(target()).toString();
+        m_packagePath = AndroidManager::apkPath(target());
     }
 
     qCDebug(buildapkstepLog) << "APK or AAB path:" << m_packagePath;
@@ -650,7 +650,7 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AndroidBuildApkStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), FilePath::fromString(m_packagePath));
+    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_packagePath);
 }
 
 QWidget *AndroidBuildApkStep::createConfigWidget()

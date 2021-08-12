@@ -78,6 +78,7 @@ public:
     void stdError(const QString &output) override;
 
     QVariant data(Utils::Id id) const override;
+
 private:
     void showInGraphicalShell();
 
@@ -103,7 +104,7 @@ private:
     QString m_keystorePasswd;
     QString m_certificateAlias;
     QString m_certificatePasswd;
-    QString m_packagePath;
+    Utils::FilePath m_packagePath;
 
     QString m_command;
     QString m_argumentsPasswordConcealed;
