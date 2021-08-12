@@ -645,6 +645,14 @@ void QtcProcess::interrupt()
 #endif
 }
 
+bool QtcProcess::startDetached(const CommandLine &cmd, const FilePath &workingDirectory, qint64 *pid)
+{
+    return QProcess::startDetached(cmd.executable().toUserOutput(),
+                                   cmd.splitArguments(),
+                                   workingDirectory.toUserOutput(),
+                                   pid);
+}
+
 void QtcProcess::setLowPriority()
 {
     d->m_process->setLowPriority();
