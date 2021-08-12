@@ -177,8 +177,7 @@ def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
 
 def __createProjectHandleLastPage__(expectedFiles=[], addToVersionControl="<None>", addToProject=None):
     if len(expectedFiles):
-        summary = waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' "
-                                "type='QLabel' visible='1'}").text
+        summary = waitForObject("{name='filesLabel' type='QLabel'}").text
         verifyItemOrder(expectedFiles, summary)
     if addToProject:
         selectFromCombo(":projectComboBox_QComboBox", addToProject)
