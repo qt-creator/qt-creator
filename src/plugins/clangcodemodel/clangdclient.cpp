@@ -759,6 +759,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
     setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
+    setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
 
     const auto textMarkCreator = [this](const Utils::FilePath &filePath,
             const Diagnostic &diag) { return new ClangdTextMark(filePath, diag, this); };

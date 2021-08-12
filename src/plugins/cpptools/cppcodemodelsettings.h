@@ -112,6 +112,7 @@ public:
         int workerThreadLimit = 0;
         bool useClangd = false;
         bool enableIndexing = true;
+        int documentUpdateThreshold = 500;
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}
@@ -123,6 +124,7 @@ public:
     Utils::FilePath clangdFilePath() const;
     bool indexingEnabled() const { return m_data.enableIndexing; }
     int workerThreadLimit() const { return m_data.workerThreadLimit; }
+    int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }
 
     void setData(const Data &data);
     Data data() const { return m_data; }
@@ -149,7 +151,8 @@ inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Dat
     return s1.useClangd == s2.useClangd
             && s1.executableFilePath == s2.executableFilePath
             && s1.workerThreadLimit == s2.workerThreadLimit
-            && s1.enableIndexing == s2.enableIndexing;
+            && s1.enableIndexing == s2.enableIndexing
+            && s1.documentUpdateThreshold == s2.documentUpdateThreshold;
 }
 inline bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
 {

@@ -197,6 +197,7 @@ public:
     QCheckBox useClangdCheckBox;
     QCheckBox indexingCheckBox;
     QSpinBox threadLimitSpinBox;
+    QSpinBox documentUpdateThreshold;
     Utils::PathChooser clangdChooser;
 };
 
@@ -216,6 +217,15 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "the project is first opened."));
     d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
     d->threadLimitSpinBox.setSpecialValueText("Automatic");
+    d->documentUpdateThreshold.setMinimum(50);
+    d->documentUpdateThreshold.setMaximum(10000);
+    d->documentUpdateThreshold.setValue(settings.documentUpdateThreshold());
+    d->documentUpdateThreshold.setSingleStep(100);
+    d->documentUpdateThreshold.setSuffix(" ms");
+    d->documentUpdateThreshold.setToolTip(
+        tr("Defines the amount of time Qt Creator waits before sending document changes to the "
+           "server.\n"
+           "If the document changes again while waiting, this timeout resets.\n"));
 
     const auto layout = new QVBoxLayout(this);
     layout->addWidget(&d->useClangdCheckBox);
@@ -227,8 +237,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
-    const auto threadLimitLabel = new QLabel(tr("Set worker thread count:"));
+    const auto threadLimitLabel = new QLabel(tr("Worker thread count:"));
     formLayout->addRow(threadLimitLabel, threadLimitLayout);
+    const auto documentUpdateThresholdLayout = new QHBoxLayout;
+    documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
+    documentUpdateThresholdLayout->addStretch(1);
+    const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
+    formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
     layout->addLayout(formLayout);
     layout->addStretch(1);
 
@@ -265,6 +280,7 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.executableFilePath = d->clangdChooser.filePath();
     data.enableIndexing = d->indexingCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
+    data.documentUpdateThreshold = d->documentUpdateThreshold.value();
     return data;
 }
 

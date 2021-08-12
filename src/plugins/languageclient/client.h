@@ -151,6 +151,7 @@ public:
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
     int documentVersion(const Utils::FilePath &filePath) const;
+    void setDocumentChangeUpdateThreshold(int msecs);
 
     // workspace control
     virtual void setCurrentProject(ProjectExplorer::Project *project);

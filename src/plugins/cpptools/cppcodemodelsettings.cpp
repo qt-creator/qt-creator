@@ -69,6 +69,7 @@ static QString useClangdKey() { return QLatin1String("UseClangd"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
+static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
 
 static FilePath g_defaultClangdFilePath;
@@ -402,6 +403,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(clangdPathKey(), executableFilePath.toString());
     map.insert(clangdIndexingKey(), enableIndexing);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
+    map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
     return map;
 }
 
@@ -411,4 +413,5 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
     enableIndexing = map.value(clangdIndexingKey(), true).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
+    documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
 }

@@ -1381,6 +1381,11 @@ int Client::documentVersion(const Utils::FilePath &filePath) const
     return m_documentVersions.value(filePath);
 }
 
+void Client::setDocumentChangeUpdateThreshold(int msecs)
+{
+    m_documentUpdateTimer.setInterval(msecs);
+}
+
 void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == InitializeRequested, return);
