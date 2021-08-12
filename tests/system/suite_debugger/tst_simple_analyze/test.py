@@ -117,10 +117,12 @@ def performTest(workingDir, projectName, availableConfigs):
                             % (selfPercent, totalPercent))
                 if str(model.index(row, colCalls).data()) == "1":
                     for col in [colMedian, colLongest, colShortest]:
-                        test.compare(model.index(row, colMean).data(), model.index(row, col).data(),
+                        test.compare(str(model.index(row, colMean).data()),
+                                     str(model.index(row, col).data()),
                                      "For just one call, no differences in execution time may be shown.")
                 elif str(model.index(row, colCalls).data()) == "2":
-                    test.compare(model.index(row, colMedian).data(), model.index(row, colMean).data(),
+                    test.compare(str(model.index(row, colMedian).data()),
+                                 str(model.index(row, colMean).data()),
                                  "For two calls, median and mean time must be the same.")
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
         clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
