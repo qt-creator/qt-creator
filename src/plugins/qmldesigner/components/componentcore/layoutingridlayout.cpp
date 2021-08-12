@@ -325,8 +325,10 @@ void LayoutInGridLayout::calculateGridOffsets()
     removeSimilarValues(m_yTopOffsets, heightTolerance);
 
     //The first offset is not important, because it just defines the beginning of the layout
-    m_xTopOffsets.removeFirst();
-    m_yTopOffsets.removeFirst();
+    if (!m_xTopOffsets.isEmpty())
+        m_xTopOffsets.removeFirst();
+    if (!m_yTopOffsets.isEmpty())
+        m_yTopOffsets.removeFirst();
 }
 
 void LayoutInGridLayout::removeEmtpyRowsAndColumns()
