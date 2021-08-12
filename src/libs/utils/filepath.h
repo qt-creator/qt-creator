@@ -137,6 +137,7 @@ public:
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
+    bool setPermissions(QFile::Permissions permissions) const;
     OsType osType() const;
     bool removeFile() const;
     bool removeRecursively(QString *error = nullptr) const;

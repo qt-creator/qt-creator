@@ -1231,6 +1231,15 @@ QFile::Permissions FilePath::permissions() const
     return toFileInfo().permissions();
 }
 
+bool FilePath::setPermissions(QFile::Permissions permissions) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.setPermissions, return false);
+        return s_deviceHooks.setPermissions(*this, permissions);
+    }
+    return QFile(m_data).setPermissions(permissions);
+}
+
 OsType FilePath::osType() const
 {
     if (needsDevice()) {

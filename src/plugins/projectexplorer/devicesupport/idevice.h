@@ -265,6 +265,7 @@ public:
     virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
+    virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
     virtual qint64 fileSize(const Utils::FilePath &filePath) const;

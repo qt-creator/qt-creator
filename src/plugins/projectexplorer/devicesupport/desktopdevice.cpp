@@ -193,6 +193,18 @@ qint64 DesktopDevice::fileSize(const FilePath &filePath) const
     return filePath.fileSize();
 }
 
+QFile::Permissions DesktopDevice::permissions(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return filePath.permissions();
+}
+
+bool DesktopDevice::setPermissions(const FilePath &filePath, QFile::Permissions permissions) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return filePath.setPermissions(permissions);
+}
+
 Environment DesktopDevice::systemEnvironment() const
 {
     return Environment::systemEnvironment();

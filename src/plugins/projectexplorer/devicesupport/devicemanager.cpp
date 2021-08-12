@@ -513,6 +513,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->permissions(filePath);
     };
 
+    deviceHooks.setPermissions = [](const FilePath &filePath, QFile::Permissions permissions) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->setPermissions(filePath, permissions);
+    };
+
     deviceHooks.osType = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return OsTypeOther);

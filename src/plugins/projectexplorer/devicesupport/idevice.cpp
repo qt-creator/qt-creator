@@ -397,6 +397,13 @@ QFileDevice::Permissions IDevice::permissions(const FilePath &filePath) const
     return {};
 }
 
+bool IDevice::setPermissions(const FilePath &filePath, QFile::Permissions) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
 void IDevice::runProcess(QtcProcess &process) const
 {
     Q_UNUSED(process);

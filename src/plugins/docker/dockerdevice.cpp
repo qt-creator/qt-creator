@@ -1294,6 +1294,20 @@ QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) con
     return perm;
 }
 
+bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permissions permissions) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        LOG("Set permissions? " << filePath.toUserOutput() << localAccess.toUserOutput() << localAccess.permissions());
+        return localAccess.setPermissions(permissions);
+    }
+
+    QTC_CHECK(false); // FIXME: Implement.
+    return false;
+}
+
 static FilePaths filterEntriesHelper(const FilePath &base,
                                      const QStringList &entries,
                                      const QStringList &nameFilters,

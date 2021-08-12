@@ -101,6 +101,7 @@ public:
     void runProcess(Utils::QtcProcess &process) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
     QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;
+    bool setPermissions(const Utils::FilePath &filePath, QFileDevice::Permissions permissions) const override;
 
     Utils::Environment systemEnvironment() const override;
 

@@ -84,6 +84,7 @@ public:
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;
+    std::function<bool(const FilePath &, QFile::Permissions)> setPermissions;
     std::function<OsType(const FilePath &)> osType;
     std::function<Environment(const FilePath &)> environment;
     std::function<qint64(const FilePath &)> fileSize;
