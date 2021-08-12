@@ -37,20 +37,22 @@
 
 #include <utils/optional.h>
 
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
 static SettingsWidget *m_instance = nullptr;
 
-static void setupPathChooser(Utils::PathChooser *const chooser,
+static void setupPathChooser(PathChooser *const chooser,
                              const QString &promptDiaglogTitle,
                              const QString &placeHolderText,
-                             const QString &pathFromSettings,
+                             const FilePath &pathFromSettings,
                              const QString &historyCompleterId)
 {
     chooser->setPromptDialogTitle(promptDiaglogTitle);
     chooser->setDefaultValue(placeHolderText);
-    chooser->setPath(pathFromSettings);
+    chooser->setFilePath(pathFromSettings);
     chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     chooser->setHistoryCompleter(historyCompleterId);
 }
@@ -71,8 +73,8 @@ SettingsWidget::SettingsWidget()
     // Group box "Executables"
     //
 
-    QString placeHolderText = shippedClangTidyExecutable();
-    QString path = m_settings->clangTidyExecutable();
+    QString placeHolderText = shippedClangTidyExecutable().toUserOutput();
+    FilePath path = m_settings->clangTidyExecutable();
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLANG_TIDY_EXECUTABLE_NAME;
     setupPathChooser(m_ui->clangTidyPathChooser,
@@ -81,7 +83,7 @@ SettingsWidget::SettingsWidget()
                      path,
                      "ClangTools.ClangTidyExecutable.History");
 
-    placeHolderText = shippedClazyStandaloneExecutable();
+    placeHolderText = shippedClazyStandaloneExecutable().toUserOutput();
     path = m_settings->clazyStandaloneExecutable();
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;
@@ -101,8 +103,8 @@ SettingsWidget::SettingsWidget()
 void SettingsWidget::apply()
 {
     // Executables
-    m_settings->setClangTidyExecutable(m_ui->clangTidyPathChooser->rawPath());
-    m_settings->setClazyStandaloneExecutable(m_ui->clazyStandalonePathChooser->rawPath());
+    m_settings->setClangTidyExecutable(clangTidyPath());
+    m_settings->setClazyStandaloneExecutable(clazyStandalonePath());
 
     // Run options
     m_settings->setRunSettings(m_ui->runSettingsWidget->toSettings());
@@ -120,14 +122,14 @@ SettingsWidget::~SettingsWidget()
     m_instance = nullptr;
 }
 
-QString SettingsWidget::clangTidyPath() const
+FilePath SettingsWidget::clangTidyPath() const
 {
-    return m_ui->clangTidyPathChooser->rawPath();
+    return m_ui->clangTidyPathChooser->rawFilePath();
 }
 
-QString SettingsWidget::clazyStandalonePath() const
+FilePath SettingsWidget::clazyStandalonePath() const
 {
-    return m_ui->clazyStandalonePathChooser->rawPath();
+    return m_ui->clazyStandalonePathChooser->rawFilePath();
 }
 
 // ClangToolsOptionsPage

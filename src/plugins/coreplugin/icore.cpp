@@ -522,31 +522,31 @@ static QString clangIncludePath(const QString &clangVersion)
 /*!
     \internal
 */
-QString ICore::clangIncludeDirectory(const QString &clangVersion,
-                                     const QString &clangFallbackIncludeDir)
+FilePath ICore::clangIncludeDirectory(const QString &clangVersion,
+                                      const FilePath &clangFallbackIncludeDir)
 {
     FilePath dir = libexecPath("clang" + clangIncludePath(clangVersion));
     if (!dir.exists() || !dir.pathAppended("stdint.h").exists())
-        dir = FilePath::fromString(clangFallbackIncludeDir);
-    return dir.canonicalPath().toUserOutput();
+        dir = clangFallbackIncludeDir;
+    return dir.canonicalPath();
 }
 
 /*!
     \internal
 */
-static QString clangBinary(const QString &binaryBaseName, const QString &clangBinDirectory)
+static FilePath clangBinary(const QString &binaryBaseName, const FilePath &clangBinDirectory)
 {
-    const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
-    FilePath executable = ICore::libexecPath("clang/bin") / binaryBaseName + hostExeSuffix;
+    FilePath executable =
+        ICore::libexecPath("clang/bin").pathAppended(binaryBaseName).withExecutableSuffix();
     if (!executable.exists())
-        executable = FilePath::fromString(clangBinDirectory) / binaryBaseName + hostExeSuffix;
-    return executable.canonicalPath().toUserOutput();
+        executable = clangBinDirectory.pathAppended(binaryBaseName).withExecutableSuffix();
+    return executable.canonicalPath();
 }
 
 /*!
     \internal
 */
-QString ICore::clangExecutable(const QString &clangBinDirectory)
+FilePath ICore::clangExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang", clangBinDirectory);
 }
@@ -554,7 +554,7 @@ QString ICore::clangExecutable(const QString &clangBinDirectory)
 /*!
     \internal
 */
-QString ICore::clangdExecutable(const QString &clangBinDirectory)
+FilePath ICore::clangdExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clangd", clangBinDirectory);
 }
@@ -562,7 +562,7 @@ QString ICore::clangdExecutable(const QString &clangBinDirectory)
 /*!
     \internal
 */
-QString ICore::clangTidyExecutable(const QString &clangBinDirectory)
+FilePath ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang-tidy", clangBinDirectory);
 }
@@ -570,7 +570,7 @@ QString ICore::clangTidyExecutable(const QString &clangBinDirectory)
 /*!
     \internal
 */
-QString ICore::clazyStandaloneExecutable(const QString &clangBinDirectory)
+FilePath ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clazy-standalone", clangBinDirectory);
 }

@@ -101,11 +101,11 @@ QStringList ClangToolRunner::mainToolArguments() const
 
 bool ClangToolRunner::supportsVFSOverlay() const
 {
-    static QMap<QString, bool> vfsCapabilities;
+    static QMap<FilePath, bool> vfsCapabilities;
     auto it = vfsCapabilities.find(m_executable);
     if (it == vfsCapabilities.end()) {
         QtcProcess p;
-        p.setCommand({FilePath::fromString(m_executable), {"--help"}});
+        p.setCommand({m_executable, {"--help"}});
         p.runBlocking();
         it = vfsCapabilities.insert(m_executable, p.allOutput().contains("vfsoverlay"));
     }
@@ -137,7 +137,7 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
 
     m_outputFilePath = createOutputFilePath(m_outputDirPath, fileToAnalyze);
     QTC_ASSERT(!m_outputFilePath.isEmpty(), return false);
-    m_commandLine = {FilePath::fromString(m_executable), m_argsCreator(compilerOptions)};
+    m_commandLine = {m_executable, m_argsCreator(compilerOptions)};
 
     qCDebug(LOG).noquote() << "Starting" << m_commandLine.toUserOutput();
     m_process->setCommand(m_commandLine);

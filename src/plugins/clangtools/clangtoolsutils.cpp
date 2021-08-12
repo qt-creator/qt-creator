@@ -37,6 +37,7 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
@@ -45,6 +46,7 @@
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 
 using namespace CppTools;
+using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
@@ -170,46 +172,36 @@ void showHintAboutBuildBeforeAnalysis()
         "ClangToolsDisablingBuildBeforeAnalysisHint");
 }
 
-bool isFileExecutable(const QString &filePath)
+FilePath shippedClangTidyExecutable()
 {
-    if (filePath.isEmpty())
-        return false;
-
-    const QFileInfo fileInfo(filePath);
-    return fileInfo.exists() && fileInfo.isFile() && fileInfo.isExecutable();
-}
-
-QString shippedClangTidyExecutable()
-{
-    const QString shippedExecutable = Core::ICore::clangTidyExecutable(CLANG_BINDIR);
-    if (isFileExecutable(shippedExecutable))
+    const FilePath shippedExecutable = Core::ICore::clangTidyExecutable(CLANG_BINDIR);
+    if (shippedExecutable.isExecutableFile())
         return shippedExecutable;
     return {};
 }
 
-QString shippedClazyStandaloneExecutable()
+FilePath shippedClazyStandaloneExecutable()
 {
-    const QString shippedExecutable = Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
-    if (isFileExecutable(shippedExecutable))
+    const FilePath shippedExecutable = Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
+    if (shippedExecutable.isExecutableFile())
         return shippedExecutable;
     return {};
 }
 
-QString fullPath(const QString &executable)
+FilePath fullPath(const FilePath &executable)
 {
     const QString hostExeSuffix = QLatin1String(QTC_HOST_EXE_SUFFIX);
     const Qt::CaseSensitivity caseSensitivity = Utils::HostOsInfo::fileNameCaseSensitivity();
 
-    QString candidate = executable;
-    const bool hasSuffix = candidate.endsWith(hostExeSuffix, caseSensitivity);
+    FilePath candidate = executable;
+    const bool hasSuffix = candidate.toString().endsWith(hostExeSuffix, caseSensitivity);
 
-    const QFileInfo fileInfo = QFileInfo(candidate);
-    if (fileInfo.isAbsolute()) {
+    if (candidate.isAbsolutePath()) {
         if (!hasSuffix)
-            candidate.append(hostExeSuffix);
+            candidate = candidate.withExecutableSuffix();
     } else {
-        const Utils::Environment environment = Utils::Environment::systemEnvironment();
-        const QString expandedPath = environment.searchInPath(candidate).toString();
+        const Environment environment = Environment::systemEnvironment();
+        const FilePath expandedPath = environment.searchInPath(candidate.toString());
         if (!expandedPath.isEmpty())
             candidate = expandedPath;
     }
@@ -217,18 +209,18 @@ QString fullPath(const QString &executable)
     return candidate;
 }
 
-static QString findValidExecutable(const QStringList &candidates)
+static FilePath findValidExecutable(const FilePaths &candidates)
 {
-    for (const QString &candidate : candidates) {
-        const QString expandedPath = fullPath(candidate);
-        if (isFileExecutable(expandedPath))
+    for (const FilePath &candidate : candidates) {
+        const FilePath expandedPath = fullPath(candidate);
+        if (expandedPath.isExecutableFile())
             return expandedPath;
     }
 
     return {};
 }
 
-QString clangTidyFallbackExecutable()
+FilePath clangTidyFallbackExecutable()
 {
     return findValidExecutable({
         shippedClangTidyExecutable(),
@@ -236,15 +228,15 @@ QString clangTidyFallbackExecutable()
     });
 }
 
-QString clangTidyExecutable()
+FilePath clangTidyExecutable()
 {
-    const QString fromSettings = ClangToolsSettings::instance()->clangTidyExecutable();
+    const FilePath fromSettings = ClangToolsSettings::instance()->clangTidyExecutable();
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
     return clangTidyFallbackExecutable();
 }
 
-QString clazyStandaloneFallbackExecutable()
+FilePath clazyStandaloneFallbackExecutable()
 {
     return findValidExecutable({
         shippedClazyStandaloneExecutable(),
@@ -252,9 +244,9 @@ QString clazyStandaloneFallbackExecutable()
     });
 }
 
-QString clazyStandaloneExecutable()
+FilePath clazyStandaloneExecutable()
 {
-    const QString fromSettings = ClangToolsSettings::instance()->clazyStandaloneExecutable();
+    const FilePath fromSettings = ClangToolsSettings::instance()->clazyStandaloneExecutable();
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
     return clazyStandaloneFallbackExecutable();

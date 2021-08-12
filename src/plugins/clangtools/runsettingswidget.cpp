@@ -36,6 +36,8 @@
 
 #include <QThread>
 
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
@@ -60,8 +62,8 @@ static CppTools::ClangDiagnosticConfigsWidget *createEditWidget(
     const CppTools::ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect)
 {
     // Determine executable paths
-    QString clangTidyPath;
-    QString clazyStandalonePath;
+    FilePath clangTidyPath;
+    FilePath clazyStandalonePath;
     if (auto settingsWidget = SettingsWidget::instance()) {
         // Global settings case; executables might not yet applied to settings
         clangTidyPath = settingsWidget->clangTidyPath();

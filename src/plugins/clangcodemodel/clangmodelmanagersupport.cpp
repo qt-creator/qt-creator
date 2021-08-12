@@ -141,8 +141,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             claimNonProjectSources(fallbackClient);
     });
 
-    CppTools::ClangdSettings::setDefaultClangdPath(Utils::FilePath::fromString(
-            Core::ICore::clangdExecutable(CLANG_BINDIR)));
+    CppTools::ClangdSettings::setDefaultClangdPath(Core::ICore::clangdExecutable(CLANG_BINDIR));
     connect(&CppTools::ClangdSettings::instance(), &CppTools::ClangdSettings::changed,
             this, &ClangModelManagerSupport::onClangdSettingsChanged);
     CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();

@@ -45,6 +45,8 @@
 #include <QRegularExpression>
 #include <QtGlobal>
 
+using namespace Utils;
+
 namespace CppTools {
 
 static const char defineOption[] = "-D";
@@ -104,7 +106,7 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseLanguageDefines useLanguageDefines,
                                                UseBuildSystemWarnings useBuildSystemWarnings,
                                                const QString &clangVersion,
-                                               const QString &clangIncludeDirectory)
+                                               const FilePath &clangIncludeDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
     , m_useTweakedHeaderPaths(useTweakedHeaderPaths)

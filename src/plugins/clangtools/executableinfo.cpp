@@ -158,17 +158,16 @@ static ClazyChecks querySupportedClazyChecks(const FilePath &executablePath)
     return infos;
 }
 
-ClangTidyInfo::ClangTidyInfo(const QString &executablePath)
-    : defaultChecks(queryClangTidyChecks(FilePath::fromString(executablePath), {}))
-    , supportedChecks(queryClangTidyChecks(FilePath::fromString(executablePath), "-checks=*"))
+ClangTidyInfo::ClangTidyInfo(const FilePath &executablePath)
+    : defaultChecks(queryClangTidyChecks(executablePath, {}))
+    , supportedChecks(queryClangTidyChecks(executablePath, "-checks=*"))
 {}
 
-ClazyStandaloneInfo::ClazyStandaloneInfo(const QString &executablePath)
-    : defaultChecks(queryClangTidyChecks(FilePath::fromString(executablePath), {})) // Yup, behaves as clang-tidy.
-    , supportedChecks(querySupportedClazyChecks(FilePath::fromString(executablePath)))
+ClazyStandaloneInfo::ClazyStandaloneInfo(const FilePath &executablePath)
+    : defaultChecks(queryClangTidyChecks(executablePath, {})) // Yup, behaves as clang-tidy.
+    , supportedChecks(querySupportedClazyChecks(executablePath))
 {
-    QString output = runExecutable(CommandLine(FilePath::fromString(executablePath), {"--version"}),
-                                   QueryFailMode::Silent);
+    QString output = runExecutable({executablePath, {"--version"}}, QueryFailMode::Silent);
     QTextStream stream(&output);
     while (!stream.atEnd()) {
         // It's just "clazy version " right now, but let's be prepared for someone adding a colon

@@ -46,13 +46,13 @@ public:
 
     void init(const Utils::FilePath &outputDirPath, const Utils::Environment &environment);
     void setName(const QString &name) { m_name = name; }
-    void setExecutable(const QString &executable) { m_executable = executable; }
+    void setExecutable(const Utils::FilePath &executable) { m_executable = executable; }
     void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
     void setOutputFileFormat(const OutputFileFormat &format) { m_outputFileFormat = format; }
     void setVFSOverlay(const QString overlayFilePath) { m_overlayFilePath = overlayFilePath; }
 
     QString name() const { return m_name; }
-    QString executable() const { return m_executable; }
+    Utils::FilePath executable() const { return m_executable; }
     OutputFileFormat outputFileFormat() const { return m_outputFileFormat; }
     QString fileToAnalyze() const { return m_fileToAnalyze; }
     QString outputFilePath() const { return m_outputFilePath; }
@@ -83,7 +83,7 @@ private:
     Utils::QtcProcess *m_process = nullptr;
 
     QString m_name;
-    QString m_executable;
+    Utils::FilePath m_executable;
     ArgsCreator m_argsCreator;
     OutputFileFormat m_outputFileFormat = OutputFileFormat::Yaml;
 

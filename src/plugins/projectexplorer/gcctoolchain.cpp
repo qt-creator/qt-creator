@@ -1640,10 +1640,9 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
                                     Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown, device));
     known.append(tcs);
 
-    const FilePath compilerPath = FilePath::fromString(Core::ICore::clangExecutable(CLANG_BINDIR));
+    const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!compilerPath.isEmpty()) {
-        const FilePath clang = compilerPath.parentDir().pathAppended(
-                    HostOsInfo::withExecutableSuffix("clang"));
+        const FilePath clang = compilerPath.parentDir().pathAppended("clang").withExecutableSuffix();
         tcs.append(autoDetectToolchains(clang.toString(), DetectVariants::No,
                                         Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
                                         tcs, device));

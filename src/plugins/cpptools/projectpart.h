@@ -37,7 +37,7 @@
 #include <cplusplus/Token.h>
 
 #include <utils/cpplanguage_details.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QString>

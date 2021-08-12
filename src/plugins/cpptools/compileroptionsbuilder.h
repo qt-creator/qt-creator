@@ -50,8 +50,8 @@ public:
         UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::No,
         UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
         UseBuildSystemWarnings useBuildSystemWarnings = UseBuildSystemWarnings::No,
-        const QString &clangVersion = QString(),
-        const QString &clangIncludeDirectory = QString());
+        const QString &clangVersion = {},
+        const Utils::FilePath &clangIncludeDirectory = {});
 
     QStringList build(ProjectFile::Kind fileKind, UsePrecompiledHeaders usePrecompiledHeaders);
     QStringList options() const { return m_options; }
@@ -113,7 +113,7 @@ private:
     const UseBuildSystemWarnings m_useBuildSystemWarnings;
 
     const QString m_clangVersion;
-    const QString m_clangIncludeDirectory;
+    const Utils::FilePath m_clangIncludeDirectory;
 
     struct {
         QStringList flags;

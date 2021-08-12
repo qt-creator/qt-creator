@@ -76,7 +76,7 @@ public:
                                  UseLanguageDefines::No,
                                  useBuildSystemWarnings,
                                  QString(CLANG_VERSION),
-                                 QString(CLANG_INCLUDE_DIR))
+                                 FilePath(CLANG_INCLUDE_DIR))
     {
     }
 

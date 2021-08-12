@@ -46,6 +46,7 @@ static const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
 static const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
 
 using namespace CppTools;
+using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
@@ -151,8 +152,8 @@ void ClangToolsSettings::readSettings()
 
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
-    m_clangTidyExecutable = s->value(clangTidyExecutableKey).toString();
-    m_clazyStandaloneExecutable = s->value(clazyStandaloneExecutableKey).toString();
+    m_clangTidyExecutable = FilePath::fromVariant(s->value(clangTidyExecutableKey));
+    m_clazyStandaloneExecutable = FilePath::fromVariant(s->value(clazyStandaloneExecutableKey));
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
     QVariantMap map;
@@ -184,8 +185,8 @@ void ClangToolsSettings::writeSettings()
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
 
-    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable);
-    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable);
+    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toVariant());
+    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toVariant());
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
     QVariantMap map;
@@ -198,24 +199,22 @@ void ClangToolsSettings::writeSettings()
     emit changed();
 }
 
-void ClangToolsSettings::setClangTidyExecutable(const QString &path)
+void ClangToolsSettings::setClangTidyExecutable(const FilePath &path)
 {
     m_clangTidyExecutable = path;
     m_clangTidyVersion = {};
 }
 
-void ClangTools::Internal::ClangToolsSettings::setClazyStandaloneExecutable(const QString &path)
+void ClangToolsSettings::setClazyStandaloneExecutable(const FilePath &path)
 {
     m_clazyStandaloneExecutable = path;
     m_clazyVersion = {};
 }
 
-static QVersionNumber getVersionNumber(QVersionNumber &version, const QString &toolFilePath)
+static QVersionNumber getVersionNumber(QVersionNumber &version, const FilePath &toolFilePath)
 {
-    if (version.isNull() && !toolFilePath.isEmpty()) {
-        version = QVersionNumber::fromString(queryVersion(Utils::FilePath::fromString(toolFilePath),
-                                                          QueryFailMode::Silent));
-    };
+    if (version.isNull() && !toolFilePath.isEmpty())
+        version = QVersionNumber::fromString(queryVersion(toolFilePath, QueryFailMode::Silent));
     return version;
 }
 

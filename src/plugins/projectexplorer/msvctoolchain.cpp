@@ -1985,13 +1985,11 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     QList<ToolChain *> results;
     QList<ToolChain *> known = alreadyKnown;
 
-    QString qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
+    FilePath qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!qtCreatorsClang.isEmpty()) {
-        qtCreatorsClang = Utils::FilePath::fromString(qtCreatorsClang)
-                              .parentDir()
-                              .pathAppended("clang-cl.exe")
-                              .toString();
-        results.append(detectClangClToolChainInPath(qtCreatorsClang, alreadyKnown, "", true));
+        qtCreatorsClang = qtCreatorsClang.parentDir().pathAppended("clang-cl.exe");
+        results.append(detectClangClToolChainInPath(qtCreatorsClang.toString(),
+                                                    alreadyKnown, "", true));
         known.append(results);
     }
 

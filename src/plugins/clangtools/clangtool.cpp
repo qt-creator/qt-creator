@@ -896,12 +896,12 @@ static CheckResult canAnalyze()
 {
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings().diagnosticConfigId());
 
-    if (config.isClangTidyEnabled() && !isFileExecutable(clangTidyExecutable())) {
+    if (config.isClangTidyEnabled() && !clangTidyExecutable().isExecutableFile()) {
         return {CheckResult::InvalidTidyExecutable,
                 ClangTool::tr("Set a valid Clang-Tidy executable.")};
     }
 
-    if (config.isClazyEnabled() && !isFileExecutable(clazyStandaloneExecutable())) {
+    if (config.isClazyEnabled() && !clazyStandaloneExecutable().isExecutableFile()) {
         return {CheckResult::InvalidClazyExecutable,
                 ClangTool::tr("Set a valid Clazy-Standalone executable.")};
     }

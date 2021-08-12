@@ -28,14 +28,17 @@
 #include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
+#include <utils/filepath.h>
+
 namespace CppTools {
+
 class CPPTOOLS_EXPORT HeaderPathFilter
 {
 public:
     HeaderPathFilter(const ProjectPart &projectPart,
                      UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
                      const QString &clangVersion = {},
-                     const QString &clangIncludeDirectory = {},
+                     const Utils::FilePath &clangIncludeDirectory = {},
                      const QString &projectDirectory = {},
                      const QString &buildDirectory = {})
         : projectPart{projectPart}
@@ -67,7 +70,7 @@ public:
     ProjectExplorer::HeaderPaths userHeaderPaths;
     const ProjectPart &projectPart;
     const QString clangVersion;
-    const QString clangFallbackIncludeDirectory;
+    const Utils::FilePath clangFallbackIncludeDirectory;
     const QString projectDirectory;
     const QString buildDirectory;
     const UseTweakedHeaderPaths useTweakedHeaderPaths;

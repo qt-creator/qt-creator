@@ -77,11 +77,11 @@ public:
     static ClangToolsSettings *instance();
     void writeSettings();
 
-    QString clangTidyExecutable() const { return m_clangTidyExecutable; }
-    void setClangTidyExecutable(const QString &path);
+    Utils::FilePath clangTidyExecutable() const { return m_clangTidyExecutable; }
+    void setClangTidyExecutable(const Utils::FilePath &path);
 
-    QString clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
-    void setClazyStandaloneExecutable(const QString &path);
+    Utils::FilePath clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
+    void setClazyStandaloneExecutable(const Utils::FilePath &path);
 
     CppTools::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
     void setDiagnosticConfigs(const CppTools::ClangDiagnosticConfigs &configs)
@@ -101,8 +101,8 @@ private:
     void readSettings();
 
     // Executables
-    QString m_clangTidyExecutable;
-    QString m_clazyStandaloneExecutable;
+    Utils::FilePath m_clangTidyExecutable;
+    Utils::FilePath m_clazyStandaloneExecutable;
 
     // Diagnostic Configs
     CppTools::ClangDiagnosticConfigs m_diagnosticConfigs;

@@ -32,12 +32,9 @@
 
 #include <QtGlobal>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
 namespace CppTools { class ClangDiagnosticConfigsModel; }
 namespace Debugger { class DiagnosticLocation; }
+namespace Utils { class FilePath; }
 
 namespace ClangTools {
 namespace Internal {
@@ -68,17 +65,15 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 QString hintAboutBuildBeforeAnalysis();
 void showHintAboutBuildBeforeAnalysis();
 
-bool isFileExecutable(const QString &filePath);
+Utils::FilePath shippedClazyStandaloneExecutable();
+Utils::FilePath clazyStandaloneExecutable();
+Utils::FilePath clazyStandaloneFallbackExecutable();
 
-QString shippedClazyStandaloneExecutable();
-QString clazyStandaloneExecutable();
-QString clazyStandaloneFallbackExecutable();
+Utils::FilePath shippedClangTidyExecutable();
+Utils::FilePath clangTidyExecutable();
+Utils::FilePath clangTidyFallbackExecutable();
 
-QString shippedClangTidyExecutable();
-QString clangTidyExecutable();
-QString clangTidyFallbackExecutable();
-
-QString fullPath(const QString &executable);
+Utils::FilePath fullPath(const Utils::FilePath &executable);
 
 QString documentationUrl(const QString &checkName);
 

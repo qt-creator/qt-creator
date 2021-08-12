@@ -31,6 +31,8 @@
 
 #include <memory>
 
+namespace Utils { class FilePath; }
+
 namespace ClangTools {
 namespace Internal {
 
@@ -46,8 +48,8 @@ public:
     SettingsWidget();
     ~SettingsWidget() override;
 
-    QString clangTidyPath() const;
-    QString clazyStandalonePath() const;
+    Utils::FilePath clangTidyPath() const;
+    Utils::FilePath clazyStandalonePath() const;
 
 private:
     void apply() final;

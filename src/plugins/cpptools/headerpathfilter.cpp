@@ -36,11 +36,10 @@
 
 #include <utils/algorithm.h>
 
-namespace CppTools {
+using namespace ProjectExplorer;
+using namespace Utils;
 
-using ProjectExplorer::HeaderPath;
-using ProjectExplorer::HeaderPaths;
-using ProjectExplorer::HeaderPathType;
+namespace CppTools {
 
 void HeaderPathFilter::process()
 {
@@ -104,7 +103,7 @@ void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &heade
 
 namespace {
 
-QString clangIncludeDirectory(const QString &clangVersion, const QString &clangFallbackIncludeDir)
+FilePath clangIncludeDirectory(const QString &clangVersion, const FilePath &clangFallbackIncludeDir)
 {
 #ifndef UNIT_TESTS
     return Core::ICore::clangIncludeDirectory(clangVersion, clangFallbackIncludeDir);
@@ -158,9 +157,9 @@ void HeaderPathFilter::tweakHeaderPaths()
     auto split = resourceIterator(builtInHeaderPaths);
 
     if (!clangVersion.isEmpty()) {
-        const QString clangIncludePath
+        const FilePath clangIncludePath
                 = clangIncludeDirectory(clangVersion, clangFallbackIncludeDirectory);
-        builtInHeaderPaths.insert(split, HeaderPath{clangIncludePath, HeaderPathType::BuiltIn});
+        builtInHeaderPaths.insert(split, HeaderPath{clangIncludePath.toString(), HeaderPathType::BuiltIn});
     }
 }
 

@@ -164,12 +164,12 @@ public:
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
     static QString pluginPath();
     static QString userPluginPath();
-    static QString clangExecutable(const QString &clangBinDirectory);
-    static QString clangdExecutable(const QString &clangBinDirectory);
-    static QString clangTidyExecutable(const QString &clangBinDirectory);
-    static QString clazyStandaloneExecutable(const QString &clangBinDirectory);
-    static QString clangIncludeDirectory(const QString &clangVersion,
-                                         const QString &clangFallbackIncludeDir);
+    static Utils::FilePath clangExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::FilePath clangdExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::FilePath clangTidyExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::FilePath clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::FilePath clangIncludeDirectory(const QString &clangVersion,
+                                                 const Utils::FilePath &clangFallbackIncludeDir);
     static QString buildCompatibilityString();
     static QStatusBar *statusBar();
 

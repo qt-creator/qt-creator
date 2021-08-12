@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QPair>
 #include <QStringList>
@@ -43,7 +43,7 @@ QString queryVersion(const Utils::FilePath &clangToolPath, QueryFailMode failMod
 class ClangTidyInfo
 {
 public:
-    ClangTidyInfo(const QString &executablePath);
+    ClangTidyInfo(const Utils::FilePath &executablePath);
     QStringList defaultChecks;
     QStringList supportedChecks;
 };
@@ -60,7 +60,7 @@ using ClazyChecks = QVector<ClazyCheck>;
 class ClazyStandaloneInfo
 {
 public:
-    ClazyStandaloneInfo(const QString &executablePath);
+    ClazyStandaloneInfo(const Utils::FilePath &executablePath);
 
     QVersionNumber version;
     QStringList defaultChecks;

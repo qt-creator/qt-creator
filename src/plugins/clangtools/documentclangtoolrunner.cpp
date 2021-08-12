@@ -234,7 +234,7 @@ void DocumentClangToolRunner::run()
 QPair<Utils::FilePath, QString> getClangIncludeDirAndVersion(ClangToolRunner *runner)
 {
     static QMap<Utils::FilePath, QPair<Utils::FilePath, QString>> cache;
-    const Utils::FilePath tool = Utils::FilePath::fromString(runner->executable());
+    const Utils::FilePath tool = runner->executable();
     auto it = cache.find(tool);
     if (it == cache.end())
         it = cache.insert(tool, getClangIncludeDirAndVersion(tool));

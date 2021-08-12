@@ -125,7 +125,7 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
                                           UseLanguageDefines::No,
                                           UseBuildSystemWarnings::No,
                                           clangVersion,
-                                          clangIncludeDir.toString());
+                                          clangIncludeDir);
     file = fileInfo.file.toString();
     arguments = extraClangToolsPrependOptions();
     arguments.append(optionsBuilder.build(fileInfo.kind, CppTools::getPchUsage()));
