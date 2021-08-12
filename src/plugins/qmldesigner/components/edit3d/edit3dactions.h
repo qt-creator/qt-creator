@@ -81,4 +81,15 @@ private:
     QByteArray m_menuId;
 };
 
+class Edit3DCameraAction : public Edit3DAction
+{
+public:
+    Edit3DCameraAction(const QByteArray &menuId, View3DActionCommand::Type type,
+                       const QString &description, const QKeySequence &key, bool checkable, bool checked,
+                       const QIcon &iconOff, const QIcon &iconOn,
+                       SelectionContextOperation selectionAction = nullptr);
+protected:
+    bool isEnabled(const SelectionContext &selectionContext) const override;
+};
+
 } // namespace QmlDesigner

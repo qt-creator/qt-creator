@@ -2090,6 +2090,12 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionCommand::FitToView:
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "fitToView");
         break;
+    case View3DActionCommand::AlignCamerasToView:
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignCamerasToView");
+        break;
+    case View3DActionCommand::AlignViewToCamera:
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignViewToCamera");
+        break;
     case View3DActionCommand::SelectionModeToggle:
         updatedState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;

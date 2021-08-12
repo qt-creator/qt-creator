@@ -269,6 +269,53 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
     return QVector4D(lookAt, cameraZoomFactor);
 }
 
+// Aligns any cameras found in nodes list to a camera.
+// Only position and rotation are copied, rest of the camera properties stay the same.
+void GeneralHelper::alignCameras(QQuick3DCamera *camera, const QVariant &nodes)
+{
+    QList<QQuick3DCamera *> nodeList;
+    const QVariantList varNodes = nodes.value<QVariantList>();
+    for (const auto &varNode : varNodes) {
+        auto cameraNode = varNode.value<QQuick3DCamera *>();
+        if (cameraNode)
+            nodeList.append(cameraNode);
+    }
+
+    for (QQuick3DCamera *node : qAsConst(nodeList)) {
+        node->setPosition(camera->position());
+        node->setRotation(camera->rotation());
+    }
+}
+
+// Aligns the camera to the first camera in nodes list.
+// Aligning means taking the position and XY rotation from the source camera. Rest of the properties
+// remain the same, as this is used to align edit cameras, which have fixed Z-rot, fov, and clips.
+// The new lookAt is set at same distance away as it was previously and scale isn't adjusted, so
+// the zoom factor of the edit camera stays the same.
+QVector3D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes,
+                                   const QVector3D &lookAtPoint)
+{
+    float lastDistance = (lookAtPoint - camera->position()).length();
+    const QVariantList varNodes = nodes.value<QVariantList>();
+    QQuick3DCamera *cameraNode = nullptr;
+    for (const auto &varNode : varNodes) {
+        cameraNode = varNode.value<QQuick3DCamera *>();
+        if (cameraNode)
+            break;
+    }
+
+    if (cameraNode) {
+        camera->setPosition(cameraNode->position());
+        QVector3D newRotation = cameraNode->eulerRotation();
+        newRotation.setZ(0.f);
+        camera->setEulerRotation(newRotation);
+    }
+
+    QVector3D lookAt = camera->position() + camera->forward() * lastDistance;
+
+    return lookAt;
+}
+
 bool GeneralHelper::fuzzyCompare(double a, double b)
 {
     return qFuzzyCompare(a, b);

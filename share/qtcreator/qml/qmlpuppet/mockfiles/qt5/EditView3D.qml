@@ -190,6 +190,22 @@ Item {
         }
     }
 
+    function alignCamerasToView()
+    {
+        if (editView) {
+            cameraControl.alignCameras(selectedNodes);
+            var propertyNames = ["position", "eulerRotation"];
+            viewRoot.changeObjectProperty(selectedNodes, propertyNames);
+            viewRoot.commitObjectProperty(selectedNodes, propertyNames);
+        }
+    }
+
+    function alignViewToCamera()
+    {
+        if (editView)
+            cameraControl.alignView(selectedNodes);
+    }
+
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
     // their default state.
     function updateToolStates(toolStates, resetToDefault)
