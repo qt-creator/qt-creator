@@ -45,38 +45,39 @@
 #include <QRegularExpression>
 #include <QtGlobal>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppTools {
 
-static const char defineOption[] = "-D";
-static const char undefineOption[] = "-U";
+const char defineOption[] = "-D";
+const char undefineOption[] = "-U";
 
-static const char includeUserPathOption[] = "-I";
-static const char includeUserPathOptionWindows[] = "/I";
-static const char includeSystemPathOption[] = "-isystem";
+const char includeUserPathOption[] = "-I";
+const char includeUserPathOptionWindows[] = "/I";
+const char includeSystemPathOption[] = "-isystem";
 
-static const char includeFileOptionGcc[] = "-include";
-static const char includeFileOptionCl[] = "/FI";
+const char includeFileOptionGcc[] = "-include";
+const char includeFileOptionCl[] = "/FI";
 
-static QByteArray macroOption(const ProjectExplorer::Macro &macro)
+static QByteArray macroOption(const Macro &macro)
 {
     switch (macro.type) {
-    case ProjectExplorer::MacroType::Define:
+    case MacroType::Define:
         return defineOption;
-    case ProjectExplorer::MacroType::Undefine:
+    case MacroType::Undefine:
         return undefineOption;
     default:
         return QByteArray();
     }
 }
 
-static QByteArray toDefineOption(const ProjectExplorer::Macro &macro)
+static QByteArray toDefineOption(const Macro &macro)
 {
     return macro.toKeyValue(macroOption(macro));
 }
 
-static QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &macro)
+static QString defineDirectiveToDefineOption(const Macro &macro)
 {
     const QByteArray option = toDefineOption(macro);
     return QString::fromUtf8(option);
@@ -124,13 +125,11 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     evaluateCompilerFlags();
 
     if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
-        QTC_ASSERT(m_projectPart.languageVersion <= Utils::LanguageVersion::LatestC,
-                   return QStringList(););
+        QTC_ASSERT(m_projectPart.languageVersion <= LanguageVersion::LatestC, return {});
     }
 
     if (fileKind == ProjectFile::CXXHeader || fileKind == ProjectFile::CXXSource) {
-        QTC_ASSERT(m_projectPart.languageVersion > Utils::LanguageVersion::LatestC,
-                   return QStringList(););
+        QTC_ASSERT(m_projectPart.languageVersion > LanguageVersion::LatestC, return {});
     }
 
     addCompilerFlags();
@@ -278,7 +277,7 @@ void CompilerOptionsBuilder::addMsvcExceptions()
 {
     if (!m_clStyle)
         return;
-    if (Utils::anyOf(m_projectPart.toolChainMacros, [](const ProjectExplorer::Macro &macro) {
+    if (Utils::anyOf(m_projectPart.toolChainMacros, [](const Macro &macro) {
         return macro.key == "_CPPUNWIND";
     })) {
         enableExceptions();
@@ -291,7 +290,7 @@ void CompilerOptionsBuilder::enableExceptions()
     // This is most likely due to incomplete exception support of clang.
     // However, as we need exception support only in the frontend,
     // enabling them explicitly should be fine.
-    if (m_projectPart.languageVersion > ::Utils::LanguageVersion::LatestC)
+    if (m_projectPart.languageVersion > LanguageVersion::LatestC)
         add("-fcxx-exceptions");
     add("-fexceptions");
 }
@@ -346,9 +345,6 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
                             m_clangIncludeDirectory};
 
     filter.process();
-
-    using ProjectExplorer::HeaderPath;
-    using ProjectExplorer::HeaderPathType;
 
     for (const HeaderPath &headerPath : qAsConst(filter.userHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
@@ -410,11 +406,11 @@ void CompilerOptionsBuilder::addProjectMacros()
     addMacros(m_projectPart.projectMacros);
 }
 
-void CompilerOptionsBuilder::addMacros(const ProjectExplorer::Macros &macros)
+void CompilerOptionsBuilder::addMacros(const Macros &macros)
 {
     QStringList options;
 
-    for (const ProjectExplorer::Macro &macro : macros) {
+    for (const Macro &macro : macros) {
         if (excludeDefineDirective(macro))
             continue;
 
@@ -447,8 +443,7 @@ void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
         return;
     }
 
-    const bool objcExt = m_projectPart.languageExtensions
-                         & Utils::LanguageExtension::ObjectiveC;
+    const bool objcExt = m_projectPart.languageExtensions & LanguageExtension::ObjectiveC;
     const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
     if (options.isEmpty())
         return;
@@ -463,9 +458,6 @@ void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
 
 void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
 {
-    using Utils::LanguageExtension;
-    using Utils::LanguageVersion;
-
     if (m_compilerFlags.isLanguageVersionSpecified)
         return;
 
@@ -493,7 +485,7 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
         // Continue in case no cl-style option could be chosen.
     }
 
-    const Utils::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
+    const LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & LanguageExtension::Gnu;
 
     switch (m_projectPart.languageVersion) {
@@ -542,9 +534,9 @@ static QByteArray toMsCompatibilityVersionFormat(const QByteArray &mscFullVer)
          + mscFullVer.mid(2, 2);
 }
 
-static QByteArray msCompatibilityVersionFromDefines(const ProjectExplorer::Macros &macros)
+static QByteArray msCompatibilityVersionFromDefines(const Macros &macros)
 {
-    for (const ProjectExplorer::Macro &macro : macros) {
+    for (const Macro &macro : macros) {
         if (macro.key == "_MSC_FULL_VER")
             return toMsCompatibilityVersionFormat(macro.value);
     }
@@ -652,18 +644,18 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
     }
 }
 
-void CompilerOptionsBuilder::addIncludeDirOptionForPath(const ProjectExplorer::HeaderPath &path)
+void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
 {
-    if (path.type == ProjectExplorer::HeaderPathType::Framework) {
+    if (path.type == HeaderPathType::Framework) {
         QTC_ASSERT(!isClStyle(), return;);
         add({"-F", QDir::toNativeSeparators(path.path)});
         return;
     }
 
     bool systemPath = false;
-    if (path.type == ProjectExplorer::HeaderPathType::BuiltIn) {
+    if (path.type == HeaderPathType::BuiltIn) {
         systemPath = true;
-    } else if (path.type == ProjectExplorer::HeaderPathType::System) {
+    } else if (path.type == HeaderPathType::System) {
         if (m_useSystemHeader == UseSystemHeader::Yes)
             systemPath = true;
     } else {
@@ -682,7 +674,7 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const ProjectExplorer::H
     add({includeUserPathOption, QDir::toNativeSeparators(path.path)});
 }
 
-bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
+bool CompilerOptionsBuilder::excludeDefineDirective(const Macro &macro) const
 {
     // Avoid setting __cplusplus & co as this might conflict with other command line flags.
     // Clang should set __cplusplus based on -std= and -fms-compatibility-version version.
@@ -726,7 +718,7 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro
 
 QStringList CompilerOptionsBuilder::wrappedQtHeadersIncludePath() const
 {
-    if (m_projectPart.qtVersion == Utils::QtVersion::None)
+    if (m_projectPart.qtVersion == QtVersion::None)
         return {};
     return {"wrappedQtHeaders", "wrappedQtHeaders/QtCore"};
 }
@@ -782,7 +774,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
                                            qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
                                            .split(';', Qt::SkipEmptyParts);
 
-    const Utils::Id &toolChain = m_projectPart.toolchainType;
+    const Id toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
     bool skipNext = false;
     const QStringList allFlags = m_projectPart.compilerFlags + m_projectPart.extraCodeModelFlags;

@@ -69,9 +69,11 @@
 #include <QTextBlock>
 #include <QTimer>
 
-using namespace ClangCodeModel;
-using namespace ClangCodeModel::Internal;
+using namespace CppTools;
 using namespace LanguageClient;
+
+namespace ClangCodeModel {
+namespace Internal {
 
 static ClangModelManagerSupport *m_instance = nullptr;
 
@@ -651,7 +653,7 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
     }
 
     ClangdClient * const fallbackClient = clientForProject(nullptr);
-    const CppTools::ClangdSettings &settings = CppTools::ClangdSettings::instance();
+    const ClangdSettings &settings = ClangdSettings::instance();
     const auto startNewFallbackClient = [this] {
         claimNonProjectSources(createClient(nullptr, {}));
     };
@@ -743,3 +745,6 @@ CppTools::ModelManagerSupport::Ptr ClangModelManagerSupportProvider::createModel
 {
     return CppTools::ModelManagerSupport::Ptr(new ClangModelManagerSupport);
 }
+
+} // Internal
+} // ClangCodeModel

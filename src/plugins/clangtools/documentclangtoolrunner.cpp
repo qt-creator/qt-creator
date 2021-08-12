@@ -53,21 +53,25 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.cftr", QtWarningMsg)
 
+using namespace Core;
+using namespace CppTools;
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
-DocumentClangToolRunner::DocumentClangToolRunner(Core::IDocument *document)
+DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     : QObject(document)
     , m_document(document)
     , m_temporaryDir("clangtools-single-XXXXXX")
 {
-    using namespace CppTools;
 
     m_runTimer.setInterval(500);
     m_runTimer.setSingleShot(true);
 
     connect(m_document,
-            &Core::IDocument::contentsChanged,
+            &IDocument::contentsChanged,
             this,
             &DocumentClangToolRunner::scheduleRun);
     connect(CppModelManager::instance(),
@@ -88,7 +92,7 @@ DocumentClangToolRunner::~DocumentClangToolRunner()
     qDeleteAll(m_marks);
 }
 
-Utils::FilePath DocumentClangToolRunner::filePath() const
+FilePath DocumentClangToolRunner::filePath() const
 {
     return m_document->filePath();
 }
@@ -123,10 +127,10 @@ void DocumentClangToolRunner::scheduleRun()
     m_runTimer.start();
 }
 
-static ProjectExplorer::Project *findProject(const Utils::FilePath &file)
+static Project *findProject(const FilePath &file)
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(file);
-    return project ? project : ProjectExplorer::SessionManager::startupProject();
+    Project *project = SessionManager::projectForFile(file);
+    return project ? project : SessionManager::startupProject();
 }
 
 static VirtualFileSystemOverlay &vfso()
@@ -135,29 +139,28 @@ static VirtualFileSystemOverlay &vfso()
     return overlay;
 }
 
-static FileInfo getFileInfo(const Utils::FilePath &file, ProjectExplorer::Project *project)
+static FileInfo getFileInfo(const FilePath &file, Project *project)
 {
-    const CppTools::ProjectInfo::Ptr projectInfo
-            = CppTools::CppModelManager::instance()->projectInfo(project);
+    const ProjectInfo::Ptr projectInfo = CppModelManager::instance()->projectInfo(project);
     if (!projectInfo)
         return {};
 
     FileInfo candidate;
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo->projectParts()) {
+    for (const ProjectPart::Ptr &projectPart : projectInfo->projectParts()) {
         QTC_ASSERT(projectPart, continue);
 
-        for (const CppTools::ProjectFile &projectFile : qAsConst(projectPart->files)) {
-            QTC_ASSERT(projectFile.kind != CppTools::ProjectFile::Unclassified, continue);
-            QTC_ASSERT(projectFile.kind != CppTools::ProjectFile::Unsupported, continue);
-            if (projectFile.path == CppTools::CppModelManager::configurationFileName())
+        for (const ProjectFile &projectFile : qAsConst(projectPart->files)) {
+            QTC_ASSERT(projectFile.kind != ProjectFile::Unclassified, continue);
+            QTC_ASSERT(projectFile.kind != ProjectFile::Unsupported, continue);
+            if (projectFile.path == CppModelManager::configurationFileName())
                 continue;
-            const auto projectFilePath = Utils::FilePath::fromString(projectFile.path);
+            const auto projectFilePath = FilePath::fromString(projectFile.path);
             if (file != projectFilePath)
                 continue;
             if (!projectFile.active)
                 continue;
             // found the best candidate, early return
-            if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Unknown)
+            if (projectPart->buildTargetType != BuildTargetType::Unknown)
                 return FileInfo(projectFilePath, projectFile.kind, projectPart);
             // found something but keep looking for better candidates
             if (candidate.projectPart.isNull())
@@ -168,27 +171,27 @@ static FileInfo getFileInfo(const Utils::FilePath &file, ProjectExplorer::Projec
     return candidate;
 }
 
-static Utils::Environment projectBuildEnvironment(ProjectExplorer::Project *project)
+static Environment projectBuildEnvironment(Project *project)
 {
-    Utils::Environment env;
-    if (ProjectExplorer::Target *target = project->activeTarget()) {
-        if (ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+    Environment env;
+    if (Target *target = project->activeTarget()) {
+        if (BuildConfiguration *buildConfig = target->activeBuildConfiguration())
             env = buildConfig->environment();
     }
     if (env.size() == 0)
-        env = Utils::Environment::systemEnvironment();
+        env = Environment::systemEnvironment();
     return env;
 }
 
 void DocumentClangToolRunner::run()
 {
     cancel();
-    auto isEditorForCurrentDocument = [this](const Core::IEditor *editor) {
+    auto isEditorForCurrentDocument = [this](const IEditor *editor) {
         return editor->document() == m_document;
     };
-    if (Utils::anyOf(Core::EditorManager::visibleEditors(), isEditorForCurrentDocument)) {
-        const Utils::FilePath filePath = m_document->filePath();
-        if (ProjectExplorer::Project *project = findProject(filePath)) {
+    if (Utils::anyOf(EditorManager::visibleEditors(), isEditorForCurrentDocument)) {
+        const FilePath filePath = m_document->filePath();
+        if (Project *project = findProject(filePath)) {
             m_fileInfo = getFileInfo(filePath, project);
             if (m_fileInfo.file.exists()) {
                 const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
@@ -207,10 +210,10 @@ void DocumentClangToolRunner::run()
                 if (runSettings.analyzeOpenFiles()) {
                     vfso().update();
 
-                    CppTools::ClangDiagnosticConfig config = diagnosticConfig(
+                    ClangDiagnosticConfig config = diagnosticConfig(
                         runSettings.diagnosticConfigId());
 
-                    Utils::Environment env = projectBuildEnvironment(project);
+                    Environment env = projectBuildEnvironment(project);
                     if (config.isClangTidyEnabled()) {
                         m_runnerCreators << [this, env, config]() {
                             return createRunner<ClangTidyRunner>(config, env);
@@ -231,10 +234,10 @@ void DocumentClangToolRunner::run()
     runNext();
 }
 
-QPair<Utils::FilePath, QString> getClangIncludeDirAndVersion(ClangToolRunner *runner)
+QPair<FilePath, QString> getClangIncludeDirAndVersion(ClangToolRunner *runner)
 {
-    static QMap<Utils::FilePath, QPair<Utils::FilePath, QString>> cache;
-    const Utils::FilePath tool = runner->executable();
+    static QMap<FilePath, QPair<FilePath, QString>> cache;
+    const FilePath tool = runner->executable();
     auto it = cache.find(tool);
     if (it == cache.end())
         it = cache.insert(tool, getClangIncludeDirAndVersion(tool));
@@ -253,7 +256,7 @@ void DocumentClangToolRunner::runNext()
             runNext();
         } else {
             AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
-            QTC_ASSERT(Utils::FilePath::fromString(unit.file).exists(), runNext(); return;);
+            QTC_ASSERT(FilePath::fromString(unit.file).exists(), runNext(); return;);
             m_currentRunner->setVFSOverlay(vfso().overlayFilePath().toString());
             if (!m_currentRunner->run(unit.file, unit.arguments))
                 runNext();
@@ -271,10 +274,10 @@ static void updateLocation(Debugger::DiagnosticLocation &location)
 void DocumentClangToolRunner::onSuccess()
 {
     QString errorMessage;
-    Utils::FilePath mappedPath = vfso().autoSavedFilePath(m_document);
+    FilePath mappedPath = vfso().autoSavedFilePath(m_document);
     Diagnostics diagnostics = readExportedDiagnostics(
-        Utils::FilePath::fromString(m_currentRunner->outputFilePath()),
-        [&](const Utils::FilePath &path) { return path == mappedPath; },
+        FilePath::fromString(m_currentRunner->outputFilePath()),
+        [&](const FilePath &path) { return path == mappedPath; },
         &errorMessage);
 
     for (Diagnostic &diag : diagnostics) {
@@ -308,9 +311,9 @@ void DocumentClangToolRunner::onSuccess()
             TextEditor::RefactorMarker marker;
             marker.tooltip = diagnostic.description;
             QTextCursor cursor(doc->document());
-            cursor.setPosition(Utils::Text::positionInText(doc->document(),
-                                                           diagnostic.location.line,
-                                                           diagnostic.location.column));
+            cursor.setPosition(Text::positionInText(doc->document(),
+                                                    diagnostic.location.line,
+                                                    diagnostic.location.column));
             cursor.movePosition(QTextCursor::EndOfLine);
             marker.cursor = cursor;
             marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;
@@ -365,7 +368,7 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
     auto equalsSuppressed = [this, &diagnostic](const SuppressedDiagnostic &suppressed) {
         if (suppressed.description != diagnostic.description)
             return false;
-        Utils::FilePath filePath = suppressed.filePath;
+        FilePath filePath = suppressed.filePath;
         if (filePath.toFileInfo().isRelative())
             filePath = m_lastProjectDirectory.pathAppended(filePath.toString());
         return filePath == diagnostic.location.filePath;
@@ -373,7 +376,7 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
     return Utils::anyOf(m_suppressed, equalsSuppressed);
 }
 
-const CppTools::ClangDiagnosticConfig DocumentClangToolRunner::getDiagnosticConfig(ProjectExplorer::Project *project)
+const ClangDiagnosticConfig DocumentClangToolRunner::getDiagnosticConfig(Project *project)
 {
     const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
     m_projectSettingsUpdate = connect(projectSettings.data(),
@@ -381,15 +384,15 @@ const CppTools::ClangDiagnosticConfig DocumentClangToolRunner::getDiagnosticConf
                                       this,
                                       &DocumentClangToolRunner::run);
 
-    const Utils::Id &id = projectSettings->useGlobalSettings()
-                              ? ClangToolsSettings::instance()->runSettings().diagnosticConfigId()
-                              : projectSettings->runSettings().diagnosticConfigId();
+    const Id id = projectSettings->useGlobalSettings()
+            ? ClangToolsSettings::instance()->runSettings().diagnosticConfigId()
+            : projectSettings->runSettings().diagnosticConfigId();
     return diagnosticConfig(id);
 }
 
 template<class T>
-ClangToolRunner *DocumentClangToolRunner::createRunner(const CppTools::ClangDiagnosticConfig &config,
-                                                       const Utils::Environment &env)
+ClangToolRunner *DocumentClangToolRunner::createRunner(const ClangDiagnosticConfig &config,
+                                                       const Environment &env)
 {
     auto runner = new T(config, this);
     runner->init(m_temporaryDir.path(), env);

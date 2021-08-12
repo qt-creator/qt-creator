@@ -80,11 +80,11 @@ static FilePath fallbackClangdFilePath()
     return "clangd";
 }
 
-static Utils::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
+static Id clangDiagnosticConfigIdFromSettings(QSettings *s)
 {
-    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Utils::Id());
+    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Id());
 
-    return Utils::Id::fromSetting(
+    return Id::fromSetting(
         s->value(clangDiagnosticConfigKey(), initialClangDiagnosticConfigId().toSetting()));
 }
 
@@ -133,7 +133,7 @@ static ClangDiagnosticConfigs removedBuiltinConfigs()
     return configs;
 }
 
-static ClangDiagnosticConfig convertToCustomConfig(const Utils::Id &id)
+static ClangDiagnosticConfig convertToCustomConfig(const Id &id)
 {
     const ClangDiagnosticConfig config
         = Utils::findOrDefault(removedBuiltinConfigs(), [id](const ClangDiagnosticConfig &config) {
@@ -151,7 +151,7 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 
     // Qt Creator 4.11 removes some built-in configs.
     bool write = false;
-    const Utils::Id id = m_clangDiagnosticConfigId;
+    const Id id = m_clangDiagnosticConfigId;
     if (id == "Builtin.Pedantic" || id == "Builtin.EverythingWithExceptions") {
         // If one of them was used, continue to use it, but convert it to a custom config.
         const ClangDiagnosticConfig customConfig = convertToCustomConfig(id);
@@ -192,7 +192,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
     const ClangDiagnosticConfigs previousConfigs = diagnosticConfigsFromSettings(s);
-    const Utils::Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
+    const Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
 
     diagnosticConfigsToSettings(s, m_clangCustomDiagnosticConfigs);
 
@@ -206,7 +206,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
     s->endGroup();
 
-    QVector<Utils::Id> invalidated
+    QVector<Id> invalidated
         = ClangDiagnosticConfigsModel::changedOrRemovedConfigs(previousConfigs,
                                                                m_clangCustomDiagnosticConfigs);
 
@@ -218,19 +218,19 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     emit changed();
 }
 
-Utils::Id CppCodeModelSettings::clangDiagnosticConfigId() const
+Id CppCodeModelSettings::clangDiagnosticConfigId() const
 {
     if (!diagnosticConfigsModel().hasConfigWithId(m_clangDiagnosticConfigId))
         return defaultClangDiagnosticConfigId();
     return m_clangDiagnosticConfigId;
 }
 
-void CppCodeModelSettings::setClangDiagnosticConfigId(const Utils::Id &configId)
+void CppCodeModelSettings::setClangDiagnosticConfigId(const Id &configId)
 {
     m_clangDiagnosticConfigId = configId;
 }
 
-Utils::Id CppCodeModelSettings::defaultClangDiagnosticConfigId()
+Id CppCodeModelSettings::defaultClangDiagnosticConfigId()
 {
     return initialClangDiagnosticConfigId();
 }
@@ -310,7 +310,7 @@ ClangdSettings &ClangdSettings::instance()
     return settings;
 }
 
-void ClangdSettings::setDefaultClangdPath(const Utils::FilePath &filePath)
+void ClangdSettings::setDefaultClangdPath(const FilePath &filePath)
 {
     g_defaultClangdFilePath = filePath;
 }
@@ -343,7 +343,8 @@ void ClangdSettings::saveSettings()
 
 #ifdef WITH_TESTS
 void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
-void ClangdSettings::setClangdFilePath(const Utils::FilePath &filePath)
+
+void ClangdSettings::setClangdFilePath(const FilePath &filePath)
 {
     instance().m_data.executableFilePath = filePath;
 }

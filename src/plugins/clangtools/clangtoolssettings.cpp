@@ -37,21 +37,21 @@
 
 #include <QThread>
 
-static const char clangTidyExecutableKey[] = "ClangTidyExecutable";
-static const char clazyStandaloneExecutableKey[] = "ClazyStandaloneExecutable";
-
-static const char parallelJobsKey[] = "ParallelJobs";
-static const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
-static const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
-static const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
-
 using namespace CppTools;
 using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
 
-static Utils::Id defaultDiagnosticId()
+const char clangTidyExecutableKey[] = "ClangTidyExecutable";
+const char clazyStandaloneExecutableKey[] = "ClazyStandaloneExecutable";
+
+const char parallelJobsKey[] = "ParallelJobs";
+const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
+const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
+const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
+
+static Id defaultDiagnosticId()
 {
     return ClangTools::Constants::DIAG_CONFIG_TIDY_AND_CLAZY;
 }
@@ -64,7 +64,7 @@ RunSettings::RunSettings()
 
 void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
 {
-    m_diagnosticConfigId = Utils::Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
+    m_diagnosticConfigId = Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
     m_buildBeforeAnalysis = map.value(prefix + buildBeforeAnalysisKey).toBool();
     m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
@@ -78,7 +78,7 @@ void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
     map.insert(prefix + analyzeOpenFilesKey, m_analyzeOpenFiles);
 }
 
-Utils::Id RunSettings::diagnosticConfigId() const
+Id RunSettings::diagnosticConfigId() const
 {
     if (!diagnosticConfigsModel().hasConfigWithId(m_diagnosticConfigId))
         return defaultDiagnosticId();
@@ -220,13 +220,12 @@ static QVersionNumber getVersionNumber(QVersionNumber &version, const FilePath &
 
 QVersionNumber ClangToolsSettings::clangTidyVersion()
 {
-    return getVersionNumber(instance()->m_clangTidyVersion,
-                            ClangTools::Internal::clangTidyExecutable());
+    return getVersionNumber(instance()->m_clangTidyVersion, Internal::clangTidyExecutable());
 }
 
 QVersionNumber ClangToolsSettings::clazyVersion()
 {
-    return ClazyStandaloneInfo(ClangTools::Internal::clazyStandaloneExecutable()).version;
+    return ClazyStandaloneInfo(Internal::clazyStandaloneExecutable()).version;
 }
 
 } // namespace Internal

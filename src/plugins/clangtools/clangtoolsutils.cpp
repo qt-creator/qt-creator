@@ -41,8 +41,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
-
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 
 using namespace CppTools;
