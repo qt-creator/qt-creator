@@ -90,6 +90,7 @@ public:
     void handleProcessStderr();
     Internal::LauncherSocket *socket() const { return m_socket; }
 
+    void setPathToLauncher(const QString &path) { if (!path.isEmpty()) m_pathToLauncher = path; }
 signals:
     void errorOccurred(const QString &error);
 
@@ -97,13 +98,14 @@ private:
     QLocalServer * const m_server;
     Internal::LauncherSocket *const m_socket;
     Internal::LauncherProcess *m_process = nullptr;
+    QString m_pathToLauncher;
     int m_startRequests = 0;
-
 };
 
 LauncherInterfacePrivate::LauncherInterfacePrivate()
     : m_server(new QLocalServer(this)), m_socket(new LauncherSocket(this))
 {
+    m_pathToLauncher = qApp->applicationDirPath() + '/' + QLatin1String(RELATIVE_LIBEXEC_PATH);
     QObject::connect(m_server, &QLocalServer::newConnection,
                      this, &LauncherInterfacePrivate::handleNewConnection);
 }
@@ -130,10 +132,8 @@ void LauncherInterfacePrivate::doStart()
             this, &LauncherInterfacePrivate::handleProcessFinished);
     connect(m_process, &QProcess::readyReadStandardError,
             this, &LauncherInterfacePrivate::handleProcessStderr);
-    m_process->start(qApp->applicationDirPath() + QLatin1Char('/')
-                            + QLatin1String(RELATIVE_LIBEXEC_PATH)
-                            + QLatin1String("/qtcreator_processlauncher"),
-                           QStringList(m_server->fullServerName()));
+    const QString launcherPath = m_pathToLauncher + QLatin1String("/qtcreator_processlauncher");
+    m_process->start(launcherPath, QStringList(m_server->fullServerName()));
 }
 
 void LauncherInterfacePrivate::doStop()
@@ -208,9 +208,10 @@ LauncherInterface::~LauncherInterface()
     m_thread.wait();
 }
 
-void LauncherInterface::startLauncher()
+void LauncherInterface::startLauncher(const QString &pathToLauncher)
 {
     // Call in launcher's thread.
+    instance().m_private->setPathToLauncher(pathToLauncher);
     QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStart);
 }
 

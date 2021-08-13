@@ -25,6 +25,7 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/launcherinterface.h>
 #include <utils/porting.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -133,6 +134,8 @@ private slots:
     void lineCallback();
     void lineCallbackIntern();
 
+    void cleanupTestCase();
+
 private:
     void iteratorEditsHelper(OsType osType);
 
@@ -147,6 +150,8 @@ private:
 
 void tst_QtcProcess::initTestCase()
 {
+    Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
+                                            + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     if (qEnvironmentVariableIsSet(kExitCodeSubProcessCode))
         exitCodeSubProcessMain();
     if (qEnvironmentVariableIsSet(kRunBlockingStdOutSubProcessWithEndl))
@@ -195,6 +200,10 @@ void tst_QtcProcess::initTestCase()
     mxUnix.insert("z", "");
 }
 
+void tst_QtcProcess::cleanupTestCase()
+{
+    Utils::LauncherInterface::stopLauncher();
+}
 
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
 Q_DECLARE_METATYPE(Utils::OsType)

@@ -48,7 +48,7 @@ public:
     static LauncherInterface &instance();
     ~LauncherInterface() override;
 
-    static void startLauncher();
+    static void startLauncher(const QString &pathToLauncher = {});
     static void stopLauncher();
     static Internal::LauncherSocket *socket();
 
