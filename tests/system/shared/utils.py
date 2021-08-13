@@ -317,7 +317,7 @@ def addCurrentCreatorDocumentation():
     selectFromFileDialog(docPath)
     try:
         waitForObject("{type='QMessageBox' unnamed='1' visible='1' "
-                      "text?='Unable to register documentation.*'}", 3000)
+                      "text~='Unable to register documentation.*'}", 3000)
         test.passes("Qt Creator's documentation found already registered.")
         clickButton(waitForObject("{type='QPushButton' text='OK' unnamed='1' visible='1' "
                                   "container={name='groupBox' type='QGroupBox' visible='1'}}"))
