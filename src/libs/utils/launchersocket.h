@@ -168,6 +168,7 @@ private:
 
     QProcess::ProcessState m_processState = QProcess::NotRunning;
     std::atomic_bool m_failed = false;
+    bool m_awaitingShouldContinue = false; // cancel() sets it to false, modified only in caller's thread
     int m_processId = 0;
     int m_exitCode = 0;
     QProcess::ExitStatus m_exitStatus = QProcess::ExitStatus::NormalExit;

@@ -40,8 +40,14 @@ class CallerHandle : public QObject
 public:
     CallerHandle() : QObject() {}
 
-    // always called in caller's thread
+    // Always called in caller's thread.
     void flush()
+    {
+        flushAndMatch(LauncherHandle::SignalType::NoSignal);
+    }
+
+    // Always called in caller's thread. Returns true is the matchingSignal was flushed.
+    bool flushAndMatch(LauncherHandle::SignalType matchingSignal)
     {
         QList<LauncherHandle::SignalType> oldSignals;
         {
@@ -49,7 +55,10 @@ public:
             oldSignals = m_signals;
             m_signals = {};
         }
+        bool signalMatched = false;
         for (LauncherHandle::SignalType signalType : qAsConst(oldSignals)) {
+            if (matchingSignal == signalType)
+                signalMatched = true;
             switch (signalType) {
             case LauncherHandle::SignalType::NoSignal:
                 break;
@@ -64,6 +73,7 @@ public:
                 break;
             }
         }
+        return signalMatched;
     }
     void appendSignal(LauncherHandle::SignalType signalType)
     {
@@ -120,10 +130,8 @@ void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &pay
 void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
-    if (m_waitingFor != SignalType::NoSignal) {
+    if (m_waitingFor != SignalType::NoSignal)
         m_waitCondition.wakeOne();
-        m_waitingFor = SignalType::NoSignal;
-    }
     m_failed = true;
 
     const auto packet = LauncherPacket::extractPacket<ProcessErrorPacket>(m_token, packetData);
@@ -136,13 +144,22 @@ void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 // call me with mutex locked
 void LauncherHandle::wakeUpIfWaitingFor(SignalType wakeUpSignal)
 {
-    // e.g. if we are waiting for ReadyRead and we got Finished signal instead -> wake it, too.
-    const bool shouldWake = (m_waitingFor == wakeUpSignal)
-            || ((m_waitingFor != SignalType::NoSignal) && (wakeUpSignal == SignalType::Finished));
-    if (shouldWake) {
+    // The matching signal came
+    const bool signalMatched = (m_waitingFor == wakeUpSignal);
+    // E.g. if we are waiting for ReadyRead and we got Finished signal instead -> wake it, too.
+    const bool finishedSignalWhileWaiting =
+            (m_waitingFor != SignalType::NoSignal) && (wakeUpSignal == SignalType::Finished);
+    // Wake up, flush and continue waiting.
+    // E.g. when being in waitingForFinished() state and Started or ReadyRead signal came.
+    const bool continueWaitingAfterFlushing =
+            ((m_waitingFor == SignalType::Finished) && (wakeUpSignal != SignalType::Finished))
+            || ((m_waitingFor == SignalType::ReadyRead) && (wakeUpSignal == SignalType::Started));
+    const bool shouldWake = signalMatched
+                         || continueWaitingAfterFlushing
+                         || finishedSignalWhileWaiting;
+
+    if (shouldWake)
         m_waitCondition.wakeOne();
-        m_waitingFor = SignalType::NoSignal;
-    }
 }
 
 void LauncherHandle::sendPacket(const Internal::LauncherPacket &packet)
@@ -248,10 +265,27 @@ void LauncherHandle::handleSocketError(const QString &message)
 
 bool LauncherHandle::waitForSignal(int msecs, SignalType newSignal)
 {
-    const bool ok = doWaitForSignal(msecs, newSignal);
-    if (ok)
-        m_callerHandle->flush();
-    return ok;
+    QElapsedTimer timer;
+    timer.start();
+    while (true) {
+        const int remainingMsecs = msecs - timer.elapsed();
+        if (remainingMsecs <= 0)
+            break;
+        const bool timedOut = !doWaitForSignal(qMax(remainingMsecs, 0), newSignal);
+        if (timedOut)
+            break;
+        m_awaitingShouldContinue = true; // TODO: make it recursive?
+        const bool continueWaitingAfterFlushing = !m_callerHandle->flushAndMatch(newSignal);
+        const bool wasCanceled = !m_awaitingShouldContinue;
+        m_awaitingShouldContinue = false;
+        if (!continueWaitingAfterFlushing)
+            return true;
+        if (wasCanceled)
+            return true; // or false? is false only in case of timeout?
+        if (timer.hasExpired(msecs))
+            break;
+    }
+    return false;
 }
 
 bool LauncherHandle::doWaitForSignal(int msecs, SignalType newSignal)
@@ -269,9 +303,10 @@ bool LauncherHandle::doWaitForSignal(int msecs, SignalType newSignal)
 
     if (canWaitFor(newSignal)) { // e.g. can't wait for started if we are in not running state.
         m_waitingFor = newSignal;
-        return m_waitCondition.wait(&m_mutex, msecs) && !m_failed;
+        const bool ret = m_waitCondition.wait(&m_mutex, msecs)/* && !m_failed*/;
+        m_waitingFor = SignalType::NoSignal;
+        return ret;
     }
-
     return false;
 }
 
@@ -312,6 +347,7 @@ void LauncherHandle::cancel()
     }
 
     m_processState = QProcess::NotRunning;
+    m_awaitingShouldContinue = false;
 }
 
 void LauncherHandle::start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
