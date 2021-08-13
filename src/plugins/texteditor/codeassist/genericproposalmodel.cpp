@@ -36,6 +36,7 @@
 #include <QHash>
 
 #include <algorithm>
+#include <utils/algorithm.h>
 
 using namespace TextEditor;
 
@@ -416,4 +417,14 @@ QString GenericProposalModel::proposalPrefix() const
 AssistProposalItemInterface *GenericProposalModel::proposalItem(int index) const
 {
     return m_currentItems.at(index);
+}
+
+int GenericProposalModel::indexOf(
+    const std::function<bool(AssistProposalItemInterface *)> &predicate) const
+{
+    for (int index = 0, end = m_currentItems.size(); index < end; ++index) {
+        if (predicate(m_currentItems.at(index)))
+            return index;
+    }
+    return -1;
 }

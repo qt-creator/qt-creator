@@ -30,6 +30,8 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <utils/id.h>
+
 namespace TextEditor {
 
 class IAssistProposalWidget;
@@ -38,7 +40,7 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT IAssistProposal
 {
 public:
-    IAssistProposal(int basePosition);
+    IAssistProposal(Utils::Id id,int basePosition);
     virtual ~IAssistProposal();
 
     int basePosition() const;
@@ -52,7 +54,11 @@ public:
 
     void setFragile(bool fragile);
     void setSupportsPrefix(bool supportsPrefix);
+
+    Utils::Id id() const { return m_id; }
+
 protected:
+    Utils::Id m_id;
     int m_basePosition;
     bool m_isFragile = false;
     bool m_supportsPrefix = true;

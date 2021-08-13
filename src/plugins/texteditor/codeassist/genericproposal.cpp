@@ -28,16 +28,17 @@
 #include "genericproposal.h"
 #include "genericproposalmodel.h"
 #include "genericproposalwidget.h"
+#include "../texteditorconstants.h"
 
 namespace TextEditor {
 
 GenericProposal::GenericProposal(int cursorPos, GenericProposalModelPtr model)
-    : IAssistProposal(cursorPos)
+    : IAssistProposal(Constants::GENERIC_PROPOSAL_ID, cursorPos)
     , m_model(model)
 {}
 
 GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemInterface *> &items)
-    : IAssistProposal(cursorPos)
+    : IAssistProposal(Constants::GENERIC_PROPOSAL_ID, cursorPos)
     , m_model(new GenericProposalModel)
 {
     m_model->loadContent(items);
@@ -45,7 +46,8 @@ GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemIn
 
 GenericProposal::~GenericProposal() = default;
 
-GenericProposal *GenericProposal::createProposal(const AssistInterface *interface, const QuickFixOperations &quickFixes)
+GenericProposal *GenericProposal::createProposal(const AssistInterface *interface,
+                                                 const QuickFixOperations &quickFixes)
 {
     if (quickFixes.isEmpty())
         return nullptr;

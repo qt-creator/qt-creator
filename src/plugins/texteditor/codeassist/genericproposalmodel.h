@@ -64,6 +64,7 @@ public:
     virtual QString proposalPrefix() const;
     virtual bool keepPerfectMatch(AssistReason reason) const;
     virtual AssistProposalItemInterface *proposalItem(int index) const;
+    virtual int indexOf(const std::function<bool (AssistProposalItemInterface *)> &predicate) const;
 
     void loadContent(const QList<AssistProposalItemInterface *> &items);
 

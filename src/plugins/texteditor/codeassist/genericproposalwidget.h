@@ -53,6 +53,9 @@ public:
     void setDisplayRect(const QRect &rect) override;
     void setIsSynchronized(bool isSync) override;
 
+    bool supportsModelUpdate(const Utils::Id &proposalId) const override;
+    void updateModel(ProposalModelPtr model) override;
+
     void showProposal(const QString &prefix) override;
     void updateProposal(const QString &prefix) override;
     void closeProposal() override;

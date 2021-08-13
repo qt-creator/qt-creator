@@ -32,6 +32,8 @@
 
 #include <QFrame>
 
+namespace Utils { class Id; }
+
 namespace TextEditor {
 
 class CodeAssistant;
@@ -58,6 +60,8 @@ public:
     virtual void closeProposal() = 0;
 
     virtual bool proposalIsVisible() const { return isVisible(); }
+    virtual bool supportsModelUpdate(const Utils::Id &/*proposalId*/) const { return false; }
+    virtual void updateModel(ProposalModelPtr) {}
 
     int basePosition() const;
     void setBasePosition(int basePosition);

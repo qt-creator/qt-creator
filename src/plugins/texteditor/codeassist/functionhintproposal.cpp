@@ -27,10 +27,12 @@
 #include "ifunctionhintproposalmodel.h"
 #include "functionhintproposalwidget.h"
 
+static const char functionHintId[] = "TextEditor.FunctionHintId";
+
 using namespace TextEditor;
 
 FunctionHintProposal::FunctionHintProposal(int cursorPos, FunctionHintProposalModelPtr model)
-    : IAssistProposal(cursorPos)
+    : IAssistProposal(functionHintId, cursorPos)
     , m_model(model)
 {
     setFragile(true);

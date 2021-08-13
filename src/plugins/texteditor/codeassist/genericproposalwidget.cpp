@@ -33,6 +33,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 
+#include <utils/algorithm.h>
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 #include <utils/utilsicons.h>
@@ -412,6 +413,33 @@ void GenericProposalWidget::setDisplayRect(const QRect &rect)
 void GenericProposalWidget::setIsSynchronized(bool isSync)
 {
     d->m_isSynchronized = isSync;
+}
+
+bool GenericProposalWidget::supportsModelUpdate(const Utils::Id &proposalId) const
+{
+    return proposalId == Constants::GENERIC_PROPOSAL_ID;
+}
+
+void GenericProposalWidget::updateModel(ProposalModelPtr model)
+{
+    QString currentText;
+    if (d->m_explicitlySelected)
+        currentText = d->m_model->text(d->m_completionListView->currentIndex().row());
+    d->m_model = model.staticCast<GenericProposalModel>();
+    if (d->m_model->containsDuplicates())
+        d->m_model->removeDuplicates();
+    d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
+    connect(d->m_completionListView->selectionModel(), &QItemSelectionModel::currentChanged,
+            &d->m_infoTimer, QOverload<>::of(&QTimer::start));
+    int currentRow = -1;
+    if (!currentText.isEmpty()) {
+        currentRow = d->m_model->indexOf(
+            Utils::equal(&AssistProposalItemInterface::text, currentText));
+    }
+    if (currentRow >= 0)
+        d->m_completionListView->selectRow(currentRow);
+    else
+        d->m_explicitlySelected = false;
 }
 
 void GenericProposalWidget::showProposal(const QString &prefix)

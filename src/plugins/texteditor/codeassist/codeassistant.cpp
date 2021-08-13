@@ -41,6 +41,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
+#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 
 #include <QKeyEvent>
@@ -157,7 +158,6 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
                         m_proposal->basePosition(),
                         m_editorWidget->position() - m_proposal->basePosition()));
     } else {
-        destroyContext();
         requestProposal(ExplicitlyInvoked, kind, provider);
     }
 }
@@ -166,8 +166,6 @@ bool CodeAssistantPrivate::requestActivationCharProposal()
 {
     if (m_assistKind == Completion && m_settings.m_completionTrigger != ManualCompletion) {
         if (CompletionAssistProvider *provider = identifyActivationSequence()) {
-            if (isWaitingForProposal())
-                cancelCurrentRequest();
             requestProposal(ActivationCharacter, Completion, provider);
             return true;
         }
@@ -194,7 +192,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                                            AssistKind kind,
                                            IAssistProvider *provider)
 {
-    QTC_ASSERT(!isWaitingForProposal(), return);
+    // make sure to cleanup old proposals if we cannot find a new assistant
+    Utils::ExecuteOnDestruction earlyReturnContextClear([this]() { destroyContext(); });
+    if (isWaitingForProposal())
+        cancelCurrentRequest();
 
     if (m_editorWidget->hasBlockSelection())
         return; // TODO
@@ -214,6 +215,9 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
     if (!assistInterface)
         return;
+
+    // We got an assist provider and interface so no need to reset the current context anymore
+    earlyReturnContextClear.reset({});
 
     m_assistKind = kind;
     m_requestProvider = provider;
@@ -334,6 +338,15 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     if (!newProposal->hasItemsToPropose(prefix, reason)) {
         if (newProposal->isCorrective(m_editorWidget))
             newProposal->makeCorrection(m_editorWidget);
+        return;
+    }
+
+    if (m_proposalWidget
+        && basePosition == proposalCandidate->basePosition()
+        && m_proposalWidget->supportsModelUpdate(proposalCandidate->id())) {
+        m_proposal.reset(proposalCandidate.take());
+        m_proposalWidget->updateModel(m_proposal->model());
+        m_proposalWidget->updateProposal(prefix);
         return;
     }
 
@@ -471,7 +484,6 @@ void CodeAssistantPrivate::notifyChange()
             if (!isDisplayingProposal())
                 requestActivationCharProposal();
         } else {
-            destroyContext();
             requestProposal(ExplicitlyInvoked, m_assistKind, m_requestProvider);
         }
     }

@@ -59,8 +59,9 @@ using namespace TextEditor;
     \sa IAssistProposalWidget, IAssistModel
 */
 
-IAssistProposal::IAssistProposal(int basePosition)
-    : m_basePosition(basePosition)
+IAssistProposal::IAssistProposal(Utils::Id id, int basePosition)
+    : m_id(id)
+    , m_basePosition(basePosition)
 {}
 
 IAssistProposal::~IAssistProposal() = default;
