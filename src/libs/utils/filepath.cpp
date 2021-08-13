@@ -1198,9 +1198,24 @@ FilePath FilePath::pathAppended(const QString &path) const
     FilePath fn = *this;
     if (path.isEmpty())
         return fn;
-    if (!fn.m_data.isEmpty() && !fn.m_data.endsWith(QLatin1Char('/')))
-        fn.m_data.append('/');
-    fn.m_data.append(path);
+
+    if (fn.m_data.isEmpty()) {
+        fn.m_data = path;
+        return fn;
+    }
+
+    if (fn.m_data.endsWith('/')) {
+        if (path.startsWith('/'))
+            fn.m_data.append(path.mid(1));
+        else
+            fn.m_data.append(path);
+    } else {
+        if (path.startsWith('/'))
+            fn.m_data.append(path);
+        else
+            fn.m_data.append('/').append(path);
+    }
+
     return fn;
 }
 
