@@ -27,6 +27,8 @@
 
 #include "snippet.h"
 
+#include <utils/filepath.h>
+
 #include <QVector>
 #include <QStringList>
 #include <QHash>
@@ -104,26 +106,16 @@ private:
 
     void updateActiveSnippetsEnd(int groupIndex);
 
-    QList<Snippet> readXML(const QString &fileName, const QString &snippetId = QString()) const;
+    QList<Snippet> readXML(const Utils::FilePath &fileName, const QString &snippetId = {}) const;
     void writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer) const;
 
     QList<Snippet> allBuiltInSnippets() const;
 
-    static const QLatin1String kSnippet;
-    static const QLatin1String kSnippets;
-    static const QLatin1String kTrigger;
-    static const QLatin1String kId;
-    static const QLatin1String kComplement;
-    static const QLatin1String kGroup;
-    static const QLatin1String kRemoved;
-    static const QLatin1String kModified;
-
     // Built-in snippets are specified in XMLs distributed in a system's folder. Snippets
     // created or modified/removed (if they are built-ins) by the user are stored in user's
     // folder.
-    QString m_userSnippetsPath;
-    QString m_userSnippetsFile;
-    QStringList m_builtInSnippetsFiles;
+    const Utils::FilePath m_userSnippetsFile;
+    const Utils::FilePaths m_builtInSnippetsFiles;
 
     // Snippets for each group are kept in a list. However, not all of them are necessarily
     // active. Specifically, removed built-in snippets are kept as the last ones (for each

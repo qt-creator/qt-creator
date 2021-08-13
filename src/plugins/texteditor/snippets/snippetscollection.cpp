@@ -41,8 +41,10 @@
 #include <iterator>
 #include <algorithm>
 
-using namespace TextEditor;
-using namespace Internal;
+using namespace Utils;
+
+namespace TextEditor {
+namespace Internal {
 
 /*  TRANSLATOR TextEditor::Internal::Snippets
 
@@ -50,8 +52,6 @@ using namespace Internal;
     mechanics using a trigger text. The translated text (trigger variant) is used to
     disambiguate between snippets with the same trigger.
 */
-
-namespace {
 
 static bool snippetComp(const Snippet &a, const Snippet &b)
 {
@@ -64,16 +64,14 @@ static bool snippetComp(const Snippet &a, const Snippet &b)
     return false;
 }
 
-} // Anonymous
-
-const QLatin1String SnippetsCollection::kSnippet("snippet");
-const QLatin1String SnippetsCollection::kSnippets("snippets");
-const QLatin1String SnippetsCollection::kTrigger("trigger");
-const QLatin1String SnippetsCollection::kId("id");
-const QLatin1String SnippetsCollection::kComplement("complement");
-const QLatin1String SnippetsCollection::kGroup("group");
-const QLatin1String SnippetsCollection::kRemoved("removed");
-const QLatin1String SnippetsCollection::kModified("modified");
+const QLatin1String kSnippet("snippet");
+const QLatin1String kSnippets("snippets");
+const QLatin1String kTrigger("trigger");
+const QLatin1String kId("id");
+const QLatin1String kComplement("complement");
+const QLatin1String kGroup("group");
+const QLatin1String kRemoved("removed");
+const QLatin1String kModified("modified");
 
 // Hint
 SnippetsCollection::Hint::Hint(int index) : m_index(index)
@@ -95,13 +93,9 @@ SnippetsCollection *SnippetsCollection::instance()
 
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection()
-    : m_userSnippetsPath(Core::ICore::userResourcePath().pathAppended("snippets/").toString())
-    , m_userSnippetsFile(QLatin1String("snippets.xml"))
+    : m_userSnippetsFile(Core::ICore::userResourcePath("snippets/snippets.xml")),
+      m_builtInSnippetsFiles(Core::ICore::resourcePath("snippets").dirEntries({"*.xml"}))
 {
-    QDir dir = Core::ICore::resourcePath("snippets").toDir();
-    dir.setNameFilters(QStringList(QLatin1String("*.xml")));
-    foreach (const QFileInfo &fi, dir.entryInfoList())
-        m_builtInSnippetsFiles.append(fi.absoluteFilePath());
 
     connect(Core::ICore::instance(), &Core::ICore::coreOpened,
             this, &SnippetsCollection::identifyGroups);
@@ -249,7 +243,7 @@ void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
     QVector<Snippet> toRestore(std::distance(m_activeSnippetsEnd[group], m_snippets[group].end()));
     std::copy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
     m_snippets[group].erase(m_activeSnippetsEnd[group], m_snippets[group].end());
-    foreach (Snippet snippet, toRestore) {
+    for (Snippet snippet : qAsConst(toRestore)) {
         snippet.setIsRemoved(false);
         insertSnippet(snippet);
     }
@@ -260,7 +254,7 @@ Snippet SnippetsCollection::revertedSnippet(int index, const QString &groupId) c
     const Snippet &candidate = snippet(index, groupId);
     Q_ASSERT(candidate.isBuiltIn());
 
-    foreach (const QString &fileName, m_builtInSnippetsFiles) {
+    for (const FilePath &fileName : m_builtInSnippetsFiles) {
         const QList<Snippet> &builtIn = readXML(fileName, candidate.id());
         if (builtIn.size() == 1)
             return builtIn.at(0);
@@ -273,7 +267,7 @@ void SnippetsCollection::reset(const QString &groupId)
     clearSnippets(groupIndex(groupId));
 
     const QList<Snippet> &builtInSnippets = allBuiltInSnippets();
-    foreach (const Snippet &snippet, builtInSnippets)
+    for (const Snippet &snippet : builtInSnippets)
         if (groupId == snippet.groupId())
             insertSnippet(snippet);
 }
@@ -284,29 +278,29 @@ void SnippetsCollection::reload()
 
     const QList<Snippet> &builtInSnippets = allBuiltInSnippets();
     QHash<QString, Snippet> activeBuiltInSnippets;
-    foreach (const Snippet &snippet, builtInSnippets)
+    for (const Snippet &snippet : builtInSnippets)
         activeBuiltInSnippets.insert(snippet.id(), snippet);
 
-    const QList<Snippet> &userSnippets = readXML(m_userSnippetsPath + m_userSnippetsFile);
-    foreach (const Snippet &snippet, userSnippets) {
+    const QList<Snippet> &userSnippets = readXML(m_userSnippetsFile);
+    for (const Snippet &snippet : userSnippets) {
         if (snippet.isBuiltIn())
             // This user snippet overrides the corresponding built-in snippet.
             activeBuiltInSnippets.remove(snippet.id());
         insertSnippet(snippet);
     }
 
-    foreach (const Snippet &snippet, activeBuiltInSnippets)
+    for (const Snippet &snippet : qAsConst(activeBuiltInSnippets))
         insertSnippet(snippet);
 }
 
 bool SnippetsCollection::synchronize(QString *errorString)
 {
-    if (!QFile::exists(m_userSnippetsPath) && !QDir().mkpath(m_userSnippetsPath)) {
-        *errorString = tr("Cannot create user snippet directory %1").arg(
-                QDir::toNativeSeparators(m_userSnippetsPath));
+    if (!m_userSnippetsFile.parentDir().ensureWritableDir()) {
+        *errorString = tr("Cannot create user snippet directory %1")
+                .arg(m_userSnippetsFile.parentDir().toUserOutput());
         return false;
     }
-    Utils::FileSaver saver(Utils::FilePath::fromString(m_userSnippetsPath + m_userSnippetsFile));
+    FileSaver saver(m_userSnippetsFile);
     if (!saver.hasError()) {
         using GroupIndexByIdConstIt = QHash<QString, int>::ConstIterator;
 
@@ -349,10 +343,10 @@ void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWrite
     writer->writeEndElement();
 }
 
-QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QString &snippetId) const
+QList<Snippet> SnippetsCollection::readXML(const FilePath &fileName, const QString &snippetId) const
 {
     QList<Snippet> snippets;
-    QFile file(fileName);
+    QFile file(fileName.toString());
     if (file.exists() && file.open(QIODevice::ReadOnly)) {
         QXmlStreamReader xml(&file);
         if (xml.readNextStartElement()) {
@@ -415,7 +409,7 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QStrin
 QList<Snippet> SnippetsCollection::allBuiltInSnippets() const
 {
     QList<Snippet> builtInSnippets;
-    foreach (const QString &fileName, m_builtInSnippetsFiles)
+    for (const FilePath &fileName : m_builtInSnippetsFiles)
         builtInSnippets.append(readXML(fileName));
     return builtInSnippets;
 }
@@ -442,3 +436,6 @@ bool SnippetsCollection::isGroupKnown(const QString &groupId) const
 {
     return m_groupIndexById.value(groupId, -1) != -1;
 }
+
+} // Internal
+} // TextEditor

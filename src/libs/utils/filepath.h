@@ -109,7 +109,7 @@ public:
 
     bool createDir() const;
     QList<FilePath> dirEntries(const QStringList &nameFilters,
-                               QDir::Filters filters,
+                               QDir::Filters filters = QDir::NoFilter,
                                QDir::SortFlags sort = QDir::NoSort) const;
     QList<FilePath> dirEntries(QDir::Filters filters) const;
     QByteArray fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
