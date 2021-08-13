@@ -1256,7 +1256,6 @@ void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &
 {
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = false;
-    d->m_stdOut.emitSingleLines = false;
     d->m_stdOut.keepRawData = false;
 }
 
