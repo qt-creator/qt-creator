@@ -461,9 +461,15 @@ void LauncherSocket::sendData(const QByteArray &data)
 {
     if (!isReady())
         return;
-    QMutexLocker locker(&m_mutex);
-    m_requests.push_back(data);
-    if (m_requests.size() == 1)
+
+    auto storeRequest = [this](const QByteArray &data)
+    {
+        QMutexLocker locker(&m_mutex);
+        m_requests.push_back(data);
+        return m_requests.size() == 1; // Returns true if requests handling should be triggered.
+    };
+
+    if (storeRequest(data))
         QMetaObject::invokeMethod(this, &LauncherSocket::handleRequests);
 }
 
