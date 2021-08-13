@@ -478,7 +478,7 @@ SecondColumnLayout {
                             icon: StudioTheme.Constants.eyeDropper
                             pixelSize: StudioTheme.Values.myIconFontSize * 1.4
                             tooltip: qsTr("Eye Dropper")
-                            onClicked: ColorPaletteSingleton.eyeDropper()
+                            onClicked: ColorPaletteBackend.eyeDropper()
                         }
 
                         IconIndicator {
@@ -700,7 +700,7 @@ SecondColumnLayout {
 
                             StudioControls.MenuItem {
                                 text: qsTr("Add to Favorites")
-                                onTriggered: ColorPaletteSingleton.addFavoriteColor(
+                                onTriggered: ColorPaletteBackend.addFavoriteColor(
                                                  contextMenuFavorite.currentColor)
                             }
                         }
