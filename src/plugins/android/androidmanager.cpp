@@ -213,13 +213,13 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
         settings["stdcpp-path"] = (AndroidConfigurations::currentConfig().toolchainPath(qt)
-                                      / "sysroot/usr/lib/"
+                                      / "sysroot/usr/lib"
                                       / archTriplet(abis.first())
                                       / "libc++_shared.so").toString();
     } else {
         settings["stdcpp-path"] = AndroidConfigurations::currentConfig()
                                       .toolchainPath(qt)
-                                      .pathAppended("sysroot/usr/lib/")
+                                      .pathAppended("sysroot/usr/lib")
                                       .toString();
     }
     settings["toolchain-prefix"] =  "llvm";
