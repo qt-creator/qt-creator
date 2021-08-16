@@ -21,6 +21,7 @@
   <style name="LineNumber" foreground="#c7c4c1" background="#efebe7"/>
   <style name="Link" foreground="#0000ff"/>
   <style name="Local"/>
+  <style name="Parameter"/>
   <style name="Number" foreground="#3f3f3f"/>
   <style name="Punctuation"/>
   <style name="Operator"/>
