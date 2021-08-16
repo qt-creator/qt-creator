@@ -173,9 +173,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
 
 static FilePath clangPlusPlusPath(const FilePath &clangPath)
 {
-    return clangPath.parentDir().pathAppended(
-                HostOsInfo::withExecutableSuffix(
-                    QFileInfo(clangPath.toString()).baseName() + "++"));
+    return clangPath.parentDir().pathAppended(clangPath.baseName() + "++").withExecutableSuffix();
 }
 
 static QList<FilePath> uniqueNdksForCurrentQtVersions()
