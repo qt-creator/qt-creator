@@ -166,7 +166,8 @@ public:
         unpin,
         upDownIcon,
         upDownSquare2,
-        visibilityOff,
+        visibilityOffBroken, // visibilityOff
+        visibilityOff, // visibilityOff2
         visibilityOn,
         wildcard,
         zoomAll,
