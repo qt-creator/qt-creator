@@ -443,20 +443,18 @@ void QnxConfiguration::updateTargets()
 
 void QnxConfiguration::assignDebuggersToTargets()
 {
-    const QDir hostUsrBinDir(m_qnxHost.pathAppended("usr/bin").toString());
-    QStringList debuggerNames = hostUsrBinDir.entryList(
-                QStringList(HostOsInfo::withExecutableSuffix(QLatin1String("nto*-gdb"))),
+    const FilePath hostUsrBinDir = m_qnxHost.pathAppended("usr/bin");
+    FilePaths debuggerNames = hostUsrBinDir.dirEntries(
+                QStringList(HostOsInfo::withExecutableSuffix("nto*-gdb")),
                 QDir::Files);
-    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    Environment sysEnv = Environment::systemEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
-    foreach (const QString &debuggerName, debuggerNames) {
-        const FilePath debuggerPath = FilePath::fromString(hostUsrBinDir.path())
-                .pathAppended(debuggerName);
+    for (const FilePath &debuggerPath : debuggerNames) {
         DebuggerItem item;
         item.setCommand(debuggerPath);
         item.reinitializeFromFile(sysEnv);
         bool found = false;
-        foreach (const Abi &abi, item.abis()) {
+        for (const Abi &abi : item.abis()) {
             for (Target &target : m_targets) {
                 if (target.m_abi.isCompatibleWith(abi)) {
                     found = true;
@@ -472,7 +470,7 @@ void QnxConfiguration::assignDebuggersToTargets()
             }
         }
         if (!found)
-            qWarning() << "No target found for" << debuggerName << "... discarded";
+            qWarning() << "No target found for" << debuggerPath.toUserOutput() << "... discarded";
     }
 }
 
