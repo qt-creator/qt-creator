@@ -17,17 +17,8 @@ endif()
 
 option(BUILD_QBS "Build Qbs together with Qt Creator" ${BUILD_QBS_DEFAULT})
 
+add_feature_info("Build Qbs" BUILD_QBS "")
 if (BUILD_QBS)
-  find_package(Qt5 COMPONENTS Script QUIET)
-  if (TARGET Qt5::Script)
-    set(ENABLE_BUILD_QBS YES)
-  endif()
-else()
-  set(ENABLE_BUILD_QBS NO)
-endif()
-
-add_feature_info("Build Qbs" ENABLE_BUILD_QBS "with CONDITION TARGET Qt5::Script")
-if (ENABLE_BUILD_QBS)
   file(RELATIVE_PATH _REL_PATH_TO_QTC "${CMAKE_BINARY_DIR}" "${PROJECT_BINARY_DIR}")
   set(QBS_OUTPUT_PREFIX "${_REL_PATH_TO_QTC}/" CACHE STRING "" FORCE)
   set(QBS_APP_INSTALL_DIR "${IDE_BIN_PATH}" CACHE STRING "" FORCE)
