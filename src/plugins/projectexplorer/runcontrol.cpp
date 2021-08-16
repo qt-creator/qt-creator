@@ -1233,8 +1233,11 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
             this, [this, runnable](QProcess::ProcessError error) {
             if (error == QProcess::Timedout)
                 return; // No actual change on the process side.
-            const QString msg = userMessageForProcessError(error, runnable.command.executable());
-            appendMessage(msg, Utils::NormalMessageFormat);
+            if (error != QProcess::Crashed) {
+                const QString msg = userMessageForProcessError(
+                            error, runnable.command.executable());
+                appendMessage(msg, Utils::NormalMessageFormat);
+            }
             if (!m_stopReported) {
                 m_stopReported = true;
                 reportStopped();

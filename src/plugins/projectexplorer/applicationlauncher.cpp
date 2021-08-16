@@ -286,13 +286,13 @@ void ApplicationLauncherPrivate::localGuiProcessError()
         error = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
         break;
     case QProcess::Crashed:
-        error = ApplicationLauncher::tr("The program has unexpectedly finished.");
         status = QProcess::CrashExit;
         break;
     default:
         error = ApplicationLauncher::tr("Some error has occurred while running the program.");
     }
-    emit q->appendMessage(error, ErrorMessageFormat);
+    if (!error.isEmpty())
+        emit q->appendMessage(error, ErrorMessageFormat);
     if (m_processRunning && !isRunning()) {
         m_processRunning = false;
         emit q->processExited(-1, status);
