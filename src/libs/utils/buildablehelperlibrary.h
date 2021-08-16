@@ -26,9 +26,7 @@
 #pragma once
 
 #include "environment.h"
-#include "fileutils.h"
-
-QT_FORWARD_DECLARE_CLASS(QFileInfo)
+#include "filepath.h"
 
 namespace Utils {
 
@@ -48,33 +46,6 @@ public:
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
     static QString filterForQmakeFileDialog();
-
-    static QString byInstallDataHelper(const QString &sourcePath,
-                                       const QStringList &sourceFileNames,
-                                       const QStringList &installDirectories,
-                                       const QStringList &validBinaryFilenames,
-                                       bool acceptOutdatedHelper);
-
-    struct BuildHelperArguments {
-        QString helperName;
-        QString directory;
-        Environment environment;
-
-        FilePath qmakeCommand;
-        QString targetMode;
-        FilePath mkspec;
-        QString proFilename;
-        QStringList qmakeArguments;
-
-        QString makeCommand;
-        QStringList makeArguments;
-    };
-
-    static bool buildHelper(const BuildHelperArguments &arguments,
-                            QString *log, QString *errorMessage);
-
-    static bool getHelperFileInfoFor(const QStringList &validBinaryFilenames,
-                                     const QString &directory, QFileInfo* info);
 };
 
-}
+} // Utils
