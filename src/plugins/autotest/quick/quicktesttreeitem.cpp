@@ -271,7 +271,7 @@ QList<ITestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() c
 QList<ITestConfiguration *> QuickTestTreeItem::getFailedTestConfigurations() const
 {
     return testConfigurationsFor(this, [](TestTreeItem *it) {
-        return it->data(0, FailedRole).toBool();
+        return it->data(0, FailedRole).toBool()  && it->type() == TestTreeItem::TestFunction;
     });
 }
 
