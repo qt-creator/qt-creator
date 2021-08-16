@@ -23,7 +23,10 @@
 #
 ############################################################################
 
-import __builtin__
+try:
+    import __builtin__                  # Python 2
+except ImportError:
+    import builtins as __builtin__      # Python 3
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:

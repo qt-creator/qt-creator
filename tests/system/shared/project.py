@@ -99,7 +99,7 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     directoryEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                                  "toolTip?='Full path: *'}")
+                                  "toolTip~='Full path: .*'}")
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
                                     "type='Utils::FancyLineEdit'}")
@@ -177,8 +177,7 @@ def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
 
 def __createProjectHandleLastPage__(expectedFiles=[], addToVersionControl="<None>", addToProject=None):
     if len(expectedFiles):
-        summary = waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' "
-                                "type='QLabel' visible='1'}").text
+        summary = waitForObject("{name='filesLabel' type='QLabel'}").text
         verifyItemOrder(expectedFiles, summary)
     if addToProject:
         selectFromCombo(":projectComboBox_QComboBox", addToProject)

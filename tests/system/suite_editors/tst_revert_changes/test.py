@@ -24,7 +24,6 @@
 ############################################################################
 
 source("../../shared/qtcreator.py")
-import __builtin__
 
 cppEditorStr = ":Qt Creator_CppEditor::Internal::CPPEditorWidget"
 originalSources = os.path.abspath(os.path.join(os.getcwd(), "..", "shared", "simplePlainCPP"))

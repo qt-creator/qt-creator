@@ -236,12 +236,47 @@ public:
 
     Utils::optional<Result> result() const
     {
-        const QJsonValue &result = m_jsonObject.value("result");
+        const QJsonValue &result = m_jsonObject.value(resultKey);
         if (result.isUndefined())
             return Utils::nullopt;
         return Utils::make_optional(Result(result));
     }
     void setResult(const Result &result) { m_jsonObject.insert(resultKey, QJsonValue(result)); }
+    void clearResult() { m_jsonObject.remove(resultKey); }
+
+    using Error = ResponseError<ErrorDataType>;
+    Utils::optional<Error> error() const
+    {
+        const QJsonValue &val = m_jsonObject.value(errorKey);
+        return val.isUndefined() ? Utils::nullopt
+                                 : Utils::make_optional(fromJsonValue<Error>(val));
+    }
+    void setError(const Error &error)
+    { m_jsonObject.insert(errorKey, QJsonValue(error)); }
+    void clearError() { m_jsonObject.remove(errorKey); }
+
+    bool isValid(QString *errorMessage) const override
+    { return JsonRpcMessage::isValid(errorMessage) && id().isValid(); }
+};
+
+template<typename ErrorDataType>
+class Response<std::nullptr_t, ErrorDataType> : public JsonRpcMessage
+{
+public:
+    explicit Response(const MessageId &id) { setId(id); }
+    using JsonRpcMessage::JsonRpcMessage;
+
+    MessageId id() const
+    { return MessageId(m_jsonObject.value(idKey)); }
+    void setId(MessageId id)
+    { this->m_jsonObject.insert(idKey, id); }
+
+    Utils::optional<std::nullptr_t> result() const
+    {
+        return m_jsonObject.value(resultKey).isNull() ? Utils::make_optional(nullptr)
+                                                      : Utils::nullopt;
+    }
+    void setResult(const std::nullptr_t &) { m_jsonObject.insert(resultKey, QJsonValue::Null); }
     void clearResult() { m_jsonObject.remove(resultKey); }
 
     using Error = ResponseError<ErrorDataType>;

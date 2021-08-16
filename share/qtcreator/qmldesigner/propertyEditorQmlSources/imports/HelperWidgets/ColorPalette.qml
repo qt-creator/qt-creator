@@ -41,12 +41,12 @@ Column {
     spacing: 10
 
     function addColorToPalette(colorStr) {
-        ColorPaletteSingleton.addRecentColor(colorStr)
+        ColorPaletteBackend.addRecentColor(colorStr)
     }
 
     function showColorDialog(color) {
         root.oldColor = color
-        ColorPaletteSingleton.showDialog(color)
+        ColorPaletteBackend.showDialog(color)
     }
 
     signal dialogColorChanged
@@ -92,14 +92,14 @@ Column {
                 StudioControls.MenuItem {
                     visible: colorMode.currentText === "Favorite"
                     text: qsTr("Remove from Favorites")
-                    onTriggered: ColorPaletteSingleton.removeFavoriteColor(index)
+                    onTriggered: ColorPaletteBackend.removeFavoriteColor(index)
                     height: visible ? implicitHeight : 0
                 }
 
                 StudioControls.MenuItem {
                     visible: colorMode.currentText !== "Favorite"
                     text: qsTr("Add to Favorites")
-                    onTriggered: ColorPaletteSingleton.addFavoriteColor(modelData)
+                    onTriggered: ColorPaletteBackend.addFavoriteColor(modelData)
                     height: visible ? implicitHeight : 0
                 }
             }
@@ -108,7 +108,7 @@ Column {
 
     Connections {
         id: singletonConnection
-        target: ColorPaletteSingleton
+        target: ColorPaletteBackend
 
         function onCurrentColorChanged(color) {
             root.selectedColor = color
@@ -132,18 +132,18 @@ Column {
                            + 4 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
             width: implicitWidth
             actionIndicatorVisible: false
-            model: ColorPaletteSingleton.palettes
-            currentIndex: colorMode.find(ColorPaletteSingleton.currentPalette)
+            model: ColorPaletteBackend.palettes
+            currentIndex: colorMode.find(ColorPaletteBackend.currentPalette)
 
-            onActivated: ColorPaletteSingleton.currentPalette = colorMode.currentText
+            onActivated: ColorPaletteBackend.currentPalette = colorMode.currentText
 
-            Component.onCompleted: colorMode.currentIndex = colorMode.find(ColorPaletteSingleton.currentPalette)
+            Component.onCompleted: colorMode.currentIndex = colorMode.find(ColorPaletteBackend.currentPalette)
         }
     }
 
     GridView {
         id: colorPaletteView
-        model: ColorPaletteSingleton.currentPaletteColors
+        model: ColorPaletteBackend.currentPaletteColors
         delegate: colorItemDelegate
         cellWidth: StudioTheme.Values.colorEditorPopupSpinBoxWidth
                    + StudioTheme.Values.controlGap

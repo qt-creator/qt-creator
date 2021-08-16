@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "colorpalettesingleton.h"
+#include "colorpalettebackend.h"
 
 #include <QDebug>
 #include <QSettings>
@@ -36,9 +36,9 @@
 
 namespace QmlDesigner {
 
-QPointer<ColorPaletteSingleton> ColorPaletteSingleton::m_instance = nullptr;
+QPointer<ColorPaletteBackend> ColorPaletteBackend::m_instance = nullptr;
 
-ColorPaletteSingleton::ColorPaletteSingleton()
+ColorPaletteBackend::ColorPaletteBackend()
     : m_currentPalette()
     , m_data()
     , m_colorPickingEventFilter(nullptr)
@@ -58,24 +58,16 @@ ColorPaletteSingleton::ColorPaletteSingleton()
     dummyTransparentWindow.resize(1, 1);
     dummyTransparentWindow.setFlags(Qt::Tool | Qt::FramelessWindowHint);
     updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, &ColorPaletteSingleton::updateEyeDropper);
+    connect(updateTimer, &QTimer::timeout, this, &ColorPaletteBackend::updateEyeDropper);
 #endif
 }
 
-ColorPaletteSingleton::~ColorPaletteSingleton()
+ColorPaletteBackend::~ColorPaletteBackend()
 {
     //writePalettes(); // TODO crash on QtDS close
 }
 
-ColorPaletteSingleton *ColorPaletteSingleton::instance()
-{
-    if (m_instance == nullptr)
-        m_instance = new ColorPaletteSingleton();
-
-    return m_instance;
-}
-
-void ColorPaletteSingleton::readPalettes()
+void ColorPaletteBackend::readPalettes()
 {
     QHash<QString, Palette>::iterator i = m_data.begin();
     while (i != m_data.end()) {
@@ -84,7 +76,7 @@ void ColorPaletteSingleton::readPalettes()
     }
 }
 
-void ColorPaletteSingleton::writePalettes()
+void ColorPaletteBackend::writePalettes()
 {
     QHash<QString, Palette>::iterator i = m_data.begin();
     while (i != m_data.end()) {
@@ -93,10 +85,10 @@ void ColorPaletteSingleton::writePalettes()
     }
 }
 
-void ColorPaletteSingleton::addColor(const QString &color, const QString &palette)
+void ColorPaletteBackend::addColor(const QString &color, const QString &palette)
 {
     if (!m_data.contains(palette)) {
-        qWarning() << "TODO";
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
         return;
     }
 
@@ -116,15 +108,15 @@ void ColorPaletteSingleton::addColor(const QString &color, const QString &palett
     m_data[palette].write();
 }
 
-void ColorPaletteSingleton::removeColor(int id, const QString &palette)
+void ColorPaletteBackend::removeColor(int id, const QString &palette)
 {
     if (!m_data.contains(palette)) {
-        qWarning() << "TODO";
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
         return;
     }
 
     if (id >= m_data[palette].m_colors.size()) {
-        qWarning() << "TODO";
+        qWarning() << Q_FUNC_INFO << "Id(" << id << ") is out of bounds for palette " << palette;
         return;
     }
 
@@ -143,7 +135,7 @@ void ColorPaletteSingleton::removeColor(int id, const QString &palette)
     m_data[palette].write();
 }
 
-void ColorPaletteSingleton::addRecentColor(const QString &item)
+void ColorPaletteBackend::addRecentColor(const QString &item)
 {
     if (m_data[g_recent].m_colors.isEmpty()) {
         addColor(item, g_recent);
@@ -155,30 +147,30 @@ void ColorPaletteSingleton::addRecentColor(const QString &item)
         addColor(item, g_recent);
 }
 
-void ColorPaletteSingleton::addFavoriteColor(const QString &item)
+void ColorPaletteBackend::addFavoriteColor(const QString &item)
 {
     addColor(item, g_favorite);
 }
 
-void ColorPaletteSingleton::removeFavoriteColor(int id)
+void ColorPaletteBackend::removeFavoriteColor(int id)
 {
     removeColor(id, g_favorite);
 }
 
-QStringList ColorPaletteSingleton::palettes() const
+QStringList ColorPaletteBackend::palettes() const
 {
     return m_data.keys();
 }
 
-const QString &ColorPaletteSingleton::currentPalette() const
+const QString &ColorPaletteBackend::currentPalette() const
 {
     return m_currentPalette;
 }
 
-void ColorPaletteSingleton::setCurrentPalette(const QString &palette)
+void ColorPaletteBackend::setCurrentPalette(const QString &palette)
 {
     if (!m_data.contains(palette)) {
-        qWarning() << "TODO";
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
         return;
     }
 
@@ -207,35 +199,35 @@ void ColorPaletteSingleton::setCurrentPalette(const QString &palette)
     emit currentPaletteColorsChanged();
 }
 
-const QStringList &ColorPaletteSingleton::currentPaletteColors() const
+const QStringList &ColorPaletteBackend::currentPaletteColors() const
 {
     return m_currentPaletteColors;
 }
 
-void ColorPaletteSingleton::registerDeclarativeType()
+void ColorPaletteBackend::registerDeclarativeType()
 {
-    static const int typeIndex = qmlRegisterSingletonType<ColorPaletteSingleton>(
-        "QtQuickDesignerColorPalette", 1, 0, "ColorPaletteSingleton", [](QQmlEngine *, QJSEngine *) {
-            return ColorPaletteSingleton::instance();
+    static const int typeIndex = qmlRegisterSingletonType<ColorPaletteBackend>(
+        "QtQuickDesignerColorPalette", 1, 0, "ColorPaletteBackend", [](QQmlEngine *, QJSEngine *) {
+            return new ColorPaletteBackend();
     });
     Q_UNUSED(typeIndex)
 }
 
-void ColorPaletteSingleton::showDialog(QColor color)
+void ColorPaletteBackend::showDialog(QColor color)
 {
     auto colorDialog = new QColorDialog(Core::ICore::dialogParent());
     colorDialog->setCurrentColor(color);
     colorDialog->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(colorDialog, &QDialog::rejected,
-            this, &ColorPaletteSingleton::colorDialogRejected);
+            this, &ColorPaletteBackend::colorDialogRejected);
     connect(colorDialog, &QColorDialog::currentColorChanged,
-            this, &ColorPaletteSingleton::currentColorChanged);
+            this, &ColorPaletteBackend::currentColorChanged);
 
     QTimer::singleShot(0, [colorDialog](){ colorDialog->exec(); });
 }
 
-void ColorPaletteSingleton::eyeDropper()
+void ColorPaletteBackend::eyeDropper()
 {
     QWidget *widget = QApplication::activeWindow();
     if (!widget)
@@ -274,12 +266,12 @@ const int g_screenGrabHeight = 7;
 const int g_pixelX = 3;
 const int g_pixelY = 3;
 
-QColor ColorPaletteSingleton::grabScreenColor(const QPoint &p)
+QColor ColorPaletteBackend::grabScreenColor(const QPoint &p)
 {
     return grabScreenRect(p).pixel(g_pixelX, g_pixelY);
 }
 
-QImage ColorPaletteSingleton::grabScreenRect(const QPoint &p)
+QImage ColorPaletteBackend::grabScreenRect(const QPoint &p)
 {
     QScreen *screen = QGuiApplication::screenAt(p);
     if (!screen)
@@ -289,7 +281,7 @@ QImage ColorPaletteSingleton::grabScreenRect(const QPoint &p)
     return pixmap.toImage();
 }
 
-void ColorPaletteSingleton::updateEyeDropper()
+void ColorPaletteBackend::updateEyeDropper()
 {
 #ifndef QT_NO_CURSOR
     static QPoint lastGlobalPos;
@@ -306,12 +298,12 @@ void ColorPaletteSingleton::updateEyeDropper()
 #endif // ! QT_NO_CURSOR
 }
 
-void ColorPaletteSingleton::updateEyeDropperPosition(const QPoint &globalPos)
+void ColorPaletteBackend::updateEyeDropperPosition(const QPoint &globalPos)
 {
     updateCursor(grabScreenRect(globalPos));
 }
 
-void ColorPaletteSingleton::updateCursor(const QImage &image)
+void ColorPaletteBackend::updateCursor(const QImage &image)
 {
     QWidget *widget = QApplication::activeWindow();
     if (!widget)
@@ -351,7 +343,7 @@ void ColorPaletteSingleton::updateCursor(const QImage &image)
     widget->setCursor(cursor);
 }
 
-void ColorPaletteSingleton::releaseEyeDropper()
+void ColorPaletteBackend::releaseEyeDropper()
 {
     QWidget *widget = QApplication::activeWindow();
     if (!widget)
@@ -369,13 +361,13 @@ void ColorPaletteSingleton::releaseEyeDropper()
     widget->unsetCursor();
 }
 
-bool ColorPaletteSingleton::handleEyeDropperMouseMove(QMouseEvent *e)
+bool ColorPaletteBackend::handleEyeDropperMouseMove(QMouseEvent *e)
 {
     updateEyeDropperPosition(e->globalPos());
     return true;
 }
 
-bool ColorPaletteSingleton::handleEyeDropperMouseButtonRelease(QMouseEvent *e)
+bool ColorPaletteBackend::handleEyeDropperMouseButtonRelease(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton)
         emit currentColorChanged(grabScreenColor(e->globalPos()));
@@ -386,7 +378,7 @@ bool ColorPaletteSingleton::handleEyeDropperMouseButtonRelease(QMouseEvent *e)
     return true;
 }
 
-bool ColorPaletteSingleton::handleEyeDropperKeyPress(QKeyEvent *e)
+bool ColorPaletteBackend::handleEyeDropperKeyPress(QKeyEvent *e)
 {
 #if QT_CONFIG(shortcut)
     if (e->matches(QKeySequence::Cancel)) {

@@ -23,7 +23,10 @@
 #
 ############################################################################
 
-import urllib2
+try:
+    from urllib2 import ProxyHandler, build_opener, install_opener, urlopen         # Python 2
+except ImportError:
+    from urllib.request import ProxyHandler, build_opener, install_opener, urlopen  # Python 3
 
 ################ workarounds for issues tracked inside jira #################
 
@@ -43,7 +46,7 @@ class JIRA:
     def __init__(self, number, bugType=Bug.CREATOR):
         if JIRA.__instance__ == None:
             JIRA.__instance__ = JIRA.__impl(number, bugType)
-            JIRA.__dict__['_JIRA__instance__'] = JIRA.__instance__
+            setattr(JIRA, '__instance__',  JIRA.__instance__)
         else:
             JIRA.__instance__._bugType = bugType
             JIRA.__instance__._number = number
@@ -102,10 +105,10 @@ class JIRA:
             proxy = os.getenv("SYSTEST_PROXY", None)
             try:
                 if proxy:
-                    proxy = urllib2.ProxyHandler({'https': proxy})
-                    opener = urllib2.build_opener(proxy)
-                    urllib2.install_opener(opener)
-                bugReport = urllib2.urlopen('%s/%s' % (JIRA_URL, bug))
+                    proxy = ProxyHandler({'https': proxy})
+                    opener = build_opener(proxy)
+                    install_opener(opener)
+                bugReport = urlopen('%s/%s' % (JIRA_URL, bug))
                 data = bugReport.read()
             except:
                 data = self.__tryExternalTools__(proxy)
@@ -118,6 +121,8 @@ class JIRA:
                 test.fatal("No resolution info for %s" % bug)
                 self._resolution = 'Done'
             else:
+                if isinstance(data, (bytes)):
+                    data = str(data)
                 data = data.replace("\r", "").replace("\n", "")
                 resPattern = re.compile('<span\s+id="resolution-val".*?>(?P<resolution>.*?)</span>')
                 resolution = resPattern.search(data)

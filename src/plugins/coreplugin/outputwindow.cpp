@@ -155,6 +155,10 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(verticalScrollBar(), &QAbstractSlider::actionTriggered,
             this, &OutputWindow::updateAutoScroll);
 
+    // For when "Find" changes the position; see QTCREATORBUG-26100.
+    connect(this, &QPlainTextEdit::selectionChanged, this, &OutputWindow::updateAutoScroll,
+            Qt::QueuedConnection);
+
     undoAction->setEnabled(false);
     redoAction->setEnabled(false);
     cutAction->setEnabled(false);
@@ -252,7 +256,7 @@ void OutputWindow::showEvent(QShowEvent *e)
 {
     QPlainTextEdit::showEvent(e);
     if (d->scrollToBottom)
-        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+        scrollToBottom();
 }
 
 void OutputWindow::wheelEvent(QWheelEvent *e)

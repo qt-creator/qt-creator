@@ -288,6 +288,11 @@ Utils::FilePath DesignDocument::projectFolder() const
     return {};
 }
 
+bool DesignDocument::hasProject() const
+{
+    return ProjectExplorer::SessionManager::projectForFile(fileName());
+}
+
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
     m_inFileComponentTextModifier.reset(textModifer);

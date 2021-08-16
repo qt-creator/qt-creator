@@ -7,6 +7,8 @@
         <file>mockfiles/meshes/axishelper.mesh</file>
         <file>mockfiles/images/editor_camera.png</file>
         <file>mockfiles/images/editor_camera@2x.png</file>
+        <file>mockfiles/images/editor_particlesystem.png</file>
+        <file>mockfiles/images/editor_particlesystem@2x.png</file>
         <file>mockfiles/images/area.png</file>
         <file>mockfiles/images/area@2x.png</file>
         <file>mockfiles/images/directional.png</file>
@@ -33,6 +35,7 @@
         <file>mockfiles/qt6/LightGizmo.qml</file>
         <file>mockfiles/qt6/LightIconGizmo.qml</file>
         <file>mockfiles/qt6/LightModel.qml</file>
+        <file>mockfiles/qt6/ParticleSystemGizmo.qml</file>
         <file>mockfiles/qt6/Line3D.qml</file>
         <file>mockfiles/qt6/MaterialNodeView.qml</file>
         <file>mockfiles/qt6/ModelNode2DImageView.qml</file>

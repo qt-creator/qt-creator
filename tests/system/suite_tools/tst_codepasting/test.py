@@ -239,7 +239,7 @@ def main():
                 clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
                 continue
             test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
-            if protocol in (NAME_DPCOM) and pastedText.endswith("\n"):
+            if protocol in (NAME_DPCOM, NAME_PBCOM) and pastedText.endswith("\n"):
                 pastedText = pastedText[:-1]
             test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
 

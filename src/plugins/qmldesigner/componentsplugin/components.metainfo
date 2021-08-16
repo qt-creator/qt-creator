@@ -48,22 +48,6 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQuick.Controls.SplitView"
-        icon: ":/componentsplugin/images/splitview-layouts-icon-16px.png"
-
-        ItemLibraryEntry {
-            name: "SplitView"
-            category: "Qt Quick - Layouts"
-            libraryIcon: ":/componentsplugin/images/splitview-layouts-icon.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-
-            Property { name: "width"; type: "int"; value: 100; }
-            Property { name: "height"; type: "int"; value: 100; }
-        }
-    }
-
-    Type {
         name: "QtQuick.Layouts.StackLayout"
         icon: ":/componentsplugin/images/stack-layouts-icon-16px.png"
 

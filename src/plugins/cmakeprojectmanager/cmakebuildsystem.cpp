@@ -669,7 +669,7 @@ void CMakeBuildSystem::updateProjectData()
         QList<QByteArray> moduleMappings;
         for (const RawProjectPart &rpp : qAsConst(rpps)) {
             FilePath moduleMapFile = cmakeBuildConfiguration()->buildDirectory()
-                    .pathAppended("/qml_module_mappings/" + rpp.buildSystemTarget);
+                    .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
             if (moduleMapFile.exists()) {
                 QFile mmf(moduleMapFile.toString());
                 if (mmf.open(QFile::ReadOnly)) {

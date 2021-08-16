@@ -78,7 +78,7 @@ struct Palette
     QStringList m_colors;
 };
 
-class ColorPaletteSingleton : public QObject
+class ColorPaletteBackend : public QObject
 {
     Q_OBJECT
 
@@ -94,9 +94,7 @@ class ColorPaletteSingleton : public QObject
                NOTIFY palettesChanged)
 
 public:
-    static ColorPaletteSingleton *instance();
-
-    ~ColorPaletteSingleton();
+    ~ColorPaletteBackend();
 
     void readPalettes();
     void writePalettes();
@@ -140,8 +138,8 @@ public:
     bool handleEyeDropperKeyPress(QKeyEvent *e);
 
 
-    ColorPaletteSingleton(const ColorPaletteSingleton &) = delete;
-    void operator=(const ColorPaletteSingleton &) = delete;
+    ColorPaletteBackend(const ColorPaletteBackend &) = delete;
+    void operator=(const ColorPaletteBackend &) = delete;
 
 signals:
     void currentPaletteChanged(const QString &palette);
@@ -154,10 +152,10 @@ signals:
     void eyeDropperRejected();
 
 private:
-    ColorPaletteSingleton();
+    ColorPaletteBackend();
 
 private:
-    static QPointer<ColorPaletteSingleton> m_instance;
+    static QPointer<ColorPaletteBackend> m_instance;
     QString m_currentPalette;
     QStringList m_currentPaletteColors;
     QHash<QString, Palette> m_data;
@@ -171,29 +169,33 @@ private:
 
 class QColorPickingEventFilter : public QObject {
 public:
-    explicit QColorPickingEventFilter(QObject *parent = 0)
-        : QObject(parent)
+    explicit QColorPickingEventFilter(ColorPaletteBackend *colorPalette)
+        : QObject(colorPalette)
+        , m_colorPalette(colorPalette)
     {}
 
     bool eventFilter(QObject *, QEvent *event) override
     {
         switch (event->type()) {
         case QEvent::MouseMove:
-            return ColorPaletteSingleton::instance()->handleEyeDropperMouseMove(
+            return m_colorPalette->handleEyeDropperMouseMove(
                         static_cast<QMouseEvent *>(event));
         case QEvent::MouseButtonRelease:
-            return ColorPaletteSingleton::instance()->handleEyeDropperMouseButtonRelease(
+            return m_colorPalette->handleEyeDropperMouseButtonRelease(
                         static_cast<QMouseEvent *>(event));
         case QEvent::KeyPress:
-            return ColorPaletteSingleton::instance()->handleEyeDropperKeyPress(
+            return m_colorPalette->handleEyeDropperKeyPress(
                         static_cast<QKeyEvent *>(event));
         default:
             break;
         }
         return false;
     }
+
+private:
+    ColorPaletteBackend *m_colorPalette;
 };
 
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::ColorPaletteSingleton)
+QML_DECLARE_TYPE(QmlDesigner::ColorPaletteBackend)

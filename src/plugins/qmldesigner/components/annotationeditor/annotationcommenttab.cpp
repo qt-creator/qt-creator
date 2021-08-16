@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,17 +24,16 @@
 ****************************************************************************/
 
 #include "annotationcommenttab.h"
-#include "defaultannotations.h"
 #include "ui_annotationcommenttab.h"
 
-#include "richtexteditor/richtexteditor.h"
+#include "defaultannotations.h"
+
+#include <qmldesignerplugin.h>
+#include <richtexteditor/richtexteditor.h>
+#include <projectexplorer/target.h>
+#include <qmlprojectmanager/qmlproject.h>
 
 #include <QCryptographicHash>
-
-#include "projectexplorer/session.h"
-#include "projectexplorer/target.h"
-#include "qmldesignerplugin.h"
-#include "qmlprojectmanager/qmlproject.h"
 
 namespace QmlDesigner {
 
@@ -50,10 +49,27 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
         filePath = backupFile(filePath);
     });
 
-    Utils::FilePath projPath = ProjectExplorer::SessionManager::startupProject()->projectFilePath();
+    m_editor->setImageActionVisible(false);
 
-    m_editor->setDocumentBaseUrl(QUrl::fromLocalFile(projPath.toString()));
-    m_editor->setImageActionVisible(true);
+    const QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
+            ->documentManager().currentDesignDocument();
+    Utils::FilePath projectPath;
+
+    Q_ASSERT(designDocument);
+
+    if (designDocument) {
+        if (designDocument->currentTarget() && designDocument->currentTarget()->project()) {
+            projectPath = designDocument->currentTarget()->project()->projectFilePath();
+            m_editor->setImageActionVisible(true);
+        }
+
+        if (projectPath.isEmpty()) {
+            projectPath = designDocument->fileName();
+            m_editor->setImageActionVisible(false);
+        }
+
+        m_editor->setDocumentBaseUrl(QUrl::fromLocalFile(projectPath.toString()));
+    }
 
     ui->formLayout->setWidget(3, QFormLayout::FieldRole, m_editor);
 
@@ -124,13 +140,34 @@ void AnnotationCommentTab::setDefaultAnnotations(DefaultAnnotationsModel *defaul
 
 QString AnnotationCommentTab::backupFile(const QString &filePath)
 {
-    const QDir projDir(
-        ProjectExplorer::SessionManager::startupProject()->projectDirectory().toString());
+    const QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
+            ->documentManager().currentDesignDocument();
+    Utils::FilePath projectFolderPath;
+
+    Q_ASSERT(designDocument);
+
+    if (designDocument) {
+        if (designDocument->hasProject())
+            projectFolderPath = designDocument->projectFolder();
+        if (projectFolderPath.isEmpty())
+            projectFolderPath = designDocument->fileName().parentDir();
+    }
+    else
+        return {};
+
+    const QDir projDir(projectFolderPath.toDir());
+
+    if (!projDir.exists())
+        return {};
 
     const QString imageSubDir(".AnnotationImages");
     const QDir imgDir(projDir.absolutePath() + QDir::separator() + imageSubDir);
 
     ensureDir(imgDir);
+
+    Q_ASSERT(imgDir.exists());
+    if (!imgDir.exists())
+        return {};
 
     const QFileInfo oldFile(filePath);
     QFileInfo newFile(imgDir, oldFile.fileName());

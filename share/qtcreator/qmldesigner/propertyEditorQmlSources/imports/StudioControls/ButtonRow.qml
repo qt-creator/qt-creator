@@ -56,8 +56,8 @@ Row {
         var hover = false
 
         for (var i = 0; i < children.length; ++i) {
-            if (children[i].hovered !== undefined)
-                hover = hover || children[i].hovered
+            if (children[i].hover !== undefined)
+                hover = hover || children[i].hover
         }
 
         myButtonRow.childHover = hover

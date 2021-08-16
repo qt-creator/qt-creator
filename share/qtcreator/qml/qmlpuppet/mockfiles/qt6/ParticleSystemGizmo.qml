@@ -23,22 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import QtQuick 6.0
+import QtQuick3D 6.0
 
-StudioControls.AbstractButton {
-    id: button
-
-    property alias tooltip: toolTipArea.tooltip
-
-    hover: toolTipArea.containsMouse
-
-    ToolTipArea {
-        id: toolTipArea
-        anchors.fill: parent
-        // Without setting the acceptedButtons property the clicked event won't
-        // reach the AbstractButton, it will be consumed by the ToolTipArea
-        acceptedButtons: Qt.NoButton
-    }
+IconGizmo {
+    id: particleSystemGizmo
+    iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_particlesystem.png"
 }

@@ -227,7 +227,7 @@ void AndroidConfig::load(const QSettings &settings)
     // user settings
     m_emulatorArgs = settings.value(EmulatorArgsKey,
                          QStringList({"-netdelay", "none", "-netspeed", "full"})).toStringList();
-    m_sdkLocation = FilePath::fromString(settings.value(SDKLocationKey).toString());
+    m_sdkLocation = FilePath::fromUserInput(settings.value(SDKLocationKey).toString()).cleanPath();
     m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
@@ -239,7 +239,7 @@ void AndroidConfig::load(const QSettings &settings)
     if (reader.load(FilePath::fromString(sdkSettingsFileName()))
             && settings.value(changeTimeStamp).toInt() != QFileInfo(sdkSettingsFileName()).lastModified().toMSecsSinceEpoch() / 1000) {
         // persisten settings
-        m_sdkLocation = FilePath::fromString(reader.restoreValue(SDKLocationKey, m_sdkLocation.toString()).toString());
+        m_sdkLocation = FilePath::fromUserInput(reader.restoreValue(SDKLocationKey, m_sdkLocation.toString()).toString()).cleanPath();
         m_customNdkList = reader.restoreValue(CustomNdkLocationsKey).toStringList();
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromString(reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toString()).toString());
@@ -1024,7 +1024,7 @@ FilePath AndroidConfig::defaultSdkPath()
 {
     QString sdkFromEnvVar = QString::fromLocal8Bit(getenv("ANDROID_SDK_ROOT"));
     if (!sdkFromEnvVar.isEmpty())
-        return Utils::FilePath::fromString(sdkFromEnvVar);
+        return FilePath::fromUserInput(sdkFromEnvVar).cleanPath();
 
     // Set default path of SDK as used by Android Studio
     if (Utils::HostOsInfo::isMacHost()) {

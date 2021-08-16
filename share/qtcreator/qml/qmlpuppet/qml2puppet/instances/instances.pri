@@ -9,6 +9,10 @@ versionAtLeast(QT_VERSION, 5.15.0) {
         QT *= quick3dassetimport-private
         DEFINES *= IMPORT_QUICK3D_ASSETS
     }
+    qtHaveModule(quick3dparticles) {
+        QT *= quick3dparticles-private
+        DEFINES *= QUICK3D_PARTICLES_MODULE
+    }
 }
 
 HEADERS += $$PWD/qt5nodeinstanceserver.h \

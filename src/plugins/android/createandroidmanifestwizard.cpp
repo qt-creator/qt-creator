@@ -315,7 +315,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         if (m_copyGradle) {
             FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
             if (!gradlePath.exists())
-                gradlePath = AndroidConfigurations::currentConfig().sdkLocation() / "/tools/templates/gradle/wrapper";
+                gradlePath = AndroidConfigurations::currentConfig().sdkLocation() / "tools/templates/gradle/wrapper";
             FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy);
         }
 

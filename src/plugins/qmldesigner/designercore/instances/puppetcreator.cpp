@@ -535,6 +535,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     import = QmlDesigner::Import::createLibraryImport("QtCharts", "2.0");
     if (m_model->hasImport(import, true, true))
         environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
+    environment.set("QT_QUICK3D_DISABLE_PARTICLE_SYSTEMS", "1");
 #endif
 
     QStringList importPaths = m_model->importPaths();

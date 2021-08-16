@@ -1293,8 +1293,10 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         response.setResult(result);
         sendContent(response);
     } else if (method == WorkDoneProgressCreateRequest::methodName) {
-        sendContent(WorkDoneProgressCreateRequest::Response(
-            dynamic_cast<const WorkDoneProgressCreateRequest *>(content)->id()));
+        WorkDoneProgressCreateRequest::Response response(
+            dynamic_cast<const WorkDoneProgressCreateRequest *>(content)->id());
+        response.setResult(nullptr);
+        sendContent(response);
     } else if (method == ProgressNotification::methodName) {
         if (Utils::optional<ProgressParams> params
             = dynamic_cast<const ProgressNotification *>(content)->params()) {

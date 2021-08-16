@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 # test Qt Creator version information from file and dialog
 def getQtCreatorVersionFromDialog():
     chk = re.search("(?<=Qt Creator)\s\d+.\d+.\d+[-\w]*",
-                    str(waitForObject("{text?='*Qt Creator*' type='QLabel' unnamed='1' visible='1' "
+                    str(waitForObject("{text~='.*Qt Creator.*' type='QLabel' unnamed='1' visible='1' "
                                       "window=':About Qt Creator_Core::Internal::VersionDialog'}").text))
     try:
         ver = chk.group(0).strip()
