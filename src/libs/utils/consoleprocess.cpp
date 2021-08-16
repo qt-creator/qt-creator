@@ -571,7 +571,7 @@ bool ConsoleProcess::start()
     }
 
     const QString stubPath = QCoreApplication::applicationDirPath()
-            + QLatin1String("/" QTC_REL_TOOLS_PATH "/qtcreator_process_stub");
+            + QLatin1String("/" RELATIVE_LIBEXEC_PATH "/qtcreator_process_stub");
 
     QStringList allArgs = terminalArgs.toUnixArgs();
     if (d->m_runAsRoot)

@@ -3,8 +3,6 @@ add_qtc_library(Utils
   PUBLIC_DEPENDS
     Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets
     Qt6Core5Compat
-  DEFINES
-    "QTC_REL_TOOLS_PATH=\"${RELATIVE_LIBEXEC_PATH}\""
   SOURCES
     ../3rdparty/optional/optional.hpp
     ../3rdparty/variant/variant.hpp
