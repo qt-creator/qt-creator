@@ -186,7 +186,7 @@ void CppToolsPlugin::test_projectPartChooser_forMultiplePreferSelectedForBuildin
     RawProjectPart rpp1;
     rpp1.setSelectedForBuilding(false);
     RawProjectPart rpp2;
-    rpp1.setSelectedForBuilding(true);
+    rpp2.setSelectedForBuilding(true);
     const ProjectPart::Ptr firstProjectPart = ProjectPart::create({}, rpp1);
     const ProjectPart::Ptr secondProjectPart = ProjectPart::create({}, rpp2);
     ProjectPartChooserTest t;
@@ -498,7 +498,7 @@ namespace {
 class HeaderPathFilterTest
 {
 public:
-    ProjectPart finalize()
+    const ProjectPart &finalize()
     {
         RawProjectPart rpp;
         rpp.setHeaderPaths(headerPaths);
@@ -574,6 +574,7 @@ void CppToolsPlugin::test_headerPathFilter_system()
 void CppToolsPlugin::test_headerPathFilter_user()
 {
     HeaderPathFilterTest t;
+    t.finalize();
     t.filter->process();
 
     QCOMPARE(t.filter->userHeaderPaths, (HeaderPaths{t.user("/build/user_path"),

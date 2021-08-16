@@ -47,7 +47,7 @@ namespace {
 class CompilerOptionsBuilderTest
 {
 public:
-    ProjectPart finalize()
+    const ProjectPart &finalize()
     {
         QFile pchFile(pchFileNativePath());
         pchFile.open(QIODevice::WriteOnly);
@@ -68,8 +68,8 @@ public:
         };
         RawProjectPartFlags rppFlags;
         rppFlags.commandLineFlags = flags;
-        projectPart = ProjectPart::create({}, rpp, {}, {}, Utils::Language::Cxx, {}, rppFlags,
-                                          tcInfo);
+        projectPart = ProjectPart::create({}, rpp, {}, {}, Utils::Language::Cxx, languageExtensions,
+                                          rppFlags, tcInfo);
         compilerOptionsBuilder.emplace(CompilerOptionsBuilder(*projectPart));
         return *projectPart;
     }
