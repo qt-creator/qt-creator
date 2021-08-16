@@ -399,9 +399,14 @@ void AndroidManager::setDeviceApiLevel(Target *target, int level)
     target->setNamedSettings(ApiLevelKey, level);
 }
 
-QPair<int, int> AndroidManager::apiLevelRange()
+int AndroidManager::defaultMinimumSDK(const QtSupport::BaseQtVersion *qtVersion)
 {
-    return qMakePair(16, 29);
+    if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber{6, 0})
+        return 23;
+    else if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber{5, 13})
+        return 21;
+    else
+        return 16;
 }
 
 QString AndroidManager::androidNameForApiLevel(int x)

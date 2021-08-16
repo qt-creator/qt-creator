@@ -31,6 +31,7 @@
 #include <QObject>
 #include <QVersionNumber>
 
+#include <qtsupport/baseqtversion.h>
 #include <projectexplorer/abi.h>
 
 QT_BEGIN_NAMESPACE
@@ -87,6 +88,7 @@ public:
 
     static int minimumSDK(const ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);
+    static int defaultMinimumSDK(const QtSupport::BaseQtVersion *qtVersion);
 
     static QStringList applicationAbis(const ProjectExplorer::Target *target);
     static QString archTriplet(const QString &abi);
@@ -100,7 +102,6 @@ public:
     static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
     static ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
 
-    static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
 
     static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
