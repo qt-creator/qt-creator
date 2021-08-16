@@ -1208,8 +1208,7 @@ void GitPluginPrivate::startChangeRelatedAction(const Id &id)
 {
     const VcsBasePluginState state = currentState();
 
-    ChangeSelectionDialog dialog(state.hasTopLevel()
-                                 ? state.topLevel() : FilePath::fromString(PathChooser::homePath()),
+    ChangeSelectionDialog dialog(state.hasTopLevel() ? state.topLevel() : PathChooser::homePath(),
                                  id, ICore::dialogParent());
 
     int result = dialog.exec();

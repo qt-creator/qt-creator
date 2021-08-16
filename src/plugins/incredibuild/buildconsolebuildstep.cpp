@@ -128,7 +128,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     profileXml->setLabelText(tr("Profile.xml:"));
     profileXml->setDisplayStyle(StringAspect::PathChooserDisplay);
     profileXml->setExpectedKind(PathChooser::Kind::File);
-    profileXml->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    profileXml->setBaseFileName(PathChooser::homePath());
     profileXml->setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
     profileXml->setToolTip(tr("Defines how Automatic "
                               "Interception Interface should handle the various processes "
@@ -190,7 +190,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     monFile->setLabelText(tr("Save IncrediBuild monitor file:"));
     monFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     monFile->setExpectedKind(PathChooser::Kind::Any);
-    monFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    monFile->setBaseFileName(PathChooser::homePath());
     monFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.MonFile.History"));
     monFile->setToolTip(tr("Writes a copy of the build progress file (.ib_mon) to the specified "
                            "location. If only a folder name is given, a generated GUID will serve "
@@ -207,7 +207,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     logFile->setLabelText(tr("Output Log file:"));
     logFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     logFile->setExpectedKind(PathChooser::Kind::SaveFile);
-    logFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    logFile->setBaseFileName(PathChooser::homePath());
     logFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.LogFile.History"));
     logFile->setToolTip(tr("Writes build output to a file."));
 

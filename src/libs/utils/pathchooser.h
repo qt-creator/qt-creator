@@ -110,7 +110,7 @@ public:
     void setValidationFunction(const FancyLineEdit::ValidationFunction &fn);
 
     /** Return the home directory, which needs some fixing under Windows. */
-    static QString homePath();
+    static FilePath homePath();
 
     void addButton(const QString &text, QObject *context, const std::function<void()> &callback);
     void insertButton(int index, const QString &text, QObject *context, const std::function<void()> &callback);

@@ -641,14 +641,14 @@ QString PathChooser::label()
     return tr("Path:");
 }
 
-QString PathChooser::homePath()
+FilePath PathChooser::homePath()
 {
     // Return 'users/<name>/Documents' on Windows, since Windows explorer
     // does not let people actually display the contents of their home
     // directory. Alternatively, create a QtCreator-specific directory?
     if (HostOsInfo::isWindowsHost())
-        return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    return QDir::homePath();
+        return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+    return FilePath::fromString(QDir::homePath());
 }
 
 /*!

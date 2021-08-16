@@ -75,7 +75,7 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     m_makeCommandAspect->setSettingsKey(id.withSuffix(MAKE_COMMAND_SUFFIX).toString());
     m_makeCommandAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_makeCommandAspect->setExpectedKind(PathChooser::ExistingCommand);
-    m_makeCommandAspect->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    m_makeCommandAspect->setBaseFileName(PathChooser::homePath());
     m_makeCommandAspect->setHistoryCompleter("PE.MakeCommand.History");
 
     m_userArgumentsAspect = addAspect<StringAspect>();

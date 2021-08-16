@@ -1369,7 +1369,7 @@ void DocumentManager::saveSettings()
     s->beginGroup(directoryGroupC);
     s->setValueWithDefault(projectDirectoryKeyC,
                            d->m_projectsDirectory.toString(),
-                           PathChooser::homePath());
+                           PathChooser::homePath().toString());
     s->setValueWithDefault(useProjectDirectoryKeyC,
                            d->m_useProjectsDirectory,
                            kUseProjectsDirectoryDefault);
@@ -1400,7 +1400,7 @@ void readSettings()
     if (!settingsProjectDir.isEmpty() && settingsProjectDir.isDir())
         d->m_projectsDirectory = settingsProjectDir;
     else
-        d->m_projectsDirectory = FilePath::fromString(PathChooser::homePath());
+        d->m_projectsDirectory = PathChooser::homePath();
     d->m_useProjectsDirectory
         = s->value(QLatin1String(useProjectDirectoryKeyC), kUseProjectsDirectoryDefault).toBool();
 
