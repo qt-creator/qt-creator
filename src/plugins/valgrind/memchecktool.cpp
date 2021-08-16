@@ -751,7 +751,7 @@ void MemcheckToolPrivate::heobAction()
         return;
     }
 
-    QString executable = sr.command.executable().toString();
+    FilePath executable = sr.command.executable();
     const QString workingDirectory = Utils::FileUtils::normalizePathName(sr.workingDirectory.toString());
     const QString commandLineArguments = sr.command.arguments();
     const QStringList envStrings = sr.environment.toStringList();
@@ -763,10 +763,10 @@ void MemcheckToolPrivate::heobAction()
         TaskHub::requestPopup();
         return;
     }
-    if (!QFile::exists(executable))
-        executable = Utils::HostOsInfo::withExecutableSuffix(executable);
-    if (!QFile::exists(executable)) {
-        const QString msg = MemcheckTool::tr("Heob: Cannot find %1.").arg(executable);
+    if (!executable.exists())
+        executable = executable.withExecutableSuffix();
+    if (!executable.exists()) {
+        const QString msg = MemcheckTool::tr("Heob: Cannot find %1.").arg(executable.toUserOutput());
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -774,8 +774,11 @@ void MemcheckToolPrivate::heobAction()
 
     // make executable a relative path if possible
     const QString wdSlashed = workingDirectory + '/';
-    if (executable.startsWith(wdSlashed, Qt::CaseInsensitive))
-        executable.remove(0, wdSlashed.size());
+    QString executablePath = executable.path();
+    if (executablePath.startsWith(wdSlashed, Qt::CaseInsensitive)) {
+        executablePath.remove(0, wdSlashed.size());
+        executable.setPath(executablePath);
+    }
 
     // heob arguments
     HeobDialog dialog(Core::ICore::dialogParent());
@@ -822,7 +825,7 @@ void MemcheckToolPrivate::heobAction()
     QFile::remove(xmlPath);
 
     // full command line
-    QString arguments = heob + heobArguments + " \"" + executable + '\"';
+    QString arguments = heob + heobArguments + " \"" + executable.path() + '\"';
     if (!commandLineArguments.isEmpty())
         arguments += ' ' + commandLineArguments;
     QByteArray argumentsCopy(reinterpret_cast<const char *>(arguments.utf16()), arguments.size() * 2 + 2);
