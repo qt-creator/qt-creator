@@ -110,13 +110,6 @@ QStringList pathsToBaseNames(const QStringList &paths)
                             [](const QString &path) { return QFileInfo(path).completeBaseName(); });
 }
 
-QStringList pathsWithTildeHomePath(const QStringList &paths)
-{
-    return Utils::transform(paths, [](const QString &path) {
-        return Utils::withTildeHomePath(QDir::toNativeSeparators(path));
-    });
-}
-
 QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
