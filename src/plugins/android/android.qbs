@@ -64,6 +64,8 @@ Project {
             "androidplugin.h",
             "androidpotentialkit.cpp",
             "androidpotentialkit.h",
+            "androidqmlpreviewworker.h",
+            "androidqmlpreviewworker.cpp",
             "androidqmltoolingsupport.cpp",
             "androidqmltoolingsupport.h",
             "androidqtversion.cpp",

@@ -60,6 +60,8 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
+#include <android/androidconstants.h>
+
 #include <QAction>
 
 using namespace ProjectExplorer;
@@ -217,8 +219,12 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     connect(action, &QAction::triggered, this, [this]() {
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
-
-        ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
+        bool skipDeploy = false;
+        const Kit *kit = SessionManager::startupTarget()->kit();
+        if (SessionManager::startupTarget() && kit)
+            skipDeploy = kit->
+                         supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE);
+        ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(
         Core::ActionManager::registerAction(action, "QmlPreview.RunPreview"),

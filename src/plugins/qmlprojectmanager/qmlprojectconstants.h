@@ -36,5 +36,8 @@ const char customForceFreeTypeData[] = "CustomForceFreeType";
 const char customQtForMCUs[] = "CustomQtForMCUs";
 const char customQt6Project[] = "CustomQt6Project";
 
+const char mainFilePath[] = "MainFilePath";
+const char customImportPaths[] = "CustomImportPaths";
+const char canonicalProjectDir[] ="CanonicalProjectDir";
 } // namespace Constants
 } // namespace QmlProjectManager

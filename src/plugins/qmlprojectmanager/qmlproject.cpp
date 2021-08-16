@@ -537,6 +537,12 @@ QVariant QmlBuildSystem::additionalData(Id id) const
         return qtForMCUs();
     if (id == Constants::customQt6Project)
         return qt6Project();
+    if (id == Constants::mainFilePath)
+        return mainFilePath().toString();
+    if (id == Constants::customImportPaths)
+        return customImportPaths();
+    if (id == Constants::canonicalProjectDir)
+        return canonicalProjectDir().toString();
     return {};
 }
 

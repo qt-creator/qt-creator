@@ -34,6 +34,7 @@
 #include "androidmanifesteditorfactory.h"
 #include "androidpackageinstallationstep.h"
 #include "androidpotentialkit.h"
+#include "androidqmlpreviewworker.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
@@ -96,14 +97,6 @@ public:
     }
 };
 
-class AndroidQmlPreviewWorker : public AndroidQmlToolingSupport
-{
-public:
-    AndroidQmlPreviewWorker(RunControl *runControl)
-        : AndroidQmlToolingSupport(runControl, runControl->runnable().command.executable().toString())
-    {}
-};
-
 class AndroidPluginPrivate : public QObject
 {
 public:
@@ -136,14 +129,9 @@ public:
         {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory qmlPreviewWorkerFactory{
-        RunWorkerFactory::make<AndroidQmlToolingSupport>(),
-        {QML_PREVIEW_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory qmlPreviewWorkerFactory2{
         RunWorkerFactory::make<AndroidQmlPreviewWorker>(),
         {QML_PREVIEW_RUN_MODE},
-        {"QmlProjectManager.QmlRunConfiguration"},
+        {"QmlProjectManager.QmlRunConfiguration.Qml", runConfigFactory.runConfigurationId()},
         {Android::Constants::ANDROID_DEVICE_TYPE}
     };
 

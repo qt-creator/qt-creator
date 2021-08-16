@@ -11,6 +11,7 @@ HEADERS += \
     androidmanager.h \
     androidmanifesteditoriconcontainerwidget.h \
     androidmanifesteditoriconwidget.h \
+    androidqmlpreviewworker.h \
     androidrunconfiguration.h \
     androidruncontrol.h \
     androidservicewidget.h \
@@ -61,6 +62,7 @@ SOURCES += \
     androidmanager.cpp \
     androidmanifesteditoriconcontainerwidget.cpp \
     androidmanifesteditoriconwidget.cpp \
+    androidqmlpreviewworker.cpp \
     androidrunconfiguration.cpp \
     androidruncontrol.cpp \
     androidservicewidget.cpp \

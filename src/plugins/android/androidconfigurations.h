@@ -170,6 +170,7 @@ public:
     void setOpenSslLocation(const Utils::FilePath &openSslLocation);
 
     static Utils::FilePath getJdkPath();
+    static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
 
     static QStringList getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs);
 
@@ -179,7 +180,6 @@ private:
 
     Utils::FilePath openJDKBinPath() const;
     static int getSDKVersion(const Utils::FilePath &adbToolPath, const QString &device);
-    static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
     static QString getAvdName(const QString &serialnumber);
 
     void parseDependenciesJson();
