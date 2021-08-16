@@ -274,8 +274,15 @@ public:
         void visit(const TemplateNameId *name) override
         {
             QVarLengthArray<TemplateArgument, 8> args(name->templateArgumentCount());
-            for (int i = 0; i < name->templateArgumentCount(); ++i)
-                args[i] = rewrite->rewriteType(name->templateArgumentAt(i).type());
+            for (int i = 0; i < name->templateArgumentCount(); ++i) {
+                const TemplateArgument &oldArg = name->templateArgumentAt(i);
+                args[i] = rewrite->rewriteType(oldArg.type());
+                const NumericLiteral * const number = oldArg.numericLiteral();
+                if (number) {
+                    args[i].setNumericLiteral(control()->numericLiteral(number->chars(),
+                                                                        number->size()));
+                }
+            }
             temps.append(control()->templateNameId(identifier(name->identifier()), name->isSpecialization(),
                                                    args.data(), args.size()));
         }

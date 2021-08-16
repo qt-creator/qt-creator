@@ -4605,6 +4605,27 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClass()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClassWithValueParam()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original =
+        "template<typename T, int size> struct MyArray {};\n"
+        "MyArray<int, 1> @foo();";
+    QByteArray expected = original;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    original = "#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n\n"
+        "MyArray<int, 1> foo()\n"
+        "{\n\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateFunction()
 {
     QByteArray original =

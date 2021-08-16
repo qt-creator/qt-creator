@@ -95,6 +95,7 @@ public:
     FullySpecifiedType &type() { return _expressionTy; }
 
     const NumericLiteral *numericLiteral() const { return _numericLiteral; }
+    void setNumericLiteral(const NumericLiteral *l) { _numericLiteral = l; }
 
     bool operator==(const TemplateArgument &other) const
     {
