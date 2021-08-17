@@ -275,15 +275,15 @@ void AndroidConfig::parseDependenciesJson()
     const FilePath sdkConfigFile = Core::ICore::resourcePath(JsonFilePath);
 
     if (!sdkConfigUserFile.exists()) {
-        QDir(sdkConfigUserFile.toFileInfo().absolutePath()).mkpath(".");
-        QFile::copy(sdkConfigFile.toString(), sdkConfigUserFile.toString());
+        sdkConfigUserFile.absolutePath().ensureWritableDir();
+        sdkConfigFile.copyFile(sdkConfigUserFile);
     }
 
     if (sdkConfigFile.lastModified() > sdkConfigUserFile.lastModified()) {
-        const QString oldUserFile = (sdkConfigUserFile + ".old").toString();
-        QFile::remove(oldUserFile);
-        QFile::rename(sdkConfigUserFile.toString(), oldUserFile);
-        QFile::copy(sdkConfigFile.toString(), sdkConfigUserFile.toString());
+        const FilePath oldUserFile = sdkConfigUserFile + ".old";
+        oldUserFile.removeFile();
+        sdkConfigUserFile.renameFile(oldUserFile);
+        sdkConfigFile.copyFile(sdkConfigUserFile);
     }
 
     QFile jsonFile(sdkConfigUserFile.toString());
