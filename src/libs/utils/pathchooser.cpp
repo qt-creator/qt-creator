@@ -70,14 +70,13 @@
 
 namespace Utils {
 
-static QString appBundleExpandedPath(const QString &path)
+static FilePath appBundleExpandedPath(const FilePath &path)
 {
-    if (HostOsInfo::hostOs() == OsTypeMac && path.endsWith(".app")) {
+    if (path.osType() == OsTypeMac && path.endsWith(".app")) {
         // possibly expand to Foo.app/Contents/MacOS/Foo
-        QFileInfo info(path);
-        if (info.isDir()) {
-            QString exePath = path + "/Contents/MacOS/" + info.completeBaseName();
-            if (QFileInfo::exists(exePath))
+        if (path.isDir()) {
+            const FilePath exePath = path / "Contents/MacOS" / path.completeBaseName();
+            if (exePath.exists())
                 return exePath;
         }
     }
@@ -168,8 +167,7 @@ public:
         BinaryVersionToolTipEventFilter(pe->lineEdit()), m_pathChooser(pe) {}
 
 private:
-    QString defaultToolTip() const override
-        { return m_pathChooser->errorMessage(); }
+    QString defaultToolTip() const override { return m_pathChooser->errorMessage(); }
 
     const PathChooser *m_pathChooser = nullptr;
 };
@@ -415,30 +413,27 @@ void PathChooser::slotBrowse()
     }
 
     // Prompt for a file/dir
-    QString newPath;
+    FilePath newPath;
     switch (d->m_acceptingKind) {
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
-        newPath = QFileDialog::getExistingDirectory(this,
-                makeDialogTitle(tr("Choose Directory")), predefined.toUserOutput());
+        newPath = FileUtils::getExistingDirectory(this,
+                        makeDialogTitle(tr("Choose Directory")), predefined);
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
-        newPath = QFileDialog::getOpenFileName(this,
-                makeDialogTitle(tr("Choose Executable")), predefined.toUserOutput(),
-                d->m_dialogFilter);
+        newPath = FileUtils::getOpenFilePath(this,
+                        makeDialogTitle(tr("Choose Executable")), predefined, d->m_dialogFilter);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
-        newPath = QFileDialog::getOpenFileName(this,
-                makeDialogTitle(tr("Choose File")), predefined.toUserOutput(),
-                d->m_dialogFilter);
+        newPath = FileUtils::getOpenFilePath(this,
+                        makeDialogTitle(tr("Choose File")), predefined, d->m_dialogFilter);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
-        newPath = QFileDialog::getSaveFileName(this,
-                makeDialogTitle(tr("Choose File")), predefined.toUserOutput(),
-                d->m_dialogFilter);
+        newPath = FileUtils::getSaveFilePath(this,
+                        makeDialogTitle(tr("Choose File")), predefined, d->m_dialogFilter);
         break;
     case PathChooser::Any: {
         QFileDialog dialog(this);
@@ -452,7 +447,7 @@ void PathChooser::slotBrowse()
             // probably loop here until the *.framework dir match
             QStringList paths = dialog.selectedFiles();
             if (!paths.isEmpty())
-                newPath = paths.at(0);
+                newPath = FilePath::fromString(paths.at(0));
         }
         break;
         }
@@ -465,13 +460,12 @@ void PathChooser::slotBrowse()
     window()->raise();
     window()->activateWindow();
 
-    // Delete trailing slashes unless it is "/"|"\\", only
-    if (!newPath.isEmpty()) {
-        newPath = QDir::toNativeSeparators(newPath);
-        if (newPath.size() > 1 && newPath.endsWith(QDir::separator()))
-            newPath.truncate(newPath.size() - 1);
-        setPath(newPath);
+    // Delete trailing slashes unless it is "/" only.
+    if (newPath.endsWith("/") && newPath.path().size() > 1) {
+        newPath = newPath.withNewPath(newPath.path().chopped(1));
+        setFilePath(newPath);
     }
+
     emit browsingFinished();
     triggerChanged();
 }
