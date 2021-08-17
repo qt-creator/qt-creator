@@ -171,7 +171,7 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 
-void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const QString &directory,
+void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const FilePath &directory,
                                       const QString &startupFile)
 {
     m_diffFiles = data;
@@ -186,12 +186,12 @@ QList<FileData> DiffEditorDocument::diffFiles() const
     return m_diffFiles;
 }
 
-QString DiffEditorDocument::baseDirectory() const
+FilePath DiffEditorDocument::baseDirectory() const
 {
     return m_baseDirectory;
 }
 
-void DiffEditorDocument::setBaseDirectory(const QString &directory)
+void DiffEditorDocument::setBaseDirectory(const FilePath &directory)
 {
     m_baseDirectory = directory;
 }
@@ -256,7 +256,7 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
 QString DiffEditorDocument::fallbackSaveAsPath() const
 {
     if (!m_baseDirectory.isEmpty())
-        return m_baseDirectory;
+        return m_baseDirectory.toString();
     return QDir::homePath();
 }
 
@@ -265,7 +265,7 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-bool DiffEditorDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+bool DiffEditorDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
@@ -330,7 +330,7 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
         setTemporary(false);
         emit temporaryStateChanged();
         setFilePath(filePath.absoluteFilePath());
-        setDiffFiles(fileDataList, filePath.absoluteFilePath().toString());
+        setDiffFiles(fileDataList, filePath.absoluteFilePath());
     }
     endReload(ok);
     if (!ok && readResult == TextFileFormat::ReadEncodingError)
@@ -415,7 +415,7 @@ void DiffEditorDocument::beginReload()
     m_state = Reloading;
     emit changed();
     QSignalBlocker blocker(this);
-    setDiffFiles(QList<FileData>(), QString());
+    setDiffFiles(QList<FileData>(), {});
     setDescription(QString());
 }
 

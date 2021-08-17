@@ -95,9 +95,9 @@ public:
     void commandFinished(bool success);
 
     VcsBaseDiffEditorController *q;
-    QString m_directory;
+    FilePath m_directory;
     Environment m_processEnvironment;
-    Utils::FilePath m_vcsBinary;
+    FilePath m_vcsBinary;
     int m_vscTimeoutS;
     QString m_startupFile;
     QString m_output;
@@ -241,7 +241,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     // and "Waiting for data..." will be shown.
     d->cancelReload();
 
-    d->m_command = new VcsCommand(FilePath::fromString(workingDirectory()), d->m_processEnvironment);
+    d->m_command = new VcsCommand(workingDirectory(), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     d->m_commandResultProxy = new VcsCommandResultProxy(d->m_command.data(), d);
@@ -261,7 +261,7 @@ void VcsBaseDiffEditorController::processCommandOutput(const QString &output)
     d->processDiff(output);
 }
 
-QString VcsBaseDiffEditorController::workingDirectory() const
+FilePath VcsBaseDiffEditorController::workingDirectory() const
 {
     return d->m_directory;
 }
@@ -281,7 +281,7 @@ void VcsBaseDiffEditorController::setDisplayName(const QString &displayName)
     d->m_displayName = displayName;
 }
 
-void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const QString &workingDir)
+void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const FilePath &workingDir)
 {
     d->m_directory = workingDir;
     setBaseDirectory(workingDir);

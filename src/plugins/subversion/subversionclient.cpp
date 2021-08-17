@@ -260,7 +260,7 @@ void SubversionDiffEditorController::processCommandOutput(const QString &output)
 SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
                                                          const QString &source,
                                                          const QString &title,
-                                                         const QString &workingDirectory)
+                                                         const FilePath &workingDirectory)
 {
     auto &settings = static_cast<SubversionSettings &>(this->settings());
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
@@ -288,7 +288,7 @@ void SubversionClient::diff(const FilePath &workingDirectory, const QStringList 
     const QString title = vcsEditorTitle(vcsCmdString, documentId);
 
     SubversionDiffEditorController *controller =
-            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory.toString());
+            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory);
     controller->setFilesList(files);
     controller->requestReload();
 }
@@ -319,7 +319,7 @@ void SubversionClient::describe(const FilePath &workingDirectory, int changeNumb
                                                         QString::number(changeNumber));
 
     SubversionDiffEditorController *controller =
-            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory.toString());
+            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory);
     controller->setChangeNumber(changeNumber);
     controller->requestReload();
 }

@@ -55,13 +55,13 @@ public:
     void setProcessEnvironment(const Utils::Environment &value);
     void setVcsBinary(const Utils::FilePath &path);
     void setVcsTimeoutS(int value);
-    void setWorkingDirectory(const QString &workingDir);
+    void setWorkingDirectory(const Utils::FilePath &workingDir);
 
 protected:
     void runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
 
-    QString workingDirectory() const;
+    Utils::FilePath workingDirectory() const;
     void setStartupFile(const QString &startupFile);
     QString startupFile() const;
     void setDisplayName(const QString &displayName);

@@ -159,12 +159,10 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
             ? fileData.rightFileInfo.patchBehaviour
             : fileData.leftFileInfo.patchBehaviour;
 
-    const QString workingDirectory = m_document->baseDirectory().isEmpty()
-            ? QFileInfo(fileName).absolutePath()
+    const FilePath workingDirectory = m_document->baseDirectory().isEmpty()
+            ? FilePath::fromString(fileName).absolutePath()
             : m_document->baseDirectory();
-    const Utils::FilePath absFilePath = Utils::FilePath::fromString(workingDirectory)
-                                            .pathAppended(QFileInfo(fileName).fileName())
-                                            .absoluteFilePath();
+    const FilePath absFilePath = workingDirectory.resolvePath(fileName).absoluteFilePath();
 
     if (patchBehaviour == DiffFileInfo::PatchFile) {
         const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
@@ -176,7 +174,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
 
         FileChangeBlocker fileChangeBlocker(absFilePath);
         if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
-                                FilePath::fromString(workingDirectory), strip, revert))
+                                workingDirectory, strip, revert))
             m_document->reload();
     } else { // PatchEditor
         auto textDocument = qobject_cast<TextEditor::TextDocument *>(
@@ -217,11 +215,9 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
     if (!m_document)
         return;
 
-    const QDir dir(m_document->baseDirectory());
-    const QString absoluteFileName = dir.absoluteFilePath(fileName);
-    const QFileInfo fi(absoluteFileName);
-    if (fi.exists() && !fi.isDir())
-        EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
+    const FilePath filePath = m_document->baseDirectory().resolvePath(fileName);
+    if (filePath.exists() && !filePath.isDir())
+        EditorManager::openEditorAt(filePath.toString(), lineNumber, columnNumber);
 }
 
 void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSettings)

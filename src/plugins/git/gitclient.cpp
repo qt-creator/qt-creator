@@ -329,7 +329,7 @@ void GitBaseDiffEditorController::initialize()
         // we compare the current state of working tree to the HEAD of current branch
         // instead of showing unsupported combined diff format.
         GitClient::CommandInProgress commandInProgress =
-                m_instance->checkCommandInProgress(FilePath::fromString(workingDirectory()));
+                m_instance->checkCommandInProgress(workingDirectory());
         if (commandInProgress != GitClient::NoCommand)
             m_rightCommit = HEAD;
     }
@@ -341,11 +341,11 @@ void GitBaseDiffEditorController::updateBranchList()
     if (revision.isEmpty())
         return;
 
-    const QString workingDirectory = baseDirectory();
+    const FilePath workingDirectory = baseDirectory();
     VcsCommand *command = m_instance->vcsExec(
-                FilePath::fromString(workingDirectory),
+                workingDirectory,
                 {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
-                false, 0, workingDirectory);
+                false, 0, workingDirectory.toString());
     connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         const QString remotePrefix = "remotes/";
         const QString localPrefix = "<Local>";
@@ -459,7 +459,7 @@ public:
         setReloader([this] {
             m_state = GettingDescription;
             const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
-            runCommand({args}, m_instance->encoding(FilePath::fromString(workingDirectory()), "i18n.commitEncoding"));
+            runCommand({args}, m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
             setStartupFile(VcsBase::source(this->document()));
         });
     }
@@ -476,7 +476,7 @@ void ShowController::processCommandOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
     if (m_state == GettingDescription) {
-        setDescription(m_instance->extendedShowDescription(FilePath::fromString(workingDirectory()), output));
+        setDescription(m_instance->extendedShowDescription(workingDirectory(), output));
         // stage 2
         m_state = GettingDiff;
         const QStringList args = {"show", "--format=format:", // omit header, already generated
@@ -941,11 +941,11 @@ void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex
 void GitClient::stage(DiffEditor::DiffEditorController *diffController,
                       const QString &patch, bool revert)
 {
-    Utils::TemporaryFile patchFile("git-patchfile");
+    TemporaryFile patchFile("git-patchfile");
     if (!patchFile.open())
         return;
 
-    const FilePath baseDir = FilePath::fromString(diffController->baseDirectory());
+    const FilePath baseDir = diffController->baseDirectory();
     QTextCodec *codec = EditorManager::defaultTextCodec();
     const QByteArray patchData = codec
             ? codec->fromUnicode(patch) : patch.toLocal8Bit();
@@ -986,7 +986,7 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     controller->setVcsBinary(settings().binaryPath.filePath());
     controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
-    controller->setWorkingDirectory(workingDirectory.toString());
+    controller->setWorkingDirectory(workingDirectory);
     controller->initialize();
 
     connect(controller, &DiffEditorController::chunkActionsRequested,

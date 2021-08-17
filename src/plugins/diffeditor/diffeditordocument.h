@@ -59,11 +59,11 @@ public:
                       bool revert, bool addPrefix = false,
                       const QString &overriddenFileName = QString()) const;
 
-    void setDiffFiles(const QList<FileData> &data, const QString &directory,
+    void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory,
                       const QString &startupFile = QString());
     QList<FileData> diffFiles() const;
-    QString baseDirectory() const;
-    void setBaseDirectory(const QString &directory);
+    Utils::FilePath baseDirectory() const;
+    void setBaseDirectory(const Utils::FilePath &directory);
     QString startupFile() const;
 
     void setDescription(const QString &description);
@@ -103,7 +103,7 @@ private:
 
     DiffEditorController *m_controller = nullptr;
     QList<FileData> m_diffFiles;
-    QString m_baseDirectory;
+    Utils::FilePath m_baseDirectory;
     QString m_startupFile;
     QString m_description;
     int m_contextLineCount = 3;

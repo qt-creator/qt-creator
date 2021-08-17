@@ -91,7 +91,7 @@ signals:
 
 private:
     void requestReload(const QString &documentId, const QString &source, const QString &title,
-                       const QString &workingDirectory,
+                       const Utils::FilePath &workingDirectory,
                        const QStringList &args);
     void parsePullOutput(const QString &output);
 };

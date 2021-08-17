@@ -355,20 +355,20 @@ void MercurialClient::diff(const FilePath &workingDir, const QStringList &files,
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffRepo." + sourceFile;
-        requestReload(documentId, sourceFile, title, workingDir.toString(), {"diff"});
+        requestReload(documentId, sourceFile, title, workingDir, {"diff"});
     } else if (files.size() == 1) {
         fileName = files.at(0);
         const QString title = tr("Mercurial Diff \"%1\"").arg(fileName);
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + sourceFile;
-        requestReload(documentId, sourceFile, title, workingDir.toString(), {"diff", fileName});
+        requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
     } else {
         const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + workingDir.toString();
-        requestReload(documentId, sourceFile, title, workingDir.toString(), QStringList{"diff"} + files);
+        requestReload(documentId, sourceFile, title, workingDir, QStringList{"diff"} + files);
     }
 }
 
@@ -455,7 +455,7 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
 }
 
 void MercurialClient::requestReload(const QString &documentId, const QString &source, const QString &title,
-                                    const QString &workingDirectory, const QStringList &args)
+                                    const FilePath &workingDirectory, const QStringList &args)
 {
     // Creating document might change the referenced source. Store a copy and use it.
     const QString sourceCopy = source;

@@ -49,8 +49,8 @@ public:
     void requestReload();
     bool isReloading() const;
 
-    QString baseDirectory() const;
-    void setBaseDirectory(const QString &directory);
+    Utils::FilePath baseDirectory() const;
+    void setBaseDirectory(const Utils::FilePath &directory);
     int contextLineCount() const;
     bool ignoreWhitespace() const;
 
@@ -84,7 +84,7 @@ protected:
     void reloadFinished(bool success);
 
     void setDiffFiles(const QList<FileData> &diffFileList,
-                      const QString &baseDirectory = QString(),
+                      const Utils::FilePath &baseDirectory = {},
                       const QString &startupFile = QString());
     void setDescription(const QString &description);
     QString description() const;

@@ -35,6 +35,8 @@
 
 #include <QStringList>
 
+using namespace Utils;
+
 namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(Core::IDocument *document) :
@@ -50,12 +52,12 @@ bool DiffEditorController::isReloading() const
     return m_isReloading;
 }
 
-QString DiffEditorController::baseDirectory() const
+FilePath DiffEditorController::baseDirectory() const
 {
     return m_document->baseDirectory();
 }
 
-void DiffEditorController::setBaseDirectory(const QString &directory)
+void DiffEditorController::setBaseDirectory(const FilePath &directory)
 {
     m_document->setBaseDirectory(directory);
 }
@@ -94,7 +96,7 @@ DiffEditorController *DiffEditorController::controller(Core::IDocument *document
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
-                                        const QString &workingDirectory,
+                                        const FilePath &workingDirectory,
                                         const QString &startupFile)
 {
     m_document->setDiffFiles(diffFileList, workingDirectory, startupFile);

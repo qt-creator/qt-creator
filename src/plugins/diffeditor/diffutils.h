@@ -27,8 +27,10 @@
 
 #include "diffeditor_global.h"
 
-#include <QString>
+#include <utils/filepath.h>
+
 #include <QMap>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QFutureInterfaceBase;
