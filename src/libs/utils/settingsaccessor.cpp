@@ -329,10 +329,8 @@ void BackingUpSettingsAccessor::backupFile(const FilePath &path, const QVariantM
         return;
 
     // Do we need to do a backup?
-    const QString origName = path.toString();
-    optional<FilePath> backupFileName = m_strategy->backupName(oldSettings.data, path, data);
-    if (backupFileName)
-        QFile::copy(origName, backupFileName.value().toString());
+    if (optional<FilePath> backupFileName = m_strategy->backupName(oldSettings.data, path, data))
+        path.copyFile(backupFileName.value());
 }
 
 // --------------------------------------------------------------------

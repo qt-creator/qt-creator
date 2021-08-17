@@ -42,6 +42,7 @@ using namespace llvm;
 using namespace CppTools;
 using namespace ProjectExplorer;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangFormat {
 
@@ -279,25 +280,25 @@ static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = Q
 
 void createStyleFileIfNeeded(bool isGlobal)
 {
-    const Utils::FilePath path = isGlobal ? globalPath() : projectPath();
-    const QString configFile = path.pathAppended(Constants::SETTINGS_FILE_NAME).toString();
+    const FilePath path = isGlobal ? globalPath() : projectPath();
+    const FilePath configFile = path / Constants::SETTINGS_FILE_NAME;
 
-    if (QFile::exists(configFile))
+    if (configFile.exists())
         return;
 
     QDir().mkpath(path.toString());
     if (!isGlobal) {
         const Project *project = SessionManager::startupProject();
-        Utils::FilePath possibleProjectConfig = project->rootProjectDirectory().pathAppended(
-            Constants::SETTINGS_FILE_NAME);
+        FilePath possibleProjectConfig = project->rootProjectDirectory()
+                / Constants::SETTINGS_FILE_NAME;
         if (possibleProjectConfig.exists()) {
             // Just copy th .clang-format if current project has one.
-            QFile::copy(possibleProjectConfig.toString(), configFile);
+            possibleProjectConfig.copyFile(configFile);
             return;
         }
     }
 
-    std::fstream newStyleFile(configFile.toStdString(), std::fstream::out);
+    std::fstream newStyleFile(configFile.toString().toStdString(), std::fstream::out);
     if (newStyleFile.is_open()) {
         newStyleFile << clang::format::configurationAsText(constructStyle());
         newStyleFile.close();
