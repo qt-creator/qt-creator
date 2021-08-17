@@ -154,6 +154,8 @@ public:
 
     static bool isAutoSaveFile(const QString &fileName);
 
+    static bool autoSaveAfterRefactoring();
+
     static QTextCodec *defaultTextCodec();
 
     static Utils::TextFileFormat::LineTerminationMode defaultLineEnding();

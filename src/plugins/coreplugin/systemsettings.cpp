@@ -126,6 +126,10 @@ public:
                                                 "a crash or power failure, it asks whether to "
                                                 "recover the auto-saved content.")
                                              .arg(Constants::IDE_DISPLAY_NAME));
+        m_ui.autoSaveRefactoringCheckBox->setChecked(EditorManager::autoSaveAfterRefactoring());
+        m_ui.autoSaveRefactoringCheckBox->setToolTip(tr("Automatically saves all open files "
+            "affected by a refactoring operation,\n provided they were unmodified before the "
+            "refactoring."));
         m_ui.autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
         m_ui.autoSuspendCheckBox->setChecked(EditorManagerPrivate::autoSuspendEnabled());
         m_ui.autoSuspendMinDocumentCount->setValue(EditorManagerPrivate::autoSuspendMinDocumentCount());
@@ -268,6 +272,8 @@ void SystemSettingsWidget::apply()
     PatchTool::setPatchCommand(m_ui.patchChooser->filePath());
     EditorManagerPrivate::setAutoSaveEnabled(m_ui.autoSaveCheckBox->isChecked());
     EditorManagerPrivate::setAutoSaveInterval(m_ui.autoSaveInterval->value());
+    EditorManagerPrivate::setAutoSaveAfterRefactoring(
+                m_ui.autoSaveRefactoringCheckBox->isChecked());
     EditorManagerPrivate::setAutoSuspendEnabled(m_ui.autoSuspendCheckBox->isChecked());
     EditorManagerPrivate::setAutoSuspendMinDocumentCount(m_ui.autoSuspendMinDocumentCount->value());
     EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(

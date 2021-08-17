@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>599</width>
+    <width>628</width>
     <height>545</height>
    </rect>
   </property>
@@ -17,26 +17,10 @@
       <string>System</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="4" column="0">
-       <widget class="QLabel" name="fileSystemCaseSensitivityLabel">
-        <property name="toolTip">
-         <string>Influences how file names are matched to decide if they are the same.</string>
-        </property>
+      <item row="1" column="0">
+       <widget class="QLabel" name="terminalLabel">
         <property name="text">
-         <string>File system case sensitivity:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="autoSuspendCheckBox">
-        <property name="toolTip">
-         <string>Automatically free resources of old documents that are not visible and not modified. They stay visible in the list of open documents.</string>
-        </property>
-        <property name="text">
-         <string>Auto-suspend unmodified files</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>Terminal:</string>
         </property>
        </widget>
       </item>
@@ -74,14 +58,17 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="terminalLabel">
+      <item row="4" column="0">
+       <widget class="QLabel" name="fileSystemCaseSensitivityLabel">
+        <property name="toolTip">
+         <string>Influences how file names are matched to decide if they are the same.</string>
+        </property>
         <property name="text">
-         <string>Terminal:</string>
+         <string>File system case sensitivity:</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1" colspan="2">
+      <item row="8" column="1" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QLabel" name="autoSuspendLabel">
@@ -118,212 +105,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="9" column="0" colspan="2">
-       <widget class="QLabel" name="maxRecentFilesLabel">
-        <property name="text">
-         <string>Maximum number of entries in &quot;Recent Files&quot;:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="autoSaveCheckBox">
-        <property name="text">
-         <string>Auto-save modified files</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="modifiedLabel">
-        <property name="text">
-         <string>When files are externally modified:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="externalFileBrowserLabel">
-        <property name="text">
-         <string>External file browser:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="Utils::PathChooser" name="patchChooser" native="true"/>
-      </item>
-      <item row="9" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
-         <widget class="QSpinBox" name="maxRecentFilesSpinBox"/>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="6" column="1" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="autoSaveIntervalLabel">
-          <property name="text">
-           <string>Interval:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="autoSaveInterval">
-          <property name="suffix">
-           <string extracomment="unit for minutes">min</string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="8" column="0" colspan="3">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QCheckBox" name="warnBeforeOpeningBigFiles">
-          <property name="text">
-           <string>Warn before opening text files greater than</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="bigFilesLimitSpinBox">
-          <property name="suffix">
-           <string>MB</string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>500</number>
-          </property>
-          <property name="value">
-           <number>5</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="5" column="1" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QComboBox" name="reloadBehavior">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <item>
-           <property name="text">
-            <string>Always Ask</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Reload All Unchanged Editors</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Ignore Modifications</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="patchCommandLabel">
-        <property name="text">
-         <string>Patch command:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <item>
-         <widget class="QCheckBox" name="askBeforeExitCheckBox">
-          <property name="text">
-           <string>Ask for confirmation before exiting</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="12" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
-        <item>
-         <widget class="QPushButton" name="clearCrashReportsButton">
-          <property name="text">
-           <string>Clear Local Crash Reports</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="crashReportsSizeText">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>
@@ -365,12 +146,136 @@
         </layout>
        </widget>
       </item>
+      <item row="10" column="0" colspan="2">
+       <widget class="QLabel" name="maxRecentFilesLabel">
+        <property name="text">
+         <string>Maximum number of entries in &quot;Recent Files&quot;:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QCheckBox" name="autoSuspendCheckBox">
+        <property name="toolTip">
+         <string>Automatically free resources of old documents that are not visible and not modified. They stay visible in the list of open documents.</string>
+        </property>
+        <property name="text">
+         <string>Auto-suspend unmodified files</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QSpinBox" name="maxRecentFilesSpinBox"/>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="environmentLabel">
         <property name="text">
          <string>Environment:</string>
         </property>
        </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="modifiedLabel">
+        <property name="text">
+         <string>When files are externally modified:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0" colspan="3">
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QCheckBox" name="enableCrashReportingCheckBox">
+          <property name="toolTip">
+           <string>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</string>
+          </property>
+          <property name="text">
+           <string>Enable crash reporting</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="helpCrashReportingButton">
+          <property name="text">
+           <string>?</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="9" column="0" colspan="3">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QCheckBox" name="warnBeforeOpeningBigFiles">
+          <property name="text">
+           <string>Warn before opening text files greater than</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="bigFilesLimitSpinBox">
+          <property name="suffix">
+           <string>MB</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>500</number>
+          </property>
+          <property name="value">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
       <item row="1" column="1" colspan="2">
        <widget class="QWidget" name="terminalWidget" native="true">
@@ -429,6 +334,16 @@
         </layout>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="patchCommandLabel">
+        <property name="text">
+         <string>Patch command:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="Utils::PathChooser" name="patchChooser" native="true"/>
+      </item>
       <item row="0" column="1" colspan="2">
        <widget class="QWidget" name="environmentWidget" native="true">
         <layout class="QHBoxLayout" name="environmentLayout">
@@ -473,27 +388,43 @@
         </layout>
        </widget>
       </item>
-      <item row="11" column="0" colspan="3">
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <item row="11" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
-         <widget class="QCheckBox" name="enableCrashReportingCheckBox">
-          <property name="toolTip">
-           <string>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</string>
-          </property>
+         <widget class="QCheckBox" name="askBeforeExitCheckBox">
           <property name="text">
-           <string>Enable crash reporting</string>
+           <string>Ask for confirmation before exiting</string>
           </property>
          </widget>
         </item>
+       </layout>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QToolButton" name="helpCrashReportingButton">
-          <property name="text">
-           <string>?</string>
+         <widget class="QComboBox" name="reloadBehavior">
+          <property name="currentIndex">
+           <number>0</number>
           </property>
+          <item>
+           <property name="text">
+            <string>Always Ask</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Reload All Unchanged Editors</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Ignore Modifications</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
+         <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -506,6 +437,82 @@
          </spacer>
         </item>
        </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="externalFileBrowserLabel">
+        <property name="text">
+         <string>External file browser:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="autoSaveCheckBox">
+        <property name="text">
+         <string>Auto-save modified files</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <widget class="QPushButton" name="clearCrashReportsButton">
+          <property name="text">
+           <string>Clear Local Crash Reports</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="crashReportsSizeText">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="6" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLabel" name="autoSaveIntervalLabel">
+          <property name="text">
+           <string>Interval:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="autoSaveInterval">
+          <property name="suffix">
+           <string extracomment="unit for minutes">min</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="autoSaveRefactoringCheckBox">
+        <property name="text">
+         <string>Auto-save files after refactoring</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

@@ -116,6 +116,8 @@ public:
     static bool autoSaveEnabled();
     static void setAutoSaveInterval(int interval);
     static int autoSaveInterval();
+    static void setAutoSaveAfterRefactoring(bool enabled);
+    static bool autoSaveAfterRefactoring();
     static void setAutoSuspendEnabled(bool enabled);
     static bool autoSuspendEnabled();
     static void setAutoSuspendMinDocumentCount(int count);
@@ -282,6 +284,7 @@ private:
         bool autoSuspendEnabled = true;
         int autoSuspendMinDocumentCount = 30;
 
+        bool autoSaveAfterRefactoring = true;
         bool warnBeforeOpeningBigFilesEnabled = true;
         int bigFileSizeLimitInMB = 5;
         int maxRecentFiles = 8;

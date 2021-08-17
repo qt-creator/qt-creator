@@ -116,6 +116,7 @@ static const char documentStatesKey[] = "EditorManager/DocumentStates";
 static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
 static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
 static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
+static const char autoSaveAfterRefactoringKey[] = "EditorManager/AutoSaveAfterRefactoring";
 static const char autoSuspendEnabledKey[] = "EditorManager/AutoSuspendEnabled";
 static const char autoSuspendMinDocumentCountKey[] = "EditorManager/AutoSuspendMinDocuments";
 static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
@@ -1232,6 +1233,9 @@ void EditorManagerPrivate::saveSettings()
     qsettings->setValueWithDefault(autoSaveIntervalKey,
                                    d->m_settings.autoSaveInterval,
                                    def.autoSaveInterval);
+    qsettings->setValueWithDefault(autoSaveAfterRefactoringKey,
+                                   d->m_settings.autoSaveAfterRefactoring,
+                                   def.autoSaveAfterRefactoring);
     qsettings->setValueWithDefault(autoSuspendEnabledKey,
                                    d->m_settings.autoSuspendEnabled,
                                    def.autoSuspendEnabled);
@@ -1303,6 +1307,8 @@ void EditorManagerPrivate::readSettings()
 
     d->m_settings.autoSaveEnabled = qs->value(autoSaveEnabledKey, def.autoSaveEnabled).toBool();
     d->m_settings.autoSaveInterval = qs->value(autoSaveIntervalKey, def.autoSaveInterval).toInt();
+    d->m_settings.autoSaveAfterRefactoring = qs->value(autoSaveAfterRefactoringKey,
+                                                       def.autoSaveAfterRefactoring).toBool();
 
     d->m_settings.autoSuspendEnabled = qs->value(autoSuspendEnabledKey, def.autoSuspendEnabled)
                                            .toBool();
@@ -1332,6 +1338,16 @@ void EditorManagerPrivate::setAutoSaveInterval(int interval)
 int EditorManagerPrivate::autoSaveInterval()
 {
     return d->m_settings.autoSaveInterval;
+}
+
+void EditorManagerPrivate::setAutoSaveAfterRefactoring(bool enabled)
+{
+    d->m_settings.autoSaveAfterRefactoring = enabled;
+}
+
+bool EditorManagerPrivate::autoSaveAfterRefactoring()
+{
+    return d->m_settings.autoSaveAfterRefactoring;
 }
 
 void EditorManagerPrivate::setAutoSuspendEnabled(bool enabled)
@@ -3139,6 +3155,11 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
 bool EditorManager::isAutoSaveFile(const QString &filePath)
 {
     return filePath.endsWith(".autosave");
+}
+
+bool EditorManager::autoSaveAfterRefactoring()
+{
+    return EditorManagerPrivate::autoSaveAfterRefactoring();
 }
 
 /*!

@@ -342,6 +342,7 @@ bool RefactoringFile::apply()
         m_editorCursorPosition = -1;
     }
 
+    const bool withUnmodifiedEditor = m_editor && !m_editor->textDocument()->isModified();
     bool result = true;
 
     // apply changes, if any
@@ -390,6 +391,8 @@ bool RefactoringFile::apply()
             }
 
             fileChanged();
+            if (withUnmodifiedEditor && EditorManager::autoSaveAfterRefactoring())
+                m_editor->textDocument()->save(nullptr, m_filePath, false);
         }
     }
 
