@@ -165,7 +165,6 @@ private:
     QList<InputEventCommand> m_pendingInputEventCommands;
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
-    bool m_render2D = true;
 };
 
 } // namespace QmlDesigner
