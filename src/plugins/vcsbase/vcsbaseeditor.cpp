@@ -1539,7 +1539,7 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 {
     return Core::PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
-                                   d->m_workingDirectory, 0, revert);
+                                     FilePath::fromString(d->m_workingDirectory), 0, revert);
 }
 
 QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header) const

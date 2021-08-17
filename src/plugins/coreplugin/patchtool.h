@@ -27,18 +27,18 @@
 
 #include "core_global.h"
 
-#include <QString>
+#include <utils/filepath.h>
 
 namespace Core {
 
 class CORE_EXPORT PatchTool
 {
 public:
-    static QString patchCommand();
-    static void setPatchCommand(const QString &newCommand);
+    static Utils::FilePath patchCommand();
+    static void setPatchCommand(const Utils::FilePath &newCommand);
 
     // Utility to run the 'patch' command
-    static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),
+    static bool runPatch(const QByteArray &input, const Utils::FilePath &workingDirectory = {},
                          int strip = 0, bool reverse = false);
 };
 

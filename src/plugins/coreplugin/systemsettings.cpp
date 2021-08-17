@@ -119,7 +119,7 @@ public:
         m_ui.patchChooser->setToolTip(patchToolTip);
         m_ui.patchChooser->setExpectedKind(PathChooser::ExistingCommand);
         m_ui.patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
-        m_ui.patchChooser->setPath(PatchTool::patchCommand());
+        m_ui.patchChooser->setFilePath(PatchTool::patchCommand());
         m_ui.autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
         m_ui.autoSaveCheckBox->setToolTip(tr("Automatically creates temporary copies of "
                                                 "modified files. If %1 is restarted after "
@@ -265,7 +265,7 @@ void SystemSettingsWidget::apply()
                                       m_ui.externalFileBrowserEdit->text());
         }
     }
-    PatchTool::setPatchCommand(m_ui.patchChooser->filePath().toString());
+    PatchTool::setPatchCommand(m_ui.patchChooser->filePath());
     EditorManagerPrivate::setAutoSaveEnabled(m_ui.autoSaveCheckBox->isChecked());
     EditorManagerPrivate::setAutoSaveInterval(m_ui.autoSaveInterval->value());
     EditorManagerPrivate::setAutoSuspendEnabled(m_ui.autoSuspendCheckBox->isChecked());

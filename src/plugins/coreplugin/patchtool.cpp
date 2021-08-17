@@ -30,40 +30,39 @@
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
 #include <QApplication>
-
-static const char settingsGroupC[] = "General";
-static const char patchCommandKeyC[] = "PatchCommand";
-static const char patchCommandDefaultC[] = "patch";
 
 using namespace Utils;
 
 namespace Core {
 
-QString PatchTool::patchCommand()
+const char settingsGroupC[] = "General";
+const char patchCommandKeyC[] = "PatchCommand";
+const char patchCommandDefaultC[] = "patch";
+
+FilePath PatchTool::patchCommand()
 {
     QSettings *s = ICore::settings();
 
     s->beginGroup(settingsGroupC);
-    const QString command = s->value(patchCommandKeyC, patchCommandDefaultC).toString();
+    const FilePath command = FilePath::fromVariant(s->value(patchCommandKeyC, patchCommandDefaultC));
     s->endGroup();
 
     return command;
 }
 
-void PatchTool::setPatchCommand(const QString &newCommand)
+void PatchTool::setPatchCommand(const FilePath &newCommand)
 {
     Utils::QtcSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValueWithDefault(QLatin1String(patchCommandKeyC), newCommand, QString(patchCommandKeyC));
+    s->beginGroup(settingsGroupC);
+    s->setValueWithDefault(patchCommandKeyC, newCommand.toVariant(), QVariant(QString(patchCommandDefaultC)));
     s->endGroup();
 }
 
-static bool runPatchHelper(const QByteArray &input, const QString &workingDirectory,
+static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirectory,
                            int strip, bool reverse, bool withCrlf)
 {
-    const QString patch = PatchTool::patchCommand();
+    const FilePath patch = PatchTool::patchCommand();
     if (patch.isEmpty()) {
         MessageManager::writeDisrupting(QApplication::translate(
             "Core::PatchTool",
@@ -71,8 +70,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         return false;
     }
 
-    if (!Utils::FilePath::fromString(patch).exists()
-            && !Utils::Environment::systemEnvironment().searchInPath(patch).exists()) {
+    if (!patch.exists() && !patch.searchInDirectories(Environment::systemEnvironment().path()).exists()) {
         MessageManager::writeDisrupting(
             QApplication::translate("Core::PatchTool",
                                     "The patch-command configured in the general \"Environment\" "
@@ -89,28 +87,25 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
     QStringList args;
     // Add argument 'apply' when git is used as patch command since git 2.5/Windows
     // no longer ships patch.exe.
-    if (patch.endsWith(QLatin1String("git"), Qt::CaseInsensitive)
-        || patch.endsWith(QLatin1String("git.exe"), Qt::CaseInsensitive)) {
-        args << QLatin1String("apply");
-    }
+    if (patch.endsWith("git") || patch.endsWith("git.exe"))
+        args << "apply";
+
     if (strip >= 0)
-        args << (QLatin1String("-p") + QString::number(strip));
+        args << ("-p" + QString::number(strip));
     if (reverse)
-        args << QLatin1String("-R");
+        args << "-R";
     if (withCrlf)
-        args << QLatin1String("--binary");
+        args << "--binary";
     MessageManager::writeDisrupting(
         QApplication::translate("Core::PatchTool", "Running in %1: %2 %3")
-            .arg(QDir::toNativeSeparators(workingDirectory),
-                 QDir::toNativeSeparators(patch),
-                 args.join(QLatin1Char(' '))));
-    patchProcess.setCommand({FilePath::fromString(patch), args});
+            .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')));
+    patchProcess.setCommand({patch, args});
     patchProcess.setWriteData(input);
     patchProcess.start();
     if (!patchProcess.waitForStarted()) {
         MessageManager::writeFlashing(
             QApplication::translate("Core::PatchTool", "Unable to launch \"%1\": %2")
-                .arg(patch, patchProcess.errorString()));
+                .arg(patch.toUserOutput(), patchProcess.errorString()));
         return false;
     }
 
@@ -120,7 +115,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         patchProcess.stopProcess();
         MessageManager::writeFlashing(
             QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"")
-                .arg(patch));
+                .arg(patch.toUserOutput()));
         return false;
 
     }
@@ -138,20 +133,20 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
 
     if (patchProcess.exitStatus() != QProcess::NormalExit) {
         MessageManager::writeFlashing(
-            QApplication::translate("Core::PatchTool", "\"%1\" crashed.").arg(patch));
+            QApplication::translate("Core::PatchTool", "\"%1\" crashed.").arg(patch.toUserOutput()));
         return false;
     }
     if (patchProcess.exitCode() != 0) {
         MessageManager::writeFlashing(
             QApplication::translate("Core::PatchTool", "\"%1\" failed (exit code %2).")
-                .arg(patch)
+                .arg(patch.toUserOutput())
                 .arg(patchProcess.exitCode()));
         return false;
     }
     return true;
 }
 
-bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirectory,
+bool PatchTool::runPatch(const QByteArray &input, const FilePath &workingDirectory,
                          int strip, bool reverse)
 {
     return runPatchHelper(input, workingDirectory, strip, reverse, false);
