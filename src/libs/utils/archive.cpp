@@ -118,8 +118,8 @@ static QVector<Tool> toolsForFilePath(const FilePath &fp)
 
 static Utils::optional<Tool> resolveTool(const Tool &tool)
 {
-    const FilePaths dirs = Environment::systemEnvironment().path() + tool.additionalSearchDirs;
-    const FilePath executable = tool.command.executable().withExecutableSuffix().searchInDirectories(dirs);
+    const FilePath executable =
+        tool.command.executable().withExecutableSuffix().searchInPath(tool.additionalSearchDirs);
     Tool resolvedTool = tool;
     resolvedTool.command.setExecutable(executable);
     return executable.isEmpty() ? Utils::nullopt : Utils::make_optional(resolvedTool);

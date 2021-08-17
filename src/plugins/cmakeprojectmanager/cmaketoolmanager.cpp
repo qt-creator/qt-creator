@@ -186,9 +186,8 @@ void CMakeToolManager::autoDetectCMakeForDevice(const FilePath &deviceRoot,
 {
     QStringList messages{tr("Searching CMake binaries...")};
     const FilePaths candidates = {deviceRoot.withNewPath("cmake")};
-    const Environment env = deviceRoot.deviceEnvironment();
     for (const FilePath &candidate : candidates) {
-        const FilePath cmake = candidate.searchInDirectories(env.path());
+        const FilePath cmake = candidate.searchInPath();
         if (!cmake.isEmpty()) {
             registerCMakeByPath(cmake, detectionSource);
             messages.append(tr("Found \"%1\"").arg(cmake.toUserOutput()));

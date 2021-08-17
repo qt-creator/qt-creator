@@ -1168,6 +1168,11 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
     return Environment::systemEnvironment().searchInPath(path(), dirs);
 }
 
+FilePath FilePath::searchInPath(const QList<FilePath> &additionalDirs) const
+{
+    return searchInDirectories(deviceEnvironment().path() + additionalDirs);
+}
+
 Environment FilePath::deviceEnvironment() const
 {
     if (needsDevice()) {

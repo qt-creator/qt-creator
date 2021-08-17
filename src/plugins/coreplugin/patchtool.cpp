@@ -70,7 +70,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         return false;
     }
 
-    if (!patch.exists() && !patch.searchInDirectories(Environment::systemEnvironment().path()).exists()) {
+    if (!patch.exists() && !patch.searchInPath().exists()) {
         MessageManager::writeDisrupting(
             QApplication::translate("Core::PatchTool",
                                     "The patch-command configured in the general \"Environment\" "
