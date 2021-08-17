@@ -29,6 +29,7 @@
 #include "qtcassert.h"
 
 #include <QtCore/qcoreapplication.h>
+#include <QtCore/qelapsedtimer.h>
 #include <QtNetwork/qlocalsocket.h>
 
 namespace Utils {
