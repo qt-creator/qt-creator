@@ -10,6 +10,7 @@ add_qtc_plugin(QmlDesigner
   DEFINES
     DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
+    SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CMAKE_CURRENT_LIST_DIR}/designercore/include"

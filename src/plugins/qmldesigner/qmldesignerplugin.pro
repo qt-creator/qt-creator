@@ -42,3 +42,7 @@ BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)
     DEFINES += SEARCH_PUPPET_IN_CREATOR_BINPATH
     message("Search puppet in qtcreator bin path!")
 }
+
+SHARE_QML_PATH = "$${PWD}/../../../share/qtcreator/qmldesigner"
+
+DEFINES += SHARE_QML_PATH=\\\"$${SHARE_QML_PATH}\\\"
