@@ -510,11 +510,11 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
     installCustomApkButton->setText(tr("Install an APK File"));
 
     connect(installCustomApkButton, &QAbstractButton::clicked, this, [this, widget] {
-        const QString packagePath
-            = QFileDialog::getOpenFileName(widget,
-                                           tr("Qt Android Installer"),
-                                           QDir::homePath(),
-                                           tr("Android package (*.apk)"));
+        const FilePath packagePath
+                = FileUtils::getOpenFilePath(widget,
+                                             tr("Qt Android Installer"),
+                                             FileUtils::homePath(),
+                                             tr("Android package (*.apk)"));
         if (!packagePath.isEmpty())
             AndroidManager::installQASIPackage(target(), packagePath);
     });

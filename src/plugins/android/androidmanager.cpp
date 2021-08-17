@@ -505,7 +505,7 @@ static int parseMinSdk(const QDomElement &manifestElem)
     return 0;
 }
 
-void AndroidManager::installQASIPackage(Target *target, const QString &packagePath)
+void AndroidManager::installQASIPackage(Target *target, const FilePath &packagePath)
 {
     const QStringList appAbis = AndroidManager::applicationAbis(target);
     if (appAbis.isEmpty())
@@ -523,7 +523,7 @@ void AndroidManager::installQASIPackage(Target *target, const QString &packagePa
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << "install" << "-r " << packagePath;
+    arguments << "install" << "-r " << packagePath.path();
     QString error;
     if (!runAdbCommandDetached(arguments, &error, true))
         Core::MessageManager::writeDisrupting(

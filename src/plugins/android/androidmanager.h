@@ -103,7 +103,7 @@ public:
     static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
 
-    static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
+    static void installQASIPackage(ProjectExplorer::Target *target, const Utils::FilePath &packagePath);
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd,
