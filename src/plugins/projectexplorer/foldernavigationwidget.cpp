@@ -541,8 +541,8 @@ void FolderNavigationWidget::removeCurrentItem()
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     if (!current.isValid() || m_fileSystemModel->isDir(current))
         return;
-    const Utils::FilePath filePath = Utils::FilePath::fromString(m_fileSystemModel->filePath(current));
-    Utils::RemoveFileDialog dialog(filePath.toString(), Core::ICore::dialogParent());
+    const FilePath filePath = FilePath::fromString(m_fileSystemModel->filePath(current));
+    RemoveFileDialog dialog(filePath, Core::ICore::dialogParent());
     dialog.setDeleteFileVisible(false);
     if (dialog.exec() == QDialog::Accepted) {
         const QVector<FolderNode *> folderNodes = removableFolderNodes(filePath);

@@ -3668,7 +3668,7 @@ void ProjectExplorerPluginPrivate::removeProject()
         return;
     ProjectNode *projectNode = node->managingProject();
     if (projectNode) {
-        RemoveFileDialog removeFileDialog(node->filePath().toString(), ICore::dialogParent());
+        RemoveFileDialog removeFileDialog(node->filePath(), ICore::dialogParent());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
             projectNode->removeSubProject(node->filePath());
@@ -3745,7 +3745,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     for (const Node * const n : ProjectTree::siblingsWithSameBaseName(currentNode))
         siblings << qMakePair(n, n->filePath());
 
-    RemoveFileDialog removeFileDialog(filePath.toString(), ICore::dialogParent());
+    RemoveFileDialog removeFileDialog(filePath, ICore::dialogParent());
     if (removeFileDialog.exec() != QDialog::Accepted)
         return;
 

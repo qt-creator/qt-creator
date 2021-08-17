@@ -26,16 +26,16 @@
 #include "removefiledialog.h"
 #include "ui_removefiledialog.h"
 
-#include <QDir>
+#include <utils/filepath.h>
 
 namespace Utils {
 
-RemoveFileDialog::RemoveFileDialog(const QString &filePath, QWidget *parent) :
+RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::RemoveFileDialog)
 {
     m_ui->setupUi(this);
-    m_ui->fileNameLabel->setText(QDir::toNativeSeparators(filePath));
+    m_ui->fileNameLabel->setText(filePath.toUserOutput());
 
     // TODO
     m_ui->removeVCCheckBox->setVisible(false);
