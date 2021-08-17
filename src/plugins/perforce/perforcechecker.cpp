@@ -70,7 +70,7 @@ void PerforceChecker::resetOverrideCursor()
     }
 }
 
-void PerforceChecker::start(const QString &binary, const QString &workingDirectory,
+void PerforceChecker::start(const FilePath &binary, const FilePath &workingDirectory,
                             const QStringList &basicArgs,
                             int timeoutMS)
 {
@@ -89,7 +89,7 @@ void PerforceChecker::start(const QString &binary, const QString &workingDirecto
     if (!workingDirectory.isEmpty())
         m_process.setWorkingDirectory(workingDirectory);
 
-    m_process.setCommand({FilePath::fromString(m_binary), args});
+    m_process.setCommand({m_binary, args});
     m_process.start();
     // Timeout handling
     m_timeOutMS = timeoutMS;
@@ -109,7 +109,7 @@ void PerforceChecker::slotTimeOut()
         return;
     m_timedOut = true;
     m_process.stopProcess();
-    emitFailed(tr("\"%1\" timed out after %2 ms.").arg(m_binary).arg(m_timeOutMS));
+    emitFailed(tr("\"%1\" timed out after %2 ms.").arg(m_binary.toUserOutput()).arg(m_timeOutMS));
 }
 
 void PerforceChecker::slotError(QProcess::ProcessError error)
@@ -119,7 +119,7 @@ void PerforceChecker::slotError(QProcess::ProcessError error)
     switch (error) {
     case QProcess::FailedToStart:
         emitFailed(tr("Unable to launch \"%1\": %2").
-                   arg(QDir::toNativeSeparators(m_binary), m_process.errorString()));
+                   arg(m_binary.toUserOutput(), m_process.errorString()));
         break;
     case QProcess::Crashed: // Handled elsewhere
     case QProcess::Timedout:
@@ -138,15 +138,15 @@ void PerforceChecker::slotFinished()
         return;
     switch (m_process.exitStatus()) {
     case QProcess::CrashExit:
-        emitFailed(tr("\"%1\" crashed.").arg(QDir::toNativeSeparators(m_binary)));
+        emitFailed(tr("\"%1\" crashed.").arg(m_binary.toUserOutput()));
         break;
     case QProcess::NormalExit:
         if (m_process.exitCode()) {
-            const QString stdErr = QString::fromLocal8Bit(m_process.readAllStandardError());
+            const QString stdErr = m_process.stdErr();
             emitFailed(tr("\"%1\" terminated with exit code %2: %3").
-                   arg(QDir::toNativeSeparators(m_binary)).arg(m_process.exitCode()).arg(stdErr));
+                   arg(m_binary.toUserOutput()).arg(m_process.exitCode()).arg(stdErr));
         } else {
-            parseOutput(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
+            parseOutput(m_process.stdOut());
         }
         break;
     }

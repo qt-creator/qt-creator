@@ -239,7 +239,7 @@ public:
 
     IEditor *openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames);
 
-    void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
+    void getTopLevel(const FilePath &workingDirectory = {}, bool isSync = false);
 
     void updateActions(ActionState) override;
     bool submitEditorAboutToClose() override;
@@ -284,7 +284,7 @@ public:
         FilePath m_topLevel;
     };
 
-    typedef QHash<QString, DirectoryCacheEntry> ManagedDirectoryCache;
+    typedef QHash<FilePath, DirectoryCacheEntry> ManagedDirectoryCache;
 
     IEditor *showOutputInEditor(const QString &title, const QString &output,
                                 Id id, const QString &source,
@@ -326,7 +326,7 @@ public:
 
     void updateCheckout(const FilePath &workingDir = {}, const QStringList &dirs = {});
     bool revertProject(const FilePath &workingDir, const QStringList &args, bool unchangedOnly);
-    bool managesDirectoryFstat(const QString &directory);
+    bool managesDirectoryFstat(const FilePath &directory);
 
     void applySettings();
 
@@ -976,7 +976,7 @@ void PerforcePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
 
 bool PerforcePluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel /* = 0 */) const
 {
-    const bool rc = const_cast<PerforcePluginPrivate *>(this)->managesDirectoryFstat(directory.toString());
+    const bool rc = const_cast<PerforcePluginPrivate *>(this)->managesDirectoryFstat(directory);
     if (topLevel) {
         if (rc)
             *topLevel = m_settings.topLevelSymLinkTarget();
@@ -994,7 +994,7 @@ bool PerforcePluginPrivate::managesFile(const FilePath &workingDirectory, const 
     return result.stdOut.contains(QLatin1String("depotFile"));
 }
 
-bool PerforcePluginPrivate::managesDirectoryFstat(const QString &directory)
+bool PerforcePluginPrivate::managesDirectoryFstat(const FilePath &directory)
 {
     // Cached?
     const ManagedDirectoryCache::const_iterator cit = m_managedDirectoryCache.constFind(directory);
@@ -1014,7 +1014,7 @@ bool PerforcePluginPrivate::managesDirectoryFstat(const QString &directory)
     bool managed = false;
     do {
         // Quick check: Must be at or below top level and not "../../other_path"
-        const QString relativeDirArgs = m_settings.relativeToTopLevelArguments(directory);
+        const QString relativeDirArgs = m_settings.relativeToTopLevelArguments(directory.toString());
         if (!relativeDirArgs.isEmpty() && relativeDirArgs.startsWith(QLatin1String(".."))) {
             if (!m_settings.defaultEnv())
                 break;
@@ -1708,7 +1708,7 @@ void PerforcePluginPrivate::slotTopLevelFailed(const QString &errorMessage)
     VcsOutputWindow::appendSilently(tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
 }
 
-void PerforcePluginPrivate::getTopLevel(const QString &workingDirectory, bool isSync)
+void PerforcePluginPrivate::getTopLevel(const FilePath &workingDirectory, bool isSync)
 {
     // Run a new checker
     if (m_settings.p4BinaryPath.value().isEmpty())
@@ -1719,7 +1719,7 @@ void PerforcePluginPrivate::getTopLevel(const QString &workingDirectory, bool is
     connect(checker, &PerforceChecker::succeeded, dd, &PerforcePluginPrivate::setTopLevel);
     connect(checker, &PerforceChecker::succeeded,checker, &QObject::deleteLater);
 
-    checker->start(m_settings.p4BinaryPath.value(), workingDirectory,
+    checker->start(m_settings.p4BinaryPath.filePath(), workingDirectory,
                    m_settings.commonP4Arguments(QString()), 30000);
 
     if (isSync)

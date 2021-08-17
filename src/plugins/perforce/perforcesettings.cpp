@@ -262,7 +262,7 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
 
             errorLabel->setStyleSheet(QString());
             errorLabel->setText(PerforceSettings::tr("Testing..."));
-            checker->start(settings->p4BinaryPath.value(), QString(), settings->commonP4Arguments(), 10000);
+            checker->start(settings->p4BinaryPath.filePath(), {}, settings->commonP4Arguments(), 10000);
         });
 
         Group config {

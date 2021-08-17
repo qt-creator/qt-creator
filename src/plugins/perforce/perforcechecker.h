@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
 namespace Perforce {
@@ -41,9 +42,9 @@ public:
     explicit PerforceChecker(QObject *parent = nullptr);
     ~PerforceChecker() override;
 
-    void start(const QString &binary,
-               const QString &workingDirectory,
-               const QStringList &basicArgs = QStringList(),
+    void start(const Utils::FilePath &binary,
+               const Utils::FilePath &workingDirectory,
+               const QStringList &basicArgs = {},
                int timeoutMS = -1);
 
     bool isRunning() const;
@@ -68,7 +69,7 @@ private:
     inline void resetOverrideCursor();
 
     Utils::QtcProcess m_process;
-    QString m_binary;
+    Utils::FilePath m_binary;
     int m_timeOutMS = -1;
     bool m_timedOut = false;
     bool m_useOverideCursor = false;
