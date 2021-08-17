@@ -111,8 +111,8 @@ Item {
                                 id: mouseArea
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                onClicked: index == 0 ? rootView.handleAddModule()
-                                                      : rootView.handleAddAsset()
+                                onClicked: index === 0 ? rootView.handleAddModule()
+                                                       : rootView.handleAddAsset()
                                 tooltip: modelData.addToolTip
                             }
                         }

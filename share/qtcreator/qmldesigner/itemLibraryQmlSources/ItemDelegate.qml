@@ -81,7 +81,7 @@ Item {
             anchors.fill: parent
 
             onShowContextMenu: delegateRoot.showContextMenu()
-            onPressed: {
+            onPressed: (mouse)=> {
                 if (mouse.button === Qt.LeftButton)
                     rootView.startDragAndDrop(itemLibraryEntry, mapToGlobal(mouse.x, mouse.y))
             }
