@@ -32,7 +32,7 @@
     <category>Qt Quick</category>
     <order>1</order>
     <executable>
-        <path>%{CurrentProject:QT_INSTALL_BINS}/qml</path>
+        <path>%{CurrentDocument:Project:QT_INSTALL_BINS}/qml</path>
         <path>qml</path>
         <arguments>%{CurrentDocument:FilePath}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
