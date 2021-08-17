@@ -426,11 +426,11 @@ void MainWidget::exportToImage()
             .arg(lastFolder)
             .arg(suggestedFileName)
             .arg(QDateTime::currentDateTime().toString("yyyyMMddhhmmss"));
-    const QString selectedFileName = QFileDialog::getSaveFileName(this,
-                                                                  tr("Export Canvas to Image"),
-                                                                  suggestedFileName,
-                                                                  saveImageFileFilter());
-    if (!selectedFileName.isEmpty()) {
+    const FilePath filePath = FileUtils::getSaveFilePath(this,
+                                                         tr("Export Canvas to Image"),
+                                                         FilePath::fromString(suggestedFileName),
+                                                         saveImageFileFilter());
+    if (!filePath.isEmpty()) {
         const QRectF r = view->scene()->itemsBoundingRect();
         QImage image(r.size().toSize(), QImage::Format_ARGB32);
         image.fill(QColor(0xef, 0xef, 0xef));
@@ -438,9 +438,8 @@ void MainWidget::exportToImage()
         QPainter painter(&image);
         view->scene()->render(&painter, QRectF(), r);
 
-        if (image.save(selectedFileName)) {
-            s->setValue(Constants::C_SETTINGS_LASTEXPORTFOLDER,
-                        QFileInfo(selectedFileName).absolutePath());
+        if (image.save(filePath.toString())) {
+            s->setValue(Constants::C_SETTINGS_LASTEXPORTFOLDER, filePath.parentDir().toString());
         } else {
             QMessageBox::warning(this, tr("Export Failed"), tr("Could not export to image."));
         }
@@ -455,18 +454,17 @@ void MainWidget::saveScreenShot()
 
     QSettings *s = Core::ICore::settings();
     const QString documentsLocation = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    const QString lastFolder =
-            s->value(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, documentsLocation).toString();
-    const QString filename = QFileDialog::getSaveFileName(this,
-                                                          tr("Save Screenshot"),
-                                                          lastFolder + "/scxml_screenshot.png",
-                                                          saveImageFileFilter());
-    if (!filename.isEmpty()) {
+    const FilePath lastFolder = FilePath::fromVariant(
+            s->value(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, documentsLocation));
+    const FilePath filePath = FileUtils::getSaveFilePath(this,
+                                                         tr("Save Screenshot"),
+                                                         lastFolder / "scxml_screenshot.png",
+                                                         saveImageFileFilter());
+    if (!filePath.isEmpty()) {
         const QImage image = view->view()->grabView();
 
-        if (image.save(filename)) {
-            s->setValue(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER,
-                        QFileInfo(filename).absolutePath());
+        if (image.save(filePath.toString())) {
+            s->setValue(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, filePath.parentDir().toVariant());
         } else {
             QMessageBox::warning(this, tr("Saving Failed"), tr("Could not save the screenshot."));
         }

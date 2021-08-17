@@ -38,7 +38,6 @@
 #include <valgrind/xmlprotocol/error.h>
 
 #include <QDebug>
-#include <QFileDialog>
 #include <QListView>
 #include <QPushButton>
 #include <QSettings>
@@ -104,16 +103,16 @@ void SuppressionAspectPrivate::slotAddSuppression()
 {
     ValgrindGlobalSettings *conf = ValgrindGlobalSettings::instance();
     QTC_ASSERT(conf, return);
-    const QStringList files =
-            QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
+    const FilePaths files =
+            FileUtils::getOpenFilePaths(nullptr,
                       tr("Valgrind Suppression Files"),
-                      conf->lastSuppressionDirectory.value(),
+                      conf->lastSuppressionDirectory.filePath(),
                       tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
-        for (const QString &file : files)
-            m_model.appendRow(new QStandardItem(file));
-        conf->lastSuppressionDirectory.setValue(QFileInfo(files.at(0)).absolutePath());
+        for (const FilePath &file : files)
+            m_model.appendRow(new QStandardItem(file.toString()));
+        conf->lastSuppressionDirectory.setFilePath(files.at(0).absolutePath());
         //conf->setLastSuppressionDialogHistory(dialog.history());
         if (!isGlobal)
             q->apply();

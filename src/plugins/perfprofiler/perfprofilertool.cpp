@@ -619,10 +619,9 @@ void PerfProfilerTool::showLoadTraceDialog()
 {
     m_perspective.select();
 
-    QString filename = QFileDialog::getOpenFileName(
-                ICore::dialogParent(), tr("Load Trace File"),
-                "", tr("Trace File (*.ptq)"));
-    if (filename.isEmpty())
+    FilePath filePath = FileUtils::getOpenFilePath(nullptr, tr("Load Trace File"),
+                                                   {}, tr("Trace File (*.ptq)"));
+    if (filePath.isEmpty())
         return;
 
     startLoading();
@@ -632,23 +631,22 @@ void PerfProfilerTool::showLoadTraceDialog()
     const Kit *kit = target ? target->kit() : nullptr;
     populateFileFinder(currentProject, kit);
 
-    m_traceManager->loadFromTraceFile(filename);
+    m_traceManager->loadFromTraceFile(filePath.toString());
 }
 
 void PerfProfilerTool::showSaveTraceDialog()
 {
     m_perspective.select();
 
-    QString filename = QFileDialog::getSaveFileName(
-                ICore::dialogParent(), tr("Save Trace File"),
-                "", tr("Trace File (*.ptq)"));
-    if (filename.isEmpty())
+    FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Trace File"),
+                                                   {}, tr("Trace File (*.ptq)"));
+    if (filePath.isEmpty())
         return;
-    if (!filename.endsWith(".ptq"))
-        filename += ".ptq";
+    if (!filePath.endsWith(".ptq"))
+        filePath = filePath + ".ptq";
 
     setToolActionsEnabled(false);
-    m_traceManager->saveToTraceFile(filename);
+    m_traceManager->saveToTraceFile(filePath.toString());
 }
 
 void PerfProfilerTool::setAggregated(bool aggregated)

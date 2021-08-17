@@ -58,7 +58,6 @@
 
 #include <QDesktopServices>
 #include <QDir>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QTextBrowser>
@@ -602,13 +601,12 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
 
 void QtOptionsPageWidget::addQtDir()
 {
-    FilePath qtVersion = FilePath::fromString(
-                QFileDialog::getOpenFileName(this,
-                                             tr("Select a qmake Executable"),
-                                             QString(),
-                                             BuildableHelperLibrary::filterForQmakeFileDialog(),
-                                             0,
-                                             QFileDialog::DontResolveSymlinks));
+    FilePath qtVersion = FileUtils::getOpenFilePath(this,
+                                                    tr("Select a qmake Executable"),
+                                                    {},
+                                                    BuildableHelperLibrary::filterForQmakeFileDialog(),
+                                                    0,
+                                                    QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
         return;
 
@@ -672,14 +670,13 @@ void QtOptionsPageWidget::removeQtDir()
 void QtOptionsPageWidget::editPath()
 {
     BaseQtVersion *current = currentVersion();
-    QString dir = currentVersion()->qmakeFilePath().toFileInfo().absolutePath();
-    FilePath qtVersion = FilePath::fromString(
-        QFileDialog::getOpenFileName(this,
-                                     tr("Select a qmake Executable"),
-                                     dir,
-                                     BuildableHelperLibrary::filterForQmakeFileDialog(),
-                                     nullptr,
-                                     QFileDialog::DontResolveSymlinks));
+    FilePath qtVersion =
+            FileUtils::getOpenFilePath(this,
+                                       tr("Select a qmake Executable"),
+                                       current->qmakeFilePath().absolutePath(),
+                                       BuildableHelperLibrary::filterForQmakeFileDialog(),
+                                       nullptr,
+                                       QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);

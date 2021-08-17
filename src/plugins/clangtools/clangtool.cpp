@@ -790,22 +790,20 @@ void ClangTool::initDiagnosticView()
 void ClangTool::loadDiagnosticsFromFiles()
 {
     // Ask user for files
-    const QStringList filePaths
-        = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
-                                        tr("Select YAML Files with Diagnostics"),
-                                        QDir::homePath(),
-                                        tr("YAML Files (*.yml *.yaml);;All Files (*)"));
+    const FilePaths filePaths
+        = FileUtils::getOpenFilePaths(nullptr,
+                                      tr("Select YAML Files with Diagnostics"),
+                                      FileUtils::homePath(),
+                                      tr("YAML Files (*.yml *.yaml);;All Files (*)"));
     if (filePaths.isEmpty())
         return;
 
     // Load files
     Diagnostics diagnostics;
     QString errors;
-    for (const QString &filePath : filePaths) {
+    for (const FilePath &filePath : filePaths) {
         QString currentError;
-        diagnostics << readExportedDiagnostics(Utils::FilePath::fromString(filePath),
-                                               {},
-                                               &currentError);
+        diagnostics << readExportedDiagnostics(filePath, {}, &currentError);
 
         if (!currentError.isEmpty()) {
             if (!errors.isEmpty())

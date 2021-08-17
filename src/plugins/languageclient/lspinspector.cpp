@@ -36,7 +36,6 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QElapsedTimer>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHeaderView>
@@ -49,6 +48,7 @@
 #include <QTreeView>
 
 using namespace LanguageServerProtocol;
+using namespace Utils;
 
 namespace LanguageClient {
 
@@ -322,10 +322,10 @@ void LspLogWidget::saveLog()
         stream << "\n\n";
     });
 
-    const QString fileName = QFileDialog::getSaveFileName(this, LspInspector::tr("Log File"));
-    if (fileName.isEmpty())
+    const FilePath filePath = FileUtils::getSaveFilePath(this, LspInspector::tr("Log File"));
+    if (filePath.isEmpty())
         return;
-    Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
+    FileSaver saver(filePath, QIODevice::Text);
     saver.write(contents.toUtf8());
     if (!saver.finalize(this))
         saveLog();

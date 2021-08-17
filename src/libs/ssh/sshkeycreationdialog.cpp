@@ -34,11 +34,12 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
+
+using namespace Utils;
 
 namespace QSsh {
 
@@ -112,9 +113,9 @@ void SshKeyCreationDialog::generateKeys()
 
 void SshKeyCreationDialog::handleBrowseButtonClicked()
 {
-    const QString filePath = QFileDialog::getSaveFileName(this, tr("Choose Private Key File Name"));
+    const FilePath filePath = FileUtils::getSaveFilePath(this, tr("Choose Private Key File Name"));
     if (!filePath.isEmpty())
-        setPrivateKeyFile(filePath);
+        setPrivateKeyFile(filePath.toString());
 }
 
 void SshKeyCreationDialog::setPrivateKeyFile(const QString &filePath)

@@ -404,11 +404,11 @@ void DebuggerSourcePathMappingWidget::slotAdd()
 void DebuggerSourcePathMappingWidget::slotAddQt()
 {
     // Add a mapping for various Qt build locations in case of unpatched builds.
-    const QString qtSourcesPath = QFileDialog::getExistingDirectory(this, tr("Qt Sources"));
+    const FilePath qtSourcesPath = FileUtils::getExistingDirectory(this, tr("Qt Sources"));
     if (qtSourcesPath.isEmpty())
         return;
     for (const QString &buildPath : qtBuildPaths())
-        m_model->addMapping(buildPath, qtSourcesPath);
+        m_model->addMapping(buildPath, qtSourcesPath.toString());
     resizeColumns();
     setCurrentRow(m_model->rowCount() - 1);
 }

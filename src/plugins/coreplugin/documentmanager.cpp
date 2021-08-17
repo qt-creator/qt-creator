@@ -797,15 +797,15 @@ QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter
 }
 
 QString DocumentManager::getSaveFileName(const QString &title, const QString &pathIn,
-                                     const QString &filter, QString *selectedFilter)
+                                         const QString &filter, QString *selectedFilter)
 {
-    const QString &path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
+    const FilePath path = FilePath::fromString(pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn);
     QString fileName;
     bool repeat;
     do {
         repeat = false;
-        fileName = QFileDialog::getSaveFileName(
-            ICore::dialogParent(), title, path, filter, selectedFilter, QFileDialog::DontConfirmOverwrite);
+        fileName = FileUtils::getSaveFilePath(nullptr, title, path, filter, selectedFilter,
+                                              QFileDialog::DontConfirmOverwrite).toString();
         if (!fileName.isEmpty()) {
             // If the selected filter is All Files (*) we leave the name exactly as the user
             // specified. Otherwise the suffix must be one available in the selected filter. If

@@ -586,11 +586,11 @@ void QmlProfilerTool::showErrorDialog(const QString &error)
     errorDialog->show();
 }
 
-void saveLastTraceFile(const QString &filename)
+static void saveLastTraceFile(const FilePath &filePath)
 {
     QmlProfilerSettings *settings = QmlProfilerPlugin::globalSettings();
-    if (filename != settings->lastTraceFile.value()) {
-        settings->lastTraceFile.setValue(filename);
+    if (filePath != settings->lastTraceFile.filePath()) {
+        settings->lastTraceFile.setFilePath(filePath);
         settings->writeGlobalSettings();
     }
 }
@@ -599,16 +599,16 @@ void QmlProfilerTool::showSaveDialog()
 {
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
-    QString filename = QFileDialog::getSaveFileName(
-                ICore::dialogParent(), tr("Save QML Trace"),
-                QmlProfilerPlugin::globalSettings()->lastTraceFile.value(),
+    FilePath filePath = FileUtils::getSaveFilePath(
+                nullptr, tr("Save QML Trace"),
+                QmlProfilerPlugin::globalSettings()->lastTraceFile.filePath(),
                 tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
-    if (!filename.isEmpty()) {
-        if (!filename.endsWith(zFile) && !filename.endsWith(tFile))
-            filename += zFile;
-        saveLastTraceFile(filename);
+    if (!filePath.isEmpty()) {
+        if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
+            filePath = filePath + zFile;
+        saveLastTraceFile(filePath);
         Debugger::enableMainWindow(false);
-        Core::ProgressManager::addTask(d->m_profilerModelManager->save(filename),
+        Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toString()),
                                        tr("Saving Trace Data"), TASK_SAVE,
                                        Core::ProgressManager::ShowInApplicationIcon);
     }
@@ -623,18 +623,18 @@ void QmlProfilerTool::showLoadDialog()
 
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
-    QString filename = QFileDialog::getOpenFileName(
-                ICore::dialogParent(), tr("Load QML Trace"),
-                QmlProfilerPlugin::globalSettings()->lastTraceFile.value(),
+    FilePath filePath = FileUtils::getOpenFilePath(
+                nullptr, tr("Load QML Trace"),
+                QmlProfilerPlugin::globalSettings()->lastTraceFile.filePath(),
                 tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
 
-    if (!filename.isEmpty()) {
-        saveLastTraceFile(filename);
+    if (!filePath.isEmpty()) {
+        saveLastTraceFile(filePath);
         Debugger::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->populateFileFinder();
-        Core::ProgressManager::addTask(d->m_profilerModelManager->load(filename),
+        Core::ProgressManager::addTask(d->m_profilerModelManager->load(filePath.toString()),
                                        tr("Loading Trace Data"), TASK_LOAD);
     }
 }

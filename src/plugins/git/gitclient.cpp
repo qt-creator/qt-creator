@@ -1239,16 +1239,16 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
     if (synchronousRevParseCmd(repoDirectory, commit, &output))
         commit = output.trimmed();
 
-    QString archiveName = QFileDialog::getSaveFileName(
-                ICore::dialogParent(),
+    FilePath archiveName = FileUtils::getSaveFilePath(
+                nullptr,
                 tr("Generate %1 archive").arg(repoName),
-                repoDirectory.toString() + QString("/../%1-%2").arg(repoName).arg(commit.left(8)),
+                repoDirectory.pathAppended(QString("../%1-%2").arg(repoName).arg(commit.left(8))),
                 filters.keys().join(";;"),
                 &selectedFilter);
     if (archiveName.isEmpty())
         return;
     QString extension = filters.value(selectedFilter);
-    QFileInfo archive(archiveName);
+    QFileInfo archive(archiveName.toString());
     if (extension != "." + archive.completeSuffix()) {
         archive = QFileInfo(archive.filePath() + extension);
     }

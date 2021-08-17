@@ -106,6 +106,8 @@
 
 #include <algorithm>
 
+using namespace Utils;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -595,10 +597,10 @@ void ModelEditor::exportToImage(bool selectedElements)
 #ifndef QT_NO_SVG
         filter += tr(";;SVG (*.svg)");
 #endif // QT_NO_SVG
-        QString fileName = QFileDialog::getSaveFileName(
-                    Core::ICore::dialogParent(),
+        QString fileName = FileUtils::getSaveFilePath(
+                    nullptr,
                     selectedElements ? tr("Export Selected Elements") : tr("Export Diagram"),
-                    d->lastExportDirPath, filter);
+                    FilePath::fromString(d->lastExportDirPath), filter).toString();
         if (!fileName.isEmpty()) {
             qmt::DocumentController *documentController = d->document->documentController();
             qmt::DiagramSceneModel *sceneModel = documentController->diagramsManager()->diagramSceneModel(diagram);

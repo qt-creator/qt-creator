@@ -102,10 +102,9 @@ public:
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
         connect(addButton, &QPushButton::clicked, this, [this] {
-            const QString dir = QDir::toNativeSeparators(
-                        QFileDialog::getExistingDirectory(this, tr("Choose Directory")));
+            const FilePath dir = FileUtils::getExistingDirectory(this, tr("Choose Directory"));
             if (!dir.isEmpty())
-                addPath(dir);
+                addPath(dir.toUserOutput());
         });
         connect(removeButton, &QPushButton::clicked, this, [this] {
             const QList<QTreeWidgetItem *> selected = m_view.selectedItems();
@@ -486,12 +485,11 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
 void EnvironmentWidget::amendPathList(Utils::NameValueItem::Operation op)
 {
     const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
-    const QString dir = QDir::toNativeSeparators(
-                QFileDialog::getExistingDirectory(this, tr("Choose Directory")));
+    const FilePath dir = FileUtils::getExistingDirectory(this, tr("Choose Directory"));
     if (dir.isEmpty())
         return;
     Utils::NameValueItems changes = d->m_model->userChanges();
-    changes.append({varName, dir, op});
+    changes.append({varName, dir.toUserOutput(), op});
     d->m_model->setUserChanges(changes);
 }
 

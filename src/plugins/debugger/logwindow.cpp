@@ -56,6 +56,8 @@
 #include <utils/fileutils.h>
 #include <utils/theme/theme.h>
 
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -94,10 +96,10 @@ static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
 {
     bool success = false;
     while (!success) {
-        const QString fileName = QFileDialog::getSaveFileName(parent, LogWindow::tr("Log File"));
-        if (fileName.isEmpty())
+        const FilePath filePath = FileUtils::getSaveFilePath(parent, LogWindow::tr("Log File"));
+        if (filePath.isEmpty())
             break;
-        Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
+        FileSaver saver(filePath, QIODevice::Text);
         saver.write(editor->toPlainText().toUtf8());
         if (saver.finalize(parent))
             success = true;

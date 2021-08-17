@@ -31,9 +31,8 @@
 #include <ssh/sshconnection.h>
 #include <utils/theme/theme.h>
 
-#include <QFileDialog>
-
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -50,14 +49,13 @@ using namespace Internal;
 PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
         const IDevice::ConstPtr &deviceConfig, QWidget *parent)
 {
-    const QString &dir = QFileInfo(deviceConfig->sshParameters().privateKeyFile).path();
-    const QString publicKeyFileName = QFileDialog::getOpenFileName(parent
-            ? parent : Core::ICore::dialogParent(),
+    const FilePath dir = FilePath::fromString(deviceConfig->sshParameters().privateKeyFile).parentDir();
+    const FilePath publicKeyFileName = FileUtils::getOpenFilePath(nullptr,
         tr("Choose Public Key File"), dir,
         tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
         return nullptr;
-    return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
+    return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName.toString(), parent);
 }
 
 PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &deviceConfig,

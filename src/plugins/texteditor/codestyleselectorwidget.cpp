@@ -43,6 +43,7 @@
 #include <QDebug>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
@@ -150,8 +151,7 @@ CodeStyleDialog::~CodeStyleDialog()
     delete m_codeStyle;
 }
 
-}
-}
+} // Internal
 
 CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent) :
     QWidget(parent),
@@ -326,9 +326,9 @@ void CodeStyleSelectorWidget::slotRemoveClicked()
 
 void CodeStyleSelectorWidget::slotImportClicked()
 {
-    const Utils::FilePath fileName =
-            Utils::FilePath::fromString(QFileDialog::getOpenFileName(this, tr("Import Code Style"), QString(),
-                                                                     tr("Code styles (*.xml);;All files (*)")));
+    const FilePath fileName =
+            FileUtils::getOpenFilePath(this, tr("Import Code Style"), {},
+                                       tr("Code styles (*.xml);;All files (*)"));
     if (!fileName.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
         ICodeStylePreferences *importedStyle = codeStylePool->importCodeStyle(fileName);
@@ -343,12 +343,12 @@ void CodeStyleSelectorWidget::slotImportClicked()
 void CodeStyleSelectorWidget::slotExportClicked()
 {
     ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
-    const QString fileName = QFileDialog::getSaveFileName(this, tr("Export Code Style"),
-                             QString::fromUtf8(currentPreferences->id() + ".xml"),
+    const FilePath filePath = FileUtils::getSaveFilePath(this, tr("Export Code Style"),
+                             FilePath::fromString(QString::fromUtf8(currentPreferences->id() + ".xml")),
                              tr("Code styles (*.xml);;All files (*)"));
-    if (!fileName.isEmpty()) {
+    if (!filePath.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
-        codeStylePool->exportCodeStyle(Utils::FilePath::fromString(fileName), currentPreferences);
+        codeStylePool->exportCodeStyle(filePath, currentPreferences);
     }
 }
 
@@ -421,5 +421,7 @@ QString CodeStyleSelectorWidget::displayName(ICodeStylePreferences *codeStyle) c
         name = tr("%1 [built-in]").arg(name);
     return name;
 }
+
+} // TextEditor
 
 #include "codestyleselectorwidget.moc"

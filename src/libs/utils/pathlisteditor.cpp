@@ -27,6 +27,7 @@
 
 #include "hostosinfo.h"
 #include "stringutils.h"
+#include "fileutils.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -122,17 +123,13 @@ PathListEditor::PathListEditor(QWidget *parent) :
         d(new PathListEditorPrivate)
 {
     setLayout(d->layout);
-    addButton(tr("Insert..."), this, [this](){
-        const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
+    addButton(tr("Insert..."), this, [this] {
+        const FilePath dir = FileUtils::getExistingDirectory(this, d->fileDialogTitle);
         if (!dir.isEmpty())
-            insertPathAtCursor(QDir::toNativeSeparators(dir));
+            insertPathAtCursor(dir.toUserOutput());
     });
-    addButton(tr("Delete Line"), this, [this](){
-        deletePathAtCursor();
-    });
-    addButton(tr("Clear"), this, [this](){
-        d->edit->clear();
-    });
+    addButton(tr("Delete Line"), this, [this] { deletePathAtCursor(); });
+    addButton(tr("Clear"), this, [this] { d->edit->clear(); });
 }
 
 PathListEditor::~PathListEditor()

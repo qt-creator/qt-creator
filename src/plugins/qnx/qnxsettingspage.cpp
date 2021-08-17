@@ -35,8 +35,9 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <QFileDialog>
 #include <QMessageBox>
+
+using namespace Utils;
 
 namespace Qnx {
 namespace Internal {
@@ -107,16 +108,16 @@ void QnxSettingsWidget::addConfiguration()
 {
     QString filter;
     if (Utils::HostOsInfo::isWindowsHost())
-        filter = QLatin1String("*.bat file");
+        filter = "*.bat file";
     else
-        filter = QLatin1String("*.sh file");
+        filter = "*.sh file";
 
-    const QString envFile = QFileDialog::getOpenFileName(this, tr("Select QNX Environment File"),
-                                                         QString(), filter);
+    const FilePath envFile = FileUtils::getOpenFilePath(this, tr("Select QNX Environment File"),
+                                                        {}, filter);
     if (envFile.isEmpty())
         return;
 
-    QnxConfiguration *config = new QnxConfiguration(Utils::FilePath::fromString(envFile));
+    QnxConfiguration *config = new QnxConfiguration(envFile);
     if (m_qnxConfigManager->configurations().contains(config)
             || !config->isValid()) {
         QMessageBox::warning(Core::ICore::dialogParent(),

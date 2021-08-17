@@ -41,6 +41,7 @@
 #include <utils/utilsicons.h>
 
 using namespace ScxmlEditor::OutputPane;
+using namespace Utils;
 
 ErrorWidget::ErrorWidget(QWidget *parent)
     : OutputPane(parent)
@@ -203,13 +204,13 @@ QString ErrorWidget::modifyExportedValue(const QString &val)
 
 void ErrorWidget::exportWarnings()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Export to File"), QString(), tr("CSV files (*.csv)"));
+    FilePath fileName = FileUtils::getSaveFilePath(this, tr("Export to File"), {}, tr("CSV files (*.csv)"));
     if (fileName.isEmpty())
         return;
 
-    QFile file(fileName);
+    QFile file(fileName.toString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("Export Failed"), tr("Cannot open file %1.").arg(fileName));
+        QMessageBox::warning(this, tr("Export Failed"), tr("Cannot open file %1.").arg(fileName.toUserOutput()));
         file.close();
         return;
     }

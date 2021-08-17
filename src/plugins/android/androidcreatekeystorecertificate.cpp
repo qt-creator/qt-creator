@@ -169,9 +169,9 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     if (!validateUserInput())
         return;
 
-    m_keystoreFilePath = Utils::FilePath::fromString(QFileDialog::getSaveFileName(this, tr("Keystore Filename"),
-                                                                                  QDir::homePath() + QLatin1String("/android_release.keystore"),
-                                                                                  tr("Keystore files (*.keystore *.jks)")));
+    m_keystoreFilePath = FileUtils::getSaveFilePath(this, tr("Keystore Filename"),
+                                                    FileUtils::homePath() / "android_release.keystore",
+                                                    tr("Keystore files (*.keystore *.jks)"));
     if (m_keystoreFilePath.isEmpty())
         return;
     QString distinguishedNames(QString::fromLatin1("CN=%1, O=%2, L=%3, C=%4")

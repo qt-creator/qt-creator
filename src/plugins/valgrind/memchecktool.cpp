@@ -1017,16 +1017,16 @@ void MemcheckToolPrivate::loadShowXmlLogFile(const QString &filePath, const QStr
 
 void MemcheckToolPrivate::loadExternalXmlLogFile()
 {
-    const QString filePath = QFileDialog::getOpenFileName(
-                ICore::dialogParent(),
+    const FilePath filePath = FileUtils::getOpenFilePath(
+                nullptr,
                 MemcheckTool::tr("Open Memcheck XML Log File"),
-                QString(),
+                {},
                 MemcheckTool::tr("XML Files (*.xml);;All Files (*)"));
     if (filePath.isEmpty())
         return;
 
     m_exitMsg.clear();
-    loadXmlLogFile(filePath);
+    loadXmlLogFile(filePath.toString());
 }
 
 void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)

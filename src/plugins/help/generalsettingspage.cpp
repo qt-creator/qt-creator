@@ -36,7 +36,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>
-#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -46,10 +45,12 @@
 #include <QTextStream>
 
 #include <QApplication>
-#include <QFileDialog>
 
 using namespace Core;
-using namespace Help::Internal;
+using namespace Utils;
+
+namespace Help {
+namespace Internal {
 
 GeneralSettingsPage::GeneralSettingsPage()
 {
@@ -219,13 +220,13 @@ void GeneralSettingsPage::importBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(),
-        tr("Import Bookmarks"), QDir::currentPath(), tr("Files (*.xbel)"));
+    FilePath filePath = FileUtils::getOpenFilePath(nullptr,
+        tr("Import Bookmarks"), FilePath::fromString(QDir::currentPath()), tr("Files (*.xbel)"));
 
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return;
 
-    QFile file(fileName);
+    QFile file(filePath.toString());
     if (file.open(QIODevice::ReadOnly)) {
         const BookmarkManager &manager = LocalHelpManager::bookmarkManager();
         XbelReader reader(manager.treeBookmarkModel(), manager.listBookmarkModel());
@@ -241,14 +242,14 @@ void GeneralSettingsPage::exportBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
+    FilePath filePath = FileUtils::getSaveFilePath(nullptr,
         tr("Save File"), "untitled.xbel", tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");
-    if (!fileName.endsWith(suffix))
-        fileName.append(suffix);
+    if (!filePath.endsWith(suffix))
+        filePath = filePath + suffix;
 
-    Utils::FileSaver saver(Utils::FilePath::fromString(fileName));
+    Utils::FileSaver saver(filePath);
     if (!saver.hasError()) {
         XbelWriter writer(LocalHelpManager::bookmarkManager().treeBookmarkModel());
         writer.writeToFile(saver.file());
@@ -366,3 +367,6 @@ void GeneralSettingsPage::finish()
     delete m_ui;
     m_ui = nullptr;
 }
+
+} // Internal
+} // Help

@@ -308,17 +308,17 @@ void KitManagerConfigWidget::setIcon()
         action->setIconVisibleInMenu(true);
     }
     iconMenu.addSeparator();
-    iconMenu.addAction(Utils::PathChooser::browseButtonLabel(), [this] {
-        const QString path = QFileDialog::getOpenFileName(this, tr("Select Icon"),
-                                                          m_modifiedKit->iconPath().toString(),
-                                                          tr("Images (*.png *.xpm *.jpg)"));
+    iconMenu.addAction(PathChooser::browseButtonLabel(), [this] {
+        const FilePath path = FileUtils::getOpenFilePath(this, tr("Select Icon"),
+                                                         m_modifiedKit->iconPath(),
+                                                         tr("Images (*.png *.xpm *.jpg)"));
         if (path.isEmpty())
             return;
-        const QIcon icon(path);
+        const QIcon icon(path.toString());
         if (icon.isNull())
             return;
         m_iconButton->setIcon(icon);
-        m_modifiedKit->setIconPath(Utils::FilePath::fromString(path));
+        m_modifiedKit->setIconPath(path);
         emit dirty();
     });
     iconMenu.exec(mapToGlobal(m_iconButton->pos()));

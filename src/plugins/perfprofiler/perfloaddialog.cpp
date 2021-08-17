@@ -33,7 +33,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <QFileDialog>
+using namespace Utils;
 
 namespace PerfProfiler {
 namespace Internal {
@@ -75,23 +75,23 @@ ProjectExplorer::Kit *PerfLoadDialog::kit() const
 
 void PerfLoadDialog::on_browseTraceFileButton_pressed()
 {
-    QString fileName = QFileDialog::getOpenFileName(
-                this, tr("Choose Perf Trace"), QString(),
-                tr("Perf traces (*%1)").arg(QLatin1String(Constants::TraceFileExtension)));
-    if (fileName.isEmpty())
+    FilePath filePath = FileUtils::getOpenFilePath(
+                this, tr("Choose Perf Trace"), {},
+                tr("Perf traces (*%1)").arg(Constants::TraceFileExtension));
+    if (filePath.isEmpty())
         return;
 
-    ui->traceFileLineEdit->setText(fileName);
+    ui->traceFileLineEdit->setText(filePath.toUserOutput());
 }
 
 void PerfLoadDialog::on_browseExecutableDirButton_pressed()
 {
-    QString fileName = QFileDialog::getExistingDirectory(
+    FilePath filePath = FileUtils::getExistingDirectory(
                 this, tr("Choose Directory of Executable"));
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return;
 
-    ui->executableDirLineEdit->setText(fileName);
+    ui->executableDirLineEdit->setText(filePath.toUserOutput());
 }
 
 void PerfLoadDialog::chooseDefaults()

@@ -1971,11 +1971,11 @@ void DebuggerPluginPrivate::dumpLog()
     LogWindow *logWindow = engine->logWindow();
     QTC_ASSERT(logWindow, return);
 
-    QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
-        tr("Save Debugger Log"), Utils::TemporaryDirectory::masterDirectoryPath());
-    if (fileName.isEmpty())
+    FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Debugger Log"),
+                                   FilePath::fromString(TemporaryDirectory::masterDirectoryPath()));
+    if (filePath.isEmpty())
         return;
-    FileSaver saver(Utils::FilePath::fromUserInput(fileName));
+    FileSaver saver(filePath);
     if (!saver.hasError()) {
         QTextStream ts(saver.file());
         ts << logWindow->inputContents();

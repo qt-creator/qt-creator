@@ -841,11 +841,9 @@ void PerforcePluginPrivate::annotateCurrentFile()
 
 void PerforcePluginPrivate::annotateFile()
 {
-    const QString file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("p4 annotate"));
-    if (!file.isEmpty()) {
-        const QFileInfo fi(file);
-        annotate(FilePath::fromString(fi.absolutePath()), fi.fileName());
-    }
+    const FilePath filePath = FileUtils::getOpenFilePath(nullptr, tr("p4 annotate"));
+    if (!filePath.isEmpty())
+        annotate(filePath.parentDir(), filePath.fileName());
 }
 
 void PerforcePluginPrivate::annotate(const FilePath &workingDir,

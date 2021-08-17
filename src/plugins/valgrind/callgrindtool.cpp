@@ -874,17 +874,18 @@ void CallgrindToolPrivate::slotRequestDump()
 
 void CallgrindToolPrivate::loadExternalLogFile()
 {
-    const QString filePath = QFileDialog::getOpenFileName(
-                ICore::dialogParent(),
+    const FilePath filePath = FileUtils::getOpenFilePath(
+                nullptr,
                 CallgrindTool::tr("Open Callgrind Log File"),
-                QString(),
+                {},
                 CallgrindTool::tr("Callgrind Output (callgrind.out*);;All Files (*)"));
     if (filePath.isEmpty())
         return;
 
-    QFile logFile(filePath);
+    QFile logFile(filePath.toString());
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QString msg = CallgrindTool::tr("Callgrind: Failed to open file for reading: %1").arg(filePath);
+        QString msg = CallgrindTool::tr("Callgrind: Failed to open file for reading: %1")
+                .arg(filePath.toUserOutput());
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;

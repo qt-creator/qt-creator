@@ -49,6 +49,8 @@
 
 #include <memory>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -73,14 +75,14 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
 
     const auto loadFileButton = new QPushButton(tr("Load from File..."));
     connect(loadFileButton, &QPushButton::clicked, this, [this] {
-        const QString filePath = QFileDialog::getOpenFileName(this, tr("Choose File"));
+        const FilePath filePath = FileUtils::getOpenFilePath(this, tr("Choose File"));
         if (filePath.isEmpty())
             return;
-        QFile file(filePath);
+        QFile file(filePath.toString());
         if (!file.open(QIODevice::ReadOnly)) {
             QMessageBox::critical(this, tr("Could Not Open File"),
                                   tr("Could not open file: \"%1\": %2")
-                                  .arg(filePath, file.errorString()));
+                                  .arg(filePath.toUserOutput(), file.errorString()));
             return;
         }
         d->compileOutputEdit.setPlainText(QString::fromLocal8Bit(file.readAll()));

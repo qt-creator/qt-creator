@@ -51,6 +51,8 @@
 #include <QTextCodec>
 #include <QTextStream>
 
+using namespace Utils;
+
 namespace CppTools {
 namespace Internal {
 
@@ -271,8 +273,8 @@ public:
 
 private:
     void slotEdit();
-    QString licenseTemplatePath() const;
-    void setLicenseTemplatePath(const QString &);
+    FilePath licenseTemplatePath() const;
+    void setLicenseTemplatePath(const FilePath &);
 
     Ui::CppFileSettingsPage m_ui;
     CppFileSettings *m_settings = nullptr;
@@ -301,14 +303,14 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     setSettings(*m_settings);
 }
 
-QString CppFileSettingsWidget::licenseTemplatePath() const
+FilePath CppFileSettingsWidget::licenseTemplatePath() const
 {
-    return m_ui.licenseTemplatePathChooser->filePath().toString();
+    return m_ui.licenseTemplatePathChooser->filePath();
 }
 
-void CppFileSettingsWidget::setLicenseTemplatePath(const QString &lp)
+void CppFileSettingsWidget::setLicenseTemplatePath(const FilePath &lp)
 {
-    m_ui.licenseTemplatePathChooser->setPath(lp);
+    m_ui.licenseTemplatePathChooser->setFilePath(lp);
 }
 
 static QStringList trimmedPaths(const QString &paths)
@@ -330,7 +332,7 @@ void CppFileSettingsWidget::apply()
     rc.sourceSuffix = m_ui.sourceSuffixComboBox->currentText();
     rc.headerSearchPaths = trimmedPaths(m_ui.headerSearchPathsEdit->text());
     rc.sourceSearchPaths = trimmedPaths(m_ui.sourceSearchPathsEdit->text());
-    rc.licenseTemplatePath = licenseTemplatePath();
+    rc.licenseTemplatePath = licenseTemplatePath().toString();
 
     if (rc == *m_settings)
         return;
@@ -358,18 +360,18 @@ void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
     setComboText(m_ui.sourceSuffixComboBox, s.sourceSuffix);
     m_ui.headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
     m_ui.sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
-    setLicenseTemplatePath(s.licenseTemplatePath);
+    setLicenseTemplatePath(FilePath::fromString(s.licenseTemplatePath));
 }
 
 void CppFileSettingsWidget::slotEdit()
 {
-    QString path = licenseTemplatePath();
+    FilePath path = licenseTemplatePath();
     if (path.isEmpty()) {
         // Pick a file name and write new template, edit with C++
-        path = QFileDialog::getSaveFileName(this, tr("Choose Location for New License Template File"));
+        path = FileUtils::getSaveFilePath(this, tr("Choose Location for New License Template File"));
         if (path.isEmpty())
             return;
-        Utils::FileSaver saver(Utils::FilePath::fromString(path), QIODevice::Text);
+        FileSaver saver(path, QIODevice::Text);
         saver.write(tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
         if (!saver.finalize(this))
             return;

@@ -44,6 +44,8 @@
 
 #include <algorithm>
 
+using namespace Utils;
+
 namespace Help {
 namespace Internal {
 
@@ -97,7 +99,7 @@ private:
 
     Ui::DocSettingsPage m_ui;
 
-    QString m_recentDialogPath;
+    FilePath m_recentDialogPath;
 
     using NameSpaceToPathHash = QMultiHash<QString, QString>;
     NameSpaceToPathHash m_filesToRegister;
@@ -200,29 +202,29 @@ DocSettingsPageWidget::DocSettingsPageWidget()
 
 void DocSettingsPageWidget::addDocumentation()
 {
-    const QStringList &files =
-        QFileDialog::getOpenFileNames(m_ui.addButton->parentWidget(),
-        tr("Add Documentation"), m_recentDialogPath, tr("Qt Help Files (*.qch)"));
+    const FilePaths files =
+        FileUtils::getOpenFilePaths(m_ui.addButton->parentWidget(),
+            tr("Add Documentation"), m_recentDialogPath, tr("Qt Help Files (*.qch)"));
 
     if (files.isEmpty())
         return;
-    m_recentDialogPath = QFileInfo(files.first()).canonicalPath();
+    m_recentDialogPath = files.first().canonicalPath();
 
     NameSpaceToPathHash docsUnableToRegister;
-    for (const QString &file : files) {
-        const QString filePath = QDir::cleanPath(file);
+    for (const FilePath &file : files) {
+        const QString filePath = file.cleanPath().toString();
         const QString &nameSpace = HelpManager::namespaceFromFile(filePath);
         if (nameSpace.isEmpty()) {
-            docsUnableToRegister.insert("UnknownNamespace", QDir::toNativeSeparators(filePath));
+            docsUnableToRegister.insert("UnknownNamespace", file.toUserOutput());
             continue;
         }
 
         if (m_filesToRegister.contains(nameSpace)) {
-            docsUnableToRegister.insert(nameSpace, QDir::toNativeSeparators(filePath));
+            docsUnableToRegister.insert(nameSpace, file.toUserOutput());
             continue;
         }
 
-        m_model.insertEntry(createEntry(nameSpace, file, true /* user managed */));
+        m_model.insertEntry(createEntry(nameSpace, file.toString(), true /* user managed */));
 
         m_filesToRegister.insert(nameSpace, filePath);
         m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);

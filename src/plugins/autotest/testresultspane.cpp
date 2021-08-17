@@ -68,6 +68,7 @@
 #include <QVBoxLayout>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -712,15 +713,14 @@ void TestResultsPane::onCopyWholeTriggered()
 
 void TestResultsPane::onSaveWholeTriggered()
 {
-    const QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
-                                                          tr("Save Output To"));
-    if (fileName.isEmpty())
+    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Output To"));
+    if (filePath.isEmpty())
         return;
 
-    Utils::FileSaver saver(Utils::FilePath::fromString(fileName), QIODevice::Text);
+    FileSaver saver(filePath, QIODevice::Text);
     if (!saver.write(getWholeOutput().toUtf8()) || !saver.finalize()) {
         QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                              tr("Failed to write \"%1\".\n\n%2").arg(fileName)
+                              tr("Failed to write \"%1\".\n\n%2").arg(filePath.toUserOutput())
                               .arg(saver.errorString()));
     }
 }
