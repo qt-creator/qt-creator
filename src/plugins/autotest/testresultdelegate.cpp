@@ -147,8 +147,11 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     int fontHeight = fm.height();
     TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
     LayoutPositions positions(opt, resultFilterModel);
+    const int depth = resultFilterModel->itemForIndex(index)->level() + 1;
+    const int indentation = depth * view->style()->pixelMetric(QStyle::PM_TreeViewIndentation, &opt);
+
     QSize s;
-    s.setWidth(opt.rect.width());
+    s.setWidth(opt.rect.width() - indentation);
 
     if (selected) {
         const TestResult *testResult = resultFilterModel->testResult(index);
@@ -159,7 +162,7 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit)
             output = output.left(outputLimit).append("...");
 
-        recalculateTextLayout(index, output, opt.font, positions.textAreaWidth());
+        recalculateTextLayout(index, output, opt.font, positions.textAreaWidth() - indentation);
 
         s.setHeight(m_lastCalculatedHeight + 3);
     } else {
