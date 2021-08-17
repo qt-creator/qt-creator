@@ -63,7 +63,7 @@ public:
 
     virtual void beginOperation() = 0;
     virtual void setCurrentDiffFileIndex(int index) = 0;
-    virtual void setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory) = 0;
+    virtual void setDiff(const QList<FileData> &diffFileList) = 0;
     virtual void endOperation(bool success) = 0;
 
     virtual void setSync(bool) = 0;
@@ -100,7 +100,7 @@ public:
 
     void beginOperation() override;
     void setCurrentDiffFileIndex(int index) override;
-    void setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory) override;
+    void setDiff(const QList<FileData> &diffFileList) override;
     void endOperation(bool success) override;
 
     void setSync(bool sync) override;
@@ -124,7 +124,7 @@ public:
 
     void beginOperation() override;
     void setCurrentDiffFileIndex(int index) override;
-    void setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory) override;
+    void setDiff(const QList<FileData> &diffFileList) override;
     void endOperation(bool success) override;
 
     void setSync(bool sync) override;

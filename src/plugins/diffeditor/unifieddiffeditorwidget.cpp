@@ -89,12 +89,9 @@ void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
     m_controller.setDocument(document);
     clear();
     QList<FileData> diffFileList;
-    QString workingDirectory;
-    if (document) {
+    if (document)
         diffFileList = document->diffFiles();
-        workingDirectory = document->baseDirectory();
-    }
-    setDiff(diffFileList, workingDirectory);
+    setDiff(diffFileList);
 }
 
 DiffEditorDocument *UnifiedDiffEditorWidget::diffDocument() const
@@ -318,11 +315,8 @@ void UnifiedDiffEditorWidget::setChunkIndex(int startBlockNumber,
     m_chunkInfo.insert(startBlockNumber, qMakePair(blockCount, chunkIndex));
 }
 
-void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
-                                      const QString &workingDirectory)
+void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
-    Q_UNUSED(workingDirectory)
-
     const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
     m_controller.m_ignoreCurrentIndexChange = true;
     clear();

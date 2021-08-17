@@ -328,7 +328,7 @@ void DiffEditor::documentHasChanged()
     const QList<FileData> &diffFileList = m_document->diffFiles();
 
     updateDescription();
-    currentView()->setDiff(diffFileList, m_document->baseDirectory());
+    currentView()->setDiff(diffFileList);
 
     m_entriesComboBox->clear();
     for (const FileData &diffFile : diffFileList) {

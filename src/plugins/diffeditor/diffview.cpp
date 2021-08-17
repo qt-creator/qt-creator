@@ -141,10 +141,10 @@ void UnifiedView::beginOperation()
     m_widget->clear(tr("Waiting for data..."));
 }
 
-void UnifiedView::setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory)
+void UnifiedView::setDiff(const QList<FileData> &diffFileList)
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->setDiff(diffFileList, workingDirectory);
+    m_widget->setDiff(diffFileList);
 }
 
 void UnifiedView::endOperation(bool success)
@@ -234,10 +234,10 @@ void SideBySideView::setCurrentDiffFileIndex(int index)
     m_widget->setCurrentDiffFileIndex(index);
 }
 
-void SideBySideView::setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory)
+void SideBySideView::setDiff(const QList<FileData> &diffFileList)
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->setDiff(diffFileList, workingDirectory);
+    m_widget->setDiff(diffFileList);
 }
 
 void SideBySideView::endOperation(bool success)

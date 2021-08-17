@@ -828,12 +828,9 @@ void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)
     m_controller.setDocument(document);
     clear();
     QList<FileData> diffFileList;
-    QString workingDirectory;
-    if (document) {
+    if (document)
         diffFileList = document->diffFiles();
-        workingDirectory = document->baseDirectory();
-    }
-    setDiff(diffFileList, workingDirectory);
+    setDiff(diffFileList);
 }
 
 DiffEditorDocument *SideBySideDiffEditorWidget::diffDocument() const
@@ -845,17 +842,14 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
 {
     const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
     m_controller.m_ignoreCurrentIndexChange = true;
-    setDiff(QList<FileData>(), QString());
+    setDiff(QList<FileData>());
     m_leftEditor->clearAll(message);
     m_rightEditor->clearAll(message);
     m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
-void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
-                                         const QString &workingDirectory)
+void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
-    Q_UNUSED(workingDirectory)
-
     const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
     m_controller.m_ignoreCurrentIndexChange = true;
     m_leftEditor->clear();

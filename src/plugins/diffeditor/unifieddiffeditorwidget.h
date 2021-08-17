@@ -54,8 +54,7 @@ public:
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *diffDocument() const;
 
-    void setDiff(const QList<FileData> &diffFileList,
-                 const QString &workingDirectory);
+    void setDiff(const QList<FileData> &diffFileList);
     void setCurrentDiffFileIndex(int diffFileIndex);
 
     void saveState();
