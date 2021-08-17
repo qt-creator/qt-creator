@@ -103,14 +103,16 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep
     customCommandLineAspect->makeCheckable(StringAspect::CheckBoxPlacement::Top,
                                            tr("Use custom command line instead:"),
                                            "RemoteLinux.MakeInstall.EnableCustomCommandLine");
-    connect(customCommandLineAspect, &StringAspect::checkedChanged,
-            this, &MakeInstallStep::updateCommandFromAspect);
-    connect(customCommandLineAspect, &StringAspect::checkedChanged,
-            this, &MakeInstallStep::updateArgsFromAspect);
-    connect(customCommandLineAspect, &StringAspect::checkedChanged,
-            this, &MakeInstallStep::updateFromCustomCommandLineAspect);
+    const auto updateCommand = [this] {
+        updateCommandFromAspect();
+        updateArgsFromAspect();
+        updateFromCustomCommandLineAspect();
+    };
+    connect(customCommandLineAspect, &StringAspect::checkedChanged, this, updateCommand);
     connect(customCommandLineAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateFromCustomCommandLineAspect);
+
+    connect(target(), &Target::buildSystemUpdated, this, updateCommand);
 
     QTemporaryDir tmpDir;
     installRootAspect->setFilePath(FilePath::fromString(tmpDir.path()));
