@@ -35,8 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -45,7 +44,7 @@ namespace Nim {
 
 const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
 
-static QList<QByteArray> linesFromProcessOutput(QProcess *process)
+static QList<QByteArray> linesFromProcessOutput(QtcProcess *process)
 {
     QList<QByteArray> lines = process->readAllStandardOutput().split('\n');
     lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
@@ -53,19 +52,18 @@ static QList<QByteArray> linesFromProcessOutput(QProcess *process)
     return lines;
 }
 
-static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QString &workingDirectory)
+static std::vector<NimbleTask> parseTasks(const FilePath &nimblePath, const FilePath &workingDirectory)
 {
-    QProcess process;
+    QtcProcess process;
+    process.setCommand({nimblePath, {"tasks"}});
     process.setWorkingDirectory(workingDirectory);
-    process.start(nimblePath, {"tasks"});
+    process.start();
     process.waitForFinished();
 
     std::vector<NimbleTask> result;
 
     if (process.exitCode() != 0) {
-        TaskHub::addTask(Task(Task::Error,
-                              QString::fromUtf8(process.readAllStandardOutput()),
-                              {}, -1, Constants::C_NIMPARSE_ID));
+        TaskHub::addTask(Task(Task::Error, process.stdOut(), {}, -1, Constants::C_NIMPARSE_ID));
         return result;
     }
 
@@ -82,19 +80,18 @@ static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QStri
     return result;
 }
 
-static NimbleMetadata parseMetadata(const QString &nimblePath, const QString &workingDirectory)
+static NimbleMetadata parseMetadata(const FilePath &nimblePath, const FilePath &workingDirectory)
 {
-    QProcess process;
+    QtcProcess process;
+    process.setCommand({nimblePath, {"dump"}});
     process.setWorkingDirectory(workingDirectory);
-    process.start(nimblePath, {"dump"});
+    process.start();
     process.waitForFinished();
 
     NimbleMetadata result = {};
 
     if (process.exitCode() != 0) {
-        TaskHub::addTask(Task(Task::Error,
-                              QString::fromUtf8(process.readAllStandardOutput()),
-                              {}, -1, Constants::C_NIMPARSE_ID));
+        TaskHub::addTask(Task(Task::Error, process.stdOut(), {}, -1, Constants::C_NIMPARSE_ID));
         return result;
     }
     const QList<QByteArray> &lines = linesFromProcessOutput(&process);
@@ -172,7 +169,7 @@ void NimbleBuildSystem::updateProject()
     const FilePath projectDir = projectDirectory();
     const FilePath nimble = Nim::nimblePathFromKit(kit());
 
-    const NimbleMetadata metadata = parseMetadata(nimble.toString(), projectDir.toString());
+    const NimbleMetadata metadata = parseMetadata(nimble, projectDir);
     const FilePath binDir = projectDir.pathAppended(metadata.binDir);
     const FilePath srcDir = projectDir.pathAppended("src");
 
@@ -188,7 +185,7 @@ void NimbleBuildSystem::updateProject()
 
     setApplicationTargets(std::move(targets));
 
-    std::vector<NimbleTask> tasks = parseTasks(nimble.toString(), projectDir.toString());
+    std::vector<NimbleTask> tasks = parseTasks(nimble, projectDir);
     if (tasks != m_tasks) {
         m_tasks = std::move(tasks);
         emit tasksChanged();
