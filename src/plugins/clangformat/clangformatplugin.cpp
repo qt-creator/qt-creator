@@ -67,7 +67,9 @@
 #include <QMessageBox>
 #include <QMenu>
 
+using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace ClangFormat {
 
@@ -75,7 +77,7 @@ class ClangFormatStyleFactory : public CppTools::CppCodeStylePreferencesFactory
 {
 public:
     TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
-        TextEditor::ICodeStylePreferences *preferences, QWidget *parent = nullptr) override
+        TextEditor::ICodeStylePreferences *preferences, QWidget *parent) override
     {
         Q_UNUSED(preferences);
         if (!parent)
@@ -98,8 +100,7 @@ static void replaceCppCodeStyle()
 {
     using namespace TextEditor;
     TextEditorSettings::unregisterCodeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
-    ICodeStylePreferencesFactory *factory = new ClangFormatStyleFactory();
-    TextEditorSettings::registerCodeStyleFactory(factory);
+    TextEditorSettings::registerCodeStyleFactory(new ClangFormatStyleFactory);
 }
 
 bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -108,45 +109,38 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(errorString)
     replaceCppCodeStyle();
 
-    Core::ActionContainer *contextMenu = Core::ActionManager::actionContainer(
-        CppEditor::Constants::M_CONTEXT);
+    ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
     if (contextMenu) {
         auto openClangFormatConfigAction
             = new QAction(tr("Open Used .clang-format Configuration File"), this);
-        Core::Command *command
-            = Core::ActionManager::registerAction(openClangFormatConfigAction,
-                                                  Constants::OPEN_CURRENT_CONFIG_ID);
+        Command *command = ActionManager::registerAction(openClangFormatConfigAction,
+                                                         Constants::OPEN_CURRENT_CONFIG_ID);
         contextMenu->addSeparator();
         contextMenu->addAction(command);
 
-        if (Core::EditorManager::currentEditor()) {
-            const Core::IDocument *doc = Core::EditorManager::currentEditor()->document();
-            if (doc)
-                openClangFormatConfigAction->setData(doc->filePath().toString());
+        if (EditorManager::currentEditor()) {
+            if (const IDocument *doc = EditorManager::currentEditor()->document())
+                openClangFormatConfigAction->setData(doc->filePath().toVariant());
         }
 
         connect(openClangFormatConfigAction,
                 &QAction::triggered,
                 this,
                 [openClangFormatConfigAction]() {
-                    const QString fileName = openClangFormatConfigAction->data().toString();
-                    if (!fileName.isEmpty()) {
-                        const QString clangFormatConfigPath = configForFile(
-                            Utils::FilePath::fromString(fileName));
-                        Core::EditorManager::openEditor(clangFormatConfigPath);
-                    }
+                    const FilePath fileName = FilePath::fromVariant(openClangFormatConfigAction->data());
+                    if (!fileName.isEmpty())
+                        EditorManager::openEditor(configForFile(fileName));
                 });
 
-        connect(Core::EditorManager::instance(),
-                &Core::EditorManager::currentEditorChanged,
+        connect(EditorManager::instance(),
+                &EditorManager::currentEditorChanged,
                 this,
-                [openClangFormatConfigAction](Core::IEditor *editor) {
+                [openClangFormatConfigAction](IEditor *editor) {
                     if (!editor)
                         return;
 
-                    const Core::IDocument *doc = editor->document();
-                    if (doc)
-                        openClangFormatConfigAction->setData(doc->filePath().toString());
+                    if (const IDocument *doc = editor->document())
+                        openClangFormatConfigAction->setData(doc->filePath().toVariant());
                 });
     }
 #ifndef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
@@ -156,17 +150,17 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
 #else
 #warning ClangFormat: building against unmodified Clang, see README.md for more info
 #endif
-    static const char clangFormatFormatWarningKey[] = "ClangFormatFormatWarning";
-    if (!Core::ICore::infoBar()->canInfoBeAdded(clangFormatFormatWarningKey))
+    static const Id clangFormatFormatWarningKey = "ClangFormatFormatWarning";
+    if (!ICore::infoBar()->canInfoBeAdded(clangFormatFormatWarningKey))
         return true;
-    Utils::InfoBarEntry
+    InfoBarEntry
         info(clangFormatFormatWarningKey,
              tr("The ClangFormat plugin has been built against an unmodified Clang. "
                 "You might experience formatting glitches in certain circumstances. "
                 "See https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md for more "
                  "information."),
-             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    Core::ICore::infoBar()->addInfo(info);
+             InfoBarEntry::GlobalSuppression::Enabled);
+    ICore::infoBar()->addInfo(info);
 #endif
     return true;
 }
