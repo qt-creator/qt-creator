@@ -190,11 +190,8 @@ FilePath shippedClazyStandaloneExecutable()
 
 FilePath fullPath(const FilePath &executable)
 {
-    const QString hostExeSuffix = QLatin1String(QTC_HOST_EXE_SUFFIX);
-    const Qt::CaseSensitivity caseSensitivity = Utils::HostOsInfo::fileNameCaseSensitivity();
-
     FilePath candidate = executable;
-    const bool hasSuffix = candidate.toString().endsWith(hostExeSuffix, caseSensitivity);
+    const bool hasSuffix = candidate.endsWith(QTC_HOST_EXE_SUFFIX);
 
     if (candidate.isAbsolutePath()) {
         if (!hasSuffix)
