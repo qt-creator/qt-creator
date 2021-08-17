@@ -176,7 +176,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
 
         FileChangeBlocker fileChangeBlocker(absFilePath);
         if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
-                                workingDirectory, strip, revert))
+                                FilePath::fromString(workingDirectory), strip, revert))
             m_document->reload();
     } else { // PatchEditor
         auto textDocument = qobject_cast<TextEditor::TextDocument *>(
