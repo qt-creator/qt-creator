@@ -1043,6 +1043,8 @@ FilePath FilePath::relativePath(const FilePath &anchor) const
         return {};
     QString relativeFilePath = calcRelativePath(absolutePath, absoluteAnchorPath);
     if (!filename.isEmpty()) {
+        if (relativeFilePath == ".")
+            relativeFilePath.clear();
         if (!relativeFilePath.isEmpty())
             relativeFilePath += '/';
         relativeFilePath += filename;
@@ -1093,6 +1095,8 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
         }
         ++i;
     }
+    if (relativePath.isEmpty())
+        return QString(".");
     return relativePath;
 }
 

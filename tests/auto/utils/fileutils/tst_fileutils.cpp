@@ -213,13 +213,13 @@ void tst_fileutils::calcRelativePath_data()
     QTest::newRow("empty") << "" << "" << "";
     QTest::newRow("leftempty") << "" << "/" << "";
     QTest::newRow("rightempty") << "/" << "" << "";
-    QTest::newRow("root") << "/" << "/" << "";
+    QTest::newRow("root") << "/" << "/" << ".";
     QTest::newRow("simple1") << "/a" << "/" << "a";
     QTest::newRow("simple2") << "/" << "/a" << "..";
-    QTest::newRow("simple3") << "/a" << "/a" << "";
-    QTest::newRow("extraslash1") << "/a/b/c" << "/a/b/c" << "";
-    QTest::newRow("extraslash2") << "/a/b/c" << "/a/b/c/" << "";
-    QTest::newRow("extraslash3") << "/a/b/c/" << "/a/b/c" << "";
+    QTest::newRow("simple3") << "/a" << "/a" << ".";
+    QTest::newRow("extraslash1") << "/a/b/c" << "/a/b/c" << ".";
+    QTest::newRow("extraslash2") << "/a/b/c" << "/a/b/c/" << ".";
+    QTest::newRow("extraslash3") << "/a/b/c/" << "/a/b/c" << ".";
     QTest::newRow("normal1") << "/a/b/c" << "/a/x" << "../b/c";
     QTest::newRow("normal2") << "/a/b/c" << "/a/x/y" << "../../b/c";
     QTest::newRow("normal3") << "/a/b/c" << "/x/y" << "../../a/b/c";
@@ -246,7 +246,9 @@ void tst_fileutils::relativePath_data()
     QTest::addColumn<QString>("anchor");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("samedir") << "/" << "/" << "";
+    QTest::newRow("samedir") << "/" << "/" << ".";
+    QTest::newRow("samedir_but_file") << "a/b/c/d/file1.txt" << "a/b/c/d" << "file1.txt";
+    QTest::newRow("samedir_but_file2") << "a/b/c/d" << "a/b/c/d/file1.txt" << ".";
     QTest::newRow("dir2dir_1") << "a/b/c/d" << "a/x/y/z" << "../../../b/c/d";
     QTest::newRow("dir2dir_2") << "a/b" <<"a/b/c" << "..";
     QTest::newRow("file2file_1") << "a/b/c/d/file1.txt" << "a/file3.txt" << "b/c/d/file1.txt";
