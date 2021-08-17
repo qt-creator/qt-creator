@@ -53,7 +53,6 @@ static int testSynchronous(const QString &cmd, const QStringList &args)
     p.start();
     if (!p.waitForStarted())
         return -2;
-    p.closeWriteChannel();
 
     QByteArray stdOut;
     QByteArray stdErr;
