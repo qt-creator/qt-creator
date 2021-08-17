@@ -38,17 +38,17 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Android {
 namespace Internal {
 
-namespace {
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.splashScreenWidget", QtWarningMsg)
-const auto fileDialogImageFiles = QStringLiteral("%1 (*.png *.jpg)").arg(QWidget::tr("Images"));
-QString manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
+
+FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
 {
     // Get the manifest file's directory from its filepath.
-    return textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
-}
+    return textEditorWidget->textDocument()->filePath().absolutePath();
 }
 
 SplashScreenWidget::SplashScreenWidget(QWidget *parent) : QWidget(parent)
@@ -149,23 +149,22 @@ void SplashScreenWidget::showImageFullScreen(bool fullScreen)
     loadImage();
 }
 
-void SplashScreenWidget::setImageFromPath(const QString &imagePath, bool resize)
+void SplashScreenWidget::setImageFromPath(const FilePath &imagePath, bool resize)
 {
     if (!m_textEditorWidget)
         return;
-    const QString baseDir = manifestDir(m_textEditorWidget);
-    const QString targetPath = baseDir + m_imagePath + m_imageFileName;
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_imagePath / m_imageFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Image target path is empty, cannot set image.";
         return;
     }
-    QImage image = QImage(imagePath);
+    QImage image = QImage(imagePath.toString());
     if (image.isNull()) {
         qCDebug(androidManifestEditorLog) << "Image '" << imagePath << "' not found or invalid format.";
         return;
     }
-    QDir dir;
-    if (!dir.mkpath(QFileInfo(targetPath).absolutePath())) {
+    if (!targetPath.absolutePath().ensureWritableDir()) {
         qCDebug(androidManifestEditorLog) << "Cannot create image target path.";
         return;
     }
@@ -174,7 +173,7 @@ void SplashScreenWidget::setImageFromPath(const QString &imagePath, bool resize)
                                  (float(image.height()) / float(m_maxScalingRatio)) * float(m_scalingRatio));
         image = image.scaled(size);
     }
-    QFile file(targetPath);
+    QFile file(targetPath.toString());
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         image.save(&file, "PNG");
         file.close();
@@ -188,8 +187,9 @@ void SplashScreenWidget::setImageFromPath(const QString &imagePath, bool resize)
 
 void SplashScreenWidget::selectImage()
 {
-    const QString file = QFileDialog::getOpenFileName(this, m_imageSelectionText,
-                                                      QDir::homePath(), fileDialogImageFiles);
+    const FilePath file = FileUtils::getOpenFilePath(this, m_imageSelectionText,
+                                                     FileUtils::homePath(),
+                                                     QStringLiteral("%1 (*.png *.jpg)").arg(tr("Images")));
     if (file.isEmpty())
         return;
     setImageFromPath(file, false);
@@ -198,13 +198,13 @@ void SplashScreenWidget::selectImage()
 
 void SplashScreenWidget::removeImage()
 {
-    const QString baseDir = manifestDir(m_textEditorWidget);
-    const QString targetPath = baseDir + m_imagePath + m_imageFileName;
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_imagePath / m_imageFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Image target path empty, cannot remove image.";
         return;
     }
-    QFile::remove(targetPath);
+    targetPath.removeFile();
     m_image = QImage();
     m_splashScreenButton->update();
     setScaleWarningLabelVisible(false);
@@ -222,13 +222,13 @@ void SplashScreenWidget::loadImage()
         qCDebug(androidManifestEditorLog) << "Image name not set, cannot load image.";
         return;
     }
-    const QString baseDir = manifestDir(m_textEditorWidget);
-    const QString targetPath = baseDir + m_imagePath + m_imageFileName;
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_imagePath / m_imageFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Image target path empty, cannot load image.";
         return;
     }
-    QImage image = QImage(targetPath);
+    QImage image = QImage(targetPath.toString());
     if (image.isNull()) {
         qCDebug(androidManifestEditorLog) << "Cannot load image.";
         return;

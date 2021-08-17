@@ -28,6 +28,8 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
+#include <utils/filepath.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -42,10 +44,11 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Android {
 namespace Internal {
 
-namespace {
 const char extraExtraExtraHighDpiImagePath[] = "/res/drawable-xxxhdpi/";
 const char extraExtraHighDpiImagePath[] = "/res/drawable-xxhdpi/";
 const char extraHighDpiImagePath[] = "/res/drawable-xhdpi/";
@@ -76,12 +79,10 @@ const int highDpiScalingRatio = 6;
 const int mediumDpiScalingRatio = 4;
 const int lowDpiScalingRatio = 3;
 
-QString manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
+static FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
 {
     // Get the manifest file's directory from its filepath.
-    return textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
-}
-
+    return textEditorWidget->textDocument()->filePath().absolutePath();
 }
 
 static SplashScreenWidget *addWidgetToPage(QWidget *page,
@@ -340,9 +341,9 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_masterImage, &QToolButton::clicked, [this]() {
-        const QString file = QFileDialog::getOpenFileName(this, tr("Select master image"),
-                                                    QDir::homePath(), fileDialogImageFiles);
+    connect(m_masterImage, &QToolButton::clicked, [this] {
+        const FilePath file = FileUtils::getOpenFilePath(this, tr("Select master image"),
+                                                         FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_imageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -350,9 +351,9 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_portraitMasterImage, &QToolButton::clicked, [this]() {
-        const QString file = QFileDialog::getOpenFileName(this, tr("Select portrait master image"),
-                                                    QDir::homePath(), fileDialogImageFiles);
+    connect(m_portraitMasterImage, &QToolButton::clicked, [this] {
+        const FilePath file = FileUtils::getOpenFilePath(this, tr("Select portrait master image"),
+                                                         FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_portraitImageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -360,9 +361,9 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_landscapeMasterImage, &QToolButton::clicked, [this]() {
-        const QString file = QFileDialog::getOpenFileName(this, tr("Select landscape master image"),
-                                                    QDir::homePath(), fileDialogImageFiles);
+    connect(m_landscapeMasterImage, &QToolButton::clicked, [this] {
+        const FilePath file = FileUtils::getOpenFilePath(this, tr("Select landscape master image"),
+                                                         FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_landscapeImageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -406,7 +407,8 @@ void SplashScreenContainerWidget::loadImages()
 
 void SplashScreenContainerWidget::loadSplashscreenDrawParams(const QString &name)
 {
-    QFile file(QLatin1String("%1/res/drawable/%2.xml").arg(manifestDir(m_textEditorWidget)).arg(name));
+    const FilePath filePath = manifestDir(m_textEditorWidget).pathAppended("res/drawable/" + name + ".xml");
+    QFile file(filePath.toString());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QXmlStreamReader reader(&file);
         reader.setNamespaceProcessing(false);
@@ -524,7 +526,7 @@ void SplashScreenContainerWidget::setImageShowMode(const QString &mode)
 
 void SplashScreenContainerWidget::createSplashscreenThemes()
 {
-    const QString baseDir = manifestDir(m_textEditorWidget);
+    const QString baseDir = manifestDir(m_textEditorWidget).toString();
     const QStringList splashscreenThemeFiles = {"/res/values/splashscreentheme.xml",
                                                 "/res/values-port/splashscreentheme.xml",
                                                 "/res/values-land/splashscreentheme.xml"};
@@ -596,18 +598,18 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
 void SplashScreenContainerWidget::checkSplashscreenImage(const QString &name)
 {
     if (isSplashscreenEnabled()) {
-        const QString baseDir = manifestDir(m_textEditorWidget);
-        const QStringList paths = {extraExtraExtraHighDpiImagePath,
-                                   extraExtraHighDpiImagePath,
-                                   extraHighDpiImagePath,
-                                   highDpiImagePath,
-                                   mediumDpiImagePath,
-                                   lowDpiImagePath};
+        const FilePath baseDir = manifestDir(m_textEditorWidget);
+        const QString paths[] = {extraExtraExtraHighDpiImagePath,
+                                 extraExtraHighDpiImagePath,
+                                 extraHighDpiImagePath,
+                                 highDpiImagePath,
+                                 mediumDpiImagePath,
+                                 lowDpiImagePath};
 
         for (const QString &path : paths) {
-            const QString filePath(baseDir + path + name);
-            if (QFile::exists(filePath + ".png")
-             || QFile::exists(filePath + ".jpg")) {
+            const FilePath filePath = baseDir.pathAppended(path + name);
+            if (filePath.stringAppended(".png").exists()
+                    || filePath.stringAppended(".jpg").exists()) {
                 setCurrentIndex(1);
                 break;
             }

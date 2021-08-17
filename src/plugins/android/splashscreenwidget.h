@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QToolButton>
 
 namespace TextEditor { class TextEditorWidget; }
@@ -66,7 +68,7 @@ public:
     void clearImage();
     void setBackgroundColor(const QColor &backgroundColor);
     void showImageFullScreen(bool fullScreen);
-    void setImageFromPath(const QString &imagePath, bool resize = true);
+    void setImageFromPath(const Utils::FilePath &imagePath, bool resize = true);
     void setImageFileName(const QString &imageFileName);
     void loadImage();
 
