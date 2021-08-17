@@ -333,11 +333,9 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
 
     m_welcomeMode = new WelcomeMode;
 
-    if (!Utils::HostOsInfo::isWindowsHost()) {
-        QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
-        QFont systemFont("Titillium Web", QApplication::font().pointSize());
-        QApplication::setFont(systemFont);
-    }
+    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+    QFont systemFont("Titillium Web", QApplication::font().pointSize());
+    QApplication::setFont(systemFont);
 
     m_removeSplashTimer.setSingleShot(true);
     m_removeSplashTimer.setInterval(15000);
