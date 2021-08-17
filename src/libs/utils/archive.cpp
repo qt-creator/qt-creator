@@ -195,8 +195,8 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
 
     auto archive = new Archive;
 
-    const QString workingDirectory = dest.toFileInfo().absoluteFilePath();
-    QDir(workingDirectory).mkpath(".");
+    const FilePath workingDirectory = dest.absolutePath();
+    workingDirectory.ensureWritableDir();
 
     archive->m_process = new QtcProcess;
     archive->m_process->setProcessChannelMode(QProcess::MergedChannels);
@@ -241,7 +241,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
     QTimer::singleShot(0, archive, [archive, tool, workingDirectory] {
         archive->outputReceived(
             tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
-                .arg(tool->command.toUserOutput(), workingDirectory));
+                .arg(tool->command.toUserOutput(), workingDirectory.toUserOutput()));
     });
 
     archive->m_process->setCommand(tool->command);
