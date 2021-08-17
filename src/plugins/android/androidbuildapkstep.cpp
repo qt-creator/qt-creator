@@ -228,8 +228,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     keystoreLocationChooser->setInitialBrowsePathBackup(FileUtils::homePath());
     keystoreLocationChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
     keystoreLocationChooser->setPromptDialogTitle(tr("Select Keystore File"));
-    connect(keystoreLocationChooser, &PathChooser::pathChanged, this, [this](const QString &path) {
-        FilePath file = FilePath::fromString(path);
+    connect(keystoreLocationChooser, &PathChooser::filePathChanged, this, [this](const FilePath &file) {
         m_step->setKeystorePath(file);
         m_signPackageCheckBox->setChecked(!file.isEmpty());
         if (!file.isEmpty())
@@ -565,10 +564,9 @@ bool AndroidBuildApkStep::init()
     qCDebug(buildapkstepLog) << "APK or AAB path:" << m_packagePath;
 
     FilePath command = version->hostBinPath().pathAppended("androiddeployqt").withExecutableSuffix();
+    FilePath outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
 
-    QString outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
-
-    m_inputFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
+    m_inputFile = AndroidQtVersion::androidDeploymentSettings(target());
     if (m_inputFile.isEmpty()) {
         qCDebug(buildapkstepLog) << "no input file" << target()->activeBuildKey();
         m_skipBuilding = true;
@@ -583,8 +581,8 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    QStringList arguments = {"--input", m_inputFile,
-                             "--output", outputDir,
+    QStringList arguments = {"--input", m_inputFile.toString(),
+                             "--output", outputDir.toString(),
                              "--android-platform", m_buildTargetSdk,
                              "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().toString()};
 
@@ -625,7 +623,7 @@ bool AndroidBuildApkStep::init()
     ProjectExplorer::ProcessParameters pp2;
     setupProcessParameters(&pp2);
     pp2.setCommandLine({command, argumentsPasswordConcealed});
-    m_command = pp2.effectiveCommand().toString();
+    m_command = pp2.effectiveCommand();
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
     return true;
@@ -638,11 +636,10 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 
     const QString buildKey = target()->activeBuildKey();
     const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
-    QString sourceDirName;
+    FilePath sourceDirPath;
     if (node)
-        sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
-    QFileInfo sourceDirInfo(sourceDirName);
-    parser->setSourceDirectory(Utils::FilePath::fromString(sourceDirInfo.canonicalFilePath()));
+        sourceDirPath = FilePath::fromVariant(node->data(Constants::AndroidPackageSourceDir));
+    parser->setSourceDirectory(sourceDirPath.canonicalPath());
     parser->setBuildDirectory(buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
     formatter->addLineParser(parser);
     AbstractProcessStep::setupOutputFormatter(formatter);
@@ -714,23 +711,21 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 }
 
 
-static bool copyFileIfNewer(const QString &sourceFileName,
-                            const QString &destinationFileName)
+static bool copyFileIfNewer(const FilePath &sourceFilePath,
+                            const FilePath &destinationFilePath)
 {
-    if (sourceFileName == destinationFileName)
+    if (sourceFilePath == destinationFilePath)
         return true;
-    if (QFile::exists(destinationFileName)) {
-        QFileInfo destinationFileInfo(destinationFileName);
-        QFileInfo sourceFileInfo(sourceFileName);
-        if (sourceFileInfo.lastModified() <= destinationFileInfo.lastModified())
+    if (destinationFilePath.exists()) {
+        if (sourceFilePath.lastModified() <= destinationFilePath.lastModified())
             return true;
-        if (!QFile(destinationFileName).remove())
+        if (!destinationFilePath.removeFile())
             return false;
     }
 
-    if (!QDir().mkpath(QFileInfo(destinationFileName).path()))
+    if (!destinationFilePath.parentDir().ensureWritableDir())
         return false;
-    return QFile::copy(sourceFileName, destinationFileName);
+    return sourceFilePath.copyFile(destinationFilePath);
 }
 
 void AndroidBuildApkStep::doRun()
@@ -754,9 +749,9 @@ void AndroidBuildApkStep::doRun()
         for (const auto &abi : androidAbis) {
             FilePath androidLibsDir = buildDirectory() / "android-build/libs" / abi;
             if (!androidLibsDir.exists()) {
-                if (!QDir{buildDirectory().toString()}.mkpath(androidLibsDir.toString())) {
+                if (!androidLibsDir.ensureWritableDir()) {
                     const QString error = tr("The Android build folder %1 wasn't found and "
-                                             "couldn't be created.").arg(androidLibsDir.toString());
+                                 "couldn't be created.").arg(androidLibsDir.toUserOutput());
                     emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
                     TaskHub::addTask(BuildSystemTask(Task::Error, error));
                     return false;
@@ -771,10 +766,10 @@ void AndroidBuildApkStep::doRun()
                     if (!from.exists() || to.exists())
                         continue;
 
-                    if (!QFile::copy(from.toString(), to.toString())) {
+                    if (!from.copyFile(to)) {
                         const QString error = tr("Couldn't copy the target's lib file %1 to the "
                                                  "Android build folder %2.")
-                                                .arg(fileName, androidLibsDir.toString());
+                                            .arg(fileName, androidLibsDir.toUserOutput());
                         emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
                         TaskHub::addTask(BuildSystemTask(Task::Error, error));
                         return false;
@@ -784,12 +779,13 @@ void AndroidBuildApkStep::doRun()
 
         }
 
-        bool inputExists = QFile::exists(m_inputFile);
-        if (inputExists && !AndroidManager::isQtCreatorGenerated(FilePath::fromString(m_inputFile)))
+        bool inputExists = m_inputFile.exists();
+        if (inputExists && !AndroidManager::isQtCreatorGenerated(m_inputFile))
             return true; // use the generated file if it was not generated by qtcreator
 
         BuildSystem *bs = buildSystem();
-        auto targets = bs->extraData(buildKey, Android::Constants::AndroidTargets).toStringList();
+        const FilePaths targets = Utils::transform(bs->extraData(buildKey, Android::Constants::AndroidTargets).toStringList(),
+                                                   &FilePath::fromString);
         if (targets.isEmpty())
             return inputExists; // qmake does this job for us
 
@@ -799,8 +795,8 @@ void AndroidBuildApkStep::doRun()
             QTC_ASSERT(androidAbis.size() == 1, return false);
             applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
             FilePath androidLibsDir = buildDirectory() / "android-build/libs" / androidAbis.first();
-            for (const auto &target : targets) {
-                if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
+            for (const FilePath &target : targets) {
+                if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName())))
                     return false;
             }
             deploySettings["target-architecture"] = androidAbis.first();
@@ -817,9 +813,9 @@ void AndroidBuildApkStep::doRun()
                 }
 
                 FilePath androidLibsDir = buildDirectory() / "android-build/libs" / abi;
-                for (const auto &target : targets) {
+                for (const FilePath &target : targets) {
                     if (target.endsWith(targetSuffix)) {
-                        if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
+                        if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName())))
                             return false;
                         architectures[abi] = AndroidManager::archTriplet(abi);
                     }
@@ -846,7 +842,7 @@ void AndroidBuildApkStep::doRun()
             qmlRootPath = target()->project()->rootProjectDirectory().toString();
          deploySettings["qml-root-path"] = qmlRootPath;
 
-        QFile f{m_inputFile};
+        QFile f{m_inputFile.toString()};
         if (!f.open(QIODevice::WriteOnly))
             return false;
         f.write(QJsonDocument{deploySettings}.toJson());
@@ -867,14 +863,13 @@ void AndroidBuildApkStep::doRun()
 void AndroidBuildApkStep::processStarted()
 {
     emit addOutput(tr("Starting: \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(m_command),
-                        m_argumentsPasswordConcealed),
+                   .arg(m_command.toUserOutput(), m_argumentsPasswordConcealed),
                    BuildStep::OutputFormat::NormalMessage);
 }
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    m_keystorePath = Utils::FilePath::fromString(map.value(KeystoreLocationKey).toString());
+    m_keystorePath = FilePath::fromVariant(map.value(KeystoreLocationKey));
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     if (m_buildTargetSdk.isEmpty()) {
@@ -888,7 +883,7 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 QVariantMap AndroidBuildApkStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::AbstractProcessStep::toMap();
-    map.insert(KeystoreLocationKey, m_keystorePath.toString());
+    map.insert(KeystoreLocationKey, m_keystorePath.toVariant());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
     return map;

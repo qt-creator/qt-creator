@@ -106,10 +106,10 @@ private:
     QString m_certificatePasswd;
     Utils::FilePath m_packagePath;
 
-    QString m_command;
+    Utils::FilePath m_command;
     QString m_argumentsPasswordConcealed;
     bool m_skipBuilding = false;
-    QString m_inputFile;
+    Utils::FilePath m_inputFile;
 };
 
 class AndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
