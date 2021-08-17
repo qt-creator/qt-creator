@@ -38,17 +38,17 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Android {
 namespace Internal {
 
-namespace {
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.manifestEditor", QtWarningMsg)
-const auto fileDialogIconFiles = QWidget::tr("Images (*.png *.jpg *.webp *.svg)");
-QString manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
+
+static FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
 {
     // Get the manifest file's directory from its filepath.
-    return textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
-}
+    return textEditorWidget->textDocument()->filePath().absolutePath();
 }
 
 AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(QWidget *parent) : QWidget(parent)
@@ -132,18 +132,17 @@ void AndroidManifestEditorIconWidget::clearIcon()
 
 void AndroidManifestEditorIconWidget::loadIcon()
 {
-    QString baseDir = manifestDir(m_textEditorWidget);
-    QString iconFile = baseDir + m_targetIconPath + m_targetIconFileName;
-    setIconFromPath(iconFile);
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    setIconFromPath(baseDir / m_targetIconPath / m_targetIconFileName);
 }
 
-void AndroidManifestEditorIconWidget::setIconFromPath(const QString &iconPath)
+void AndroidManifestEditorIconWidget::setIconFromPath(const FilePath &iconPath)
 {
     if (!m_textEditorWidget)
         return;
     m_iconPath = iconPath;
-    QString baseDir = manifestDir(m_textEditorWidget);
-    QImage original(iconPath);
+    FilePath baseDir = manifestDir(m_textEditorWidget);
+    QImage original(iconPath.toString());
     if (!original.isNull() && m_scaledToOriginalAspectRatio) {
         if ((original.width() > original.height() && m_buttonSize.height() > m_buttonSize.width())
                 || (original.height() > original.width() && m_buttonSize.width() > m_buttonSize.height())) {
@@ -159,30 +158,30 @@ void AndroidManifestEditorIconWidget::setIconFromPath(const QString &iconPath)
         }
     }
     copyIcon();
-    QString iconFile = baseDir + m_targetIconPath + m_targetIconFileName;
-    m_button->setIcon(QIcon(iconFile));
+    FilePath iconFile = baseDir + m_targetIconPath + m_targetIconFileName;
+    m_button->setIcon(QIcon(iconFile.toString()));
 }
 
 void AndroidManifestEditorIconWidget::selectIcon()
 {
-    QString file = QFileDialog::getOpenFileName(this, m_iconSelectionText,
-                                                QDir::homePath(), fileDialogIconFiles);
+    FilePath file = FileUtils::getOpenFilePath(this, m_iconSelectionText,
+                                               FileUtils::homePath(),
+                                               tr("Images (*.png *.jpg *.webp *.svg)"));
     if (file.isEmpty())
         return;
     setIconFromPath(file);
-    emit iconSelected(file, this);
+    emit iconSelected(file);
 }
 
 void AndroidManifestEditorIconWidget::removeIcon()
 {
-    QString baseDir = manifestDir(m_textEditorWidget);
-    const QString targetPath = baseDir + m_targetIconPath + m_targetIconFileName;
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_targetIconPath / m_targetIconFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Icon target path empty, cannot remove icon.";
         return;
     }
-    QFile targetFile(targetPath);
-    targetFile.remove();
+    targetPath.removeFile();
     m_iconPath.clear();
     setScaleWarningLabelVisible(false);
     m_button->setIcon(QIcon());
@@ -255,14 +254,9 @@ static QImage scaleWithoutStretching(const QImage& original, const QSize& target
     return ret;
 }
 
-static bool similarFilesExist(const QString &path)
+static bool similarFilesExist(const FilePath &path)
 {
-    QFileInfo fileInfo(path);
-    QDir imageDir(fileInfo.absolutePath());
-    QString baseName(fileInfo.completeBaseName());
-    baseName.append(QLatin1String(".*"));
-    imageDir.setNameFilters({baseName});
-    auto entries = imageDir.entryList();
+    const FilePaths entries = path.parentDir().dirEntries({path.completeBaseName() + ".*"}, {});
     return !entries.empty();
 }
 
@@ -270,13 +264,14 @@ void AndroidManifestEditorIconWidget::copyIcon()
 {
     if (m_targetIconPath.isEmpty())
         return;
-    QString baseDir = manifestDir(m_textEditorWidget);
-    const QString targetPath = baseDir + m_targetIconPath + m_targetIconFileName;
+
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_targetIconPath / m_targetIconFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Icon target path empty, cannot copy icon.";
         return;
     }
-    QImage original(m_iconPath);
+    QImage original(m_iconPath.toString());
     if (m_iconPath != targetPath)
         removeIcon();
     if (original.isNull()) {
@@ -287,8 +282,7 @@ void AndroidManifestEditorIconWidget::copyIcon()
     if (m_iconPath == targetPath)
         return;
     if (!targetPath.isEmpty() && !original.isNull()) {
-        QDir dir;
-        if (!dir.mkpath(QFileInfo(targetPath).absolutePath())) {
+        if (!targetPath.absolutePath().ensureWritableDir()) {
             qCDebug(androidManifestEditorLog) << "Cannot create icon target path.";
             m_iconPath.clear();
             return;
@@ -300,7 +294,7 @@ void AndroidManifestEditorIconWidget::copyIcon()
         else
             scaled = scaleWithoutStretching(original, m_iconSize);
         setScaleWarningLabelVisible(scaled.width() > original.width() || scaled.height() > original.height());
-        scaled.save(targetPath);
+        scaled.save(targetPath.toString());
         m_iconPath = targetPath;
     } else {
         m_iconPath.clear();

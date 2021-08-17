@@ -25,11 +25,11 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QWidget>
 
-namespace TextEditor {
-    class TextEditorWidget;
-}
+namespace TextEditor { class TextEditorWidget; }
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -42,6 +42,7 @@ namespace Internal {
 class AndroidManifestEditorIconWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit AndroidManifestEditorIconWidget(QWidget *parent);
     AndroidManifestEditorIconWidget(QWidget *parent,
@@ -55,7 +56,7 @@ public:
     void setIcon(const QIcon &icon);
     void clearIcon();
     void loadIcon();
-    void setIconFromPath(const QString &iconPath);
+    void setIconFromPath(const Utils::FilePath &iconPath);
     bool hasIcon() const;
     void setScaledToOriginalAspectRatio(bool scaled);
     void setScaledWithoutStretching(bool scaled);
@@ -63,8 +64,9 @@ public:
     void setTargetIconPath(const QString &targetIconPath);
     QString targetIconFileName() const;
     QString targetIconPath() const;
+
 signals:
-    void iconSelected(const QString &path, AndroidManifestEditorIconWidget* iconWidget);
+    void iconSelected(const Utils::FilePath &path);
     void iconRemoved();
 
 private:
@@ -78,7 +80,7 @@ private:
     QSize m_buttonSize;
     QLabel *m_scaleWarningLabel = nullptr;
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
-    QString m_iconPath;
+    Utils::FilePath m_iconPath;
     QString m_targetIconPath;
     QString m_targetIconFileName;
     QString m_iconSelectionText;
