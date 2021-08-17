@@ -168,11 +168,6 @@ QString FileUtils::msgTerminalWithAction()
                         "Opens a submenu for choosing an environment, such as \"Run Environment\"");
 }
 
-void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
-{
-    removeFiles({FilePath::fromString(filePath)}, deleteFromFS);
-}
-
 void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
 {
     // remove from version control

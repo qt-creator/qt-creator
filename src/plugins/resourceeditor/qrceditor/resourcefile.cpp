@@ -1260,7 +1260,8 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
         Utils::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::dialogParent());
         if (removeFileDialog.exec() == QDialog::Accepted) {
             deleteItem(index);
-            Core::FileUtils::removeFile(fileNameBackup, removeFileDialog.isDeleteFileChecked());
+            Core::FileUtils::removeFiles({Utils::FilePath::fromString(fileNameBackup)},
+                                         removeFileDialog.isDeleteFileChecked());
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
         return nullptr;
