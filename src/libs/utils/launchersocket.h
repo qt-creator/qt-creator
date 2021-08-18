@@ -117,6 +117,7 @@ signals:
 private:
     enum class SignalType {
         NoSignal,
+        Error,
         Started,
         ReadyRead,
         Finished
@@ -128,6 +129,7 @@ private:
 
     void doStart();
 
+    void slotErrorOccurred();
     void slotStarted();
     void slotReadyRead();
     void slotFinished();
@@ -149,7 +151,7 @@ private:
     void handleSocketReady();
     void handleSocketError(const QString &message);
 
-    void wakeUpIfWaitingFor(SignalType wakeUpSignal);
+    void wakeUpIfWaitingFor(SignalType newSignal);
 
     QByteArray readAndClear(QByteArray &data)
     {
@@ -167,7 +169,6 @@ private:
     SignalType m_waitingFor = SignalType::NoSignal;
 
     QProcess::ProcessState m_processState = QProcess::NotRunning;
-    std::atomic_bool m_failed = false;
     bool m_awaitingShouldContinue = false; // cancel() sets it to false, modified only in caller's thread
     int m_processId = 0;
     int m_exitCode = 0;

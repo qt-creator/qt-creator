@@ -41,14 +41,8 @@ class CallerHandle : public QObject
 public:
     CallerHandle() : QObject() {}
 
-    // Always called in caller's thread.
-    void flush()
-    {
-        flushAndMatch(LauncherHandle::SignalType::NoSignal);
-    }
-
-    // Always called in caller's thread. Returns true is the matchingSignal was flushed.
-    bool flushAndMatch(LauncherHandle::SignalType matchingSignal)
+    // Always called in caller's thread. Returns the list of flushed signals.
+    QList<LauncherHandle::SignalType> flush()
     {
         QList<LauncherHandle::SignalType> oldSignals;
         {
@@ -56,12 +50,12 @@ public:
             oldSignals = m_signals;
             m_signals = {};
         }
-        bool signalMatched = false;
         for (LauncherHandle::SignalType signalType : qAsConst(oldSignals)) {
-            if (matchingSignal == signalType)
-                signalMatched = true;
             switch (signalType) {
             case LauncherHandle::SignalType::NoSignal:
+                break;
+            case LauncherHandle::SignalType::Error:
+                emit errorOccurred();
                 break;
             case LauncherHandle::SignalType::Started:
                 emit started();
@@ -74,7 +68,7 @@ public:
                 break;
             }
         }
-        return signalMatched;
+        return oldSignals;
     }
     void appendSignal(LauncherHandle::SignalType signalType)
     {
@@ -89,14 +83,18 @@ public:
     }
     bool shouldFlushFor(LauncherHandle::SignalType signalType)
     {
+        // TODO: Should we always flush when the list isn't empty?
         QMutexLocker locker(&m_mutex);
         if (m_signals.contains(signalType))
+            return true;
+        if (m_signals.contains(LauncherHandle::SignalType::Error))
             return true;
         if (m_signals.contains(LauncherHandle::SignalType::Finished))
             return true;
         return false;
     }
 signals:
+    void errorOccurred();
     void started();
     void readyRead();
     void finished();
@@ -131,33 +129,36 @@ void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &pay
 void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 {
     QMutexLocker locker(&m_mutex);
-    if (m_waitingFor != SignalType::NoSignal)
-        m_waitCondition.wakeOne();
-    m_failed = true;
+    wakeUpIfWaitingFor(SignalType::Error);
 
     const auto packet = LauncherPacket::extractPacket<ProcessErrorPacket>(m_token, packetData);
     m_error = packet.error;
     m_errorString = packet.errorString;
-    // TODO: pipe it through the callers handle?
-    emit errorOccurred(m_error);
+    if (!m_callerHandle)
+        return;
+
+    m_callerHandle->appendSignal(SignalType::Error);
+    flushCaller();
 }
 
 // call me with mutex locked
-void LauncherHandle::wakeUpIfWaitingFor(SignalType wakeUpSignal)
+void LauncherHandle::wakeUpIfWaitingFor(SignalType newSignal)
 {
+    // TODO: should we always wake up in case m_waitingFor != NoSignal?
     // The matching signal came
-    const bool signalMatched = (m_waitingFor == wakeUpSignal);
-    // E.g. if we are waiting for ReadyRead and we got Finished signal instead -> wake it, too.
-    const bool finishedSignalWhileWaiting =
-            (m_waitingFor != SignalType::NoSignal) && (wakeUpSignal == SignalType::Finished);
+    const bool signalMatched = (m_waitingFor == newSignal);
+    // E.g. if we are waiting for ReadyRead and we got Finished or Error signal instead -> wake it, too.
+    const bool finishedOrErrorWhileWaiting =
+            (m_waitingFor != SignalType::NoSignal)
+            && ((newSignal == SignalType::Finished) || (newSignal == SignalType::Error));
     // Wake up, flush and continue waiting.
     // E.g. when being in waitingForFinished() state and Started or ReadyRead signal came.
     const bool continueWaitingAfterFlushing =
-            ((m_waitingFor == SignalType::Finished) && (wakeUpSignal != SignalType::Finished))
-            || ((m_waitingFor == SignalType::ReadyRead) && (wakeUpSignal == SignalType::Started));
+            ((m_waitingFor == SignalType::Finished) && (newSignal != SignalType::Finished))
+            || ((m_waitingFor == SignalType::ReadyRead) && (newSignal == SignalType::Started));
     const bool shouldWake = signalMatched
-                         || continueWaitingAfterFlushing
-                         || finishedSignalWhileWaiting;
+                         || finishedOrErrorWhileWaiting
+                         || continueWaitingAfterFlushing;
 
     if (shouldWake)
         m_waitCondition.wakeOne();
@@ -276,10 +277,14 @@ bool LauncherHandle::waitForSignal(int msecs, SignalType newSignal)
         if (timedOut)
             break;
         m_awaitingShouldContinue = true; // TODO: make it recursive?
-        const bool continueWaitingAfterFlushing = !m_callerHandle->flushAndMatch(newSignal);
+        const QList<SignalType> flushedSignals = m_callerHandle->flush();
         const bool wasCanceled = !m_awaitingShouldContinue;
         m_awaitingShouldContinue = false;
-        if (!continueWaitingAfterFlushing)
+        const bool errorOccurred = flushedSignals.contains(SignalType::Error);
+        if (errorOccurred)
+            return false; // apparently QProcess behaves like this in case of error
+        const bool newSignalFlushed = flushedSignals.contains(newSignal);
+        if (newSignalFlushed) // so we don't continue waiting
             return true;
         if (wasCanceled)
             return true; // or false? is false only in case of timeout?
@@ -389,6 +394,7 @@ void LauncherHandle::createCallerHandle()
     QMutexLocker locker(&m_mutex); // may be not needed, as we call it just after Launcher's c'tor
     QTC_CHECK(m_callerHandle == nullptr);
     m_callerHandle = new CallerHandle();
+    connect(m_callerHandle, &CallerHandle::errorOccurred, this, &LauncherHandle::slotErrorOccurred, Qt::DirectConnection);
     connect(m_callerHandle, &CallerHandle::started, this, &LauncherHandle::slotStarted, Qt::DirectConnection);
     connect(m_callerHandle, &CallerHandle::readyRead, this, &LauncherHandle::slotReadyRead, Qt::DirectConnection);
     connect(m_callerHandle, &CallerHandle::finished, this, &LauncherHandle::slotFinished, Qt::DirectConnection);
@@ -400,6 +406,16 @@ void LauncherHandle::destroyCallerHandle()
     QTC_CHECK(m_callerHandle);
     m_callerHandle->deleteLater();
     m_callerHandle = nullptr;
+}
+
+void LauncherHandle::slotErrorOccurred()
+{
+    QProcess::ProcessError error = QProcess::UnknownError;
+    {
+        QMutexLocker locker(&m_mutex);
+        error = m_error;
+    }
+    emit errorOccurred(error);
 }
 
 void LauncherHandle::slotStarted()
