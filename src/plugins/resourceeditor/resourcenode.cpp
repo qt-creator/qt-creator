@@ -251,8 +251,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
     setShowWhenEmpty(true);
 
     if (!filePath.isEmpty()) {
-        QFileInfo fi = filePath.toFileInfo();
-        if (fi.isFile() && fi.isReadable()) {
+        if (filePath.isReadableFile()) {
             m_document = new ResourceFileWatcher(this);
             DocumentManager::addDocument(m_document);
         }
