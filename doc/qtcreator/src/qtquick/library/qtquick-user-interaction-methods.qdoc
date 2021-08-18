@@ -25,8 +25,8 @@
 
 /*!
     \page quick-user-interaction-methods.html
-    \previouspage quick-controls.html
-    \nextpage quick-data-models.html
+    \previouspage quick-images.html
+    \nextpage quick-controls.html
 
     \title User Interaction Methods
 
@@ -86,6 +86,105 @@
     mouse and touchscreen, is via \l {Qt Quick Input Handlers}.
     \endif
 
+    \section2 Mouse Area Properties
+
+    A \uicontrol {Mouse Area} is an invisible component that is typically used
+    in conjunction with a visible component in order to provide mouse handling
+    for that component. By effectively acting as a proxy, the logic for mouse
+    handling can be contained within a \uicontrol {Mouse Area} component.
+
+    Select the \uicontrol Enable check box to enable mouse handling for the
+    proxied component. When disabled, the mouse area becomes transparent to
+    mouse events.
+
+    \image qtquick-properties-mouse-area.png "Mouse Area properties"
+
+    By default, \uicontrol {Mouse Area} components only report mouse clicks and
+    not changes to the position of the mouse cursor. Select the \uicontrol Hover
+    check box to ensure that the appropriate handlers are used and the values of
+    other properties are updated as necessary even when no mouse buttons are
+    pressed.
+
+    Even though \uicontrol {Mouse Area} is an invisible component, it has a
+    \uicontrol Visible property. Deselect the \uicontrol Visible check box in
+    the \uicontrol Visibility section to make the mouse area transparent to
+    mouse events.
+
+    In the \uicontrol {Accepted buttons} field, select the mouse button that
+    the mouse area reacts to. Select \uicontrol AllButtons to have the mouse
+    are react to all mouse buttons.
+
+    In the \uicontrol {Cursor shape} field, select the cursor shape for this
+    mouse area. On platforms that do not display a mouse cursor, this value
+    may have no effect.
+
+    In the \uicontrol {Hold interval} field, specify a value to override the
+    elapsed time in milliseconds before the \c pressAndHold() signal is emitted.
+    If you do not explicitly set the value or it is reset, it follows the
+    globally set application style hint. Set this value if you need particular
+    intervals for particular \uicontrol {Mouse Area} instances.
+
+    Select the \uicontrol {Scroll gesture} check box to respond to scroll
+    gestures from non-mouse devices, such as the 2-finger flick gesture on
+    a trackpad. If the check box is not selected, the wheel signal is emitted
+    only when the wheel event comes from an actual mouse with a wheel, while
+    scroll gesture events will pass through to any other component that will
+    handle them. For example, the user might perform a flick gesture while the
+    cursor is over a component containing a \uicontrol {Mouse Area} instance,
+    intending to interact with a \uicontrol Flickable component which is
+    underneath. Setting this property to \c false will allow the \l PinchArea
+    component to handle the mouse wheel or the pinch gesture, while the
+    \uicontrol Flickable handles the flick gesture.
+
+    Information about the mouse position and button clicks are provided via
+    signals for which event handler properties are defined. If a mouse area
+    overlaps with the area of other instances of the \uicontrol {Mouse Area}
+    components, you can propagate \c clicked(), \c doubleClicked(), and
+    \c pressAndHold() events to these other components by selecting the
+    \uicontrol {Propagate events} check box. Each event is propagated to the
+    next enabled \uicontrol {Mouse Area} beneath it in the stacking order,
+    propagating down this visual hierarchy until a \uicontrol {Mouse Area}
+    accepts the event.
+
+    \section2 Advanced Mouse Area Properties
+
+    You can place a \uicontrol {Mouse Area} instance within a component that
+    filters child mouse events, such as \uicontrol Flickable. However, the
+    mouse events might get stolen from the \uicontrol {Mouse Area} if a gesture,
+    such as a flick, is recognized by the parent component.
+
+    Select the \uicontrol {Prevent stealing} check box to stop mouse events from
+    being stolen from the \uicontrol {Mouse Area} instance. This value will take
+    no effect until the next \c press() event if it is set once a component has
+    started stealing events.
+
+    For more information, see the developer documentation for the \l {MouseArea}
+    {Mouse Area} component.
+
+    \section2 Drag Properties
+
+    You can specify properties for dragging components in the \uicontrol Drag
+    section. Select the component to drag in the \uicontrol Target field.
+    Keep in mind that anchored components cannot be dragged.
+
+    \image qtquick-properties-mouse-area-drag.png "Drag properties"
+
+    In the \uicontrol Axis field, specify whether dragging can be done
+    horizontally, vertically, or both.
+
+    In the \uicontrol Threshold field, set the threshold in pixels of when the
+    drag operation should start. By default, this value is bound to a platform
+    dependent value.
+
+    Select the \uicontrol {Filter children} check box to enable dragging to
+    override descendant \uicontrol {Mouse Area} instances. This enables a
+    parent \uicontrol {Mouse Area} instance to handle drags, for example, while
+    the descendant areas handle clicks.
+
+    Select the \uicontrol Smoothed check box to move the target component only
+    after the drag operation has started. If this check box is not selected, the
+    target component is moved straight to the current mouse position.
+
     \section1 Focus Scope
 
     When a key is pressed or released, a key event is generated and delivered
@@ -133,17 +232,18 @@
     this dragging action is often complemented with a flicking action, where
     scrolling continues after the user has stopped touching the view.
 
-    The contents of a flickable component are not automatically clipped. If
-    the component is not used as a full-screen component, consider selecting the
-    \uicontrol Clip check box in the \uicontrol Visibility section.
+    The contents of a \uicontrol Flickable component are not automatically
+    clipped. If the component is not used as a full-screen component, consider
+    selecting the \uicontrol Clip check box in the \uicontrol Visibility
+    section.
 
     \image qtquick-designer-flickable-properties.png "Flickable properties"
 
     Users can interact with a flickable component if the \uicontrol Interactive
-    property is set to \c true. Set it to \c false to temporarily disable
+    check box is set to \c true. Set it to \c false to temporarily disable
     flicking. This enables special interaction with the component's children.
     For example, you might want to freeze a flickable map while scrolling
-    through a pop-up that is a child of the Flickable.
+    through a pop-up that is a child of the \uicontrol Flickable component.
 
     The \uicontrol {Flick direction} field determines whether the view can be
     flicked horizontally or vertically. Select \uicontrol AutoFlickDirection
@@ -154,9 +254,9 @@
 
     Specify the maximum velocity for flicking the view in pixels per second in
     the \uicontrol {Max. velocity} field. Specify the rate at which a flick
-    will decelerate in the \uicontrol Decelerate field.
+    will decelerate in the \uicontrol Deceleration field.
 
-    The \uicontrol {Bounds movement} property determines whether the flickable
+    The value of the \uicontrol Movement field determines whether the flickable
     will give a feeling that the edges of the view are soft, rather than a hard
     physical boundary. Select \uicontrol StopAtBounds for custom edge effects
     where the contents do not follow drags or flicks beyond the bounds of the
@@ -176,11 +276,11 @@
     exceeds the platform drag threshold, the press event will be delivered
     regardless of this property.
 
-    The \uicontrol {Pixel aligned} property sets the alignment of
-    \uicontrol {Content X} and \uicontrol {Content Y} to pixels (\c true)
-    or subpixels (\c false). Enable it to optimize for still content or
-    moving content with high constrast edges, such as one-pixel-wide lines,
-    text, or vector graphics. Disable this property when optimizing for
+    The \uicontrol {Pixel aligned} check box sets the unit of alignment set in
+    the \uicontrol Content \uicontrol X and \uicontrol Y fields to pixels
+    (\c true) or subpixels (\c false). Set it to \c true to optimize for still
+    content or moving content with high constrast edges, such as one-pixel-wide
+    lines, text, or vector graphics. Set it to \c false when optimizing for
     animation quality.
 
     If \uicontrol {Synchronous drag} is set to \c true, then when the mouse or
@@ -190,11 +290,16 @@
     provides a smoother experience (no jump) at the cost of losing some of the
     drag distance at the beginning.
 
+    \section2 Flickable Geometry
+
     The \uicontrol {Content size} field specifies the dimensions of the
     surface controlled by a flickable. Typically, set the values of the
     \uicontrol W and \uicontrol H fields to the combined size of the components
     placed in the flickable. You can set additional margins around the
-    content in the \uicontrol Margins field.
+    content in the \uicontrol {Left margin}, \uicontrol {Right margin},
+    \uicontrol {Top margin}, and \uicontrol {Bottom margin} fields.
+
+    \image qtquick-designer-flickable-geometry.png "Flickable geometry properties"
 
     The \uicontrol Origin field specifies the origin of the content. It
     refers to the top-left position of the content regardless of layout
@@ -221,7 +326,7 @@
         \li \inlineimage flickable-icon16.png
         \li \l [QML]{Flickable}
         \li \inlineimage ok
-        \li Items can be flicked horizontally or vertically.
+        \li Enables flicking components horizontally or vertically.
     \row
         \li \inlineimage focusscope-icon16.png
         \li \l{FocusScope}{Focus Scope}

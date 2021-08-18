@@ -237,6 +237,8 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
         const QVariantMap props = value.toMap();
         for (auto it = props.begin(); it != props.end(); ++it)
             args << it.key() << toJSLiteral(it.value());
+        if (props.isEmpty()) // Make sure we still create a profile for "empty" kits.
+            args << "qbs.optimization" << toJSLiteral(QString("none"));
         break;
     }
     }

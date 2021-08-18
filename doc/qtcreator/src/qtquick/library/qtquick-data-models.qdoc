@@ -25,7 +25,7 @@
 
 /*!
     \page quick-data-models.html
-    \previouspage quick-user-interaction-methods.html
+    \previouspage quick-controls.html
     \if defined(qtdesignstudio)
     \nextpage quick-2d-effects.html
     \else
@@ -56,15 +56,20 @@
 
     \section1 List and Grid Views
 
-    A list view organizes components as a list, whereas a grid view organizes
-    them as a grid. By default, components in list and grid views flow
-    vertically from left to right. They are laid out from left to right
-    horizontally, and from top to bottom vertically.
+    Create instances of \uicontrol {List View} and \uicontrol {Grid View}
+    components to organize other component instances in list or grid format.
+    They are available in \l Library > \uicontrol Components >
+    \uicontrol {Default Components} > \uicontrol Views.
+
+    A \uicontrol {List View} organizes other components as a list, whereas a
+    \uicontrol {Grid View} organizes them as a grid. By default, components
+    in list and grid views flow vertically from left to right. They are laid
+    out from left to right horizontally, and from top to bottom vertically.
 
     You can change the list view orientation in the \uicontrol Orientation
     field and the grid view flow in the \uicontrol Flow field. You can change
-    the layout direction in the \uicontrol {Layout direction} field. These
-    properties can be combined to produce a variety of layouts.
+    the layout direction in the \uicontrol {Layout direction} field. By setting
+    values for these properties, you can produce a variety of layouts.
 
     \image qtquick-designer-listview-properties.png "List View properties"
 
@@ -100,8 +105,8 @@
     and the cache is set to 40, then up to six delegates above and below the
     visible area may be created or retained. The cached delegates are created
     asynchronously, allowing creation to occur across multiple frames and
-    reducing the likelihood of skipping frames. In order to improve painting
-    performance delegates outside the visible area are not painted.
+    reducing the likelihood of skipping frames. To improve painting performance,
+    delegates outside the visible area are not painted.
 
     The default value of this property is platform dependent, but will usually
     be a value greater than zero. Negative values are ignored.
@@ -117,6 +122,11 @@
     slow-loading delegates, it is not a solution to this problem.
 
     \section1 View Highlight
+
+    In the \uicontrol {List View Highlight} and \uicontrol {Grid View Highlight}
+    sections, you can specify properties for highlighting items in views.
+
+    \image qtquick-designer-listview-highlight-properties.png "List View Highlight properties"
 
     The current item in a list or grid view is higlighted if you set
     the value of the \uicontrol Range field to \uicontrol ApplyRange
@@ -137,12 +147,12 @@
     current item is in the middle of the view. The begin value must be less than
     the end value.
 
-    Select the \uicontrol {Follows current item} check box to enable the view to
+    Select the \uicontrol {Follows current} check box to enable the view to
     manage the highlight. The highlight is moved smoothly to follow the current
     item. Otherwise, the highlight is not moved by the view, and any movement
     must be implemented by the highlight.
 
-    The values of the \uicontrol {Move duration}, \uicontrol {Move velocity}
+    The values of the \uicontrol {Move duration}, \uicontrol {Move velocity},
     \uicontrol {Resize duration}, and \uicontrol {Resize velocity} fields
     control the speed of the move and resize animations for the highlight.
 
@@ -186,9 +196,9 @@
     \section1 Summary of Model Components
 
     The following table lists the components that you can use to add data models
-    to UIs. The \e Location column contains the tab name where you can find the
-    component in \l Library > \uicontrol Components. The \e MCU column indicates
-    which components are supported on MCUs.
+    to UIs. The \e Location column indicates the location of the component in
+    \l Library > \uicontrol Components. The \e MCU column indicates which
+    components are supported on MCUs.
 
     \table
     \header

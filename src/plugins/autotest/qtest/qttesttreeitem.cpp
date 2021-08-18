@@ -226,7 +226,7 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
     QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
     QStringList testCases;
     item->forFirstLevelChildren([&testCases](ITestTreeItem *func) {
-        if (func->data(0, FailedRole).toBool()) {
+        if (func->type() == TestTreeItem::TestFunction && func->data(0, FailedRole).toBool()) {
             testCases << func->name();
         } else {
             func->forFirstLevelChildren([&testCases, func](ITestTreeItem *dataTag) {

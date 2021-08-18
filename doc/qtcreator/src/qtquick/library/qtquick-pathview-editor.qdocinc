@@ -28,10 +28,11 @@
 
     \section1 Path View
 
-    The Path View component lays out data provided by data models on a \l{Path}.
+    A \uicontrol {Path View} component lays out data provided by data models
+    on a \l{Path}.
 
     A graphical spline editor enables you to specify path view paths, which
-    is a non-trivial task to do in the code editor.
+    is a non-trivial task to do in \uicontrol {Text Editor}.
 
     \image qmldesigner-pathview-editor.png "Path View editor"
 
@@ -52,7 +53,7 @@
     To add intermediary points to a curve segment, select \uicontrol {Split Segment}
     in the context menu.
 
-    In the \uicontrol Properties view, you can specify other properties for
+    In the \uicontrol {Path View} section, you can specify other properties for
     the path view. The value of the \uicontrol {Drag margin} field specifies
     the maximum distance from the path that initiates mouse dragging.
 
@@ -66,6 +67,9 @@
     are from their initial positions. This is a real number that ranges from
     0 to the value of the \uicontrol {Item count} field, which displays the
     number of items in the model.
+
+    In the \uicontrol {Path View Highlight} section, you can specify properties
+    for \l{View Highlight}{highlighting} path objects.
 
     \if defined(qtdesignstudio)
     \note You can also use the \l {SVG Path Item} Studio Component to specify an
@@ -81,14 +85,17 @@
     The \uicontrol {SVG Path Item} component uses an SVG path data string to
     draw a path as a line.
 
+    Setting path colors is described in \l {Picking Colors}.
+
     The stroke property values that specify the appearance of the path are
     described in \l{Strokes}.
 
-    \image studio-svgpath-properties.png "Svg Path properties"
+    \image studio-svgpath-properties.png "SVG Path Item properties"
 
-    The \uicontrol {Path data} field contains the SVG path data
-    string that  specifies the path. For more information, see
-    \l{https://www.w3.org/TR/SVG/paths.html#PathData}{W3C SVG Path Data}.
+    The \uicontrol {Path data} field in the \uicontrol {Path Info} section
+    contains the SVG path data string that specifies the path. For more
+    information, see \l{https://www.w3.org/TR/SVG/paths.html#PathData}
+    {W3C SVG Path Data}.
 
 //! [svgpath]
 */

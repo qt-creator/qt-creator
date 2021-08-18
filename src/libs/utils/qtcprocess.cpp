@@ -1256,7 +1256,6 @@ void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &
 {
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = false;
-    d->m_stdOut.keepRawData = false;
 }
 
 void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &)> &callback)
@@ -1270,7 +1269,6 @@ void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &
 {
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = false;
-    d->m_stdErr.keepRawData = false;
 }
 
 void QtcProcess::setStdErrLineCallback(const std::function<void (const QString &)> &callback)

@@ -977,16 +977,21 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
             }
         }
 #endif
-        // update snapshot. requires synchronization, but significantly reduces amount of file
-        // system queries for library imports because queries are cached in libraryInfo
-        const Snapshot snapshot = modelManager->snapshot();
-
         // get list of referenced files not yet in snapshot or in directories already scanned
         QStringList importedFiles;
-        findNewImplicitImports(doc, snapshot, &importedFiles, &scannedPaths);
-        findNewFileImports(doc, snapshot, &importedFiles, &scannedPaths);
-        findNewLibraryImports(doc, snapshot, modelManager, &importedFiles, &scannedPaths,
-                              &newLibraries);
+
+        // update snapshot. requires synchronization, but significantly reduces amount of file
+        // system queries for library imports because queries are cached in libraryInfo
+        {
+            // Make sure the snapshot is destroyed before updateDocument, so that we don't trigger
+            // the copy-on-write mechanism on its internals.
+            const Snapshot snapshot = modelManager->snapshot();
+
+            findNewImplicitImports(doc, snapshot, &importedFiles, &scannedPaths);
+            findNewFileImports(doc, snapshot, &importedFiles, &scannedPaths);
+            findNewLibraryImports(doc, snapshot, modelManager, &importedFiles, &scannedPaths,
+                                  &newLibraries);
+        }
 
         // add new files to parse list
         for (const QString &file : qAsConst(importedFiles)) {

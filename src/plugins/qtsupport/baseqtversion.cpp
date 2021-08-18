@@ -1832,11 +1832,12 @@ bool BaseQtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Env
     QByteArray output;
     output = runQmakeQuery(binary, env, error);
 
-    if (!output.startsWith('Q')) { // Is it always "QT_SYSROOT="?
+    if (!output.contains("QMAKE_VERSION:")) {
         // Some setups pass error messages via stdout, fooling the logic below.
         // Example with docker/qemu/arm "OCI runtime exec failed: exec failed: container_linux.go:367:
         // starting container process caused: exec: "/bin/qmake": stat /bin/qmake: no such file or directory"
         // Since we have a rough idea on what the output looks like we can work around this.
+        // Output does not always start with QT_SYSROOT, see QTCREATORBUG-26123.
         *error = QString::fromUtf8(output);
         return false;
     }

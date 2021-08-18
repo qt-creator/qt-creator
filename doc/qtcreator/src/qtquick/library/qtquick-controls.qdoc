@@ -25,8 +25,8 @@
 
 /*!
     \page quick-controls.html
-    \previouspage quick-images.html
-    \nextpage quick-user-interaction-methods.html
+    \previouspage quick-user-interaction-methods.html
+    \nextpage quick-data-models.html
 
     \title UI Controls
 
@@ -60,7 +60,7 @@
 
     \image qtquick-designer-control-properties.png "Control section in Properties"
 
-    The \uicontrol Enabled check box indicates whether the control is enabled.
+    The \uicontrol Enable check box indicates whether the control is enabled.
 
     The value of the \uicontrol {Focus policy} field determines whether the
     control accepts focus by tabbing, clicking, and using the mouse wheel.
@@ -98,8 +98,8 @@
             layout.
     \endlist
 
-    For more information about setting text properties, see \l Fonts and
-    \l Padding.
+    For more information about setting text properties, see
+    \l {Character Properties} and \l Padding.
 
     The properties that are shared by all button controls are described in:
 
@@ -133,18 +133,31 @@
     Don't use a button to set state, because a \l Switch is more suitable for
     that purpose.
 
-    Select the \uicontrol Highlighted check box to draw the users' attention
-    towards a button. Highlighting a button has no effect on keyboard
-    interaction.
+    \section3 Highlighted Buttons
+
+    Select the \uicontrol Highlight check box in the \uicontrol Button section
+    to draw the users' attention towards a button. Highlighting a button has no
+    effect on keyboard interaction.
+
+    \image qtquick-designer-button-properties.png "Button properties"
+
+    The following image shows an example of a highlighted button:
 
     \image qtquickcontrols2-button-highlighted.gif "Highlighted button"
 
+    \section3 Flat Buttons
+
     A flat button typically does not draw a background unless it is pressed or
-    checked. To create a flat button, select the \uicontrol Flat check box.
+    checked. To create a flat button, select the \uicontrol Flat check box in
+    the \uicontrol Button section.
+
+    The following image shows an example of a flat button:
 
     \image qtquickcontrols2-button-flat.gif "Flat button"
 
     \if defined(qtdesignstudio)
+    \section3 Icon Buttons
+
     To create a button that contains an icon, use the wizard template to
     \l{Creating Custom Controls}{create a custom button} and drag-and-drop
     the icon to the button background component. For an example of using the
@@ -155,10 +168,10 @@
 
     \image qtquickcontrols2-delaybutton.gif "Delay button"
 
-    \uicontrol {Delay Button} incorporates a delay before triggering an action.
-    This delay prevents accidental presses.
+    The \uicontrol {Delay Button} control incorporates a delay before
+    triggering an action. This delay prevents accidental presses.
 
-    Use delay buttons in touch user interfaces and for actions that must be
+    Use delay buttons in touch UIs and for actions that must be
     triggered with care.
 
     You can set the delay in milliseconds in the \uicontrol Delay field.
@@ -181,9 +194,15 @@
     A check box presents an option button that can be toggled on
     (checked) or off (unchecked). Check boxes are typically used to select
     one or more options from a set of options. For larger sets of options,
-    such as those in a list, consider using \uicontrol {Check Delegate} instead.
+    such as those in a list, consider creating an instance of the
+    \uicontrol {Check Delegate} control instead.
 
     \image qtquickcontrols2-checkdelegate.gif "Check delegate"
+
+    A delegate can be highlighted in order to draw the user's attention towards
+    it. Highlighting has no effect on keyboard interaction. Select the
+    \uicontrol Highlight check box in the \uicontrol {Item Delegate} section to
+    highlight the delegate.
 
     Use check boxes to build multi-selection option lists where any number
     of options can be selected, including none, but the options are not
@@ -195,13 +214,17 @@
     use a check box. If they are choosing between actions to be taken, a switch
     is recommended.
 
-    The value of the \uicontrol Checked property determines the state of the
+    The value of the \uicontrol Checked check box in the
+    \uicontrol {Button Content} section determines the state of the
     check box. However, in addition to the checked and unchecked states, a
     check box has a third state: \e {partially checked}.
 
-    Select the \uicontrol Tri-state check box to enable the check box to cycle
-    between checked, partially checked, and unchecked states when users
-    toggle it by using touch, mouse, or keyboard.
+    \image qtquick-properties-check-box.png "Check Box properties"
+
+    Select the \uicontrol Tri-state check box in the \uicontrol {Check Box}
+    section to enable the check box to cycle between checked, partially
+    checked, and unchecked states when users toggle it by using touch, mouse,
+    or keyboard.
 
     \image qtquickcontrols2-checkbox-tristate.gif "Tri-state check box"
 
@@ -232,6 +255,9 @@
     typically used in views.
 
     \image qtquickcontrols2-radiodelegate.gif "Radio delegate"
+
+    Select the \uicontrol Highlight check box in the \uicontrol {Radio Delegate}
+    section to highlight the delegate.
 
     Recommendations for radio buttons:
 
@@ -265,6 +291,9 @@
 
     \image qtquickcontrols2-switchdelegate.gif "Switch delegate"
 
+    Select the \uicontrol Highlight check box in the \uicontrol {Item Delegate}
+    section to highlight the delegate.
+
     Use a switch for binary operations that take effect immediately after the
     switch is toggled. For example, use a switch to turn WiFi on or off.
 
@@ -275,16 +304,27 @@
     one-letter font icon is circular. A circular round button takes less space
     than a normal button, and can also be used as a floating action button.
 
-    A round button has the same properties as a \l Button.
+    In addition to common \l Button properties, a round button has the
+    \uicontrol Radius property, which holds the radius of the button.
+
+    \image qtquick-designer-round-button-properties.png "Round Button properties"
+
+    To create a relatively square button that has slightly rounded corners, use
+    a small value, such as 3.
+
+    To create a completely circular button, use a value that is equal to half
+    of the width or height of the button, and make the button's width and height
+    identical.
 
     \section2 Displaying Text and Icons
 
     A button can contain text, an icon, or both. Specify the button text in
-    the \uicontrol Text field. The value of the \uicontrol Display field
-    determines whether only text or an icon is displayed, or when both are
-    visible, whether the text is placed beside the icon or under it.
+    the \uicontrol Text field in the \uicontrol {Button Content} section. The
+    value of the \uicontrol Display field determines whether only text or an
+    icon is displayed, or when both are visible, whether the text is placed
+    beside the icon or under it.
 
-    \image qtquick-designer-abstract-button-properties.png "General button properties"
+    \image qtquick-designer-abstract-button-properties.png "Button Content properties"
 
     \section2 Checking Buttons
 
@@ -342,6 +382,11 @@
 
     Select the \uicontrol Running check box to make the busy indicator visible.
 
+    \image qtquick-properties-busy-indicator.png "Busy Indicator properties"
+
+    Select the \uicontrol Live check box to provide live updates of the
+    progress.
+
     Typical places for a busy indicator are:
 
     \list
@@ -356,6 +401,18 @@
     in a container of multiple pages. Specify the number of pages in the
     \uicontrol Count field. Select the current page in the \uicontrol Current
     field.
+
+    \image qtquick-properties-page-indicator.png "Page Indicator properties"
+
+    Select the \uicontrol Interactive check box to determine that the page
+    indicator reacts to presses and automatically changes the value of the
+    \uicontrol Current field accordingly.
+
+    Page indicators are typically quite small in order to avoid distracting the
+    user from the actual content of the UI. Therefore, they can be hard to
+    click, and might not be easily recognized as interactive by users. For these
+    reasons, they are best used to complement primary methods of navigation,
+    such as a \uicontrol {Swipe View}, not replace them.
 
     \target progress-bar-control
     \section2 Progress Bar
@@ -391,7 +448,7 @@
 
     \section1 Selectors
 
-    Qt Quick Controls offers a set of selector-like controls, such as sliders,
+    Qt Quick Controls offer a set of selector-like controls, such as sliders,
     dial, spin box, combo box, and tumbler, for specific use cases. The
     following sections contain guidelines for choosing the selector most
     suitable for a use case.
@@ -438,8 +495,9 @@
     In the \uicontrol From and \uicontrol To fields, set the range of the
     slider or dial. Set the value of the slide handle or dial in the
     \uicontrol Value field. For a range slider, set the initial positions
-    of the first and second handles in the \uicontrol {First value} and
-    \uicontrol {Second value} fields.
+    of the first and second handles in the \uicontrol {Value 1} and
+    \uicontrol {Value 2} fields. Select the \uicontrol Live check box to
+    provide live updates of the value properties.
 
     \image qtquick-designer-range-slider-properties.png "Range slider properties"
 
@@ -451,10 +509,7 @@
     You can set slider orientation to horizontal or vertical in the
     \uicontrol Orientation field.
 
-    Select the \uicontrol Live check box to provide live updates of the value
-    properties.
-
-    Modify the \uicontrol {Touch drag threshold} to determine the threshold at
+    Modify the \uicontrol {Drag threshold} to determine the threshold at
     which a touch drag event will be initiated.
 
     For more information, watch the following video:
@@ -493,7 +548,7 @@
     Select the \uicontrol Editable check box to enable users to enter a text
     value in the input field.
 
-    The other spin box properties are similar to those of a dial.
+    The other spin box properties are similar to those of a \uicontrol {Dial}.
 
     \section2 Combo Box
 
@@ -520,9 +575,9 @@
     To use a role of the model item that corresponds to the text role, enter
     \c valueRole in the field.
 
-    The \uicontrol Current property is the index of the current item in the
-    combo box. The default value is \c -1 when the combo box is empty, and
-    \c 0 otherwise.
+    The \uicontrol {Current index} field contains the index of the item that
+    is displayed in the combo box. The default value is \c -1 when the combo
+    box is empty and \c 0 otherwise.
 
     A flat combo box does not draw a background unless it is
     interacted with, which makes it blend into the UI. Use flat combo
@@ -533,7 +588,7 @@
     Recommendations for combo boxes:
 
     \list
-        \li If the number of values very large, consider applying a filter.
+        \li If the number of values is very large, consider applying a filter.
         \li If the number of values is small, consider using \l {Radio Button},
             so that users can see all options at the same time.
         \li Set a default value, which should be the value that you expect
@@ -551,8 +606,8 @@
     usage and wraps around at each end when there are a large number of items.
 
     Specify the number of visible options in the \uicontrol {Visible count}
-    field. Select the index of the current option in the \uicontrol Current
-    field.
+    field. Select the index of the current option in the
+    \uicontrol {Current index} field.
 
     \image qtquick-designer-tumbler-properties.png "Tumbler properties"
 
@@ -568,14 +623,15 @@
     position in the \uicontrol Position field.
 
     Typically, a tab bar contains a static set of \uicontrol {Tab Button}
-    controls that are defined as its children. The \uicontrol Current
-    field shows the index of the current tab button. The default value is
-    \c -1 when the tab bar is empty, and \c 0 otherwise.
+    controls that are defined as its children. The \uicontrol {Current index}
+    field in the \uicontrol Container section shows the index of the current
+    tab button. The default value is \c -1 when the tab bar is empty and
+    \c 0 otherwise.
 
     \image qtquick-designer-tabbar-properties.png "Tab Bar properties"
 
-    You can specify content size in the \uicontrol {Content width} and
-    \uicontrol {Content height} fields.
+    You can specify content width (\uicontrol W) and height (\uicontrol H)
+    in the \uicontrol {Content size} field.
 
     If the total width of the buttons exceeds the available width of the tab
     bar, it automatically becomes \l{Flickable}{flickable}.
@@ -601,8 +657,9 @@
     position its contents, for instance by creating a \l RowLayout. If the
     toolbar contains only one item, it will resize to fit the implicit item
     size. This makes a toolbar particularly suitable for use together with
-    \l{Using Layouts}{layouts}. However, you can specify content size in the
-    \uicontrol {Content width} and \uicontrol {Content height} fields.
+    \l{Using Layouts}{layouts}. However, you can specify content width
+    (\uicontrol W) and height (\uicontrol H) in the \uicontrol {Content size}
+    field in the \uicontrol Pane section.
 
     \uicontrol {Tool Separator} is used to visually distinguish between
     groups of items on a toolbar by separating them with a line. It can
@@ -655,8 +712,8 @@
 
     The following table lists preset UI controls with links to their developer
     documentation. They are available in \l Library > \uicontrol Components >
-    \uicontrol {Qt Quick Controls} > \uicontrol Controls. The \e MCU column
-    indicates which controls are supported on MCUs.
+    \uicontrol {Qt Quick Controls}. The \e MCU column indicates which controls
+    are supported on MCUs.
 
     \table
     \header
