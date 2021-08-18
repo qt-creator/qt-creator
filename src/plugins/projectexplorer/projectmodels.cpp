@@ -73,8 +73,14 @@ namespace Internal {
 
 /// An output iterator whose assignment operator appends a clone of the operand to the list of
 /// children of the WrapperNode passed to the constructor.
-class Appender : public std::iterator<std::output_iterator_tag, void, void, void, void>
+class Appender
 {
+    using iterator_category = std::output_iterator_tag;
+    using value_type = void;
+    using difference_type = void;
+    using pointer = void;
+    using reference = void;
+
 public:
     explicit Appender(WrapperNode *parent) : m_parent(parent) {}
 
