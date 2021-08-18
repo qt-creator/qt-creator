@@ -178,10 +178,9 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         QRegularExpressionMatch match = regexp.match(matchText);
 
         if (match.hasMatch()) {
-            QFileInfo fi(path.toString());
-            LocatorFilterEntry filterEntry(this, fi.fileName(), QString(path.toString() + postfix));
+            LocatorFilterEntry filterEntry(this, path.fileName(), QString(path.toString() + postfix));
             filterEntry.filePath = path;
-            filterEntry.extraInfo = FilePath::fromFileInfo(fi).shortNativePath();
+            filterEntry.extraInfo = path.shortNativePath();
 
             const MatchLevel matchLevel = matchLevelFor(match, matchText);
             if (hasPathSeparator) {
