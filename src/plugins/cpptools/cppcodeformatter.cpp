@@ -559,6 +559,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             break;
 
         case string_open:
+        case raw_string_open:
             if (!m_currentToken.isStringLiteral()) {
                 leave();
                 continue;
@@ -672,14 +673,14 @@ void CodeFormatter::updateLineStateChange(const QTextBlock &block)
     saveBlockData(&next, BlockData());
 }
 
-bool CodeFormatter::isInStringLiteral(const QTextBlock &block) const
+bool CodeFormatter::isInRawStringLiteral(const QTextBlock &block) const
 {
     if (!block.previous().isValid())
         return false;
     BlockData blockData;
     if (!loadBlockData(block.previous(), &blockData))
         return false;
-    return !blockData.m_endState.isEmpty() && blockData.m_endState.top().type == string_open;
+    return !blockData.m_endState.isEmpty() && blockData.m_endState.top().type == raw_string_open;
 }
 
 CodeFormatter::State CodeFormatter::state(int belowTop) const
@@ -825,7 +826,7 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
     }
 
     if (m_currentToken.isStringLiteral())
-        newState = string_open;
+        newState = m_currentToken.kind() == T_RAW_STRING_LITERAL ? raw_string_open : string_open;
 
     if (newState != -1) {
         if (alsoExpression)
@@ -1439,6 +1440,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case string_open:
+    case raw_string_open:
         *paddingDepth = tokenPosition - *indentDepth;
         break;
     }
@@ -1481,6 +1483,7 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
         }
         break;
     case string_open:
+    case raw_string_open:
         if (!tokenAt(0).isStringLiteral()) {
             *paddingDepth = topState.savedPaddingDepth;
             topState = previousState;
