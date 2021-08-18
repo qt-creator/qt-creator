@@ -239,9 +239,16 @@ def main():
                 clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
                 continue
             test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
-            if protocol in (NAME_DPCOM, NAME_PBCOM) and pastedText.endswith("\n"):
-                pastedText = pastedText[:-1]
-            test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
+            if protocol in (NAME_PBCOM):
+                test.verify(abs(len(str(editor.plainText)) - len(pastedText)) < 2,
+                            "Verify that pasted and fetched texts have similar length")
+                test.compare(str(editor.plainText).rstrip(), pastedText.rstrip(),
+                             "Verify that pasted and fetched texts have the same content")
+            else:
+                if protocol in (NAME_DPCOM) and pastedText.endswith("\n"):
+                    pastedText = pastedText[:-1]
+                test.compare(editor.plainText, pastedText,
+                             "Verify that pasted and fetched texts are the same")
 
             if protocol == NAME_DPCOM:
                 checkForMovedUrl()
