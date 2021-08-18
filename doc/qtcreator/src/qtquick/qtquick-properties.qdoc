@@ -84,7 +84,7 @@
     Set the properties in the \uicontrol {Geometry - 2D} section to determine
     the position and size of a component.
 
-    \image qtquick-properties-2d-geometry.png "2D Geometry properties"
+    \image qtquick-properties-2D-geometry.png "2D Geometry properties"
 
     In the \uicontrol Position group, you can set the position of a component on
     the x and y axis. The position of a component in the UI can be either
