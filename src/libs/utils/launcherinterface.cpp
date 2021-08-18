@@ -210,11 +210,13 @@ LauncherInterface::~LauncherInterface()
 
 void LauncherInterface::startLauncher()
 {
+    // Call in launcher's thread.
     QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStart);
 }
 
 void LauncherInterface::stopLauncher()
 {
+    // Call in launcher's thread.
     QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStop);
 }
 

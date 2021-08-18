@@ -39,9 +39,10 @@ class CallerHandle : public QObject
 {
     Q_OBJECT
 public:
+    // Called from caller's thread exclusively, lives in caller's thread.
     CallerHandle() : QObject() {}
 
-    // Always called in caller's thread. Returns the list of flushed signals.
+    // Called from caller's thread exclusively. Returns the list of flushed signals.
     QList<LauncherHandle::SignalType> flush()
     {
         QList<LauncherHandle::SignalType> oldSignals;
@@ -70,17 +71,7 @@ public:
         }
         return oldSignals;
     }
-    void appendSignal(LauncherHandle::SignalType signalType)
-    {
-        if (signalType == LauncherHandle::SignalType::NoSignal)
-            return;
-
-        QMutexLocker locker(&m_mutex);
-        if (m_signals.contains(signalType))
-            return;
-
-        m_signals.append(signalType);
-    }
+    // Called from caller's thread exclusively.
     bool shouldFlushFor(LauncherHandle::SignalType signalType)
     {
         // TODO: Should we always flush when the list isn't empty?
@@ -93,7 +84,20 @@ public:
             return true;
         return false;
     }
+    // Called from launcher's thread exclusively.
+    void appendSignal(LauncherHandle::SignalType signalType)
+    {
+        if (signalType == LauncherHandle::SignalType::NoSignal)
+            return;
+
+        QMutexLocker locker(&m_mutex);
+        if (m_signals.contains(signalType))
+            return;
+
+        m_signals.append(signalType);
+    }
 signals:
+    // Emitted from caller's thread exclusively.
     void errorOccurred();
     void started();
     void readyRead();
@@ -485,7 +489,7 @@ void LauncherSocket::sendData(const QByteArray &data)
         return m_requests.size() == 1; // Returns true if requests handling should be triggered.
     };
 
-    if (storeRequest(data))
+    if (storeRequest(data)) // Call handleRequests() in launcher's thread.
         QMetaObject::invokeMethod(this, &LauncherSocket::handleRequests);
 }
 

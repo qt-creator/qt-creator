@@ -310,8 +310,6 @@ private:
     typedef void (ProcessLauncherImpl::*PreSignal)(void);
 
     void cancel();
-    void sendPacket(const Internal::LauncherPacket &packet)
-    { LauncherInterface::socket()->sendData(packet.serialize()); }
 
     void handleSocketError(const QString &message);
     void handleSocketReady();
@@ -319,7 +317,8 @@ private:
     quintptr token() const { return m_token; }
 
     const uint m_token = 0;
-    LauncherHandle *m_handle = nullptr; // This object lives in a different thread!
+    // Lives in launcher's thread.
+    LauncherHandle *m_handle = nullptr;
 };
 
 void ProcessLauncherImpl::cancel()

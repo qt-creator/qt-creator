@@ -55,14 +55,11 @@ class CallerHandle;
 // It's assumed that this object will be alive at least
 // as long as the corresponding QtcProcess is alive.
 
-// We should have LauncherSocket::registerHandle() and LauncherSocket::unregisterHandle()
-// methods.
-
 class LauncherHandle : public QObject
 {
     Q_OBJECT
 public:
-    // called from main thread
+    // All the public methods in this class are called exclusively from the caller's thread.
     bool waitForStarted(int msecs)
     { return waitForSignal(msecs, SignalType::Started); }
     bool waitForReadyRead(int msces)
@@ -122,25 +119,30 @@ private:
         ReadyRead,
         Finished
     };
-    // called from other thread
+
+    // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, SignalType newSignal);
     bool doWaitForSignal(int msecs, SignalType newSignal);
     bool canWaitFor(SignalType newSignal) const;
 
+    // Called from caller's or launcher's thread.
     void doStart();
 
+    // Called from caller's thread exclusively.
     void slotErrorOccurred();
     void slotStarted();
     void slotReadyRead();
     void slotFinished();
 
-    // called from this thread
+    // Called from caller's thread, moved to launcher's thread.
     LauncherHandle(quintptr token, ProcessMode mode) : m_token(token), m_processMode(mode) {}
+
+    // Called from caller's thread exclusively.
     void createCallerHandle();
     void destroyCallerHandle();
 
+    // Called from launcher's thread exclusively.
     void flushCaller();
-
     void handlePacket(LauncherPacketType type, const QByteArray &payload);
     void handleErrorPacket(const QByteArray &packetData);
     void handleStartedPacket(const QByteArray &packetData);
@@ -148,18 +150,22 @@ private:
     void handleReadyReadStandardError(const QByteArray &packetData);
     void handleFinishedPacket(const QByteArray &packetData);
 
+    // Called from launcher's thread exclusively.
     void handleSocketReady();
     void handleSocketError(const QString &message);
 
+    // Called from launcher's thread exclusively.
     void wakeUpIfWaitingFor(SignalType newSignal);
 
-    QByteArray readAndClear(QByteArray &data)
+    // Called from caller's thread exclusively.
+    QByteArray readAndClear(QByteArray &data) const
     {
         const QByteArray tmp = data;
         data.clear();
         return tmp;
     }
 
+    // Called from caller's or launcher's thread.
     void sendPacket(const Internal::LauncherPacket &packet);
 
     mutable QMutex m_mutex;
@@ -169,7 +175,8 @@ private:
     SignalType m_waitingFor = SignalType::NoSignal;
 
     QProcess::ProcessState m_processState = QProcess::NotRunning;
-    bool m_awaitingShouldContinue = false; // cancel() sets it to false, modified only in caller's thread
+    // cancel() sets it to false, modified only in caller's thread.
+    bool m_awaitingShouldContinue = false;
     int m_processId = 0;
     int m_exitCode = 0;
     QProcess::ExitStatus m_exitStatus = QProcess::ExitStatus::NormalExit;
@@ -187,6 +194,7 @@ private:
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     QString m_standardInputFile;
 
+    // Lives in caller's thread.
     CallerHandle *m_callerHandle = nullptr;
 
     bool m_belowNormalPriority = false;
@@ -203,9 +211,11 @@ class LauncherSocket : public QObject
     Q_OBJECT
     friend class LauncherInterfacePrivate;
 public:
+    // Called from caller's or launcher's thread.
     bool isReady() const { return m_socket.load(); }
     void sendData(const QByteArray &data);
 
+    // Called from caller's thread exclusively.
     LauncherHandle *registerHandle(quintptr token, ProcessMode mode);
     void unregisterHandle(quintptr token);
 
@@ -214,13 +224,17 @@ signals:
     void errorOccurred(const QString &error);
 
 private:
+    // Called from caller's thread, moved to launcher's thread.
     LauncherSocket(QObject *parent = nullptr);
 
+    // Called from launcher's thread exclusively.
     LauncherHandle *handleForToken(quintptr token) const;
 
+    // Called from launcher's thread exclusively.
     void setSocket(QLocalSocket *socket);
     void shutdown();
 
+    // Called from launcher's thread exclusively.
     void handleSocketError();
     void handleSocketDataAvailable();
     void handleSocketDisconnected();
