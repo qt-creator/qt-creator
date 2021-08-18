@@ -96,7 +96,7 @@ const char fixedOptionsC[] =
 "    -client                       Attempt to connect to already running first instance\n"
 "    -settingspath <path>          Override the default path where user settings are stored\n"
 "    -installsettingspath <path>   Override the default path from where user-independent settings are read\n"
-"    -temporarycleansettings       Use clean settings for debug or testing reasons\n"
+"    -temporarycleansettings, -tcs Use clean settings for debug or testing reasons\n"
 "    -pid <pid>                    Attempt to connect to instance given by pid\n"
 "    -block                        Block until editor is closed\n"
 "    -pluginpath <path>            Add a custom search path for plugins\n";
