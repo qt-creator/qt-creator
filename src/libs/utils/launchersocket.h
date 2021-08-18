@@ -59,6 +59,15 @@ class LauncherHandle : public QObject
 {
     Q_OBJECT
 public:
+    enum class SignalType {
+        NoSignal,
+        Error,
+        Started,
+        ReadyRead,
+        Finished
+    };
+    Q_ENUM(SignalType)
+
     // All the public methods in this class are called exclusively from the caller's thread.
     bool waitForStarted(int msecs)
     { return waitForSignal(msecs, SignalType::Started); }
@@ -67,43 +76,32 @@ public:
     bool waitForFinished(int msecs)
     { return waitForSignal(msecs, SignalType::Finished); }
 
-    QProcess::ProcessState state() const
-    { QMutexLocker locker(&m_mutex); return m_processState; }
+    QProcess::ProcessState state() const;
     void cancel();
 
-    QByteArray readAllStandardOutput()
-    { QMutexLocker locker(&m_mutex); return readAndClear(m_stdout); }
-    QByteArray readAllStandardError()
-    { QMutexLocker locker(&m_mutex); return readAndClear(m_stderr); }
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
 
-    qint64 processId() const { QMutexLocker locker(&m_mutex); return m_processId; }
-    QString errorString() const { QMutexLocker locker(&m_mutex); return m_errorString; }
-    void setErrorString(const QString &str) { QMutexLocker locker(&m_mutex); m_errorString = str; }
+    qint64 processId() const;
+    QString errorString() const;
+    void setErrorString(const QString &str);
 
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData);
 
     qint64 write(const QByteArray &data);
 
-    QProcess::ProcessError error() const { QMutexLocker locker(&m_mutex); return m_error; }
-    QString program() const { QMutexLocker locker(&m_mutex); return m_command; }
-    void setStandardInputFile(const QString &fileName) { QMutexLocker locker(&m_mutex); m_standardInputFile = fileName; }
-    void setProcessChannelMode(QProcess::ProcessChannelMode mode) {
-        QMutexLocker locker(&m_mutex);
-        if (mode != QProcess::SeparateChannels && mode != QProcess::MergedChannels) {
-            qWarning("setProcessChannelMode: The only supported modes are SeparateChannels and MergedChannels.");
-            return;
-        }
-        m_channelMode = mode;
-    }
-    void setProcessEnvironment(const QProcessEnvironment &environment)
-    { QMutexLocker locker(&m_mutex); m_environment = environment; }
-    void setWorkingDirectory(const QString &dir) { QMutexLocker locker(&m_mutex); m_workingDirectory = dir; }
-    QProcess::ExitStatus exitStatus() const { QMutexLocker locker(&m_mutex); return m_exitStatus; }
+    QProcess::ProcessError error() const;
+    QString program() const;
+    void setStandardInputFile(const QString &fileName);
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+    void setProcessEnvironment(const QProcessEnvironment &environment);
+    void setWorkingDirectory(const QString &dir);
+    QProcess::ExitStatus exitStatus() const;
 
-    void setBelowNormalPriority() { m_belowNormalPriority = true; }
-    void setNativeArguments(const QString &arguments) { m_nativeArguments = arguments; }
-    void setLowPriority() { m_lowPriority = true; }
-    void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
+    void setBelowNormalPriority();
+    void setNativeArguments(const QString &arguments);
+    void setLowPriority();
+    void setUnixTerminalDisabled();
 
 signals:
     void errorOccurred(QProcess::ProcessError error);
@@ -112,13 +110,6 @@ signals:
     void readyReadStandardOutput();
     void readyReadStandardError();
 private:
-    enum class SignalType {
-        NoSignal,
-        Error,
-        Started,
-        ReadyRead,
-        Finished
-    };
 
     // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, SignalType newSignal);
@@ -168,6 +159,10 @@ private:
     // Called from caller's or launcher's thread.
     void sendPacket(const Internal::LauncherPacket &packet);
 
+    // Called from caller's or launcher's thread.
+    bool isCalledFromLaunchersThread() const;
+    bool isCalledFromCallersThread() const;
+
     mutable QMutex m_mutex;
     QWaitCondition m_waitCondition;
     const quintptr m_token;
@@ -175,7 +170,7 @@ private:
     SignalType m_waitingFor = SignalType::NoSignal;
 
     QProcess::ProcessState m_processState = QProcess::NotRunning;
-    // cancel() sets it to false, modified only in caller's thread.
+    // cancel() sets it to false, modified only in caller's thread, don't need to be protected by mutex
     bool m_awaitingShouldContinue = false;
     int m_processId = 0;
     int m_exitCode = 0;
@@ -240,6 +235,9 @@ private:
     void handleSocketDisconnected();
     void handleError(const QString &error);
     void handleRequests();
+
+    // Called from caller's or launcher's thread.
+    bool isCalledFromLaunchersThread() const;
 
     std::atomic<QLocalSocket *> m_socket{nullptr};
     PacketParser m_packetParser;

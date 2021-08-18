@@ -45,6 +45,7 @@ public:
     // Called from caller's thread exclusively. Returns the list of flushed signals.
     QList<LauncherHandle::SignalType> flush()
     {
+        QTC_ASSERT(isCalledFromCallersThread(), return {});
         QList<LauncherHandle::SignalType> oldSignals;
         {
             QMutexLocker locker(&m_mutex);
@@ -74,6 +75,7 @@ public:
     // Called from caller's thread exclusively.
     bool shouldFlushFor(LauncherHandle::SignalType signalType)
     {
+        QTC_ASSERT(isCalledFromCallersThread(), return false);
         // TODO: Should we always flush when the list isn't empty?
         QMutexLocker locker(&m_mutex);
         if (m_signals.contains(signalType))
@@ -87,6 +89,7 @@ public:
     // Called from launcher's thread exclusively.
     void appendSignal(LauncherHandle::SignalType signalType)
     {
+        QTC_ASSERT(!isCalledFromCallersThread(), return);
         if (signalType == LauncherHandle::SignalType::NoSignal)
             return;
 
@@ -103,12 +106,19 @@ signals:
     void readyRead();
     void finished();
 private:
+    // Called from caller's or launcher's thread.
+    bool isCalledFromCallersThread() const
+    {
+        return QThread::currentThread() == thread();
+    }
+
     QMutex m_mutex;
     QList<LauncherHandle::SignalType> m_signals;
 };
 
 void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &payload)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     switch (type) {
     case LauncherPacketType::ProcessError:
         handleErrorPacket(payload);
@@ -132,6 +142,7 @@ void LauncherHandle::handlePacket(LauncherPacketType type, const QByteArray &pay
 
 void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::Error);
 
@@ -148,6 +159,7 @@ void LauncherHandle::handleErrorPacket(const QByteArray &packetData)
 // call me with mutex locked
 void LauncherHandle::wakeUpIfWaitingFor(SignalType newSignal)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     // TODO: should we always wake up in case m_waitingFor != NoSignal?
     // The matching signal came
     const bool signalMatched = (m_waitingFor == newSignal);
@@ -173,9 +185,23 @@ void LauncherHandle::sendPacket(const Internal::LauncherPacket &packet)
     LauncherInterface::socket()->sendData(packet.serialize());
 }
 
+bool LauncherHandle::isCalledFromLaunchersThread() const
+{
+    return QThread::currentThread() == thread();
+}
+
+// call me with mutex locked
+bool LauncherHandle::isCalledFromCallersThread() const
+{
+    if (!m_callerHandle)
+        return false;
+    return QThread::currentThread() == m_callerHandle->thread();
+}
+
 // call me with mutex locked
 void LauncherHandle::flushCaller()
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     if (!m_callerHandle)
         return;
 
@@ -185,6 +211,7 @@ void LauncherHandle::flushCaller()
 
 void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::Started);
     m_processState = QProcess::Running;
@@ -199,6 +226,7 @@ void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
 
 void LauncherHandle::handleReadyReadStandardOutput(const QByteArray &packetData)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::ReadyRead);
     const auto packet = LauncherPacket::extractPacket<ReadyReadStandardOutputPacket>(m_token, packetData);
@@ -215,6 +243,7 @@ void LauncherHandle::handleReadyReadStandardOutput(const QByteArray &packetData)
 
 void LauncherHandle::handleReadyReadStandardError(const QByteArray &packetData)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::ReadyRead);
     const auto packet = LauncherPacket::extractPacket<ReadyReadStandardErrorPacket>(m_token, packetData);
@@ -231,6 +260,7 @@ void LauncherHandle::handleReadyReadStandardError(const QByteArray &packetData)
 
 void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     wakeUpIfWaitingFor(SignalType::Finished);
     m_processState = QProcess::NotRunning;
@@ -251,6 +281,7 @@ void LauncherHandle::handleFinishedPacket(const QByteArray &packetData)
 
 void LauncherHandle::handleSocketReady()
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     m_socketError = false;
     if (m_processState == QProcess::Starting)
@@ -259,6 +290,7 @@ void LauncherHandle::handleSocketReady()
 
 void LauncherHandle::handleSocketError(const QString &message)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     m_socketError = true;
     m_errorString = QCoreApplication::translate("Utils::QtcProcess",
@@ -298,9 +330,16 @@ bool LauncherHandle::waitForSignal(int msecs, SignalType newSignal)
     return false;
 }
 
+static void warnAboutWrongSignal(QProcess::ProcessState state, LauncherHandle::SignalType newSignal)
+{
+    qWarning() << "LauncherHandle::doWaitForSignal: Can't wait for" << newSignal <<
+                  "while being in" << state << "state.";
+}
+
 bool LauncherHandle::doWaitForSignal(int msecs, SignalType newSignal)
 {
     QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return false);
     QTC_ASSERT(m_waitingFor == SignalType::NoSignal, return false);
     // It may happen, that after calling start() and before calling waitForStarted() we might have
     // reached the Running (or even Finished) state already. In this case we should have
@@ -317,12 +356,15 @@ bool LauncherHandle::doWaitForSignal(int msecs, SignalType newSignal)
         m_waitingFor = SignalType::NoSignal;
         return ret;
     }
+    // Can't wait for passed signal, should never happen.
+    QTC_ASSERT(false, warnAboutWrongSignal(m_processState, newSignal));
     return false;
 }
 
 // call me with mutex locked
 bool LauncherHandle::canWaitFor(SignalType newSignal) const
 {
+    QTC_ASSERT(isCalledFromCallersThread(), return false);
     switch (newSignal) {
     case SignalType::Started:
         return m_processState == QProcess::Starting;
@@ -335,9 +377,17 @@ bool LauncherHandle::canWaitFor(SignalType newSignal) const
     return false;
 }
 
+QProcess::ProcessState LauncherHandle::state() const
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return QProcess::NotRunning);
+    return m_processState;
+}
+
 void LauncherHandle::cancel()
 {
     QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
 
     switch (m_processState) {
     case QProcess::NotRunning:
@@ -360,9 +410,45 @@ void LauncherHandle::cancel()
     m_awaitingShouldContinue = false;
 }
 
+QByteArray LauncherHandle::readAllStandardOutput()
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return {});
+    return readAndClear(m_stdout);
+}
+
+QByteArray LauncherHandle::readAllStandardError()
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return {});
+    return readAndClear(m_stderr);
+}
+
+qint64 LauncherHandle::processId() const
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return 0);
+    return m_processId;
+}
+
+QString LauncherHandle::errorString() const
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return {});
+    return m_errorString;
+}
+
+void LauncherHandle::setErrorString(const QString &str)
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_errorString = str;
+}
+
 void LauncherHandle::start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
 {
     QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
 
     if (m_socketError) {
         m_error = QProcess::FailedToStart;
@@ -382,6 +468,7 @@ void LauncherHandle::start(const QString &program, const QStringList &arguments,
 qint64 LauncherHandle::write(const QByteArray &data)
 {
     QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return -1);
 
     if (m_processState != QProcess::Running)
         return -1;
@@ -392,11 +479,93 @@ qint64 LauncherHandle::write(const QByteArray &data)
     return data.size();
 }
 
+QProcess::ProcessError LauncherHandle::error() const
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return QProcess::UnknownError);
+    return m_error;
+}
+
+QString LauncherHandle::program() const
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return {});
+    return m_command;
+}
+
+void LauncherHandle::setStandardInputFile(const QString &fileName)
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_standardInputFile = fileName;
+}
+
+void LauncherHandle::setProcessChannelMode(QProcess::ProcessChannelMode mode)
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    if (mode != QProcess::SeparateChannels && mode != QProcess::MergedChannels) {
+        qWarning("setProcessChannelMode: The only supported modes are SeparateChannels and MergedChannels.");
+        return;
+    }
+    m_channelMode = mode;
+}
+
+void LauncherHandle::setProcessEnvironment(const QProcessEnvironment &environment)
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_environment = environment;
+}
+
+void LauncherHandle::setWorkingDirectory(const QString &dir)
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_workingDirectory = dir;
+}
+
+QProcess::ExitStatus LauncherHandle::exitStatus() const
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return QProcess::CrashExit);
+    return m_exitStatus;
+}
+
+void LauncherHandle::setBelowNormalPriority()
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_belowNormalPriority = true;
+}
+
+void LauncherHandle::setNativeArguments(const QString &arguments)
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_nativeArguments = arguments;
+}
+
+void LauncherHandle::setLowPriority()
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_lowPriority = true;
+}
+
+void LauncherHandle::setUnixTerminalDisabled()
+{
+    QMutexLocker locker(&m_mutex);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_unixTerminalDisabled = true;
+}
+
 // Ensure it's called from caller's thread, after moving LauncherHandle into the launcher's thread
 void LauncherHandle::createCallerHandle()
 {
     QMutexLocker locker(&m_mutex); // may be not needed, as we call it just after Launcher's c'tor
-    QTC_CHECK(m_callerHandle == nullptr);
+    QTC_ASSERT(!isCalledFromLaunchersThread(), return);
+    QTC_ASSERT(m_callerHandle == nullptr, return);
     m_callerHandle = new CallerHandle();
     connect(m_callerHandle, &CallerHandle::errorOccurred, this, &LauncherHandle::slotErrorOccurred, Qt::DirectConnection);
     connect(m_callerHandle, &CallerHandle::started, this, &LauncherHandle::slotStarted, Qt::DirectConnection);
@@ -407,7 +576,8 @@ void LauncherHandle::createCallerHandle()
 void LauncherHandle::destroyCallerHandle()
 {
     QMutexLocker locker(&m_mutex);
-    QTC_CHECK(m_callerHandle);
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    QTC_ASSERT(m_callerHandle, return);
     m_callerHandle->deleteLater();
     m_callerHandle = nullptr;
 }
@@ -417,6 +587,7 @@ void LauncherHandle::slotErrorOccurred()
     QProcess::ProcessError error = QProcess::UnknownError;
     {
         QMutexLocker locker(&m_mutex);
+        QTC_ASSERT(isCalledFromCallersThread(), return);
         error = m_error;
     }
     emit errorOccurred(error);
@@ -424,6 +595,10 @@ void LauncherHandle::slotErrorOccurred()
 
 void LauncherHandle::slotStarted()
 {
+    {
+        QMutexLocker locker(&m_mutex);
+        QTC_ASSERT(isCalledFromCallersThread(), return);
+    }
     emit started();
 }
 
@@ -433,6 +608,7 @@ void LauncherHandle::slotReadyRead()
     bool hasError = false;
     {
         QMutexLocker locker(&m_mutex);
+        QTC_ASSERT(isCalledFromCallersThread(), return);
         hasOutput = !m_stdout.isEmpty();
         hasError = !m_stderr.isEmpty();
     }
@@ -448,6 +624,7 @@ void LauncherHandle::slotFinished()
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
     {
         QMutexLocker locker(&m_mutex);
+        QTC_ASSERT(isCalledFromCallersThread(), return);
         exitCode = m_exitCode;
         exitStatus = m_exitStatus;
     }
@@ -495,6 +672,7 @@ void LauncherSocket::sendData(const QByteArray &data)
 
 LauncherHandle *LauncherSocket::registerHandle(quintptr token, ProcessMode mode)
 {
+    QTC_ASSERT(!isCalledFromLaunchersThread(), return nullptr);
     QMutexLocker locker(&m_mutex);
     if (m_handles.contains(token))
         return nullptr; // TODO: issue a warning
@@ -515,6 +693,7 @@ LauncherHandle *LauncherSocket::registerHandle(quintptr token, ProcessMode mode)
 
 void LauncherSocket::unregisterHandle(quintptr token)
 {
+    QTC_ASSERT(!isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
     auto it = m_handles.find(token);
     if (it == m_handles.end())
@@ -528,23 +707,14 @@ void LauncherSocket::unregisterHandle(quintptr token)
 
 LauncherHandle *LauncherSocket::handleForToken(quintptr token) const
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return nullptr);
     QMutexLocker locker(&m_mutex);
     return m_handles.value(token);
 }
 
-void LauncherSocket::shutdown()
-{
-    const auto socket = m_socket.exchange(nullptr);
-    if (!socket)
-        return;
-    socket->disconnect();
-    socket->write(ShutdownPacket().serialize());
-    socket->waitForBytesWritten(1000);
-    socket->deleteLater(); // or schedule a queued call to delete later?
-}
-
 void LauncherSocket::setSocket(QLocalSocket *socket)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     QTC_ASSERT(!m_socket, return);
     m_socket.store(socket);
     m_packetParser.setDevice(m_socket);
@@ -562,8 +732,21 @@ void LauncherSocket::setSocket(QLocalSocket *socket)
     emit ready();
 }
 
+void LauncherSocket::shutdown()
+{
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
+    const auto socket = m_socket.exchange(nullptr);
+    if (!socket)
+        return;
+    socket->disconnect();
+    socket->write(ShutdownPacket().serialize());
+    socket->waitForBytesWritten(1000);
+    socket->deleteLater(); // or schedule a queued call to delete later?
+}
+
 void LauncherSocket::handleSocketError()
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     auto socket = m_socket.load();
     if (socket->error() != QLocalSocket::PeerClosedError)
         handleError(QCoreApplication::translate("Utils::LauncherSocket",
@@ -572,6 +755,7 @@ void LauncherSocket::handleSocketError()
 
 void LauncherSocket::handleSocketDataAvailable()
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     try {
         if (!m_packetParser.parse())
             return;
@@ -605,12 +789,14 @@ void LauncherSocket::handleSocketDataAvailable()
 
 void LauncherSocket::handleSocketDisconnected()
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     handleError(QCoreApplication::translate("Utils::LauncherSocket",
                 "Launcher socket closed unexpectedly"));
 }
 
 void LauncherSocket::handleError(const QString &error)
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     const auto socket = m_socket.exchange(nullptr);
     socket->disconnect();
     socket->deleteLater();
@@ -619,12 +805,18 @@ void LauncherSocket::handleError(const QString &error)
 
 void LauncherSocket::handleRequests()
 {
+    QTC_ASSERT(isCalledFromLaunchersThread(), return);
     const auto socket = m_socket.load();
     QTC_ASSERT(socket, return);
     QMutexLocker locker(&m_mutex);
     for (const QByteArray &request : qAsConst(m_requests))
         socket->write(request);
     m_requests.clear();
+}
+
+bool LauncherSocket::isCalledFromLaunchersThread() const
+{
+    return QThread::currentThread() == thread();
 }
 
 } // namespace Internal
