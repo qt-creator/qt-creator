@@ -27,6 +27,7 @@
 
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
+#include "designermcumanager.h"
 #include "formatoperation.h"
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
@@ -631,6 +632,11 @@ bool selectionCanBeLayouted(const SelectionContext &context)
 bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)
 {
     return selectionCanBeLayouted(context) && context.view()->majorQtQuickVersion() > 1;
+}
+
+bool selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU(const SelectionContext &context)
+{
+    return selectionCanBeLayoutedAndQtQuickLayoutPossible(context) && !DesignerMcuManager::instance().isMCUProject();
 }
 
 bool selectionNotEmptyAndHasZProperty(const SelectionContext &context)
@@ -1360,7 +1366,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           QKeySequence("shift+g"),
                           60,
                           &layoutGridLayout,
-                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+                          &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
     addDesignerAction(new SeperatorDesignerAction(layoutCategory, 50));
 

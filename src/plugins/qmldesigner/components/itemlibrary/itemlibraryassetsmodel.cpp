@@ -226,7 +226,7 @@ void ItemLibraryAssetsModel::refresh()
 
 void ItemLibraryAssetsModel::setRootPath(const QString &path)
 {
-    static const QStringList supportedTopLevelDirs {"images", "sounds", "fonts", "assets", "shaders"};
+    static const QStringList ignoredTopLevelDirs {"imports", "asset_imports"};
 
     m_fileSystemWatcher->removeDirectories(m_fileSystemWatcher->directories());
     m_fileSystemWatcher->removeFiles(m_fileSystemWatcher->files());
@@ -256,7 +256,7 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
 
         while (itDirs.hasNext()) {
             QDir subDir = itDirs.next();
-            if (currDepth == 1 && !supportedTopLevelDirs.contains(subDir.dirName()))
+            if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
                 continue;
 
             ItemLibraryAssetsDir *assetsDir = new ItemLibraryAssetsDir(subDir.path(), currDepth, loadExpandedState(subDir.path()), currAssetsDir);

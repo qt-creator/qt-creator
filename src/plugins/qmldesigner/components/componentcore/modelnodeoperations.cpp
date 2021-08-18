@@ -51,7 +51,7 @@
 #include <componentcore_constants.h>
 #include <stylesheetmerger.h>
 
-#include <limits>
+#include <designermcumanager.h>
 #include <qmldesignerplugin.h>
 
 #include <coreplugin/messagebox.h>
@@ -88,6 +88,7 @@
 #include <algorithm>
 #include <functional>
 #include <cmath>
+#include <limits>
 
 #include <bindingeditor/signallist.h>
 
@@ -187,7 +188,7 @@ void toFront(const SelectionContext &selectionState)
             if (index != lastIndex)
                 parentProperty.slide(index, lastIndex);
         }
-    } catch (const RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -208,7 +209,7 @@ void toBack(const SelectionContext &selectionState)
                 parentProperty.slide(index, 0);
         }
 
-    } catch (const RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -272,7 +273,7 @@ void setVisible(const SelectionContext &selectionState)
 
     try {
         selectionState.selectedModelNodes().constFirst().variantProperty("visible").setValue(selectionState.toggled());
-    } catch (const RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -285,7 +286,7 @@ void setFillWidth(const SelectionContext &selectionState)
 
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
-    } catch (const RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -298,7 +299,7 @@ void setFillHeight(const SelectionContext &selectionState)
 
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
-    } catch (const RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -522,9 +523,14 @@ void layoutFlowPositioner(const SelectionContext &selectionContext)
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
     try {
-        LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
-    } catch (RewritingException &e) { //better save then sorry
+        if (DesignerMcuManager::instance().isMCUProject()) {
+            layoutHelperFunction(selectionContext, "QtQuick.Row", compareByX);
+        }
+        else {
+            LayoutInGridLayout::ensureLayoutImport(selectionContext);
+            layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+        }
+    } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -532,9 +538,14 @@ void layoutRowLayout(const SelectionContext &selectionContext)
 void layoutColumnLayout(const SelectionContext &selectionContext)
 {
     try {
-        LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
-    } catch (RewritingException &e) { //better save then sorry
+        if (DesignerMcuManager::instance().isMCUProject()) {
+            layoutHelperFunction(selectionContext, "QtQuick.Column", compareByX);
+        }
+        else {
+            LayoutInGridLayout::ensureLayoutImport(selectionContext);
+            layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+        }
+    } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }
@@ -542,9 +553,16 @@ void layoutColumnLayout(const SelectionContext &selectionContext)
 void layoutGridLayout(const SelectionContext &selectionContext)
 {
     try {
-        LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        LayoutInGridLayout::layout(selectionContext);
-    } catch (RewritingException &e) { //better save then sorry
+        Q_ASSERT(!DesignerMcuManager::instance().isMCUProject()); //remove this line when grids are finally supported
+
+        if (DesignerMcuManager::instance().isMCUProject()) {
+            //qt for mcu doesn't support any grids yet
+        }
+        else {
+            LayoutInGridLayout::ensureLayoutImport(selectionContext);
+            LayoutInGridLayout::layout(selectionContext);
+        }
+    } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
 }

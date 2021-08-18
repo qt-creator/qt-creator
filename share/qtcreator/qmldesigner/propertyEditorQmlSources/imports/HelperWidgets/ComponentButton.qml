@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,30 +24,35 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import StudioControls 1.0 as StudioControls
+import QtQuick.Layouts 1.15
+import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Column {
-    id: column
     width: parent.width
     spacing: 10
     padding: 10
 
-    Label {
+    Text {
         text: qsTr("This is an instance of a component")
         anchors.horizontalCenter: parent.horizontalCenter
         width: 300
         horizontalAlignment: Text.AlignHCenter
+        color: StudioTheme.Values.themeTextColor
+        font.pixelSize: StudioTheme.Values.myFontSize
     }
 
-    StudioControls.AbstractButton {
-        id: testtest
+    RowLayout {
+        Layout.fillWidth: true
         anchors.horizontalCenter: parent.horizontalCenter
-        width: 180
+        spacing: 0
 
-        buttonIcon: qsTr("Edit Base Component")
-        iconFont: StudioTheme.Constants.font
+        AbstractButton {
+            implicitWidth: 180
+            buttonIcon: qsTr("Edit Base Component")
+            iconFont: StudioTheme.Constants.font
 
-        onClicked: goIntoComponent()
+            onClicked: goIntoComponent()
+        }
     }
 }

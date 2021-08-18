@@ -1372,12 +1372,13 @@ void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTe
 void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,
                                             const DocumentUri &uri)
 {
-    // Macros aren't locatable via the AST, so parse the formatted string.
     if (const Utils::optional<Hover> result = hoverResponse.result()) {
         const HoverContent content = result->content();
         const MarkupContent * const markup = Utils::get_if<MarkupContent>(&content);
         if (markup) {
             const QString markupString = markup->content();
+
+            // Macros aren't locatable via the AST, so parse the formatted string.
             static const QString magicMacroPrefix = "### macro `";
             if (markupString.startsWith(magicMacroPrefix)) {
                 const int nameStart = magicMacroPrefix.length();
@@ -1386,6 +1387,19 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     const QString macroName = markupString.mid(nameStart,
                                                                closingQuoteIndex - nameStart);
                     d->setHelpItemForTooltip(hoverResponse.id(), macroName, HelpItem::Macro);
+                    return;
+                }
+            }
+
+            // Is it the file path for an include directive?
+            QString cleanString = markupString;
+            cleanString.remove('`');
+            const QStringList lines = cleanString.trimmed().split('\n');
+            if (!lines.isEmpty()) {
+                const auto filePath = Utils::FilePath::fromUserInput(lines.last().simplified());
+                if (filePath.exists()) {
+                    d->setHelpItemForTooltip(hoverResponse.id(), filePath.fileName(),
+                                             HelpItem::Brief);
                     return;
                 }
             }

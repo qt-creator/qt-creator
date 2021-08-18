@@ -112,7 +112,13 @@
 
     In the \uicontrol {Accepted buttons} field, select the mouse button that
     the mouse area reacts to. Select \uicontrol AllButtons to have the mouse
-    are react to all mouse buttons.
+    area react to all mouse buttons. You can add support for several buttons
+    in \l {Text Editor} or \uicontrol {Binding Editor} by combining the
+    values with the OR operator (|). For more information about the available
+    values, see the developer documentation for \l {MouseArea::acceptedButtons}
+    {acceptedButtons}.
+
+    \image qtquick-properties-mouse-area-accepted-buttons.png "Adding accepted buttons in Binding Editor"
 
     In the \uicontrol {Cursor shape} field, select the cursor shape for this
     mouse area. On platforms that do not display a mouse cursor, this value

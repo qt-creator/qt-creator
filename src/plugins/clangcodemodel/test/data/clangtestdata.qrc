@@ -43,5 +43,6 @@
         <file>tooltips/tooltips.pro</file>
         <file>highlighting/highlighting.cpp</file>
         <file>highlighting/highlighting.pro</file>
+        <file>tooltips/subdir/tooltipinfo.h</file>
     </qresource>
 </RCC>

@@ -14,6 +14,7 @@ GOOGLEBENCHMARK_DIR = $$(GOOGLEBENCHMARK_DIR)
       $$GOOGLEBENCHMARK_DIR/src/counter.cc \
       $$GOOGLEBENCHMARK_DIR/src/csv_reporter.cc \
       $$GOOGLEBENCHMARK_DIR/src/json_reporter.cc \
+      $$GOOGLEBENCHMARK_DIR/src/perf_counters.cc \
       $$GOOGLEBENCHMARK_DIR/src/reporter.cc \
       $$GOOGLEBENCHMARK_DIR/src/sleep.cc \
       $$GOOGLEBENCHMARK_DIR/src/statistics.cc \
@@ -21,5 +22,5 @@ GOOGLEBENCHMARK_DIR = $$(GOOGLEBENCHMARK_DIR)
       $$GOOGLEBENCHMARK_DIR/src/sysinfo.cc \
       $$GOOGLEBENCHMARK_DIR/src/timers.cc
 
-   win32:LIBS += -lShlwapi
+   win32:LIBS += -lshlwapi
 }

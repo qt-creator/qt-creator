@@ -655,7 +655,7 @@ void Client::documentWillSave(Core::IDocument *document)
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
     if (!m_openedDocument.contains(textDocument))
         return;
-    bool sendMessage = true;
+    bool sendMessage = false;
     const QString method(WillSaveTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
         sendMessage = registered.value();

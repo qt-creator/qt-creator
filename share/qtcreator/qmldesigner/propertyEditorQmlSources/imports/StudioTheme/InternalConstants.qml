@@ -158,13 +158,14 @@ QtObject {
     readonly property string unpin: "\u0099"
     readonly property string upDownIcon: "\u009A"
     readonly property string upDownSquare2: "\u009B"
-    readonly property string visibilityOff: "\u009C"
-    readonly property string visibilityOn: "\u009D"
-    readonly property string wildcard: "\u009E"
-    readonly property string zoomAll: "\u009F"
-    readonly property string zoomIn: "\u00A0"
-    readonly property string zoomOut: "\u00A1"
-    readonly property string zoomSelection: "\u00A2"
+    readonly property string visibilityOffBroken: "\u009C" // visibilityOff
+    readonly property string visibilityOff: "\u009D" // visibilityOff2
+    readonly property string visibilityOn: "\u009E"
+    readonly property string wildcard: "\u009F"
+    readonly property string zoomAll: "\u00A0"
+    readonly property string zoomIn: "\u00A1"
+    readonly property string zoomOut: "\u00A2"
+    readonly property string zoomSelection: "\u00A3"
 
     readonly property font iconFont: Qt.font({
                                                  "family": controlIcons.name,
