@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -71,6 +71,17 @@
 
     \QC automatically adds run configurations for all targets declared with
     \c {executable()} function in Meson build descriptions.
+
+    \section1 Selecting Default Run Target
+
+    \QC has multiple executables, but when you run a project you typically want
+    to run \c qtcreator and not the first executable in the list. To filter the
+    run target list, set \c qtc_runnable as the value of the \c FOLDER property
+    in the \c {CMakeLists.txt} file for the project. For example:
+
+    \badcode
+    set_target_properties(main_executable PROPERTIES FOLDER "qtc_runnable")
+    \endcode
 
     \section1 Creating Run Configurations for Subprojects
 
