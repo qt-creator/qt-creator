@@ -236,7 +236,11 @@ void QtKitAspect::fix(Kit *k)
             const QVector<Abi> &qtAbis = version->qtAbis();
             const bool tc1ExactMatch = qtAbis.contains(tc1->targetAbi());
             const bool tc2ExactMatch = qtAbis.contains(tc2->targetAbi());
-            return tc1ExactMatch && !tc2ExactMatch;
+            if (tc1ExactMatch && !tc2ExactMatch)
+                return true;
+            if (!tc1ExactMatch && tc2ExactMatch)
+                return false;
+            return tc1->hostPrefersToolchain() && !tc2->hostPrefersToolchain();
         });
 
         const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,

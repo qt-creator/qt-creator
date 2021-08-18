@@ -166,6 +166,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::addTestResult);
     connect(TestRunner::instance(), &TestRunner::hadDisabledTests,
             m_model, &TestResultModel::raiseDisabledTests);
+    visualOutputWidget->installEventFilter(this);
 }
 
 void TestResultsPane::createToolButtons()
@@ -574,6 +575,14 @@ void TestResultsPane::filterMenuTriggered(QAction *action)
 {
     m_filterModel->toggleTestResultType(TestResult::toResultType(action->data().value<int>()));
     navigateStateChanged();
+}
+
+bool TestResultsPane::eventFilter(QObject *object, QEvent *event)
+{
+    QTC_ASSERT(m_outputWidget, return false);
+    if (event->type() == QEvent::Resize && object->parent() == m_outputWidget)
+        static_cast<TestResultDelegate *>(m_treeView->itemDelegate())->clearCache();
+    return false;
 }
 
 void TestResultsPane::onTestRunStarted()

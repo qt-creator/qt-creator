@@ -81,7 +81,8 @@
     string and press \key Ctrl+Space to display a list of properties, IDs, and
     code snippets. When you enter a period (.) after a property name, a list of
     available values is displayed. Press \key Enter to accept the first
-    suggestion in the list and to complete the code.
+    suggestion in the list and to complete the code. For more information, see
+    \l{Completing Code}.
 
     When a binding is set, the \uicontrol Actions menu icon changes to
     \inlineimage icons/action-icon-binding
@@ -135,21 +136,21 @@
     \c {anchor.left: sibling.right}. This allows you to keep sibling components
     together.
 
-    In the following image, \uicontrol{Rectangle 2} is anchored to
-    \uicontrol {Rectangle 1} on its left and to the bottom of its parent.
+    In the following image, the left edge of \e rectangle1 is anchored to the
+    right edge of the sibling on its left side, \e rectangle, while its top
+    edge is anchored to the top of its parent.
 
     \image qmldesigner-anchors.png "Anchoring sibling components"
 
-    The anchors for \uicontrol{Rectangle 2} are specified as follows in code:
+    The anchors are specified as follows in code:
 
     \qml
     Rectangle {
-        id: rectangle2
-        anchors.left: rectangle1.right
-        anchors.leftMargin: 78
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 200
-        //
+        id: rectangle1
+        anchors.left: rectangle.right
+        anchors.top: parent.top
+        anchors.leftMargin: 5
+        anchors.topMargin: 30
     }
     \endqml
 
@@ -167,11 +168,11 @@
 
     \image qmldesigner-alignment.png "Aligning sibling components"
 
-    Select the buttons in the \uicontrol Align group to align the top/bottom
-    or left/right edges of the components in the group to the one farthest away
+    Select the buttons in the \uicontrol Alignment field to align the top/bottom
+    or left/right edges of a group of components to the one farthest away
     from the center of the group. For example, when left-aligning, the
     components are aligned to the leftmost component. You can also align the
-    horizontal/vertical centers of components, or both, as in the image above.
+    horizontal/vertical centers of components, or both.
 
     In the \uicontrol {Align to} field, select whether to align the components
     in respect to the selection, the root component, or a \e {key component}
@@ -185,32 +186,104 @@
     values possible or tweak your design so that the components and spacing
     can be distributed perfectly.
 
-    When distributing components, you can select whether the distance between
-    them is calculated from their top/bottom or left/right edges or their
-    horizontal/vertical center.
+    When distributing components, select the buttons in the
+    \uicontrol {Distribute objects} field to determine whether the
+    distance between components is calculated from their top/bottom
+    or left/right edges or their horizontal/vertical center.
 
-    \image qmldesigner-distribute-objects.png "Distribute components buttons"
-
-    You can distribute spacing either evenly within a target area or at
+    When distributing spacing, select the buttons in the
+    \uicontrol {Distribute spacing} field to determine whether
+    it is distributed evenly within a target area or at
     specified distances, calculated from a starting point.
 
     You can select the orientation in which the components are distributed
     evenly within the target area: horizontally along the x axis or vertically
     along the y axis.
 
-    \image qmldesigner-distribute-spacing-evenly.png "Distribute spacing evenly"
-
     Alternatively, you can distribute spacing in pixels by selecting one of the
-    starting point buttons: left/right or top/bottom edge of the target area,
-    or its horizontal/vertical center. Note that some components might end up
-    outside the target area.
+    starting point buttons: top-left or bottom-right edge of the target area,
+    or its center. Note that some components might end up outside the target
+    area.
 
-    \image qmldesigner-distribute-spacing-pixels.png "Distribute spacing in pixels"
-
-    You can set the space between components in pixels. You can
-    disable the distribution of spacing in pixels by clicking
-    the \inlineimage icons/distribute-origin-none.png
+    In the \uicontrol {Pixel spacing} field, you can set the space between
+    components in pixels. You can disable the distribution of spacing in
+    pixels by clicking the \inlineimage icons/distribute-origin-none.png
     button.
+
+    \section3 Summary of Aligment Buttons
+
+    The following table summarizes the buttons available in the
+    \uicontrol Alignment section.
+
+    \table
+    \header
+        \li Icon
+        \li Purpose
+    \row
+        \li \inlineimage icons/align-left.png
+        \li Aligns the left edges of the selected components to the one
+            farthest away from the center of the group.
+    \row
+        \li \inlineimage icons/align-center-horizontal.png
+        \li Aligns the horizontal centers of the selected components.
+    \row
+        \li \inlineimage icons/align-right.png
+        \li Aligns the right edges of the selected components.
+    \row
+        \li \inlineimage icons/align-top.png
+        \li Aligns the top edges of the selected components.
+    \row
+        \li \inlineimage icons/align-center-vertical.png
+        \li Aligns the verical centers of the selected components.
+    \row
+        \li \inlineimage icons/align-bottom.png
+        \li Aligns the bottom edges of the selected components.
+    \row
+        \li \inlineimage icons/distribute-left.png
+        \li Distributes the selected components and calculates the distance
+            between them from their left edges.
+    \row
+        \li \inlineimage icons/distribute-center-horizontal.png
+        \li Distributes the selected components and calculates the distance
+            between them from their horizontal centers.
+    \row
+        \li \inlineimage icons/distribute-right.png
+        \li Distributes the selected components and calculates the distance
+            between them from their right edges.
+    \row
+        \li \inlineimage icons/distribute-top.png
+        \li Distributes the selected components and calculates the distance
+            between them from their top edges.
+    \row
+        \li \inlineimage icons/distribute-center-vertical.png
+        \li Distributes the selected components and calculates the distance
+            between them from their vertical centers.
+    \row
+        \li \inlineimage icons/distribute-bottom.png
+        \li Distributes the selected components and calculates the distance
+            between them from their bottom edges.
+    \row
+        \li \inlineimage icons/distribute-spacing-horizontal.png
+        \li Distributes spacing between the selected components horizontally.
+    \row
+        \li \inlineimage icons/distribute-spacing-vertical.png
+        \li Distributes spacing between the selected components vertically.
+    \row
+        \li \inlineimage icons/distribute-origin-none.png
+        \li Disables the distribution of spacing in pixels.
+    \row
+        \li \inlineimage icons/distribute-origin-top-left.png
+        \li Sets the top-left corner of the target area as the starting point
+            for distributing spacing in pixels.
+    \row
+        \li \inlineimage icons/distribute-origin-center.png
+        \li Sets the center of the target area as the starting point
+            for distributing spacing in pixels.
+    \row
+        \li \inlineimage icons/distribute-origin-bottom-right.png
+        \li Sets the bottom-right corner of the target area as the starting
+            point for distributing spacing in pixels.
+    \endtable
 
     \section2 Using Positioners
 
@@ -239,7 +312,7 @@
 
     In addition, you can specify the vertical and horizontal padding between
     content and the left, right, top, and bottom edges of components as values
-    of the fields in the \uicontrol Padding group.
+    of the fields in the \l Padding section.
 
     \section3 Row and Flow Positioners
 
@@ -256,7 +329,8 @@
     either left-to-right or top-to-bottom in the \uicontrol Flow field.
     Components are positioned next to to each other according to the value you
     set in the \uicontrol {Layout direction} field until the width or height of
-    the Flow component is exceeded, then wrapped to the next row or column.
+    the \uicontrol Flow component is exceeded, then wrapped to the next row or
+    column.
 
     You can set the layout direction to either \uicontrol LeftToRight or
     \uicontrol RightToLeft in the \uicontrol {Layout direction} field. If
@@ -284,7 +358,7 @@
 
     To mirror the layout, set the layout direction to \uicontrol RightToLeft.
     To also mirror the horizontal alignment of components, select
-    \uicontrol AlignRight in the \uicontrol {Horizontal item alignment} field.
+    \uicontrol AlignRight in the \uicontrol {Alignment H} field.
 
     \section3 Summary of Positioners
 
@@ -328,8 +402,8 @@
     Unlike positioners, layouts manage both the positions and sizes of their
     child components, and are therefore well suited for dynamic and resizable
     UIs. However, this means that you should not specify fixed positions and
-    sizes for the child components in the \l{2D Geometry}{Geometry} group in
-    \l Properties, unless their implicit sizes are not satisfactory.
+    sizes for the child components in the \l{2D Geometry}{Geometry - 2D} section
+    in \l Properties, unless their implicit sizes are not satisfactory.
 
     You can use anchors or the width and height properties of the layout itself
     to specify its size in respect to its non-layout parent component. However,
@@ -367,14 +441,16 @@
     The child components of grid layout components are arranged according to the
     \uicontrol Flow property. When the direction of a flow is set to
     \uicontrol LeftToRight, child components are positioned next to to each
-    other until the the number of \uicontrol Columns is reached. Then,
+    other until the the number of columns specified in the
+    \uicontrol {Columns & Rows} field is reached. Then,
     the auto-positioning wraps back to the beginning of the next row.
 
     \image qtquick-layout-grid-properties.png "Grid Layout properties"
 
     If you set the direction of the flow to \uicontrol TopToBottom, child
-    components are auto-positioned vertically using the value of the
-    \uicontrol Rows field to determine the maximum number of rows.
+    components are auto-positioned vertically using the number of rows set
+    in the \uicontrol {Columns & Rows} field to determine the maximum number
+    of rows.
 
     You can set the layout direction to either \uicontrol LeftToRight or
     \uicontrol RightToLeft in the \uicontrol {Layout direction} field.
@@ -382,7 +458,7 @@
     will be mirrored.
 
     You can specify the spacing between rows and columns in the
-    \uicontrol {Row spacing} and \uicontrol {Column spacing} fields.
+    \uicontrol Spacing field.
 
     \section3 Stack Layout
 

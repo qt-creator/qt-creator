@@ -116,6 +116,7 @@ public:
     virtual QString originalTargetTriple() const { return QString(); }
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }
     virtual Utils::FilePath installDir() const { return Utils::FilePath(); }
+    virtual bool hostPrefersToolchain() const { return true; }
 
     virtual bool isValid() const;
 

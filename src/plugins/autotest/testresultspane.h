@@ -105,6 +105,7 @@ private:
     void onRunSelectedTriggered();
     void checkAllFilter(bool checked);
     void filterMenuTriggered(QAction *action);
+    bool eventFilter(QObject *object, QEvent *event) override;
 
     void initializeFilterMenu();
     void updateSummaryLabel();

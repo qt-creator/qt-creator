@@ -57,6 +57,7 @@ if(GoogleBenchmark_FOUND AND NOT TARGET GoogleBenchmark)
     "${GOOGLE_BENCHMARK_SRC_DIR}/counter.cc"
     "${GOOGLE_BENCHMARK_SRC_DIR}/csv_reporter.cc"
     "${GOOGLE_BENCHMARK_SRC_DIR}/json_reporter.cc"
+    "${GOOGLE_BENCHMARK_SRC_DIR}/perf_counters.cc"
     "${GOOGLE_BENCHMARK_SRC_DIR}/reporter.cc"
     "${GOOGLE_BENCHMARK_SRC_DIR}/sleep.cc"
     "${GOOGLE_BENCHMARK_SRC_DIR}/statistics.cc"

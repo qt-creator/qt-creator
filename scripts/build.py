@@ -247,12 +247,20 @@ def build_qtcreatorcdbext(args, paths):
                              '--component', 'qtcreatorcdbext'],
                             paths.qtcreatorcdbext_build)
 
+def zipPatternForApp(paths):
+    # workaround for QTBUG-95845
+    if not common.is_mac_platform():
+        return '*'
+    apps = [d for d in os.listdir(paths.install) if d.endswith('.app')]
+    return apps[0] if apps else '*'
+
+
 def package_qtcreator(args, paths):
     if not args.no_zip:
         if not args.no_qtcreator:
             common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                      os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
-                                     '*'],
+                                     zipPatternForApp(paths)],
                                     paths.install)
             common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                      os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),

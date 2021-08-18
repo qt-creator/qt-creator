@@ -57,7 +57,7 @@ public:
     // calculates the state change introduced by changing a single line
     void updateLineStateChange(const QTextBlock &block);
 
-    bool isInStringLiteral(const QTextBlock &block) const;
+    bool isInRawStringLiteral(const QTextBlock &block) const;
     void indentFor(const QTextBlock &block, int *indent, int *padding);
     void indentForNewLineAfter(const QTextBlock &block, int *indent, int *padding);
 
@@ -173,8 +173,8 @@ public: // must be public to make Q_GADGET introspection work
         lambda_instroducer,              // when '=', '&' or ',' occurred within '[]'
         lambda_declarator,               // just after ']' when previous state is lambda_introducer
         lambda_statement,                // just after '{' when previous state is lambda_declarator or lambda_declarator_or_expression
-        string_open
-
+        string_open,                     // after opening quote of simple string types, like ", L", u8" etc.
+        raw_string_open                  // after raw string open delimiter, like R"EOF(
     };
     Q_ENUM(StateType)
 
