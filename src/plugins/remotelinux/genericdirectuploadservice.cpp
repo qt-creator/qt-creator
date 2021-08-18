@@ -43,6 +43,7 @@
 
 using namespace ProjectExplorer;
 using namespace QSsh;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -232,17 +233,12 @@ QList<DeployableFile> GenericDirectUploadService::collectFilesToUpload(
         const DeployableFile &deployable) const
 {
     QList<DeployableFile> collected;
-    QFileInfo fileInfo = deployable.localFilePath().toFileInfo();
-    if (fileInfo.isDir()) {
-        const QStringList files = QDir(deployable.localFilePath().toString())
-            .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QString &fileName : files) {
-            const QString localFilePath = deployable.localFilePath().toString()
-                + QLatin1Char('/') + fileName;
-            const QString remoteDir = deployable.remoteDirectory() + QLatin1Char('/')
-                + fileInfo.fileName();
+    FilePath localFile = deployable.localFilePath();
+    if (localFile.isDir()) {
+        const FilePaths files = localFile.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        const QString remoteDir = deployable.remoteDirectory() + '/' + localFile.fileName();
+        for (const FilePath &localFilePath : files)
             collected.append(collectFilesToUpload(DeployableFile(localFilePath, remoteDir)));
-        }
     } else {
         collected << deployable;
     }
