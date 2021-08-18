@@ -73,9 +73,6 @@ def get_arguments():
     parser.add_argument('--python-path',
                         help='Path to python libraries for use by cdbextension (Windows)')
 
-    parser.add_argument('--app-target', help='File name of the executable / app bundle',
-                        default=('Qt Creator.app' if common.is_mac_platform()
-                                 else 'qtcreator'))
     parser.add_argument('--python3', help='File path to python3 executable for generating translations',
                         default=default_python3())
 
