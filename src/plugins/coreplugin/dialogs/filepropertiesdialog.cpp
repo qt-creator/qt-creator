@@ -185,7 +185,7 @@ void FilePropertiesDialog::setPermission(QFile::Permissions newPermissions, bool
         else
             permissions &= ~newPermissions;
 
-        if (!QFile::setPermissions(m_filePath.toString(), permissions))
+        if (!m_filePath.setPermissions(permissions))
             qWarning() << "Cannot change permissions for file" << m_filePath;
     });
 

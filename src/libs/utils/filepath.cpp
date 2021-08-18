@@ -329,8 +329,7 @@ QString FileUtils::qmakeFriendlyName(const QString &name)
 
 bool FileUtils::makeWritable(const FilePath &path)
 {
-    const QString filePath = path.toString();
-    return QFile::setPermissions(filePath, QFile::permissions(filePath) | QFile::WriteUser);
+    return path.setPermissions(path.permissions() | QFile::WriteUser);
 }
 
 // makes sure that capitalization of directories is canonical on Windows and OS X.

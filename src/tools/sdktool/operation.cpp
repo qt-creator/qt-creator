@@ -123,8 +123,7 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
                   << "." << std::endl;
         return false;
     }
-    if (!QFile::setPermissions(path.toString(),
-                               QFile::ReadOwner | QFile::WriteOwner
+    if (!path.setPermissions(QFile::ReadOwner | QFile::WriteOwner
                                | QFile::ReadGroup | QFile::ReadOther)) {
         std::cerr << "Error: Could not set permissions for " << qPrintable(path.toString())
                   << "." << std::endl;

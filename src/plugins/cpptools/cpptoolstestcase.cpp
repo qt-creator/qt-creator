@@ -52,17 +52,20 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
+namespace CppTools {
+namespace Tests {
+
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
 {
-    CppTools::CppModelManager::instance()->enableGarbageCollector(false);
+    CppModelManager::instance()->enableGarbageCollector(false);
     const bool closeEditorsSucceeded = Core::EditorManager::closeEditors(editors, false);
-    CppTools::CppModelManager::instance()->enableGarbageCollector(true);
+    CppModelManager::instance()->enableGarbageCollector(true);
     return closeEditorsSucceeded;
 }
 
 static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QString> &filePaths)
 {
-    foreach (const QString &filePath, filePaths) {
+    for (const QString &filePath : filePaths) {
         if (!snapshot.contains(filePath)) {
             qWarning() << "Missing file in snapshot:" << qPrintable(filePath);
             return false;
@@ -70,9 +73,6 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QSt
     }
     return true;
 }
-
-namespace CppTools {
-namespace Tests {
 
 TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
     : m_fileName(QString::fromUtf8(fileName))
@@ -214,7 +214,7 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const QSt
     t.start();
 
     QList<CPlusPlus::Document::Ptr> result;
-    foreach (const QString &filePath, filePaths) {
+    for (const QString &filePath : filePaths) {
         forever {
             if (CPlusPlus::Document::Ptr document = globalSnapshot().document(filePath)) {
                 result.append(document);
@@ -333,8 +333,7 @@ static bool copyRecursively(const QString &sourceDirPath,
 
         // Copied files from Qt resources are read-only. Make them writable
         // so that their parent directory can be removed without warnings.
-        QFile file(targetPath.toString());
-        return file.setPermissions(file.permissions() | QFile::WriteUser);
+        return targetPath.setPermissions(targetPath.permissions() | QFile::WriteUser);
     };
 
     return Utils::FileUtils::copyRecursively(Utils::FilePath::fromString(sourceDirPath),
