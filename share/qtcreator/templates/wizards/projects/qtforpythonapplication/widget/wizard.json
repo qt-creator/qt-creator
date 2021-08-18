@@ -11,8 +11,8 @@
 
     "options":
     [
-        { "key": "SrcFileName", "value": "main.py" },
-        { "key": "PyProjectFile", "value": "main.pyproject" }
+        { "key": "SrcFileName", "value": "%{MainFileName}" },
+        { "key": "PyProjectFile", "value": "%{ProjectFileName}" }
     ],
 
     "pages":
@@ -40,7 +40,12 @@
                     "trDisplayName": "Class name:",
                     "mandatory": true,
                     "type": "LineEdit",
-                    "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)" }
+                    "data":
+                    {
+                        "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                        "trText": "%{JS: value('BaseCB') ? value('BaseCB').slice(1) : 'MyClass'}"
+                    }
+
                 },
                 {
                     "name": "BaseCB",
@@ -52,7 +57,7 @@
                     }
                 },
                 {
-                    "name": "SrcFileName",
+                    "name": "MainFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
@@ -63,7 +68,7 @@
                     "type": "LineEdit",
                     "trDisplayName": "Project file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), 'pyproject')}" }
+                    "data": { "trText": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
                 }
             ]
         },

@@ -12,7 +12,7 @@
     "options":
     [
         { "key": "SrcFileName", "value": "main.py" },
-        { "key": "PyProjectFile", "value": "main.pyproject" }
+        { "key": "PyProjectFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
     ],
 
     "pages":
