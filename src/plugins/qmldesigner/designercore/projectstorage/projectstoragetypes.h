@@ -481,10 +481,10 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
+        , import{std::move(import)}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
-        , import{std::move(import)}
     {}
 
     explicit Type(Utils::SmallStringView importName,

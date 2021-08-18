@@ -280,7 +280,7 @@ public:
             return OpenResult::CannotHandle;
         }
 
-        if (offset >= size)
+        if (offset >= quint64(size))
             return OpenResult::CannotHandle;
 
         setFilePath(filePath);

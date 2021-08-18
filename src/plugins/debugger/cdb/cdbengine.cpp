@@ -179,8 +179,8 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 #define QT_CREATOR_CDB_EXT "qtcreatorcdbext"
 
 CdbEngine::CdbEngine() :
-    m_process(ProcessMode::Writer),
     m_tokenPrefix("<token>"),
+    m_process(ProcessMode::Writer),
     m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
     setObjectName("CdbEngine");

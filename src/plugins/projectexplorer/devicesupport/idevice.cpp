@@ -418,6 +418,7 @@ Environment IDevice::systemEnvironment() const
 
 qint64 IDevice::fileSize(const FilePath &filePath) const
 {
+    Q_UNUSED(filePath)
     QTC_CHECK(false);
     return -1;
 }

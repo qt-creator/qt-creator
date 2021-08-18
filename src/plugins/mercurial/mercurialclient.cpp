@@ -117,6 +117,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
                                        const QString &dstLocation,
                                        const QStringList &extraOptions)
 {
+    Q_UNUSED(srcLocation)
     Q_UNUSED(extraOptions)
     const unsigned flags = VcsCommand::SshPasswordPrompt |
             VcsCommand::ShowStdOut |
