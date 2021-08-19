@@ -798,7 +798,7 @@ void DockerDevicePrivate::startContainer()
 
     LOG("RUNNING: " << dockerRun.toUserOutput());
     QTC_ASSERT(!m_shell, delete m_shell);
-    m_shell = new QtcProcess;
+    m_shell = new QtcProcess(ProcessMode::Writer);
     m_shell->setCommand(dockerRun);
     connect(m_shell, &QtcProcess::finished, this, [this] {
         LOG("\nSHELL FINISHED\n");
