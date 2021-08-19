@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QLoggingCategory>
+#include <QScopeGuard>
 #include <QTextCodec>
 #include <QThread>
 #include <QTimer>
@@ -49,7 +50,9 @@
 #endif
 
 #include <algorithm>
-#include <limits.h>
+#include <atomic>
+#include <functional>
+#include <limits>
 #include <memory>
 
 #ifdef Q_OS_WIN
@@ -63,6 +66,120 @@ using namespace Utils::Internal;
 
 namespace Utils {
 namespace Internal {
+
+class MeasureAndRun
+{
+public:
+    MeasureAndRun(const char *functionName)
+        : m_functionName(functionName)
+        , m_measureProcess(qEnvironmentVariableIsSet("QTC_MEASURE_PROCESS"))
+    {}
+    template <typename Function, typename... Args>
+    std::invoke_result_t<Function, Args...> measureAndRun(Function &&function, Args&&... args)
+    {
+        if (!m_measureProcess)
+            return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
+        QElapsedTimer timer;
+        timer.start();
+        auto cleanup = qScopeGuard([this, &timer] {
+            const qint64 currentNsecs = timer.nsecsElapsed();
+            const bool isMainThread = QThread::currentThread() == qApp->thread();
+            const int hitThisAll = m_hitThisAll.fetch_add(1) + 1;
+            const int hitAllAll = m_hitAllAll.fetch_add(1) + 1;
+            const int hitThisMain = isMainThread
+                    ? m_hitThisMain.fetch_add(1) + 1
+                    : m_hitThisMain.load();
+            const int hitAllMain = isMainThread
+                    ? m_hitAllMain.fetch_add(1) + 1
+                    : m_hitAllMain.load();
+            const qint64 totalThisAll = toMs(m_totalThisAll.fetch_add(currentNsecs) + currentNsecs);
+            const qint64 totalAllAll = toMs(m_totalAllAll.fetch_add(currentNsecs) + currentNsecs);
+            const qint64 totalThisMain = toMs(isMainThread
+                    ? m_totalThisMain.fetch_add(currentNsecs) + currentNsecs
+                    : m_totalThisMain.load());
+            const qint64 totalAllMain = toMs(isMainThread
+                    ? m_totalAllMain.fetch_add(currentNsecs) + currentNsecs
+                    : m_totalAllMain.load());
+            printMeasurement(QLatin1String(m_functionName), hitThisAll, toMs(currentNsecs),
+                             totalThisAll, hitAllAll, totalAllAll, isMainThread,
+                             hitThisMain, totalThisMain, hitAllMain, totalAllMain);
+        });
+        return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
+    }
+private:
+    static void printHeader()
+    {
+        // [function/thread]: function:(T)his|(A)ll, thread:(M)ain|(A)ll
+        qDebug() << "+----------------+-------+---------+----------+-------+----------+---------+-------+----------+-------+----------+";
+        qDebug() << "| [Function/Thread] = [(T|A)/(M|A)], where: (T)his function, (A)ll functions / threads, (M)ain thread            |";
+        qDebug() << "+----------------+-------+---------+----------+-------+----------+---------+-------+----------+-------+----------+";
+        qDebug() << "|              1 |     2 |       3 |        4 |     5 |        6 |       7 |     8 |        9 |    10 |       11 |";
+        qDebug() << "|                | [T/A] |   [T/A] |    [T/A] | [A/A] |    [A/A] |         | [T/M] |    [T/M] | [A/M] |    [A/M] |";
+        qDebug() << "|       Function |   Hit | Current |    Total |   Hit |    Total | Current |   Hit |    Total |   Hit |    Total |";
+        qDebug() << "|           Name | Count |  Measu- |   Measu- | Count |   Measu- | is Main | Count |   Measu- | Count |   Measu- |";
+        qDebug() << "|                |       |  rement |   rement |       |   rement |  Thread |       |   rement |       |   rement |";
+        qDebug() << "+----------------+-------+---------+----------+-------+----------+---------+-------+----------+-------+----------+";
+    }
+    static void printMeasurement(const QString &functionName, int hitThisAll, int currentNsecs,
+                                 int totalThisAll, int hitAllAll, int totalAllAll, bool isMainThread,
+                                 int hitThisMain, int totalThisMain, int hitAllMain, int totalAllMain)
+    {
+        static const int repeatHeaderLineCount = 25;
+        if (s_lineCounter.fetch_add(1) % repeatHeaderLineCount == 0)
+            printHeader();
+
+        const QString &functionNameField = QString("%1").arg(functionName, 14);
+        const QString &hitThisAllField = formatField(hitThisAll, 5);
+        const QString &currentNsecsField = formatField(currentNsecs, 7, " ms");
+        const QString &totalThisAllField = formatField(totalThisAll, 8, " ms");
+        const QString &hitAllAllField = formatField(hitAllAll, 5);
+        const QString &totalAllAllField = formatField(totalAllAll, 8, " ms");
+        const QString &mainThreadField = isMainThread ? QString("%1").arg("yes", 7)
+                                                      : QString("%1").arg("no", 7);
+        const QString &hitThisMainField = formatField(hitThisMain, 5);
+        const QString &totalThisMainField = formatField(totalThisMain, 8, " ms");
+        const QString &hitAllMainField = formatField(hitAllMain, 5);
+        const QString &totalAllMainField = formatField(totalAllMain, 8, " ms");
+
+        const QString &totalString = QString("| %1 | %2 | %3 | %4 | %5 | %6 | %7 | %8 | %9 | %10 | %11 |")
+                .arg(functionNameField, hitThisAllField, currentNsecsField,
+                     totalThisAllField, hitAllAllField, totalAllAllField, mainThreadField,
+                     hitThisMainField, totalThisMainField, hitAllMainField, totalAllMainField);
+        qDebug("%s", qPrintable(totalString));
+    }
+    static QString formatField(int number, int fieldWidth, const QString &suffix = QString())
+    {
+        return QString("%1%2").arg(number, fieldWidth - suffix.count()).arg(suffix);
+    }
+
+    static int toMs(quint64 nsesc) // nanoseconds to miliseconds
+    {
+        static const int halfMillion = 500000;
+        static const int million = 2 * halfMillion;
+        return int((nsesc + halfMillion) / million);
+    }
+
+    const bool m_measureProcess;
+    const char *m_functionName;
+    std::atomic_int m_hitThisAll = 0;
+    std::atomic_int m_hitThisMain = 0;
+    std::atomic_int64_t m_totalThisAll = 0;
+    std::atomic_int64_t m_totalThisMain = 0;
+    static std::atomic_int m_hitAllAll;
+    static std::atomic_int m_hitAllMain;
+    static std::atomic_int64_t m_totalAllAll;
+    static std::atomic_int64_t m_totalAllMain;
+    static std::atomic_int s_lineCounter;
+};
+
+std::atomic_int MeasureAndRun::m_hitAllAll = 0;
+std::atomic_int MeasureAndRun::m_hitAllMain = 0;
+std::atomic_int64_t MeasureAndRun::m_totalAllAll = 0;
+std::atomic_int64_t MeasureAndRun::m_totalAllMain = 0;
+std::atomic_int MeasureAndRun::s_lineCounter = 0;
+
+static MeasureAndRun s_start = MeasureAndRun("start");
+static MeasureAndRun s_waitForStarted = MeasureAndRun("waitForStarted");
 
 enum { debug = 0 };
 enum { syncDebug = 0 };
@@ -389,7 +506,7 @@ public:
     {
         const FilePath programFilePath = resolve(m_workingDirectory, FilePath::fromString(program));
         if (programFilePath.exists() && programFilePath.isExecutableFile()) {
-            m_process->start(programFilePath.toString(), arguments, writeData);
+            s_start.measureAndRun(&ProcessInterface::start, m_process, program, arguments, writeData);
         } else {
             m_process->setErrorString(QLatin1String(
                        "The program \"%1\" does not exist or is not executable.").arg(program));
@@ -927,7 +1044,7 @@ qint64 QtcProcess::processId() const
 
 bool QtcProcess::waitForStarted(int msecs)
 {
-    return d->m_process->waitForStarted(msecs);
+    return s_waitForStarted.measureAndRun(&ProcessInterface::waitForStarted, d->m_process, msecs);
 }
 
 bool QtcProcess::waitForReadyRead(int msecs)
