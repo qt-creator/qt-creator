@@ -164,7 +164,8 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
         break;
     case Version::CXX98:
     case Version::CXX17:
-    case Version::CXX2a:
+    case Version::CXX20:
+    case Version::CXX2b:
         result.push_back("--language=c++");
         break;
     case Version::None:

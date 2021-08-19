@@ -43,8 +43,9 @@ enum class LanguageVersion : unsigned char {
     CXX11,
     CXX14,
     CXX17,
-    CXX2a,
-    LatestCxx = CXX2a,
+    CXX20,
+    CXX2b,
+    LatestCxx = CXX2b,
 };
 
 enum class LanguageExtension : unsigned char {
