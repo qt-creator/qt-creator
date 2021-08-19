@@ -4,7 +4,7 @@
 ""	""	"argv[0]"	"."	"argv[0]."	"False"	""
 ""	""	"2"	"."	"2."	"False"	""
 ""	""	"float fl = 2"	"."	"float fl = 2."	"False"	""
-""	"QCoreApplication qa;"	"qa"	"."	"qa."	"False"	""
+""	"QCoreApplication qa;"	"qa"	"."	"qa."	"True"	"none"
 ""	"QCoreApplication *p;"	"p"	"."	"p->"	"True"	"all"
 ""	"QCoreApplication &ref = a;"	"ref"	"."	"ref."	"True"	"none"
 "<QPointer>"	"QPointer<QCoreApplication> p;"	"p"	"."	"p."	"True"	"mixed"
