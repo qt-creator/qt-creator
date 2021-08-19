@@ -32,6 +32,7 @@
 #include "documentmanager.h"
 #include "generalsettings.h"
 #include "idocumentfactory.h"
+#include "loggingviewer.h"
 #include "messagemanager.h"
 #include "modemanager.h"
 #include "outputpanemanager.h"
@@ -702,6 +703,12 @@ void MainWindow::registerDefaultActions()
 
     // Options Action
     mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
+    mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
+
+    m_loggerAction = new QAction(tr("Logger..."), this);
+    cmd = ActionManager::registerAction(m_loggerAction, Constants::LOGGER);
+    mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
+    connect(m_loggerAction, &QAction::triggered, this, [] { LoggingViewer::showLoggingView(); });
     mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
 
     m_optionsAction = new QAction(tr("&Options..."), this);

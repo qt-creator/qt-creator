@@ -12,6 +12,8 @@ isEmpty(QTC_SHOW_BUILD_DATE): QTC_SHOW_BUILD_DATE = $$(QTC_SHOW_BUILD_DATE)
 include(../../qtcreatorplugin.pri)
 msvc: QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
 SOURCES += corejsextensions.cpp \
+    loggingmanager.cpp \
+    loggingviewer.cpp \
     mainwindow.cpp \
     shellcommand.cpp \
     editmode.cpp \
@@ -115,6 +117,8 @@ SOURCES += corejsextensions.cpp \
     foldernavigationwidget.cpp
 
 HEADERS += corejsextensions.h \
+    loggingmanager.h \
+    loggingviewer.h \
     mainwindow.h \
     shellcommand.h \
     editmode.h \

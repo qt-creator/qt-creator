@@ -188,6 +188,7 @@ private:
     QAction *m_saveAllAction = nullptr;
     QAction *m_exitAction = nullptr;
     QAction *m_optionsAction = nullptr;
+    QAction *m_loggerAction = nullptr;
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
     QAction *m_cycleModeSelectorStyleAction = nullptr;

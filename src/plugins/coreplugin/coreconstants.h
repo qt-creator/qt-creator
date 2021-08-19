@@ -98,6 +98,7 @@ const char PRINT[]                 = "QtCreator.Print";
 const char EXIT[]                  = "QtCreator.Exit";
 
 const char OPTIONS[]               = "QtCreator.Options";
+const char LOGGER[]                = "QtCreator.Logger";
 const char TOGGLE_LEFT_SIDEBAR[]   = "QtCreator.ToggleLeftSidebar";
 const char TOGGLE_RIGHT_SIDEBAR[]  = "QtCreator.ToggleRightSidebar";
 const char CYCLE_MODE_SELECTOR_STYLE[] =

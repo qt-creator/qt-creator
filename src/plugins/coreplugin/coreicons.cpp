@@ -32,6 +32,8 @@ namespace Icons {
 
 const Icon QTCREATORLOGO_BIG(
         ":/core/images/qtcreatorlogo-big.png");
+const Icon QTLOGO(
+        ":/core/images/qtlogo.png");
 const Icon FIND_CASE_INSENSITIVELY(
         ":/find/images/casesensitively.png");
 const Icon FIND_WHOLE_WORD(
