@@ -28,9 +28,10 @@
 
 #include "qtcassert.h"
 
-#include <QtCore/qcoreapplication.h>
-#include <QtCore/qelapsedtimer.h>
-#include <QtNetwork/qlocalsocket.h>
+#include <QCoreApplication>
+#include <QElapsedTimer>
+#include <QLocalSocket>
+#include <QMutexLocker>
 
 namespace Utils {
 namespace Internal {

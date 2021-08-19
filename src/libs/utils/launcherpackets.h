@@ -27,9 +27,9 @@
 
 #include "processutils.h"
 
-#include <QtCore/qdatastream.h>
-#include <QtCore/qprocess.h>
-#include <QtCore/qstringlist.h>
+#include <QDataStream>
+#include <QProcess>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;

@@ -28,11 +28,9 @@
 #include "launcherpackets.h"
 #include "processutils.h"
 
-#include <QtCore/qobject.h>
-
 #include <QHash>
 #include <QMutex>
-#include <QMutexLocker>
+#include <QObject>
 #include <QProcess>
 #include <QWaitCondition>
 
@@ -44,8 +42,6 @@ class QLocalSocket;
 QT_END_NAMESPACE
 
 namespace Utils {
-class LauncherInterface;
-
 namespace Internal {
 
 class LauncherInterfacePrivate;
@@ -198,7 +194,6 @@ private:
     bool m_unixTerminalDisabled = false;
 
     friend class LauncherSocket;
-    friend class CallerHandle;
 };
 
 class LauncherSocket : public QObject

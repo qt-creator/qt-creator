@@ -28,11 +28,11 @@
 #include "launcherpackets.h"
 #include "launchersocket.h"
 
-#include <QtCore/qcoreapplication.h>
-#include <QtCore/qdebug.h>
-#include <QtCore/qdir.h>
-#include <QtCore/qprocess.h>
-#include <QtNetwork/qlocalserver.h>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QLocalServer>
+#include <QProcess>
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>

@@ -27,9 +27,9 @@
 
 #include <launcherpackets.h>
 
-#include <QtCore/qbytearray.h>
-#include <QtCore/qhash.h>
-#include <QtCore/qobject.h>
+#include <QByteArray>
+#include <QHash>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QLocalSocket;

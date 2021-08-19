@@ -28,10 +28,10 @@
 #include "launcherlogging.h"
 #include "processutils.h"
 
-#include <QtCore/qcoreapplication.h>
-#include <QtCore/qprocess.h>
-#include <QtCore/qtimer.h>
-#include <QtNetwork/qlocalsocket.h>
+#include <QCoreApplication>
+#include <QLocalSocket>
+#include <QProcess>
+#include <QTimer>
 
 namespace Utils {
 namespace Internal {

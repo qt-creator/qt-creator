@@ -30,13 +30,8 @@
 #include <QObject>
 #include <QThread>
 
-QT_BEGIN_NAMESPACE
-class QLocalServer;
-QT_END_NAMESPACE
-
 namespace Utils {
 namespace Internal {
-class LauncherProcess;
 class LauncherSocket;
 class LauncherInterfacePrivate;
 }
