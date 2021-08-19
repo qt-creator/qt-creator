@@ -86,19 +86,12 @@ public:
 class SymbolSearcherTestCase : public Tests::TestCase
 {
 public:
-    /// Takes no ownership of indexingSupportToUse
     SymbolSearcherTestCase(const QString &testFile,
-                           CppIndexingSupport *indexingSupportToUse,
                            const SymbolSearcher::Parameters &searchParameters,
                            const ResultDataList &expectedResults)
-        : m_indexingSupportToUse(indexingSupportToUse)
     {
         QVERIFY(succeededSoFar());
-
-        QVERIFY(m_indexingSupportToUse);
         QVERIFY(parseFiles(testFile));
-        m_indexingSupportToRestore = m_modelManager->indexingSupport();
-        m_modelManager->setIndexingSupport(m_indexingSupportToUse);
 
         CppIndexingSupport *indexingSupport = m_modelManager->indexingSupport();
         const QScopedPointer<SymbolSearcher> symbolSearcher(
@@ -109,16 +102,6 @@ public:
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);
     }
-
-    ~SymbolSearcherTestCase()
-    {
-        if (m_indexingSupportToRestore)
-            m_modelManager->setIndexingSupport(m_indexingSupportToRestore);
-    }
-
-private:
-    CppIndexingSupport *m_indexingSupportToRestore = nullptr;
-    CppIndexingSupport *m_indexingSupportToUse = nullptr;
 };
 
 } // anonymous namespace
@@ -143,11 +126,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher()
     QFETCH(SymbolSearcher::Parameters, searchParameters);
     QFETCH(ResultDataList, expectedResults);
 
-    QScopedPointer<CppIndexingSupport> builtinIndexingSupport(new BuiltinIndexingSupport);
-    SymbolSearcherTestCase(testFile,
-                           builtinIndexingSupport.data(),
-                           searchParameters,
-                           expectedResults);
+    SymbolSearcherTestCase(testFile, searchParameters, expectedResults);
 }
 
 void CppToolsPlugin::test_builtinsymbolsearcher_data()

@@ -192,7 +192,6 @@ public:
     FollowSymbolInterface &followSymbolInterface() const;
     std::unique_ptr<AbstractOverviewModel> createOverviewModel() const;
 
-    void setIndexingSupport(CppIndexingSupport *indexingSupport);
     CppIndexingSupport *indexingSupport();
 
     QStringList projectFiles();

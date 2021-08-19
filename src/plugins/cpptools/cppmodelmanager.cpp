@@ -173,7 +173,6 @@ public:
     ModelManagerSupport::Ptr m_activeModelManagerSupport;
 
     // Indexing
-    CppIndexingSupport *m_indexingSupporter;
     CppIndexingSupport *m_internalIndexingSupport;
     bool m_indexerEnabled;
 
@@ -644,7 +643,6 @@ CppModelManager::CppModelManager()
     setObjectName("CppModelManager");
     ExtensionSystem::PluginManager::addObject(this);
 
-    d->m_indexingSupporter = nullptr;
     d->m_enableGC = true;
 
     // Visual C++ has 1MiB, macOSX has 512KiB
@@ -968,8 +966,6 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
 
     const QSet<QString> filteredFiles = tooBigFilesRemoved(sourceFiles, indexerFileSizeLimitInMb());
 
-    if (d->m_indexingSupporter)
-        d->m_indexingSupporter->refreshSourceFiles(filteredFiles, mode);
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
@@ -1652,19 +1648,9 @@ BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(
     return d->m_activeModelManagerSupport->createEditorDocumentProcessor(baseTextDocument);
 }
 
-void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)
-{
-    if (indexingSupport) {
-        if (dynamic_cast<BuiltinIndexingSupport *>(indexingSupport))
-            d->m_indexingSupporter = nullptr;
-        else
-            d->m_indexingSupporter = indexingSupport;
-    }
-}
-
 CppIndexingSupport *CppModelManager::indexingSupport()
 {
-    return d->m_indexingSupporter ? d->m_indexingSupporter : d->m_internalIndexingSupport;
+    return d->m_internalIndexingSupport;
 }
 
 QStringList CppModelManager::projectFiles()
