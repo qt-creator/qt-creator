@@ -40,9 +40,6 @@ class QTCREATOR_UTILS_EXPORT LauncherInterface : public QObject
 {
     Q_OBJECT
 public:
-    static LauncherInterface &instance();
-    ~LauncherInterface() override;
-
     static void startLauncher(const QString &pathToLauncher = {});
     static void stopLauncher();
     static Internal::LauncherSocket *socket();
@@ -52,6 +49,8 @@ signals:
 
 private:
     LauncherInterface();
+    static LauncherInterface &instance();
+    ~LauncherInterface() override;
 
     QThread m_thread;
     Internal::LauncherInterfacePrivate *m_private;

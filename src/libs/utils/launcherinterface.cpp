@@ -25,8 +25,10 @@
 
 #include "launcherinterface.h"
 
+#include "filepath.h"
 #include "launcherpackets.h"
 #include "launchersocket.h"
+#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -91,6 +93,7 @@ public:
     Internal::LauncherSocket *socket() const { return m_socket; }
 
     void setPathToLauncher(const QString &path) { if (!path.isEmpty()) m_pathToLauncher = path; }
+    QString launcherFilePath() const { return m_pathToLauncher + QLatin1String("/qtcreator_processlauncher"); }
 signals:
     void errorOccurred(const QString &error);
 
@@ -132,8 +135,7 @@ void LauncherInterfacePrivate::doStart()
             this, &LauncherInterfacePrivate::handleProcessFinished);
     connect(m_process, &QProcess::readyReadStandardError,
             this, &LauncherInterfacePrivate::handleProcessStderr);
-    const QString launcherPath = m_pathToLauncher + QLatin1String("/qtcreator_processlauncher");
-    m_process->start(launcherPath, QStringList(m_server->fullServerName()));
+    m_process->start(launcherFilePath(), QStringList(m_server->fullServerName()));
 }
 
 void LauncherInterfacePrivate::doStop()
@@ -208,13 +210,23 @@ LauncherInterface::~LauncherInterface()
     m_thread.wait();
 }
 
+// Called from main thread
 void LauncherInterface::startLauncher(const QString &pathToLauncher)
 {
+    LauncherInterface &iface = instance();
+    iface.m_private->setPathToLauncher(pathToLauncher);
+    const FilePath launcherFilePath = FilePath::fromString(iface.m_private->launcherFilePath())
+            .cleanPath().withExecutableSuffix();
+    auto launcherIsNotExecutable = [&launcherFilePath]() {
+        qWarning() << "The Creator's process launcher"
+                   << launcherFilePath << "is not executable.";
+    };
+    QTC_ASSERT(launcherFilePath.isExecutableFile(), launcherIsNotExecutable());
     // Call in launcher's thread.
-    instance().m_private->setPathToLauncher(pathToLauncher);
-    QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStart);
+    QMetaObject::invokeMethod(iface.m_private, &LauncherInterfacePrivate::doStart);
 }
 
+// Called from main thread
 void LauncherInterface::stopLauncher()
 {
     // Call in launcher's thread.
