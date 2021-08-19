@@ -35,6 +35,7 @@
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cplusplus/CppDocument.h>
+#include <texteditor/storagesettings.h>
 
 #include <QDir>
 
@@ -96,8 +97,12 @@ void TestCase::setUseClangd()
 bool TestCase::openCppEditor(const QString &fileName, CppEditor **editor, CppEditorWidget **editorWidget)
 {
     if (CppEditor *e = dynamic_cast<CppEditor *>(Core::EditorManager::openEditor(fileName))) {
-        if (editor)
+        if (editor) {
             *editor = e;
+            TextEditor::StorageSettings s = e->textDocument()->storageSettings();
+            s.m_addFinalNewLine = false;
+            e->textDocument()->setStorageSettings(s);
+        }
         if (editorWidget) {
             if (CppEditorWidget *w = dynamic_cast<CppEditorWidget *>(e->editorWidget())) {
                 *editorWidget = w;
