@@ -57,7 +57,7 @@
 QT_BEGIN_NAMESPACE
 QDebug operator<<(QDebug dbg, const Utils::FilePath &c)
 {
-    return dbg << c.toUserOutput();
+    return dbg << c.toString();
 }
 
 QT_END_NAMESPACE
