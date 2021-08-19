@@ -36,7 +36,6 @@
 QT_BEGIN_NAMESPACE
 class QLocalServer;
 class QLocalSocket;
-class QProcess;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {

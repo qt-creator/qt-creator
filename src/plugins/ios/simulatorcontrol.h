@@ -31,10 +31,6 @@
 #include <QDebug>
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
-
 namespace Ios {
 namespace Internal {
 

@@ -35,7 +35,6 @@
 
 QT_BEGIN_NAMESPACE
 class QVariant;
-class QProcess;
 class QLocalServer;
 class QLocalSocket;
 QT_END_NAMESPACE
