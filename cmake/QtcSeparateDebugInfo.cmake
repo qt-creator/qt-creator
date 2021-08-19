@@ -26,7 +26,9 @@ function(qtc_enable_separate_debug_info target installDestination)
 
     unset(commands)
     if(APPLE)
-        find_program(DSYMUTIL_PROGRAM dsymutil)
+        find_program(DSYMUTIL_PROGRAM dsymutil
+          NO_PACKAGE_ROOT_PATH
+          NO_CMAKE_PATH)
         set(copy_bin ${DSYMUTIL_PROGRAM})
         set(strip_bin ${CMAKE_STRIP})
         set(debug_info_suffix dSYM)
