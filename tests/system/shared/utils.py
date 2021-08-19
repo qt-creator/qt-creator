@@ -619,8 +619,8 @@ def clickOnTab(tabBarStr, tabText, timeout=5000):
     if not waitFor("object.exists(tabBarStr)", timeout):
         raise LookupError("Could not find QTabBar: %s" % objectMap.realName(tabBarStr))
     tabBar = findObject(tabBarStr)
-    if platform.system() == 'Darwin' and not tabBar.visible:
-        test.log("Using workaround for Mac.")
+    if not (platform.system() == 'Linux' or tabBar.visible):
+        test.log("Using workaround for Mac and Windows.")
         setWindowState(tabBar, WindowState.Normal)
         tabBar = waitForObject(tabBarStr, 2000)
     clickTab(tabBar, tabText)
