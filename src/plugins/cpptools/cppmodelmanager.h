@@ -286,8 +286,6 @@ private:
     void initializeBuiltinModelManagerSupport();
     void delayedGC();
     void recalculateProjectPartMappings();
-    void watchForCanceledProjectIndexer(const QFuture<void> &future,
-                                        ProjectExplorer::Project *project);
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);

@@ -144,17 +144,27 @@ namespace Internal {
 
 static CppModelManager *m_instance;
 
+class ProjectData
+{
+public:
+    ProjectInfo::Ptr projectInfo;
+    QFutureWatcher<void> *indexer = nullptr;
+    bool fullyIndexed = false;
+};
+
 class CppModelManagerPrivate
 {
 public:
+    void setupWatcher(const QFuture<void> &future, ProjectExplorer::Project *project,
+                      ProjectData *projectData, CppModelManager *q);
+
     // Snapshot
     mutable QMutex m_snapshotMutex;
     Snapshot m_snapshot;
 
     // Project integration
     mutable QMutex m_projectMutex;
-    QMap<ProjectExplorer::Project *, ProjectInfo::Ptr> m_projectToProjectsInfo;
-    QHash<ProjectExplorer::Project *, bool> m_projectToIndexerCanceled;
+    QHash<ProjectExplorer::Project *, ProjectData> m_projectData;
     QMap<Utils::FilePath, QList<ProjectPart::Ptr> > m_fileToProjectParts;
     QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
@@ -747,9 +757,9 @@ void CppModelManager::ensureUpdated()
 QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
-    for (const ProjectInfo::Ptr &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
-        foreach (const ProjectPart::Ptr &part, pinfo->projectParts()) {
-            foreach (const ProjectFile &file, part->files)
+    for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
+        for (const ProjectPart::Ptr &part : projectData.projectInfo->projectParts()) {
+            for (const ProjectFile &file : part->files)
                 files += file.path;
         }
     }
@@ -760,9 +770,9 @@ QStringList CppModelManager::internalProjectFiles() const
 ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    for (const ProjectInfo::Ptr &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
-        foreach (const ProjectPart::Ptr &part, pinfo->projectParts()) {
-            foreach (const ProjectExplorer::HeaderPath &path, part->headerPaths) {
+    for (const ProjectData &projectData: qAsConst(d->m_projectData)) {
+        for (const ProjectPart::Ptr &part : projectData.projectInfo->projectParts()) {
+            for (const ProjectExplorer::HeaderPath &path : part->headerPaths) {
                 ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
                 if (!headerPaths.contains(hp))
                     headerPaths.push_back(std::move(hp));
@@ -788,8 +798,8 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
 {
     ProjectExplorer::Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    for (const ProjectInfo::Ptr &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
-        for (const ProjectPart::Ptr &part : pinfo->projectParts()) {
+    for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
+        for (const ProjectPart::Ptr &part : projectData.projectInfo->projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
         }
@@ -972,13 +982,14 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
 QList<ProjectInfo::Ptr> CppModelManager::projectInfos() const
 {
     QMutexLocker locker(&d->m_projectMutex);
-    return d->m_projectToProjectsInfo.values();
+    return Utils::transform<QList<ProjectInfo::Ptr>>(d->m_projectData,
+            [](const ProjectData &d) { return d.projectInfo; });
 }
 
 ProjectInfo::Ptr CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
     QMutexLocker locker(&d->m_projectMutex);
-    return d->m_projectToProjectsInfo.value(project);
+    return d->m_projectData.value(project).projectInfo;
 }
 
 /// \brief Remove all files and their includes (recursively) of given ProjectInfo from the snapshot.
@@ -1083,38 +1094,35 @@ void CppModelManager::recalculateProjectPartMappings()
 {
     d->m_projectPartIdToProjectProjectPart.clear();
     d->m_fileToProjectParts.clear();
-    foreach (const ProjectInfo::Ptr &projectInfo, d->m_projectToProjectsInfo) {
-        foreach (const ProjectPart::Ptr &projectPart, projectInfo->projectParts()) {
+    for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
+        for (const ProjectPart::Ptr &projectPart : projectData.projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
-            foreach (const ProjectFile &cxxFile, projectPart->files)
+            for (const ProjectFile &cxxFile : projectPart->files)
                 d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path)].append(
                             projectPart);
-
         }
     }
 
     d->m_symbolFinder.clearCache();
 }
 
-void CppModelManager::watchForCanceledProjectIndexer(const QFuture<void> &future,
-                                                     ProjectExplorer::Project *project)
+void CppModelManagerPrivate::setupWatcher(const QFuture<void> &future,
+                                          ProjectExplorer::Project *project,
+                                          ProjectData *projectData, CppModelManager *q)
 {
-    if (future.isCanceled() || future.isFinished())
-        return;
-
-    auto watcher = new QFutureWatcher<void>(this);
-    connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project, watcher]() {
-        if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
-            d->m_projectToIndexerCanceled.insert(project, true);
-        watcher->disconnect(this);
+    projectData->indexer = new QFutureWatcher<void>(q);
+    const auto handleFinished = [this, project, watcher = projectData->indexer, q] {
+        if (const auto it = m_projectData.find(project);
+                it != m_projectData.end() && it->indexer == watcher) {
+            it->indexer = nullptr;
+            it->fullyIndexed = !watcher->isCanceled();
+        }
+        watcher->disconnect(q);
         watcher->deleteLater();
-    });
-    connect(watcher, &QFutureWatcher<void>::finished, this, [this, project, watcher]() {
-        d->m_projectToIndexerCanceled.remove(project);
-        watcher->disconnect(this);
-        watcher->deleteLater();
-    });
-    watcher->setFuture(future);
+    };
+    q->connect(projectData->indexer, &QFutureWatcher<void>::canceled, q, handleFinished);
+    q->connect(projectData->indexer, &QFutureWatcher<void>::finished, q, handleFinished);
+    projectData->indexer->setFuture(future);
 }
 
 void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
@@ -1160,23 +1168,23 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
     if (!project)
         return {};
 
+    ProjectData *projectData = nullptr;
     { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
         QMutexLocker projectLocker(&d->m_projectMutex);
 
         const QSet<QString> newSourceFiles = newProjectInfo->sourceFiles();
 
         // Check if we can avoid a full reindexing
-        const ProjectInfo::Ptr oldProjectInfo = d->m_projectToProjectsInfo.value(project);
-        const bool previousIndexerCanceled = d->m_projectToIndexerCanceled.value(project, false);
-        if (!previousIndexerCanceled && oldProjectInfo) {
-            ProjectInfoComparer comparer(*oldProjectInfo, *newProjectInfo);
+        const auto it = d->m_projectData.find(project);
+        if (it != d->m_projectData.end() && it->projectInfo && it->fullyIndexed) {
+            ProjectInfoComparer comparer(*it->projectInfo, *newProjectInfo);
 
             if (comparer.configurationOrFilesChanged()) {
                 d->m_dirty = true;
 
                 // If the project configuration changed, do a full reindexing
                 if (comparer.configurationChanged()) {
-                    removeProjectInfoFilesAndIncludesFromSnapshot(*oldProjectInfo);
+                    removeProjectInfoFilesAndIncludesFromSnapshot(*it->projectInfo);
                     filesToReindex.unite(newSourceFiles);
 
                     // The "configuration file" includes all defines and therefore should be updated
@@ -1212,9 +1220,16 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
         }
 
         // Update Project/ProjectInfo and File/ProjectPart table
-        d->m_projectToProjectsInfo.insert(project, newProjectInfo);
+        if (it != d->m_projectData.end()) {
+            if (it->indexer)
+                it->indexer->cancel();
+            it->projectInfo = newProjectInfo;
+            it->fullyIndexed = false;
+        }
+        projectData = it == d->m_projectData.end()
+                ? &(d->m_projectData[project] = ProjectData{newProjectInfo, nullptr, false})
+                : &(*it);
         recalculateProjectPartMappings();
-
     } // Mutex scope
 
     // If requested, dump everything we got
@@ -1242,10 +1257,12 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
     // Trigger reindexing
     const QFuture<void> indexingFuture = updateSourceFiles(filesToReindex,
                                                            ForcedProgressNotification);
-    if (!filesToReindex.isEmpty()) {
-        d->m_projectToIndexerCanceled.insert(project, false);
-    }
-    watchForCanceledProjectIndexer(indexingFuture, project);
+
+    // It's safe to do this here, as only the UI thread writes to the map and no other thread
+    // uses the indexer value.
+    // FIXME: Use a read/write lock instead of a mutex.
+    d->setupWatcher(indexingFuture, project, projectData, this);
+
     return indexingFuture;
 }
 
@@ -1336,14 +1353,12 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
     QStringList idsOfRemovedProjectParts;
 
-    d->m_projectToIndexerCanceled.remove(project);
-
     {
         QMutexLocker locker(&d->m_projectMutex);
         d->m_dirty = true;
         const QStringList projectPartsIdsBefore = d->m_projectPartIdToProjectProjectPart.keys();
 
-        d->m_projectToProjectsInfo.remove(project);
+        d->m_projectData.remove(project);
         recalculateProjectPartMappings();
 
         const QStringList projectPartsIdsAfter = d->m_projectPartIdToProjectProjectPart.keys();
@@ -1363,7 +1378,7 @@ void CppModelManager::onActiveProjectChanged(ProjectExplorer::Project *project)
 
     {
         QMutexLocker locker(&d->m_projectMutex);
-        if (!d->m_projectToProjectsInfo.contains(project))
+        if (!d->m_projectData.contains(project))
             return; // Not yet known to us.
     }
 
