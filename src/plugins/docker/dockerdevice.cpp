@@ -154,6 +154,9 @@ void DockerDeviceProcess::start(const Runnable &runnable)
     connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &DeviceProcess::readyReadStandardError);
     connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
+
+    LOG("Running process:" << runnable.command.toUserOutput()
+            << "in" << runnable.workingDirectory.toUserOutput());
     dockerDevice->runProcess(m_process);
 }
 
@@ -1482,6 +1485,10 @@ void DockerDevicePrivate::fetchSystemEnviroment()
 
     const QString remoteOutput = proc.stdOut();
     m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+
+    const QString remoteError = proc.stdErr();
+    if (!remoteError.isEmpty())
+        qWarning("Cannot read container environment: %s\n", qPrintable(remoteError));
 }
 
 bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
