@@ -43,6 +43,7 @@ public:
     static void startLauncher(const QString &pathToLauncher = {});
     static void stopLauncher();
     static Internal::LauncherSocket *socket();
+    static bool isStarted();
 
 signals:
     void errorOccurred(const QString &error);

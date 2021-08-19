@@ -94,6 +94,8 @@ public:
 
     void setPathToLauncher(const QString &path) { if (!path.isEmpty()) m_pathToLauncher = path; }
     QString launcherFilePath() const { return m_pathToLauncher + QLatin1String("/qtcreator_processlauncher"); }
+    void setStarted(bool started) { m_startRequested = started; }
+    bool isStarted() const { return m_startRequests; }
 signals:
     void errorOccurred(const QString &error);
 
@@ -103,6 +105,7 @@ private:
     Internal::LauncherProcess *m_process = nullptr;
     QString m_pathToLauncher;
     int m_startRequests = 0;
+    std::atomic_bool m_startRequested = false;
 };
 
 LauncherInterfacePrivate::LauncherInterfacePrivate()
@@ -213,24 +216,27 @@ LauncherInterface::~LauncherInterface()
 // Called from main thread
 void LauncherInterface::startLauncher(const QString &pathToLauncher)
 {
-    LauncherInterface &iface = instance();
-    iface.m_private->setPathToLauncher(pathToLauncher);
-    const FilePath launcherFilePath = FilePath::fromString(iface.m_private->launcherFilePath())
+    LauncherInterfacePrivate *p = instance().m_private;
+    p->setPathToLauncher(pathToLauncher);
+    const FilePath launcherFilePath = FilePath::fromString(p->launcherFilePath())
             .cleanPath().withExecutableSuffix();
     auto launcherIsNotExecutable = [&launcherFilePath]() {
         qWarning() << "The Creator's process launcher"
                    << launcherFilePath << "is not executable.";
     };
-    QTC_ASSERT(launcherFilePath.isExecutableFile(), launcherIsNotExecutable());
+    QTC_ASSERT(launcherFilePath.isExecutableFile(), launcherIsNotExecutable(); return);
+    p->setStarted(true);
     // Call in launcher's thread.
-    QMetaObject::invokeMethod(iface.m_private, &LauncherInterfacePrivate::doStart);
+    QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStart);
 }
 
 // Called from main thread
 void LauncherInterface::stopLauncher()
 {
+    LauncherInterfacePrivate *p = instance().m_private;
+    p->setStarted(false);
     // Call in launcher's thread.
-    QMetaObject::invokeMethod(instance().m_private, &LauncherInterfacePrivate::doStop);
+    QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStop);
 }
 
 Internal::LauncherSocket *LauncherInterface::socket()
@@ -238,6 +244,10 @@ Internal::LauncherSocket *LauncherInterface::socket()
     return instance().m_private->socket();
 }
 
+bool LauncherInterface::isStarted()
+{
+    return instance().m_private->isStarted();
+}
 
 } // namespace Utils
 

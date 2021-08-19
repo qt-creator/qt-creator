@@ -462,6 +462,10 @@ void LauncherHandle::start(const QString &program, const QStringList &arguments,
     // TODO: check if m_canceled is not true
     m_processState = QProcess::Starting;
     m_writeData = writeData;
+    auto processLauncherNotStarted = [&program] {
+        qWarning() << "Trying to start" << program << "while process launcher wasn't started yet.";
+    };
+    QTC_ASSERT(LauncherInterface::isStarted(), processLauncherNotStarted());
     if (LauncherInterface::socket()->isReady())
         doStart();
 }
