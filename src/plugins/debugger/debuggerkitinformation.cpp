@@ -307,10 +307,10 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
         return NoDebugger;
 
     ConfigurationErrors result = NoConfigurationError;
-    const QFileInfo fi = item->command().toFileInfo();
-    if (!fi.exists() || fi.isDir())
+    const FilePath debugger = item->command();
+    if (!debugger.exists() || debugger.isDir())
         result |= DebuggerNotFound;
-    else if (!fi.isExecutable())
+    else if (!debugger.isExecutableFile())
         result |= DebuggerNotExecutable;
 
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
@@ -321,13 +321,13 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
             result |= DebuggerDoesNotMatch;
     }
 
-    if (!fi.exists() || fi.isDir()) {
+    if (!debugger.exists() || debugger.isDir()) {
         if (item->engineType() == NoEngineType)
             return NoDebugger;
 
         // We need an absolute path to be able to locate Python on Windows.
         if (item->engineType() == GdbEngineType) {
-            if (tcAbi.os() == Abi::WindowsOS && !fi.isAbsolute())
+            if (tcAbi.os() == Abi::WindowsOS && !debugger.isAbsolutePath())
                 result |= DebuggerNeedsAbsolutePath;
         }
     }

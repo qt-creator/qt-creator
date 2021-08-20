@@ -938,7 +938,7 @@ void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool is
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;
                 }
-                if (!item.command().toFileInfo().isExecutable()) {
+                if (!item.command().isExecutableFile()) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;

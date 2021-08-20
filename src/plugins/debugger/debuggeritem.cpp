@@ -143,31 +143,22 @@ void DebuggerItem::createId()
     m_id = QUuid::createUuid().toString();
 }
 
-static bool isUVisionExecutable(const QFileInfo &fileInfo)
-{
-    if (!HostOsInfo::isWindowsHost())
-        return false;
-    const QString baseName = fileInfo.baseName();
-    return baseName == "UV4";
-}
-
 void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *error)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
     // except for the experimental LLDB-MI which insists on --version.
     QString version = "-version";
-    const QFileInfo fileInfo = m_command.toFileInfo();
-    m_lastModified = fileInfo.lastModified();
-    if (fileInfo.baseName().toLower().contains("lldb-mi"))
+    m_lastModified = m_command.lastModified();
+    if (m_command.baseName().toLower().contains("lldb-mi"))
         version = "--version";
 
     // We don't need to start the uVision executable to
     // determine its version.
-    if (isUVisionExecutable(fileInfo)) {
+    if (HostOsInfo::isWindowsHost() && m_command.baseName() == "UV4") {
         QString errorMessage;
         m_version = winGetDLLVersion(WinDLLFileVersion,
-                                     fileInfo.absoluteFilePath(),
+                                     m_command.absoluteFilePath().path(),
                                      &errorMessage);
         m_engineType = UvscEngineType;
         m_abis.clear();
@@ -179,7 +170,7 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
     if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")) {
         QString errorMessage;
         m_version = winGetDLLVersion(WinDLLFileVersion,
-                                     fileInfo.absoluteFilePath(),
+                                     m_command.absoluteFilePath().path(),
                                      &errorMessage);
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
@@ -305,7 +296,7 @@ QIcon DebuggerItem::decoration() const
 {
     if (m_engineType == NoEngineType)
         return Icons::CRITICAL.icon();
-    if (!m_command.toFileInfo().isExecutable())
+    if (!m_command.isExecutableFile())
         return Icons::WARNING.icon();
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
         return Icons::WARNING.icon();

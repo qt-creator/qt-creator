@@ -68,7 +68,7 @@ constexpr int kRootStackFrameLevel = 1;
 static void allowRootLocals(const FilePath &projectFile)
 {
     const QFileInfo fi(projectFile.toFileInfo());
-    if (!fi.exists())
+    if (!projectFile.exists())
         return;
     const QString baseName = fi.baseName();
     const QDir dir(fi.dir());
