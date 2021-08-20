@@ -255,7 +255,7 @@ void AutoTestUnitTests::testCodeParserBoostTest()
     QFETCH(QString, projectFilePath);
     QFETCH(QString, extension);
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo::Ptr projectInfo
+    const CppTools::ProjectInfo::ConstPtr projectInfo
             = projectManager.open(projectFilePath, true, m_kit);
     QVERIFY(projectInfo);
 

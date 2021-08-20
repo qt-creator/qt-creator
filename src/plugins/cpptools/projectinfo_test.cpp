@@ -66,9 +66,9 @@ public:
                               languagePreference, projectsChanged);
     }
 
-    static QList<ProjectPart::Ptr> createProjectPartsWithDifferentProjects()
+    static QList<ProjectPart::ConstPtr> createProjectPartsWithDifferentProjects()
     {
-        QList<ProjectPart::Ptr> projectParts;
+        QList<ProjectPart::ConstPtr> projectParts;
 
         const auto p1 = std::make_shared<Project>(
                     QString(), Utils::FilePath::fromString("p1.pro"));
@@ -82,16 +82,16 @@ public:
         return projectParts;
     }
 
-    static QList<ProjectPart::Ptr> createCAndCxxProjectParts()
+    static QList<ProjectPart::ConstPtr> createCAndCxxProjectParts()
     {
-        QList<ProjectPart::Ptr> projectParts;
+        QList<ProjectPart::ConstPtr> projectParts;
         ToolChainInfo tcInfo;
 
         // Create project part for C
         tcInfo.macroInspectionRunner = [](const QStringList &) {
             return ToolChain::MacroInspectionReport{{}, Utils::LanguageVersion::C11};
         };
-        const ProjectPart::Ptr cprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
+        const ProjectPart::ConstPtr cprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
                                                                   tcInfo);
         projectParts.append(cprojectpart);
 
@@ -99,7 +99,7 @@ public:
         tcInfo.macroInspectionRunner = [](const QStringList &) {
             return ToolChain::MacroInspectionReport{{}, Utils::LanguageVersion::CXX98};
         };
-        const ProjectPart::Ptr cxxprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
+        const ProjectPart::ConstPtr cxxprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
                                                                     tcInfo);
         projectParts.append(cxxprojectpart);
 
@@ -107,7 +107,7 @@ public:
     }
 
     QString filePath;
-    ProjectPart::Ptr currentProjectPart = ProjectPart::create({});
+    ProjectPart::ConstPtr currentProjectPart = ProjectPart::create({});
     ProjectPartInfo currentProjectPartInfo{currentProjectPart,
                                            {currentProjectPart},
                                            ProjectPartInfo::NoHint};
@@ -117,9 +117,9 @@ public:
     bool projectsChanged = false;
     ProjectPartChooser chooser;
 
-    QList<ProjectPart::Ptr> projectPartsForFile;
-    QList<ProjectPart::Ptr> projectPartsFromDependenciesForFile;
-    ProjectPart::Ptr fallbackProjectPart;
+    QList<ProjectPart::ConstPtr> projectPartsForFile;
+    QList<ProjectPart::ConstPtr> projectPartsFromDependenciesForFile;
+    ProjectPart::ConstPtr fallbackProjectPart;
 
     static QHash<Utils::FilePath, std::shared_ptr<Project>> projectMap;
 };
@@ -130,10 +130,10 @@ ProjectPartChooserTestHelper::projectMap;
 
 void ProjectPartChooserTest::testChooseManuallySet()
 {
-    ProjectPart::Ptr p1 = ProjectPart::create({});
+    ProjectPart::ConstPtr p1 = ProjectPart::create({});
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("someId");
-    ProjectPart::Ptr p2 = ProjectPart::create({}, rpp2);
+    ProjectPart::ConstPtr p2 = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
     t.preferredProjectPartId = p2->projectFile;
     t.projectPartsForFile += {p1, p2};
@@ -143,10 +143,10 @@ void ProjectPartChooserTest::testChooseManuallySet()
 
 void ProjectPartChooserTest::testIndicateManuallySet()
 {
-    ProjectPart::Ptr p1 = ProjectPart::create({});
+    ProjectPart::ConstPtr p1 = ProjectPart::create({});
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("someId");
-    ProjectPart::Ptr p2 = ProjectPart::create({}, rpp2);
+    ProjectPart::ConstPtr p2 = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
     t.preferredProjectPartId = p2->projectFile;
     t.projectPartsForFile += {p1, p2};
@@ -156,10 +156,10 @@ void ProjectPartChooserTest::testIndicateManuallySet()
 
 void ProjectPartChooserTest::testIndicateManuallySetForFallbackToProjectPartFromDependencies()
 {
-    ProjectPart::Ptr p1 = ProjectPart::create({});
+    ProjectPart::ConstPtr p1 = ProjectPart::create({});
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("someId");
-    ProjectPart::Ptr p2 = ProjectPart::create({}, rpp2);
+    ProjectPart::ConstPtr p2 = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
     t.preferredProjectPartId = p2->projectFile;
     t.projectPartsFromDependenciesForFile += {p1, p2};
@@ -175,8 +175,8 @@ void ProjectPartChooserTest::testDoNotIndicateNotManuallySet()
 void ProjectPartChooserTest::testForMultipleChooseFromActiveProject()
 {
     ProjectPartChooserTestHelper t;
-    const QList<ProjectPart::Ptr> projectParts = t.createProjectPartsWithDifferentProjects();
-    const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
+    const QList<ProjectPart::ConstPtr> projectParts = t.createProjectPartsWithDifferentProjects();
+    const ProjectPart::ConstPtr secondProjectPart = projectParts.at(1);
     t.projectPartsForFile += projectParts;
     t.activeProject = secondProjectPart->topLevelProject;
 
@@ -189,8 +189,8 @@ void ProjectPartChooserTest::testForMultiplePreferSelectedForBuilding()
     rpp1.setSelectedForBuilding(false);
     RawProjectPart rpp2;
     rpp2.setSelectedForBuilding(true);
-    const ProjectPart::Ptr firstProjectPart = ProjectPart::create({}, rpp1);
-    const ProjectPart::Ptr secondProjectPart = ProjectPart::create({}, rpp2);
+    const ProjectPart::ConstPtr firstProjectPart = ProjectPart::create({}, rpp1);
+    const ProjectPart::ConstPtr secondProjectPart = ProjectPart::create({}, rpp2);
     ProjectPartChooserTestHelper t;
     t.projectPartsForFile += firstProjectPart;
     t.projectPartsForFile += secondProjectPart;
@@ -201,8 +201,8 @@ void ProjectPartChooserTest::testForMultiplePreferSelectedForBuilding()
 void ProjectPartChooserTest::testForMultipleFromDependenciesChooseFromActiveProject()
 {
     ProjectPartChooserTestHelper t;
-    const QList<ProjectPart::Ptr> projectParts = t.createProjectPartsWithDifferentProjects();
-    const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
+    const QList<ProjectPart::ConstPtr> projectParts = t.createProjectPartsWithDifferentProjects();
+    const ProjectPart::ConstPtr secondProjectPart = projectParts.at(1);
     t.projectPartsFromDependenciesForFile += projectParts;
     t.activeProject = secondProjectPart->topLevelProject;
 
@@ -212,9 +212,9 @@ void ProjectPartChooserTest::testForMultipleFromDependenciesChooseFromActiveProj
 void ProjectPartChooserTest::testForMultipleCheckIfActiveProjectChanged()
 {
     ProjectPartChooserTestHelper t;
-    const QList<ProjectPart::Ptr> projectParts = t.createProjectPartsWithDifferentProjects();
-    const ProjectPart::Ptr firstProjectPart = projectParts.at(0);
-    const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
+    const QList<ProjectPart::ConstPtr> projectParts = t.createProjectPartsWithDifferentProjects();
+    const ProjectPart::ConstPtr firstProjectPart = projectParts.at(0);
+    const ProjectPart::ConstPtr secondProjectPart = projectParts.at(1);
     t.projectPartsForFile += projectParts;
     t.currentProjectPartInfo.projectPart = firstProjectPart;
     t.activeProject = secondProjectPart->topLevelProject;
@@ -227,7 +227,7 @@ void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCProjectPart
     ProjectPartChooserTestHelper t;
     t.languagePreference = Language::C;
     t.projectPartsForFile = t.createCAndCxxProjectParts();
-    const ProjectPart::Ptr cProjectPart = t.projectPartsForFile.at(0);
+    const ProjectPart::ConstPtr cProjectPart = t.projectPartsForFile.at(0);
 
     QCOMPARE(t.choose().projectPart, cProjectPart);
 }
@@ -237,15 +237,15 @@ void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCxxProjectPa
     ProjectPartChooserTestHelper t;
     t.languagePreference = Language::Cxx;
     t.projectPartsForFile = t.createCAndCxxProjectParts();
-    const ProjectPart::Ptr cxxProjectPart = t.projectPartsForFile.at(1);
+    const ProjectPart::ConstPtr cxxProjectPart = t.projectPartsForFile.at(1);
 
     QCOMPARE(t.choose().projectPart, cxxProjectPart);
 }
 
 void ProjectPartChooserTest::testIndicateMultiple()
 {
-    const ProjectPart::Ptr p1 = ProjectPart::create({});
-    const ProjectPart::Ptr p2 = ProjectPart::create({});
+    const ProjectPart::ConstPtr p1 = ProjectPart::create({});
+    const ProjectPart::ConstPtr p2 = ProjectPart::create({});
     ProjectPartChooserTestHelper t;
     t.projectPartsForFile += {p1, p2};
 
@@ -254,8 +254,8 @@ void ProjectPartChooserTest::testIndicateMultiple()
 
 void ProjectPartChooserTest::testIndicateMultipleForFallbackToProjectPartFromDependencies()
 {
-    const ProjectPart::Ptr p1 = ProjectPart::create({});
-    const ProjectPart::Ptr p2 = ProjectPart::create({});
+    const ProjectPart::ConstPtr p1 = ProjectPart::create({});
+    const ProjectPart::ConstPtr p2 = ProjectPart::create({});
     ProjectPartChooserTestHelper t;
     t.projectPartsFromDependenciesForFile += {p1, p2};
 
@@ -264,7 +264,7 @@ void ProjectPartChooserTest::testIndicateMultipleForFallbackToProjectPartFromDep
 
 void ProjectPartChooserTest::testForMultipleChooseNewIfPreviousIsGone()
 {
-    const ProjectPart::Ptr newProjectPart = ProjectPart::create({});
+    const ProjectPart::ConstPtr newProjectPart = ProjectPart::create({});
     ProjectPartChooserTestHelper t;
     t.projectPartsForFile += newProjectPart;
 
@@ -273,7 +273,7 @@ void ProjectPartChooserTest::testForMultipleChooseNewIfPreviousIsGone()
 
 void ProjectPartChooserTest::testFallbackToProjectPartFromDependencies()
 {
-    const ProjectPart::Ptr fromDependencies = ProjectPart::create({});
+    const ProjectPart::ConstPtr fromDependencies = ProjectPart::create({});
     ProjectPartChooserTestHelper t;
     t.projectPartsFromDependenciesForFile += fromDependencies;
 
@@ -306,7 +306,7 @@ void ProjectPartChooserTest::testStopUsingFallbackFromModelManagerIfProjectChang
     t.fallbackProjectPart = ProjectPart::create({});
     t.currentProjectPartInfo.projectPart = t.fallbackProjectPart;
     t.currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
-    const ProjectPart::Ptr addedProject = ProjectPart::create({});
+    const ProjectPart::ConstPtr addedProject = ProjectPart::create({});
     t.projectPartsForFile += addedProject;
 
     QCOMPARE(t.choose().projectPart, addedProject);
@@ -318,7 +318,7 @@ void ProjectPartChooserTest::testStopUsingFallbackFromModelManagerIfProjectChang
     t.fallbackProjectPart = ProjectPart::create({});
     t.currentProjectPartInfo.projectPart = t.fallbackProjectPart;
     t.currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
-    const ProjectPart::Ptr addedProject = ProjectPart::create({});
+    const ProjectPart::ConstPtr addedProject = ProjectPart::create({});
     t.projectPartsFromDependenciesForFile += addedProject;
     t.projectsChanged = true;
 
@@ -380,9 +380,9 @@ public:
         projectUpdateInfo.cToolChainInfo = {&aToolChain, {}, {}};
     }
 
-    ProjectInfo::Ptr generate()
+    ProjectInfo::ConstPtr generate()
     {
-        QFutureInterface<ProjectInfo::Ptr> fi;
+        QFutureInterface<ProjectInfo::ConstPtr> fi;
 
         projectUpdateInfo.rawProjectParts += rawProjectPart;
         ProjectInfoGenerator generator(fi, projectUpdateInfo);
@@ -398,7 +398,7 @@ public:
 void ProjectInfoGeneratorTest::testCreateNoProjectPartsForEmptyFileList()
 {
     ProjectInfoGeneratorTestHelper t;
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QVERIFY(projectInfo->projectParts().isEmpty());
 }
@@ -407,7 +407,7 @@ void ProjectInfoGeneratorTest::testCreateSingleProjectPart()
 {
     ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h"};
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 1);
 }
@@ -416,7 +416,7 @@ void ProjectInfoGeneratorTest::testCreateMultipleProjectParts()
 {
     ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h", "bar.c", "bar.h" };
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 2);
 }
@@ -425,7 +425,7 @@ void ProjectInfoGeneratorTest::testProjectPartIndicatesObjectiveCExtensionsByDef
 {
     ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.mm" };
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
     QCOMPARE(projectInfo->projectParts().size(), 1);
 
     const ProjectPart &projectPart = *projectInfo->projectParts().at(0);
@@ -436,7 +436,7 @@ void ProjectInfoGeneratorTest::testProjectPartHasLatestLanguageVersionByDefault(
 {
     ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
     QCOMPARE(projectInfo->projectParts().size(), 1);
 
     const ProjectPart &projectPart = *projectInfo->projectParts().at(0);
@@ -450,7 +450,7 @@ void ProjectInfoGeneratorTest::testUseMacroInspectionReportForLanguageVersion()
         return TestToolchain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 1);
 
@@ -463,7 +463,7 @@ void ProjectInfoGeneratorTest::testUseCompilerFlagsForLanguageExtensions()
     ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
     t.rawProjectPart.flagsForCxx.languageExtensions = Utils::LanguageExtension::Microsoft;
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 1);
 
@@ -475,22 +475,22 @@ void ProjectInfoGeneratorTest::testProjectFileKindsMatchProjectPartVersion()
 {
     ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.h" };
-    const ProjectInfo::Ptr projectInfo = t.generate();
+    const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 4);
-    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::Ptr &p) {
+    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::ConstPtr &p) {
         return p->languageVersion == Utils::LanguageVersion::LatestC
                 && p->files.first().kind == ProjectFile::CHeader;
     }));
-    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::Ptr &p) {
+    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::ConstPtr &p) {
         return p->languageVersion == Utils::LanguageVersion::LatestC
                 && p->files.first().kind == ProjectFile::ObjCHeader;
     }));
-    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::Ptr &p) {
+    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::ConstPtr &p) {
         return p->languageVersion == Utils::LanguageVersion::LatestCxx
                 && p->files.first().kind == ProjectFile::CXXHeader;
     }));
-    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::Ptr &p) {
+    QVERIFY(Utils::contains(projectInfo->projectParts(), [](const ProjectPart::ConstPtr &p) {
         return p->languageVersion == Utils::LanguageVersion::LatestCxx
                 && p->files.first().kind == ProjectFile::ObjCXXHeader;
     }));
@@ -548,7 +548,7 @@ public:
     Utils::optional<HeaderPathFilter> filter;
 
 private:
-    ProjectPart::Ptr projectPart;
+    ProjectPart::ConstPtr projectPart;
 };
 }
 

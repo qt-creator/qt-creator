@@ -32,7 +32,7 @@ namespace CppTools {
 class CppModelManagerInterface
 {
 public:
-    virtual ProjectPart::Ptr projectPartForId(const QString &projectPartId) const = 0;
+    virtual ProjectPart::ConstPtr projectPartForId(const QString &projectPartId) const = 0;
 
 protected:
     virtual ~CppModelManagerInterface() = default;

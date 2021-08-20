@@ -39,7 +39,7 @@ namespace ClangCodeModel {
 namespace Internal {
 
 void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                           CppTools::ProjectPart *,
+                                           const CppTools::ProjectPart *,
                                            RenameCallback &&renameSymbolsCallback)
 {
     ClangdClient * const client

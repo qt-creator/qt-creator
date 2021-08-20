@@ -150,7 +150,7 @@ static CppModelManager *m_instance;
 class ProjectData
 {
 public:
-    ProjectInfo::Ptr projectInfo;
+    ProjectInfo::ConstPtr projectInfo;
     QFutureWatcher<void> *indexer = nullptr;
     bool fullyIndexed = false;
 };
@@ -168,8 +168,9 @@ public:
     // Project integration
     QReadWriteLock m_projectLock;
     QHash<ProjectExplorer::Project *, ProjectData> m_projectData;
-    QMap<Utils::FilePath, QList<ProjectPart::Ptr> > m_fileToProjectParts;
-    QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
+    QMap<Utils::FilePath, QList<ProjectPart::ConstPtr> > m_fileToProjectParts;
+    QMap<QString, ProjectPart::ConstPtr> m_projectPartIdToProjectProjectPart;
+
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
@@ -190,7 +191,7 @@ public:
     bool m_indexerEnabled;
 
     QMutex m_fallbackProjectPartMutex;
-    ProjectPart::Ptr m_fallbackProjectPart;
+    ProjectPart::ConstPtr m_fallbackProjectPart;
 
     CppFindReferences *m_findReferences;
 
@@ -325,7 +326,7 @@ static RefactoringEngineInterface *getRefactoringEngine(CppModelManagerPrivate::
 }
 
 void CppModelManager::startLocalRenaming(const CursorInEditor &data,
-                                         CppTools::ProjectPart *projectPart,
+                                         const CppTools::ProjectPart *projectPart,
                                          RenameCallback &&renameSymbolsCallback)
 {
     RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
@@ -761,7 +762,7 @@ QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
     for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
-        for (const ProjectPart::Ptr &part : projectData.projectInfo->projectParts()) {
+        for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const ProjectFile &file : part->files)
                 files += file.path;
         }
@@ -774,7 +775,7 @@ ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
     ProjectExplorer::HeaderPaths headerPaths;
     for (const ProjectData &projectData: qAsConst(d->m_projectData)) {
-        for (const ProjectPart::Ptr &part : projectData.projectInfo->projectParts()) {
+        for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const ProjectExplorer::HeaderPath &path : part->headerPaths) {
                 ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
                 if (!headerPaths.contains(hp))
@@ -802,7 +803,7 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
     ProjectExplorer::Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
     for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
-        for (const ProjectPart::Ptr &part : projectData.projectInfo->projectParts()) {
+        for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
         }
@@ -982,14 +983,14 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
-QList<ProjectInfo::Ptr> CppModelManager::projectInfos() const
+QList<ProjectInfo::ConstPtr> CppModelManager::projectInfos() const
 {
     QReadLocker locker(&d->m_projectLock);
-    return Utils::transform<QList<ProjectInfo::Ptr>>(d->m_projectData,
+    return Utils::transform<QList<ProjectInfo::ConstPtr>>(d->m_projectData,
             [](const ProjectData &d) { return d.projectInfo; });
 }
 
-ProjectInfo::Ptr CppModelManager::projectInfo(ProjectExplorer::Project *project) const
+ProjectInfo::ConstPtr CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
     QReadLocker locker(&d->m_projectLock);
     return d->m_projectData.value(project).projectInfo;
@@ -999,7 +1000,7 @@ ProjectInfo::Ptr CppModelManager::projectInfo(ProjectExplorer::Project *project)
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-    foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
+    foreach (const ProjectPart::ConstPtr &projectPart, projectInfo.projectParts()) {
         foreach (const ProjectFile &cxxFile, projectPart->files) {
             foreach (const QString &fileName, d->m_snapshot.allIncludesForDocument(cxxFile.path))
                 d->m_snapshot.remove(fileName);
@@ -1074,11 +1075,11 @@ public:
     }
 
 private:
-    static QSet<QString> projectPartIds(const QVector<ProjectPart::Ptr> &projectParts)
+    static QSet<QString> projectPartIds(const QVector<ProjectPart::ConstPtr> &projectParts)
     {
         QSet<QString> ids;
 
-        foreach (const ProjectPart::Ptr &projectPart, projectParts)
+        foreach (const ProjectPart::ConstPtr &projectPart, projectParts)
             ids.insert(projectPart->id());
 
         return ids;
@@ -1098,7 +1099,7 @@ void CppModelManager::recalculateProjectPartMappings()
     d->m_projectPartIdToProjectProjectPart.clear();
     d->m_fileToProjectParts.clear();
     for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
-        for (const ProjectPart::Ptr &projectPart : projectData.projectInfo->projectParts()) {
+        for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             for (const ProjectFile &cxxFile : projectPart->files)
                 d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path)].append(
@@ -1157,7 +1158,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     }
 }
 
-QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProjectInfo,
+QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
                                                  const QSet<QString> &additionalFiles)
 {
     if (!newProjectInfo)
@@ -1181,7 +1182,6 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
         const auto it = d->m_projectData.find(project);
         if (it != d->m_projectData.end() && it->projectInfo && it->fullyIndexed) {
             ProjectInfoComparer comparer(*it->projectInfo, *newProjectInfo);
-
             if (comparer.configurationOrFilesChanged()) {
                 d->m_dirty = true;
 
@@ -1268,22 +1268,22 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
     return indexingFuture;
 }
 
-ProjectPart::Ptr CppModelManager::projectPartForId(const QString &projectPartId) const
+ProjectPart::ConstPtr CppModelManager::projectPartForId(const QString &projectPartId) const
 {
     QReadLocker locker(&d->m_projectLock);
     return d->m_projectPartIdToProjectProjectPart.value(projectPartId);
 }
 
-QList<ProjectPart::Ptr> CppModelManager::projectPart(const Utils::FilePath &fileName) const
+QList<ProjectPart::ConstPtr> CppModelManager::projectPart(const Utils::FilePath &fileName) const
 {
     QReadLocker locker(&d->m_projectLock);
     return d->m_fileToProjectParts.value(fileName);
 }
 
-QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
+QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
         const Utils::FilePath &fileName) const
 {
-    QSet<ProjectPart::Ptr> parts;
+    QSet<ProjectPart::ConstPtr> parts;
     const Utils::FilePaths deps = snapshot().filesDependingOn(fileName);
 
     QReadLocker locker(&d->m_projectLock);
@@ -1293,7 +1293,7 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
     return parts.values();
 }
 
-ProjectPart::Ptr CppModelManager::fallbackProjectPart()
+ProjectPart::ConstPtr CppModelManager::fallbackProjectPart()
 {
     QMutexLocker locker(&d->m_fallbackProjectPartMutex);
     return d->m_fallbackProjectPart;
@@ -1431,7 +1431,7 @@ QSet<QString> CppModelManager::dependingInternalTargets(const Utils::FilePath &f
     const Utils::FilePaths dependingFiles = snapshot.filesDependingOn(
                 wasHeader ? file : Utils::FilePath::fromString(correspondingFile));
     for (const Utils::FilePath &fn : qAsConst(dependingFiles)) {
-        for (const ProjectPart::Ptr &part : projectPart(fn))
+        for (const ProjectPart::ConstPtr &part : projectPart(fn))
             result.insert(part->buildSystemTarget);
     }
     return result;
@@ -1439,12 +1439,12 @@ QSet<QString> CppModelManager::dependingInternalTargets(const Utils::FilePath &f
 
 QSet<QString> CppModelManager::internalTargets(const Utils::FilePath &filePath) const
 {
-    const QList<ProjectPart::Ptr> projectParts = projectPart(filePath);
+    const QList<ProjectPart::ConstPtr> projectParts = projectPart(filePath);
     // if we have no project parts it's most likely a header with declarations only and CMake based
     if (projectParts.isEmpty())
         return dependingInternalTargets(filePath);
     QSet<QString> targets;
-    for (const ProjectPart::Ptr &part : projectParts) {
+    for (const ProjectPart::ConstPtr &part : projectParts) {
         targets.insert(part->buildSystemTarget);
         if (part->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             targets.unite(dependingInternalTargets(filePath));

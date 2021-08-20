@@ -109,21 +109,21 @@ private:
     }
 };
 
-ProjectPart::Ptr projectPartForFile(const QString &filePath)
+ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
         return parser->projectPartInfo().projectPart;
-    return ProjectPart::Ptr();
+    return ProjectPart::ConstPtr();
 }
 
-ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath)
+ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath)
 {
     if (const auto processor = ClangEditorDocumentProcessor::get(filePath))
         return processor->projectPart();
-    return ProjectPart::Ptr();
+    return ProjectPart::ConstPtr();
 }
 
-bool isProjectPartLoaded(const ProjectPart::Ptr projectPart)
+bool isProjectPartLoaded(const ProjectPart::ConstPtr projectPart)
 {
     if (projectPart)
         return !CppModelManager::instance()->projectPartForId(projectPart->id()).isNull();
@@ -132,7 +132,7 @@ bool isProjectPartLoaded(const ProjectPart::Ptr projectPart)
 
 QString projectPartIdForFile(const QString &filePath)
 {
-    const ProjectPart::Ptr projectPart = projectPartForFile(filePath);
+    const ProjectPart::ConstPtr projectPart = projectPartForFile(filePath);
 
     if (isProjectPartLoaded(projectPart))
         return projectPart->id(); // OK, Project Part is still loaded
@@ -371,7 +371,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     return fileObject;
 }
 
-GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::Ptr projectInfo,
+GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::ConstPtr projectInfo,
                                                   CompilationDbPurpose purpose,
                                                   const ClangDiagnosticConfig &warningsConfig,
                                                   const QStringList &projectOptions)
@@ -392,7 +392,7 @@ GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::P
     }
     compileCommandsFile.write("[");
 
-    for (ProjectPart::Ptr projectPart : projectInfo->projectParts()) {
+    for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
         QStringList args;
         if (purpose == CompilationDbPurpose::Project)
             args = projectPartArguments(*projectPart);

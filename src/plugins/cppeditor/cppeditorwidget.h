@@ -151,7 +151,7 @@ private:
 
     CppTools::FollowSymbolInterface &followSymbolInterface() const;
 
-    CppTools::ProjectPart *projectPart() const;
+    const CppTools::ProjectPart *projectPart() const;
 
 private:
     QScopedPointer<CppEditorWidgetPrivate> d;

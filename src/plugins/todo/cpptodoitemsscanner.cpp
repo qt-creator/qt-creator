@@ -58,7 +58,7 @@ void CppTodoItemsScanner::scannerParamsChanged()
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     QSet<QString> filesToBeUpdated;
-    foreach (const CppTools::ProjectInfo::Ptr &info, modelManager->projectInfos())
+    foreach (const CppTools::ProjectInfo::ConstPtr &info, modelManager->projectInfos())
         filesToBeUpdated.unite(info->sourceFiles());
 
     modelManager->updateSourceFiles(filesToBeUpdated);

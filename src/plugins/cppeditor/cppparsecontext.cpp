@@ -87,7 +87,7 @@ void ParseContextModel::reset(const CppTools::ProjectPartInfo &projectPartInfo)
 
     // Determine index for current
     const QString id = projectPartInfo.projectPart->id();
-    m_currentIndex = Utils::indexOf(m_projectParts, [id](const CppTools::ProjectPart::Ptr &pp) {
+    m_currentIndex = Utils::indexOf(m_projectParts, [id](const CppTools::ProjectPart::ConstPtr &pp) {
         return pp->id() == id;
     });
     QTC_CHECK(m_currentIndex >= 0);

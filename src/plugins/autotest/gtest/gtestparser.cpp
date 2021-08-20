@@ -116,7 +116,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInt
 
     const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     Utils::FilePath proFile;
-    const QList<CppTools::ProjectPart::Ptr> &ppList = modelManager->projectPart(filePath);
+    const QList<CppTools::ProjectPart::ConstPtr> &ppList = modelManager->projectPart(filePath);
     if (!ppList.isEmpty())
         proFile = Utils::FilePath::fromString(ppList.first()->projectFile);
     else

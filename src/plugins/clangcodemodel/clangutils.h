@@ -61,9 +61,9 @@ QStringList createClangOptions(const CppTools::ProjectPart &projectPart, const Q
                                const CppTools::ClangDiagnosticConfig &warningsConfig,
                                const QStringList &projectOptions);
 
-CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
-CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
-bool isProjectPartLoaded(const CppTools::ProjectPart::Ptr projectPart);
+CppTools::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
+CppTools::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);
+bool isProjectPartLoaded(const CppTools::ProjectPart::ConstPtr projectPart);
 QString projectPartIdForFile(const QString &filePath);
 int clangColumn(const QTextBlock &line, int cppEditorColumn);
 int cppEditorColumn(const QTextBlock &line, int clangColumn);
@@ -87,7 +87,7 @@ public:
 };
 
 enum class CompilationDbPurpose { Project, CodeModel };
-GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::Ptr projectInfo,
+GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::ConstPtr projectInfo,
             CompilationDbPurpose purpose, const CppTools::ClangDiagnosticConfig &warningsConfig,
             const QStringList &projectOptions);
 

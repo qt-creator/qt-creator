@@ -1913,11 +1913,11 @@ ProjectExplorer::HeaderPaths relevantHeaderPaths(const QString &filePath)
     ProjectExplorer::HeaderPaths headerPaths;
 
     CppModelManager *modelManager = CppModelManager::instance();
-    const QList<ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    const QList<ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
     if (projectParts.isEmpty()) { // Not part of any project, better use all include paths than none
         headerPaths += modelManager->headerPaths();
     } else {
-        foreach (const ProjectPart::Ptr &part, projectParts)
+        foreach (const ProjectPart::ConstPtr &part, projectParts)
             headerPaths += part->headerPaths;
     }
 

@@ -42,7 +42,7 @@ class RefactoringEngine : public CppTools::RefactoringEngineInterface
 {
 public:
     void startLocalRenaming(const CppTools::CursorInEditor &data,
-                            CppTools::ProjectPart *projectPart,
+                            const CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
     void globalRename(const CppTools::CursorInEditor &cursor, CppTools::UsagesCallback &&callback,
                       const QString &replacement) override;

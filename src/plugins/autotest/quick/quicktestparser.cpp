@@ -101,7 +101,7 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
                                const Utils::FilePath &fileName)
 {
-    const QList<CppTools::ProjectPart::Ptr> parts = cppMM->projectPart(fileName);
+    const QList<CppTools::ProjectPart::ConstPtr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
         auto found = std::find_if(
@@ -267,7 +267,7 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> fut
     if (quickTestName(document).isEmpty())
         return false;
 
-    QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(document->fileName());
+    QList<CppTools::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->fileName());
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const Utils::FilePath cppFileName = Utils::FilePath::fromString(document->fileName());

@@ -171,7 +171,7 @@ bool ClangEditorDocumentProcessor::hasProjectPart() const
     return !m_projectPart.isNull();
 }
 
-CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const
+CppTools::ProjectPart::ConstPtr ClangEditorDocumentProcessor::projectPart() const
 {
     return m_projectPart;
 }
@@ -421,7 +421,7 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
     return qobject_cast<ClangEditorDocumentProcessor*>(processor);
 }
 
-static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPart)
+static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::ConstPtr projectPart)
 {
     return projectPart
         && (projectPart->id().isEmpty() || isProjectPartLoaded(projectPart));
@@ -429,7 +429,7 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPa
 
 void ClangEditorDocumentProcessor::updateBackendProjectPartAndDocument()
 {
-    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPartInfo().projectPart;
+    const CppTools::ProjectPart::ConstPtr projectPart = m_parser->projectPartInfo().projectPart;
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
         updateBackendDocument(*projectPart.data());
@@ -448,7 +448,7 @@ void ClangEditorDocumentProcessor::onParserFinished()
     updateBackendProjectPartAndDocument();
 }
 
-void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &projectPart)
+void ClangEditorDocumentProcessor::updateBackendDocument(const CppTools::ProjectPart &projectPart)
 {
     // On registration we send the document content immediately as an unsaved
     // file, because

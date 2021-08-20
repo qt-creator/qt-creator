@@ -67,7 +67,7 @@ public:
     bool isParserRunning() const override;
 
     bool hasProjectPart() const;
-    CppTools::ProjectPart::Ptr projectPart() const;
+    CppTools::ProjectPart::ConstPtr projectPart() const;
     void clearProjectPart();
 
     ::Utils::Id diagnosticConfigId() const;
@@ -120,7 +120,7 @@ private:
     void onParserFinished();
 
     void updateBackendProjectPartAndDocument();
-    void updateBackendDocument(CppTools::ProjectPart &projectPart);
+    void updateBackendDocument(const CppTools::ProjectPart &projectPart);
     void updateBackendDocumentIfProjectPartExists();
     void requestAnnotationsFromBackend();
 
@@ -137,7 +137,7 @@ private:
     ClangDiagnosticManager m_diagnosticManager;
     BackendCommunicator &m_communicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
-    CppTools::ProjectPart::Ptr m_projectPart;
+    CppTools::ProjectPart::ConstPtr m_projectPart;
     ::Utils::Id m_diagnosticConfigId;
     bool m_isProjectFile = false;
     QFutureWatcher<void> m_parserWatcher;

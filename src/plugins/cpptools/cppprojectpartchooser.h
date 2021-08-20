@@ -38,10 +38,10 @@ namespace Internal {
 class ProjectPartChooser
 {
 public:
-    using FallBackProjectPart = std::function<ProjectPart::Ptr()>;
-    using ProjectPartsForFile = std::function<QList<ProjectPart::Ptr>(const QString &filePath)>;
+    using FallBackProjectPart = std::function<ProjectPart::ConstPtr()>;
+    using ProjectPartsForFile = std::function<QList<ProjectPart::ConstPtr>(const QString &filePath)>;
     using ProjectPartsFromDependenciesForFile
-        = std::function<QList<ProjectPart::Ptr>(const QString &filePath)>;
+        = std::function<QList<ProjectPart::ConstPtr>(const QString &filePath)>;
 
 public:
     void setFallbackProjectPart(const FallBackProjectPart &getter);

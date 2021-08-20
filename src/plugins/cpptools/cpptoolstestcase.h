@@ -141,8 +141,10 @@ public:
     ProjectOpenerAndCloser();
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
-    CppTools::ProjectInfo::Ptr open(const QString &projectFile, bool configureAsExampleProject = false,
-                     ProjectExplorer::Kit *kit = nullptr);
+    CppTools::ProjectInfo::ConstPtr open(
+            const QString &projectFile,
+            bool configureAsExampleProject = false,
+            ProjectExplorer::Kit *kit = nullptr);
 
 private:
     QList<ProjectExplorer::Project *> m_openProjects;

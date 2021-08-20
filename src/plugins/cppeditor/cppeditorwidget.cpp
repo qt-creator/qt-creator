@@ -591,10 +591,10 @@ bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
 
 namespace {
 
-QList<ProjectPart::Ptr> fetchProjectParts(CppTools::CppModelManager *modelManager,
+QList<ProjectPart::ConstPtr> fetchProjectParts(CppTools::CppModelManager *modelManager,
                                      const Utils::FilePath &filePath)
 {
-    QList<ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    QList<ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
 
     if (projectParts.isEmpty())
         projectParts = modelManager->projectPartFromDependencies(filePath);
@@ -604,12 +604,13 @@ QList<ProjectPart::Ptr> fetchProjectParts(CppTools::CppModelManager *modelManage
     return projectParts;
 }
 
-ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &projectParts,
-                                              ProjectExplorer::Project *currentProject)
+const ProjectPart *findProjectPartForCurrentProject(
+        const QList<ProjectPart::ConstPtr> &projectParts,
+        ProjectExplorer::Project *currentProject)
 {
     const auto found = std::find_if(projectParts.cbegin(),
                               projectParts.cend(),
-                              [&](const CppTools::ProjectPart::Ptr &projectPart) {
+                              [&](const CppTools::ProjectPart::ConstPtr &projectPart) {
                                   return projectPart->belongsToProject(currentProject);
                               });
 
@@ -621,7 +622,7 @@ ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &pro
 
 } // namespace
 
-ProjectPart *CppEditorWidget::projectPart() const
+const ProjectPart *CppEditorWidget::projectPart() const
 {
     if (!d->m_modelManager)
         return nullptr;
@@ -680,7 +681,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
 {
     using ClangBackEnd::SourceLocationsContainer;
 
-    ProjectPart *projPart = projectPart();
+    const ProjectPart *projPart = projectPart();
     if (!projPart)
         return;
 

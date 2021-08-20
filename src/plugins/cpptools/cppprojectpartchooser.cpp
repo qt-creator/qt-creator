@@ -36,14 +36,14 @@ class ProjectPartPrioritizer
 public:
     struct PrioritizedProjectPart
     {
-        PrioritizedProjectPart(const ProjectPart::Ptr &projectPart, int priority)
+        PrioritizedProjectPart(const ProjectPart::ConstPtr &projectPart, int priority)
             : projectPart(projectPart), priority(priority) {}
 
-        ProjectPart::Ptr projectPart;
+        ProjectPart::ConstPtr projectPart;
         int priority = 0;
     };
 
-    ProjectPartPrioritizer(const QList<ProjectPart::Ptr> &projectParts,
+    ProjectPartPrioritizer(const QList<ProjectPart::ConstPtr> &projectParts,
                            const QString &preferredProjectPartId,
                            const ProjectExplorer::Project *activeProject,
                            Language languagePreference,
@@ -77,11 +77,11 @@ public:
     }
 
 private:
-    QList<PrioritizedProjectPart> prioritize(const QList<ProjectPart::Ptr> &projectParts) const
+    QList<PrioritizedProjectPart> prioritize(const QList<ProjectPart::ConstPtr> &projectParts) const
     {
         // Prioritize
         QList<PrioritizedProjectPart> prioritized = Utils::transform(projectParts,
-                                                        [&](const ProjectPart::Ptr &projectPart) {
+                                                        [&](const ProjectPart::ConstPtr &projectPart) {
             return PrioritizedProjectPart{projectPart, priority(*projectPart)};
         });
 
@@ -143,8 +143,8 @@ ProjectPartInfo ProjectPartChooser::choose(
     QTC_CHECK(m_projectPartsFromDependenciesForFile);
     QTC_CHECK(m_fallbackProjectPart);
 
-    ProjectPart::Ptr projectPart = currentProjectPartInfo.projectPart;
-    QList<ProjectPart::Ptr> projectParts = m_projectPartsForFile(filePath);
+    ProjectPart::ConstPtr projectPart = currentProjectPartInfo.projectPart;
+    QList<ProjectPart::ConstPtr> projectParts = m_projectPartsForFile(filePath);
     bool areProjectPartsFromDependencies = false;
 
     if (projectParts.isEmpty()) {

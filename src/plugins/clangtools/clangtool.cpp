@@ -325,11 +325,11 @@ private:
     QMap<Utils::FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
-static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &projectParts)
+static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
+    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectParts) {
         QTC_ASSERT(projectPart, continue);
         if (!projectPart->selectedForBuilding)
             continue;

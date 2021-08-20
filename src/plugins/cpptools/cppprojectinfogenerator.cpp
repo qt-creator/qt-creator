@@ -42,21 +42,24 @@ using namespace ProjectExplorer;
 namespace CppTools {
 namespace Internal {
 
-ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<ProjectInfo::Ptr> &futureInterface,
-                                           const ProjectUpdateInfo &projectUpdateInfo)
+ProjectInfoGenerator::ProjectInfoGenerator(
+        const QFutureInterface<ProjectInfo::ConstPtr> &futureInterface,
+        const ProjectUpdateInfo &projectUpdateInfo)
     : m_futureInterface(futureInterface)
     , m_projectUpdateInfo(projectUpdateInfo)
 {
 }
 
-ProjectInfo::Ptr ProjectInfoGenerator::generate()
+ProjectInfo::ConstPtr ProjectInfoGenerator::generate()
 {
-    QVector<ProjectPart::Ptr> projectParts;
+    QVector<ProjectPart::ConstPtr> projectParts;
     for (const RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
         if (m_futureInterface.isCanceled())
             return {};
-        for (const ProjectPart::Ptr &part : createProjectParts(rpp, m_projectUpdateInfo.projectFilePath))
+        for (const ProjectPart::ConstPtr &part : createProjectParts(
+                 rpp, m_projectUpdateInfo.projectFilePath)) {
             projectParts << part;
+        }
     }
     const auto projectInfo = ProjectInfo::create(m_projectUpdateInfo, projectParts);
 
@@ -78,12 +81,12 @@ ProjectInfo::Ptr ProjectInfoGenerator::generate()
     return projectInfo;
 }
 
-const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
+const QVector<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
     const RawProjectPart &rawProjectPart, const Utils::FilePath &projectFilePath)
 {
     using Utils::LanguageExtension;
 
-    QVector<ProjectPart::Ptr> result;
+    QVector<ProjectPart::ConstPtr> result;
     ProjectFileCategorizer cat(rawProjectPart.displayName,
                                rawProjectPart.files,
                                rawProjectPart.fileIsActive);
@@ -137,7 +140,7 @@ const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
     return result;
 }
 
-ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
+ProjectPart::ConstPtr ProjectInfoGenerator::createProjectPart(
         const Utils::FilePath &projectFilePath,
         const RawProjectPart &rawProjectPart,
         const ProjectFiles &projectFiles,

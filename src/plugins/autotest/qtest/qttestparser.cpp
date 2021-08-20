@@ -93,7 +93,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 
 static bool qtTestLibDefined(const Utils::FilePath &fileName)
 {
-    const QList<CppTools::ProjectPart::Ptr> parts =
+    const QList<CppTools::ProjectPart::ConstPtr> parts =
             CppTools::CppModelManager::instance()->projectPart(fileName);
     if (parts.size() > 0) {
         return Utils::anyOf(parts.at(0)->projectMacros, [] (const ProjectExplorer::Macro &macro) {
@@ -327,7 +327,8 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureIn
             if (earlyReturn.has_value() || !data.valid)
                 continue;
 
-            QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
+            QList<CppTools::ProjectPart::ConstPtr> projectParts
+                    = modelManager->projectPart(fileName);
             if (projectParts.isEmpty()) // happens if shutting down while parsing
                 return false;
 

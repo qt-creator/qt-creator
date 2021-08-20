@@ -204,21 +204,21 @@ void CppcheckTool::check(const Utils::FilePaths &files)
     if (filtered.isEmpty())
         return;
 
-    const CppTools::ProjectInfo::Ptr info
+    const CppTools::ProjectInfo::ConstPtr info
             = CppTools::CppModelManager::instance()->projectInfo(m_project);
     if (!info)
         return;
-    const QVector<CppTools::ProjectPart::Ptr> parts = info->projectParts();
+    const QVector<CppTools::ProjectPart::ConstPtr> parts = info->projectParts();
     if (parts.size() == 1) {
         QTC_ASSERT(parts.first(), return);
         addToQueue(filtered, *parts.first());
         return;
     }
 
-    std::map<CppTools::ProjectPart::Ptr, Utils::FilePaths> groups;
+    std::map<CppTools::ProjectPart::ConstPtr, Utils::FilePaths> groups;
     for (const Utils::FilePath &file : qAsConst(filtered)) {
         const QString stringed = file.toString();
-        for (const CppTools::ProjectPart::Ptr &part : parts) {
+        for (const CppTools::ProjectPart::ConstPtr &part : parts) {
             using CppTools::ProjectFile;
             QTC_ASSERT(part, continue);
             const auto match = [stringed](const ProjectFile &pFile){return pFile.path == stringed;};
@@ -231,7 +231,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
         addToQueue(group.second, *group.first);
 }
 
-void CppcheckTool::addToQueue(const Utils::FilePaths &files, CppTools::ProjectPart &part)
+void CppcheckTool::addToQueue(const Utils::FilePaths &files, const CppTools::ProjectPart &part)
 {
     const QString key = part.id();
     if (!m_cachedAdditionalArguments.contains(key))

@@ -492,7 +492,7 @@ void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Sna
 
 const QString projectPartIdForFile(const QString &filePath)
 {
-    const QList<ProjectPart::Ptr> parts = CppModelManager::instance()->projectPart(filePath);
+    const QList<ProjectPart::ConstPtr> parts = CppModelManager::instance()->projectPart(filePath);
     if (!parts.isEmpty())
         return parts.first()->id();
     return QString();

@@ -63,7 +63,7 @@ public:
 
     Project *createProject(const QString &name, const Utils::FilePath &filePath = {});
 
-    QSet<QString> updateProjectInfo(const ProjectInfo::Ptr &projectInfo);
+    QSet<QString> updateProjectInfo(const ProjectInfo::ConstPtr &projectInfo);
 
     void resetRefreshedSourceFiles();
     QSet<QString> waitForRefreshedSourceFiles();

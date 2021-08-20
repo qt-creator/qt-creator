@@ -75,7 +75,7 @@ public:
 
 private:
     void updateArguments();
-    void addToQueue(const Utils::FilePaths &files, CppTools::ProjectPart &part);
+    void addToQueue(const Utils::FilePaths &files, const CppTools::ProjectPart &part);
     QStringList additionalArguments(const CppTools::ProjectPart &part) const;
 
     CppcheckDiagnosticManager &m_manager;

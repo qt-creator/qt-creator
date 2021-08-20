@@ -62,7 +62,7 @@ private:
 
 private:
     CppTools::ProjectPartInfo::Hints m_hints;
-    QList<CppTools::ProjectPart::Ptr> m_projectParts;
+    QList<CppTools::ProjectPart::ConstPtr> m_projectParts;
     int m_currentIndex = -1;
 };
 

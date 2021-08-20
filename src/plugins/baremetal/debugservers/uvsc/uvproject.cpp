@@ -90,11 +90,11 @@ static void extractAllFiles(const DebuggerRunTool *runTool, QStringList &include
                             FilePaths &headers, FilePaths &sources, FilePaths &assemblers)
 {
     const auto project = runTool->runControl()->project();
-    const CppTools::ProjectInfo::Ptr info = CppModelManager::instance()->projectInfo(project);
+    const CppTools::ProjectInfo::ConstPtr info = CppModelManager::instance()->projectInfo(project);
     if (!info)
         return;
-    const QVector<ProjectPart::Ptr> parts = info->projectParts();
-    for (const ProjectPart::Ptr &part : parts) {
+    const QVector<ProjectPart::ConstPtr> parts = info->projectParts();
+    for (const ProjectPart::ConstPtr &part : parts) {
         for (const ProjectFile &file : qAsConst(part->files)) {
             if (!file.active)
                 continue;

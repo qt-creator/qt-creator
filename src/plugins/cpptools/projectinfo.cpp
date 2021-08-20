@@ -33,13 +33,13 @@
 
 namespace CppTools {
 
-ProjectInfo::Ptr ProjectInfo::create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                                     const QVector<ProjectPart::Ptr> &projectParts)
+ProjectInfo::ConstPtr ProjectInfo::create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
+                                     const QVector<ProjectPart::ConstPtr> &projectParts)
 {
-    return Ptr(new ProjectInfo(updateInfo, projectParts));
+    return ConstPtr(new ProjectInfo(updateInfo, projectParts));
 }
 
-const QVector<ProjectPart::Ptr> ProjectInfo::projectParts() const
+const QVector<ProjectPart::ConstPtr> ProjectInfo::projectParts() const
 {
     return m_projectParts;
 }
@@ -80,30 +80,31 @@ bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
     return configurationChanged(other) || m_sourceFiles != other.m_sourceFiles;
 }
 
-static QSet<QString> getSourceFiles(const QVector<ProjectPart::Ptr> &projectParts)
+static QSet<QString> getSourceFiles(const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     QSet<QString> sourceFiles;
-    for (const ProjectPart::Ptr &part : projectParts) {
+    for (const ProjectPart::ConstPtr &part : projectParts) {
         for (const ProjectFile &file : qAsConst(part->files))
             sourceFiles.insert(file.path);
     }
     return sourceFiles;
 }
 
-static ProjectExplorer::Macros getDefines(const QVector<ProjectPart::Ptr> &projectParts)
+static ProjectExplorer::Macros getDefines(const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     ProjectExplorer::Macros defines;
-    for (const ProjectPart::Ptr &part : projectParts) {
+    for (const ProjectPart::ConstPtr &part : projectParts) {
         defines.append(part->toolChainMacros);
         defines.append(part->projectMacros);
     }
     return defines;
 }
 
-static ProjectExplorer::HeaderPaths getHeaderPaths(const QVector<ProjectPart::Ptr> &projectParts)
+static ProjectExplorer::HeaderPaths getHeaderPaths(
+        const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     QSet<ProjectExplorer::HeaderPath> uniqueHeaderPaths;
-    for (const ProjectPart::Ptr &part : projectParts) {
+    for (const ProjectPart::ConstPtr &part : projectParts) {
         for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(part->headerPaths))
             uniqueHeaderPaths.insert(headerPath);
     }
@@ -111,7 +112,7 @@ static ProjectExplorer::HeaderPaths getHeaderPaths(const QVector<ProjectPart::Pt
 }
 
 ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                         const QVector<ProjectPart::Ptr> &projectParts)
+                         const QVector<ProjectPart::ConstPtr> &projectParts)
     : m_projectParts(projectParts),
       m_projectName(updateInfo.projectName),
       m_projectFilePath(updateInfo.projectFilePath),

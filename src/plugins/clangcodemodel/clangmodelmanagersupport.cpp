@@ -274,8 +274,8 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
     }
 }
 
-void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
-                                                    const CppTools::ProjectInfo::Ptr &projectInfo)
+void ClangModelManagerSupport::updateLanguageClient(
+        ProjectExplorer::Project *project, const CppTools::ProjectInfo::ConstPtr &projectInfo)
 {
     if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
         return;
@@ -300,7 +300,8 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
             return;
         if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
             return;
-        const CppTools::ProjectInfo::Ptr newProjectInfo = cppModelManager()->projectInfo(project);
+        const CppTools::ProjectInfo::ConstPtr newProjectInfo
+                = cppModelManager()->projectInfo(project);
         if (!newProjectInfo || *newProjectInfo != *projectInfo)
             return;
         if (getJsonDbDir() != jsonDbDir)
@@ -321,7 +322,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                 return;
             if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
                 return;
-            const CppTools::ProjectInfo::Ptr newProjectInfo
+            const CppTools::ProjectInfo::ConstPtr newProjectInfo
                 = cppModelManager()->projectInfo(project);
             if (!newProjectInfo || *newProjectInfo != *projectInfo)
                 return;
@@ -615,13 +616,13 @@ void ClangModelManagerSupport::onAboutToRemoveProject(ProjectExplorer::Project *
 void ClangModelManagerSupport::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
-    const CppTools::ProjectInfo::Ptr projectInfo = cppModelManager()->projectInfo(project);
+    const CppTools::ProjectInfo::ConstPtr projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo, return);
 
     updateLanguageClient(project, projectInfo);
 
     QStringList projectPartIds;
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo->projectParts())
+    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts())
         projectPartIds.append(projectPart->id());
     onProjectPartsRemoved(projectPartIds);
 }

@@ -33,7 +33,7 @@ class CPPTOOLS_EXPORT CppRefactoringEngine : public RefactoringEngineInterface
 {
 public:
     void startLocalRenaming(const CursorInEditor &data,
-                            ProjectPart *projectPart,
+                            const ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
     void globalRename(const CursorInEditor &data, UsagesCallback &&,
                       const QString &replacement) override;

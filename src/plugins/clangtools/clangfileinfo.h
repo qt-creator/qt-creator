@@ -41,14 +41,14 @@ public:
     FileInfo() = default;
     FileInfo(Utils::FilePath file,
              CppTools::ProjectFile::Kind kind,
-             CppTools::ProjectPart::Ptr projectPart)
+             CppTools::ProjectPart::ConstPtr projectPart)
         : file(std::move(file))
         , kind(kind)
         , projectPart(projectPart)
     {}
     Utils::FilePath file;
     CppTools::ProjectFile::Kind kind;
-    CppTools::ProjectPart::Ptr projectPart;
+    CppTools::ProjectPart::ConstPtr projectPart;
 };
 using FileInfos = std::vector<FileInfo>;
 

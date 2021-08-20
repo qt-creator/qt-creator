@@ -77,7 +77,7 @@ ModelManagerTestHelper::~ModelManagerTestHelper()
 void ModelManagerTestHelper::cleanup()
 {
     CppModelManager *mm = CppModelManager::instance();
-    QList<ProjectInfo::Ptr> pies = mm->projectInfos();
+    QList<ProjectInfo::ConstPtr> pies = mm->projectInfos();
     for (Project * const p : qAsConst(m_projects)) {
         ProjectExplorer::SessionManager::removeProject(p);
         emit aboutToRemoveProject(p);
@@ -98,7 +98,7 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
 }
 
 QSet<QString> ModelManagerTestHelper::updateProjectInfo(
-        const CppTools::ProjectInfo::Ptr &projectInfo)
+        const CppTools::ProjectInfo::ConstPtr &projectInfo)
 {
     resetRefreshedSourceFiles();
     CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();

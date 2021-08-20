@@ -88,7 +88,7 @@ private:
     void updateDocumentData(const CPlusPlus::Document::Ptr &document);
 
     void clearProjectPartData();
-    void updateProjectPartData(const CppTools::ProjectPart::Ptr &part);
+    void updateProjectPartData(const CppTools::ProjectPart::ConstPtr &part);
 
     bool event(QEvent *e) override;
 

@@ -44,15 +44,15 @@ CppToolsBridgeQtCreatorImplementation::cppEditorDocument(const QString &filePath
 
 namespace {
 
-CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath)
+CppTools::ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = BaseEditorDocumentParser::get(filePath))
         return parser->projectPartInfo().projectPart;
 
-    return CppTools::ProjectPart::Ptr();
+    return CppTools::ProjectPart::ConstPtr();
 }
 
-bool isProjectPartValid(const CppTools::ProjectPart::Ptr projectPart)
+bool isProjectPartValid(const CppTools::ProjectPart::ConstPtr projectPart)
 {
     if (projectPart)
         return !CppTools::CppModelManager::instance()->projectPartForId(projectPart->id()).isNull();
@@ -64,7 +64,7 @@ bool isProjectPartValid(const CppTools::ProjectPart::Ptr projectPart)
 
 QString CppToolsBridgeQtCreatorImplementation::projectPartIdForFile(const QString &filePath) const
 {
-    const CppTools::ProjectPart::Ptr projectPart = projectPartForFile(filePath);
+    const CppTools::ProjectPart::ConstPtr projectPart = projectPartForFile(filePath);
 
     if (isProjectPartValid(projectPart))
         return projectPart->id(); // OK, Project Part is still loaded

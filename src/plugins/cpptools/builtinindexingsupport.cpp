@@ -211,7 +211,7 @@ void index(QFutureInterface<void> &indexingFuture,
             break;
 
         const QString fileName = files.at(i);
-        const QList<ProjectPart::Ptr> parts = cmm->projectPart(fileName);
+        const QList<ProjectPart::ConstPtr> parts = cmm->projectPart(fileName);
         const CPlusPlus::LanguageFeatures languageFeatures = parts.isEmpty()
                 ? defaultFeatures
                 : parts.first()->languageFeatures;

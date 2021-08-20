@@ -87,7 +87,7 @@ ProjectExplorer::Project *projectForCurrentEditor()
         return nullptr;
 
     if (auto processor = ClangEditorDocumentProcessor::get(filePath)) {
-        if (ProjectPart::Ptr projectPart = processor->projectPart())
+        if (ProjectPart::ConstPtr projectPart = processor->projectPart())
             return projectForProjectPart(*projectPart);
     }
 

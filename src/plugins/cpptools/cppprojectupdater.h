@@ -70,7 +70,7 @@ private:
     ProjectExplorer::ProjectUpdateInfo m_projectUpdateInfo;
     QList<QPointer<ProjectExplorer::ExtraCompiler>> m_extraCompilers;
 
-    QFutureWatcher<ProjectInfo::Ptr> m_generateFutureWatcher;
+    QFutureWatcher<ProjectInfo::ConstPtr> m_generateFutureWatcher;
     bool m_isProjectInfoGenerated = false;
     QSet<QFutureWatcher<void> *> m_extraCompilersFutureWatchers;
     std::unique_ptr<QFutureInterface<void>> m_projectUpdateFutureInterface;

@@ -118,7 +118,7 @@ public:
     }
 
     ModelManagerTestHelper *modelManagerTestHelper;
-    ProjectInfo::Ptr projectInfo;
+    ProjectInfo::ConstPtr projectInfo;
     QStringList projectFiles;
 };
 
@@ -164,10 +164,10 @@ private:
     const QString &m_filePath;
 };
 
-ProjectPart::Ptr projectPartOfEditorDocument(const QString &filePath)
+ProjectPart::ConstPtr projectPartOfEditorDocument(const QString &filePath)
 {
     auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
-    QTC_ASSERT(editorDocument, return ProjectPart::Ptr());
+    QTC_ASSERT(editorDocument, return ProjectPart::ConstPtr());
     return editorDocument->processor()->parser()->projectPartInfo().projectPart;
 }
 
@@ -948,7 +948,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     EditorCloser closerA(editorA);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(TestCase::waitForProcessedEditorDocument(fileA));
-    ProjectPart::Ptr documentAProjectPart = projectPartOfEditorDocument(fileA);
+    ProjectPart::ConstPtr documentAProjectPart = projectPartOfEditorDocument(fileA);
     QVERIFY(!documentAProjectPart->hasProject());
 
     // Open file B in editor
@@ -957,7 +957,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     EditorCloser closerB(editorB);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
     QVERIFY(TestCase::waitForProcessedEditorDocument(fileB));
-    ProjectPart::Ptr documentBProjectPart = projectPartOfEditorDocument(fileB);
+    ProjectPart::ConstPtr documentBProjectPart = projectPartOfEditorDocument(fileB);
     QVERIFY(!documentBProjectPart->hasProject());
 
     // Switch back to document A

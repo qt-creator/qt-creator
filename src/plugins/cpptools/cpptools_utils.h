@@ -44,8 +44,8 @@ public:
     Q_DECLARE_FLAGS(Hints, Hint)
 
     ProjectPartInfo() = default;
-    ProjectPartInfo(const ProjectPart::Ptr &projectPart,
-                    const QList<ProjectPart::Ptr> &projectParts,
+    ProjectPartInfo(const ProjectPart::ConstPtr &projectPart,
+                    const QList<ProjectPart::ConstPtr> &projectParts,
                     Hints hints)
         : projectPart(projectPart)
         , projectParts(projectParts)
@@ -54,8 +54,8 @@ public:
     }
 
 public:
-    ProjectPart::Ptr projectPart;
-    QList<ProjectPart::Ptr> projectParts; // The one above as first plus alternatives.
+    ProjectPart::ConstPtr projectPart;
+    QList<ProjectPart::ConstPtr> projectParts; // The one above as first plus alternatives.
     Hints hints = NoHint;
 };
 

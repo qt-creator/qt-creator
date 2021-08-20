@@ -278,7 +278,7 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         QCoreApplication::processEvents();
 }
 
-ProjectInfo::Ptr ProjectOpenerAndCloser::open(const QString &projectFile,
+ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const QString &projectFile,
         bool configureAsExampleProject, Kit *kit)
 {
     ProjectExplorerPlugin::OpenProjectResult result =

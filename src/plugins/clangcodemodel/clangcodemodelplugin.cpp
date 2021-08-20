@@ -94,7 +94,7 @@ static bool isDBGenerationEnabled(ProjectExplorer::Project *project)
     using namespace CppTools;
     if (!project)
         return false;
-    const ProjectInfo::Ptr projectInfo = CppModelManager::instance()->projectInfo(project);
+    const ProjectInfo::ConstPtr projectInfo = CppModelManager::instance()->projectInfo(project);
     return projectInfo && !projectInfo->projectParts().isEmpty();
 }
 

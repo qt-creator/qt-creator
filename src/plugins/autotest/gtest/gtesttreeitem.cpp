@@ -528,10 +528,10 @@ QSet<QString> internalTargets(const TestTreeItem &item)
         return {};
     const Utils::FilePath filePath = item.filePath();
     const QString file = filePath.toString();
-    const QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo->projectParts();
+    const QVector<CppTools::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
     if (projectParts.isEmpty())
         return cppMM->dependingInternalTargets(item.filePath());
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
+    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectParts) {
         if (Utils::FilePath::fromString(projectPart->projectFile) == item.proFile()
                 && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
                                 return pf.path == file;

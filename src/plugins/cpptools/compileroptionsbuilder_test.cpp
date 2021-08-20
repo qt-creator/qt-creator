@@ -110,7 +110,7 @@ public:
     Utils::optional<CompilerOptionsBuilder> compilerOptionsBuilder;
 
 private:
-    ProjectPart::Ptr projectPart;
+    ProjectPart::ConstPtr projectPart;
 };
 }
 

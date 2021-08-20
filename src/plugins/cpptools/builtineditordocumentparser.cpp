@@ -95,7 +95,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         state.forceSnapshotInvalidation = false;
     }
 
-    if (const ProjectPart::Ptr part = baseState.projectPartInfo.projectPart) {
+    if (const ProjectPart::ConstPtr part = baseState.projectPartInfo.projectPart) {
         configFile += ProjectExplorer::Macro::toByteArray(part->toolChainMacros);
         configFile += overwrittenToolchainDefines(*part.data());
         configFile += ProjectExplorer::Macro::toByteArray(part->projectMacros);

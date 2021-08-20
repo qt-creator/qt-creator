@@ -126,10 +126,11 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
         return false;
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
+    const QList<CppTools::ProjectPart::ConstPtr> projectParts
+            = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
-    const CppTools::ProjectPart::Ptr projectPart = projectParts.first();
+    const CppTools::ProjectPart::ConstPtr projectPart = projectParts.first();
     const auto projectFile = Utils::FilePath::fromString(projectPart->projectFile);
     const QByteArray &fileContent = getFileContent(fileName);
 

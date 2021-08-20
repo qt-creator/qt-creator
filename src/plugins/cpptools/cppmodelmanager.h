@@ -114,23 +114,23 @@ public:
     QByteArray codeModelConfiguration() const;
     CppLocatorData *locatorData() const;
 
-    QList<ProjectInfo::Ptr> projectInfos() const;
-    ProjectInfo::Ptr projectInfo(ProjectExplorer::Project *project) const;
-    QFuture<void> updateProjectInfo(const ProjectInfo::Ptr &newProjectInfo,
+    QList<ProjectInfo::ConstPtr> projectInfos() const;
+    ProjectInfo::ConstPtr projectInfo(ProjectExplorer::Project *project) const;
+    QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
                                     const QSet<QString> &additionalFiles = {});
 
     /// \return The project part with the given project file
-    ProjectPart::Ptr projectPartForId(const QString &projectPartId) const override;
+    ProjectPart::ConstPtr projectPartForId(const QString &projectPartId) const override;
     /// \return All project parts that mention the given file name as one of the sources/headers.
-    QList<ProjectPart::Ptr> projectPart(const Utils::FilePath &fileName) const;
-    QList<ProjectPart::Ptr> projectPart(const QString &fileName) const
+    QList<ProjectPart::ConstPtr> projectPart(const Utils::FilePath &fileName) const;
+    QList<ProjectPart::ConstPtr> projectPart(const QString &fileName) const
     { return projectPart(Utils::FilePath::fromString(fileName)); }
     /// This is a fall-back function: find all files that includes the file directly or indirectly,
     /// and return its \c ProjectPart list for use with this file.
-    QList<ProjectPart::Ptr> projectPartFromDependencies(const Utils::FilePath &fileName) const;
+    QList<ProjectPart::ConstPtr> projectPartFromDependencies(const Utils::FilePath &fileName) const;
     /// \return A synthetic \c ProjectPart which consists of all defines/includes/frameworks from
     ///         all loaded projects.
-    ProjectPart::Ptr fallbackProjectPart();
+    ProjectPart::ConstPtr fallbackProjectPart();
 
     CPlusPlus::Snapshot snapshot() const override;
     Document::Ptr document(const QString &fileName) const;
@@ -158,7 +158,7 @@ public:
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     void startLocalRenaming(const CursorInEditor &data,
-                            CppTools::ProjectPart *projectPart,
+                            const ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) final;
     void globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
                       const QString &replacement) final;

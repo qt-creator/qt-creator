@@ -38,7 +38,7 @@
 namespace CppTools {
 
 void CppRefactoringEngine::startLocalRenaming(const CursorInEditor &data,
-                                              ProjectPart *,
+                                              const ProjectPart *,
                                               RenameCallback &&renameSymbolsCallback)
 {
     CppEditorWidgetInterface *editorWidget = data.editorWidget();

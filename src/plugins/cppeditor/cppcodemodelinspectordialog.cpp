@@ -1112,11 +1112,11 @@ class ProjectPartsModel : public QAbstractListModel
 public:
     ProjectPartsModel(QObject *parent);
 
-    void configure(const QList<ProjectInfo::Ptr> &projectInfos,
-                   const ProjectPart::Ptr &currentEditorsProjectPart);
+    void configure(const QList<ProjectInfo::ConstPtr> &projectInfos,
+                   const ProjectPart::ConstPtr &currentEditorsProjectPart);
 
     QModelIndex indexForCurrentEditorsProjectPart() const;
-    ProjectPart::Ptr projectPartForProjectId(const QString &projectPartId) const;
+    ProjectPart::ConstPtr projectPartForProjectId(const QString &projectPartId) const;
 
     enum Columns { PartNameColumn, PartFilePathColumn, ColumnCount };
 
@@ -1126,7 +1126,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
-    QList<ProjectPart::Ptr> m_projectPartsList;
+    QList<ProjectPart::ConstPtr> m_projectPartsList;
     int m_currentEditorsProjectPartIndex;
 };
 
@@ -1135,13 +1135,13 @@ ProjectPartsModel::ProjectPartsModel(QObject *parent)
 {
 }
 
-void ProjectPartsModel::configure(const QList<ProjectInfo::Ptr> &projectInfos,
-                                  const ProjectPart::Ptr &currentEditorsProjectPart)
+void ProjectPartsModel::configure(const QList<ProjectInfo::ConstPtr> &projectInfos,
+                                  const ProjectPart::ConstPtr &currentEditorsProjectPart)
 {
     emit layoutAboutToBeChanged();
     m_projectPartsList.clear();
-    foreach (const ProjectInfo::Ptr &info, projectInfos) {
-        foreach (const ProjectPart::Ptr &projectPart, info->projectParts()) {
+    foreach (const ProjectInfo::ConstPtr &info, projectInfos) {
+        foreach (const ProjectPart::ConstPtr &projectPart, info->projectParts()) {
             if (!m_projectPartsList.contains(projectPart)) {
                 m_projectPartsList << projectPart;
                 if (projectPart == currentEditorsProjectPart)
@@ -1159,13 +1159,13 @@ QModelIndex ProjectPartsModel::indexForCurrentEditorsProjectPart() const
     return createIndex(m_currentEditorsProjectPartIndex, PartFilePathColumn);
 }
 
-ProjectPart::Ptr ProjectPartsModel::projectPartForProjectId(const QString &projectPartId) const
+ProjectPart::ConstPtr ProjectPartsModel::projectPartForProjectId(const QString &projectPartId) const
 {
-    foreach (const ProjectPart::Ptr &part, m_projectPartsList) {
+    foreach (const ProjectPart::ConstPtr &part, m_projectPartsList) {
         if (part->id() == projectPartId)
             return part;
     }
-    return ProjectPart::Ptr();
+    return ProjectPart::ConstPtr();
 }
 
 int ProjectPartsModel::rowCount(const QModelIndex &/*parent*/) const
@@ -1589,11 +1589,11 @@ void CppCodeModelInspectorDialog::refresh()
     onSnapshotSelected(snapshotIndex);
 
     // Project Parts
-    const ProjectPart::Ptr editorsProjectPart = cppEditorDocument
+    const ProjectPart::ConstPtr editorsProjectPart = cppEditorDocument
         ? cppEditorDocument->processor()->parser()->projectPartInfo().projectPart
-        : ProjectPart::Ptr();
+        : ProjectPart::ConstPtr();
 
-    const QList<ProjectInfo::Ptr> projectInfos = cmmi->projectInfos();
+    const QList<ProjectInfo::ConstPtr> projectInfos = cmmi->projectInfos();
     dumper.dumpProjectInfos(projectInfos);
     m_projectPartsModel->configure(projectInfos, editorsProjectPart);
     m_projectPartsView->resizeColumns(ProjectPartsModel::ColumnCount);
@@ -1778,7 +1778,7 @@ static int defineCount(const ProjectExplorer::Macros &macros)
                    [](const Macro &macro) { return macro.type == ProjectExplorer::MacroType::Define; }));
 }
 
-void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &part)
+void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::ConstPtr &part)
 {
     QTC_ASSERT(part, return);
 

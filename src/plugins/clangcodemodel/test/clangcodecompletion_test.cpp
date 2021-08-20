@@ -246,7 +246,7 @@ bool OpenEditorAtCursorPosition::waitUntil(const std::function<bool ()> &conditi
     return false;
 }
 
-CppTools::ProjectPart::Ptr createProjectPart(const Utils::FilePath &projectFilePath,
+CppTools::ProjectPart::ConstPtr createProjectPart(const Utils::FilePath &projectFilePath,
                                              const QStringList &files,
                                              const ProjectExplorer::Macros &macros)
 {
@@ -262,15 +262,15 @@ CppTools::ProjectPart::Ptr createProjectPart(const Utils::FilePath &projectFileP
     return ProjectPart::create(projectFilePath, rpp, {}, projectFiles);
 }
 
-CppTools::ProjectInfo::Ptr createProjectInfo(ProjectExplorer::Project *project,
+CppTools::ProjectInfo::ConstPtr createProjectInfo(ProjectExplorer::Project *project,
                                              const QStringList &files,
                                              const ProjectExplorer::Macros &macros)
 {
     using namespace CppTools;
     QTC_ASSERT(project, return {});
 
-    const CppTools::ProjectPart::Ptr projectPart = createProjectPart(project->projectFilePath(),
-                                                                     files, macros);
+    const CppTools::ProjectPart::ConstPtr projectPart
+            = createProjectPart(project->projectFilePath(), files, macros);
     const auto projectInfo = ProjectInfo::create(
                 {project, ProjectExplorer::KitInfo(nullptr), {}, {}}, {projectPart});
     return projectInfo;
@@ -292,7 +292,7 @@ public:
     bool load()
     {
         m_project = m_helper.createProject(QLatin1String("testProject"));
-        const CppTools::ProjectInfo::Ptr projectInfo = createProjectInfo(m_project,
+        const CppTools::ProjectInfo::ConstPtr projectInfo = createProjectInfo(m_project,
                                                                          m_projectFiles,
                                                                          m_projectMacros);
         const QSet<QString> filesIndexedAfterLoading = m_helper.updateProjectInfo(projectInfo);
@@ -302,14 +302,14 @@ public:
     bool updateProject(const ProjectExplorer::Macros &updatedProjectMacros)
     {
         QTC_ASSERT(m_project, return false);
-        const CppTools::ProjectInfo::Ptr updatedProjectInfo
+        const CppTools::ProjectInfo::ConstPtr updatedProjectInfo
                 = createProjectInfo(m_project, m_projectFiles, updatedProjectMacros);
         return updateProjectInfo(updatedProjectInfo);
 
     }
 
 private:
-    bool updateProjectInfo(const CppTools::ProjectInfo::Ptr &projectInfo)
+    bool updateProjectInfo(const CppTools::ProjectInfo::ConstPtr &projectInfo)
     {
         const QSet<QString> filesIndexedAfterLoading = m_helper.updateProjectInfo(projectInfo);
         return m_projectFiles.size() == filesIndexedAfterLoading.size();

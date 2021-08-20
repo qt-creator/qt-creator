@@ -410,10 +410,10 @@ QString Utils::toString(ProjectPart::ToolChainWordWidth width)
 
 QString Utils::partsForFile(const QString &fileName)
 {
-    const QList<ProjectPart::Ptr> parts
+    const QList<ProjectPart::ConstPtr> parts
         = CppModelManager::instance()->projectPart(fileName);
     QString result;
-    foreach (const ProjectPart::Ptr &part, parts)
+    foreach (const ProjectPart::ConstPtr &part, parts)
         result += part->displayName + QLatin1Char(',');
     if (result.endsWith(QLatin1Char(',')))
         result.chop(1);
@@ -503,7 +503,7 @@ static void printIncludeType(QTextStream &out, ProjectExplorer::HeaderPathType t
     }
 }
 
-void Dumper::dumpProjectInfos(const QList<ProjectInfo::Ptr> &projectInfos)
+void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
 {
     const QByteArray i1 = indent(1);
     const QByteArray i2 = indent(2);
@@ -511,12 +511,12 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::Ptr> &projectInfos)
     const QByteArray i4 = indent(4);
 
     m_out << "Projects loaded: " << projectInfos.size() << "{{{1\n";
-    foreach (const ProjectInfo::Ptr &info, projectInfos) {
+    foreach (const ProjectInfo::ConstPtr &info, projectInfos) {
         m_out << i1 << "Project " << info->projectName()
               << " (" << info->projectFilePath().toUserOutput() << "){{{2\n";
 
-        const QVector<ProjectPart::Ptr> projectParts = info->projectParts();
-        foreach (const ProjectPart::Ptr &part, projectParts) {
+        const QVector<ProjectPart::ConstPtr> projectParts = info->projectParts();
+        foreach (const ProjectPart::ConstPtr &part, projectParts) {
             QString projectName = QLatin1String("<None>");
             QString projectFilePath = "<None>";
             if (part->hasProject()) {

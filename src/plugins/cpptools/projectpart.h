@@ -55,10 +55,10 @@ public:
         WordWidth64Bit,
     };
 
-    using Ptr = QSharedPointer<ProjectPart>;
+    using ConstPtr = QSharedPointer<const ProjectPart>;
 
 public:
-    static Ptr create(const Utils::FilePath &topLevelProject,
+    static ConstPtr create(const Utils::FilePath &topLevelProject,
                       const ProjectExplorer::RawProjectPart &rpp = {},
                       const QString &displayName = {},
                       const ProjectFiles &files = {},
@@ -67,7 +67,7 @@ public:
                       const ProjectExplorer::RawProjectPartFlags &flags = {},
                       const ProjectExplorer::ToolChainInfo &tcInfo = {})
     {
-        return Ptr(new ProjectPart(topLevelProject, rpp, displayName, files, language,
+        return ConstPtr(new ProjectPart(topLevelProject, rpp, displayName, files, language,
                                    languageExtensions, flags, tcInfo));
     }
 

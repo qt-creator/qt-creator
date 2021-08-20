@@ -54,7 +54,7 @@ void CppParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
 
 bool CppParser::selectedForBuilding(const Utils::FilePath &fileName)
 {
-    QList<CppTools::ProjectPart::Ptr> projParts =
+    QList<CppTools::ProjectPart::ConstPtr> projParts =
             CppTools::CppModelManager::instance()->projectPart(fileName);
 
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
@@ -83,7 +83,7 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                const std::function<bool(const QString &)> &checker)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    const QList<CppTools::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
     if (projectParts.isEmpty())
         return false;
     const QStringList precompiledHeaders = projectParts.first()->precompiledHeaders;

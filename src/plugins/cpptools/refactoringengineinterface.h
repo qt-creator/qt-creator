@@ -65,7 +65,7 @@ public:
     virtual ~RefactoringEngineInterface() = default;
 
     virtual void startLocalRenaming(const CursorInEditor &data,
-                                    CppTools::ProjectPart *projectPart,
+                                    const CppTools::ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
     virtual void globalRename(const CursorInEditor &data,
                               UsagesCallback &&renameCallback,

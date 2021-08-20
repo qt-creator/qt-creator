@@ -77,7 +77,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     using namespace ProjectExplorer;
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    auto generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo::Ptr> &futureInterface) {
+    auto generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo::ConstPtr> &futureInterface) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();

@@ -45,11 +45,11 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ProjectInfo
 {
 public:
-    using Ptr = std::shared_ptr<ProjectInfo>;
-    static Ptr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                      const QVector<ProjectPart::Ptr> &projectParts);
+    using ConstPtr = std::shared_ptr<const ProjectInfo>;
+    static ConstPtr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
+                           const QVector<ProjectPart::ConstPtr> &projectParts);
 
-    const QVector<ProjectPart::Ptr> projectParts() const;
+    const QVector<ProjectPart::ConstPtr> projectParts() const;
     const QSet<QString> sourceFiles() const;
     QString projectName() const { return m_projectName; }
     Utils::FilePath projectFilePath() const { return m_projectFilePath; }
@@ -65,9 +65,9 @@ public:
 
 private:
     ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                const QVector<ProjectPart::Ptr> &projectParts);
+                const QVector<ProjectPart::ConstPtr> &projectParts);
 
-    const QVector<ProjectPart::Ptr> m_projectParts;
+    const QVector<ProjectPart::ConstPtr> m_projectParts;
     const QString m_projectName;
     const Utils::FilePath m_projectFilePath;
     const Utils::FilePath m_buildRoot;
