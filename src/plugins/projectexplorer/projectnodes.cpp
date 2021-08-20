@@ -44,6 +44,7 @@
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -250,6 +251,35 @@ bool Node::isEnabled() const
         return false;
     FolderNode *parent = parentFolderNode();
     return parent ? parent->isEnabled() : true;
+}
+
+QIcon FileNode::icon() const
+{
+    if (hasError())
+        return Utils::Icons::WARNING.icon();
+    if (m_icon.isNull())
+        m_icon = Core::FileIconProvider::icon(filePath());
+    return m_icon;
+}
+
+void FileNode::setIcon(const QIcon icon)
+{
+    m_icon = icon;
+}
+
+bool FileNode::hasError() const
+{
+    return m_hasError;
+}
+
+void FileNode::setHasError(bool error)
+{
+    m_hasError = error;
+}
+
+void FileNode::setHasError(bool error) const
+{
+    m_hasError = error;
 }
 
 /*!

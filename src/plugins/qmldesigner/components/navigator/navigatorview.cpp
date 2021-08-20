@@ -46,6 +46,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/projectnodes.h>
+
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
@@ -169,6 +173,28 @@ void NavigatorView::modelAttached(Model *model)
             }
         }
     });
+
+    clearExplorerWarnings();
+}
+
+void NavigatorView::clearExplorerWarnings()
+{
+    QList<ModelNode> allNodes;
+    addNodeAndSubModelNodesToList(rootModelNode(), allNodes);
+    for (ModelNode node : allNodes) {
+        if (node.metaInfo().isFileComponent()) {
+            const ProjectExplorer::FileNode *fnode = fileNodeForModelNode(node);
+            fnode->setHasError(false);
+        }
+    }
+}
+
+void NavigatorView::addNodeAndSubModelNodesToList(const ModelNode &node, QList<ModelNode> &nodes)
+{
+    nodes.append(node);
+    for (ModelNode subNode : node.allSubModelNodes()) {
+        addNodeAndSubModelNodesToList(subNode, nodes);
+    }
 }
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
@@ -342,8 +368,10 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
 {
-    for (const ModelNode &modelNode : errorNodeList)
+    for (const ModelNode &modelNode : errorNodeList) {
         m_currentModelInterface->notifyDataChanged(modelNode);
+        propagateInstanceErrorToExplorer(modelNode);
+    }
 }
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty)
@@ -372,6 +400,41 @@ QModelIndex NavigatorView::indexForModelNode(const ModelNode &modelNode) const
 QAbstractItemModel *NavigatorView::currentModel() const
 {
     return treeWidget()->model();
+}
+
+const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const ModelNode &node) const
+{
+    QString filename = node.metaInfo().componentFileName();
+    Utils::FilePath filePath = Utils::FilePath::fromString(filename);
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(filePath);
+    return currentProject->nodeForFilePath(filePath)->asFileNode();
+}
+
+const ProjectExplorer::FileNode *NavigatorView::fileNodeForIndex(const QModelIndex &index) const
+{
+    if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
+        ModelNode node = modelNodeForIndex(index);
+        if (node.metaInfo().isFileComponent()) {
+            return fileNodeForModelNode(node);
+        }
+    }
+
+    return nullptr;
+}
+
+void NavigatorView::propagateInstanceErrorToExplorer(const ModelNode &modelNode) {
+    QModelIndex index = indexForModelNode(modelNode);;
+
+    do {
+        const ProjectExplorer::FileNode *fnode = fileNodeForIndex(index);
+        if (fnode) {
+            fnode->setHasError(true);
+            return;
+        }
+        else {
+            index = index.parent();
+        }
+    } while (index.isValid());
 }
 
 void NavigatorView::leftButtonClicked()

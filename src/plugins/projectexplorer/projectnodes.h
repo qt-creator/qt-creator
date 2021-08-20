@@ -218,8 +218,17 @@ public:
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
 
+    bool hasError() const;
+    void setHasError(const bool error);
+    void setHasError(const bool error) const;
+
+    QIcon icon() const;
+    void setIcon(const QIcon icon);
+
 private:
     FileType m_fileType;
+    mutable QIcon m_icon;
+    mutable bool m_hasError = false;
 };
 
 // Documentation inside.
