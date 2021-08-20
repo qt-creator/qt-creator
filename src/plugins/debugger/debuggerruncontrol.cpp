@@ -95,6 +95,16 @@ DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine();
 DebuggerEngine *createUvscEngine();
 
+static QString noEngineMessage()
+{
+   return DebuggerPlugin::tr("Unable to create a debugging engine.");
+}
+
+static QString noDebuggerInKitMessage()
+{
+   return DebuggerPlugin::tr("The kit does not have a debugger set.");
+}
+
 class CoreUnpacker final : public RunWorker
 {
 public:
@@ -526,8 +536,8 @@ void DebuggerRunTool::start()
                 break;
             default:
                 if (!m_runParameters.isQmlDebugging) {
-                    reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine. "
-                                                     "Please select a Debugger Setting from the Run page of the project mode."));
+                    reportFailure(noEngineMessage() + '\n' +
+                        DebuggerPlugin::tr("Please select a Debugger Setting from the Run page of the project mode."));
                     return;
                 }
                 // Can happen for pure Qml.
@@ -545,7 +555,10 @@ void DebuggerRunTool::start()
     }
 
     if (!m_engine) {
-        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine."));
+        QString msg = noEngineMessage();
+        if (!DebuggerKitAspect::debugger(runControl()->kit()))
+            msg += '\n' + noDebuggerInKitMessage();
+        reportFailure(msg);
         return;
     }
 
@@ -739,7 +752,7 @@ bool DebuggerRunTool::fixupParameters()
             rp.debugger.environment.set(var, rp.inferior.environment.expandedValueForKey(var));
 
     // validate debugger if C++ debugging is enabled
-    if (rp.isCppDebugging() && !rp.validationErrors.isEmpty()) {
+    if (!rp.validationErrors.isEmpty()) {
         reportFailure(rp.validationErrors.join('\n'));
         return false;
     }
@@ -884,6 +897,18 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
         m_runParameters.multiProcess = aspect->useMultiProcess();
         m_runParameters.additionalStartupCommands = aspect->overrideStartup();
+
+        if (aspect->useCppDebugger()) {
+            if (DebuggerKitAspect::debugger(kit)) {
+                const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
+                for (const Task &t : tasks) {
+                    if (t.type != Task::Warning)
+                        m_runParameters.validationErrors.append(t.description());
+                }
+            } else {
+                m_runParameters.validationErrors.append(noDebuggerInKitMessage());
+            }
+        }
     }
 
     m_runParameters.inferior = runnable();
@@ -908,13 +933,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (ok)
         m_runParameters.nativeMixedEnabled = bool(nativeMixedOverride);
 
-    // This will only be shown in some cases, but we don't want to access
-    // the kit at that time anymore.
-    const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
-    for (const Task &t : tasks) {
-        if (t.type != Task::Warning)
-            m_runParameters.validationErrors.append(t.description());
-    }
 
     RunConfiguration *runConfig = runControl->runConfiguration();
     if (runConfig && runConfig->property("supportsDebugger").toBool()) {
