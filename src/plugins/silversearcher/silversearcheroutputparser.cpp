@@ -30,7 +30,7 @@
 namespace SilverSearcher {
 
 SilverSearcherOutputParser::SilverSearcherOutputParser(
-        const QByteArray &output, const QRegularExpression &regexp)
+        const QString &output, const QRegularExpression &regexp)
     : output(output)
     , regexp(regexp)
     , outputSize(output.size())
@@ -67,7 +67,7 @@ bool SilverSearcherOutputParser::parseFilePath()
     int startIndex = ++index;
     while (index < outputSize && output[index] != '\n')
         ++index;
-    item.fileName = QString::fromUtf8(output.data() + startIndex, index - startIndex);
+    item.fileName = QString(output.data() + startIndex, index - startIndex);
     ++index;
     return true;
 }
@@ -77,7 +77,7 @@ bool SilverSearcherOutputParser::parseLineNumber()
     int startIndex = index;
     while (index < outputSize && output[++index] != ';') { }
 
-    item.lineNumber = QString::fromUtf8(output.data() + startIndex, index - startIndex).toInt();
+    item.lineNumber = QString(output.data() + startIndex, index - startIndex).toInt();
     ++index;
     return true;
 }
@@ -87,7 +87,7 @@ bool SilverSearcherOutputParser::parseMatchIndex()
     int startIndex = index;
     while (index < outputSize && output[++index] != ' ') { }
 
-    item.matchStart = QString::fromUtf8(output.data() + startIndex, index - startIndex).toInt();
+    item.matchStart = QString(output.data() + startIndex, index - startIndex).toInt();
     ++index;
     return true;
 }
@@ -97,7 +97,7 @@ bool SilverSearcherOutputParser::parseMatchLength()
     int startIndex = index;
     while (index < outputSize && output[++index] != ':' && output[index] != ',') { }
 
-    item.matchLength = QString::fromUtf8(output.data() + startIndex, index - startIndex).toInt();
+    item.matchLength = QString(output.data() + startIndex, index - startIndex).toInt();
     return true;
 }
 
@@ -105,7 +105,7 @@ int SilverSearcherOutputParser::parseMatches()
 {
     int matches = 1;
     const int colon = output.indexOf(':', index);
-    QByteArray text;
+    QString text;
     if (colon != -1) {
         const int textStart = colon + 1;
         const int newline = output.indexOf('\n', textStart);
@@ -119,7 +119,7 @@ int SilverSearcherOutputParser::parseMatches()
         parseMatchIndex();
         parseMatchLength();
         if (hasRegexp) {
-            const QString part = QString::fromUtf8(text.mid(item.matchStart, item.matchLength));
+            const QString part = QString(text.mid(item.matchStart, item.matchLength));
             item.regexpCapturedTexts = regexp.match(part).capturedTexts();
         }
         items << item;
@@ -133,7 +133,7 @@ bool SilverSearcherOutputParser::parseText()
 {
     int startIndex = index;
     while (index < outputSize && output[++index] != '\n') { }
-    item.matchingLine = QString::fromUtf8(output.data() + startIndex, index - startIndex);
+    item.matchingLine = QString(output.data() + startIndex, index - startIndex);
     ++index;
     return true;
 }

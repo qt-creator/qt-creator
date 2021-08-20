@@ -32,6 +32,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include "silversearcheroutputparser.h"
@@ -39,7 +40,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QProcess>
 #include <QSettings>
 
 using namespace Core;
@@ -84,22 +84,13 @@ QString convertWildcardToRegex(const QString &wildcard)
     return regex;
 }
 
-QString silverSearcherExecutable()
-{
-    return Utils::Environment::systemEnvironment().searchInPath("ag").toString();
-}
-
 bool isSilverSearcherAvailable()
 {
-    const QString exe = silverSearcherExecutable();
-    if (exe.isEmpty())
-        return false;
-    QProcess silverSearcherProcess;
-    silverSearcherProcess.setProcessEnvironment(
-        Utils::Environment::systemEnvironment().toProcessEnvironment());
-    silverSearcherProcess.start(exe, {"--version"});
+    QtcProcess silverSearcherProcess;
+    silverSearcherProcess.setCommand({"ag", {"--version"}});
+    silverSearcherProcess.start();
     if (silverSearcherProcess.waitForFinished(1000)) {
-        if (silverSearcherProcess.readAll().contains("ag version"))
+        if (silverSearcherProcess.stdOut().contains("ag version"))
             return true;
     }
 
@@ -109,7 +100,7 @@ bool isSilverSearcherAvailable()
 void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
 {
     ProgressTimer progress(fi, 5);
-    const QString directory = parameters.additionalParameters.toString();
+    const FilePath directory = FilePath::fromUserInput(parameters.additionalParameters.toString());
     QStringList arguments = {"--parallel", "--ackmate"};
 
     if (parameters.flags & FindCaseSensitively)
@@ -138,12 +129,11 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     if (!params.searchOptions.isEmpty())
         arguments << params.searchOptions.split(' ');
 
-    const FilePath path = FilePath::fromUserInput(FileUtils::normalizedPathName(directory));
-    arguments << "--" << parameters.text << path.toString();
+    arguments << "--" << parameters.text << directory.normalizePathName().toString();
 
-    QProcess process;
-    process.setProcessEnvironment(Utils::Environment::systemEnvironment().toProcessEnvironment());
-    process.start(silverSearcherExecutable(), arguments);
+    QtcProcess process;
+    process.setCommand({"ag", arguments});
+    process.start();
     if (process.waitForFinished()) {
         typedef QList<FileSearchResult> FileSearchResultList;
         QRegularExpression regexp;
@@ -155,7 +145,7 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
             regexp.setPattern(parameters.text);
             regexp.setPatternOptions(patternOptions);
         }
-        SilverSearcher::SilverSearcherOutputParser parser(process.readAll(), regexp);
+        SilverSearcher::SilverSearcherOutputParser parser(process.stdOut(), regexp);
         FileSearchResultList items = parser.parse();
         if (!items.isEmpty())
             fi.reportResult(items);

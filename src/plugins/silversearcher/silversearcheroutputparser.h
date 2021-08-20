@@ -28,7 +28,6 @@
 #include <coreplugin/find/searchresultwindow.h>
 #include <utils/filesearch.h>
 
-#include <QByteArray>
 #include <QList>
 #include <QRegularExpression>
 
@@ -37,11 +36,10 @@ namespace SilverSearcher {
 class SilverSearcherOutputParser
 {
 public:
-    SilverSearcherOutputParser(
-            const QByteArray &output,
-            const QRegularExpression &regexp = QRegularExpression());
+    SilverSearcherOutputParser(const QString &output, const QRegularExpression &regexp = {});
 
     QList<Utils::FileSearchResult> parse();
+
 private:
     int parseMatches();
     bool parseMatchLength();
@@ -50,7 +48,7 @@ private:
     bool parseFilePath();
     bool parseText();
 
-    QByteArray output;
+    QString output;
     QRegularExpression regexp;
     bool hasRegexp = false;
     int outputSize = 0;
