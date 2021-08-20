@@ -95,9 +95,8 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
     m_ui->clangDiagnosticConfigsSelectionWidget
         ->refresh(diagnosticConfigsModel(),
                   m_settings->clangDiagnosticConfigId(),
-                  [](const CppTools::ClangDiagnosticConfigs &configs,
-                     const Utils::Id &configToSelect) {
-                      return new CppTools::ClangDiagnosticConfigsWidget(configs, configToSelect);
+                  [](const ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect) {
+                      return new ClangDiagnosticConfigsWidget(configs, configToSelect);
                   });
 
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();

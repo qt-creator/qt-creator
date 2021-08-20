@@ -67,6 +67,7 @@
 
 using namespace Core;
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppTools {
@@ -125,9 +126,9 @@ void CppToolsPlugin::clearHeaderSourceCache()
     m_headerSourceMapping.clear();
 }
 
-Utils::FilePath CppToolsPlugin::licenseTemplatePath()
+FilePath CppToolsPlugin::licenseTemplatePath()
 {
-    return Utils::FilePath::fromString(m_instance->d->m_fileSettings.licenseTemplatePath);
+    return FilePath::fromString(m_instance->d->m_fileSettings.licenseTemplatePath);
 }
 
 QString CppToolsPlugin::licenseTemplate()
@@ -191,14 +192,14 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
     command = ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
-    command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+    command->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
                                                 ? tr("Meta+E, F4")
                                                 : tr("Ctrl+E, F4")));
     mcpptools->addAction(command);
     connect(openInNextSplitAction, &QAction::triggered,
             this, &CppToolsPlugin::switchHeaderSourceInNextSplit);
 
-    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    MacroExpander *expander = globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",
                                tr("The license template."),
                                []() { return CppToolsPlugin::licenseTemplate(); });
@@ -211,13 +212,13 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
                 tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
                 [] { return usePragmaOnce() ? QString("true") : QString(); });
 
-    const auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
+    const auto panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(100);
     panelFactory->setDisplayName(tr("Clangd"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+    panelFactory->setCreateWidgetFunction([](Project *project) {
         return new ClangdProjectSettingsWidget(project);
     });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    ProjectPanelFactory::registerFactory(panelFactory);
 
     return true;
 }
@@ -256,8 +257,7 @@ void CppToolsPlugin::switchHeaderSourceInNextSplit()
         EditorManager::openEditor(otherFile, Id(), EditorManager::OpenInOtherSplit);
 }
 
-static QStringList findFilesInProject(const QString &name,
-                                   const ProjectExplorer::Project *project)
+static QStringList findFilesInProject(const QString &name, const Project *project)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << name << project;
@@ -268,11 +268,11 @@ static QStringList findFilesInProject(const QString &name,
     QString pattern = QString(1, QLatin1Char('/'));
     pattern += name;
     const QStringList projectFiles
-            = Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FilePath::toString);
+            = transform(project->files(Project::AllFiles), &FilePath::toString);
     const QStringList::const_iterator pcend = projectFiles.constEnd();
     QStringList candidateList;
     for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {
-        if (it->endsWith(pattern, Utils::HostOsInfo::fileNameCaseSensitivity()))
+        if (it->endsWith(pattern, HostOsInfo::fileNameCaseSensitivity()))
             candidateList.append(*it);
     }
     return candidateList;
@@ -310,7 +310,7 @@ static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStrin
 {
     QStringList result;
     const QChar dot = QLatin1Char('.');
-    foreach (const QString &suffix, suffixes) {
+    for (const QString &suffix : suffixes) {
         QString fileName = baseName;
         fileName += dot;
         fileName += suffix;
@@ -325,16 +325,16 @@ static QStringList baseNamesWithAllPrefixes(const QStringList &baseNames, bool i
     const QStringList &sourcePrefixes = m_instance->sourcePrefixes();
     const QStringList &headerPrefixes = m_instance->headerPrefixes();
 
-    foreach (const QString &name, baseNames) {
-        foreach (const QString &prefix, isHeader ? headerPrefixes : sourcePrefixes) {
+    for (const QString &name : baseNames) {
+        for (const QString &prefix : isHeader ? headerPrefixes : sourcePrefixes) {
             if (name.startsWith(prefix)) {
                 QString nameWithoutPrefix = name.mid(prefix.size());
                 result += nameWithoutPrefix;
-                foreach (const QString &prefix, isHeader ? sourcePrefixes : headerPrefixes)
+                for (const QString &prefix : isHeader ? sourcePrefixes : headerPrefixes)
                     result += prefix + nameWithoutPrefix;
             }
         }
-        foreach (const QString &prefix, isHeader ? sourcePrefixes : headerPrefixes)
+        for (const QString &prefix : isHeader ? sourcePrefixes : headerPrefixes)
             result += prefix + name;
 
     }
@@ -344,7 +344,7 @@ static QStringList baseNamesWithAllPrefixes(const QStringList &baseNames, bool i
 static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringList &directories)
 {
     QStringList result;
-    foreach (const QString &dir, directories)
+    for (const QString &dir : directories)
         result << QDir::cleanPath(baseDir.absoluteFilePath(dir));
     return result;
 }
@@ -353,7 +353,7 @@ static int commonFilePathLength(const QString &s1, const QString &s2)
 {
     int length = qMin(s1.length(), s2.length());
     for (int i = 0; i < length; ++i)
-        if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive) {
+        if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive) {
             if (s1[i] != s2[i])
                 return i;
         } else {
@@ -365,16 +365,16 @@ static int commonFilePathLength(const QString &s1, const QString &s2)
 
 static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
                                                     const QStringList &candidateFileNames,
-                                                    const ProjectExplorer::Project *project,
+                                                    const Project *project,
                                                     CacheUsage cacheUsage)
 {
     QString bestFileName;
     int compareValue = 0;
     const QString filePath = fileInfo.filePath();
-    foreach (const QString &candidateFileName, candidateFileNames) {
+    for (const QString &candidateFileName : candidateFileNames) {
         const QStringList projectFiles = findFilesInProject(candidateFileName, project);
         // Find the file having the most common path with fileName
-        foreach (const QString &projectFile, projectFiles) {
+        for (const QString &projectFile : projectFiles) {
             int value = commonFilePathLength(filePath, projectFile);
             if (value > compareValue) {
                 compareValue = value;
@@ -442,10 +442,10 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     candidateFileNames += baseNamesWithAllPrefixes(candidateFileNames, isHeader);
 
     // Try to find a file in the same or sibling directories first
-    foreach (const QString &candidateDir, candidateDirs) {
-        foreach (const QString &candidateFileName, candidateFileNames) {
+    for (const QString &candidateDir : qAsConst(candidateDirs)) {
+        for (const QString &candidateFileName : qAsConst(candidateFileNames)) {
             const QString candidateFilePath = candidateDir + QLatin1Char('/') + candidateFileName;
-            const QString normalized = Utils::FileUtils::normalizePathName(candidateFilePath);
+            const QString normalized = FileUtils::normalizePathName(candidateFilePath);
             const QFileInfo candidateFi(normalized);
             if (candidateFi.isFile()) {
                 if (cacheUsage == CacheUsage::ReadWrite) {
@@ -459,7 +459,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     }
 
     // Find files in the current project
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
+    Project *currentProject = ProjectTree::currentProject();
     if (currentProject) {
         const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
                                                                   currentProject, cacheUsage);
@@ -469,9 +469,9 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     // Find files in other projects
     } else {
         CppModelManager *modelManager = CppModelManager::instance();
-        QList<ProjectInfo::Ptr> projectInfos = modelManager->projectInfos();
-        foreach (const ProjectInfo::Ptr &projectInfo, projectInfos) {
-            const ProjectExplorer::Project *project = projectForProjectInfo(*projectInfo);
+        const QList<ProjectInfo::Ptr> projectInfos = modelManager->projectInfos();
+        for (const ProjectInfo::Ptr &projectInfo : projectInfos) {
+            const Project *project = projectForProjectInfo(*projectInfo);
             if (project == currentProject)
                 continue; // We have already checked the current project.
 
