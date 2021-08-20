@@ -349,15 +349,35 @@ private:
 
 static inline bool isValueType(const TypeName &type)
 {
-    static const PropertyTypeList objectValuesList({"QFont", "QPoint", "QPointF",
-        "QSize", "QSizeF", "QVector3D", "QVector2D", "vector2d", "vector3d", "font"});
+    static const PropertyTypeList objectValuesList({"QFont",
+                                                    "QPoint",
+                                                    "QPointF",
+                                                    "QSize",
+                                                    "QSizeF",
+                                                    "QVector2D",
+                                                    "QVector3D",
+                                                    "QVector4D",
+                                                    "vector2d",
+                                                    "vector3d",
+                                                    "vector4d",
+                                                    "font"});
     return objectValuesList.contains(type);
 }
 
 static inline bool isValueType(const QString &type)
 {
-    static const QStringList objectValuesList({"QFont", "QPoint", "QPointF",
-        "QSize", "QSizeF", "QVector3D", "QVector2D", "vector2d", "vector3d", "font"});
+    static const QStringList objectValuesList({"QFont",
+                                               "QPoint",
+                                               "QPointF",
+                                               "QSize",
+                                               "QSizeF",
+                                               "QVector2D",
+                                               "QVector3D",
+                                               "QVector4D",
+                                               "vector2d",
+                                               "vector3d",
+                                               "vector4d",
+                                               "font"});
     return objectValuesList.contains(type);
 }
 
@@ -1090,6 +1110,9 @@ QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyNa
 
     if (typeName == "vector3d")
         return QVariant::Vector3D;
+
+    if (typeName == "vector4d")
+        return QVariant::Vector4D;
 
     return QVariant::nameToType(typeName.data());
 }

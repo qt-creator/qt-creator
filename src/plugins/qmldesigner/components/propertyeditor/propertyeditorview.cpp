@@ -227,9 +227,10 @@ void PropertyEditorView::changeValue(const QString &name)
         removePropertyFromModel(propertyName);
     } else {
         // QVector*D(0, 0, 0) detects as null variant though it is valid value
-        if (castedValue.isValid() && (!castedValue.isNull()
-                                      || castedValue.type() == QVariant::Vector2D
-                                      || castedValue.type() == QVariant::Vector3D)) {
+        if (castedValue.isValid()
+            && (!castedValue.isNull() || castedValue.type() == QVariant::Vector2D
+                || castedValue.type() == QVariant::Vector3D
+                || castedValue.type() == QVariant::Vector4D)) {
             commitVariantValueToModel(propertyName, castedValue);
         }
     }

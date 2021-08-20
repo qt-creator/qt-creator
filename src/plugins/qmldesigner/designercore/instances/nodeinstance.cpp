@@ -32,8 +32,9 @@
 
 #include <QDebug>
 #include <QPainter>
-#include <QVector3D>
 #include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
 
 QT_BEGIN_NAMESPACE
 void qt_blurImage(QPainter *painter, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
@@ -352,6 +353,28 @@ QVariant NodeInstance::property(const PropertyName &name) const
                         break;
                     }
                     return QVariant(subValue);
+                } else if (varValue.type() == QVariant::Vector4D) {
+                    auto value = varValue.value<QVector4D>();
+                    char subProp = name.right(1)[0];
+                    float subValue = 0.f;
+                    switch (subProp) {
+                    case 'x':
+                        subValue = value.x();
+                        break;
+                    case 'y':
+                        subValue = value.y();
+                        break;
+                    case 'z':
+                        subValue = value.z();
+                        break;
+                    case 'w':
+                        subValue = value.w();
+                        break;
+                    default:
+                        subValue = 0.f;
+                        break;
+                    }
+                    return QVariant(subValue);
                 }
             }
         }
@@ -440,6 +463,24 @@ void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
                 update = true;
             } else if (name.endsWith(".z")) {
                 newValue.setZ(value.toFloat());
+                update = true;
+            }
+            newValueVar = newValue;
+        } else if (oldValue.type() == QVariant::Vector4D) {
+            QVector4D newValue;
+            if (oldValue.type() == QVariant::Vector4D)
+                newValue = oldValue.value<QVector4D>();
+            if (name.endsWith(".x")) {
+                newValue.setX(value.toFloat());
+                update = true;
+            } else if (name.endsWith(".y")) {
+                newValue.setY(value.toFloat());
+                update = true;
+            } else if (name.endsWith(".z")) {
+                newValue.setZ(value.toFloat());
+                update = true;
+            } else if (name.endsWith(".w")) {
+                newValue.setW(value.toFloat());
                 update = true;
             }
             newValueVar = newValue;
