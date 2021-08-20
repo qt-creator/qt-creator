@@ -148,10 +148,8 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 QmlBuildSystem::QmlBuildSystem(Target *target)
     : BuildSystem(target)
 {
-    const QString normalized
-            = Utils::FileUtils::normalizePathName(target->project()
-                      ->projectFilePath().toFileInfo().canonicalFilePath());
-    m_canonicalProjectDir = Utils::FilePath::fromString(normalized).parentDir();
+    m_canonicalProjectDir =
+            target->project()->projectFilePath().canonicalPath().normalizePathName().parentDir();
 
     connect(target->project(), &Project::projectFileIsDirty,
             this, &QmlBuildSystem::refreshProjectFile);

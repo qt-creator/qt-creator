@@ -120,6 +120,10 @@ public:
     FilePath absoluteFilePath() const;
     FilePath absoluteFilePath(const FilePath &tail) const;
 
+    // makes sure that capitalization of directories is canonical
+    // on Windows and macOS. This is rarely needed.
+    FilePath normalizePathName() const;
+
     bool operator==(const FilePath &other) const;
     bool operator!=(const FilePath &other) const;
     bool operator<(const FilePath &other) const;

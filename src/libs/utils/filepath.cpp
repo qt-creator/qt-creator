@@ -822,6 +822,14 @@ FilePath FilePath::absoluteFilePath(const FilePath &tail) const
     return tail;
 }
 
+FilePath FilePath::normalizePathName() const
+{
+    FilePath result = *this;
+    if (!needsDevice()) // FIXME: Assumes no remote Windows and Mac for now.
+        result.m_data = FileUtils::normalizePathName(result.m_data);
+    return result;
+}
+
 /// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
 FilePath FilePath::fromString(const QString &filepath)

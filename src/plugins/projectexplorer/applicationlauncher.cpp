@@ -373,9 +373,9 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
 
     if (m_isLocal) {
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-        const QString fixedPath = FileUtils::normalizePathName(runnable.workingDirectory.toString());
+        const FilePath fixedPath = runnable.workingDirectory.normalizePathName();
         m_guiProcess.setWorkingDirectory(fixedPath);
-        m_consoleProcess.setWorkingDirectory(FilePath::fromString(fixedPath));
+        m_consoleProcess.setWorkingDirectory(fixedPath);
 
         Environment env = runnable.environment;
         if (m_runAsRoot)
