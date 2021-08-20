@@ -13,7 +13,7 @@
     [
         { "key": "SrcFileName", "value": "main.py" },
         { "key": "QmlFileName", "value": "main.qml" },
-        { "key": "PyProjectFile", "value": "main.pyproject" },
+        { "key": "PyProjectFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
         { "key": "PySideVersion", "value": "%{JS: value('QtVersion').PySideVersion}" }
@@ -105,16 +105,16 @@
             [
                 {
                     "source": "../main_qtquick.py",
-                    "target": "main.py"
+                    "target": "%{SrcFileName}"
                 },
                 {
                     "source": "main.pyproject",
-                    "target": "main.pyproject",
+                    "target": "%{PyProjectFile}",
                     "openAsProject": true
                 },
                 {
                     "source": "main.qml.tpl",
-                    "target": "main.qml",
+                    "target": "%{QmlFileName}",
                     "openInEditor": true
                 },
                 {

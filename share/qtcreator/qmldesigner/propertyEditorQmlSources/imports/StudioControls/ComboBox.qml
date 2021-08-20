@@ -258,7 +258,7 @@ T.ComboBox {
         },
         State {
             name: "edit"
-            when: myComboBox.enabled && myComboBox.edit && myComboBox.editable && !myComboBox.open
+            when: myComboBox.enabled && myComboBox.edit && !myComboBox.open
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true

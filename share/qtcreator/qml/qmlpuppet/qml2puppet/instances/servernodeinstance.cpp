@@ -219,6 +219,13 @@ QString static getErrorString(QQmlEngine *engine, const QString &componentPath)
     return s;
 }
 
+bool isInPathList(const QStringList &pathList, const QString &componentPath)
+{
+    return std::any_of(pathList.begin(), pathList.end(), [&](auto &&path) {
+        return componentPath.startsWith(path);
+    });
+}
+
 ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceServer,
                                               const InstanceContainer &instanceContainer,
                                               ComponentWrap componentWrap)
@@ -233,7 +240,9 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         object = Internal::ObjectNodeInstance::createCustomParserObject(instanceContainer.nodeSource(), nodeInstanceServer->importCode(), nodeInstanceServer->context());
         if (object == nullptr)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Custom parser object could not be created."), instanceContainer.instanceId());
-    } else if (!instanceContainer.componentPath().isEmpty()) {
+    } else if (!instanceContainer.componentPath().isEmpty()
+               && !isInPathList(nodeInstanceServer->engine()->importPathList(),
+                                instanceContainer.componentPath())) {
         object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
         if (object == nullptr) {
             object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());

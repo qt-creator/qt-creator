@@ -64,11 +64,15 @@ TextInput {
         border.width: 0
     }
 
-    TapHandler {
-        id: tapHandler
-        acceptedDevices: PointerDevice.Mouse
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
         enabled: true
-        onTapped: {
+        hoverEnabled: true
+        propagateComposedEvents: true
+        acceptedButtons: Qt.LeftButton
+        cursorShape: Qt.PointingHandCursor
+        onPressed: function(mouse) {
             if (textInput.readOnly) {
                 if (myControl.popup.opened) {
                     myControl.popup.close()
@@ -80,18 +84,9 @@ TextInput {
             } else {
                 textInput.forceActiveFocus()
             }
-        }
-    }
 
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        enabled: true
-        hoverEnabled: true
-        propagateComposedEvents: true
-        acceptedButtons: Qt.LeftButton
-        cursorShape: Qt.PointingHandCursor
-        onPressed: function(mouse) { mouse.accepted = false }
+            mouse.accepted = false
+        }
     }
 
     states: [
@@ -104,12 +99,9 @@ TextInput {
                 color: StudioTheme.Values.themeControlBackground
             }
             PropertyChanges {
-                target: tapHandler
-                enabled: true
-            }
-            PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton
             }
         },
         State {
@@ -146,12 +138,9 @@ TextInput {
                 color: StudioTheme.Values.themeControlBackgroundInteraction
             }
             PropertyChanges {
-                target: tapHandler
-                enabled: false
-            }
-            PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.IBeamCursor
+                acceptedButtons: Qt.NoButton
             }
         },
         State {

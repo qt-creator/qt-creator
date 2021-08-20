@@ -23,24 +23,30 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.7
-import QtQuick.Controls 2.3
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 import StudioFonts 1.0
-import QtQuick.Layouts 1.0
 import projectmodel 1.0
 import usagestatistics 1.0
 
-Image {
+Rectangle {
     id: welcome_splash
     width: 800
     height: 480
-    source: "welcome_windows/welcome_1.png"
+
+    gradient: Gradient {
+        orientation: Gradient.Horizontal
+
+        GradientStop { position: 0.0; color: "#333d56" }
+        GradientStop { position: 1.0; color: "#000728" }
+    }
 
     signal goNext
     signal closeClicked
     signal configureClicked
 
-    property alias doNotShowAgain: do_not_show_checkBox.checked
+    property alias doNotShowAgain: doNotShowCheckBox.checked
     property bool loadingPlugins: true
 
     // called from C++
@@ -65,17 +71,14 @@ Image {
 
     Image {
         id: logo
-        x: 14
-        y: 8
-        width: 76
-        height: 66
-        fillMode: Image.PreserveAspectFit
+        x: 16
+        y: 16
         source: "welcome_windows/logo.png"
     }
 
     Text {
         id: qt_design_studio
-        x: 13
+        x: 16
         y: 93
         width: 250
         height: 55
@@ -87,7 +90,7 @@ Image {
 
     Text {
         id: software_for_ui
-        x: 15
+        x: 16
         y: 141
         width: 250
         height: 30
@@ -100,7 +103,7 @@ Image {
 
     Text {
         id: copyright
-        x: 15
+        x: 16
         y: 183
         width: 270
         height: 24
@@ -112,7 +115,7 @@ Image {
 
     Text {
         id: all_rights_reserved
-        x: 15
+        x: 16
         y: 207
         width: 250
         height: 24
@@ -205,13 +208,15 @@ Image {
 
     Image {
         id: close_window
-        x: 779
-        y: 5
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 8
         width: 13
         height: 13
         fillMode: Image.PreserveAspectFit
         source: "welcome_windows/close.png"
         opacity: area.containsMouse ? 1 : 0.8
+
         MouseArea {
             id: area
             hoverEnabled: true
@@ -221,18 +226,30 @@ Image {
         }
     }
 
-    NoShowCheckbox {
-        id: do_not_show_checkBox
-        x: -47
-        y: 430
-        padding: 0
-        scale: 0.5
+    ColumnLayout {
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.margins: 16
+
+        CheckBox {
+            id: doNotShowCheckBox
+            text: qsTr("Do not show this again")
+            padding: 0
+        }
+
+        CheckBox {
+            id: usageStatisticCheckBox
+            text: qsTr("Enable Usage Statistics")
+            checked: usageStatisticModel.usageStatisticEnabled
+            padding: 0
+
+            onCheckedChanged: usageStatisticModel.setTelemetryEnabled(usageStatisticCheckBox.checked)
+        }
     }
 
     RowLayout {
         x: 16
         y: 330
-
         visible: welcome_splash.loadingPlugins
 
         Text {
@@ -240,6 +257,7 @@ Image {
             color: "#ffffff"
             text: qsTr("%")
             font.pixelSize: 12
+
             RotationAnimator {
                 target: text1
                 from: 0
@@ -263,6 +281,7 @@ Image {
             color: "#ffffff"
             text: qsTr("%")
             font.pixelSize: 12
+
             RotationAnimator {
                 target: text2
                 from: 0
@@ -276,13 +295,14 @@ Image {
 
     Text {
         id: all_rights_reserved1
-        x: 15
+        x: 16
         y: 75
         color: "#ffffff"
         text: qsTr("Community Edition")
         font.pixelSize: 13
         font.family: StudioFonts.titilliumWeb_light
         visible: projectModel.communityVersion
+
         ProjectModel {
             id: projectModel
         }
@@ -290,17 +310,5 @@ Image {
         UsageStatisticModel {
             id: usageStatisticModel
         }
-    }
-
-    NoShowCheckbox {
-        id: usageStatisticCheckBox
-        x: -47
-        y: 391
-        text: "Enable Usage Statistics"
-        padding: 0
-        scale: 0.5
-        checked: usageStatisticModel.usageStatisticEnabled
-
-        onCheckedChanged: usageStatisticModel.setTelemetryEnabled(usageStatisticCheckBox.checked)
     }
 }

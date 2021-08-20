@@ -57,6 +57,8 @@ private slots:
     void comparison();
     void linkFromString_data();
     void linkFromString();
+    void pathAppended_data();
+    void pathAppended();
 
 private:
     QTemporaryDir tempDir;
@@ -440,6 +442,57 @@ void tst_fileutils::linkFromString_data()
     QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")
                                  << FilePath("/some/path/file.txt")
                                  << QString::fromLatin1("(42)") << 42 << -1;
+}
+
+void tst_fileutils::pathAppended()
+{
+    QFETCH(QString, left);
+    QFETCH(QString, right);
+    QFETCH(QString, expected);
+
+    const FilePath fleft = FilePath::fromString(left);
+    const FilePath fexpected = FilePath::fromString(expected);
+
+    const FilePath result = fleft.pathAppended(right);
+
+    QCOMPARE(fexpected, result);
+}
+
+void tst_fileutils::pathAppended_data()
+{
+    QTest::addColumn<QString>("left");
+    QTest::addColumn<QString>("right");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("p0") <<   ""  <<  ""   << "";
+    QTest::newRow("p1") <<   ""  <<  "/"  << "/";
+    QTest::newRow("p2") <<   ""  << "c/"  << "c/";
+    QTest::newRow("p3") <<   ""  <<  "/d" << "/d";
+    QTest::newRow("p4") <<   ""  << "c/d" << "c/d";
+
+    QTest::newRow("r0") <<  "/"  <<  ""   << "/";
+    QTest::newRow("r1") <<  "/"  <<  "/"  << "/";
+    QTest::newRow("r2") <<  "/"  << "c/"  << "/c/";
+    QTest::newRow("r3") <<  "/"  <<  "/d" << "/d";
+    QTest::newRow("r4") <<  "/"  << "c/d" << "/c/d";
+
+    QTest::newRow("s0") <<  "/b" <<  ""   << "/b";
+    QTest::newRow("s1") <<  "/b" <<  "/"  << "/b/";
+    QTest::newRow("s2") <<  "/b" << "c/"  << "/b/c/";
+    QTest::newRow("s3") <<  "/b" <<  "/d" << "/b/d";
+    QTest::newRow("s4") <<  "/b" << "c/d" << "/b/c/d";
+
+    QTest::newRow("t0") << "a/"  <<  ""   << "a/";
+    QTest::newRow("t1") << "a/"  <<  "/"  << "a/";
+    QTest::newRow("t2") << "a/"  << "c/"  << "a/c/";
+    QTest::newRow("t3") << "a/"  <<  "/d" << "a/d";
+    QTest::newRow("t4") << "a/"  << "c/d" << "a/c/d";
+
+    QTest::newRow("u0") << "a/b" <<  ""   << "a/b";
+    QTest::newRow("u1") << "a/b" <<  "/"  << "a/b/";
+    QTest::newRow("u2") << "a/b" << "c/"  << "a/b/c/";
+    QTest::newRow("u3") << "a/b" <<  "/d" << "a/b/d";
+    QTest::newRow("u4") << "a/b" << "c/d" << "a/b/c/d";
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)

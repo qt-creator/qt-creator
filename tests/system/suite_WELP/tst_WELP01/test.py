@@ -102,7 +102,7 @@ def main():
     wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
     if test.verify(all((wsButtonFrame, wsButtonLabel)),
                    "Verifying: Qt Creator displays Welcome Page with '%s' button." % getStarted):
-        if clickItemVerifyHelpCombo(wsButtonLabel, "Qt Creator Manual",
+        if clickItemVerifyHelpCombo(wsButtonLabel, "Getting Started | Qt Creator Manual",
                                     "Verifying: Help with Creator Documentation is being opened."):
 
             textUrls = {'Online Community':'https://forum.qt.io',

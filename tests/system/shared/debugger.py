@@ -86,7 +86,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
                 return None
             invokeMenuItem("Debug", "Toggle Breakpoint")
             filePath = str(waitForObjectExists(":Qt Creator_FilenameQComboBox").toolTip)
-            breakPointList.append({os.path.normcase(filePath):lineNumberWithCursor(editor)})
+            breakPointList.append({filePath:lineNumberWithCursor(editor)})
             test.log('Set breakpoint in %s' % curFile, curLine)
     try:
         breakPointTreeView = waitForObject(":Breakpoints_Debugger::Internal::BreakTreeView")

@@ -22,6 +22,7 @@
   <style name="LineNumber" foreground="#888888" background="#232323"/>
   <style name="Link" foreground="#0055ff"/>
   <style name="Local"/>
+  <style name="Parameter"/>
   <style name="Number" foreground="#ff55ff"/>
   <style name="Occurrences" background="#363636"/>
   <style name="Occurrences.Rename" foreground="#ffaaaa" background="#553636"/>
