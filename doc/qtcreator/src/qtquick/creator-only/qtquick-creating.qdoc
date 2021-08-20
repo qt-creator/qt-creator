@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,55 +38,59 @@
 
     \image qmldesigner-new-project.png "New File or Project dialog"
 
-    When you create a new Qt Quick project from scratch, you have the following
-    options:
+    The following table lists the wizard templates for creating a new
+    Qt Quick project from scratch.
 
-    \list
-        \li \uicontrol {Application (Qt Quick)}:
+    \table
+        \header
+            \li Category
+            \li Wizard Template
+            \li Purpose
+        \row
+            \li {1,4} Application (Qt Quick)
+            \li Qt Quick Application - Empty
+            \li Creates a Qt Quick 2 application project that can contain both
+                QML and C++ code. You can build the application and deploy it
+                to desktop, embedded, and mobile target platforms.
+        \row
+            \li Qt Quick Application - Scroll
+            \li Uses the \l{ScrollView} component to implement a scrollable
+                list view (requires Qt 5.9 or later).
+        \row
+            \li Qt Quick Application - Stack
+            \li Uses the \l{StackView} component to implement a set of pages
+                with a stack-based navigation model (requires Qt 5.7 or later).
+        \row
+           \li Qt Quick Application - Swipe
+           \li Uses the \l{SwipeView} component to implement a set of pages
+                with a swipe-based navigation model (requires Qt 5.7 or later).
+        \row
+            \li Application (Qt for Python)
+            \li Qt for Python - Qt Quick Application
+            \li Creates a Python project that contains an empty Qt Quick
+                Application.
+        \row
+            \li Other Project
+            \li Qt Quick UI Prototype
+            \li Creates a \l{Creating Qt Quick UI Projects}{Qt Quick UI project}
+                with a single QML file that contains the main view. You can
+                preview Qt Quick 2 UI projects in the
+                \l{Validating with Target Hardware}{QML Scene preview tool}.
+                You do not need to build them, because they do not contain any
+                C++ code.
 
-            \list
+                Use this template only if you are prototyping. You cannot create
+                a full application by using this template.
 
-            \li \uicontrol {Qt Quick Application - Empty} creates a Qt Quick 2
-                application project that can contain both QML and C++ code. You can
-                build the application and deploy it to desktop, embedded, and mobile
-                target platforms.
-
-            \li \uicontrol {Qt Quick Application - Scroll} uses the
-                \l{ScrollView} component to implement a scrollable list view
-                (requires Qt 5.9 or later).
-
-            \li \uicontrol {Qt Quick Application - Stack} uses the
-                \l{StackView} component to implement a set of pages with a stack-based
-                navigation model (requires Qt 5.7 or later).
-
-            \li \uicontrol {Qt Quick Application - Swipe} uses the
-                \l{SwipeView} component to implement a set of pages with a swipe-based
-                navigation model (requires Qt 5.7 or later).
-
-            \endlist
-
-        \li \uicontrol {Application (Qt for Python)} >
-            \uicontrol {Qt for Python - Qt Quick Application - Empty} creates a
-            Python project that contains an empty Qt Quick Application.
-
-        \li \uicontrol {Other Project} > \uicontrol {Qt Quick UI Prototype}
-            creates a \l{Creating Qt Quick UI Projects}{Qt Quick UI project}
-            with a single QML file that
-            contains the main view. You can review Qt Quick 2 UI projects in the
-            \l{Previewing QML Files}{QML Scene preview tool}. You do not need to
-            build them, because they do not contain any C++ code.
-            Use this only if you are prototyping. You cannot create a full application
-            with this.
-
-            Qt Quick UI projects cannot be deployed to embedded or mobile
-            target platforms. For those platforms, create a Qt Quick application
-            instead.
-
-        \li \uicontrol Library > \uicontrol {Qt Quick 2 Extension Plugin}
-            creates C++ plugins that make it possible to offer extensions that
-            can be loaded dynamically into Qt Quick 2 applications.
-
-    \endlist
+                Qt Quick UI projects cannot be deployed to embedded or mobile
+                target platforms. For those platforms, create a Qt Quick
+                application instead.
+        \row
+            \li Library
+            \li Qt Quick 2 Extension Plugin
+            \li Creates C++ plugins that make it possible to offer extensions
+                that can be loaded dynamically into Qt Quick 2 applications.
+    \endtable
 
     \note The SDK for a particular target platform might install additional
     templates for that platform. For example, the QNX templates are installed
