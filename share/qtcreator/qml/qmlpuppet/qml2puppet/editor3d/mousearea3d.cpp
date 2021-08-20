@@ -1021,12 +1021,17 @@ QVector3D MouseArea3D::getNormal() const
 QVector3D MouseArea3D::getCameraToNodeDir(QQuick3DNode *node) const
 {
     QVector3D dir;
-    if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
-        dir = -m_view3D->camera()->cameraNode()->getDirection();
-    } else {
-        QVector3D camPos = m_view3D->camera()->scenePosition();
-        QVector3D nodePos = pivotScenePosition(node);
-        dir = (nodePos - camPos).normalized();
+    if (m_view3D->camera()) {
+        // We need to do a cast here to be compatible with Qt 5.x.
+        // From Qt 6.2 the type can be read from the node directly.
+        if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
+            if (auto renderCamera = QQuick3DObjectPrivate::get(m_view3D->camera())->spatialNode)
+                dir -= static_cast<QSSGRenderCamera *>(renderCamera)->getDirection();
+        } else {
+            QVector3D camPos = m_view3D->camera()->scenePosition();
+            QVector3D nodePos = pivotScenePosition(node);
+            dir = (nodePos - camPos).normalized();
+        }
     }
     return dir;
 }
