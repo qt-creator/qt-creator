@@ -134,15 +134,15 @@ private:
             m_tempCoreFileName = tmp.fileName();
         }
 
-        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
-        connect(&m_coreUnpackProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &CoreUnpacker::reportStarted);
+        m_coreUnpackProcess.setWorkingDirectory(FilePath::fromString(TemporaryDirectory::masterDirectoryPath()));
+        connect(&m_coreUnpackProcess, &QtcProcess::finished, this, &CoreUnpacker::reportStarted);
 
         const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
         appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
 
         if (m_coreFileName.endsWith(".lzo")) {
-            m_coreUnpackProcess.start("lzop", {"-o", m_tempCoreFileName, "-x", m_coreFileName});
+            m_coreUnpackProcess.setCommand({"lzop", {"-o", m_tempCoreFileName, "-x", m_coreFileName}});
+            m_coreUnpackProcess.start();
             return;
         }
 
@@ -150,10 +150,11 @@ private:
             appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
             m_tempCoreFile.setFileName(m_tempCoreFileName);
             m_tempCoreFile.open(QFile::WriteOnly);
-            connect(&m_coreUnpackProcess, &QProcess::readyRead, this, [this] {
-                m_tempCoreFile.write(m_coreUnpackProcess.readAll());
+            connect(&m_coreUnpackProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
+                m_tempCoreFile.write(m_coreUnpackProcess.readAllStandardOutput());
             });
-            m_coreUnpackProcess.start("gzip", {"-c", "-d", m_coreFileName});
+            m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFileName}});
+            m_coreUnpackProcess.start();
             return;
         }
 
@@ -164,7 +165,7 @@ private:
     QFile m_tempCoreFile;
     QString m_coreFileName;
     QString m_tempCoreFileName;
-    QProcess m_coreUnpackProcess;
+    QtcProcess m_coreUnpackProcess;
 };
 
 class DebuggerRunToolPrivate
