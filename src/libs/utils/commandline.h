@@ -37,6 +37,7 @@ namespace Utils {
 class AbstractMacroExpander;
 class CommandLine;
 class Environment;
+class MacroExpander;
 
 class QTCREATOR_UTILS_EXPORT ProcessArgs
 {
@@ -137,6 +138,8 @@ public:
     explicit CommandLine(const FilePath &executable);
     CommandLine(const FilePath &exe, const QStringList &args);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
+
+    static CommandLine fromUserInput(const QString &cmdline, MacroExpander *expander = nullptr);
 
     void addArg(const QString &arg);
     void addArgs(const QStringList &inArgs);

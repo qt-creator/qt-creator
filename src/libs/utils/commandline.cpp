@@ -26,6 +26,7 @@
 #include "commandline.h"
 
 #include "environment.h"
+#include "macroexpander.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 
@@ -1432,6 +1433,21 @@ CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
     : m_executable(exe)
 {
     addArgs(args, Raw);
+}
+
+CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *expander)
+{
+    CommandLine cmd;
+    const int pos = cmdline.indexOf(' ');
+    if (pos == -1) {
+        cmd.m_executable = FilePath::fromString(cmdline);
+    } else {
+        cmd.m_executable = FilePath::fromString(cmdline.left(pos));
+        cmd.m_arguments = cmdline.right(cmdline.length() - pos - 1);
+        if (expander)
+            cmd.m_arguments = expander->expand(cmd.m_arguments);
+    }
+    return cmd;
 }
 
 void CommandLine::addArg(const QString &arg)

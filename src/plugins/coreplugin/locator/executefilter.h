@@ -39,11 +39,11 @@ namespace Internal {
 class ExecuteFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
+
     struct ExecuteData
     {
-        QString executable;
-        QString arguments;
-        QString workingDirectory;
+        Utils::CommandLine command;
+        Utils::FilePath workingDirectory;
     };
 
 public:

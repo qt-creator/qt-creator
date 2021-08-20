@@ -102,15 +102,8 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
         workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Project:Path", &found);
 
     ExecuteData d;
-    d.workingDirectory = workingDirectory;
-    const int pos = value.indexOf(' ');
-    if (pos == -1) {
-        d.executable = value;
-    } else {
-        d.executable = value.left(pos);
-        d.arguments = Utils::globalMacroExpander()->expand(
-                    value.right(value.length() - pos - 1));
-    }
+    d.command = CommandLine::fromUserInput(value, Utils::globalMacroExpander());
+    d.workingDirectory = FilePath::fromString(workingDirectory);
 
     if (m_process) {
         const QString info(tr("Previous command is still running (\"%1\").\nDo you want to kill it?")
@@ -166,10 +159,9 @@ void ExecuteFilter::runHeadCommand()
 {
     if (!m_taskQueue.isEmpty()) {
         const ExecuteData &d = m_taskQueue.head();
-        const Utils::FilePath fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
-        if (fullPath.isEmpty()) {
+        if (d.command.executable().isEmpty()) {
             MessageManager::writeDisrupting(
-                tr("Could not find executable for \"%1\".").arg(d.executable));
+                tr("Could not find executable for \"%1\".").arg(d.command.executable().toUserOutput()));
             m_taskQueue.dequeue();
             runHeadCommand();
             return;
@@ -178,7 +170,7 @@ void ExecuteFilter::runHeadCommand()
         QTC_CHECK(!m_process);
         createProcess();
         m_process->setWorkingDirectory(d.workingDirectory);
-        m_process->setCommand({fullPath, d.arguments, Utils::CommandLine::Raw});
+        m_process->setCommand(d.command);
         m_process->start();
         if (!m_process->waitForStarted(1000)) {
             MessageManager::writeFlashing(
@@ -221,7 +213,5 @@ QString ExecuteFilter::headCommand() const
     if (m_taskQueue.isEmpty())
         return QString();
     const ExecuteData &data = m_taskQueue.head();
-    if (data.arguments.isEmpty())
-        return data.executable;
-    return data.executable + ' ' + data.arguments;
+    return data.command.toUserOutput();
 }
