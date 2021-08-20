@@ -28,7 +28,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QObject>
-#include <QProcess>
 #include <QTimer>
 
 namespace Android {
@@ -48,24 +47,24 @@ protected:
     explicit AndroidSignalOperation();
 
 private:
-    void adbFindRunAsFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void adbKillFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void adbFindRunAsFinished();
+    void adbKillFinished();
     void handleTimeout();
 
     void signalOperationViaADB(qint64 pid, int signal);
 
-    QString m_adbPath;
-    QProcess *m_adbProcess;
+    Utils::FilePath m_adbPath;
+    Utils::QtcProcess *m_adbProcess;
     QTimer *m_timeout;
 
     enum State {
         Idle,
         RunAs,
         Kill
-    } m_state;
+    } m_state = Idle;
 
-    qint64 m_pid;
-    int m_signal;
+    qint64 m_pid = 0;
+    int m_signal = 0;
 
     friend class AndroidDevice;
 };
