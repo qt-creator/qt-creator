@@ -2561,9 +2561,9 @@ void GitClient::launchGitK(const FilePath &workingDirectory, const QString &file
 
 void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
 {
-    const QString repBrowserBinary = settings().repositoryBrowserCmd.value();
+    const FilePath repBrowserBinary = settings().repositoryBrowserCmd.filePath();
     if (!repBrowserBinary.isEmpty())
-        QProcess::startDetached(repBrowserBinary, {workingDirectory.toString()}, workingDirectory.toString());
+        QtcProcess::startDetached({repBrowserBinary, {workingDirectory.toString()}}, workingDirectory);
 }
 
 bool GitClient::tryLauchingGitK(const Environment &env,
@@ -2591,18 +2591,18 @@ bool GitClient::tryLauchingGitK(const Environment &env,
     // the child), but that does not have an environment parameter.
     bool success = false;
     if (!settings().path.value().isEmpty()) {
-        auto process = new QProcess;
-        process->setWorkingDirectory(workingDirectory.toString());
-        process->setProcessEnvironment(env.toProcessEnvironment());
-        process->start(binary.toString(), arguments);
+        auto process = new QtcProcess;
+        process->setWorkingDirectory(workingDirectory);
+        process->setEnvironment(env);
+        process->setCommand({binary, arguments});
+        process->start();
         success = process->waitForStarted();
         if (success)
-            connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                    process, &QProcess::deleteLater);
+            connect(process, &QtcProcess::finished, process, &QProcess::deleteLater);
         else
             delete process;
     } else {
-        success = QProcess::startDetached(binary.toString(), arguments, workingDirectory.toString());
+        success = QtcProcess::startDetached({binary, arguments}, workingDirectory);
     }
 
     return success;
