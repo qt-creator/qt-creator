@@ -32,9 +32,10 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QProcess;
 class QStringListModel;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcProcess; }
 
 namespace Git {
 namespace Internal {
@@ -64,7 +65,7 @@ public:
 
 private:
     void selectCommitFromRecentHistory();
-    void setDetails(int exitCode);
+    void setDetails();
     void recalculateCompletion();
     void recalculateDetails();
     void changeTextChanged(const QString &text);
@@ -75,7 +76,7 @@ private:
 
     Ui::ChangeSelectionDialog *m_ui;
 
-    QProcess *m_process = nullptr;
+    Utils::QtcProcess *m_process = nullptr;
     Utils::FilePath m_gitExecutable;
     Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;

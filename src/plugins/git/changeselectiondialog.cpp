@@ -156,13 +156,13 @@ void ChangeSelectionDialog::acceptCommand(ChangeCommand command)
 }
 
 //! Set commit message in details
-void ChangeSelectionDialog::setDetails(int exitCode)
+void ChangeSelectionDialog::setDetails()
 {
     Theme *theme = creatorTheme();
 
     QPalette palette;
-    if (exitCode == 0) {
-        m_ui->detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
+    if (m_process->result() == QtcProcess::FinishedWithSuccess) {
+        m_ui->detailsText->setPlainText(m_process->stdOut());
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);
     } else {
@@ -228,15 +228,14 @@ void ChangeSelectionDialog::recalculateDetails()
         return;
     }
 
-    m_process = new QProcess(this);
-    m_process->setWorkingDirectory(workingDir.toString());
-    m_process->setProcessEnvironment(m_gitEnvironment.toProcessEnvironment());
+    m_process = new QtcProcess(this);
+    m_process->setWorkingDirectory(workingDir);
+    m_process->setEnvironment(m_gitEnvironment);
+    m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80", ref}});
 
-    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &ChangeSelectionDialog::setDetails);
+    connect(m_process, &QtcProcess::finished, this, &ChangeSelectionDialog::setDetails);
 
-    m_process->start(m_gitExecutable.toString(), {"show", "--decorate", "--stat=80", ref});
-    m_process->closeWriteChannel();
+    m_process->start();
     if (!m_process->waitForStarted())
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
     else
