@@ -746,12 +746,11 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
     if (!filePath.exists())
         return false;
 
-    Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath.toString());
+    const MimeType mimeType = Utils::mimeTypeForFile(filePath);
     if (!mimeType.inherits("text/plain"))
         return false;
 
-    const QFileInfo fileInfo = filePath.toFileInfo();
-    const qint64 fileSize = fileInfo.size();
+    const qint64 fileSize = filePath.fileSize();
     const double fileSizeInMB = fileSize / 1000.0 / 1000.0;
     if (fileSizeInMB > d->m_settings.bigFileSizeLimitInMB
         && fileSize < EditorManager::maxTextFileSize()) {
@@ -761,7 +760,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
             " and process than available.\n"
             "\n"
             "Continue?")
-                .arg(fileInfo.fileName())
+                .arg(filePath.fileName())
                 .arg(fileSizeInMB, 0, 'f', 2);
 
         CheckableMessageBox messageBox(ICore::dialogParent());
