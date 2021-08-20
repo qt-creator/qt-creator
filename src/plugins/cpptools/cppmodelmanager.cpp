@@ -77,9 +77,12 @@
 #include <QDir>
 #include <QFutureWatcher>
 #include <QMutexLocker>
+#include <QReadLocker>
+#include <QReadWriteLock>
 #include <QTextBlock>
 #include <QThreadPool>
 #include <QTimer>
+#include <QWriteLocker>
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
 #define WITH_AST_DUMP
@@ -163,7 +166,7 @@ public:
     Snapshot m_snapshot;
 
     // Project integration
-    mutable QMutex m_projectMutex;
+    QReadWriteLock m_projectLock;
     QHash<ProjectExplorer::Project *, ProjectData> m_projectData;
     QMap<Utils::FilePath, QList<ProjectPart::Ptr> > m_fileToProjectParts;
     QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
@@ -742,7 +745,7 @@ bool CppModelManager::replaceDocument(Document::Ptr newDoc)
     return true;
 }
 
-/// Make sure that m_projectMutex is locked when calling this.
+/// Make sure that m_projectLock is locked for writing when calling this.
 void CppModelManager::ensureUpdated()
 {
     if (!d->m_dirty)
@@ -981,14 +984,14 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
 
 QList<ProjectInfo::Ptr> CppModelManager::projectInfos() const
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QReadLocker locker(&d->m_projectLock);
     return Utils::transform<QList<ProjectInfo::Ptr>>(d->m_projectData,
             [](const ProjectData &d) { return d.projectInfo; });
 }
 
 ProjectInfo::Ptr CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QReadLocker locker(&d->m_projectLock);
     return d->m_projectData.value(project).projectInfo;
 }
 
@@ -1089,7 +1092,7 @@ private:
     const QSet<QString> m_newSourceFiles;
 };
 
-/// Make sure that m_projectMutex is locked when calling this.
+/// Make sure that m_projectLock is locked for writing when calling this.
 void CppModelManager::recalculateProjectPartMappings()
 {
     d->m_projectPartIdToProjectProjectPart.clear();
@@ -1169,8 +1172,8 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
         return {};
 
     ProjectData *projectData = nullptr;
-    { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
-        QMutexLocker projectLocker(&d->m_projectMutex);
+    { // Only hold the lock for a limited scope, so the dumping afterwards does not deadlock.
+        QWriteLocker projectLocker(&d->m_projectLock);
 
         const QSet<QString> newSourceFiles = newProjectInfo->sourceFiles();
 
@@ -1230,7 +1233,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
                 ? &(d->m_projectData[project] = ProjectData{newProjectInfo, nullptr, false})
                 : &(*it);
         recalculateProjectPartMappings();
-    } // Mutex scope
+    } // Locker scope
 
     // If requested, dump everything we got
     if (DumpProjectInfo)
@@ -1260,7 +1263,6 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
 
     // It's safe to do this here, as only the UI thread writes to the map and no other thread
     // uses the indexer value.
-    // FIXME: Use a read/write lock instead of a mutex.
     d->setupWatcher(indexingFuture, project, projectData, this);
 
     return indexingFuture;
@@ -1268,12 +1270,13 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProj
 
 ProjectPart::Ptr CppModelManager::projectPartForId(const QString &projectPartId) const
 {
+    QReadLocker locker(&d->m_projectLock);
     return d->m_projectPartIdToProjectProjectPart.value(projectPartId);
 }
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const Utils::FilePath &fileName) const
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QReadLocker locker(&d->m_projectLock);
     return d->m_fileToProjectParts.value(fileName);
 }
 
@@ -1283,7 +1286,7 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
     QSet<ProjectPart::Ptr> parts;
     const Utils::FilePaths deps = snapshot().filesDependingOn(fileName);
 
-    QMutexLocker locker(&d->m_projectMutex);
+    QReadLocker locker(&d->m_projectLock);
     for (const Utils::FilePath &dep : deps)
         parts.unite(Utils::toSet(d->m_fileToProjectParts.value(dep)));
 
@@ -1331,7 +1334,7 @@ void CppModelManager::emitAbstractEditorSupportRemoved(const QString &filePath)
 
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QWriteLocker locker(&d->m_projectLock);
     d->m_dirty = true;
 }
 
@@ -1354,7 +1357,7 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     QStringList idsOfRemovedProjectParts;
 
     {
-        QMutexLocker locker(&d->m_projectMutex);
+        QWriteLocker locker(&d->m_projectLock);
         d->m_dirty = true;
         const QStringList projectPartsIdsBefore = d->m_projectPartIdToProjectProjectPart.keys();
 
@@ -1377,7 +1380,7 @@ void CppModelManager::onActiveProjectChanged(ProjectExplorer::Project *project)
         return; // Last project closed.
 
     {
-        QMutexLocker locker(&d->m_projectMutex);
+        QReadLocker locker(&d->m_projectLock);
         if (!d->m_projectData.contains(project))
             return; // Not yet known to us.
     }
@@ -1670,7 +1673,7 @@ CppIndexingSupport *CppModelManager::indexingSupport()
 
 QStringList CppModelManager::projectFiles()
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QWriteLocker locker(&d->m_projectLock);
     ensureUpdated();
 
     return d->m_projectFiles;
@@ -1678,7 +1681,7 @@ QStringList CppModelManager::projectFiles()
 
 ProjectExplorer::HeaderPaths CppModelManager::headerPaths()
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QWriteLocker locker(&d->m_projectLock);
     ensureUpdated();
 
     return d->m_headerPaths;
@@ -1686,13 +1689,13 @@ ProjectExplorer::HeaderPaths CppModelManager::headerPaths()
 
 void CppModelManager::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths)
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QWriteLocker locker(&d->m_projectLock);
     d->m_headerPaths = headerPaths;
 }
 
 ProjectExplorer::Macros CppModelManager::definedMacros()
 {
-    QMutexLocker locker(&d->m_projectMutex);
+    QWriteLocker locker(&d->m_projectLock);
     ensureUpdated();
 
     return d->m_definedMacros;
