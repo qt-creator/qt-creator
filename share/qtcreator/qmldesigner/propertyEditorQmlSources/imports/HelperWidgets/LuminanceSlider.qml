@@ -37,13 +37,14 @@ Item {
     property color color
 
     signal clicked
+    signal moved
 
     height: StudioTheme.Values.hueSliderHeight
 
     function updatePos() {
         if (root.maximum > root.minimum) {
-            var pos = (track.width - handle.width) * (root.value - root.minimum) / (root.maximum - root.minimum)
-            return Math.min(Math.max(pos, 0), track.width - handle.width)
+            var pos = track.width * (root.value - root.minimum) / (root.maximum - root.minimum)
+            return Math.min(Math.max(pos, 0), track.width)
         } else {
             return 0
         }
@@ -51,16 +52,8 @@ Item {
 
     Item {
         id: track
-
         width: parent.width
         height: parent.height
-
-        Image {
-            id: checkerboard
-            anchors.fill: parent
-            source: "images/checkers.png"
-            fillMode: Image.Tile
-        }
 
         Rectangle {
             anchors.fill: parent
@@ -69,7 +62,7 @@ Item {
 
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.000; color: root.color }
+                GradientStop { position: 0.000; color: Qt.hsva(root.color.hsvHue, root.color.hsvSaturation, 1, 1) }
                 GradientStop { position: 1.000; color: "black" }
             }
         }
@@ -77,21 +70,20 @@ Item {
         Rectangle {
             id: handle
             width: StudioTheme.Values.hueSliderHandleWidth
-            height: track.height - 4
+            height: track.height + 4
             anchors.verticalCenter: parent.verticalCenter
-            smooth: true
             color: "transparent"
             radius: 2
             border.color: "black"
             border.width: 1
-            x: root.updatePos()
+            x: root.updatePos() - handle.width * 0.5
             y: 2
             z: 1
 
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: 1
-                color: "transparent"
+                color: Qt.hsva(root.color.hsvHue, root.color.hsvSaturation, root.color.hsvValue, 1)
                 radius: 1
                 border.color: "white"
                 border.width: 1
@@ -101,19 +93,22 @@ Item {
         MouseArea {
             id: mouseArea
             anchors.fill: parent
+            anchors.margins: -StudioTheme.Values.hueSliderHandleWidth * 0.5
             preventStealing: true
 
             function calculateValue() {
-                var handleX = Math.max(0, Math.min(mouseArea.mouseX, mouseArea.width))
-                var realValue = (root.maximum - root.minimum) * handleX / mouseArea.width + root.minimum
+                var halfHandle = StudioTheme.Values.hueSliderHandleWidth * 0.5
+                var handleX = Math.max(0, Math.min(mouseArea.mouseX - halfHandle, parent.width))
+                var realValue = (root.maximum - root.minimum) * handleX / parent.width + root.minimum
                 root.value = root.integer ? Math.round(realValue) : realValue
+                root.moved()
             }
 
-            onPressed: calculateValue()
+            onPressed: mouseArea.calculateValue()
             onReleased: root.clicked()
             onPositionChanged: {
-                if (pressed)
-                    calculateValue()
+                if (mouseArea.pressed)
+                    mouseArea.calculateValue()
             }
         }
 

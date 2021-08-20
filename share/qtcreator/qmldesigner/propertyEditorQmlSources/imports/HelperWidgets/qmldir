@@ -31,7 +31,6 @@ FontExtrasSection 2.0 FontExtrasSection.qml
 FontSection 2.0 FontSection.qml
 FontStyleButtons 2.0 FontStyleButtons.qml
 GradientLine 2.0 GradientLine.qml
-GradientPopupIndicator 2.0 GradientPopupIndicator.qml
 GradientPresetList 2.0 GradientPresetList.qml
 GradientPresetTabContent 2.0 GradientPresetTabContent.qml
 GradientPropertySpinBox 2.0 GradientPropertySpinBox.qml

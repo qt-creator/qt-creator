@@ -39,6 +39,8 @@ Item {
     property alias hover: spinBox.hover
 
     signal valueModified
+    signal dragStarted
+    signal indicatorPressed
 
     width: 90
     implicitHeight: spinBox.height
@@ -48,9 +50,13 @@ Item {
     StudioControls.RealSpinBox {
         id: spinBox
 
-        onDragStarted: hideCursor()
+        onDragStarted: {
+            hideCursor()
+            wrapper.dragStarted()
+        }
         onDragEnded: restoreCursor()
         onDragging: holdCursorInPlace()
+        onIndicatorPressed: wrapper.indicatorPressed()
 
         property bool hasSlider: spinBox.sliderIndicatorVisible
 

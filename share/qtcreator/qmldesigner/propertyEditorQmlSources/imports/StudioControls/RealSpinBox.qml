@@ -81,6 +81,7 @@ T.SpinBox {
     signal dragStarted
     signal dragEnded
     signal dragging
+    signal indicatorPressed
 
     // Use custom wheel handling due to bugs
     property bool __wheelEnabled: false
@@ -124,6 +125,7 @@ T.SpinBox {
         myControl: mySpinBox
         iconFlip: -1
         visible: mySpinBox.spinBoxIndicatorVisible
+        onRealPressed: mySpinBox.indicatorPressed()
         onRealReleased: mySpinBox.realIncrease()
         onRealPressAndHold: mySpinBox.realIncrease()
         x: actionIndicator.width + StudioTheme.Values.border
@@ -139,6 +141,7 @@ T.SpinBox {
         id: spinBoxIndicatorDown
         myControl: mySpinBox
         visible: mySpinBox.spinBoxIndicatorVisible
+        onRealPressed: mySpinBox.indicatorPressed()
         onRealReleased: mySpinBox.realDecrease()
         onRealPressAndHold: mySpinBox.realDecrease()
         x: actionIndicator.width + StudioTheme.Values.border

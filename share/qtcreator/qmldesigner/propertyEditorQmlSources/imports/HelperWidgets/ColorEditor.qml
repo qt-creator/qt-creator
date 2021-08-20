@@ -189,8 +189,20 @@ SecondColumnLayout {
         colorEditor.originalColor = colorEditor.color
     }
 
-    onValueChanged: colorEditor.color = colorEditor.value
-    onBackendValueChanged: colorEditor.color = colorEditor.value
+    Connections {
+        id: backendConnection
+        target: colorEditor
+
+        function onValueChanged() {
+            if (isNotInGradientMode())
+                colorEditor.color = colorEditor.value
+        }
+
+        function onBackendValueChanged() {
+            if (isNotInGradientMode())
+                colorEditor.color = colorEditor.value
+        }
+    }
 
     Timer {
         id: colorEditorTimer
@@ -198,15 +210,18 @@ SecondColumnLayout {
         interval: 100
         running: false
         onTriggered: {
+            backendConnection.enabled = false
+
             if (colorEditor.backendValue !== undefined) {
-                if (isVector3D) {
+                if (colorEditor.isVector3D)
                     colorEditor.backendValue.value = Qt.vector3d(colorEditor.color.r,
                                                                  colorEditor.color.g,
                                                                  colorEditor.color.b)
-                } else {
+                else
                     colorEditor.backendValue.value = colorEditor.color
-                }
             }
+
+            backendConnection.enabled = true
         }
     }
 
@@ -223,8 +238,6 @@ SecondColumnLayout {
 
         if (isNotInGradientMode())
             colorEditorTimer.restart() // Delay setting the color to keep ui responsive
-
-        colorPalette.selectedColor = colorEditor.color
     }
 
     Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
@@ -419,6 +432,7 @@ SecondColumnLayout {
                             tooltip: qsTr("Transparent")
                             onClicked: {
                                 colorPicker.alpha = 0
+                                colorPicker.invalidateColor()
                                 colorPicker.updateColor()
                             }
                         }
@@ -503,8 +517,10 @@ SecondColumnLayout {
                         visible: !isNotInGradientMode()
 
                         onCurrentColorChanged: {
-                            if (colorEditor.supportGradient && gradientLine.hasGradient)
+                            if (colorEditor.supportGradient && gradientLine.hasGradient) {
                                 colorEditor.color = gradientLine.currentColor
+                                colorPicker.color = colorEditor.color
+                            }
                         }
 
                         onHasGradientChanged: {
@@ -515,9 +531,8 @@ SecondColumnLayout {
                         }
 
                         onSelectedNodeChanged: {
-                            if (colorEditor.supportGradient && gradientLine.hasGradient) {
+                            if (colorEditor.supportGradient && gradientLine.hasGradient)
                                 colorEditor.originalColor = gradientLine.currentColor
-                            }
                         }
 
                         onInvalidated: colorEditor.updateThumbnail()
@@ -546,13 +561,15 @@ SecondColumnLayout {
                             function onSelectionChanged() {
                                 if (colorEditor.supportGradient && gradientLine.hasGradient) {
                                     colorEditor.color = gradientLine.currentColor
-                                    gradientLine.currentColor = color
+                                    gradientLine.currentColor = colorEditor.color
                                     hexTextField.text = colorEditor.color
                                     popupHexTextField.text = colorEditor.color
                                 }
+
                                 gradientLine.isInValidState = true
                                 colorEditor.originalColor = colorEditor.color
                                 colorPalette.selectedColor = colorEditor.color
+                                colorPicker.color = colorEditor.color
 
                                 colorEditor.createModel()
                                 colorEditor.determineActiveColorMode()
@@ -563,44 +580,32 @@ SecondColumnLayout {
                     ColorPicker {
                         id: colorPicker
 
-                        property color boundColor: colorEditor.color
-
                         width: parent.width
                         sliderMargins: 4
 
-                        // Prevent the binding to be deleted by assignment
-                        onBoundColorChanged: colorPicker.color = colorPicker.boundColor
                         onUpdateColor: {
                             colorEditor.color = colorPicker.color
+
                             if (contextMenu.opened)
                                 contextMenu.close()
                         }
                         onRightMouseButtonClicked: contextMenu.popup(colorPicker)
 
                         onColorInvalidated: {
-                            switch (colorPicker.mode) {
-                            case ColorPicker.Mode.HSLA:
-                                hslHueSpinBox.value = colorPicker.hue
-                                hslSaturationSpinBox.value = colorPicker.saturationHSL
-                                hslLightnessSpinBox.value = colorPicker.lightness
-                                hslAlphaSpinBox.value = colorPicker.alpha
-                                break
+                            hslHueSpinBox.value = colorPicker.hue
+                            hslSaturationSpinBox.value = colorPicker.saturationHSL
+                            hslLightnessSpinBox.value = colorPicker.lightness
+                            hslAlphaSpinBox.value = colorPicker.alpha
 
-                            case ColorPicker.Mode.RGBA:
-                                redSpinBox.value = (colorPicker.color.r * 255)
-                                greenSpinBox.value = (colorPicker.color.g * 255)
-                                blueSpinBox.value = (colorPicker.color.b * 255)
-                                rgbAlphaSpinBox.value = (colorPicker.alpha * 255)
-                                break
+                            redSpinBox.value = (colorPicker.red * 255)
+                            greenSpinBox.value = (colorPicker.green * 255)
+                            blueSpinBox.value = (colorPicker.blue * 255)
+                            rgbAlphaSpinBox.value = (colorPicker.alpha * 255)
 
-                            case ColorPicker.Mode.HSVA:
-                            default:
-                                hsvHueSpinBox.value = colorPicker.hue
-                                hsvSaturationSpinBox.value = colorPicker.saturationHSV
-                                hsvValueSpinBox.value = colorPicker.value
-                                hsvAlphaSpinBox.value = colorPicker.alpha
-                                break
-                            }
+                            hsvHueSpinBox.value = colorPicker.hue
+                            hsvSaturationSpinBox.value = colorPicker.saturationHSV
+                            hsvValueSpinBox.value = colorPicker.value
+                            hsvAlphaSpinBox.value = colorPicker.alpha
                         }
                     }
 
@@ -790,7 +795,6 @@ SecondColumnLayout {
 
                             RowLayout {
                                 id: rgbaRow
-
                                 visible: colorPicker.mode === ColorPicker.Mode.RGBA
                                 Layout.fillWidth: true
                                 spacing: StudioTheme.Values.controlGap
@@ -798,7 +802,6 @@ SecondColumnLayout {
                                 DoubleSpinBox {
                                     id: redSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
-
                                     stepSize: 1
                                     minimumValue: 0
                                     maximumValue: 255
@@ -806,17 +809,19 @@ SecondColumnLayout {
 
                                     onValueModified: {
                                         var tmp = redSpinBox.value / 255.0
-                                        if (colorPicker.color.r !== tmp && !colorPicker.block) {
-                                            colorPicker.color.r = tmp
+                                        if (colorPicker.red !== tmp && !colorPicker.block) {
+                                            colorPicker.red = tmp
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
                                     id: greenSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
-
                                     stepSize: 1
                                     minimumValue: 0
                                     maximumValue: 255
@@ -824,17 +829,19 @@ SecondColumnLayout {
 
                                     onValueModified: {
                                         var tmp = greenSpinBox.value / 255.0
-                                        if (colorPicker.color.g !== tmp && !colorPicker.block) {
-                                            colorPicker.color.g = tmp
+                                        if (colorPicker.green !== tmp && !colorPicker.block) {
+                                            colorPicker.green = tmp
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
                                     id: blueSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
-
                                     stepSize: 1
                                     minimumValue: 0
                                     maximumValue: 255
@@ -842,17 +849,19 @@ SecondColumnLayout {
 
                                     onValueModified: {
                                         var tmp = blueSpinBox.value / 255.0
-                                        if (colorPicker.color.b !== tmp && !colorPicker.block) {
-                                            colorPicker.color.b = tmp
+                                        if (colorPicker.blue !== tmp && !colorPicker.block) {
+                                            colorPicker.blue = tmp
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
                                     id: rgbAlphaSpinBox
                                     width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
-
                                     stepSize: 1
                                     minimumValue: 0
                                     maximumValue: 255
@@ -862,15 +871,17 @@ SecondColumnLayout {
                                         var tmp = rgbAlphaSpinBox.value / 255.0
                                         if (colorPicker.alpha !== tmp && !colorPicker.block) {
                                             colorPicker.alpha = tmp
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
                             }
 
                             RowLayout {
                                 id: hslaRow
-
                                 visible: colorPicker.mode === ColorPicker.Mode.HSLA
                                 Layout.fillWidth: true
                                 spacing: StudioTheme.Values.controlGap
@@ -882,9 +893,12 @@ SecondColumnLayout {
                                         if (colorPicker.hue !== hslHueSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.hue = hslHueSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
@@ -894,9 +908,12 @@ SecondColumnLayout {
                                         if (colorPicker.saturationHSL !== hslSaturationSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.saturationHSL = hslSaturationSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
@@ -906,6 +923,7 @@ SecondColumnLayout {
                                         if (colorPicker.lightness !== hslLightnessSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.lightness = hslLightnessSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
@@ -918,15 +936,17 @@ SecondColumnLayout {
                                         if (colorPicker.alpha !== hslAlphaSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.alpha = hslAlphaSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
                             }
 
                             RowLayout {
                                 id: hsvaRow
-
                                 visible: colorPicker.mode === ColorPicker.Mode.HSVA
                                 Layout.fillWidth: true
                                 spacing: StudioTheme.Values.controlGap
@@ -938,9 +958,12 @@ SecondColumnLayout {
                                         if (colorPicker.hue !== hsvHueSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.hue = hsvHueSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
@@ -950,9 +973,12 @@ SecondColumnLayout {
                                         if (colorPicker.saturationHSV !== hsvSaturationSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.saturationHSV = hsvSaturationSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
@@ -962,9 +988,12 @@ SecondColumnLayout {
                                         if (colorPicker.value !== hsvValueSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.value = hsvValueSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
 
                                 DoubleSpinBox {
@@ -974,9 +1003,12 @@ SecondColumnLayout {
                                         if (colorPicker.alpha !== hsvAlphaSpinBox.value
                                                 && !colorPicker.block) {
                                             colorPicker.alpha = hsvAlphaSpinBox.value
+                                            colorPicker.invalidateColor()
                                             colorPicker.updateColor()
                                         }
                                     }
+                                    onDragStarted: colorEditorTimer.stop()
+                                    onIndicatorPressed: colorEditorTimer.stop()
                                 }
                             }
                         }
@@ -986,7 +1018,6 @@ SecondColumnLayout {
                         caption: qsTr("Palette")
                         anchors.left: parent.left
                         anchors.right: parent.right
-
                         leftPadding: 10
                         rightPadding: 10
                         bottomPadding: 5
@@ -994,8 +1025,14 @@ SecondColumnLayout {
                         ColorPalette {
                             id: colorPalette
                             enableSingletonConnection: cePopup.opened
-                            onSelectedColorChanged: colorEditor.color = colorPalette.selectedColor
-                            onDialogColorChanged: colorEditor.color = colorPalette.selectedColor
+                            onSelectedColorChanged: {
+                                colorPicker.color = colorPalette.selectedColor
+                                colorEditor.color = colorPalette.selectedColor
+                            }
+                            onDialogColorChanged: {
+                                colorPicker.color = colorPalette.selectedColor
+                                colorEditor.color = colorPalette.selectedColor
+                            }
                         }
                     }
 
@@ -1005,7 +1042,6 @@ SecondColumnLayout {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         visible: !colorEditor.isNotInGradientMode()
-
                         leftPadding: 10
                         rightPadding: 10
 
@@ -1039,12 +1075,10 @@ SecondColumnLayout {
                         Column {
                             id: defaultGradientControls
                             spacing: 10
-
                             visible: colorEditor.hasLinearGradient() && !colorEditor.shapeGradients
 
                             RowLayout {
                                 id: defaultGradientOrientation
-
                                 Layout.fillWidth: true
                                 spacing: 0
 
@@ -1055,9 +1089,9 @@ SecondColumnLayout {
                                     width: implicitWidth
                                     model: [{ value: Gradient.Vertical, text: qsTr("Vertical") },
                                             { value: Gradient.Horizontal, text: qsTr("Horizontal") }]
-
                                     textRole: "text"
                                     valueRole: "value"
+
                                     onActivated: {
                                         gradientLine.model.setGradientOrientation(gradientOrientation.currentValue)
                                         colorEditor.updateThumbnail()
@@ -1090,7 +1124,6 @@ SecondColumnLayout {
                         Column {
                             id: linearGradientControls
                             spacing: 10
-
                             visible: colorEditor.hasLinearGradient() && colorEditor.shapeGradients
 
                             ControlsRow {
@@ -1126,7 +1159,6 @@ SecondColumnLayout {
                         Column {
                             id: radialGradientControls
                             spacing: 10
-
                             visible: colorEditor.hasRadialGradient()
 
                             ControlsRow {
@@ -1170,7 +1202,6 @@ SecondColumnLayout {
                         Column {
                             id: concialGradientControls
                             spacing: 10
-
                             visible: colorEditor.hasConicalGradient()
 
                             ControlsRow {
