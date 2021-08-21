@@ -26,12 +26,13 @@
 
 #include "androidrunner.h"
 
+#include "androidavdmanager.h"
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddeployqtstep.h"
-#include "androidconfigurations.h"
-#include "androidrunconfiguration.h"
+#include "androiddevice.h"
 #include "androidmanager.h"
-#include "androidavdmanager.h"
+#include "androidrunconfiguration.h"
 #include "androidrunnerworker.h"
 
 #include <coreplugin/messagemanager.h>
@@ -39,6 +40,7 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/url.h>
 
 #include <QHostAddress>
@@ -185,9 +187,9 @@ void AndroidRunner::launchAVD()
     int deviceAPILevel = AndroidManager::minimumSDK(m_target);
     QStringList androidAbis = AndroidManager::applicationAbis(m_target);
 
-    // Get AVD info.
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(
-                m_target->project(), deviceAPILevel, androidAbis);
+    // Get AVD info
+    const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
+    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.data());
     AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
     emit androidDeviceInfoChanged(info);
     if (info.isValid()) {

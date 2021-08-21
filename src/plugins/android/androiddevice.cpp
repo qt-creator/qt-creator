@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 ** Contact: https://www.qt.io/licensing/
 **
@@ -24,18 +25,28 @@
 ****************************************************************************/
 
 #include "androiddevice.h"
+
+#include "androidavdmanager.h"
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidsignaloperation.h"
-#include "androidconfigurations.h"
-#include "androidmanager.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/url.h>
+#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
+
+namespace {
+static Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.androiddevice", QtWarningMsg)
+}
+
+// interval for updating the list of connected Android devices and emulators
+constexpr int deviceUpdaterMsInterval = 30000;
 
 namespace Android {
 namespace Internal {
@@ -48,8 +59,151 @@ AndroidDevice::AndroidDevice()
     setDisplayType(tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeOtherUnix);
+    setDeviceState(DeviceConnected);
 
-    setDeviceState(DeviceReadyToUse);
+    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
+        AndroidDeviceManager::instance()->updateDevicesListOnce();
+    }});
+}
+
+IDevice::Ptr AndroidDevice::create()
+{
+    return IDevice::Ptr(new AndroidDevice);
+}
+
+AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev)
+{
+    AndroidDeviceInfo info;
+    AndroidDeviceInfo::State state;
+    if (dev->deviceState() == IDevice::DeviceReadyToUse)
+        state = AndroidDeviceInfo::OkState;
+    else if (dev->deviceState() == IDevice::DeviceDisconnected)
+        state = AndroidDeviceInfo::OfflineState;
+    else if (dev->deviceState() == IDevice::DeviceConnected)
+        state = AndroidDeviceInfo::UnAuthorizedState;
+    info.state = state;
+    info.avdname = dev->extraData(Constants::AndroidAvdName).toString();
+    info.serialNumber = dev->extraData(Constants::AndroidSerialNumber).toString();
+    info.cpuAbi = dev->extraData(Constants::AndroidCpuAbi).toStringList();
+    info.avdTarget = dev->extraData(Constants::AndroidAvdTarget).toString();
+    info.avdDevice = dev->extraData(Constants::AndroidAvdDevice).toString();
+    info.avdSkin = dev->extraData(Constants::AndroidAvdSkin).toString();
+    info.avdSdcardSize = dev->extraData(Constants::AndroidAvdSdcard).toString();
+    info.sdk = dev->extraData(Constants::AndroidSdk).toInt();
+    info.type = (dev->machineType() == ProjectExplorer::IDevice::Hardware
+                 ? AndroidDeviceInfo::Hardware : AndroidDeviceInfo::Emulator);
+
+    return info;
+}
+
+void AndroidDevice::setAndroidDeviceInfoExtras(IDevice *dev, const AndroidDeviceInfo &info)
+{
+    dev->setMachineType(info.type == AndroidDeviceInfo::Hardware
+                           ? ProjectExplorer::IDevice::Hardware
+                           : ProjectExplorer::IDevice::Emulator);
+    dev->setDeviceState(deviceStateFromInfo(info.state));
+    dev->setExtraData(Constants::AndroidAvdName, info.avdname);
+    dev->setExtraData(Constants::AndroidSerialNumber, info.serialNumber);
+    dev->setExtraData(Constants::AndroidCpuAbi, info.cpuAbi);
+    dev->setExtraData(Constants::AndroidAvdTarget, info.avdTarget);
+    dev->setExtraData(Constants::AndroidAvdDevice, info.avdDevice);
+    dev->setExtraData(Constants::AndroidAvdSkin, info.avdSkin);
+    dev->setExtraData(Constants::AndroidAvdSdcard, info.avdSdcardSize);
+    dev->setExtraData(Constants::AndroidSdk, info.sdk);
+}
+
+QString AndroidDevice::displayNameFromInfo(const AndroidDeviceInfo &info)
+{
+    return info.type == AndroidDeviceInfo::Hardware
+            ? AndroidConfigurations::currentConfig().getProductModel(info.serialNumber)
+            : info.avdname;
+}
+
+Utils::Id AndroidDevice::idFromDeviceInfo(const AndroidDeviceInfo &info)
+{
+    const QString id = (info.type == AndroidDeviceInfo::Hardware ? info.serialNumber
+                                                                 : info.avdname);
+    return  Utils::Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + id);
+}
+
+Utils::Id AndroidDevice::idFromAvdInfo(const CreateAvdInfo &info)
+{
+    return  Utils::Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + info.name);
+}
+
+IDevice::DeviceState AndroidDevice::deviceStateFromInfo(AndroidDeviceInfo::State state)
+{
+    if (state == AndroidDeviceInfo::OkState)
+        return IDevice::DeviceReadyToUse;
+    if (state == AndroidDeviceInfo::OfflineState)
+        return IDevice::DeviceDisconnected;
+    return IDevice::DeviceConnected;
+}
+
+QStringList AndroidDevice::supportedAbis() const
+{
+    return extraData(Constants::AndroidCpuAbi).toStringList();
+}
+
+bool AndroidDevice::canSupportAbis(const QStringList &abis) const
+{
+    // If the list is empty, no valid decision can be made, this means something is wrong
+    // somewhere, but let's not stop deployment.
+    QTC_ASSERT(!abis.isEmpty(), return true);
+
+    const QStringList ourAbis = supportedAbis();
+    QTC_ASSERT(!ourAbis.isEmpty(), return false);
+
+    for (const QString &abi : abis)
+        if (ourAbis.contains(abi))
+            return true; // it's enough if only one abi match is found
+
+    // If no exact match is found, let's take ABI backward compatibility into account
+    // https://developer.android.com/ndk/guides/abis#android-platform-abi-support
+    // arm64 usually can run {arm, armv7}, x86 can support {arm, armv7}, and 64-bit devices
+    // can support their 32-bit variants.
+    using namespace ProjectExplorer::Constants;
+    const bool isTheirsArm = abis.contains(ANDROID_ABI_ARMEABI_V7A)
+                                || abis.contains(ANDROID_ABI_ARMEABI_V7A);
+    // The primary ABI at the first index
+    const bool oursSupportsArm = ourAbis.first() == ANDROID_ABI_ARM64_V8A
+                                || ourAbis.first() == ANDROID_ABI_X86;
+    // arm64 and x86 can run armv7 and arm
+    if (isTheirsArm && oursSupportsArm)
+        return true;
+    // x64 can run x86
+    if (ourAbis.first() == ANDROID_ABI_X86_64 && abis.contains(ANDROID_ABI_X86))
+        return true;
+
+    return false;
+}
+
+bool AndroidDevice::canHandleDeployments() const
+{
+    // If hardware and disconned, it wouldn't be possilbe to start it, unlike an emulator
+    if (machineType() == Hardware && deviceState() == DeviceDisconnected)
+        return false;
+    return true;
+}
+
+bool AndroidDevice::isValid() const
+{
+    return !serialNumber().isEmpty() || !avdName().isEmpty();
+}
+
+QString AndroidDevice::serialNumber() const
+{
+    return extraData(Constants::AndroidSerialNumber).toString();
+}
+
+QString AndroidDevice::avdName() const
+{
+    return extraData(Constants::AndroidAvdName).toString();
+}
+
+int AndroidDevice::sdkLevel() const
+{
+    return extraData(Constants::AndroidSdk).toInt();
 }
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
@@ -80,9 +234,128 @@ QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
+void AndroidDeviceManager::updateDevicesList()
+{
+    connect(&m_devicesUpdaterTimer, &QTimer::timeout, this, [this]() {
+        updateDevicesListOnce();
+    });
+    updateDevicesListOnce();
+    m_devicesUpdaterTimer.start(deviceUpdaterMsInterval);
+}
+
+void AndroidDeviceManager::updateDevicesListOnce()
+{
+    if (!m_avdsFutureWatcher.isRunning() && m_androidConfig.adbToolPath().exists()) {
+        m_avdsFutureWatcher.setFuture((new AndroidAvdManager)->avdList());
+        m_devicesFutureWatcher.setFuture(Utils::runAsync([this]() {
+            return m_androidConfig.connectedDevices();
+        }));
+    }
+}
+
+void AndroidDeviceManager::setupDevicesWatcher()
+{
+    // The call to avdmanager is always slower than the call to adb devices,
+    // so connecting the slot to the slower call should be enough.
+    connect(&m_avdsFutureWatcher, &QFutureWatcherBase::finished,
+            this,  &AndroidDeviceManager::devicesListUpdated);
+    updateDevicesList();
+}
+
+void AndroidDeviceManager::devicesListUpdated()
+{
+    QVector<AndroidDeviceInfo> connectedDevicesInfos;
+    connectedDevicesInfos = m_devicesFutureWatcher.result();
+
+    // For checking the state of avds, since running avds are assigned a serial number of
+    // the form emulator-xxxx, thus we have to manually check for the names.
+    const QStringList runningAvds = m_androidConfig.getRunningAvdsFromDevices(connectedDevicesInfos);
+
+    AndroidDeviceInfoList devices = m_avdsFutureWatcher.result();
+    const QSet<QString> startedAvds = Utils::transform<QSet>(connectedDevicesInfos,
+                                                             &AndroidDeviceInfo::avdname);
+    for (const AndroidDeviceInfo &dev : devices)
+        if (!startedAvds.contains(dev.avdname))
+            connectedDevicesInfos << dev;
+
+    DeviceManager *const devMgr = DeviceManager::instance();
+
+    QVector<IDevice::ConstPtr> existingDevs;
+    QVector<IDevice::ConstPtr> connectedDevs;
+
+    for (int i = 0; i < devMgr->deviceCount(); ++i) {
+        const IDevice::ConstPtr dev = devMgr->deviceAt(i);
+        if (dev->id().toString().startsWith(Constants::ANDROID_DEVICE_ID)) {
+            existingDevs.append(dev);
+        }
+    }
+
+    for (auto item : connectedDevicesInfos) {
+        const Utils::Id deviceId = AndroidDevice::idFromDeviceInfo(item);
+        const QString displayName = AndroidDevice::displayNameFromInfo(item);
+        IDevice::ConstPtr dev = devMgr->find(deviceId);
+        if (!dev.isNull()) {
+            if (dev->displayName() == displayName) {
+                IDevice::DeviceState newState;
+                // If an AVD is not already running set its state to Connected instead of
+                // ReadyToUse.
+                if (dev->machineType() == IDevice::Emulator && !runningAvds.contains(displayName))
+                    newState = IDevice::DeviceConnected;
+                else
+                    newState = AndroidDevice::deviceStateFromInfo(item.state);
+                if (dev->deviceState() != newState) {
+                    qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
+                            dev->id().toString().toUtf8().data());
+                    devMgr->setDeviceState(dev->id(), newState);
+                }
+                connectedDevs.append(dev);
+                continue;
+            } else {
+                // DeviceManager doens't seem to hav a way to directly update the name, if the name
+                // of the device has changed, remove it and register it again with the new name.
+                devMgr->removeDevice(dev->id());
+            }
+        }
+
+        AndroidDevice *newDev = new AndroidDevice();
+        newDev->setupId(IDevice::AutoDetected, deviceId);
+        newDev->setDisplayName(displayName);
+        AndroidDevice::setAndroidDeviceInfoExtras(newDev, item);
+        qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
+                newDev->id().toString().toUtf8().data());
+        const IDevice::ConstPtr constNewDev = IDevice::ConstPtr(newDev);
+        devMgr->addDevice(constNewDev);
+        connectedDevs.append(constNewDev);
+    }
+
+    // Set devices no longer connected to disconnected state.
+    for (const IDevice::ConstPtr dev : existingDevs) {
+        if (dev->id() != Constants::ANDROID_DEVICE_ID && !connectedDevs.contains(dev)
+                && dev->deviceState() != IDevice::DeviceDisconnected) {
+            qCDebug(androidDeviceLog, "Device id \"%s\" is no longer connected.",
+                    dev->id().toString().toUtf8().data());
+            devMgr->setDeviceState(dev->id(), IDevice::DeviceDisconnected);
+        }
+    }
+}
+
+AndroidDeviceManager *AndroidDeviceManager::instance()
+{
+    static AndroidDeviceManager obj;
+    return &obj;
+}
+
+AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
+    : m_androidConfig(AndroidConfigurations::currentConfig())
+{
+    connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
+        m_devicesUpdaterTimer.stop();
+        m_avdsFutureWatcher.waitForFinished();
+        m_devicesFutureWatcher.waitForFinished();
+    });
+}
 
 // Factory
-
 AndroidDeviceFactory::AndroidDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE)
 {

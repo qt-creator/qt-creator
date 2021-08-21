@@ -33,7 +33,6 @@ HEADERS += \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
     androidmanifestdocument.h \
-    androiddevicedialog.h \
     androiddeployqtstep.h \
     certificatesmodel.h \
     androidpotentialkit.h \
@@ -82,7 +81,6 @@ SOURCES += \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
     androidmanifestdocument.cpp \
-    androiddevicedialog.cpp \
     androiddeployqtstep.cpp \
     certificatesmodel.cpp \
     androidpotentialkit.cpp \
@@ -109,7 +107,6 @@ FORMS += \
     androidsettingswidget.ui \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
-    androiddevicedialog.ui \
     androidsdkmanagerwidget.ui
 
 RESOURCES = android.qrc

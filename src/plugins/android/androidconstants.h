@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QtGlobal>
+#include <utils/id.h>
 
 namespace Android {
 namespace Internal {
@@ -92,6 +93,16 @@ const char AndroidNdkPlatform[] = "AndroidNdkPlatform"; //QString
 const char NdkLocation[] = "NdkLocation"; // FileName
 const char SdkLocation[] = "SdkLocation"; // FileName
 const char AndroidABIs[] = "AndroidABIs"; // QString
+
+// Android Device
+const Utils::Id AndroidSerialNumber = "AndroidSerialNumber";
+const Utils::Id AndroidAvdName = "AndroidAvdName";
+const Utils::Id AndroidCpuAbi = "AndroidCpuAbi";
+const Utils::Id AndroidAvdTarget = "AndroidAvdTarget";
+const Utils::Id AndroidAvdDevice = "AndroidAvdDevice";
+const Utils::Id AndroidAvdSkin = "AndroidAvdSkin";
+const Utils::Id AndroidAvdSdcard = "AndroidAvdSdcard";
+const Utils::Id AndroidSdk = "AndroidSdk";
 
 } // namespace Constants;
 } // namespace Android

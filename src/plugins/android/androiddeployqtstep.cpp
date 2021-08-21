@@ -33,6 +33,7 @@
 #include "androidglobal.h"
 #include "androidavdmanager.h"
 #include "androidqtversion.h"
+#include "androiddevice.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -147,14 +148,6 @@ bool AndroidDeployQtStep::init()
     if (androidDeployQtStep != this)
         info = androidDeployQtStep->m_deviceInfo;
 
-    if (!info.isValid()) {
-        info = AndroidConfigurations::showDeviceDialog(project(), minTargetApi, m_androidABIs);
-        m_deviceInfo = info; // Keep around for later steps
-    }
-
-    if (!info.isValid()) // aborted
-        return false;
-
     const BuildSystem *bs = buildSystem();
     auto selectedAbis = bs->property(Constants::ANDROID_ABIS).toStringList();
 
@@ -164,6 +157,40 @@ bool AndroidDeployQtStep::init()
 
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidArch).toString());
+
+    if (!info.isValid()) {
+        const IDevice *dev = DeviceKitAspect::device(kit()).data();
+        info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
+        m_deviceInfo = info; // Keep around for later steps
+
+        if (!info.isValid()) {
+            const QString error = tr("The deployment device \"%1\" is invalid.")
+                    .arg(dev->displayName());
+            emit addOutput(error, OutputFormat::Stderr);
+            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            return false;
+        }
+
+        const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(dev);
+        if (androidDev && !androidDev->canSupportAbis(selectedAbis)) {
+            const QString error = tr("The deployment device \"%1\" doesn't support the "
+                                     "architectures used by the kit.\n"
+                                     "The kit supports \"%2\", but the device uses \"%3\".")
+                                      .arg(dev->displayName()).arg(selectedAbis.join(", "))
+                                      .arg(androidDev->supportedAbis().join(", "));
+            emit addOutput(error, OutputFormat::Stderr);
+            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            return false;
+        }
+
+        if (androidDev && !androidDev->canHandleDeployments()) {
+            const QString error = tr("The deployment device \"%1\" is disconnected.")
+                                    .arg(dev->displayName());
+            emit addOutput(error, OutputFormat::Stderr);
+            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            return false;
+        }
+    }
 
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     if (qt && qt->supportsMultipleQtAbis() && !selectedAbis.contains(info.cpuAbi.first())) {
@@ -500,14 +527,6 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
 QWidget *AndroidDeployQtStep::createConfigWidget()
 {
     auto widget = new QWidget;
-
-    auto resetDefaultDevices = new QPushButton(widget);
-    resetDefaultDevices->setText(tr("Reset Default Deployment Devices"));
-
-    connect(resetDefaultDevices, &QAbstractButton::clicked, this, [this] {
-        AndroidConfigurations::clearDefaultDevices(project());
-    });
-
     auto installCustomApkButton = new QPushButton(widget);
     installCustomApkButton->setText(tr("Install an APK File"));
 
@@ -523,7 +542,6 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
 
     Layouting::Form builder;
     builder.addRow(m_uninstallPreviousPackage);
-    builder.addRow(resetDefaultDevices);
     builder.addRow(installCustomApkButton);
     builder.attachTo(widget);
 

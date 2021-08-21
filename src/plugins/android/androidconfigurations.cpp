@@ -29,7 +29,6 @@
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidqtversion.h"
-#include "androiddevicedialog.h"
 #include "avddialog.h"
 
 #include <coreplugin/icore.h>
@@ -691,6 +690,26 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     return QString::fromLatin1(name).trimmed();
 }
 
+QStringList AndroidConfig::getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs)
+{
+    QStringList runningDevs;
+    for (const AndroidDeviceInfo &dev : devs) {
+        if (!dev.serialNumber.startsWith("emulator"))
+            continue;
+        QStringList args = AndroidDeviceInfo::adbSelector(dev.serialNumber);
+        args.append({"emu", "avd", "name"});
+        SdkToolResult result = AndroidManager::runAdbCommand(args);
+        const QString stdOut = result.stdOut();
+        if (stdOut.isEmpty())
+            continue; // Not an avd
+        const QStringList outputLines = stdOut.split('\n');
+        if (outputLines.size() > 1)
+            runningDevs.append(outputLines.first());
+    }
+
+    return runningDevs;
+}
+
 AndroidConfig::OpenGl AndroidConfig::getOpenGLEnabled(const QString &emulator) const
 {
     QDir dir = QDir::home();
@@ -1067,54 +1086,6 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     emit m_instance->updated();
 }
 
-AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
-                                                          int apiLevel, const QStringList &abis)
-{
-    QString serialNumber;
-    for (const QString &abi : abis) {
-        serialNumber = defaultDevice(project, abi);
-        if (!serialNumber.isEmpty())
-            break;
-    }
-
-    const AndroidDeviceInfo defaultDevice = AndroidDeviceDialog::defaultDeviceInfo(serialNumber);
-    if (defaultDevice.isValid())
-        return defaultDevice;
-
-    AndroidDeviceDialog dialog(apiLevel, abis, serialNumber, Core::ICore::dialogParent());
-    AndroidDeviceInfo info = dialog.showAndGetSelectedDevice();
-    if (dialog.saveDeviceSelection() && info.isValid()) {
-        const QString newSerialNumber = info.type == AndroidDeviceInfo::Hardware ?
-                    info.serialNumber : info.avdname;
-        if (!newSerialNumber.isEmpty()) {
-            const QString preferredAbi = AndroidManager::devicePreferredAbi(info.cpuAbi, abis);
-            AndroidConfigurations::setDefaultDevice(project, preferredAbi, newSerialNumber);
-        }
-    }
-    return info;
-}
-
-void AndroidConfigurations::clearDefaultDevices(Project *project)
-{
-    if (m_instance->m_defaultDeviceForAbi.contains(project))
-        m_instance->m_defaultDeviceForAbi.remove(project);
-}
-
-void AndroidConfigurations::setDefaultDevice(Project *project, const QString &abi, const QString &serialNumber)
-{
-    m_instance->m_defaultDeviceForAbi[project][abi] = serialNumber;
-}
-
-QString AndroidConfigurations::defaultDevice(Project *project, const QString &abi)
-{
-    if (!m_instance->m_defaultDeviceForAbi.contains(project))
-        return QString();
-    const QMap<QString, QString> &map = m_instance->m_defaultDeviceForAbi.value(project);
-    if (!map.contains(abi))
-        return QString();
-    return map.value(abi);
-}
-
 static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
 {
     if (atc == btc)
@@ -1306,15 +1277,6 @@ void AndroidConfigurations::updateAutomaticKitList()
         qtVersionsForArch[qtAbis.first()].append(qtVersion);
     }
 
-    DeviceManager *dm = DeviceManager::instance();
-    IDevice::ConstPtr device = dm->find(Constants::ANDROID_DEVICE_ID);
-    if (device.isNull()) {
-        // no device, means no sdk path
-        for (Kit *k : existingKits)
-            KitManager::deregisterKit(k);
-        return;
-    }
-
     // register new kits
     const QList<ToolChain *> toolchains = ToolChainManager::toolChains([](const ToolChain *tc) {
         return tc->isAutoDetected()
@@ -1350,20 +1312,20 @@ void AndroidConfigurations::updateAutomaticKitList()
                                           ToolChainKitAspect::cToolChain(b));
             });
 
-            const auto initializeKit = [allLanguages, device, tc, qt](Kit *k) {
+            const auto initializeKit = [allLanguages, tc, qt](Kit *k) {
                 k->setAutoDetected(true);
                 k->setAutoDetectionSource("AndroidConfiguration");
                 DeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 for (ToolChain *tc : allLanguages)
                     ToolChainKitAspect::setToolChain(k, tc);
                 QtKitAspect::setQtVersion(k, qt);
-                DeviceKitAspect::setDevice(k, device);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis));
 
                 k->setSticky(ToolChainKitAspect::id(), true);
                 k->setSticky(QtKitAspect::id(), true);
                 k->setSticky(DeviceKitAspect::id(), true);
+                k->setMutable(DeviceKitAspect::id(), true);
                 k->setSticky(DeviceTypeKitAspect::id(), true);
 
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
@@ -1433,14 +1395,10 @@ AndroidConfigurations::AndroidConfigurations()
     : m_sdkManager(new AndroidSdkManager(m_config))
 {
     load();
-
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &AndroidConfigurations::clearDefaultDevices);
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
             this, &AndroidConfigurations::updateAndroidDevice);
 
     m_force32bit = is32BitUserSpace();
-
     m_instance = this;
 }
 
@@ -1545,11 +1503,13 @@ void AndroidConfigurations::load()
 
 void AndroidConfigurations::updateAndroidDevice()
 {
-    DeviceManager * const devMgr = DeviceManager::instance();
-    if (m_instance->m_config.adbToolPath().exists())
-        devMgr->addDevice(AndroidDevice::create());
-    else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
-        devMgr->removeDevice(Constants::ANDROID_DEVICE_ID);
+    // Remove any dummy Android device, because it won't be usable.
+    DeviceManager *const devMgr = DeviceManager::instance();
+    IDevice::ConstPtr dev = devMgr->find(Constants::ANDROID_DEVICE_ID);
+    if (dev)
+        devMgr->removeDevice(dev->id());
+
+    AndroidDeviceManager::instance()->setupDevicesWatcher();
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = nullptr;

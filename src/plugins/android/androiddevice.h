@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 ** Contact: https://www.qt.io/licensing/
 **
@@ -25,8 +26,14 @@
 
 #pragma once
 
+#include "androidconfigurations.h"
+#include "androiddeviceinfo.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
+
+#include <QFutureWatcher>
+#include <QTimer>
 
 namespace Android {
 namespace Internal {
@@ -36,17 +43,32 @@ class AndroidDevice final : public ProjectExplorer::IDevice
     Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidDevice)
 
 public:
-    static IDevice::Ptr create() { return IDevice::Ptr(new AndroidDevice); }
-
-private:
     AndroidDevice();
 
-    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
+    static IDevice::Ptr create();
+    static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
+    static void setAndroidDeviceInfoExtras(IDevice *dev, const AndroidDeviceInfo &info);
 
+    static QString displayNameFromInfo(const AndroidDeviceInfo &info);
+    static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
+    static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);
+    static IDevice::DeviceState deviceStateFromInfo(AndroidDeviceInfo::State state);
+
+    QStringList supportedAbis() const;
+    bool canSupportAbis(const QStringList &abis) const;
+
+    bool canHandleDeployments() const;
+
+    bool isValid() const;
+    QString serialNumber() const;
+    QString avdName() const;
+    int sdkLevel() const;
+
+private:
+    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     bool canAutoDetectPorts() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 };
 
@@ -54,6 +76,24 @@ class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     AndroidDeviceFactory();
+};
+
+class AndroidDeviceManager : public QObject
+{
+public:
+    static AndroidDeviceManager *instance();
+    void setupDevicesWatcher();
+    void updateDevicesList();
+    void updateDevicesListOnce();
+
+private:
+    AndroidDeviceManager(QObject *parent = nullptr);
+    void devicesListUpdated();
+
+    QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
+    QFutureWatcher<QVector<AndroidDeviceInfo>> m_devicesFutureWatcher;
+    QTimer m_devicesUpdaterTimer;
+    AndroidConfig m_androidConfig;
 };
 
 } // namespace Internal

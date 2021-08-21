@@ -25,16 +25,17 @@
 
 #include "androidmanager.h"
 
-#include "androidbuildapkstep.h"
-#include "androidconstants.h"
-#include "androidconfigurations.h"
-#include "androidrunconfiguration.h"
-#include "androidglobal.h"
-#include "androidtoolchain.h"
-#include "androiddeployqtstep.h"
-#include "androidqtversion.h"
 #include "androidavdmanager.h"
+#include "androidbuildapkstep.h"
+#include "androidconfigurations.h"
+#include "androidconstants.h"
+#include "androiddeployqtstep.h"
+#include "androiddevice.h"
+#include "androidglobal.h"
+#include "androidqtversion.h"
+#include "androidrunconfiguration.h"
 #include "androidsdkmanager.h"
+#include "androidtoolchain.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -552,7 +553,8 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
     if (appAbis.isEmpty())
         return;
     const int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, appAbis);
+    const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
+    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.data());
     if (!info.isValid()) // aborted
         return;
 

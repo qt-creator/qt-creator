@@ -171,6 +171,8 @@ public:
 
     static Utils::FilePath getJdkPath();
 
+    static QStringList getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs);
+
 private:
     static QString getDeviceProperty(const Utils::FilePath &adbToolPath,
                                      const QString &device, const QString &property);
@@ -213,10 +215,6 @@ public:
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 
-    static AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QStringList &abis);
-    static void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
-    static QString defaultDevice(ProjectExplorer::Project *project, const QString &abi); // serial number or avd name
-    static void clearDefaultDevices(ProjectExplorer::Project *project);
     static void registerNewToolChains();
     static void registerCustomToolChainsAndDebuggers();
     static void removeUnusedDebuggers();
@@ -240,8 +238,6 @@ private:
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
-
-    QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;
     bool m_force32bit;
 };
 
