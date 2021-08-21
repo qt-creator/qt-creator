@@ -473,7 +473,13 @@ FilePath AndroidConfig::avdManagerToolPath() const
 
 FilePath AndroidConfig::toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const
 {
-    const FilePath toolchainPath = ndkLocation / "toolchains/llvm/prebuilt/";
+    const FilePath tcPath = ndkLocation / "toolchains/";
+    FilePath toolchainPath;
+    QDirIterator llvmIter(tcPath.toString(), {"llvm*"}, QDir::Dirs);
+    if (llvmIter.hasNext()) {
+        llvmIter.next();
+        toolchainPath = tcPath / llvmIter.fileName() / "prebuilt/";
+    }
 
     // detect toolchain host
     QStringList hostPatterns;
