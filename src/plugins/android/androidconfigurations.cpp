@@ -1135,46 +1135,6 @@ void AndroidConfigurations::registerNewToolChains()
     registerCustomToolChainsAndDebuggers();
 }
 
-void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
-{
-    const QList<ToolChain *> existingAndroidToolChains = ToolChainManager::toolChains(
-        Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
-    QList<FilePath> customNdks = Utils::transform(currentConfig().getCustomNdkList(),
-                                                  FilePath::fromString);
-    QList<ToolChain *> customToolchains
-        = AndroidToolChainFactory::autodetectToolChainsFromNdks(existingAndroidToolChains,
-                                                                customNdks,
-                                                                true);
-    for (ToolChain *tc : customToolchains) {
-        ToolChainManager::registerToolChain(tc);
-
-        const FilePath ndk = static_cast<AndroidToolChain *>(tc)->ndkLocation();
-        const FilePath command = AndroidConfigurations::currentConfig()
-                                     .gdbPathFromNdk(tc->targetAbi(), ndk);
-
-        const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(
-            command);
-        QString abiStr
-            = static_cast<AndroidToolChain *>(tc)->platformLinkerFlags().at(1).split('-').first();
-        Abi abi = Abi::abiFromTargetTriplet(abiStr);
-        if (existing && existing->abis().contains(abi))
-            continue;
-
-        Debugger::DebuggerItem debugger;
-        debugger.setCommand(command);
-        debugger.setEngineType(Debugger::GdbEngineType);
-        debugger.setUnexpandedDisplayName(
-            AndroidConfigurations::tr("Custom Android Debugger (%1, NDK %2)")
-                .arg(abiStr,
-                     AndroidConfigurations::currentConfig().ndkVersion(ndk).toString()));
-        debugger.setAutoDetected(true);
-        debugger.setAbi(abi);
-        debugger.reinitializeFromFile();
-
-        Debugger::DebuggerItemManager::registerDebugger(debugger);
-    }
-}
-
 void AndroidConfigurations::removeOldToolChains()
 {
     foreach (ToolChain *tc, ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)))) {
@@ -1185,18 +1145,17 @@ void AndroidConfigurations::removeOldToolChains()
 
 void AndroidConfigurations::removeUnusedDebuggers()
 {
-    QVector<FilePath> uniqueNdks;
-    const QList<QtSupport::BaseQtVersion *> qtVersions
-        = QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
-              return v->type() == Constants::ANDROIDQT;
-          });
+    const QList<QtSupport::BaseQtVersion *> qtVersions = QtSupport::QtVersionManager::versions(
+                [](const QtSupport::BaseQtVersion *v) {
+        return v->type() == Constants::ANDROIDQT;
+    });
 
+    QVector<FilePath> uniqueNdks;
     for (const QtSupport::BaseQtVersion *qt : qtVersions) {
         FilePath ndkLocation = currentConfig().ndkLocation(qt);
         if (!uniqueNdks.contains(ndkLocation))
             uniqueNdks.append(ndkLocation);
     }
-
 
     uniqueNdks.append(Utils::transform(currentConfig().getCustomNdkList(),
                                        FilePath::fromString).toVector());
@@ -1214,19 +1173,27 @@ void AndroidConfigurations::removeUnusedDebuggers()
             }
         }
 
-        if (!isChildOfNdk && debugger.isAutoDetected())
+        const bool isMultiAbiNdkGdb = debugger.command().fileName().startsWith("gdb");
+        const bool hasMultiAbiName = debugger.displayName().contains("Multi-Abi");
+
+        if (debugger.isAutoDetected() && (!isChildOfNdk || (isMultiAbiNdkGdb && !hasMultiAbiName)))
             Debugger::DebuggerItemManager::deregisterDebugger(debugger.id());
     }
 }
 
-static bool containsAllAbis(const QStringList &abis)
+static QStringList allSupportedAbis()
 {
-    QStringList supportedAbis{
+    return QStringList{
         ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
         ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
         ProjectExplorer::Constants::ANDROID_ABI_X86,
         ProjectExplorer::Constants::ANDROID_ABI_X86_64,
     };
+}
+
+static bool containsAllAbis(const QStringList &abis)
+{
+    QStringList supportedAbis{allSupportedAbis()};
     for (const QString &abi : abis)
         if (supportedAbis.contains(abi))
             supportedAbis.removeOne(abi);
@@ -1234,28 +1201,25 @@ static bool containsAllAbis(const QStringList &abis)
     return supportedAbis.isEmpty();
 }
 
+static QString getMultiOrSingleAbiString(const QStringList &abis)
+{
+    return containsAllAbis(abis) ? "Multi-Abi" : abis.join(",");
+}
+
 static QVariant findOrRegisterDebugger(ToolChain *tc,
                                        const QStringList &abisList,
-                                       const BaseQtVersion *qtVersion)
+                                       bool customDebugger = false)
 {
-    const FilePath command = AndroidConfigurations::currentConfig().gdbPath(tc->targetAbi(),
-                                                                            qtVersion);
+    const auto &currentConfig = AndroidConfigurations::currentConfig();
+    const FilePath ndk = static_cast<AndroidToolChain *>(tc)->ndkLocation();
+    const FilePath command = currentConfig.gdbPathFromNdk(tc->targetAbi(), ndk);
+
     // check if the debugger is already registered, but ignoring the display name
     const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
 
-    QList<Abi> abis = Utils::transform(abisList, Abi::abiFromTargetTriplet);
-
-    auto containsAbis = [abis](const Abis &secondAbis) {
-        for (const Abi &abi : secondAbis) {
-            if (!abis.contains(abi))
-                return false;
-        }
-        return true;
-    };
-
-    if (existing && existing->engineType() == Debugger::GdbEngineType && existing->isAutoDetected()
-        && containsAbis(existing->abis())) {
-        // update debugger info with new
+    // Return existing debugger with same command
+    if (existing && existing->engineType() == Debugger::GdbEngineType
+            && existing->isAutoDetected()) {
         return existing->id();
     }
 
@@ -1263,16 +1227,39 @@ static QVariant findOrRegisterDebugger(ToolChain *tc,
     Debugger::DebuggerItem debugger;
     debugger.setCommand(command);
     debugger.setEngineType(Debugger::GdbEngineType);
-    debugger.setUnexpandedDisplayName(
-        AndroidConfigurations::tr("Android Debugger (%1, NDK %2)")
-            .arg(containsAllAbis(abisList) ? "Multi-Abi" : abisList.join(","))
-            .arg(AndroidConfigurations::currentConfig().ndkVersion(qtVersion).toString()));
+
+    // NDK 10 and older have multiple gdb versions per ABI, so check for that.
+    const bool oldNdkVersion = currentConfig.ndkVersion(ndk) <= QVersionNumber{11};
+    QString mainName = AndroidConfigurations::tr("Android Debugger (%1, NDK %2)");
+    if (customDebugger)
+        mainName.prepend("Custom ");
+    debugger.setUnexpandedDisplayName(mainName
+            .arg(getMultiOrSingleAbiString(oldNdkVersion ? abisList : allSupportedAbis()))
+            .arg(AndroidConfigurations::currentConfig().ndkVersion(ndk).toString()));
     debugger.setAutoDetected(true);
-    debugger.setAbis(abis.toVector());
     debugger.reinitializeFromFile();
     return Debugger::DebuggerItemManager::registerDebugger(debugger);
 }
 
+void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
+{
+    const QList<ToolChain *> existingAndroidToolChains = ToolChainManager::toolChains(
+        Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
+    QList<FilePath> customNdks = Utils::transform(currentConfig().getCustomNdkList(),
+                                                  FilePath::fromString);
+    QList<ToolChain *> customToolchains
+        = AndroidToolChainFactory::autodetectToolChainsFromNdks(existingAndroidToolChains,
+                                                                customNdks,
+                                                                true);
+    for (ToolChain *tc : customToolchains) {
+        ToolChainManager::registerToolChain(tc);
+        const auto androidToolChain = static_cast<AndroidToolChain *>(tc);
+        QString abiStr;
+        if (androidToolChain)
+            abiStr = androidToolChain->platformLinkerFlags().at(1).split('-').first();
+        findOrRegisterDebugger(tc, {abiStr}, true);
+    }
+}
 void AndroidConfigurations::updateAutomaticKitList()
 {
     for (Kit *k : KitManager::kits()) {
@@ -1362,7 +1349,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 QtSupport::QtKitAspect::setQtVersion(k, qt);
                 DeviceKitAspect::setDevice(k, device);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
-                Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis, QtKitAspect::qtVersion(k)));
+                Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis));
 
                 k->setSticky(ToolChainKitAspect::id(), true);
                 k->setSticky(QtSupport::QtKitAspect::id(), true);
@@ -1374,7 +1361,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                     versionStr = QString("%1").arg(qt->displayName());
                 k->setUnexpandedDisplayName(tr("Android %1 Clang %2")
                                                 .arg(versionStr)
-                                                .arg(containsAllAbis(abis) ? "Multi-Abi" : abis.join(",")));
+                                                .arg(getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
                 k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
             };
