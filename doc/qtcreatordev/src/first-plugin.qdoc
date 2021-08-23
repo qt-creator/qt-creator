@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -61,9 +61,8 @@
         \li Give your project a name and specify in which path this project will
             be created. The actual plugin's name can be different from the
             project name. You will choose that name later in the wizard.
-            Continue to the next page.
 
-            The \uicontrol {Plugin Information} dialog opens.
+        \li Continue to the \uicontrol {Plugin Information} dialog.
 
             \image firstplugin-pluginsetup.png "Specify Your Plugin Details"
 
@@ -74,7 +73,7 @@
         \li The values of the following fields are mainly informational, and
             are shown in the detailed view in \QC's plugin overview
             (\uicontrol Help > \uicontrol {About Plugins}, or
-            \uicontrol {Qt Creator} > \uicontrol {About Plugins} on Mac).
+            \uicontrol {\QC} > \uicontrol {About Plugins} on \macos).
 
             \list
                 \li \uicontrol {Vendor name} is a short one-word name of the
@@ -94,33 +93,19 @@
                     it.
            \endlist
 
-        \li Set the \uicontrol {Qt Creator sources} and
-            \uicontrol{Qt Creator build} fields to the source and build
-            directory of the \QC instance you want to use to test your plugin
-            with, respectively. If you don't do that correctly you will get
-            compile errors for your plugin, and your plugin might not show up in
-            \QC at all.
+        \li Set the \uicontrol{\QC build} field to the build directory
+            of the \QC instance you want to use to test your plugin with. If
+            you don't do that correctly, you will get compile errors for your
+            plugin, and your plugin might not show up in \QC at all.
 
-        \li In the \uicontrol {Deploy into} list, select
-            \uicontrol {Qt Creator build}. This sets your \c {.pro} file up to
-            deploy your plugin directly into your \QC build's plugin directory
-            (requires you to have write permissions there). The other option,
-            \uicontrol {Local user settings}, sets your \c {.pro} file up to
-            deploy your plugin into \QC's user plugin path (for example
-            \c {~/.config/QtProject/qtcreator/plugins} on Unix systems). We
-            choose \uicontrol {Qt Creator build} because we use a self-compiled
-            \QC, and want the plugin to be only loaded by that \QC
-            instance. Continue to the next page.
-
-            The \uicontrol {Translation File} dialog opens.
+        \li Continue to the \uicontrol {Translation File} dialog.
 
             \image firstplugin-translation-file.png "Choose a language to localize your plugin to"
 
         \li Select a language to localize your plugin to. This sets up
-            translation support for the selected language. Continue to the
-            next page.
+            translation support for the selected language.
 
-            The \uicontrol {Kit Selection} dialog opens.
+        \li Continue to the \uicontrol {Kit Selection} dialog.
 
             \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
 
@@ -129,9 +114,9 @@
             version that is compatible with the Qt version that your \QC was
             built with (in the best case the exact same build). If you use an
             incompatible Qt version to build your plugin, you will get errors
-            while \QC tries to load your plugin. Continue to the next page.
+            while \QC tries to load your plugin.
 
-            The \uicontrol {Project Management} dialog opens.
+        \li Continue to the \uicontrol {Project Management} dialog.
 
             \image firstplugin-summary.png "Summary of Created Files"
 
@@ -142,7 +127,7 @@
 
     \section1 Building and Running the Plugin
 
-    If you passed the correct \QC source and build paths in the project wizard,
+    If you passed the correct \QC build path in the project wizard,
     your plugin should just build fine when pressing the build button. Before
     running the project, select \uicontrol {Build & Run} > \uicontrol Run to
     specify run settings:
@@ -150,9 +135,12 @@
     \image firstplugin-runsettings.png "Specify the Executable to Run"
 
     Select the path to the \QC executable from the build that you specified in
-    the \uicontrol {Qt Creator build} setting in the project wizard and click
-    \uicontrol OK. \QC starts up, and you can verify that your plugin
-    successfully loaded by looking for a menu entry \uicontrol Tools >
+    the \uicontrol {\QC build} field in the project wizard and set the value
+    of the \uicontrol {Command line arguments} field to
+    \c {-pluginpath %{buildDir}}.
+
+    When you click \uicontrol OK, \QC starts up, and you can verify that your
+    plugin is successfully loaded by looking for a menu entry \uicontrol Tools >
     \uicontrol Example and by looking for the plugin in the \uicontrol Help >
     \uicontrol {About Plugins} dialog.
 
@@ -170,13 +158,13 @@
     \row
         \li \c {Example.json.in}
 
-        \li Plugin meta data template. QMake creates an \c {Example.json}
+        \li Plugin meta data template. CMake creates an \c {Example.json}
             from this file, which is compiled into the plugin as meta data.
             The meta data is read by \QC to find out about the plugin.
     \row
-        \li \c {example.pro}
+        \li \c {CMakeLists.txt}
 
-        \li Project file, used by QMake to generate a Makefile that then is used to
+        \li Project file, used by CMake to generate a Makefile that then is used to
             build the plugin.
     \row
         \li \c {example_global.h}
@@ -193,7 +181,7 @@
         \li C++ header and source files that define the plugin class that will be
             instantiated and run by \QC's plugin manager.
     \row
-        \li \c{build_qmake.yml}
+        \li \c{build_cmake.yml}
 
         \li Adds a
             \l {https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions}
