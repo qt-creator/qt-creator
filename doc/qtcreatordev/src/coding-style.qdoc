@@ -983,7 +983,7 @@
             \li \c{#include <stdthing>}
             \li \c{#include <system.h>}
         \endlist
-        \li Enclose headers from other plugins in square brackets (<>) rather than
+        \li Enclose headers from other plugins in angle brackets (<>) rather than
             quotation marks ("") to make it easier to spot external dependencies in
             the sources.
         \li Add empty lines between long blocks of \e peer headers and try to
