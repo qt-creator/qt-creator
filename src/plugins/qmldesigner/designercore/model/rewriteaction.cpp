@@ -83,7 +83,7 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
         const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
         bool result = false;
 
-        if (m_property.isDefaultProperty()) {
+        if (m_propertyType != QmlRefactoring::ScriptBinding && m_property.isDefaultProperty()) {
             result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
 
             if (!result) {
@@ -187,7 +187,7 @@ bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
         }
         bool result = false;
 
-        if (m_property.isDefaultProperty()) {
+        if (m_propertyType != QmlRefactoring::ScriptBinding && m_property.isDefaultProperty()) {
             result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
 
             if (!result) {
