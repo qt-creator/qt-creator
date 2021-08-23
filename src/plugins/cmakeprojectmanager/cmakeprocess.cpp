@@ -109,6 +109,13 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
+    if (buildDirectory.needsDevice()) {
+        if (cmake->cmakeExecutable().host() != buildDirectory.host()) {
+            m_parser.appendMessage(tr("CMake executable and build dir must be on the same device."), StdErrFormat);
+            reportCanceled();
+            return;
+        }
+    }
     CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, "-B", buildDirectory.path()}) + arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
