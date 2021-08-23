@@ -188,7 +188,6 @@ bool AndroidDeployQtStep::init()
         m_manifestName = AndroidManager::manifestPath(target());
 
     m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
-
     if (m_useAndroiddeployqt) {
         const QString buildKey = target()->activeBuildKey();
         const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
@@ -216,7 +215,7 @@ bool AndroidDeployQtStep::init()
             }
             m_command = m_command.pathAppended(HostOsInfo::withExecutableSuffix("androiddeployqt"));
 
-            m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
+            m_workingDirectory = AndroidManager::androidBuildDirectory(target());
 
             m_androiddeployqtArgs.addArgs({"--verbose",
                                            "--output", m_workingDirectory.toString(),
@@ -237,7 +236,7 @@ bool AndroidDeployQtStep::init()
         m_uninstallPreviousPackageRun = true;
         m_command = AndroidConfigurations::currentConfig().adbToolPath();
         m_apkPath = AndroidManager::apkPath(target());
-        m_workingDirectory = bc ? bc->buildDirectory() : FilePath();
+        m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
     m_environment = bc ? bc->environment() : Utils::Environment();
 
@@ -444,9 +443,8 @@ bool AndroidDeployQtStep::runImpl()
 void AndroidDeployQtStep::gatherFilesToPull()
 {
     m_filesToPull.clear();
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    QString buildDir = bc ? bc->buildDirectory().toString() : QString();
-    if (bc && !buildDir.endsWith("/")) {
+    QString buildDir = AndroidManager::buildDirectory(target()).toString();
+    if (!buildDir.endsWith("/")) {
         buildDir += "/";
     }
 

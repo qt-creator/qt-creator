@@ -47,6 +47,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -244,8 +245,18 @@ bool AndroidManager::isQtCreatorGenerated(const FilePath &deploymentFile)
 
 FilePath AndroidManager::dirPath(const Target *target)
 {
-    if (auto *bc = target->activeBuildConfiguration())
-        return bc->buildDirectory() / Constants::ANDROID_BUILDDIRECTORY;
+    return androidBuildDirectory(target);
+}
+
+FilePath AndroidManager::androidBuildDirectory(const Target *target)
+{
+    return buildDirectory(target) / Constants::ANDROID_BUILD_DIRECTORY;
+}
+
+FilePath AndroidManager::buildDirectory(const Target *target)
+{
+    if (const BuildSystem *bs = target->buildSystem())
+        return bs->buildTarget(target->activeBuildKey()).workingDirectory;
     return {};
 }
 
@@ -266,7 +277,7 @@ FilePath AndroidManager::apkPath(const Target *target)
     else
         apkPath += QLatin1String("debug.apk");
 
-    return dirPath(target) / apkPath;
+    return androidBuildDirectory(target) / apkPath;
 }
 
 bool AndroidManager::matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis)
@@ -341,7 +352,7 @@ FilePath AndroidManager::manifestPath(const Target *target)
     QVariant manifest = target->namedSettings(AndroidManifestName);
     if (manifest.isValid())
         return manifest.value<FilePath>();
-    return dirPath(target).pathAppended(AndroidManifestName);
+    return androidBuildDirectory(target).pathAppended(AndroidManifestName);
 }
 
 void AndroidManager::setManifestPath(Target *target, const FilePath &path)
@@ -373,7 +384,7 @@ static QString preferredAbi(const QStringList &appAbis, const Target *target)
 
 QString AndroidManager::apkDevicePreferredAbi(const Target *target)
 {
-    auto libsPath = dirPath(target).pathAppended("libs");
+    auto libsPath = androidBuildDirectory(target).pathAppended("libs");
     if (!libsPath.exists()) {
         if (const ProjectNode *node = currentProjectNode(target))
             return preferredAbi(node->data(Android::Constants::ANDROID_ABIS).toStringList(),

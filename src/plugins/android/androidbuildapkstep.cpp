@@ -552,13 +552,13 @@ bool AndroidBuildApkStep::init()
     }
 
     m_openPackageLocationForRun = m_openPackageLocation;
+    const FilePath outputDir = AndroidManager::androidBuildDirectory(target());
 
     if (m_buildAAB) {
         const QString bt = buildType() == BuildConfiguration::Release ? QLatin1String("release")
                                                                       : QLatin1String("debug");
-        m_packagePath = buildDirectory()
-                .pathAppended(Constants::ANDROID_BUILDDIRECTORY)
-                .pathAppended(QString("build/outputs/bundle/%1/android-build-%1.aab").arg(bt)).toString();
+        m_packagePath = outputDir.pathAppended(
+                    QString("build/outputs/bundle/%1/android-build-%1.aab").arg(bt)).toString();
     } else {
         m_packagePath = AndroidManager::apkPath(target()).toString();
     }
@@ -569,8 +569,6 @@ bool AndroidBuildApkStep::init()
     if (!command.endsWith('/'))
         command += '/';
     command += Utils::HostOsInfo::withExecutableSuffix("androiddeployqt");
-
-    QString outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
     m_inputFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
     if (m_inputFile.isEmpty()) {
@@ -588,7 +586,7 @@ bool AndroidBuildApkStep::init()
     }
 
     QStringList arguments = {"--input", m_inputFile,
-                             "--output", outputDir,
+                             "--output", outputDir.toString(),
                              "--android-platform", m_buildTargetSdk,
                              "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().toString()};
 
@@ -647,7 +645,7 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
         sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
     QFileInfo sourceDirInfo(sourceDirName);
     parser->setSourceDirectory(Utils::FilePath::fromString(sourceDirInfo.canonicalFilePath()));
-    parser->setBuildDirectory(buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
+    parser->setBuildDirectory(AndroidManager::androidBuildDirectory(target()));
     formatter->addLineParser(parser);
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -755,10 +753,12 @@ void AndroidBuildApkStep::doRun()
         if (!version)
             return false;
 
+        const FilePath buildDir = buildDirectory();
+        const FilePath androidBuildDir = AndroidManager::androidBuildDirectory(target());
         for (const auto &abi : androidAbis) {
-            FilePath androidLibsDir = buildDirectory() / "android-build/libs" / abi;
+            FilePath androidLibsDir = androidBuildDir / "libs" / abi;
             if (!androidLibsDir.exists()) {
-                if (!QDir{buildDirectory().toString()}.mkpath(androidLibsDir.toString())) {
+                if (!QDir{buildDir.toString()}.mkpath(androidLibsDir.toString())) {
                     const QString error = tr("The Android build folder %1 wasn't found and "
                                              "couldn't be created.").arg(androidLibsDir.toString());
                     emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
@@ -770,7 +770,7 @@ void AndroidBuildApkStep::doRun()
                     // and now it's made directly with ALL target, so this code below ensures
                     // these versions are not broken.
                     const QString fileName = QString("lib%1_%2.so").arg(buildKey, abi);
-                    const FilePath from = buildDirectory() / fileName;
+                    const FilePath from = buildDir / fileName;
                     const FilePath to = androidLibsDir / fileName;
                     if (!from.exists() || to.exists())
                         continue;
@@ -802,7 +802,7 @@ void AndroidBuildApkStep::doRun()
         if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
             applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
-            FilePath androidLibsDir = buildDirectory() / "android-build/libs" / androidAbis.first();
+            FilePath androidLibsDir = androidBuildDir / "libs" / androidAbis.first();
             for (const auto &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
                     return false;
@@ -820,7 +820,7 @@ void AndroidBuildApkStep::doRun()
                     applicationBinary.remove(0, 3).chop(targetSuffix.size());
                 }
 
-                FilePath androidLibsDir = buildDirectory() / "android-build/libs" / abi;
+                FilePath androidLibsDir = androidBuildDir / "libs" / abi;
                 for (const auto &target : targets) {
                     if (target.endsWith(targetSuffix)) {
                         if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
