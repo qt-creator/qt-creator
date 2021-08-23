@@ -66,6 +66,7 @@ public:
     };
 
     QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject *parent = nullptr);
+    QtcProcess(ProcessImpl processImpl, QObject *parent = nullptr);
     QtcProcess(ProcessMode processMode, QObject *parent = nullptr);
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();

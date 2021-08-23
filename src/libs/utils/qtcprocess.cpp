@@ -252,15 +252,15 @@ public:
         : ProcessInterface(processMode), m_token(uniqueToken())
     {
         m_handle = LauncherInterface::socket()->registerHandle(token(), processMode);
-        connect(m_handle, &LauncherHandle::errorOccurred,
+        connect(m_handle, &CallerHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
-        connect(m_handle, &LauncherHandle::started,
+        connect(m_handle, &CallerHandle::started,
                 this, &ProcessInterface::started);
-        connect(m_handle, &LauncherHandle::finished,
+        connect(m_handle, &CallerHandle::finished,
                 this, &ProcessInterface::finished);
-        connect(m_handle, &LauncherHandle::readyReadStandardOutput,
+        connect(m_handle, &CallerHandle::readyReadStandardOutput,
                 this, &ProcessInterface::readyReadStandardOutput);
-        connect(m_handle, &LauncherHandle::readyReadStandardError,
+        connect(m_handle, &CallerHandle::readyReadStandardError,
                 this, &ProcessInterface::readyReadStandardError);
     }
     ~ProcessLauncherImpl() override
@@ -318,7 +318,7 @@ private:
 
     const uint m_token = 0;
     // Lives in launcher's thread.
-    LauncherHandle *m_handle = nullptr;
+    CallerHandle *m_handle = nullptr;
 };
 
 void ProcessLauncherImpl::cancel()
@@ -455,6 +455,9 @@ QtcProcess::QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject
     Q_UNUSED(qProcessExitStatusMeta)
     Q_UNUSED(qProcessProcessErrorMeta)
 }
+
+QtcProcess::QtcProcess(ProcessImpl processImpl, QObject *parent)
+    : QtcProcess(processImpl, ProcessMode::Reader, parent) {}
 
 QtcProcess::QtcProcess(ProcessMode processMode, QObject *parent)
     : QtcProcess(defaultProcessImpl(), processMode, parent) {}
