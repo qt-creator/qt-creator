@@ -334,7 +334,7 @@ bool FileUtils::makeWritable(const FilePath &path)
 
 // makes sure that capitalization of directories is canonical on Windows and OS X.
 // This mimics the logic in QDeclarative_isFileCaseCorrect
-QString FileUtils::normalizePathName(const QString &name)
+QString FileUtils::normalizedPathName(const QString &name)
 {
 #ifdef Q_OS_WIN
     const QString nativeSeparatorName(QDir::toNativeSeparators(name));
@@ -826,7 +826,7 @@ FilePath FilePath::normalizePathName() const
 {
     FilePath result = *this;
     if (!needsDevice()) // FIXME: Assumes no remote Windows and Mac for now.
-        result.m_data = FileUtils::normalizePathName(result.m_data);
+        result.m_data = FileUtils::normalizedPathName(result.m_data);
     return result;
 }
 

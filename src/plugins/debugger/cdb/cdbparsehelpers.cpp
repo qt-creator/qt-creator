@@ -251,7 +251,7 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointParameters *r,
     const GdbMi sourceFileName = gdbmi["srcfile"];
     if (sourceFileName.isValid()) {
         r->fileName = Utils::FilePath::fromUserInput(
-            Utils::FileUtils::normalizePathName(sourceFileName.data()));
+            Utils::FileUtils::normalizedPathName(sourceFileName.data()));
         const GdbMi lineNumber = gdbmi["srcline"];
         if (lineNumber.isValid())
             r->lineNumber = lineNumber.data().toULongLong(nullptr, 0);

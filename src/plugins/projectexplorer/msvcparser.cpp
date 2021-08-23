@@ -60,7 +60,7 @@ static QPair<FilePath, int> parseFileName(const QString &input)
             }
         }
     }
-    const QString normalized = FileUtils::normalizePathName(fileName);
+    const QString normalized = FileUtils::normalizedPathName(fileName);
     return qMakePair(FilePath::fromUserInput(normalized), linenumber);
 }
 

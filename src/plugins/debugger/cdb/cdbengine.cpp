@@ -2578,7 +2578,7 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
     const QString fileName = cdbSourcePathMapping(QDir::toNativeSeparators(f), m_sourcePathMappings,
                                                   DebuggerToSource);
     // Up/lower case normalization according to Windows.
-    const QString normalized = FileUtils::normalizePathName(fileName);
+    const QString normalized = FileUtils::normalizedPathName(fileName);
     if (debugSourceMapping)
         qDebug(" sourceMapNormalizeFileNameFromDebugger %s->%s", qPrintable(fileName), qPrintable(normalized));
     // Check if it really exists, that is normalize worked and QFileInfo confirms it.
@@ -2615,7 +2615,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
         frame.level = QString::number(i);
         const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
-            frame.file = Utils::FileUtils::normalizePathName(fullName.data());
+            frame.file = Utils::FileUtils::normalizedPathName(fullName.data());
             frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
             const GdbMi languageMi = frameMi["language"];

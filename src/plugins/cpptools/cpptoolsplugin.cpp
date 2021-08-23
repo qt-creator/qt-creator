@@ -445,7 +445,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     for (const QString &candidateDir : qAsConst(candidateDirs)) {
         for (const QString &candidateFileName : qAsConst(candidateFileNames)) {
             const QString candidateFilePath = candidateDir + QLatin1Char('/') + candidateFileName;
-            const QString normalized = FileUtils::normalizePathName(candidateFilePath);
+            const QString normalized = FileUtils::normalizedPathName(candidateFilePath);
             const QFileInfo candidateFi(normalized);
             if (candidateFi.isFile()) {
                 if (cacheUsage == CacheUsage::ReadWrite) {

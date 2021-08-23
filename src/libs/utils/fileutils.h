@@ -125,7 +125,7 @@ public:
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
     static QString qmakeFriendlyName(const QString &name);
     static bool makeWritable(const FilePath &path);
-    static QString normalizePathName(const QString &name);
+    static QString normalizedPathName(const QString &name);
 
     static bool isRelativePath(const QString &fileName);
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }

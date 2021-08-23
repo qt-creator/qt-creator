@@ -258,7 +258,7 @@ void UnstartedAppWatcherDialog::findProcess()
     const QString &appName = m_pathChooser->filePath().normalizePathName().toString();
     DeviceProcessItem fallback;
     foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
-        if (Utils::FileUtils::normalizePathName(p.exe) == appName) {
+        if (Utils::FileUtils::normalizedPathName(p.exe) == appName) {
             pidFound(p);
             return;
         }
