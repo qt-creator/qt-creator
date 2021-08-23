@@ -22,6 +22,7 @@ Editing
 * Added menu item and shortcut for editing bookmark comments
   (QTCREATORBUG-25696)
 * Fixed folding for Markdown (QTCREATORBUG-25882)
+* Fixed completion tooltip on secondary display (QTCREATORBUG-26053)
 
 ### C++
 
@@ -49,6 +50,7 @@ Editing
 * Fixed reformatting of functions with default values (QTCREATORBUG-23009)
 * Fixed wrong warning for types with same name but different namespace
   (QTCREATORBUG-24615)
+* Fixed `Tools > External > Qt Quick > QML Utility` (QTCREATORBUG-26137)
 
 ### Language Client
 
@@ -56,11 +58,17 @@ Editing
 * Added support for snippets (QTCREATORBUG-22406)
 * Fixed completion results for language servers that do not filter results
   themselves
+* Fixed that empty responses could be sent (QTCREATORBUG-26116)
 
 ### Beautifier
 
 * Fixed issue with `clang-format` and multi-byte characters (QTCREATORBUG-21812,
   QTCREATORBUG-23131)
+
+### Designer
+
+* Fixed `Go to Slot` if UI class is referred to as `UI_<class>`
+  (QTCREATORBUG-26013)
 
 Projects
 --------
@@ -76,6 +84,8 @@ Projects
 * Fixed missing update of run configuration environment (QTCREATORBUG-25947)
 * Fixed that user files were unnecessarily saved with new time stamp
   (QTCREATORBUG-25921)
+* Fixed that toolchain setting was fixed for auto-detected kits
+  (QTCREATORBUG-25839)
 * Reduced UI freeze after loading projects (QTCREATORBUG-25783)
 
 ### CMake
@@ -83,10 +93,15 @@ Projects
 * Removed option `Auto-create build directories`, making this the default
   behavior (QTCREATORBUG-25532)
 * Added CMake output to right side of `Projects` mode (QTCREATORBUG-25522)
+* Added CMake option `QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP` for skipping Qt
+  Creator's package manager auto-setup
 * Fixed `Jump to File` for file names with special characters
   (QTCREATORBUG-25572)
 * Fixed updating of available targets (QTCREATORBUG-24914, QTCREATORBUG-25906)
 * Fixed persistence of CMake tool options (QTCREATORBUG-25911)
+* Fixed build library search path for CMake 3.20 and later (QTCREATORBUG-26110)
+* Fixed code model issues with MSVC and CMake 3.20 and later
+  (QTCREATORBUG-26146)
 
 ### Qbs
 
@@ -143,6 +158,11 @@ Platforms
 * Added detection of Android 12
 * Fixed detection of `_prepare_apk_dir` target for CMake projects
   (QTCREATORBUG-25216)
+
+### Remote Linux
+
+* Fixed update of temporary local installation when build path is changed
+  (QTCREATORBUG-26103)
 
 ### QNX
 
