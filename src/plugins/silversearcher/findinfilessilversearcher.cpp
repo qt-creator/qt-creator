@@ -138,7 +138,7 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     if (!params.searchOptions.isEmpty())
         arguments << params.searchOptions.split(' ');
 
-    const FilePath path = FilePath::fromUserInput(FileUtils::normalizePathName(directory));
+    const FilePath path = FilePath::fromUserInput(FileUtils::normalizedPathName(directory));
     arguments << "--" << parameters.text << path.toString();
 
     QProcess process;
