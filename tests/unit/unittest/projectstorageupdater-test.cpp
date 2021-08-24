@@ -45,6 +45,7 @@ using QmlDesigner::FileStatus;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::TypeAccessSemantics;
 namespace Storage = QmlDesigner::Storage;
+using QmlDesigner::Storage::Version;
 
 MATCHER_P5(IsStorageType,
            module,
@@ -59,7 +60,7 @@ MATCHER_P5(IsStorageType,
 
     return type.module == module && type.typeName == typeName
            && type.accessSemantics == accessSemantics && type.sourceId == sourceId
-           && Storage::TypeName{prototype} == type.prototype;
+           && Storage::ImportedTypeName{prototype} == type.prototype;
 }
 
 MATCHER_P3(IsPropertyDeclaration,
@@ -72,7 +73,7 @@ MATCHER_P3(IsPropertyDeclaration,
     const Storage::PropertyDeclaration &propertyDeclaration = arg;
 
     return propertyDeclaration.name == name
-           && Storage::TypeName{typeName} == propertyDeclaration.typeName
+           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits;
 }
 
@@ -133,7 +134,7 @@ protected:
                                         qmlDocumentParserMock,
                                         qmlTypesParserMock};
     SourceId objectTypeSourceId{sourcePathCache.sourceId("/path/Object")};
-    Storage::Type objectType{Storage::Module{"Qml", 2},
+    Storage::Type objectType{Storage::Module{"Qml"},
                              "QObject",
                              Storage::NativeType{},
                              Storage::TypeAccessSemantics::Reference,
@@ -330,11 +331,11 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
     auto qmlDocumentSourceId2 = sourcePathCache.sourceId("/path/First.2.qml");
     auto qmlDocumentSourceId3 = sourcePathCache.sourceId("/path/Second.qml");
     Storage::Type firstType;
-    firstType.prototype = Storage::ExportedType{"Object"};
+    firstType.prototype = Storage::ImportedType{"Object"};
     Storage::Type secondType;
-    secondType.prototype = Storage::ExportedType{"Object2"};
+    secondType.prototype = Storage::ImportedType{"Object2"};
     Storage::Type thirdType;
-    thirdType.prototype = Storage::ExportedType{"Object3"};
+    thirdType.prototype = Storage::ImportedType{"Object3"};
     auto firstQmlDocumentSourceId = sourcePathCache.sourceId("/path/First.qml");
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/First.qml"))))
@@ -350,9 +351,9 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
     EXPECT_CALL(projectStorageMock,
                 synchronize(_,
                             _,
-                            Contains(AllOf(IsStorageType(Storage::Module{"Example", 1},
+                            Contains(AllOf(IsStorageType(Storage::Module{"Example"},
                                                          "First.qml",
-                                                         Storage::ExportedType{"Object"},
+                                                         Storage::ImportedType{"Object"},
                                                          TypeAccessSemantics::Reference,
                                                          firstQmlDocumentSourceId),
                                            Field(&Storage::Type::exportedTypes,

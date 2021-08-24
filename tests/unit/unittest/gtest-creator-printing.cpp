@@ -1035,9 +1035,7 @@ bool operator&(TypeAccessSemantics first, TypeAccessSemantics second)
     return static_cast<int>(first) & static_cast<int>(second);
 }
 
-} // namespace
-
-static const char *typeAccessSemanticsFlagsToString(TypeAccessSemantics accessSemantics)
+const char *typeAccessSemanticsFlagsToString(TypeAccessSemantics accessSemantics)
 {
     if (accessSemantics & TypeAccessSemantics::IsEnum)
         return "(IsEnum)";
@@ -1045,15 +1043,34 @@ static const char *typeAccessSemanticsFlagsToString(TypeAccessSemantics accessSe
     return "";
 }
 
+const char *isQualifiedToString(IsQualified isQualified)
+{
+    switch (isQualified) {
+    case IsQualified::No:
+        return "no";
+    case IsQualified::Yes:
+        return "yes";
+    }
+
+    return "";
+}
+
+} // namespace
+
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics)
 {
     return out << typeAccessSemanticsToString(accessSemantics)
                << typeAccessSemanticsFlagsToString(accessSemantics);
 }
 
+std::ostream &operator<<(std::ostream &out, IsQualified isQualified)
+{
+    return out << isQualifiedToString(isQualified);
+}
+
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber)
 {
-    return out << versionNumber.version;
+    return out << versionNumber.value;
 }
 
 std::ostream &operator<<(std::ostream &out, Version version)
@@ -1066,14 +1083,18 @@ std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
     return out << "(\"" << exportedType.name << "\")";
 }
 
-std::ostream &operator<<(std::ostream &out, const ExplicitExportedType &exportedType)
-{
-    return out << "(\"" << exportedType.name << "\", " << exportedType.module << ")";
-}
-
 std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
 {
     return out << "(\"" << nativeType.name << "\")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ImportedType &importedType)
+{
+    return out << "(\"" << importedType.name << ")";
+}
+std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importedType)
+{
+    return out << "(\"" << importedType.name << "\", " << importedType.import << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
@@ -1151,13 +1172,12 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
 
 std::ostream &operator<<(std::ostream &out, const Module &module)
 {
-    return out << "(" << module.name << ", " << module.version << ")";
+    return out << "(" << module.name << ", " << module.sourceId << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const ModuleDependency &module)
+std::ostream &operator<<(std::ostream &out, const Import &import)
 {
-    return out << "(" << module.name << ", " << module.version << ", " << module.sourceId << ", "
-               << module.dependencies << ")";
+    return out << "(" << import.name << ", " << import.version << ", " << import.sourceId << ")";
 }
 
 } // namespace Storage

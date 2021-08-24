@@ -55,8 +55,8 @@ public:
         , initializer{database, isInitialized}
     {}
 
-    void synchronize(Storage::ModuleDependencies moduleDependencies,
-                     Storage::Documents documents,
+    void synchronize(Storage::Modules modules,
+                     Storage::Imports imports,
                      Storage::Types types,
                      SourceIds sourceIds,
                      FileStatuses fileStatuses) override
@@ -69,25 +69,38 @@ public:
         TypeIds updatedTypeIds;
         updatedTypeIds.reserve(types.size());
 
-        TypeIds deletedTypeIds;
+        TypeIds typeIdsToBeDeleted;
 
         auto sourceIdValues = Utils::transform<std::vector>(sourceIds, [](SourceId sourceId) {
             return &sourceId;
         });
 
+        std::sort(sourceIdValues.begin(), sourceIdValues.end());
+
         synchronizeFileStatuses(fileStatuses, sourceIdValues);
-        synchronizeModules(moduleDependencies, deletedTypeIds, sourceIdValues);
-        synchronizeDocuments(documents, sourceIdValues);
+        synchronizeModules(modules, typeIdsToBeDeleted, sourceIdValues);
+        synchronizeImports(imports, sourceIdValues);
         synchronizeTypes(types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
                          updatedAliasPropertyDeclarations);
 
-        deleteNotUpdatedTypes(updatedTypeIds, sourceIdValues, deletedTypeIds);
+        deleteNotUpdatedTypes(updatedTypeIds, sourceIdValues, typeIdsToBeDeleted);
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
         transaction.commit();
+    }
+
+    ModuleId fetchModuleId(Utils::SmallStringView moduleName)
+    {
+        Sqlite::DeferredTransaction transaction{database};
+
+        ModuleId moduleId = fetchModuleIdUnguarded(moduleName);
+
+        transaction.commit();
+
+        return moduleId;
     }
 
     ModuleIds fetchModuleIds(const Storage::Modules &modules)
@@ -99,17 +112,6 @@ public:
         transaction.commit();
 
         return moduleIds;
-    }
-
-    ModuleIds fetchModuleIds(SourceId sourceId)
-    {
-        return selectModuleIdsForSourceIdStatement.template valeWithTransaction(16, &sourceId);
-    }
-
-    ModuleIds fetchModuleDependencyIds(ModuleIds moduleIds) const
-    {
-        return fetchModuleDependencyIdsStatement.template valuesWithTransaction<ModuleId>(
-            16, static_cast<void *>(moduleIds.data()), static_cast<long long>(moduleIds.size()));
     }
 
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
@@ -245,6 +247,16 @@ public:
         return value;
     }
 
+    void clearSources()
+    {
+        Sqlite::ImmediateTransaction transaction{database};
+
+        deleteAllSourceContextsStatement.execute();
+        deleteAllSourcesStatement.execute();
+
+        transaction.commit();
+    }
+
     SourceContextId fetchSourceContextId(SourceId sourceId) const
     {
         auto sourceContextId = selectSourceContextIdFromSourcesBySourceIdStatement
@@ -273,23 +285,7 @@ public:
 
     auto fetchAllModules() const
     {
-        Storage::ModuleDependencies modules;
-        modules.reserve(128);
-
-        auto callback = [&](Utils::SmallStringView name, int version, int moduleId) {
-            auto &lastModule = modules.emplace_back(name,
-                                                    Storage::VersionNumber{version},
-                                                    SourceId{moduleId});
-
-            lastModule.dependencies = selectModulesForThatDependentOnThisModuleIdStatement
-                                          .template values<Storage::Module>(6, moduleId);
-
-            return Sqlite::CallbackControl::Continue;
-        };
-
-        selectAllModulesStatement.readCallbackWithTransaction(callback);
-
-        return modules;
+        return selectAllModulesStatement.template valuesWithTransaction<Storage::Module>(128);
     }
 
     auto fetchAllFileStatuses() const
@@ -310,106 +306,62 @@ private:
     {
     public:
         explicit AliasPropertyDeclaration(
+            TypeId typeId,
             PropertyDeclarationId propertyDeclarationId,
-            Storage::TypeName aliasTypeName,
+            ImportedTypeNameId aliasImportedTypeNameId,
             Utils::SmallString aliasPropertyName,
-            SourceId sourceId,
             PropertyDeclarationId aliasPropertyDeclarationId = PropertyDeclarationId{})
-            : propertyDeclarationId{propertyDeclarationId}
-            , aliasTypeName{std::move(aliasTypeName)}
+            : typeId{typeId}
+            , propertyDeclarationId{propertyDeclarationId}
+            , aliasImportedTypeNameId{aliasImportedTypeNameId}
             , aliasPropertyName{std::move(aliasPropertyName)}
-            , sourceId{sourceId}
             , aliasPropertyDeclarationId{aliasPropertyDeclarationId}
         {}
 
     public:
+        TypeId typeId;
         PropertyDeclarationId propertyDeclarationId;
-        Storage::TypeName aliasTypeName;
+        ImportedTypeNameId aliasImportedTypeNameId;
         Utils::SmallString aliasPropertyName;
-        SourceId sourceId;
         PropertyDeclarationId aliasPropertyDeclarationId;
     };
 
     class PropertyDeclaration
     {
     public:
-        explicit PropertyDeclaration(PropertyDeclarationId propertyDeclarationId,
-                                     Storage::TypeName typeName,
-                                     SourceId sourceId)
-            : propertyDeclarationId{propertyDeclarationId}
-            , typeName{std::move(typeName)}
-            , sourceId{sourceId}
+        explicit PropertyDeclaration(TypeId typeId,
+                                     PropertyDeclarationId propertyDeclarationId,
+                                     ImportedTypeNameId importedTypeNameId)
+            : typeId{typeId}
+            , propertyDeclarationId{propertyDeclarationId}
+            , importedTypeNameId{std::move(importedTypeNameId)}
+        {}
+
+        explicit PropertyDeclaration(long long typeId,
+                                     long long propertyDeclarationId,
+                                     long long importedTypeNameId)
+            : typeId{typeId}
+            , propertyDeclarationId{propertyDeclarationId}
+            , importedTypeNameId{importedTypeNameId}
         {}
 
     public:
+        TypeId typeId;
         PropertyDeclarationId propertyDeclarationId;
-        Storage::TypeName typeName;
-        SourceId sourceId;
+        ImportedTypeNameId importedTypeNameId;
     };
 
     class Prototype
     {
     public:
-        explicit Prototype(TypeId typeId, Storage::TypeName prototypeName, SourceId sourceId)
+        explicit Prototype(TypeId typeId, ImportedTypeNameId prototypeNameId)
             : typeId{typeId}
-            , typeName{std::move(prototypeName)}
-            , sourceId{sourceId}
+            , prototypeNameId{std::move(prototypeNameId)}
         {}
 
     public:
         TypeId typeId;
-        Storage::TypeName typeName;
-        SourceId sourceId;
-    };
-
-    Storage::TypeName fetchTypeName(long long typeNameIdValue)
-    {
-        TypeNameId typeNameId{std::abs(typeNameIdValue)};
-        Storage::TypeName typeName;
-        bool isExplicitTypeName = typeNameIdValue < 0;
-
-        if (isExplicitTypeName) {
-            auto callback = [&](Utils::SmallStringView type, Utils::SmallStringView module, int version) {
-                typeName = Storage::ExplicitExportedType{type, Storage::Module{module, version}};
-                return Sqlite::CallbackControl::Abort;
-            };
-
-            selectExplicitTypeNameStatement.readCallback(callback, &typeNameId);
-        } else {
-            auto callback = [&](Utils::SmallStringView name, long long kind) {
-                typeName = createTypeName(kind, name);
-                return Sqlite::CallbackControl::Abort;
-            };
-
-            selectTypeNameStatement.readCallback(callback, &typeNameId);
-        }
-        return typeName;
-    }
-
-    struct ModuleDependency
-    {
-        ModuleDependency(ModuleId id, ModuleId dependencyId)
-            : id{id}
-            , dependencyId{dependencyId}
-        {}
-
-        ModuleDependency(long long id, long long dependencyId)
-            : id{id}
-            , dependencyId{dependencyId}
-        {}
-
-        ModuleId id;
-        ModuleId dependencyId;
-
-        friend bool operator<(ModuleDependency first, ModuleDependency second)
-        {
-            return std::tie(first.id, first.dependencyId) < std::tie(second.id, second.dependencyId);
-        }
-
-        friend bool operator==(ModuleDependency first, ModuleDependency second)
-        {
-            return first.id == second.id && first.dependencyId == second.dependencyId;
-        }
+        ImportedTypeNameId prototypeNameId;
     };
 
     void synchronizeTypes(Storage::Types &types,
@@ -470,41 +422,67 @@ private:
         Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
-    void synchronizeModules(Storage::ModuleDependencies &modules,
-                            TypeIds &deletedTypeIds,
+    void synchronizeModules(Storage::Modules &modules,
+                            TypeIds &typeIdsToBeDeleted,
                             const std::vector<int> &moduleIdValues)
     {
-        synchronizeModulesAndUpdatesModuleIds(modules, deletedTypeIds, moduleIdValues);
-        synchronizeModuleDependencies(createSortedModuleDependecies(modules), moduleIdValues);
+        auto compareKey = [](auto &&first, auto &&second) {
+            return first.sourceId.id - second.sourceId.id;
+        };
+
+        std::sort(modules.begin(), modules.end(), [&](auto &&first, auto &&second) {
+            return compareKey(first, second) < 0;
+        });
+
+        auto range = selectModulesForIdsStatement.template range<Storage::ModuleView>(
+            Utils::span(moduleIdValues));
+
+        auto insert = [&](Storage::Module &module) {
+            insertModuleStatement.write(module.name, &module.sourceId);
+        };
+
+        auto update = [&](const Storage::ModuleView &moduleView, Storage::Module &module) {
+            if (moduleView.name != module.name)
+                updateModuleStatement.write(&moduleView.sourceId, module.name);
+        };
+
+        auto remove = [&](const Storage::ModuleView &moduleView) {
+            deleteModuleStatement.write(&moduleView.sourceId);
+            selectTypeIdsForModuleIdStatement.readTo(typeIdsToBeDeleted, &moduleView.sourceId);
+        };
+
+        Sqlite::insertUpdateDelete(range, modules, compareKey, insert, update, remove);
     }
 
-    void synchronizeDocuments(Storage::Documents &documents, std::vector<int> &sourceIdValues)
+    void synchronizeImports(Storage::Imports &imports, std::vector<int> &sourceIdValues)
     {
-        deleteDocumentModulesForDeletedDocuments(documents, sourceIdValues);
+        deleteDocumentImportsForDeletedDocuments(imports, sourceIdValues);
 
-        for (auto &&document : documents)
-            synchronizeDocumentModules(document.sourceId, document.modules);
+        addModuleIdToImports(imports);
+        synchronizeDocumentImports(imports, sourceIdValues);
     }
 
-    void deleteDocumentModulesForDeletedDocuments(Storage::Documents &documents,
+    void deleteDocumentImportsForDeletedDocuments(Storage::Imports &imports,
                                                   const std::vector<int> &sourceIdValues)
     {
-        const std::vector<int> documentSourceIds = Utils::transform<std::vector<int>>(
-            documents, [](const auto &document) { return &document.sourceId; });
+        std::vector<int> importSourceIds = Utils::transform<std::vector<int>>(
+            imports, [](const Storage::Import &import) { return &import.sourceId; });
+
+        std::sort(importSourceIds.begin(), importSourceIds.end());
 
         std::vector<int> documentSourceIdsToBeDeleted;
 
         std::set_difference(sourceIdValues.begin(),
                             sourceIdValues.end(),
-                            documentSourceIds.begin(),
-                            documentSourceIds.end(),
+                            importSourceIds.begin(),
+                            importSourceIds.end(),
                             std::back_inserter(documentSourceIdsToBeDeleted));
 
-        deleteDocumentModulesWithSourceIdsStatement.write(Utils::span{documentSourceIdsToBeDeleted});
+        deleteDocumentImportsWithSourceIdsStatement.write(Utils::span{documentSourceIdsToBeDeleted});
     }
 
-    void synchronizeModulesAndUpdatesModuleIds(Storage::ModuleDependencies &modules,
-                                               TypeIds &deletedTypeIds,
+    void synchronizeModulesAndUpdatesModuleIds(Storage::Modules &modules,
+                                               TypeIds &typeIdsToBeDeleted,
                                                const std::vector<int> &moduleIds)
     {
         auto compareKey = [](auto &&first, auto &&second) {
@@ -518,103 +496,48 @@ private:
         auto range = selectModulesForIdsStatement.template range<Storage::ModuleView>(
             Utils::span(moduleIds));
 
-        auto insert = [&](Storage::ModuleDependency &module) {
-            insertModuleStatement.write(module.name, module.version.version, &module.sourceId);
+        auto insert = [&](Storage::Module &module) {
+            insertModuleStatement.write(module.name, &module.sourceId);
         };
 
-        auto update = [&](const Storage::ModuleView &moduleView, Storage::ModuleDependency &module) {
-            if (moduleView.name != module.name || moduleView.version != module.version)
-                updateModuleStatement.write(&moduleView.sourceId, module.name, module.version.version);
+        auto update = [&](const Storage::ModuleView &moduleView, Storage::Module &module) {
+            if (moduleView.name != module.name)
+                updateModuleStatement.write(&moduleView.sourceId, module.name);
         };
 
         auto remove = [&](const Storage::ModuleView &moduleView) {
             deleteModuleStatement.write(&moduleView.sourceId);
-            selectTypeIdsForModuleIdStatement.readTo(deletedTypeIds, &moduleView.sourceId);
+            selectTypeIdsForModuleIdStatement.readTo(typeIdsToBeDeleted, &moduleView.sourceId);
         };
 
         Sqlite::insertUpdateDelete(range, modules, compareKey, insert, update, remove);
     }
 
-    std::vector<ModuleDependency> createSortedModuleDependecies(
-        const Storage::ModuleDependencies &moduleDependencies) const
+    ModuleId fetchModuleIdUnguarded(const Storage::Module &module) const
     {
-        std::vector<ModuleDependency> moduleDependecies;
-        moduleDependecies.reserve(moduleDependencies.size() * 5);
-
-        for (const Storage::ModuleDependency &moduleDependency : moduleDependencies) {
-            for (const Storage::Module &dependency : moduleDependency.dependencies) {
-                auto moduleIdForDependency = fetchModuleId(dependency);
-
-                if (!moduleIdForDependency)
-                    throw ModuleDoesNotExists{};
-
-                moduleDependecies.emplace_back(ModuleId{&moduleDependency.sourceId},
-                                               moduleIdForDependency);
-            }
-        }
-
-        std::sort(moduleDependecies.begin(), moduleDependecies.end());
-        moduleDependecies.erase(std::unique(moduleDependecies.begin(), moduleDependecies.end()),
-                                moduleDependecies.end());
-
-        return moduleDependecies;
+        return fetchModuleIdUnguarded(module.name);
     }
 
-    void synchronizeModuleDependencies(const std::vector<ModuleDependency> &moduleDependecies,
-                                       const std::vector<int> &moduleIds)
+    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const
     {
-        auto compareKey = [](ModuleDependency first, ModuleDependency second) {
-            auto idCompare = first.id.id - second.id.id;
-
-            if (idCompare != 0)
-                return idCompare;
-
-            return first.dependencyId.id - second.dependencyId.id;
-        };
-
-        auto range = selectModuleDependenciesForIdsStatement.template range<ModuleDependency>(
-            Utils::span(moduleIds));
-
-        auto insert = [&](ModuleDependency dependency) {
-            insertModuleDependencyStatement.write(&dependency.id, &dependency.dependencyId);
-        };
-
-        auto update = [](ModuleDependency, ModuleDependency) {};
-
-        auto remove = [&](ModuleDependency dependency) {
-            deleteModuleDependencyStatement.write(&dependency.id, &dependency.dependencyId);
-        };
-
-        Sqlite::insertUpdateDelete(range, moduleDependecies, compareKey, insert, update, remove);
-    }
-
-    ModuleId fetchModuleId(const Storage::Module &module) const
-    {
-        if (module.version) {
-            return selectModuleIdByNameAndVersionStatement
-                .template value<ModuleId>(module.name, module.version.version);
-        }
-
-        return selectModuleIdByNameStatement.template value<ModuleId>(module.name);
+        return selectModuleIdByNameStatement.template value<ModuleId>(name);
     }
 
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, std::vector<AliasPropertyDeclaration> &relinkableAliasPropertyDeclarations)
     {
-        auto callback = [&](long long propertyDeclarationId,
-                            long long propertyTypeNameId,
-                            long long typeIdFromProperty,
+        auto callback = [&](long long typeId,
+                            long long propertyDeclarationId,
+                            long long propertyImportedTypeNameId,
                             long long aliasPropertyDeclarationId) {
-            auto sourceId = selectSourceIdForTypeIdStatement.template value<SourceId>(
-                typeIdFromProperty);
-
             auto aliasPropertyName = selectPropertyNameStatement.template value<Utils::SmallString>(
                 aliasPropertyDeclarationId);
 
-            relinkableAliasPropertyDeclarations.emplace_back(PropertyDeclarationId{propertyDeclarationId},
-                                                             fetchTypeName(propertyTypeNameId),
-                                                             std::move(aliasPropertyName),
-                                                             sourceId);
+            relinkableAliasPropertyDeclarations
+                .emplace_back(TypeId{typeId},
+                              PropertyDeclarationId{propertyDeclarationId},
+                              ImportedTypeNameId{propertyImportedTypeNameId},
+                              std::move(aliasPropertyName));
 
             updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
 
@@ -630,19 +553,15 @@ private:
         std::vector<AliasPropertyDeclaration> &relinkableAliasPropertyDeclarations)
     {
         auto callback = [&](long long propertyDeclarationId,
-                            long long propertyTypeNameId,
-                            long long typeIdFromProperty,
+                            long long propertyImportedTypeNameId,
                             long long aliasPropertyDeclarationId) {
-            auto sourceId = selectSourceIdForTypeIdStatement.template value<SourceId>(
-                typeIdFromProperty);
-
             auto aliasPropertyName = selectPropertyNameStatement.template value<Utils::SmallString>(
                 aliasPropertyDeclarationId);
 
-            relinkableAliasPropertyDeclarations.emplace_back(PropertyDeclarationId{propertyDeclarationId},
-                                                             fetchTypeName(propertyTypeNameId),
-                                                             std::move(aliasPropertyName),
-                                                             sourceId);
+            relinkableAliasPropertyDeclarations
+                .emplace_back(PropertyDeclarationId{propertyDeclarationId},
+                              ImportedTypeNameId{propertyImportedTypeNameId},
+                              std::move(aliasPropertyName));
 
             updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
 
@@ -656,25 +575,14 @@ private:
     void handlePropertyDeclarationWithPropertyType(
         TypeId typeId, std::vector<PropertyDeclaration> &relinkablePropertyDeclarations)
     {
-        auto callback = [&](long long propertyDeclarationId, long long propertyTypeNameId) {
-            auto sourceId = selectSourceIdForTypeIdStatement.template value<SourceId>(&typeId);
-
-            relinkablePropertyDeclarations.emplace_back(PropertyDeclarationId{propertyDeclarationId},
-                                                        fetchTypeName(propertyTypeNameId),
-                                                        sourceId);
-
-            return Sqlite::CallbackControl::Continue;
-        };
-
-        updatesPropertyDeclarationPropertyTypeToNullStatement.readCallback(callback, &typeId);
+        updatesPropertyDeclarationPropertyTypeToNullStatement.readTo(relinkablePropertyDeclarations,
+                                                                     &typeId);
     }
 
     void handlePrototypes(TypeId prototypeId, std::vector<Prototype> &relinkablePrototypes)
     {
-        auto callback = [&](long long typeId, long long prototypeNameId, int sourceId) {
-            relinkablePrototypes.emplace_back(TypeId{typeId},
-                                              fetchTypeName(prototypeNameId),
-                                              SourceId{sourceId});
+        auto callback = [&](long long typeId, long long prototypeNameId) {
+            relinkablePrototypes.emplace_back(TypeId{typeId}, ImportedTypeNameId{prototypeNameId});
 
             return Sqlite::CallbackControl::Continue;
         };
@@ -699,21 +607,17 @@ private:
     }
 
     void relinkAliasPropertyDeclarations(
-        const std::vector<AliasPropertyDeclaration> &aliasPropertyDeclarations)
+        const std::vector<AliasPropertyDeclaration> &aliasPropertyDeclarations,
+        const TypeIds &deletedTypeIds)
     {
         for (const AliasPropertyDeclaration &alias : aliasPropertyDeclarations) {
-            auto [typeId, aliasTypeNameId] = fetchTypeIdByNameUngarded(alias.aliasTypeName,
-                                                                       alias.sourceId);
-
-            if (!typeId) {
-                auto hasPropertyDeclaration = selectPropertyDeclarationIdStatement
-                                                  .template optionalValue<PropertyDeclarationId>(
-                                                      &alias.propertyDeclarationId);
-                if (hasPropertyDeclaration)
-                    throw TypeNameDoesNotExists{};
-
+            if (std::binary_search(deletedTypeIds.begin(), deletedTypeIds.end(), alias.typeId))
                 continue;
-            }
+
+            auto typeId = fetchTypeId(alias.aliasImportedTypeNameId);
+
+            if (!typeId)
+                throw TypeNameDoesNotExists{};
 
             auto [propertyTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeIdAndNameUngarded(
                 typeId, alias.aliasPropertyName);
@@ -721,66 +625,59 @@ private:
             updatePropertyDeclarationWithAliasAndTypeStatement.write(&alias.propertyDeclarationId,
                                                                      &propertyTypeId,
                                                                      propertyTraits,
-                                                                     &aliasTypeNameId,
+                                                                     &alias.aliasImportedTypeNameId,
                                                                      &aliasId);
         }
     }
 
-    void relinkPropertyDeclarations(const std::vector<PropertyDeclaration> &relinkablePropertyDeclaration)
+    void relinkPropertyDeclarations(const std::vector<PropertyDeclaration> &relinkablePropertyDeclaration,
+                                    const TypeIds &deletedTypeIds)
     {
         for (const PropertyDeclaration &property : relinkablePropertyDeclaration) {
-            auto [propertyTypeId, propertyTypeNameId] = fetchTypeIdByNameUngarded(property.typeName,
-                                                                                  property.sourceId);
-
-            if (!propertyTypeId) {
-                auto hasPropertyDeclaration = selectPropertyDeclarationIdStatement
-                                                  .template optionalValue<PropertyDeclarationId>(
-                                                      &property.propertyDeclarationId);
-                if (hasPropertyDeclaration)
-                    throw TypeNameDoesNotExists{};
-
+            if (std::binary_search(deletedTypeIds.begin(), deletedTypeIds.end(), property.typeId))
                 continue;
-            }
+
+            TypeId propertyTypeId = fetchTypeId(property.importedTypeNameId);
+
+            if (!propertyTypeId)
+                throw TypeNameDoesNotExists{};
 
             updatePropertyDeclarationTypeStatement.write(&property.propertyDeclarationId,
-                                                         &propertyTypeId,
-                                                         &propertyTypeNameId);
+                                                         &propertyTypeId);
         }
     }
 
-    void relinkPrototypes(std::vector<Prototype> relinkablePrototypes)
+    void relinkPrototypes(std::vector<Prototype> relinkablePrototypes, const TypeIds &deletedTypeIds)
     {
         for (const Prototype &prototype : relinkablePrototypes) {
-            auto [prototypeId, prototypeNameId] = fetchTypeIdByNameUngarded(prototype.typeName,
-                                                                            prototype.sourceId);
-
-            if (!prototypeId) {
-                auto hasTypeId = selectPropertyDeclarationIdStatement.template optionalValue<TypeId>(
-                    &prototype.typeId);
-                if (hasTypeId)
-                    throw TypeNameDoesNotExists{};
-
+            if (std::binary_search(deletedTypeIds.begin(), deletedTypeIds.end(), prototype.typeId))
                 continue;
-            }
 
-            updateTypePrototypeStatement.write(&prototype.typeId, &prototypeId, &prototypeNameId);
+            TypeId prototypeId = fetchTypeId(prototype.prototypeNameId);
+
+            if (!prototypeId)
+                throw TypeNameDoesNotExists{};
+
+            updateTypePrototypeStatement.write(&prototype.typeId, &prototypeId);
             checkForPrototypeChainCycle(prototype.typeId);
         }
     }
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
                                const std::vector<int> &sourceIdValues,
-                               const TypeIds &deletedTypeIds)
+                               const TypeIds &typeIdsToBeDeleted)
     {
         std::vector<AliasPropertyDeclaration> relinkableAliasPropertyDeclarations;
         std::vector<PropertyDeclaration> relinkablePropertyDeclarations;
         std::vector<Prototype> relinkablePrototypes;
+        TypeIds deletedTypeIds;
 
         auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
             return &typeId;
         });
 
         auto callback = [&](long long typeId) {
+            deletedTypeIds.push_back(TypeId{typeId});
             deleteType(TypeId{typeId},
                        relinkableAliasPropertyDeclarations,
                        relinkablePropertyDeclarations,
@@ -791,19 +688,20 @@ private:
         selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
                                                              Utils::span(sourceIdValues),
                                                              Utils::span(updatedTypeIdValues));
-        for (TypeId deletedTypeId : deletedTypeIds)
-            callback(&deletedTypeId);
+        for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
+            callback(&typeIdToBeDeleted);
 
-        relinkPrototypes(relinkablePrototypes);
-        relinkPropertyDeclarations(relinkablePropertyDeclarations);
-        relinkAliasPropertyDeclarations(relinkableAliasPropertyDeclarations);
+        std::sort(deletedTypeIds.begin(), deletedTypeIds.end());
+
+        relinkPrototypes(relinkablePrototypes, deletedTypeIds);
+        relinkPropertyDeclarations(relinkablePropertyDeclarations, deletedTypeIds);
+        relinkAliasPropertyDeclarations(relinkableAliasPropertyDeclarations, deletedTypeIds);
     }
 
     void linkAliasPropertyDeclarationAliasIds(const std::vector<AliasPropertyDeclaration> &aliasDeclarations)
     {
         for (const auto &aliasDeclaration : aliasDeclarations) {
-            auto [aliasTypeId, aliasTypeNameId] = fetchTypeIdByNameUngarded(aliasDeclaration.aliasTypeName,
-                                                                            aliasDeclaration.sourceId);
+            auto aliasTypeId = fetchTypeId(aliasDeclaration.aliasImportedTypeNameId);
 
             if (!aliasTypeId)
                 throw TypeNameDoesNotExists{};
@@ -812,7 +710,9 @@ private:
                 aliasTypeId, aliasDeclaration.aliasPropertyName);
 
             updatePropertyDeclarationAliasIdAndTypeNameIdStatement
-                .write(&aliasDeclaration.propertyDeclarationId, &aliasId, &aliasTypeNameId);
+                .write(&aliasDeclaration.propertyDeclarationId,
+                       &aliasId,
+                       &aliasDeclaration.aliasImportedTypeNameId);
         }
     }
 
@@ -845,20 +745,37 @@ private:
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
     }
 
-    void upsertExportedType(ModuleId moduleId, Utils::SmallStringView name, TypeId typeId)
+    void upsertExportedType(ModuleId moduleId,
+                            Utils::SmallStringView name,
+                            TypeId typeId,
+                            Storage::Version version)
     {
-        upsertTypeNamesStatement.write(&moduleId,
-                                       name,
-                                       static_cast<long long>(Storage::TypeNameKind::Exported),
-                                       -1,
-                                       -1,
-                                       &typeId);
+        if (version) {
+            upsertTypeNamesWithVersionStatement.write(&moduleId,
+                                                      name,
+                                                      static_cast<long long>(
+                                                          Storage::TypeNameKind::Exported),
+                                                      version.major.value,
+                                                      version.minor.value,
+                                                      &typeId);
+
+        } else if (version.major) {
+            upsertTypeNamesWithMajorVersionStatement.write(&moduleId,
+                                                           name,
+                                                           static_cast<long long>(
+                                                               Storage::TypeNameKind::Exported),
+                                                           version.major.value,
+                                                           &typeId);
+        } else {
+            upsertTypeNamesWithoutVersionStatement.write(
+                &moduleId, name, static_cast<long long>(Storage::TypeNameKind::Exported), &typeId);
+        }
     }
 
     void upsertNativeType(ModuleId moduleId, Utils::SmallStringView name, TypeId typeId)
     {
-        upsertTypeNamesStatement.write(
-            &moduleId, name, static_cast<long long>(Storage::TypeNameKind::Native), -1, -1, &typeId);
+        upsertTypeNamesWithoutVersionStatement
+            .write(&moduleId, name, static_cast<long long>(Storage::TypeNameKind::Native), &typeId);
     }
 
     void synchronizePropertyDeclarationsInsertAlias(
@@ -868,10 +785,11 @@ private:
         TypeId typeId)
     {
         auto callback = [&](long long propertyDeclarationId) {
-            insertedAliasPropertyDeclarations.emplace_back(PropertyDeclarationId{propertyDeclarationId},
-                                                           std::move(value.typeName),
-                                                           std::move(value.aliasPropertyName),
-                                                           sourceId);
+            insertedAliasPropertyDeclarations.emplace_back(typeId,
+                                                           PropertyDeclarationId{propertyDeclarationId},
+                                                           fetchImportedTypeNameId(value.typeName,
+                                                                                   sourceId),
+                                                           std::move(value.aliasPropertyName));
             return Sqlite::CallbackControl::Abort;
         };
 
@@ -882,14 +800,18 @@ private:
                                                        SourceId sourceId,
                                                        TypeId typeId)
     {
-        auto [propertyTypeId, propertyTypeNameId] = fetchTypeIdByNameUngarded(value.typeName,
-                                                                              sourceId);
+        auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
+        auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
 
         if (!propertyTypeId)
             throw TypeNameDoesNotExists{};
 
-        auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
-            &typeId, value.name, &propertyTypeId, static_cast<int>(value.traits), &propertyTypeNameId);
+        auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<
+            PropertyDeclarationId>(&typeId,
+                                   value.name,
+                                   &propertyTypeId,
+                                   static_cast<int>(value.traits),
+                                   &propertyImportedTypeNameId);
 
         auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
                                              .template value<PropertyDeclarationId>(&typeId,
@@ -908,10 +830,11 @@ private:
         const Storage::PropertyDeclaration &value,
         SourceId sourceId)
     {
-        auto last = updatedAliasPropertyDeclarations.emplace_back(view.id,
-                                                                  value.typeName,
+        auto last = updatedAliasPropertyDeclarations.emplace_back(view.typeId,
+                                                                  view.id,
+                                                                  fetchImportedTypeNameId(value.typeName,
+                                                                                          sourceId),
                                                                   value.aliasPropertyName,
-                                                                  sourceId,
                                                                   view.aliasId);
     }
 
@@ -919,20 +842,21 @@ private:
                                                        const Storage::PropertyDeclaration &value,
                                                        SourceId sourceId)
     {
-        auto [propertyTypeId, propertyTypeNameId] = fetchTypeIdByNameUngarded(value.typeName,
-                                                                              sourceId);
+        auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
+
+        auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
 
         if (!propertyTypeId)
             throw TypeNameDoesNotExists{};
 
         if (view.traits == value.traits && propertyTypeId == view.typeId
-            && propertyTypeNameId == view.typeNameId)
+            && propertyImportedTypeNameId == view.typeNameId)
             return;
 
         updatePropertyDeclarationStatement.write(&view.id,
                                                  &propertyTypeId,
                                                  static_cast<int>(value.traits),
-                                                 &propertyTypeNameId);
+                                                 &propertyImportedTypeNameId);
         updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
             .write(&view.id, &propertyTypeId, static_cast<int>(value.traits));
     }
@@ -1046,32 +970,69 @@ private:
         moduleIds.reserve(moduleIds.size());
 
         for (auto &&module : modules)
-            moduleIds.push_back(fetchModuleId(module));
+            moduleIds.push_back(fetchModuleIdUnguarded(module));
 
         return moduleIds;
     }
 
-    void synchronizeDocumentModules(SourceId sourceId, const Storage::Modules &modules)
+    void addModuleIdToImports(Storage::Imports &imports)
     {
-        ModuleIds moduleIds = fetchModuleIdsUnguarded(modules);
+        for (Storage::Import &import : imports) {
+            import.moduleId = fetchModuleIdUnguarded(import.name);
+            if (!import.moduleId)
+                throw ModuleDoesNotExists{};
+        }
+    }
 
-        std::sort(moduleIds.begin(), moduleIds.end());
+    void synchronizeDocumentImports(Storage::Imports &imports, const std::vector<int> &sourceIdValues)
+    {
+        std::sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
+            return std::tie(first.sourceId, first.moduleId, first.version)
+                   < std::tie(second.sourceId, second.moduleId, second.version);
+        });
 
-        auto range = selectModuleIdsForSourceIdStatement.template range<ModuleId>(&sourceId);
+        auto range = selectDocumentImportForSourceIdStatement.template range<Storage::ImportView>(
+            Utils::span{sourceIdValues});
 
-        auto compareKey = [](ModuleId first, ModuleId second) { return first.id - second.id; };
+        auto compareKey = [](const Storage::ImportView &view,
+                             const Storage::Import &import) -> long long {
+            auto sourceIdDifference = view.sourceId.id - import.sourceId.id;
+            if (sourceIdDifference != 0)
+                return sourceIdDifference;
 
-        auto insert = [&](ModuleId moduleId) {
-            insertModuleIdForSourceIdStatement.write(&sourceId, &moduleId);
+            auto moduleIdDifference = view.moduleId.id - import.moduleId.id;
+            if (moduleIdDifference != 0)
+                return moduleIdDifference;
+
+            auto versionDifference = view.version.major.value - import.version.major.value;
+            if (versionDifference != 0)
+                return versionDifference;
+
+            return view.version.minor.value - import.version.minor.value;
         };
 
-        auto update = [](ModuleId, ModuleId) {};
-
-        auto remove = [&](ModuleId moduleId) {
-            deleteModuleIdForSourceIdStatement.write(&sourceId, &moduleId);
+        auto insert = [&](const Storage::Import &import) {
+            if (import.version.minor) {
+                insertDocumentImportWithVersionStatement.write(&import.sourceId,
+                                                               &import.moduleId,
+                                                               import.version.major.value,
+                                                               import.version.minor.value);
+            } else if (import.version.major) {
+                insertDocumentImportWithMajorVersionStatement.write(&import.sourceId,
+                                                                    &import.moduleId,
+                                                                    import.version.major.value);
+            } else {
+                insertDocumentImportWithoutVersionStatement.write(&import.sourceId, &import.moduleId);
+            }
         };
 
-        Sqlite::insertUpdateDelete(range, moduleIds, compareKey, insert, update, remove);
+        auto update = [](const Storage::ImportView &, const Storage::Import &) {};
+
+        auto remove = [&](const Storage::ImportView &view) {
+            deleteDocumentImportStatement.write(&view.importId);
+        };
+
+        Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
     }
 
     Utils::PathString createJson(const Storage::ParameterDeclarations &parameters)
@@ -1251,7 +1212,7 @@ private:
             return type.typeId;
         }
 
-        ModuleId moduleId = fetchModuleId(type.module);
+        ModuleId moduleId = fetchModuleIdUnguarded(type.module);
 
         if (!moduleId)
             throw ModuleDoesNotExists{};
@@ -1267,7 +1228,7 @@ private:
         upsertNativeType(moduleId, type.typeName, type.typeId);
 
         for (const auto &exportedType : type.exportedTypes)
-            upsertExportedType(moduleId, exportedType.name, type.typeId);
+            upsertExportedType(moduleId, exportedType.name, type.typeId, exportedType.version);
 
         return type.typeId;
     }
@@ -1318,8 +1279,10 @@ private:
                          type.prototype)) {
             updatePrototypeStatement.write(&type.typeId, Sqlite::NullValue{}, Sqlite::NullValue{});
         } else {
-            auto [prototypeId, prototypeTypeNameId] = fetchTypeIdByNameUngarded(type.prototype,
-                                                                                type.sourceId);
+            ImportedTypeNameId prototypeTypeNameId = fetchImportedTypeNameId(type.prototype,
+                                                                             type.sourceId);
+
+            TypeId prototypeId = fetchTypeId(prototypeTypeNameId);
 
             if (!prototypeId)
                 throw TypeNameDoesNotExists{};
@@ -1329,65 +1292,47 @@ private:
         }
     }
 
-    Utils::SmallStringView extractTypeName(const Storage::TypeName &name) const
+    ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const
     {
-        return Utils::visit([](auto &&typeName) -> Utils::SmallStringView { return typeName.name; },
-                            name);
-    }
-
-    Storage::TypeName createTypeName(long long typeIndex, Utils::SmallStringView name) const
-    {
-        switch (typeIndex) {
-        case 0:
-            return Utils::variant_alternative_t<0, Storage::TypeName>(name);
-        case 1:
-            return Utils::variant_alternative_t<1, Storage::TypeName>(name);
+        if (import.version) {
+            return selectImportIdBySourceIdAndImportNameAndVersionStatement.template value<ImportId>(
+                &sourceId, import.name, import.version.major.value, import.version.minor.value);
         }
 
-        return {};
+        if (import.version.major) {
+            return selectImportIdBySourceIdAndImportNameAndMajorVersionStatement
+                .template value<ImportId>(&sourceId, import.name, import.version.major.value);
+        }
+
+        return selectImportIdBySourceIdAndImportNameStatement.template value<ImportId>(&sourceId,
+                                                                                       import.name);
     }
 
-    class TypeIdAndTypeNameId
-    {
-    public:
-        TypeIdAndTypeNameId() = default;
-        TypeIdAndTypeNameId(long long typeId, long long typeNameId)
-            : typeId{typeId}
-            , typeNameId{typeNameId}
-        {}
-
-    public:
-        TypeId typeId;
-        TypeNameId typeNameId;
-    };
-
-    TypeIdAndTypeNameId fetchTypeIdByNameUngarded(const Storage::TypeName &name, SourceId sourceId)
+    ImportedTypeNameId fetchImportedTypeNameId(const Storage::ImportedTypeName &name, SourceId sourceId)
     {
         struct Inspect
         {
             auto operator()(const Storage::NativeType &nativeType)
             {
-                return storage.selectTypeIdByModuleIdsFromSourceIdAndNameStatement
-                    .template value<TypeIdAndTypeNameId>(&sourceId, nativeType.name);
+                return storage.fetchImportedTypeNameId(Storage::TypeNameKind::Native,
+                                                       &sourceId,
+                                                       nativeType.name);
             }
 
-            auto operator()(const Storage::ExportedType &exportedType)
+            auto operator()(const Storage::ImportedType &importedType)
             {
-                return storage.selectTypeIdByModuleIdsFromSourceIdAndExportedNameStatement
-                    .template value<TypeIdAndTypeNameId>(&sourceId, exportedType.name);
+                return storage.fetchImportedTypeNameId(Storage::TypeNameKind::Exported,
+                                                       &sourceId,
+                                                       importedType.name);
             }
 
-            auto operator()(const Storage::ExplicitExportedType &exportedType)
+            auto operator()(const Storage::QualifiedImportedType &importedType)
             {
-                if (exportedType.module.version) {
-                    return storage.selectTypeIdByModuleNameAndVersionAndExportedNameStatement
-                        .template value<TypeIdAndTypeNameId>(exportedType.module.name,
-                                                             exportedType.module.version.version,
-                                                             exportedType.name);
-                }
+                ImportId importId = storage.fetchImportId(sourceId, importedType.import);
 
-                return storage.selectTypeIdByModuleNameAndExportedNameStatement
-                    .template value<TypeIdAndTypeNameId>(exportedType.module.name, exportedType.name);
+                return storage.fetchImportedTypeNameId(Storage::TypeNameKind::QualifiedExported,
+                                                       &importId,
+                                                       importedType.name);
             }
 
             ProjectStorage &storage;
@@ -1395,6 +1340,42 @@ private:
         };
 
         return Utils::visit(Inspect{*this, sourceId}, name);
+    }
+
+    ImportedTypeNameId fetchImportedTypeNameId(Storage::TypeNameKind kind,
+                                               long long id,
+                                               Utils::SmallStringView typeName)
+    {
+        auto importedTypeNameId = selectImportedTypeNameIdStatement.template value<ImportedTypeNameId>(
+            static_cast<int>(kind), id, typeName);
+
+        if (importedTypeNameId)
+            return importedTypeNameId;
+
+        return insertImportedTypeNameIdStatement
+            .template value<ImportedTypeNameId>(static_cast<int>(kind), id, typeName);
+    }
+
+    TypeId fetchTypeId(ImportedTypeNameId typeNameId) const
+    {
+        auto kindValue = selectKindFromImportedTypeNamesStatement.template optionalValue<int>(
+            &typeNameId);
+        auto kind = static_cast<Storage::TypeNameKind>(*kindValue);
+
+        return fetchTypeId(typeNameId, kind);
+    }
+
+    TypeId fetchTypeId(ImportedTypeNameId typeNameId, Storage::TypeNameKind kind) const
+    {
+        if (kind == Storage::TypeNameKind::QualifiedExported) {
+            return selectTypeIdForQualifiedImportedTypeNameNamesStatement.template value<TypeId>(
+                &typeNameId);
+        }
+
+        if (kind == Storage::TypeNameKind::Native)
+            return selectTypeIdForNativeTypeNameNamesStatement.template value<TypeId>(&typeNameId);
+
+        return selectTypeIdForImportedTypeNameNamesStatement.template value<TypeId>(&typeNameId);
     }
 
     class FetchPropertyDeclarationResult
@@ -1542,16 +1523,16 @@ private:
             if (!isInitialized) {
                 Sqlite::ExclusiveTransaction transaction{database};
 
-                createModulesTable(database);
-                createModuleDependeciesTable(database);
+                auto moduleIdColumn = createModulesTable(database);
                 createSourceContextsTable(database);
                 createSourcesTable(database);
-                createTypesAndePropertyDeclarationsTables(database);
-                createTypeNamesTable(database);
+                createTypesAndePropertyDeclarationsTables(database, moduleIdColumn);
+                createExportedTypeNamesTable(database, moduleIdColumn);
+                createImportedTypeNamesTable(database);
                 createEnumerationsTable(database);
                 createFunctionsTable(database);
                 createSignalsTable(database);
-                createSourceModulesTable(database);
+                createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
 
                 transaction.commit();
@@ -1593,13 +1574,18 @@ private:
             table.initialize(database);
         }
 
-        void createTypesAndePropertyDeclarationsTables(Database &database)
+        void createTypesAndePropertyDeclarationsTables(Database &database,
+                                                       const Sqlite::Column &foreignModuleIdColumn)
         {
             Sqlite::Table typesTable;
             typesTable.setUseIfNotExists(true);
             typesTable.setName("types");
             typesTable.addColumn("typeId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-            auto &moduleIdColumn = typesTable.addColumn("moduleId");
+            auto &moduleIdColumn = typesTable.addForeignKeyColumn("moduleId",
+                                                                  foreignModuleIdColumn,
+                                                                  Sqlite::ForeignKeyAction::NoAction,
+                                                                  Sqlite::ForeignKeyAction::NoAction,
+                                                                  Sqlite::Enforment::Deferred);
             auto &typesNameColumn = typesTable.addColumn("name");
             typesTable.addColumn("accessSemantics");
             typesTable.addColumn("sourceId");
@@ -1627,7 +1613,7 @@ private:
                                                              Sqlite::ForeignKeyAction::NoAction,
                                                              Sqlite::ForeignKeyAction::Restrict);
                 propertyDeclarationTable.addColumn("propertyTraits");
-                propertyDeclarationTable.addColumn("propertyTypeNameId");
+                propertyDeclarationTable.addColumn("propertyImportedTypeNameId");
                 auto &aliasPropertyDeclarationIdColumn = propertyDeclarationTable.addForeignKeyColumn(
                     "aliasPropertyDeclarationId",
                     propertyDeclarationTable,
@@ -1642,20 +1628,46 @@ private:
             }
         }
 
-        void createTypeNamesTable(Database &database)
+        void createExportedTypeNamesTable(Database &database,
+                                          const Sqlite::Column &foreignModuleIdColumn)
         {
             Sqlite::Table table;
             table.setUseIfNotExists(true);
-            table.setName("typeNames");
-            table.addColumn("typeNameId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-            auto &moduleIdColumn = table.addColumn("moduleId");
+            table.setName("exportedTypeNames");
+            table.addColumn("exportedTypeNameId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
+                                                             foreignModuleIdColumn,
+                                                             Sqlite::ForeignKeyAction::NoAction,
+                                                             Sqlite::ForeignKeyAction::NoAction,
+                                                             Sqlite::Enforment::Deferred);
             auto &nameColumn = table.addColumn("name");
             auto &kindColumn = table.addColumn("kind");
-            table.addColumn("majorVersion");
-            table.addColumn("minorVersion");
             table.addColumn("typeId");
+            auto &majorVersionColumn = table.addColumn("majorVersion");
+            auto &minorVersionColumn = table.addColumn("minorVersion");
 
-            table.addUniqueIndex({moduleIdColumn, nameColumn, kindColumn});
+            table.addUniqueIndex({moduleIdColumn, nameColumn, kindColumn},
+                                 "majorVersion IS NULL AND minorVersion IS NULL");
+            table.addUniqueIndex({moduleIdColumn, nameColumn, kindColumn, majorVersionColumn},
+                                 "majorVersion IS NOT NULL AND minorVersion IS NULL");
+            table.addUniqueIndex(
+                {moduleIdColumn, nameColumn, kindColumn, majorVersionColumn, minorVersionColumn},
+                "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
+
+            table.initialize(database);
+        }
+
+        void createImportedTypeNamesTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setName("importedTypeNames");
+            table.addColumn("importedTypeNameId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            auto &importOrSourceIdColumn = table.addColumn("importOrSourceId");
+            auto &nameColumn = table.addColumn("name");
+            auto &kindColumn = table.addColumn("kind");
+
+            table.addUniqueIndex({kindColumn, importOrSourceIdColumn, nameColumn});
 
             table.initialize(database);
         }
@@ -1710,44 +1722,44 @@ private:
             table.initialize(database);
         }
 
-        void createModulesTable(Database &database)
+        Sqlite::Column createModulesTable(Database &database)
         {
             Sqlite::Table table;
             table.setUseIfNotExists(true);
             table.setName("modules");
-            table.addColumn("moduleId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            auto &modelIdColumn = table.addColumn("moduleId",
+                                                  Sqlite::ColumnType::Integer,
+                                                  {Sqlite::PrimaryKey{}});
             auto &nameColumn = table.addColumn("name");
-            auto &versionColumn = table.addColumn("version");
 
-            table.addUniqueIndex({nameColumn, versionColumn});
+            table.addUniqueIndex({nameColumn});
 
             table.initialize(database);
+
+            return std::move(modelIdColumn);
         }
 
-        void createModuleDependeciesTable(Database &database)
+        void createDocumentImportsTable(Database &database, const Sqlite::Column &foreignModuleIdColumn)
         {
             Sqlite::Table table;
             table.setUseIfNotExists(true);
-            table.setUseWithoutRowId(true);
-            table.setName("moduleDependencies");
-            auto &moduleIdColumn = table.addColumn("moduleId");
-            auto &parentModuleIdColumn = table.addColumn("parentModuleId");
-
-            table.addPrimaryKeyContraint({moduleIdColumn, parentModuleIdColumn});
-
-            table.initialize(database);
-        }
-
-        void createSourceModulesTable(Database &database)
-        {
-            Sqlite::Table table;
-            table.setUseIfNotExists(true);
-            table.setUseWithoutRowId(true);
-            table.setName("documentModules");
+            table.setName("documentImports");
+            table.addColumn("importId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
             auto &sourceIdColumn = table.addColumn("sourceId");
-            auto &moduleIdColumn = table.addColumn("moduleId");
+            auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
+                                                             foreignModuleIdColumn,
+                                                             Sqlite::ForeignKeyAction::NoAction,
+                                                             Sqlite::ForeignKeyAction::Cascade,
+                                                             Sqlite::Enforment::Deferred);
+            auto &majorVersionColumn = table.addColumn("majorVersion");
+            auto &minorVersionColumn = table.addColumn("minorVersion");
 
-            table.addPrimaryKeyContraint({sourceIdColumn, moduleIdColumn});
+            table.addUniqueIndex({sourceIdColumn, moduleIdColumn},
+                                 "majorVersion IS NULL AND minorVersion IS NULL");
+            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, majorVersionColumn},
+                                 "majorVersion IS NOT NULL AND minorVersion IS NULL");
+            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, majorVersionColumn, minorVersionColumn},
+                                 "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
 
             table.initialize(database);
         }
@@ -1785,13 +1797,14 @@ public:
         "NOT ?2 OR prototypeNameId IS NOT ?3)",
         database};
     mutable ReadStatement<1> selectTypeIdByExportedNameStatement{
-        "SELECT typeId FROM typeNames WHERE name=?1 AND kind=1", database};
+        "SELECT typeId FROM exportedTypeNames WHERE name=?1 AND kind=1", database};
     mutable ReadStatement<1> selectPrototypeIdStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("
         "      VALUES(?1) "
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId)) "
+        "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId) WHERE prototypeId "
+        "        IS NOT NULL)"
         "SELECT typeId FROM typeSelection WHERE typeId=?2 LIMIT 1",
         database};
     mutable ReadStatement<1> selectPropertyDeclarationIdByTypeIdAndNameStatement{
@@ -1800,7 +1813,7 @@ public:
         "      VALUES(?1, 0) "
         "    UNION ALL "
         "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId)) "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL) "
         "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
@@ -1810,17 +1823,27 @@ public:
         "      VALUES(?1, 0) "
         "    UNION ALL "
         "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId)) "
-        "SELECT propertyTypeId, propertyDeclarationId, propertyTraits "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "SELECT nullif(propertyTypeId, -1), propertyDeclarationId, propertyTraits "
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
-    WriteStatement upsertTypeNamesStatement{
-        "INSERT INTO typeNames(moduleId, name, kind, majorVersion, minorVersion, typeId) "
+    WriteStatement upsertTypeNamesWithVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, majorVersion, minorVersion, typeId) "
         "VALUES(?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT DO UPDATE SET typeId=excluded.typeId, "
         "majorVersion=excluded.majorVersion, minorVersion=excluded.minorVersion WHERE typeId IS "
         "NOT excluded.typeId OR majorVersion IS NOT excluded.majorVersion OR minorVersion IS NOT "
         "excluded.minorVersion",
+        database};
+    WriteStatement upsertTypeNamesWithMajorVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, majorVersion, typeId) "
+        "VALUES(?1, ?2, ?3, ?4, ?5) ON CONFLICT DO UPDATE SET typeId=excluded.typeId, "
+        "majorVersion=excluded.majorVersion WHERE typeId IS NOT excluded.typeId OR majorVersion IS "
+        "NOT excluded.majorVersion",
+        database};
+    WriteStatement upsertTypeNamesWithoutVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, typeId) VALUES(?1, ?2, ?3, ?4) ON "
+        "CONFLICT DO UPDATE SET typeId=excluded.typeId WHERE typeId IS NOT excluded.typeId",
         database};
     mutable ReadStatement<1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
@@ -1828,7 +1851,7 @@ public:
         "      VALUES(?1, 0) "
         "    UNION ALL "
         "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId)) "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL) "
         "SELECT typeId FROM typeSelection ORDER BY level DESC",
         database};
     mutable ReadStatement<1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
@@ -1849,27 +1872,24 @@ public:
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    mutable ReadStatement<1> selectTypeIdByModuleIdsAndNameStatement{
-        "SELECT typeId FROM types WHERE moduleId IN carray(?1, ?2, 'int64') AND name=?3", database};
-    mutable ReadStatement<2> selectTypeIdByModuleIdsFromSourceIdAndNameStatement{
-        "SELECT typeId, typeNameId FROM typeNames JOIN documentModules AS di USING(moduleId) WHERE "
-        "  name=?2 AND kind=0 AND di.sourceId=?1 LIMIT 1",
-        database};
     mutable ReadStatement<5> selectTypeByTypeIdStatement{
         "SELECT moduleId, name, (SELECT name FROM types WHERE typeId=outerTypes.prototypeId), "
         "accessSemantics, ifnull(sourceId, -1) FROM types AS outerTypes WHERE typeId=?",
         database};
-    mutable ReadStatement<1> selectExportedTypesByTypeIdStatement{
-        "SELECT name FROM typeNames WHERE typeId=? AND kind=1", database};
+    mutable ReadStatement<3> selectExportedTypesByTypeIdStatement{
+        "SELECT name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM exportedTypeNames "
+        "WHERE typeId=? AND kind=1",
+        database};
     mutable ReadStatement<7> selectTypesStatement{
-        "SELECT i.name, i.version, t.name, typeId, (SELECT name FROM types WHERE "
+        "SELECT m.name, m.moduleId, t.name, typeId, (SELECT name FROM types WHERE "
         "typeId=t.prototypeId), accessSemantics, ifnull(sourceId, -1) FROM types AS "
-        "t JOIN modules AS i USING (moduleId)",
+        "t JOIN modules AS m USING (moduleId)",
         database};
     ReadStatement<1> selectNotUpdatedTypesInSourcesStatement{
         "SELECT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN carray(?2))",
         database};
-    WriteStatement deleteTypeNamesByTypeIdStatement{"DELETE FROM typeNames WHERE typeId=?", database};
+    WriteStatement deleteTypeNamesByTypeIdStatement{"DELETE FROM exportedTypeNames WHERE typeId=?",
+                                                    database};
     WriteStatement deleteEnumerationDeclarationByTypeIdStatement{
         "DELETE FROM enumerationDeclarations WHERE typeId=?", database};
     WriteStatement deletePropertyDeclarationByTypeIdStatement{
@@ -1886,18 +1906,19 @@ public:
         "WHERE typeId=?",
         database};
     ReadStatement<6> selectPropertyDeclarationsForTypeIdStatement{
-        "SELECT name, propertyTraits, propertyTypeId, propertyTypeNameId, propertyDeclarationId, "
-        "ifnull(aliasPropertyDeclarationId, -1) FROM propertyDeclarations WHERE typeId=? ORDER BY "
-        "name",
+        "SELECT name, propertyTraits, propertyTypeId, propertyImportedTypeNameId, "
+        "propertyDeclarationId, ifnull(aliasPropertyDeclarationId, -1) FROM propertyDeclarations "
+        "WHERE typeId=? ORDER BY name",
         database};
     ReadWriteStatement<1> insertPropertyDeclarationStatement{
         "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits, "
-        "propertyTypeNameId, aliasPropertyDeclarationId) VALUES(?1, ?2, ?3, ?4, ?5, NULL) "
+        "propertyImportedTypeNameId, aliasPropertyDeclarationId) VALUES(?1, ?2, ?3, ?4, ?5, NULL) "
         "RETURNING propertyDeclarationId",
         database};
     WriteStatement updatePropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
-        "propertyTypeNameId=?4, aliasPropertyDeclarationId=NULL WHERE propertyDeclarationId=?1",
+        "propertyImportedTypeNameId=?4, aliasPropertyDeclarationId=NULL WHERE "
+        "propertyDeclarationId=?1",
         database};
     WriteStatement updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement{
         "WITH RECURSIVE "
@@ -1936,10 +1957,7 @@ public:
         database};
     WriteStatement updatePropertyDeclarationWithAliasAndTypeStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
-        "propertyTypeNameId=?4, aliasPropertyDeclarationId=?5 WHERE propertyDeclarationId=?1",
-        database};
-    WriteStatement updatePropertyDeclarationWithAliasStatement{
-        "UPDATE propertyDeclarations SET propertyTypeId=?2, aliasPropertyDeclarationId=?3 WHERE "
+        "propertyImportedTypeNameId=?4, aliasPropertyDeclarationId=?5 WHERE "
         "propertyDeclarationId=?1",
         database};
     ReadWriteStatement<1> insertAliasPropertyDeclarationStatement{
@@ -2010,76 +2028,47 @@ public:
         database};
     WriteStatement deleteEnumerationDeclarationStatement{
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
-    WriteStatement insertModuleStatement{
-        "INSERT INTO modules(name, version, moduleId) VALUES(?1, ?2, ?3)", database};
-    WriteStatement updateModuleStatement{"UPDATE modules SET name=?2, version=?3 WHERE moduleId=?1",
+    WriteStatement insertModuleStatement{"INSERT INTO modules(name, moduleId) VALUES(?1, ?2)",
                                          database};
+    WriteStatement updateModuleStatement{"UPDATE modules SET name=?2 WHERE moduleId=?1", database};
     WriteStatement deleteModuleStatement{"DELETE FROM modules WHERE moduleId=?", database};
     mutable ReadStatement<1> selectModuleIdByNameStatement{
-        "SELECT moduleId FROM modules WHERE name=? ORDER BY version DESC LIMIT 1", database};
-    mutable ReadStatement<1> selectModuleIdByNameAndVersionStatement{
-        "SELECT moduleId FROM modules WHERE name=? AND version=?", database};
-    mutable ReadStatement<3> selectModulesForIdsStatement{
-        "SELECT name, version, moduleId FROM modules WHERE moduleId IN carray(?1) ORDER BY "
+        "SELECT moduleId FROM modules WHERE name=? LIMIT 1", database};
+    mutable ReadStatement<2> selectModulesForIdsStatement{
+        "SELECT name, moduleId FROM modules WHERE moduleId IN carray(?1) ORDER BY "
         "moduleId",
         database};
-    mutable ReadStatement<3> selectAllModulesStatement{
-        "SELECT name, version, moduleId FROM modules ORDER BY moduleId", database};
-    WriteStatement insertModuleDependencyStatement{
-        "INSERT INTO moduleDependencies(moduleId, parentModuleId) VALUES(?1, ?2)", database};
-    WriteStatement deleteModuleDependencyStatement{
-        "DELETE FROM moduleDependencies WHERE moduleId=?1 AND parentModuleId=?2", database};
-    mutable ReadStatement<2> selectModuleDependenciesForIdsStatement{
-        "SELECT moduleId, parentModuleId FROM moduleDependencies WHERE moduleId IN carray(?1) "
-        "ORDER BY moduleId, parentModuleId",
-        database};
-    mutable ReadStatement<2> selectModulesForThatDependentOnThisModuleIdStatement{
-        "SELECT name, version FROM moduleDependencies JOIN modules ON "
-        "moduleDependencies.parentModuleId = modules.moduleId WHERE moduleDependencies.moduleId=?",
-        database};
+    mutable ReadStatement<2> selectAllModulesStatement{
+        "SELECT name, moduleId FROM modules ORDER BY moduleId", database};
     mutable ReadStatement<1> selectTypeIdsForModuleIdStatement{
         "SELECT typeId FROM types WHERE moduleId=?", database};
     mutable ReadStatement<1> selectTypeIdByModuleIdAndNameStatement{
         "SELECT typeId FROM types WHERE moduleId=?1 and name=?2", database};
     mutable ReadStatement<1> selectTypeIdByModuleIdsAndExportedNameStatement{
-        "SELECT typeId FROM typeNames WHERE moduleId IN carray(?1, ?2, 'int64') AND name=?3 AND "
-        "kind=1",
+        "SELECT typeId FROM exportedTypeNames WHERE moduleId IN carray(?1, ?2, 'int32') AND "
+        "name=?3 AND kind=1",
         database};
-    mutable ReadStatement<2> selectTypeIdByModuleIdsFromSourceIdAndExportedNameStatement{
-        "SELECT typeId, typeNameId FROM typeNames JOIN documentModules AS di USING(moduleId) WHERE "
-        "name=?2 AND kind=1 AND di.sourceId=?1 LIMIT 1",
+    mutable ReadStatement<5> selectDocumentImportForSourceIdStatement{
+        "SELECT importId, sourceId, moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
+        "FROM documentImports WHERE sourceId IN carray(?1) ORDER BY sourceId, moduleId, "
+        "majorVersion, minorVersion",
         database};
-    mutable ReadStatement<2> selectTypeIdByModuleNameAndExportedNameStatement{
-        "WITH RECURSIVE "
-        "  highestModule(moduleId) AS ( "
-        "    SELECT moduleId FROM modules WHERE name=?1 ORDER BY version DESC LIMIT 1) "
-        "SELECT typeId, -typeNameId FROM typeNames JOIN highestModule USING(moduleId) WHERE "
-        "  name=?2 AND kind=1 LIMIT 1",
+    WriteStatement insertDocumentImportWithoutVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId) "
+        "VALUES (?1, ?2)",
         database};
-    mutable ReadStatement<2> selectTypeIdByModuleNameAndVersionAndExportedNameStatement{
-        "WITH RECURSIVE "
-        "  highestModule(moduleId) AS ( "
-        "    SELECT moduleId FROM modules WHERE name=?1 AND version=?2 ORDER BY version DESC LIMIT "
-        "      1) "
-        "SELECT typeId, -typeNameId FROM typeNames JOIN highestModule USING(moduleId) WHERE "
-        "  name=?3 AND kind=1 LIMIT 1",
+    WriteStatement insertDocumentImportWithMajorVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, majorVersion) "
+        "VALUES (?1, ?2, ?3)",
         database};
-    mutable ReadStatement<1> fetchModuleDependencyIdsStatement{
-        "WITH RECURSIVE "
-        "  moduleIds(moduleId) AS ("
-        "      SELECT value FROM carray(?1, ?2, 'int64') "
-        "    UNION "
-        "      SELECT parentModuleId FROM moduleDependencies JOIN moduleIds USING(moduleId)) "
-        "SELECT moduleId FROM moduleIds",
+    WriteStatement insertDocumentImportWithVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, majorVersion, minorVersion) "
+        "VALUES (?1, ?2, ?3, ?4)",
         database};
-    mutable ReadStatement<1> selectModuleIdsForSourceIdStatement{
-        "SELECT moduleId FROM documentModules WHERE sourceId=? ORDER BY moduleId", database};
-    WriteStatement insertModuleIdForSourceIdStatement{
-        "INSERT INTO documentModules(sourceId, moduleId) VALUES (?1, ?2)", database};
-    WriteStatement deleteModuleIdForSourceIdStatement{
-        "DELETE FROM documentModules WHERE sourceId=?1 AND moduleId=?2", database};
-    WriteStatement deleteDocumentModulesWithSourceIdsStatement{
-        "DELETE FROM documentModules WHERE sourceId=?1 IN carray(?1)", database};
+    WriteStatement deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
+                                                 database};
+    WriteStatement deleteDocumentImportsWithSourceIdsStatement{
+        "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
     ReadStatement<1> selectPropertyDeclarationIdPrototypeChainDownStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("
@@ -2106,66 +2095,55 @@ public:
         "NULL OR propertyTypeId IS NOT NULL OR propertyTraits IS NOT NULL)",
         database};
     ReadStatement<4> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
-        "SELECT alias.propertyDeclarationId, alias.propertyTypeNameId, alias.typeId, "
+        "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
         "target.propertyDeclarationId FROM propertyDeclarations AS alias JOIN propertyDeclarations "
         "AS target ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId WHERE "
-        "alias.propertyTypeId=?1 OR alias.propertyTypeNameId IN (SELECT typeNameId FROM typeNames "
+        "alias.propertyTypeId=?1 OR target.typeId=?1 OR alias.propertyImportedTypeNameId IN "
+        "(SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
         "WHERE typeId=?1)",
         database};
-    ReadStatement<4> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
+    ReadStatement<3> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
         "WITH RECURSIVE "
-        "  properties(propertyDeclarationId, propertyTypeNameId, typeId, "
+        "  properties(propertyDeclarationId, propertyImportedTypeNameId, typeId, "
         "    aliasPropertyDeclarationId) AS ("
-        "      SELECT propertyDeclarationId, propertyTypeNameId, typeId, "
+        "      SELECT propertyDeclarationId, propertyImportedTypeNameId, typeId, "
         "        aliasPropertyDeclarationId FROM propertyDeclarations WHERE "
         "        aliasPropertyDeclarationId=?1"
         "    UNION ALL "
-        "      SELECT pd.propertyDeclarationId, pd.propertyTypeNameId, pd.typeId, "
+        "      SELECT pd.propertyDeclarationId, pd.propertyImportedTypeNameId, pd.typeId, "
         "        pd.aliasPropertyDeclarationId FROM propertyDeclarations AS pd JOIN properties AS "
         "        p ON pd.aliasPropertyDeclarationId=p.propertyDeclarationId)"
-        "SELECT propertyDeclarationId, propertyTypeNameId, typeId, aliasPropertyDeclarationId "
+        "SELECT propertyDeclarationId, propertyImportedTypeNameId, aliasPropertyDeclarationId "
         "  FROM properties",
         database};
-    ReadWriteStatement<2> updatesPropertyDeclarationPropertyTypeToNullStatement{
+    ReadWriteStatement<3> updatesPropertyDeclarationPropertyTypeToNullStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=NULL WHERE propertyTypeId=?1 AND "
-        "aliasPropertyDeclarationId IS NULL RETURNING propertyDeclarationId, propertyTypeNameId",
-        database};
-    ReadStatement<1> selectSourceIdForTypeIdStatement{"SELECT sourceId FROM types WHERE typeId=?",
-                                                      database};
-    ReadStatement<2> selectTypeNameStatement{"SELECT name, kind FROM typeNames WHERE typeNameId=?",
-                                             database};
-    ReadStatement<3> selectExplicitTypeNameStatement{
-        "SELECT  tn.name, i.name, i.version FROM typeNames AS tn JOIN modules AS i USING(moduleId) "
-        "WHERE typeNameId=? AND kind=1",
+        "aliasPropertyDeclarationId IS NULL RETURNING typeId, propertyDeclarationId, "
+        "propertyImportedTypeNameId",
         database};
     ReadStatement<1> selectPropertyNameStatement{
         "SELECT name FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
     WriteStatement updatePropertyDeclarationTypeStatement{
-        "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTypeNameId=?3 WHERE "
-        "propertyDeclarationId=?1",
-        database};
-    ReadStatement<1> selectPropertyDeclarationIdStatement{
-        "SELECT propertyDeclarationId FROM propertyDeclarations WHERE propertyDeclarationId=?",
-        database};
-    ReadWriteStatement<3> updatePrototypeIdToNullStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=?2 WHERE propertyDeclarationId=?1", database};
+    ReadWriteStatement<2> updatePrototypeIdToNullStatement{
         "UPDATE types SET prototypeId=NULL WHERE prototypeId=?1 RETURNING "
-        "typeId, prototypeNameId, sourceId",
+        "typeId, prototypeNameId",
         database};
-    ReadStatement<1> selectTypeIdStatement{"SELECT typeId FROM types WHERE typeId=?", database};
-    WriteStatement updateTypePrototypeStatement{
-        "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1", database};
+    WriteStatement updateTypePrototypeStatement{"UPDATE types SET prototypeId=?2 WHERE typeId=?1",
+                                                database};
     mutable ReadStatement<1> selectTypeIdsForPrototypeChainIdStatement{
         "WITH RECURSIVE "
         "  prototypes(typeId) AS ("
-        "       SELECT prototypeId FROM types WHERE typeId=? "
+        "       SELECT prototypeId FROM types WHERE typeId=? AND prototypeId IS NOT NULL"
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId)) "
+        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId) WHERE prototypeId "
+        "        IS NOT NULL)"
         "SELECT typeId FROM prototypes",
         database};
     WriteStatement updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
-        "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, propertyTypeNameId=?3 "
-        "WHERE propertyDeclarationId=?1 AND (aliasPropertyDeclarationId IS NOT ?2 OR "
-        "propertyTypeNameId IS NOT ?3)",
+        "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, "
+        "propertyImportedTypeNameId=?3 WHERE propertyDeclarationId=?1 AND "
+        "(aliasPropertyDeclarationId IS NOT ?2 OR propertyImportedTypeNameId IS NOT ?3)",
         database};
     WriteStatement updatetPropertiesDeclarationValuesOfAliasStatement{
         "WITH RECURSIVE "
@@ -2212,6 +2190,51 @@ public:
         "UPDATE fileStatuses SET size=?2, lastModified=?3 WHERE sourceId=?1", database};
     ReadStatement<1> selectTypeIdBySourceIdStatement{"SELECT typeId FROM types WHERE sourceId=?",
                                                      database};
+    mutable ReadStatement<1> selectImportedTypeNameIdStatement{
+        "SELECT importedTypeNameId FROM importedTypeNames WHERE kind=?1 AND importOrSourceId=?2 "
+        "AND name=?3 LIMIT 1",
+        database};
+    mutable ReadWriteStatement<1> insertImportedTypeNameIdStatement{
+        "INSERT INTO importedTypeNames(kind, importOrSourceId, name) VALUES (?1, ?2, ?3) "
+        "RETURNING importedTypeNameId",
+        database};
+    mutable ReadStatement<1> selectImportIdBySourceIdAndImportNameStatement{
+        "SELECT importId FROM documentImports JOIN modules AS m USING(moduleId) WHERE sourceId=?1 "
+        "AND m.name=?2 AND majorVersion IS NULL AND minorVersion IS NULL LIMIT 1",
+        database};
+    mutable ReadStatement<1> selectImportIdBySourceIdAndImportNameAndMajorVersionStatement{
+        "SELECT importId FROM documentImports JOIN modules AS m USING(moduleId) WHERE sourceId=?1 "
+        "AND m.name=?2 AND majorVersion=?3 AND minorVersion IS NULL LIMIT 1",
+        database};
+    mutable ReadStatement<1> selectImportIdBySourceIdAndImportNameAndVersionStatement{
+        "SELECT importId FROM documentImports JOIN modules AS m USING(moduleId) WHERE sourceId=?1 "
+        "AND m.name=?2 AND majorVersion=?3 AND minorVersion=?4 LIMIT 1",
+        database};
+    mutable ReadStatement<1> selectKindFromImportedTypeNamesStatement{
+        "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
+    mutable ReadStatement<1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
+        "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
+        "importOrSourceId=importId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
+        "itn.kind=2 AND importedTypeNameId=?1 AND itn.name=etn.name AND etn.kind=1 AND "
+        "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
+        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
+        "etn.minorVersion DESC NULLS FIRST LIMIT 1",
+        database};
+    mutable ReadStatement<1> selectTypeIdForImportedTypeNameNamesStatement{
+        "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
+        "importOrSourceId=sourceId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
+        "itn.kind=1 AND importedTypeNameId=?1 AND itn.name=etn.name AND etn.kind=1 AND "
+        "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
+        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
+        "etn.minorVersion DESC NULLS FIRST LIMIT 1",
+        database};
+    mutable ReadStatement<1> selectTypeIdForNativeTypeNameNamesStatement{
+        "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
+        "importOrSourceId=sourceId JOIN exportedTypeNames AS etn USING(moduleId) WHERE itn.kind=0 "
+        "AND importedTypeNameId=?1 AND itn.name=etn.name AND etn.kind=0 LIMIT 1",
+        database};
+    WriteStatement deleteAllSourcesStatement{"DELETE FROM sources", database};
+    WriteStatement deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
 };
 
 } // namespace QmlDesigner

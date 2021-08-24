@@ -247,8 +247,9 @@ namespace Storage {
 class Type;
 class ExportedType;
 class NativeType;
-class ExplicitExportedType;
-using TypeName = Utils::variant<NativeType, ExportedType, ExplicitExportedType>;
+class ImportedType;
+class QualifiedImportedType;
+using TypeName = Utils::variant<NativeType, ExportedType>;
 class Version;
 class VersionNumber;
 enum class TypeAccessSemantics : int;
@@ -261,6 +262,8 @@ class EnumerationDeclaration;
 class EnumeratorDeclaration;
 class Module;
 class ModuleDependency;
+class Import;
+enum class IsQualified : int;
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics);
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
@@ -268,7 +271,8 @@ std::ostream &operator<<(std::ostream &out, Version version);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
 std::ostream &operator<<(std::ostream &out, const NativeType &nativeType);
-std::ostream &operator<<(std::ostream &out, const ExplicitExportedType &exportedType);
+std::ostream &operator<<(std::ostream &out, const ImportedType &importedType);
+std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importedType);
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration);
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits);
 std::ostream &operator<<(std::ostream &out, const FunctionDeclaration &functionDeclaration);
@@ -278,6 +282,8 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
 std::ostream &operator<<(std::ostream &out, const EnumeratorDeclaration &enumeratorDeclaration);
 std::ostream &operator<<(std::ostream &out, const Module &module);
 std::ostream &operator<<(std::ostream &out, const ModuleDependency &module);
+std::ostream &operator<<(std::ostream &out, const Import &import);
+std::ostream &operator<<(std::ostream &out, IsQualified isQualified);
 
 } // namespace Storage
 

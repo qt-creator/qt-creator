@@ -85,22 +85,22 @@ private:
 
     void parseTypeInfos(const QStringList &typeInfos,
                         SourceContextId directoryId,
-                        Storage::ModuleDependencies &moduleDependencies,
+                        Storage::Modules &modules,
                         Storage::Types &types,
                         SourceIds &sourceIds);
     void parseTypeInfos(const SourceIds &qmltypesSourceIds,
-                        Storage::ModuleDependencies &moduleDependencies,
+                        Storage::Modules &modules,
                         Storage::Types &types,
                         SourceIds &sourceIds);
     void parseTypeInfo(SourceId sourceId,
                        const QString &qmltypesPath,
-                       Storage::ModuleDependencies &moduleDependencies,
+                       Storage::Modules &modules,
                        Storage::Types &types,
                        SourceIds &sourceIds);
     void parseQmlComponents(ComponentReferences components,
                             SourceContextId directoryId,
                             Utils::SmallStringView moduleName,
-                            Storage::ModuleDependencies &moduleDependencies,
+                            Storage::Modules &modules,
                             Storage::Types &types,
                             SourceIds &sourceIds);
 

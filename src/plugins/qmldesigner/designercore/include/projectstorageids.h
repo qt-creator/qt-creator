@@ -77,15 +77,16 @@ enum class BasicIdType {
     Type,
     PropertyType,
     PropertyDeclaration,
-    SourceId,
-    SourceContextId,
+    Source,
+    SourceContext,
     StorageCacheIndex,
     FunctionDeclaration,
     SignalDeclaration,
     EnumerationDeclaration,
     Module,
-    TypeName,
-    ProjectPartId
+    ProjectPartId,
+    Import,
+    ImportedTypeName
 };
 
 using TypeId = BasicId<BasicIdType::Type>;
@@ -103,19 +104,22 @@ using SignalDeclarationIds = std::vector<SignalDeclarationId>;
 using EnumerationDeclarationId = BasicId<BasicIdType::EnumerationDeclaration>;
 using EnumerationDeclarationIds = std::vector<EnumerationDeclarationId>;
 
-using SourceContextId = BasicId<BasicIdType::SourceContextId, int>;
+using SourceContextId = BasicId<BasicIdType::SourceContext, int>;
 using SourceContextIds = std::vector<SourceContextId>;
 
-using SourceId = BasicId<BasicIdType::SourceId, int>;
+using SourceId = BasicId<BasicIdType::Source, int>;
 using SourceIds = std::vector<SourceId>;
 
-using ModuleId = BasicId<BasicIdType::Module>;
+using ModuleId = BasicId<BasicIdType::Module, int>;
 using ModuleIds = std::vector<ModuleId>;
-
-using TypeNameId = BasicId<BasicIdType::TypeName>;
-using TypeNameIds = std::vector<TypeNameId>;
 
 using ProjectPartId = BasicId<BasicIdType::ProjectPartId>;
 using ProjectPartIds = std::vector<ProjectPartId>;
+
+using ImportId = BasicId<BasicIdType::Import>;
+using ImportIds = std::vector<ImportId>;
+
+using ImportedTypeNameId = BasicId<BasicIdType::ImportedTypeName>;
+using ImportedTypeNameIds = std::vector<ImportedTypeNameId>;
 
 } // namespace QmlDesigner
