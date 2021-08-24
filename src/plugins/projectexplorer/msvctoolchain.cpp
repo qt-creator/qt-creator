@@ -1125,13 +1125,15 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
 
     return [this, fullEnv](const QStringList &, const QString &, const QString &) {
         QMutexLocker locker(&m_headerPathsMutex);
-        if (m_headerPaths.isEmpty()) {
-            m_headerPaths = transform<QVector>(fullEnv.pathListValue("INCLUDE"),
-                                               [](const FilePath &p) {
-                return HeaderPath(p.toString(), HeaderPathType::BuiltIn);
-            });
-        }
-        return m_headerPaths;
+        const auto envList = fullEnv.toStringList();
+        const auto it = m_headerPathsPerEnv.constFind(envList);
+        if (it != m_headerPathsPerEnv.cend())
+            return *it;
+        const auto mapper = [](const FilePath &p) { // TODO: Define functions for this.
+            return HeaderPath(p.toString(), HeaderPathType::BuiltIn);
+        };
+        return *m_headerPathsPerEnv.insert(envList,
+                    transform<QVector>(fullEnv.pathListValue("INCLUDE"), mapper));
     };
 }
 
@@ -1787,7 +1789,7 @@ ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeader
 {
     {
         QMutexLocker locker(&m_headerPathsMutex);
-        m_headerPaths.clear();
+        m_headerPathsPerEnv.clear();
     }
 
     return MsvcToolChain::createBuiltInHeaderPathsRunner(env);

@@ -140,7 +140,7 @@ protected:
 
 protected:
     mutable QMutex m_headerPathsMutex;
-    mutable HeaderPaths m_headerPaths;
+    mutable QHash<QStringList, HeaderPaths> m_headerPathsPerEnv;
 
 private:
     void updateEnvironmentModifications(Utils::EnvironmentItems modifications);
