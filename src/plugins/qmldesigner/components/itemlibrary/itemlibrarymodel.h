@@ -77,6 +77,9 @@ public:
     Q_INVOKABLE void collapseAll();
     Q_INVOKABLE void showHiddenCategories();
     Q_INVOKABLE bool getIsAnyCategoryHidden() const;
+    Q_INVOKABLE void selectImportCategory(const QString importUrl, int categoryIndex);
+    Q_INVOKABLE QObject *selectImportFirstVisibleCategory();
+    Q_INVOKABLE bool isAllCategoriesHidden() const;
 
     Import entryToImport(const ItemLibraryEntry &entry);
 

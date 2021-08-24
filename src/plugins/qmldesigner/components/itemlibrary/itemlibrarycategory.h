@@ -39,6 +39,7 @@ class ItemLibraryCategory : public QObject
     Q_PROPERTY(QString categoryName READ categoryName FINAL)
     Q_PROPERTY(bool categoryVisible READ isCategoryVisible WRITE setCategoryVisible NOTIFY categoryVisibilityChanged FINAL)
     Q_PROPERTY(bool categoryExpanded READ categoryExpanded WRITE setExpanded NOTIFY expandedChanged FINAL)
+    Q_PROPERTY(bool categorySelected READ categorySelected WRITE setCategorySelected NOTIFY categorySelectedChanged FINAL)
     Q_PROPERTY(QObject *itemModel READ itemModel NOTIFY itemModelChanged FINAL)
 
 public:
@@ -46,6 +47,7 @@ public:
 
     QString categoryName() const;
     bool categoryExpanded() const;
+    bool categorySelected() const;
     QString sortingName() const;
 
     void addItem(ItemLibraryItem *item);
@@ -60,6 +62,7 @@ public:
     void sortItems();
 
     void setExpanded(bool expanded);
+    void setCategorySelected(bool selected);
 
     ItemLibraryImport *ownerImport() const { return m_ownerImport; }
 
@@ -68,6 +71,7 @@ signals:
     void visibilityChanged();
     void expandedChanged();
     void categoryVisibilityChanged();
+    void categorySelectedChanged();
 
 private:
     ItemLibraryItemsModel m_itemModel;
@@ -75,6 +79,7 @@ private:
     QString m_name;
     bool m_categoryExpanded = true;
     bool m_isVisible = true;
+    bool m_categorySelected = false;
 };
 
 } // namespace QmlDesigner

@@ -68,6 +68,7 @@ public:
     bool importCatVisibleState() const;
     bool hasCategories() const;
     bool hasSingleCategory() const;
+    bool isAllCategoriesHidden() const;
     ItemLibraryCategory *getCategorySection(const QString &categoryName) const;
 
     void addCategory(ItemLibraryCategory *category);
@@ -80,6 +81,9 @@ public:
     void setImportCatVisibleState(bool show);
     void expandCategories(bool expand = true);
     void showAllCategories(bool show = true);
+    void selectCategory(int categoryIndex);
+    QObject *selectFirstVisibleCategory();
+    void clearSelectedCategories();
 
     static QString userComponentsTitle();
     static QString quick3DAssetsTitle();

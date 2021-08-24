@@ -90,6 +90,40 @@ bool ItemLibraryModel::getIsAnyCategoryHidden() const
     return false;
 }
 
+void ItemLibraryModel::selectImportCategory(const QString importUrl, int categoryIndex)
+{
+    ItemLibraryImport *selectedCategoryImport = importByUrl(importUrl);
+
+    for (int i = 0; i < m_importList.length(); ++i) {
+        const auto importToSelect = m_importList.at(i);
+
+        if (selectedCategoryImport == importToSelect)
+            importToSelect->selectCategory(categoryIndex);
+        else
+            importToSelect->clearSelectedCategories();
+    }
+}
+
+bool ItemLibraryModel::isAllCategoriesHidden() const
+{
+    for (int i = 0; i < m_importList.length(); ++i) {
+        if (!m_importList.at(i)->isAllCategoriesHidden())
+            return false;
+    }
+
+    return true;
+}
+
+QObject *ItemLibraryModel::selectImportFirstVisibleCategory()
+{
+    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
+        if (!import->isAllCategoriesHidden())
+            return import->selectFirstVisibleCategory();
+    }
+
+    return nullptr;
+}
+
 bool ItemLibraryModel::isAnyCategoryHidden() const
 {
     return m_isAnyCategoryHidden;

@@ -143,6 +143,11 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
+void ItemLibraryWidget::resizeEvent(QResizeEvent *event)
+{
+    isHorizontalLayout = event->size().width() >= HORIZONTAL_LAYOUT_WIDTH_LIMIT;
+}
+
 ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
                                      AsynchronousImageCache &asynchronousFontImageCache,
                                      SynchronousImageCache &synchronousFontImageCache)
@@ -196,6 +201,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
         {{"itemLibraryIconWidth"}, m_itemIconSize.width()},
         {{"itemLibraryIconHeight"}, m_itemIconSize.height()},
         {{"rootView"}, QVariant::fromValue(this)},
+        {{"widthLimit"}, HORIZONTAL_LAYOUT_WIDTH_LIMIT},
         {{"highlightColor"}, Utils::StyleHelper::notTooBrightHighlightColor()},
     });
 
