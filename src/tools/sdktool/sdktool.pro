@@ -31,6 +31,7 @@ SOURCES += \
     rmqtoperation.cpp \
     rmtoolchainoperation.cpp \
     settings.cpp \
+    $$UTILS/commandline.cpp \
     $$UTILS/environment.cpp \
     $$UTILS/filepath.cpp \
     $$UTILS/fileutils.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
     rmqtoperation.h \
     rmtoolchainoperation.h \
     settings.h \
+    $$UTILS/commandline.h \
     $$UTILS/environment.h \
     $$UTILS/filepath.h \
     $$UTILS/fileutils.h \

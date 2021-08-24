@@ -78,6 +78,7 @@ extend_qtc_executable(sdktool
   SOURCES_PREFIX "${UtilsSourcesDir}"
   DEFINES QTCREATOR_UTILS_STATIC_LIB
   SOURCES
+    commandline.cpp commandline.h
     environment.cpp environment.h
     filepath.cpp filepath.h
     fileutils.cpp fileutils.h
