@@ -36,7 +36,7 @@ import sys
 import struct
 import tempfile
 
-from dumper import DumperBase, Children, toInteger, TopLevelItem
+from dumper import DumperBase, Children, TopLevelItem
 from utils import TypeCode
 from gdbtracepoint import *
 
@@ -259,7 +259,7 @@ class Dumper(DumperBase):
         code = nativeType.code
         if code == gdb.TYPE_CODE_REF:
             targetType = self.fromNativeType(nativeType.target().unqualified())
-            val = self.createReferenceValue(toInteger(nativeValue.address), targetType)
+            val = self.createReferenceValue(int(nativeValue.address), targetType)
             val.nativeValue = nativeValue
             #DumperBase.warn('CREATED REF: %s' % val)
             return val
@@ -269,7 +269,7 @@ class Dumper(DumperBase):
             except:
                 nativeTargetValue = None
             targetType = self.fromNativeType(nativeType.target().unqualified())
-            val = self.createPointerValue(toInteger(nativeValue), targetType)
+            val = self.createPointerValue(int(nativeValue), targetType)
             # The nativeValue is needed in case of multiple inheritance, see
             # QTCREATORBUG-17823. Using it triggers nativeValueDereferencePointer()
             # later which
@@ -277,7 +277,7 @@ class Dumper(DumperBase):
             val.nativeValue = nativeValue
             #DumperBase.warn('CREATED PTR 1: %s' % val)
             if nativeValue.address is not None:
-                val.laddress = toInteger(nativeValue.address)
+                val.laddress = int(nativeValue.address)
             #DumperBase.warn('CREATED PTR 2: %s' % val)
             return val
         if code == gdb.TYPE_CODE_TYPEDEF:
@@ -300,7 +300,7 @@ class Dumper(DumperBase):
 
         val.nativeValue = nativeValue
         if nativeValue.address is not None:
-            val.laddress = toInteger(nativeValue.address)
+            val.laddress = int(nativeValue.address)
         else:
             size = nativeType.sizeof
             chars = self.lookupNativeType('unsigned char')
@@ -834,7 +834,7 @@ class Dumper(DumperBase):
         #DumperBase.warn('EXP: %s' % exp)
         res = gdb.parse_and_eval(exp)
         #DumperBase.warn('RES: %s' % res)
-        return toInteger(res)
+        return int(res)
 
     def releaseValue(self, address):
         gdb.parse_and_eval('free(0x%x)' % address)
@@ -874,12 +874,12 @@ class Dumper(DumperBase):
             return 0
         try:
             # Older GDB ~7.4 don't have gdb.Symbol.value()
-            return toInteger(symbol.value().address)
+            return int(symbol.value().address)
         except:
             pass
 
         address = gdb.parse_and_eval("&'%s'" % symbolName)
-        return toInteger(address)
+        return int(address)
 
     def isArmArchitecture(self):
         return 'arm' in gdb.TARGET_CONFIG.lower()
@@ -1059,7 +1059,7 @@ class Dumper(DumperBase):
 
     def findSymbol(self, symbolName):
         try:
-            return toInteger(gdb.parse_and_eval("(size_t)&'%s'" % symbolName))
+            return int(gdb.parse_and_eval("(size_t)&'%s'" % symbolName))
         except:
             return 0
 
@@ -1371,7 +1371,7 @@ class Dumper(DumperBase):
                             if typeobj.code == gdb.TYPE_CODE_PTR:
                                 dereftype = typeobj.target().unqualified()
                                 if dereftype.name == needle:
-                                    addr = toInteger(value)
+                                    addr = int(value)
                                     res = None
                                     for pat in pats:
                                         try:
