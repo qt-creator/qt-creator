@@ -37,7 +37,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
@@ -89,11 +88,9 @@ QbsProjectImporter::QbsProjectImporter(const FilePath &path) : QtProjectImporter
 static FilePath buildDir(const FilePath &projectFilePath, const Kit *k)
 {
     const QString projectName = projectFilePath.completeBaseName();
-    ProjectMacroExpander expander(projectFilePath, projectName, k, QString(),
-                                  BuildConfiguration::Unknown);
-    const FilePath projectDir = Project::projectDirectory(projectFilePath);
-    const QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    return projectDir.resolvePath(buildPath);
+    return BuildConfiguration::buildDirectoryFromTemplate(
+                Project::projectDirectory(projectFilePath),
+                projectFilePath, projectName, k, QString(), BuildConfiguration::Unknown);
 }
 
 static bool hasBuildGraph(const QString &dir)

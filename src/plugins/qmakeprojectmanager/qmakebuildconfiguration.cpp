@@ -49,7 +49,6 @@
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -106,10 +105,8 @@ FilePath QmakeBuildConfiguration::shadowBuildDirectory(const FilePath &proFilePa
         return {};
 
     const QString projectName = proFilePath.completeBaseName();
-    ProjectMacroExpander expander(proFilePath, projectName, k, suffix, buildType);
-    FilePath projectDir = Project::projectDirectory(proFilePath);
-    QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    return projectDir.resolvePath(buildPath);
+    return BuildConfiguration::buildDirectoryFromTemplate(
+        Project::projectDirectory(proFilePath), proFilePath, projectName, k, suffix, buildType);
 }
 
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";

@@ -41,7 +41,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -65,10 +64,9 @@ static FilePath defaultBuildDirectory(const FilePath &projectFilePath, const Kit
                                       BuildConfiguration::BuildType buildType)
 {
     const QString projectName = projectFilePath.completeBaseName();
-    ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
-    FilePath projectDir = Project::projectDirectory(projectFilePath);
-    QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    return projectDir.resolvePath(buildPath);
+    return BuildConfiguration::buildDirectoryFromTemplate(
+                Project::projectDirectory(projectFilePath),
+                projectFilePath, projectName, k, bcName, buildType);
 }
 
 // ---------------------------------------------------------------------------

@@ -139,7 +139,6 @@ add_qtc_plugin(ProjectExplorer
     projectfilewizardextension.cpp projectfilewizardextension.h
     projectimporter.cpp projectimporter.h
     projectmacro.cpp projectmacro.h
-    projectmacroexpander.cpp projectmacroexpander.h
     projectmanager.h
     projectmodels.cpp projectmodels.h
     projectnodes.cpp projectnodes.h

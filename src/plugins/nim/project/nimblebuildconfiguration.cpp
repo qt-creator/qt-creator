@@ -36,7 +36,6 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <utils/fileutils.h>
 #include <utils/osspecificaspects.h>
 

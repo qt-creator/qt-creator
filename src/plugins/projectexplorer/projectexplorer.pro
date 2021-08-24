@@ -142,7 +142,6 @@ HEADERS += projectexplorer.h \
     deploymentdataview.h \
     buildtargetinfo.h \
     customtoolchain.h \
-    projectmacroexpander.h \
     customparser.h \
     customparserconfigdialog.h \
     ipotentialkit.h \
@@ -290,7 +289,6 @@ SOURCES += projectexplorer.cpp \
     deploymentdata.cpp \
     deploymentdataview.cpp \
     customtoolchain.cpp \
-    projectmacroexpander.cpp \
     customparser.cpp \
     customparserconfigdialog.cpp \
     msvcparser.cpp \

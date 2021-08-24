@@ -34,7 +34,6 @@
 #include "kitinformation.h"
 #include "makestep.h"
 #include "projectexplorer.h"
-#include "projectmacroexpander.h"
 #include "projectnodes.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
@@ -450,17 +449,16 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 
     const Project * const project = newTarget->project();
     for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
-        ProjectMacroExpander expander(project->projectFilePath(), project->displayName(),
-                                      newTarget->kit(), sourceBc->displayName(),
-                                      sourceBc->buildType());
         BuildConfiguration *newBc = BuildConfigurationFactory::clone(newTarget, sourceBc);
         if (!newBc) {
             buildconfigurationError << sourceBc->displayName();
             continue;
         }
         newBc->setDisplayName(sourceBc->displayName());
-        newBc->setBuildDirectory(project->projectDirectory()
-                .resolvePath(expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate())));
+        newBc->setBuildDirectory(BuildConfiguration::buildDirectoryFromTemplate(
+                    project->projectDirectory(), project->projectFilePath(),
+                    project->displayName(), newTarget->kit(),
+                    sourceBc->displayName(), sourceBc->buildType()));
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
             SessionManager::setActiveBuildConfiguration(newTarget, newBc, SetActive::NoCascade);

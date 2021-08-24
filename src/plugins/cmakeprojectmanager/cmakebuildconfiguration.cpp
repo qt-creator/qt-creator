@@ -52,7 +52,6 @@
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -1067,15 +1066,17 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
         return FilePath();
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
     const FilePath projectDir = Project::projectDirectory(projectFilePath);
-    QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    buildPath.replace(" ", "-");
+    FilePath buildPath = BuildConfiguration::buildDirectoryFromTemplate(projectDir,
+        projectFilePath, projectName, k, bcName, buildType, BuildConfiguration::ReplaceSpaces);
 
-    if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
-        buildPath = buildPath.left(buildPath.lastIndexOf(QString("-%1").arg(bcName)));
+    if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
+        QString path = buildPath.path();
+        path = path.left(path.lastIndexOf(QString("-%1").arg(bcName)));
+        buildPath.setPath(path);
+    }
 
-    return projectDir.resolvePath(buildPath);
+    return buildPath;
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)

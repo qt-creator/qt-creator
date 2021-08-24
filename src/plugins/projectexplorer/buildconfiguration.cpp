@@ -39,7 +39,6 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "project.h"
-#include "projectmacroexpander.h"
 #include "projecttree.h"
 #include "session.h"
 #include "target.h"
@@ -599,6 +598,52 @@ bool BuildConfiguration::isActive() const
     return target()->isActive() && target()->activeBuildConfiguration() == this;
 }
 
+FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,
+                                                        const FilePath &mainFilePath,
+                                                        const QString &projectName,
+                                                        const Kit *kit,
+                                                        const QString &bcName,
+                                                        BuildType buildType,
+                                                        SpaceHandling spaceHandling)
+{
+    MacroExpander exp;
+
+    // TODO: Remove "Current" variants in ~4.16
+    exp.registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
+                              QCoreApplication::translate("ProjectExplorer", "Main file of current project"),
+                              [mainFilePath] { return mainFilePath; }, false);
+    exp.registerFileVariables("Project",
+                              QCoreApplication::translate("ProjectExplorer", "Main file of the project"),
+                              [mainFilePath] { return mainFilePath; });
+    exp.registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+                         QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+                         [projectName] { return projectName; }, false);
+    exp.registerVariable("Project:Name",
+                         QCoreApplication::translate("ProjectExplorer", "Name of the project"),
+                         [projectName] { return projectName; });
+    exp.registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+                         QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+                         [bcName] { return bcName; }, false);
+    exp.registerVariable("BuildConfig:Name",
+                         QCoreApplication::translate(
+                             "ProjectExplorer", "Name of the project's active build configuration"),
+                         [bcName] { return bcName; });
+    exp.registerVariable("CurrentBuild:Type",
+                         QCoreApplication::translate("ProjectExplorer", "Type of current build"),
+                         [buildType] { return buildTypeName(buildType); }, false);
+    exp.registerVariable("BuildConfig:Type",
+                         QCoreApplication::translate(
+                             "ProjectExplorer", "Type of the project's active build configuration"),
+                         [buildType] { return buildTypeName(buildType); });
+    exp.registerSubProvider([kit] { return kit->macroExpander(); });
+
+    QString buildDir = ProjectExplorerPlugin::buildDirectoryTemplate();
+    buildDir = exp.expand(buildDir);
+    if (spaceHandling == ReplaceSpaces)
+        buildDir.replace(" ", "-");
+
+    return projectDir.resolvePath(buildDir);
+}
 ///
 // IBuildConfigurationFactory
 ///

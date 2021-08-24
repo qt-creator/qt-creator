@@ -39,12 +39,14 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmacroexpander.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -72,26 +74,18 @@ MesonBuildConfiguration::~MesonBuildConfiguration()
     delete m_buildSystem;
 }
 
-Utils::FilePath MesonBuildConfiguration::shadowBuildDirectory(
-    const Utils::FilePath &projectFilePath,
-    const ProjectExplorer::Kit *k,
-    const QString &bcName,
-    ProjectExplorer::BuildConfiguration::BuildType buildType)
+FilePath MesonBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
+                                                       const Kit *k,
+                                                       const QString &bcName,
+                                                       BuildConfiguration::BuildType buildType)
 {
     if (projectFilePath.isEmpty())
-        return Utils::FilePath();
+        return {};
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    ProjectExplorer::ProjectMacroExpander expander(projectFilePath,
-                                                   projectName,
-                                                   k,
-                                                   bcName,
-                                                   buildType);
-    QDir projectDir = QDir(ProjectExplorer::Project::projectDirectory(projectFilePath).toString());
-    QString buildPath = expander.expand(
-        ProjectExplorer::ProjectExplorerPlugin::buildDirectoryTemplate());
-    buildPath.replace(" ", "-");
-    return Utils::FilePath::fromUserInput(projectDir.absoluteFilePath(buildPath));
+    return BuildConfiguration::buildDirectoryFromTemplate(
+        Project::projectDirectory(projectFilePath),
+        projectFilePath, projectName, k, bcName, buildType, BuildConfiguration::ReplaceSpaces);
 }
 
 ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const

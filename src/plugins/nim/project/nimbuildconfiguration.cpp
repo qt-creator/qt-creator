@@ -36,7 +36,6 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
@@ -53,17 +52,9 @@ static FilePath defaultBuildDirectory(const Kit *k,
                                       const QString &bc,
                                       BuildConfiguration::BuildType buildType)
 {
-    QFileInfo projectFileInfo = projectFilePath.toFileInfo();
-
-    ProjectMacroExpander expander(projectFilePath,
-                                  projectFileInfo.baseName(), k, bc, buildType);
-    QString buildDirectory = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-
-    if (FileUtils::isAbsolutePath(buildDirectory))
-        return FilePath::fromString(buildDirectory);
-
-    auto projectDir = FilePath::fromString(projectFileInfo.absoluteDir().absolutePath());
-    return projectDir.pathAppended(buildDirectory);
+    return BuildConfiguration::buildDirectoryFromTemplate(
+        projectFilePath.parentDir(), projectFilePath, projectFilePath.baseName(),
+        k, bc, buildType);
 }
 
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
