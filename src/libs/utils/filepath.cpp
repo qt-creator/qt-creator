@@ -822,7 +822,7 @@ FilePath FilePath::absoluteFilePath(const FilePath &tail) const
     return tail;
 }
 
-FilePath FilePath::normalizePathName() const
+FilePath FilePath::normalizedPathName() const
 {
     FilePath result = *this;
     if (!needsDevice()) // FIXME: Assumes no remote Windows and Mac for now.

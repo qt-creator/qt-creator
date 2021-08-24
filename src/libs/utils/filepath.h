@@ -122,7 +122,7 @@ public:
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
-    FilePath normalizePathName() const;
+    FilePath normalizedPathName() const;
 
     bool operator==(const FilePath &other) const;
     bool operator!=(const FilePath &other) const;

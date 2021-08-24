@@ -752,7 +752,7 @@ void MemcheckToolPrivate::heobAction()
     }
 
     FilePath executable = sr.command.executable();
-    const QString workingDirectory = sr.workingDirectory.normalizePathName().toString();
+    const QString workingDirectory = sr.workingDirectory.normalizedPathName().toString();
     const QString commandLineArguments = sr.command.arguments();
     const QStringList envStrings = sr.environment.toStringList();
 

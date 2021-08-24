@@ -149,7 +149,7 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     : BuildSystem(target)
 {
     m_canonicalProjectDir =
-            target->project()->projectFilePath().canonicalPath().normalizePathName().parentDir();
+            target->project()->projectFilePath().canonicalPath().normalizedPathName().parentDir();
 
     connect(target->project(), &Project::projectFileIsDirty,
             this, &QmlBuildSystem::refreshProjectFile);

@@ -255,7 +255,7 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 
 void UnstartedAppWatcherDialog::findProcess()
 {
-    const QString &appName = m_pathChooser->filePath().normalizePathName().toString();
+    const QString &appName = m_pathChooser->filePath().normalizedPathName().toString();
     DeviceProcessItem fallback;
     foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
         if (Utils::FileUtils::normalizedPathName(p.exe) == appName) {

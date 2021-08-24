@@ -129,7 +129,7 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     if (!params.searchOptions.isEmpty())
         arguments << params.searchOptions.split(' ');
 
-    arguments << "--" << parameters.text << directory.normalizePathName().toString();
+    arguments << "--" << parameters.text << directory.normalizedPathName().toString();
 
     QtcProcess process;
     process.setCommand({"ag", arguments});

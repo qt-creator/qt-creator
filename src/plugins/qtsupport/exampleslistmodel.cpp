@@ -449,7 +449,7 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
 static QString resourcePath()
 {
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Core::ICore::resourcePath().normalizePathName().toString();
+    return Core::ICore::resourcePath().normalizedPathName().toString();
 }
 
 void ExamplesListModel::updateExamples()
