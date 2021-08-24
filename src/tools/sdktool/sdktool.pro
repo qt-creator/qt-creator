@@ -37,6 +37,7 @@ SOURCES += \
     $$UTILS/hostosinfo.cpp \
     $$UTILS/namevaluedictionary.cpp \
     $$UTILS/namevalueitem.cpp \
+    $$UTILS/macroexpander.cpp \
     $$UTILS/persistentsettings.cpp \
     $$UTILS/qtcassert.cpp \
     $$UTILS/commandline.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     $$UTILS/hostosinfo.h \
     $$UTILS/namevaluedictionary.h \
     $$UTILS/namevalueitem.h \
+    $$UTILS/macroexpander.h \
     $$UTILS/persistentsettings.h \
     $$UTILS/qtcassert.h \
     $$UTILS/commandline.h \

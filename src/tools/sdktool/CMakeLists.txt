@@ -82,6 +82,7 @@ extend_qtc_executable(sdktool
     filepath.cpp filepath.h
     fileutils.cpp fileutils.h
     hostosinfo.cpp hostosinfo.h
+    macroexpander.cpp macroexpander.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevalueitem.cpp namevalueitem.h
     persistentsettings.cpp persistentsettings.h
