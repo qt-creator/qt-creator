@@ -47,7 +47,13 @@ QUrl urlFromLocalSocket()
 {
     QUrl serverUrl;
     serverUrl.setScheme(urlSocketScheme());
-    TemporaryFile file("qtcreator-freesocket");
+    TemporaryFile file("qtc-socket");
+    // see "man unix" for unix socket file name size limitations
+    if (file.fileName().size() > 104) {
+        qWarning().nospace()
+            << "Socket file name \"" << file.fileName()
+            << "\" is larger than 104 characters, which will not work on Darwin/macOS/Linux!";
+    }
     if (file.open())
         serverUrl.setPath(file.fileName());
     return serverUrl;
