@@ -294,7 +294,7 @@ void QuickFixOperationTest::run(const QList<QuickFixTestDocument::Ptr> &testDocu
                                 int operationIndex)
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    headerPaths.push_back({headerPath, ProjectExplorer::HeaderPathType::User});
+    headerPaths.push_back(ProjectExplorer::HeaderPath::makeUser(headerPath));
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
 }
 
@@ -5792,12 +5792,10 @@ void QuickfixTest::testAddIncludeForUndefinedIdentifierNoDoubleQtHeaderInclude()
     original = expected = "@QDir dir;\n";
     testDocuments << QuickFixTestDocument::create(base + "/fileWantsToUseQDir.cpp", original, expected);
 
-    ProjectExplorer::HeaderPaths headerPaths{{TestIncludePaths::globalQtCoreIncludePath(),
-                                              ProjectExplorer::HeaderPathType::User}};
-
     AddIncludeForUndefinedIdentifier factory;
     const QStringList expectedOperations = QStringList("Add #include <QDir>");
-    QuickFixOfferedOperationsTest(testDocuments, &factory, headerPaths, expectedOperations);
+    QuickFixOfferedOperationsTest(testDocuments, &factory, ProjectExplorer::toUserHeaderPaths(
+            QStringList{TestIncludePaths::globalQtCoreIncludePath()}), expectedOperations);
 }
 
 void QuickfixTest::testAddForwardDeclForUndefinedIdentifier_data()

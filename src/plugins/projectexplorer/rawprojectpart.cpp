@@ -76,10 +76,8 @@ HeaderPath RawProjectPart::frameworkDetectionHeuristic(const HeaderPath &header)
 {
     QString path = trimTrailingSlashes(header.path);
 
-    if (path.endsWith(".framework")) {
-        path = path.left(path.lastIndexOf(QLatin1Char('/')));
-        return {path, HeaderPathType::Framework};
-    }
+    if (path.endsWith(".framework"))
+        return HeaderPath::makeFramework(path.left(path.lastIndexOf('/')));
     return header;
 }
 
@@ -123,8 +121,7 @@ void RawProjectPart::setHeaderPaths(const HeaderPaths &headerPaths)
 void RawProjectPart::setIncludePaths(const QStringList &includePaths)
 {
     this->headerPaths = Utils::transform<QVector>(includePaths, [](const QString &path) {
-        HeaderPath hp(path, HeaderPathType::User);
-        return RawProjectPart::frameworkDetectionHeuristic(hp);
+        return RawProjectPart::frameworkDetectionHeuristic(HeaderPath::makeUser(path));
     });
 }
 

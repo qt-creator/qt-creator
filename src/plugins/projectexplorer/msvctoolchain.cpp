@@ -1129,11 +1129,8 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
         const auto it = m_headerPathsPerEnv.constFind(envList);
         if (it != m_headerPathsPerEnv.cend())
             return *it;
-        const auto mapper = [](const FilePath &p) { // TODO: Define functions for this.
-            return HeaderPath(p.toString(), HeaderPathType::BuiltIn);
-        };
         return *m_headerPathsPerEnv.insert(envList,
-                    transform<QVector>(fullEnv.pathListValue("INCLUDE"), mapper));
+                                           toBuiltInHeaderPaths(fullEnv.pathListValue("INCLUDE")));
     };
 }
 

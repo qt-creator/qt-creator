@@ -496,8 +496,8 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
 
     // Make completion for all relevant includes
     ProjectExplorer::HeaderPaths headerPaths = m_interface->headerPaths();
-    const ProjectExplorer::HeaderPath currentFilePath(m_interface->filePath().toFileInfo().path(),
-                                                      ProjectExplorer::HeaderPathType::User);
+    const auto currentFilePath = ProjectExplorer::HeaderPath::makeUser(
+                m_interface->filePath().toFileInfo().path());
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 

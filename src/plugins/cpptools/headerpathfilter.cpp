@@ -159,7 +159,7 @@ void HeaderPathFilter::tweakHeaderPaths()
     if (!clangVersion.isEmpty()) {
         const FilePath clangIncludePath
                 = clangIncludeDirectory(clangVersion, clangFallbackIncludeDirectory);
-        builtInHeaderPaths.insert(split, HeaderPath{clangIncludePath.toString(), HeaderPathType::BuiltIn});
+        builtInHeaderPaths.insert(split, HeaderPath::makeBuiltIn(clangIncludePath));
     }
 }
 
@@ -168,9 +168,7 @@ void HeaderPathFilter::addPreIncludesPath()
     if (!projectDirectory.isEmpty()) {
         const Utils::FilePath rootProjectDirectory = Utils::FilePath::fromString(projectDirectory)
                 .pathAppended(".pre_includes");
-
-        systemHeaderPaths.push_back(
-            {rootProjectDirectory.toString(), ProjectExplorer::HeaderPathType::System});
+        systemHeaderPaths.push_back(ProjectExplorer::HeaderPath::makeSystem(rootProjectDirectory));
     }
 }
 

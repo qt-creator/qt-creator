@@ -914,19 +914,17 @@ static RawProjectParts generateProjectParts(
             QStringList list = arrayToStringList(props.value("cpp.includePaths"));
             list.removeDuplicates();
             for (const QString &p : qAsConst(list))
-                grpHeaderPaths += {FilePath::fromUserInput(p).toString(),  HeaderPathType::User};
+                grpHeaderPaths += HeaderPath::makeUser(FilePath::fromUserInput(p));
             list = arrayToStringList(props.value("cpp.distributionIncludePaths"))
                     + arrayToStringList(props.value("cpp.systemIncludePaths"));
             list.removeDuplicates();
             for (const QString &p : qAsConst(list))
-                grpHeaderPaths += {FilePath::fromUserInput(p).toString(),  HeaderPathType::System};
+                grpHeaderPaths += HeaderPath::makeSystem(FilePath::fromUserInput(p));
             list = arrayToStringList(props.value("cpp.frameworkPaths"));
             list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
             list.removeDuplicates();
-            for (const QString &p : qAsConst(list)) {
-                grpHeaderPaths += {FilePath::fromUserInput(p).toString(),
-                        HeaderPathType::Framework};
-            }
+            for (const QString &p : qAsConst(list))
+                grpHeaderPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
             rpp.setHeaderPaths(grpHeaderPaths);
             rpp.setDisplayName(groupName);
             const QJsonObject location = grp.value("location").toObject();

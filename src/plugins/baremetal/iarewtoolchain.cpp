@@ -181,7 +181,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId
 
         // Ignore the QtC binary directory path.
         if (headerPath != QCoreApplication::applicationDirPath())
-            headerPaths.append({headerPath, HeaderPathType::BuiltIn});
+            headerPaths.append(HeaderPath::makeBuiltIn(headerPath));
 
         pos = endQuoteIndex + 1;
     }

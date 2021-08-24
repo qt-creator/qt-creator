@@ -186,8 +186,8 @@ void ModelManagerTest::testPathsAreClean()
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtVersion::Qt5);
     rpp.setMacros({ProjectExplorer::Macro("OH_BEHAVE", "-1")});
-    rpp.setHeaderPaths({{testDataDir.includeDir(false), HeaderPathType::User},
-                        {testDataDir.frameworksDir(false), HeaderPathType::Framework}});
+    rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false)),
+                        HeaderPath::makeFramework(testDataDir.frameworksDir(false))});
     const auto part = ProjectPart::create(project->projectFilePath(), rpp);
     const auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}),
                                         {part});
@@ -196,8 +196,8 @@ void ModelManagerTest::testPathsAreClean()
 
     ProjectExplorer::HeaderPaths headerPaths = mm->headerPaths();
     QCOMPARE(headerPaths.size(), 2);
-    QVERIFY(headerPaths.contains({testDataDir.includeDir(), HeaderPathType::User}));
-    QVERIFY(headerPaths.contains({testDataDir.frameworksDir(), HeaderPathType::Framework}));
+    QVERIFY(headerPaths.contains(HeaderPath::makeUser(testDataDir.includeDir())));
+    QVERIFY(headerPaths.contains(HeaderPath::makeFramework(testDataDir.frameworksDir())));
 }
 
 /// Check: Frameworks headers are resolved.
@@ -216,8 +216,8 @@ void ModelManagerTest::testFrameworkHeaders()
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtVersion::Qt5);
     rpp.setMacros({{"OH_BEHAVE", "-1"}});
-    rpp.setHeaderPaths({{testDataDir.includeDir(false), HeaderPathType::User},
-                        {testDataDir.frameworksDir(false), HeaderPathType::Framework}});
+    rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false)),
+                        HeaderPath::makeFramework(testDataDir.frameworksDir(false))});
     const QString &source = testDataDir.fileFromSourcesDir(
         _("test_modelmanager_framework_headers.cpp"));
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
@@ -264,7 +264,7 @@ void ModelManagerTest::testRefreshAlsoIncludesOfProjectFiles()
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtVersion::Qt5);
     rpp.setMacros({{"OH_BEHAVE", "-1"}});
-    rpp.setHeaderPaths({{testDataDir.includeDir(false), HeaderPathType::User}});
+    rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false))});
     auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
                                     {ProjectFile(testCpp, ProjectFile::CXXSource)});
     auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
@@ -748,7 +748,7 @@ void ModelManagerTest::testDefinesPerProject()
     rpp1.setProjectFileLocation("project1.projectfile");
     rpp1.setQtVersion(Utils::QtVersion::None);
     rpp1.setMacros({{"SUB1"}});
-    rpp1.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
             {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
@@ -756,7 +756,7 @@ void ModelManagerTest::testDefinesPerProject()
     rpp2.setProjectFileLocation("project1.projectfile");
     rpp2.setQtVersion(Utils::QtVersion::None);
     rpp2.setMacros({{"SUB2"}});
-    rpp2.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
             {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
@@ -810,7 +810,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     rpp1.setProjectFileLocation("project1.projectfile");
     rpp1.setQtVersion(Utils::QtVersion::None);
     rpp1.setPreCompiledHeaders({pch1File});
-    rpp1.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
             {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
@@ -818,7 +818,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     rpp2.setProjectFileLocation("project2.projectfile");
     rpp2.setQtVersion(Utils::QtVersion::None);
     rpp2.setPreCompiledHeaders({pch2File});
-    rpp2.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
             {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
@@ -887,13 +887,13 @@ void ModelManagerTest::testDefinesPerEditor()
 
     RawProjectPart rpp1;
     rpp1.setQtVersion(Utils::QtVersion::None);
-    rpp1.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
             {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
     RawProjectPart rpp2;
     rpp2.setQtVersion(Utils::QtVersion::None);
-    rpp2.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
             {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 

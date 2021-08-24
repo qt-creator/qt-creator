@@ -172,10 +172,9 @@ void CompilationDatabaseTests::testFilterArguments()
     QCOMPARE(testData.flags, (QStringList{"-m32", "-target", "i686-w64-mingw32", "-std=gnu++14",
                                           "-fcxx-exceptions", "-fexceptions"}));
     QCOMPARE(testData.headerPaths,
-             (HeaderPaths{{QString::fromUtf8(HostOsInfo::isWindowsHost() ? winPath1 : otherPath1),
-                           HeaderPathType::User},
-                          {QString::fromUtf8(HostOsInfo::isWindowsHost() ? winPath2 : otherPath2),
-                           HeaderPathType::User}}));
+             toUserHeaderPaths(QStringList{
+                 QString::fromUtf8(HostOsInfo::isWindowsHost() ? winPath1 : otherPath1),
+                 QString::fromUtf8(HostOsInfo::isWindowsHost() ? winPath2 : otherPath2)}));
     QCOMPARE(testData.macros, (Macros{{"UNICODE", "1"},
                                       {"RELATIVE_PLUGIN_PATH", "\"../lib/qtcreator/plugins\""},
                                       {"QT_CREATOR", "1"}}));
@@ -243,8 +242,7 @@ void CompilationDatabaseTests::testFilterCommand()
     QCOMPARE(testData.flags,
              (QStringList{"/Zc:inline", "/Zc:strictStrings", "/Zc:rvalueCast", "/Zi"}));
     QCOMPARE(testData.headerPaths,
-             (HeaderPaths{{"C:/build-qt_llvm-msvc2017_64bit-Debug/tools\\clang\\lib\\Sema",
-                           HeaderPathType::User}}));
+             toUserHeaderPaths(QStringList{"C:/build-qt_llvm-msvc2017_64bit-Debug/tools\\clang\\lib\\Sema"}));
     QCOMPARE(testData.macros, (Macros{{"UNICODE", "1"}, {"_HAS_EXCEPTIONS", "0"}, {"WIN32", "1"},
                                       {"_WINDOWS", "1"}}));
     QCOMPARE(testData.fileKind, CppTools::ProjectFile::Kind::CXXSource);

@@ -342,11 +342,11 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
     if (isMcsArchitecture(arch) || isC166Architecture(arch)) {
         QDir includeDir(toolkitDir);
         if (includeDir.cd("inc"))
-            headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
+            headerPaths.push_back(HeaderPath::makeBuiltIn(includeDir.canonicalPath()));
     } else if (isArmArchitecture(arch)) {
         QDir includeDir(toolkitDir);
         if (includeDir.cd("include"))
-            headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
+            headerPaths.push_back(HeaderPath::makeBuiltIn(includeDir.canonicalPath()));
     }
 
     return headerPaths;

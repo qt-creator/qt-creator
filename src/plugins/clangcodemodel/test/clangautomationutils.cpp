@@ -95,14 +95,6 @@ public:
     TextEditor::ProposalModelPtr proposalModel;
 };
 
-static const ProjectExplorer::HeaderPaths toHeaderPaths(const QStringList &paths)
-{
-    ProjectExplorer::HeaderPaths result;
-    foreach (const QString &path, paths)
-        result.push_back({path, ProjectExplorer::HeaderPathType::User});
-    return result;
-}
-
 TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textEditor,
                                                const QStringList &includePaths,
                                                int timeOutInMs)
@@ -116,7 +108,7 @@ TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textE
     QTC_ASSERT(assistInterface, return TextEditor::ProposalModelPtr());
     if (!includePaths.isEmpty()) {
         auto clangAssistInterface = static_cast<ClangCompletionAssistInterface *>(assistInterface);
-        clangAssistInterface->setHeaderPaths(toHeaderPaths(includePaths));
+        clangAssistInterface->setHeaderPaths(ProjectExplorer::toUserHeaderPaths(includePaths));
     }
 
     CompletionAssistProvider *assistProvider

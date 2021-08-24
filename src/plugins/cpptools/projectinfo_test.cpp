@@ -514,36 +514,24 @@ public:
         return *projectPart;
     }
 
-    static HeaderPath builtIn(const QString &path)
-    {
-        return HeaderPath{path, HeaderPathType::BuiltIn};
-    }
-    static HeaderPath system(const QString &path)
-    {
-        return HeaderPath{path, HeaderPathType::System};
-    }
-    static HeaderPath framework(const QString &path)
-    {
-        return HeaderPath{path, HeaderPathType::Framework};
-    }
-    static HeaderPath user(const QString &path)
-    {
-        return HeaderPath{path, HeaderPathType::User};
-    }
+    static HeaderPath user(const QString &path) { return HeaderPath::makeUser(path); }
+    static HeaderPath builtIn(const QString &path) { return HeaderPath::makeBuiltIn(path); }
+    static HeaderPath system(const QString &path) { return HeaderPath::makeSystem(path); }
+    static HeaderPath framework(const QString &path) { return HeaderPath::makeFramework(path); }
 
     QString targetTriple;
     Utils::Id toolchainType;
     Utils::FilePath toolchainInstallDir;
     HeaderPaths headerPaths = {
-        HeaderPath{"", HeaderPathType::BuiltIn},
-        HeaderPath{"/builtin_path", HeaderPathType::BuiltIn},
-        HeaderPath{"/system_path", HeaderPathType::System},
-        HeaderPath{"/framework_path", HeaderPathType::Framework},
-        HeaderPath{"/outside_project_user_path", HeaderPathType::User},
-        HeaderPath{"/build/user_path", HeaderPathType::User},
-        HeaderPath{"/buildb/user_path", HeaderPathType::User},
-        HeaderPath{"/projectb/user_path", HeaderPathType::User},
-        HeaderPath{"/project/user_path", HeaderPathType::User}};
+        builtIn(""),
+        builtIn("/builtin_path"),
+        system("/system_path"),
+        framework("/framework_path"),
+        user("/outside_project_user_path"),
+        user("/build/user_path"),
+        user("/buildb/user_path"),
+        user("/projectb/user_path"),
+        user("/project/user_path")};
 
     Utils::optional<HeaderPathFilter> filter;
 

@@ -64,9 +64,8 @@ public:
     {
         QScopedPointer<CppSourceProcessor> sourceProcessor(
                     CppModelManager::createSourceProcessor());
-        const ProjectExplorer::HeaderPath hp(TestIncludePaths::directoryOfTestFile(),
-                                             HeaderPathType::User);
-        sourceProcessor->setHeaderPaths({hp});
+        sourceProcessor->setHeaderPaths({ProjectExplorer::HeaderPath::makeUser(
+                                         TestIncludePaths::directoryOfTestFile())});
         sourceProcessor->run(filePath);
 
         Document::Ptr document = m_cmm->document(filePath);
@@ -208,9 +207,8 @@ void SourceProcessorTest::testIncludeNext()
 
     CppSourceProcessor::DocumentCallback documentCallback = [](const Document::Ptr &){};
     CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
-    ProjectExplorer::HeaderPaths headerPaths = {{customHeaderPath, HeaderPathType::User},
-                                          {systemHeaderPath, HeaderPathType::User}};
-    sourceProcessor.setHeaderPaths(headerPaths);
+    sourceProcessor.setHeaderPaths(ProjectExplorer::toUserHeaderPaths(
+                                       QStringList{customHeaderPath, systemHeaderPath}));
 
     sourceProcessor.run(mainFilePath);
     const Snapshot snapshot = sourceProcessor.snapshot();

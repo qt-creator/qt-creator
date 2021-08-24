@@ -438,13 +438,8 @@ void GenericBuildSystem::parse(RefreshOptions options)
             else
                 normalPaths << rawPath;
         }
-        const auto stringsToHeaderPaths = [this](const QStringList &paths, HeaderPathType type) {
-            return transform<HeaderPaths>(processEntries(paths),
-                                          [type](const QString &p) { return HeaderPath(p, type);
-            });
-        };
-        m_projectIncludePaths = stringsToHeaderPaths(normalPaths, HeaderPathType::User);
-        m_projectIncludePaths << stringsToHeaderPaths(frameworkPaths, HeaderPathType::Framework);
+        m_projectIncludePaths = toUserHeaderPaths(normalPaths);
+        m_projectIncludePaths << toFrameworkHeaderPaths(frameworkPaths);
         m_cxxflags = readFlags(m_cxxflagsFileName);
         m_cflags = readFlags(m_cflagsFileName);
     }

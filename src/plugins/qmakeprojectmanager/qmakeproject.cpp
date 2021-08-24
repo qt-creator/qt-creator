@@ -373,14 +373,13 @@ void QmakeBuildSystem::updateCppCodeModel()
         // Header paths
         ProjectExplorer::HeaderPaths headerPaths;
         foreach (const QString &inc, pro->variableValue(Variable::IncludePath)) {
-            const ProjectExplorer::HeaderPath headerPath{inc, HeaderPathType::User};
+            const auto headerPath = HeaderPath::makeUser(inc);
             if (!headerPaths.contains(headerPath))
                 headerPaths += headerPath;
         }
 
         if (kitInfo.qtVersion && !kitInfo.qtVersion->frameworkPath().isEmpty())
-            headerPaths += {kitInfo.qtVersion->frameworkPath().toString(),
-                            HeaderPathType::Framework};
+            headerPaths += HeaderPath::makeFramework(kitInfo.qtVersion->frameworkPath());
         rpp.setHeaderPaths(headerPaths);
 
         // Files and generators

@@ -75,10 +75,7 @@ public:
         return *projectPart;
     }
 
-    static HeaderPath builtIn(const QString &path)
-    {
-        return HeaderPath{path, HeaderPathType::BuiltIn};
-    }
+    static HeaderPath builtIn(const QString &path) { return HeaderPath::makeBuiltIn(path); }
 
     QString toNative(const QString &toNative) const
     {
@@ -94,9 +91,9 @@ public:
     QStringList flags;
     Utils::Id toolchainType = Constants::CLANG_TOOLCHAIN_TYPEID;
     QString targetTriple = "x86_64-apple-darwin10";
-    HeaderPaths headerPaths = {HeaderPath{"/tmp/builtin_path", HeaderPathType::BuiltIn},
-                               HeaderPath{"/tmp/system_path", HeaderPathType::System},
-                               HeaderPath{"/tmp/path", HeaderPathType::User}};
+    HeaderPaths headerPaths{builtIn("/tmp/builtin_path"),
+                HeaderPath::makeSystem("/tmp/system_path"),
+                HeaderPath::makeUser("/tmp/path")};
     Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX17;
     Utils::LanguageExtensions languageExtensions;
     Macros toolchainMacros{

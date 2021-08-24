@@ -161,8 +161,8 @@ void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &fra
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
-    const ProjectExplorer::HeaderPath cleanFrameworkPath(cleanPath(frameworkPath.path),
-                                                         ProjectExplorer::HeaderPathType::Framework);
+    const auto cleanFrameworkPath = ProjectExplorer::HeaderPath::makeFramework(
+                cleanPath(frameworkPath.path));
     if (!m_headerPaths.contains(cleanFrameworkPath))
         m_headerPaths.append(cleanFrameworkPath);
 
@@ -174,8 +174,8 @@ void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &fra
         const QFileInfo privateFrameworks(framework.absoluteFilePath(),
                                           QLatin1String("Frameworks"));
         if (privateFrameworks.exists() && privateFrameworks.isDir())
-            addFrameworkPath({privateFrameworks.absoluteFilePath(),
-                              ProjectExplorer::HeaderPathType::Framework});
+            addFrameworkPath(ProjectExplorer::HeaderPath::makeFramework(
+                                 privateFrameworks.absoluteFilePath()));
     }
 }
 
