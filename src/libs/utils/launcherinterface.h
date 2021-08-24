@@ -50,7 +50,6 @@ signals:
 
 private:
     LauncherInterface();
-    static LauncherInterface &instance();
     ~LauncherInterface() override;
 
     QThread m_thread;

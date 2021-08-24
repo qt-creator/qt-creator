@@ -94,8 +94,6 @@ public:
 
     void setPathToLauncher(const QString &path) { if (!path.isEmpty()) m_pathToLauncher = path; }
     QString launcherFilePath() const { return m_pathToLauncher + QLatin1String("/qtcreator_processlauncher"); }
-    void setStarted(bool started) { m_startRequested = started; }
-    bool isStarted() const { return m_startRequests; }
 signals:
     void errorOccurred(const QString &error);
 
@@ -105,7 +103,6 @@ private:
     Internal::LauncherProcess *m_process = nullptr;
     QString m_pathToLauncher;
     int m_startRequests = 0;
-    std::atomic_bool m_startRequested = false;
 };
 
 LauncherInterfacePrivate::LauncherInterfacePrivate()
@@ -123,8 +120,6 @@ LauncherInterfacePrivate::~LauncherInterfacePrivate()
 
 void LauncherInterfacePrivate::doStart()
 {
-    if (++m_startRequests > 1)
-        return;
     const QString &socketName = launcherSocketName();
     QLocalServer::removeServer(socketName);
     if (!m_server->listen(socketName)) {
@@ -143,8 +138,6 @@ void LauncherInterfacePrivate::doStart()
 
 void LauncherInterfacePrivate::doStop()
 {
-    if (--m_startRequests > 0)
-        return;
     m_server->close();
     if (!m_process)
         return;
@@ -191,6 +184,8 @@ void LauncherInterfacePrivate::handleProcessStderr()
 
 using namespace Utils::Internal;
 
+static LauncherInterface *s_instance = nullptr;
+
 LauncherInterface::LauncherInterface()
     : m_private(new LauncherInterfacePrivate())
 {
@@ -199,12 +194,6 @@ LauncherInterface::LauncherInterface()
             this, &LauncherInterface::errorOccurred);
     connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
     m_thread.start();
-}
-
-LauncherInterface &LauncherInterface::instance()
-{
-    static LauncherInterface p;
-    return p;
 }
 
 LauncherInterface::~LauncherInterface()
@@ -216,7 +205,9 @@ LauncherInterface::~LauncherInterface()
 // Called from main thread
 void LauncherInterface::startLauncher(const QString &pathToLauncher)
 {
-    LauncherInterfacePrivate *p = instance().m_private;
+    QTC_ASSERT(s_instance == nullptr, return);
+    s_instance = new LauncherInterface();
+    LauncherInterfacePrivate *p = s_instance->m_private;
     p->setPathToLauncher(pathToLauncher);
     const FilePath launcherFilePath = FilePath::fromString(p->launcherFilePath())
             .cleanPath().withExecutableSuffix();
@@ -225,7 +216,6 @@ void LauncherInterface::startLauncher(const QString &pathToLauncher)
                    << launcherFilePath << "is not executable.";
     };
     QTC_ASSERT(launcherFilePath.isExecutableFile(), launcherIsNotExecutable(); return);
-    p->setStarted(true);
     // Call in launcher's thread.
     QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStart);
 }
@@ -233,20 +223,23 @@ void LauncherInterface::startLauncher(const QString &pathToLauncher)
 // Called from main thread
 void LauncherInterface::stopLauncher()
 {
-    LauncherInterfacePrivate *p = instance().m_private;
-    p->setStarted(false);
+    QTC_ASSERT(s_instance != nullptr, return);
+    LauncherInterfacePrivate *p = s_instance->m_private;
     // Call in launcher's thread.
     QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStop);
+    delete s_instance;
+    s_instance = nullptr;
 }
 
 Internal::LauncherSocket *LauncherInterface::socket()
 {
-    return instance().m_private->socket();
+    QTC_ASSERT(s_instance != nullptr, return nullptr);
+    return s_instance->m_private->socket();
 }
 
 bool LauncherInterface::isStarted()
 {
-    return instance().m_private->isStarted();
+    return s_instance != nullptr;
 }
 
 } // namespace Utils
