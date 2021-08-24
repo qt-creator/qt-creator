@@ -54,7 +54,7 @@ QList<T>toList(const QSet<T> &set)
     return QList<T>(set.begin(), set.end());
 #endif
 }
-} //QtHelpers
+} // QtHelpers
 
 #ifndef MULTILANGUAGE_TRANSLATIONPROVIDER
 namespace MultiLanguage {
@@ -66,7 +66,7 @@ inline QByteArray databaseFilePath()
 class Translator : public QTranslator
 {
 public:
-    void setLanguage(const QString&) {}
+    void setLanguage(const QString &) {}
 };
 
 class Link
@@ -84,7 +84,7 @@ public:
     }
     const bool isActivated = false;
 };
-} //namespace MultiLanguage
+} // namespace MultiLanguage
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -176,9 +176,7 @@ public:
     QFileSystemWatcher *dummydataFileSystemWatcher();
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter() const;
     void addFilePropertyToFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path);
-    void removeFilePropertyFromFileSystemWatcher(QObject *object,
-                                                 const PropertyName &propertyName,
-                                                 const QString &path);
+    void removeFilePropertyFromFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path);
 
     QUrl fileUrl() const;
 
@@ -200,9 +198,7 @@ public:
     virtual void setRootItem(QQuickItem *item) = 0;
 
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId = 0);
-    void sendDebugOutput(DebugOutputCommand::Type type,
-                         const QString &message,
-                         const QVector<qint32> &instanceIds);
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
 
     void removeInstanceRelationsipForDeletedObject(QObject *object, qint32 instanceId);
 
@@ -242,7 +238,6 @@ protected:
 
     void timerEvent(QTimerEvent *) override;
 
-
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;
     ValuesModifiedCommand createValuesModifiedCommand(const QVector<InstancePropertyValueTriple> &propertyList) const;
@@ -267,11 +262,11 @@ protected:
     virtual void initializeAuxiliaryViews();
     virtual void setupScene(const CreateSceneCommand &command) = 0;
     void setTranslationLanguage(const QString &language);
-    void loadDummyDataFiles(const QString& directory);
-    void loadDummyDataContext(const QString& directory);
-    void loadDummyDataFile(const QFileInfo& fileInfo);
-    void loadDummyContextObjectFile(const QFileInfo& fileInfo);
-    static QStringList dummyDataDirectories(const QString& directoryPath);
+    void loadDummyDataFiles(const QString &directory);
+    void loadDummyDataContext(const QString &directory);
+    void loadDummyDataFile(const QFileInfo &fileInfo);
+    void loadDummyContextObjectFile(const QFileInfo &fileInfo);
+    static QStringList dummyDataDirectories(const QString &directoryPath);
 
     void setTimerId(int timerId);
     int timerId() const;
@@ -293,8 +288,7 @@ protected:
     void setupDefaultDummyData();
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);
 
-    QList<QQmlContext*> allSubContextsForObject(QObject *object);
-    static QList<QObject*> allSubObjectsForObject(QObject *object);
+    QList<QQmlContext *> allSubContextsForObject(QObject *object);
 
     virtual void resizeCanvasToRootItem() = 0;
     void setupState(qint32 stateInstanceId);

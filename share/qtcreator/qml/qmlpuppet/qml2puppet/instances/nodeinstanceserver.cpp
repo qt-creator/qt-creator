@@ -105,7 +105,7 @@ bool testImportStatements(const QStringList &importStatementList,
     QQmlEngine engine;
     QQmlComponent testImportComponent(&engine);
 
-    QByteArray testComponentCode = QStringList(importStatementList).join("\n").toUtf8();
+    QByteArray testComponentCode = QStringList(importStatementList).join('\n').toUtf8();
 
     testImportComponent.setData(testComponentCode.append("\nItem {}\n"), url);
     testImportComponent.create();
@@ -120,7 +120,8 @@ bool testImportStatements(const QStringList &importStatementList,
     return true;
 }
 
-void sortFilterImports(const QStringList &imports, QStringList *workingImports, QStringList *failedImports, const QUrl &url, QString *errorMessage)
+void sortFilterImports(const QStringList &imports, QStringList *workingImports, QStringList *failedImports,
+                       const QUrl &url, QString *errorMessage)
 {
     static QSet<QString> visited;
     QString visitCheckId("imports: %1, workingImports: %2, failedImports: %3");
@@ -186,7 +187,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
 
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
-    connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
+    connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged,
+            this, &NodeInstanceServer::emitParentChanged);
     nodeInstanceServerInstance = this;
     Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
     Internal::QmlPrivateGate::registerFixResourcePathsForObjectCallBack();
@@ -217,7 +219,8 @@ QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<Inst
                 quickView()->setContent(fileUrl(), m_importComponent, m_rootNodeInstance.rootQuickItem());
         }
 
-        foreach (QQmlContext* context, allSubContextsForObject(instance.internalObject()))
+        const QList<QQmlContext *> subContexts = allSubContextsForObject(instance.internalObject());
+        for (QQmlContext *context : subContexts)
             setupDummysForContext(context);
     }
 
@@ -352,7 +355,7 @@ void NodeInstanceServer::update3DViewState(const Update3dViewStateCommand &/*com
 {
 }
 
-void NodeInstanceServer::changeSelection(const ChangeSelectionCommand & /*command*/)
+void NodeInstanceServer::changeSelection(const ChangeSelectionCommand &/*command*/)
 {
 }
 
@@ -362,9 +365,9 @@ void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
     if (activeStateInstance().isValid())
         activeStateInstance().deactivateState();
 
-    foreach (qint32 instanceId, command.instanceIds()) {
+    const QVector<qint32> instanceIds = command.instanceIds();
+    for (qint32 instanceId : instanceIds)
         removeInstanceRelationsip(instanceId);
-    }
 
     if (oldState.isValid())
         oldState.activateState();
@@ -376,7 +379,8 @@ void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
 void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyAbstractContainer &container, command.properties()) {
+    const QVector<PropertyAbstractContainer> props = command.properties();
+    for (const PropertyAbstractContainer &container : props) {
         hasDynamicProperties |= container.isDynamic();
         resetInstanceProperty(container);
     }
@@ -389,11 +393,12 @@ void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command
 
 void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &containerVector)
 {
-    foreach (const ReparentContainer &container, containerVector) {
+    for (const ReparentContainer &container : containerVector) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
+                instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(),
+                                  instanceForId(container.newParentInstanceId()), container.newParentProperty());
             }
         }
     }
@@ -409,7 +414,6 @@ void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &comma
 void NodeInstanceServer::changeState(const ChangeStateCommand &command)
 {
     setupState(command.stateInstanceId());
-
     startRenderTimer();
 }
 
@@ -417,7 +421,8 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
 {
     QList<ServerNodeInstance> instanceList;
 
-    foreach (qint32 instanceId, command.instances()) {
+    const QVector<qint32> instanceIds = command.instances();
+    for (qint32 instanceId : instanceIds) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
             instance.doComponentComplete();
@@ -441,7 +446,6 @@ void NodeInstanceServer::changeNodeSource(const ChangeNodeSourceCommand &command
 
 void NodeInstanceServer::token(const TokenCommand &/*command*/)
 {
-
 }
 
 void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*command*/)
@@ -454,7 +458,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
     QSet<QString> importStatementSet;
     QString qtQuickImport;
 
-    foreach (const AddImportContainer &container, containerVector) {
+    for (const AddImportContainer &container : containerVector) {
         QString importStatement = QString("import ");
 
         if (!container.fileName().isEmpty())
@@ -527,8 +531,8 @@ void NodeInstanceServer::setupFileUrl(const QUrl &fileUrl)
 void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 {
     if (!fileUrl.isEmpty()) {
-        QStringList dummyDataDirectoryList = dummyDataDirectories(QFileInfo(fileUrl.toLocalFile()).path());
-        foreach (const QString &dummyDataDirectory, dummyDataDirectoryList) {
+        const QStringList dummyDataDirectoryList = dummyDataDirectories(QFileInfo(fileUrl.toLocalFile()).path());
+        for (const QString &dummyDataDirectory : dummyDataDirectoryList) {
             loadDummyDataFiles(dummyDataDirectory);
             loadDummyDataContext(dummyDataDirectory);
         }
@@ -555,10 +559,9 @@ void NodeInstanceServer::setupDefaultDummyData()
     m_dummyContextObject = component.create();
 
     if (component.isError()) {
-        QList<QQmlError> errors = component.errors();
-        foreach (const QQmlError &error, errors) {
+        const QList<QQmlError> errors = component.errors();
+        for (const QQmlError &error : errors)
             qWarning() << error;
-        }
     }
 
     if (m_dummyContextObject) {
@@ -623,7 +626,8 @@ void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
 void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyValueContainer &container, command.valueChanges()) {
+    const QVector<PropertyValueContainer> valueChanges = command.valueChanges();
+    for (const PropertyValueContainer &container : valueChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyVariant(container);
     }
@@ -636,9 +640,9 @@ void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command
 
 void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
-    for (const PropertyValueContainer &container : command.auxiliaryChanges) {
+    const QVector<PropertyValueContainer> auxiliaryChanges = command.auxiliaryChanges;
+    for (const PropertyValueContainer &container : auxiliaryChanges)
         setInstanceAuxiliaryData(container);
-    }
 
     startRenderTimer();
 }
@@ -646,7 +650,8 @@ void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &com
 void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     bool hasDynamicProperties = false;
-    for (const PropertyBindingContainer &container : command.bindingChanges) {
+    const QVector<PropertyBindingContainer> bindingChanges = command.bindingChanges;
+    for (const PropertyBindingContainer &container : bindingChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
     }
@@ -699,10 +704,9 @@ void NodeInstanceServer::clearChangedPropertyList()
 
 void NodeInstanceServer::setupDummysForContext(QQmlContext *context)
 {
-    foreach (const DummyPair& dummyPair, m_dummyObjectList) {
-        if (dummyPair.second) {
+    for (const DummyPair &dummyPair : std::as_const(m_dummyObjectList)) {
+        if (dummyPair.second)
             context->setContextProperty(dummyPair.first, dummyPair.second.data());
-        }
     }
 }
 
@@ -726,7 +730,7 @@ static bool isTypeAvailable(const MockupTypeContainer &mockupType, QQmlEngine *e
 
 void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &container)
 {
-    for (const MockupTypeContainer &mockupType :  container) {
+    for (const MockupTypeContainer &mockupType : container) {
         if (!isTypeAvailable(mockupType, engine())) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
             if (mockupType.majorVersion() == -1 && mockupType.minorVersion() == -1) {
@@ -740,7 +744,6 @@ void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &co
                                                                 mockupType.minorVersion(),
                                                                 mockupType.typeName());
             }
-
 #else
             qmlRegisterType(QUrl("qrc:/qtquickplugin/mockfiles/GenericBackend.qml"),
                         mockupType.importUri().toUtf8(),
@@ -752,13 +755,13 @@ void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &co
     }
 }
 
-
-QList<QQmlContext*> NodeInstanceServer::allSubContextsForObject(QObject *object)
+QList<QQmlContext *> NodeInstanceServer::allSubContextsForObject(QObject *object)
 {
-    QList<QQmlContext*> contextList;
+    QList<QQmlContext *> contextList;
 
     if (object) {
-        foreach (QObject *subObject, allSubObjectsForObject(object)) {
+        const QList<QObject *> subObjects = object->findChildren<QObject *>();
+        for (QObject *subObject : subObjects) {
             QQmlContext *contextOfObject = QQmlEngine::contextForObject(subObject);
             if (contextOfObject) {
                 if (contextOfObject != context() && !contextList.contains(contextOfObject))
@@ -768,16 +771,6 @@ QList<QQmlContext*> NodeInstanceServer::allSubContextsForObject(QObject *object)
     }
 
     return contextList;
-}
-
-QList<QObject*> NodeInstanceServer::allSubObjectsForObject(QObject *object)
-{
-    QList<QObject*> subChildren;
-    if (object) {
-        subChildren = object->findChildren<QObject*>();
-    }
-
-    return subChildren;
 }
 
 void NodeInstanceServer::removeAllInstanceRelationships()
@@ -803,7 +796,8 @@ QFileSystemWatcher *NodeInstanceServer::dummydataFileSystemWatcher()
 {
     if (m_dummdataFileSystemWatcher.isNull()) {
         m_dummdataFileSystemWatcher = new QFileSystemWatcher(this);
-        connect(m_dummdataFileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this, &NodeInstanceServer::refreshDummyData);
+        connect(m_dummdataFileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this,
+                &NodeInstanceServer::refreshDummyData);
     }
 
     return m_dummdataFileSystemWatcher.data();
@@ -813,7 +807,8 @@ QFileSystemWatcher *NodeInstanceServer::fileSystemWatcher()
 {
     if (m_fileSystemWatcher.isNull()) {
         m_fileSystemWatcher = new QFileSystemWatcher(this);
-        connect(m_fileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this, &NodeInstanceServer::refreshLocalFileProperty);
+        connect(m_fileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this,
+                &NodeInstanceServer::refreshLocalFileProperty);
     }
 
     return m_fileSystemWatcher.data();
@@ -824,7 +819,8 @@ Internal::ChildrenChangeEventFilter *NodeInstanceServer::childrenChangeEventFilt
     return m_childrenChangeEventFilter.data();
 }
 
-void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path)
+void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, const PropertyName &propertyName,
+                                                            const QString &path)
 {
     if (!m_fileSystemWatcherHash.contains(path)) {
         m_fileSystemWatcherHash.insert(path, ObjectPropertyPair(object, propertyName));
@@ -832,7 +828,8 @@ void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, con
     }
 }
 
-void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path)
+void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object, const PropertyName &propertyName,
+                                                                 const QString &path)
 {
     if (m_fileSystemWatcherHash.contains(path)) {
         fileSystemWatcher()->removePath(path);
@@ -843,7 +840,7 @@ void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object
 void NodeInstanceServer::refreshLocalFileProperty(const QString &path)
 {
     if (m_fileSystemWatcherHash.contains(path)) {
-        foreach (const ObjectPropertyPair &objectPropertyPair, m_fileSystemWatcherHash) {
+        for (const ObjectPropertyPair &objectPropertyPair : std::as_const(m_fileSystemWatcherHash)) {
             QObject *object = objectPropertyPair.first.data();
             PropertyName propertyName = objectPropertyPair.second;
 
@@ -858,11 +855,10 @@ void NodeInstanceServer::refreshDummyData(const QString &path)
 {
     engine()->clearComponentCache();
     QFileInfo filePath(path);
-    if (filePath.completeBaseName().contains("_dummycontext")) {
+    if (filePath.completeBaseName().contains("_dummycontext"))
         loadDummyContextObjectFile(filePath);
-    } else {
+    else
         loadDummyDataFile(filePath);
-    }
 
     refreshBindings();
     startRenderTimer();
@@ -885,7 +881,8 @@ Internal::ChildrenChangeEventFilter *NodeInstanceServer::childrenChangeEventFilt
 {
     if (m_childrenChangeEventFilter.isNull()) {
         m_childrenChangeEventFilter = new Internal::ChildrenChangeEventFilter(this);
-        connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
+        connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged,
+                this, &NodeInstanceServer::emitParentChanged);
     }
 
     return m_childrenChangeEventFilter.data();
@@ -900,7 +897,8 @@ void NodeInstanceServer::resetInstanceProperty(const PropertyAbstractContainer &
         const PropertyName name = propertyContainer.name();
 
         if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
-            bool statePropertyWasReseted = activeStateInstance().resetStateProperty(instance, name, instance.resetVariant(name));
+            bool statePropertyWasReseted = activeStateInstance().resetStateProperty(instance, name,
+                                                                                    instance.resetVariant(name));
             if (!statePropertyWasReseted)
                 instance.resetProperty(name);
         } else {
@@ -942,7 +940,7 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
 
 void NodeInstanceServer::removeProperties(const QList<PropertyAbstractContainer> &propertyList)
 {
-    foreach (const PropertyAbstractContainer &property, propertyList)
+    for (const PropertyAbstractContainer &property : propertyList)
         resetInstanceProperty(property);
 }
 
@@ -957,13 +955,17 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
         if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
             if (!stateValueWasUpdated) {
-                if (valueContainer.isDynamic())
-                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), QString::fromUtf8(name));
+                if (valueContainer.isDynamic()) {
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(),
+                                                                       engine(), QString::fromUtf8(name));
+                }
                 instance.setPropertyVariant(name, value);
             }
-        } else { //base state
-            if (valueContainer.isDynamic())
-                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), QString::fromUtf8(name));
+        } else { // base state
+            if (valueContainer.isDynamic()) {
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(),
+                                                                   engine(), QString::fromUtf8(name));
+            }
             instance.setPropertyVariant(name, value);
         }
 
@@ -978,13 +980,11 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer)
 {
     if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == "width" ||
-                                        auxiliaryContainer.name() == "height")) {
-
-        if (!auxiliaryContainer.value().isNull()) {
+                                                 auxiliaryContainer.name() == "height")) {
+        if (!auxiliaryContainer.value().isNull())
             setInstancePropertyVariant(auxiliaryContainer);
-        } else {
+        else
             rootNodeInstance().resetProperty(auxiliaryContainer.name());
-        }
     }
     if (auxiliaryContainer.name().endsWith("@NodeInstance")) {
         PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 13);
@@ -1014,7 +1014,6 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
         }
     }
 }
-
 
 QUrl NodeInstanceServer::fileUrl() const
 {
@@ -1059,7 +1058,7 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
 {
     QVector<InformationContainer> informationVector;
 
-    foreach (const ServerNodeInstance &instance, instanceList) {
+    for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isValid()) {
             informationVector.append(InformationContainer(instance.instanceId(), Position, instance.position()));
             informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
@@ -1116,14 +1115,14 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
             anchorPair = instance.anchor("anchors.baseline");
             informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
 
-            PropertyNameList propertyNames = instance.propertyNames();
+            const PropertyNameList propertyNames = instance.propertyNames();
 
             if (initial) {
-                foreach (const PropertyName &propertyName,propertyNames)
+                for (const PropertyName &propertyName : propertyNames)
                     informationVector.append(InformationContainer(instance.instanceId(), InstanceTypeForProperty, propertyName, instance.instanceType(propertyName)));
             }
 
-            foreach (const PropertyName &propertyName,instance.propertyNames()) {
+            for (const PropertyName &propertyName : propertyNames) {
                 bool hasChanged = false;
                 bool hasBinding = instance.hasBindingForProperty(propertyName, &hasChanged);
                 if (hasChanged)
@@ -1135,18 +1134,20 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
     return informationVector;
 }
 
-
-ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const
+ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance,
+                                                                        const QList<ServerNodeInstance> &instanceList) const
 {
     QVector<qint32> instanceVector;
 
-    foreach (const ServerNodeInstance &instance, instanceList)
+    for (const ServerNodeInstance &instance : instanceList)
         instanceVector.append(instance.instanceId());
 
-    return ChildrenChangedCommand(parentInstance.instanceId(), instanceVector, createInformationVector(instanceList, false));
+    return ChildrenChangedCommand(parentInstance.instanceId(), instanceVector,
+                                  createInformationVector(instanceList, false));
 }
 
-InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial) const
+InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand(
+    const QList<ServerNodeInstance> &instanceList, bool initial) const
 {
     return InformationChangedCommand(createInformationVector(instanceList, initial));
 }
@@ -1161,11 +1162,14 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
 {
     QVector<PropertyValueContainer> valueVector;
 
-    foreach (const ServerNodeInstance &instance, instanceList) {
-        foreach (const PropertyName &propertyName, instance.propertyNames()) {
+    for (const ServerNodeInstance &instance : instanceList) {
+        const QList<PropertyName> propertyNames = instance.propertyNames();
+        for (const PropertyName &propertyName : propertyNames) {
             QVariant propertyValue = instance.property(propertyName);
-            if (supportedVariantType(propertyValue.userType()))
-                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, PropertyName()));
+            if (supportedVariantType(propertyValue.userType())) {
+                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName,
+                                                          propertyValue, PropertyName()));
+            }
         }
     }
 
@@ -1175,7 +1179,7 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
 ComponentCompletedCommand NodeInstanceServer::createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList)
 {
     QVector<qint32> idVector;
-    foreach (const ServerNodeInstance &instance, instanceList) {
+    for (const ServerNodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
             idVector.append(instance.instanceId());
     }
@@ -1198,14 +1202,15 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
 {
     QVector<PropertyValueContainer> valueVector;
 
-    foreach (const InstancePropertyPair &property, propertyList) {
+    for (const InstancePropertyPair &property : propertyList) {
         const PropertyName propertyName = property.second;
         const ServerNodeInstance instance = property.first;
 
         if (instance.isValid()) {
             QVariant propertyValue = instance.property(propertyName);
             if (QMetaType::isRegistered(propertyValue.userType()) && supportedVariantType(propertyValue.type())) {
-                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, PropertyName()));
+                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName,
+                                                          propertyValue, PropertyName()));
             }
         }
     }
@@ -1236,7 +1241,6 @@ ValuesModifiedCommand NodeInstanceServer::createValuesModifiedCommand(
 
     return ValuesModifiedCommand(valueVector);
 }
-
 
 QByteArray NodeInstanceServer::importCode() const
 {
@@ -1280,7 +1284,7 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
 {
     QVector<ImageContainer> imageVector;
 
-    foreach (const ServerNodeInstance &instance, instanceList) {
+    for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isValid() && instance.hasContent())
             imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage(), instance.instanceId()));
     }
@@ -1288,15 +1292,14 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
     return PixmapChangedCommand(imageVector);
 }
 
-void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
+void NodeInstanceServer::loadDummyDataFile(const QFileInfo &qmlFileInfo)
 {
     QQmlComponent component(engine(), qmlFileInfo.filePath());
     QObject *dummyData = component.create();
     if (component.isError()) {
-        QList<QQmlError> errors = component.errors();
-        foreach (const QQmlError &error, errors) {
+        const QList<QQmlError> errors = component.errors();
+        for (const QQmlError &error : errors)
             qWarning() << error;
-        }
     }
 
     QVariant oldDummyDataObject = rootContext()->contextProperty(qmlFileInfo.completeBaseName());
@@ -1315,12 +1318,13 @@ void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
         dummydataFileSystemWatcher()->addPath(qmlFileInfo.filePath());
 
     if (rootNodeInstance().isValid() && rootNodeInstance().internalObject()) {
-        foreach (QQmlContext *context, allSubContextsForObject(rootNodeInstance().internalObject()))
+        const QList<QQmlContext *> subContexts = allSubContextsForObject(rootNodeInstance().internalObject());
+        for (QQmlContext *context : subContexts)
             setupDummysForContext(context);
     }
 }
 
-void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo)
+void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo &qmlFileInfo)
 {
     delete m_dummyContextObject.data();
 
@@ -1328,10 +1332,9 @@ void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo
     m_dummyContextObject = component.create();
 
     if (component.isError()) {
-        QList<QQmlError> errors = component.errors();
-        foreach (const QQmlError &error, errors) {
+        const QList<QQmlError> errors = component.errors();
+        for (const QQmlError &error : errors)
             qWarning() << error;
-        }
     }
 
     if (m_dummyContextObject) {
@@ -1363,34 +1366,35 @@ void NodeInstanceServer::setTranslationLanguage(const QString &language)
     }
 }
 
-void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
+void NodeInstanceServer::loadDummyDataFiles(const QString &directory)
 {
     QDir dir(directory, "*.qml");
-    QFileInfoList filePathList = dir.entryInfoList();
-    foreach (const QFileInfo &qmlFileInfo, filePathList) {
+    const QFileInfoList filePathList = dir.entryInfoList();
+    for (const QFileInfo &qmlFileInfo : filePathList)
         loadDummyDataFile(qmlFileInfo);
-    }
 }
 
-void NodeInstanceServer::loadDummyDataContext(const QString& directory)
+void NodeInstanceServer::loadDummyDataContext(const QString &directory)
 {
-    QDir dir(directory+"/context", "*.qml");
-    QFileInfoList filePathList = dir.entryInfoList();
+    QDir dir(directory + "/context", "*.qml");
     QString baseName = QFileInfo(fileUrl().toLocalFile()).completeBaseName();
-    foreach (const QFileInfo &qmlFileInfo, filePathList) {
+    const QFileInfoList filePathList = dir.entryInfoList();
+    for (const QFileInfo &qmlFileInfo : filePathList) {
         if (qmlFileInfo.completeBaseName() == baseName)
             loadDummyContextObjectFile(qmlFileInfo);
     }
 }
 
-void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId)
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message,
+                                         qint32 instanceId)
 {
     QVector<qint32> ids;
     ids.append(instanceId);
     sendDebugOutput(type, message, ids);
 }
 
-void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds)
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message,
+                                         const QVector<qint32> &instanceIds)
 {
     DebugOutputCommand command(message, type, instanceIds);
     nodeInstanceClient()->debugOutput(command);
@@ -1407,7 +1411,7 @@ void NodeInstanceServer::removeInstanceRelationsipForDeletedObject(QObject *obje
     }
 }
 
-QStringList NodeInstanceServer::dummyDataDirectories(const QString& directoryPath)
+QStringList NodeInstanceServer::dummyDataDirectories(const QString &directoryPath)
 {
     QStringList dummyDataDirectoryList;
     QDir directory(directoryPath);
