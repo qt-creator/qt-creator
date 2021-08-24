@@ -308,30 +308,30 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         imageWidget->setImageFileName(landscapeSplashFileName);
 
     for (auto &&imageWidget : m_imageWidgets) {
-        connect(imageWidget, &SplashScreenWidget::imageChanged, [this]() {
+        connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
             createSplashscreenThemes();
             emit splashScreensModified();
         });
     }
     for (auto &&imageWidget : m_portraitImageWidgets) {
-        connect(imageWidget, &SplashScreenWidget::imageChanged, [this]() {
+        connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
             createSplashscreenThemes();
             emit splashScreensModified();
         });
     }
     for (auto &&imageWidget : m_landscapeImageWidgets) {
-        connect(imageWidget, &SplashScreenWidget::imageChanged, [this]() {
+        connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
             createSplashscreenThemes();
             emit splashScreensModified();
         });
     }
-    connect(m_stickyCheck, &QCheckBox::stateChanged, [this](int state) {
+    connect(m_stickyCheck, &QCheckBox::stateChanged, this, [this](int state) {
         bool old = m_splashScreenSticky;
         m_splashScreenSticky = (state == Qt::Checked);
         if (old != m_splashScreenSticky)
             emit splashScreensModified();
     });
-    connect(m_backgroundColor, &QToolButton::clicked, [this]() {
+    connect(m_backgroundColor, &QToolButton::clicked, this, [this] {
         const QColor color = QColorDialog::getColor(m_splashScreenBackgroundColor,
                                                     this,
                                                     tr("Select background color"));
@@ -341,7 +341,7 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_masterImage, &QToolButton::clicked, [this] {
+    connect(m_masterImage, &QToolButton::clicked, this, [this] {
         const FilePath file = FileUtils::getOpenFilePath(this, tr("Select master image"),
                                                          FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
@@ -351,7 +351,7 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_portraitMasterImage, &QToolButton::clicked, [this] {
+    connect(m_portraitMasterImage, &QToolButton::clicked, this, [this] {
         const FilePath file = FileUtils::getOpenFilePath(this, tr("Select portrait master image"),
                                                          FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
@@ -361,7 +361,7 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_landscapeMasterImage, &QToolButton::clicked, [this] {
+    connect(m_landscapeMasterImage, &QToolButton::clicked, this, [this] {
         const FilePath file = FileUtils::getOpenFilePath(this, tr("Select landscape master image"),
                                                          FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
@@ -371,16 +371,16 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
             emit splashScreensModified();
         }
     });
-    connect(m_imageShowMode, &QComboBox::currentTextChanged, [this](const QString &mode) {
+    connect(m_imageShowMode, &QComboBox::currentTextChanged, this, [this](const QString &mode) {
         setImageShowMode(mode);
         createSplashscreenThemes();
         emit splashScreensModified();
     });
-    connect(clearAllButton, &QToolButton::clicked, [this]() {
+    connect(clearAllButton, &QToolButton::clicked, this, [this] {
         clearAll();
         emit splashScreensModified();
     });
-    connect(m_convertSplashscreen, &QToolButton::clicked, [this]() {
+    connect(m_convertSplashscreen, &QToolButton::clicked, this, [this] {
         clearAll();
         setCurrentIndex(0);
         emit splashScreensModified();
