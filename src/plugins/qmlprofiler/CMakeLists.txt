@@ -106,6 +106,8 @@ else() # < Qt 6.2
     BATCHABLE
     PREFIX
       "/QtCreator/QmlProfiler"
+    BASE
+      "qml"
     FILES
       qml/bindingloops_qt6.frag
       qml/bindingloops_qt6.vert
