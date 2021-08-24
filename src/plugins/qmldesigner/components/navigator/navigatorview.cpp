@@ -184,7 +184,8 @@ void NavigatorView::clearExplorerWarnings()
     for (ModelNode node : allNodes) {
         if (node.metaInfo().isFileComponent()) {
             const ProjectExplorer::FileNode *fnode = fileNodeForModelNode(node);
-            fnode->setHasError(false);
+            if (fnode)
+                fnode->setHasError(false);
         }
     }
 }
@@ -406,7 +407,18 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const Model
 {
     QString filename = node.metaInfo().componentFileName();
     Utils::FilePath filePath = Utils::FilePath::fromString(filename);
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(filePath);
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(
+        filePath);
+
+    if (!currentProject) {
+        filePath = Utils::FilePath::fromString(node.model()->fileUrl().toLocalFile());
+
+        /* If the component does not belong to the project then we can fallback to the current file */
+        currentProject = ProjectExplorer::SessionManager::projectForFile(filePath);
+    }
+    if (!currentProject)
+        return nullptr;
+
     return currentProject->nodeForFilePath(filePath)->asFileNode();
 }
 
