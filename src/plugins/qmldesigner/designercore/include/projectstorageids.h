@@ -83,7 +83,7 @@ enum class BasicIdType {
     FunctionDeclaration,
     SignalDeclaration,
     EnumerationDeclaration,
-    Import,
+    Module,
     TypeName,
     ProjectPartId
 };
@@ -109,8 +109,8 @@ using SourceContextIds = std::vector<SourceContextId>;
 using SourceId = BasicId<BasicIdType::SourceId, int>;
 using SourceIds = std::vector<SourceId>;
 
-using ImportId = BasicId<BasicIdType::Import>;
-using ImportIds = std::vector<ImportId>;
+using ModuleId = BasicId<BasicIdType::Module>;
+using ModuleIds = std::vector<ModuleId>;
 
 using TypeNameId = BasicId<BasicIdType::TypeName>;
 using TypeNameIds = std::vector<TypeNameId>;

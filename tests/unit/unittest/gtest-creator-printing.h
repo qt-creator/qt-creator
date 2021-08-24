@@ -259,8 +259,8 @@ class ParameterDeclaration;
 class SignalDeclaration;
 class EnumerationDeclaration;
 class EnumeratorDeclaration;
-class Import;
-class ImportDependency;
+class Module;
+class ModuleDependency;
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics);
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
@@ -276,8 +276,8 @@ std::ostream &operator<<(std::ostream &out, const ParameterDeclaration &paramete
 std::ostream &operator<<(std::ostream &out, const SignalDeclaration &signalDeclaration);
 std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumerationDeclaration);
 std::ostream &operator<<(std::ostream &out, const EnumeratorDeclaration &enumeratorDeclaration);
-std::ostream &operator<<(std::ostream &out, const Import &import);
-std::ostream &operator<<(std::ostream &out, const ImportDependency &import);
+std::ostream &operator<<(std::ostream &out, const Module &module);
+std::ostream &operator<<(std::ostream &out, const ModuleDependency &module);
 
 } // namespace Storage
 

@@ -44,19 +44,20 @@ namespace Storage = QmlDesigner::Storage;
 using QmlDesigner::FileStatus;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::TypeAccessSemantics;
+namespace Storage = QmlDesigner::Storage;
 
 MATCHER_P5(IsStorageType,
-           import,
+           module,
            typeName,
            prototype,
            accessSemantics,
            sourceId,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Type{import, typeName, prototype, accessSemantics, sourceId}))
+               + PrintToString(Storage::Type{module, typeName, prototype, accessSemantics, sourceId}))
 {
     const Storage::Type &type = arg;
 
-    return type.import == import && type.typeName == typeName
+    return type.module == module && type.typeName == typeName
            && type.accessSemantics == accessSemantics && type.sourceId == sourceId
            && Storage::TypeName{prototype} == type.prototype;
 }
@@ -132,7 +133,7 @@ protected:
                                         qmlDocumentParserMock,
                                         qmlTypesParserMock};
     SourceId objectTypeSourceId{sourcePathCache.sourceId("/path/Object")};
-    Storage::Type objectType{Storage::Import{"Qml", 2},
+    Storage::Type objectType{Storage::Module{"Qml", 2},
                              "QObject",
                              Storage::NativeType{},
                              Storage::TypeAccessSemantics::Reference,
@@ -246,7 +247,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
     ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
-        .WillByDefault([&](auto, auto &importDependencies, auto &types, auto &sourceIds) {
+        .WillByDefault([&](auto, auto &moduleDependencies, auto &types, auto &sourceIds) {
             types.push_back(objectType);
         });
 
@@ -266,7 +267,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
     ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
-        .WillByDefault([&](auto, auto &importDependencies, auto &types, auto &sourceIds) {
+        .WillByDefault([&](auto, auto &moduleDependencies, auto &types, auto &sourceIds) {
             types.push_back(objectType);
         });
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypesPathSourceId)))
@@ -349,7 +350,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
     EXPECT_CALL(projectStorageMock,
                 synchronize(_,
                             _,
-                            Contains(AllOf(IsStorageType(Storage::Import{"Example", 1},
+                            Contains(AllOf(IsStorageType(Storage::Module{"Example", 1},
                                                          "First.qml",
                                                          Storage::ExportedType{"Object"},
                                                          TypeAccessSemantics::Reference,

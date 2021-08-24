@@ -110,22 +110,22 @@ public:
     VersionNumber minor;
 };
 
-class Import
+class Module
 {
 public:
-    explicit Import() = default;
+    explicit Module() = default;
 
-    explicit Import(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
+    explicit Module(Utils::SmallStringView name, VersionNumber version = VersionNumber{})
         : name{name}
         , version{version}
     {}
 
-    explicit Import(Utils::SmallStringView name, int version)
+    explicit Module(Utils::SmallStringView name, int version)
         : name{name}
         , version{version}
     {}
 
-    friend bool operator==(const Import &first, const Import &second)
+    friend bool operator==(const Module &first, const Module &second)
     {
         return first.name == second.name && first.version == second.version;
     }
@@ -135,7 +135,7 @@ public:
     VersionNumber version;
 };
 
-using Imports = std::vector<Import>;
+using Modules = std::vector<Module>;
 
 class ExportedType
 {
@@ -158,19 +158,19 @@ class ExplicitExportedType
 {
 public:
     explicit ExplicitExportedType() = default;
-    explicit ExplicitExportedType(Utils::SmallStringView name, Import import)
+    explicit ExplicitExportedType(Utils::SmallStringView name, Module module)
         : name{name}
-        , import{std::move(import)}
+        , module{std::move(module)}
     {}
 
     friend bool operator==(const ExplicitExportedType &first, const ExplicitExportedType &second)
     {
-        return first.name == second.name && first.import == second.import;
+        return first.name == second.name && first.module == second.module;
     }
 
 public:
     Utils::SmallString name;
-    Import import;
+    Module module;
 };
 
 using ExportedTypes = std::vector<ExportedType>;
@@ -485,7 +485,7 @@ class Type
 {
 public:
     explicit Type() = default;
-    explicit Type(Import import,
+    explicit Type(Module module,
                   Utils::SmallStringView typeName,
                   TypeName prototype,
                   TypeAccessSemantics accessSemantics,
@@ -503,28 +503,28 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
-        , import{std::move(import)}
+        , module{std::move(module)}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
     {}
 
-    explicit Type(Utils::SmallStringView importName,
-                  int importVersion,
+    explicit Type(Utils::SmallStringView moduleName,
+                  int moduleVersion,
                   Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
-        , import{importName, importVersion}
+        , module{moduleName, moduleVersion}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
 
     {}
 
-    explicit Type(Utils::SmallStringView importName,
-                  int importVersion,
+    explicit Type(Utils::SmallStringView moduleName,
+                  int moduleVersion,
                   Utils::SmallStringView typeName,
                   long long typeId,
                   Utils::SmallStringView prototype,
@@ -532,7 +532,7 @@ public:
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
-        , import{importName, importVersion}
+        , module{moduleName, moduleVersion}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
@@ -545,7 +545,7 @@ public:
                && first.propertyDeclarations == second.propertyDeclarations
                && first.functionDeclarations == second.functionDeclarations
                && first.signalDeclarations == second.signalDeclarations
-               && first.import == second.import && first.sourceId == second.sourceId
+               && first.module == second.module && first.sourceId == second.sourceId
                && first.sourceId == second.sourceId;
     }
 
@@ -557,7 +557,7 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
-    Import import;
+    Module module;
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;
@@ -569,58 +569,58 @@ class Document
 {
 public:
     explicit Document() = default;
-    explicit Document(SourceId sourceId, Imports imports)
-        : imports{std::move(imports)}
+    explicit Document(SourceId sourceId, Modules modules)
+        : modules{std::move(modules)}
         , sourceId{sourceId}
     {}
 
 public:
-    Imports imports;
+    Modules modules;
     SourceId sourceId;
 };
 
 using Documents = std::vector<Document>;
 
-class ImportDependency : public Import
+class ModuleDependency : public Module
 {
 public:
-    explicit ImportDependency(Utils::SmallStringView name,
+    explicit ModuleDependency(Utils::SmallStringView name,
                               VersionNumber version,
                               SourceId sourceId,
-                              Imports importDependencies = {})
-        : Import(name, version)
-        , dependencies{std::move(importDependencies)}
+                              Modules moduleDependencies = {})
+        : Module(name, version)
+        , dependencies{std::move(moduleDependencies)}
         , sourceId{sourceId}
     {}
 
-    explicit ImportDependency(Utils::SmallStringView name, int version, int sourceId)
-        : Import(name, version)
+    explicit ModuleDependency(Utils::SmallStringView name, int version, int sourceId)
+        : Module(name, version)
         , sourceId{sourceId}
     {}
 
-    friend bool operator==(const ImportDependency &first, const ImportDependency &second)
+    friend bool operator==(const ModuleDependency &first, const ModuleDependency &second)
     {
-        return static_cast<const Import &>(first) == static_cast<const Import &>(second)
+        return static_cast<const Module &>(first) == static_cast<const Module &>(second)
                && first.sourceId == second.sourceId && first.dependencies == second.dependencies;
     }
 
 public:
-    Imports dependencies;
+    Modules dependencies;
     SourceId sourceId;
 };
 
-using ImportDependencies = std::vector<ImportDependency>;
+using ModuleDependencies = std::vector<ModuleDependency>;
 
-class ImportView
+class ModuleView
 {
 public:
-    explicit ImportView(Utils::SmallStringView name, int version, int sourceId)
+    explicit ModuleView(Utils::SmallStringView name, int version, int sourceId)
         : name{name}
         , version{version}
         , sourceId{sourceId}
     {}
 
-    friend bool operator==(const ImportView &first, const ImportView &second)
+    friend bool operator==(const ModuleView &first, const ModuleView &second)
     {
         return first.name == second.name && first.version == second.version
                && first.sourceId == second.sourceId;

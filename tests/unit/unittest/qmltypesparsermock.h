@@ -35,7 +35,7 @@ public:
     MOCK_METHOD(void,
                 parse,
                 (const QString &sourceContent,
-                 QmlDesigner::Storage::ImportDependencies &importDependencies,
+                 QmlDesigner::Storage::ModuleDependencies &moduleDependencies,
                  QmlDesigner::Storage::Types &types,
                  QmlDesigner::SourceIds &sourceIds),
                 (override));

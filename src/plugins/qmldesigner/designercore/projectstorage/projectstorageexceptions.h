@@ -71,10 +71,10 @@ public:
     const char *what() const noexcept override { return "The source id is invalid!"; }
 };
 
-class ImportDoesNotExists : std::exception
+class ModuleDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The import does not exist!"; }
+    const char *what() const noexcept override { return "The module does not exist!"; }
 };
 
 class TypeNameDoesNotExists : std::exception

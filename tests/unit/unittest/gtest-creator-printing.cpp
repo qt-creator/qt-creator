@@ -1068,7 +1068,7 @@ std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 
 std::ostream &operator<<(std::ostream &out, const ExplicitExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.name << "\", " << exportedType.import << ")";
+    return out << "(\"" << exportedType.name << "\", " << exportedType.module << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
@@ -1079,7 +1079,7 @@ std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using Utils::operator<<;
-    return out << "(import: " << type.import << ", typename: \"" << type.typeName
+    return out << "(module: " << type.module << ", typename: \"" << type.typeName
                << "\", prototype: " << type.prototype << ", " << type.accessSemantics
                << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
                << ", properties: " << type.propertyDeclarations
@@ -1149,15 +1149,15 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
                << enumerationDeclaration.enumeratorDeclarations << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const Import &import)
+std::ostream &operator<<(std::ostream &out, const Module &module)
 {
-    return out << "(" << import.name << ", " << import.version << ")";
+    return out << "(" << module.name << ", " << module.version << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const ImportDependency &import)
+std::ostream &operator<<(std::ostream &out, const ModuleDependency &module)
 {
-    return out << "(" << import.name << ", " << import.version << ", " << import.sourceId << ", "
-               << import.dependencies << ")";
+    return out << "(" << module.name << ", " << module.version << ", " << module.sourceId << ", "
+               << module.dependencies << ")";
 }
 
 } // namespace Storage
