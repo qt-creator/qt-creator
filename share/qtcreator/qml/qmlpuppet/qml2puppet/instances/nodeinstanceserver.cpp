@@ -1529,4 +1529,9 @@ void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
         QFontDatabase::addApplicationFont(it.next());
 }
 
+bool NodeInstanceServer::isInformationServer() const
+{
+    return false;
+}
+
 } // namespace QmlDesigner
