@@ -48,6 +48,7 @@ const char kExitCodeSubProcessCode[] = "QTC_TST_QTCPROCESS_EXITCODE_CODE";
 const char kRunBlockingStdOutSubProcessMagicWord[] = "42";
 const char kRunBlockingStdOutSubProcessWithEndl[] = "QTC_TST_QTCPROCESS_RUNBLOCKINGSTDOUT_WITHENDL";
 const char kLineCallback[] = "QTC_TST_QTCPROCESS_LINECALLBACK";
+const char kTestProcess[] = "QTC_TST_TEST_PROCESS";
 
 // Expect ending lines detected at '|':
 const char lineCallbackData[] =
@@ -83,6 +84,12 @@ static void lineCallbackMain()
     setmode(fileno(stderr), O_BINARY);
 #endif
     fprintf(stderr, "%s", QByteArray(lineCallbackData).replace('|', "").data());
+    exit(0);
+}
+
+static void testProcessSubProcessMain()
+{
+    std::cout << "Test process successfully executed." << std::endl;
     exit(0);
 }
 
@@ -133,6 +140,7 @@ private slots:
     void runBlockingStdOut();
     void lineCallback();
     void lineCallbackIntern();
+    void waitForStartAndFinished();
 
     void cleanupTestCase();
 
@@ -158,6 +166,8 @@ void tst_QtcProcess::initTestCase()
         blockingStdOutSubProcessMain();
     if (qEnvironmentVariableIsSet(kLineCallback))
         lineCallbackMain();
+    if (qEnvironmentVariableIsSet(kTestProcess))
+        testProcessSubProcessMain();
 
     homeStr = QLatin1String("@HOME@");
     home = QDir::homePath();
@@ -945,6 +955,25 @@ void tst_QtcProcess::lineCallbackIntern()
     process.feedStdOut(QByteArray(lineCallbackData).replace('|', ""));
     process.endFeed();
     QCOMPARE(lineNumber, lines.size());
+}
+
+void tst_QtcProcess::waitForStartAndFinished()
+{
+    Environment env = Environment::systemEnvironment();
+    env.set(kTestProcess, {});
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    const CommandLine command(FilePath::fromString(binary), args);
+
+    QtcProcess process;
+    process.setCommand(command);
+    process.setEnvironment(env);
+    process.start();
+    QThread::msleep(1000); // long enough for process to finish
+    QVERIFY(process.waitForStarted());
+    QVERIFY(process.waitForFinished());
+    QVERIFY(!process.waitForFinished());
+    QCOMPARE(process.exitCode(), 0);
 }
 
 QTEST_MAIN(tst_QtcProcess)
