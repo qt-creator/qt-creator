@@ -818,7 +818,8 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
     const DoubleVec3D rayPos0 = m_view3D->mapTo3DScene(mousePos1.toVec3());
     DoubleVec3D rayPos1;
     if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
-        rayPos1 = rayPos0 - rayPos0.length() * DoubleVec3D(m_view3D->camera()->cameraNode()->getDirection());
+        if (auto cameraNode = static_cast<QSSGRenderCamera *>(QQuick3DObjectPrivate::get(m_view3D->camera())->spatialNode))
+            rayPos1 = rayPos0 - rayPos0.length() * DoubleVec3D(cameraNode->getDirection());
     } else {
         DoubleVec3D dir;
         DoubleVec3D camPos = m_view3D->camera()->scenePosition();
