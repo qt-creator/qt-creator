@@ -78,7 +78,24 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     QTC_ASSERT(parameters.isValid() && cmake, return);
 
     const FilePath buildDirectory = parameters.buildDirectory;
-    QTC_ASSERT(buildDirectory.exists(), return);
+    if (!buildDirectory.exists()) {
+        QString msg = tr("The build directory \"%1\" does not exist")
+                .arg(buildDirectory.toUserOutput());
+        BuildSystem::appendBuildSystemOutput(msg + '\n');
+        emit finished();
+        return;
+    }
+
+    if (buildDirectory.needsDevice()) {
+        if (cmake->cmakeExecutable().host() != buildDirectory.host()) {
+            QString msg = tr("CMake executable \"%1\" and build directory "
+                    "\"%2\" must be on the same device.")
+                .arg(cmake->cmakeExecutable().toUserOutput(), buildDirectory.toUserOutput());
+            BuildSystem::appendBuildSystemOutput(msg + '\n');
+            emit finished();
+            return;
+        }
+    }
 
     const QString srcDir = parameters.sourceDirectory.path();
 
@@ -109,13 +126,6 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
-    if (buildDirectory.needsDevice()) {
-        if (cmake->cmakeExecutable().host() != buildDirectory.host()) {
-            m_parser.appendMessage(tr("CMake executable and build dir must be on the same device."), StdErrFormat);
-            reportCanceled();
-            return;
-        }
-    }
     CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, "-B", buildDirectory.path()}) + arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
