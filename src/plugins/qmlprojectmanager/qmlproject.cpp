@@ -54,6 +54,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -97,9 +98,10 @@ static void openQDS(const QString &qdsPath, const Utils::FilePath &fileName)
     bool qdsStarted = false;
     //-a and -client arguments help to append project to open design studio application
     if (Utils::HostOsInfo::isMacHost())
-        qdsStarted = QProcess::startDetached("/usr/bin/open", {"-a", qdsPath, fileName.toString()});
+        qdsStarted = Utils::QtcProcess::startDetached({"/usr/bin/open", {"-a", qdsPath, fileName.toString()}});
     else
-        qdsStarted = QProcess::startDetached(qdsPath, {"-client", fileName.toString()});
+        //ToDo change qdsPath type to FilePath
+        qdsStarted = Utils::QtcProcess::startDetached({Utils::FilePath::fromString(qdsPath), {"-client", fileName.toString()}});
 
     if (!qdsStarted) {
         QMessageBox::warning(Core::ICore::dialogParent(),
