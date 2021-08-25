@@ -330,10 +330,14 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
         emit errorOccurred(m_error);
         return;
     }
+    auto startWhenRunning = [&program, &oldProgram = m_command] {
+        qWarning() << "Trying to start" << program << "while" << oldProgram
+                   << "is still running for the same QtcProcess instance."
+                   << "The current call will be ignored.";
+    };
+    QTC_ASSERT(m_processState == QProcess::NotRunning, startWhenRunning(); return);
     m_command = program;
     m_arguments = arguments;
-    // TODO: check if state is not running
-    // TODO: check if m_canceled is not true
     m_writeData = writeData;
     auto processLauncherNotStarted = [&program] {
         qWarning() << "Trying to start" << program << "while process launcher wasn't started yet.";
