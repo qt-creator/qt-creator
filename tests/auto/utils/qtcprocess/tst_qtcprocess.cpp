@@ -140,7 +140,7 @@ private slots:
     void runBlockingStdOut();
     void lineCallback();
     void lineCallbackIntern();
-    void waitForStartAndFinished();
+    void waitForStartedAndFinished();
 
     void cleanupTestCase();
 
@@ -957,7 +957,7 @@ void tst_QtcProcess::lineCallbackIntern()
     QCOMPARE(lineNumber, lines.size());
 }
 
-void tst_QtcProcess::waitForStartAndFinished()
+void tst_QtcProcess::waitForStartedAndFinished()
 {
     Environment env = Environment::systemEnvironment();
     env.set(kTestProcess, {});
