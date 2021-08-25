@@ -23,13 +23,15 @@
 **
 ****************************************************************************/
 
+#include "projectinfo_test.h"
+
 #include "cppprojectfilecategorizer.h"
 #include "cppprojectinfogenerator.h"
 #include "cppprojectpartchooser.h"
-#include "cpptoolsplugin.h"
 #include "headerpathfilter.h"
 #include "projectinfo.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 #include <utils/algorithm.h>
 
@@ -41,10 +43,10 @@ namespace CppTools {
 namespace Internal {
 
 namespace {
-class ProjectPartChooserTest
+class ProjectPartChooserTestHelper
 {
 public:
-    ProjectPartChooserTest()
+    ProjectPartChooserTestHelper()
     {
         chooser.setFallbackProjectPart([&]() {
             return fallbackProjectPart;
@@ -123,56 +125,56 @@ public:
 };
 
 QHash<Utils::FilePath, std::shared_ptr<Project>>
-ProjectPartChooserTest::projectMap;
+ProjectPartChooserTestHelper::projectMap;
 }
 
-void CppToolsPlugin::test_projectPartChooser_chooseManuallySet()
+void ProjectPartChooserTest::testChooseManuallySet()
 {
     ProjectPart::Ptr p1 = ProjectPart::create({});
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("someId");
     ProjectPart::Ptr p2 = ProjectPart::create({}, rpp2);
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.preferredProjectPartId = p2->projectFile;
     t.projectPartsForFile += {p1, p2};
 
     QCOMPARE(t.choose().projectPart, p2);
 }
 
-void CppToolsPlugin::test_projectPartChooser_indicateManuallySet()
+void ProjectPartChooserTest::testIndicateManuallySet()
 {
     ProjectPart::Ptr p1 = ProjectPart::create({});
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("someId");
     ProjectPart::Ptr p2 = ProjectPart::create({}, rpp2);
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.preferredProjectPartId = p2->projectFile;
     t.projectPartsForFile += {p1, p2};
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsPreferredMatch);
 }
 
-void CppToolsPlugin::test_projectPartChooser_indicateManuallySetForFallbackToProjectPartFromDependencies()
+void ProjectPartChooserTest::testIndicateManuallySetForFallbackToProjectPartFromDependencies()
 {
     ProjectPart::Ptr p1 = ProjectPart::create({});
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("someId");
     ProjectPart::Ptr p2 = ProjectPart::create({}, rpp2);
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.preferredProjectPartId = p2->projectFile;
     t.projectPartsFromDependenciesForFile += {p1, p2};
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsPreferredMatch);
 }
 
-void CppToolsPlugin::test_projectPartChooser_doNotIndicateNotManuallySet()
+void ProjectPartChooserTest::testDoNotIndicateNotManuallySet()
 {
-    QVERIFY(!(ProjectPartChooserTest().choose().hints & ProjectPartInfo::IsPreferredMatch));
+    QVERIFY(!(ProjectPartChooserTestHelper().choose().hints & ProjectPartInfo::IsPreferredMatch));
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultipleChooseFromActiveProject()
+void ProjectPartChooserTest::testForMultipleChooseFromActiveProject()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     const QList<ProjectPart::Ptr> projectParts = t.createProjectPartsWithDifferentProjects();
     const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
     t.projectPartsForFile += projectParts;
@@ -181,7 +183,7 @@ void CppToolsPlugin::test_projectPartChooser_forMultipleChooseFromActiveProject(
     QCOMPARE(t.choose().projectPart, secondProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultiplePreferSelectedForBuilding()
+void ProjectPartChooserTest::testForMultiplePreferSelectedForBuilding()
 {
     RawProjectPart rpp1;
     rpp1.setSelectedForBuilding(false);
@@ -189,16 +191,16 @@ void CppToolsPlugin::test_projectPartChooser_forMultiplePreferSelectedForBuildin
     rpp2.setSelectedForBuilding(true);
     const ProjectPart::Ptr firstProjectPart = ProjectPart::create({}, rpp1);
     const ProjectPart::Ptr secondProjectPart = ProjectPart::create({}, rpp2);
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsForFile += firstProjectPart;
     t.projectPartsForFile += secondProjectPart;
 
     QCOMPARE(t.choose().projectPart, secondProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultipleFromDependenciesChooseFromActiveProject()
+void ProjectPartChooserTest::testForMultipleFromDependenciesChooseFromActiveProject()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     const QList<ProjectPart::Ptr> projectParts = t.createProjectPartsWithDifferentProjects();
     const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
     t.projectPartsFromDependenciesForFile += projectParts;
@@ -207,9 +209,9 @@ void CppToolsPlugin::test_projectPartChooser_forMultipleFromDependenciesChooseFr
     QCOMPARE(t.choose().projectPart, secondProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultipleCheckIfActiveProjectChanged()
+void ProjectPartChooserTest::testForMultipleCheckIfActiveProjectChanged()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     const QList<ProjectPart::Ptr> projectParts = t.createProjectPartsWithDifferentProjects();
     const ProjectPart::Ptr firstProjectPart = projectParts.at(0);
     const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
@@ -220,9 +222,9 @@ void CppToolsPlugin::test_projectPartChooser_forMultipleCheckIfActiveProjectChan
     QCOMPARE(t.choose().projectPart, secondProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultipleAndAmbigiousHeaderPreferCProjectPart()
+void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCProjectPart()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.languagePreference = Language::C;
     t.projectPartsForFile = t.createCAndCxxProjectParts();
     const ProjectPart::Ptr cProjectPart = t.projectPartsForFile.at(0);
@@ -230,9 +232,9 @@ void CppToolsPlugin::test_projectPartChooser_forMultipleAndAmbigiousHeaderPrefer
     QCOMPARE(t.choose().projectPart, cProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultipleAndAmbigiousHeaderPreferCxxProjectPart()
+void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCxxProjectPart()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.languagePreference = Language::Cxx;
     t.projectPartsForFile = t.createCAndCxxProjectParts();
     const ProjectPart::Ptr cxxProjectPart = t.projectPartsForFile.at(1);
@@ -240,56 +242,56 @@ void CppToolsPlugin::test_projectPartChooser_forMultipleAndAmbigiousHeaderPrefer
     QCOMPARE(t.choose().projectPart, cxxProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_indicateMultiple()
+void ProjectPartChooserTest::testIndicateMultiple()
 {
     const ProjectPart::Ptr p1 = ProjectPart::create({});
     const ProjectPart::Ptr p2 = ProjectPart::create({});
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsForFile += {p1, p2};
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsAmbiguousMatch);
 }
 
-void CppToolsPlugin::test_projectPartChooser_indicateMultipleForFallbackToProjectPartFromDependencies()
+void ProjectPartChooserTest::testIndicateMultipleForFallbackToProjectPartFromDependencies()
 {
     const ProjectPart::Ptr p1 = ProjectPart::create({});
     const ProjectPart::Ptr p2 = ProjectPart::create({});
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsFromDependenciesForFile += {p1, p2};
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsAmbiguousMatch);
 }
 
-void CppToolsPlugin::test_projectPartChooser_forMultipleChooseNewIfPreviousIsGone()
+void ProjectPartChooserTest::testForMultipleChooseNewIfPreviousIsGone()
 {
     const ProjectPart::Ptr newProjectPart = ProjectPart::create({});
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsForFile += newProjectPart;
 
     QCOMPARE(t.choose().projectPart, newProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_fallbackToProjectPartFromDependencies()
+void ProjectPartChooserTest::testFallbackToProjectPartFromDependencies()
 {
     const ProjectPart::Ptr fromDependencies = ProjectPart::create({});
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsFromDependenciesForFile += fromDependencies;
 
     QCOMPARE(t.choose().projectPart, fromDependencies);
 }
 
-void CppToolsPlugin::test_projectPartChooser_fallbackToProjectPartFromModelManager()
+void ProjectPartChooserTest::testFallbackToProjectPartFromModelManager()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.fallbackProjectPart = ProjectPart::create({});
 
     QCOMPARE(t.choose().projectPart, t.fallbackProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_continueUsingFallbackFromModelManagerIfProjectDoesNotChange()
+void ProjectPartChooserTest::testContinueUsingFallbackFromModelManagerIfProjectDoesNotChange()
 {
     // ...without re-calculating the dependency table.
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.fallbackProjectPart = ProjectPart::create({});
     t.currentProjectPartInfo.projectPart = t.fallbackProjectPart;
     t.currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
@@ -298,9 +300,9 @@ void CppToolsPlugin::test_projectPartChooser_continueUsingFallbackFromModelManag
     QCOMPARE(t.choose().projectPart, t.fallbackProjectPart);
 }
 
-void CppToolsPlugin::test_projectPartChooser_stopUsingFallbackFromModelManagerIfProjectChanges1()
+void ProjectPartChooserTest::testStopUsingFallbackFromModelManagerIfProjectChanges1()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.fallbackProjectPart = ProjectPart::create({});
     t.currentProjectPartInfo.projectPart = t.fallbackProjectPart;
     t.currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
@@ -310,9 +312,9 @@ void CppToolsPlugin::test_projectPartChooser_stopUsingFallbackFromModelManagerIf
     QCOMPARE(t.choose().projectPart, addedProject);
 }
 
-void CppToolsPlugin::test_projectPartChooser_stopUsingFallbackFromModelManagerIfProjectChanges2()
+void ProjectPartChooserTest::testStopUsingFallbackFromModelManagerIfProjectChanges2()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.fallbackProjectPart = ProjectPart::create({});
     t.currentProjectPartInfo.projectPart = t.fallbackProjectPart;
     t.currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
@@ -323,25 +325,25 @@ void CppToolsPlugin::test_projectPartChooser_stopUsingFallbackFromModelManagerIf
     QCOMPARE(t.choose().projectPart, addedProject);
 }
 
-void CppToolsPlugin::test_projectPartChooser_indicateFallbacktoProjectPartFromModelManager()
+void ProjectPartChooserTest::testIndicateFallbacktoProjectPartFromModelManager()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.fallbackProjectPart = ProjectPart::create({});
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsFallbackMatch);
 }
 
-void CppToolsPlugin::test_projectPartChooser_indicateFromDependencies()
+void ProjectPartChooserTest::testIndicateFromDependencies()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsFromDependenciesForFile += ProjectPart::create({});
 
     QVERIFY(t.choose().hints & ProjectPartInfo::IsFromDependenciesMatch);
 }
 
-void CppToolsPlugin::test_projectPartChooser_doNotIndicateFromDependencies()
+void ProjectPartChooserTest::testDoNotIndicateFromDependencies()
 {
-    ProjectPartChooserTest t;
+    ProjectPartChooserTestHelper t;
     t.projectPartsForFile += ProjectPart::create({});
 
     QVERIFY(!(t.choose().hints & ProjectPartInfo::IsFromDependenciesMatch));
@@ -368,10 +370,10 @@ private:
     };
 };
 
-class ProjectInfoGeneratorTest
+class ProjectInfoGeneratorTestHelper
 {
 public:
-    ProjectInfoGeneratorTest()
+    ProjectInfoGeneratorTestHelper()
     {
         TestToolchain aToolChain;
         projectUpdateInfo.cxxToolChainInfo = {&aToolChain, {}, {}};
@@ -393,35 +395,35 @@ public:
 };
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_createNoProjectPartsForEmptyFileList()
+void ProjectInfoGeneratorTest::testCreateNoProjectPartsForEmptyFileList()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     const ProjectInfo::Ptr projectInfo = t.generate();
 
     QVERIFY(projectInfo->projectParts().isEmpty());
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_createSingleProjectPart()
+void ProjectInfoGeneratorTest::testCreateSingleProjectPart()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h"};
     const ProjectInfo::Ptr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 1);
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_createMultipleProjectParts()
+void ProjectInfoGeneratorTest::testCreateMultipleProjectParts()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h", "bar.c", "bar.h" };
     const ProjectInfo::Ptr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 2);
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_projectPartIndicatesObjectiveCExtensionsByDefault()
+void ProjectInfoGeneratorTest::testProjectPartIndicatesObjectiveCExtensionsByDefault()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.mm" };
     const ProjectInfo::Ptr projectInfo = t.generate();
     QCOMPARE(projectInfo->projectParts().size(), 1);
@@ -430,9 +432,9 @@ void CppToolsPlugin::test_projectInfoGenerator_projectPartIndicatesObjectiveCExt
     QVERIFY(projectPart.languageExtensions & Utils::LanguageExtension::ObjectiveC);
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_projectPartHasLatestLanguageVersionByDefault()
+void ProjectInfoGeneratorTest::testProjectPartHasLatestLanguageVersionByDefault()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
     const ProjectInfo::Ptr projectInfo = t.generate();
     QCOMPARE(projectInfo->projectParts().size(), 1);
@@ -441,9 +443,9 @@ void CppToolsPlugin::test_projectInfoGenerator_projectPartHasLatestLanguageVersi
     QCOMPARE(projectPart.languageVersion, Utils::LanguageVersion::LatestCxx);
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_useMacroInspectionReportForLanguageVersion()
+void ProjectInfoGeneratorTest::testUseMacroInspectionReportForLanguageVersion()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
         return TestToolchain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
@@ -456,9 +458,9 @@ void CppToolsPlugin::test_projectInfoGenerator_useMacroInspectionReportForLangua
     QCOMPARE(projectPart.languageVersion, Utils::LanguageVersion::CXX17);
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_useCompilerFlagsForLanguageExtensions()
+void ProjectInfoGeneratorTest::testUseCompilerFlagsForLanguageExtensions()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
     t.rawProjectPart.flagsForCxx.languageExtensions = Utils::LanguageExtension::Microsoft;
     const ProjectInfo::Ptr projectInfo = t.generate();
@@ -469,9 +471,9 @@ void CppToolsPlugin::test_projectInfoGenerator_useCompilerFlagsForLanguageExtens
     QVERIFY(projectPart.languageExtensions & Utils::LanguageExtension::Microsoft);
 }
 
-void CppToolsPlugin::test_projectInfoGenerator_projectFileKindsMatchProjectPartVersion()
+void ProjectInfoGeneratorTest::testProjectFileKindsMatchProjectPartVersion()
 {
-    ProjectInfoGeneratorTest t;
+    ProjectInfoGeneratorTestHelper t;
     t.rawProjectPart.files = QStringList{ "foo.h" };
     const ProjectInfo::Ptr projectInfo = t.generate();
 
@@ -495,7 +497,7 @@ void CppToolsPlugin::test_projectInfoGenerator_projectFileKindsMatchProjectPartV
 }
 
 namespace {
-class HeaderPathFilterTest
+class HeaderPathFilterTestHelper
 {
 public:
     const ProjectPart &finalize()
@@ -550,18 +552,18 @@ private:
 };
 }
 
-void CppToolsPlugin::test_headerPathFilter_builtin()
+void HeaderPathFilterTest::testBuiltin()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.finalize();
     t.filter->process();
 
     QCOMPARE(t.filter->builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_system()
+void HeaderPathFilterTest::testSystem()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.finalize();
     t.filter->process();
 
@@ -571,9 +573,9 @@ void CppToolsPlugin::test_headerPathFilter_system()
         t.user("/buildb/user_path"), t.user("/projectb/user_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_user()
+void HeaderPathFilterTest::testUser()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.finalize();
     t.filter->process();
 
@@ -581,9 +583,9 @@ void CppToolsPlugin::test_headerPathFilter_user()
                                                      t.user("/project/user_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_noProjectPathSet()
+void HeaderPathFilterTest::testNoProjectPathSet()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     HeaderPathFilter filter{t.finalize(), UseTweakedHeaderPaths::No};
     filter.process();
 
@@ -593,9 +595,9 @@ void CppToolsPlugin::test_headerPathFilter_noProjectPathSet()
         t.user("/project/user_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_dontAddInvalidPath()
+void HeaderPathFilterTest::testDontAddInvalidPath()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.finalize();
     t.filter->process();
     QCOMPARE(t.filter->builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
@@ -607,9 +609,9 @@ void CppToolsPlugin::test_headerPathFilter_dontAddInvalidPath()
                                                      t.user("/project/user_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_clangHeadersPath()
+void HeaderPathFilterTest::testClangHeadersPath()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     HeaderPathFilter filter(t.finalize(), UseTweakedHeaderPaths::Yes, "6.0", "clang_dir");
     filter.process();
 
@@ -617,18 +619,18 @@ void CppToolsPlugin::test_headerPathFilter_clangHeadersPath()
                                                      t.builtIn("/builtin_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_clangHeadersPathWitoutClangVersion()
+void HeaderPathFilterTest::testClangHeadersPathWitoutClangVersion()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     HeaderPathFilter filter(t.finalize(), UseTweakedHeaderPaths::Yes);
     filter.process();
 
     QCOMPARE(filter.builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderMacOs()
+void HeaderPathFilterTest::testClangHeadersAndCppIncludesPathsOrderMacOs()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.targetTriple = "x86_64-apple-darwin10";
     const auto builtIns = {
         t.builtIn("/usr/include/c++/4.2.1"), t.builtIn("/usr/include/c++/4.2.1/backward"),
@@ -650,9 +652,9 @@ void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderM
         t.builtIn("/builtin_path")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderLinux()
+void HeaderPathFilterTest::testClangHeadersAndCppIncludesPathsOrderLinux()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.targetTriple = "x86_64-linux-gnu";
     const auto builtIns = {
         t.builtIn("/usr/include/c++/4.8"), t.builtIn("/usr/include/c++/4.8/backward"),
@@ -674,9 +676,9 @@ void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderL
 
 // GCC-internal include paths like <installdir>/include and <installdir/include-next> might confuse
 // clang and should be filtered out. clang on the command line filters them out, too.
-void CppToolsPlugin::test_headerPathFilter_removeGccInternalPaths()
+void HeaderPathFilterTest::testRemoveGccInternalPaths()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.toolchainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
     t.toolchainType = Constants::GCC_TOOLCHAIN_TYPEID;
     t.headerPaths = {
@@ -692,9 +694,9 @@ void CppToolsPlugin::test_headerPathFilter_removeGccInternalPaths()
 // Some distributions ship the standard library headers in "<installdir>/include/c++" (MinGW)
 // or e.g. "<installdir>/include/g++-v8" (Gentoo).
 // Ensure that we do not remove include paths pointing there.
-void CppToolsPlugin::test_headerPathFilter_removeGccInternalPathsExceptForStandardPaths()
+void HeaderPathFilterTest::testRemoveGccInternalPathsExceptForStandardPaths()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.toolchainInstallDir = Utils::FilePath::fromUtf8("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0");
     t.toolchainType = Constants::MINGW_TOOLCHAIN_TYPEID;
     t.headerPaths = {
@@ -711,9 +713,9 @@ void CppToolsPlugin::test_headerPathFilter_removeGccInternalPathsExceptForStanda
     QCOMPARE(filter.builtInHeaderPaths, expected);
 }
 
-void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderNoVersion()
+void HeaderPathFilterTest::testClangHeadersAndCppIncludesPathsOrderNoVersion()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.headerPaths = {
         t.builtIn("C:/mingw/i686-w64-mingw32/include"),
         t.builtIn("C:/mingw/i686-w64-mingw32/include/c++"),
@@ -732,9 +734,9 @@ void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderN
         t.builtIn("C:/mingw/i686-w64-mingw32/include")}));
 }
 
-void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderAndroidClang()
+void HeaderPathFilterTest::testClangHeadersAndCppIncludesPathsOrderAndroidClang()
 {
-    HeaderPathFilterTest t;
+    HeaderPathFilterTestHelper t;
     t.headerPaths = {
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
         t.builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
@@ -755,7 +757,7 @@ void CppToolsPlugin::test_headerPathFilter_clangHeadersAndCppIncludesPathsOrderA
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")}));
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_c()
+void ProjectFileCategorizerTest::testC()
 {
     const ProjectFileCategorizer categorizer({}, {"foo.c", "foo.h"});
     const ProjectFiles expected {
@@ -769,7 +771,7 @@ void CppToolsPlugin::test_projectFileCategorizer_c()
     QVERIFY(categorizer.objcxxSources().isEmpty());
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_cxxWithUnambiguousHeaderSuffix()
+void ProjectFileCategorizerTest::testCxxWithUnambiguousHeaderSuffix()
 {
     const ProjectFileCategorizer categorizer({}, {"foo.cpp", "foo.hpp"});
     const ProjectFiles expected {
@@ -783,7 +785,7 @@ void CppToolsPlugin::test_projectFileCategorizer_cxxWithUnambiguousHeaderSuffix(
     QVERIFY(categorizer.objcxxSources().isEmpty());
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_cxxWithAmbiguousHeaderSuffix()
+void ProjectFileCategorizerTest::testCxxWithAmbiguousHeaderSuffix()
 {
     const ProjectFiles expected {
         ProjectFile("foo.cpp", ProjectFile::CXXSource),
@@ -798,7 +800,7 @@ void CppToolsPlugin::test_projectFileCategorizer_cxxWithAmbiguousHeaderSuffix()
     QVERIFY(categorizer.objcxxSources().isEmpty());
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_objectiveC()
+void ProjectFileCategorizerTest::testObjectiveC()
 {
     const ProjectFiles expected {
         ProjectFile("foo.m", ProjectFile::ObjCSource),
@@ -813,7 +815,7 @@ void CppToolsPlugin::test_projectFileCategorizer_objectiveC()
     QVERIFY(categorizer.objcxxSources().isEmpty());
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_objectiveCxx()
+void ProjectFileCategorizerTest::testObjectiveCxx()
 {
     const ProjectFiles expected {
         ProjectFile("foo.mm", ProjectFile::ObjCXXSource),
@@ -828,7 +830,7 @@ void CppToolsPlugin::test_projectFileCategorizer_objectiveCxx()
     QVERIFY(categorizer.cxxSources().isEmpty());
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_mixedCAndCxx()
+void ProjectFileCategorizerTest::testMixedCAndCxx()
 {
     const ProjectFiles expectedCxxSources {
         ProjectFile("foo.cpp", ProjectFile::CXXSource),
@@ -849,7 +851,7 @@ void CppToolsPlugin::test_projectFileCategorizer_mixedCAndCxx()
     QVERIFY(categorizer.objcxxSources().isEmpty());
 }
 
-void CppToolsPlugin::test_projectFileCategorizer_ambiguousHeaderOnly()
+void ProjectFileCategorizerTest::testAmbiguousHeaderOnly()
 {
     const ProjectFileCategorizer categorizer({}, {"foo.h"});
 

@@ -31,6 +31,7 @@
 #include <cplusplus/PreprocessorClient.h>
 
 #include <QList>
+#include <QObject>
 #include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
@@ -105,4 +106,19 @@ private:
 };
 
 } // namespace IncludeUtils
+
+#ifdef WITH_TESTS
+namespace Internal {
+class IncludeGroupsTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDetectIncludeGroupsByNewLines();
+    void testDetectIncludeGroupsByIncludeDir();
+    void testDetectIncludeGroupsByIncludeType();
+};
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace CppTools

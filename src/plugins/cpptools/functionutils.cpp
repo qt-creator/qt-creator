@@ -215,7 +215,6 @@ QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsC
 }
 
 #ifdef WITH_TESTS
-#include "cpptoolsplugin.h"
 
 #include <QTest>
 
@@ -237,7 +236,7 @@ Q_DECLARE_METATYPE(CppTools::Internal::Virtuality)
 namespace CppTools {
 namespace Internal {
 
-void CppToolsPlugin::test_functionutils_virtualFunctions()
+void FunctionUtilsTest::testVirtualFunctions()
 {
     // Create and parse document
     QFETCH(QByteArray, source);
@@ -292,7 +291,7 @@ void CppToolsPlugin::test_functionutils_virtualFunctions()
     QVERIFY(firstVirtualList.isEmpty());
 }
 
-void CppToolsPlugin::test_functionutils_virtualFunctions_data()
+void FunctionUtilsTest::testVirtualFunctions_data()
 {
     using _ = QByteArray;
     QTest::addColumn<QByteArray>("source");

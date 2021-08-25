@@ -87,9 +87,9 @@ bool SendDocumentTracker::changedBeforeCompletionPosition(int newCompletionPosit
 }
 
 #ifdef WITH_TESTS
-namespace  Internal {
+namespace Internal {
 
-void CppToolsPlugin::test_documentTracker_defaultLastSentRevision()
+void DocumentTrackerTest::testDefaultLastSentRevision()
 {
     SendDocumentTracker tracker;
 
@@ -97,7 +97,7 @@ void CppToolsPlugin::test_documentTracker_defaultLastSentRevision()
     QCOMPARE(tracker.lastCompletionPosition(), -1);
 }
 
-void CppToolsPlugin::test_documentTracker_setRevision()
+void DocumentTrackerTest::testSetRevision()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -106,7 +106,7 @@ void CppToolsPlugin::test_documentTracker_setRevision()
     QCOMPARE(tracker.lastCompletionPosition(), -1);
 }
 
-void CppToolsPlugin::test_documentTracker_setLastCompletionPosition()
+void DocumentTrackerTest::testSetLastCompletionPosition()
 {
     SendDocumentTracker tracker;
     tracker.setLastCompletionPosition(33);
@@ -115,7 +115,7 @@ void CppToolsPlugin::test_documentTracker_setLastCompletionPosition()
     QCOMPARE(tracker.lastCompletionPosition(), 33);
 }
 
-void CppToolsPlugin::test_documentTracker_applyContentChange()
+void DocumentTrackerTest::testApplyContentChange()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -126,7 +126,7 @@ void CppToolsPlugin::test_documentTracker_applyContentChange()
     QCOMPARE(tracker.lastCompletionPosition(), -1);
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendCompletionIfPositionIsEqual()
+void DocumentTrackerTest::testDontSendCompletionIfPositionIsEqual()
 {
     SendDocumentTracker tracker;
     tracker.setLastCompletionPosition(33);
@@ -134,7 +134,7 @@ void CppToolsPlugin::test_documentTracker_dontSendCompletionIfPositionIsEqual()
     QVERIFY(!tracker.shouldSendCompletion(33));
 }
 
-void CppToolsPlugin::test_documentTracker_sendCompletionIfPositionIsDifferent()
+void DocumentTrackerTest::testSendCompletionIfPositionIsDifferent()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -143,7 +143,7 @@ void CppToolsPlugin::test_documentTracker_sendCompletionIfPositionIsDifferent()
     QVERIFY(tracker.shouldSendCompletion(22));
 }
 
-void CppToolsPlugin::test_documentTracker_sendCompletionIfChangeIsBeforeCompletionPositionAndPositionIsEqual()
+void DocumentTrackerTest::testSendCompletionIfChangeIsBeforeCompletionPositionAndPositionIsEqual()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -153,7 +153,7 @@ void CppToolsPlugin::test_documentTracker_sendCompletionIfChangeIsBeforeCompleti
     QVERIFY(tracker.shouldSendCompletion(33));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendCompletionIfChangeIsAfterCompletionPositionAndPositionIsEqual()
+void DocumentTrackerTest::testDontSendCompletionIfChangeIsAfterCompletionPositionAndPositionIsEqual()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -163,7 +163,7 @@ void CppToolsPlugin::test_documentTracker_dontSendCompletionIfChangeIsAfterCompl
     QVERIFY(!tracker.shouldSendCompletion(33));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendRevisionIfRevisionIsEqual()
+void DocumentTrackerTest::testDontSendRevisionIfRevisionIsEqual()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -171,7 +171,7 @@ void CppToolsPlugin::test_documentTracker_dontSendRevisionIfRevisionIsEqual()
     QVERIFY(!tracker.shouldSendRevision(46));
 }
 
-void CppToolsPlugin::test_documentTracker_sendRevisionIfRevisionIsDifferent()
+void DocumentTrackerTest::testSendRevisionIfRevisionIsDifferent()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -179,13 +179,13 @@ void CppToolsPlugin::test_documentTracker_sendRevisionIfRevisionIsDifferent()
     QVERIFY(tracker.shouldSendRevision(21));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendRevisionWithDefaults()
+void DocumentTrackerTest::testDontSendRevisionWithDefaults()
 {
     SendDocumentTracker tracker;
     QVERIFY(!tracker.shouldSendRevisionWithCompletionPosition(21, 33));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendIfRevisionIsDifferentAndCompletionPositionIsEqualAndNoContentChange()
+void DocumentTrackerTest::testDontSendIfRevisionIsDifferentAndCompletionPositionIsEqualAndNoContentChange()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -194,7 +194,7 @@ void CppToolsPlugin::test_documentTracker_dontSendIfRevisionIsDifferentAndComple
     QVERIFY(!tracker.shouldSendRevisionWithCompletionPosition(21, 33));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendIfRevisionIsDifferentAndCompletionPositionIsDifferentAndNoContentChange()
+void DocumentTrackerTest::testDontSendIfRevisionIsDifferentAndCompletionPositionIsDifferentAndNoContentChange()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -203,7 +203,7 @@ void CppToolsPlugin::test_documentTracker_dontSendIfRevisionIsDifferentAndComple
     QVERIFY(!tracker.shouldSendRevisionWithCompletionPosition(21, 44));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendIfRevisionIsEqualAndCompletionPositionIsDifferentAndNoContentChange()
+void DocumentTrackerTest::testDontSendIfRevisionIsEqualAndCompletionPositionIsDifferentAndNoContentChange()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -212,7 +212,7 @@ void CppToolsPlugin::test_documentTracker_dontSendIfRevisionIsEqualAndCompletion
     QVERIFY(!tracker.shouldSendRevisionWithCompletionPosition(46,44));
 }
 
-void CppToolsPlugin::test_documentTracker_sendIfChangeIsBeforeCompletionAndPositionIsEqualAndRevisionIsDifferent()
+void DocumentTrackerTest::testSendIfChangeIsBeforeCompletionAndPositionIsEqualAndRevisionIsDifferent()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -222,7 +222,7 @@ void CppToolsPlugin::test_documentTracker_sendIfChangeIsBeforeCompletionAndPosit
     QVERIFY(tracker.shouldSendRevisionWithCompletionPosition(45, 33));
 }
 
-void CppToolsPlugin::test_documentTracker_dontSendIfChangeIsAfterCompletionPositionAndRevisionIsDifferent()
+void DocumentTrackerTest::testDontSendIfChangeIsAfterCompletionPositionAndRevisionIsDifferent()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -232,7 +232,7 @@ void CppToolsPlugin::test_documentTracker_dontSendIfChangeIsAfterCompletionPosit
     QVERIFY(!tracker.shouldSendRevisionWithCompletionPosition(45, 36));
 }
 
-void CppToolsPlugin::test_documentTracker_sendIfChangeIsBeforeCompletionPositionAndRevisionIsDifferent()
+void DocumentTrackerTest::testSendIfChangeIsBeforeCompletionPositionAndRevisionIsDifferent()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);
@@ -242,7 +242,7 @@ void CppToolsPlugin::test_documentTracker_sendIfChangeIsBeforeCompletionPosition
     QVERIFY(tracker.shouldSendRevisionWithCompletionPosition(45, 36));
 }
 
-void CppToolsPlugin::test_documentTracker_resetChangedContentStartPositionIfLastRevisionIsSet()
+void DocumentTrackerTest::testResetChangedContentStartPositionIfLastRevisionIsSet()
 {
     SendDocumentTracker tracker;
     tracker.setLastSentRevision(46);

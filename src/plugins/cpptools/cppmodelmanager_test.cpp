@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
+#include "cppmodelmanager_test.h"
+
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
-#include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 #include "modelmanagertesthelper.h"
@@ -173,7 +174,7 @@ ProjectPart::Ptr projectPartOfEditorDocument(const QString &filePath)
 } // anonymous namespace
 
 /// Check: The preprocessor cleans include and framework paths.
-void CppToolsPlugin::test_modelmanager_paths_are_clean()
+void ModelManagerTest::testPathsAreClean()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -200,7 +201,7 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
 }
 
 /// Check: Frameworks headers are resolved.
-void CppToolsPlugin::test_modelmanager_framework_headers()
+void ModelManagerTest::testFrameworkHeaders()
 {
     if (Utils::HostOsInfo::isWindowsHost())
         QSKIP("Can't resolve framework soft links on Windows.");
@@ -247,7 +248,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
 /// QTCREATORBUG-9056
 /// Check: If the project configuration changes, all project files and their
 ///        includes have to be reparsed.
-void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
+void ModelManagerTest::testRefreshAlsoIncludesOfProjectFiles()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -304,7 +305,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
 /// QTCREATORBUG-9205
 /// Check: When reparsing the same files again, no errors occur
 ///        (The CppSourceProcessor's already seen files are properly cleared!).
-void CppToolsPlugin::test_modelmanager_refresh_several_times()
+void ModelManagerTest::testRefreshSeveralTimes()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -366,7 +367,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
 
 /// QTCREATORBUG-9581
 /// Check: If nothing has changes, nothing should be reindexed.
-void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
+void ModelManagerTest::testRefreshTestForChanges()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -398,7 +399,7 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
 
 /// Check: (1) Added project files are recognized and parsed.
 /// Check: (2) Removed project files are recognized and purged from the snapshot.
-void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
+void ModelManagerTest::testRefreshAddedAndPurgeRemoved()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -450,7 +451,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
 
 /// Check: Timestamp modified files are reparsed if project files are added or removed
 ///        while the project configuration stays the same
-void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_change()
+void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 {
     QFETCH(QString, fileToChange);
     QFETCH(QStringList, initialProjectFiles);
@@ -524,7 +525,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     QCOMPARE(document->globalSymbolAt(1)->name()->identifier()->chars(), "addedOtherGlobal");
 }
 
-void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_change_data()
+void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange_data()
 {
     QTest::addColumn<QString>("fileToChange");
     QTest::addColumn<QStringList>("initialProjectFiles");
@@ -546,7 +547,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 
 /// Check: If a second project is opened, the code model is still aware of
 ///        files of the first project.
-void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
+void ModelManagerTest::testSnapshotAfterTwoProjects()
 {
     QSet<QString> refreshedFiles;
     ModelManagerTestHelper helper;
@@ -590,7 +591,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
 ///            though it might not be actually generated in the build dir.
 ///
 
-void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
+void ModelManagerTest::testExtraeditorsupportUiFiles()
 {
     VerifyCleanCppModelManager verify;
 
@@ -635,7 +636,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 
 /// QTCREATORBUG-9828: Locator shows symbols of closed files
 /// Check: The garbage collector should be run if the last CppEditor is closed.
-void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
+void ModelManagerTest::testGcIfLastCppeditorClosed()
 {
     ModelManagerTestHelper helper;
 
@@ -666,7 +667,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
 }
 
 /// Check: Files that are open in the editor are not garbage collected.
-void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
+void ModelManagerTest::testDontGcOpenedFiles()
 {
     ModelManagerTestHelper helper;
 
@@ -729,7 +730,7 @@ QString nameOfFirstDeclaration(const Document::Ptr &doc)
 }
 }
 
-void CppToolsPlugin::test_modelmanager_defines_per_project()
+void ModelManagerTest::testDefinesPerProject()
 {
     ModelManagerTestHelper helper;
 
@@ -789,7 +790,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     }
 }
 
-void CppToolsPlugin::test_modelmanager_precompiled_headers()
+void ModelManagerTest::testPrecompiledHeaders()
 {
     ModelManagerTestHelper helper;
 
@@ -870,7 +871,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     }
 }
 
-void CppToolsPlugin::test_modelmanager_defines_per_editor()
+void ModelManagerTest::testDefinesPerEditor()
 {
     ModelManagerTestHelper helper;
 
@@ -933,7 +934,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     }
 }
 
-void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
+void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
 {
     ModelManagerTestHelper helper;
 
@@ -985,7 +986,7 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     QCOMPARE(documentBProjectPart->topLevelProject, pi->projectFilePath());
 }
 
-void CppToolsPlugin::test_modelmanager_renameIncludes()
+void ModelManagerTest::testRenameIncludes()
 {
     struct ModelManagerGCHelper {
         ~ModelManagerGCHelper() { CppModelManager::instance()->GC(); }
@@ -1033,7 +1034,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludes()
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << newHeader);
 }
 
-void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
+void ModelManagerTest::testRenameIncludesInEditor()
 {
     struct ModelManagerGCHelper {
         ~ModelManagerGCHelper() { CppModelManager::instance()->GC(); }
@@ -1157,7 +1158,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << renamedHeaderWithPragmaOnce);
 }
 
-void CppToolsPlugin::test_modelmanager_documentsAndRevisions()
+void ModelManagerTest::testDocumentsAndRevisions()
 {
     TestCase helper;
 

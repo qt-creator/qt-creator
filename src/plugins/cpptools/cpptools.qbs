@@ -230,21 +230,33 @@ Project {
             condition: qtc.testsEnabled
             files: [
                 "compileroptionsbuilder_test.cpp",
+                "compileroptionsbuilder_test.h",
                 "cppcodegen_test.cpp",
+                "cppcodegen_test.h",
                 "cppcompletion_test.cpp",
+                "cppcompletion_test.h",
                 "cppheadersource_test.cpp",
+                "cppheadersource_test.h",
                 "cpplocalsymbols_test.cpp",
+                "cpplocalsymbols_test.h",
                 "cpplocatorfilter_test.cpp",
+                "cpplocatorfilter_test.h",
                 "cppmodelmanager_test.cpp",
+                "cppmodelmanager_test.h",
                 "cpppointerdeclarationformatter_test.cpp",
+                "cpppointerdeclarationformatter_test.h",
                 "cppsourceprocessertesthelper.cpp",
                 "cppsourceprocessertesthelper.h",
                 "cppsourceprocessor_test.cpp",
+                "cppsourceprocessor_test.h",
                 "modelmanagertesthelper.cpp",
                 "modelmanagertesthelper.h",
                 "projectinfo_test.cpp",
+                "projectinfo_test.h",
                 "symbolsearcher_test.cpp",
+                "symbolsearcher_test.h",
                 "typehierarchybuilder_test.cpp",
+                "typehierarchybuilder_test.h",
             ]
 
             cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

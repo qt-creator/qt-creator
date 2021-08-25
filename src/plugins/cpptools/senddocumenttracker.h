@@ -27,6 +27,8 @@
 
 #include "cpptools_global.h"
 
+#include <QObject>
+
 #include <limits>
 
 namespace CppTools {
@@ -54,5 +56,34 @@ private:
     int m_lastCompletionPosition = -1;
     int m_contentChangeStartPosition = std::numeric_limits<int>::max();
 };
+
+#ifdef WITH_TESTS
+namespace Internal {
+class DocumentTrackerTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDefaultLastSentRevision();
+    void testSetRevision();
+    void testSetLastCompletionPosition();
+    void testApplyContentChange();
+    void testDontSendCompletionIfPositionIsEqual();
+    void testSendCompletionIfPositionIsDifferent();
+    void testSendCompletionIfChangeIsBeforeCompletionPositionAndPositionIsEqual();
+    void testDontSendCompletionIfChangeIsAfterCompletionPositionAndPositionIsEqual();
+    void testDontSendRevisionIfRevisionIsEqual();
+    void testSendRevisionIfRevisionIsDifferent();
+    void testDontSendRevisionWithDefaults();
+    void testDontSendIfRevisionIsDifferentAndCompletionPositionIsEqualAndNoContentChange();
+    void testDontSendIfRevisionIsDifferentAndCompletionPositionIsDifferentAndNoContentChange();
+    void testDontSendIfRevisionIsEqualAndCompletionPositionIsDifferentAndNoContentChange();
+    void testSendIfChangeIsBeforeCompletionAndPositionIsEqualAndRevisionIsDifferent();
+    void testDontSendIfChangeIsAfterCompletionPositionAndRevisionIsDifferent();
+    void testSendIfChangeIsBeforeCompletionPositionAndRevisionIsDifferent();
+    void testResetChangedContentStartPositionIfLastRevisionIsSet();
+};
+} // namespace Internal
+#endif // WITH_TESTS
 
 } // namespace CppTools

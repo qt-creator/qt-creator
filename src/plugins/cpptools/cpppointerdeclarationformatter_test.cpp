@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
+#include "cpppointerdeclarationformatter_test.h"
+
 #include "cpppointerdeclarationformatter.h"
-#include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/coreconstants.h>
@@ -141,7 +142,7 @@ public:
 
 } // anonymous namespace
 
-void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations()
+void PointerDeclarationFormatterTest::testInSimpledeclarations()
 {
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
@@ -152,7 +153,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations()
                                         PointerDeclarationFormatter::RespectCursor);
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations_data()
+void PointerDeclarationFormatterTest::testInSimpledeclarations_data()
 {
     QTest::addColumn<QString>("source");
     QTest::addColumn<QString>("reformattedSource");
@@ -365,7 +366,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations_data()
         << "C & C::operator = (const C &) {}";
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()
+void PointerDeclarationFormatterTest::testInControlflowstatements()
 {
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
@@ -376,7 +377,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()
                                         PointerDeclarationFormatter::RespectCursor);
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements_data()
+void PointerDeclarationFormatterTest::testInControlflowstatements_data()
 {
     QTest::addColumn<QString>("source");
     QTest::addColumn<QString>("reformattedSource");
@@ -440,7 +441,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements_dat
     QTest::newRow("precondition-fail-no-pointer") << source << stripCursor(source);
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators()
+void PointerDeclarationFormatterTest::testMultipleDeclarators()
 {
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
@@ -451,7 +452,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators()
                                         PointerDeclarationFormatter::RespectCursor);
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators_data()
+void PointerDeclarationFormatterTest::testMultipleDeclarators_data()
 {
     QTest::addColumn<QString>("source");
     QTest::addColumn<QString>("reformattedSource");
@@ -495,7 +496,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators_data()
         << "char *s, * (*foo)(char * s) = 0;";
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches()
+void PointerDeclarationFormatterTest::testMultipleMatches()
 {
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
@@ -506,7 +507,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches()
                                         PointerDeclarationFormatter::IgnoreCursor);
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches_data()
+void PointerDeclarationFormatterTest::testMultipleMatches_data()
 {
     QTest::addColumn<QString>("source");
     QTest::addColumn<QString>("reformattedSource");
@@ -578,7 +579,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches_data()
            "}\n";
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_macros()
+void PointerDeclarationFormatterTest::testMacros()
 {
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
@@ -589,7 +590,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_macros()
                                         PointerDeclarationFormatter::RespectCursor);
 }
 
-void CppToolsPlugin::test_format_pointerdeclaration_macros_data()
+void PointerDeclarationFormatterTest::testMacros_data()
 {
     QTest::addColumn<QString>("source");
     QTest::addColumn<QString>("reformattedSource");

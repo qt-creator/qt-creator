@@ -199,9 +199,21 @@ FORMS += \
 
 equals(TEST, 1) {
     HEADERS += \
+        compileroptionsbuilder_test.h \
+        cppcodegen_test.h \
+        cppcompletion_test.h \
+        cppheadersource_test.h \
+        cpplocalsymbols_test.h \
+        cpplocatorfilter_test.h \
+        cppmodelmanager_test.h \
+        cpppointerdeclarationformatter_test.h \
+        cppsourceprocessor_test.h \
         cppsourceprocessertesthelper.h \
         cpptoolstestcase.h \
-        modelmanagertesthelper.h
+        modelmanagertesthelper.h \
+        projectinfo_test.h \
+        symbolsearcher_test.h \
+        typehierarchybuilder_test.h
 
     SOURCES += \
         cppcodegen_test.cpp \

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "compileroptionsbuilder_test.h"
 
 #include "compileroptionsbuilder.h"
 #include "projectinfo.h"
@@ -31,6 +31,7 @@
 
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/temporarydirectory.h>
 
@@ -44,7 +45,7 @@ namespace CppTools {
 namespace Internal {
 
 namespace {
-class CompilerOptionsBuilderTest
+class TestHelper
 {
 public:
     const ProjectPart &finalize()
@@ -113,18 +114,18 @@ private:
 };
 }
 
-void CppToolsPlugin::test_optionsBuilder_addProjectMacros()
+void CompilerOptionsBuilderTest::testAddProjectMacros()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addProjectMacros();
 
     QCOMPARE(t.compilerOptionsBuilder->options(), QStringList("-DprojectFoo=projectBar"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_unknownFlagsAreForwarded()
+void CompilerOptionsBuilderTest::testUnknownFlagsAreForwarded()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.flags = QStringList{"-fancyFlag"};
     ProjectPart part = t.finalize();
     CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
@@ -134,9 +135,9 @@ void CppToolsPlugin::test_optionsBuilder_unknownFlagsAreForwarded()
     QVERIFY(compilerOptionsBuilder.options().contains(part.compilerFlags.first()));
 }
 
-void CppToolsPlugin::test_optionsBuilder_warningsFlagsAreNotFilteredIfRequested()
+void CompilerOptionsBuilderTest::testWarningsFlagsAreNotFilteredIfRequested()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.flags = QStringList{"-Whello"};
     ProjectPart part = t.finalize();
     CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
@@ -147,9 +148,9 @@ void CppToolsPlugin::test_optionsBuilder_warningsFlagsAreNotFilteredIfRequested(
     QVERIFY(compilerOptionsBuilder.options().contains(part.compilerFlags.first()));
 }
 
-void CppToolsPlugin::test_optionsBuilder_diagnosticOptionsAreRemoved()
+void CompilerOptionsBuilderTest::testDiagnosticOptionsAreRemoved()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.flags = QStringList{"-Wbla", "-pedantic"};
     ProjectPart part = t.finalize();
     CompilerOptionsBuilder compilerOptionsBuilder{part, UseSystemHeader::No,
@@ -160,9 +161,9 @@ void CppToolsPlugin::test_optionsBuilder_diagnosticOptionsAreRemoved()
     QVERIFY(!compilerOptionsBuilder.options().contains(part.compilerFlags.at(1)));
 }
 
-void CppToolsPlugin::test_optionsBuilder_cLanguageVersionIsRewritten()
+void CompilerOptionsBuilderTest::testCLanguageVersionIsRewritten()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     // We need to set the language version here to overcome a QTC_ASSERT checking
     // consistency between ProjectFile::Kind and ProjectPart::LanguageVersion
     t.flags = QStringList{"-std=c18"};
@@ -177,9 +178,9 @@ void CppToolsPlugin::test_optionsBuilder_cLanguageVersionIsRewritten()
     QVERIFY(compilerOptionsBuilder.options().contains("-std=c17"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_languageVersionIsExplicitlySetIfNotProvided()
+void CompilerOptionsBuilderTest::testLanguageVersionIsExplicitlySetIfNotProvided()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
     compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
@@ -187,9 +188,9 @@ void CppToolsPlugin::test_optionsBuilder_languageVersionIsExplicitlySetIfNotProv
     QVERIFY(compilerOptionsBuilder.options().contains("-std=c++17"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_LanguageVersionIsExplicitlySetIfNotProvidedMsvc()
+void CompilerOptionsBuilderTest::testLanguageVersionIsExplicitlySetIfNotProvidedMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
@@ -198,18 +199,18 @@ void CppToolsPlugin::test_optionsBuilder_LanguageVersionIsExplicitlySetIfNotProv
     QVERIFY(compilerOptionsBuilder.options().contains("/std:c++17"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addWordWidth()
+void CompilerOptionsBuilderTest::testAddWordWidth()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addWordWidth();
 
     QCOMPARE(t.compilerOptionsBuilder->options(), QStringList("-m64"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_headerPathOptionsOrder()
+void CompilerOptionsBuilderTest::testHeaderPathOptionsOrder()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
                 "dummy_version", ""};
@@ -221,9 +222,9 @@ void CppToolsPlugin::test_optionsBuilder_headerPathOptionsOrder()
                          t.toNative("/tmp/builtin_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_HeaderPathOptionsOrderMsvc()
+void CompilerOptionsBuilderTest::testHeaderPathOptionsOrderMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
@@ -238,9 +239,9 @@ void CppToolsPlugin::test_optionsBuilder_HeaderPathOptionsOrderMsvc()
                           "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_useSystemHeader()
+void CompilerOptionsBuilderTest::testUseSystemHeader()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::Yes,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
                 "dummy_version", ""};
@@ -252,9 +253,9 @@ void CppToolsPlugin::test_optionsBuilder_useSystemHeader()
                           "-isystem", "", "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_noClangHeadersPath()
+void CompilerOptionsBuilderTest::testNoClangHeadersPath()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addHeaderPathOptions();
 
@@ -262,9 +263,9 @@ void CppToolsPlugin::test_optionsBuilder_noClangHeadersPath()
              (QStringList{"-I", t.toNative("/tmp/path"), "-I", t.toNative("/tmp/system_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderMacOs()
+void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderMacOs()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     const HeaderPaths additionalHeaderPaths = {
         t.builtIn("/usr/include/c++/4.2.1"),
         t.builtIn("/usr/include/c++/4.2.1/backward"),
@@ -290,9 +291,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderMacO
                           "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderLinux()
+void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderLinux()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.targetTriple = "x86_64-linux-gnu";
     t.headerPaths = {
         t.builtIn("/usr/include/c++/4.8"),
@@ -319,9 +320,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderLinu
                           "-isystem", t.toNative("/usr/include")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderNoVersion()
+void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderNoVersion()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.targetTriple = "x86_64-w64-windows-gnu";
     t.headerPaths = {
         t.builtIn("C:/mingw530/i686-w64-mingw32/include"),
@@ -342,9 +343,9 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderNoVe
                           "-isystem", t.toNative("C:/mingw530/i686-w64-mingw32/include")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderAndroidClang()
+void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderAndroidClang()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.targetTriple = "i686-linux-android";
     t.headerPaths = {
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
@@ -367,27 +368,27 @@ void CppToolsPlugin::test_optionsBuilder_clangHeadersAndCppIncludePathsOrderAndr
                           "-isystem", t.toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_noPrecompiledHeader()
+void CompilerOptionsBuilderTest::testNoPrecompiledHeader()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addPrecompiledHeaderOptions(UsePrecompiledHeaders::No);
 
     QVERIFY(t.compilerOptionsBuilder->options().empty());
 }
 
-void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeader()
+void CompilerOptionsBuilderTest::testUsePrecompiledHeader()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
 
     QCOMPARE(t.compilerOptionsBuilder->options(), (QStringList{"-include", t.pchFileNativePath()}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeaderMsvc()
+void CompilerOptionsBuilderTest::testUsePrecompiledHeaderMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize()};
     compilerOptionsBuilder.evaluateCompilerFlags();
@@ -396,27 +397,27 @@ void CppToolsPlugin::test_optionsBuilder_usePrecompiledHeaderMsvc()
     QCOMPARE(compilerOptionsBuilder.options(), (QStringList{"/FI", t.pchFileNativePath()}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addMacros()
+void CompilerOptionsBuilderTest::testAddMacros()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addMacros(Macros{Macro{"key", "value"}});
 
     QCOMPARE(t.compilerOptionsBuilder->options(), QStringList("-Dkey=value"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addTargetTriple()
+void CompilerOptionsBuilderTest::testAddTargetTriple()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->addTargetTriple();
 
     QCOMPARE(t.compilerOptionsBuilder->options(), QStringList("--target=x86_64-apple-darwin10"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_enableCExceptions()
+void CompilerOptionsBuilderTest::testEnableCExceptions()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.languageVersion = Utils::LanguageVersion::C99;
     t.finalize();
     t.compilerOptionsBuilder->enableExceptions();
@@ -424,18 +425,18 @@ void CppToolsPlugin::test_optionsBuilder_enableCExceptions()
     QCOMPARE(t.compilerOptionsBuilder->options(), QStringList("-fexceptions"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_enableCxxExceptions()
+void CompilerOptionsBuilderTest::testEnableCxxExceptions()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->enableExceptions();
 
     QCOMPARE(t.compilerOptionsBuilder->options(), (QStringList{"-fcxx-exceptions", "-fexceptions"}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_insertWrappedQtHeaders()
+void CompilerOptionsBuilderTest::testInsertWrappedQtHeaders()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::Yes,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
                 "dummy_version", ""};
@@ -445,9 +446,9 @@ void CppToolsPlugin::test_optionsBuilder_insertWrappedQtHeaders()
                             [](const QString &o) { return o.contains("wrappedQtHeaders"); }));
 }
 
-void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithNonMingwToolchain()
+void CompilerOptionsBuilderTest::testInsertWrappedMingwHeadersWithNonMingwToolchain()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     CompilerOptionsBuilder builder{t.finalize(), UseSystemHeader::Yes, UseTweakedHeaderPaths::Yes,
                 UseLanguageDefines::No, UseBuildSystemWarnings::No, "dummy_version", ""};
     builder.insertWrappedMingwHeaders();
@@ -456,9 +457,9 @@ void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithNonMingwTo
                             [](const QString &o) { return o.contains("wrappedMingwHeaders"); }));
 }
 
-void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithMingwToolchain()
+void CompilerOptionsBuilderTest::testInsertWrappedMingwHeadersWithMingwToolchain()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MINGW_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder builder{t.finalize(), UseSystemHeader::Yes, UseTweakedHeaderPaths::Yes,
                 UseLanguageDefines::No, UseBuildSystemWarnings::No, "dummy_version", ""};
@@ -468,18 +469,18 @@ void CppToolsPlugin::test_optionsBuilder_insertWrappedMingwHeadersWithMingwToolc
                             [](const QString &o) { return o.contains("wrappedMingwHeaders"); }));
 }
 
-void CppToolsPlugin::test_optionsBuilder_setLanguageVersion()
+void CompilerOptionsBuilderTest::testSetLanguageVersion()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->updateFileLanguage(ProjectFile::CXXSource);
 
     QCOMPARE(t.compilerOptionsBuilder->options(), (QStringList{"-x", "c++"}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_setLanguageVersionMsvc()
+void CompilerOptionsBuilderTest::testSetLanguageVersionMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize()};
     compilerOptionsBuilder.evaluateCompilerFlags();
@@ -488,9 +489,9 @@ void CppToolsPlugin::test_optionsBuilder_setLanguageVersionMsvc()
     QCOMPARE(compilerOptionsBuilder.options(), QStringList("/TP"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_handleLanguageExtension()
+void CompilerOptionsBuilderTest::testHandleLanguageExtension()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.languageVersion = Utils::LanguageVersion::CXX17;
     t.languageExtensions = Utils::LanguageExtension::ObjectiveC;
     t.finalize();
@@ -499,9 +500,9 @@ void CppToolsPlugin::test_optionsBuilder_handleLanguageExtension()
     QCOMPARE(t.compilerOptionsBuilder->options(), (QStringList{"-x", "objective-c++"}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_updateLanguageVersion()
+void CompilerOptionsBuilderTest::testUpdateLanguageVersion()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.finalize();
     t.compilerOptionsBuilder->updateFileLanguage(ProjectFile::CXXSource);
     t.compilerOptionsBuilder->updateFileLanguage(ProjectFile::CXXHeader);
@@ -509,9 +510,9 @@ void CppToolsPlugin::test_optionsBuilder_updateLanguageVersion()
     QCOMPARE(t.compilerOptionsBuilder->options(), (QStringList{"-x", "c++-header"}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_updateLanguageVersionMsvc()
+void CompilerOptionsBuilderTest::testUpdateLanguageVersionMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize()};
     compilerOptionsBuilder.evaluateCompilerFlags();
@@ -521,9 +522,9 @@ void CppToolsPlugin::test_optionsBuilder_updateLanguageVersionMsvc()
     QCOMPARE(compilerOptionsBuilder.options(), QStringList("/TC"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addMsvcCompatibilityVersion()
+void CompilerOptionsBuilderTest::testAddMsvcCompatibilityVersion()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.toolchainMacros.append(Macro{"_MSC_FULL_VER", "190000000"});
     t.finalize();
@@ -532,9 +533,9 @@ void CppToolsPlugin::test_optionsBuilder_addMsvcCompatibilityVersion()
     QCOMPARE(t.compilerOptionsBuilder->options(), QStringList("-fms-compatibility-version=19.00"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_undefineCppLanguageFeatureMacrosForMsvc2015()
+void CompilerOptionsBuilderTest::testUndefineCppLanguageFeatureMacrosForMsvc2015()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.isMsvc2015 = true;
     t.finalize();
@@ -543,9 +544,9 @@ void CppToolsPlugin::test_optionsBuilder_undefineCppLanguageFeatureMacrosForMsvc
     QVERIFY(t.compilerOptionsBuilder->options().contains("-U__cpp_aggregate_bases"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addDefineFunctionMacrosMsvc()
+void CompilerOptionsBuilderTest::testAddDefineFunctionMacrosMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.finalize();
     t.compilerOptionsBuilder->addDefineFunctionMacrosMsvc();
@@ -554,9 +555,9 @@ void CppToolsPlugin::test_optionsBuilder_addDefineFunctionMacrosMsvc()
         "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\""));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addProjectConfigFileInclude()
+void CompilerOptionsBuilderTest::testAddProjectConfigFileInclude()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.projectConfigFile = "dummy_file.h";
     t.finalize();
     t.compilerOptionsBuilder->addProjectConfigFileInclude();
@@ -564,9 +565,9 @@ void CppToolsPlugin::test_optionsBuilder_addProjectConfigFileInclude()
     QCOMPARE(t.compilerOptionsBuilder->options(), (QStringList{"-include", "dummy_file.h"}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_addProjectConfigFileIncludeMsvc()
+void CompilerOptionsBuilderTest::testAddProjectConfigFileIncludeMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.projectConfigFile = "dummy_file.h";
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize()};
@@ -576,9 +577,9 @@ void CppToolsPlugin::test_optionsBuilder_addProjectConfigFileIncludeMsvc()
     QCOMPARE(compilerOptionsBuilder.options(), (QStringList{"/FI", "dummy_file.h"}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_noUndefineClangVersionMacrosForNewMsvc()
+void CompilerOptionsBuilderTest::testNoUndefineClangVersionMacrosForNewMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.finalize();
     t.compilerOptionsBuilder->undefineClangVersionMacrosForMsvc();
@@ -586,9 +587,9 @@ void CppToolsPlugin::test_optionsBuilder_noUndefineClangVersionMacrosForNewMsvc(
     QVERIFY(!t.compilerOptionsBuilder->options().contains("-U__clang__"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_undefineClangVersionMacrosForOldMsvc()
+void CompilerOptionsBuilderTest::testUndefineClangVersionMacrosForOldMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.toolchainMacros = {Macro{"_MSC_FULL_VER", "1300"}, Macro{"_MSC_VER", "13"}};
     t.finalize();
@@ -597,9 +598,9 @@ void CppToolsPlugin::test_optionsBuilder_undefineClangVersionMacrosForOldMsvc()
     QVERIFY(t.compilerOptionsBuilder->options().contains("-U__clang__"));
 }
 
-void CppToolsPlugin::test_optionsBuilder_buildAllOptions()
+void CompilerOptionsBuilderTest::testBuildAllOptions()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.extraFlags = QStringList{"-arch", "x86_64"};
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
@@ -621,9 +622,9 @@ void CppToolsPlugin::test_optionsBuilder_buildAllOptions()
                           "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_buildAllOptionsMsvc()
+void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
@@ -649,9 +650,9 @@ void CppToolsPlugin::test_optionsBuilder_buildAllOptionsMsvc()
                           "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 
-void CppToolsPlugin::test_optionsBuilder_buildAllOptionsMsvcWithExceptions()
+void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
 {
-    CompilerOptionsBuilderTest t;
+    TestHelper t;
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     t.toolchainMacros.append(Macro{"_CPPUNWIND", "1"});
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,

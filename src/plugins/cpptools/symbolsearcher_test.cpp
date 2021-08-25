@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "symbolsearcher_test.h"
 
 #include "builtinindexingsupport.h"
 #include "cppmodelmanager.h"
@@ -120,7 +120,7 @@ template<> char *toString(const ResultData &data)
 } // namespace QTest
 QT_END_NAMESPACE
 
-void CppToolsPlugin::test_builtinsymbolsearcher()
+void SymbolSearcherTest::test()
 {
     QFETCH(QString, testFile);
     QFETCH(SymbolSearcher::Parameters, searchParameters);
@@ -129,7 +129,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher()
     SymbolSearcherTestCase(testFile, searchParameters, expectedResults);
 }
 
-void CppToolsPlugin::test_builtinsymbolsearcher_data()
+void SymbolSearcherTest::test_data()
 {
     QTest::addColumn<QString>("testFile");
     QTest::addColumn<SymbolSearcher::Parameters>("searchParameters");

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "cpplocalsymbols_test.h"
 
 #include "cpplocalsymbols.h"
 #include "cppsemanticinfo.h"
@@ -131,7 +131,7 @@ QT_END_NAMESPACE
 namespace CppTools {
 namespace Internal {
 
-void CppToolsPlugin::test_cpplocalsymbols_data()
+void LocalSymbolsTest::test_data()
 {
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<QList<Result>>("expectedUses");
@@ -165,7 +165,7 @@ void CppToolsPlugin::test_cpplocalsymbols_data()
             << Result(_("func"), 3, 5, 4));
 }
 
-void CppToolsPlugin::test_cpplocalsymbols()
+void LocalSymbolsTest::test()
 {
     QFETCH(QByteArray, source);
     QFETCH(QList<Result>, expectedUses);

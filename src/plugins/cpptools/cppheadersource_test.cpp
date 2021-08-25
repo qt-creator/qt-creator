@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "cppheadersource_test.h"
+
 #include "cpptoolsplugin.h"
 #include "cpptoolsreuse.h"
 #include "cpptoolstestcase.h"
@@ -52,7 +54,7 @@ static QString baseTestDir()
 namespace CppTools {
 namespace Internal {
 
-void CppToolsPlugin::test_headersource()
+void HeaderSourceTest::test()
 {
     QFETCH(QString, sourceFileName);
     QFETCH(QString, headerFileName);
@@ -67,15 +69,15 @@ void CppToolsPlugin::test_headersource()
     createTempFile(headerPath);
 
     bool wasHeader;
-    clearHeaderSourceCache();
+    CppToolsPlugin::clearHeaderSourceCache();
     QCOMPARE(correspondingHeaderOrSource(sourcePath, &wasHeader), headerPath);
     QVERIFY(!wasHeader);
-    clearHeaderSourceCache();
+    CppToolsPlugin::clearHeaderSourceCache();
     QCOMPARE(correspondingHeaderOrSource(headerPath, &wasHeader), sourcePath);
     QVERIFY(wasHeader);
 }
 
-void CppToolsPlugin::test_headersource_data()
+void HeaderSourceTest::test_data()
 {
     QTest::addColumn<QString>("sourceFileName");
     QTest::addColumn<QString>("headerFileName");
@@ -86,10 +88,10 @@ void CppToolsPlugin::test_headersource_data()
     QTest::newRow("sourceAndHeaderPrefixWithBothsub") << _("src/testc_foo.cpp") << _("include/testh_foo.h");
 }
 
-void CppToolsPlugin::initTestCase()
+void HeaderSourceTest::initTestCase()
 {
     QDir(baseTestDir()).mkpath(_("."));
-    CppFileSettings *fs = fileSettings();
+    CppFileSettings *fs = CppToolsPlugin::fileSettings();
     fs->headerSearchPaths.append(QLatin1String("include"));
     fs->headerSearchPaths.append(QLatin1String("../include"));
     fs->sourceSearchPaths.append(QLatin1String("src"));
@@ -98,10 +100,10 @@ void CppToolsPlugin::initTestCase()
     fs->sourcePrefixes.append(QLatin1String("testc_"));
 }
 
-void CppToolsPlugin::cleanupTestCase()
+void HeaderSourceTest::cleanupTestCase()
 {
     Utils::FilePath::fromString(baseTestDir()).removeRecursively();
-    CppFileSettings *fs = fileSettings();
+    CppFileSettings *fs = CppToolsPlugin::fileSettings();
     fs->headerSearchPaths.removeLast();
     fs->headerSearchPaths.removeLast();
     fs->sourceSearchPaths.removeLast();

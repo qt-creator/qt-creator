@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "cppsourceprocessor_test.h"
 
 #include "baseeditordocumentprocessor.h"
 #include "cppmodelmanager.h"
@@ -90,7 +90,7 @@ private:
 };
 
 /// Check: Resolved and unresolved includes are properly tracked.
-void CppToolsPlugin::test_cppsourceprocessor_includes_resolvedUnresolved()
+void SourceProcessorTest::testIncludesResolvedUnresolved()
 {
     const QString testFilePath
             = TestIncludePaths::testFilePath(QLatin1String("test_main_resolvedUnresolved.cpp"));
@@ -115,7 +115,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_resolvedUnresolved()
 }
 
 /// Check: Avoid self-include entries due to cyclic includes.
-void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
+void SourceProcessorTest::testIncludesCyclic()
 {
     const QString fileName1 = TestIncludePaths::testFilePath(QLatin1String("cyclic1.h"));
     const QString fileName2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
@@ -154,7 +154,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
 }
 
 /// Check: All include errors are reported as diagnostic messages.
-void CppToolsPlugin::test_cppsourceprocessor_includes_allDiagnostics()
+void SourceProcessorTest::testIncludesAllDiagnostics()
 {
     const QString testFilePath
             = TestIncludePaths::testFilePath(QLatin1String("test_main_allDiagnostics.cpp"));
@@ -168,7 +168,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_allDiagnostics()
     QCOMPARE(document->diagnosticMessages().size(), 3);
 }
 
-void CppToolsPlugin::test_cppsourceprocessor_macroUses()
+void SourceProcessorTest::testMacroUses()
 {
     const QString testFilePath
             = TestIncludePaths::testFilePath(QLatin1String("test_main_macroUses.cpp"));
@@ -198,7 +198,7 @@ static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document
 
 static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-void CppToolsPlugin::test_cppsourceprocessor_includeNext()
+void SourceProcessorTest::testIncludeNext()
 {
     const Core::Tests::TestDataDir data(
         _(SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/"));

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "cpplocatorfilter_test.h"
 
 #include "cppclassesfilter.h"
 #include "cppcurrentdocumentfilter.h"
@@ -137,7 +137,7 @@ private:
 
 } // anonymous namespace
 
-void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
+void LocatorFilterTest::testLocatorFilter()
 {
     QFETCH(QString, testFile);
     QFETCH(ILocatorFilter *, filter);
@@ -149,7 +149,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
     CppLocatorFilterTestCase(filter, testFile, searchText, expectedResults);
 }
 
-void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
+void LocatorFilterTest::testLocatorFilter_data()
 {
     QTest::addColumn<QString>("testFile");
     QTest::addColumn<ILocatorFilter *>("filter");
@@ -321,7 +321,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
            };
 }
 
-void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
+void LocatorFilterTest::testCurrentDocumentFilter()
 {
     MyTestDataDir testDirectory("testdata_basic");
     const QString testFile = testDirectory.file("file1.cpp");
@@ -375,7 +375,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
     CppCurrentDocumentFilterTestCase(testFile, expectedResults);
 }
 
-void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentHighlighting()
+void LocatorFilterTest::testCurrentDocumentHighlighting()
 {
     MyTestDataDir testDirectory("testdata_basic");
     const QString testFile = testDirectory.file("file1.cpp");
@@ -399,7 +399,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentHighlighting()
     CppCurrentDocumentFilterTestCase(testFile, expectedResults, searchText);
 }
 
-void CppToolsPlugin::test_cpplocatorfilters_CppFunctionsFilterHighlighting()
+void LocatorFilterTest::testFunctionsFilterHighlighting()
 {
     MyTestDataDir testDirectory("testdata_basic");
     const QString testFile = testDirectory.file("file1.cpp");

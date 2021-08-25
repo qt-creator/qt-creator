@@ -28,6 +28,7 @@
 #include "cpptools_global.h"
 
 #include <QList>
+#include <QObject>
 
 namespace CPlusPlus {
 class Class;
@@ -55,5 +56,18 @@ public:
                                                   CPlusPlus::Class *staticClass,
                                                   const CPlusPlus::Snapshot &snapshot);
 };
+
+#ifdef WITH_TESTS
+namespace Internal {
+class FunctionUtilsTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testVirtualFunctions();
+    void testVirtualFunctions_data();
+};
+} // namespace Internal
+#endif // WITH_TESTS
 
 } // namespace CppTools

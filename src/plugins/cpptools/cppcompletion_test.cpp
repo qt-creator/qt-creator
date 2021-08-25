@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
+#include "cppcompletion_test.h"
+
 #include "cppcompletionassist.h"
 #include "cppdoxygen.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
 
 #include <texteditor/codeassist/iassistproposal.h>
@@ -34,6 +35,7 @@
 #include <texteditor/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/changeset.h>
 #include <utils/textutils.h>
 #include <utils/fileutils.h>
@@ -185,7 +187,7 @@ bool isDoxygenTagCompletion(const QStringList &list)
 
 } // anonymous namespace
 
-void CppToolsPlugin::test_completion_basic_1()
+void CompletionTest::testCompletionBasic1()
 {
     const QByteArray source =
             "class Foo\n"
@@ -217,7 +219,7 @@ void CppToolsPlugin::test_completion_basic_1()
     QVERIFY(!memberCompletions.contains(QLatin1String("f")));
 }
 
-void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
+void CompletionTest::testCompletionPrefixFirstQTCREATORBUG_8737()
 {
     const QByteArray source =
             "void f()\n"
@@ -237,7 +239,7 @@ void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
     QVERIFY(completions.contains(QLatin1String("a_b_c")));
 }
 
-void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
+void CompletionTest::testCompletionPrefixFirstQTCREATORBUG_9236()
 {
     const QByteArray source =
             "class r_etclass\n"
@@ -266,7 +268,7 @@ void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
     QVERIFY(completions.contains(QLatin1String("r_et")));
 }
 
-void CppToolsPlugin::test_completion_template_function()
+void CompletionTest::testCompletionTemplateFunction()
 {
     QFETCH(QByteArray, code);
     QFETCH(QStringList, expectedCompletions);
@@ -282,7 +284,7 @@ void CppToolsPlugin::test_completion_template_function()
     }
 }
 
-void CppToolsPlugin::test_completion_template_function_data()
+void CompletionTest::testCompletionTemplateFunction_data()
 {
     QTest::addColumn<QByteArray>("code");
     QTest::addColumn<QStringList>("expectedCompletions");
@@ -322,7 +324,7 @@ void CppToolsPlugin::test_completion_template_function_data()
             << code << completions;
 }
 
-void CppToolsPlugin::test_completion()
+void CompletionTest::testCompletion()
 {
     QFETCH(QByteArray, code);
     QFETCH(QByteArray, prefix);
@@ -348,7 +350,7 @@ void CppToolsPlugin::test_completion()
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
-void CppToolsPlugin::test_global_completion_data()
+void CompletionTest::testGlobalCompletion_data()
 {
     QTest::addColumn<QByteArray>("code");
     QTest::addColumn<QByteArray>("prefix");
@@ -378,7 +380,7 @@ void CppToolsPlugin::test_global_completion_data()
     }
 }
 
-void CppToolsPlugin::test_global_completion()
+void CompletionTest::testGlobalCompletion()
 {
     QFETCH(QByteArray, code);
     QFETCH(QByteArray, prefix);
@@ -391,7 +393,7 @@ void CppToolsPlugin::test_global_completion()
     QVERIFY(Utils::toSet(completions).contains(Utils::toSet(requiredCompletionItems)));
 }
 
-void CppToolsPlugin::test_doxygen_tag_completion_data()
+void CompletionTest::testDoxygenTagCompletion_data()
 {
     QTest::addColumn<QByteArray>("code");
 
@@ -407,7 +409,7 @@ void CppToolsPlugin::test_doxygen_tag_completion_data()
               " */\n");
 }
 
-void CppToolsPlugin::test_doxygen_tag_completion()
+void CompletionTest::testDoxygenTagCompletion()
 {
     QFETCH(QByteArray, code);
 
@@ -435,7 +437,7 @@ static void enumTestCase(const QByteArray &tag, const QByteArray &source,
             << QStringList({"val1", "val2", "val3"});
 }
 
-void CppToolsPlugin::test_completion_data()
+void CompletionTest::testCompletion_data()
 {
     QTest::addColumn<QByteArray>("code");
     QTest::addColumn<QByteArray>("prefix");
@@ -2747,7 +2749,7 @@ void CppToolsPlugin::test_completion_data()
     ) << _("s.begin()->") << QStringList({"Foo", "bar"});
 }
 
-void CppToolsPlugin::test_completion_member_access_operator()
+void CompletionTest::testCompletionMemberAccessOperator()
 {
     QFETCH(QByteArray, code);
     QFETCH(QByteArray, prefix);
@@ -2768,7 +2770,7 @@ void CppToolsPlugin::test_completion_member_access_operator()
     QCOMPARE(replaceAccessOperator, expectedReplaceAccessOperator);
 }
 
-void CppToolsPlugin::test_completion_member_access_operator_data()
+void CompletionTest::testCompletionMemberAccessOperator_data()
 {
     QTest::addColumn<QByteArray>("code");
     QTest::addColumn<QByteArray>("prefix");

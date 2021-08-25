@@ -23,7 +23,8 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "cppcodegen_test.h"
+
 #include "cpptoolstestcase.h"
 #include "insertionpointlocator.h"
 
@@ -73,7 +74,7 @@ Document::Ptr createDocumentAndFile(Tests::TemporaryDir *temporaryDir,
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and without suffix.
  */
-void CppToolsPlugin::test_codegen_public_in_empty_class()
+void CodegenTest::testPublicInEmptyClass()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -106,7 +107,7 @@ void CppToolsPlugin::test_codegen_public_in_empty_class()
 /*!
     Should insert at line 3, column 1, without prefix and without suffix.
  */
-void CppToolsPlugin::test_codegen_public_in_nonempty_class()
+void CodegenTest::testPublicInNonemptyClass()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -140,7 +141,7 @@ void CppToolsPlugin::test_codegen_public_in_nonempty_class()
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and "\n suffix.
  */
-void CppToolsPlugin::test_codegen_public_before_protected()
+void CodegenTest::testPublicBeforeProtected()
 {
     const QByteArray src = "\n"
             "class Foo\n"  // line 1
@@ -175,7 +176,7 @@ void CppToolsPlugin::test_codegen_public_before_protected()
     Should insert at line 4, column 1, with "private:\n" as prefix and without
     suffix.
  */
-void CppToolsPlugin::test_codegen_private_after_protected()
+void CodegenTest::testPrivateAfterProtected()
 {
     const QByteArray src = "\n"
             "class Foo\n"  // line 1
@@ -210,7 +211,7 @@ void CppToolsPlugin::test_codegen_private_after_protected()
     Should insert at line 4, column 1, with "protected:\n" as prefix and without
     suffix.
  */
-void CppToolsPlugin::test_codegen_protected_in_nonempty_class()
+void CodegenTest::testProtectedInNonemptyClass()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -244,7 +245,7 @@ void CppToolsPlugin::test_codegen_protected_in_nonempty_class()
 /*!
     Should insert at line 4, column 1, with "protected\n" as prefix and "\n" suffix.
  */
-void CppToolsPlugin::test_codegen_protected_between_public_and_private()
+void CodegenTest::testProtectedBetweenPublicAndPrivate()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -283,7 +284,7 @@ void CppToolsPlugin::test_codegen_protected_between_public_and_private()
     This is the typical Qt Designer case, with test-input like what the integration
     generates.
  */
-void CppToolsPlugin::test_codegen_qtdesigner_integration()
+void CodegenTest::testQtdesignerIntegration()
 {
     const QByteArray src = "/**** Some long (C)opyright notice ****/\n"
             "#ifndef MAINWINDOW_H\n"
@@ -332,7 +333,7 @@ void CppToolsPlugin::test_codegen_qtdesigner_integration()
     QCOMPARE(loc.column(), 1);
 }
 
-void CppToolsPlugin::test_codegen_definition_empty_class()
+void CodegenTest::testDefinitionEmptyClass()
 {
     Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -378,7 +379,7 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
     QCOMPARE(loc.column(), 1);
 }
 
-void CppToolsPlugin::test_codegen_definition_first_member()
+void CodegenTest::testDefinitionFirstMember()
 {
     Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -436,7 +437,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
     QCOMPARE(loc.prefix(), QString());
 }
 
-void CppToolsPlugin::test_codegen_definition_last_member()
+void CodegenTest::testDefinitionLastMember()
 {
     Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -495,7 +496,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
     QCOMPARE(loc.suffix(), QString());
 }
 
-void CppToolsPlugin::test_codegen_definition_middle_member()
+void CodegenTest::testDefinitionMiddleMember()
 {
     Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -561,7 +562,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     QCOMPARE(loc.suffix(), QString());
 }
 
-void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefined()
+void CodegenTest::testDefinitionMiddleMemberSurroundedByUndefined()
 {
     Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -621,7 +622,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
     QCOMPARE(loc.suffix(), QLatin1String("\n\n"));
 }
 
-void CppToolsPlugin::test_codegen_definition_member_specific_file()
+void CodegenTest::testDefinitionMemberSpecificFile()
 {
     Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());

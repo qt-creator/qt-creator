@@ -33,6 +33,15 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#ifdef WITH_TESTS
+#include "cppmodelmanager.h"
+#include "cppsourceprocessertesthelper.h"
+#include "cppsourceprocessor.h"
+#include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
+#include <QtTest>
+#endif // WITH_TESTS
+
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -42,7 +51,6 @@
 #include <algorithm>
 
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace CppTools::IncludeUtils;
 using namespace Utils;
 
@@ -116,6 +124,8 @@ int lineAfterFirstComment(const QTextDocument *textDocument)
 }
 
 } // anonymous namespace
+
+namespace CppTools {
 
 LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *textDocument,
                                                        const Document::Ptr cppDocument,
@@ -516,17 +526,7 @@ bool IncludeGroup::hasCommonIncludeDir() const
 }
 
 #ifdef WITH_TESTS
-
-#include "cppmodelmanager.h"
-#include "cppsourceprocessertesthelper.h"
-#include "cppsourceprocessor.h"
-#include "cpptoolsplugin.h"
-#include "cpptoolstestcase.h"
-
-#include <QtTest>
-
 using namespace Tests;
-using CppTools::Internal::CppToolsPlugin;
 
 static QList<Include> includesForSource(const QString &filePath)
 {
@@ -542,7 +542,8 @@ static QList<Include> includesForSource(const QString &filePath)
     return document->resolvedIncludes();
 }
 
-void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByNewLines()
+namespace Internal {
+void IncludeGroupsTest::testDetectIncludeGroupsByNewLines()
 {
     const QString testFilePath = TestIncludePaths::testFilePath(
                 QLatin1String("test_main_detectIncludeGroupsByNewLines.cpp"));
@@ -584,7 +585,7 @@ void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByNewLines()
     QCOMPARE(IncludeGroup::filterMixedIncludeGroups(includeGroups).size(), 1);
 }
 
-void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeDir()
+void IncludeGroupsTest::testDetectIncludeGroupsByIncludeDir()
 {
     const QString testFilePath = TestIncludePaths::testFilePath(
                 QLatin1String("test_main_detectIncludeGroupsByIncludeDir.cpp"));
@@ -608,7 +609,7 @@ void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeDir()
     QCOMPARE(includeGroups.at(3).commonIncludeDir(), QLatin1String(""));
 }
 
-void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeType()
+void IncludeGroupsTest::testDetectIncludeGroupsByIncludeType()
 {
     const QString testFilePath = TestIncludePaths::testFilePath(
                 QLatin1String("test_main_detectIncludeGroupsByIncludeType.cpp"));
@@ -632,4 +633,8 @@ void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeType()
     QVERIFY(includeGroups.at(3).hasOnlyIncludesOfType(Client::IncludeGlobal));
 }
 
+} // namespace Internal
+
 #endif // WITH_TESTS
+
+} // namespace CppTools

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "typehierarchybuilder_test.h"
 
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
@@ -136,7 +136,7 @@ public:
 
 } // anonymous namespace
 
-void CppToolsPlugin::test_typehierarchy_data()
+void TypeHierarchyBuilderTest::test_data()
 {
     QTest::addColumn<QList<TestDocument> >("documents");
     QTest::addColumn<QString>("expectedHierarchy");
@@ -181,7 +181,7 @@ void CppToolsPlugin::test_typehierarchy_data()
             );
 }
 
-void CppToolsPlugin::test_typehierarchy()
+void TypeHierarchyBuilderTest::test()
 {
     QFETCH(QList<TestDocument>, documents);
     QFETCH(QString, expectedHierarchy);

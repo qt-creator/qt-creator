@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
+
 #include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
 #include "cppfilesettingspage.h"
@@ -58,6 +59,24 @@
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+
+#ifdef WITH_TESTS
+#include "compileroptionsbuilder_test.h"
+#include "cppcodegen_test.h"
+#include "cppcompletion_test.h"
+#include "cppheadersource_test.h"
+#include "cpplocalsymbols_test.h"
+#include "cpplocatorfilter_test.h"
+#include "cppmodelmanager_test.h"
+#include "cpppointerdeclarationformatter_test.h"
+#include "cppsourceprocessor_test.h"
+#include "functionutils.h"
+#include "includeutils.h"
+#include "projectinfo_test.h"
+#include "senddocumenttracker.h"
+#include "symbolsearcher_test.h"
+#include "typehierarchybuilder_test.h"
+#endif
 
 #include <QFileInfo>
 #include <QDir>
@@ -234,6 +253,32 @@ void CppToolsPlugin::extensionsInitialized()
         d->m_clangdSettingsPage = new ClangdSettingsPage;
 }
 
+QVector<QObject *> CppToolsPlugin::createTestObjects() const
+{
+    return {
+#ifdef WITH_TESTS
+        new CodegenTest,
+        new CompilerOptionsBuilderTest,
+        new CompletionTest,
+        new FunctionUtilsTest,
+        new HeaderPathFilterTest,
+        new HeaderSourceTest,
+        new IncludeGroupsTest,
+        new LocalSymbolsTest,
+        new LocatorFilterTest,
+        new ModelManagerTest,
+        new PointerDeclarationFormatterTest,
+        new ProjectFileCategorizerTest,
+        new ProjectInfoGeneratorTest,
+        new ProjectPartChooserTest,
+        new DocumentTrackerTest,
+        new SourceProcessorTest,
+        new SymbolSearcherTest,
+        new TypeHierarchyBuilderTest,
+#endif
+    };
+}
+
 CppCodeModelSettings *CppToolsPlugin::codeModelSettings()
 {
     return &d->m_codeModelSettings;
@@ -241,7 +286,7 @@ CppCodeModelSettings *CppToolsPlugin::codeModelSettings()
 
 CppFileSettings *CppToolsPlugin::fileSettings()
 {
-    return &d->m_fileSettings;
+    return &instance()->d->m_fileSettings;
 }
 
 void CppToolsPlugin::switchHeaderSource()
