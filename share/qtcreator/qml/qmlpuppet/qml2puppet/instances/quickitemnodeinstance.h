@@ -104,6 +104,7 @@ public:
 
     static void updateDirtyNode(QQuickItem *item);
     static bool unifiedRenderPath();
+    static bool unifiedRenderPathOrQt6();
 
 protected:
     explicit QuickItemNodeInstance(QQuickItem*);

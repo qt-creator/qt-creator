@@ -69,6 +69,7 @@ public:
     void reparentInstances(const ReparentInstancesCommand &command) override;
 
     QImage grabWindow() override;
+    QImage grabItem(QQuickItem *item) override;
 
 protected:
     void initializeView() override;
