@@ -96,12 +96,18 @@ public:
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool isValid() const;
     Client *createClient();
+    Client *createClient(ProjectExplorer::Project *project);
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
 
 protected:
+    // TODO: remove in Qt Creator 6 and rename createInterfaceWithProject back to it
     virtual BaseClientInterface *createInterface() const { return nullptr; }
     virtual Client *createClient(BaseClientInterface *interface) const;
+    virtual BaseClientInterface *createInterfaceWithProject(ProjectExplorer::Project *) const
+    {
+        return createInterface();
+    }
 
     BaseSettings(const BaseSettings &other) = default;
     BaseSettings(BaseSettings &&other) = default;
@@ -131,7 +137,7 @@ public:
     Utils::CommandLine command() const;
 
 protected:
-    BaseClientInterface *createInterface() const override;
+    BaseClientInterface *createInterfaceWithProject(ProjectExplorer::Project *project) const override;
 
     StdIOSettings(const StdIOSettings &other) = default;
     StdIOSettings(StdIOSettings &&other) = default;
