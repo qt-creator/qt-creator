@@ -60,9 +60,6 @@ class TestCase : public CppTools::Tests::TestCase
 {
 public:
     TestCase(bool runGarbageCollector = true);
-    ~TestCase();
-
-    void setUseClangd();
 
     static bool openCppEditor(const QString &fileName,
                               CppEditor **editor,
@@ -70,9 +67,6 @@ public:
 
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
             CppEditorWidget *editorWidget);
-
-private:
-    const bool m_prevUseClangd;
 };
 
 } // namespace Tests

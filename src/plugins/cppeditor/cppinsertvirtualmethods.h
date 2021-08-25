@@ -47,5 +47,20 @@ private:
     InsertVirtualMethodsDialog *m_dialog;
 };
 
+#ifdef WITH_TESTS
+namespace Tests {
+class InsertVirtualMethodsTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_data();
+    void test();
+    void testImplementationFile();
+    void testBaseClassInNamespace();
+};
+} // namespace Tests
+#endif // WITH_TESTS
+
 } // namespace Internal
 } // namespace CppEditor

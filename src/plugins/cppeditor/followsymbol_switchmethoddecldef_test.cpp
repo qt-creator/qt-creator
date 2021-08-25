@@ -23,10 +23,12 @@
 **
 ****************************************************************************/
 
+#include "followsymbol_switchmethoddecldef_test.h"
+
 #include "cppeditor.h"
-#include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
+#include "cppeditorwidget.h"
 
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppelementevaluator.h>
@@ -258,10 +260,20 @@ public:
                const QList<TestDocumentPtr> &testFiles,
                OverrideItemList expectedVirtualFunctionProposal = OverrideItemList());
 
+    ~F2TestCase()
+    {
+        CppTools::ClangdSettings::setUseClangd(m_prevUseClangd);
+    }
+
+    static ProjectExplorer::Kit *m_testKit;
 private:
     static TestDocumentPtr testFileWithInitialCursorMarker(const QList<TestDocumentPtr> &testFiles);
     static TestDocumentPtr testFileWithTargetCursorMarker(const QList<TestDocumentPtr> &testFiles);
+
+    const bool m_prevUseClangd;
 };
+
+ProjectExplorer::Kit *F2TestCase::m_testKit = nullptr;
 
 /// Creates a test case with multiple test files.
 /// Exactly one test document must be provided that contains '@', the initial position marker.
@@ -270,10 +282,12 @@ private:
 F2TestCase::F2TestCase(CppEditorAction action,
                        const QList<TestDocumentPtr> &testFiles,
                        OverrideItemList expectedVirtualFunctionProposal)
+    : m_prevUseClangd(CppTools::ClangdSettings::instance().useClangd())
 {
     QVERIFY(succeededSoFar());
 
-    setUseClangd();
+    if (m_testKit)
+        CppTools::ClangdSettings::setUseClangd(true);
 
     // Check if there are initial and target position markers
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker(testFiles);
@@ -287,11 +301,11 @@ F2TestCase::F2TestCase(CppEditorAction action,
     const QString tag = QLatin1String(QTest::currentDataTag());
     const bool useClangd = CppTools::ClangdSettings::instance().useClangd();
     if (useClangd) {
-        if (curTestName == "test_FollowSymbolUnderCursor_QObject_connect"
-                || curTestName == "test_FollowSymbolUnderCursor_QObject_oldStyleConnect") {
+        if (curTestName == "testFollowSymbolQObjectConnect"
+                || curTestName == "testFollowSymbolQObjectOldStyleConnect") {
             QSKIP("TODO: Implement fall-back");
         }
-        if (curTestName == "test_FollowSymbolUnderCursor_classOperator" && tag == "backward")
+        if (curTestName == "testFollowClassOperator" && tag == "backward")
             QSKIP("clangd goes to operator name first");
         if (tag.toLower().contains("fuzzy"))
             QSKIP("fuzzy matching is not supposed to work with clangd"); // TODO: Implement fallback as we do with libclang
@@ -301,7 +315,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
                 || tag == "fromDestructorBody") {
             QSKIP("clangd wants the cursor before the ~ character");
         }
-        if (curTestName == "test_FollowSymbolUnderCursor_classOperator_inOp")
+        if (curTestName == "testFollowClassOperatorInOp")
             QSKIP("clangd goes to operator name first");
     }
 
@@ -335,8 +349,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QVERIFY2(openProjectResult && openProjectResult.project(),
                  qPrintable(openProjectResult.errorMessage()));
         projectCloser.setProject(openProjectResult.project());
-        openProjectResult.project()->configureAsExampleProject(
-                    CppEditorPlugin::instance()->m_testKit);
+        openProjectResult.project()->configureAsExampleProject(m_testKit);
 
         // Wait until project is fully indexed.
         QVERIFY(CppTools::Tests::waitForSignalOrTimeout(openProjectResult.project(),
@@ -392,7 +405,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         FollowSymbolInterface &delegate = CppModelManager::instance()->followSymbolInterface();
         auto* builtinFollowSymbol = dynamic_cast<FollowSymbolUnderCursor *>(&delegate);
         if (!builtinFollowSymbol) {
-            if (curTestName == "test_FollowSymbolUnderCursor_QTCREATORBUG7903")
+            if (curTestName == "testFollowSymbolQTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
             widget->inTestMode = true;
             widget->openLinkUnderCursor();
@@ -541,7 +554,7 @@ Q_DECLARE_METATYPE(QList<CppEditor::Internal::TestDocumentPtr>)
 namespace CppEditor {
 namespace Internal {
 
-void CppEditorPlugin::initTestCase()
+void FollowSymbolTest::initTestCase()
 {
     const QString clangdFromEnv = qEnvironmentVariable("QTC_CLANGD");
     if (clangdFromEnv.isEmpty())
@@ -552,14 +565,14 @@ void CppEditorPlugin::initTestCase()
         return;
 
     // Find suitable kit.
-    m_testKit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+    F2TestCase::m_testKit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
         return k->isValid();
     });
-    if (!m_testKit)
+    if (!F2TestCase::m_testKit)
         QSKIP("This test requires at least one kit to be present");
 }
 
-void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
+void FollowSymbolTest::testSwitchMethodDeclDef_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("source");
@@ -851,7 +864,7 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
                  "Foo::@operator int() const { return {}; }\n");
 }
 
-void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
+void FollowSymbolTest::testSwitchMethodDeclDef()
 {
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, source);
@@ -863,7 +876,7 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
     F2TestCase(F2TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
+void FollowSymbolTest::testFollowSymbol_data()
 {
     QTest::addColumn<QByteArray>("source");
 
@@ -1308,13 +1321,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     );
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor()
+void FollowSymbolTest::testFollowSymbol()
 {
     QFETCH(QByteArray, source);
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_QTCREATORBUG7903_data()
+void FollowSymbolTest::testFollowSymbolQTCREATORBUG7903_data()
 {
     QTest::addColumn<QByteArray>("source");
     QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
@@ -1353,13 +1366,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QTCREATORBUG7903_data()
     );
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_QTCREATORBUG7903()
+void FollowSymbolTest::testFollowSymbolQTCREATORBUG7903()
 {
     QFETCH(QByteArray, source);
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall_data()
+void FollowSymbolTest::testFollowCall_data()
 {
     QTest::addColumn<QByteArray>("variableDeclaration"); // without semicolon, can be ""
     QTest::addColumn<QByteArray>("callArgument");
@@ -1398,7 +1411,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall_data()
             << _("const Bar &");
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall()
+void FollowSymbolTest::testFollowCall()
 {
     QFETCH(QByteArray, variableDeclaration);
     QFETCH(QByteArray, callArgument);
@@ -1426,7 +1439,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
+void FollowSymbolTest::testFollowSymbolMultipleDocuments_data()
 {
     QTest::addColumn<QList<TestDocumentPtr> >("documents");
 
@@ -1537,13 +1550,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
             "}\n", "file.cpp")};
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments()
+void FollowSymbolTest::testFollowSymbolMultipleDocuments()
 {
     QFETCH(QList<TestDocumentPtr>, documents);
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, documents);
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect_data()
+void FollowSymbolTest::testFollowSymbolQObjectConnect_data()
 {
 #define TAG(str) secondQObjectParam ? str : str ", no 2nd QObject"
     QTest::addColumn<char>("start");
@@ -1595,7 +1608,7 @@ static void selectMarker(QByteArray *source, char marker, char number)
     }
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
+void FollowSymbolTest::testFollowSymbolQObjectConnect()
 {
     QFETCH(char, start);
     QFETCH(char, target);
@@ -1646,7 +1659,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_oldStyleConnect()
+void FollowSymbolTest::testFollowSymbolQObjectOldStyleConnect()
 {
     const QByteArray source =
             "class O : public QObject {\n"
@@ -1666,14 +1679,14 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_oldStyleConnect()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data()
+void FollowSymbolTest::testFollowClassOperatorOnOperatorToken_data()
 {
     QTest::addColumn<bool>("toDeclaration");
     QTest::newRow("forward") << false;
     QTest::newRow("backward") << true;
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken()
+void FollowSymbolTest::testFollowClassOperatorOnOperatorToken()
 {
     QFETCH(bool, toDeclaration);
 
@@ -1689,12 +1702,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_data()
+void FollowSymbolTest::testFollowClassOperator_data()
 {
-    test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data();
+    testFollowClassOperatorOnOperatorToken_data();
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator()
+void FollowSymbolTest::testFollowClassOperator()
 {
     QFETCH(bool, toDeclaration);
 
@@ -1714,12 +1727,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp_data()
+void FollowSymbolTest::testFollowClassOperatorInOp_data()
 {
-    test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data();
+    testFollowClassOperatorOnOperatorToken_data();
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
+void FollowSymbolTest::testFollowClassOperatorInOp()
 {
     QFETCH(bool, toDeclaration);
 
@@ -1739,7 +1752,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
+void FollowSymbolTest::testFollowVirtualFunctionCall_data()
 {
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<OverrideItemList>("results");
@@ -2038,7 +2051,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             << OverrideItem(QLatin1String("Derived::virt"), 2));
 }
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
+void FollowSymbolTest::testFollowVirtualFunctionCall()
 {
     QFETCH(QByteArray, source);
     QFETCH(OverrideItemList, results);
@@ -2047,7 +2060,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
 }
 
 /// Check: Base classes can be found although these might be defined in distinct documents.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments()
+void FollowSymbolTest::testFollowVirtualFunctionCallMultipleDocuments()
 {
     QList<TestDocumentPtr> testFiles = QList<TestDocumentPtr>()
             << TestDocument::create("struct A { virtual void virt(int) = 0; };\n",

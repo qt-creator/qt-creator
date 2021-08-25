@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
+#include "cppuseselections_test.h"
+
 #include "cppeditor.h"
 #include "cppeditorwidget.h"
-#include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -157,9 +158,7 @@ SelectionList UseSelectionsTestCase::waitForUseSelections(bool *hasTimedOut) con
     return toSelectionList(extraSelections);
 }
 
-} // namespace Tests
-
-void CppEditorPlugin::test_useSelections_data()
+void SelectionsTest::testUseSelections_data()
 {
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<SelectionList>("expectedSelections");
@@ -249,7 +248,7 @@ void CppEditorPlugin::test_useSelections_data()
             << macroUseSelections;
 }
 
-void CppEditorPlugin::test_useSelections()
+void SelectionsTest::testUseSelections()
 {
     QFETCH(QByteArray, source);
     QFETCH(SelectionList, expectedSelections);
@@ -258,7 +257,7 @@ void CppEditorPlugin::test_useSelections()
     Tests::UseSelectionsTestCase(testDocument, expectedSelections);
 }
 
-void CppEditorPlugin::test_selectionFiltering_data()
+void SelectionsTest::testSelectionFiltering_data()
 {
     QTest::addColumn<QString>("source");
     QTest::addColumn<SelectionList>("original");
@@ -284,7 +283,7 @@ void CppEditorPlugin::test_selectionFiltering_data()
             << SelectionList{{3, 4, 27}, {4, 8, 11}, {5, 4, 1}};
 }
 
-void CppEditorPlugin::test_selectionFiltering()
+void SelectionsTest::testSelectionFiltering()
 {
     QFETCH(QString, source);
     QFETCH(SelectionList, original);
@@ -323,5 +322,6 @@ void CppEditorPlugin::test_selectionFiltering()
     }
 }
 
+} // namespace Tests
 } // namespace Internal
 } // namespace CppEditor

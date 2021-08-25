@@ -32,8 +32,23 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
-using namespace CppEditor;
-using namespace Internal;
+#ifdef WITH_TESTS
+#include "cppeditor.h"
+#include "cppeditorconstants.h"
+#include "cppeditorplugin.h"
+#include "cppeditorwidget.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditorsettings.h>
+#include <utils/executeondestruction.h>
+
+#include <QtTest>
+
+#endif // WITH_TESTS
+
+namespace CppEditor::Internal {
 
 bool CppAutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
                                                  const QString &textToInsert) const
@@ -84,22 +99,7 @@ QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) co
 }
 
 #ifdef WITH_TESTS
-
-#include "cppeditor.h"
-#include "cppeditorwidget.h"
-#include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
-
-#include <coreplugin/editormanager/editormanager.h>
-
-#include <texteditor/icodestylepreferences.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
-
-#include <QtTest>
-
-#include <utils/executeondestruction.h>
+namespace Tests {
 
 enum FileContent {
     EmptyFile,
@@ -204,7 +204,6 @@ static QChar closingChar(QChar c)
     return QChar();
 }
 
-namespace CppEditor { // MSVC Workaround: error C2872: 'CppEditor': ambiguous symbol
 static QTextCursor openEditor(const QString &text)
 {
     QTextCursor tc;
@@ -232,9 +231,8 @@ static QTextCursor openEditor(const QString &text)
     }
     return tc;
 }
-} // namespace CppEditor
 
-void CppEditorPlugin::test_autoComplete_data()
+void AutoCompleterTest::testAutoComplete_data()
 {
     QTest::addColumn<QString>("text");
     QTest::addColumn<QString>("textToInsert");
@@ -282,7 +280,7 @@ void CppEditorPlugin::test_autoComplete_data()
     }
 }
 
-void CppEditorPlugin::test_autoComplete()
+void AutoCompleterTest::testAutoComplete()
 {
     QFETCH(QString, text);
     QFETCH(QString, textToInsert);
@@ -307,7 +305,7 @@ void CppEditorPlugin::test_autoComplete()
     QCOMPARE(skippedChars, expectedSkippedChars);
 }
 
-void CppEditorPlugin::test_surroundWithSelection_data()
+void AutoCompleterTest::testSurroundWithSelection_data()
 {
     QTest::addColumn<QString>("text");
     QTest::addColumn<QString>("textToInsert");
@@ -344,7 +342,7 @@ void CppEditorPlugin::test_surroundWithSelection_data()
                        + closingChar(c));
 }
 
-void CppEditorPlugin::test_surroundWithSelection()
+void AutoCompleterTest::testSurroundWithSelection()
 {
     QFETCH(QString, text);
     QFETCH(QString, textToInsert);
@@ -365,7 +363,7 @@ void CppEditorPlugin::test_surroundWithSelection()
     QCOMPARE(matchingText, expectedText);
 }
 
-void CppEditorPlugin::test_autoBackspace_data()
+void AutoCompleterTest::testAutoBackspace_data()
 {
     QTest::addColumn<QString>("text");
     QTest::addColumn<bool>("expectedStopHandling");
@@ -380,7 +378,7 @@ void CppEditorPlugin::test_autoBackspace_data()
     }
 }
 
-void CppEditorPlugin::test_autoBackspace()
+void AutoCompleterTest::testAutoBackspace()
 {
     QFETCH(QString, text);
     QFETCH(bool, expectedStopHandling);
@@ -399,7 +397,7 @@ void CppEditorPlugin::test_autoBackspace()
     QCOMPARE(stopHandling, expectedStopHandling);
 }
 
-void CppEditorPlugin::test_insertParagraph_data()
+void AutoCompleterTest::testInsertParagraph_data()
 {
     QTest::addColumn<QString>("text");
     QTest::addColumn<int>("expectedBlockCount");
@@ -422,7 +420,7 @@ void CppEditorPlugin::test_insertParagraph_data()
             << 1;
 }
 
-void CppEditorPlugin::test_insertParagraph()
+void AutoCompleterTest::testInsertParagraph()
 {
     QFETCH(QString, text);
     QFETCH(int, expectedBlockCount);
@@ -444,4 +442,7 @@ void CppEditorPlugin::test_insertParagraph()
     QCOMPARE(blockCount, expectedBlockCount);
 }
 
-#endif
+} // namespace Tests
+#endif // WITH_TESTS
+
+} // namespace CppEditor::Internal

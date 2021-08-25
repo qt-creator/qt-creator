@@ -75,7 +75,12 @@ equals(TEST, 1) {
     HEADERS += \
         cppeditortestcase.h \
         cppdoxygen_test.h \
-        cppquickfix_test.h
+        cppincludehierarchy_test.h \
+        cppquickfix_test.h \
+        cppuseselections_test.h \
+        fileandtokenactions_test.h \
+        followsymbol_switchmethoddecldef_test.h
+
     SOURCES += \
         cppdoxygen_test.cpp \
         cppeditortestcase.cpp \

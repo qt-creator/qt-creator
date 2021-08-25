@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
+#include "cppincludehierarchy_test.h"
+
 #include "cppeditor.h"
 #include "cppeditorwidget.h"
-#include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppincludehierarchy.h"
 
@@ -40,8 +41,7 @@
 using namespace CPlusPlus;
 using namespace CppTools;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal::Tests {
 
 namespace {
 
@@ -111,7 +111,7 @@ public:
 
 } // anonymous namespace
 
-void CppEditorPlugin::test_includehierarchy_data()
+void IncludeHierarchyTest::test_data()
 {
     QTest::addColumn<QList<QByteArray> >("documents");
     QTest::addColumn<QString>("expectedHierarchy");
@@ -177,7 +177,7 @@ void CppEditorPlugin::test_includehierarchy_data()
                    );
 }
 
-void CppEditorPlugin::test_includehierarchy()
+void IncludeHierarchyTest::test()
 {
     QFETCH(QList<QByteArray>, documents);
     QFETCH(QString, expectedHierarchy);
@@ -185,5 +185,4 @@ void CppEditorPlugin::test_includehierarchy()
     IncludeHierarchyTestCase(documents, expectedHierarchy);
 }
 
-} // namespace CppEditor
-} // namespace Internal
+} // namespace CppEditor::Internal::Tests

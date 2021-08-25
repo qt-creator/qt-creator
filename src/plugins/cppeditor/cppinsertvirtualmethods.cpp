@@ -1299,15 +1299,7 @@ public:
     void saveSettings() { }
 };
 
-} // namespace Tests
-
-InsertVirtualMethods *InsertVirtualMethods::createTestFactory()
-{
-    return new InsertVirtualMethods(new Tests::InsertVirtualMethodsDialogTest(
-                                        InsertVirtualMethodsDialog::ModeOutsideClass, true, false));
-}
-
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
+void InsertVirtualMethodsTest::test_data()
 {
     QTest::addColumn<InsertVirtualMethodsDialog::ImplementationMode>("implementationMode");
     QTest::addColumn<bool>("insertVirtualKeyword");
@@ -1882,7 +1874,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "};\n");
 }
 
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods()
+void InsertVirtualMethodsTest::test()
 {
     QFETCH(InsertVirtualMethodsDialog::ImplementationMode, implementationMode);
     QFETCH(bool, insertVirtualKeyword);
@@ -1898,7 +1890,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods()
 }
 
 /// Check: Insert in implementation file
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
+void InsertVirtualMethodsTest::testImplementationFile()
 {
     QList<Tests::QuickFixTestDocument::Ptr> testFiles;
     QByteArray original;
@@ -1946,7 +1938,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
 }
 
 /// Check: Qualified names.
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
+void InsertVirtualMethodsTest::testBaseClassInNamespace()
 {
     QList<Tests::QuickFixTestDocument::Ptr> testFiles;
     QByteArray original;
@@ -1998,6 +1990,15 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
                                      false));
     Tests::QuickFixOperationTest(testFiles, &factory);
 }
+
+} // namespace Tests
+
+InsertVirtualMethods *InsertVirtualMethods::createTestFactory()
+{
+    return new InsertVirtualMethods(new Tests::InsertVirtualMethodsDialogTest(
+                                        InsertVirtualMethodsDialog::ModeOutsideClass, true, false));
+}
+
 #endif // WITH_TESTS
 
 } // namespace Internal

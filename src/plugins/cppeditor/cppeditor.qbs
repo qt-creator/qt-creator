@@ -95,11 +95,15 @@ QtcPlugin {
             "cppeditortestcase.cpp",
             "cppeditortestcase.h",
             "cppincludehierarchy_test.cpp",
+            "cppincludehierarchy_test.h",
             "cppquickfix_test.cpp",
             "cppquickfix_test.h",
             "cppuseselections_test.cpp",
+            "cppuseselections_test.h",
             "fileandtokenactions_test.cpp",
+            "fileandtokenactions_test.h",
             "followsymbol_switchmethoddecldef_test.cpp",
+            "followsymbol_switchmethoddecldef_test.h",
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

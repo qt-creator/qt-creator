@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,48 +25,20 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal::Tests {
 
-class CppEditorPluginPrivate;
-class CppQuickFixAssistProvider;
-
-class CppEditorPlugin : public ExtensionSystem::IPlugin
+class SelectionsTest : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppEditor.json")
 
-public:
-    CppEditorPlugin();
-    ~CppEditorPlugin() override;
+private slots:
+    void testUseSelections_data();
+    void testUseSelections();
 
-    static CppEditorPlugin *instance();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
-
-    CppQuickFixAssistProvider *quickFixProvider() const;
-
-signals:
-    void outlineSortingChanged(bool sort);
-    void typeHierarchyRequested();
-    void includeHierarchyRequested();
-
-public:
-    void openDeclarationDefinitionInNextSplit();
-    void openTypeHierarchy();
-    void openIncludeHierarchy();
-    void showPreProcessorDialog();
-    void renameSymbolUnderCursor();
-    void switchDeclarationDefinition();
-
-private:
-    QVector<QObject *> createTestObjects() const override;
-
-    CppEditorPluginPrivate *d = nullptr;
+    void testSelectionFiltering_data();
+    void testSelectionFiltering();
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests

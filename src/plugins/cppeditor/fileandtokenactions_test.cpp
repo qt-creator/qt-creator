@@ -23,10 +23,12 @@
 **
 ****************************************************************************/
 
+#include "fileandtokenactions_test.h"
+
 #include "cppeditor.h"
-#include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
+#include "cppeditorwidget.h"
 #include "cppquickfix.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
@@ -72,8 +74,7 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal::Tests {
 
 namespace {
 
@@ -493,56 +494,55 @@ void SwitchHeaderSourceFileAction::run(CppEditorWidget *)
 
 } // anonymous namespace
 
-void CppEditorPlugin::test_openEachFile()
+void FileAndTokenActionsTest::testOpenEachFile()
 {
     TestActionsTestCase();
 }
 
-void CppEditorPlugin::test_switchHeaderSourceOnEachFile()
+void FileAndTokenActionsTest::testSwitchHeaderSourceOnEachFile()
 {
     TestActionsTestCase(Actions(), singleAction(ActionPointer(new SwitchHeaderSourceFileAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFile()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFile()
 {
     TestActionsTestCase(singleAction(ActionPointer(new NoOpTokenAction)));
 }
 
 /// May block if file does not exist (e.g. a not generated ui_* file).
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFollowSymbol()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndFollowSymbol()
 {
     TestActionsTestCase(singleAction(ActionPointer(new FollowSymbolUnderCursorTokenAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition()
 {
     TestActionsTestCase(singleAction(ActionPointer(new SwitchDeclarationDefinitionTokenAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFindUsages()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndFindUsages()
 {
     TestActionsTestCase(singleAction(ActionPointer(new FindUsagesTokenAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndRenameUsages()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndRenameUsages()
 {
     TestActionsTestCase(singleAction(ActionPointer(new RenameSymbolUnderCursorTokenAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndOpenTypeHierarchy()
 {
     TestActionsTestCase(singleAction(ActionPointer(new OpenTypeHierarchyTokenAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndInvokeCompletion()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndInvokeCompletion()
 {
     TestActionsTestCase(singleAction(ActionPointer(new InvokeCompletionTokenAction)));
 }
 
-void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes()
+void FileAndTokenActionsTest::testMoveTokenWiseThroughEveryFileAndTriggerQuickFixes()
 {
     TestActionsTestCase(singleAction(ActionPointer(new RunAllQuickFixesTokenAction)));
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests

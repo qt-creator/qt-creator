@@ -30,10 +30,9 @@
 
 #include <QByteArray>
 #include <QList>
+#include <QObject>
 #include <QSharedPointer>
 #include <QStringList>
-
-typedef QByteArray _;
 
 namespace CppTools { class CppCodeStylePreferences; }
 namespace TextEditor { class QuickFixOperation; }
@@ -68,8 +67,6 @@ private:
 public:
     QString m_expectedSource;
 };
-
-typedef QList<QuickFixTestDocument::Ptr> QuickFixTestDocuments;
 
 class BaseQuickFixTestCase : public TestCase
 {
@@ -113,22 +110,156 @@ public:
                     int operationIndex = 0);
 };
 
-/// Tests the offered operations provided by a given CppQuickFixFactory
-class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
-{
-public:
-    QuickFixOfferedOperationsTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
-                                  CppQuickFixFactory *factory,
-                                  const ProjectExplorer::HeaderPaths &headerPaths
-                                    = ProjectExplorer::HeaderPaths(),
-                                  const QStringList &expectedOperations = QStringList());
-};
-
 QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,
                                                 const QByteArray &expected);
+
+class QuickfixTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testGeneric_data();
+    void testGeneric();
+
+    void testGenerateGetterSetterNamespaceHandlingCreate_data();
+    void testGenerateGetterSetterNamespaceHandlingCreate();
+    void testGenerateGetterSetterNamespaceHandlingAddUsing_data();
+    void testGenerateGetterSetterNamespaceHandlingAddUsing();
+    void testGenerateGetterSetterNamespaceHandlingFullyQualify_data();
+    void testGenerateGetterSetterNamespaceHandlingFullyQualify();
+    void testGenerateGetterSetterCustomNames_data();
+    void testGenerateGetterSetterCustomNames();
+    void testGenerateGetterSetterValueTypes_data();
+    void testGenerateGetterSetterValueTypes();
+    void testGenerateGetterSetterCustomTemplate();
+    void testGenerateGetterSetterNeedThis();
+    void testGenerateGetterSetterOfferedFixes_data();
+    void testGenerateGetterSetterOfferedFixes();
+    void testGenerateGetterSetterGeneralTests_data();
+    void testGenerateGetterSetterGeneralTests();
+    void testGenerateGetterSetterOnlyGetter();
+    void testGenerateGetterSetterOnlySetter();
+    void testGenerateGetterSetterInlineInHeaderFile();
+    void testGenerateGetterSetterOnlySetterHeaderFileWithIncludeGuard();
+    void testGenerateGettersSetters_data();
+    void testGenerateGettersSetters();
+
+    void testInsertQtPropertyMembers_data();
+    void testInsertQtPropertyMembers();
+
+    void testInsertMemberFromInitialization_data();
+    void testInsertMemberFromInitialization();
+
+    void testConvertQt4ConnectConnectOutOfClass();
+    void testConvertQt4ConnectConnectWithinClass_data();
+    void testConvertQt4ConnectConnectWithinClass();
+    void testConvertQt4ConnectDifferentNamespace();
+
+    void testInsertDefFromDeclAfterClass();
+    void testInsertDefFromDeclHeaderSourceBasic1();
+    void testInsertDefFromDeclHeaderSourceBasic2();
+    void testInsertDefFromDeclHeaderSourceBasic3();
+    void testInsertDefFromDeclHeaderSourceNamespace1();
+    void testInsertDefFromDeclHeaderSourceNamespace2();
+    void testInsertDefFromDeclInsideClass();
+    void testInsertDefFromDeclNotTriggeringWhenDefinitionExists();
+    void testInsertDefFromDeclFindRightImplementationFile();
+    void testInsertDefFromDeclIgnoreSurroundingGeneratedDeclarations();
+    void testInsertDefFromDeclRespectWsInOperatorNames1();
+    void testInsertDefFromDeclRespectWsInOperatorNames2();
+    void testInsertDefFromDeclNoexceptSpecifier();
+    void testInsertDefFromDeclMacroUsesAtEndOfFile1();
+    void testInsertDefFromDeclMacroUsesAtEndOfFile2();
+    void testInsertDefFromDeclErroneousStatementAtEndOfFile();
+    void testInsertDefFromDeclRvalueReference();
+    void testInsertDefFromDeclFunctionTryBlock();
+    void testInsertDefFromDeclUsingDecl();
+    void testInsertDefFromDeclFindImplementationFile();
+    void testInsertDefFromDeclUnicodeIdentifier();
+    void testInsertDefFromDeclTemplateClass();
+    void testInsertDefFromDeclTemplateClassWithValueParam();
+    void testInsertDefFromDeclTemplateFunction();
+    void testInsertDefFromDeclNotTriggeredForFriendFunc();
+    void testInsertDefFromDeclMinimalFunctionParameterType();
+    void testInsertDefsFromDecls_data();
+    void testInsertDefsFromDecls();
+
+    void testInsertDeclFromDef();
+    void testInsertDeclFromDefTemplateFuncTypename();
+    void testInsertDeclFromDefTemplateFuncInt();
+    void testInsertDeclFromDefNotTriggeredForTemplateFunc();
+
+    void testAddIncludeForUndefinedIdentifier_data();
+    void testAddIncludeForUndefinedIdentifier();
+    void testAddIncludeForUndefinedIdentifierNoDoubleQtHeaderInclude();
+
+    void testAddForwardDeclForUndefinedIdentifier_data();
+    void testAddForwardDeclForUndefinedIdentifier();
+
+    void testMoveFuncDefOutsideMemberFuncToCpp();
+    void testMoveFuncDefOutsideMemberFuncToCppInsideNS();
+    void testMoveFuncDefOutsideMemberFuncOutside1();
+    void testMoveFuncDefOutsideMemberFuncOutside2();
+    void testMoveFuncDefOutsideMemberFuncToCppNS();
+    void testMoveFuncDefOutsideMemberFuncToCppNSUsing();
+    void testMoveFuncDefOutsideMemberFuncOutsideWithNs();
+    void testMoveFuncDefOutsideFreeFuncToCpp();
+    void testMoveFuncDefOutsideFreeFuncToCppNS();
+    void testMoveFuncDefOutsideCtorWithInitialization1();
+    void testMoveFuncDefOutsideCtorWithInitialization2();
+    void testMoveFuncDefOutsideAfterClass();
+    void testMoveFuncDefOutsideRespectWsInOperatorNames1();
+    void testMoveFuncDefOutsideRespectWsInOperatorNames2();
+    void testMoveFuncDefOutsideMacroUses();
+    void testMoveFuncDefOutsideTemplate();
+    void testMoveFuncDefOutsideTemplateSpecializedClass();
+    void testMoveFuncDefOutsideUnnamedTemplate();
+    void testMoveFuncDefOutsideMemberFuncToCppStatic();
+    void testMoveFuncDefOutsideMemberFuncToCppWithInlinePartOfName();
+
+    void testMoveAllFuncDefOutsideMemberFuncToCpp();
+    void testMoveAllFuncDefOutsideMemberFuncOutside();
+    void testMoveAllFuncDefOutsideDoNotTriggerOnBaseClass();
+    void testMoveAllFuncDefOutsideClassWithBaseClass();
+    void testMoveAllFuncDefOutsideIgnoreMacroCode();
+
+    void testMoveFuncDefToDeclMemberFunc();
+    void testMoveFuncDefToDeclMemberFuncOutside();
+    void testMoveFuncDefToDeclMemberFuncToCppNS();
+    void testMoveFuncDefToDeclMemberFuncToCppNSUsing();
+    void testMoveFuncDefToDeclMemberFuncOutsideWithNs();
+    void testMoveFuncDefToDeclFreeFuncToCpp();
+    void testMoveFuncDefToDeclFreeFuncToCppNS();
+    void testMoveFuncDefToDeclCtorWithInitialization();
+    void testMoveFuncDefToDeclStructWithAssignedVariable();
+    void testMoveFuncDefToDeclMacroUses();
+    void testMoveFuncDefToDeclOverride();
+    void testMoveFuncDefToDeclTemplate();
+    void testMoveFuncDefToDeclTemplateFunction();
+
+    void testAssignToLocalVariableTemplates();
+
+    void testExtractFunction_data();
+    void testExtractFunction();
+
+    void testExtractLiteralAsParameterTypeDeduction_data();
+    void testExtractLiteralAsParameterTypeDeduction();
+    void testExtractLiteralAsParameterFreeFunctionSeparateFiles();
+    void testExtractLiteralAsParameterMemberFunctionSeparateFiles();
+    void testExtractLiteralAsParameterNotTriggeringForInvalidCode();
+
+    void testAddCurlyBraces();
+
+    void testRemoveUsingNamespace_data();
+    void testRemoveUsingNamespace();
+    void testRemoveUsingNamespaceSimple_data();
+    void testRemoveUsingNamespaceSimple();
+    void testRemoveUsingNamespaceDifferentSymbols();
+
+    void testGenerateConstructor_data();
+    void testGenerateConstructor();
+};
 
 } // namespace Tests
 } // namespace Internal
 } // namespace CppEditor
-
-Q_DECLARE_METATYPE(CppEditor::Internal::Tests::QuickFixTestDocuments)

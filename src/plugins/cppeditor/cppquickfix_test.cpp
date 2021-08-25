@@ -48,15 +48,32 @@
  */
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppEditor::Internal::Tests;
 using namespace CppTools;
 using namespace TextEditor;
 
 using CppTools::Tests::TestIncludePaths;
 
+typedef QByteArray _;
+
+namespace CppEditor::Internal::Tests {
+typedef QList<QuickFixTestDocument::Ptr> QuickFixTestDocuments;
+}
+Q_DECLARE_METATYPE(CppEditor::Internal::Tests::QuickFixTestDocuments)
+
 namespace CppEditor {
 namespace Internal {
 namespace Tests {
+
+/// Tests the offered operations provided by a given CppQuickFixFactory
+class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
+{
+public:
+    QuickFixOfferedOperationsTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
+                                  CppQuickFixFactory *factory,
+                                  const ProjectExplorer::HeaderPaths &headerPaths
+                                    = ProjectExplorer::HeaderPaths(),
+                                  const QStringList &expectedOperations = QStringList());
+};
 
 QuickFixTestDocument::Ptr QuickFixTestDocument::create(const QByteArray &fileName,
                                                        const QByteArray &source,
@@ -341,8 +358,7 @@ typedef QSharedPointer<CppQuickFixFactory> CppQuickFixFactoryPtr;
 
 } // namespace CppEditor
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal::Tests {
 
 class QuickFixSettings
 {
@@ -353,7 +369,7 @@ public:
     ~QuickFixSettings() { *CppQuickFixSettings::instance() = original; }
 };
 
-void CppEditorPlugin::test_quickfix_data()
+void QuickfixTest::testGeneric_data()
 {
     QTest::addColumn<CppQuickFixFactoryPtr>("factory");
     QTest::addColumn<QByteArray>("original");
@@ -1774,7 +1790,7 @@ void CppEditorPlugin::test_quickfix_data()
         << _(R"(const char *str = "àf23бgб1";)");
 }
 
-void CppEditorPlugin::test_quickfix()
+void QuickfixTest::testGeneric()
 {
     QFETCH(CppQuickFixFactoryPtr, factory);
     QFETCH(QByteArray, original);
@@ -1783,7 +1799,7 @@ void CppEditorPlugin::test_quickfix()
     QuickFixOperationTest(singleDocument(original, expected), factory.data());
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingCreate_data()
+void QuickfixTest::testGenerateGetterSetterNamespaceHandlingCreate_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<QByteArrayList>("sources");
@@ -2039,7 +2055,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingCreate
         << QByteArrayList{originalSource, expectedSource};
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingCreate()
+void QuickfixTest::testGenerateGetterSetterNamespaceHandlingCreate()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(QByteArrayList, sources);
@@ -2058,7 +2074,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingCreate
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsing_data()
+void QuickfixTest::testGenerateGetterSetterNamespaceHandlingAddUsing_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<QByteArrayList>("sources");
@@ -2162,7 +2178,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsi
         << QByteArrayList{originalSource, expectedSource};
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsing()
+void QuickfixTest::testGenerateGetterSetterNamespaceHandlingAddUsing()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(QByteArrayList, sources);
@@ -2182,7 +2198,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsi
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQualify_data()
+void QuickfixTest::testGenerateGetterSetterNamespaceHandlingFullyQualify_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<QByteArrayList>("sources");
@@ -2294,7 +2310,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQ
         << QByteArrayList{originalSource, expectedSource};
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQualify()
+void QuickfixTest::testGenerateGetterSetterNamespaceHandlingFullyQualify()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(QByteArrayList, sources);
@@ -2314,7 +2330,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQ
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customNames_data()
+void QuickfixTest::testGenerateGetterSetterCustomNames_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<int>("operation");
@@ -2482,7 +2498,7 @@ signals:
         << QByteArrayList{originalSource, expectedSource} << 0;
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customNames()
+void QuickfixTest::testGenerateGetterSetterCustomNames()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(int, operation);
@@ -2508,7 +2524,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customNames()
     }
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_valueTypes_data()
+void QuickfixTest::testGenerateGetterSetterValueTypes_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<int>("operation");
@@ -2748,7 +2764,7 @@ public:
     QTest::addRow("value template class") << QByteArrayList{originalSource, expectedSource} << 1;
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_valueTypes()
+void QuickfixTest::testGenerateGetterSetterValueTypes()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(int, operation);
@@ -2767,7 +2783,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_valueTypes()
 }
 
 /// Checks: Use template for a custom type
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customTemplate()
+void QuickfixTest::testGenerateGetterSetterCustomTemplate()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -2846,7 +2862,7 @@ void Foo::setBar(const custom<N2::test> &newBar)
 }
 
 /// Checks: if the setter parameter name is the same as the member variable name, this-> is needed
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_needThis()
+void QuickfixTest::testGenerateGetterSetterNeedThis()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -2877,7 +2893,7 @@ public:
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offeredFixes_data()
+void QuickfixTest::testGenerateGetterSetterOfferedFixes_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QStringList>("offered");
@@ -2985,7 +3001,7 @@ class Foo {
     QTest::addRow("existing Q_PROPERTY") << header << offered;
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offeredFixes()
+void QuickfixTest::testGenerateGetterSetterOfferedFixes()
 {
     QFETCH(QByteArray, header);
     QFETCH(QStringList, offered);
@@ -2997,7 +3013,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offeredFixes()
     QuickFixOfferedOperationsTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), offered);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_generalTests_data()
+void QuickfixTest::testGenerateGetterSetterGeneralTests_data()
 {
     QTest::addColumn<int>("operation");
     QTest::addColumn<QByteArray>("original");
@@ -3201,7 +3217,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_generalTests_data()
              "    mFoo = foo;\n"
              "}\n");
 }
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_generalTests()
+void QuickfixTest::testGenerateGetterSetterGeneralTests()
 {
     QFETCH(int, operation);
     QFETCH(QByteArray, original);
@@ -3219,7 +3235,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_generalTests()
                           operation);
 }
 /// Checks: Only generate getter
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter()
+void QuickfixTest::testGenerateGetterSetterOnlyGetter()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -3259,7 +3275,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter()
 }
 
 /// Checks: Only generate setter
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetter()
+void QuickfixTest::testGenerateGetterSetterOnlySetter()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -3299,7 +3315,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetter()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_inlineInHeaderFile()
+void QuickfixTest::testGenerateGetterSetterInlineInHeaderFile()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     const QByteArray original = R"-(
@@ -3351,7 +3367,7 @@ inline void Foo::resetBar()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 4);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFileWithIncludeGuard()
+void QuickfixTest::testGenerateGetterSetterOnlySetterHeaderFileWithIncludeGuard()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     const QByteArray     original =
@@ -3427,7 +3443,7 @@ CppCodeStyleSettings CppCodeStyleSettingsChanger::currentSettings()
     return preferences->currentDelegate()->value().value<CppCodeStyleSettings>();
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGettersSetters_data()
+void QuickfixTest::testGenerateGettersSetters_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -3548,7 +3564,7 @@ inline void Foo::resetBar3()
     QTest::addRow("with candidates") << withCandidates << after;
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGettersSetters()
+void QuickfixTest::testGenerateGettersSetters()
 {
     class TestFactory : public GenerateGettersSettersForClass
     {
@@ -3569,7 +3585,7 @@ void CppEditorPlugin::test_quickfix_GenerateGettersSetters()
     QuickFixOperationTest({QuickFixTestDocument::create("file.h", original, expected)}, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
+void QuickfixTest::testInsertQtPropertyMembers_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -3702,7 +3718,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "}\n");
 }
 
-void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers()
+void QuickfixTest::testInsertQtPropertyMembers()
 {
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
@@ -3717,7 +3733,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers()
     QuickFixOperationTest({QuickFixTestDocument::create("file.cpp", original, expected)}, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization_data()
+void QuickfixTest::testInsertMemberFromInitialization_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -3791,7 +3807,7 @@ void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization_data()
     QTest::addRow("initialization via function call") << original << expected;
 }
 
-void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization()
+void QuickfixTest::testInsertMemberFromInitialization()
 {
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
@@ -3805,7 +3821,7 @@ void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization()
 }
 
 /// Check if definition is inserted right after class for insert definition outside
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
+void QuickfixTest::testInsertDefFromDeclAfterClass()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -3849,7 +3865,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
 
 /// Check from header file: If there is a source file, insert the definition in the source file.
 /// Case: Source file is empty.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
+void QuickfixTest::testInsertDefFromDeclHeaderSourceBasic1()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -3881,7 +3897,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
 
 /// Check from header file: If there is a source file, insert the definition in the source file.
 /// Case: Source file is not empty.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
+void QuickfixTest::testInsertDefFromDeclHeaderSourceBasic2()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -3916,7 +3932,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
 }
 
 /// Check from source file: Insert in source file, not header file.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic3()
+void QuickfixTest::testInsertDefFromDeclHeaderSourceBasic3()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -3946,7 +3962,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic3()
 
 /// Check from header file: If the class is in a namespace, the added function definition
 /// name must be qualified accordingly.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
+void QuickfixTest::testInsertDefFromDeclHeaderSourceNamespace1()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -3980,7 +3996,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
 
 /// Check from header file: If the class is in namespace N and the source file has a
 /// "using namespace N" line, the function definition name must be qualified accordingly.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
+void QuickfixTest::testInsertDefFromDeclHeaderSourceNamespace2()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4016,7 +4032,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
 }
 
 /// Check definition insert inside class
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
+void QuickfixTest::testInsertDefFromDeclInsideClass()
 {
     const QByteArray original =
         "class Foo {\n"
@@ -4035,7 +4051,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
 }
 
 /// Check not triggering when definition exists
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists()
+void QuickfixTest::testInsertDefFromDeclNotTriggeringWhenDefinitionExists()
 {
     const QByteArray original =
             "class Foo {\n"
@@ -4048,7 +4064,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
 }
 
 /// Find right implementation file.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFile()
+void QuickfixTest::testInsertDefFromDeclFindRightImplementationFile()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4098,7 +4114,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFil
 
 /// Ignore generated functions declarations when looking at the surrounding
 /// functions declarations in order to find the right implementation file.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_ignoreSurroundingGeneratedDeclarations()
+void QuickfixTest::testInsertDefFromDeclIgnoreSurroundingGeneratedDeclarations()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4152,7 +4168,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_ignoreSurroundingGenerated
 }
 
 /// Check if whitespace is respected for operator functions
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1()
+void QuickfixTest::testInsertDefFromDeclRespectWsInOperatorNames1()
 {
     QByteArray original =
         "class Foo\n"
@@ -4175,7 +4191,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1(
 }
 
 /// Check if whitespace is respected for operator functions
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2()
+void QuickfixTest::testInsertDefFromDeclRespectWsInOperatorNames2()
 {
     QByteArray original =
         "class Foo\n"
@@ -4198,7 +4214,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2(
 }
 
 /// Check that the noexcept exception specifier is transferred
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_noexcept_specifier()
+void QuickfixTest::testInsertDefFromDeclNoexceptSpecifier()
 {
     QByteArray original =
         "class Foo\n"
@@ -4222,7 +4238,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_noexcept_specifier()
 
 /// Check if a function like macro use is not separated by the function to insert
 /// Case: Macro preceded by preproceesor directives and declaration.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1()
+void QuickfixTest::testInsertDefFromDeclMacroUsesAtEndOfFile1()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4264,7 +4280,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1()
 
 /// Check if a function like macro use is not separated by the function to insert
 /// Case: Marco preceded only by preprocessor directives.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2()
+void QuickfixTest::testInsertDefFromDeclMacroUsesAtEndOfFile2()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4303,7 +4319,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2()
 }
 
 /// Check if insertion happens before syntactically erroneous statements at end of file.
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfFile()
+void QuickfixTest::testInsertDefFromDeclErroneousStatementAtEndOfFile()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4340,7 +4356,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfF
 }
 
 /// Check: Respect rvalue references
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
+void QuickfixTest::testInsertDefFromDeclRvalueReference()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4367,7 +4383,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_functionTryBlock()
+void QuickfixTest::testInsertDefFromDeclFunctionTryBlock()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4406,7 +4422,7 @@ void Foo::otherFunc()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_usingDecl()
+void QuickfixTest::testInsertDefFromDeclUsingDecl()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4495,7 +4511,7 @@ D::D()
 }
 
 /// Find right implementation file. (QTCREATORBUG-10728)
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
+void QuickfixTest::testInsertDefFromDeclFindImplementationFile()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4532,7 +4548,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_unicodeIdentifier()
+void QuickfixTest::testInsertDefFromDeclUnicodeIdentifier()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4575,7 +4591,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_unicodeIdentifier()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClass()
+void QuickfixTest::testInsertDefFromDeclTemplateClass()
 {
     QByteArray original =
         "template<class T>\n"
@@ -4605,7 +4621,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClass()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClassWithValueParam()
+void QuickfixTest::testInsertDefFromDeclTemplateClassWithValueParam()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original =
@@ -4626,7 +4642,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClassWithValuePara
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateFunction()
+void QuickfixTest::testInsertDefFromDeclTemplateFunction()
 {
     QByteArray original =
         "class Foo\n"
@@ -4651,7 +4667,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateFunction()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeredForFriendFunc()
+void QuickfixTest::testInsertDefFromDeclNotTriggeredForFriendFunc()
 {
     const QByteArray contents =
         "class Foo\n"
@@ -4664,7 +4680,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeredForFriendFunc(
     QuickFixOperationTest(singleDocument(contents, ""), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_minimalFunctionParameterType()
+void QuickfixTest::testInsertDefFromDeclMinimalFunctionParameterType()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
 
@@ -4726,7 +4742,7 @@ N::S N::foo(const S &s)
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
+void QuickfixTest::testInsertDefsFromDecls_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<QByteArrayList>("sources");
@@ -4853,7 +4869,7 @@ void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
             << int(InsertDefsFromDecls::Mode::Alternating);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefsFromDecls()
+void QuickfixTest::testInsertDefsFromDecls()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(QByteArrayList, sources);
@@ -4907,7 +4923,7 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 }
 
 /// Check from source file: Insert in header file.
-void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
+void QuickfixTest::testInsertDeclFromDef()
 {
     insertToSectionDeclFromDef("public", 0);
     insertToSectionDeclFromDef("public slots", 1);
@@ -4917,7 +4933,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
     insertToSectionDeclFromDef("private slots", 5);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDeclFromDef_templateFuncTypename()
+void QuickfixTest::testInsertDeclFromDefTemplateFuncTypename()
 {
     QByteArray original =
         "class Foo\n"
@@ -4942,7 +4958,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef_templateFuncTypename()
     QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDeclFromDef_templateFuncInt()
+void QuickfixTest::testInsertDeclFromDefTemplateFuncInt()
 {
     QByteArray original =
             "class Foo\n"
@@ -4967,7 +4983,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef_templateFuncInt()
     QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDeclFromDef_notTriggeredForTemplateFunc()
+void QuickfixTest::testInsertDeclFromDefNotTriggeredForTemplateFunc()
 {
     QByteArray contents =
         "class Foo\n"
@@ -4983,7 +4999,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef_notTriggeredForTemplateFun
     QuickFixOperationTest(singleDocument(contents, ""), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_data()
+void QuickfixTest::testAddIncludeForUndefinedIdentifier_data()
 {
     QTest::addColumn<QString>("headerPath");
     QTest::addColumn<QuickFixTestDocuments>("testDocuments");
@@ -5735,7 +5751,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_data()
     testDocuments.clear();
 }
 
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier()
+void QuickfixTest::testAddIncludeForUndefinedIdentifier()
 {
     QFETCH(QString, headerPath);
     QFETCH(QuickFixTestDocuments, testDocuments);
@@ -5757,7 +5773,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier()
                                refactoringOperationIndex);
 }
 
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtHeaderInclude()
+void QuickfixTest::testAddIncludeForUndefinedIdentifierNoDoubleQtHeaderInclude()
 {
     CppTools::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -5784,7 +5800,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtH
     QuickFixOfferedOperationsTest(testDocuments, &factory, headerPaths, expectedOperations);
 }
 
-void CppEditorPlugin::test_quickfix_AddForwardDeclForUndefinedIdentifier_data()
+void QuickfixTest::testAddForwardDeclForUndefinedIdentifier_data()
 {
     QTest::addColumn<QuickFixTestDocuments>("testDocuments");
     QTest::addColumn<QString>("symbol");
@@ -5934,7 +5950,7 @@ void CppEditorPlugin::test_quickfix_AddForwardDeclForUndefinedIdentifier_data()
             << "NS2::Blubb" << original.indexOf('@');
 }
 
-void CppEditorPlugin::test_quickfix_AddForwardDeclForUndefinedIdentifier()
+void QuickfixTest::testAddForwardDeclForUndefinedIdentifier()
 {
     QFETCH(QuickFixTestDocuments, testDocuments);
     QFETCH(QString, symbol);
@@ -5950,7 +5966,7 @@ void CppEditorPlugin::test_quickfix_AddForwardDeclForUndefinedIdentifier()
 }
 
 /// Check: Move definition from header to cpp.
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCpp()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -5991,7 +6007,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_Static()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppStatic()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6031,7 +6047,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_Static()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_WithInlinePartOfName()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppWithInlinePartOfName()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6071,7 +6087,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_WithInlin
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppInsideNS()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6118,7 +6134,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS()
 }
 
 /// Check: Move definition outside class
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside1()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncOutside1()
 {
     QByteArray original =
         "class Foo {\n"
@@ -6152,7 +6168,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside1()
 }
 
 /// Check: Move definition outside class
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncOutside2()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6194,7 +6210,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
 }
 
 /// Check: Move definition from header to cpp (with namespace).
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppNS()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6235,7 +6251,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
 }
 
 /// Check: Move definition from header to cpp (with namespace + using).
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppNSUsing()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6278,7 +6294,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
 }
 
 /// Check: Move definition outside class with Namespace
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
+void QuickfixTest::testMoveFuncDefOutsideMemberFuncOutsideWithNs()
 {
     QByteArray original =
         "namespace MyNs {\n"
@@ -6305,7 +6321,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
 }
 
 /// Check: Move free function from header to cpp.
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
+void QuickfixTest::testMoveFuncDefOutsideFreeFuncToCpp()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6339,7 +6355,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
 }
 
 /// Check: Move free function from header to cpp (with namespace).
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
+void QuickfixTest::testMoveFuncDefOutsideFreeFuncToCppNS()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6376,7 +6392,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
 }
 
 /// Check: Move Ctor with member initialization list (QTCREATORBUG-9157).
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
+void QuickfixTest::testMoveFuncDefOutsideCtorWithInitialization1()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6415,7 +6431,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
 }
 
 /// Check: Move Ctor with member initialization list (QTCREATORBUG-9462).
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
+void QuickfixTest::testMoveFuncDefOutsideCtorWithInitialization2()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6459,7 +6475,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
 }
 
 /// Check if definition is inserted right after class for move definition outside
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
+void QuickfixTest::testMoveFuncDefOutsideAfterClass()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6501,7 +6517,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
 }
 
 /// Check if whitespace is respected for operator functions
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1()
+void QuickfixTest::testMoveFuncDefOutsideRespectWsInOperatorNames1()
 {
     QByteArray original =
         "class Foo\n"
@@ -6522,7 +6538,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1
 }
 
 /// Check if whitespace is respected for operator functions
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2()
+void QuickfixTest::testMoveFuncDefOutsideRespectWsInOperatorNames2()
 {
     QByteArray original =
         "class Foo\n"
@@ -6542,7 +6558,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_macroUses()
+void QuickfixTest::testMoveFuncDefOutsideMacroUses()
 {
     QByteArray original =
         "#define CONST const\n"
@@ -6575,7 +6591,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_macroUses()
                           ProjectExplorer::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template()
+void QuickfixTest::testMoveFuncDefOutsideTemplate()
 {
     QByteArray original =
         "template<class T>\n"
@@ -6592,7 +6608,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template_specializedClass()
+void QuickfixTest::testMoveFuncDefOutsideTemplateSpecializedClass()
 {
     QByteArray original = R"(
 template<typename T> class base {};
@@ -6619,7 +6635,7 @@ void base<int>::bar() {}
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_unnamedTemplate()
+void QuickfixTest::testMoveFuncDefOutsideUnnamedTemplate()
 {
     QByteArray original =
         "template<typename T, typename>\n"
@@ -6637,7 +6653,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_unnamedTemplate()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
+void QuickfixTest::testMoveFuncDefToDeclMemberFunc()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6669,7 +6685,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
+void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutside()
 {
     QByteArray original =
         "class Foo {\n"
@@ -6694,7 +6710,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
+void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNS()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6734,7 +6750,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
+void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNSUsing()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6778,7 +6794,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
+void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutsideWithNs()
 {
     QByteArray original =
         "namespace MyNs {\n"
@@ -6805,7 +6821,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
+void QuickfixTest::testMoveFuncDefToDeclFreeFuncToCpp()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6837,7 +6853,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
+void QuickfixTest::testMoveFuncDefToDeclFreeFuncToCppNS()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6875,7 +6891,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
+void QuickfixTest::testMoveFuncDefToDeclCtorWithInitialization()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -6914,7 +6930,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
 }
 
 /// Check: Definition should not be placed behind the variable. QTCREATORBUG-10303
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable()
+void QuickfixTest::testMoveFuncDefToDeclStructWithAssignedVariable()
 {
     QByteArray original =
         "struct Foo\n"
@@ -6939,7 +6955,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_macroUses()
+void QuickfixTest::testMoveFuncDefToDeclMacroUses()
 {
     QByteArray original =
         "#define CONST const\n"
@@ -6970,7 +6986,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_macroUses()
                           ProjectExplorer::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_override()
+void QuickfixTest::testMoveFuncDefToDeclOverride()
 {
     QByteArray original =
         "struct Base {\n"
@@ -7000,7 +7016,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_override()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_template()
+void QuickfixTest::testMoveFuncDefToDeclTemplate()
 {
     QByteArray original =
         "template<class T>\n"
@@ -7017,7 +7033,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_template()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_templateFunction()
+void QuickfixTest::testMoveFuncDefToDeclTemplateFunction()
 {
     QByteArray original =
         "class Foo\n"
@@ -7041,7 +7057,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_templateFunction()
 }
 
 /// Check: Move all definitions from header to cpp.
-void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp()
+void QuickfixTest::testMoveAllFuncDefOutsideMemberFuncToCpp()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -7089,7 +7105,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp()
 }
 
 /// Check: Move all definition outside class
-void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside()
+void QuickfixTest::testMoveAllFuncDefOutsideMemberFuncOutside()
 {
     QByteArray original =
         "class F@oo {\n"
@@ -7123,7 +7139,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside()
 }
 
 /// Check: Move all definition outside class
-void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_DoNotTriggerOnBaseClass()
+void QuickfixTest::testMoveAllFuncDefOutsideDoNotTriggerOnBaseClass()
 {
     QByteArray original =
         "class Bar;\n"
@@ -7139,7 +7155,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_DoNotTriggerOnBaseClas
 }
 
 /// Check: Move all definition outside class
-void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_classWithBaseClass()
+void QuickfixTest::testMoveAllFuncDefOutsideClassWithBaseClass()
 {
     QByteArray original =
         "class Bar;\n"
@@ -7165,7 +7181,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_classWithBaseClass()
 }
 
 /// Check: Do not take macro expanded code into account (QTCREATORBUG-13900)
-void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_ignoreMacroCode()
+void QuickfixTest::testMoveAllFuncDefOutsideIgnoreMacroCode()
 {
     QByteArray original =
         "#define FAKE_Q_OBJECT int bar() {return 5;}\n"
@@ -7192,7 +7208,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_ignoreMacroCode()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
+void QuickfixTest::testAssignToLocalVariableTemplates()
 {
 
     QList<QuickFixTestDocument::Ptr> testDocuments;
@@ -7229,7 +7245,7 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ExtractFunction_data()
+void QuickfixTest::testExtractFunction_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -7324,7 +7340,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
                  "}\n");
 }
 
-void CppEditorPlugin::test_quickfix_ExtractFunction()
+void QuickfixTest::testExtractFunction()
 {
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
@@ -7336,7 +7352,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction_data()
+void QuickfixTest::testExtractLiteralAsParameterTypeDeduction_data()
 {
     QTest::addColumn<QByteArray>("typeString");
     QTest::addColumn<QByteArray>("literal");
@@ -7380,7 +7396,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction_data
             << QByteArray("const char32_t *") << QByteArray("U\"narf\"");
 }
 
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction()
+void QuickfixTest::testExtractLiteralAsParameterTypeDeduction()
 {
     QFETCH(QByteArray, typeString);
     QFETCH(QByteArray, literal);
@@ -7400,7 +7416,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles()
+void QuickfixTest::testExtractLiteralAsParameterFreeFunctionSeparateFiles()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -7426,7 +7442,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separ
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles()
+void QuickfixTest::testExtractLiteralAsParameterMemberFunctionSeparateFiles()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -7460,7 +7476,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_sep
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_notTriggeringForInvalidCode()
+void QuickfixTest::testExtractLiteralAsParameterNotTriggeringForInvalidCode()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     QByteArray original;
@@ -7475,7 +7491,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_notTriggeringForIn
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_addCurlyBraces()
+void QuickfixTest::testAddCurlyBraces()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
     const QByteArray original = R"delim(
@@ -7500,7 +7516,7 @@ void MyObject::f()
 
 }
 
-void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectOutOfClass()
+void QuickfixTest::testConvertQt4ConnectConnectOutOfClass()
 {
     QByteArray prefix =
         "class QObject {};\n"
@@ -7533,7 +7549,7 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectOutOfClass()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass_data()
+void QuickfixTest::testConvertQt4ConnectConnectWithinClass_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -7563,7 +7579,7 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass_data()
                           "connect(p.data(), &TestClass::sigFoo, p.data(), &TestClass::setProp);");
 }
 
-void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
+void QuickfixTest::testConvertQt4ConnectConnectWithinClass()
 {
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
@@ -7599,7 +7615,7 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_ConvertQt4Connect_differentNamespace()
+void QuickfixTest::testConvertQt4ConnectDifferentNamespace()
 {
     const QByteArray prefix =
         "namespace NsA {\n"
@@ -7632,7 +7648,7 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_differentNamespace()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
+void QuickfixTest::testRemoveUsingNamespace_data()
 {
     QTest::addColumn<QByteArray>("header1");
     QTest::addColumn<QByteArray>("header2");
@@ -7874,7 +7890,7 @@ void test::Foo::foo2(){};
         << h1 << h2 << h3 << expected1 << expected2 << expected3 << 0;
 }
 
-void CppEditorPlugin::test_quickfix_removeUsingNamespace()
+void QuickfixTest::testRemoveUsingNamespace()
 {
     QFETCH(QByteArray, header1);
     QFETCH(QByteArray, header2);
@@ -7893,7 +7909,7 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
 }
 
-void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple_data()
+void QuickfixTest::testRemoveUsingNamespaceSimple_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("expected");
@@ -7924,7 +7940,7 @@ vec::iterator it;
     QTest::newRow("nested typedefs with Namespace") << header << expected;
 }
 
-void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple()
+void QuickfixTest::testRemoveUsingNamespaceSimple()
 {
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, expected);
@@ -7936,7 +7952,7 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths());
 }
 
-void CppEditorPlugin::test_quickfix_removeUsingNamespace_differentSymbols()
+void QuickfixTest::testRemoveUsingNamespaceDifferentSymbols()
 {
     QByteArray header = "namespace test{\n"
                         "  struct foo{\n"
@@ -7982,7 +7998,7 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_differentSymbols()
 
 enum ConstructorLocation { Inside, Outside, CppGenNamespace, CppGenUsingDirective, CppRewriteType };
 
-void CppEditorPlugin::test_quickfix_generateConstructor_data()
+void QuickfixTest::testGenerateConstructor_data()
 {
     QTest::addColumn<QByteArray>("original_header");
     QTest::addColumn<QByteArray>("expected_header");
@@ -8330,7 +8346,7 @@ M::Foo::Foo(const N::vector<M::G> &g, M::Foo::E e) : g(g),
         << header << expected << source << expected_source << CppRewriteType;
 }
 
-void CppEditorPlugin::test_quickfix_generateConstructor()
+void QuickfixTest::testGenerateConstructor()
 {
     class TestFactory : public GenerateConstructor
     {
@@ -8374,5 +8390,4 @@ void CppEditorPlugin::test_quickfix_generateConstructor()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests

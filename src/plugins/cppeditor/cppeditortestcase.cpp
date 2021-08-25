@@ -78,20 +78,8 @@ bool TestDocument::hasCursorMarker() const { return m_cursorPosition != -1; }
 bool TestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
 
 TestCase::TestCase(bool runGarbageCollector)
-    : CppTools::Tests::TestCase(runGarbageCollector),
-      m_prevUseClangd(CppTools::ClangdSettings::instance().useClangd())
+    : CppTools::Tests::TestCase(runGarbageCollector)
 {
-}
-
-TestCase::~TestCase()
-{
-    CppTools::ClangdSettings::setUseClangd(m_prevUseClangd);
-}
-
-void TestCase::setUseClangd()
-{
-    if (CppEditorPlugin::instance()->m_testKit)
-        CppTools::ClangdSettings::setUseClangd(true);
 }
 
 bool TestCase::openCppEditor(const QString &fileName, CppEditor **editor, CppEditorWidget **editorWidget)

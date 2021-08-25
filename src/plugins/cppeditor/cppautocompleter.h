@@ -27,6 +27,8 @@
 
 #include <texteditor/autocompleter.h>
 
+#include <QObject>
+
 namespace CppEditor {
 namespace Internal {
 
@@ -52,6 +54,25 @@ public:
                                 int *skippedChars) const override;
     QString insertParagraphSeparator(const QTextCursor &cursor) const override;
 };
+
+#ifdef WITH_TESTS
+namespace Tests {
+class AutoCompleterTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testAutoComplete_data();
+    void testAutoComplete();
+    void testSurroundWithSelection_data();
+    void testSurroundWithSelection();
+    void testAutoBackspace_data();
+    void testAutoBackspace();
+    void testInsertParagraph_data();
+    void testInsertParagraph();
+};
+} // namespace Tests
+#endif // WITH_TESTS
 
 } // Internal
 } // CppEditor

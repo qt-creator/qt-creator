@@ -45,7 +45,13 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #ifdef WITH_TESTS
-#  include "cppdoxygen_test.h"
+#include "cppdoxygen_test.h"
+#include "cppincludehierarchy_test.h"
+#include "cppinsertvirtualmethods.h"
+#include "cppquickfix_test.h"
+#include "cppuseselections_test.h"
+#include "fileandtokenactions_test.h"
+#include "followsymbol_switchmethoddecldef_test.h"
 #endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -392,12 +398,21 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
     }
 }
 
-#ifdef WITH_TESTS
 QVector<QObject *> CppEditorPlugin::createTestObjects() const
 {
-    return {new Tests::DoxygenTest};
-}
+    return {
+#ifdef WITH_TESTS
+        new FollowSymbolTest,
+        new Tests::AutoCompleterTest,
+        new Tests::DoxygenTest,
+        new Tests::FileAndTokenActionsTest,
+        new Tests::IncludeHierarchyTest,
+        new Tests::InsertVirtualMethodsTest,
+        new Tests::QuickfixTest,
+        new Tests::SelectionsTest,
 #endif
+    };
+}
 
 void CppEditorPlugin::openTypeHierarchy()
 {
