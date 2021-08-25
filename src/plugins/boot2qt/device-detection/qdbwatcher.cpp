@@ -29,9 +29,9 @@
 #include "hostmessages.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
-#include <QProcess>
 #include <QTimer>
 
 namespace Qdb {
@@ -147,7 +147,7 @@ void QdbWatcher::forkHostServer()
         showMessage(message, true);
         return;
     }
-    if (QProcess::startDetached(qdbFilePath.toString(), {"server"}))
+    if (Utils::QtcProcess::startDetached({qdbFilePath, {"server"}}))
         showMessage(tr("QDB host server started."), false);
     else
         showMessage(tr("Could not start QDB host server in %1").arg(qdbFilePath.toString()), true);

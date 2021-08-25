@@ -170,7 +170,7 @@ bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
     data->workingDirectory.clear();
     QVector<QtSupport::BaseQtVersion *> qtVersionsToCheck; // deduplicated after being filled
     if (const Project *project = SessionManager::projectForFile(filePath)) {
-        data->workingDirectory = project->projectDirectory().toString();
+        data->workingDirectory = project->projectDirectory();
         // active kit
         if (const Target *target = project->activeTarget()) {
             qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(target->kit());
@@ -214,7 +214,7 @@ bool ExternalQtEditor::startEditorProcess(const LaunchData &data, QString *error
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data.binary << data.arguments << data.workingDirectory;
     qint64 pid = 0;
-    if (!QProcess::startDetached(data.binary, data.arguments, data.workingDirectory, &pid)) {
+    if (!QtcProcess::startDetached({FilePath::fromString(data.binary), data.arguments}, data.workingDirectory, &pid)) {
         *errorMessage = msgStartFailed(data.binary, data.arguments);
         return false;
     }

@@ -52,33 +52,34 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QFileInfo>
-#include <QProcess>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qdb {
 namespace Internal {
 
-static Utils::FilePath flashWizardFilePath()
+static FilePath flashWizardFilePath()
 {
     return findTool(QdbTool::FlashingWizard);
 }
 
 static void startFlashingWizard()
 {
-    const QString filePath = flashWizardFilePath().toUserOutput();
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        if (QProcess::startDetached(QLatin1String("explorer.exe"), {filePath}))
+    const FilePath filePath = flashWizardFilePath();
+    if (HostOsInfo::isWindowsHost()) {
+        if (QtcProcess::startDetached({"explorer.exe", {filePath.toString()}}))
             return;
-    } else if (QProcess::startDetached(filePath, {})) {
+    } else if (QtcProcess::startDetached({filePath, {}})) {
         return;
     }
     const QString message =
             QCoreApplication::translate("Qdb", "Flash wizard \"%1\" failed to start.");
-    showMessage(message.arg(filePath), true);
+    showMessage(message.arg(filePath.toUserOutput()), true);
 }
 
 static bool isFlashActionDisabled()
@@ -94,7 +95,7 @@ void registerFlashAction(QObject *parentForAction)
 {
     if (isFlashActionDisabled())
         return;
-    const Utils::FilePath fileName = flashWizardFilePath();
+    const FilePath fileName = flashWizardFilePath();
     if (!fileName.exists()) {
         const QString message =
                 QCoreApplication::translate("Qdb", "Flash wizard executable \"%1\" not found.");
@@ -146,7 +147,7 @@ public:
             Runnable r = runControl->runnable();
             // FIXME: Spaces!
             r.command.setArguments(r.command.executable().toString() + ' ' + r.command.arguments());
-            r.command.setExecutable(Utils::FilePath::fromString(Constants::AppcontrollerFilepath));
+            r.command.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
             doStart(r, runControl->device());
         });
     }
@@ -156,7 +157,7 @@ template <class Step>
 class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
-    explicit QdbDeployStepFactory(Utils::Id id)
+    explicit QdbDeployStepFactory(Id id)
     {
         registerStep<Step>(id);
         setDisplayName(Step::displayName());
@@ -184,7 +185,7 @@ public:
     QdbDeployStepFactory<RemoteLinux::MakeInstallStep>
         m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
-    const QList<Utils::Id> supportedRunConfigs {
+    const QList<Id> supportedRunConfigs {
         m_runConfigFactory.runConfigurationId(),
         "QmlProjectManager.QmlRunConfiguration"
     };

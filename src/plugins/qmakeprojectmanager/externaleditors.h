@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <utils/filepath.h>
 
 #include <QStringList>
 #include <QMap>
@@ -68,7 +69,7 @@ public:
     struct LaunchData {
         QString binary;
         QStringList arguments;
-        QString workingDirectory;
+        Utils::FilePath workingDirectory;
     };
 
 protected:

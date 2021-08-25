@@ -192,7 +192,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(menu, tr("Show Dependencies of \"%1\"").arg(moduleName),
               tr("Show Dependencies"),
               moduleNameValid && !moduleName.isEmpty() && HostOsInfo::isWindowsHost(),
-              [modulePath] { QProcess::startDetached("depends", {modulePath}); });
+              [modulePath] { QtcProcess::startDetached({{"depends"}, {modulePath}}); });
 
     addAction(menu, tr("Load Symbols for All Modules"),
               enabled && canLoadSymbols,
