@@ -109,7 +109,7 @@ public:
     void terminate();
     void interrupt();
 
-    static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory,
+    static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
     // Starts the command and waits for finish. User input processing depends
     // on whether setProcessUserEventWhileRunning was called.
