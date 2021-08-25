@@ -226,7 +226,7 @@ void LauncherInterface::stopLauncher()
     QTC_ASSERT(s_instance != nullptr, return);
     LauncherInterfacePrivate *p = s_instance->m_private;
     // Call in launcher's thread.
-    QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStop);
+    QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStop, Qt::BlockingQueuedConnection);
     delete s_instance;
     s_instance = nullptr;
 }
