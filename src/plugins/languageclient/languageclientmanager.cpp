@@ -102,17 +102,15 @@ void LanguageClientManager::init()
     managerInstance = new LanguageClientManager(LanguageClientPlugin::instance());
 }
 
-void LanguageClientManager::clientStarted(Client *client)
+void LanguageClient::LanguageClientManager::addClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
-    if (managerInstance->m_shuttingDown) {
-        clientFinished(client);
-        return;
-    }
-    if (!managerInstance->m_clients.contains(client))
-        managerInstance->m_clients << client;
 
+    if (managerInstance->m_clients.contains(client))
+        return;
+
+    managerInstance->m_clients << client;
     connect(client, &Client::finished, managerInstance, [client]() { clientFinished(client); });
     connect(client,
             &Client::initialized,
@@ -127,8 +125,16 @@ void LanguageClientManager::clientStarted(Client *client)
             [client](const DynamicCapabilities &capabilities) {
                 managerInstance->m_inspector.updateCapabilities(client->name(), capabilities);
             });
+}
 
-    client->initialize();
+void LanguageClientManager::clientStarted(Client *client)
+{
+    QTC_ASSERT(managerInstance, return);
+    QTC_ASSERT(client, return);
+    if (managerInstance->m_shuttingDown)
+        clientFinished(client);
+    else
+        client->initialize();
 }
 
 void LanguageClientManager::clientFinished(Client *client)

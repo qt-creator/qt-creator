@@ -1076,6 +1076,7 @@ void Client::setSnippetsGroup(const QString &group)
 
 void Client::start()
 {
+    LanguageClientManager::addClient(this);
     if (m_clientInterface->start())
         LanguageClientManager::clientStarted(this);
     else

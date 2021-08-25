@@ -62,6 +62,7 @@ public:
     static void clientFinished(Client *client);
     static Client *startClient(BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
     static QVector<Client *> clients();
+    static void addClient(Client *client);
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
     static void reportFinished(const LanguageServerProtocol::MessageId &id, Client *byClient);
