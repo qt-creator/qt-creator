@@ -25,6 +25,7 @@ HEADERS += \
         $$UTILSDIR/launcherinterface.cpp \
         $$UTILSDIR/launcherpackets.cpp \
         $$UTILSDIR/launchersocket.cpp \
+        $$UTILSDIR/macroexpander.cpp \
         $$UTILSDIR/namevaluedictionary.cpp \
         $$UTILSDIR/namevalueitem.cpp \
         $$UTILSDIR/qtcassert.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
         $$UTILSDIR/launcherinterface.h \
         $$UTILSDIR/launcherpackets.h \
         $$UTILSDIR/launchersocket.h \
+        $$UTILSDIR/macroexpander.h \
         $$UTILSDIR/namevaluedictionary.h \
         $$UTILSDIR/namevalueitem.h \
         $$UTILSDIR/qtcassert.h \

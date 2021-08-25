@@ -24,6 +24,7 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/launcherinterface.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/launcherpackets.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/launchersocket.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/macroexpander.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.cpp \
@@ -42,6 +43,7 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/launcherinterface.h \
         $$IDE_SOURCE_TREE/src/libs/utils/launcherpackets.h \
         $$IDE_SOURCE_TREE/src/libs/utils/launchersocket.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/macroexpander.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.h \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h \
