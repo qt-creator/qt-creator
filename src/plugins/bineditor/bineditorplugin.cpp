@@ -234,7 +234,7 @@ public:
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
         const FilePath &fileNameToUse = filePath.isEmpty() ? this->filePath() : filePath;
-        if (m_widget->save(errorString, this->filePath().toString(), fileNameToUse.toString())) {
+        if (m_widget->save(errorString, this->filePath(), fileNameToUse)) {
             setFilePath(fileNameToUse);
             return true;
         }

@@ -29,15 +29,15 @@
 #include "markup.h"
 #include "bineditorservice.h"
 
+#include <utils/filepath.h>
 #include <utils/optional.h>
 
+#include <QAbstractScrollArea>
 #include <QBasicTimer>
 #include <QMap>
 #include <QSet>
 #include <QStack>
 #include <QString>
-
-#include <QAbstractScrollArea>
 #include <QTextDocument>
 #include <QTextFormat>
 
@@ -78,7 +78,7 @@ public:
     bool newWindowRequestAllowed() const { return m_canRequestNewWindow; }
 
     void updateContents();
-    bool save(QString *errorString, const QString &oldFileName, const QString &newFileName);
+    bool save(QString *errorString, const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
 
     void zoomF(float delta);
 

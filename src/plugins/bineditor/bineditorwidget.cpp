@@ -60,6 +60,7 @@
 #include <QWheelEvent>
 
 using namespace Core;
+using namespace Utils;
 
 namespace BinEditor {
 namespace Internal {
@@ -402,25 +403,25 @@ bool BinEditorWidget::isReadOnly() const
     return m_readOnly;
 }
 
-bool BinEditorWidget::save(QString *errorString, const QString &oldFileName, const QString &newFileName)
+bool BinEditorWidget::save(QString *errorString, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    if (oldFileName != newFileName) {
-        QString tmpName;
+    if (oldFilePath != newFilePath) {
+        FilePath tmpName;
         {
-            QTemporaryFile tmp(newFileName + QLatin1String("_XXXXXX.new"));
+            QTemporaryFile tmp(newFilePath.toString() + QLatin1String("_XXXXXX.new"));
             if (!tmp.open())
                 return false;
-            tmpName = tmp.fileName();
+            tmpName = FilePath::fromString(tmp.fileName());
         }
-        if (!QFile::copy(oldFileName, tmpName))
+        if (!oldFilePath.copyFile(tmpName))
             return false;
-        if (QFile::exists(newFileName) && !QFile::remove(newFileName))
+        if (newFilePath.exists() && !newFilePath.removeFile())
             return false;
-        if (!QFile::rename(tmpName, newFileName))
+        if (!tmpName.renameFile(newFilePath))
             return false;
     }
-    Utils::FileSaver saver(Utils::FilePath::fromString(newFileName),
-                           QIODevice::ReadWrite); // QtBug: WriteOnly truncates.
+
+    FileSaver saver(newFilePath, QIODevice::ReadWrite); // QtBug: WriteOnly truncates.
     if (!saver.hasError()) {
         QFile *output = saver.file();
         const qint64 size = output->size();
