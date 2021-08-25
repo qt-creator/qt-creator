@@ -1290,10 +1290,7 @@ void AndroidConfigurations::updateAutomaticKitList()
         Utils::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
                 && deviceTypeId == Utils::Id(Constants::ANDROID_DEVICE_TYPE)) {
-            if (!QtSupport::QtKitAspect::qtVersion(k))
-                KitManager::deregisterKit(k); // Remove autoDetected kits without Qt.
-            else
-                return true;
+            return true;
         }
         return false;
     });
@@ -1327,6 +1324,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             && tc->isValid()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
     });
+    QList<Kit *> unhandledKits = existingKits;
     for (ToolChain *tc : toolchains) {
         if (tc->language() != Utils::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
             continue;
@@ -1381,12 +1379,18 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
             };
 
-            if (existingKit)
+            if (existingKit) {
                 initializeKit(existingKit); // Update the existing kit with new data.
-            else
+                unhandledKits.removeOne(existingKit);
+            } else {
                 KitManager::registerKit(initializeKit);
+            }
         }
     }
+    // cleanup any mess that might have existed before, by removing all Android kits that
+    // existed before, but weren't re-used
+    for (Kit *k : unhandledKits)
+        KitManager::deregisterKit(k);
 }
 
 bool AndroidConfigurations::force32bitEmulator()
