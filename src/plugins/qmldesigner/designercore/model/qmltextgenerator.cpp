@@ -27,6 +27,7 @@
 
 #include <QVariant>
 #include <QColor>
+#include <QVector4D>
 #include <QVector3D>
 #include <QVector2D>
 
