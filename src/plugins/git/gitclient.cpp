@@ -2587,7 +2587,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
     VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});
-    // This should always use QProcess::startDetached (as not to kill
+    // This should always use QtcProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
     if (!settings().path.value().isEmpty()) {
@@ -2614,8 +2614,7 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory) {
     if (gitBinary.isEmpty()) {
         success = false;
     } else {
-        success = QProcess::startDetached(gitBinary.toString(), {"gui"},
-                                          workingDirectory.toString());
+        success = QtcProcess::startDetached({gitBinary, {"gui"}}, workingDirectory);
     }
 
     if (!success)
@@ -2654,13 +2653,13 @@ FilePath GitClient::gitBinDirectory() const
 bool GitClient::launchGitBash(const FilePath &workingDirectory)
 {
     bool success = true;
-    const QString git = vcsBinary().toString();
+    const FilePath git = vcsBinary();
 
     if (git.isEmpty()) {
         success = false;
     } else {
-        const QString gitBash = QFileInfo(git).absolutePath() + "/../git-bash.exe";
-        success = QProcess::startDetached(gitBash, {}, workingDirectory.toString());
+        const FilePath gitBash = git.absolutePath().parentDir() / "git-bash.exe";
+        success = QtcProcess::startDetached({gitBash, {}}, workingDirectory);
     }
 
     if (!success)

@@ -2344,7 +2344,7 @@ void ClearCasePluginPrivate::diffGraphical(const QString &file1, const QString &
     args << file1;
     if (!pred)
         args << file2;
-    QProcess::startDetached(m_settings.ccBinaryPath, args, m_topLevel.toString());
+    QtcProcess::startDetached({FilePath::fromString(m_settings.ccBinaryPath), args}, m_topLevel);
 }
 
 QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QStringList &arguments,
