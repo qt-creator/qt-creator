@@ -81,9 +81,13 @@ public:
         , m_stdErr(stdErr) {}
     QByteArray stdOut() const { return m_stdOut; }
     QByteArray stdErr() const { return m_stdErr; }
+    void mergeWith(ReadyReadSignal *newSignal) {
+        m_stdOut += newSignal->stdOut();
+        m_stdErr += newSignal->stdErr();
+    }
 private:
-    const QByteArray m_stdOut;
-    const QByteArray m_stdErr;
+    QByteArray m_stdOut;
+    QByteArray m_stdErr;
 };
 
 class FinishedSignal : public LauncherSignal
@@ -245,7 +249,16 @@ void CallerHandle::appendSignal(LauncherSignal *launcherSignal)
 
     QMutexLocker locker(&m_mutex);
     QTC_ASSERT(isCalledFromLaunchersThread(), return);
-    // TODO: merge ReadyRead signals into one.
+    // Merge ReadyRead signals into one.
+    if (launcherSignal->signalType() == CallerHandle::SignalType::ReadyRead
+            && !m_signals.isEmpty()
+            && m_signals.last()->signalType() == CallerHandle::SignalType::ReadyRead) {
+        ReadyReadSignal *lastSignal = static_cast<ReadyReadSignal *>(m_signals.last());
+        ReadyReadSignal *newSignal = static_cast<ReadyReadSignal *>(launcherSignal);
+        lastSignal->mergeWith(newSignal);
+        delete newSignal;
+        return;
+    }
     m_signals.append(launcherSignal);
 }
 
