@@ -100,15 +100,15 @@ static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutp
 
 static bool launchSimulator(const QString &simUdid) {
     QTC_ASSERT(!simUdid.isEmpty(), return false);
-    const QString simulatorAppPath = IosConfigurations::developerPath()
-            .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator").toString();
+    const FilePath simulatorAppPath = IosConfigurations::developerPath()
+            .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator");
 
     if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
         // For XCode 9 boot the second device instead of launching simulator app twice.
         QString psOutput;
         if (runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput)) {
             for (const QString &comm : psOutput.split('\n')) {
-                if (comm == simulatorAppPath)
+                if (comm == simulatorAppPath.toString())
                     return runSimCtlCommand({"boot", simUdid}, nullptr);
             }
         } else {
@@ -118,7 +118,7 @@ static bool launchSimulator(const QString &simUdid) {
         }
     }
 
-    return QProcess::startDetached(simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid});
+    return QtcProcess::startDetached({simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
 }
 
 static bool isAvailable(const QJsonObject &object)
