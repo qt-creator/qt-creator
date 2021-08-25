@@ -43,7 +43,7 @@
 
     \section1 Linux
 
-    (K)Ubuntu Linux 18.04 (64-bit) or later is supported.
+    (K)Ubuntu Linux 20.04 (64-bit) or later is supported.
 
     To build Qt applications using \QC on Linux, you usually need the
     following:
@@ -69,12 +69,12 @@
 
     \section1 macOS
 
-    \macos 10.13 or later is supported with the Xcode tools for your \macos
+    \macos 10.14 or later is supported with the Xcode tools for your \macos
     version available in the Mac App Store.
 
     \section1 Windows
 
-    Windows 7 (64-bit) or later is supported.
+    Windows 10 (64-bit) or later is supported.
 
     \note Some \QC plugins rely on Direct3D (part of DirectX). You might
     have to manually enable support for it if you are running Windows in a
