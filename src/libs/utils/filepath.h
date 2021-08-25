@@ -131,6 +131,7 @@ public:
     bool operator>(const FilePath &other) const;
     bool operator>=(const FilePath &other) const;
     FilePath operator+(const QString &s) const;
+    FilePath operator/(const QString &str) const;
 
     bool isChildOf(const FilePath &s) const;
     bool isChildOf(const QDir &dir) const;
@@ -162,8 +163,6 @@ public:
     FilePath symLinkTarget() const;
     FilePath resolveSymlinks() const;
     FilePath withExecutableSuffix() const;
-
-    FilePath operator/(const QString &str) const;
 
     void clear();
     bool isEmpty() const;

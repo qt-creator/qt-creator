@@ -383,7 +383,7 @@ QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
 
 void UpdateInfoPlugin::startUpdater()
 {
-    QProcess::startDetached(d->m_maintenanceTool, QStringList(QLatin1String("--updater")));
+    Utils::QtcProcess::startDetached({Utils::FilePath::fromString(d->m_maintenanceTool), {"--updater"}});
 }
 
 } //namespace Internal

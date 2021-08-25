@@ -37,6 +37,7 @@
 #include <utils/commandline.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QDir>
@@ -88,17 +89,20 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         if (!pathIn.isDir())
             param += QLatin1String("/select,");
         param += QDir::toNativeSeparators(fileInfo.canonicalFilePath());
-        QProcess::startDetached(explorer.toString(), param);
+        QtcProcess::startDetached({explorer, param});
     } else if (HostOsInfo::isMacHost()) {
         QStringList scriptArgs;
         scriptArgs << QLatin1String("-e")
                    << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
                                          .arg(fileInfo.canonicalFilePath());
-        QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
+        QtcProcess osascriptProcess;
+        osascriptProcess.setCommand({"/usr/bin/osascript", scriptArgs});
+        osascriptProcess.runBlocking();
         scriptArgs.clear();
         scriptArgs << QLatin1String("-e")
                    << QLatin1String("tell application \"Finder\" to activate");
-        QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
+        osascriptProcess.setCommand({"/usr/bin/osascript", scriptArgs});
+        osascriptProcess.runBlocking();
     } else {
         // we cannot select a file here, because no file browser really supports it...
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
