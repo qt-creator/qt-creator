@@ -41,7 +41,6 @@ SOURCES += \
     $$UTILS/macroexpander.cpp \
     $$UTILS/persistentsettings.cpp \
     $$UTILS/qtcassert.cpp \
-    $$UTILS/commandline.cpp \
     $$UTILS/savefile.cpp \
     $$UTILS/stringutils.cpp
 
@@ -77,7 +76,6 @@ HEADERS += \
     $$UTILS/macroexpander.h \
     $$UTILS/persistentsettings.h \
     $$UTILS/qtcassert.h \
-    $$UTILS/commandline.h \
     $$UTILS/savefile.h \
     $$UTILS/porting.h
 
