@@ -56,6 +56,8 @@ class SettingsDatabase;
 
 namespace Internal { class MainWindow; }
 
+class NewDialog;
+
 class CORE_EXPORT ICore : public QObject
 {
     Q_OBJECT
@@ -174,9 +176,12 @@ public:
     static QStatusBar *statusBar();
 
     static void saveSettings(SaveSettingsReason reason);
+    static void setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &newFactory);
 
 private:
     static void updateNewItemDialogState();
+
+    static std::function<NewDialog *(QWidget *)> m_newDialogFactory;
 };
 
 } // namespace Core

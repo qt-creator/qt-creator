@@ -44,6 +44,7 @@ SOURCES += corejsextensions.cpp \
     actionmanager/actioncontainer.cpp \
     actionmanager/commandsfile.cpp \
     dialogs/saveitemsdialog.cpp \
+    dialogs/newdialogwidget.cpp \
     dialogs/newdialog.cpp \
     dialogs/settingsdialog.cpp \
     actionmanager/commandmappings.cpp \
@@ -148,6 +149,7 @@ HEADERS += corejsextensions.h \
     actionmanager/actioncontainer_p.h \
     actionmanager/commandsfile.h \
     dialogs/saveitemsdialog.h \
+    dialogs/newdialogwidget.h \
     dialogs/newdialog.h \
     dialogs/settingsdialog.h \
     actionmanager/commandmappings.h \

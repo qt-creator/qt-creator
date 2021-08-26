@@ -55,7 +55,7 @@
 #include <coreplugin/actionmanager/actionmanager_p.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/dialogs/externaltoolconfig.h>
-#include <coreplugin/dialogs/newdialog.h>
+#include <coreplugin/iwizardfactory.h>
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/editormanager/documentmodel_p.h>
 #include <coreplugin/editormanager/editormanager.h>

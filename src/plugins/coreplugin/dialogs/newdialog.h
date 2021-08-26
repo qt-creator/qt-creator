@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,72 +25,38 @@
 
 #pragma once
 
-#include "../iwizardfactory.h"
+#include <QList>
 
 #include <utils/filepath.h>
 
-#include <QDialog>
-#include <QIcon>
-#include <QList>
-#include <QVariantMap>
+#include "../core_global.h"
 
 QT_BEGIN_NAMESPACE
-class QModelIndex;
-class QSortFilterProxyModel;
-class QPushButton;
-class QStandardItem;
-class QStandardItemModel;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
 
-namespace Internal {
+class IWizardFactory;
 
-namespace Ui { class NewDialog; }
-
-class NewDialog : public QDialog
-{
-    Q_OBJECT
-
+class CORE_EXPORT NewDialog {
 public:
-    explicit NewDialog(QWidget *parent);
-    ~NewDialog() override;
+    NewDialog();
+    virtual ~NewDialog() = 0;
+    virtual QWidget *widget() = 0;
+    virtual void setWizardFactories(QList<IWizardFactory *> factories,
+                                    const Utils::FilePath &defaultLocation,
+                                    const QVariantMap &extraVariables) = 0;
+    virtual void setWindowTitle(const QString &title) = 0;
+    virtual void showDialog() = 0;
 
-    void setWizardFactories(QList<IWizardFactory*> factories,
-                            const Utils::FilePath &defaultLocation,
-                            const QVariantMap &extraVariables);
-
-    void showDialog();
-    Utils::Id selectedPlatform() const;
-
-    static QWidget *currentDialog();
-
-protected:
-    bool event(QEvent *) override;
+    static QWidget *currentDialog()
+    {
+        return m_currentDialog ? m_currentDialog->widget() : nullptr;
+    }
 
 private:
-    void currentCategoryChanged(const QModelIndex &);
-    void currentItemChanged(const QModelIndex &);
-    void accept() override;
-    void reject() override;
-    void updateOkButton();
-    void setSelectedPlatform(int index);
-
-    Core::IWizardFactory *currentWizardFactory() const;
-    void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);
-    void saveState();
-
-    static QWidget *m_currentDialog;
-
-    Ui::NewDialog *m_ui;
-    QStandardItemModel *m_model;
-    QSortFilterProxyModel *m_filterProxyModel;
-    QPushButton *m_okButton = nullptr;
-    QIcon m_dummyIcon;
-    QList<QStandardItem*> m_categoryItems;
-    Utils::FilePath m_defaultLocation;
-    QVariantMap m_extraVariables;
+    inline static NewDialog *m_currentDialog = nullptr;
 };
 
-} // namespace Internal
 } // namespace Core

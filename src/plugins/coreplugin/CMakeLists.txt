@@ -23,6 +23,7 @@ add_qtc_plugin(Core
     dialogs/filepropertiesdialog.cpp dialogs/filepropertiesdialog.h dialogs/filepropertiesdialog.ui
     dialogs/ioptionspage.cpp dialogs/ioptionspage.h
     dialogs/newdialog.cpp dialogs/newdialog.h dialogs/newdialog.ui
+    dialogs/newdialogwidget.cpp dialogs/newdialogwidget.h
     dialogs/openwithdialog.cpp dialogs/openwithdialog.h dialogs/openwithdialog.ui
     dialogs/promptoverwritedialog.cpp dialogs/promptoverwritedialog.h
     dialogs/readonlyfilesdialog.cpp dialogs/readonlyfilesdialog.h dialogs/readonlyfilesdialog.ui

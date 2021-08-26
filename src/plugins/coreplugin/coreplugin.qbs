@@ -199,6 +199,7 @@ Project {
                 "filepropertiesdialog.cpp", "filepropertiesdialog.h", "filepropertiesdialog.ui",
                 "ioptionspage.cpp", "ioptionspage.h",
                 "newdialog.cpp", "newdialog.h", "newdialog.ui",
+                "newdialogwidget.cpp", "newdialogwidget.h",
                 "openwithdialog.cpp", "openwithdialog.h", "openwithdialog.ui",
                 "promptoverwritedialog.cpp", "promptoverwritedialog.h",
                 "readonlyfilesdialog.cpp", "readonlyfilesdialog.h", "readonlyfilesdialog.ui",

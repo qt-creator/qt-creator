@@ -141,6 +141,7 @@
     from the focus object as well as the additional context.
 */
 
+#include "dialogs/newdialogwidget.h"
 #include "dialogs/newdialog.h"
 #include "iwizardfactory.h"
 #include "mainwindow.h"
@@ -164,6 +165,9 @@ namespace Core {
 // The Core Singleton
 static ICore *m_instance = nullptr;
 static MainWindow *m_mainwindow = nullptr;
+std::function<NewDialog *(QWidget *)> ICore::m_newDialogFactory = [](QWidget *parent) {
+    return new NewDialogWidget(parent);
+};
 
 /*!
     Returns the pointer to the instance. Only use for connecting to signals.
@@ -249,8 +253,8 @@ void ICore::showNewItemDialog(const QString &title,
                               const QVariantMap &extraVariables)
 {
     QTC_ASSERT(!isNewItemDialogRunning(), return);
-    auto newDialog = new NewDialog(dialogParent());
-    connect(newDialog, &QObject::destroyed, m_instance, &ICore::updateNewItemDialogState);
+    NewDialog *newDialog = ICore::m_newDialogFactory(dialogParent());
+    connect(newDialog->widget(), &QObject::destroyed, m_instance, &ICore::updateNewItemDialogState);
     newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
     newDialog->setWindowTitle(title);
     newDialog->showDialog();
@@ -942,6 +946,14 @@ void ICore::updateNewItemDialogState()
     wasRunning = isNewItemDialogRunning();
     previousDialog = newItemDialog();
     emit instance()->newItemDialogStateChanged();
+}
+
+/*!
+    \internal
+*/
+void ICore::setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &newFactory)
+{
+    m_newDialogFactory = newFactory;
 }
 
 } // namespace Core
