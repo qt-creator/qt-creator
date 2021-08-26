@@ -1,6 +1,6 @@
 QT = core network
 
-msvc: QTC_LIB_DEPENDS += utils
+QTC_LIB_DEPENDS += utils
 
 include(../qttest.pri)
 
@@ -13,53 +13,6 @@ msvc {
     # replace '\' with '\\'
     DEFINES += CDBEXT_PATH=\"\\\"$$replace(CDBEXT_PATH, \\\\, \\\\)\\\"\"
 
-} else {
-
-    SOURCES += \
-        $$IDE_SOURCE_TREE/src/libs/utils/commandline.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/environment.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/filepath.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/fileutils.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/launcherinterface.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/launcherpackets.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/launchersocket.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/macroexpander.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/treemodel.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/processhandle.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/processutils.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/savefile.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/stringutils.cpp
-
-    HEADERS += \
-        $$IDE_SOURCE_TREE/src/libs/utils/commandline.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/environment.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/filepath.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/fileutils.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/hostosinfo.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/launcherinterface.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/launcherpackets.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/launchersocket.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/macroexpander.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/processutils.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/savefile.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/stringutils.h
-
-    macos: {
-        HEADERS += $$IDE_SOURCE_TREE/src/libs/utils/fileutils_mac.h
-        OBJECTIVE_SOURCES += $$IDE_SOURCE_TREE/src/libs/utils/fileutils_mac.mm
-        LIBS += -framework Foundation
-    }
 }
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
