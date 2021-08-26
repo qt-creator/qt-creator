@@ -830,7 +830,7 @@ static bool canLinkWithQt(QString *toolTip)
         &installSettingsExist);
     QStringList tip;
     tip << linkingPurposeText();
-    if (!Core::ICore::resourcePath().isWritablePath()) {
+    if (!Core::ICore::resourcePath().isWritableDir()) {
         canLink = false;
         tip << QtOptionsPageWidget::tr("%1's resource directory is not writable.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);

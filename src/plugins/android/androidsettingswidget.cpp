@@ -612,7 +612,7 @@ void AndroidSettingsWidget::validateSdk()
     m_androidConfig.setSdkLocation(sdkPath);
 
     m_androidSummary->setPointValid(SdkPathExistsRow, m_androidConfig.sdkLocation().exists());
-    m_androidSummary->setPointValid(SdkPathWritableRow, m_androidConfig.sdkLocation().isWritablePath());
+    m_androidSummary->setPointValid(SdkPathWritableRow, m_androidConfig.sdkLocation().isWritableDir());
     m_androidSummary->setPointValid(SdkToolsInstalledRow,
                                     !m_androidConfig.sdkToolsVersion().isNull());
     m_androidSummary->setPointValid(PlatformToolsInstalledRow,

@@ -919,7 +919,7 @@ bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
 bool AndroidConfig::sdkToolsOk() const
 {
     bool exists = sdkLocation().exists();
-    bool writable = sdkLocation().isWritablePath();
+    bool writable = sdkLocation().isWritableDir();
     bool sdkToolsExist = !sdkToolsVersion().isNull();
     return exists && writable && sdkToolsExist;
 }

@@ -94,7 +94,6 @@ public:
     bool needsDevice() const;
     bool exists() const;
 
-    bool isWritablePath() const { return isWritableDir(); } // Remove.
     bool isWritableDir() const;
     bool isWritableFile() const;
     bool ensureWritableDir() const;
