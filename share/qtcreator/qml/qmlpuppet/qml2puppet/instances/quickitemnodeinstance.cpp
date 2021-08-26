@@ -171,10 +171,15 @@ void QuickItemNodeInstance::enableUnifiedRenderPath(bool unifiedRenderPath)
 
 bool QuickItemNodeInstance::checkIfRefFromEffect(qint32 id)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath)
         return false;
 
     return (s_createEffectItem || id == 0);
+#else
+    Q_UNUSED(id)
+    return false;
+#endif
 }
 
 void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
@@ -267,14 +272,27 @@ QStringList QuickItemNodeInstance::allStates() const
 
 void QuickItemNodeInstance::updateDirtyNode(QQuickItem *item)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath)
         return;
     DesignerSupport::updateDirtyNode(item);
+#else
+    Q_UNUSED(item)
+#endif
 }
 
 bool QuickItemNodeInstance::unifiedRenderPath()
 {
     return s_unifiedRenderPath;
+}
+
+bool QuickItemNodeInstance::unifiedRenderPathOrQt6()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return true;
+#else
+    return s_unifiedRenderPath;
+#endif
 }
 
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
@@ -415,16 +433,15 @@ QImage QuickItemNodeInstance::renderImage() const
     updateDirtyNodesRecursive(quickItem());
 
     QRectF renderBoundingRect = boundingRect();
+    QImage renderImage;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSize size = renderBoundingRect.size().toSize();
     static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
     if (size.width() * size.height() > 4000 * 4000)
         size = QSize(0,0);
     size *= devicePixelRatio;
 
-    QImage renderImage;
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath) {
         renderImage = nodeInstanceServer()->quickWindow()->grabWindow();
     } else {
@@ -438,8 +455,12 @@ QImage QuickItemNodeInstance::renderImage() const
     }
     renderImage.setDevicePixelRatio(devicePixelRatio);
 #else
-    renderImage = nodeInstanceServer()->grabWindow();
+    if (s_unifiedRenderPath)
+        renderImage = nodeInstanceServer()->grabWindow();
+    else
+        renderImage = nodeInstanceServer()->grabItem(quickItem());
     renderImage = renderImage.copy(renderBoundingRect.toRect());
+
     /* When grabbing an offscren window the device pixel ratio is 1 */
     renderImage.setDevicePixelRatio(1);
 #endif

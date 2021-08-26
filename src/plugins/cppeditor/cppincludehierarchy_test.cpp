@@ -92,14 +92,14 @@ public:
             filePaths << absoluteFilePath;
         }
 
-        // Update Code Model
-        QVERIFY(parseFiles(filePaths));
-
         // Open Editor
         const QString fileName = temporaryDir.path() + QLatin1String("/file1.h");
         CppEditor *editor;
         QVERIFY(openCppEditor(fileName, &editor));
         closeEditorAtEndOfTestCase(editor);
+
+        // Update Code Model
+        QVERIFY(parseFiles(filePaths));
 
         // Test model
         CppIncludeHierarchyModel model;

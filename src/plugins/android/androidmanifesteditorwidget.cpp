@@ -720,18 +720,21 @@ void AndroidManifestEditorWidget::updateInfoBar()
 
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
-    QPair<int, int> apiLevels = AndroidManager::apiLevelRange();
-    for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
-        m_androidMinSdkVersion->addItem(tr("API %1: %2")
-                                        .arg(i)
-                                        .arg(AndroidManager::androidNameForApiLevel(i)),
-                                        i);
+    static const QPair<int, int> sdkPair = qMakePair(16, 31);
+    int minSdk = sdkPair.first;
+    const int targetSdk = sdkPair.second;
+    const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
+    if (target) {
+        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+        minSdk = AndroidManager::defaultMinimumSDK(qt);
+    }
 
-    for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
-        m_androidTargetSdkVersion->addItem(tr("API %1: %2")
-                                           .arg(i)
-                                           .arg(AndroidManager::androidNameForApiLevel(i)),
-                                           i);
+    for (int i = minSdk; i <= targetSdk; ++i) {
+        const QString apiStr = tr("API %1: %2").arg(i)
+                                               .arg(AndroidManager::androidNameForApiLevel(i));
+        m_androidMinSdkVersion->addItem(apiStr, i);
+        m_androidTargetSdkVersion->addItem(apiStr, i);
+    }
 }
 
 void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int line, int column)

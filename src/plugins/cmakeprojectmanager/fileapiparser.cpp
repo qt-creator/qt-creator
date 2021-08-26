@@ -147,6 +147,13 @@ static ReplyFileContents readReplyFile(const FilePath &filePath, QString &errorM
                 result.generator = generator.value("name").toString();
                 result.isMultiConfig = generator.value("multiConfig").toBool();
             }
+            const QJsonObject version = cmakeObject.value("version").toObject();
+            {
+                int major = version.value("major").toInt();
+                int minor = version.value("minor").toInt();
+                int patch = version.value("patch").toInt();
+                result.cmakeVersion = QVersionNumber(major, minor, patch);
+            }
         }
     }
 

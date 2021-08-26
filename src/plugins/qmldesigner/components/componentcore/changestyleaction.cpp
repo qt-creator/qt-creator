@@ -48,11 +48,71 @@ static QString styleConfigFileName(const QString &qmlFileName)
 
 ChangeStyleWidgetAction::ChangeStyleWidgetAction(QObject *parent) : QWidgetAction(parent)
 {
+    // The Default style was renamed to Basic in Qt 6. In Qt 6, "Default"
+    // will result in a platform-specific style being chosen.
+    items = {
+        {"Basic", "Basic", {}},
+        {"Default", "Default", {}},
+        {"Fusion", "Fusion", {}},
+        {"Imagine", "Imagine", {}},
+        {"Material Light", "Material", "Light"},
+        {"Material Dark", "Material", "Dark"},
+        {"Universal Light", "Universal", "Light"},
+        {"Universal Dark", "Universal", "Dark"},
+        {"Universal System", "Universal", "System"}
+    };
+
+    if (Utils::HostOsInfo::isMacHost())
+        items.append({"macOS", "macOS", {}});
+    if (Utils::HostOsInfo::isWindowsHost())
+        items.append({"Windows", "Windows", {}});
 }
 
 void ChangeStyleWidgetAction::handleModelUpdate(const QString &style)
 {
     emit modelUpdated(style);
+}
+
+const QList<StyleWidgetEntry> ChangeStyleWidgetAction::styleItems() const
+{
+    return items;
+}
+
+void ChangeStyleWidgetAction::changeStyle(const QString &style)
+{
+    if (style.isEmpty())
+        return;
+
+    const Utils::FilePath configFileName = Utils::FilePath::fromString(styleConfigFileName(qmlFileName));
+
+    if (configFileName.exists()) {
+        QSettings infiFile(configFileName.toString(), QSettings::IniFormat);
+
+        int contains = -1;
+
+        for (const auto &item : qAsConst(items)) {
+            if (item.displayName == style) {
+                contains = items.indexOf(item);
+                break;
+            }
+        }
+
+        if (contains >= 0) {
+            const QString styleName = items.at(contains).styleName;
+            const QString styleTheme = items.at(contains).styleTheme;
+
+            infiFile.setValue("Controls/Style", styleName);
+
+            if (!styleTheme.isEmpty())
+                infiFile.setValue((styleName + "/Theme"), styleTheme);
+        }
+        else {
+            infiFile.setValue("Controls/Style", style);
+        }
+
+        if (view)
+            view->resetPuppet();
+    }
 }
 
 const char enabledTooltip[] = QT_TRANSLATE_NOOP("ChangeStyleWidgetAction",
@@ -64,18 +124,10 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 {
     auto comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr(enabledTooltip));
-    // The Default style was renamed to Basic in Qt 6. In Qt 6, "Default"
-    // will result in a platform-specific style being chosen.
-    comboBox->addItem("Basic");
-    comboBox->addItem("Default");
-    comboBox->addItem("Fusion");
-    comboBox->addItem("Imagine");
-    if (Utils::HostOsInfo::isMacHost())
-        comboBox->addItem("macOS");
-    comboBox->addItem("Material");
-    comboBox->addItem("Universal");
-    if (Utils::HostOsInfo::isWindowsHost())
-        comboBox->addItem("Windows");
+
+    for (const auto &item : qAsConst(items))
+        comboBox->addItem(item.displayName);
+
     comboBox->setEditable(true);
     comboBox->setCurrentIndex(0);
 
@@ -97,23 +149,8 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
         }
     });
 
-    connect(comboBox,
-            &QComboBox::textActivated,
-            this,
-            [this](const QString &style) {
-
-        if (style.isEmpty())
-            return;
-
-        const Utils::FilePath configFileName = Utils::FilePath::fromString(styleConfigFileName(qmlFileName));
-
-        if (configFileName.exists()) {
-             QSettings infiFile(configFileName.toString(), QSettings::IniFormat);
-             infiFile.setValue("Controls/Style", style);
-             if (view)
-                 view->resetPuppet();
-        }
-    });
+    connect(comboBox, &QComboBox::textActivated,
+            this, &ChangeStyleWidgetAction::changeStyle);
 
     return comboBox;
 }
@@ -135,11 +172,27 @@ void ChangeStyleAction::currentContextChanged(const SelectionContext &selectionC
 
         if (Utils::FilePath::fromString(confFileName).exists()) {
             QSettings infiFile(confFileName, QSettings::IniFormat);
-            m_action->handleModelUpdate(infiFile.value("Controls/Style", "Basic").toString());
+            const QString styleName = infiFile.value("Controls/Style", "Basic").toString();
+            const QString styleTheme = infiFile.value(styleName + "/Theme", "").toString();
+            const auto items = m_action->styleItems();
+
+            QString comboBoxEntry = styleName;
+
+            for (const auto &item : items) {
+                if (item.styleName == styleName) {
+                    if (!styleTheme.isEmpty() && (item.styleTheme == styleTheme)) {
+                        comboBoxEntry.append(" ");
+                        comboBoxEntry.append(styleTheme);
+
+                        break;
+                    }
+                }
+            }
+
+            m_action->handleModelUpdate(comboBoxEntry);
         } else {
             m_action->handleModelUpdate("");
         }
-
     }
 }
 

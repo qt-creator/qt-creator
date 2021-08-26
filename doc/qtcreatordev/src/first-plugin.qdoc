@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -61,9 +61,8 @@
         \li Give your project a name and specify in which path this project will
             be created. The actual plugin's name can be different from the
             project name. You will choose that name later in the wizard.
-            Continue to the next page.
 
-            The \uicontrol {Plugin Information} dialog opens.
+        \li Continue to the \uicontrol {Plugin Information} dialog.
 
             \image firstplugin-pluginsetup.png "Specify Your Plugin Details"
 
@@ -74,7 +73,7 @@
         \li The values of the following fields are mainly informational, and
             are shown in the detailed view in \QC's plugin overview
             (\uicontrol Help > \uicontrol {About Plugins}, or
-            \uicontrol {Qt Creator} > \uicontrol {About Plugins} on Mac).
+            \uicontrol {\QC} > \uicontrol {About Plugins} on \macos).
 
             \list
                 \li \uicontrol {Vendor name} is a short one-word name of the
@@ -94,33 +93,19 @@
                     it.
            \endlist
 
-        \li Set the \uicontrol {Qt Creator sources} and
-            \uicontrol{Qt Creator build} fields to the source and build
-            directory of the \QC instance you want to use to test your plugin
-            with, respectively. If you don't do that correctly you will get
-            compile errors for your plugin, and your plugin might not show up in
-            \QC at all.
+        \li Set the \uicontrol{\QC build} field to the build directory
+            of the \QC instance you want to use to test your plugin with. If
+            you don't do that correctly, you will get compile errors for your
+            plugin, and your plugin might not show up in \QC at all.
 
-        \li In the \uicontrol {Deploy into} list, select
-            \uicontrol {Qt Creator build}. This sets your \c {.pro} file up to
-            deploy your plugin directly into your \QC build's plugin directory
-            (requires you to have write permissions there). The other option,
-            \uicontrol {Local user settings}, sets your \c {.pro} file up to
-            deploy your plugin into \QC's user plugin path (for example
-            \c {~/.config/QtProject/qtcreator/plugins} on Unix systems). We
-            choose \uicontrol {Qt Creator build} because we use a self-compiled
-            \QC, and want the plugin to be only loaded by that \QC
-            instance. Continue to the next page.
-
-            The \uicontrol {Translation File} dialog opens.
+        \li Continue to the \uicontrol {Translation File} dialog.
 
             \image firstplugin-translation-file.png "Choose a language to localize your plugin to"
 
         \li Select a language to localize your plugin to. This sets up
-            translation support for the selected language. Continue to the
-            next page.
+            translation support for the selected language.
 
-            The \uicontrol {Kit Selection} dialog opens.
+        \li Continue to the \uicontrol {Kit Selection} dialog.
 
             \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
 
@@ -129,9 +114,9 @@
             version that is compatible with the Qt version that your \QC was
             built with (in the best case the exact same build). If you use an
             incompatible Qt version to build your plugin, you will get errors
-            while \QC tries to load your plugin. Continue to the next page.
+            while \QC tries to load your plugin.
 
-            The \uicontrol {Project Management} dialog opens.
+        \li Continue to the \uicontrol {Project Management} dialog.
 
             \image firstplugin-summary.png "Summary of Created Files"
 
@@ -142,7 +127,7 @@
 
     \section1 Building and Running the Plugin
 
-    If you passed the correct \QC source and build paths in the project wizard,
+    If you passed the correct \QC build path in the project wizard,
     your plugin should just build fine when pressing the build button. Before
     running the project, select \uicontrol {Build & Run} > \uicontrol Run to
     specify run settings:
@@ -150,9 +135,12 @@
     \image firstplugin-runsettings.png "Specify the Executable to Run"
 
     Select the path to the \QC executable from the build that you specified in
-    the \uicontrol {Qt Creator build} setting in the project wizard and click
-    \uicontrol OK. \QC starts up, and you can verify that your plugin
-    successfully loaded by looking for a menu entry \uicontrol Tools >
+    the \uicontrol {\QC build} field in the project wizard and set the value
+    of the \uicontrol {Command line arguments} field to
+    \c {-pluginpath %{buildDir}}.
+
+    When you click \uicontrol OK, \QC starts up, and you can verify that your
+    plugin is successfully loaded by looking for a menu entry \uicontrol Tools >
     \uicontrol Example and by looking for the plugin in the \uicontrol Help >
     \uicontrol {About Plugins} dialog.
 
@@ -168,16 +156,19 @@
 
         \li Role
     \row
+        \li \c {README.md}
+
+        \li Describes how to build and run the plugin.
+    \row
         \li \c {Example.json.in}
 
-        \li Plugin meta data template. QMake creates an \c {Example.json}
+        \li Plugin meta data template. CMake creates an \c {Example.json}
             from this file, which is compiled into the plugin as meta data.
             The meta data is read by \QC to find out about the plugin.
     \row
-        \li \c {example.pro}
+        \li \c {CMakeLists.txt}
 
-        \li Project file, used by QMake to generate a Makefile that then is used to
-            build the plugin.
+        \li Project file, used by CMake to generate build files and build the plugin.
     \row
         \li \c {example_global.h}
 
@@ -193,7 +184,7 @@
         \li C++ header and source files that define the plugin class that will be
             instantiated and run by \QC's plugin manager.
     \row
-        \li \c{build_qmake.yml}
+        \li \c{build_cmake.yml}
 
         \li Adds a
             \l {https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions}
@@ -202,71 +193,61 @@
             information, see \c {.github\workflow\README.md}.
     \endtable
 
-    \section1 qmake Project
+    \section1 CMake Project
 
-    The qmake project file \c {example.pro} defines how your plugin should be
+    The CMake project file \c {CMakeLists.txt} defines how your plugin should be
     compiled. \QC plugins need to have a specific setup there, in addition to
-    telling qmake which files need to be compiled (or handled by \c moc or
+    telling CMake which files need to be compiled (or handled by \c moc or
     \c uic). Let us have a look at what the project wizard generated for you in
     detail.
 
-    \snippet exampleplugin/example.pro 1
+    \snippet exampleplugin/CMakeLists.txt 1
 
-    The first section of the .pro file lets the compiler pass an
-    \c EXAMPLE_LIBRARY define to the compiled code, which is used in the
-    \c {example_global.h} header, but is not really of interest for now. You
-    should not need to change that section of the \c {.pro} file.
+    The \c{list(APPEND ...)} call tells CMake to include the \QC build path that
+    you specified in the wizard in its search path for dependencies. Since this
+    contains an absolute path on your local machine, you should remove this line
+    when sharing the project with others.
 
-    \snippet exampleplugin/example.pro 2
+    Without this line, you need to explicitly add the path to the \QC
+    build to \c {CMAKE_PREFIX_PATH} when configuring your plugin with CMake.
 
-    This section tells qmake about the files of your project that it should let
-    compile or otherwise handle. You need to expand that section with any files
-    you add to the project.
+    \snippet exampleplugin/CMakeLists.txt 2
 
-    \snippet exampleplugin/example.pro 3
+    This section does some standard setup for Qt/CMake projects. Besides
+    setting a project name and a C++ standard to use, it turns on automatic
+    detection of files that need to be run through \c {moc}, \c {rcc} or \c
+    {uic}.
 
-    To compile and deploy your plugin, the project needs access to the \QC
-    sources and build. This section contains the logic that looks for the
-    information about the location of the sources and build in the
-    \c {QTC_SOURCE} and \c {QTC_BUILD} environment variables. If these are not
-    defined, it uses the defaults you set in the project wizard.
+    \snippet exampleplugin/CMakeLists.txt 3
 
-    So, if someone else opens your plugin project on their machine, they do not
-    need to edit the .pro file, but instead they should set the \c {QTC_SOURCE}
-    and \c {QTC_BUILD} environment variables correctly for the plugin's build
-    environment.
+    This section tells CMake to locate \QC and Qt. If your plugin requires
+    additional Qt modules, you need to add them to the corresponding
+    \c {find_package} call in this section.
 
-    You should not need to change this section, except perhaps to adapt the
-    defaults.
+    To find \QC and Qt, the paths to the \QC and Qt installation must be
+    present in the \c {CMAKE_PREFIX_PATH} when you configure your plugin
+    with CMake.
 
-    \snippet exampleplugin/example.pro 4
+    \snippet exampleplugin/CMakeLists.txt 4
 
-    \QC plugins can either be installed into the \QC installation's plugin
-    directory (requires write access there), or to a user specific plugin
-    directory. The \c USE_USER_DESTDIR switch in the .pro file defines which
-    method is used for building the plugin (which is independent from what you
-    can later use for distributing your plugin to other users).
+    The \c {add_qtc_plugin} call creates a target for your plugin with the
+    specified name.
 
-    \snippet exampleplugin/example.pro 5
+    In the \c {PLUGIN_DEPENDS} sub-section, you need to specify \QC plugins that
+    your plugin depends on. Valid values are a plugin's name prefixed with
+    \c {QtCreator::}.
 
-    This section defines the name and dependencies of your plugin. The
-    \c {QTC_PLUGIN_NAME} variable defines the name of your plugin, and the name
-    of the dynamic library that is created for it. The \c {QTC_LIB_DEPENDS}
-    variable is a list of library names of the \QC utility libraries that your
-    plugin depends on. Typical values would be \c aggregation,
-    \c extensionsystem and \c utils. The \c {QTC_PLUGIN_DEPENDS} variable
-    defines the \QC plugins that your plugin depends on. Almost all \QC plugins
-    will depend on the \c coreplugin. The \c {QTC_PLUGIN_RECOMMENDS} variable
-    defines the \QC plugins that your plugin optionally depends on. For more
-    information, see \l{Optional Dependencies}.
+    In the \c {DEPENDS} sub-section, you need to specify libraries that your
+    plugin depends on. Use a Qt module name prefixed with \c {$\{QtX\}::}
+    to link to additional Qt modules. To link against additional \QC libraries,
+    prefix their name with \c {QtCreator::}. In this subsection you also
+    specify other libraries that your plugin depends on.
 
-    \snippet exampleplugin/example.pro 6
-
-    The included file \c{qtcreatorplugin.pri} makes sure that you build a plugin
-    that is suitable for use in \QC, by using the information you gave above.
-
-    For more information about qmake, and writing \c {.pro} files in general,
-    see the \l{qmake Manual}.
+    In the \c {SOURCES} sub-section, you specify all files that belong to your
+    plugin project. CMake sorts these into source files and header files
+    automatically. Other files in this section are ignored by CMake but appear
+    for example in the project tree that is shown in IDEs like \QC for easier
+    access.
 
     \section1 Plugin Meta Data Template
 
@@ -301,22 +282,22 @@
 
     \section1 Plugin Class
 
-    The files \c {exampleplugin.h} and \c {exampleplugin.cpp} define the plugin
+    The files \c {example.h} and \c {example.cpp} define the plugin
     implementation of your little plugin. We'll concentrate on some highlights
     here, and give pointers to more detailed information for the various parts.
 
     \section2 Header File
 
-    The header file \c {exampleplugin.h} defines the interface of the plugin
+    The header file \c {example.h} defines the interface of the plugin
     class.
 
-    \snippet exampleplugin/exampleplugin.h namespaces
+    \snippet exampleplugin/example.h namespaces
 
     The plugin is defined in a \c {Example::Internal} namespace, which conforms
     to the coding rules for \l{coding-rules-namespacing}{namespacing}
     in \QC sources.
 
-    \snippet exampleplugin/exampleplugin.h base class
+    \snippet exampleplugin/example.h base class
 
     All \QC plugins must be derived from \l{ExtensionSystem::IPlugin} and
     are QObjects. The \c {Q_PLUGIN_METADATA} macro is necessary to create a
@@ -325,13 +306,13 @@
     \c FILE must point to the plugin's meta data file as described in
     \l{Plugin Meta Data}.
 
-    \snippet exampleplugin/exampleplugin.h plugin functions
+    \snippet exampleplugin/example.h plugin functions
 
     The base class defines basic functions that are called during the life cycle
     of a plugin, which are here implemented for your new plugin. These functions
     and their roles are described in detail in \l{Plugin Life Cycle}.
 
-    \snippet exampleplugin/exampleplugin.h slot
+    \snippet exampleplugin/example.h slot
 
     The plugin has an additional custom slot, that is used to pop up a dialog
     when the user chooses the menu item that this plugin adds.
@@ -353,7 +334,7 @@
     For more information about implementing the plugin interface, see the
     \l{ExtensionSystem::IPlugin} API documentation and \l{Plugin Life Cycle}.
 
-    \snippet exampleplugin/exampleplugin.cpp add action
+    \snippet exampleplugin/example.cpp add action
 
     This part of the code creates a new \c QAction, registers it as a new
     \c Command in the action manager, and connects it to the plugin's slot. The
@@ -362,12 +343,12 @@
     be directed to different plugins under different circumstances, as well as a
     few other things.
 
-    \snippet exampleplugin/exampleplugin.cpp add menu
+    \snippet exampleplugin/example.cpp add menu
 
     Here a new menu item is created, the created command added to it, and the
     menu added to the \uicontrol Tools menu in the menu bar.
 
-    \snippet exampleplugin/exampleplugin.cpp slot implementation
+    \snippet exampleplugin/example.cpp slot implementation
 
     This part defines the code that is called when the menu item is triggered.
     It uses the Qt API to open a message box that displays informative text and

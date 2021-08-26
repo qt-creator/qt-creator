@@ -191,12 +191,14 @@ static bool isChildOf(const FilePath &path, const QStringList &prefixes)
 
 QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                                              const FilePath &sourceDirectory,
-                                             const FilePath &buildDirectory)
+                                             const FilePath &buildDirectory,
+                                             bool haveLibrariesRelativeToBuildDirectory)
 {
     QDir sourceDir(sourceDirectory.toString());
 
     const QList<CMakeBuildTarget> result = transform<QList>(input.targetDetails,
-        [&sourceDir, &sourceDirectory, &buildDirectory](const TargetDetails &t) {
+        [&sourceDir, &sourceDirectory, &buildDirectory,
+         &haveLibrariesRelativeToBuildDirectory](const TargetDetails &t) {
             const FilePath currentBuildDir = buildDirectory.absoluteFilePath(t.buildDir);
 
             CMakeBuildTarget ct;
@@ -271,7 +273,8 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                         if (part.startsWith("-"))
                             continue;
 
-                        FilePath tmp = currentBuildDir.absoluteFilePath(FilePath::fromUserInput(part));
+                        const FilePath buildDir = haveLibrariesRelativeToBuildDirectory ? buildDirectory : currentBuildDir;
+                        FilePath tmp = buildDir.absoluteFilePath(FilePath::fromUserInput(part));
 
                         if (f.role == "libraries")
                             tmp = tmp.parentDir();
@@ -707,7 +710,12 @@ FileApiQtcData extractData(FileApiData &input,
         return {};
     }
 
-    result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory);
+    // Ninja generator from CMake version 3.20.5 has libraries relative to build directory
+    const bool haveLibrariesRelativeToBuildDirectory =
+            input.replyFile.generator.startsWith("Ninja")
+         && input.replyFile.cmakeVersion >= QVersionNumber(3, 20, 5);
+
+    result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory, haveLibrariesRelativeToBuildDirectory);
     result.cmakeFiles = std::move(data.cmakeFiles);
     result.projectParts = generateRawProjectParts(data, sourceDirectory);
 

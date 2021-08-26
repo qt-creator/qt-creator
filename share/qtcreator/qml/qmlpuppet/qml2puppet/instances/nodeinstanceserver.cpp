@@ -935,6 +935,9 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
                 Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(),
                                                                    QString::fromUtf8(name));
             instance.setPropertyBinding(name, expression);
+
+            if (instance.instanceId() == 0 && (name == "width" || name == "height"))
+                resizeCanvasToRootItem();
         }
     }
 }

@@ -165,7 +165,8 @@ Item {
                            (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
                     height: img.height
                     color: selectedAssets[filePath] ? StudioTheme.Values.themeInteraction
-                                                  : (mouseArea.containsMouse ? "#444444" : "transparent")
+                                                    : (mouseArea.containsMouse ? StudioTheme.Values.themeSectionHeadBackground
+                                                                               : "transparent")
 
                     Row {
                         spacing: 5

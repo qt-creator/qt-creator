@@ -27,6 +27,7 @@
 
 #include <QVariant>
 #include <QColor>
+#include <QVector4D>
 #include <QVector3D>
 #include <QVector2D>
 
@@ -168,6 +169,14 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             case QMetaType::QVector3D: {
                 auto vec = value.value<QVector3D>();
                 return QStringLiteral("Qt.vector3d(%1, %2, %3)").arg(vec.x()).arg(vec.y()).arg(vec.z());
+            }
+            case QMetaType::QVector4D: {
+                auto vec = value.value<QVector4D>();
+                return QStringLiteral("Qt.vector4d(%1, %2, %3, %4)")
+                    .arg(vec.x())
+                    .arg(vec.y())
+                    .arg(vec.z())
+                    .arg(vec.w());
             }
             default:
                 return QStringLiteral("\"%1\"").arg(escape(stringValue));

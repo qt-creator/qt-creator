@@ -824,10 +824,9 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
                 differenceHandler.modelMissesImport(newImport);
         } else {
             QString importUri = toString(import->importUri);
-            if (version.isEmpty()) {
-                version = getHighestPossibleImport(importUri);
+            if (version.isEmpty())
                 m_hasVersionlessImport = true;
-            }
+
             const Import newImport = Import::createLibraryImport(importUri,
                                                                  version,
                                                                  as,

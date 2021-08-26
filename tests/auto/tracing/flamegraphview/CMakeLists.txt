@@ -18,7 +18,7 @@ else() # < Qt 6.2
   qt_add_qml_module(tst_tracing_flamegraphview
     URI "QtCreator.TstTracingFlameGraphView"
     VERSION "1.0"
-    NO_CREATE_PLUGIN_TARGET
+    NO_PLUGIN
     QML_FILES
       TestFlameGraphView.qml
     SOURCES

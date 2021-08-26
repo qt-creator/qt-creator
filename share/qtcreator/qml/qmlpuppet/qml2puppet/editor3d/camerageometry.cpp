@@ -139,7 +139,7 @@ void CameraGeometry::doUpdateGeometry()
         return;
     }
 
-    if (!m_camera->cameraNode()) {
+    if (!QQuick3DObjectPrivate::get(m_camera)->spatialNode) {
         // Doing explicit viewport mapping forces cameraNode creation
         m_camera->mapToViewport({}, m_viewPortRect.width(), m_viewPortRect.height());
     }
@@ -171,7 +171,7 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
     auto indexPtr = reinterpret_cast<quint16 *>(indexData.data());
 
     QMatrix4x4 m;
-    QSSGRenderCamera *camera = m_camera->cameraNode();
+    QSSGRenderCamera *camera = static_cast<QSSGRenderCamera *>(QQuick3DObjectPrivate::get(m_camera)->spatialNode);
     if (camera) {
         QRectF rect = m_viewPortRect;
         if (rect.isNull())

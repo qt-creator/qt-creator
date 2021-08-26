@@ -14,6 +14,7 @@ endif()
 if (QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP)
   return()
 endif()
+option(QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP "Skip Qt Creator's package manager auto-setup" OFF)
 
 #
 # conan
@@ -27,6 +28,7 @@ foreach(file conanfile.txt conanfile.py)
 endforeach()
 
 if (conanfile_txt AND NOT QT_CREATOR_SKIP_CONAN_SETUP)
+  option(QT_CREATOR_SKIP_CONAN_SETUP "Skip Qt Creator's conan package manager auto-setup" OFF)
 
   # Get conan from Qt SDK
   set(qt_creator_ini "${CMAKE_CURRENT_LIST_DIR}/../QtProject/QtCreator.ini")
@@ -108,6 +110,8 @@ unset(conanfile_txt)
 #
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/vcpkg.json" AND NOT QT_CREATOR_SKIP_VCPKG_SETUP)
+  option(QT_CREATOR_SKIP_VCPKG_SETUP "Skip Qt Creator's vcpkg package manager auto-setup" OFF)
+
   find_program(vcpkg_program vcpkg)
   if (NOT vcpkg_program)
     return()

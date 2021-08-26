@@ -317,7 +317,7 @@ def addCurrentCreatorDocumentation():
     selectFromFileDialog(docPath)
     try:
         waitForObject("{type='QMessageBox' unnamed='1' visible='1' "
-                      "text?='Unable to register documentation.*'}", 3000)
+                      "text~='Unable to register documentation.*'}", 3000)
         test.passes("Qt Creator's documentation found already registered.")
         clickButton(waitForObject("{type='QPushButton' text='OK' unnamed='1' visible='1' "
                                   "container={name='groupBox' type='QGroupBox' visible='1'}}"))
@@ -619,8 +619,8 @@ def clickOnTab(tabBarStr, tabText, timeout=5000):
     if not waitFor("object.exists(tabBarStr)", timeout):
         raise LookupError("Could not find QTabBar: %s" % objectMap.realName(tabBarStr))
     tabBar = findObject(tabBarStr)
-    if platform.system() == 'Darwin' and not tabBar.visible:
-        test.log("Using workaround for Mac.")
+    if not (platform.system() == 'Linux' or tabBar.visible):
+        test.log("Using workaround for Mac and Windows.")
         setWindowState(tabBar, WindowState.Normal)
         tabBar = waitForObject(tabBarStr, 2000)
     clickTab(tabBar, tabText)

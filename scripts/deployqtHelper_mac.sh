@@ -90,6 +90,18 @@ if [ -d "$sqldriversSrcDir" ]; then
     fi
 fi
 
+# workaround for Qt 6.2:
+# - QTBUG-94796 macdeployqt does not deploy /Contents/PlugIns/imageformats/libqsvg.dylib anymore
+imageformatsDestDir="$app_path/Contents/PlugIns/imageformats"
+imageformatsSrcDir="$plugin_src/imageformats"
+if [ -d "$imageformatsSrcDir" ]; then
+    if [ ! -d "$imageformatsDestDir" ]; then
+        echo "- Copying sqlitedriver plugin"
+        mkdir -p "$imageformatsDestDir"
+        cp "$imageformatsSrcDir/libqsvg.dylib" "$imageformatsDestDir/libqsvg.dylib"
+    fi
+fi
+
 # copy Qt Quick 2 imports
 imports2Dir="$app_path/Contents/Imports/qtquick2"
 if [ -d "$quick2_src" ]; then

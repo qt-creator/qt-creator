@@ -391,7 +391,7 @@ void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDi
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
             if (!(d->m_flags & SuppressStdErr))
-                appendError(text);
+                emit appendError(text);
             if (d->m_progressiveOutput)
                 emit stdErrText(text);
         });
@@ -403,7 +403,7 @@ void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDi
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
             if (d->m_flags & ShowStdOut)
-                append(text);
+                emit append(text);
             if (d->m_progressiveOutput) {
                 emit stdOutText(text);
                 d->m_hadOutput = true;

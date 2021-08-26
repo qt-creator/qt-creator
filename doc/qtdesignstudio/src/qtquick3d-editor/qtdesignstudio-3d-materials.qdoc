@@ -32,8 +32,19 @@
 
     \title 3D Materials
 
-    \QDS provides a set of pregenerated Qt Quick 3D materials that can be used
-    to create good-looking \l {3D Models}{models} quickly and easily.
+    \QDS provides a set of pregenerated \uicontrol {Qt Quick 3D}
+    materials. If the 3D materials are not displayed in \uicontrol Library,
+    you can add the \uicontrol QtQuick3D.Materials module to your project,
+    as described in \l {Adding and Removing Modules}. However, since using the
+    pregenerated 3D materials may cause performance issues, we advice you to
+    use \uicontrol {Principled Material}, \uicontrol {Default Material}, or
+    \uicontrol {Custom Material} instead. For more information,
+    see \l {Materials and Shaders} and \l {Creating Custom Materials}.
+
+    \note The \uicontrol QtQuick3D.Materials module is not available in
+    \uicontrol {Qt 6}. To use the pregenerated \uicontrol {Qt Quick 3D}
+    materials, you need to select \uicontrol {Qt 5} as the
+    \uicontrol {Target Qt Version} when \l {Creating Projects}{creating your project}.
 
     To apply a 3D material to a component, you should first delete the default
     material and then drag-and-drop a new material from \l Library >
@@ -45,10 +56,6 @@
     component and go to the \uicontrol Properties view. Find the
     \uicontrol Materials property, select the \inlineimage plus.png
     icon, and choose the new material in the dropdown menu.
-
-    If the 3D materials are not displayed in \uicontrol Library, you should add
-    the \uicontrol QtQuick3D.Materials module to your project, as described in
-    \l {Adding and Removing Modules}.
 
     Each material has its own set of properties that can be used to further
     define the appearance of the material. For each material the \uicontrol

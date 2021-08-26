@@ -235,7 +235,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     }
     case Qt::DecorationRole: {
         if (!folderNode)
-            return Core::FileIconProvider::icon(node->filePath());
+            return node->asFileNode()->icon();
         if (!project)
             return folderNode->icon();
         static QIcon warnIcon = Utils::Icons::WARNING.icon();

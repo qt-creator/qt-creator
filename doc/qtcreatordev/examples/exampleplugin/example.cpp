@@ -1,4 +1,4 @@
-#include "exampleplugin.h"
+#include "example.h"
 #include "exampleconstants.h"
 
 #include <coreplugin/icore.h>
@@ -12,8 +12,6 @@
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QMenu>
-
-#include <QtPlugin>
 
 namespace Example {
 namespace Internal {
@@ -42,9 +40,9 @@ bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorStrin
     Q_UNUSED(errorString)
 
 //! [add action]
-    QAction *action = new QAction(tr("Example Action"), this);
+    auto action = new QAction(tr("Example Action"), this);
     Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
-                                            Core::Context(Core::Constants::C_GLOBAL));
+                                                             Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
     connect(action, &QAction::triggered, this, &ExamplePlugin::triggerAction);
 //! [add action]

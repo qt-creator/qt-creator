@@ -778,12 +778,12 @@ bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
 
 QString AndroidConfig::bestNdkPlatformMatch(int target, const BaseQtVersion *qtVersion) const
 {
-    target = std::max(AndroidManager::apiLevelRange().first, target);
+    target = std::max(AndroidManager::defaultMinimumSDK(qtVersion), target);
     foreach (int apiLevel, availableNdkPlatforms(qtVersion)) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
-    return QString("android-%1").arg(AndroidManager::apiLevelRange().first);
+    return QString("android-%1").arg(AndroidManager::defaultMinimumSDK(qtVersion));
 }
 
 FilePath AndroidConfig::sdkLocation() const
@@ -1291,10 +1291,7 @@ void AndroidConfigurations::updateAutomaticKitList()
         Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
                 && deviceTypeId == Constants::ANDROID_DEVICE_TYPE) {
-            if (!QtKitAspect::qtVersion(k))
-                KitManager::deregisterKit(k); // Remove autoDetected kits without Qt.
-            else
-                return true;
+            return true;
         }
         return false;
     });
@@ -1327,6 +1324,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             && tc->isValid()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
     });
+    QList<Kit *> unhandledKits = existingKits;
     for (ToolChain *tc : toolchains) {
         if (tc->language() != ProjectExplorer::Constants::CXX_LANGUAGE_ID)
             continue;
@@ -1381,12 +1379,18 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
             };
 
-            if (existingKit)
+            if (existingKit) {
                 initializeKit(existingKit); // Update the existing kit with new data.
-            else
+                unhandledKits.removeOne(existingKit);
+            } else {
                 KitManager::registerKit(initializeKit);
+            }
         }
     }
+    // cleanup any mess that might have existed before, by removing all Android kits that
+    // existed before, but weren't re-used
+    for (Kit *k : unhandledKits)
+        KitManager::deregisterKit(k);
 }
 
 bool AndroidConfigurations::force32bitEmulator()

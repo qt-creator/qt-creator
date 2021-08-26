@@ -761,7 +761,8 @@ void Qt5InformationNodeInstanceServer::updateNodesRecursive(QQuickItem *item)
     const auto childItems = item->childItems();
     for (QQuickItem *childItem : childItems)
         updateNodesRecursive(childItem);
-    if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+
+    if (Internal::QuickItemNodeInstance::unifiedRenderPathOrQt6()) {
         if (item->flags() & QQuickItem::ItemHasContents)
             item->update();
     } else {
@@ -773,7 +774,7 @@ QQuickItem *Qt5InformationNodeInstanceServer::getContentItemForRendering(QQuickI
 {
     QQuickItem *contentItem = QQmlProperty::read(rootItem, "contentItem").value<QQuickItem *>();
     if (contentItem) {
-        if (!Internal::QuickItemNodeInstance::unifiedRenderPath())
+        if (!Internal::QuickItemNodeInstance::unifiedRenderPathOrQt6())
             designerSupport()->refFromEffectItem(contentItem, false);
         QmlDesigner::Internal::QmlPrivateGate::disableNativeTextRendering(contentItem);
     }
@@ -899,7 +900,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                 instanceObj = instance.internalObject();
             }
             QSize renderSize = m_modelNodePreviewImageCommand.size();
-            if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+            if (Internal::QuickItemNodeInstance::unifiedRenderPathOrQt6()) {
                 // Requested size is already adjusted for target pixel ratio, so we have to adjust
                 // back if ratio is not default for our window.
                 double ratio = m_modelNode3DImageViewData.window->devicePixelRatio();
@@ -1106,7 +1107,7 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     if (m_editView3DData.rootItem)
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "aboutToShutDown", Qt::DirectConnection);
 
-    if (!Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+    if (!Internal::QuickItemNodeInstance::unifiedRenderPathOrQt6()) {
         if (m_editView3DData.contentItem)
             designerSupport()->derefFromEffectItem(m_editView3DData.contentItem);
         if (m_modelNode3DImageViewData.contentItem)

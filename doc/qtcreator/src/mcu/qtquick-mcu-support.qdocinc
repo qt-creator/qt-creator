@@ -38,9 +38,9 @@
     the components available on MCUs are displayed in \l Library >
     \uicontrol Components. Only a subset of properties is supported for the
     supported components. The properties that are not available on MCUs are
-    marked in the \l Properties view by enclosing them in square brackets.
+    marked in the \l Properties view with strikethrough text.
 
-    \image qmldesigner-mcu-support.png "Components and Image properties supported for MCUs"
+    \image qmldesigner-mcu-support.png "Components and Text properties supported for MCUs"
 
     For more information about the supported components and their properties,
     see \l{Qt for MCUs - All QML Types}.
