@@ -459,8 +459,9 @@ void PathChooser::slotBrowse()
     window()->activateWindow();
 
     // Delete trailing slashes unless it is "/" only.
-    if (newPath.endsWith("/") && newPath.path().size() > 1) {
-        newPath = newPath.withNewPath(newPath.path().chopped(1));
+    if (!newPath.isEmpty()) {
+        if (newPath.endsWith("/") && newPath.path().size() > 1)
+            newPath = newPath.withNewPath(newPath.path().chopped(1));
         setFilePath(newPath);
     }
 
