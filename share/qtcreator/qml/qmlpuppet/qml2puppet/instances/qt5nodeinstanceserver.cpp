@@ -348,6 +348,14 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
     ServerNodeInstance instance = instanceForObject(item);
     const auto childInstances = instance.childItems();
 
+    // Setting layer enabled to false messes up the bounding rect.
+    // Therefore we calculate it upfront.
+    QRectF renderBoundingRect;
+    if (instance.isValid())
+        renderBoundingRect = instance.boundingRect();
+    else
+        renderBoundingRect = item->boundingRect();
+
     // Hide immediate children that have instances and are QQuickItems so we get only
     // the parent item's content, as compositing is handled on creator side.
     for (const auto &childInstance : childInstances) {
@@ -372,11 +380,15 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
         QSGRenderContext *rc = QQuickWindowPrivate::get(m_viewData.window.data())->context;
         QSGLayer *layer = rc->sceneGraphContext()->createLayer(rc);
         layer->setItem(pItem->itemNode());
-        QSizeF itemSize = QSizeF(item->width(), item->height());
-        layer->setRect(QRectF(0, itemSize.height(), itemSize.width(), -itemSize.height()));
+
+        layer->setRect(QRectF(renderBoundingRect.x(),
+                              renderBoundingRect.y() + renderBoundingRect.height(),
+                              renderBoundingRect.width(),
+                              -renderBoundingRect.height()));
+
         const QSize minSize = rc->sceneGraphContext()->minimumFBOSize();
-        layer->setSize(QSize(qMax(minSize.width(), int(itemSize.width())),
-                             qMax(minSize.height(), int(itemSize.height()))));
+        layer->setSize(QSize(qMax(minSize.width(), int(renderBoundingRect.width())),
+                             qMax(minSize.height(), int(renderBoundingRect.height()))));
         layer->scheduleUpdate();
 
         if (layer->updateTexture())
