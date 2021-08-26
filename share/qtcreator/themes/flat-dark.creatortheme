@@ -370,6 +370,7 @@ PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 PaletteMid=ffa0a0a0
+PalettePlaceholderText=ff7f7f80
 
 [Flags]
 ComboBoxDrawTextShadow=false

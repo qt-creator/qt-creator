@@ -163,6 +163,9 @@ public:
         PaletteMidDisabled,
         PaletteShadowDisabled,
 
+        PalettePlaceholderText,
+        PalettePlaceholderTextDisabled,
+
         /* Icons */
 
         IconsBaseColor,

@@ -193,7 +193,7 @@ void Theme::readSettings(QSettings &settings)
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             if (!settings.contains(key)) {
-                if (i < PaletteWindow || i > PaletteShadowDisabled)
+                if (i < PaletteWindow || i > PalettePlaceholderTextDisabled)
                     qWarning("Theme \"%s\" misses color setting for key \"%s\".",
                              qPrintable(d->fileName), qPrintable(key));
                 continue;
@@ -325,7 +325,9 @@ QPalette Theme::palette() const
         {PaletteMid,                       QPalette::Mid,              QPalette::All,      false},
         {PaletteMidDisabled,               QPalette::Mid,              QPalette::Disabled, false},
         {PaletteShadow,                    QPalette::Shadow,           QPalette::All,      false},
-        {PaletteShadowDisabled,            QPalette::Shadow,           QPalette::Disabled, false}
+        {PaletteShadowDisabled,            QPalette::Shadow,           QPalette::Disabled, false},
+        {PalettePlaceholderText,           QPalette::PlaceholderText,  QPalette::All,      false},
+        {PalettePlaceholderTextDisabled,   QPalette::PlaceholderText,  QPalette::Disabled, false},
     };
 
     for (auto entry: mapping) {
