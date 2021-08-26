@@ -644,9 +644,8 @@ void Parser::parse(QIODevice *device)
     d->parse(device);
 }
 
-Parser::Parser(QObject *parent)
-    : QObject(parent),
-      d(new Private(this))
+Parser::Parser()
+    : d(new Private(this))
 {
 }
 
