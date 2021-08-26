@@ -296,8 +296,12 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
 
 bool QmlProfilerTraceView::isUsable() const
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     return d->m_mainView->quickWindow()->rendererInterface()->graphicsApi()
             == QSGRendererInterface::OpenGL;
+#else
+    return QSGRendererInterface::isApiRhiBased(d->m_mainView->quickWindow()->rendererInterface()->graphicsApi());
+#endif
 }
 
 bool QmlProfilerTraceView::isSuspended() const
