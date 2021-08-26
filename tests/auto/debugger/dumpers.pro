@@ -32,7 +32,8 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/processutils.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/savefile.cpp
+        $$IDE_SOURCE_TREE/src/libs/utils/savefile.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/stringutils.cpp
 
     HEADERS += \
         $$IDE_SOURCE_TREE/src/libs/utils/commandline.h \
@@ -51,7 +52,8 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.h \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h \
         $$IDE_SOURCE_TREE/src/libs/utils/processutils.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/savefile.h
+        $$IDE_SOURCE_TREE/src/libs/utils/savefile.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/stringutils.h
 
     macos: {
         HEADERS += $$IDE_SOURCE_TREE/src/libs/utils/fileutils_mac.h

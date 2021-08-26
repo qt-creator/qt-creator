@@ -33,6 +33,7 @@ HEADERS += \
         $$UTILSDIR/processhandle.cpp \
         $$UTILSDIR/processutils.cpp \
         $$UTILSDIR/savefile.cpp \
+        $$UTILSDIR/stringutils.cpp \
 
     HEADERS += \
         $$UTILSDIR/commandline.h \
@@ -51,6 +52,7 @@ HEADERS += \
         $$UTILSDIR/processhandle.h \
         $$UTILSDIR/processutils.h \
         $$UTILSDIR/savefile.h \
+        $$UTILSDIR/stringutils.h \
 
     macos: {
          HEADERS += $$UTILSDIR/fileutils_mac.h
