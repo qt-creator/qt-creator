@@ -57,6 +57,7 @@ const char kLineCallback[] = "QTC_TST_QTCPROCESS_LINECALLBACK";
 const char kTestProcess[] = "QTC_TST_TEST_PROCESS";
 const char kForwardProcess[] = "QTC_TST_FORWARD_PROCESS";
 const char kForwardSubProcess[] = "QTC_TST_FORWARD_SUB_PROCESS";
+const char kBlockingProcess[] = "QTC_TST_BLOCKING_PROCESS";
 
 // The variables above are meant to be different custom executables. Inside initTestCase()
 // we are detecting if one of these variables is set and invoke directly a respective custom
@@ -147,6 +148,13 @@ static void testForwardSubProcessMain()
     exit(0);
 }
 
+static void blockingProcessSubProcessMain()
+{
+    std::cout << "Blocking process successfully executed." << std::endl;
+    while (true)
+        ;
+}
+
 class MacroMapExpander : public AbstractMacroExpander {
 public:
     virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
@@ -198,6 +206,7 @@ private slots:
     void notRunningAfterStartingNonExistingProgram();
     void processChannelForwarding_data();
     void processChannelForwarding();
+    void killBlockingProcess();
 
     void cleanupTestCase();
 
@@ -230,6 +239,8 @@ void tst_QtcProcess::initTestCase()
         testForwardSubProcessMain();
     else if (qEnvironmentVariableIsSet(kForwardProcess))
         testForwardProcessMain();
+    if (qEnvironmentVariableIsSet(kBlockingProcess))
+        blockingProcessSubProcessMain();
 
     homeStr = QLatin1String("@HOME@");
     home = QDir::homePath();
@@ -1104,6 +1115,65 @@ void tst_QtcProcess::processChannelForwarding()
 
     QCOMPARE(output.contains(QByteArray(forwardedOutputData)), outputForwarded);
     QCOMPARE(error.contains(QByteArray(forwardedErrorData)), errorForwarded);
+}
+
+// This handler is inspired by the one used in qtbase/tests/auto/corelib/io/qfile/tst_qfile.cpp
+class MessageHandler {
+public:
+    MessageHandler(QtMessageHandler messageHandler = handler)
+    {
+        ok = true;
+        oldMessageHandler = qInstallMessageHandler(messageHandler);
+    }
+
+    ~MessageHandler()
+    {
+        qInstallMessageHandler(oldMessageHandler);
+    }
+
+    static bool testPassed()
+    {
+        return ok;
+    }
+
+protected:
+    static void handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+    {
+        if (msg.startsWith("QProcess: Destroyed while process")
+                && msg.endsWith("is still running.")) {
+            ok = false;
+        }
+        // Defer to old message handler.
+        if (oldMessageHandler)
+            oldMessageHandler(type, context, msg);
+    }
+
+    static QtMessageHandler oldMessageHandler;
+    static bool ok;
+};
+
+bool MessageHandler::ok = true;
+QtMessageHandler MessageHandler::oldMessageHandler = 0;
+
+void tst_QtcProcess::killBlockingProcess()
+{
+    Environment env = Environment::systemEnvironment();
+    env.set(kBlockingProcess, {});
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    const CommandLine command(FilePath::fromString(binary), args);
+
+    MessageHandler msgHandler;
+    {
+        QtcProcess process;
+        process.setCommand(command);
+        process.setEnvironment(env);
+        process.start();
+        QVERIFY(process.waitForStarted());
+        QVERIFY(!process.waitForFinished(1000));
+    }
+
+    QVERIFY(msgHandler.testPassed());
 }
 
 QTEST_MAIN(tst_QtcProcess)
