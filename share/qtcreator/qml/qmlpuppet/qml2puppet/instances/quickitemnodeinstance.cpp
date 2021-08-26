@@ -612,6 +612,18 @@ void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem)
     updateDirtyNode(parentItem);
 }
 
+void QuickItemNodeInstance::setAllNodesDirtyRecursive(QQuickItem *parentItem) const
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    Q_UNUSED(parentItem)
+#else
+    const QList<QQuickItem *> children = parentItem->childItems();
+    for (QQuickItem *childItem : children)
+        setAllNodesDirtyRecursive(childItem);
+    DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+#endif
+}
+
 static inline bool isRectangleSane(const QRectF &rect)
 {
     return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
@@ -813,6 +825,9 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
     if (name == "y")
         m_y = value.toDouble();
 
+    if (name == "layer.enabled" || name == "layer.effect")
+        setAllNodesDirtyRecursive(quickItem());
+
     ObjectNodeInstance::setPropertyVariant(name, value);
 
     refresh();
@@ -881,6 +896,9 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
 
     if (name == "y")
         m_y = 0.0;
+
+    if (name == "layer.enabled" || name == "layer.effect")
+        setAllNodesDirtyRecursive(quickItem());
 
     DesignerSupport::resetAnchor(quickItem(), QString::fromUtf8(name));
 
