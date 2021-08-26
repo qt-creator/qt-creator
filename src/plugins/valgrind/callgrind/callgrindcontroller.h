@@ -62,16 +62,16 @@ public:
     void getLocalDataFile();
     void setValgrindPid(qint64 pid);
     void setValgrindRunnable(const ProjectExplorer::Runnable &runnable);
+    void setValgrindOutputFile(const Utils::FilePath &output) { m_valgrindOutputFile = output; }
 
 signals:
     void finished(Valgrind::Callgrind::CallgrindController::Option option);
-    void localParseDataAvailable(const QString &file);
+    void localParseDataAvailable(const Utils::FilePath &file);
     void statusMessage(const QString &msg);
 
 private:
     void handleControllerProcessError(QProcess::ProcessError);
 
-    void foundRemoteFile();
     void sftpInitialized();
     void sftpJobFinished(QSsh::SftpJobId job, const QString &error);
     void cleanupTempFile();
@@ -88,11 +88,10 @@ private:
 
     // remote callgrind support
     QSsh::SshConnection *m_ssh = nullptr;
-    QString m_tempDataFile;
-    QSsh::SshRemoteProcessPtr m_findRemoteFile;
+    Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
+    Utils::FilePath m_hostOutputFile; // On the device that runs creator
     QSsh::SftpSessionPtr m_sftp;
     QSsh::SftpJobId m_downloadJob = 0;
-    QByteArray m_remoteFile;
 };
 
 } // namespace Callgrind

@@ -32,8 +32,9 @@
 #include <valgrind/callgrind/callgrindcostitem.h>
 #include <valgrind/callgrind/callgrindparsedata.h>
 
+#include <utils/filepath.h>
+
 #include <QDebug>
-#include <QFile>
 #include <QString>
 #include <QTest>
 
@@ -103,12 +104,8 @@ void CallgrindParserTests::cleanup()
 
 ParseData* parseDataFile(const QString &dataFile)
 {
-    QFile file(dataFile);
-    Q_ASSERT(file.exists());
-    file.open(QIODevice::ReadOnly);
-
     Parser p;
-    p.parse(&file);
+    p.parse(Utils::FilePath::fromString(dataFile));
 
     return p.takeData();
 }

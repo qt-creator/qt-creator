@@ -34,11 +34,13 @@
 
 #include <debugger/analyzer/analyzermanager.h>
 
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
+using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
@@ -58,7 +60,7 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     connect(&m_controller, &CallgrindController::finished,
             this, &CallgrindToolRunner::controllerFinished);
     connect(&m_controller, &CallgrindController::localParseDataAvailable,
-            this, &CallgrindToolRunner::localParseDataAvailable);
+            this, &CallgrindToolRunner::handleLocalParseData);
     connect(&m_controller, &CallgrindController::statusMessage,
             this, &CallgrindToolRunner::showStatusMessage);
 
@@ -70,6 +72,10 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     });
 
     m_controller.setValgrindRunnable(runnable());
+
+    static int fileCount = 100;
+    m_valgrindOutputFile = runnable().workingDirectory / QString("callgrind.out.f%1").arg(++fileCount);
+    m_controller.setValgrindOutputFile(m_valgrindOutputFile);
 
     setupCallgrindRunner(this);
 }
@@ -96,6 +102,8 @@ QStringList CallgrindToolRunner::toolArguments() const
     // add extra arguments
     if (!m_argumentForToggleCollect.isEmpty())
         arguments << m_argumentForToggleCollect;
+
+    arguments << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
     arguments << Utils::ProcessArgs::splitArgs(m_settings.callgrindArguments.value());
 
@@ -175,18 +183,11 @@ void CallgrindToolRunner::triggerParse()
     m_controller.getLocalDataFile();
 }
 
-void CallgrindToolRunner::localParseDataAvailable(const QString &file)
+void CallgrindToolRunner::handleLocalParseData(const FilePath &outputFile)
 {
-    // parse the callgrind file
-    QTC_ASSERT(!file.isEmpty(), return);
-    QFile outputFile(file);
     QTC_ASSERT(outputFile.exists(), return);
-    if (outputFile.open(QIODevice::ReadOnly)) {
-        showStatusMessage(tr("Parsing Profile Data..."));
-        m_parser.parse(&outputFile);
-    } else {
-        qWarning() << "Could not open file for parsing:" << outputFile.fileName();
-    }
+    showStatusMessage(tr("Parsing Profile Data..."));
+    m_parser.parse(outputFile);
 }
 
 void CallgrindToolRunner::controllerFinished(CallgrindController::Option option)

@@ -205,56 +205,33 @@ void CallgrindController::controllerProcessClosed(bool success)
 
 void CallgrindController::getLocalDataFile()
 {
-    // we look for callgrind.out.PID, but there may be updated ones called ~.PID.NUM
-    const QString baseFileName = QString("callgrind.out.%1").arg(m_pid);
-    const QString workingDir = m_valgrindRunnable.workingDirectory.toString();
-    // first, set the to-be-parsed file to callgrind.out.PID
-    QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + '/' + baseFileName);
+    cleanupTempFile();
+    {
+        TemporaryFile dataFile("callgrind.out");
+        dataFile.open();
+        m_hostOutputFile = FilePath::fromString(dataFile.fileName());
+    }
 
-    if (m_valgrindRunnable.device
-            && m_valgrindRunnable.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
 //        ///TODO: error handling
 //        emit statusMessage(tr("Downloading remote profile data..."));
 //        m_ssh = m_valgrindProc->connection();
-//        // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
-//        QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
-//        m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
-//        connect(m_findRemoteFile.data(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
-//                this, &CallgrindController::foundRemoteFile);
-//        m_findRemoteFile->start();
-    } else {
-        const QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
-        const QStringList outputFiles = dir.entryList();
-        // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
-        if (!outputFiles.isEmpty())
-            fileName = workingDir + '/' + outputFiles.first();
+// [...]
+//    m_sftp = m_ssh->createSftpSession();
+//    connect(m_sftp.get(), &QSsh::SftpSession::commandFinished,
+//            this, &CallgrindController::sftpJobFinished);
+//    connect(m_sftp.get(), &QSsh::SftpSession::started,
+//            this, &CallgrindController::sftpInitialized);
+//    m_sftp->start();
 
-        emit localParseDataAvailable(fileName);
-    }
-}
+    const bool res = m_valgrindOutputFile.copyFile(m_hostOutputFile);
+    QTC_CHECK(res);
 
-void CallgrindController::foundRemoteFile()
-{
-    m_remoteFile = m_findRemoteFile->readAllStandardOutput().trimmed();
-
-    m_sftp = m_ssh->createSftpSession();
-    connect(m_sftp.get(), &QSsh::SftpSession::commandFinished,
-            this, &CallgrindController::sftpJobFinished);
-    connect(m_sftp.get(), &QSsh::SftpSession::started,
-            this, &CallgrindController::sftpInitialized);
-    m_sftp->start();
+    emit localParseDataAvailable(m_hostOutputFile);
 }
 
 void CallgrindController::sftpInitialized()
 {
-    cleanupTempFile();
-    Utils::TemporaryFile dataFile("callgrind.out.");
-    QTC_ASSERT(dataFile.open(), return);
-    m_tempDataFile = dataFile.fileName();
-    dataFile.setAutoRemove(false);
-    dataFile.close();
-
-    m_downloadJob = m_sftp->downloadFile(QString::fromUtf8(m_remoteFile), m_tempDataFile);
+    m_downloadJob = m_sftp->downloadFile(m_valgrindOutputFile.path(), m_hostOutputFile.path());
 }
 
 void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &error)
@@ -264,15 +241,15 @@ void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &er
     m_sftp->quit();
 
     if (error.isEmpty())
-        emit localParseDataAvailable(m_tempDataFile);
+        emit localParseDataAvailable(m_hostOutputFile);
 }
 
 void CallgrindController::cleanupTempFile()
 {
-    if (!m_tempDataFile.isEmpty() && QFile::exists(m_tempDataFile))
-        QFile::remove(m_tempDataFile);
+    if (!m_hostOutputFile.isEmpty() && m_hostOutputFile.exists())
+        m_hostOutputFile.removeFile();
 
-    m_tempDataFile.clear();
+    m_hostOutputFile.clear();
 }
 
 void CallgrindController::setValgrindRunnable(const Runnable &runnable)

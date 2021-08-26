@@ -895,7 +895,7 @@ void CallgrindToolPrivate::loadExternalLogFile()
     QCoreApplication::processEvents();
 
     Parser parser;
-    parser.parse(&logFile);
+    parser.parse(filePath);
     takeParserData(parser.takeData());
 }
 

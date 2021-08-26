@@ -30,10 +30,10 @@
 #include "callgrindcostitem.h"
 #include "callgrindfunction.h"
 
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QFileDevice>
 #include <QHash>
 #include <QVector>
 #include <QStringList>
@@ -41,7 +41,10 @@
 
 // #define DEBUG_PARSER
 
-namespace {
+using namespace Utils;
+
+namespace Valgrind {
+namespace Callgrind {
 
 static void skipSpace(const char **current, const char *end)
 {
@@ -130,10 +133,6 @@ static int parseNameShorthand(const char **current, const char *end)
     return -1; // invalid
 }
 
-}
-
-namespace Valgrind {
-namespace Callgrind {
 
 class Parser::Private
 {
@@ -150,7 +149,7 @@ public:
         delete data;
     }
 
-    void parse(QIODevice *device);
+    void parse(const FilePath &filePath);
     void parseHeader(QIODevice *device);
 
     using NamePair = QPair<qint64, QString>;
@@ -197,20 +196,22 @@ public:
     QSet<Function *> recursiveFunctions;
 };
 
-void Parser::Private::parse(QIODevice *device)
+void Parser::Private::parse(const FilePath &filePath)
 {
     // be sure to clean up existing data before re-allocating
     // the callee might not have taken the parse data
     delete data;
     data = nullptr;
 
-    QString file;
-    if (auto fileDevice = qobject_cast<QFileDevice *>(device))
-        file = fileDevice->fileName();
-    data = new ParseData(file);
-    parseHeader(device);
-    while (!device->atEnd()) {
-        QByteArray line = device->readLine();
+    const QString path = filePath.path(); // FIXME: Works only accidentally for docker
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        qWarning() << "Could not open file for parsing:" << filePath.toUserOutput();
+
+    data = new ParseData(path);
+    parseHeader(&file);
+    while (!file.atEnd()) {
+        const QByteArray line = file.readLine();
         // empty lines actually have no meaning - only fn= starts a new function
         if (line.length() > 1)
             dispatchLine(line);
@@ -639,9 +640,9 @@ void Parser::Private::parseCalledObjectFile(const char *begin, const char *end)
 
 //BEGIN Parser
 
-void Parser::parse(QIODevice *device)
+void Parser::parse(const Utils::FilePath &filePath)
 {
-    d->parse(device);
+    d->parse(filePath);
 }
 
 Parser::Parser()

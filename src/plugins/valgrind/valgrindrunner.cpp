@@ -138,8 +138,8 @@ bool ValgrindRunner::Private::run()
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
         cmd.addArg("--dsymutil=yes");
-    cmd.addArg(m_debuggee.command.executable().toString());
-    cmd.addArgs(m_debuggee.command.arguments(), CommandLine::Raw);
+
+    cmd.addCommandLineAsArgs(m_debuggee.command);
 
     emit q->valgrindExecuted(cmd.toUserOutput());
 
@@ -149,10 +149,14 @@ bool ValgrindRunner::Private::run()
     valgrind.environment = m_debuggee.environment;
     valgrind.device = m_device;
 
-    if (m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+    if (m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         m_valgrindProcess.start(valgrind);
-    else
+    } else if (m_device->type() == "DockerDeviceType") {
+        valgrind.device = {};
+        m_valgrindProcess.start(valgrind);
+    } else {
         m_valgrindProcess.start(valgrind, m_device);
+    }
 
     return true;
 }

@@ -70,10 +70,11 @@ private:
     void showStatusMessage(const QString &message);
 
     void triggerParse();
-    void localParseDataAvailable(const QString &file);
+    void handleLocalParseData(const Utils::FilePath &filePath);
     void controllerFinished(Callgrind::CallgrindController::Option option);
 
     bool m_markAsPaused = false;
+    Utils::FilePath m_valgrindOutputFile;
     Callgrind::CallgrindController m_controller;
     Callgrind::Parser m_parser;
     bool m_paused = false;
