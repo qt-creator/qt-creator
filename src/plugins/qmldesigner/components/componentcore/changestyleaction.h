@@ -38,6 +38,24 @@ namespace QmlDesigner {
 
 class AbstractView;
 
+struct StyleWidgetEntry {
+    QString displayName;
+
+    QString styleName;
+    QString styleTheme;
+
+    bool operator==(const StyleWidgetEntry &entry) const {
+        if (displayName != entry.displayName)
+            return false;
+        if (styleName != entry.styleName)
+            return false;
+        if (styleTheme != entry.styleTheme)
+            return false;
+
+        return true;
+    };
+};
+
 class ChangeStyleWidgetAction : public QWidgetAction
 {
     Q_OBJECT
@@ -45,6 +63,11 @@ class ChangeStyleWidgetAction : public QWidgetAction
 public:
     explicit ChangeStyleWidgetAction(QObject *parent = nullptr);
     void handleModelUpdate(const QString &style);
+
+    const QList<StyleWidgetEntry> styleItems() const;
+
+public slots:
+    void changeStyle(const QString &style);
 
 protected:
     QWidget *createWidget(QWidget *parent) override;
@@ -55,6 +78,8 @@ signals:
 public:
     QString qmlFileName;
     QPointer<AbstractView> view;
+
+    QList<StyleWidgetEntry> items;
 };
 
 class ChangeStyleAction : public ActionInterface

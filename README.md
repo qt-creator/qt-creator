@@ -213,9 +213,14 @@ While the plugin builds without it, it might not be fully functional.
 
 Note that the plugin is disabled by default.
 
-## Third-party Components
+# Licenses and Attributions
 
-Qt Creator includes the following third-party components,
+Qt Creator is available under commercial licenses from The Qt Company,
+and under the GNU General Public License version 3,
+annotated with The Qt Company GPL Exception 1.0.
+See [LICENSE.GPL-EXCEPT](LICENSE.GPL-EXCEPT) for the details.
+
+Qt Creator furthermore includes the following third-party components,
 we thank the authors who made this possible:
 
 ### YAML Parser yaml-cpp (MIT License)

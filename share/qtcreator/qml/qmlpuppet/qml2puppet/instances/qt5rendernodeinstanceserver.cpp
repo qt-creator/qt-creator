@@ -102,9 +102,6 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             clearChangedPropertyList();
 
             if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
-                /* QQuickItem::grabToImage render path */
-                /* TODO implement QQuickItem::grabToImage based rendering */
-                /* sheduleRootItemRender(); */
                 if (windowDirty)
                     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
             } else {

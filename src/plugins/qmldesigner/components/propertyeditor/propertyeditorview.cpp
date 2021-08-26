@@ -227,12 +227,19 @@ void PropertyEditorView::changeValue(const QString &name)
         removePropertyFromModel(propertyName);
     } else {
         // QVector*D(0, 0, 0) detects as null variant though it is valid value
-        if (castedValue.isValid() && (!castedValue.isNull()
-                                      || castedValue.type() == QVariant::Vector2D
-                                      || castedValue.type() == QVariant::Vector3D)) {
+        if (castedValue.isValid()
+            && (!castedValue.isNull() || castedValue.type() == QVariant::Vector2D
+                || castedValue.type() == QVariant::Vector3D
+                || castedValue.type() == QVariant::Vector4D)) {
             commitVariantValueToModel(propertyName, castedValue);
         }
     }
+}
+
+static bool isTrueFalseLiteral(const QString &expression)
+{
+    return (expression.compare("false", Qt::CaseInsensitive) == 0)
+           || (expression.compare("true", Qt::CaseInsensitive) == 0);
 }
 
 void PropertyEditorView::changeExpression(const QString &propertyName)
@@ -267,9 +274,8 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                     return;
                 }
             } else if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "bool") {
-                if (value->expression().compare(QLatin1String("false"), Qt::CaseInsensitive) == 0
-                        || value->expression().compare(QLatin1String("true"), Qt::CaseInsensitive) == 0) {
-                    if (value->expression().compare(QLatin1String("true"), Qt::CaseInsensitive) == 0)
+                if (isTrueFalseLiteral(value->expression())) {
+                    if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                         qmlObjectNode->setVariantProperty(name, true);
                     else
                         qmlObjectNode->setVariantProperty(name, false);
@@ -287,6 +293,19 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode->setVariantProperty(name, realValue);
+                    return;
+                }
+            } else if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "QVariant") {
+                bool ok;
+                qreal realValue = value->expression().toDouble(&ok);
+                if (ok) {
+                    qmlObjectNode->setVariantProperty(name, realValue);
+                    return;
+                } else if (isTrueFalseLiteral(value->expression())) {
+                    if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
+                        qmlObjectNode->setVariantProperty(name, true);
+                    else
+                        qmlObjectNode->setVariantProperty(name, false);
                     return;
                 }
             }

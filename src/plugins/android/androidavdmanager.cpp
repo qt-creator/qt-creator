@@ -333,7 +333,7 @@ QString AndroidAvdManager::waitForAvd(const QString &avdName,
     // 60 rounds of 2s sleeping, two minutes for the avd to start
     QString serialNumber;
     for (int i = 0; i < 60; ++i) {
-        if (cancelChecker())
+        if (cancelChecker && cancelChecker())
             return QString();
         serialNumber = findAvd(avdName);
         if (!serialNumber.isEmpty())
@@ -365,7 +365,7 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
 {
     // found a serial number, now wait until it's done booting...
     for (int i = 0; i < 60; ++i) {
-        if (cancelChecker())
+        if (cancelChecker && cancelChecker())
             return false;
         if (isAvdBooted(serialNumber)) {
             return true;

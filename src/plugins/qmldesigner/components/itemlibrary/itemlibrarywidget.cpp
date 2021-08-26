@@ -79,6 +79,10 @@ namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath()
 {
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
@@ -376,6 +380,10 @@ void ItemLibraryWidget::handleTabChanged(int index)
 
 QString ItemLibraryWidget::qmlSourcesPath()
 {
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/itemLibraryQmlSources";
+#endif
     return Core::ICore::resourcePath("qmldesigner/itemLibraryQmlSources").toString();
 }
 

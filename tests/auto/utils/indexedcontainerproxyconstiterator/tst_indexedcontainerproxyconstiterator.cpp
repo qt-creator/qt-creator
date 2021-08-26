@@ -83,7 +83,7 @@ void tst_IndexedContainerProxyConstIterator::testDereference()
 {
     StringIterator strIt(strings, 0);
     QCOMPARE(*strIt, "abc");
-    QCOMPARE(strIt->length(), 3);
+    QCOMPARE(int(strIt->length()), 3);
 
     BoolIterator boolIt(bools, 0);
     QCOMPARE(*boolIt, false);

@@ -44,10 +44,13 @@
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtGui/private/qrhi_p.h>
-#include <QtQuick/private/qquickwindow_p.h>
-#include <QtQuick/private/qsgrenderer_p.h>
+#include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquickrendercontrol_p.h>
 #include <QtQuick/private/qquickrendertarget_p.h>
+#include <QtQuick/private/qquickwindow_p.h>
+#include <QtQuick/private/qsgcontext_p.h>
+#include <QtQuick/private/qsgrenderer_p.h>
+#include <QtQuick/private/qsgrhilayer_p.h>
 #endif
 
 namespace QmlDesigner {
@@ -330,6 +333,80 @@ QImage Qt5NodeInstanceServer::grabWindow()
     if (m_viewData.rootItem)
         return grabRenderControl(m_viewData);
     return  {};
+}
+
+QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
+{
+    QImage renderImage;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
+        return {};
+
+    QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
+    pItem->refFromEffectItem(false);
+
+    ServerNodeInstance instance = instanceForObject(item);
+    const auto childInstances = instance.childItems();
+
+    // Hide immediate children that have instances and are QQuickItems so we get only
+    // the parent item's content, as compositing is handled on creator side.
+    for (const auto &childInstance : childInstances) {
+        QQuickItem *childItem = qobject_cast<QQuickItem *>(childInstance.internalObject());
+        if (childItem) {
+            QQuickItemPrivate *pChild = QQuickItemPrivate::get(childItem);
+            pChild->refFromEffectItem(true);
+        }
+    }
+
+    m_viewData.renderControl->polishItems();
+    m_viewData.renderControl->beginFrame();
+    m_viewData.renderControl->sync();
+
+    // Connection to afterRendering is necessary, as this needs to be done before
+    // call to endNextRhiFrame which happens inside QQuickRenderControl::render()
+    QMetaObject::Connection connection = QObject::connect(m_viewData.window.data(),
+                                                          &QQuickWindow::afterRendering,
+                                                          this, [&]() {
+        // To get only the single item, we need to make a layer out of it, which enables
+        // us to render it to a texture that we can grab to an image.
+        QSGRenderContext *rc = QQuickWindowPrivate::get(m_viewData.window.data())->context;
+        QSGLayer *layer = rc->sceneGraphContext()->createLayer(rc);
+        layer->setItem(pItem->itemNode());
+        QSizeF itemSize = QSizeF(item->width(), item->height());
+        layer->setRect(QRectF(0, itemSize.height(), itemSize.width(), -itemSize.height()));
+        const QSize minSize = rc->sceneGraphContext()->minimumFBOSize();
+        layer->setSize(QSize(qMax(minSize.width(), int(itemSize.width())),
+                             qMax(minSize.height(), int(itemSize.height()))));
+        layer->scheduleUpdate();
+
+        if (layer->updateTexture())
+            renderImage = layer->toImage();
+        else
+            qWarning() << __FUNCTION__ << "Failed to update layer texture";
+
+        delete layer;
+        layer = nullptr;
+    });
+
+    m_viewData.renderControl->render();
+
+    QObject::disconnect(connection);
+
+    m_viewData.renderControl->endFrame();
+
+    // Restore visibility of immediate children that have instances and are QQuickItems
+    for (const auto &childInstance : childInstances) {
+        QQuickItem *childItem = qobject_cast<QQuickItem *>(childInstance.internalObject());
+        if (childItem) {
+            QQuickItemPrivate *pChild = QQuickItemPrivate::get(childItem);
+            pChild->derefFromEffectItem(true);
+        }
+    }
+    pItem->derefFromEffectItem(false);
+#else
+    Q_UNUSED(item)
+#endif
+    return renderImage;
 }
 
 void Qt5NodeInstanceServer::refreshBindings()

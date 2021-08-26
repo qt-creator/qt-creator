@@ -27,18 +27,19 @@
 
 /*!
     \page studio-3d-model.html
-    \previouspage studio-3d-node.html
+    \previouspage studio-skeletal-components.html
     \nextpage studio-3d-materials.html
 
     \title 3D Models
 
-    \QDS \l Library features some built-in primitive 3D models. This allows you
-    to add cubes, cones, cylinders, and planes (rectangles) to your scene.
+    The \l Library view features some built-in primitive 3D models. This allows
+    you to add cubes, cones, cylinders, and planes (rectangles) to your scene.
 
-    \image studio-3d-models.png
+    \image studio-3d-models.png "Various 3D models in 3D Editor"
 
     A Model component loads mesh data from a file. You can modify how the
-    component is shaded by adding \l{3D Materials}{materials} to the model.
+    component is shaded by using materials. For more information, see
+    \l {Materials and Shaders} and \l {Creating Custom Materials}.
 
     You can drag-and-drop a model from \uicontrol Library > \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \l {3D Editor} or
@@ -49,28 +50,66 @@
 
     \image studio-qtquick-3d-components.png "The Qt Quick 3D section in Library"
 
-    You can change the model type in the \uicontrol Source field in the
-    \uicontrol Properties view. Select the \inlineimage plus.png
+    \section1 Model Properties
+
+    You can change the model type in \uicontrol Properties > \uicontrol Model
+    > \uicontrol Source field. Select the \inlineimage plus.png
     button to add custom model types to the list.
 
     \image studio-qtquick-3d-model.png "Model properties"
+
+    To use the geometry of this model when rendering to shadow maps, select the
+    \uicontrol {Casts shadows} check box. To allow casting shadows on the model,
+    select the \uicontrol {Receives shadows} check box.
 
     To enable picking the model against the scene, select the
     \uicontrol Pickable check box. Picking transforms the screen
     space x and y coordinates to a ray cast towards the specified
     position in scene space.
 
-    To use the geometry of this model when rendering to shadow maps, select the
-    \uicontrol {Casts shadows} check box. To allow casting shadows on the model,
-    select the \uicontrol {Receives shadows} check box.
+    A model can consist of several sub-meshes, each of which can have its own
+    material. Select the material from the list in the \uicontrol {Materials}
+    field. Select the \inlineimage plus.png
+    button to add materials to the list. For more information about materials,
+    see \l {Materials and Shaders}.
 
-    \section1 Tessellation
+    Specify a custom geometry for the model in the \uicontrol Geometry field.
+    The \uicontrol Source field must be empty when custom geometry is used.
 
-    To dynamically generate additional geometry for the model, select the
-    tiling mode in the \uicontrol {Tessellation mode} filed. Tessellation
-    is useful when using a displacement map with geometry, or to generate a
-    smoother silhouette when zooming in. You can select either a Phong or
-    an NPatch tessellation generator.
+    Set the \uicontrol Instancing property to render a number of instances of
+    the model as defined by the instance table.
+
+    Set the \uicontrol {Instance root} property to define the origin of the
+    instance's coordinate system.
+
+    Specify the \uicontrol Skeleton property to define the \uicontrol Skeleton
+    component used for this model. \uicontrol Skeletons are used for skeletal
+    animation.
+
+    Specify \uicontrol {Morph targets} to use for rendering the provided
+    geometry. Meshes should have at least one attribute among positions, normals,
+    tangent, and bitangent for the morph targets. \uicontrol {Quick 3D} supports
+    the maximum of eight \uicontrol {Morph targets}. Any additional targets
+    after the first eight will be ignored. This property is not used when the
+    model is shaded by a \uicontrol {Custom Material}.
+
+    Define the \uicontrol {Depth bias} property to ensure the shadows of your
+    model are displayed correctly.
+
+    \section1 Tessellation Properties Available in Qt 5
+
+    The properties discussed in this section are only available if you selected
+    \uicontrol {Qt 5} as the \uicontrol {Target Qt Version} when creating the
+    project.
+
+    \image studio-qtquick-3d-properties-tessellation.png "Tessellation properties"
+
+    Tessellation refers to additional geometry that resembles tiling, which you
+    can add to your model. To dynamically generate tessellation for the model,
+    select \uicontrol Linear, \uicontrol Phong, or \uicontrol NPatch as the
+    \uicontrol {Tessellation mode}. Tessellation is useful when using a
+    displacement map with geometry, or to generate a smoother silhouette
+    when zooming in.
 
     Specify an edge multiplier to the tessellation generator in the
     \uicontrol {Edge tessellation} field and an inner multiplier in
@@ -80,11 +119,4 @@
     the tessellation generator, select the \uicontrol {Enable wireframe mode}
     check box.
 
-    \section1 Adding Materials to Sub-Meshes
-
-    A model can consist of several sub-meshes, each of which can have its own
-    material. Select the material from the list in the \uicontrol {Materials}
-    field. Select the \inlineimage plus.png
-    button to add materials to the list. For more information about materials,
-    see \l {Materials and Shaders}.
 */

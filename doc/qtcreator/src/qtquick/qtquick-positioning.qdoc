@@ -195,15 +195,32 @@
     \uicontrol {Distribute spacing} field to determine whether
     it is distributed evenly within a target area or at
     specified distances, calculated from a starting point.
-
     You can select the orientation in which the components are distributed
     evenly within the target area: horizontally along the x axis or vertically
     along the y axis.
 
     Alternatively, you can distribute spacing in pixels by selecting one of the
-    starting point buttons: top-left or bottom-right edge of the target area,
-    or its center. Note that some components might end up outside the target
-    area.
+    starting point buttons: top/left or bottom/right edge of the target area or
+    item, or its center. The edge to use depends on whether the items are
+    distributed horizontally or vertically:
+
+    \list
+        \li Select \inlineimage icons/distribute-origin-top-left.png
+            and \inlineimage icons/distribute-spacing-horizontal.png
+            to use the left edge of the target area or item as the starting
+            point.
+        \li Select \inlineimage icons/distribute-origin-top-left.png
+            and \inlineimage icons/distribute-spacing-vertical.png
+            to use the top edge.
+        \li Select \inlineimage icons/distribute-origin-bottom-right.png
+            and \inlineimage icons/distribute-spacing-horizontal.png
+            to use the right edge.
+        \li Select \inlineimage icons/distribute-origin-bottom-right.png
+            and \inlineimage icons/distribute-spacing-vertical.png
+            to use the bottom edge.
+    \endlist
+
+    \note Some components might end up outside the target area.
 
     In the \uicontrol {Pixel spacing} field, you can set the space between
     components in pixels. You can disable the distribution of spacing in
@@ -273,16 +290,18 @@
         \li Disables the distribution of spacing in pixels.
     \row
         \li \inlineimage icons/distribute-origin-top-left.png
-        \li Sets the top-left corner of the target area as the starting point
-            for distributing spacing in pixels.
+        \li Sets the top or left edge of the target area or item as the
+            starting point for distributing spacing in pixels depending on
+            the distribution orientation.
     \row
         \li \inlineimage icons/distribute-origin-center.png
         \li Sets the center of the target area as the starting point
             for distributing spacing in pixels.
     \row
         \li \inlineimage icons/distribute-origin-bottom-right.png
-        \li Sets the bottom-right corner of the target area as the starting
-            point for distributing spacing in pixels.
+        \li Sets the bottom or right edge of the target area or item as the
+            starting point for distributing spacing in pixels, depending on
+            the distribution orientation.
     \endtable
 
     \section2 Using Positioners

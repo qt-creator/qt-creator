@@ -51,10 +51,10 @@ def main():
             selectBuildConfig(Targets.DESKTOP_5_10_1_DEFAULT, "Debug")
             checkCodeModelSettings(useClang)
             selectFromLocator("main.cpp")
-            cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
 
             for record in testData.dataset("usages.tsv"):
                 include = testData.field(record, "include")
+                cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
                 if include:
                     placeCursorToLine(cppwindow, "#include <QCoreApplication>")
                     typeLines(cppwindow, ("", "#include " + include))

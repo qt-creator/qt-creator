@@ -894,7 +894,8 @@ QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
 
 QString QmlAnchorBindingProxy::idForNode(const QmlItemNode &qmlItemNode) const
 {
-    QTC_ASSERT(qmlItemNode.modelNode().isValid(), return {});
+    if (!qmlItemNode.modelNode().isValid())
+        return {};
 
     if (!qmlItemNode.isValid())
         return qmlItemNode.id();

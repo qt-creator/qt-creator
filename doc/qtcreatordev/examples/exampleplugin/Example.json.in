@@ -5,12 +5,11 @@
     \"CompatVersion\" : \"0.0.1\",
 //! [1]
 //! [2]
-    \"Vendor\" : \"My Company\",
-    \"Copyright\" : \"(C) My Company\",
-    \"License\" : \"BSD\",
-    \"Category\" : \"Examples\",
-    \"Description\" : \"Minimal plugin example.\",
-    \"Url\" : \"http://www.mycompany.com\",
+    \"Vendor\" : \"MyCompany\",
+    \"Copyright\" : \"(C) MyCompany\",
+    \"License\" : \"Put short license information here\",
+    \"Description\" : \"Put a short description of your plugin here\",
+    \"Url\" : \"https://www.mycompany.com\",
 //! [2]
 //! [3]
     $$dependencyList

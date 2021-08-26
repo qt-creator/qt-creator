@@ -47,8 +47,9 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
-#include <QVector3D>
 #include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
 
 #include <QLoggingCategory>
 
@@ -343,6 +344,18 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyNa
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
+    } else if (value.type() == QVariant::Vector4D) {
+        const char *suffix[4] = {"_x", "_y", "_z", "_w"};
+        auto vecValue = value.value<QVector4D>();
+        for (int i = 0; i < 4; ++i) {
+            PropertyName subPropName(name.size() + 2, '\0');
+            subPropName.replace(0, name.size(), name);
+            subPropName.replace(name.size(), 2, suffix[i]);
+            auto propertyValue = qobject_cast<PropertyEditorValue *>(
+                variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(subPropName))));
+            if (propertyValue)
+                propertyValue->setValue(QVariant(vecValue[i]));
+        }
     } else {
         PropertyName propertyName = name;
         propertyName.replace('.', '_');
@@ -532,6 +545,10 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath()
 {
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 

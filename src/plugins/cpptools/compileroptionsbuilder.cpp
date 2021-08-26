@@ -472,7 +472,10 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
         case LanguageVersion::CXX17:
             option = "/std:c++17";
             break;
-        case LanguageVersion::CXX2a:
+        case LanguageVersion::CXX20:
+            option = "/std:c++20";
+            break;
+        case LanguageVersion::CXX2b:
             option = "/std:c++latest";
             break;
         }
@@ -517,8 +520,11 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
     case LanguageVersion::CXX17:
         option = (gnuExtensions ? QLatin1String("-std=gnu++17") : QLatin1String("-std=c++17"));
         break;
-    case LanguageVersion::CXX2a:
-        option = (gnuExtensions ? QLatin1String("-std=gnu++2a") : QLatin1String("-std=c++2a"));
+    case LanguageVersion::CXX20:
+        option = (gnuExtensions ? QLatin1String("-std=gnu++20") : QLatin1String("-std=c++20"));
+        break;
+    case LanguageVersion::CXX2b:
+        option = (gnuExtensions ? QLatin1String("-std=gnu++2b") : QLatin1String("-std=c++2b"));
         break;
     case LanguageVersion::None:
         break;
@@ -866,6 +872,14 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
              toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
             theOption[0] = '-';
+        }
+
+        // Clang-cl (as of Clang 12) frontend doesn't know about -std:c++20
+        // but the clang front end knows about -std=c++20
+        // https://github.com/llvm/llvm-project/blob/release/12.x/clang/lib/Driver/ToolChains/Clang.cpp#L5855
+        if (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
+            toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
+            theOption.replace("-std:c++20", "-clang:-std=c++20");
         }
 
         m_compilerFlags.flags.append(theOption);

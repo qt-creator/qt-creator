@@ -417,7 +417,9 @@ public:
 
         DStoolTipBackground,
         DStoolTipOutline,
-        DStoolTipText
+        DStoolTipText,
+
+        DSUnimportedModuleColor
     };
 
     enum Gradient {

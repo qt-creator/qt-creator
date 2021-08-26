@@ -235,6 +235,13 @@ Rectangle {
             id: doNotShowCheckBox
             text: qsTr("Do not show this again")
             padding: 0
+            spacing: 12
+
+            contentItem: Text {
+                text: doNotShowCheckBox.text
+                color: "#ffffff"
+                leftPadding: doNotShowCheckBox.indicator.width + doNotShowCheckBox.spacing
+            }
         }
 
         CheckBox {
@@ -242,8 +249,15 @@ Rectangle {
             text: qsTr("Enable Usage Statistics")
             checked: usageStatisticModel.usageStatisticEnabled
             padding: 0
+            spacing: 12
 
             onCheckedChanged: usageStatisticModel.setTelemetryEnabled(usageStatisticCheckBox.checked)
+
+            contentItem: Text {
+                text: usageStatisticCheckBox.text
+                color: "#ffffff"
+                leftPadding: usageStatisticCheckBox.indicator.width + usageStatisticCheckBox.spacing
+            }
         }
     }
 

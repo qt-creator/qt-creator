@@ -176,7 +176,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
 QWidget *AndroidBuildApkWidget::createApplicationGroup()
 {
-    const int minApiSupported = AndroidManager::apiLevelRange().first;
+    QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
+    const int minApiSupported = AndroidManager::defaultMinimumSDK(qt);
     QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::sdkManager()->
                                                           filteredSdkPlatforms(minApiSupported));
     targets.removeDuplicates();

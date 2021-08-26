@@ -1,0 +1,76 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-skeletal-components.html
+    \previouspage studio-3d-node.html
+    \nextpage studio-3d-model.html
+
+    \title Skeletal Animation
+
+    Skeletal animation is a technique used in computer animation. In skeletal
+    animation, a character is represented in the form of a surface representation
+    (skin or mesh), and a skeleton. This portrays how the character can move,
+    inspired by how a physical skeleton works for vertebrates. The "bones" of the
+    skeleton are represented by a hierarchy of joint nodes.
+
+    The normal workflow is to use an external content creation tool to define
+    the skeleton and the skin (this is sometimes also referred to as rigging),
+    and import them to \QDS. You can then create skeletal animations using
+    \uicontrol Skeleton and \uicontrol Joint components available in
+    \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    \uicontrol {Qt Quick 3D}.
+
+    \section1 Skeleton
+
+    A \uicontrol Skeleton component determines a skeletal animation hierarchy
+    and defines how a model can be animated using skeletal animation.
+    It contains a hierarchy of \uicontrol Joint nodes. Each joint can be
+    transformed for a skinning animation.
+
+    \section1 Joint
+
+    A \uicontrol Joint defines a node in a skeletal animation hierarchy
+    and functions similarly to joints between bones in a human skeleton.
+    It is a transformable node that must be contained inside a
+    \uicontrol Skeleton component.
+
+    Define properties for \uicontrol Joint components in \uicontrol Properties
+    > \uicontrol Joint.
+
+    \image studio-3d-joint-properties.png "Joint properties in the Properties view"
+
+    Use the \uicontrol Index property to define the index of this joint.
+    This index value is used in the \uicontrol {Joint semantic} custom geometry
+    attribute.
+
+    \note The \uicontrol Index values must be unique within the same
+    \uicontrol Skeleton.
+
+    Use the \uicontrol {Skeleton root} property to define the \uicontrol Skeleton
+    that contains the \uicontrol Joint. Do note that all the \uicontrol Joints
+    in the \uicontrol Skeleton must have the same \uicontrol {Skeleton root}
+    for the animation to work properly.
+*/

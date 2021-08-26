@@ -64,11 +64,11 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     const bool qt6 = true;
 #endif
 
-    const bool unifiedRenderPath = qt6 || qEnvironmentVariableIsSet("QMLPUPPET_UNIFIED_RENDER_PATH");
+    const bool unifiedRenderPath = qEnvironmentVariableIsSet("QMLPUPPET_UNIFIED_RENDER_PATH");
 
     if (unifiedRenderPath)
         Internal::QuickItemNodeInstance::enableUnifiedRenderPath(true);
-    else
+    else if (!qt6)
         DesignerSupport::activateDesignerWindowManager();
 
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {

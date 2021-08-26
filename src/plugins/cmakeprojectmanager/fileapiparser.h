@@ -39,6 +39,7 @@
 #include <QFutureInterface>
 #include <QString>
 #include <QVector>
+#include <QVersionNumber>
 
 #include <vector>
 
@@ -65,6 +66,7 @@ public:
     QString cmakeRoot;
 
     QVector<ReplyObject> replies;
+    QVersionNumber cmakeVersion;
 
     Utils::FilePath jsonFile(const QString &kind, const Utils::FilePath &replyDir) const;
 };

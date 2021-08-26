@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -93,174 +93,151 @@
 
     \section1 Selecting Project Type
 
-    You can use wizards to create following types of projects:
+    The following table lists the wizard templates for creating projects.
 
-    \list
-
-        \li Application (Qt Quick)
-
-        \list
-            \li Qt Quick Application - Empty
-
-                Create an empty \l{Qt Quick} application that uses Qt Quick 2
-                types.
-
-                You can build the application and deploy it to desktop,
-                embedded, and mobile target platforms.
-
-            \li Qt Quick Application - Scroll, Stack, or Swipe
-
-                Create a Qt Quick application that uses \l{Qt Quick Controls} to
-                implement a scrollable list (requires Qt 5.9 or later) or a set
-                of pages with a stack-based or swipe-based navigation model
-                (requires Qt 5.7 or later).
-        \endlist
-
-        \li Application (Qt)
-
-        \list
-
+    \table
+        \header
+            \li Category
+            \li Wizard Template
+            \li Purpose
+        \row
+            \li Application (Qt for MCU)
+            \li MCU Support Application
+            \li Creates an application that uses a subset of Qt QML and
+                Qt Quick Controls types (as supported by Qt for MCUs) that
+                you can deploy, run, and debug on MCU boards. For more
+                information, see \l {Connecting MCUs}.
+        \row
+            \li {1,2} Application (Qt)
             \li Qt Widgets Application
-
-                Use \QD forms to design a Qt widget based user interface for the
-                desktop and C++ to implement the application logic
-
+            \li Uses \QD forms to design a Qt widget based user interface for
+                the desktop and C++ to implement the application logic.
+        \row
             \li Qt Console Application
-
-                Use a single main.cpp file
-        \endlist
-
-        \li Application (Qt for Python)
-
-            \list
-
-            \li Qt for Python Application - Empty, Window, Window (UI file), or
-                Qt Quick Application (Empty)
-
-                Create a \l{https://doc.qt.io/qtforpython/index.html}
+            \li Uses a single main.cpp file.
+        \row
+            \li {1,4} Application (Qt Quick)
+            \li Qt Quick Application - Empty
+            \li Creates a Qt Quick 2 application project that can contain both
+                QML and C++ code. You can build the application and deploy it
+                to desktop, embedded, and mobile target platforms.
+        \row
+            \li Qt Quick Application - Scroll
+            \li Uses the \l{ScrollView} component to implement a scrollable
+                list view (requires Qt 5.9 or later).
+        \row
+            \li Qt Quick Application - Stack
+            \li Uses the \l{StackView} component to implement a set of pages
+                with a stack-based navigation model (requires Qt 5.7 or later).
+        \row
+           \li Qt Quick Application - Swipe
+           \li Uses the \l{SwipeView} component to implement a set of pages
+                with a swipe-based navigation model (requires Qt 5.7 or later).
+        \row
+            \li {1,4} Application (Qt for Python)
+            \li Qt for Python - Empty
+            \li Creates a \l{https://doc.qt.io/qtforpython/index.html}
                 {Qt for Python} application that contains only the main
-                code for a QApplication or an empty window with or without
-                a widget-based UI. Alternatively, you can create an empty
-                Qt Quick Application.
-
-            \endlist
-
-        \li Application (Qt for MCU)
-
-            \list
-                \li MCU Support Application
-
-                    Creates an application that uses a subset of Qt QML and
-                    Qt Quick Controls types (as supported by Qt for MCUs) that
-                    you can deploy, run, and debug on MCU boards. For more
-                    information, see \l {Connecting MCUs}.
-            \endlist
-
-        \li Libraries
-
-        \list
-
+                code for a QApplication.
+        \row
+            \li Qt for Python - Window
+            \li Creates a Qt for Python application that contains an empty
+                window.
+        \row
+            \li Qt for Python - Window (UI file)
+            \li Creates a Qt for Python application that contains an empty
+                window with a widget-based UI.
+        \row
+            \li Qt for Python - Qt Quick Application
+            \li Creates a Python project that contains an empty Qt Quick
+                Application.
+        \row
+            \li {1,3} Library
             \li C++ Library
-
-                Shared or static C++ library based on qmake
-
+            \li A shared or static C++ library based on qmake.
+        \row
             \li Qt Quick 2 Extension Plugin
-
-                C++ plugin that makes it possible to offer extensions that can
-                be loaded dynamically into Qt Quick 2 applications by using the
-                QQmlEngine class
-
+            \li Creates a C++ plugin that makes it possible to offer extensions
+                that can be loaded dynamically into Qt Quick 2 applications
+                by using the QQmlEngine class.
+        \row
             \li \QC Plugin
-
-
-        \endlist
-
-        \li Other Projects
-
-        \list
-
-            \li Auto Test Project
-
-                Projects with boilerplate code for a Qt or Google test. For more
-                information, see \l {Creating Tests}.
-
+            \li Creates a \QC plugin.
+        \row
+            \li {1,6} Other Project
+            \li Qt Custom Designer Widget
+            \li Creates a custom \QD widget or widget collection.
+        \row
             \li Qt Quick UI Prototype
+            \li Creates a \l{Creating Qt Quick UI Projects}{Qt Quick UI project}
+                with a single QML file that contains the main view. You can
+                preview Qt Quick 2 UI projects in the
+                \l{Validating with Target Hardware}{QML Scene preview tool}.
+                You do not need to build them, because they do not contain any
+                C++ code.
 
-                Use a single QML file that contains the main view. You can
-                review \l{Creating Qt Quick UI Projects}{Qt Quick UI prototypes}
-                in a \l{Previewing QML Files}{preview tool} and you need not
-                build them. Qt Quick UI prototypes cannot be deployed to embedded
-                or mobile target platforms. For those platforms, create a
-                Qt Quick application instead.
+                Use this template only if you are prototyping. You cannot create
+                a full application by using this template.
 
-            \li Qt Custom Designer Widgets
-
-                Custom \QD widget or widget collection
-
-            \li Empty qmake Project
-
-                Empty qmake project that is based on qmake but does not use any
-                default classes
-
+                Qt Quick UI projects cannot be deployed to embedded or mobile
+                target platforms. For those platforms, create a Qt Quick
+                application instead.
+        \row
+            \li Auto Test Project
+            \li Creates a project with boilerplate code for a Qt or Google
+                test. For more information, see \l {Creating Tests}.
+        \row
             \li Subdirs Project
-
-                Subprojects that enable you to structure your qmake projects as
-                a tree hierarchy
-
+            \li Creates a subproject that enables you to structure your qmake
+                projects as a tree hierarchy.
+        \row
+            \li Empty qmake Project
+            \li Creates an empty qmake project that is based on qmake but does
+                not use any default classes.
+        \row
             \li Code Snippet
-
-                Creates a qmake project from a code snippet. When fixing bug
+            \li Creates a qmake project from a code snippet. When fixing bug
                 reports that contain a code snippet, you can place the code
                 snippet into a project to compile and check it.
-
-        \endlist
-
-        \li Non-Qt Projects
-
-        \list
-
-            \li Plain C or C++ Application
-
-                Plain C or C++ application that uses qmake, Qbs, or CMake but does
-                not use the Qt library
-
-            \li Nim or Nimble Applications (experimental)
-
-                Nim or Nimble application that uses Nimble, but does not use
-                the Qt library
-
-                For more information, see \l {Setting Up Nimble}.
-
-        \endlist
-
-        \li Import Project
-
-        \list
-
-        \li Project from version control
-
-            Import a project from a supported version control system. For more
-            information on how version control systems are integrated in
-            \QC, see \l{Using Version Control Systems}
-
-        \li Import as qmake Project
-
-            Import an existing project that does not use any of the supported
-            build systems: qmake, Qbs, CMake, or Autotools. The wizard creates
-            a qmake .pro file, which enables you to use \QC as a code editor and
-            as a launcher for debugging and analysis tools. However, if you want
-            to build the project, you might need to edit the generated .pro
-            file.
-
-        \li Import Existing Project
-
-            Import an existing project that does not use any of the supported
-            build systems: qmake, Qbs, CMake, or Autotools. This enables you to
-            use \QC as a code editor
-
-        \endlist
-
-    \endlist
+        \row
+            \li {1,4} Non-Qt Project
+            \li Plain C Application
+            \li Creates a plain C application that uses qmake, Qbs, or CMake
+                but does not use the Qt library.
+        \row
+            \li Plain C++ Application
+            \li Creates a plain C++ application that uses qmake, Qbs, or CMake
+                but does not use the Qt library.
+        \row
+            \li Nim Application (experimental)
+            \li Creates a Nim application that uses Nimble, but does not use the
+                Qt library. For more information, see \l {Setting Up Nimble}.
+        \row
+            \li Nimble Application (experimental)
+            \li Creates a Nimble application that uses Nimble, but does not use
+                the Qt library. For more information, see
+                \l {Setting Up Nimble}.
+        \row
+            \li {1,3} Import Project
+            \li Project from version control
+            \li Imports a project from a supported version control system, such
+                as Bazaar, CVS, Git, Mercurial, or Subversion. For
+                more information on how version control systems are integrated
+                in \QC, see \l{Using Version Control Systems}.
+        \row
+            \li Import as qmake or CMake Project (Limited Functionality)
+            \li Imports an existing project that does not use any of the
+                supported build systems: qmake, Qbs, CMake, or Autotools. The
+                template creates a project file, which enables you to use
+                \QC as a code editor and as a launcher for debugging and
+                analysis tools. However, if you want to build the project,
+                you might need to edit the generated project file.
+        \row
+            \li Import Existing Project
+            \li Imports an existing project that does not use any of the
+                supported build systems: qmake, Qbs, CMake, or Autotools.
+                This enables you to use \QC as a code editor.
+    \endtable
 
     To create a new project, select \uicontrol File > \uicontrol{New File or Project} and
     select the type of your project. The contents of the wizard dialogs depend
@@ -278,93 +255,118 @@
     \section1 Adding Files to Projects
 
     You can use wizards also to add individual files to your projects.
-    You can create the following types of files:
+    The following table lists the wizard templates for creating files.
 
-    \list
-
-        \li C/C++
-
-            C or C++ source and header files
-
-        \li Qt
-
-        \list
-
-            \li Qt item model source and header files that you can use to create
-                classes derived from QAbstractItemModel, QAbstractTableModel, or
-                QAbstractListModel.
-
-            \li \QD forms and \QD form classes, which specify parts of user
-                interfaces in Qt widget based projects
-
-        \li Qt resource files, which allow you to store binary files in the
-            application executable
-
-        \li QML files, which specify items in Qt Quick projects.
-            \uicontrol {QML File (Qt Quick 2)} creates a QML file that imports
-            Qt Quick 2.0, and \uicontrol {Qt Quick UI File} creates a
-            \l{UI Files}{UI file} (\e .ui.qml) and the corresponding
-            implementation file (\e .qml).
-
-        \li JavaScript files that you can use to write the application logic in
-            Qt Quick projects
-
-        \endlist
-
-        \li Models and state charts
-
-        \list
-
-            \li Universal Modeling Language (UML) style models with structured
-                diagrams. However, the model editor uses a variant of UML and
+    \table
+        \header
+            \li Category
+            \li Wizard Template
+            \li Purpose
+        \row
+            \li {1,3} C/C++
+            \li C++ Class
+            \li C++ header and source file for a new class that you can add to
+                a C++ project.
+        \row
+            \li C/C++ Source File
+            \li  C++ source file that you can add to a C++ project.
+        \row
+            \li C/C++ Header File
+            \li C++ header file that you can add to a C++ project.
+        \row
+            \li {1,3} Modeling
+            \li State Chart
+            \li State Chart XML (SCXML) file that contains boilerplate
+                code for state machines. You can use the classes in the
+                \l {Qt SCXML} module to embed state machines created from
+                the files in Qt applications.
+        \row
+            \li Model
+            \li Universal Modeling Language (UML) style model with a structured
+                diagram. However, the model editor uses a variant of UML and
                 provides only a subset of properties for specifying the
                 appearance of model elements. For more information, see
                 \l {Modeling}.
-
-            \li State Chart XML (SCXML) files that contain boilerplate code for
-                state machines. You can use the classes in the \l {Qt SCXML}
-                module to embed state machines created from the files in Qt
-                applications.
-
-        \endlist
-
-        \li GLSL
-
-            GLSL files that define fragment and vertex shaders in both Qt Quick
-            projects and Qt widget based projects
-
-        \li General
-
-        \list
-
-            \li Empty files
-
-            \li Scratch buffers that use temporary files. You can create this
-                type of files for temporarily storing information that you do
-                not intend to save
-
-        \endlist
-
-        \li Java
-
-            Java class files that you can use to create Java classes.
-
-        \li Python
-
-            Python class and source files that you can use to create Python
-            classes and scripts with UTF-8 encoding.
-
-        \li Nim (experimental)
-
-        \list
-
-            \li Nim script files.
-
-            \li Nim source files with UTF-8 encoding.
-
-        \endlist
-
-    \endlist
+        \row
+            \li Scratch Model
+            \li Scratch model using a temporary file.
+        \row
+            \li {1,7} Qt
+            \li Qt Item Model
+            \li Source and header files that you can use to create classes
+                derived from QAbstractItemModel, QAbstractTableModel, or
+                QAbstractListModel.
+        \row
+            \li \QD Form Class
+            \li \QD form and a matching class for implementing a UI based
+                on Qt widgets.
+        \row
+            \li \QD Form
+            \li \QD form for Qt widget based projects. This is useful
+                if you already have an existing class for the UI logic.
+        \row
+            \li Qt Resource File
+            \li Resource file for storing binary files in the application
+                executable.
+        \row
+            \li QML File (Qt Quick 2)
+            \li QML file that imports Qt Quick 2.0 for use in Qt Quick projects.
+        \row
+            \li Qt Quick UI File
+            \li \l{UI Files}{UI file} (\e .ui.qml) and the corresponding
+                implementation file (\e .qml) for use in Qt Quick projects.
+        \row
+            \li JS File
+            \li JavaScript file that you can use to write the application logic
+                in Qt Quick projects.
+        \row
+            \li {1,4} GLSL
+            \li Fragment Shader (OpenGL/ES 2.0)
+            \li Fragment shader that generates the final pixel colors for
+                triangles, points, and lines rendered with OpenGL. You can use
+                it in both Qt Quick projects and Qt widget based projects.
+        \row
+            \li Vertex Shader (OpenGL/ES 2.0)
+            \li Vertex shader that transforms the positions, normals, and
+                texture coordinates of triangles, points, and lines rendered
+                with OpenGL. You can use it in both Qt Quick projects and Qt
+                widget based projects.
+        \row
+            \li Fragment Shader (Desktop OpenGL)
+            \li Fragment shader for use in both Qt Quick projects and Qt
+                widget based projects.
+        \row
+            \li Vertex Shader (Desktop OpenGL)
+            \li Vertex shader for use in both Qt Quick projects and Qt
+                widget based projects.
+       \row
+            \li {1,2} General
+            \li Empty File
+            \li Empty file that you can save with any filename extensio.
+        \row
+            \li Scratch Buffer
+            \li Scratch buffer that uses temporary files. You can
+                create this type of files for temporarily storing information
+                that you do not intend to save
+        \row
+            \li Java
+            \li Java File
+            \li Java class files that you can use to create Java classes.
+        \row
+            \li {1,2} Python
+            \li Python Class
+            \li Python class file.
+        \row
+            \li Python File
+            \li Python script file using UTF-8 encoding.
+        \row
+            \li {1,2} Nim (experimental)
+            \li Nim Script File
+            \li Empty Nim script file using UTF-8 encoding.
+        \row
+            \li Nim File
+            \li Empty Nim source file using UTF-8 encoding.
+    \endtable
 
     \section2 Creating C++ Classes
 

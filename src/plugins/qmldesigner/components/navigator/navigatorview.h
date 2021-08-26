@@ -28,6 +28,7 @@
 #include "navigatormodelinterface.h"
 
 #include <abstractview.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <QPointer>
 #include <QHash>
@@ -108,6 +109,7 @@ private:
     void changeToComponent(const QModelIndex &index);
     QModelIndex indexForModelNode(const ModelNode &modelNode) const;
     QAbstractItemModel *currentModel() const;
+    void propagateInstanceErrorToExplorer(const ModelNode &modelNode);
 
     void leftButtonClicked();
     void rightButtonClicked();
@@ -123,6 +125,10 @@ protected: //functions
     void expandAncestors(const QModelIndex &index);
     void reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode);
     void setupWidget();
+    void addNodeAndSubModelNodesToList(const ModelNode &node, QList<ModelNode> &nodes);
+    void clearExplorerWarnings();
+    const ProjectExplorer::FileNode *fileNodeForModelNode(const ModelNode &node) const;
+    const ProjectExplorer::FileNode *fileNodeForIndex(const QModelIndex &index) const;
 
 private:
     bool m_blockSelectionChangedSignal;

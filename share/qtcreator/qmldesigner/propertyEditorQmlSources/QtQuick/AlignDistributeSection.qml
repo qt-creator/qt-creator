@@ -210,7 +210,7 @@ Section {
                     onClicked: alignDistribute.distributeSpacing(AlignDistribute.X,
                                                                  alignToComboBox.currentEnum,
                                                                  keyObjectComboBox.currentText,
-                                                                 distanceSpinBox.realValue,
+                                                                 distanceSpinBox.value,
                                                                  buttonRow.getDistributeDirection())
                 }
 
@@ -220,10 +220,12 @@ Section {
                     onClicked: alignDistribute.distributeSpacing(AlignDistribute.Y,
                                                                  alignToComboBox.currentEnum,
                                                                  keyObjectComboBox.currentText,
-                                                                 distanceSpinBox.realValue,
+                                                                 distanceSpinBox.value,
                                                                  buttonRow.getDistributeDirection())
                 }
             }
+
+            Spacer { implicitWidth: 8 }
 
             StudioControls.ButtonRow {
                 id: buttonRow
@@ -250,6 +252,7 @@ Section {
                     buttonIcon: StudioTheme.Constants.distributeOriginNone
                     checkable: true
                     StudioControls.ButtonGroup.group: group
+                    tooltip: qsTr("Disables the distribution of spacing in pixels.")
                 }
 
                 AbstractButton {
@@ -257,6 +260,8 @@ Section {
                     buttonIcon: StudioTheme.Constants.distributeOriginTopLeft
                     checkable: true
                     StudioControls.ButtonGroup.group: group
+                    tooltip: qsTr("Sets the left or top border of the target area or item as the " +
+                                  "starting point, depending on the distribution orientation.")
                 }
 
                 AbstractButton {
@@ -264,6 +269,9 @@ Section {
                     buttonIcon: StudioTheme.Constants.distributeOriginCenter
                     checkable: true
                     StudioControls.ButtonGroup.group: group
+                    tooltip: qsTr("Sets the horizontal or vertical center of the target area or " +
+                                  "item as the starting point, depending on the distribution " +
+                                  "orientation.")
                 }
 
                 AbstractButton {
@@ -271,6 +279,8 @@ Section {
                     buttonIcon: StudioTheme.Constants.distributeOriginBottomRight
                     checkable: true
                     StudioControls.ButtonGroup.group: group
+                    tooltip: qsTr("Sets the bottom or right border of the target area or item as " +
+                                  "the starting point, depending on the distribution orientation.")
                 }
             }
         }
@@ -280,12 +290,13 @@ Section {
         SecondColumnLayout {
             Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
-            StudioControls.RealSpinBox {
+            DoubleSpinBox {
                 id: distanceSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                actionIndicatorVisible: false
-                realFrom: -1000
-                realTo: 1000
+                stepSize: 1
+                minimumValue: -1000
+                maximumValue: 1000
+                decimals: 0
                 enabled: !buttonNone.checked
             }
         }
