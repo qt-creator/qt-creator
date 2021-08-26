@@ -84,6 +84,7 @@ public:
     // Called from launcher's thread exclusively.
     void appendSignal(LauncherSignal *launcherSignal);
 
+    // Called from caller's or launcher's thread.
     QProcess::ProcessState state() const;
     void cancel();
 
@@ -101,7 +102,10 @@ public:
     qint64 write(const QByteArray &data);
 
     QProcess::ProcessError error() const;
+    // Called from caller's or launcher's thread.
     QString program() const;
+    // Called from caller's or launcher's thread.
+    QStringList arguments() const;
     void setStandardInputFile(const QString &fileName);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setProcessEnvironment(const QProcessEnvironment &environment);
@@ -257,6 +261,8 @@ signals:
 private:
     // Called from caller's thread, moved to launcher's thread.
     LauncherSocket(QObject *parent = nullptr);
+    // Called from launcher's thread exclusively.
+    ~LauncherSocket() override;
 
     // Called from launcher's thread exclusively.
     LauncherHandle *handleForToken(quintptr token) const;

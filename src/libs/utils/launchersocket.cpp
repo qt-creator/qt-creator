@@ -270,7 +270,6 @@ void CallerHandle::appendSignal(LauncherSignal *launcherSignal)
 
 QProcess::ProcessState CallerHandle::state() const
 {
-    QTC_ASSERT(isCalledFromCallersThread(), return QProcess::NotRunning);
     return m_processState;
 }
 
@@ -336,21 +335,23 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
         emit errorOccurred(m_error);
         return;
     }
+
     auto startWhenRunning = [&program, &oldProgram = m_command] {
         qWarning() << "Trying to start" << program << "while" << oldProgram
                    << "is still running for the same QtcProcess instance."
                    << "The current call will be ignored.";
     };
     QTC_ASSERT(m_processState == QProcess::NotRunning, startWhenRunning(); return);
-    m_command = program;
-    m_arguments = arguments;
-    m_writeData = writeData;
+
     auto processLauncherNotStarted = [&program] {
         qWarning() << "Trying to start" << program << "while process launcher wasn't started yet.";
     };
     QTC_ASSERT(LauncherInterface::isStarted(), processLauncherNotStarted());
 
     QMutexLocker locker(&m_mutex);
+    m_command = program;
+    m_arguments = arguments;
+    m_writeData = writeData;
     m_processState = QProcess::Starting;
     StartProcessPacket *p = new StartProcessPacket(m_token);
     p->command = m_command;
@@ -414,8 +415,14 @@ QProcess::ProcessError CallerHandle::error() const
 
 QString CallerHandle::program() const
 {
-    QTC_ASSERT(isCalledFromCallersThread(), return {});
+    QMutexLocker locker(&m_mutex);
     return m_command;
+}
+
+QStringList CallerHandle::arguments() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_arguments;
 }
 
 void CallerHandle::setStandardInputFile(const QString &fileName)
@@ -755,6 +762,25 @@ LauncherSocket::LauncherSocket(QObject *parent) : QObject(parent)
 {
     qRegisterMetaType<Utils::Internal::LauncherPacketType>();
     qRegisterMetaType<quintptr>("quintptr");
+}
+
+LauncherSocket::~LauncherSocket()
+{
+    QMutexLocker locker(&m_mutex);
+    auto displayHandles = [&handles = m_handles] {
+        qWarning() << "Destroying process launcher while" << handles.count()
+                   << "processes are still alive. The following processes are still alive:";
+        for (LauncherHandle *handle : handles) {
+            CallerHandle *callerHandle = handle->callerHandle();
+            if (callerHandle->state() != QProcess::NotRunning) {
+                qWarning() << "  " << callerHandle->program() << callerHandle->arguments()
+                       << "in thread" << (void *)callerHandle->thread();
+            } else {
+                qWarning() << "  Not running process in thread" << (void *)callerHandle->thread();
+            }
+        }
+    };
+    QTC_ASSERT(m_handles.isEmpty(), displayHandles());
 }
 
 void LauncherSocket::sendData(const QByteArray &data)
