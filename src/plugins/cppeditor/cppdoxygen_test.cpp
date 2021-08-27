@@ -375,7 +375,7 @@ void DoxygenTest::testWithMacroFromHeaderBeforeFunction()
         " */\n"
         "API void f();\n";
 
-    const TestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
+    const GenericCppTestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
 
     runTest(given, expected, /*settings=*/ 0, {headerDocumentDefiningMacro});
 }
@@ -421,12 +421,12 @@ void DoxygenTest::runTest(const QByteArray &original,
     // Write files to disk
     CppTools::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
-    TestDocument testDocument("file.cpp", original, '|');
+    GenericCppTestDocument testDocument("file.cpp", original, '|');
     QVERIFY(testDocument.hasCursorMarker());
     testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
     testDocument.setBaseDirectory(temporaryDir.path());
     QVERIFY(testDocument.writeToDisk());
-    foreach (TestDocument testDocument, includedHeaderDocuments) {
+    foreach (GenericCppTestDocument testDocument, includedHeaderDocuments) {
         testDocument.setBaseDirectory(temporaryDir.path());
         QVERIFY(testDocument.writeToDisk());
     }

@@ -37,10 +37,11 @@ class CppEditorWidget;
 
 namespace Tests {
 
-class TestDocument : public CppTools::Tests::TestDocument
+class GenericCppTestDocument : public CppTools::Tests::BaseCppTestDocument
 {
 public:
-    TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
+    GenericCppTestDocument(const QByteArray &fileName, const QByteArray &source,
+                           char cursorMarker = '@');
 
     bool hasCursorMarker() const;
     bool hasAnchorMarker() const;
@@ -54,7 +55,7 @@ public:
     CppEditorWidget *m_editorWidget;
 };
 
-using TestDocuments = QVector<TestDocument>;
+using TestDocuments = QVector<GenericCppTestDocument>;
 
 class TestCase : public CppTools::Tests::TestCase
 {

@@ -47,8 +47,9 @@ namespace CppEditor {
 namespace Internal {
 namespace Tests {
 
-TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
-    : CppTools::Tests::TestDocument(fileName, source, cursorMarker)
+GenericCppTestDocument::GenericCppTestDocument(const QByteArray &fileName, const QByteArray &source,
+                                               char cursorMarker)
+    : CppTools::Tests::BaseCppTestDocument(fileName, source, cursorMarker)
     , m_cursorPosition(-1)
     , m_anchorPosition(-1)
     , m_selectionStartMarker(QLatin1Char(m_cursorMarker) + QLatin1String("{start}"))
@@ -73,9 +74,9 @@ TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source,
     }
 }
 
-bool TestDocument::hasCursorMarker() const { return m_cursorPosition != -1; }
+bool GenericCppTestDocument::hasCursorMarker() const { return m_cursorPosition != -1; }
 
-bool TestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
+bool GenericCppTestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
 
 TestCase::TestCase(bool runGarbageCollector)
     : CppTools::Tests::TestCase(runGarbageCollector)

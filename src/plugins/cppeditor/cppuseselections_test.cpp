@@ -70,7 +70,7 @@ namespace Tests {
 class UseSelectionsTestCase : public TestCase
 {
 public:
-    UseSelectionsTestCase(TestDocument &testDocument,
+    UseSelectionsTestCase(GenericCppTestDocument &testDocument,
                           const SelectionList &expectedSelections);
 
 private:
@@ -82,7 +82,7 @@ private:
     CppEditorWidget *m_editorWidget = nullptr;
 };
 
-UseSelectionsTestCase::UseSelectionsTestCase(TestDocument &testFile,
+UseSelectionsTestCase::UseSelectionsTestCase(GenericCppTestDocument &testFile,
                                              const SelectionList &expectedSelections)
 {
     QVERIFY(succeededSoFar());
@@ -253,7 +253,7 @@ void SelectionsTest::testUseSelections()
     QFETCH(QByteArray, source);
     QFETCH(SelectionList, expectedSelections);
 
-    Tests::TestDocument testDocument("file.cpp", source);
+    Tests::GenericCppTestDocument testDocument("file.cpp", source);
     Tests::UseSelectionsTestCase(testDocument, expectedSelections);
 }
 

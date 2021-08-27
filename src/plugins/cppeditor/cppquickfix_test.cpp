@@ -86,7 +86,7 @@ QuickFixTestDocument::Ptr QuickFixTestDocument::create(const QByteArray &fileNam
 QuickFixTestDocument::QuickFixTestDocument(const QByteArray &fileName,
                                            const QByteArray &source,
                                            const QByteArray &expectedSource)
-    : TestDocument(fileName, source)
+    : GenericCppTestDocument(fileName, source)
     , m_expectedSource(QString::fromUtf8(expectedSource))
 {
     removeMarkers();

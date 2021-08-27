@@ -50,7 +50,7 @@ namespace Tests {
 /// reads the document.
 ///
 
-class QuickFixTestDocument : public TestDocument
+class QuickFixTestDocument : public GenericCppTestDocument
 {
 public:
     typedef QSharedPointer<QuickFixTestDocument> Ptr;

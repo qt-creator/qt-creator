@@ -74,13 +74,13 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QSt
     return true;
 }
 
-TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
+BaseCppTestDocument::BaseCppTestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
     : m_fileName(QString::fromUtf8(fileName))
     , m_source(QString::fromUtf8(source))
     , m_cursorMarker(cursorMarker)
 {}
 
-QString TestDocument::filePath() const
+QString BaseCppTestDocument::filePath() const
 {
     if (!m_baseDirectory.isEmpty())
         return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
@@ -91,7 +91,7 @@ QString TestDocument::filePath() const
     return m_fileName;
 }
 
-bool TestDocument::writeToDisk() const
+bool BaseCppTestDocument::writeToDisk() const
 {
     return TestCase::writeFile(filePath(), m_source.toUtf8());
 }

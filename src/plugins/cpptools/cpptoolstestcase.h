@@ -74,10 +74,11 @@ template <typename Signal> inline bool waitForSignalOrTimeout(
     return timer.isActive();
 }
 
-class CPPTOOLS_EXPORT TestDocument
+class CPPTOOLS_EXPORT BaseCppTestDocument
 {
 public:
-    TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
+    BaseCppTestDocument(const QByteArray &fileName, const QByteArray &source,
+                        char cursorMarker = '@');
 
     QString baseDirectory() const { return m_baseDirectory; }
     void setBaseDirectory(const QString &baseDirectory) { m_baseDirectory = baseDirectory; }
