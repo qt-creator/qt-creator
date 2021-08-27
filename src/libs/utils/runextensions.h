@@ -238,28 +238,28 @@ private:
 
 // void function that does not take QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncReturnVoidDispatch(std::true_type, QFutureInterface<ResultType>, Function &&function, Args&&... args)
+void runAsyncReturnVoidDispatch(std::true_type, QFutureInterface<ResultType> &, Function &&function, Args&&... args)
 {
     function(std::forward<Args>(args)...);
 }
 
 // non-void function that does not take QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncReturnVoidDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncReturnVoidDispatch(std::false_type, QFutureInterface<ResultType> &futureInterface, Function &&function, Args&&... args)
 {
     futureInterface.reportResult(function(std::forward<Args>(args)...));
 }
 
 // function that takes QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncQFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncQFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType> &futureInterface, Function &&function, Args&&... args)
 {
     function(futureInterface, std::forward<Args>(args)...);
 }
 
 // function that does not take QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncQFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncQFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> &futureInterface, Function &&function, Args&&... args)
 {
     runAsyncReturnVoidDispatch(std::is_void<std::invoke_result_t<Function, Args...>>(),
                                futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
@@ -269,7 +269,7 @@ void runAsyncQFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultTy
 template <typename ResultType, typename Function, typename... Args,
           typename = std::enable_if_t<!std::is_member_pointer<std::decay_t<Function>>::value>
          >
-void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncMemberDispatch(QFutureInterface<ResultType> &futureInterface, Function &&function, Args&&... args)
 {
     runAsyncQFutureInterfaceDispatch(functionTakesArgument<Function, 0, QFutureInterface<ResultType>&>(),
                                      futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
@@ -279,7 +279,7 @@ void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Functi
 template <typename ResultType, typename Function, typename Obj, typename... Args,
           typename = std::enable_if_t<std::is_member_pointer<std::decay_t<Function>>::value>
          >
-void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
+void runAsyncMemberDispatch(QFutureInterface<ResultType> &futureInterface, Function &&function, Obj &&obj, Args&&... args)
 {
     // Wrap member function with object into callable
     runAsyncImpl(futureInterface,
@@ -289,7 +289,7 @@ void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Functi
 
 // cref to function/callable
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
+void runAsyncImpl(QFutureInterface<ResultType> &futureInterface,
                   std::reference_wrapper<Function> functionWrapper, Args&&... args)
 {
     runAsyncMemberDispatch(futureInterface, functionWrapper.get(), std::forward<Args>(args)...);
@@ -297,7 +297,7 @@ void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
 
 // function/callable, no cref
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
+void runAsyncImpl(QFutureInterface<ResultType> &futureInterface,
                   Function &&function, Args&&... args)
 {
     runAsyncMemberDispatch(futureInterface, std::forward<Function>(function),

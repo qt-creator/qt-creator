@@ -58,7 +58,7 @@ protected:
         std::remove_reference_t<typename std::iterator_traits<ForwardIterator>::reference>>;
 
 public:
-    MapReduceBase(QFutureInterface<ReduceResult> futureInterface, ForwardIterator begin, ForwardIterator end,
+    MapReduceBase(QFutureInterface<ReduceResult> &futureInterface, ForwardIterator begin, ForwardIterator end,
                   MapFunction &&map, State &state, ReduceFunction &&reduce,
                   MapReduceOption option, QThreadPool *pool, int size)
         : m_futureInterface(futureInterface),
@@ -165,7 +165,7 @@ protected:
     }
 
     QFutureWatcher<void> m_selfWatcher;
-    QFutureInterface<ReduceResult> m_futureInterface;
+    QFutureInterface<ReduceResult> &m_futureInterface;
     ForwardIterator m_iterator;
     const ForwardIterator m_end;
     MapFunction m_map;
@@ -188,7 +188,7 @@ class MapReduce : public MapReduceBase<ForwardIterator, MapResult, MapFunction, 
 {
     using BaseType = MapReduceBase<ForwardIterator, MapResult, MapFunction, State, ReduceResult, ReduceFunction>;
 public:
-    MapReduce(QFutureInterface<ReduceResult> futureInterface, ForwardIterator begin, ForwardIterator end,
+    MapReduce(QFutureInterface<ReduceResult> &futureInterface, ForwardIterator begin, ForwardIterator end,
               MapFunction &&map, State &state, ReduceFunction &&reduce, MapReduceOption option,
               QThreadPool *pool, int size)
         : BaseType(futureInterface, begin, end, std::forward<MapFunction>(map), state,
@@ -237,7 +237,7 @@ class MapReduce<ForwardIterator, void, MapFunction, State, ReduceResult, ReduceF
 {
     using BaseType = MapReduceBase<ForwardIterator, void, MapFunction, State, ReduceResult, ReduceFunction>;
 public:
-    MapReduce(QFutureInterface<ReduceResult> futureInterface, ForwardIterator begin, ForwardIterator end,
+    MapReduce(QFutureInterface<ReduceResult> &futureInterface, ForwardIterator begin, ForwardIterator end,
               MapFunction &&map, State &state, ReduceFunction &&reduce, MapReduceOption option,
               QThreadPool *pool, int size)
         : BaseType(futureInterface, begin, end, std::forward<MapFunction>(map), state,
