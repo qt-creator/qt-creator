@@ -85,6 +85,32 @@ def qdump__boost__container__list(d, value):
                 p = d.extractPointer(p)
 
 
+def qform__boost__container__vector():
+    return [DisplayFormat.ArrayPlot]
+
+
+def qdump__boost__container__vector(d, value):
+    holder = value["m_holder"]
+    size = holder["m_size"].integer()
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        T = value.type[0]
+        try:
+            start = holder["m_start"].pointer()
+        except:
+            start = holder["storage"].address()
+        d.putPlotData(start, size, T)
+
+
+def qform__boost__container__static_vector():
+    return [DisplayFormat.ArrayPlot]
+
+
+def qdump__boost__container__static_vector(d, value):
+    qdump__boost__container__vector(d, value)
+
+
 def qdump__boost__gregorian__date(d, value):
     d.putValue(value.integer(), "juliandate")
 
