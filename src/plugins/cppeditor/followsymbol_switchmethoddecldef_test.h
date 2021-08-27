@@ -27,9 +27,7 @@
 
 #include <QObject>
 
-// Can't use Tests namespace because someone had the clever idea to create two
-// non-local TestDocument classes in this plugin.
-namespace CppEditor::Internal {
+namespace CppEditor::Internal::Tests {
 
 class FollowSymbolTest : public QObject
 {
@@ -71,4 +69,4 @@ private slots:
     void testFollowVirtualFunctionCallMultipleDocuments();
 };
 
-} // namespace CppEditor::Internal
+} // namespace CppEditor::Internal::Tests

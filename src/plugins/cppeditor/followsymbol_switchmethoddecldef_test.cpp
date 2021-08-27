@@ -123,8 +123,7 @@ QT_END_NAMESPACE
 
 typedef QByteArray _;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal::Tests {
 
 /// A fake virtual functions assist provider that runs processor->perform() already in configure()
 class VirtualFunctionTestAssistProvider : public VirtualFunctionAssistProvider
@@ -546,13 +545,11 @@ TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker(const QList<TestDocum
     return TestDocumentPtr();
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests
 
-Q_DECLARE_METATYPE(QList<CppEditor::Internal::TestDocumentPtr>)
+Q_DECLARE_METATYPE(QList<CppEditor::Internal::Tests::TestDocumentPtr>)
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal::Tests {
 
 void FollowSymbolTest::initTestCase()
 {
@@ -2080,8 +2077,7 @@ void FollowSymbolTest::testFollowVirtualFunctionCallMultipleDocuments()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests
 
 /*
 Potential test cases improving name lookup.

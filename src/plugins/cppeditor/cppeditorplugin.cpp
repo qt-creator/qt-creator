@@ -402,10 +402,10 @@ QVector<QObject *> CppEditorPlugin::createTestObjects() const
 {
     return {
 #ifdef WITH_TESTS
-        new FollowSymbolTest,
         new Tests::AutoCompleterTest,
         new Tests::DoxygenTest,
         new Tests::FileAndTokenActionsTest,
+        new Tests::FollowSymbolTest,
         new Tests::IncludeHierarchyTest,
         new Tests::InsertVirtualMethodsTest,
         new Tests::QuickfixTest,
