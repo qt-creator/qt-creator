@@ -850,7 +850,9 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
         cxxFlags << "/TP";
         if (!enableRtti.isUndefined())
             cxxFlags << QLatin1String(enableRtti.toBool() ? "/GR" : "/GR-");
-        if (getCppProp("cxxLanguageVersion").toArray().contains("c++17"))
+        if (getCppProp("cxxLanguageVersion").toArray().contains("c++20"))
+            cxxFlags << "/std:c++20";
+        else if (getCppProp("cxxLanguageVersion").toArray().contains("c++17"))
             cxxFlags << "/std:c++17";
     }
 }
