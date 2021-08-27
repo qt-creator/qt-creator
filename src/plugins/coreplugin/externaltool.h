@@ -72,14 +72,14 @@ public:
     Utils::Environment baseEnvironment() const;
     Utils::EnvironmentItems environmentUserChanges() const;
 
-    void setFileName(const QString &fileName);
+    void setFileName(const Utils::FilePath &fileName);
     void setPreset(QSharedPointer<ExternalTool> preset);
-    QString fileName() const;
+    Utils::FilePath fileName() const;
     // all tools that are preset (changed or unchanged) have the original value here:
     QSharedPointer<ExternalTool> preset() const;
 
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = nullptr, const QString &locale = QString());
-    static ExternalTool *createFromFile(const QString &fileName, QString *errorMessage = nullptr,
+    static ExternalTool *createFromFile(const Utils::FilePath &fileName, QString *errorMessage = nullptr,
                                         const QString &locale = QString());
 
     bool save(QString *errorMessage = nullptr) const;
@@ -118,8 +118,8 @@ private:
     OutputHandling m_errorHandling = ShowInPane;
     bool m_modifiesCurrentDocument = false;
 
-    QString m_fileName;
-    QString m_presetFileName;
+    Utils::FilePath m_filePath;
+    Utils::FilePath m_presetFileName;
     QSharedPointer<ExternalTool> m_presetTool;
 };
 

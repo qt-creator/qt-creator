@@ -55,16 +55,23 @@ class GeneratedFilePrivate : public QSharedData
 {
 public:
     GeneratedFilePrivate() = default;
-    explicit GeneratedFilePrivate(const QString &p);
-    QString path;
+    explicit GeneratedFilePrivate(const Utils::FilePath &path);
+    explicit GeneratedFilePrivate(const QString &path);
+    Utils::FilePath path;
     QByteArray contents;
     Id editorId;
     bool binary = false;
     GeneratedFile::Attributes attributes;
 };
 
-GeneratedFilePrivate::GeneratedFilePrivate(const QString &p) :
-    path(QDir::cleanPath(p)),
+GeneratedFilePrivate::GeneratedFilePrivate(const QString &path) : // FIXME Don't use - Remove when possible
+    path(FilePath::fromString(path).cleanPath()),
+    attributes({})
+{
+}
+
+GeneratedFilePrivate::GeneratedFilePrivate(const Utils::FilePath &path) :
+    path(path.cleanPath()),
     attributes({})
 {
 }
@@ -74,8 +81,13 @@ GeneratedFile::GeneratedFile() :
 {
 }
 
-GeneratedFile::GeneratedFile(const QString &p) :
-    m_d(new GeneratedFilePrivate(p))
+GeneratedFile::GeneratedFile(const QString &path) : // FIXME Don't use - Remove when possible
+    m_d(new GeneratedFilePrivate(path))
+{
+}
+
+GeneratedFile::GeneratedFile(const Utils::FilePath &path) :
+    m_d(new GeneratedFilePrivate(path))
 {
 }
 
@@ -92,17 +104,23 @@ GeneratedFile::~GeneratedFile() = default;
 
 QString GeneratedFile::path() const
 {
-    return m_d->path;
+    return m_d->path.toString();
 }
 
 FilePath GeneratedFile::filePath() const
 {
-    return FilePath::fromString(m_d->path);
+    return m_d->path;
 }
 
 void GeneratedFile::setPath(const QString &p)
 {
-    m_d->path = QDir::cleanPath(p);
+    m_d->path = Utils::FilePath::fromString(p).cleanPath();
+}
+
+
+void GeneratedFile::setFilePath(const Utils::FilePath &p)
+{
+    m_d->path = p;
 }
 
 QString GeneratedFile::contents() const
@@ -148,8 +166,7 @@ void GeneratedFile::setEditorId(Id id)
 bool GeneratedFile::write(QString *errorMessage) const
 {
     // Ensure the directory
-    const QFileInfo info(m_d->path);
-    const QDir dir = info.absoluteDir();
+    const QDir dir = m_d->path.parentDir().toDir();
     if (!dir.exists()) {
         if (!dir.mkpath(dir.absolutePath())) {
             *errorMessage = QCoreApplication::translate("BaseFileWizard",
@@ -162,7 +179,7 @@ bool GeneratedFile::write(QString *errorMessage) const
     // Write out
     if (isBinary()) {
         QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
-        Utils::FileSaver saver(FilePath::fromString(m_d->path), flags);
+        Utils::FileSaver saver(m_d->path, flags);
         saver.write(m_d->contents);
         return saver.finalize(errorMessage);
     }
@@ -170,7 +187,7 @@ bool GeneratedFile::write(QString *errorMessage) const
     Utils::TextFileFormat format;
     format.codec = EditorManager::defaultTextCodec();
     format.lineTerminationMode = EditorManager::defaultLineEnding();
-    return format.writeFile(Utils::FilePath::fromString(m_d->path), contents(), errorMessage);
+    return format.writeFile(m_d->path, contents(), errorMessage);
 }
 
 GeneratedFile::Attributes GeneratedFile::attributes() const

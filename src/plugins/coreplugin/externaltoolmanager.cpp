@@ -131,7 +131,7 @@ static void parseDirectory(const QString &directory,
     foreach (const QFileInfo &info, dir.entryInfoList()) {
         const QString &fileName = info.absoluteFilePath();
         QString error;
-        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, ICore::userInterfaceLanguage());
+        ExternalTool *tool = ExternalTool::createFromFile(Utils::FilePath::fromString(fileName), &error, ICore::userInterfaceLanguage());
         if (!tool) {
             qWarning() << ExternalTool::tr("Error while parsing external tool %1: %2").arg(fileName, error);
             continue;

@@ -57,6 +57,7 @@ public:
     Q_DECLARE_FLAGS(Attributes, Attribute)
 
     GeneratedFile();
+    explicit GeneratedFile(const Utils::FilePath &path);
     explicit GeneratedFile(const QString &path);
     GeneratedFile(const GeneratedFile &);
     GeneratedFile &operator=(const GeneratedFile &);
@@ -65,6 +66,7 @@ public:
     // Full path of the file should be created, or the suggested file name
     QString path() const;
     void setPath(const QString &p);
+    void setFilePath(const Utils::FilePath &p);
     Utils::FilePath filePath() const;
 
     // Contents of the file (UTF8)

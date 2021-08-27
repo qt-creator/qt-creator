@@ -1146,14 +1146,14 @@ void EditorManagerPrivate::showPopupOrSelectDocument()
 
 // Run the OpenWithDialog and return the editor id
 // selected by the user.
-Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isExternalEditor)
+Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bool *isExternalEditor)
 {
     // Collect editors that can open the file
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
     // Built-in
-    const EditorFactoryList editors = IEditorFactory::preferredEditorFactories(FilePath::fromString(fileName));
+    const EditorFactoryList editors = IEditorFactory::preferredEditorFactories(fileName);
     const int size = editors.size();
     allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
@@ -3073,7 +3073,6 @@ IEditor *EditorManager::openEditor(const FilePath &filePath, Id editorId,
 IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    QFileInfo fi(fileName);
     return openEditor(FilePath::fromString(fileName), editorId, flags, newEditor);
 }
 

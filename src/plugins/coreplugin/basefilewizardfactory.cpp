@@ -254,7 +254,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
 
     if (oddStuffFound) {
         *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
-                .arg(QDir::toNativeSeparators(commonExistingPath)).arg(fileNamesMsgPart);
+                .arg(QDir::toNativeSeparators(commonExistingPath), fileNamesMsgPart);
         return OverwriteError;
     }
     // Prompt to overwrite existing files.

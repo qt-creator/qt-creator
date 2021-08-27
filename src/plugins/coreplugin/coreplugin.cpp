@@ -404,11 +404,11 @@ void CorePlugin::warnAboutCrashReporing()
                  "To enable this feature go to %2.");
 
     if (Utils::HostOsInfo::isMacHost()) {
-        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME)
-                         .arg(Core::Constants::IDE_DISPLAY_NAME + tr(" > Preferences > Environment > System"));
+        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME,
+                              Core::Constants::IDE_DISPLAY_NAME + tr(" > Preferences > Environment > System"));
     } else {
-        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME)
-                         .arg(tr("Tools > Options > Environment > System"));
+        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME,
+                              tr("Tools > Options > Environment > System"));
     }
 
     Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,

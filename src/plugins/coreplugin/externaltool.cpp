@@ -101,7 +101,7 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_outputHandling(other->m_outputHandling),
       m_errorHandling(other->m_errorHandling),
       m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
-      m_fileName(other->m_fileName),
+      m_filePath(other->m_filePath),
       m_presetTool(other->m_presetTool)
 {
 }
@@ -121,7 +121,7 @@ ExternalTool &ExternalTool::operator=(const ExternalTool &other)
     m_outputHandling = other.m_outputHandling;
     m_errorHandling = other.m_errorHandling;
     m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
-    m_fileName = other.m_fileName;
+    m_filePath = other.m_filePath;
     m_presetFileName = other.m_presetFileName;
     m_presetTool = other.m_presetTool;
     return *this;
@@ -210,9 +210,9 @@ bool ExternalTool::modifiesCurrentDocument() const
     return m_modifiesCurrentDocument;
 }
 
-void ExternalTool::setFileName(const QString &fileName)
+void ExternalTool::setFileName(const Utils::FilePath &fileName)
 {
-    m_fileName = fileName;
+    m_filePath = fileName;
 }
 
 void ExternalTool::setPreset(QSharedPointer<ExternalTool> preset)
@@ -220,9 +220,9 @@ void ExternalTool::setPreset(QSharedPointer<ExternalTool> preset)
     m_presetTool = preset;
 }
 
-QString ExternalTool::fileName() const
+Utils::FilePath ExternalTool::fileName() const
 {
-    return m_fileName;
+    return m_filePath;
 }
 
 QSharedPointer<ExternalTool> ExternalTool::preset() const
@@ -470,16 +470,16 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
     return tool;
 }
 
-ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale)
+ExternalTool * ExternalTool::createFromFile(const Utils::FilePath &fileName, QString *errorMessage, const QString &locale)
 {
-    QString absFileName = QFileInfo(fileName).absoluteFilePath();
+    Utils::FilePath absFileName = fileName.absoluteFilePath();
     FileReader reader;
-    if (!reader.fetch(FilePath::fromString(absFileName), errorMessage))
+    if (!reader.fetch(absFileName, errorMessage))
         return nullptr;
     ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
     if (!tool)
         return nullptr;
-    tool->m_fileName = absFileName;
+    tool->m_filePath = absFileName;
     return tool;
 }
 
@@ -498,9 +498,9 @@ static QString stringForOutputHandling(ExternalTool::OutputHandling handling)
 
 bool ExternalTool::save(QString *errorMessage) const
 {
-    if (m_fileName.isEmpty())
+    if (m_filePath.isEmpty())
         return false;
-    FileSaver saver(FilePath::fromString(m_fileName));
+    FileSaver saver(m_filePath);
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);
@@ -560,7 +560,7 @@ bool ExternalTool::operator==(const ExternalTool &other) const
             && m_outputHandling == other.m_outputHandling
             && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
             && m_errorHandling == other.m_errorHandling
-            && m_fileName == other.m_fileName;
+            && m_filePath == other.m_filePath;
 }
 
 // #pragma mark -- ExternalToolRunner

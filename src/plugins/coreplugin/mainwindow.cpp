@@ -954,7 +954,7 @@ void MainWindow::openFileWith()
     const FilePaths filePaths = EditorManager::getOpenFilePaths();
     for (const FilePath &filePath : filePaths) {
         bool isExternal;
-        const Id editorId = EditorManagerPrivate::getOpenWithEditorId(filePath.toString(), &isExternal);
+        const Id editorId = EditorManagerPrivate::getOpenWithEditorId(filePath, &isExternal);
         if (!editorId.isValid())
             continue;
         if (isExternal)

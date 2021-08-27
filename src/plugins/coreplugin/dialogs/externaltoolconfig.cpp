@@ -630,7 +630,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     updateEffectiveArguments();
 }
 
-static QString getUserFilePath(const QString &proposalFileName)
+static FilePath getUserFilePath(const QString &proposalFileName)
 {
     const QDir resourceDir(ICore::userResourcePath().toDir());
     if (!resourceDir.exists(QLatin1String("externaltools")))
@@ -642,12 +642,12 @@ static QString getUserFilePath(const QString &proposalFileName)
     FilePath tryPath = newFilePath + suffix;
     while (tryPath.exists()) {
         if (++count > 15)
-            return QString();
+            return {};
         // add random number
         const int number = QRandomGenerator::global()->generate() % 1000;
         tryPath = newFilePath + QString::number(number) + suffix;
     }
-    return tryPath.toString();
+    return tryPath;
 }
 
 static QString idFromDisplayName(const QString &displayName)
@@ -709,8 +709,8 @@ void ExternalToolConfig::apply()
                     if (tool->preset() && (*tool) != (*(tool->preset()))) {
                         // check if we need to choose a new file name
                         if (tool->preset()->fileName() == tool->fileName()) {
-                            const QString &fileName = FilePath::fromString(tool->preset()->fileName()).fileName();
-                            const QString &newFilePath = getUserFilePath(fileName);
+                            const QString &fileName = tool->preset()->fileName().fileName();
+                            const FilePath &newFilePath = getUserFilePath(fileName);
                             // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
                             tool->setFileName(newFilePath);
                         }
@@ -720,9 +720,9 @@ void ExternalToolConfig::apply()
                     } else if (tool->preset() && (*tool) == (*(tool->preset()))) {
                         // check if we need to delete the changed description
                         if (originalTool->fileName() != tool->preset()->fileName()
-                                && QFile::exists(originalTool->fileName())) {
+                                && originalTool->fileName().exists()) {
                             // TODO error handling
-                            QFile::remove(originalTool->fileName());
+                            originalTool->fileName().removeFile();
                         }
                         tool->setFileName(tool->preset()->fileName());
                         // no need to save, it's the same as the preset
@@ -755,7 +755,7 @@ void ExternalToolConfig::apply()
     foreach (ExternalTool *tool, originalTools) {
         QTC_ASSERT(!tool->preset(), continue);
         // TODO error handling
-        QFile::remove(tool->fileName());
+        tool->fileName().removeFile();
     }
 
     ExternalToolManager::setToolsByCategory(resultMap);

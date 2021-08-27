@@ -32,11 +32,11 @@
 using namespace Core;
 using namespace Core::Internal;
 
-OpenWithDialog::OpenWithDialog(const QString &fileName, QWidget *parent)
+OpenWithDialog::OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);
-    label->setText(tr("Open file \"%1\" with:").arg(Utils::FilePath::fromString(fileName).fileName()));
+    label->setText(tr("Open file \"%1\" with:").arg(filePath.fileName()));
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     connect(buttonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked,

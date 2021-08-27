@@ -28,6 +28,8 @@
 #include <QDialog>
 #include "ui_openwithdialog.h"
 
+namespace Utils { class FilePath; }
+
 namespace Core {
 namespace Internal {
 
@@ -38,7 +40,7 @@ class OpenWithDialog : public QDialog, public Ui::OpenWithDialog
     Q_OBJECT
 
 public:
-    OpenWithDialog(const QString &fileName, QWidget *parent);
+    OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent);
 
     void setEditors(const QStringList &);
     int editor() const;
