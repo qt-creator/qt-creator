@@ -41,6 +41,7 @@ class LauncherSignal
 {
 public:
     CallerHandle::SignalType signalType() const { return m_signalType; }
+    virtual ~LauncherSignal() = default;
 protected:
     LauncherSignal(CallerHandle::SignalType signalType) : m_signalType(signalType) {}
 private:
@@ -104,6 +105,11 @@ private:
     const QProcess::ExitStatus m_exitStatus;
     const int m_exitCode;
 };
+
+CallerHandle::~CallerHandle()
+{
+    qDeleteAll(m_signals);
+}
 
 bool CallerHandle::waitForStarted(int msecs)
 {

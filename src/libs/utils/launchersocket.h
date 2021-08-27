@@ -68,7 +68,7 @@ public:
     };
     Q_ENUM(SignalType)
     CallerHandle(quintptr token, ProcessMode mode) : QObject(), m_token(token), m_processMode(mode) {}
-    ~CallerHandle() override { qDeleteAll(m_signals); }
+    ~CallerHandle() override;
 
     LauncherHandle *launcherHandle() const { return m_launcherHandle; }
     void setLauncherHandle(LauncherHandle *handle) { QMutexLocker locker(&m_mutex); m_launcherHandle = handle; }
