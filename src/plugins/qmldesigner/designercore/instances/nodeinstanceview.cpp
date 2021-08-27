@@ -642,6 +642,9 @@ void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & 
          NodeInstance instance = instanceForModelNode(node);
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
          m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
+
+         // Puppet doesn't deal with node source changes properly, so just reset the puppet for now
+         delayedRestartProcess(); // TODO: Remove this once the issue is properly fixed (QDS-4955)
      }
 }
 
