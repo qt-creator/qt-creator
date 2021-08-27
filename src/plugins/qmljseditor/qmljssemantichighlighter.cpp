@@ -174,7 +174,7 @@ protected:
 class CollectionTask : protected Visitor
 {
 public:
-    CollectionTask(QFutureInterface<SemanticHighlighter::Use> futureInterface,
+    CollectionTask(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
                    const QmlJSTools::SemanticInfo &semanticInfo)
         : m_futureInterface(futureInterface)
         , m_semanticInfo(semanticInfo)
@@ -532,7 +532,7 @@ private:
         m_uses.reserve(chunkSize);
     }
 
-    QFutureInterface<SemanticHighlighter::Use> m_futureInterface;
+    QFutureInterface<SemanticHighlighter::Use> &m_futureInterface;
     const QmlJSTools::SemanticInfo &m_semanticInfo;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;

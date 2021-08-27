@@ -48,11 +48,11 @@ public:
     explicit QuickTestParser(ITestFramework *framework);
     void init(const Utils::FilePaths &filesToParse, bool fullParse) override;
     void release() override;
-    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+    bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                          const Utils::FilePath &fileName) override;
     Utils::FilePath projectFileForMainCppFile(const Utils::FilePath &fileName) const;
 private:
-    bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
+    bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> &futureInterface,
                            CPlusPlus::Document::Ptr document, ITestFramework *framework);
     void handleDirectoryChanged(const QString &directory);
     void doUpdateWatchPaths(const QStringList &directories);

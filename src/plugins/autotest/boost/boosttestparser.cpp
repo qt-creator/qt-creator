@@ -118,7 +118,7 @@ static BoostTestParseResult *createParseResult(const QString &name, const Utils:
 
 }
 
-bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                       const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);

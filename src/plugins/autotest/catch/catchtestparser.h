@@ -44,7 +44,7 @@ class CatchTestParser : public CppParser
 public:
     CatchTestParser(ITestFramework *framework)
         : CppParser(framework) {}
-    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+    bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                          const Utils::FilePath &fileName) override;
 };
 

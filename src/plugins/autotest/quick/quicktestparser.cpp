@@ -211,7 +211,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QS
     return foundDocs;
 }
 
-static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> futureInterface,
+static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> &futureInterface,
                                              const Document::Ptr &qmlJSDoc,
                                              ITestFramework *framework,
                                              const Utils::FilePath &proFile = Utils::FilePath())
@@ -259,7 +259,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
     return true;
 }
 
-bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
+bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> &futureInterface,
                                         CPlusPlus::Document::Ptr document,
                                         ITestFramework *framework)
 {
@@ -375,7 +375,7 @@ void QuickTestParser::release()
     CppParser::release();
 }
 
-bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                       const Utils::FilePath &fileName)
 {
     if (fileName.endsWith(".qml")) {

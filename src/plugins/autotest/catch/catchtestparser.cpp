@@ -111,7 +111,7 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
-bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                       const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);

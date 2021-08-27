@@ -302,7 +302,7 @@ static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
             || file.endsWith("QtCore/qobject.h")  || file.endsWith("kernel/qobject.h");
 }
 
-bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                    const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);

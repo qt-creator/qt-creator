@@ -68,7 +68,7 @@ public:
     explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
     virtual ~ITestParser() { }
     virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
-    virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+    virtual bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                  const Utils::FilePath &fileName) = 0;
     virtual void release() = 0;
 

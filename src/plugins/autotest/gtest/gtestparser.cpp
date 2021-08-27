@@ -92,7 +92,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
-bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                   const Utils::FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
