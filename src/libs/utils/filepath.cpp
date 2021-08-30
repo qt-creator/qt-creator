@@ -1307,6 +1307,11 @@ bool FilePath::removeRecursively(QString *error) const
 
 bool FilePath::copyFile(const FilePath &target) const
 {
+    if (host() != target.host()) {
+        // FIXME: This does not scale.
+        const QByteArray ba = fileContents();
+        return target.writeFileContents(ba);
+    }
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.copyFile, return false);
         return s_deviceHooks.copyFile(*this, target);
