@@ -283,7 +283,7 @@ void CallerHandle::cancel()
         m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
                                                     "Process canceled before it was started.");
         m_error = QProcess::FailedToStart;
-        if (LauncherInterface::socket()->isReady()) // TODO: race condition with m_processState???
+        if (LauncherInterface::isReady()) // TODO: race condition with m_processState???
             sendPacket(StopProcessPacket(m_token));
         else
             emit errorOccurred(m_error);
@@ -367,7 +367,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
     p->lowPriority = m_lowPriority;
     p->unixTerminalDisabled = m_unixTerminalDisabled;
     m_startPacket.reset(p);
-    if (LauncherInterface::socket()->isReady())
+    if (LauncherInterface::isReady())
         doStart();
 }
 
@@ -391,7 +391,7 @@ void CallerHandle::doStart()
 // Called from caller's or launcher's thread.
 void CallerHandle::sendPacket(const Internal::LauncherPacket &packet)
 {
-    LauncherInterface::socket()->sendData(packet.serialize());
+    LauncherInterface::sendData(packet.serialize());
 }
 
 qint64 CallerHandle::write(const QByteArray &data)

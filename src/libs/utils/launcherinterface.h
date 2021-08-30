@@ -27,13 +27,17 @@
 
 #include "utils_global.h"
 
+#include "processutils.h"
+
 #include <QObject>
 #include <QThread>
 
 namespace Utils {
 namespace Internal {
-class LauncherSocket;
+class CallerHandle;
+class LauncherHandle;
 class LauncherInterfacePrivate;
+class ProcessLauncherImpl;
 }
 
 class QTCREATOR_UTILS_EXPORT LauncherInterface : public QObject
@@ -42,13 +46,21 @@ class QTCREATOR_UTILS_EXPORT LauncherInterface : public QObject
 public:
     static void startLauncher(const QString &pathToLauncher = {});
     static void stopLauncher();
-    static Internal::LauncherSocket *socket();
-    static bool isStarted();
 
 signals:
     void errorOccurred(const QString &error);
 
 private:
+    friend class Utils::Internal::CallerHandle;
+    friend class Utils::Internal::LauncherHandle;
+    friend class Utils::Internal::ProcessLauncherImpl;
+
+    static bool isStarted();
+    static bool isReady();
+    static void sendData(const QByteArray &data);
+    static Utils::Internal::CallerHandle *registerHandle(quintptr token, ProcessMode mode);
+    static void unregisterHandle(quintptr token);
+
     LauncherInterface();
     ~LauncherInterface() override;
 

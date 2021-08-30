@@ -251,7 +251,7 @@ public:
     ProcessLauncherImpl(ProcessMode processMode)
         : ProcessInterface(processMode), m_token(uniqueToken())
     {
-        m_handle = LauncherInterface::socket()->registerHandle(token(), processMode);
+        m_handle = LauncherInterface::registerHandle(token(), processMode);
         connect(m_handle, &CallerHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
         connect(m_handle, &CallerHandle::started,
@@ -266,7 +266,7 @@ public:
     ~ProcessLauncherImpl() override
     {
         cancel();
-        LauncherInterface::socket()->unregisterHandle(token());
+        LauncherInterface::unregisterHandle(token());
     }
 
     QByteArray readAllStandardOutput() override { return m_handle->readAllStandardOutput(); }

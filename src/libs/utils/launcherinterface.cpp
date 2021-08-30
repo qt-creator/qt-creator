@@ -184,6 +184,7 @@ void LauncherInterfacePrivate::handleProcessStderr()
 
 using namespace Utils::Internal;
 
+static QMutex s_instanceMutex;
 static LauncherInterface *s_instance = nullptr;
 
 LauncherInterface::LauncherInterface()
@@ -205,6 +206,7 @@ LauncherInterface::~LauncherInterface()
 // Called from main thread
 void LauncherInterface::startLauncher(const QString &pathToLauncher)
 {
+    QMutexLocker locker(&s_instanceMutex);
     QTC_ASSERT(s_instance == nullptr, return);
     s_instance = new LauncherInterface();
     LauncherInterfacePrivate *p = s_instance->m_private;
@@ -223,6 +225,7 @@ void LauncherInterface::startLauncher(const QString &pathToLauncher)
 // Called from main thread
 void LauncherInterface::stopLauncher()
 {
+    QMutexLocker locker(&s_instanceMutex);
     QTC_ASSERT(s_instance != nullptr, return);
     LauncherInterfacePrivate *p = s_instance->m_private;
     // Call in launcher's thread.
@@ -231,15 +234,42 @@ void LauncherInterface::stopLauncher()
     s_instance = nullptr;
 }
 
-Internal::LauncherSocket *LauncherInterface::socket()
-{
-    QTC_ASSERT(s_instance != nullptr, return nullptr);
-    return s_instance->m_private->socket();
-}
-
 bool LauncherInterface::isStarted()
 {
+    QMutexLocker locker(&s_instanceMutex);
     return s_instance != nullptr;
+}
+
+bool LauncherInterface::isReady()
+{
+    QMutexLocker locker(&s_instanceMutex);
+    QTC_ASSERT(s_instance != nullptr, return false);
+
+    return s_instance->m_private->socket()->isReady();
+}
+
+void LauncherInterface::sendData(const QByteArray &data)
+{
+    QMutexLocker locker(&s_instanceMutex);
+    QTC_ASSERT(s_instance != nullptr, return);
+
+    s_instance->m_private->socket()->sendData(data);
+}
+
+Utils::Internal::CallerHandle *LauncherInterface::registerHandle(quintptr token, ProcessMode mode)
+{
+    QMutexLocker locker(&s_instanceMutex);
+    QTC_ASSERT(s_instance != nullptr, return nullptr);
+
+    return s_instance->m_private->socket()->registerHandle(token, mode);
+}
+
+void LauncherInterface::unregisterHandle(quintptr token)
+{
+    QMutexLocker locker(&s_instanceMutex);
+    QTC_ASSERT(s_instance != nullptr, return);
+
+    s_instance->m_private->socket()->unregisterHandle(token);
 }
 
 } // namespace Utils
