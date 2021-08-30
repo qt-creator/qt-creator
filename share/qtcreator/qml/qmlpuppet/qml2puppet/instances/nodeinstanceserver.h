@@ -216,6 +216,8 @@ public:
     virtual QImage grabWindow() = 0;
     virtual QImage grabItem(QQuickItem *item) = 0;
 
+    virtual bool isInformationServer() const;
+
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void refreshDummyData(const QString &path);

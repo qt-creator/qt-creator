@@ -58,18 +58,15 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     NodeInstanceClientProxy(parent)
 {
     prioritizeDown();
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const bool qt6 = false;
-#else
-    const bool qt6 = true;
-#endif
 
     const bool unifiedRenderPath = qEnvironmentVariableIsSet("QMLPUPPET_UNIFIED_RENDER_PATH");
 
     if (unifiedRenderPath)
         Internal::QuickItemNodeInstance::enableUnifiedRenderPath(true);
-    else if (!qt6)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    else
         DesignerSupport::activateDesignerWindowManager();
+#endif
 
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");

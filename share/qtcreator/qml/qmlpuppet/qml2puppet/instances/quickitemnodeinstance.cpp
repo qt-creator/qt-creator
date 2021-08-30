@@ -295,6 +295,27 @@ bool QuickItemNodeInstance::unifiedRenderPathOrQt6()
 #endif
 }
 
+void QuickItemNodeInstance::setHiddenInEditor(bool hide)
+{
+    ObjectNodeInstance::setHiddenInEditor(hide);
+    if (s_unifiedRenderPath && !nodeInstanceServer()->isInformationServer()) {
+        QQmlProperty property(object(), "visible", context());
+
+        if (!property.isValid())
+            return;
+
+        bool visible = property.read().toBool();
+
+        if (hide && visible) {
+            setPropertyVariant("visible", false);
+            m_hidden = true;
+        } else if (!hide && !visible && m_hidden) {
+            setPropertyVariant("visible", true);
+            m_hidden = false;
+        }
+    }
+}
+
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
 {
     if (contentItem()) {

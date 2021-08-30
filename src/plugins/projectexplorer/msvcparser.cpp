@@ -35,7 +35,7 @@
 using namespace Utils;
 
 // As of MSVC 2015: "foo.cpp(42) :" -> "foo.cpp(42):"
-static const char FILE_POS_PATTERN[] = "^(?:\\d+>)?(cl|LINK|.+[^ ]) ?: ";
+static const char FILE_POS_PATTERN[] = "^(?:\\d+>)?(cl|LINK|.+?[^ ]) ?: ";
 
 static QPair<FilePath, int> parseFileName(const QString &input)
 {
@@ -396,6 +396,24 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                 << CompileTask(Task::Warning,
                                "C4100: 'something' : unreferenced formal parameter",
                                FilePath::fromUserInput("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp"), 69))
+            << "";
+
+    QTest::newRow("labeled chained warning")
+            << "x:\\src\\libs\\narf\\stringutils.cpp(155): warning C4996: "
+               "'std::wstring_convert<std::codecvt_utf8_utf16<wchar_t,1114111,(std::codecvt_mode)0>"
+               ",wchar_t,std::allocator<wchar_t>,std::allocator<char>>::from_bytes': "
+               "warning STL4017: std::wbuffer_convert, std::wstring_convert, and the <codecvt> "
+               "header (containing std::codecvt_mode, std::codecvt_utf8, std::codecvt_utf16, and "
+               "std::codecvt_utf8_utf16) are deprecated in C++17. more blabla"
+            << OutputParserTester::STDOUT
+            << "" << ""
+            << (Tasks()
+                << CompileTask(Task::Warning,
+                               "STL4017: std::wbuffer_convert, std::wstring_convert, and the "
+                               "<codecvt> header (containing std::codecvt_mode, std::codecvt_utf8, "
+                               "std::codecvt_utf16, and std::codecvt_utf8_utf16) are deprecated in "
+                               "C++17. more blabla",
+                               FilePath::fromUserInput("x:\\src\\libs\\narf\\stringutils.cpp"), 155))
             << "";
 
     QTest::newRow("additional information")

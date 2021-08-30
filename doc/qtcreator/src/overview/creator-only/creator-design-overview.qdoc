@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -58,9 +58,11 @@
             Furthermore, features such as widget promotion and custom plugins
             allow you to use your own widgets with \QD.
 
-        \li \l{Best Practices}
+        \li \l{Optimizing Applications for Mobile Devices}
 
-            Apply the best practices to ensure that the UIs you create work
-            efficiently on the intended platforms, such as mobile devices.
+            Before starting application development, analyze and define the
+            requirements, scope, and functionality of the application to ensure
+            efficient functionality and a smooth user experience on mobile
+            devices.
     \endlist
 */

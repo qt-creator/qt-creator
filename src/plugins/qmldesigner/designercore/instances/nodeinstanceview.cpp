@@ -642,6 +642,9 @@ void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & 
          NodeInstance instance = instanceForModelNode(node);
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
          m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
+
+         // Puppet doesn't deal with node source changes properly, so just reset the puppet for now
+         delayedRestartProcess(); // TODO: Remove this once the issue is properly fixed (QDS-4955)
      }
 }
 
@@ -1809,22 +1812,24 @@ void NodeInstanceView::updateWatcher(const QString &path)
     QStringList newFiles;
     QStringList newDirs;
 
+    const QStringList files = m_fileSystemWatcher->files();
+    const QStringList directories = m_fileSystemWatcher->directories();
     if (path.isEmpty()) {
         // Do full update
         rootPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
-        m_fileSystemWatcher->removePaths(m_fileSystemWatcher->directories());
-        m_fileSystemWatcher->removePaths(m_fileSystemWatcher->files());
+        if (!directories.isEmpty())
+            m_fileSystemWatcher->removePaths(directories);
+        if (!files.isEmpty())
+            m_fileSystemWatcher->removePaths(files);
     } else {
         rootPath = path;
-        const QStringList files = m_fileSystemWatcher->files();
-        const QStringList dirs = m_fileSystemWatcher->directories();
         for (const auto &file : files) {
             if (file.startsWith(path))
                 oldFiles.append(file);
         }
-        for (const auto &dir : dirs) {
-            if (dir.startsWith(path))
-                oldDirs.append(dir);
+        for (const auto &directory : directories) {
+            if (directory.startsWith(path))
+                oldDirs.append(directory);
         }
     }
 

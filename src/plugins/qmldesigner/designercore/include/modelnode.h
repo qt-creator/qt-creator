@@ -226,6 +226,7 @@ public:
     qint32 internalId() const;
 
     void setNodeSource(const QString&);
+    void setNodeSource(const QString &newNodeSource, NodeSourceType type);
     QString nodeSource() const;
 
     QString convertTypeToImportAlias() const;

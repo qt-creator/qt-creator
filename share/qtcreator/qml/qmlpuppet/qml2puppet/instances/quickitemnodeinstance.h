@@ -106,6 +106,8 @@ public:
     static bool unifiedRenderPath();
     static bool unifiedRenderPathOrQt6();
 
+    void setHiddenInEditor(bool b) override;
+
 protected:
     explicit QuickItemNodeInstance(QQuickItem*);
     QQuickItem *quickItem() const;
@@ -139,6 +141,7 @@ private: //variables
     double m_y;
     double m_width;
     double m_height;
+    bool m_hidden = false;
     static bool s_createEffectItem;
     static bool s_unifiedRenderPath;
 };

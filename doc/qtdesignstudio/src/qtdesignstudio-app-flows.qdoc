@@ -96,8 +96,14 @@
     \uicontrol {Qt Quick Files} > \uicontrol {Flow View}
     and follow the instructions of the wizard.
 
-    You only need to select the \uicontrol {Use event simulator} check box if
-    you want to add an event simulator to the flow view.
+    \image studio-flow-view-create.png "Create Flow View wizard template"
+
+    You only need to select the \uicontrol {Use Event Simulator} check box if
+    you want to add an event simulator to the flow view. The event simulator
+    needs the project to be imported to the flow view, so you also need
+    to select the \uicontrol {Use Application Import} check box. You need the
+    import also for access to the project \c Constants.qml file that contains
+    global settings for the project.
 
     The flow view properties enable you to adjust the appearance of all
     the items in the flow: action areas, transition lines, decisions, and
@@ -114,8 +120,9 @@
     \section1 Flow View Properties
 
     You can specify basic properties for a \uicontrol {Flow View} component
-    in the \l {Type}{Component}, \l {2D Geometry}{Geometry}, and
-    \l Visibility groups.
+    in the \l {Type}{Component}, \l {2D Geometry}{Geometry - 2D}, and
+    \l Visibility sections in the \l Properties view. Specify flow view
+    properties in the \uicontrol {Flow View} section.
 
     \image studio-flow-view-properties.png "Flow View component properties"
 
@@ -199,14 +206,14 @@
                 \li Drag-and-drop components from \uicontrol Library to a flow
                     item in \l {Form Editor} or \l Navigator.
                 \li Drag a screen from \uicontrol Library > \uicontrol Components
-                    \uicontrol {My Components} to a flow item in
+                    > \uicontrol {My Components} to a flow item in
                     \uicontrol {Form Editor} or \uicontrol Navigator.
             \endlist
         \li In \l Properties, edit the properties of each flow item.
     \endlist
 
     You can now drag the flow items from \uicontrol Library > \uicontrol Components
-    \uicontrol {My Components} to the flow view in \uicontrol {Form Editor}
+    > \uicontrol {My Components} to the flow view in \uicontrol {Form Editor}
     or \uicontrol Navigator. When you have all the flow items in place, you can
     \l{Adding Action Areas and Transitions}{add action areas} to them to create
     transitions between them.
@@ -214,8 +221,9 @@
     \section1 Flow Item Properties
 
     You can specify basic properties for a \uicontrol {Flow Item} component
-    in the \l {Type}{Component}, \l {2D Geometry}{Geometry}, and
-    \l Visibility groups.
+    in the \l {Type}{Component}, \l {2D Geometry}{Geometry - 2D}, and
+    \l Visibility sections in the \uicontrol Properties view. Specify flow item
+    properties in the \uicontrol {Flow Item} section.
 
     \image studio-flow-item-properties.png "Flow Item properties"
 
@@ -226,9 +234,16 @@
     To include another flow view into a flow view, select the UI file (.ui.qml)
     that specifies the flow view in the \uicontrol {Loader source} field.
 
+    Usually, a flow item is inactive and invisible when it is not currently
+    selected in the flow. Especially, all events from the flow item are ignored.
+    To make a flow item always active, so that another flow item within it
+    can respond to events and trigger the opening of a dialog, for example,
+    select the \uicontrol {Force active} check box.
+
     By default, transitions are drawn from action areas to the target flow item.
     To draw the transitions from the edges of flow items instead, select the
-    \uicontrol {Join lines} check box.
+    \uicontrol {Join lines} check box in the \uicontrol {Transition Lines}
+    section.
 
     In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
     {anchors} to position the component.
@@ -297,10 +312,8 @@
 
     You can specify basic properties for \uicontrol {Flow Action Area}
     and \uicontrol {Flow Transition} components in the \l {Type}{Component},
-    \l {2D Geometry}{Geometry}, and \l Visibility groups.
-
-    You can use the \l{Picking Colors}{color picker} to set line and fill
-    color.
+    \l {2D Geometry}{Geometry - 2D}, and \l Visibility sections in the
+    \uicontrol Properties view.
 
     In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
     {anchors} to position the component.
@@ -310,9 +323,13 @@
 
     \section1 Flow Action Area Properties
 
+    In the \uicontrol {Flow Action Area} section, you can use the
+    \l{Picking Colors}{color picker} to set line and fill color.
+
     \image studio-flow-action-area-properties.png "Flow Action Area properties"
 
-    You can specify some additional properties for action areas:
+    In the \uicontrol {Flow Action} and \uicontrol {Action Area} sections,
+    specify additional properties for action areas:
 
     \list
         \li Select the \uicontrol {Go back} check box to specify that the
@@ -331,8 +348,8 @@
 
     \section1 Flow Transition Properties
 
-    You can specify some additional properties for transitions between
-    \l{Adding Flow Items}{flow items}:
+    In the \uicontrol Transition section, specify additional properties for
+    transitions between \l{Adding Flow Items}{flow items}:
 
     \image studio-flow-transition-properties.png "Flow Transition properties"
 
@@ -361,8 +378,8 @@
     \list
         \li In the \uicontrol {Line width} field, set the width of the
             transition line.
-        \li In the \uicontrol {In-offset}, \uicontrol {Out-offset}, and
-            \uicontrol {Break-offset} fields, set the start or end point of a
+        \li In the \uicontrol {Offset} and \uicontrol {Break offset} fields, set
+            the start point (\uicontrol Out) or end point (\uicontrol In) of a
             transition line or a break to the specified offset. This enables
             you to move them up and down or left and right.
         \li Select the \uicontrol {Dashed line} check box to draw a dashed line.
@@ -429,7 +446,8 @@
     \section1 Flow Effect Properties
 
     You can specify basic properties for a \uicontrol {Flow Effect}
-    component in the \l Type and \l ID fields.
+    component in the \l Type and \l ID fields in the \uicontrol Component
+    section in the \uicontrol Properties view.
 
     \image studio-flow-effect-properties.png "Flow Effect properties"
 
@@ -567,7 +585,7 @@
         \li Select the flow decision, and then select \uicontrol Connect in the
             context menu to create connections to the flow items that will open
             depending on whether the condition is met.
-        \li In \uicontrol Properties, \uicontrol {Dialog title} field, enter a
+        \li In the \l Properties view, \uicontrol {Dialog title} field, enter a
             title for the selection dialog that opens when the condition is
             triggered.
         \li Select a transition line in \uicontrol Navigator or
@@ -587,8 +605,10 @@
 
     \section1 Flow Decision Properties
 
-    You can specify basic properties for a \uicontrol {Flow Decision}
-    component in the \l Type and \l ID fields.
+    You can specify basic properties for a \uicontrol {Flow Decision} component
+    in the \l Type and \l ID fields in the \uicontrol Component section in the
+    \uicontrol Properties view. Specify properties for flow decisions in the
+    \uicontrol {Flow Decision} section.
 
     \image studio-flow-decision-properties.png "Flow Decision properties"
 
@@ -600,8 +620,9 @@
     :
 
     \list
-        \li Select the \uicontrol {Show label} check box to display the ID
-            of the \uicontrol {Flow Decision} component in \l {Form Editor}.
+        \li Select \inlineimage icons/visibility-off.png
+            to display the ID of the \uicontrol {Flow Decision}
+            component in \l {Form Editor}.
         \li In the \uicontrol {Label position} field, select the corner of
             the flow decision icon to place the label in.
         \li In the \uicontrol Size field, specify the size of the flow
@@ -683,17 +704,22 @@
 
     \section1 Flow Wildcard Properties
 
-    You can specify basic properties for a \uicontrol {Flow Wildcard}
-    component in the \l Type and \l ID fields.
+    You can specify basic properties for a \uicontrol {Flow Wildcard} component
+    in the \l Type and \l ID fields in the \uicontrol Component section in the
+    \uicontrol Properties view. Specify properties for flow wildcards in the
+    \uicontrol {Flow Wildcard} section.
 
     \image studio-flow-wildcard-properties.png "Flow Wildcard properties"
 
     In the \uicontrol {Event IDs} field, specify the IDs of the events to
     connect to, such as mouse, touch or keyboard events.
 
+    Select the \uicontrol {Global wildcard} check box to enable triggering
+    the wildcard from several flows.
+
     To give flow items high priority, select them in the
-    \uicontrol {Positive list} field. To block flow items,
-    select them in the \uicontrol {Negative list} field.
+    \uicontrol {Allow list} field. To block flow items,
+    select them in the \uicontrol {Block list} field.
 
     You can specify the following properties to change the appearance of the
     wildcard icon \inlineimage icons/flow-wildcard-icon.png
