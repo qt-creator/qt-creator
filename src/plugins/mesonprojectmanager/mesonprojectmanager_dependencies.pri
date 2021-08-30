@@ -5,7 +5,7 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
-    cpptools \
+    cppeditor \
     qtsupport
 QTC_PLUGIN_RECOMMENDS += \
     designer

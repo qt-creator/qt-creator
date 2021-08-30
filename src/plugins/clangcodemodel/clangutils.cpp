@@ -33,13 +33,13 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <cpptools/baseeditordocumentparser.h>
-#include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/editordocumenthandle.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/baseeditordocumentparser.h>
+#include <cppeditor/compileroptionsbuilder.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/editordocumenthandle.h>
+#include <cppeditor/projectpart.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -60,7 +60,7 @@
 #include <QTextBlock>
 
 using namespace Core;
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -111,7 +111,7 @@ private:
 
 ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
 {
-    if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
+    if (const auto parser = CppEditor::BaseEditorDocumentParser::get(filePath))
         return parser->projectPartInfo().projectPart;
     return ProjectPart::ConstPtr();
 }
@@ -141,7 +141,7 @@ QString projectPartIdForFile(const QString &filePath)
 
 CppEditorDocumentHandle *cppDocument(const QString &filePath)
 {
-    return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
+    return CppEditor::CppModelManager::instance()->cppEditorDocument(filePath);
 }
 
 void setLastSentDocumentRevision(const QString &filePath, uint revision)
@@ -371,7 +371,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     return fileObject;
 }
 
-GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::ConstPtr projectInfo,
+GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
                                                   CompilationDbPurpose purpose,
                                                   const ClangDiagnosticConfig &warningsConfig,
                                                   const QStringList &projectOptions)
@@ -415,7 +415,7 @@ QString currentCppEditorDocumentFilePath()
     QString filePath;
 
     const auto currentEditor = Core::EditorManager::currentEditor();
-    if (currentEditor && CppTools::CppModelManager::isCppEditor(currentEditor)) {
+    if (currentEditor && CppEditor::CppModelManager::isCppEditor(currentEditor)) {
         const auto currentDocument = currentEditor->document();
         if (currentDocument)
             filePath = currentDocument->filePath().toString();
@@ -482,7 +482,7 @@ static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *projec
 class FileOptionsBuilder
 {
 public:
-    FileOptionsBuilder(const QString &filePath, const CppTools::ProjectPart &projectPart,
+    FileOptionsBuilder(const QString &filePath, const CppEditor::ProjectPart &projectPart,
                        const ClangDiagnosticConfig &warningsConfig,
                        const QStringList &projectOptions)
         : m_filePath(filePath)
@@ -502,7 +502,7 @@ public:
     }
 
     const QStringList &options() const { return m_options; }
-    CppTools::UseBuildSystemWarnings useBuildSystemWarnings() const
+    CppEditor::UseBuildSystemWarnings useBuildSystemWarnings() const
     {
         return m_useBuildSystemWarnings;
     }
@@ -511,13 +511,13 @@ private:
     void addLanguageOptions()
     {
         // Determine file kind with respect to ambiguous headers.
-        CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::Unclassified;
+        CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::Unclassified;
         if (!m_filePath.isEmpty())
-            fileKind = CppTools::ProjectFile::classify(m_filePath);
-        if (fileKind == CppTools::ProjectFile::AmbiguousHeader) {
+            fileKind = CppEditor::ProjectFile::classify(m_filePath);
+        if (fileKind == CppEditor::ProjectFile::AmbiguousHeader) {
             fileKind = m_projectPart.languageVersion <= ::Utils::LanguageVersion::LatestC
-                 ? CppTools::ProjectFile::CHeader
-                 : CppTools::ProjectFile::CXXHeader;
+                 ? CppEditor::ProjectFile::CHeader
+                 : CppEditor::ProjectFile::CXXHeader;
         }
 
         m_builder.reset();
@@ -531,26 +531,26 @@ private:
         addDiagnosticOptionsForConfig(m_warningsConfig);
     }
 
-    void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
+    void addDiagnosticOptionsForConfig(const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
     {
         m_useBuildSystemWarnings = diagnosticConfig.useBuildSystemWarnings()
-                                       ? CppTools::UseBuildSystemWarnings::Yes
-                                       : CppTools::UseBuildSystemWarnings::No;
+                                       ? CppEditor::UseBuildSystemWarnings::Yes
+                                       : CppEditor::UseBuildSystemWarnings::No;
 
         const QStringList options = m_isClMode
-                                        ? CppTools::clangArgsForCl(diagnosticConfig.clangOptions())
+                                        ? CppEditor::clangArgsForCl(diagnosticConfig.clangOptions())
                                         : diagnosticConfig.clangOptions();
         m_options.append(options);
     }
 
     void addGlobalDiagnosticOptions()
     {
-        m_options += CppTools::ClangDiagnosticConfigsModel::globalDiagnosticOptions();
+        m_options += CppEditor::ClangDiagnosticConfigsModel::globalDiagnosticOptions();
     }
 
     void addPrecompiledHeaderOptions()
     {
-        using namespace CppTools;
+        using namespace CppEditor;
 
         if (getPchUsage() == UsePrecompiledHeaders::No)
             return;
@@ -566,11 +566,11 @@ private:
 
 private:
     const QString &m_filePath;
-    const CppTools::ProjectPart &m_projectPart;
+    const CppEditor::ProjectPart &m_projectPart;
     const ClangDiagnosticConfig &m_warningsConfig;
 
-    CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
-    CppTools::CompilerOptionsBuilder m_builder;
+    CppEditor::UseBuildSystemWarnings m_useBuildSystemWarnings = CppEditor::UseBuildSystemWarnings::No;
+    CppEditor::CompilerOptionsBuilder m_builder;
     bool m_isClMode = false;
     QStringList m_options;
 };
@@ -582,7 +582,7 @@ QStringList createClangOptions(const ProjectPart &projectPart, const QString &fi
 {
     const FileOptionsBuilder fileOptions(filePath, projectPart, warningsConfig, projectOptions);
     LibClangOptionsBuilder optionsBuilder(projectPart, fileOptions.useBuildSystemWarnings());
-    const QStringList projectPartOptions = optionsBuilder.build(CppTools::ProjectFile::Unsupported,
+    const QStringList projectPartOptions = optionsBuilder.build(CppEditor::ProjectFile::Unsupported,
                                                                 UsePrecompiledHeaders::No);
     return projectPartOptions + fileOptions.options();
 }
@@ -594,13 +594,13 @@ ClangDiagnosticConfig warningsConfigForProject(Project *project)
                 ->projectSettings(project);
         if (!projectSettings.useGlobalConfig()) {
             const Utils::Id warningConfigId = projectSettings.warningConfigId();
-            const CppTools::ClangDiagnosticConfigsModel configsModel
-                    = CppTools::diagnosticConfigsModel();
+            const CppEditor::ClangDiagnosticConfigsModel configsModel
+                    = CppEditor::diagnosticConfigsModel();
             if (configsModel.hasConfigWithId(warningConfigId))
                 return configsModel.configWithId(warningConfigId);
         }
     }
-    return CppTools::codeModelSettings()->clangDiagnosticConfig();
+    return CppEditor::codeModelSettings()->clangDiagnosticConfig();
 }
 
 const QStringList optionsForProject(ProjectExplorer::Project *project)

@@ -36,11 +36,8 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/temporarydirectory.h>
 
+namespace CppEditor { class CppProjectUpdater; }
 namespace ProjectExplorer { class ExtraCompiler; }
-
-namespace CppTools {
-class CppProjectUpdater;
-} // namespace CppTools
 
 namespace CMakeProjectManager {
 
@@ -169,7 +166,7 @@ private:
 
     ParseGuard m_currentGuard;
 
-    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
 

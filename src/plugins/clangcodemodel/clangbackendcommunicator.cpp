@@ -34,12 +34,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <cpptools/abstracteditorsupport.h>
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/editordocumenthandle.h>
-#include <cpptools/projectinfo.h>
-#include <cpptools/cpptoolsbridge.h>
+#include <cppeditor/abstracteditorsupport.h>
+#include <cppeditor/baseeditordocumentprocessor.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/editordocumenthandle.h>
+#include <cppeditor/projectinfo.h>
+#include <cppeditor/cpptoolsbridge.h>
 
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -152,7 +152,7 @@ void removeDuplicates(Utf8StringVector &visibleEditorDocumentsFilePaths)
 void removeNonCppEditors(QList<Core::IEditor*> &visibleEditors)
 {
     const auto isNotCppEditor = [] (Core::IEditor *editor) {
-        return !CppTools::CppModelManager::isCppEditor(editor);
+        return !CppEditor::CppModelManager::isCppEditor(editor);
     };
 
     const auto end = std::remove_if(visibleEditors.begin(),
@@ -164,7 +164,7 @@ void removeNonCppEditors(QList<Core::IEditor*> &visibleEditors)
 
 Utf8StringVector visibleCppEditorDocumentsFilePaths()
 {
-    auto visibleEditors = CppTools::CppToolsBridge::visibleEditors();
+    auto visibleEditors = CppEditor::CppToolsBridge::visibleEditors();
 
     removeNonCppEditors(visibleEditors);
 
@@ -222,12 +222,12 @@ void BackendCommunicator::documentVisibilityChanged(const Utf8String &currentEdi
 void BackendCommunicator::restoreCppEditorDocuments()
 {
     resetCppEditorDocumentProcessors();
-    CppTools::CppModelManager::instance()->updateCppEditorDocuments();
+    CppEditor::CppModelManager::instance()->updateCppEditorDocuments();
 }
 
 void BackendCommunicator::resetCppEditorDocumentProcessors()
 {
-    using namespace CppTools;
+    using namespace CppEditor;
 
     const auto cppEditorDocuments = CppModelManager::instance()->cppEditorDocuments();
     foreach (CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments)
@@ -236,7 +236,7 @@ void BackendCommunicator::resetCppEditorDocumentProcessors()
 
 void BackendCommunicator::unsavedFilesUpdatedForUiHeaders()
 {
-    using namespace CppTools;
+    using namespace CppEditor;
 
     const auto editorSupports = CppModelManager::instance()->abstractEditorSupports();
     foreach (const AbstractEditorSupport *es, editorSupports) {
@@ -248,14 +248,14 @@ void BackendCommunicator::unsavedFilesUpdatedForUiHeaders()
 
 void BackendCommunicator::documentsChangedFromCppEditorDocument(const QString &filePath)
 {
-    const CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    const CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath);
     QTC_ASSERT(document, return);
     documentsChanged(filePath, document->contents(), document->revision());
 }
 
 void BackendCommunicator::unsavedFilesUpdatedFromCppEditorDocument(const QString &filePath)
 {
-    const CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    const CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath);
     QTC_ASSERT(document, return);
     unsavedFilesUpdated(filePath, document->contents(), document->revision());
 }
@@ -287,7 +287,7 @@ void BackendCommunicator::unsavedFilesUpdated(const QString &filePath,
 
 static bool documentHasChanged(const QString &filePath, uint revision)
 {
-    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
+    if (CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath))
         return document->sendTracker().shouldSendRevision(revision);
 
     return true;
@@ -308,11 +308,11 @@ void BackendCommunicator::requestAnnotations(const FileContainer &fileContainer)
     m_sender->requestAnnotations(message);
 }
 
-QFuture<CppTools::CursorInfo> BackendCommunicator::requestReferences(
+QFuture<CppEditor::CursorInfo> BackendCommunicator::requestReferences(
         const FileContainer &fileContainer,
         quint32 line,
         quint32 column,
-        const CppTools::SemanticInfo::LocalUseMap &localUses)
+        const CppEditor::SemanticInfo::LocalUseMap &localUses)
 {
     const RequestReferencesMessage message(fileContainer, line, column);
     m_sender->requestReferences(message);
@@ -320,7 +320,7 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestReferences(
     return m_receiver.addExpectedReferencesMessage(message.ticketNumber, localUses);
 }
 
-QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
+QFuture<CppEditor::CursorInfo> BackendCommunicator::requestLocalReferences(
         const FileContainer &fileContainer,
         quint32 line,
         quint32 column)
@@ -331,7 +331,7 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
     return m_receiver.addExpectedReferencesMessage(message.ticketNumber);
 }
 
-QFuture<CppTools::ToolTipInfo> BackendCommunicator::requestToolTip(
+QFuture<CppEditor::ToolTipInfo> BackendCommunicator::requestToolTip(
         const FileContainer &fileContainer, quint32 line, quint32 column)
 {
     const RequestToolTipMessage message(fileContainer, line, column);
@@ -340,7 +340,7 @@ QFuture<CppTools::ToolTipInfo> BackendCommunicator::requestToolTip(
     return m_receiver.addExpectedToolTipMessage(message.ticketNumber);
 }
 
-QFuture<CppTools::SymbolInfo> BackendCommunicator::requestFollowSymbol(
+QFuture<CppEditor::SymbolInfo> BackendCommunicator::requestFollowSymbol(
         const FileContainer &curFileContainer,
         quint32 line,
         quint32 column)
@@ -362,7 +362,7 @@ void BackendCommunicator::documentsChangedWithRevisionCheck(Core::IDocument *doc
 
 void BackendCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
 {
-    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
+    if (CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath))
         document->sendTracker().applyContentChange(position);
 }
 

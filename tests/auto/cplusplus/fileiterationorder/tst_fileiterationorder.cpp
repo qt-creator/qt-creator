@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-#include <cpptools/cppfileiterationorder.h>
+#include <cppeditor/cppfileiterationorder.h>
 
 #include <QtTest>
 
-using namespace CppTools;
+using namespace CppEditor;
 
-//TESTED_COMPONENT=src/plugins/cpptools
+//TESTED_COMPONENT=src/plugins/cppeditor
 
 class tst_FileIterationOrder: public QObject
 {

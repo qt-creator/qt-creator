@@ -50,12 +50,10 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <texteditor/texteditor.h>
-
-#include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectpanelfactory.h>
@@ -117,7 +115,7 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
 
     TaskHub::addCategory(taskCategory(), tr("Clang Tools"));
 
-    // Import tidy/clazy diagnostic configs from CppTools now
+    // Import tidy/clazy diagnostic configs from CppEditor now
     // instead of at opening time of the settings page
     ClangToolsSettings::instance();
 
@@ -159,7 +157,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
     ActionManager::registerAction(d->clangTool.startAction(), Constants::RUN_ON_PROJECT);
     Command *cmd = ActionManager::registerAction(d->clangTool.startOnCurrentFileAction(),
                                                  Constants::RUN_ON_CURRENT_FILE);
-    ActionContainer *mtoolscpp = ActionManager::actionContainer(CppTools::Constants::M_TOOLS_CPP);
+    ActionContainer *mtoolscpp = ActionManager::actionContainer(CppEditor::Constants::M_TOOLS_CPP);
     if (mtoolscpp)
         mtoolscpp->addAction(cmd);
 

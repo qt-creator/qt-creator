@@ -26,10 +26,9 @@
 #include "cppoutline.h"
 
 #include "cppeditor.h"
-#include <cpptools/cppeditoroutline.h>
-
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppoverviewmodel.h>
+#include "cppeditoroutline.h"
+#include "cppmodelmanager.h"
+#include "cppoverviewmodel.h"
 
 #include <texteditor/textdocument.h>
 
@@ -71,7 +70,7 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
     event->accept();
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(CppTools::AbstractOverviewModel &sourceModel,
+CppOutlineFilterModel::CppOutlineFilterModel(AbstractOverviewModel &sourceModel,
                                              QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_sourceModel(sourceModel)
@@ -105,7 +104,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_blockCursorSync(false),
     m_sorted(false)
 {
-    CppTools::AbstractOverviewModel *model = m_editor->outline()->model();
+    AbstractOverviewModel *model = m_editor->outline()->model();
     m_proxyModel = new CppOutlineFilterModel(*model, this);
     m_proxyModel->setSourceModel(model);
 
@@ -122,7 +121,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     connect(model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
     modelUpdated();
 
-    connect(m_editor->outline(), &CppTools::CppEditorOutline::modelIndexChanged,
+    connect(m_editor->outline(), &CppEditorOutline::modelIndexChanged,
             this, &CppOutlineWidget::updateSelectionInTree);
     connect(m_treeView, &QAbstractItemView::activated,
             this, &CppOutlineWidget::onItemActivated);
@@ -182,7 +181,7 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
-    CppTools::AbstractOverviewModel *model = m_editor->outline()->model();
+    AbstractOverviewModel *model = m_editor->outline()->model();
     Utils::LineColumn lineColumn = model->lineColumnFromIndex(index);
     if (!lineColumn.isValid())
         return;
@@ -216,7 +215,7 @@ bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
     const auto cppEditor = qobject_cast<CppEditor*>(editor);
     if (!cppEditor)
         return false;
-    return CppTools::CppModelManager::supportsOutline(cppEditor->textDocument());
+    return CppModelManager::supportsOutline(cppEditor->textDocument());
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)

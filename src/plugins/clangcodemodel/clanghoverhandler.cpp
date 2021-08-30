@@ -29,9 +29,9 @@
 #include "clangmodelmanagersupport.h"
 
 #include <coreplugin/helpmanager.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/editordocumenthandle.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/editordocumenthandle.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
@@ -51,11 +51,11 @@ using namespace TextEditor;
 namespace ClangCodeModel {
 namespace Internal {
 
-static CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(TextEditorWidget *editorWidget)
+static CppEditor::BaseEditorDocumentProcessor *editorDocumentProcessor(TextEditorWidget *editorWidget)
 {
     const QString filePath = editorWidget->textDocument()->filePath().toString();
-    auto cppModelManager = CppTools::CppModelManager::instance();
-    CppTools::CppEditorDocumentHandle *editorHandle = cppModelManager->cppEditorDocument(filePath);
+    auto cppModelManager = CppEditor::CppModelManager::instance();
+    CppEditor::CppEditorDocumentHandle *editorHandle = cppModelManager->cppEditorDocument(filePath);
 
     if (editorHandle)
         return editorHandle->processor();
@@ -76,17 +76,17 @@ static TextMarks diagnosticTextMarksAt(TextEditorWidget *editorWidget, int posit
     return processor->diagnosticTextMarksAt(line, column);
 }
 
-static QFuture<CppTools::ToolTipInfo> editorDocumentHandlesToolTipInfo(
+static QFuture<CppEditor::ToolTipInfo> editorDocumentHandlesToolTipInfo(
     TextEditorWidget *editorWidget, int pos)
 {
     const QByteArray textCodecName = editorWidget->textDocument()->codec()->name();
-    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
+    if (CppEditor::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
         int line, column;
         if (Utils::Text::convertPosition(editorWidget->document(), pos, &line, &column))
             return processor->toolTipInfo(textCodecName, line, column + 1);
     }
 
-    return QFuture<CppTools::ToolTipInfo>();
+    return QFuture<CppEditor::ToolTipInfo>();
 }
 
 ClangHoverHandler::~ClangHoverHandler()
@@ -116,21 +116,21 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     }
 
     // Check for tooltips (async)
-    QFuture<CppTools::ToolTipInfo> future = editorDocumentHandlesToolTipInfo(editorWidget, pos);
+    QFuture<CppEditor::ToolTipInfo> future = editorDocumentHandlesToolTipInfo(editorWidget, pos);
     if (QTC_GUARD(future.isRunning())) {
         qCDebug(hoverLog) << "Requesting tooltip info at" << pos;
         m_reportPriority = report;
-        m_futureWatcher.reset(new QFutureWatcher<CppTools::ToolTipInfo>());
+        m_futureWatcher.reset(new QFutureWatcher<CppEditor::ToolTipInfo>());
         QTextCursor tc(editorWidget->document());
         tc.setPosition(pos);
-        const QStringList fallback = CppTools::identifierWordsUnderCursor(tc);
+        const QStringList fallback = CppEditor::identifierWordsUnderCursor(tc);
         QObject::connect(m_futureWatcher.data(),
                          &QFutureWatcherBase::finished,
                          [this, fallback]() {
                              if (m_futureWatcher->isCanceled()) {
                                  m_reportPriority(Priority_None);
                              } else {
-                                 CppTools::ToolTipInfo info = m_futureWatcher->result();
+                                 CppEditor::ToolTipInfo info = m_futureWatcher->result();
                                  qCDebug(hoverLog)
                                      << "Appending word-based fallback lookup" << fallback;
                                  info.qDocIdCandidates += fallback;
@@ -172,7 +172,7 @@ static const char *helpItemCategoryAsString(Core::HelpItem::Category category)
 }
 #undef RETURN_TEXT_FOR_CASE
 
-void ClangHoverHandler::processToolTipInfo(const CppTools::ToolTipInfo &info)
+void ClangHoverHandler::processToolTipInfo(const CppEditor::ToolTipInfo &info)
 {
     qCDebug(hoverLog) << "Processing tooltip info" << info.text;
 

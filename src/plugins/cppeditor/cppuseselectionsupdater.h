@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <cpptools/cppcursorinfo.h>
-#include <cpptools/cppsemanticinfo.h>
+#include "cppcursorinfo.h"
+#include "cppsemanticinfo.h"
 
 #include <QFutureWatcher>
 #include <QTextEdit>
@@ -54,18 +54,17 @@ public:
     RunnerInfo update(CallType callType = CallType::Asynchronous);
 
 signals:
-    void finished(CppTools::SemanticInfo::LocalUseMap localUses, bool success);
+    void finished(SemanticInfo::LocalUseMap localUses, bool success);
     void selectionsForVariableUnderCursorUpdated(const QList<QTextEdit::ExtraSelection> &);
 
 private:
     CppUseSelectionsUpdater();
     bool isSameIdentifierAsBefore(const QTextCursor &cursorAtWordStart) const;
-    void processResults(const CppTools::CursorInfo &result);
+    void processResults(const CursorInfo &result);
     void onFindUsesFinished();
 
     // Convenience
     using ExtraSelections = QList<QTextEdit::ExtraSelection>;
-    using CursorInfo = CppTools::CursorInfo;
     ExtraSelections toExtraSelections(const CursorInfo::Ranges &ranges,
                                       TextEditor::TextStyle style);
     ExtraSelections currentUseSelections() const;
@@ -77,7 +76,7 @@ private:
 
     QTimer m_timer;
 
-    QScopedPointer<QFutureWatcher<CppTools::CursorInfo>> m_runnerWatcher;
+    QScopedPointer<QFutureWatcher<CursorInfo>> m_runnerWatcher;
     int m_runnerRevision = -1;
     int m_runnerWordStartPosition = -1;
 };

@@ -27,8 +27,8 @@
 
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cpptoolsreuse.h"
 
-#include <cpptools/cpptoolsreuse.h>
 #include <utils/textutils.h>
 
 #include <QTextBlock>
@@ -73,7 +73,7 @@ CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType cal
     auto *cppEditorDocument = qobject_cast<CppEditorDocument *>(cppEditorWidget->textDocument());
     QTC_ASSERT(cppEditorDocument, return RunnerInfo::FailedToStart);
 
-    CppTools::CursorInfoParams params;
+    CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();
     params.textCursor = Utils::Text::wordStartCursor(cppEditorWidget->textCursor());
 
@@ -142,19 +142,19 @@ void CppUseSelectionsUpdater::processResults(const CursorInfo &result)
 void CppUseSelectionsUpdater::onFindUsesFinished()
 {
     QTC_ASSERT(m_runnerWatcher,
-               emit finished(CppTools::SemanticInfo::LocalUseMap(), false); return);
+               emit finished(SemanticInfo::LocalUseMap(), false); return);
 
     if (m_runnerWatcher->isCanceled()) {
-        emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
+        emit finished(SemanticInfo::LocalUseMap(), false);
         return;
     }
     if (m_runnerRevision != m_editorWidget->document()->revision()) {
-        emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
+        emit finished(SemanticInfo::LocalUseMap(), false);
         return;
     }
     if (m_runnerWordStartPosition
             != Utils::Text::wordStartCursor(m_editorWidget->textCursor()).position()) {
-        emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
+        emit finished(SemanticInfo::LocalUseMap(), false);
         return;
     }
     if (m_editorWidget->isRenaming()) {

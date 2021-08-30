@@ -27,7 +27,7 @@
 
 #include "executableinfo.h"
 
-#include <cpptools/clangdiagnosticconfigswidget.h>
+#include <cppeditor/clangdiagnosticconfigswidget.h>
 
 #include <memory>
 
@@ -49,25 +49,25 @@ class TidyChecksTreeModel;
 class ClazyChecksTreeModel;
 class ClazyChecksSortFilterModel;
 
-// Like CppTools::ClangDiagnosticConfigsWidget, but with tabs/widgets for clang-tidy and clazy
-class DiagnosticConfigsWidget : public CppTools::ClangDiagnosticConfigsWidget
+// Like CppEditor::ClangDiagnosticConfigsWidget, but with tabs/widgets for clang-tidy and clazy
+class DiagnosticConfigsWidget : public CppEditor::ClangDiagnosticConfigsWidget
 {
     Q_OBJECT
 
 public:
-    DiagnosticConfigsWidget(const CppTools::ClangDiagnosticConfigs &configs,
+    DiagnosticConfigsWidget(const CppEditor::ClangDiagnosticConfigs &configs,
                             const Utils::Id &configToSelect,
                             const ClangTidyInfo &tidyInfo,
                             const ClazyStandaloneInfo &clazyInfo);
     ~DiagnosticConfigsWidget();
 
 private:
-    void syncExtraWidgets(const CppTools::ClangDiagnosticConfig &config) override;
+    void syncExtraWidgets(const CppEditor::ClangDiagnosticConfig &config) override;
 
-    void syncClangTidyWidgets(const CppTools::ClangDiagnosticConfig &config);
-    void syncTidyChecksToTree(const CppTools::ClangDiagnosticConfig &config);
+    void syncClangTidyWidgets(const CppEditor::ClangDiagnosticConfig &config);
+    void syncTidyChecksToTree(const CppEditor::ClangDiagnosticConfig &config);
 
-    void syncClazyWidgets(const CppTools::ClangDiagnosticConfig &config);
+    void syncClazyWidgets(const CppEditor::ClangDiagnosticConfig &config);
     void syncClazyChecksGroupBox();
 
     void onClangTidyModeChanged(int index);

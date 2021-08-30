@@ -1,6 +1,6 @@
 add_qtc_plugin(GLSLEditor
   DEPENDS GLSL
-  PLUGIN_DEPENDS Core CppTools TextEditor
+  PLUGIN_DEPENDS Core CppEditor TextEditor
   SOURCES
     glslautocompleter.cpp glslautocompleter.h
     glslcompletionassist.cpp glslcompletionassist.h

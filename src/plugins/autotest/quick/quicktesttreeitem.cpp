@@ -29,7 +29,7 @@
 #include "quicktestparser.h"
 #include "../testframeworkmanager.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -387,11 +387,11 @@ bool QuickTestTreeItem::isGroupable() const
 QSet<QString> internalTargets(const Utils::FilePath &proFile)
 {
     QSet<QString> result;
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
     if (!projectInfo)
         return {};
-    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {
+    for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {
         if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             continue;
         if (projectPart->projectFile == proFile.toString())

@@ -10,7 +10,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
 
     files: [
         "glslautocompleter.cpp",

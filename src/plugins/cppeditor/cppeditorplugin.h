@@ -27,10 +27,15 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace Utils { class FilePath; }
+
 namespace CppEditor {
+class CppCodeModelSettings;
+
 namespace Internal {
 
 class CppEditorPluginPrivate;
+class CppFileSettings;
 class CppQuickFixAssistProvider;
 
 class CppEditorPlugin : public ExtensionSystem::IPlugin
@@ -44,25 +49,37 @@ public:
 
     static CppEditorPlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
-
     CppQuickFixAssistProvider *quickFixProvider() const;
 
-signals:
-    void outlineSortingChanged(bool sort);
-    void typeHierarchyRequested();
-    void includeHierarchyRequested();
+    static const QStringList &headerSearchPaths();
+    static const QStringList &sourceSearchPaths();
+    static const QStringList &headerPrefixes();
+    static const QStringList &sourcePrefixes();
+    static void clearHeaderSourceCache();
+    static Utils::FilePath licenseTemplatePath();
+    static QString licenseTemplate();
+    static bool usePragmaOnce();
 
-public:
     void openDeclarationDefinitionInNextSplit();
     void openTypeHierarchy();
     void openIncludeHierarchy();
     void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
+    void switchHeaderSource();
+    void switchHeaderSourceInNextSplit();
+
+    CppCodeModelSettings *codeModelSettings();
+    static CppFileSettings *fileSettings();
+
+signals:
+    void outlineSortingChanged(bool sort);
+    void typeHierarchyRequested();
+    void includeHierarchyRequested();
 
 private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
     QVector<QObject *> createTestObjects() const override;
 
     CppEditorPluginPrivate *d = nullptr;

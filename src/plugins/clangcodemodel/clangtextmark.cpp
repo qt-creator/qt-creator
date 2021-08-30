@@ -34,10 +34,10 @@
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppcodemodelsettings.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cppcodemodelsettings.h>
 
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
@@ -50,7 +50,7 @@
 #include <QLayout>
 #include <QString>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ClangCodeModel::Internal;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
@@ -141,7 +141,7 @@ ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettin
         currentConfigId = globalSettings.clangDiagnosticConfigId();
 
     // Get config
-    ClangDiagnosticConfigsModel configsModel = CppTools::diagnosticConfigsModel();
+    ClangDiagnosticConfigsModel configsModel = CppEditor::diagnosticConfigsModel();
     QTC_ASSERT(configsModel.hasConfigWithId(currentConfigId), return {});
     return configsModel.configWithId(currentConfigId);
 }
@@ -176,7 +176,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
 
     // Get config
     ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);
-    ClangDiagnosticConfigsModel configsModel = CppTools::diagnosticConfigsModel();
+    ClangDiagnosticConfigsModel configsModel = CppEditor::diagnosticConfigsModel();
 
     // Create copy if needed
     if (config.isReadOnly()) {
@@ -222,7 +222,7 @@ ClangTextMark::ClangTextMark(const FilePath &fileName,
     , m_removedFromEditorHandler(removedHandler)
     , m_diagMgr(diagMgr)
 {
-    setSettingsPage(CppTools::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+    setSettingsPage(CppEditor::Constants::CPP_CODE_MODEL_SETTINGS_ID);
 
     const bool warning = isWarningOrNote(diagnostic.severity);
     setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
@@ -350,7 +350,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
     , m_client(client)
 {
-    setSettingsPage(CppTools::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+    setSettingsPage(CppEditor::Constants::CPP_CODE_MODEL_SETTINGS_ID);
 
     const bool isError = diagnostic.severity()
             && *diagnostic.severity() == DiagnosticSeverity::Error;

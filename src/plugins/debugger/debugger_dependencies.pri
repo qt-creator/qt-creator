@@ -10,7 +10,7 @@ QTC_LIB_DEPENDS += \
     ssh
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
-    cpptools \
+    cppeditor \
     projectexplorer \
     qtsupport \
     texteditor

@@ -80,7 +80,7 @@ bool Type::isOutputArgument() const
         return true;
 
     // We consider a pointer an output argument if it is non-const at any level.
-    // This is consistent with how we categorize references in CppTools.
+    // This is consistent with how we categorize references in CppEditor.
     Type t = *this;
     while (t.isPointer()) {
         t = t.pointeeType();

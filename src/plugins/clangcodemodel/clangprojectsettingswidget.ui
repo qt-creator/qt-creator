@@ -57,7 +57,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </widget>
    </item>
    <item>
-    <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="clangDiagnosticConfigsSelectionWidget" native="true"/>
+    <widget class="CppEditor::ClangDiagnosticConfigsSelectionWidget" name="clangDiagnosticConfigsSelectionWidget" native="true"/>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -76,9 +76,9 @@ However, using the relaxed and extended rules means also that no highlighting/co
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
+   <class>CppEditor::ClangDiagnosticConfigsSelectionWidget</class>
    <extends>QWidget</extends>
-   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
+   <header>cppeditor/clangdiagnosticconfigsselectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

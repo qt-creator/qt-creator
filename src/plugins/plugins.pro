@@ -20,7 +20,6 @@ SUBDIRS   = \
     subversion \
     git \
     cvs \
-    cpptools \
     qtsupport \
     qmakeprojectmanager \
     debugger \

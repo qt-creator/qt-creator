@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #include "cppinsertvirtualmethods.h"
+
+#include "cppcodestylesettings.h"
 #include "cppquickfixassistant.h"
+#include "cpptoolsreuse.h"
+#include "functionutils.h"
+#include "insertionpointlocator.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cppcodestylesettings.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/functionutils.h>
-#include <cpptools/insertionpointlocator.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -60,17 +61,12 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
-
 #include "cppeditorplugin.h"
 #include "cppquickfix_test.h"
-
 #include <QtTest>
-
 #endif
 
-
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace TextEditor;
 
 namespace CppEditor {
@@ -196,7 +192,8 @@ public:
     Qt::CheckState checkState() const override { return checked ? Qt::Checked : Qt::Unchecked; }
 
     const Function *function = nullptr;
-    InsertionPointLocator::AccessSpec accessSpec = InsertionPointLocator::Invalid;
+    CppEditor::InsertionPointLocator::AccessSpec accessSpec
+        = CppEditor::InsertionPointLocator::Invalid;
     bool reimplemented = false;
     bool alreadyFound = false;
     bool checked = false;

@@ -27,27 +27,22 @@
 
 #include <texteditor/texteditor.h>
 
-#include <cpptools/cppeditorwidgetinterface.h>
+#include "cppeditorwidgetinterface.h"
 
 #include <QScopedPointer>
 
-namespace CppTools {
+namespace CppEditor {
 class CppEditorOutline;
 class FollowSymbolInterface;
 class SemanticInfo;
 class ProjectPart;
-}
 
-namespace CppEditor {
 namespace Internal {
-
 class CppEditorDocument;
-
 class CppEditorWidgetPrivate;
 class FunctionDeclDefLink;
 
-class CppEditorWidget : public TextEditor::TextEditorWidget,
-        public CppTools::CppEditorWidgetInterface
+class CppEditorWidget : public TextEditor::TextEditorWidget, public CppEditorWidgetInterface
 {
     Q_OBJECT
 
@@ -56,7 +51,7 @@ public:
     ~CppEditorWidget() override;
 
     CppEditorDocument *cppEditorDocument() const;
-    CppTools::CppEditorOutline *outline() const;
+    CppEditorOutline *outline() const;
 
     bool isSemanticInfoValidExceptLocalUses() const;
     bool isSemanticInfoValid() const;
@@ -90,7 +85,7 @@ public:
     static void updateWidgetHighlighting(QWidget *widget, bool highlight);
     static bool isWidgetHighlighted(QWidget *widget);
 
-    CppTools::SemanticInfo semanticInfo() const override;
+    SemanticInfo semanticInfo() const override;
     void updateSemanticInfo() override;
     void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
                                       TextEditor::IAssistProvider *provider) override;
@@ -133,7 +128,7 @@ private:
 
     void onShowInfoBarAction(const Utils::Id &id, bool show);
 
-    void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo,
+    void updateSemanticInfo(const SemanticInfo &semanticInfo,
                             bool updateUseSelectionSynchronously = false);
     void updatePreprocessorButtonTooltip();
 
@@ -149,9 +144,9 @@ private:
 
     QMenu *createRefactorMenu(QWidget *parent) const;
 
-    CppTools::FollowSymbolInterface &followSymbolInterface() const;
+    FollowSymbolInterface &followSymbolInterface() const;
 
-    const CppTools::ProjectPart *projectPart() const;
+    const ProjectPart *projectPart() const;
 
 private:
     QScopedPointer<CppEditorWidgetPrivate> d;

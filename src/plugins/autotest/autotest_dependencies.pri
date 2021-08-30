@@ -3,7 +3,7 @@ QTC_PLUGIN_NAME = AutoTest
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
-    cpptools \
+    cppeditor \
     qmljstools \
     debugger \
     texteditor

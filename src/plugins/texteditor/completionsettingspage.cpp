@@ -29,13 +29,13 @@
 #include "texteditorconstants.h"
 #include "ui_completionsettingspage.h"
 
-#include <cpptools/cpptoolssettings.h>
+#include <cppeditor/cpptoolssettings.h>
 
 #include <coreplugin/icore.h>
 
 #include <QTextStream>
 
-using namespace CppTools;
+using namespace CppEditor;
 
 namespace TextEditor {
 namespace Internal {

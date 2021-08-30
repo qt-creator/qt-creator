@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cpptools/cppsemanticinfo.h>
+#include "cppsemanticinfo.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprovider.h>
@@ -33,12 +33,10 @@
 #include <cplusplus/LookupContext.h>
 
 
-namespace CppTools {
+namespace CppEditor {
 class CppRefactoringFile;
 using CppRefactoringFilePtr = QSharedPointer<CppRefactoringFile>;
-}
 
-namespace CppEditor {
 namespace Internal {
 
 class CppEditorWidget;
@@ -50,20 +48,20 @@ public:
 
     const QList<CPlusPlus::AST *> &path() const;
     CPlusPlus::Snapshot snapshot() const;
-    CppTools::SemanticInfo semanticInfo() const;
+    SemanticInfo semanticInfo() const;
     const CPlusPlus::LookupContext &context() const;
     CppEditorWidget *editor() const;
 
-    CppTools::CppRefactoringFilePtr currentFile() const;
+    CppRefactoringFilePtr currentFile() const;
 
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
 
 private:
     CppEditorWidget *m_editor;
-    CppTools::SemanticInfo m_semanticInfo;
+    SemanticInfo m_semanticInfo;
     CPlusPlus::Snapshot m_snapshot;
-    CppTools::CppRefactoringFilePtr m_currentFile;
+    CppRefactoringFilePtr m_currentFile;
     CPlusPlus::LookupContext m_context;
     QList<CPlusPlus::AST *> m_path;
 };

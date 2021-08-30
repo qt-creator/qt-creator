@@ -26,9 +26,9 @@
 #include "clangfixitsrefactoringchanges.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppcodestylesettings.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppcodestylesettings.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
@@ -79,7 +79,7 @@ bool FixitsRefactoringFile::apply()
         return false; // Error nothing to apply TODO: Is this correct to return?
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(
-        CppTools::Constants::CPP_SETTINGS_ID);
+        CppEditor::Constants::CPP_SETTINGS_ID);
 
     // Apply changes
     std::unique_ptr<TextEditor::Indenter> indenter;

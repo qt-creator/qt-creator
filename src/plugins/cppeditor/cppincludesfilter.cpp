@@ -1,0 +1,181 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "cppincludesfilter.h"
+
+#include "cppeditorconstants.h"
+#include "cppmodelmanager.h"
+
+#include <cplusplus/CppDocument.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+
+using namespace Core;
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace CppEditor::Internal {
+
+class CppIncludesIterator final : public BaseFileFilter::Iterator
+{
+public:
+    CppIncludesIterator(CPlusPlus::Snapshot snapshot, const QSet<QString> &seedPaths);
+
+    void toFront() override;
+    bool hasNext() const override;
+    Utils::FilePath next() override;
+    Utils::FilePath filePath() const override;
+
+private:
+    void fetchMore();
+
+    CPlusPlus::Snapshot m_snapshot;
+    QSet<QString> m_paths;
+    QSet<QString> m_queuedPaths;
+    QSet<QString> m_allResultPaths;
+    QStringList m_resultQueue;
+    FilePath m_currentPath;
+};
+
+CppIncludesIterator::CppIncludesIterator(CPlusPlus::Snapshot snapshot,
+                                         const QSet<QString> &seedPaths)
+    : m_snapshot(snapshot),
+      m_paths(seedPaths)
+{
+    toFront();
+}
+
+void CppIncludesIterator::toFront()
+{
+    m_queuedPaths = m_paths;
+    m_allResultPaths.clear();
+    m_resultQueue.clear();
+    fetchMore();
+}
+
+bool CppIncludesIterator::hasNext() const
+{
+    return !m_resultQueue.isEmpty();
+}
+
+FilePath CppIncludesIterator::next()
+{
+    if (m_resultQueue.isEmpty())
+        return {};
+    m_currentPath = FilePath::fromString(m_resultQueue.takeFirst());
+    if (m_resultQueue.isEmpty())
+        fetchMore();
+    return m_currentPath;
+}
+
+FilePath CppIncludesIterator::filePath() const
+{
+    return m_currentPath;
+}
+
+void CppIncludesIterator::fetchMore()
+{
+    while (!m_queuedPaths.isEmpty() && m_resultQueue.isEmpty()) {
+        const QString filePath = *m_queuedPaths.begin();
+        m_queuedPaths.remove(filePath);
+        CPlusPlus::Document::Ptr doc = m_snapshot.document(filePath);
+        if (!doc)
+            continue;
+        const QStringList includedFiles = doc->includedFiles();
+        for (const QString &includedPath : includedFiles ) {
+            if (!m_allResultPaths.contains(includedPath)) {
+                m_allResultPaths.insert(includedPath);
+                m_queuedPaths.insert(includedPath);
+                m_resultQueue.append(includedPath);
+            }
+        }
+    }
+}
+
+CppIncludesFilter::CppIncludesFilter()
+{
+    setId(Constants::INCLUDES_FILTER_ID);
+    setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
+    setDescription(
+        tr("Matches all files that are included by all C++ files in all projects. Append "
+           "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
+           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+    setDefaultShortcutString("ai");
+    setDefaultIncludedByDefault(true);
+    setPriority(ILocatorFilter::Low);
+
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
+            this, &CppIncludesFilter::markOutdated);
+    connect(CppModelManager::instance(), &CppModelManager::documentUpdated,
+            this, &CppIncludesFilter::markOutdated);
+    connect(CppModelManager::instance(), &CppModelManager::aboutToRemoveFiles,
+            this, &CppIncludesFilter::markOutdated);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsInserted,
+            this, &CppIncludesFilter::markOutdated);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
+            this, &CppIncludesFilter::markOutdated);
+    connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
+            this, &CppIncludesFilter::markOutdated);
+    connect(DocumentModel::model(), &QAbstractItemModel::modelReset,
+            this, &CppIncludesFilter::markOutdated);
+}
+
+void CppIncludesFilter::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
+    if (m_needsUpdate) {
+        m_needsUpdate = false;
+        QSet<QString> seedPaths;
+        for (Project *project : SessionManager::projects()) {
+            const Utils::FilePaths allFiles = project->files(Project::SourceFiles);
+            for (const Utils::FilePath &filePath : allFiles )
+                seedPaths.insert(filePath.toString());
+        }
+        const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+        for (DocumentModel::Entry *entry : entries) {
+            if (entry)
+                seedPaths.insert(entry->fileName().toString());
+        }
+        CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+        setFileIterator(new CppIncludesIterator(snapshot, seedPaths));
+    }
+    BaseFileFilter::prepareSearch(entry);
+}
+
+void CppIncludesFilter::refresh(QFutureInterface<void> &future)
+{
+    Q_UNUSED(future)
+    QMetaObject::invokeMethod(this, &CppIncludesFilter::markOutdated, Qt::QueuedConnection);
+}
+
+void CppIncludesFilter::markOutdated()
+{
+    m_needsUpdate = true;
+    setFileIterator(nullptr); // clean up
+}
+
+} // namespace CppEditor::Internal

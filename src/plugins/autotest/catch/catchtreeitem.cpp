@@ -27,7 +27,7 @@
 #include "catchconfiguration.h"
 #include "catchframework.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
@@ -157,7 +157,7 @@ ITestConfiguration *CatchTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return nullptr);
 
     if (type() != TestCase)
@@ -192,7 +192,7 @@ static void collectTestInfo(const TestTreeItem *item,
                             bool ignoreCheckState)
 {
     QTC_ASSERT(item, return);
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return);
     const int childCount = item->childCount();
     if (item->type() == TestTreeItem::GroupNode) {
@@ -234,7 +234,7 @@ static void collectFailedTestInfo(const CatchTreeItem *item,
     item->forAllChildItems([&testCasesForProfile](TestTreeItem *it) {
         QTC_ASSERT(it, return);
         QTC_ASSERT(it->parentItem(), return);
-        const auto cppMM = CppTools::CppModelManager::instance();
+        const auto cppMM = CppEditor::CppModelManager::instance();
         QTC_ASSERT(cppMM, return);
         if (it->type() == TestTreeItem::TestCase && it->data(0, FailedRole).toBool()) {
             CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
@@ -282,7 +282,7 @@ QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
 QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return result);
 
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();

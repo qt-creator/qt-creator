@@ -39,7 +39,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/buildtargettype.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -54,7 +54,7 @@
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.cftr", QtWarningMsg)
 
 using namespace Core;
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 

@@ -51,9 +51,9 @@ static QString updatedPathFlag(const QString &pathStr, const QString &workingDir
     return result;
 }
 
-static CppTools::ProjectFile::Kind fileKindFromString(QString flag)
+static CppEditor::ProjectFile::Kind fileKindFromString(QString flag)
 {
-    using namespace CppTools;
+    using namespace CppEditor;
     if (flag.startsWith("-x"))
         flag = flag.mid(2);
 
@@ -101,7 +101,7 @@ void filteredFlags(const QString &fileName,
                    QStringList &flags,
                    HeaderPaths &headerPaths,
                    Macros &macros,
-                   CppTools::ProjectFile::Kind &fileKind,
+                   CppEditor::ProjectFile::Kind &fileKind,
                    QString &sysRoot)
 {
     if (flags.empty())
@@ -197,12 +197,12 @@ void filteredFlags(const QString &fileName,
         }
 
         if ((flag.startsWith("-std=") || flag.startsWith("/std:"))
-                && fileKind == CppTools::ProjectFile::Unclassified) {
+                && fileKind == CppEditor::ProjectFile::Unclassified) {
             const bool cpp = (flag.contains("c++") || flag.contains("gnu++"));
-            if (CppTools::ProjectFile::isHeader(CppTools::ProjectFile::classify(fileName)))
-                fileKind = cpp ? CppTools::ProjectFile::CXXHeader : CppTools::ProjectFile::CHeader;
+            if (CppEditor::ProjectFile::isHeader(CppEditor::ProjectFile::classify(fileName)))
+                fileKind = cpp ? CppEditor::ProjectFile::CXXHeader : CppEditor::ProjectFile::CHeader;
             else
-                fileKind = cpp ? CppTools::ProjectFile::CXXSource : CppTools::ProjectFile::CSource;
+                fileKind = cpp ? CppEditor::ProjectFile::CXXSource : CppEditor::ProjectFile::CSource;
         }
 
         // Skip all remaining Windows flags except feature flags.
@@ -212,8 +212,8 @@ void filteredFlags(const QString &fileName,
         filtered.push_back(flag);
     }
 
-    if (fileKind == CppTools::ProjectFile::Unclassified)
-        fileKind = CppTools::ProjectFile::classify(fileName);
+    if (fileKind == CppEditor::ProjectFile::Unclassified)
+        fileKind = CppEditor::ProjectFile::classify(fileName);
 
     flags = filtered;
 }

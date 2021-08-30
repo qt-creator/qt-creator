@@ -33,12 +33,12 @@
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 #include "cppinsertvirtualmethods.h"
+#include "cppmodelmanager.h"
+#include "cpptoolsreuse.h"
+#include "cppworkingcopy.h"
+#include "projectinfo.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppworkingcopy.h>
-#include <cpptools/projectinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
@@ -71,7 +71,6 @@
 
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace TextEditor;
 
 namespace CppEditor::Internal::Tests {
@@ -482,7 +481,7 @@ void SwitchHeaderSourceFileAction::run(CppEditorWidget *)
 {
     // Switch Header/Source
     IEditor *editorBefore = EditorManager::currentEditor();
-    CppTools::switchHeaderSource();
+    switchHeaderSource();
     QApplication::processEvents();
 
     // Go back

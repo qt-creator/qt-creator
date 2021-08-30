@@ -4,24 +4,19 @@ import qbs.FileInfo
 QtcPlugin {
     name: "ClangTools"
 
-    Depends { name: "Debugger" }
     Depends { name: "Core" }
-    Depends { name: "TextEditor" }
-    Depends { name: "CppTools" }
     Depends { name: "CppEditor" }
+    Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport"; condition: qtc.testsEnabled }
     Depends { name: "QtcSsh" }
+    Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
     Depends { name: "yaml-cpp" }
     Depends { name: "clang_defines" }
 
     Depends { name: "Qt.widgets" }
-
-    pluginRecommends: [
-        "CppEditor"
-    ]
 
     pluginTestDepends: [
         "QbsProjectManager",

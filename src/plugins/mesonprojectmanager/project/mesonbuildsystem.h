@@ -29,7 +29,7 @@
 #include "exewrappers/mesonwrapper.h"
 #include "kithelper/kitdata.h"
 
-#include <cpptools/cppprojectupdater.h>
+#include <cppeditor/cppprojectupdater.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/target.h>
@@ -72,7 +72,7 @@ private:
     QStringList configArgs(bool isSetup);
     ProjectExplorer::BuildSystem::ParseGuard m_parseGuard;
     MesonProjectParser m_parser;
-    CppTools::CppProjectUpdater m_cppCodeModelUpdater;
+    CppEditor::CppProjectUpdater m_cppCodeModelUpdater;
     QStringList m_pendingConfigArgs;
     Utils::FileSystemWatcher m_IntroWatcher;
     KitData m_kitData;

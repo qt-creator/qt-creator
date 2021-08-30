@@ -30,7 +30,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticWidget" native="true"/>
+       <widget class="CppEditor::ClangDiagnosticConfigsSelectionWidget" name="diagnosticWidget" native="true"/>
       </item>
       <item>
        <widget class="QCheckBox" name="buildBeforeAnalysis">
@@ -87,9 +87,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
+   <class>CppEditor::ClangDiagnosticConfigsSelectionWidget</class>
    <extends>QWidget</extends>
-   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
+   <header>cppeditor/clangdiagnosticconfigsselectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

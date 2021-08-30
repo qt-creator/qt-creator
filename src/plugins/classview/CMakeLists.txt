@@ -1,5 +1,5 @@
 add_qtc_plugin(ClassView
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer TextEditor
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor
   SOURCES
     classviewconstants.h
     classviewmanager.cpp classviewmanager.h

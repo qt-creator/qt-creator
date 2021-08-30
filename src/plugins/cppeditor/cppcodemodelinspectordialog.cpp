@@ -25,17 +25,18 @@
 
 #include "cppcodemodelinspectordialog.h"
 #include "ui_cppcodemodelinspectordialog.h"
+
+#include "baseeditordocumentprocessor.h"
+#include "cppcodemodelinspectordumper.h"
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppmodelmanager.h"
+#include "cpptoolsbridge.h"
+#include "cpptoolsreuse.h"
+#include "cppworkingcopy.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cppcodemodelinspectordumper.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsbridge.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
 
@@ -55,8 +56,7 @@
 #include <numeric>
 
 using namespace CPlusPlus;
-using namespace CppTools;
-namespace CMI = CppCodeModelInspector;
+namespace CMI = CppEditor::CppCodeModelInspector;
 
 namespace {
 
@@ -1535,7 +1535,7 @@ void CppCodeModelInspectorDialog::refresh()
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
 
     TextEditor::BaseTextEditor *editor = currentEditor();
-    CppTools::CppEditorDocumentHandle *cppEditorDocument = nullptr;
+    CppEditorDocumentHandle *cppEditorDocument = nullptr;
     if (editor) {
         const QString editorFilePath = editor->document()->filePath().toString();
         cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);

@@ -30,7 +30,7 @@
 #include "proparser/profileevaluator.h"
 
 #include <coreplugin/idocument.h>
-#include <cpptools/generatedcodemodelsupport.h>
+#include <cppeditor/generatedcodemodelsupport.h>
 #include <utils/textfileformat.h>
 
 #include <QFutureWatcher>

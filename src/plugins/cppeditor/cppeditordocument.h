@@ -25,14 +25,13 @@
 
 #pragma once
 
+#include "baseeditordocumentprocessor.h"
+#include "cppcompletionassistprovider.h"
 #include "cppminimizableinfobars.h"
+#include "cppmodelmanager.h"
 #include "cppparsecontext.h"
-
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cppcompletionassistprovider.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppsemanticinfo.h>
-#include <cpptools/editordocumenthandle.h>
+#include "cppsemanticinfo.h"
+#include "editordocumenthandle.h"
 
 #include <texteditor/textdocument.h>
 
@@ -59,7 +58,7 @@ public:
     TextEditor::IAssistProvider *quickFixAssistProvider() const override;
 
     void recalculateSemanticInfoDetached();
-    CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
+    SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
 
     void setPreferredParseContext(const QString &parseContextId);
     void setExtraPreprocessorDirectives(const QByteArray &directives);
@@ -69,7 +68,7 @@ public:
     const MinimizableInfoBars &minimizableInfoBars() const;
     ParseContextModel &parseContextModel();
 
-    QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params);
+    QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params);
     TextEditor::TabSettings tabSettings() const override;
 
     bool save(QString *errorString,
@@ -85,7 +84,7 @@ signals:
                                  const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
     void cppDocumentUpdated(const CPlusPlus::Document::Ptr document);    // TODO: Remove me
-    void semanticInfoUpdated(const CppTools::SemanticInfo semanticInfo); // TODO: Remove me
+    void semanticInfoUpdated(const SemanticInfo semanticInfo); // TODO: Remove me
 
     void preprocessorSettingsChanged(bool customSettings);
 
@@ -107,7 +106,7 @@ private:
     QByteArray contentsText() const;
     unsigned contentsRevision() const;
 
-    CppTools::BaseEditorDocumentProcessor *processor();
+    BaseEditorDocumentProcessor *processor();
     void resetProcessor();
     void applyPreferredParseContextFromSettings();
     void applyExtraPreprocessorDirectivesFromSettings();
@@ -128,13 +127,13 @@ private:
 
     unsigned m_processorRevision = 0;
     QTimer m_processorTimer;
-    QScopedPointer<CppTools::BaseEditorDocumentProcessor> m_processor;
+    QScopedPointer<BaseEditorDocumentProcessor> m_processor;
 
-    CppTools::CppCompletionAssistProvider *m_completionAssistProvider = nullptr;
-    CppTools::CppCompletionAssistProvider *m_functionHintAssistProvider = nullptr;
+    CppCompletionAssistProvider *m_completionAssistProvider = nullptr;
+    CppCompletionAssistProvider *m_functionHintAssistProvider = nullptr;
 
     // (Un)Registration in CppModelManager
-    QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;
+    QScopedPointer<CppEditorDocumentHandle> m_editorDocumentHandle;
 
     MinimizableInfoBars m_minimizableInfoBars;
     ParseContextModel m_parseContextModel;

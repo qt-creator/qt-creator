@@ -25,8 +25,8 @@
 
 #include "loadprojectscenario.h"
 
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/projectinfo.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -82,7 +82,7 @@ bool LoadProjectScenario::init()
         return false;
     }
 
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/unit_test");
+    m_tmpDir = new CppEditor::Tests::TemporaryCopiedDir(":/unit_test");
     return true;
 }
 
@@ -90,9 +90,9 @@ bool LoadProjectScenario::loadProject()
 {
     const QString projectFilePath = m_tmpDir->path() + "/plain/plain.pro";
 
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     // This code must trigger a call to PluginManager::finishScenario() at some later point.
-    const CppTools::ProjectInfo::ConstPtr projectInfo = projectManager.open(projectFilePath,
+    const CppEditor::ProjectInfo::ConstPtr projectInfo = projectManager.open(projectFilePath,
                                                                             true, m_kit);
     return projectInfo.get();
 }

@@ -27,7 +27,7 @@
 
 #include "compilationdatabaseconstants.h"
 
-#include <cpptools/cppprojectfile.h>
+#include <cppeditor/cppprojectfile.h>
 #include <utils/fileutils.h>
 
 #include <QHash>
@@ -64,7 +64,7 @@ void filteredFlags(const QString &fileName,
                    QStringList &flags,
                    QVector<ProjectExplorer::HeaderPath> &headerPaths,
                    QVector<ProjectExplorer::Macro> &macros,
-                   CppTools::ProjectFile::Kind &fileKind,
+                   CppEditor::ProjectFile::Kind &fileKind,
                    QString &sysRoot);
 
 QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache);

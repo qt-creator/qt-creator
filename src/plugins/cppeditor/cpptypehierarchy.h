@@ -52,9 +52,10 @@ class NavigationTreeView;
 class ProgressIndicator;
 }
 
-namespace CppTools { class CppClass; class CppElement; }
-
 namespace CppEditor {
+class CppClass;
+class CppElement;
+
 namespace Internal {
 
 class CppEditorWidget;
@@ -83,9 +84,9 @@ private slots:
     void displayHierarchy();
 
 private:
-    typedef QList<CppTools::CppClass> CppTools::CppClass::*HierarchyMember;
+    typedef QList<CppClass> CppClass::*HierarchyMember;
     void performFromExpression(const QString &expression, const QString &fileName);
-    QStandardItem *buildHierarchy(const CppTools::CppClass &cppClass, QStandardItem *parent,
+    QStandardItem *buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
                                   bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();
     void showTypeHierarchy();
@@ -103,7 +104,7 @@ private:
     Utils::AnnotatedItemDelegate *m_delegate = nullptr;
     TextEditor::TextEditorLinkLabel *m_inspectedClass = nullptr;
     QLabel *m_infoLabel = nullptr;
-    QFuture<QSharedPointer<CppTools::CppElement>> m_future;
+    QFuture<QSharedPointer<CppElement>> m_future;
     QFutureWatcher<void> m_futureWatcher;
     Utils::FutureSynchronizer m_synchronizer;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;

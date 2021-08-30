@@ -81,4 +81,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace CppTools
+} // namespace QmlJSTools

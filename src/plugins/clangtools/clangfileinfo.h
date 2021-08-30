@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <cpptools/cppprojectfile.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/cppprojectfile.h>
+#include <cppeditor/projectpart.h>
 
 #include <utils/fileutils.h>
 
@@ -40,15 +40,15 @@ class FileInfo
 public:
     FileInfo() = default;
     FileInfo(Utils::FilePath file,
-             CppTools::ProjectFile::Kind kind,
-             CppTools::ProjectPart::ConstPtr projectPart)
+             CppEditor::ProjectFile::Kind kind,
+             CppEditor::ProjectPart::ConstPtr projectPart)
         : file(std::move(file))
         , kind(kind)
         , projectPart(projectPart)
     {}
     Utils::FilePath file;
-    CppTools::ProjectFile::Kind kind;
-    CppTools::ProjectPart::ConstPtr projectPart;
+    CppEditor::ProjectFile::Kind kind;
+    CppEditor::ProjectPart::ConstPtr projectPart;
 };
 using FileInfos = std::vector<FileInfo>;
 

@@ -29,10 +29,10 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/testdatadir.h>
-#include <cpptools/builtineditordocumentprocessor.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/editordocumenthandle.h>
+#include <cppeditor/builtineditordocumentprocessor.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/editordocumenthandle.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -45,7 +45,7 @@
 
 using namespace Core;
 using namespace Core::Tests;
-using namespace CppTools;
+using namespace CppEditor;
 using namespace CPlusPlus;
 using namespace Designer;
 using namespace Designer::Internal;
@@ -144,7 +144,7 @@ bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
     return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
 }
 
-class GoToSlotTestCase : public CppTools::Tests::TestCase
+class GoToSlotTestCase : public CppEditor::Tests::TestCase
 {
 public:
     GoToSlotTestCase(const QStringList &files)

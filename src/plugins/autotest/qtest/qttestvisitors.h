@@ -33,7 +33,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/SymbolVisitor.h>
-#include <cpptools/symbolfinder.h>
+#include <cppeditor/symbolfinder.h>
 
 #include <QMap>
 #include <QSet>
@@ -54,7 +54,7 @@ public:
     bool visit(CPlusPlus::Class *symbol) override;
 
 private:
-    CppTools::SymbolFinder m_symbolFinder;
+    CppEditor::SymbolFinder m_symbolFinder;
     QString m_className;
     CPlusPlus::Snapshot m_snapshot;
     QMap<QString, QtTestCodeLocationAndType> m_privSlots;

@@ -28,8 +28,8 @@
 #include "catchframework.h"
 #include "catchtreeitem.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/projectpart.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
@@ -118,7 +118,7 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
     if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot))
         return false;
 
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     const QString &filePath = doc->fileName();
     const QByteArray &fileContent = getFileContent(fileName);
 
@@ -133,11 +133,11 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
     }
 
 
-    const QList<CppTools::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(fileName);
+    const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
     Utils::FilePath proFile;
-    const CppTools::ProjectPart::ConstPtr projectPart = projectParts.first();
+    const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
     proFile = Utils::FilePath::fromString(projectPart->projectFile);
 
     CatchCodeParser codeParser(fileContent, projectPart->languageFeatures);

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/refactoringengineinterface.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/refactoringengineinterface.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
 #include <utils/optional.h>
@@ -34,7 +34,7 @@
 #include <QVersionNumber>
 
 namespace Core { class SearchResultItem; }
-namespace CppTools { class CppEditorWidgetInterface; }
+namespace CppEditor { class CppEditorWidgetInterface; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor { class BaseTextEditor; }
 
@@ -50,7 +50,7 @@ public:
 
     bool isFullyIndexed() const;
     QVersionNumber versionNumber() const;
-    CppTools::ClangdSettings::Data settingsData() const;
+    CppEditor::ClangdSettings::Data settingsData() const;
 
     void openEditorDocument(TextEditor::BaseTextEditor *editor);
 
@@ -61,18 +61,18 @@ public:
                     const Utils::optional<QString> &replacement);
     void followSymbol(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
-            CppTools::CppEditorWidgetInterface *editorWidget,
+            CppEditor::CppEditorWidgetInterface *editorWidget,
             Utils::ProcessLinkCallback &&callback,
             bool resolveTarget,
             bool openInSplit);
 
     void switchDeclDef(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
-            CppTools::CppEditorWidgetInterface *editorWidget,
+            CppEditor::CppEditorWidgetInterface *editorWidget,
             Utils::ProcessLinkCallback &&callback);
 
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                         CppTools::RefactoringEngineInterface::RenameCallback &&callback);
+                         CppEditor::RefactoringEngineInterface::RenameCallback &&callback);
 
     void gatherHelpItemForTooltip(
             const LanguageServerProtocol::HoverRequest::Response &hoverResponse,

@@ -27,8 +27,8 @@
 #include "qttestframework.h"
 #include "qttestvisitors.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/projectpart.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <utils/algorithm.h>
 
@@ -93,8 +93,8 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 
 static bool qtTestLibDefined(const Utils::FilePath &fileName)
 {
-    const QList<CppTools::ProjectPart::ConstPtr> parts =
-            CppTools::CppModelManager::instance()->projectPart(fileName);
+    const QList<CppEditor::ProjectPart::ConstPtr> parts =
+            CppEditor::CppModelManager::instance()->projectPart(fileName);
     if (parts.size() > 0) {
         return Utils::anyOf(parts.at(0)->projectMacros, [] (const ProjectExplorer::Macro &macro) {
             return macro.key == "QT_TESTLIB_LIB";
@@ -103,7 +103,7 @@ static bool qtTestLibDefined(const Utils::FilePath &fileName)
     return false;
 }
 
-TestCases QtTestParser::testCases(const CppTools::CppModelManager *modelManager,
+TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager,
                                   const Utils::FilePath &fileName) const
 {
     const QByteArray &fileContent = getFileContent(fileName);
@@ -314,7 +314,7 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureI
         return false;
     }
 
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     TestCases testCaseList(testCases(modelManager, fileName));
     bool reported = false;
     // we might be in a reparse without the original entry point with the QTest::qExec()
@@ -327,7 +327,7 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureI
             if (earlyReturn.has_value() || !data.valid)
                 continue;
 
-            QList<CppTools::ProjectPart::ConstPtr> projectParts
+            QList<CppEditor::ProjectPart::ConstPtr> projectParts
                     = modelManager->projectPart(fileName);
             if (projectParts.isEmpty()) // happens if shutting down while parsing
                 return false;

@@ -30,8 +30,8 @@
 #include "clangutils.h"
 
 #include <cplusplus/Token.h>
-#include <cpptools/cppcompletionassistprocessor.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/cppcompletionassistprocessor.h>
+#include <cppeditor/projectpart.h>
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -66,7 +66,7 @@ TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterfac
     int position,
     TextEditor::AssistReason reason) const
 {
-    const CppTools::ProjectPart::ConstPtr projectPart = projectPartForFileBasedOnProcessor(
+    const CppEditor::ProjectPart::ConstPtr projectPart = projectPartForFileBasedOnProcessor(
         filePath.toString());
     if (projectPart) {
         return new ClangCompletionAssistInterface(m_communicator,

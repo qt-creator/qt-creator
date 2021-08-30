@@ -44,7 +44,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -164,9 +164,9 @@ static QString otherFile()
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
     QStringList candidateSuffixes;
     if (currentMimeType.matchesName(FORM_MIMETYPE)) {
-        candidateSuffixes += Utils::mimeTypeForName(CppTools::Constants::CPP_SOURCE_MIMETYPE).suffixes();
-    } else if (currentMimeType.matchesName(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-               || currentMimeType.matchesName(CppTools::Constants::CPP_HEADER_MIMETYPE)) {
+        candidateSuffixes += Utils::mimeTypeForName(CppEditor::Constants::CPP_SOURCE_MIMETYPE).suffixes();
+    } else if (currentMimeType.matchesName(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
+               || currentMimeType.matchesName(CppEditor::Constants::CPP_HEADER_MIMETYPE)) {
         candidateSuffixes += Utils::mimeTypeForName(FORM_MIMETYPE).suffixes();
     } else {
         return QString();

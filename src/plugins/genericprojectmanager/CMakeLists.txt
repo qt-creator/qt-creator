@@ -1,7 +1,7 @@
 add_qtc_plugin(GenericProjectManager
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
-  PLUGIN_RECOMMENDS CppTools
+  PLUGIN_RECOMMENDS CppEditor
   SOURCES ${TEST_SOURCES}
     filesselectionwizardpage.cpp filesselectionwizardpage.h
     genericbuildconfiguration.cpp genericbuildconfiguration.h

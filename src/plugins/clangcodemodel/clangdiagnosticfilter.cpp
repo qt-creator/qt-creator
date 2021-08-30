@@ -25,7 +25,7 @@
 
 #include "clangdiagnosticfilter.h"
 
-#include <cpptools/cppprojectfile.h>
+#include <cppeditor/cppprojectfile.h>
 
 #include <utf8stringvector.h>
 
@@ -106,7 +106,7 @@ namespace Internal {
 void ClangDiagnosticFilter::filterDocumentRelatedWarnings(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
-    using namespace CppTools;
+    using namespace CppEditor;
     const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(m_filePath));
 
     const auto isLocalWarning = [this, isHeaderFile]

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cpptools/cpptools_utils.h>
+#include "cppeditor_utils.h"
 
 #include <QAbstractListModel>
 #include <QComboBox>
@@ -38,7 +38,7 @@ class ParseContextModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    void update(const CppTools::ProjectPartInfo &projectPartInfo);
+    void update(const ProjectPartInfo &projectPartInfo);
 
     void setPreferred(int index);
     void clearPreferred();
@@ -56,13 +56,13 @@ signals:
     void preferredParseContextChanged(const QString &id);
 
 private:
-    void reset(const CppTools::ProjectPartInfo &projectPartInfo);
+    void reset(const ProjectPartInfo &projectPartInfo);
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 
 private:
-    CppTools::ProjectPartInfo::Hints m_hints;
-    QList<CppTools::ProjectPart::ConstPtr> m_projectParts;
+    ProjectPartInfo::Hints m_hints;
+    QList<ProjectPart::ConstPtr> m_projectParts;
     int m_currentIndex = -1;
 };
 

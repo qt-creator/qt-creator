@@ -1,4 +1,4 @@
 add_qtc_test(tst_cplusplus_lookup
-  DEPENDS CppTools
+  DEPENDS CppEditor
   SOURCES tst_lookup.cpp
 )

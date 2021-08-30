@@ -30,7 +30,7 @@
 #include <utils/wizard.h>
 
 #include <coreplugin/icore.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <utils/mimetypes/mimedatabase.h>
 #
 #include <QDebug>
@@ -61,13 +61,13 @@ FormClassWizardPage::~FormClassWizardPage()
     delete m_ui;
 }
 
-// Retrieve settings of CppTools plugin.
+// Retrieve settings of CppEditor plugin.
 bool FormClassWizardPage::lowercaseHeaderFiles()
 {
-    QString lowerCaseSettingsKey = CppTools::Constants::CPPTOOLS_SETTINGSGROUP;
+    QString lowerCaseSettingsKey = CppEditor::Constants::CPPEDITOR_SETTINGSGROUP;
     lowerCaseSettingsKey += '/';
-    lowerCaseSettingsKey += CppTools::Constants::LOWERCASE_CPPFILES_KEY;
-    const bool lowerCaseDefault = CppTools::Constants::LOWERCASE_CPPFILES_DEFAULT;
+    lowerCaseSettingsKey += CppEditor::Constants::LOWERCASE_CPPFILES_KEY;
+    const bool lowerCaseDefault = CppEditor::Constants::LOWERCASE_CPPFILES_DEFAULT;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
@@ -75,9 +75,9 @@ bool FormClassWizardPage::lowercaseHeaderFiles()
 void FormClassWizardPage::initFileGenerationSettings()
 {
     m_ui->newClassWidget->setHeaderExtension(
-                Utils::mimeTypeForName(CppTools::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
+                Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
     m_ui->newClassWidget->setSourceExtension(
-                Utils::mimeTypeForName(CppTools::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
+                Utils::mimeTypeForName(CppEditor::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
     m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
 }
 

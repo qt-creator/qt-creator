@@ -34,9 +34,9 @@
 #include "ui_clazychecks.h"
 #include "ui_tidychecks.h"
 
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <projectexplorer/selectablefilesmodel.h>
 #include <projectexplorer/session.h>
 
@@ -57,7 +57,7 @@
 #include <QUuid>
 #include <QVBoxLayout>
 
-using namespace CppTools;
+using namespace CppEditor;
 
 namespace ClangTools {
 namespace Internal {
@@ -448,7 +448,7 @@ public:
             if (role == LinkRole || role == Qt::ToolTipRole) {
                 // 'clang-analyzer-' group
                 if (node->isDir)
-                    return CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
+                    return CppEditor::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
                 return clangTidyDocUrl(node->fullPath.toString());
             }
 

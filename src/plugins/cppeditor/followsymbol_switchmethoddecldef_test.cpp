@@ -25,19 +25,18 @@
 
 #include "followsymbol_switchmethoddecldef_test.h"
 
+#include "cppcodemodelsettings.h"
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
-
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppelementevaluator.h>
-#include <cpptools/cppfollowsymbolundercursor.h>
-#include <cpptools/cppvirtualfunctionassistprovider.h>
-#include <cpptools/cppvirtualfunctionproposalitem.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/cppmodelmanager.h>
+#include "cppelementevaluator.h"
+#include "cppfollowsymbolundercursor.h"
+#include "cppmodelmanager.h"
+#include "cpptoolsreuse.h"
+#include "cpptoolstestcase.h"
+#include "cppvirtualfunctionassistprovider.h"
+#include "cppvirtualfunctionproposalitem.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -80,7 +79,6 @@
  */
 
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace TextEditor;
 using namespace Core;
 using namespace ProjectExplorer;
@@ -261,7 +259,7 @@ public:
 
     ~F2TestCase()
     {
-        CppTools::ClangdSettings::setUseClangd(m_prevUseClangd);
+        ClangdSettings::setUseClangd(m_prevUseClangd);
     }
 
     static ProjectExplorer::Kit *m_testKit;
@@ -281,12 +279,12 @@ ProjectExplorer::Kit *F2TestCase::m_testKit = nullptr;
 F2TestCase::F2TestCase(CppEditorAction action,
                        const QList<TestDocumentPtr> &testFiles,
                        OverrideItemList expectedVirtualFunctionProposal)
-    : m_prevUseClangd(CppTools::ClangdSettings::instance().useClangd())
+    : m_prevUseClangd(ClangdSettings::instance().useClangd())
 {
     QVERIFY(succeededSoFar());
 
     if (m_testKit)
-        CppTools::ClangdSettings::setUseClangd(true);
+        ClangdSettings::setUseClangd(true);
 
     // Check if there are initial and target position markers
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker(testFiles);
@@ -298,7 +296,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     const QString curTestName = QLatin1String(QTest::currentTestFunction());
     const QString tag = QLatin1String(QTest::currentDataTag());
-    const bool useClangd = CppTools::ClangdSettings::instance().useClangd();
+    const bool useClangd = ClangdSettings::instance().useClangd();
     if (useClangd) {
         if (curTestName == "testFollowSymbolQObjectConnect"
                 || curTestName == "testFollowSymbolQObjectOldStyleConnect") {
@@ -319,7 +317,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
 
     // Write files to disk
-    CppTools::Tests::TemporaryDir temporaryDir;
+    ::CppEditor::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     QString projectFileContent = "CppApplication { files: [";
     foreach (TestDocumentPtr testFile, testFiles) {
@@ -351,8 +349,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         openProjectResult.project()->configureAsExampleProject(m_testKit);
 
         // Wait until project is fully indexed.
-        QVERIFY(CppTools::Tests::waitForSignalOrTimeout(openProjectResult.project(),
-                &Project::indexingFinished, CppTools::Tests::clangdIndexingTimeout()));
+        QVERIFY(::CppEditor::Tests::waitForSignalOrTimeout(openProjectResult.project(),
+                &Project::indexingFinished, ::CppEditor::Tests::clangdIndexingTimeout()));
     }
 
     // Update Code Model
@@ -443,7 +441,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QEXPECT_FAIL("infiniteLoopLocalTypedef_QTCREATORBUG-11999",
                      "clangd bug: Go to definition does not return", Abort);
         if (expectedVirtualFunctionProposal.size() <= 1) {
-            QVERIFY(CppTools::Tests::waitForSignalOrTimeout(EditorManager::instance(),
+            QVERIFY(::CppEditor::Tests::waitForSignalOrTimeout(EditorManager::instance(),
                                                             &EditorManager::linkOpened, 10000));
         } else {
             QTimer t;
@@ -489,7 +487,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
 
-    if (!CppTools::ClangdSettings::instance().useClangd()) {
+    if (!ClangdSettings::instance().useClangd()) {
         QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
         QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
     }

@@ -25,7 +25,7 @@
 
 #include "clangtoolslogfilereader.h"
 
-#include <cpptools/cppprojectfile.h>
+#include <cppeditor/cppprojectfile.h>
 
 #include <QDir>
 #include <QFileInfo>

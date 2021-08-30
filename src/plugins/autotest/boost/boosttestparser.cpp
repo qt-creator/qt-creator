@@ -28,7 +28,7 @@
 #include "boosttestframework.h"
 #include "boosttesttreeitem.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <QMap>
 #include <QRegularExpression>
@@ -125,12 +125,12 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
     if (doc.isNull() || !includesBoostTest(doc, m_cppSnapshot) || !hasBoostTestMacros(doc))
         return false;
 
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::ConstPtr> projectParts
+    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
+    const QList<CppEditor::ProjectPart::ConstPtr> projectParts
             = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
-    const CppTools::ProjectPart::ConstPtr projectPart = projectParts.first();
+    const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
     const auto projectFile = Utils::FilePath::fromString(projectPart->projectFile);
     const QByteArray &fileContent = getFileContent(fileName);
 

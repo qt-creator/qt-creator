@@ -29,9 +29,9 @@
 #include "cppeditorwidget.h"
 #include "cppeditortestcase.h"
 #include "cppincludehierarchy.h"
+#include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanager.h>
 #include <utils/fileutils.h>
 
 #include <QByteArray>
@@ -39,7 +39,8 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
-using namespace CppTools;
+
+using CppEditor::Tests::TemporaryDir;
 
 namespace CppEditor::Internal::Tests {
 
@@ -80,7 +81,7 @@ public:
         QSet<QString> filePaths;
         const int sourceListSize = sourceList.size();
 
-        CppTools::Tests::TemporaryDir temporaryDir;
+        TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
 
         for (int i = 0; i < sourceListSize; ++i) {

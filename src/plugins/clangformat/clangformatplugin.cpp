@@ -44,9 +44,9 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <cpptools/cppcodestylepreferencesfactory.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppcodestylepreferencesfactory.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
@@ -73,7 +73,7 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-class ClangFormatStyleFactory : public CppTools::CppCodeStylePreferencesFactory
+class ClangFormatStyleFactory : public CppEditor::CppCodeStylePreferencesFactory
 {
 public:
     TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
@@ -99,7 +99,7 @@ public:
 static void replaceCppCodeStyle()
 {
     using namespace TextEditor;
-    TextEditorSettings::unregisterCodeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
     TextEditorSettings::registerCodeStyleFactory(new ClangFormatStyleFactory);
 }
 

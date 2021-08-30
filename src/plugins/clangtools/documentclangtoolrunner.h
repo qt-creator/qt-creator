@@ -36,7 +36,7 @@
 #include <QTimer>
 
 namespace Core { class IDocument; }
-namespace CppTools { class ClangDiagnosticConfig; }
+namespace CppEditor { class ClangDiagnosticConfig; }
 namespace TextEditor { class TextEditorWidget; }
 
 namespace ClangTools {
@@ -70,9 +70,9 @@ private:
 
     bool isSuppressed(const Diagnostic &diagnostic) const;
 
-    const CppTools::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
+    const CppEditor::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
     template<class T>
-    ClangToolRunner *createRunner(const CppTools::ClangDiagnosticConfig &config,
+    ClangToolRunner *createRunner(const CppEditor::ClangDiagnosticConfig &config,
                                   const Utils::Environment &env);
 
     QTimer m_runTimer;

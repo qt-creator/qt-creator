@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include <cpptools/baseeditordocumentparser.h>
+#include <cppeditor/baseeditordocumentparser.h>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangEditorDocumentParser : public CppTools::BaseEditorDocumentParser
+class ClangEditorDocumentParser : public CppEditor::BaseEditorDocumentParser
 {
     Q_OBJECT
 

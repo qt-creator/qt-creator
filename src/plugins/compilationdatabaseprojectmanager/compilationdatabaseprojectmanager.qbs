@@ -4,7 +4,7 @@ QtcPlugin {
     name: "CompilationDatabaseProjectManager"
 
     Depends { name: "Core" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }

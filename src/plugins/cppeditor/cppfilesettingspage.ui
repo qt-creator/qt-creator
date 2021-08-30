@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CppEditor::Internal::CppFileSettingsPage</class>
+ <widget class="QWidget" name="CppEditor::Internal::CppFileSettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>547</width>
+    <height>406</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="headersGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Headers</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="2" column="0">
+       <widget class="QLabel" name="headerSuffixLabel">
+        <property name="text">
+         <string>&amp;Suffix:</string>
+        </property>
+        <property name="buddy">
+         <cstring>headerSuffixComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="headerSuffixComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="headerSearchPathsLabel">
+        <property name="text">
+         <string>S&amp;earch paths:</string>
+        </property>
+        <property name="buddy">
+         <cstring>headerSearchPathsEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="headerSearchPathsEdit">
+        <property name="toolTip">
+         <string>Comma-separated list of header paths.
+
+Paths can be absolute or relative to the directory of the current open document.
+
+These paths are used in addition to current directory on Switch Header/Source.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="headerPrefixesLabel">
+        <property name="text">
+         <string>&amp;Prefixes:</string>
+        </property>
+        <property name="buddy">
+         <cstring>headerSearchPathsEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="headerPrefixesEdit">
+        <property name="toolTip">
+         <string>Comma-separated list of header prefixes.
+
+These prefixes are used in addition to current file name on Switch Header/Source.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="headerPragmaOnceLabel">
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="text">
+         <string>Include guards</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="headerPragmaOnceCheckBox">
+        <property name="toolTip">
+         <string>Uses &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards.</string>
+        </property>
+        <property name="text">
+         <string>Use &quot;#pragma once&quot; instead of &quot;#ifndef&quot; guards</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="sourcesGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Sources</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="3" column="0">
+       <widget class="QLabel" name="sourceSuffixLabel">
+        <property name="text">
+         <string>S&amp;uffix:</string>
+        </property>
+        <property name="buddy">
+         <cstring>sourceSuffixComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="sourceSuffixComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="sourceSearchPathsLabel">
+        <property name="text">
+         <string>Se&amp;arch paths:</string>
+        </property>
+        <property name="buddy">
+         <cstring>sourceSearchPathsEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="sourceSearchPathsEdit">
+        <property name="toolTip">
+         <string>Comma-separated list of source paths.
+
+Paths can be absolute or relative to the directory of the current open document.
+
+These paths are used in addition to current directory on Switch Header/Source.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="sourcePrefixesLabel">
+        <property name="text">
+         <string>P&amp;refixes:</string>
+        </property>
+        <property name="buddy">
+         <cstring>sourceSearchPathsEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="sourcePrefixesEdit">
+        <property name="toolTip">
+         <string>Comma-separated list of source prefixes.
+
+These prefixes are used in addition to current file name on Switch Header/Source.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="lowerCaseFileNamesCheckBox">
+     <property name="text">
+      <string>&amp;Lower case file names</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="licenseTemplateLabel">
+       <property name="text">
+        <string>License &amp;template:</string>
+       </property>
+       <property name="buddy">
+        <cstring>licenseTemplatePathChooser</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Utils::PathChooser" name="licenseTemplatePathChooser" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>headerSuffixComboBox</tabstop>
+  <tabstop>headerSearchPathsEdit</tabstop>
+  <tabstop>headerPrefixesEdit</tabstop>
+  <tabstop>sourceSuffixComboBox</tabstop>
+  <tabstop>sourceSearchPathsEdit</tabstop>
+  <tabstop>sourcePrefixesEdit</tabstop>
+  <tabstop>lowerCaseFileNamesCheckBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

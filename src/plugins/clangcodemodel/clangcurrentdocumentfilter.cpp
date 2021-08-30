@@ -35,7 +35,7 @@
 
 #include <cplusplus/Icons.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <texteditor/textdocument.h>
 
@@ -54,8 +54,8 @@ namespace Internal {
 
 ClangCurrentDocumentFilter::ClangCurrentDocumentFilter()
 {
-    setId(CppTools::Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(CppTools::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setId(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_ID);
+    setDisplayName(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);

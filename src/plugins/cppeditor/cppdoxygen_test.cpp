@@ -23,13 +23,12 @@
 **
 ****************************************************************************/
 
-#include "cppeditor.h"
-#include "cppeditorwidget.h"
 #include "cppdoxygen_test.h"
 
+#include "cppeditor.h"
 #include "cppeditortestcase.h"
-
-#include <cpptools/cpptoolssettings.h>
+#include "cppeditorwidget.h"
+#include "cpptoolssettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -41,6 +40,9 @@
 #include <QtTest>
 
 namespace { typedef QByteArray _; }
+
+using CppEditor::Tests::TemporaryDir;
+using CppEditor::Tests::VerifyCleanCppModelManager;
 
 namespace CppEditor {
 namespace Internal {
@@ -59,7 +61,7 @@ void DoxygenTest::cleanTestCase()
 void DoxygenTest::cleanup()
 {
     if (oldSettings)
-        CppTools::CppToolsSettings::instance()->setCommentsSettings(*oldSettings);
+        CppToolsSettings::instance()->setCommentsSettings(*oldSettings);
     QVERIFY(Core::EditorManager::closeAllEditors(false));
     QVERIFY(TestCase::garbageCollectGlobalSnapshot());
 }
@@ -407,7 +409,7 @@ void DoxygenTest::testNoLeadingAsterisks()
 
 void DoxygenTest::verifyCleanState() const
 {
-    QVERIFY(CppTools::Tests::VerifyCleanCppModelManager::isClean());
+    QVERIFY(VerifyCleanCppModelManager::isClean());
     QVERIFY(Core::DocumentModel::openedDocuments().isEmpty());
     QVERIFY(Core::EditorManager::visibleEditors().isEmpty());
 }
@@ -419,7 +421,7 @@ void DoxygenTest::runTest(const QByteArray &original,
                           const TestDocuments &includedHeaderDocuments)
 {
     // Write files to disk
-    CppTools::Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     GenericCppTestDocument testDocument("file.cpp", original, '|');
     QVERIFY(testDocument.hasCursorMarker());
@@ -439,7 +441,7 @@ void DoxygenTest::runTest(const QByteArray &original,
                                     &testDocument.m_editorWidget));
 
     if (settings) {
-        auto *cts = CppTools::CppToolsSettings::instance();
+        auto *cts = CppToolsSettings::instance();
         oldSettings.reset(new TextEditor::CommentsSettings(cts->commentsSettings()));
         cts->setCommentsSettings(*settings);
     }

@@ -33,7 +33,7 @@
 #include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/runconfiguration.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/projectinfo.h>
 
 #include <utils/variant.h>
 
@@ -42,7 +42,7 @@ class QFrame;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace CppTools {
+namespace CppEditor {
 class ClangDiagnosticConfig;
 }
 namespace Debugger {
@@ -92,7 +92,7 @@ public:
     void startTool(FileSelection fileSelection);
     void startTool(FileSelection fileSelection,
                    const RunSettings &runSettings,
-                   const CppTools::ClangDiagnosticConfig &diagnosticConfig);
+                   const CppEditor::ClangDiagnosticConfig &diagnosticConfig);
 
     Diagnostics read(OutputFileFormat outputFileFormat,
                      const QString &logFilePath,

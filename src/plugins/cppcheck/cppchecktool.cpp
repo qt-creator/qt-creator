@@ -33,7 +33,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
@@ -123,7 +123,7 @@ void CppcheckTool::updateArguments()
     m_runner->reconfigure(m_options.binary, arguments.join(' '));
 }
 
-QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part) const
+QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part) const
 {
     QStringList result;
 
@@ -204,22 +204,22 @@ void CppcheckTool::check(const Utils::FilePaths &files)
     if (filtered.isEmpty())
         return;
 
-    const CppTools::ProjectInfo::ConstPtr info
-            = CppTools::CppModelManager::instance()->projectInfo(m_project);
+    const CppEditor::ProjectInfo::ConstPtr info
+            = CppEditor::CppModelManager::instance()->projectInfo(m_project);
     if (!info)
         return;
-    const QVector<CppTools::ProjectPart::ConstPtr> parts = info->projectParts();
+    const QVector<CppEditor::ProjectPart::ConstPtr> parts = info->projectParts();
     if (parts.size() == 1) {
         QTC_ASSERT(parts.first(), return);
         addToQueue(filtered, *parts.first());
         return;
     }
 
-    std::map<CppTools::ProjectPart::ConstPtr, Utils::FilePaths> groups;
+    std::map<CppEditor::ProjectPart::ConstPtr, Utils::FilePaths> groups;
     for (const Utils::FilePath &file : qAsConst(filtered)) {
         const QString stringed = file.toString();
-        for (const CppTools::ProjectPart::ConstPtr &part : parts) {
-            using CppTools::ProjectFile;
+        for (const CppEditor::ProjectPart::ConstPtr &part : parts) {
+            using CppEditor::ProjectFile;
             QTC_ASSERT(part, continue);
             const auto match = [stringed](const ProjectFile &pFile){return pFile.path == stringed;};
             if (Utils::contains(part->files, match))
@@ -231,7 +231,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
         addToQueue(group.second, *group.first);
 }
 
-void CppcheckTool::addToQueue(const Utils::FilePaths &files, const CppTools::ProjectPart &part)
+void CppcheckTool::addToQueue(const Utils::FilePaths &files, const CppEditor::ProjectPart &part)
 {
     const QString key = part.id();
     if (!m_cachedAdditionalArguments.contains(key))

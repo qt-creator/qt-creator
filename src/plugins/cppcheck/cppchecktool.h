@@ -38,7 +38,7 @@ class FilePath;
 using FilePaths = QList<FilePath>;
 }
 
-namespace CppTools {
+namespace CppEditor {
 class ProjectPart;
 }
 
@@ -75,8 +75,8 @@ public:
 
 private:
     void updateArguments();
-    void addToQueue(const Utils::FilePaths &files, const CppTools::ProjectPart &part);
-    QStringList additionalArguments(const CppTools::ProjectPart &part) const;
+    void addToQueue(const Utils::FilePaths &files, const CppEditor::ProjectPart &part);
+    QStringList additionalArguments(const CppEditor::ProjectPart &part) const;
 
     CppcheckDiagnosticManager &m_manager;
     CppcheckOptions m_options;

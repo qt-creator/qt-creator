@@ -25,21 +25,20 @@
 
 #include "cppeditordocument.h"
 
+#include "baseeditordocumentparser.h"
+#include "builtineditordocumentprocessor.h"
+#include "cppcodeformatter.h"
+#include "cppcodemodelsettings.h"
+#include "cppeditorconstants.h"
+#include "cppeditorplugin.h"
+#include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 #include "cpphighlighter.h"
+#include "cppqtstyleindenter.h"
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-
-#include <cpptools/baseeditordocumentparser.h>
-#include <cpptools/builtineditordocumentprocessor.h>
-#include <cpptools/cppcodeformatter.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppqtstyleindenter.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolsplugin.h>
 
 #include <projectexplorer/session.h>
 
@@ -58,9 +57,9 @@
 
 namespace {
 
-CppTools::CppModelManager *mm()
+CppEditor::CppModelManager *mm()
 {
-    return CppTools::CppModelManager::instance();
+    return CppEditor::CppModelManager::instance();
 }
 
 } // anonymous namespace
@@ -72,7 +71,7 @@ namespace Internal {
 
 enum { processDocumentIntervalInMs = 150 };
 
-class CppEditorDocumentHandleImpl : public CppTools::CppEditorDocumentHandle
+class CppEditorDocumentHandleImpl : public CppEditorDocumentHandle
 {
 public:
     CppEditorDocumentHandleImpl(CppEditorDocument *cppEditorDocument)
@@ -91,7 +90,7 @@ public:
     QByteArray contents() const override { return m_cppEditorDocument->contentsText(); }
     unsigned revision() const override { return m_cppEditorDocument->contentsRevision(); }
 
-    CppTools::BaseEditorDocumentProcessor *processor() const override
+    BaseEditorDocumentProcessor *processor() const override
     { return m_cppEditorDocument->processor(); }
 
     void resetProcessor() override
@@ -111,7 +110,7 @@ CppEditorDocument::CppEditorDocument()
     setSyntaxHighlighter(new CppHighlighter);
 
     ICodeStylePreferencesFactory *factory
-        = TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
+        = TextEditorSettings::codeStyleFactory(Constants::CPP_SETTINGS_ID);
     setIndenter(factory->createIndenter(document()));
 
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
@@ -168,15 +167,15 @@ TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const
 
 void CppEditorDocument::recalculateSemanticInfoDetached()
 {
-    CppTools::BaseEditorDocumentProcessor *p = processor();
+    BaseEditorDocumentProcessor *p = processor();
     QTC_ASSERT(p, return);
     p->recalculateSemanticInfoDetached(true);
 }
 
-CppTools::SemanticInfo CppEditorDocument::recalculateSemanticInfo()
+SemanticInfo CppEditorDocument::recalculateSemanticInfo()
 {
-    CppTools::BaseEditorDocumentProcessor *p = processor();
-    QTC_ASSERT(p, CppTools::SemanticInfo());
+    BaseEditorDocumentProcessor *p = processor();
+    QTC_ASSERT(p, return SemanticInfo());
     return p->recalculateSemanticInfo();
 }
 
@@ -204,15 +203,15 @@ void CppEditorDocument::applyFontSettings()
 
 void CppEditorDocument::invalidateFormatterCache()
 {
-    CppTools::QtStyleCodeFormatter formatter;
+    QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
 }
 
 void CppEditorDocument::onMimeTypeChanged()
 {
     const QString &mt = mimeType();
-    m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                       || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                       || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = mm()->completionAssistProvider();
     m_functionHintAssistProvider = mm()->functionHintAssistProvider();
 
@@ -238,8 +237,6 @@ void CppEditorDocument::onReloadFinished()
 
 void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseContextId)
 {
-    using namespace CppTools;
-
     // Update parser
     setPreferredParseContext(parseContextId);
 
@@ -336,7 +333,7 @@ void CppEditorDocument::setExtraPreprocessorDirectives(const QByteArray &directi
     const auto parser = processor()->parser();
     QTC_ASSERT(parser, return);
 
-    CppTools::BaseEditorDocumentParser::Configuration config = parser->configuration();
+    BaseEditorDocumentParser::Configuration config = parser->configuration();
     if (config.editorDefines != directives) {
         config.editorDefines = directives;
         processor()->setParserConfig(config);
@@ -347,10 +344,10 @@ void CppEditorDocument::setExtraPreprocessorDirectives(const QByteArray &directi
 
 void CppEditorDocument::setPreferredParseContext(const QString &parseContextId)
 {
-    const CppTools::BaseEditorDocumentParser::Ptr parser = processor()->parser();
+    const BaseEditorDocumentParser::Ptr parser = processor()->parser();
     QTC_ASSERT(parser, return);
 
-    CppTools::BaseEditorDocumentParser::Configuration config = parser->configuration();
+    BaseEditorDocumentParser::Configuration config = parser->configuration();
     if (config.preferredProjectPartId != parseContextId) {
         config.preferredProjectPartId = parseContextId;
         processor()->setParserConfig(config);
@@ -403,8 +400,7 @@ ParseContextModel &CppEditorDocument::parseContextModel()
     return m_parseContextModel;
 }
 
-QFuture<CppTools::CursorInfo>
-CppEditorDocument::cursorInfo(const CppTools::CursorInfoParams &params)
+QFuture<CursorInfo> CppEditorDocument::cursorInfo(const CursorInfoParams &params)
 {
     return processor()->cursorInfo(params);
 }
@@ -414,14 +410,13 @@ const MinimizableInfoBars &CppEditorDocument::minimizableInfoBars() const
     return m_minimizableInfoBars;
 }
 
-CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
+BaseEditorDocumentProcessor *CppEditorDocument::processor()
 {
     if (!m_processor) {
         m_processor.reset(mm()->createEditorDocumentProcessor(this));
-        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::projectPartInfoUpdated,
-                [this] (const CppTools::ProjectPartInfo &info)
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::projectPartInfoUpdated,
+                [this] (const ProjectPartInfo &info)
         {
-            using namespace CppTools;
             const bool hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
             m_minimizableInfoBars.processHasProjectPart(hasProjectPart);
             m_parseContextModel.update(info);
@@ -429,7 +424,7 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
             const bool isProjectFile = info.hints & ProjectPartInfo::IsFromProjectMatch;
             showHideInfoBarAboutMultipleParseContexts(isAmbiguous && isProjectFile);
         });
-        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::codeWarningsUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::codeWarningsUpdated,
                 [this] (unsigned revision,
                         const QList<QTextEdit::ExtraSelection> selections,
                         const std::function<QWidget*()> &creator,
@@ -437,9 +432,9 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
             emit codeWarningsUpdated(revision, selections, refactorMarkers);
             m_minimizableInfoBars.processHeaderDiagnostics(creator);
         });
-        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
                 this, &CppEditorDocument::ifdefedOutBlocksUpdated);
-        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::cppDocumentUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter
                     auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());
@@ -449,7 +444,7 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
                     emit cppDocumentUpdated(document);
 
         });
-        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::semanticInfoUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::semanticInfoUpdated,
                 this, &CppEditorDocument::semanticInfoUpdated);
     }
 

@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "cppquickfixsettings.h"
+
+#include "cppcodestylesettings.h"
 #include "cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cppcodestylesettings.h>
 #include <utils/qtcsettings.h>
 
 #include <QRegularExpression>
@@ -48,7 +49,7 @@ void CppQuickFixSettings::loadGlobalSettings()
     loadSettingsFrom(Core::ICore::settings());
     if (getterNameTemplate == "__dummy") {
         // there was no saved property for getterNameTemplate
-        if (CppTools::CppCodeStyleSettings::currentGlobalCodeStyle().preferGetterNameWithoutGetPrefix)
+        if (CppCodeStyleSettings::currentGlobalCodeStyle().preferGetterNameWithoutGetPrefix)
             getterNameTemplate = "<name>";
         else
             getterNameTemplate = "get<Name>";

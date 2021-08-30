@@ -25,8 +25,8 @@
 
 #include "clangprojectsettings.h"
 
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <utils/qtcassert.h>
 #include <utils/hostosinfo.h>
@@ -77,9 +77,9 @@ ClangProjectSettings::ClangProjectSettings(ProjectExplorer::Project *project)
 
 Utils::Id ClangProjectSettings::warningConfigId() const
 {
-    const CppTools::ClangDiagnosticConfigsModel model = CppTools::diagnosticConfigsModel();
+    const CppEditor::ClangDiagnosticConfigsModel model = CppEditor::diagnosticConfigsModel();
     if (!model.hasConfigWithId(m_warningConfigId))
-        return CppTools::codeModelSettings()->defaultClangDiagnosticConfigId();
+        return CppEditor::codeModelSettings()->defaultClangDiagnosticConfigId();
     return m_warningConfigId;
 }
 

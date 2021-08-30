@@ -43,11 +43,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppfollowsymbolundercursor.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/editordocumenthandle.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppfollowsymbolundercursor.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/editordocumenthandle.h>
 
 #include <languageclient/languageclientmanager.h>
 
@@ -69,7 +69,7 @@
 #include <QTextBlock>
 #include <QTimer>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace LanguageClient;
 
 namespace ClangCodeModel {
@@ -77,9 +77,9 @@ namespace Internal {
 
 static ClangModelManagerSupport *m_instance = nullptr;
 
-static CppTools::CppModelManager *cppModelManager()
+static CppEditor::CppModelManager *cppModelManager()
 {
-    return CppTools::CppModelManager::instance();
+    return CppEditor::CppModelManager::instance();
 }
 
 static const QList<TextEditor::BaseTextEditor *> allCppEditors()
@@ -91,7 +91,7 @@ static const QList<TextEditor::BaseTextEditor *> allCppEditors()
             continue;
         if (const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(Utils::findOrDefault(
                 Core::DocumentModel::editorsForDocument(textDocument), [](Core::IEditor *editor) {
-                    return CppTools::CppModelManager::isCppEditor(editor);
+                    return CppEditor::CppModelManager::isCppEditor(editor);
         }))) {
             cppEditors << cppEditor;
         }
@@ -108,7 +108,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     QTC_CHECK(!m_instance);
     m_instance = this;
 
-    CppTools::CppModelManager::instance()->setCurrentDocumentFilter(
+    CppEditor::CppModelManager::instance()->setCurrentDocumentFilter(
                 std::make_unique<ClangCurrentDocumentFilter>());
     cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
     cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
@@ -122,14 +122,14 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(editorManager, &Core::EditorManager::editorsClosed,
             this, &ClangModelManagerSupport::onEditorClosed);
 
-    CppTools::CppModelManager *modelManager = cppModelManager();
-    connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
+    CppEditor::CppModelManager *modelManager = cppModelManager();
+    connect(modelManager, &CppEditor::CppModelManager::abstractEditorSupportContentsUpdated,
             this, &ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated);
-    connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportRemoved,
+    connect(modelManager, &CppEditor::CppModelManager::abstractEditorSupportRemoved,
             this, &ClangModelManagerSupport::onAbstractEditorSupportRemoved);
-    connect(modelManager, &CppTools::CppModelManager::projectPartsUpdated,
+    connect(modelManager, &CppEditor::CppModelManager::projectPartsUpdated,
             this, &ClangModelManagerSupport::onProjectPartsUpdated);
-    connect(modelManager, &CppTools::CppModelManager::projectPartsRemoved,
+    connect(modelManager, &CppEditor::CppModelManager::projectPartsRemoved,
             this, &ClangModelManagerSupport::onProjectPartsRemoved);
 
     auto *sessionManager = ProjectExplorer::SessionManager::instance();
@@ -143,14 +143,14 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             claimNonProjectSources(fallbackClient);
     });
 
-    CppTools::ClangdSettings::setDefaultClangdPath(Core::ICore::clangdExecutable(CLANG_BINDIR));
-    connect(&CppTools::ClangdSettings::instance(), &CppTools::ClangdSettings::changed,
+    CppEditor::ClangdSettings::setDefaultClangdPath(Core::ICore::clangdExecutable(CLANG_BINDIR));
+    connect(&CppEditor::ClangdSettings::instance(), &CppEditor::ClangdSettings::changed,
             this, &ClangModelManagerSupport::onClangdSettingsChanged);
-    CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();
-    connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
+    CppEditor::CppCodeModelSettings *settings = CppEditor::codeModelSettings();
+    connect(settings, &CppEditor::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ClangModelManagerSupport::onDiagnosticConfigsInvalidated);
 
-    if (CppTools::ClangdSettings::instance().useClangd())
+    if (CppEditor::ClangdSettings::instance().useClangd())
         createClient(nullptr, {});
 
     m_generatorSynchronizer.setCancelOnWait(true);
@@ -164,12 +164,12 @@ ClangModelManagerSupport::~ClangModelManagerSupport()
     m_instance = nullptr;
 }
 
-CppTools::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssistProvider()
+CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssistProvider()
 {
     return &m_completionAssistProvider;
 }
 
-CppTools::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAssistProvider()
+CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAssistProvider()
 {
     return &m_functionHintAssistProvider;
 }
@@ -179,17 +179,17 @@ TextEditor::BaseHoverHandler *ClangModelManagerSupport::createHoverHandler()
     return new Internal::ClangHoverHandler;
 }
 
-CppTools::FollowSymbolInterface &ClangModelManagerSupport::followSymbolInterface()
+CppEditor::FollowSymbolInterface &ClangModelManagerSupport::followSymbolInterface()
 {
     return *m_followSymbol;
 }
 
-CppTools::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngineInterface()
+CppEditor::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngineInterface()
 {
     return *m_refactoringEngine;
 }
 
-std::unique_ptr<CppTools::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
+std::unique_ptr<CppEditor::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
 {
     return std::make_unique<OverviewModel>();
 }
@@ -199,7 +199,7 @@ bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *d
     return !clientForFile(document->filePath());
 }
 
-CppTools::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
+CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
     return new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);
@@ -275,9 +275,9 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 }
 
 void ClangModelManagerSupport::updateLanguageClient(
-        ProjectExplorer::Project *project, const CppTools::ProjectInfo::ConstPtr &projectInfo)
+        ProjectExplorer::Project *project, const CppEditor::ProjectInfo::ConstPtr &projectInfo)
 {
-    if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
+    if (!CppEditor::ClangdProjectSettings(project).settings().useClangd)
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -298,9 +298,9 @@ void ClangModelManagerSupport::updateLanguageClient(
         generatorWatcher->deleteLater();
         if (!ProjectExplorer::SessionManager::hasProject(project))
             return;
-        if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
+        if (!CppEditor::ClangdProjectSettings(project).settings().useClangd)
             return;
-        const CppTools::ProjectInfo::ConstPtr newProjectInfo
+        const CppEditor::ProjectInfo::ConstPtr newProjectInfo
                 = cppModelManager()->projectInfo(project);
         if (!newProjectInfo || *newProjectInfo != *projectInfo)
             return;
@@ -320,9 +320,9 @@ void ClangModelManagerSupport::updateLanguageClient(
             using namespace ProjectExplorer;
             if (!SessionManager::hasProject(project))
                 return;
-            if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
+            if (!CppEditor::ClangdProjectSettings(project).settings().useClangd)
                 return;
-            const CppTools::ProjectInfo::ConstPtr newProjectInfo
+            const CppEditor::ProjectInfo::ConstPtr newProjectInfo
                 = cppModelManager()->projectInfo(project);
             if (!newProjectInfo || *newProjectInfo != *projectInfo)
                 return;
@@ -587,7 +587,7 @@ clangProcessorsWithProject(const ProjectExplorer::Project *project)
 
 static void updateProcessors(const ClangEditorDocumentProcessors &processors)
 {
-    CppTools::CppModelManager *modelManager = cppModelManager();
+    CppEditor::CppModelManager *modelManager = cppModelManager();
     for (ClangEditorDocumentProcessor *processor : processors)
         modelManager->cppEditorDocument(processor->filePath())->resetProcessor();
     modelManager->updateCppEditorDocuments(/*projectsUpdated=*/ false);
@@ -616,13 +616,13 @@ void ClangModelManagerSupport::onAboutToRemoveProject(ProjectExplorer::Project *
 void ClangModelManagerSupport::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
-    const CppTools::ProjectInfo::ConstPtr projectInfo = cppModelManager()->projectInfo(project);
+    const CppEditor::ProjectInfo::ConstPtr projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo, return);
 
     updateLanguageClient(project, projectInfo);
 
     QStringList projectPartIds;
-    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts())
+    for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts())
         projectPartIds.append(projectPart->id());
     onProjectPartsRemoved(projectPartIds);
 }
@@ -636,8 +636,8 @@ void ClangModelManagerSupport::onProjectPartsRemoved(const QStringList &projectP
 void ClangModelManagerSupport::onClangdSettingsChanged()
 {
     for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
-        const CppTools::ClangdSettings settings(
-                    CppTools::ClangdProjectSettings(project).settings());
+        const CppEditor::ClangdSettings settings(
+                    CppEditor::ClangdProjectSettings(project).settings());
         ClangdClient * const client = clientForProject(project);
         if (!client) {
             if (settings.useClangd())
@@ -741,9 +741,9 @@ QString ClangModelManagerSupportProvider::displayName() const
                                        "Clang");
 }
 
-CppTools::ModelManagerSupport::Ptr ClangModelManagerSupportProvider::createModelManagerSupport()
+CppEditor::ModelManagerSupport::Ptr ClangModelManagerSupportProvider::createModelManagerSupport()
 {
-    return CppTools::ModelManagerSupport::Ptr(new ClangModelManagerSupport);
+    return CppEditor::ModelManagerSupport::Ptr(new ClangModelManagerSupport);
 }
 
 } // Internal

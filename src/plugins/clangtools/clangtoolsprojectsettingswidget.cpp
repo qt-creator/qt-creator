@@ -33,13 +33,13 @@
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/clangdiagnosticconfigsselectionwidget.h>
+#include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
 
 #include <utils/qtcassert.h>
 
 #include <QAbstractTableModel>
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
 
 namespace ClangTools {
 namespace Internal {
@@ -108,7 +108,7 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
         m_projectSettings->setRunSettings(m_ui->runSettingsWidget->toSettings());
 
         // Save global custom configs
-        const CppTools::ClangDiagnosticConfigs configs
+        const CppEditor::ClangDiagnosticConfigs configs
             = m_ui->runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
         ClangToolsSettings::instance()->setDiagnosticConfigs(configs);
         ClangToolsSettings::instance()->writeSettings();

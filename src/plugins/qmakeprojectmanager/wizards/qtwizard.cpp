@@ -30,7 +30,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -107,10 +107,10 @@ QString QtWizard::templateDir()
 
 bool QtWizard::lowerCaseFiles()
 {
-    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    QString lowerCaseSettingsKey = QLatin1String(CppEditor::Constants::CPPEDITOR_SETTINGSGROUP);
     lowerCaseSettingsKey += QLatin1Char('/');
-    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
-    const bool lowerCaseDefault = CppTools::Constants::LOWERCASE_CPPFILES_DEFAULT;
+    lowerCaseSettingsKey += QLatin1String(CppEditor::Constants::LOWERCASE_CPPFILES_KEY);
+    const bool lowerCaseDefault = CppEditor::Constants::LOWERCASE_CPPFILES_DEFAULT;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 

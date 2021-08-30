@@ -30,11 +30,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <cpptools/clangdiagnosticconfig.h>
-#include <cpptools/clangdiagnosticconfigswidget.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfigswidget.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <utils/hostosinfo.h>
 
@@ -44,7 +44,7 @@ namespace Internal {
 static Utils::Id configIdForProject(ClangProjectSettings &projectSettings)
 {
     if (projectSettings.useGlobalConfig())
-        return CppTools::codeModelSettings()->clangDiagnosticConfigId();
+        return CppEditor::codeModelSettings()->clangDiagnosticConfigId();
     return projectSettings.warningConfigId();
 }
 
@@ -53,13 +53,13 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 {
     m_ui.setupUi(this);
 
-    using namespace CppTools;
+    using namespace CppEditor;
 
     m_ui.delayedTemplateParseCheckBox->setVisible(Utils::HostOsInfo::isWindowsHost());
 
     // Links
     connect(m_ui.gotoGlobalSettingsLabel, &QLabel::linkActivated, [](const QString &) {
-        Core::ICore::showOptionsDialog(CppTools::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+        Core::ICore::showOptionsDialog(CppEditor::Constants::CPP_CODE_MODEL_SETTINGS_ID);
     });
 
     connect(m_ui.clangDiagnosticConfigsSelectionWidget,
@@ -74,8 +74,8 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
                 // Save global custom configs
                 const ClangDiagnosticConfigs configs = m_ui.clangDiagnosticConfigsSelectionWidget
                                                            ->customConfigs();
-                CppTools::codeModelSettings()->setClangCustomDiagnosticConfigs(configs);
-                CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
+                CppEditor::codeModelSettings()->setClangCustomDiagnosticConfigs(configs);
+                CppEditor::codeModelSettings()->toSettings(Core::ICore::settings());
             });
 
     connect(m_ui.delayedTemplateParseCheckBox, &QCheckBox::toggled,
@@ -88,7 +88,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     connect(&m_projectSettings, &ClangProjectSettings::changed,
             this, &ClangProjectSettingsWidget::syncWidgets);
-    connect(CppTools::codeModelSettings(), &CppTools::CppCodeModelSettings::changed,
+    connect(CppEditor::codeModelSettings(), &CppEditor::CppCodeModelSettings::changed,
             this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
 
     syncWidgets();
@@ -117,7 +117,7 @@ void ClangProjectSettingsWidget::onGlobalCustomChanged(int index)
 
 void ClangProjectSettingsWidget::onAboutToSaveProjectSettings()
 {
-    CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
+    CppEditor::codeModelSettings()->toSettings(Core::ICore::settings());
 }
 
 void ClangProjectSettingsWidget::syncWidgets()
@@ -147,11 +147,11 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
     }
 
     m_ui.clangDiagnosticConfigsSelectionWidget
-        ->refresh(CppTools::diagnosticConfigsModel(),
+        ->refresh(CppEditor::diagnosticConfigsModel(),
                   configIdForProject(m_projectSettings),
-                  [](const CppTools::ClangDiagnosticConfigs &configs,
+                  [](const CppEditor::ClangDiagnosticConfigs &configs,
                      const Utils::Id &configToSelect) {
-                      return new CppTools::ClangDiagnosticConfigsWidget(configs, configToSelect);
+                      return new CppEditor::ClangDiagnosticConfigsWidget(configs, configToSelect);
                   });
 }
 

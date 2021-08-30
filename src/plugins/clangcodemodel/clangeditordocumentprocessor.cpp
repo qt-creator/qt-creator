@@ -37,15 +37,15 @@
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
-#include <cpptools/builtincursorinfo.h>
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsbridge.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppworkingcopy.h>
-#include <cpptools/editordocumenthandle.h>
+#include <cppeditor/builtincursorinfo.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/compileroptionsbuilder.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsbridge.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cppworkingcopy.h>
+#include <cppeditor/editordocumenthandle.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
@@ -88,9 +88,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
 
     // Forwarding the semantic info from the builtin processor enables us to provide all
     // editor (widget) related features that are not yet implemented by the clang plugin.
-    connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
+    connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
             this, &ClangEditorDocumentProcessor::cppDocumentUpdated);
-    connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
+    connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
             this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
 
     m_parserSynchronizer.setCancelOnWait(true);
@@ -105,7 +105,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 }
 
 void ClangEditorDocumentProcessor::runImpl(
-        const CppTools::BaseEditorDocumentParser::UpdateParams &updateParams)
+        const CppEditor::BaseEditorDocumentParser::UpdateParams &updateParams)
 {
     m_updateBackendDocumentTimer.start();
 
@@ -146,12 +146,12 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
         requestAnnotationsFromBackend();
 }
 
-CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
+CppEditor::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
 {
     return m_builtinProcessor.recalculateSemanticInfo();
 }
 
-CppTools::BaseEditorDocumentParser::Ptr ClangEditorDocumentProcessor::parser()
+CppEditor::BaseEditorDocumentParser::Ptr ClangEditorDocumentProcessor::parser()
 {
     return m_parser;
 }
@@ -171,7 +171,7 @@ bool ClangEditorDocumentProcessor::hasProjectPart() const
     return !m_projectPart.isNull();
 }
 
-CppTools::ProjectPart::ConstPtr ClangEditorDocumentProcessor::projectPart() const
+CppEditor::ProjectPart::ConstPtr ClangEditorDocumentProcessor::projectPart() const
 {
     return m_projectPart;
 }
@@ -326,7 +326,7 @@ TextEditor::TextMarks ClangEditorDocumentProcessor::diagnosticTextMarksAt(uint l
 }
 
 void ClangEditorDocumentProcessor::setParserConfig(
-        const CppTools::BaseEditorDocumentParser::Configuration &config)
+        const CppEditor::BaseEditorDocumentParser::Configuration &config)
 {
     m_parser->setConfiguration(config);
     m_builtinProcessor.parser()->setConfiguration(config);
@@ -335,13 +335,13 @@ void ClangEditorDocumentProcessor::setParserConfig(
 static bool isCursorOnIdentifier(const QTextCursor &textCursor)
 {
     QTextDocument *document = textCursor.document();
-    return CppTools::isValidIdentifierChar(document->characterAt(textCursor.position()));
+    return CppEditor::isValidIdentifierChar(document->characterAt(textCursor.position()));
 }
 
-static QFuture<CppTools::CursorInfo> defaultCursorInfoFuture()
+static QFuture<CppEditor::CursorInfo> defaultCursorInfoFuture()
 {
-    QFutureInterface<CppTools::CursorInfo> futureInterface;
-    futureInterface.reportResult(CppTools::CursorInfo());
+    QFutureInterface<CppEditor::CursorInfo> futureInterface;
+    futureInterface.reportResult(CppEditor::CursorInfo());
     futureInterface.reportFinished();
 
     return futureInterface.future();
@@ -357,8 +357,8 @@ static bool convertPosition(const QTextCursor &textCursor, int *line, int *colum
     return converted;
 }
 
-QFuture<CppTools::CursorInfo>
-ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &params)
+QFuture<CppEditor::CursorInfo>
+ClangEditorDocumentProcessor::cursorInfo(const CppEditor::CursorInfoParams &params)
 {
     int line, column;
     convertPosition(params.textCursor, &line, &column);
@@ -367,8 +367,8 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
         return defaultCursorInfoFuture();
 
     column = clangColumn(params.textCursor.document()->findBlockByNumber(line - 1), column);
-    const CppTools::SemanticInfo::LocalUseMap localUses
-        = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
+    const CppEditor::SemanticInfo::LocalUseMap localUses
+        = CppEditor::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
     return m_communicator.requestReferences(simpleFileContainer(),
                                             static_cast<quint32>(line),
@@ -376,7 +376,7 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
                                             localUses);
 }
 
-QFuture<CppTools::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferences(
+QFuture<CppEditor::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferences(
         const QTextCursor &cursor)
 {
     int line, column;
@@ -392,7 +392,7 @@ QFuture<CppTools::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferenc
                                                  static_cast<quint32>(column));
 }
 
-QFuture<CppTools::SymbolInfo>
+QFuture<CppEditor::SymbolInfo>
 ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
 {
     return m_communicator.requestFollowSymbol(simpleFileContainer(),
@@ -400,7 +400,7 @@ ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
                                               static_cast<quint32>(column));
 }
 
-QFuture<CppTools::ToolTipInfo> ClangEditorDocumentProcessor::toolTipInfo(const QByteArray &codecName,
+QFuture<CppEditor::ToolTipInfo> ClangEditorDocumentProcessor::toolTipInfo(const QByteArray &codecName,
                                                                          int line,
                                                                          int column)
 {
@@ -416,12 +416,12 @@ void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
 
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
-    auto *processor = CppTools::CppToolsBridge::baseEditorDocumentProcessor(filePath);
+    auto *processor = CppEditor::CppToolsBridge::baseEditorDocumentProcessor(filePath);
 
     return qobject_cast<ClangEditorDocumentProcessor*>(processor);
 }
 
-static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::ConstPtr projectPart)
+static bool isProjectPartLoadedOrIsFallback(CppEditor::ProjectPart::ConstPtr projectPart)
 {
     return projectPart
         && (projectPart->id().isEmpty() || isProjectPartLoaded(projectPart));
@@ -429,14 +429,14 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::ConstPtr proj
 
 void ClangEditorDocumentProcessor::updateBackendProjectPartAndDocument()
 {
-    const CppTools::ProjectPart::ConstPtr projectPart = m_parser->projectPartInfo().projectPart;
+    const CppEditor::ProjectPart::ConstPtr projectPart = m_parser->projectPartInfo().projectPart;
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
         updateBackendDocument(*projectPart.data());
 
         m_projectPart = projectPart;
         m_isProjectFile = m_parser->projectPartInfo().hints
-                & CppTools::ProjectPartInfo::IsFromProjectMatch;
+                & CppEditor::ProjectPartInfo::IsFromProjectMatch;
     }
 }
 
@@ -448,7 +448,7 @@ void ClangEditorDocumentProcessor::onParserFinished()
     updateBackendProjectPartAndDocument();
 }
 
-void ClangEditorDocumentProcessor::updateBackendDocument(const CppTools::ProjectPart &projectPart)
+void ClangEditorDocumentProcessor::updateBackendDocument(const CppEditor::ProjectPart &projectPart)
 {
     // On registration we send the document content immediately as an unsaved
     // file, because
@@ -464,8 +464,8 @@ void ClangEditorDocumentProcessor::updateBackendDocument(const CppTools::Project
             return;
     }
 
-    ProjectExplorer::Project * const project = CppTools::projectForProjectPart(projectPart);
-    const CppTools::ClangDiagnosticConfig config = warningsConfigForProject(project);
+    ProjectExplorer::Project * const project = CppEditor::projectForProjectPart(projectPart);
+    const CppEditor::ClangDiagnosticConfig config = warningsConfigForProject(project);
     const QStringList clangOptions = createClangOptions(projectPart, filePath(), config,
                                                         optionsForProject(project));
     m_diagnosticConfigId = config.id();
@@ -495,12 +495,12 @@ void ClangEditorDocumentProcessor::requestAnnotationsFromBackend()
     m_communicator.requestAnnotations(fileContainer);
 }
 
-CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator
+CppEditor::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator
 ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic)
 {
     if (firstHeaderErrorDiagnostic.text.isEmpty())
-        return CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator();
+        return CppEditor::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator();
 
     return [firstHeaderErrorDiagnostic]() {
         auto vbox = new QVBoxLayout;

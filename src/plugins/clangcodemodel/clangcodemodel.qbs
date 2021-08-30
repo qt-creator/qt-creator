@@ -5,15 +5,15 @@ QtcPlugin {
     name: "ClangCodeModel"
 
     Depends { name: "Qt"; submodules: ["concurrent", "widgets"] }
+
+    Depends { name: "ClangSupport" }
     Depends { name: "Core" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
+    Depends { name: "LanguageClient" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport"; condition: qtc.testsEnabled }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "ClangSupport" }
-    Depends { name: "LanguageClient" }
-    Depends { name: "CppEditor" }
 
     Depends { name: "libclang"; required: false }
     Depends { name: "clang_defines" }

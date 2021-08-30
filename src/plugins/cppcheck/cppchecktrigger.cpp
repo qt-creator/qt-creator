@@ -27,7 +27,7 @@
 #include "cppchecktool.h"
 #include "cppchecktrigger.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -46,7 +46,7 @@ CppcheckTrigger::CppcheckTrigger(CppcheckTextMarkManager &marks, CppcheckTool &t
 {
     using EditorManager = Core::EditorManager;
     using SessionManager = ProjectExplorer::SessionManager;
-    using CppModelManager = CppTools::CppModelManager;
+    using CppModelManager = CppEditor::CppModelManager;
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, [this](Core::IEditor *editor) {checkEditors({editor});});
@@ -75,8 +75,8 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
     if (!m_currentProject)
         return;
 
-    using CppModelManager = CppTools::CppModelManager;
-    const CppTools::ProjectInfo::ConstPtr info
+    using CppModelManager = CppEditor::CppModelManager;
+    const CppEditor::ProjectInfo::ConstPtr info
             = CppModelManager::instance()->projectInfo(m_currentProject);
     if (!info)
         return;

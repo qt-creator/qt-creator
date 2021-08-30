@@ -46,8 +46,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -79,7 +79,7 @@
 #include <QToolButton>
 
 using namespace Core;
-using namespace CppTools;
+using namespace CppEditor;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -325,22 +325,22 @@ private:
     QMap<Utils::FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
-static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::ConstPtr> &projectParts)
+static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
-    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectParts) {
+    for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {
         QTC_ASSERT(projectPart, continue);
         if (!projectPart->selectedForBuilding)
             continue;
 
-        for (const CppTools::ProjectFile &file : qAsConst(projectPart->files)) {
-            QTC_ASSERT(file.kind != CppTools::ProjectFile::Unclassified, continue);
-            QTC_ASSERT(file.kind != CppTools::ProjectFile::Unsupported, continue);
-            if (file.path == CppTools::CppModelManager::configurationFileName())
+        for (const CppEditor::ProjectFile &file : qAsConst(projectPart->files)) {
+            QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unclassified, continue);
+            QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unsupported, continue);
+            if (file.path == CppEditor::CppModelManager::configurationFileName())
                 continue;
 
-            if (file.active && CppTools::ProjectFile::isSource(file.kind)) {
+            if (file.active && CppEditor::ProjectFile::isSource(file.kind)) {
                 fileInfos.emplace_back(Utils::FilePath::fromString(file.path),
                                        file.kind,
                                        projectPart);
@@ -638,7 +638,7 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
 
 void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                           const RunSettings &runSettings,
-                          const CppTools::ClangDiagnosticConfig &diagnosticConfig)
+                          const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
 {
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
@@ -736,7 +736,7 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return {};
     }
 
-    const auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+    const auto projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo, return FileInfos());
 
     const FileInfos allFileInfos = sortedFileInfos(projectInfo->projectParts());
@@ -1116,7 +1116,7 @@ void ClangTool::setState(ClangTool::State state)
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
-        using CppTools::ProjectFile;
+        using CppEditor::ProjectFile;
         return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath.toString()));
     });
 }

@@ -41,12 +41,12 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojectfile.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/compileroptionsbuilder.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppprojectfile.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -67,7 +67,7 @@
 #include <QAction>
 #include <QLoggingCategory>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -128,7 +128,7 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
                                           clangIncludeDir);
     file = fileInfo.file.toString();
     arguments = extraClangToolsPrependOptions();
-    arguments.append(optionsBuilder.build(fileInfo.kind, CppTools::getPchUsage()));
+    arguments.append(optionsBuilder.build(fileInfo.kind, CppEditor::getPchUsage()));
     arguments.append(extraClangToolsAppendOptions());
 }
 
@@ -160,7 +160,7 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 
 ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                        const RunSettings &runSettings,
-                                       const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                                       const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                                        const FileInfos &fileInfos,
                                        bool buildBeforeAnalysis)
     : RunWorker(runControl)
@@ -179,7 +179,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
     }
 
     Target *target = runControl->target();
-    m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(target->project());
+    m_projectInfoBeforeBuild = CppEditor::CppModelManager::instance()->projectInfo(target->project());
 
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
@@ -216,7 +216,7 @@ void ClangToolRunWorker::start()
 
     const QString &toolName = tool()->name();
     Project *project = runControl()->project();
-    m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+    m_projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
     if (!m_projectInfo) {
         reportFailure(tr("No code model data available for project."));
         return;

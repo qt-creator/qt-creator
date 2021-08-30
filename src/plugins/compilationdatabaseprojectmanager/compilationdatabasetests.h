@@ -28,7 +28,7 @@
 #include <QObject>
 #include <memory>
 
-namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
+namespace CppEditor { namespace Tests { class TemporaryCopiedDir; } }
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
@@ -58,7 +58,7 @@ private slots:
 private:
     void addTestRow(const QByteArray &relativeFilePath);
 
-    std::unique_ptr<CppTools::Tests::TemporaryCopiedDir> m_tmpDir;
+    std::unique_ptr<CppEditor::Tests::TemporaryCopiedDir> m_tmpDir;
 };
 
 } // namespace Internal

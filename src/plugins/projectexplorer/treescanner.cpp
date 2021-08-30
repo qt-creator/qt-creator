@@ -32,7 +32,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>

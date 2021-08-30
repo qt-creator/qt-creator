@@ -11,4 +11,4 @@ QTC_PLUGIN_DEPENDS += \
     diffeditor
 QTC_PLUGIN_RECOMMENDS += \
     cpaster \
-    cpptools
+    cppeditor

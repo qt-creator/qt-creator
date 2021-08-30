@@ -25,7 +25,7 @@
 
 #include "clanghighlightingresultreporter.h"
 
-#include <cpptools/semantichighlighter.h>
+#include <cppeditor/semantichighlighter.h>
 #include <texteditor/textstyles.h>
 #include <utils/qtcassert.h>
 
@@ -149,15 +149,15 @@ TextEditor::HighlightingResult toHighlightingResult(
     TextEditor::HighlightingResult result(tokenInfo.line, tokenInfo.column, tokenInfo.length,
                                           textStyles);
     if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketOpen))
-        result.kind = CppTools::SemanticHighlighter::AngleBracketOpen;
+        result.kind = CppEditor::SemanticHighlighter::AngleBracketOpen;
     else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketClose))
-        result.kind = CppTools::SemanticHighlighter::AngleBracketClose;
+        result.kind = CppEditor::SemanticHighlighter::AngleBracketClose;
     else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::DoubleAngleBracketClose))
-        result.kind = CppTools::SemanticHighlighter::DoubleAngleBracketClose;
+        result.kind = CppEditor::SemanticHighlighter::DoubleAngleBracketClose;
     else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::TernaryIf))
-        result.kind = CppTools::SemanticHighlighter::TernaryIf;
+        result.kind = CppEditor::SemanticHighlighter::TernaryIf;
     else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::TernaryElse))
-        result.kind = CppTools::SemanticHighlighter::TernaryElse;
+        result.kind = CppEditor::SemanticHighlighter::TernaryElse;
     return result;
 }
 

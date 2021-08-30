@@ -32,7 +32,7 @@
 #include "testprojectsettings.h"
 #include "testsettings.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -111,16 +111,16 @@ void TestTreeModel::setupParsingConnections()
         }
     });
 
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    connect(cppMM, &CppTools::CppModelManager::documentUpdated,
+    CppEditor::CppModelManager *cppMM = CppEditor::CppModelManager::instance();
+    connect(cppMM, &CppEditor::CppModelManager::documentUpdated,
             m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
-    connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
+    connect(cppMM, &CppEditor::CppModelManager::aboutToRemoveFiles,
             this, [this](const QStringList &files) {
                 const Utils::FilePaths filesToRemove
                         = Utils::transform(files, &Utils::FilePath::fromString);
                 removeFiles(filesToRemove);
             }, Qt::QueuedConnection);
-    connect(cppMM, &CppTools::CppModelManager::projectPartsUpdated,
+    connect(cppMM, &CppEditor::CppModelManager::projectPartsUpdated,
             m_parser, &TestCodeParser::onProjectPartsUpdated);
 
     QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();

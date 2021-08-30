@@ -30,9 +30,9 @@
 
 #include <coreplugin/icore.h>
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/compileroptionsbuilder.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -43,7 +43,7 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
-using namespace CppTools;
+using namespace CppEditor;
 
 namespace ClangTools {
 namespace Internal {
@@ -77,7 +77,7 @@ static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
 {
     QStringList arguments;
     arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
-              << (isClMode(baseOptions) ? CppTools::clangArgsForCl(diagnosticConfig.clangOptions())
+              << (isClMode(baseOptions) ? CppEditor::clangArgsForCl(diagnosticConfig.clangOptions())
                                         : diagnosticConfig.clangOptions())
               << baseOptions;
 

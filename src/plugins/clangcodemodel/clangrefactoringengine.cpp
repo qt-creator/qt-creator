@@ -30,7 +30,7 @@
 #include "clangmodelmanagersupport.h"
 #include "sourcelocationscontainer.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <languageclient/languageclientsymbolsupport.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
@@ -38,8 +38,8 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                           const CppTools::ProjectPart *,
+void RefactoringEngine::startLocalRenaming(const CppEditor::CursorInEditor &data,
+                                           const CppEditor::ProjectPart *,
                                            RenameCallback &&renameSymbolsCallback)
 {
     ClangdClient * const client
@@ -62,7 +62,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     if (!processor)
         return defaultCallback();
 
-    QFuture<CppTools::CursorInfo> cursorFuture = processor->requestLocalReferences(data.cursor());
+    QFuture<CppEditor::CursorInfo> cursorFuture = processor->requestLocalReferences(data.cursor());
     if (cursorFuture.isCanceled())
         return defaultCallback();
 
@@ -73,7 +73,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     QObject::connect(m_watcher.get(), &FutureCursorWatcher::finished, [=]() {
         if (m_watcher->isCanceled())
             return defaultCallback();
-        const CppTools::CursorInfo info = m_watcher->result();
+        const CppEditor::CursorInfo info = m_watcher->result();
         if (info.useRanges.empty())
             return defaultCallback();
 
@@ -93,14 +93,14 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     m_watcher->setFuture(cursorFuture);
 }
 
-void RefactoringEngine::globalRename(const CppTools::CursorInEditor &cursor,
-                                     CppTools::UsagesCallback &&callback,
+void RefactoringEngine::globalRename(const CppEditor::CursorInEditor &cursor,
+                                     CppEditor::UsagesCallback &&callback,
                                      const QString &replacement)
 {
     ClangdClient * const client
             = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
     if (!client || !client->isFullyIndexed()) {
-        CppTools::CppModelManager::builtinRefactoringEngine()
+        CppEditor::CppModelManager::builtinRefactoringEngine()
                 ->globalRename(cursor, std::move(callback), replacement);
         return;
     }
@@ -109,13 +109,13 @@ void RefactoringEngine::globalRename(const CppTools::CursorInEditor &cursor,
     client->findUsages(cursor.textDocument(), cursor.cursor(), replacement);
 }
 
-void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
-                                   CppTools::UsagesCallback &&callback) const
+void RefactoringEngine::findUsages(const CppEditor::CursorInEditor &cursor,
+                                   CppEditor::UsagesCallback &&callback) const
 {
     ClangdClient * const client
             = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
     if (!client || !client->isFullyIndexed()) {
-        CppTools::CppModelManager::builtinRefactoringEngine()
+        CppEditor::CppModelManager::builtinRefactoringEngine()
                 ->findUsages(cursor, std::move(callback));
         return;
     }
@@ -125,17 +125,17 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
 }
 
 void RefactoringEngine::globalFollowSymbol(
-        const CppTools::CursorInEditor &cursor,
+        const CppEditor::CursorInEditor &cursor,
         Utils::ProcessLinkCallback &&callback,
         const CPlusPlus::Snapshot &snapshot,
         const CPlusPlus::Document::Ptr &doc,
-        CppTools::SymbolFinder *symbolFinder,
+        CppEditor::SymbolFinder *symbolFinder,
         bool inNextSplit) const
 {
     ClangdClient * const client
             = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
     if (!client || !client->isFullyIndexed()) {
-        CppTools::CppModelManager::builtinRefactoringEngine()
+        CppEditor::CppModelManager::builtinRefactoringEngine()
                 ->globalFollowSymbol(cursor, std::move(callback), snapshot, doc, symbolFinder,
                                      inNextSplit);
         return;

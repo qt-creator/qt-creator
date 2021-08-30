@@ -28,7 +28,7 @@
 #include "testtreeitem.h"
 
 #include <cplusplus/CppDocument.h>
-#include <cpptools/cppworkingcopy.h>
+#include <cppeditor/cppworkingcopy.h>
 #include <qmljs/qmljsdocument.h>
 
 #include <QFutureInterface>
@@ -98,7 +98,7 @@ public:
 
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;
-    CppTools::WorkingCopy m_workingCopy;
+    CppEditor::WorkingCopy m_workingCopy;
 };
 
 } // namespace Autotest

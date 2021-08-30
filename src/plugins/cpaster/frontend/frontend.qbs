@@ -8,7 +8,7 @@ QtcTool {
         submodules: ["gui", "network"]
     }
     Depends { name: "Core" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
 
     Group {
         name: "Frontend Sources"

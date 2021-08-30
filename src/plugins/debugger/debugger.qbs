@@ -14,7 +14,7 @@ Project {
         Depends { name: "Utils" }
 
         Depends { name: "Core" }
-        Depends { name: "CppTools" }
+        Depends { name: "CppEditor" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "QtSupport" }
         Depends { name: "TextEditor" }

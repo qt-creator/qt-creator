@@ -1,6 +1,6 @@
 add_qtc_plugin(Todo
   DEPENDS QmlJS
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer
   SOURCES
     constants.h
     cpptodoitemsscanner.cpp cpptodoitemsscanner.h

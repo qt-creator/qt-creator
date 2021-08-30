@@ -28,8 +28,8 @@
 #include "compilationdatabaseutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/projectinfo.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -39,7 +39,7 @@
 
 #include <QtTest>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 
 namespace CompilationDatabaseProjectManager {
@@ -63,7 +63,7 @@ void CompilationDatabaseTests::initTestCase()
     if (!toolchain)
         QSKIP("This test requires that there is at least one C++ toolchain present.");
 
-    m_tmpDir = std::make_unique<CppTools::Tests::TemporaryCopiedDir>(":/database_samples");
+    m_tmpDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(":/database_samples");
     QVERIFY(m_tmpDir->isValid());
 }
 
@@ -76,14 +76,14 @@ void CompilationDatabaseTests::testProject()
 {
     QFETCH(QString, projectFilePath);
 
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo::ConstPtr projectInfo = projectManager.open(projectFilePath, true);
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    const CppEditor::ProjectInfo::ConstPtr projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo);
 
-    QVector<CppTools::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
+    QVector<CppEditor::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
     QVERIFY(!projectParts.isEmpty());
 
-    const CppTools::ProjectPart &projectPart = *projectParts.first();
+    const CppEditor::ProjectPart &projectPart = *projectParts.first();
     QVERIFY(!projectPart.headerPaths.isEmpty());
     QVERIFY(!projectPart.projectMacros.isEmpty());
     QVERIFY(!projectPart.toolChainMacros.isEmpty());
@@ -116,7 +116,7 @@ public:
 
     HeaderPaths headerPaths;
     Macros macros;
-    CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::Unclassified;
+    CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::Unclassified;
     QStringList flags;
     QString fileName;
     QString workingDir;
@@ -178,7 +178,7 @@ void CompilationDatabaseTests::testFilterArguments()
     QCOMPARE(testData.macros, (Macros{{"UNICODE", "1"},
                                       {"RELATIVE_PLUGIN_PATH", "\"../lib/qtcreator/plugins\""},
                                       {"QT_CREATOR", "1"}}));
-    QCOMPARE(testData.fileKind, CppTools::ProjectFile::Kind::CXXSource);
+    QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CXXSource);
     QCOMPARE(testData.sysRoot, HostOsInfo::isWindowsHost() ? QString("C:\\sysroot\\embedded")
                                                            : QString("/opt/sysroot/embedded"));
 }
@@ -245,7 +245,7 @@ void CompilationDatabaseTests::testFilterCommand()
              toUserHeaderPaths(QStringList{"C:/build-qt_llvm-msvc2017_64bit-Debug/tools\\clang\\lib\\Sema"}));
     QCOMPARE(testData.macros, (Macros{{"UNICODE", "1"}, {"_HAS_EXCEPTIONS", "0"}, {"WIN32", "1"},
                                       {"_WINDOWS", "1"}}));
-    QCOMPARE(testData.fileKind, CppTools::ProjectFile::Kind::CXXSource);
+    QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CXXSource);
 }
 
 void CompilationDatabaseTests::testFileKindDifferentFromExtension()
@@ -255,7 +255,7 @@ void CompilationDatabaseTests::testFileKindDifferentFromExtension()
     testData.flags = QStringList{"-xc++"};
     testData.getFilteredFlags();
 
-    QCOMPARE(testData.fileKind, CppTools::ProjectFile::Kind::CXXSource);
+    QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CXXSource);
 }
 
 void CompilationDatabaseTests::testFileKindDifferentFromExtension2()
@@ -265,7 +265,7 @@ void CompilationDatabaseTests::testFileKindDifferentFromExtension2()
     testData.flags = QStringList{"-x", "c"};
     testData.getFilteredFlags();
 
-    QCOMPARE(testData.fileKind, CppTools::ProjectFile::Kind::CSource);
+    QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CSource);
 }
 
 void CompilationDatabaseTests::testSkipOutputFiles()

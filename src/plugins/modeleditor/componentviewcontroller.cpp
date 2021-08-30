@@ -37,7 +37,7 @@
 #include "qmt/model/mpackage.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/session.h>
@@ -165,7 +165,7 @@ void UpdateIncludeDependenciesVisitor::updateFilePaths()
 
 void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *component)
 {
-    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
     QStringList filePaths = findFilePathOfComponent(component);
@@ -329,25 +329,25 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
         QString componentName = qmt::NameController::convertFileNameToElementName(file);
         qmt::MComponent *component = nullptr;
         bool isSource = false;
-        CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(file);
+        CppEditor::ProjectFile::Kind kind = CppEditor::ProjectFile::classify(file);
         switch (kind) {
-        case CppTools::ProjectFile::CSource:
-        case CppTools::ProjectFile::CXXSource:
-        case CppTools::ProjectFile::ObjCSource:
-        case CppTools::ProjectFile::ObjCXXSource:
-        case CppTools::ProjectFile::CudaSource:
-        case CppTools::ProjectFile::OpenCLSource:
+        case CppEditor::ProjectFile::CSource:
+        case CppEditor::ProjectFile::CXXSource:
+        case CppEditor::ProjectFile::ObjCSource:
+        case CppEditor::ProjectFile::ObjCXXSource:
+        case CppEditor::ProjectFile::CudaSource:
+        case CppEditor::ProjectFile::OpenCLSource:
             isSource = !scanHeaders;
             break;
-        case CppTools::ProjectFile::AmbiguousHeader:
-        case CppTools::ProjectFile::CHeader:
-        case CppTools::ProjectFile::CXXHeader:
-        case CppTools::ProjectFile::ObjCHeader:
-        case CppTools::ProjectFile::ObjCXXHeader:
+        case CppEditor::ProjectFile::AmbiguousHeader:
+        case CppEditor::ProjectFile::CHeader:
+        case CppEditor::ProjectFile::CXXHeader:
+        case CppEditor::ProjectFile::ObjCHeader:
+        case CppEditor::ProjectFile::ObjCXXHeader:
             isSource = scanHeaders && !d->pxnodeUtilities->isProxyHeader(file);
             break;
-        case CppTools::ProjectFile::Unclassified:
-        case CppTools::ProjectFile::Unsupported:
+        case CppEditor::ProjectFile::Unclassified:
+        case CppEditor::ProjectFile::Unsupported:
             isSource = false;
             break;
         }

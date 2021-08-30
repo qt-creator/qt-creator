@@ -27,7 +27,7 @@
 
 #include "executableinfo.h"
 
-#include <cpptools/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfig.h>
 
 #include <utils/id.h>
 
@@ -83,8 +83,8 @@ public:
     Utils::FilePath clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
     void setClazyStandaloneExecutable(const Utils::FilePath &path);
 
-    CppTools::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
-    void setDiagnosticConfigs(const CppTools::ClangDiagnosticConfigs &configs)
+    CppEditor::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
+    void setDiagnosticConfigs(const CppEditor::ClangDiagnosticConfigs &configs)
     { m_diagnosticConfigs = configs; }
 
     RunSettings runSettings() const { return m_runSettings; }
@@ -105,7 +105,7 @@ private:
     Utils::FilePath m_clazyStandaloneExecutable;
 
     // Diagnostic Configs
-    CppTools::ClangDiagnosticConfigs m_diagnosticConfigs;
+    CppEditor::ClangDiagnosticConfigs m_diagnosticConfigs;
 
     // Run settings
     RunSettings m_runSettings;

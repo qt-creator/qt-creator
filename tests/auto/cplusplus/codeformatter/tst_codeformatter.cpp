@@ -29,8 +29,8 @@
 #include <QTextDocument>
 #include <QTextBlock>
 
-#include <cpptools/cppcodeformatter.h>
-using namespace CppTools;
+#include <cppeditor/cppcodeformatter.h>
+using namespace CppEditor;
 
 class tst_CodeFormatter: public QObject
 {

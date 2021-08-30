@@ -176,11 +176,11 @@ QVariant TokenTreeItem::data(int column, int role) const
         return CodeModelIcon::iconForType(iconTypeForToken(token));
     }
 
-    case CppTools::AbstractOverviewModel::FileNameRole: {
+    case CppEditor::AbstractOverviewModel::FileNameRole: {
         return token.extraInfo.cursorRange.start.filePath.toString();
     }
 
-    case CppTools::AbstractOverviewModel::LineNumberRole: {
+    case CppEditor::AbstractOverviewModel::LineNumberRole: {
         return token.line;
     }
 

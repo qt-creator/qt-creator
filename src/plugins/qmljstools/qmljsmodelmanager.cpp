@@ -34,7 +34,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -207,10 +207,10 @@ ModelManager::~ModelManager() = default;
 
 void ModelManager::delayedInitialization()
 {
-    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     // It's important to have a direct connection here so we can prevent
     // the source and AST of the cpp document being cleaned away.
-    connect(cppModelManager, &CppTools::CppModelManager::documentUpdated,
+    connect(cppModelManager, &CppEditor::CppModelManager::documentUpdated,
             this, &ModelManagerInterface::maybeQueueCppQmlTypeUpdate, Qt::DirectConnection);
 
     connect(SessionManager::instance(), &SessionManager::projectRemoved,

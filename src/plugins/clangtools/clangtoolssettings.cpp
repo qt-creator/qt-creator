@@ -29,15 +29,15 @@
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/clangdiagnosticconfig.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <utils/algorithm.h>
 
 #include <QThread>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace Utils;
 
 namespace ClangTools {

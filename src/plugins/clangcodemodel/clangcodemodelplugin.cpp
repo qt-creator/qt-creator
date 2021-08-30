@@ -40,7 +40,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectpanelfactory.h>
@@ -70,7 +70,7 @@ static void addProjectPanelWidget()
 
 void ClangCodeModelPlugin::generateCompilationDB()
 {
-    using namespace CppTools;
+    using namespace CppEditor;
 
     ProjectExplorer::Target *target = ProjectExplorer::SessionManager::startupTarget();
     if (!target)
@@ -91,7 +91,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
 
 static bool isDBGenerationEnabled(ProjectExplorer::Project *project)
 {
-    using namespace CppTools;
+    using namespace CppEditor;
     if (!project)
         return false;
     const ProjectInfo::ConstPtr projectInfo = CppModelManager::instance()->projectInfo(project);
@@ -116,7 +116,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
             this,
             &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
 
-    CppTools::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
+    CppEditor::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
 
     addProjectPanelWidget();
 
@@ -167,7 +167,7 @@ void ClangCodeModelPlugin::createCompilationDBButton()
         m_generateCompilationDBAction->setEnabled(false);
         generateCompilationDB();
     });
-    connect(CppTools::CppModelManager::instance(), &CppTools::CppModelManager::projectPartsUpdated,
+    connect(CppEditor::CppModelManager::instance(), &CppEditor::CppModelManager::projectPartsUpdated,
             this, [this](ProjectExplorer::Project *project) {
         if (project != ProjectExplorer::SessionManager::startupProject())
             return;

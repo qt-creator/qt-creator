@@ -26,7 +26,7 @@
 #include "uvproject.h"
 #include "uvscserverprovider.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
@@ -38,7 +38,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -90,7 +90,7 @@ static void extractAllFiles(const DebuggerRunTool *runTool, QStringList &include
                             FilePaths &headers, FilePaths &sources, FilePaths &assemblers)
 {
     const auto project = runTool->runControl()->project();
-    const CppTools::ProjectInfo::ConstPtr info = CppModelManager::instance()->projectInfo(project);
+    const CppEditor::ProjectInfo::ConstPtr info = CppModelManager::instance()->projectInfo(project);
     if (!info)
         return;
     const QVector<ProjectPart::ConstPtr> parts = info->projectParts();

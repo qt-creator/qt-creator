@@ -29,7 +29,7 @@
 
 #include <projectexplorer/buildsystem.h>
 
-namespace CppTools { class CppProjectUpdater; }
+namespace CppEditor { class CppProjectUpdater; }
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -64,7 +64,7 @@ private:
     /// Responsible for parsing the makefiles asynchronously in a thread
     MakefileParserThread *m_makefileParserThread = nullptr;
 
-    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 };
 
 } // namespace Internal

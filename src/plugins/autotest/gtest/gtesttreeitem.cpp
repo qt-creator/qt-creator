@@ -30,7 +30,7 @@
 #include "gtestparser.h"
 #include "../testframeworkmanager.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
@@ -522,18 +522,18 @@ QString GTestTreeItem::nameSuffix() const
 QSet<QString> internalTargets(const TestTreeItem &item)
 {
     QSet<QString> result;
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
     if (!projectInfo)
         return {};
     const Utils::FilePath filePath = item.filePath();
     const QString file = filePath.toString();
-    const QVector<CppTools::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
+    const QVector<CppEditor::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
     if (projectParts.isEmpty())
         return cppMM->dependingInternalTargets(item.filePath());
-    for (const CppTools::ProjectPart::ConstPtr &projectPart : projectParts) {
+    for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {
         if (Utils::FilePath::fromString(projectPart->projectFile) == item.proFile()
-                && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
+                && Utils::anyOf(projectPart->files, [&file] (const CppEditor::ProjectFile &pf) {
                                 return pf.path == file;
         })) {
             result.insert(projectPart->buildSystemTarget);

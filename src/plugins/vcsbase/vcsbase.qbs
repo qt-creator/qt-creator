@@ -15,7 +15,7 @@ QtcPlugin {
 
     pluginRecommends: [
         "CodePaster",
-        "CppTools"
+        "CppEditor"
     ]
 
     files: [

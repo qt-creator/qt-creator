@@ -68,8 +68,8 @@
 #include <utils/winutils.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppworkingcopy.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppworkingcopy.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -216,7 +216,7 @@ CdbEngine::CdbEngine() :
             this, &CdbEngine::updateLocals);
 
     if (s->useCodeModel.value())
-        m_codeModelSnapshot = CppTools::CppModelManager::instance()->snapshot();
+        m_codeModelSnapshot = CppEditor::CppModelManager::instance()->snapshot();
 }
 
 void CdbEngine::init()
@@ -2433,18 +2433,18 @@ class BreakpointCorrectionContext
 {
 public:
     explicit BreakpointCorrectionContext(const CPlusPlus::Snapshot &s,
-                                         const CppTools::WorkingCopy &workingCopy) :
+                                         const CppEditor::WorkingCopy &workingCopy) :
         m_snapshot(s), m_workingCopy(workingCopy) {}
 
     unsigned fixLineNumber(const Utils::FilePath &filePath, unsigned lineNumber) const;
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
-    CppTools::WorkingCopy m_workingCopy;
+    CppEditor::WorkingCopy m_workingCopy;
 };
 
 static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePath,
-                                                  const CppTools::WorkingCopy &workingCopy,
+                                                  const CppEditor::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
     QByteArray src;
@@ -2485,7 +2485,7 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     BreakpointParameters response = parameters;
     const QString responseId = breakPointCdbId(bp);
     QScopedPointer<BreakpointCorrectionContext> lineCorrection(
-                new BreakpointCorrectionContext(m_codeModelSnapshot, CppTools::CppModelManager::instance()->workingCopy()));
+                new BreakpointCorrectionContext(m_codeModelSnapshot, CppEditor::CppModelManager::instance()->workingCopy()));
     if (!m_autoBreakPointCorrection
             && parameters.type == BreakpointByFileAndLine
             && debuggerSettings()->cdbBreakPointCorrection.value()) {

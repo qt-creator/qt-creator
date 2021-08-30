@@ -25,33 +25,33 @@
 
 #pragma once
 
-#include <cpptools/followsymbolinterface.h>
-#include <cpptools/cppsymbolinfo.h>
+#include <cppeditor/followsymbolinterface.h>
+#include <cppeditor/cppsymbolinfo.h>
 
 #include <QFutureWatcher>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangFollowSymbol : public CppTools::FollowSymbolInterface
+class ClangFollowSymbol : public CppEditor::FollowSymbolInterface
 {
 public:
-    void findLink(const CppTools::CursorInEditor &data,
+    void findLink(const CppEditor::CursorInEditor &data,
                   ::Utils::ProcessLinkCallback &&processLinkCallback,
                   bool resolveTarget,
                   const CPlusPlus::Snapshot &snapshot,
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                  CppTools::SymbolFinder *symbolFinder,
+                  CppEditor::SymbolFinder *symbolFinder,
                   bool inNextSplit) override;
 
-    void switchDeclDef(const CppTools::CursorInEditor &data,
+    void switchDeclDef(const CppEditor::CursorInEditor &data,
                        Utils::ProcessLinkCallback &&processLinkCallback,
                        const CPlusPlus::Snapshot &snapshot,
                        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                       CppTools::SymbolFinder *symbolFinder) override;
+                       CppEditor::SymbolFinder *symbolFinder) override;
 
 private:
-    using FutureSymbolWatcher = QFutureWatcher<CppTools::SymbolInfo>;
+    using FutureSymbolWatcher = QFutureWatcher<CppEditor::SymbolInfo>;
     std::unique_ptr<FutureSymbolWatcher> m_watcher;
 
 };

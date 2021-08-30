@@ -39,15 +39,15 @@
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppdoxygen.h>
-#include <cpptools/cppeditorwidgetinterface.h>
-#include <cpptools/cppfindreferences.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppvirtualfunctionassistprovider.h>
-#include <cpptools/cppvirtualfunctionproposalitem.h>
-#include <cpptools/semantichighlighter.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppdoxygen.h>
+#include <cppeditor/cppeditorwidgetinterface.h>
+#include <cppeditor/cppfindreferences.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cppvirtualfunctionassistprovider.h>
+#include <cppeditor/cppvirtualfunctionproposalitem.h>
+#include <cppeditor/semantichighlighter.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
 #include <projectexplorer/project.h>
@@ -444,7 +444,7 @@ public:
 static BaseClientInterface *clientInterface(Project *project, const Utils::FilePath &jsonDbDir)
 {
     QString indexingOption = "--background-index";
-    const CppTools::ClangdSettings settings(CppTools::ClangdProjectSettings(project).settings());
+    const CppEditor::ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
     if (!settings.indexingEnabled())
         indexingOption += "=0";
     Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, "--limit-results=0"}};
@@ -479,7 +479,7 @@ public:
     Utils::optional<ReplacementData> replacementData;
     quint64 key;
     bool canceled = false;
-    bool categorize = CppTools::codeModelSettings()->categorizeFindReferences();
+    bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 };
 
 using SymbolData = QPair<QString, Utils::Link>;
@@ -511,7 +511,7 @@ private:
 
     TextEditor::IAssistProposal *immediateProposalImpl() const;
     TextEditor::IAssistProposal *createProposal(bool final) const;
-    CppTools::VirtualFunctionProposalItem *createEntry(const QString &name,
+    CppEditor::VirtualFunctionProposalItem *createEntry(const QString &name,
                                                        const Utils::Link &link) const;
 
     ClangdClient::Private *m_data = nullptr;
@@ -532,7 +532,7 @@ private:
 class ClangdClient::FollowSymbolData {
 public:
     FollowSymbolData(ClangdClient *q, quint64 id, const QTextCursor &cursor,
-                     CppTools::CppEditorWidgetInterface *editorWidget,
+                     CppEditor::CppEditorWidgetInterface *editorWidget,
                      const DocumentUri &uri, Utils::ProcessLinkCallback &&callback,
                      bool openInSplit)
         : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
@@ -565,7 +565,7 @@ public:
     {
         return Utils::anyOf(EditorManager::visibleEditors(), [this](IEditor *editor) {
             const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-            return textEditor && dynamic_cast<CppTools::CppEditorWidgetInterface *>(
+            return textEditor && dynamic_cast<CppEditor::CppEditorWidgetInterface *>(
                     textEditor->editorWidget()) == editorWidget;
         });
     }
@@ -573,7 +573,7 @@ public:
     ClangdClient * const q;
     const quint64 id;
     const QTextCursor cursor;
-    CppTools::CppEditorWidgetInterface * const editorWidget;
+    CppEditor::CppEditorWidgetInterface * const editorWidget;
     const DocumentUri uri;
     const Utils::ProcessLinkCallback callback;
     VirtualFunctionAssistProvider virtualFuncAssistProvider;
@@ -596,7 +596,7 @@ public:
 class SwitchDeclDefData {
 public:
     SwitchDeclDefData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
-                      CppTools::CppEditorWidgetInterface *editorWidget,
+                      CppEditor::CppEditorWidgetInterface *editorWidget,
                       Utils::ProcessLinkCallback &&callback)
         : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(std::move(callback)) {}
@@ -639,7 +639,7 @@ public:
     const QPointer<TextEditor::TextDocument> document;
     const DocumentUri uri;
     const QTextCursor cursor;
-    CppTools::CppEditorWidgetInterface * const editorWidget;
+    CppEditor::CppEditorWidgetInterface * const editorWidget;
     Utils::ProcessLinkCallback callback;
     Utils::optional<DocumentSymbolsResult> docSymbols;
     Utils::optional<AstNode> ast;
@@ -648,7 +648,7 @@ public:
 class LocalRefsData {
 public:
     LocalRefsData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
-                      CppTools::RefactoringEngineInterface::RenameCallback &&callback)
+                      CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
         : id(id), document(doc), cursor(cursor), callback(std::move(callback)),
           uri(DocumentUri::fromFilePath(doc->filePath())), revision(doc->document()->revision())
     {}
@@ -662,7 +662,7 @@ public:
     const quint64 id;
     const QPointer<TextEditor::TextDocument> document;
     const QTextCursor cursor;
-    CppTools::RefactoringEngineInterface::RenameCallback callback;
+    CppEditor::RefactoringEngineInterface::RenameCallback callback;
     const DocumentUri uri;
     const int revision;
 };
@@ -696,9 +696,9 @@ private:
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *) override
     {
         QList<TextEditor::AssistProposalItemInterface *> completions;
-        for (int i = 1; i < CppTools::T_DOXY_LAST_TAG; ++i) {
+        for (int i = 1; i < CppEditor::T_DOXY_LAST_TAG; ++i) {
             const auto item = new ClangPreprocessorAssistProposalItem;
-            item->setText(QLatin1String(CppTools::doxygenTagSpell(i)));
+            item->setText(QLatin1String(CppEditor::doxygenTagSpell(i)));
             item->setIcon(CPlusPlus::Icons::keywordIcon());
             item->setCompletionOperator(m_completionOperator);
             completions.append(item);
@@ -745,7 +745,7 @@ class ClangdClient::Private
 {
 public:
     Private(ClangdClient *q, Project *project)
-        : q(q), settings(CppTools::ClangdProjectSettings(project).settings()) {}
+        : q(q), settings(CppEditor::ClangdProjectSettings(project).settings()) {}
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                     const QString &searchTerm, const Utils::optional<QString> &replacement);
@@ -781,14 +781,14 @@ public:
                              QChar typedChar);
 
     ClangdClient * const q;
-    const CppTools::ClangdSettings::Data settings;
+    const CppEditor::ClangdSettings::Data settings;
     DoxygenAssistProvider doxygenAssistProvider;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
-    std::unordered_map<TextEditor::TextDocument *, CppTools::SemanticHighlighter> highlighters;
+    std::unordered_map<TextEditor::TextDocument *, CppEditor::SemanticHighlighter> highlighters;
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
@@ -816,7 +816,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     if (!project) {
         QJsonObject initOptions;
         const QStringList clangOptions = createClangOptions(
-                    *CppTools::CppModelManager::instance()->fallbackProjectPart(), {},
+                    *CppEditor::CppModelManager::instance()->fallbackProjectPart(), {},
                     warningsConfigForProject(nullptr), optionsForProject(nullptr));
         initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
         setInitializationOptions(initOptions);
@@ -901,7 +901,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
                 docText = Utils::get<MarkupContent>(*doc).content();
             return docText.contains("Annotation: qt_signal");
         };
-        if (pos != -1 && Utils::anyOf(items, criterion) && CppTools::CppModelManager::instance()
+        if (pos != -1 && Utils::anyOf(items, criterion) && CppEditor::CppModelManager::instance()
                 ->positionRequiresSignal(filePath.toString(), content.toUtf8(), pos)) {
             return Utils::filtered(items, criterion);
         }
@@ -1045,7 +1045,7 @@ QVersionNumber ClangdClient::versionNumber() const
     return d->versionNumber.value();
 }
 
-CppTools::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }
+CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }
 
 void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
@@ -1070,7 +1070,7 @@ void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
     if (refData.categorize)
-        refData.search->setFilter(new CppTools::CppSearchResultFilter);
+        refData.search->setFilter(new CppEditor::CppSearchResultFilter);
     if (refData.replacementData) {
         refData.search->setTextToReplace(refData.replacementData->newSymbolName);
         const auto renameFilesCheckBox = new QCheckBox;
@@ -1274,7 +1274,7 @@ void ClangdClient::Private::handleRenameRequest(const SearchResult *search,
             fileNodes << node;
     }
     if (!fileNodes.isEmpty())
-        CppTools::renameFilesForSymbol(replacementData.oldSymbolName, newSymbolName, fileNodes);
+        CppEditor::renameFilesForSymbol(replacementData.oldSymbolName, newSymbolName, fileNodes);
 }
 
 void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
@@ -1290,7 +1290,7 @@ void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
                 : Usage::Type::Other;
         SearchResultItem item;
         item.setUserData(int(usageType));
-        item.setStyle(CppTools::colorStyleForUsageType(usageType));
+        item.setStyle(CppEditor::colorStyleForUsageType(usageType));
         item.setFilePath(file);
         item.setMainRange(SymbolSupport::convertRange(range));
         item.setUseTextEditorFont(true);
@@ -1345,7 +1345,7 @@ void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool can
 void ClangdClient::followSymbol(
         TextEditor::TextDocument *document,
         const QTextCursor &cursor,
-        CppTools::CppEditorWidgetInterface *editorWidget,
+        CppEditor::CppEditorWidgetInterface *editorWidget,
         Utils::ProcessLinkCallback &&callback,
         bool resolveTarget,
         bool openInSplit
@@ -1405,7 +1405,7 @@ void ClangdClient::followSymbol(
 }
 
 void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                                 CppTools::CppEditorWidgetInterface *editorWidget,
+                                 CppEditor::CppEditorWidgetInterface *editorWidget,
                                  Utils::ProcessLinkCallback &&callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
@@ -1441,7 +1441,7 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
 }
 
 void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-        CppTools::RefactoringEngineInterface::RenameCallback &&callback)
+        CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
 
@@ -2091,10 +2091,10 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
             result.textStyles.mixinStyles.push_back(TextEditor::C_OPERATOR);
             Utils::Text::convertPosition(doc, absQuestionMarkPos, &result.line, &result.column);
             result.length = 1;
-            result.kind = CppTools::SemanticHighlighter::TernaryIf;
+            result.kind = CppEditor::SemanticHighlighter::TernaryIf;
             insert(result);
             Utils::Text::convertPosition(doc, absColonPos, &result.line, &result.column);
-            result.kind = CppTools::SemanticHighlighter::TernaryElse;
+            result.kind = CppEditor::SemanticHighlighter::TernaryElse;
             insert(result);
             continue;
         }
@@ -2129,11 +2129,11 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
             Utils::Text::convertPosition(doc, absOpeningAngleBracketPos,
                                          &result.line, &result.column);
             result.length = 1;
-            result.kind = CppTools::SemanticHighlighter::AngleBracketOpen;
+            result.kind = CppEditor::SemanticHighlighter::AngleBracketOpen;
             insert(result);
             Utils::Text::convertPosition(doc, absClosingAngleBracketPos,
                                          &result.line, &result.column);
-            result.kind = CppTools::SemanticHighlighter::AngleBracketClose;
+            result.kind = CppEditor::SemanticHighlighter::AngleBracketClose;
             insert(result);
         };
 
@@ -2793,22 +2793,22 @@ TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::creat
     if (needsBaseDeclEntry)
         items << createEntry({}, m_data->followSymbolData->defLink);
     if (!final) {
-        const auto infoItem = new CppTools::VirtualFunctionProposalItem({}, false);
+        const auto infoItem = new CppEditor::VirtualFunctionProposalItem({}, false);
         infoItem->setText(ClangdClient::tr("collecting overrides ..."));
         infoItem->setOrder(-1);
         items << infoItem;
     }
 
-    return new CppTools::VirtualFunctionProposal(
+    return new CppEditor::VirtualFunctionProposal(
                 m_data->followSymbolData->cursor.position(),
                 items, m_data->followSymbolData->openInSplit);
 }
 
-CppTools::VirtualFunctionProposalItem *
+CppEditor::VirtualFunctionProposalItem *
 ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
                                                           const Utils::Link &link) const
 {
-    const auto item = new CppTools::VirtualFunctionProposalItem(
+    const auto item = new CppEditor::VirtualFunctionProposalItem(
                 link, m_data->followSymbolData->openInSplit);
     QString text = name;
     if (link == m_data->followSymbolData->defLink) {

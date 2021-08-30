@@ -29,8 +29,8 @@
 #include "gtestvisitors.h"
 #include "gtest_utils.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/projectpart.h>
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -107,7 +107,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureIn
     }
 
     const QString &filePath = doc->fileName();
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
@@ -116,7 +116,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureIn
 
     const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     Utils::FilePath proFile;
-    const QList<CppTools::ProjectPart::ConstPtr> &ppList = modelManager->projectPart(filePath);
+    const QList<CppEditor::ProjectPart::ConstPtr> &ppList = modelManager->projectPart(filePath);
     if (!ppList.isEmpty())
         proFile = Utils::FilePath::fromString(ppList.first()->projectFile);
     else

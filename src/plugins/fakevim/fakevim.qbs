@@ -12,7 +12,6 @@ QtcPlugin {
 
     pluginTestDepends: [
         "CppEditor",
-        "CppTools",
     ]
 
     files: [

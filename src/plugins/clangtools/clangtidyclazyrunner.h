@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cpptools/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfig.h>
 
 #include "clangtoolrunner.h"
 
@@ -37,7 +37,7 @@ class ClangTidyRunner final : public ClangToolRunner
     Q_OBJECT
 
 public:
-    ClangTidyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
+    ClangTidyRunner(const CppEditor::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
 class ClazyStandaloneRunner final : public ClangToolRunner
@@ -45,7 +45,7 @@ class ClazyStandaloneRunner final : public ClangToolRunner
     Q_OBJECT
 
 public:
-    ClazyStandaloneRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
+    ClazyStandaloneRunner(const CppEditor::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
 } // namespace Internal

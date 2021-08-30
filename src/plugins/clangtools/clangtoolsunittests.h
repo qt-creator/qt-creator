@@ -27,10 +27,10 @@
 
 #include <QObject>
 
-namespace CppTools {
+namespace CppEditor {
 class ClangDiagnosticConfig;
 namespace Tests { class TemporaryCopiedDir; }
-} // namespace CppTools
+} // namespace CppEditor
 
 namespace ProjectExplorer { class Kit; }
 
@@ -53,12 +53,12 @@ private slots:
 private:
     void addTestRow(const QByteArray &relativeFilePath,
                     int expectedDiagCount,
-                    const CppTools::ClangDiagnosticConfig &diagnosticConfig);
+                    const CppEditor::ClangDiagnosticConfig &diagnosticConfig);
 
 private:
     static int getTimeout();
 
-    CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
+    CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
     ProjectExplorer::Kit *m_kit = nullptr;
     int m_timeout = getTimeout();
 };

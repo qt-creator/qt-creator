@@ -31,8 +31,8 @@
 #include "../testcodeparser.h"
 #include "../testtreemodel.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectpart.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/projectpart.h>
 #include <projectexplorer/session.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
@@ -98,10 +98,10 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
     return false;
 }
 
-static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
+static QString quickTestSrcDir(const CppEditor::CppModelManager *cppMM,
                                const Utils::FilePath &fileName)
 {
-    const QList<CppTools::ProjectPart::ConstPtr> parts = cppMM->projectPart(fileName);
+    const QList<CppEditor::ProjectPart::ConstPtr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
         auto found = std::find_if(
@@ -263,11 +263,11 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> &fu
                                         CPlusPlus::Document::Ptr document,
                                         ITestFramework *framework)
 {
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     if (quickTestName(document).isEmpty())
         return false;
 
-    QList<CppTools::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->fileName());
+    QList<CppEditor::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->fileName());
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const Utils::FilePath cppFileName = Utils::FilePath::fromString(document->fileName());

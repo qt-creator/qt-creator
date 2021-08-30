@@ -34,7 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <cpptools/cppprojectupdaterinterface.h>
+#include <cppeditor/cppprojectupdaterinterface.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -171,7 +171,7 @@ private:
     QStringList m_cxxflags;
     QStringList m_cflags;
 
-    CppTools::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
+    CppEditor::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
 
     Utils::FileSystemWatcher m_deployFileWatcher;
 };
@@ -208,7 +208,7 @@ GenericBuildSystem::GenericBuildSystem(Target *target)
         const bool successFullyCreatedProjectUpdater
             = QMetaObject::invokeMethod(projectUpdaterFactory,
                                         "create",
-                                        Q_RETURN_ARG(CppTools::CppProjectUpdaterInterface *,
+                                        Q_RETURN_ARG(CppEditor::CppProjectUpdaterInterface *,
                                                      m_cppCodeModelUpdater));
         QTC_CHECK(successFullyCreatedProjectUpdater);
     }

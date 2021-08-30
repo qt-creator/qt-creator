@@ -1,7 +1,7 @@
 add_qtc_plugin(ModelEditor
   DEFINES MODELEDITOR_LIBRARY
   DEPENDS Modeling Qt5::Core Qt5::Gui Qt5::Widgets
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer
   SOURCES
     actionhandler.cpp actionhandler.h
     classviewcontroller.cpp classviewcontroller.h

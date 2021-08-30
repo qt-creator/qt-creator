@@ -29,7 +29,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

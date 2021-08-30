@@ -40,9 +40,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/reaper.h>
-#include <cpptools/cppprojectupdater.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/generatedcodemodelsupport.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppprojectupdater.h>
+#include <cppeditor/generatedcodemodelsupport.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -93,10 +93,10 @@ static void noAutoAdditionNotify(const FilePaths &filePaths, const ProjectNode *
 {
     const FilePaths srcPaths = Utils::filtered(filePaths, [](const FilePath &file) {
         const auto mimeType = Utils::mimeTypeForFile(file).name();
-        return mimeType == CppTools::Constants::C_SOURCE_MIMETYPE ||
-               mimeType == CppTools::Constants::C_HEADER_MIMETYPE ||
-               mimeType == CppTools::Constants::CPP_SOURCE_MIMETYPE ||
-               mimeType == CppTools::Constants::CPP_HEADER_MIMETYPE ||
+        return mimeType == CppEditor::Constants::C_SOURCE_MIMETYPE ||
+               mimeType == CppEditor::Constants::C_HEADER_MIMETYPE ||
+               mimeType == CppEditor::Constants::CPP_SOURCE_MIMETYPE ||
+               mimeType == CppEditor::Constants::CPP_HEADER_MIMETYPE ||
                mimeType == ProjectExplorer::Constants::FORM_MIMETYPE ||
                mimeType == ProjectExplorer::Constants::RESOURCE_MIMETYPE ||
                mimeType == ProjectExplorer::Constants::SCXML_MIMETYPE;
@@ -151,7 +151,7 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 
 CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     : BuildSystem(bc)
-    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
 {
     // TreeScanner:
     connect(&m_treeScanner, &TreeScanner::finished,

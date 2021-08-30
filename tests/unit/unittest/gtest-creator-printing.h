@@ -209,7 +209,7 @@ class Diagnostic;
 std::ostream &operator<<(std::ostream &out, const ExplainingStep &step);
 std::ostream &operator<<(std::ostream &out, const Diagnostic &diag);
 } // namespace Internal
-} // namespace CppTools
+} // namespace ClangTools
 
 namespace QmlDesigner {
 class ModelNode;

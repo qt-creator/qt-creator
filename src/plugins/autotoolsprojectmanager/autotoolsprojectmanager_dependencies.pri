@@ -5,5 +5,5 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     coreplugin \
-    cpptools \
+    cppeditor \
     qtsupport

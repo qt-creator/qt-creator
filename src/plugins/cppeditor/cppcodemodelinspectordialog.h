@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cpptools/cppmodelmanager.h>
+#include "cppmodelmanager.h"
 
 #include <cplusplus/CppDocument.h>
 
@@ -88,12 +88,12 @@ private:
     void updateDocumentData(const CPlusPlus::Document::Ptr &document);
 
     void clearProjectPartData();
-    void updateProjectPartData(const CppTools::ProjectPart::ConstPtr &part);
+    void updateProjectPartData(const ProjectPart::ConstPtr &part);
 
     bool event(QEvent *e) override;
 
 private:
-    Ui::CppCodeModelInspectorDialog *m_ui;
+    QT_PREPEND_NAMESPACE(Ui)::CppCodeModelInspectorDialog *m_ui;
 
     // Snapshots and Documents
     QList<SnapshotInfo> *m_snapshotInfos;

@@ -43,7 +43,7 @@
 
 #include <functional>
 
-namespace CppTools { class CppProjectUpdater; }
+namespace CppEditor { class CppProjectUpdater; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -162,7 +162,7 @@ private:
         CancelStatusCancelingAltoghether
     } m_cancelStatus = CancelStatusNone;
 
-    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     QHash<ProjectExplorer::ExtraCompilerFactory *, QStringList> m_sourcesForGeneratedFiles;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;

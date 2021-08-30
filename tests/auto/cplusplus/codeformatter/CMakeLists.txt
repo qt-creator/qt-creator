@@ -1,4 +1,4 @@
 add_qtc_test(tst_cplusplus_codeformatter
-  DEPENDS CppTools
+  DEPENDS CppEditor
   SOURCES tst_codeformatter.cpp
 )

@@ -34,10 +34,10 @@
 #include "clangcompletionchunkstotextconverter.h"
 #include "clangpreprocessorassistproposalitem.h"
 
-#include <cpptools/cppdoxygen.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsbridge.h>
-#include <cpptools/editordocumenthandle.h>
+#include <cppeditor/cppdoxygen.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsbridge.h>
+#include <cppeditor/editordocumenthandle.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/functionhintproposal.h>
@@ -136,7 +136,7 @@ QList<AssistProposalItemInterface *> ClangCompletionAssistProcessor::toAssistPro
     if (m_position != -1 && Utils::anyOf(completions, [](const CodeCompletion &c) {
         return c.completionKind == CodeCompletion::SignalCompletionKind;
     })) {
-        considerOnlySignals = CppTools::CppModelManager::instance()
+        considerOnlySignals = CppEditor::CppModelManager::instance()
                 ->positionRequiresSignal(m_interface->filePath().toString(), m_content, m_position);
     }
     for (const CodeCompletion &codeCompletion : completions) {
@@ -582,8 +582,8 @@ bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 
 bool ClangCompletionAssistProcessor::completeDoxygenKeywords()
 {
-    for (int i = 1; i < CppTools::T_DOXY_LAST_TAG; ++i)
-        addCompletionItem(QString::fromLatin1(CppTools::doxygenTagSpell(i)), CPlusPlus::Icons::keywordIcon());
+    for (int i = 1; i < CppEditor::T_DOXY_LAST_TAG; ++i)
+        addCompletionItem(QString::fromLatin1(CppEditor::doxygenTagSpell(i)), CPlusPlus::Icons::keywordIcon());
     return !m_completions.isEmpty();
 }
 
@@ -627,7 +627,7 @@ namespace {
 bool shouldSendDocumentForCompletion(const QString &filePath,
                                      int completionPosition)
 {
-    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document) {
         auto &sendTracker = document->sendTracker();
@@ -641,7 +641,7 @@ bool shouldSendDocumentForCompletion(const QString &filePath,
 bool shouldSendCodeCompletion(const QString &filePath,
                               int completionPosition)
 {
-    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document) {
         auto &sendTracker = document->sendTracker();
@@ -653,7 +653,7 @@ bool shouldSendCodeCompletion(const QString &filePath,
 
 void setLastDocumentRevision(const QString &filePath)
 {
-    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document)
         document->sendTracker().setLastSentRevision(int(document->revision()));
@@ -662,7 +662,7 @@ void setLastDocumentRevision(const QString &filePath)
 void setLastCompletionPosition(const QString &filePath,
                                int completionPosition)
 {
-    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    CppEditor::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document)
         document->sendTracker().setLastCompletionPosition(completionPosition);
@@ -709,7 +709,7 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
         if (m_sentRequestType == NormalCompletion) {
             if (!customFileContent.isEmpty())
                 m_content = customFileContent;
-            else if (const CppTools::CppEditorDocumentHandle * const doc = cppDocument(filePath))
+            else if (const CppEditor::CppEditorDocumentHandle * const doc = cppDocument(filePath))
                 m_content = doc->contents();
             m_position = position;
         }

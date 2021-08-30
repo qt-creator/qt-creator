@@ -27,7 +27,7 @@
 
 #include "clangcompletionassistinterface.h"
 
-#include <cpptools/cppcompletionassistprocessor.h>
+#include <cppeditor/cppcompletionassistprocessor.h>
 
 #include <clangsupport/codecompletion.h>
 
@@ -40,7 +40,7 @@ namespace Internal {
 using ClangBackEnd::CodeCompletions;
 using ClangBackEnd::CompletionCorrection;
 
-class ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
+class ClangCompletionAssistProcessor : public CppEditor::CppCompletionAssistProcessor
 {
     Q_DECLARE_TR_FUNCTIONS(ClangCodeModel::Internal::ClangCompletionAssistProcessor)
 

@@ -37,7 +37,7 @@
 
 #include <QFutureWatcher>
 
-namespace CppTools { class CppProjectUpdater; }
+namespace CppEditor { class CppProjectUpdater; }
 namespace ProjectExplorer { class Kit; }
 namespace Utils { class FileSystemWatcher; }
 
@@ -70,7 +70,7 @@ public:
     void buildTreeAndProjectParts();
 
     QFutureWatcher<void> m_parserWatcher;
-    std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
+    std::unique_ptr<CppEditor::CppProjectUpdater> m_cppCodeModelUpdater;
     MimeBinaryCache m_mimeBinaryCache;
     QByteArray m_projectFileHash;
     CompilationDbParser *m_parser = nullptr;

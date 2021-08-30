@@ -51,4 +51,4 @@ private slots:
 };
 
 } // namespace Internal
-} // namespace CppTools
+} // namespace QmlJSTools

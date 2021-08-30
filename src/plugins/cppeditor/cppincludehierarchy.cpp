@@ -25,21 +25,20 @@
 
 #include "cppincludehierarchy.h"
 
+#include "baseeditordocumentprocessor.h"
 #include "cppeditor.h"
+#include "editordocumenthandle.h"
 #include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorplugin.h"
+#include "cppelementevaluator.h"
+#include "cppmodelmanager.h"
+#include "cpptoolsbridge.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/find/itemviewfind.h>
-
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cppelementevaluator.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsbridge.h>
-#include <cpptools/editordocumenthandle.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -62,7 +61,6 @@
 
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace TextEditor;
 using namespace Utils;
 

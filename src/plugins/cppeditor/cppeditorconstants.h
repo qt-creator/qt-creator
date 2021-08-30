@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 namespace CppEditor {
 namespace Constants {
 
@@ -55,7 +57,7 @@ const char PREFERRED_PARSE_CONTEXT[] = "CppEditor.PreferredParseContext-";
 
 const char QUICK_FIX_PROJECT_PANEL_ID[] = "CppEditor.QuickFix";
 const char QUICK_FIX_SETTINGS_ID[] = "CppEditor.QuickFix";
-const char QUICK_FIX_SETTINGS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Quick Fixes");
+const char QUICK_FIX_SETTINGS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "Quick Fixes");
 const char QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM[] = "GettersOutsideClassFrom";
 const char QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM[] = "GettersInCppFileFrom";
 const char QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM[] = "SettersOutsideClassFrom";
@@ -77,6 +79,74 @@ const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_COMPARISON[] = "Comparison";
 const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_TYPE[] = "ReturnType";
 const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_EXPRESSION[] = "ReturnExpression";
 const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT[] = "Assignment";
+
+const char M_TOOLS_CPP[]              = "CppTools.Tools.Menu";
+const char SWITCH_HEADER_SOURCE[]     = "CppTools.SwitchHeaderSource";
+const char OPEN_HEADER_SOURCE_IN_NEXT_SPLIT[] = "CppTools.OpenHeaderSourceInNextSplit";
+const char TASK_INDEX[]               = "CppTools.Task.Index";
+const char TASK_SEARCH[]              = "CppTools.Task.Search";
+const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
+const char CUDA_SOURCE_MIMETYPE[] = "text/vnd.nvidia.cuda.csrc";
+const char C_HEADER_MIMETYPE[] = "text/x-chdr";
+const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
+const char OBJECTIVE_C_SOURCE_MIMETYPE[] = "text/x-objcsrc";
+const char OBJECTIVE_CPP_SOURCE_MIMETYPE[] = "text/x-objc++src";
+const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
+const char QDOC_MIMETYPE[] = "text/x-qdoc";
+const char MOC_MIMETYPE[] = "text/x-moc";
+const char AMBIGUOUS_HEADER_MIMETYPE[] = "application/vnd.qtc.ambiguousheader"; // not a real MIME type
+
+// QSettings keys for use by the "New Class" wizards.
+const char CPPEDITOR_SETTINGSGROUP[] = "CppTools";
+const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
+const bool LOWERCASE_CPPFILES_DEFAULT = true;
+const char CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
+const char CPPEDITOR_SHOW_INFO_BAR_FOR_HEADER_ERRORS[] = "ShowInfoBarForHeaderErrors";
+const char CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
+const char CPPEDITOR_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
+const char CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
+    = "InterpretAmbiguousHeadersAsCHeaders";
+const char CPPEDITOR_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
+const char CPPEDITOR_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";
+
+const char CPP_CLANG_DIAG_CONFIG_QUESTIONABLE[] = "Builtin.Questionable";
+const char CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM[] = "Builtin.BuildSystem";
+
+const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
+const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "Code Style");
+const char CPP_FILE_SETTINGS_ID[] = "B.Cpp.File Naming";
+const char CPP_FILE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "File Naming");
+const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Cpp.Code Model";
+const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_ID[] = "C.Cpp.Diagnostic Config";
+const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "Diagnostic Configurations");
+const char CPP_SETTINGS_CATEGORY[] = "I.C++";
+
+const char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";
+const char CPP_FUNCTION_DECL_DEF_LINK_MARKER_ID[] = "FunctionDeclDefLinkMarker";
+
+const char CPP_SETTINGS_ID[] = "Cpp";
+const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "C++");
+
+const char CURRENT_DOCUMENT_FILTER_ID[] = "Methods in current Document";
+const char CURRENT_DOCUMENT_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "C++ Symbols in Current Document");
+
+const char CLASSES_FILTER_ID[] = "Classes";
+const char CLASSES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "C++ Classes");
+
+const char FUNCTIONS_FILTER_ID[] = "Methods";
+const char FUNCTIONS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "C++ Functions");
+
+const char INCLUDES_FILTER_ID[] = "All Included C/C++ Files";
+const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "All Included C/C++ Files");
+
+const char LOCATOR_FILTER_ID[] = "Classes and Methods";
+const char LOCATOR_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "C++ Classes, Enums, Functions and Type Aliases");
+
+const char SYMBOLS_FIND_FILTER_ID[] = "Symbols";
+const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "C++ Symbols");
+
+constexpr const char CLANG_STATIC_ANALYZER_DOCUMENTATION_URL[]
+    = "https://clang-analyzer.llvm.org/available_checks.html";
 
 } // namespace Constants
 } // namespace CppEditor

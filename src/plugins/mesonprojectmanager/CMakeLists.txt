@@ -1,6 +1,6 @@
 add_qtc_plugin(MesonProjectManager
   DEPENDS QmlJS
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer TextEditor QtSupport
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor QtSupport
   PLUGIN_RECOMMENDS Designer
   SOURCES
   mesonprojectplugin.cpp

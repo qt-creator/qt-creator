@@ -44,10 +44,10 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojectupdater.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/generatedcodemodelsupport.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppprojectupdater.h>
+#include <cppeditor/generatedcodemodelsupport.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -171,7 +171,7 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
     : BuildSystem(bc->target()),
       m_session(new QbsSession(this)),
-      m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
+      m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater),
       m_buildConfiguration(bc)
 {
     connect(m_session, &QbsSession::newGeneratedFilesForSources, this,
@@ -192,7 +192,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
                 }
             }
         }
-        CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
+        CppEditor::GeneratedCodeModelSupport::update(m_extraCompilers);
         for (ExtraCompiler *compiler : m_extraCompilers) {
             if (compiler->isDirty())
                 compiler->run();
@@ -728,18 +728,18 @@ static QString getMimeType(const QJsonObject &sourceArtifact)
 {
     const auto tags = sourceArtifact.value("file-tags").toArray();
     if (tags.contains("hpp")) {
-        if (CppTools::ProjectFile::isAmbiguousHeader(sourceArtifact.value("file-path").toString()))
-            return QString(CppTools::Constants::AMBIGUOUS_HEADER_MIMETYPE);
-        return QString(CppTools::Constants::CPP_HEADER_MIMETYPE);
+        if (CppEditor::ProjectFile::isAmbiguousHeader(sourceArtifact.value("file-path").toString()))
+            return QString(CppEditor::Constants::AMBIGUOUS_HEADER_MIMETYPE);
+        return QString(CppEditor::Constants::CPP_HEADER_MIMETYPE);
     }
     if (tags.contains("cpp"))
-        return QString(CppTools::Constants::CPP_SOURCE_MIMETYPE);
+        return QString(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
     if (tags.contains("c"))
-        return QString(CppTools::Constants::C_SOURCE_MIMETYPE);
+        return QString(CppEditor::Constants::C_SOURCE_MIMETYPE);
     if (tags.contains("objc"))
-        return QString(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE);
+        return QString(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE);
     if (tags.contains("objcpp"))
-        return QString(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+        return QString(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
     return {};
 }
 

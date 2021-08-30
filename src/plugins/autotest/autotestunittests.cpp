@@ -30,9 +30,9 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/projectinfo.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -81,7 +81,7 @@ void AutoTestUnitTests::initTestCase()
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/unit_test");
+    m_tmpDir = new CppEditor::Tests::TemporaryCopiedDir(":/unit_test");
 
     if (!qEnvironmentVariableIsEmpty("BOOST_INCLUDE_DIR")) {
         m_checkBoost = true;
@@ -108,7 +108,7 @@ void AutoTestUnitTests::testCodeParser()
     QFETCH(int, expectedUnnamedQuickTestsCount);
     QFETCH(int, expectedDataTagsCount);
 
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
@@ -156,7 +156,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
     QFETCH(QList<int>, expectedUnnamedQuickTestsCount);
     QFETCH(QList<int>, expectedDataTagsCount);
 
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     for (int i = 0; i < projectFilePaths.size(); ++i) {
         qDebug() << "Opening project" << projectFilePaths.at(i);
         QVERIFY(projectManager.open(projectFilePaths.at(i), true, m_kit));
@@ -205,7 +205,7 @@ void AutoTestUnitTests::testCodeParserGTest()
         QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
 
     QFETCH(QString, projectFilePath);
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
@@ -254,8 +254,8 @@ void AutoTestUnitTests::testCodeParserBoostTest()
 
     QFETCH(QString, projectFilePath);
     QFETCH(QString, extension);
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo::ConstPtr projectInfo
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    const CppEditor::ProjectInfo::ConstPtr projectInfo
             = projectManager.open(projectFilePath, true, m_kit);
     QVERIFY(projectInfo);
 

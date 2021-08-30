@@ -1,5 +1,5 @@
 add_qtc_plugin(AutoTest
-  PLUGIN_DEPENDS Core CppTools Debugger ProjectExplorer QmlJSTools TextEditor
+  PLUGIN_DEPENDS Core CppEditor Debugger ProjectExplorer QmlJSTools TextEditor
   PLUGIN_TEST_DEPENDS QmakeProjectManager QtSupport QbsProjectManager
   SOURCES
     autotest.qrc

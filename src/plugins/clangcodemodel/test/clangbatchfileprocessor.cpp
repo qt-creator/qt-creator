@@ -32,10 +32,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/modelmanagertesthelper.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/modelmanagertesthelper.h>
+#include <cppeditor/projectinfo.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -238,7 +238,7 @@ bool OpenProjectCommand::run()
     Project *project = openProjectSucceeded.project();
     project->configureAsExampleProject(nullptr);
 
-    return CppTools::Tests::TestCase::waitUntilProjectIsFullyOpened(project, timeOutInMs());
+    return CppEditor::Tests::TestCase::waitUntilProjectIsFullyOpened(project, timeOutInMs());
 }
 
 Command::Ptr OpenProjectCommand::parse(BatchFileLineTokenizer &arguments,

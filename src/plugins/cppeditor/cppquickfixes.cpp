@@ -25,28 +25,27 @@
 
 #include "cppquickfixes.h"
 
+#include "baseeditordocumentprocessor.h"
+#include "cppclassesfilter.h"
+#include "cppcodestylesettings.h"
+#include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorwidget.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppinsertvirtualmethods.h"
+#include "cpppointerdeclarationformatter.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixprojectsettings.h"
+#include "cpprefactoringchanges.h"
+#include "cpptoolsbridge.h"
+#include "cpptoolsreuse.h"
+#include "cppvirtualfunctionassistprovider.h"
+#include "includeutils.h"
+#include "insertionpointlocator.h"
+#include "symbolfinder.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cppclassesfilter.h>
-#include <cpptools/cppcodestylesettings.h>
-#include <cpptools/cpppointerdeclarationformatter.h>
-#include <cpptools/cpprefactoringchanges.h>
-#include <cpptools/cpptoolsbridge.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppvirtualfunctionassistprovider.h>
-#include <cpptools/includeutils.h>
-#include <cpptools/insertionpointlocator.h>
-#include <cpptools/symbolfinder.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
@@ -102,7 +101,6 @@
 #include <vector>
 
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace TextEditor;
 using Utils::ChangeSet;
 
@@ -355,7 +353,7 @@ public:
 
     QString description() const override
     {
-        return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
+        return QApplication::translate("CppEditor::QuickFix", "Rewrite Using %1").arg(replacement);
     }
 
     void perform() override
@@ -447,9 +445,9 @@ public:
     QString description() const override
     {
         if (replacement.isEmpty())
-            return QApplication::translate("CppTools::QuickFix", "Swap Operands");
+            return QApplication::translate("CppEditor::QuickFix", "Swap Operands");
         else
-            return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
+            return QApplication::translate("CppEditor::QuickFix", "Rewrite Using %1").arg(replacement);
     }
 
     void perform() override
@@ -590,7 +588,7 @@ void RewriteLogicalAnd::match(const CppQuickFixInterface &interface, QuickFixOpe
             file->tokenAt(op->pattern->binary_op_token).is(T_AMPER_AMPER) &&
             file->tokenAt(op->left->unary_op_token).is(T_EXCLAIM) &&
             file->tokenAt(op->right->unary_op_token).is(T_EXCLAIM)) {
-        op->setDescription(QApplication::translate("CppTools::QuickFix",
+        op->setDescription(QApplication::translate("CppEditor::QuickFix",
                                                    "Rewrite Condition Using ||"));
         op->setPriority(index);
         result.append(op);
@@ -624,7 +622,7 @@ public:
         : CppQuickFixOperation(interface, priority)
         , declaration(decl)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Split Declaration"));
     }
 
@@ -716,7 +714,7 @@ public:
         : CppQuickFixOperation(interface, priority)
         , _statement(statement)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix", "Add Curly Braces"));
+        setDescription(QApplication::translate("CppEditor::QuickFix", "Add Curly Braces"));
     }
 
     void perform() override
@@ -782,7 +780,7 @@ public:
     MoveDeclarationOutOfIfOp(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Move Declaration out of Condition"));
 
         reset();
@@ -857,7 +855,7 @@ public:
     MoveDeclarationOutOfWhileOp(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Move Declaration out of Condition"));
         reset();
     }
@@ -943,7 +941,7 @@ public:
         , pattern(pattern)
         , condition(condition)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Split if Statement"));
     }
 
@@ -1108,7 +1106,7 @@ static QByteArray charToStringEscapeSequences(const QByteArray &content)
 
 static QString msgQtStringLiteralDescription(const QString &replacement)
 {
-    return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...)").arg(replacement);
+    return QApplication::translate("CppEditor::QuickFix", "Enclose in %1(...)").arg(replacement);
 }
 
 static QString stringLiteralReplacement(unsigned actions)
@@ -1279,7 +1277,7 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
             const QByteArray contents(file->tokenAt(charLiteral->literal_token).identifier->chars());
             if (!charToStringEscapeSequences(contents).isEmpty()) {
                 actions = DoubleQuoteAction | ConvertEscapeSequencesToStringAction;
-                description = QApplication::translate("CppTools::QuickFix",
+                description = QApplication::translate("CppEditor::QuickFix",
                               "Convert to String Literal");
                 result << new WrapStringLiteralOp(interface, priority, actions,
                                                   description, literal);
@@ -1294,12 +1292,12 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (!stringToCharEscapeSequences(contents).isEmpty()) {
                 actions = EncloseInQLatin1CharAction | SingleQuoteAction
                           | ConvertEscapeSequencesToCharAction | objectiveCActions;
-                QString description = QApplication::translate("CppTools::QuickFix",
+                QString description = QApplication::translate("CppEditor::QuickFix",
                                       "Convert to Character Literal and Enclose in QLatin1Char(...)");
                 result << new WrapStringLiteralOp(interface, priority, actions,
                                                   description, literal);
                 actions &= ~EncloseInQLatin1CharAction;
-                description = QApplication::translate("CppTools::QuickFix",
+                description = QApplication::translate("CppEditor::QuickFix",
                               "Convert to Character Literal");
                 result << new WrapStringLiteralOp(interface, priority, actions,
                                                   description, literal);
@@ -1333,7 +1331,7 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
     const Name *trName = control->identifier("tr");
 
     // Check whether we are in a function:
-    const QString description = QApplication::translate("CppTools::QuickFix", "Mark as Translatable");
+    const QString description = QApplication::translate("CppEditor::QuickFix", "Mark as Translatable");
     for (int i = path.size() - 1; i >= 0; --i) {
         if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
             Function *function = definition->symbol;
@@ -1386,7 +1384,7 @@ public:
         , stringLiteral(stringLiteral)
         , qlatin1Call(qlatin1Call)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Convert to Objective-C String Literal"));
     }
 
@@ -1531,7 +1529,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         const QString replacement = QString::asprintf("0x%lX", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Hexadecimal"));
+        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Hexadecimal"));
         op->setPriority(priority);
         result << op;
     }
@@ -1548,7 +1546,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         const QString replacement = QString::asprintf("0%lo", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Octal"));
+        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Octal"));
         op->setPriority(priority);
         result << op;
     }
@@ -1565,7 +1563,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         const QString replacement = QString::asprintf("%lu", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Decimal"));
+        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Decimal"));
         op->setPriority(priority);
         result << op;
     }
@@ -1589,7 +1587,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             replacement.append(QString::fromStdString(b.to_string()).remove(re));
         }
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Binary"));
+        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Binary"));
         op->setPriority(priority);
         result << op;
     }
@@ -1608,7 +1606,7 @@ public:
         , binaryAST(binaryAST)
         , simpleNameAST(simpleNameAST)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix", "Add Local Declaration"));
+        setDescription(QApplication::translate("CppEditor::QuickFix", "Add Local Declaration"));
     }
 
     void perform() override
@@ -1706,7 +1704,7 @@ public:
         , m_isAllUpper(name.isUpper())
         , m_test(test)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Camel Case"));
+        setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Camel Case"));
     }
 
     void perform() override
@@ -1788,7 +1786,7 @@ AddIncludeForUndefinedIdentifierOp::AddIncludeForUndefinedIdentifierOp(
     : CppQuickFixOperation(interface, priority)
     , m_include(include)
 {
-    setDescription(QApplication::translate("CppTools::QuickFix", "Add #include %1").arg(m_include));
+    setDescription(QApplication::translate("CppEditor::QuickFix", "Add #include %1").arg(m_include));
 }
 
 void AddIncludeForUndefinedIdentifierOp::perform()
@@ -1806,7 +1804,7 @@ AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(
         int symbolPos)
     : CppQuickFixOperation(interface, priority), m_className(fqClassName), m_symbolPos(symbolPos)
 {
-    setDescription(QApplication::translate("CppTools::QuickFix",
+    setDescription(QApplication::translate("CppEditor::QuickFix",
                                            "Add forward declaration for %1").arg(m_className));
 }
 
@@ -2006,8 +2004,7 @@ bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QStri
         return false;
 
     QString simpleName;
-    if (Core::ILocatorFilter *classesFilter
-            = CppTools::CppModelManager::instance()->classesFilter()) {
+    if (Core::ILocatorFilter *classesFilter = CppModelManager::instance()->classesFilter()) {
         QFutureInterface<Core::LocatorFilterEntry> dummy;
 
         const Overview oo;
@@ -2153,10 +2150,10 @@ public:
     {
         QString targetString;
         if (target == TargetPrevious)
-            targetString = QApplication::translate("CppTools::QuickFix",
+            targetString = QApplication::translate("CppEditor::QuickFix",
                                                    "Switch with Previous Parameter");
         else
-            targetString = QApplication::translate("CppTools::QuickFix",
+            targetString = QApplication::translate("CppEditor::QuickFix",
                                                    "Switch with Next Parameter");
         setDescription(targetString);
     }
@@ -2232,10 +2229,10 @@ public:
     {
         QString description;
         if (m_change.operationList().size() == 1) {
-            description = QApplication::translate("CppTools::QuickFix",
+            description = QApplication::translate("CppEditor::QuickFix",
                 "Reformat to \"%1\"").arg(m_change.operationList().constFirst().text);
         } else { // > 1
-            description = QApplication::translate("CppTools::QuickFix",
+            description = QApplication::translate("CppEditor::QuickFix",
                 "Reformat Pointers or References");
         }
         setDescription(description);
@@ -2399,7 +2396,7 @@ public:
         , compoundStatement(compoundStatement)
         , values(values)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Complete Switch Statement"));
     }
 
@@ -2896,7 +2893,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                     const QString fileName = location.fileName();
                                     if (ProjectFile::isHeader(ProjectFile::classify(fileName))) {
                                         const QString source
-                                                = CppTools::correspondingHeaderOrSource(fileName);
+                                                = correspondingHeaderOrSource(fileName);
                                         if (!source.isEmpty()) {
                                             op = new InsertDefOperation(interface, decl, declAST,
                                                                         InsertionLocation(),
@@ -2959,7 +2956,7 @@ public:
             const QString &type)
         : CppQuickFixOperation(interface), m_class(theClass), m_member(member), m_type(type)
     {
-        setDescription(QCoreApplication::translate("CppTools::Quickfix",
+        setDescription(QCoreApplication::translate("CppEditor::Quickfix",
                                                    "Add Class Member \"%1\"").arg(m_member));
     }
 
@@ -2970,8 +2967,8 @@ private:
         if (type.isEmpty()) {
             type = QInputDialog::getText(
                         Core::ICore::dialogParent(),
-                        QCoreApplication::translate("CppTools::Quickfix","Provide the type"),
-                        QCoreApplication::translate("CppTools::Quickfix","Data type:"),
+                        QCoreApplication::translate("CppEditor::Quickfix","Provide the type"),
+                        QCoreApplication::translate("CppEditor::Quickfix","Data type:"),
                         QLineEdit::Normal);
         }
         if (type.isEmpty())
@@ -3230,7 +3227,7 @@ private:
                     continue;
                 const QString fileName = location.fileName();
                 if (ProjectFile::isHeader(ProjectFile::classify(fileName))) {
-                    const QString source = CppTools::correspondingHeaderOrSource(fileName);
+                    const QString source = correspondingHeaderOrSource(fileName);
                     if (!source.isEmpty())
                         cppFile = source;
                 } else {
@@ -5378,7 +5375,7 @@ public:
           m_literal(literal),
           m_functionDefinition(function)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Extract Constant as Function Parameter"));
     }
 
@@ -6674,7 +6671,7 @@ public:
         , m_ast(ast)
         , m_name(name)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix", "Assign to Local Variable"));
+        setDescription(QApplication::translate("CppEditor::QuickFix", "Assign to Local Variable"));
     }
 
     void perform() override
@@ -6882,7 +6879,7 @@ public:
         , m_expression(expression)
         , m_type(type)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix", "Optimize for-Loop"));
+        setDescription(QApplication::translate("CppEditor::QuickFix", "Optimize for-Loop"));
     }
 
     void perform() override
@@ -7061,10 +7058,10 @@ public:
         , m_escape(escape)
     {
         if (m_escape) {
-            setDescription(QApplication::translate("CppTools::QuickFix",
+            setDescription(QApplication::translate("CppEditor::QuickFix",
                                                    "Escape String Literal as UTF-8"));
         } else {
-            setDescription(QApplication::translate("CppTools::QuickFix",
+            setDescription(QApplication::translate("CppEditor::QuickFix",
                                                    "Unescape String Literal as UTF-8"));
         }
     }
@@ -7244,7 +7241,7 @@ public:
     ConvertQt4ConnectOperation(const CppQuickFixInterface &interface, const ChangeSet &changes)
         : CppQuickFixOperation(interface, 1), m_changes(changes)
     {
-        setDescription(QApplication::translate("CppTools::QuickFix",
+        setDescription(QApplication::translate("CppEditor::QuickFix",
                                                "Convert connect() to Qt 5 Style"));
     }
 
@@ -7554,7 +7551,7 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
                                        QuickFixOperations &result)
 {
-    const auto processor = CppTools::CppToolsBridge::baseEditorDocumentProcessor(interface.filePath().toString());
+    const auto processor = CppToolsBridge::baseEditorDocumentProcessor(interface.filePath().toString());
     if (processor) {
         const auto clangFixItOperations = processor->extraRefactoringOperations(interface);
         result.append(clangFixItOperations);
@@ -7931,12 +7928,12 @@ public:
         const QString name = Overview{}.prettyName(usingDirective->name->name);
         if (m_removeAllAtGlobalScope) {
             setDescription(QApplication::translate(
-                               "CppTools::QuickFix",
+                               "CppEditor::QuickFix",
                                "Remove All Occurrences of \"using namespace %1\" in Global Scope "
                                "and Adjust Type Names Accordingly")
                                .arg(name));
         } else {
-            setDescription(QApplication::translate("CppTools::QuickFix",
+            setDescription(QApplication::translate("CppEditor::QuickFix",
                                                    "Remove \"using namespace %1\" and "
                                                    "Adjust Type Names Accordingly")
                                .arg(name));

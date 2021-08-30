@@ -26,7 +26,7 @@
 
 #include "cpptodoitemsscanner.h"
 
-#include <cpptools/projectinfo.h>
+#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/project.h>
 
@@ -42,9 +42,9 @@ namespace Internal {
 CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent) :
     TodoItemsScanner(keywordList, parent)
 {
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
 
-    connect(modelManager, &CppTools::CppModelManager::documentUpdated,
+    connect(modelManager, &CppEditor::CppModelManager::documentUpdated,
             this, &CppTodoItemsScanner::documentUpdated, Qt::DirectConnection);
 
     setParams(keywordList);
@@ -55,10 +55,10 @@ void CppTodoItemsScanner::scannerParamsChanged()
     // We need to rescan everything known to the code model
     // TODO: It would be nice to only tokenize the source files, not update the code model entirely.
 
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
 
     QSet<QString> filesToBeUpdated;
-    foreach (const CppTools::ProjectInfo::ConstPtr &info, modelManager->projectInfos())
+    foreach (const CppEditor::ProjectInfo::ConstPtr &info, modelManager->projectInfos())
         filesToBeUpdated.unite(info->sourceFiles());
 
     modelManager->updateSourceFiles(filesToBeUpdated);
@@ -66,7 +66,7 @@ void CppTodoItemsScanner::scannerParamsChanged()
 
 void CppTodoItemsScanner::documentUpdated(CPlusPlus::Document::Ptr doc)
 {
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     if (!modelManager->projectPart(doc->fileName()).isEmpty())
         processDocument(doc);
 }

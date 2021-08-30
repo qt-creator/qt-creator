@@ -29,8 +29,8 @@
 #include "testoutputreader.h"
 #include "testrunconfiguration.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>

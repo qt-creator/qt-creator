@@ -32,10 +32,10 @@
 
 #include <clangsupport/sourcelocationscontainer.h>
 #include <cplusplus/FindUsages.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/semantichighlighter.h>
+#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/semantichighlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <languageclient/languageclientmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -61,7 +61,7 @@
 
 using namespace CPlusPlus;
 using namespace Core;
-using namespace CppTools::Tests;
+using namespace CppEditor::Tests;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 
@@ -132,11 +132,11 @@ void ClangdTest::initTestCase()
 {
     const QString clangdFromEnv = qEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
-        CppTools::ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
-    const auto clangd = CppTools::ClangdSettings::instance().clangdFilePath();
+        CppEditor::ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+    const auto clangd = CppEditor::ClangdSettings::instance().clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
-    CppTools::ClangdSettings::setUseClangd(true);
+    CppEditor::ClangdSettings::setUseClangd(true);
 
     // Find suitable kit.
     m_kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -183,7 +183,7 @@ ClangdTestFindReferences::ClangdTestFindReferences()
 void ClangdTestFindReferences::initTestCase()
 {
     ClangdTest::initTestCase();
-    CppTools::codeModelSettings()->setCategorizeFindReferences(true);
+    CppEditor::codeModelSettings()->setCategorizeFindReferences(true);
     connect(client(), &ClangdClient::foundReferences, this,
             [this](const QList<SearchResultItem> &results) {
         if (results.isEmpty())
@@ -877,19 +877,19 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("operator= call") << 664 << 12 << 664 << 13
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("ternary operator (question mark)") << 668 << 18 << 668 << 19
-        << QList<int>{C_PUNCTUATION, C_OPERATOR} << int(CppTools::SemanticHighlighter::TernaryIf);
+        << QList<int>{C_PUNCTUATION, C_OPERATOR} << int(CppEditor::SemanticHighlighter::TernaryIf);
     QTest::newRow("ternary operator (colon)") << 668 << 23 << 668 << 24
-        << QList<int>{C_PUNCTUATION, C_OPERATOR} << int(CppTools::SemanticHighlighter::TernaryElse);
+        << QList<int>{C_PUNCTUATION, C_OPERATOR} << int(CppEditor::SemanticHighlighter::TernaryElse);
     QTest::newRow("opening angle bracket in function template declaration")
         << 247 << 10 << 247 << 11
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("closing angle bracket in function template declaration")
         << 247 << 18 << 247 << 19
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("opening angle bracket in class template declaration") << 261 << 10 << 261 << 11
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("closing angle bracket in class template declaration") << 261 << 18 << 261 << 19
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("macro definition") << 231 << 9 << 231 << 31
         << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
     QTest::newRow("function-like macro definition") << 232 << 9 << 232 << 24
@@ -915,16 +915,16 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("outer opening angle bracket in nested template declaration")
         << 265 << 10 << 265 << 11
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("inner opening angle bracket in nested template declaration")
         << 265 << 89 << 265 << 90
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("inner closing angle bracket in nested template declaration")
         << 265 << 95 << 265 << 96
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("outer closing angle bracket in nested template declaration")
         << 265 << 142 << 265 << 143
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("function template declaration") << 266 << 6 << 266 << 22
         << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
     QTest::newRow("template type parameter reference") << 268 << 5 << 268 << 26
@@ -958,9 +958,9 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("type in static_cast") << 328 << 23 << 328 << 33
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("opening angle bracket in static_cast") << 328 << 16 << 328 << 17
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("closing angle bracket in static_cast") << 328 << 39 << 328 << 40
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("type in reinterpret_cast") << 329 << 28 << 329 << 38
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("integer alias declaration") << 333 << 7 << 333 << 25
@@ -988,9 +988,9 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("class template instantiation (name)") << 384 << 5 << 384 << 18
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("class template instantiation (opening angle bracket)") << 384 << 18 << 384 << 19
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("class template instantiation (closing angle bracket)") << 384 << 22 << 384 << 23
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("namespace in declaration") << 413 << 4 << 413 << 26 << QList<int>{C_TYPE} << 0;
     QTest::newRow("namespaced class in declaration") << 413 << 28 << 413 << 41
         << QList<int>{C_TYPE} << 0;
@@ -1102,55 +1102,55 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("static private member") << 696 << 16 << 696 << 28
         << QList<int>{C_FIELD, C_DECLARATION} << 0;
     QTest::newRow("alias template declaration (opening angle bracket)") << 700 << 10 << 700 << 11
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("alias template declaration (closing angle bracket)") << 700 << 16 << 700 << 17
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("alias template declaration (new type)") << 700 << 24 << 700 << 28
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("alias template declaration (base type)") << 700 << 31 << 700 << 32
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("alias template declaration (base type opening angle bracket)")
         << 700 << 32 << 700 << 33
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("alias template declaration (base type closing angle bracket)")
         << 700 << 37 << 700 << 38
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("alias template instantiation (type)") << 701 << 1 << 701 << 5
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("alias template instantiation (opening angle bracket)") << 701 << 5 << 701 << 6
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("alias template instantiation (closing angle bracket)") << 701 << 7 << 701 << 8
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("function template specialization (opening angle bracket 1)")
         << 802 << 9 << 802 << 10
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("function template specialization (closing angle bracket 1)")
         << 802 << 10 << 802 << 11
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("function template specialization (function name)")
         << 802 << 17 << 802 << 29
         << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
     QTest::newRow("function template specialization (opening angle bracket 2)")
         << 802 << 29 << 802 << 30
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("function template specialization (closing angle bracket 2)")
         << 802 << 33 << 802 << 34
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("class template specialization (opening angle bracket 1)")
         << 804 << 9 << 804 << 10
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("class template specialization (closing angle bracket 1)")
         << 804 << 10 << 804 << 11
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("class template specialization (class name)")
         << 804 << 18 << 804 << 21
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("class template specialization (opening angle bracket 2)")
         << 804 << 21 << 804 << 22
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("class template specialization (closing angle bracket 2)")
         << 804 << 25 << 804 << 26
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("structured binding (var 1)") << 737 << 17 << 737 << 18
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("structured binding (var 2)") << 737 << 20 << 737 << 21
@@ -1167,64 +1167,64 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("nested template instantiation (opening angle bracket 1)")
         << 773 << 19 << 773 << 20
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("nested template instantiation (namespace 2)") << 773 << 20 << 773 << 23
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("nested template instantiation (type 2)") << 773 << 25 << 773 << 29
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("nested template instantiation (opening angle bracket 2)")
         << 773 << 29 << 773 << 30
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("nested template instantiation (closing angle bracket 1)")
         << 773 << 38 << 773 << 39
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("nested template instantiation (closing angle bracket 2)")
         << 773 << 39 << 773 << 40
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("nested template instantiation (variable)") << 773 << 41 << 773 << 43
         << QList<int>{C_GLOBAL, C_DECLARATION} << 0;
     QTest::newRow("doubly nested template instantiation (opening angle bracket 1)")
         << 806 << 12 << 806 << 13
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("doubly nested template instantiation (opening angle bracket 2)")
         << 806 << 24 << 806 << 25
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("doubly nested template instantiation (opening angle bracket 3)")
         << 806 << 36 << 806 << 37
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("doubly nested template instantiation (closing angle bracket 1)")
         << 806 << 40 << 806 << 41
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("doubly nested template instantiation (closing angle bracket 2)")
         << 806 << 41 << 806 << 42
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("doubly nested template instantiation (closing angle bracket 3)")
         << 806 << 42 << 806 << 43
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 1)")
         << 808 << 13 << 808 << 14
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 2)")
         << 808 << 27 << 808 << 28
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 3)")
         << 808 << 39 << 808 << 40
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("triply nested template instantiation with spacing (opening angle bracket 4)")
         << 809 << 12 << 809 << 13
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketOpen);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 1)")
         << 810 << 1 << 810 << 2
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 2)")
         << 810 << 2 << 810 << 3
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 3)")
         << 811 << 2 << 811 << 3
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 4)")
         << 812 << 3 << 812 << 4
-        << QList<int>{C_PUNCTUATION} << int(CppTools::SemanticHighlighter::AngleBracketClose);
+        << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("cyrillic string") << 792 << 24 << 792 << 27 << QList<int>{C_STRING} << 0;
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
         << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;

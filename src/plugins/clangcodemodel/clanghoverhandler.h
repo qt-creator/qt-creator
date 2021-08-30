@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cpphoverhandler.h>
+#include <cppeditor/baseeditordocumentprocessor.h>
+#include <cppeditor/cpphoverhandler.h>
 #include <texteditor/basehoverhandler.h>
 
 namespace ClangCodeModel {
@@ -46,11 +46,11 @@ public:
 
 private:
     void abort() override;
-    void processToolTipInfo(const CppTools::ToolTipInfo &info);
+    void processToolTipInfo(const CppEditor::ToolTipInfo &info);
 
 private:
     int m_cursorPosition = -1;
-    QScopedPointer<QFutureWatcher<CppTools::ToolTipInfo>> m_futureWatcher;
+    QScopedPointer<QFutureWatcher<CppEditor::ToolTipInfo>> m_futureWatcher;
     ReportPriority m_reportPriority;
 };
 

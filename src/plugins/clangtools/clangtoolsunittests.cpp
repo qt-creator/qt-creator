@@ -31,10 +31,10 @@
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/clangdiagnosticconfig.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cpptoolstestcase.h>
+#include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cpptoolstestcase.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -50,11 +50,11 @@
 #include <QTimer>
 #include <QtTest>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-Q_DECLARE_METATYPE(CppTools::ClangDiagnosticConfig)
+Q_DECLARE_METATYPE(CppEditor::ClangDiagnosticConfig)
 
 namespace ClangTools {
 namespace Internal {

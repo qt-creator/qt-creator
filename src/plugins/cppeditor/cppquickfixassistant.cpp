@@ -27,10 +27,9 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditorwidget.h"
+#include "cppmodelmanager.h"
 #include "cppquickfixes.h"
-
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpprefactoringchanges.h>
+#include "cpprefactoringchanges.h"
 
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -41,9 +40,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-using namespace TextEditor;
-using namespace CppTools;
 using namespace CPlusPlus;
+using namespace TextEditor;
 
 namespace CppEditor {
 namespace Internal {

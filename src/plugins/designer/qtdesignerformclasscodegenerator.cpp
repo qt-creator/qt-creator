@@ -29,7 +29,7 @@
 
 #include <utils/codegeneration.h>
 #include <coreplugin/icore.h>
-#include <cpptools/abstracteditorsupport.h>
+#include <cppeditor/abstracteditorsupport.h>
 #include <qtsupport/codegenerator.h>
 #include <qtsupport/codegensettings.h>
 #include <extensionsystem/pluginmanager.h>
@@ -94,9 +94,9 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     const QString unqualifiedClassName = namespaceList.takeLast();
 
     const QString headerLicense =
-            CppTools::AbstractEditorSupport::licenseTemplate(parameters.headerFile, parameters.className);
+            CppEditor::AbstractEditorSupport::licenseTemplate(parameters.headerFile, parameters.className);
     const QString sourceLicense =
-            CppTools::AbstractEditorSupport::licenseTemplate(parameters.sourceFile, parameters.className);
+            CppEditor::AbstractEditorSupport::licenseTemplate(parameters.sourceFile, parameters.className);
     // Include guards
     const QString guard = Utils::headerGuard(parameters.headerFile, namespaceList);
 

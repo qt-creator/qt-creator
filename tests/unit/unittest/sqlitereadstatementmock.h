@@ -27,7 +27,7 @@
 
 #include "googletest.h"
 
-#include <cpptools/usages.h>
+#include <cppeditor/usages.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/sourcepathcachetypes.h>
 #include <projectstorageids.h>
@@ -60,9 +60,9 @@ public:
                 (Utils::SmallStringView, long long),
                 ());
 
-    MOCK_METHOD(CppTools::Usages, valuesReturnSourceUsages, (std::size_t, int, int, int), ());
+    MOCK_METHOD(CppEditor::Usages, valuesReturnSourceUsages, (std::size_t, int, int, int), ());
 
-    MOCK_METHOD(CppTools::Usages, valuesReturnSourceUsages, (std::size_t, int, int, int, int), ());
+    MOCK_METHOD(CppEditor::Usages, valuesReturnSourceUsages, (std::size_t, int, int, int, int), ());
 
     MOCK_METHOD(Utils::optional<int>, valueReturnInt32, (Utils::SmallStringView), ());
 
@@ -221,7 +221,7 @@ public:
             return valuesReturnStringVector(reserveSize);
         else if constexpr (std::is_same_v<ResultType, long long>)
             return valuesReturnRowIds(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, CppTools::Usage>)
+        else if constexpr (std::is_same_v<ResultType, CppEditor::Usage>)
             return valuesReturnSourceUsages(reserveSize, queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceContext>)
             return valuesReturnCacheSourceContexts(reserveSize);

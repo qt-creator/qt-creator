@@ -1,4 +1,4 @@
 add_qtc_test(tst_cplusplus_lexer
-  DEPENDS CppTools
+  DEPENDS CppEditor
   SOURCES tst_lexer.cpp
 )

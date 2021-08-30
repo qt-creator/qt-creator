@@ -36,7 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cpphighlighter.h>
-#include <cpptools/cppcodestylesnippets.h>
+#include <cppeditor/cppcodestylesnippets.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <projectexplorer/project.h>
@@ -163,7 +163,7 @@ void ClangFormatConfigWidget::initChecksAndPreview()
     TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
-    m_preview->setPlainText(QLatin1String(CppTools::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+    m_preview->setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
     m_preview->textDocument()->setIndenter(new ClangFormatIndenter(m_preview->document()));
     m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     m_preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);

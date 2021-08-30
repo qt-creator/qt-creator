@@ -31,8 +31,8 @@
 #include "clangtoolssettings.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/checkablemessagebox.h>
@@ -41,9 +41,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace Utils;
 
 namespace ClangTools {
@@ -293,7 +293,7 @@ QString documentationUrl(const QString &checkName)
         name = checkName.mid(clazyPrefix.length());
         url = clazyDocUrl(name);
     } else if (name.startsWith(clangStaticAnalyzerPrefix)) {
-        url = CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
+        url = CppEditor::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
     } else {
         url = clangTidyDocUrl(name);
     }

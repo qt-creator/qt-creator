@@ -3,7 +3,7 @@ add_qtc_plugin(Designer
   DEPENDS designerintegrationv2
     Qt5::Designer Qt5::PrintSupport Qt5::DesignerComponents
   DEFINES CPP_ENABLED
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer QtSupport ResourceEditor TextEditor
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport ResourceEditor TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
   SOURCES
     codemodelhelpers.cpp codemodelhelpers.h

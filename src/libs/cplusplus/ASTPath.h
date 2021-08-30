@@ -69,4 +69,4 @@ private:
     QList<AST *> _nodes;
 };
 
-} // namespace CppTools
+} // namespace CPlusPlus

@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <cpptools/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfig.h>
 
 #include <QWidget>
 
-namespace CppTools {
+namespace CppEditor {
 class ClangDiagnosticConfigsSelectionWidget;
 }
 
@@ -50,7 +50,7 @@ public:
     explicit RunSettingsWidget(QWidget *parent = nullptr);
     ~RunSettingsWidget();
 
-    CppTools::ClangDiagnosticConfigsSelectionWidget *diagnosticSelectionWidget();
+    CppEditor::ClangDiagnosticConfigsSelectionWidget *diagnosticSelectionWidget();
 
     void fromSettings(const RunSettings &s);
     RunSettings toSettings() const;

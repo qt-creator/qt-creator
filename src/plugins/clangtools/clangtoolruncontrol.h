@@ -28,8 +28,8 @@
 #include "clangfileinfo.h"
 #include "clangtoolssettings.h"
 
-#include <cpptools/clangdiagnosticconfig.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/projectinfo.h>
 #include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
 #include <utils/temporarydirectory.h>
@@ -70,7 +70,7 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
 public:
     ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
                        const RunSettings &runSettings,
-                       const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                       const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
                        bool buildBeforeAnalysis);
 
@@ -107,15 +107,15 @@ private:
 
 private:
     RunSettings m_runSettings;
-    CppTools::ClangDiagnosticConfig m_diagnosticConfig;
+    CppEditor::ClangDiagnosticConfig m_diagnosticConfig;
     FileInfos m_fileInfos;
 
     ProjectBuilder *m_projectBuilder = nullptr;
     Utils::Environment m_environment;
     Utils::TemporaryDirectory m_temporaryDir;
 
-    CppTools::ProjectInfo::ConstPtr m_projectInfoBeforeBuild;
-    CppTools::ProjectInfo::ConstPtr m_projectInfo;
+    CppEditor::ProjectInfo::ConstPtr m_projectInfoBeforeBuild;
+    CppEditor::ProjectInfo::ConstPtr m_projectInfo;
     QString m_targetTriple;
     Utils::Id m_toolChainType;
 

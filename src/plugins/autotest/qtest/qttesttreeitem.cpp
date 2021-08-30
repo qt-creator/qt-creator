@@ -28,7 +28,7 @@
 #include "qttestparser.h"
 #include "qttestframework.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -130,7 +130,7 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return nullptr);
 
     QtTestConfiguration *config = nullptr;
@@ -172,7 +172,7 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
 static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                                                  QList<ITestConfiguration *> &testConfigurations)
 {
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
@@ -215,7 +215,7 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
 
 static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *> &testConfigs)
 {
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {

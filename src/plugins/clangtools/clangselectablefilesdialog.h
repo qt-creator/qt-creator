@@ -34,7 +34,7 @@ class QDialogButtonBox;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace CppTools { class ProjectInfo; }
+namespace CppEditor { class ProjectInfo; }
 
 namespace ClangTools {
 namespace Internal {

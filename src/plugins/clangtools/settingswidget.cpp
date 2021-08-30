@@ -30,8 +30,8 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/clangdiagnosticconfigsselectionwidget.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
 
 #include <debugger/analyzer/analyzericons.h>
 
@@ -110,7 +110,7 @@ void SettingsWidget::apply()
     m_settings->setRunSettings(m_ui->runSettingsWidget->toSettings());
 
     // Custom configs
-    const CppTools::ClangDiagnosticConfigs customConfigs
+    const CppEditor::ClangDiagnosticConfigs customConfigs
         = m_ui->runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
     m_settings->setDiagnosticConfigs(customConfigs);
 

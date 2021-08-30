@@ -27,7 +27,7 @@
 
 #include <utils/networkaccessmanager.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <designer/designerconstants.h>
 #include <glsleditor/glsleditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
@@ -79,18 +79,18 @@ void Protocol::list()
 
 Protocol::ContentType Protocol::contentType(const QString &mt)
 {
-    if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
+    if (mt == QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppEditor::Constants::C_HEADER_MIMETYPE)
         || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE)
         || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_VERT)
         || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_FRAG)
         || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_VERT_ES)
         || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_FRAG_ES))
         return C;
-    if (mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+    if (mt == QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)
+        || mt == QLatin1String(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
         return Cpp;
     if (mt == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
         || mt == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE)

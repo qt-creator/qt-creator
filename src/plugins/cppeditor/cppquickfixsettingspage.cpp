@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "cppquickfixsettingspage.h"
+
 #include "cppeditorconstants.h"
 #include "cppquickfixsettings.h"
 #include "cppquickfixsettingswidget.h"
-#include "cpptools/cpptoolsconstants.h"
+
 #include <QCoreApplication>
 #include <QtDebug>
 
@@ -36,8 +37,8 @@ using namespace CppEditor::Internal;
 CppQuickFixSettingsPage::CppQuickFixSettingsPage()
 {
     setId(Constants::QUICK_FIX_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppTools", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
-    setCategory(CppTools::Constants::CPP_SETTINGS_CATEGORY);
+    setDisplayName(QCoreApplication::translate("CppEditor", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+    setCategory(Constants::CPP_SETTINGS_CATEGORY);
 }
 
 QWidget *CppQuickFixSettingsPage::widget()

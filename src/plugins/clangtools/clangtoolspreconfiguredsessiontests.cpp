@@ -30,8 +30,8 @@
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/compileroptionsbuilder.h>
+#include <cppeditor/projectinfo.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -49,7 +49,7 @@
 
 #include <functional>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 
 static bool processEventsUntil(const std::function<bool()> condition, int timeOutInMs = 30000)

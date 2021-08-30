@@ -29,7 +29,7 @@
 #include "clangformatsettings.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cppcodestylesettings.h>
+#include <cppeditor/cppcodestylesettings.h>
 #include <texteditor/tabsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -39,7 +39,7 @@
 using namespace clang;
 using namespace format;
 using namespace llvm;
-using namespace CppTools;
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;

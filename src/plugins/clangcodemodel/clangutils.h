@@ -27,8 +27,8 @@
 
 #include <cplusplus/Icons.h>
 
-#include <cpptools/projectinfo.h>
-#include <cpptools/compileroptionsbuilder.h>
+#include <cppeditor/projectinfo.h>
+#include <cppeditor/compileroptionsbuilder.h>
 
 #include <QPair>
 #include <QTextCursor>
@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 class QTextBlock;
 QT_END_NAMESPACE
 
-namespace CppTools {
+namespace CppEditor {
 class ClangDiagnosticConfig;
 class CppEditorDocumentHandle;
 }
@@ -51,19 +51,19 @@ namespace ProjectExplorer { class Project; }
 namespace ClangCodeModel {
 namespace Internal {
 
-CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
+CppEditor::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
-CppTools::ClangDiagnosticConfig warningsConfigForProject(ProjectExplorer::Project *project);
+CppEditor::ClangDiagnosticConfig warningsConfigForProject(ProjectExplorer::Project *project);
 const QStringList optionsForProject(ProjectExplorer::Project *project);
 
-QStringList createClangOptions(const CppTools::ProjectPart &projectPart, const QString &filePath,
-                               const CppTools::ClangDiagnosticConfig &warningsConfig,
+QStringList createClangOptions(const CppEditor::ProjectPart &projectPart, const QString &filePath,
+                               const CppEditor::ClangDiagnosticConfig &warningsConfig,
                                const QStringList &projectOptions);
 
-CppTools::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
-CppTools::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);
-bool isProjectPartLoaded(const CppTools::ProjectPart::ConstPtr projectPart);
+CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
+CppEditor::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);
+bool isProjectPartLoaded(const CppEditor::ProjectPart::ConstPtr projectPart);
 QString projectPartIdForFile(const QString &filePath);
 int clangColumn(const QTextBlock &line, int cppEditorColumn);
 int cppEditorColumn(const QTextBlock &line, int clangColumn);
@@ -87,8 +87,8 @@ public:
 };
 
 enum class CompilationDbPurpose { Project, CodeModel };
-GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::ConstPtr projectInfo,
-            CompilationDbPurpose purpose, const CppTools::ClangDiagnosticConfig &warningsConfig,
+GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
+            CompilationDbPurpose purpose, const CppEditor::ClangDiagnosticConfig &warningsConfig,
             const QStringList &projectOptions);
 
 class DiagnosticTextInfo

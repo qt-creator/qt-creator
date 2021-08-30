@@ -34,10 +34,11 @@
 #include <QSharedPointer>
 #include <QStringList>
 
-namespace CppTools { class CppCodeStylePreferences; }
 namespace TextEditor { class QuickFixOperation; }
 
 namespace CppEditor {
+class CppCodeStylePreferences;
+
 namespace Internal {
 namespace Tests {
 
@@ -84,9 +85,9 @@ protected:
     QList<QuickFixTestDocument::Ptr> m_testDocuments;
 
 private:
-    QScopedPointer<CppTools::Tests::TemporaryDir> m_temporaryDirectory;
+    QScopedPointer<::CppEditor::Tests::TemporaryDir> m_temporaryDirectory;
 
-    CppTools::CppCodeStylePreferences *m_cppCodeStylePreferences;
+    CppCodeStylePreferences *m_cppCodeStylePreferences;
     QByteArray m_cppCodeStylePreferencesOriginalDelegateId;
 
     ProjectExplorer::HeaderPaths m_headerPathsToRestore;

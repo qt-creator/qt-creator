@@ -150,8 +150,8 @@
 
 #ifdef WITH_TESTS
 
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/projectinfo.h>
 
 #include <utils/executeondestruction.h>
 
@@ -2302,7 +2302,7 @@ private slots:
     void testStateMachine();
 
 private:
-    CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
+    CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
 };
 
 void DebuggerUnitTests::initTestCase()
@@ -2319,7 +2319,7 @@ void DebuggerUnitTests::initTestCase()
 //        QSKIP("No clang suitable for analyzing found");
 
     s_testRun = true;
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/debugger/unit-tests");
+    m_tmpDir = new CppEditor::Tests::TemporaryCopiedDir(":/debugger/unit-tests");
     QVERIFY(m_tmpDir->isValid());
 }
 
@@ -2332,7 +2332,7 @@ void DebuggerUnitTests::testStateMachine()
 {
     QString proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(proFile, true));
 
     QEventLoop loop;

@@ -8,7 +8,7 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     qtsupport \
     texteditor \
-    cpptools \
+    cppeditor \
     resourceeditor
 
 QTC_PLUGIN_RECOMMENDS += \

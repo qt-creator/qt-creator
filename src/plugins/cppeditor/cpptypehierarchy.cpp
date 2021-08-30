@@ -29,11 +29,11 @@
 #include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
+#include "cppelementevaluator.h"
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppelementevaluator.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/dropsupport.h>
@@ -49,7 +49,6 @@
 #include <QVBoxLayout>
 
 using namespace CppEditor;
-using namespace CppTools;
 using namespace CppEditor::Internal;
 using namespace Utils;
 

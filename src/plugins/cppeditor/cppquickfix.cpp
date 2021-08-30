@@ -26,12 +26,10 @@
 #include "cppquickfix.h"
 
 #include "cppquickfixassistant.h"
+#include "cpprefactoringchanges.h"
 
-#include <cpptools/cpprefactoringchanges.h>
-
-using namespace CppTools;
-using namespace TextEditor;
 using namespace CPlusPlus;
+using namespace TextEditor;
 
 namespace CppEditor {
 namespace Internal {

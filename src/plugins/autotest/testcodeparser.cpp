@@ -33,8 +33,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -373,7 +373,7 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
 
 void TestCodeParser::onTaskStarted(Utils::Id type)
 {
-    if (type == CppTools::Constants::TASK_INDEX) {
+    if (type == CppEditor::Constants::TASK_INDEX) {
         m_codeModelParsing = true;
         if (m_parserState == FullParse || m_parserState == PartialParse) {
             m_postponedUpdateType = m_parserState == FullParse
@@ -392,7 +392,7 @@ void TestCodeParser::onAllTasksFinished(Utils::Id type)
         emit parsingFailed();
 
     // only CPP parsing is relevant as we trigger Qml parsing internally anyway
-    if (type != CppTools::Constants::TASK_INDEX)
+    if (type != CppEditor::Constants::TASK_INDEX)
         return;
     m_codeModelParsing = false;
 

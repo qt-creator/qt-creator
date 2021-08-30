@@ -8,7 +8,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "QtSupport" }
 
     files: [

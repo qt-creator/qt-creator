@@ -35,7 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -1023,7 +1023,7 @@ QString QmakePriFile::varNameForAdding(const QString &mimeType)
     }
 
     if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
-               || mimeType == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+               || mimeType == QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
                || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE)) {
         return QLatin1String("SOURCES");
     }

@@ -29,8 +29,8 @@
 #include "compilationdbparser.h"
 
 #include <coreplugin/icontext.h>
-#include <cpptools/cppprojectupdater.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cppprojectupdater.h>
+#include <cppeditor/projectinfo.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -176,7 +176,7 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
 {
     HeaderPaths headerPaths;
     Macros macros;
-    CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::Unclassified;
+    CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::Unclassified;
 
     const QStringList originalFlags = flags;
     filteredFlags(fileName.fileName(),
@@ -195,8 +195,8 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
     rpp.setHeaderPaths(headerPaths);
     rpp.setMacros(macros);
 
-    if (fileKind == CppTools::ProjectFile::Kind::CHeader
-            || fileKind == CppTools::ProjectFile::Kind::CSource) {
+    if (fileKind == CppEditor::ProjectFile::Kind::CHeader
+            || fileKind == CppEditor::ProjectFile::Kind::CSource) {
         if (!kitInfo.cToolChain) {
             kitInfo.cToolChain = toolchainFromFlags(kit,
                                                     originalFlags,
@@ -266,8 +266,8 @@ FolderNode *createFoldersIfNeeded(FolderNode *root, const Utils::FilePath &folde
 
 FileType fileTypeForName(const QString &fileName)
 {
-    CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(fileName);
-    if (CppTools::ProjectFile::isHeader(fileKind))
+    CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::classify(fileName);
+    if (CppEditor::ProjectFile::isHeader(fileKind))
         return FileType::Header;
     return FileType::Source;
 }
@@ -335,7 +335,7 @@ void createTree(std::unique_ptr<ProjectNode> &root,
 
 CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
+    , m_cppCodeModelUpdater(std::make_unique<CppEditor::CppProjectUpdater>())
     , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged,

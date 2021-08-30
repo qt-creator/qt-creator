@@ -28,11 +28,11 @@
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
-#include <cpptools/cppclassesfilter.h>
-#include <cpptools/cppfunctionsfilter.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/indexitem.h>
+#include <cppeditor/cppclassesfilter.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppfunctionsfilter.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/indexitem.h>
 #include <languageclient/locatorfilter.h>
 #include <projectexplorer/session.h>
 #include <utils/link.h>
@@ -45,11 +45,11 @@ namespace Internal {
 
 const int MaxResultCount = 10000;
 
-class CppLocatorFilter : public CppTools::CppLocatorFilter
+class CppLocatorFilter : public CppEditor::CppLocatorFilter
 {
 public:
     CppLocatorFilter()
-        : CppTools::CppLocatorFilter(CppTools::CppModelManager::instance()->locatorData())
+        : CppEditor::CppLocatorFilter(CppEditor::CppModelManager::instance()->locatorData())
     {
         setId({});
         setDisplayName({});
@@ -74,11 +74,11 @@ public:
 };
 
 
-class CppClassesFilter : public CppTools::CppClassesFilter
+class CppClassesFilter : public CppEditor::CppClassesFilter
 {
 public:
     CppClassesFilter()
-        : CppTools::CppClassesFilter(CppTools::CppModelManager::instance()->locatorData())
+        : CppEditor::CppClassesFilter(CppEditor::CppModelManager::instance()->locatorData())
     {
         setId({});
         setDisplayName({});
@@ -101,11 +101,11 @@ public:
     }
 };
 
-class CppFunctionsFilter : public CppTools::CppFunctionsFilter
+class CppFunctionsFilter : public CppEditor::CppFunctionsFilter
 {
 public:
     CppFunctionsFilter()
-        : CppTools::CppFunctionsFilter(CppTools::CppModelManager::instance()->locatorData())
+        : CppEditor::CppFunctionsFilter(CppEditor::CppModelManager::instance()->locatorData())
     {
         setId({});
         setDisplayName({});
@@ -139,8 +139,8 @@ ClangGlobalSymbolFilter::ClangGlobalSymbolFilter(ILocatorFilter *cppFilter,
                                                  ILocatorFilter *lspFilter)
     : m_cppFilter(cppFilter), m_lspFilter(lspFilter)
 {
-    setId(CppTools::Constants::LOCATOR_FILTER_ID);
-    setDisplayName(CppTools::Constants::LOCATOR_FILTER_DISPLAY_NAME);
+    setId(CppEditor::Constants::LOCATOR_FILTER_ID);
+    setDisplayName(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME);
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -175,8 +175,8 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     if (!lspMatches.isEmpty()) {
         std::set<std::tuple<Utils::FilePath, int, int>> locations;
         for (const auto &entry : qAsConst(matches)) {
-            const CppTools::IndexItem::Ptr item
-                    = qvariant_cast<CppTools::IndexItem::Ptr>(entry.internalData);
+            const CppEditor::IndexItem::Ptr item
+                    = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             locations.insert(std::make_tuple(Utils::FilePath::fromString(item->fileName()),
                                              item->line(),
                                              item->column()));
@@ -198,7 +198,7 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
 void ClangGlobalSymbolFilter::accept(Core::LocatorFilterEntry selection, QString *newText,
                                      int *selectionStart, int *selectionLength) const
 {
-    if (qvariant_cast<CppTools::IndexItem::Ptr>(selection.internalData))
+    if (qvariant_cast<CppEditor::IndexItem::Ptr>(selection.internalData))
         m_cppFilter->accept(selection, newText, selectionStart, selectionLength);
     else
         m_lspFilter->accept(selection, newText, selectionStart, selectionLength);
@@ -208,8 +208,8 @@ void ClangGlobalSymbolFilter::accept(Core::LocatorFilterEntry selection, QString
 ClangClassesFilter::ClangClassesFilter()
     : ClangGlobalSymbolFilter(new CppClassesFilter, new LspClassesFilter)
 {
-    setId(CppTools::Constants::CLASSES_FILTER_ID);
-    setDisplayName(CppTools::Constants::CLASSES_FILTER_DISPLAY_NAME);
+    setId(CppEditor::Constants::CLASSES_FILTER_ID);
+    setDisplayName(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME);
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -217,8 +217,8 @@ ClangClassesFilter::ClangClassesFilter()
 ClangFunctionsFilter::ClangFunctionsFilter()
     : ClangGlobalSymbolFilter(new CppFunctionsFilter, new LspFunctionsFilter)
 {
-    setId(CppTools::Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(CppTools::Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
+    setId(CppEditor::Constants::FUNCTIONS_FILTER_ID);
+    setDisplayName(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }

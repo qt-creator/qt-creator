@@ -38,10 +38,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojectupdater.h>
-#include <cpptools/generatedcodemodelsupport.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppprojectupdater.h>
+#include <cppeditor/generatedcodemodelsupport.h>
+#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
@@ -219,7 +219,7 @@ DeploymentKnowledge QmakeProject::deploymentKnowledge() const
 QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     : BuildSystem(bc)
     , m_qmakeVfs(new QMakeVfs)
-    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
 {
     setParseDelay(0);
 
@@ -392,7 +392,7 @@ void QmakeBuildSystem::updateCppCodeModel()
             });
         }
         generators.append(proGenerators);
-        fileList.prepend(CppTools::CppModelManager::configurationFileName());
+        fileList.prepend(CppEditor::CppModelManager::configurationFileName());
         rpp.setFiles(fileList, [cumulativeSourceFiles](const QString &filePath) {
             // Keep this lambda thread-safe!
             return !cumulativeSourceFiles.contains(filePath);

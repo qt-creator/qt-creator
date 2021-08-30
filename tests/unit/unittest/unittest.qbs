@@ -84,7 +84,7 @@ Project {
                         "QT_USE_FAST_CONCATENATION",
                         "CLANGSUPPORT_BUILD_STATIC_LIB",
                         "CLANGTOOLS_STATIC_LIBRARY",
-                        "CPPTOOLS_STATIC_LIBRARY",
+                        "CPPEDITOR_STATIC_LIBRARY",
                         "DEBUGGER_STATIC_LIBRARY",
                         "UNIT_TESTS",
                         "DONT_CHECK_MESSAGE_COUNTER",
@@ -462,8 +462,8 @@ Project {
         }
 
         Group {
-            name: "sources from cpptools"
-            prefix: "../../../src/plugins/cpptools/"
+            name: "sources from cppeditor"
+            prefix: "../../../src/plugins/cppeditor/"
             files: [
                 "cppprojectfile.cpp",
                 "cppprojectfile.h",

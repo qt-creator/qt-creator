@@ -63,7 +63,7 @@ public:
     static QString formSuffix();
     static QString profileSuffix();
 
-    // Query CppTools settings for the class wizard settings
+    // Query CppEditor settings for the class wizard settings
     static bool lowerCaseFiles();
 
     static bool qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);

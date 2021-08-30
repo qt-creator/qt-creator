@@ -1,4 +1,4 @@
 add_qtc_test(tst_cplusplus_checksymbols
-  DEPENDS CppTools ProjectExplorer TextEditor
+  DEPENDS CppEditor ProjectExplorer TextEditor
   SOURCES tst_checksymbols.cpp
 )

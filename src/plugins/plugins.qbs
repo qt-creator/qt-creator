@@ -28,7 +28,6 @@ Project {
         "cpaster/frontend/frontend.qbs",
         "cppcheck/cppcheck.qbs",
         "cppeditor/cppeditor.qbs",
-        "cpptools/cpptools.qbs",
         "ctfvisualizer/ctfvisualizer.qbs",
         "cvs/cvs.qbs",
         "debugger/debugger.qbs",

@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CppEditor::Internal::CppCodeStyleSettingsPage</class>
+ <widget class="QWidget" name="CppEditor::Internal::CppCodeStyleSettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>463</width>
+    <height>317</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QTabWidget" name="categoryTab">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="generalTab">
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="TextEditor::TabSettingsWidget" name="tabSettingsWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" rowspan="2">
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditGeneral">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>347</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="contentTab">
+      <attribute name="title">
+       <string>Content</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QGroupBox" name="contentGroupBox">
+         <property name="title">
+          <string>Indent</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QCheckBox" name="indentAccessSpecifiers">
+            <property name="text">
+             <string>&quot;public&quot;, &quot;protected&quot; and
+&quot;private&quot; within class body</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentDeclarationsRelativeToAccessSpecifiers">
+            <property name="text">
+             <string>Declarations relative to &quot;public&quot;,
+&quot;protected&quot; and &quot;private&quot;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentFunctionBody">
+            <property name="text">
+             <string>Statements within function body</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentBlockBody">
+            <property name="text">
+             <string>Statements within blocks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentNamespaceBody">
+            <property name="text">
+             <string>Declarations within
+&quot;namespace&quot; definition</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>17</width>
+              <height>114</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditContent">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="bracesTab">
+      <attribute name="title">
+       <string>Braces</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="bracesGroupBox">
+         <property name="title">
+          <string>Indent Braces</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QCheckBox" name="indentClassBraces">
+            <property name="text">
+             <string>Class declarations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentNamespaceBraces">
+            <property name="text">
+             <string>Namespace declarations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentEnumBraces">
+            <property name="text">
+             <string>Enum declarations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentFunctionBraces">
+            <property name="text">
+             <string>Function declarations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentBlockBraces">
+            <property name="text">
+             <string>Blocks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>195</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditBraces">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="switchTab">
+      <attribute name="title">
+       <string>&quot;switch&quot;</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="switchGroupBox">
+         <property name="title">
+          <string>Indent within &quot;switch&quot;</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QCheckBox" name="indentSwitchLabels">
+            <property name="text">
+             <string>&quot;case&quot; or &quot;default&quot;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentCaseStatements">
+            <property name="text">
+             <string>Statements relative to
+&quot;case&quot; or &quot;default&quot;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentCaseBlocks">
+            <property name="text">
+             <string>Blocks relative to
+&quot;case&quot; or &quot;default&quot;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="indentCaseBreak">
+            <property name="text">
+             <string>&quot;break&quot; statement relative to
+&quot;case&quot; or &quot;default&quot;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>143</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditSwitch">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="alignmentTab">
+      <attribute name="title">
+       <string>Alignment</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QGroupBox" name="alignmentGroupBox">
+         <property name="title">
+          <string>Align</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QCheckBox" name="alignAssignments">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Enables alignment to tokens after =, += etc. When the option is disabled, regular continuation line indentation will be used.&lt;br&gt;
+&lt;br&gt;
+With alignment:
+&lt;pre&gt;
+a = a +
+    b
+&lt;/pre&gt;
+Without alignment:
+&lt;pre&gt;
+a = a +
+        b
+&lt;/pre&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Align after assignments</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="extraPaddingConditions">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Adds an extra level of indentation to multiline conditions in the switch, if, while and foreach statements if they would otherwise have the same or less indentation than a nested statement.
+
+For four-spaces indentation only if statement conditions are affected. Without extra padding:
+&lt;pre&gt;
+if (a &amp;&amp;
+    b)
+    c;
+&lt;/pre&gt;
+With extra padding:
+&lt;pre&gt;
+if (a &amp;&amp;
+        b)
+    c;
+&lt;/pre&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Add extra padding to conditions
+if they would align to the next line</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditPadding">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="typesTab">
+      <attribute name="title">
+       <string>Pointers and References</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="pointerReferencesGroupBox">
+         <property name="title">
+          <string>Bind '*' and '&amp;&amp;' in types/declarations to</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QCheckBox" name="bindStarToIdentifier">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;This does not apply to the star and reference symbol in pointer/reference to functions and arrays, e.g.:
+&lt;pre&gt;   int (&amp;rf)() = ...;
+   int (*pf)() = ...;
+
+   int (&amp;ra)[2] = ...;
+   int (*pa)[2] = ...;
+
+&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Identifier</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bindStarToTypeName">
+            <property name="text">
+             <string>Type name</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bindStarToLeftSpecifier">
+            <property name="text">
+             <string>Left const/volatile</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bindStarToRightSpecifier">
+            <property name="toolTip">
+             <string>This does not apply to references.</string>
+            </property>
+            <property name="text">
+             <string>Right const/volatile</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditPointerReferences">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextEditor::TabSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">texteditor/tabsettingswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TextEditor::SnippetEditorWidget</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">texteditor/snippets/snippeteditor.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

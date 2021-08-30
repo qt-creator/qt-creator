@@ -51,7 +51,7 @@
 
 #include <set>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace Debugger;
 
 namespace ClangTools {

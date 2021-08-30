@@ -27,7 +27,7 @@
 
 #include <QObject>
 
-namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
+namespace CppEditor { namespace Tests { class TemporaryCopiedDir; } }
 namespace ProjectExplorer { class Kit; }
 
 namespace Autotest {
@@ -50,7 +50,7 @@ private:
     bool loadProject();
 
     TestTreeModel *m_model = nullptr;
-    CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
+    CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
     ProjectExplorer::Kit *m_kit = nullptr;
 };
 

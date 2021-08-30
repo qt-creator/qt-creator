@@ -28,8 +28,8 @@
 #include "clangcompletionassistprovider.h"
 #include "clanguiheaderondiskmanager.h"
 
-#include <cpptools/cppmodelmanagersupport.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cppmodelmanagersupport.h>
+#include <cppeditor/projectinfo.h>
 
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
@@ -44,10 +44,10 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace TextEditor { class TextEditorWidget; }
-namespace CppTools {
+namespace CppEditor {
 class FollowSymbolInterface;
 class RefactoringEngineInterface;
-} // namespace CppTools
+} // namespace CppEditor
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -57,7 +57,7 @@ class ClangProjectSettings;
 
 class ClangModelManagerSupport:
         public QObject,
-        public CppTools::ModelManagerSupport
+        public CppEditor::ModelManagerSupport
 {
     Q_OBJECT
 
@@ -65,14 +65,14 @@ public:
     ClangModelManagerSupport();
     ~ClangModelManagerSupport() override;
 
-    CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
-    CppTools::CppCompletionAssistProvider *functionHintAssistProvider() override;
+    CppEditor::CppCompletionAssistProvider *completionAssistProvider() override;
+    CppEditor::CppCompletionAssistProvider *functionHintAssistProvider() override;
     TextEditor::BaseHoverHandler *createHoverHandler() override;
-    CppTools::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
+    CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
-    CppTools::FollowSymbolInterface &followSymbolInterface() override;
-    CppTools::RefactoringEngineInterface &refactoringEngineInterface() override;
-    std::unique_ptr<CppTools::AbstractOverviewModel> createOverviewModel() override;
+    CppEditor::FollowSymbolInterface &followSymbolInterface() override;
+    CppEditor::RefactoringEngineInterface &refactoringEngineInterface() override;
+    std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool supportsOutline(const TextEditor::TextDocument *document) const override;
 
     BackendCommunicator &communicator();
@@ -130,7 +130,7 @@ private:
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
     void updateLanguageClient(ProjectExplorer::Project *project,
-                              const CppTools::ProjectInfo::ConstPtr &projectInfo);
+                              const CppEditor::ProjectInfo::ConstPtr &projectInfo);
     ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
     void claimNonProjectSources(ClangdClient *fallbackClient);
 
@@ -139,20 +139,20 @@ private:
     BackendCommunicator m_communicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
     ClangCompletionAssistProvider m_functionHintAssistProvider;
-    std::unique_ptr<CppTools::FollowSymbolInterface> m_followSymbol;
-    std::unique_ptr<CppTools::RefactoringEngineInterface> m_refactoringEngine;
+    std::unique_ptr<CppEditor::FollowSymbolInterface> m_followSymbol;
+    std::unique_ptr<CppEditor::RefactoringEngineInterface> m_refactoringEngine;
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
     Utils::FutureSynchronizer m_generatorSynchronizer;
 };
 
-class ClangModelManagerSupportProvider : public CppTools::ModelManagerSupportProvider
+class ClangModelManagerSupportProvider : public CppEditor::ModelManagerSupportProvider
 {
 public:
     QString id() const override;
     QString displayName() const override;
 
-    CppTools::ModelManagerSupport::Ptr createModelManagerSupport() override;
+    CppEditor::ModelManagerSupport::Ptr createModelManagerSupport() override;
 };
 
 } // namespace Internal

@@ -5,10 +5,9 @@ QtcPlugin {
     targetName: "ClangFormatPlugin"
 
     Depends { name: "Core" }
-    Depends { name: "TextEditor" }
     Depends { name: "CppEditor" }
-    Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
     Depends { name: "libclang"; required: false }

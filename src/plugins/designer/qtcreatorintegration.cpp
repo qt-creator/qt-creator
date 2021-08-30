@@ -30,12 +30,12 @@
 #include <widgethost.h>
 #include <designer/cpp/formclasswizardpage.h>
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppworkingcopy.h>
-#include <cpptools/insertionpointlocator.h>
-#include <cpptools/symbolfinder.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cppworkingcopy.h>
+#include <cppeditor/insertionpointlocator.h>
+#include <cppeditor/symbolfinder.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <coreplugin/icore.h>
@@ -258,10 +258,10 @@ static void addDeclaration(const Snapshot &snapshot,
 {
     const QString declaration = "void " + functionName + ";\n";
 
-    CppTools::CppRefactoringChanges refactoring(snapshot);
-    CppTools::InsertionPointLocator find(refactoring);
-    const CppTools::InsertionLocation loc = find.methodDeclarationInClass(
-                fileName, cl, CppTools::InsertionPointLocator::PrivateSlot);
+    CppEditor::CppRefactoringChanges refactoring(snapshot);
+    CppEditor::InsertionPointLocator find(refactoring);
+    const CppEditor::InsertionLocation loc = find.methodDeclarationInClass(
+                fileName, cl, CppEditor::InsertionPointLocator::PrivateSlot);
 
     //
     //! \todo change this to use the Refactoring changes.
@@ -404,7 +404,7 @@ static inline const QStringList uiClassNames(QString formObjectName)
 }
 
 static Document::Ptr getParsedDocument(const QString &fileName,
-                                       CppTools::WorkingCopy &workingCopy,
+                                       CppEditor::WorkingCopy &workingCopy,
                                        Snapshot &snapshot)
 {
     QByteArray src;
@@ -447,7 +447,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QString uicedName = "ui_" + fi.completeBaseName() + ".h";
 
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
-    Snapshot docTable = CppTools::CppModelManager::instance()->snapshot();
+    Snapshot docTable = CppEditor::CppModelManager::instance()->snapshot();
     Snapshot newDocTable;
     const Project *uiProject = SessionManager::projectForFile(currentUiFile);
     if (uiProject) {
@@ -458,9 +458,9 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         const Utils::FilePath configFileName =
-                Utils::FilePath::fromString(CppTools::CppModelManager::configurationFileName());
-        const CppTools::WorkingCopy::Table elements =
-                CppTools::CppModelManager::instance()->workingCopy().elements();
+                Utils::FilePath::fromString(CppEditor::CppModelManager::configurationFileName());
+        const CppEditor::WorkingCopy::Table elements =
+                CppEditor::CppModelManager::instance()->workingCopy().elements();
         for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
             const Utils::FilePath &fileName = it.key();
             if (fileName != configFileName)
@@ -527,7 +527,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     QString declFilePath;
     if (!fun) {
         // add function declaration to cl
-        CppTools::WorkingCopy workingCopy = CppTools::CppModelManager::instance()->workingCopy();
+        CppEditor::WorkingCopy workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
         declFilePath = declDoc->fileName();
         getParsedDocument(declFilePath, workingCopy, docTable);
         addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
@@ -536,8 +536,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         QList<Utils::FilePath> filePaths;
         for (auto it = docTable.begin(); it != docTable.end(); ++it)
             filePaths << it.key();
-        workingCopy = CppTools::CppModelManager::instance()->workingCopy();
-        docTable = CppTools::CppModelManager::instance()->snapshot();
+        workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
+        docTable = CppEditor::CppModelManager::instance()->snapshot();
         newDocTable = {};
         for (const auto &file : qAsConst(filePaths)) {
             const Document::Ptr doc = docTable.document(file);
@@ -557,16 +557,16 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     }
     QTC_ASSERT(fun, return false);
 
-    CppTools::CppRefactoringChanges refactoring(docTable);
-    CppTools::SymbolFinder symbolFinder;
+    CppEditor::CppRefactoringChanges refactoring(docTable);
+    CppEditor::SymbolFinder symbolFinder;
     if (const Function *funImpl = symbolFinder.findMatchingDefinition(fun, docTable, true)) {
         Core::EditorManager::openEditorAt(QString::fromUtf8(funImpl->fileName()),
                                           funImpl->line() + 2);
         return true;
     }
-    const QString implFilePath = CppTools::correspondingHeaderOrSource(declFilePath);
-    const CppTools::InsertionLocation location = CppTools::insertLocationForMethodDefinition
-            (fun, false, CppTools::NamespaceHandling::CreateMissing, refactoring, implFilePath);
+    const QString implFilePath = CppEditor::correspondingHeaderOrSource(declFilePath);
+    const CppEditor::InsertionLocation location = CppEditor::insertLocationForMethodDefinition
+            (fun, false, CppEditor::NamespaceHandling::CreateMissing, refactoring, implFilePath);
 
     if (BaseTextEditor *editor = editorAt(location.fileName(), location.line(), location.column())) {
         Overview o;
@@ -588,6 +588,6 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
     // Set promotion-relevant parameters on integration.
-    setHeaderSuffix(Utils::mimeTypeForName(CppTools::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
+    setHeaderSuffix(Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
 }

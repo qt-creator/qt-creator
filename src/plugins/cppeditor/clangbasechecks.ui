@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CppEditor::ClangBaseChecks</class>
+ <widget class="QWidget" name="CppEditor::ClangBaseChecks">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>665</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</string>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="useFlagsFromBuildSystemCheckBox">
+     <property name="text">
+      <string>Use diagnostic flags from build system</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="CppEditor::WrappableLineEdit" name="diagnosticOptionsTextEdit"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CppEditor::WrappableLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">cppeditor/wrappablelineedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

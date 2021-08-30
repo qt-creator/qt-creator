@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include <cpptools/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfig.h>
 
 #include <utils/id.h>
 #include <utils/optional.h>
 
 #include <QtGlobal>
 
-namespace CppTools { class ClangDiagnosticConfigsModel; }
+namespace CppEditor { class ClangDiagnosticConfigsModel; }
 namespace Debugger { class DiagnosticLocation; }
 namespace Utils { class FilePath; }
 
@@ -58,7 +58,7 @@ QString createDiagnosticToolTipString(
     Utils::optional<FixitStatus> status = Utils::nullopt,
     bool showSteps = true);
 
-CppTools::ClangDiagnosticConfig builtinConfig();
+CppEditor::ClangDiagnosticConfig builtinConfig();
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 
@@ -77,11 +77,11 @@ Utils::FilePath fullPath(const Utils::FilePath &executable);
 
 QString documentationUrl(const QString &checkName);
 
-CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel();
-CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel(
-    const CppTools::ClangDiagnosticConfigs &customConfigs);
+CppEditor::ClangDiagnosticConfigsModel diagnosticConfigsModel();
+CppEditor::ClangDiagnosticConfigsModel diagnosticConfigsModel(
+    const CppEditor::ClangDiagnosticConfigs &customConfigs);
 
-CppTools::ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId);
+CppEditor::ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId);
 
 QStringList extraClangToolsPrependOptions();
 QStringList extraClangToolsAppendOptions();

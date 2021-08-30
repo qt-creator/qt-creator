@@ -35,10 +35,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cpptoolstestcase.h>
-#include <cpptools/modelmanagertesthelper.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/cpptoolsreuse.h>
+#include <cppeditor/cpptoolstestcase.h>
+#include <cppeditor/modelmanagertesthelper.h>
+#include <cppeditor/projectinfo.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/textdocument.h>
@@ -57,9 +57,9 @@ using namespace ClangCodeModel::Internal;
 
 namespace {
 
-CppTools::Tests::TemporaryDir *globalTemporaryDir()
+CppEditor::Tests::TemporaryDir *globalTemporaryDir()
 {
-    static CppTools::Tests::TemporaryDir dir;
+    static CppEditor::Tests::TemporaryDir dir;
     QTC_CHECK(dir.isValid());
     return &dir;
 }
@@ -102,7 +102,7 @@ private:
 class TestDocument
 {
 public:
-    TestDocument(const QByteArray &fileName, CppTools::Tests::TemporaryDir *temporaryDir = nullptr)
+    TestDocument(const QByteArray &fileName, CppEditor::Tests::TemporaryDir *temporaryDir = nullptr)
     {
         QTC_ASSERT(!fileName.isEmpty(), return);
         const QResource resource(qrcPath("completion/" + fileName));
@@ -122,7 +122,7 @@ public:
     }
 
     static TestDocument fromString(const QByteArray &fileName, const QByteArray &contents,
-                                   CppTools::Tests::TemporaryDir *tempDir = nullptr)
+                                   CppEditor::Tests::TemporaryDir *tempDir = nullptr)
     {
         TestDocument testDocument;
         testDocument.finish(fileName, contents, tempDir);
@@ -146,12 +146,12 @@ private:
     TestDocument() = default;
 
     void finish(const QByteArray &fileName, const QByteArray &contents,
-                CppTools::Tests::TemporaryDir *temporaryDir = nullptr)
+                CppEditor::Tests::TemporaryDir *temporaryDir = nullptr)
     {
         cursorPosition = findCursorMarkerPosition(contents);
         if (!contents.isEmpty()) {
             if (!temporaryDir) {
-                m_temporaryDir.reset(new CppTools::Tests::TemporaryDir);
+                m_temporaryDir.reset(new CppEditor::Tests::TemporaryDir);
                 temporaryDir = m_temporaryDir.data();
             }
 
@@ -159,7 +159,7 @@ private:
         }
     }
 
-    QSharedPointer<CppTools::Tests::TemporaryDir> m_temporaryDir;
+    QSharedPointer<CppEditor::Tests::TemporaryDir> m_temporaryDir;
 };
 
 class OpenEditorAtCursorPosition
@@ -246,11 +246,11 @@ bool OpenEditorAtCursorPosition::waitUntil(const std::function<bool ()> &conditi
     return false;
 }
 
-CppTools::ProjectPart::ConstPtr createProjectPart(const Utils::FilePath &projectFilePath,
+CppEditor::ProjectPart::ConstPtr createProjectPart(const Utils::FilePath &projectFilePath,
                                              const QStringList &files,
                                              const ProjectExplorer::Macros &macros)
 {
-    using namespace CppTools;
+    using namespace CppEditor;
 
     ProjectExplorer::RawProjectPart rpp;
     rpp.setProjectFileLocation("myproject.project");
@@ -262,14 +262,14 @@ CppTools::ProjectPart::ConstPtr createProjectPart(const Utils::FilePath &project
     return ProjectPart::create(projectFilePath, rpp, {}, projectFiles);
 }
 
-CppTools::ProjectInfo::ConstPtr createProjectInfo(ProjectExplorer::Project *project,
+CppEditor::ProjectInfo::ConstPtr createProjectInfo(ProjectExplorer::Project *project,
                                              const QStringList &files,
                                              const ProjectExplorer::Macros &macros)
 {
-    using namespace CppTools;
+    using namespace CppEditor;
     QTC_ASSERT(project, return {});
 
-    const CppTools::ProjectPart::ConstPtr projectPart
+    const CppEditor::ProjectPart::ConstPtr projectPart
             = createProjectPart(project->projectFilePath(), files, macros);
     const auto projectInfo = ProjectInfo::create(
                 {project, ProjectExplorer::KitInfo(nullptr), {}, {}}, {projectPart});
@@ -292,7 +292,7 @@ public:
     bool load()
     {
         m_project = m_helper.createProject(QLatin1String("testProject"));
-        const CppTools::ProjectInfo::ConstPtr projectInfo = createProjectInfo(m_project,
+        const CppEditor::ProjectInfo::ConstPtr projectInfo = createProjectInfo(m_project,
                                                                          m_projectFiles,
                                                                          m_projectMacros);
         const QSet<QString> filesIndexedAfterLoading = m_helper.updateProjectInfo(projectInfo);
@@ -302,14 +302,14 @@ public:
     bool updateProject(const ProjectExplorer::Macros &updatedProjectMacros)
     {
         QTC_ASSERT(m_project, return false);
-        const CppTools::ProjectInfo::ConstPtr updatedProjectInfo
+        const CppEditor::ProjectInfo::ConstPtr updatedProjectInfo
                 = createProjectInfo(m_project, m_projectFiles, updatedProjectMacros);
         return updateProjectInfo(updatedProjectInfo);
 
     }
 
 private:
-    bool updateProjectInfo(const CppTools::ProjectInfo::ConstPtr &projectInfo)
+    bool updateProjectInfo(const CppEditor::ProjectInfo::ConstPtr &projectInfo)
     {
         const QSet<QString> filesIndexedAfterLoading = m_helper.updateProjectInfo(projectInfo);
         return m_projectFiles.size() == filesIndexedAfterLoading.size();
@@ -318,7 +318,7 @@ private:
     ProjectExplorer::Project *m_project;
     QStringList m_projectFiles;
     ProjectExplorer::Macros m_projectMacros;
-    CppTools::Tests::ModelManagerTestHelper m_helper;
+    CppEditor::Tests::ModelManagerTestHelper m_helper;
 };
 
 class ProjectLessCompletionTest
@@ -329,7 +329,7 @@ public:
                               const QStringList &includePaths = QStringList(),
                               const QByteArray &contents = {})
     {
-        CppTools::Tests::TestCase garbageCollectionGlobalSnapshot;
+        CppEditor::Tests::TestCase garbageCollectionGlobalSnapshot;
         QVERIFY(garbageCollectionGlobalSnapshot.succeededSoFar());
 
         const auto testDocument = contents.isEmpty()
@@ -427,8 +427,8 @@ private:
 
 MonitorGeneratedUiFile::MonitorGeneratedUiFile()
 {
-    connect(CppTools::CppModelManager::instance(),
-            &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
+    connect(CppEditor::CppModelManager::instance(),
+            &CppEditor::CppModelManager::abstractEditorSupportContentsUpdated,
             this, &MonitorGeneratedUiFile::onUiFileGenerated);
 }
 
@@ -534,7 +534,7 @@ void ClangCodeCompletionTest::testCompletePreprocessorKeywords()
 
 void ClangCodeCompletionTest::testCompleteIncludeDirective()
 {
-    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("completion/exampleIncludeDir"));
+    CppEditor::Tests::TemporaryCopiedDir testDir(qrcPath("completion/exampleIncludeDir"));
     ProjectLessCompletionTest t("includeDirectiveCompletion.cpp",
                                 QString(),
                                 QStringList(testDir.path()));
@@ -713,14 +713,14 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
 
 void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile()
 {
-    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));
+    CppEditor::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));
     QVERIFY(testDir.isValid());
 
     MonitorGeneratedUiFile monitorGeneratedUiFile;
 
     // Open project
     const QString projectFilePath = testDir.absolutePath("qt-widgets-app.pro");
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true));
     QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
 

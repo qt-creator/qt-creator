@@ -30,7 +30,7 @@
 #include "makefileparserthread.h"
 #include "makestep.h"
 
-#include <cpptools/cppprojectupdater.h>
+#include <cppeditor/cppprojectupdater.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtcppkitinfo.h>
@@ -44,7 +44,7 @@ namespace Internal {
 
 AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
 {
     connect(target, &Target::activeBuildConfigurationChanged, this, [this]() { requestParse(); });
 

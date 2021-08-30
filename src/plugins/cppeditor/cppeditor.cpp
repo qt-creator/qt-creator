@@ -26,8 +26,8 @@
 #include "cppeditor.h"
 #include "cppautocompleter.h"
 #include "cpphighlighter.h"
+#include "cppqtstyleindenter.h"
 
-#include <cpptools/cppqtstyleindenter.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/textdocument.h>
 
@@ -43,7 +43,7 @@ void CppEditor::decorateEditor(TextEditor::TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new CppHighlighter);
     editor->textDocument()->setIndenter(
-        new CppTools::CppQtStyleIndenter(editor->textDocument()->document()));
+        new CppQtStyleIndenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new CppAutoCompleter);
 }
 

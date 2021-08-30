@@ -1,7 +1,7 @@
 import qbs
 
 QtcAutotest {
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }

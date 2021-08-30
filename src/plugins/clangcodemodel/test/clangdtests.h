@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cpptools/cpptoolstestcase.h>
+#include <cppeditor/cpptoolstestcase.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/semantichighlighter.h>
@@ -72,7 +72,7 @@ protected slots:
     virtual void initTestCase();
 
 private:
-    CppTools::Tests::TemporaryCopiedDir *m_projectDir = nullptr;
+    CppEditor::Tests::TemporaryCopiedDir *m_projectDir = nullptr;
     QString m_projectFileName;
     QStringList m_sourceFileNames;
     QHash<QString, TextEditor::TextDocument *> m_sourceDocuments;

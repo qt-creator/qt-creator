@@ -30,7 +30,7 @@
 #include "boosttestparser.h"
 #include "../testframeworkmanager.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -195,7 +195,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
                 ++funcChildren;
         });
         if (funcChildren) {
-            const auto cppMM = CppTools::CppModelManager::instance();
+            const auto cppMM = CppEditor::CppModelManager::instance();
             QTC_ASSERT(cppMM, return);
             testsPerProjectfile[item->proFile()].testCases += funcChildren;
             testsPerProjectfile[item->proFile()].internalTargets.unite(cppMM->internalTargets(item->filePath()));
@@ -236,7 +236,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getTestConfigurations(
         if (!item->enabled()) // ignore child tests known to be disabled when using run selected
             return;
         if (predicate(item)) {
-            const auto cppMM = CppTools::CppModelManager::instance();
+            const auto cppMM = CppEditor::CppModelManager::instance();
             QTC_ASSERT(cppMM, return);
             QString tcName = item->name();
             if (item->state().testFlag(BoostTestTreeItem::Templated))
@@ -282,7 +282,7 @@ ITestConfiguration *BoostTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
-    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return nullptr);
 
     const Type itemType = type();

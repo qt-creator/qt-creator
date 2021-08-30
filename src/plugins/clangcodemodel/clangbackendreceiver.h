@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <cpptools/cppcursorinfo.h>
-#include <cpptools/cppsymbolinfo.h>
-#include <cpptools/baseeditordocumentprocessor.h>
+#include <cppeditor/cppcursorinfo.h>
+#include <cppeditor/cppsymbolinfo.h>
+#include <cppeditor/baseeditordocumentprocessor.h>
 
 #include <clangsupport/clangcodemodelclientinterface.h>
 
@@ -58,12 +58,12 @@ public:
     void cancelProcessor(TextEditor::IAssistProcessor *processor);
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
-    QFuture<CppTools::CursorInfo>
+    QFuture<CppEditor::CursorInfo>
     addExpectedReferencesMessage(quint64 ticket,
-                                 const CppTools::SemanticInfo::LocalUseMap &localUses
-                                     = CppTools::SemanticInfo::LocalUseMap());
-    QFuture<CppTools::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
-    QFuture<CppTools::ToolTipInfo> addExpectedToolTipMessage(quint64 ticket);
+                                 const CppEditor::SemanticInfo::LocalUseMap &localUses
+                                     = CppEditor::SemanticInfo::LocalUseMap());
+    QFuture<CppEditor::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
+    QFuture<CppEditor::ToolTipInfo> addExpectedToolTipMessage(quint64 ticket);
     bool isExpectingCompletionsMessage() const;
 
     void reset();
@@ -84,16 +84,16 @@ private:
 
     struct ReferencesEntry {
         ReferencesEntry() = default;
-        ReferencesEntry(QFutureInterface<CppTools::CursorInfo> futureInterface,
-                        const CppTools::SemanticInfo::LocalUseMap &localUses)
+        ReferencesEntry(QFutureInterface<CppEditor::CursorInfo> futureInterface,
+                        const CppEditor::SemanticInfo::LocalUseMap &localUses)
             : futureInterface(futureInterface)
             , localUses(localUses) {}
-        QFutureInterface<CppTools::CursorInfo> futureInterface;
-        CppTools::SemanticInfo::LocalUseMap localUses;
+        QFutureInterface<CppEditor::CursorInfo> futureInterface;
+        CppEditor::SemanticInfo::LocalUseMap localUses;
     };
     QHash<quint64, ReferencesEntry> m_referencesTable;
-    QHash<quint64, QFutureInterface<CppTools::ToolTipInfo>> m_toolTipsTable;
-    QHash<quint64, QFutureInterface<CppTools::SymbolInfo>> m_followTable;
+    QHash<quint64, QFutureInterface<CppEditor::ToolTipInfo>> m_toolTipsTable;
+    QHash<quint64, QFutureInterface<CppEditor::SymbolInfo>> m_followTable;
 };
 
 } // namespace Internal

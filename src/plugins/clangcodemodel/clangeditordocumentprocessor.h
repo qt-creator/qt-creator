@@ -28,8 +28,8 @@
 #include "clangdiagnosticmanager.h"
 #include "clangeditordocumentparser.h"
 
-#include <cpptools/builtineditordocumentprocessor.h>
-#include <cpptools/semantichighlighter.h>
+#include <cppeditor/builtineditordocumentprocessor.h>
+#include <cppeditor/semantichighlighter.h>
 
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
@@ -48,7 +48,7 @@ namespace Internal {
 
 class BackendCommunicator;
 
-class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcessor
+class ClangEditorDocumentProcessor : public CppEditor::BaseEditorDocumentProcessor
 {
     Q_OBJECT
 
@@ -58,16 +58,16 @@ public:
     ~ClangEditorDocumentProcessor() override;
 
     // BaseEditorDocumentProcessor interface
-    void runImpl(const CppTools::BaseEditorDocumentParser::UpdateParams &updateParams) override;
+    void runImpl(const CppEditor::BaseEditorDocumentParser::UpdateParams &updateParams) override;
     void semanticRehighlight() override;
     void recalculateSemanticInfoDetached(bool force) override;
-    CppTools::SemanticInfo recalculateSemanticInfo() override;
-    CppTools::BaseEditorDocumentParser::Ptr parser() override;
+    CppEditor::SemanticInfo recalculateSemanticInfo() override;
+    CppEditor::BaseEditorDocumentParser::Ptr parser() override;
     CPlusPlus::Snapshot snapshot() override;
     bool isParserRunning() const override;
 
     bool hasProjectPart() const;
-    CppTools::ProjectPart::ConstPtr projectPart() const;
+    CppEditor::ProjectPart::ConstPtr projectPart() const;
     void clearProjectPart();
 
     ::Utils::Id diagnosticConfigId() const;
@@ -90,12 +90,12 @@ public:
 
     void editorDocumentTimerRestarted() override;
 
-    void setParserConfig(const CppTools::BaseEditorDocumentParser::Configuration &config) override;
+    void setParserConfig(const CppEditor::BaseEditorDocumentParser::Configuration &config) override;
 
-    QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params) override;
-    QFuture<CppTools::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
-    QFuture<CppTools::SymbolInfo> requestFollowSymbol(int line, int column) override;
-    QFuture<CppTools::ToolTipInfo> toolTipInfo(const QByteArray &codecName,
+    QFuture<CppEditor::CursorInfo> cursorInfo(const CppEditor::CursorInfoParams &params) override;
+    QFuture<CppEditor::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
+    QFuture<CppEditor::SymbolInfo> requestFollowSymbol(int line, int column) override;
+    QFuture<CppEditor::ToolTipInfo> toolTipInfo(const QByteArray &codecName,
                                                int line,
                                                int column) override;
 
@@ -120,7 +120,7 @@ private:
     void onParserFinished();
 
     void updateBackendProjectPartAndDocument();
-    void updateBackendDocument(const CppTools::ProjectPart &projectPart);
+    void updateBackendDocument(const CppEditor::ProjectPart &projectPart);
     void updateBackendDocumentIfProjectPartExists();
     void requestAnnotationsFromBackend();
 
@@ -137,7 +137,7 @@ private:
     ClangDiagnosticManager m_diagnosticManager;
     BackendCommunicator &m_communicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
-    CppTools::ProjectPart::ConstPtr m_projectPart;
+    CppEditor::ProjectPart::ConstPtr m_projectPart;
     ::Utils::Id m_diagnosticConfigId;
     bool m_isProjectFile = false;
     QFutureWatcher<void> m_parserWatcher;
@@ -146,8 +146,8 @@ private:
     enum class InvalidationState { Off, Scheduled, Canceled } m_invalidationState;
 
     QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
-    CppTools::SemanticHighlighter m_semanticHighlighter;
-    CppTools::BuiltinEditorDocumentProcessor m_builtinProcessor;
+    CppEditor::SemanticHighlighter m_semanticHighlighter;
+    CppEditor::BuiltinEditorDocumentProcessor m_builtinProcessor;
     Utils::FutureSynchronizer m_parserSynchronizer;
 };
 

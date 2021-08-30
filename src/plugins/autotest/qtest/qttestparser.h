@@ -32,7 +32,7 @@
 
 #include <utils/optional.h>
 
-namespace CppTools { class CppModelManager; }
+namespace CppEditor { class CppModelManager; }
 
 namespace Autotest {
 namespace Internal {
@@ -62,7 +62,7 @@ public:
                          const Utils::FilePath &fileName) override;
 
 private:
-    TestCases testCases(const CppTools::CppModelManager *modelManager,
+    TestCases testCases(const CppEditor::CppModelManager *modelManager,
                         const Utils::FilePath &fileName) const;
     QHash<QString, QtTestCodeLocationList> checkForDataTags(const Utils::FilePath &fileName) const;
     struct TestCaseData {

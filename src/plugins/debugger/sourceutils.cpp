@@ -38,9 +38,9 @@
 #include <cplusplus/LookupItem.h>
 #include <cplusplus/Overview.h>
 
-#include <cpptools/abstracteditorsupport.h>
-#include <cpptools/cppprojectfile.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/abstracteditorsupport.h>
+#include <cppeditor/cppprojectfile.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -56,7 +56,7 @@
 
 enum { debug = 0 };
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Utils;

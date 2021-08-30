@@ -26,9 +26,9 @@
 #include "cppdocumentationcommenthelper.h"
 
 #include "cppautocompleter.h"
+#include "cpptoolssettings.h"
+#include "doxygengenerator.h"
 
-#include <cpptools/cpptoolssettings.h>
-#include <cpptools/doxygengenerator.h>
 #include <texteditor/commentssettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -38,7 +38,7 @@
 #include <QDebug>
 #include <QTextBlock>
 
-using namespace CppTools;
+namespace CppEditor::Internal {
 
 namespace {
 
@@ -265,9 +265,6 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 
 } // anonymous namespace
 
-namespace CppEditor {
-namespace Internal {
-
 bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                      const CPlusPlus::Snapshot &snapshot)
 {
@@ -334,5 +331,4 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                                      settings.m_leadingAsterisks);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

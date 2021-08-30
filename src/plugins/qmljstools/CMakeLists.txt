@@ -1,7 +1,7 @@
 add_qtc_plugin(QmlJSTools
   DEPENDS LanguageUtils
   PUBLIC_DEPENDS QmlJS
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer QtSupport TextEditor
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport TextEditor
   SOURCES
     qmljsbundleprovider.cpp qmljsbundleprovider.h
     qmljscodestylepreferencesfactory.cpp qmljscodestylepreferencesfactory.h

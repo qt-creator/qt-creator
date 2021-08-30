@@ -30,7 +30,7 @@
 #include "clangcompletionassistprocessor.h"
 #include "clangeditordocumentprocessor.h"
 
-#include <cpptools/cpptoolsbridge.h>
+#include <cppeditor/cpptoolsbridge.h>
 
 #include <clangsupport/clangcodemodelclientmessages.h>
 
@@ -110,13 +110,13 @@ void BackendReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidge
         m_assistProcessorsTable.remove(item);
 }
 
-QFuture<CppTools::CursorInfo> BackendReceiver::addExpectedReferencesMessage(
+QFuture<CppEditor::CursorInfo> BackendReceiver::addExpectedReferencesMessage(
         quint64 ticket,
-        const CppTools::SemanticInfo::LocalUseMap &localUses)
+        const CppEditor::SemanticInfo::LocalUseMap &localUses)
 {
     QTC_CHECK(!m_referencesTable.contains(ticket));
 
-    QFutureInterface<CppTools::CursorInfo> futureInterface;
+    QFutureInterface<CppEditor::CursorInfo> futureInterface;
     futureInterface.reportStarted();
 
     const ReferencesEntry entry{futureInterface, localUses};
@@ -125,11 +125,11 @@ QFuture<CppTools::CursorInfo> BackendReceiver::addExpectedReferencesMessage(
     return futureInterface.future();
 }
 
-QFuture<CppTools::SymbolInfo> BackendReceiver::addExpectedRequestFollowSymbolMessage(quint64 ticket)
+QFuture<CppEditor::SymbolInfo> BackendReceiver::addExpectedRequestFollowSymbolMessage(quint64 ticket)
 {
     QTC_CHECK(!m_followTable.contains(ticket));
 
-    QFutureInterface<CppTools::SymbolInfo> futureInterface;
+    QFutureInterface<CppEditor::SymbolInfo> futureInterface;
     futureInterface.reportStarted();
 
     m_followTable.insert(ticket, futureInterface);
@@ -137,11 +137,11 @@ QFuture<CppTools::SymbolInfo> BackendReceiver::addExpectedRequestFollowSymbolMes
     return futureInterface.future();
 }
 
-QFuture<CppTools::ToolTipInfo> BackendReceiver::addExpectedToolTipMessage(quint64 ticket)
+QFuture<CppEditor::ToolTipInfo> BackendReceiver::addExpectedToolTipMessage(quint64 ticket)
 {
     QTC_CHECK(!m_toolTipsTable.contains(ticket));
 
-    QFutureInterface<CppTools::ToolTipInfo> futureInterface;
+    QFutureInterface<CppEditor::ToolTipInfo> futureInterface;
     futureInterface.reportStarted();
 
     m_toolTipsTable.insert(ticket, futureInterface);
@@ -167,12 +167,12 @@ void BackendReceiver::reset()
         entry.futureInterface.reportFinished();
     }
     m_referencesTable.clear();
-    for (QFutureInterface<CppTools::SymbolInfo> &futureInterface : m_followTable) {
+    for (QFutureInterface<CppEditor::SymbolInfo> &futureInterface : m_followTable) {
         futureInterface.cancel();
         futureInterface.reportFinished();
     }
     m_followTable.clear();
-    for (QFutureInterface<CppTools::ToolTipInfo> &futureInterface : m_toolTipsTable) {
+    for (QFutureInterface<CppEditor::ToolTipInfo> &futureInterface : m_toolTipsTable) {
         futureInterface.cancel();
         futureInterface.reportFinished();
     }
@@ -228,7 +228,7 @@ void BackendReceiver::annotations(const ClangBackEnd::AnnotationsMessage &messag
 }
 
 static
-CppTools::CursorInfo::Range toCursorInfoRange(const ClangBackEnd::SourceRangeContainer &sourceRange)
+CppEditor::CursorInfo::Range toCursorInfoRange(const ClangBackEnd::SourceRangeContainer &sourceRange)
 {
     const ClangBackEnd::SourceLocationContainer &start = sourceRange.start;
     const ClangBackEnd::SourceLocationContainer &end = sourceRange.end;
@@ -238,10 +238,10 @@ CppTools::CursorInfo::Range toCursorInfoRange(const ClangBackEnd::SourceRangeCon
 }
 
 static
-CppTools::CursorInfo toCursorInfo(const CppTools::SemanticInfo::LocalUseMap &localUses,
+CppEditor::CursorInfo toCursorInfo(const CppEditor::SemanticInfo::LocalUseMap &localUses,
                                   const ClangBackEnd::ReferencesMessage &message)
 {
-    CppTools::CursorInfo result;
+    CppEditor::CursorInfo result;
     const QVector<ClangBackEnd::SourceRangeContainer> &references = message.references;
 
     result.areUseRangesForLocalVariable = message.isLocalVariable;
@@ -255,9 +255,9 @@ CppTools::CursorInfo toCursorInfo(const CppTools::SemanticInfo::LocalUseMap &loc
 }
 
 static
-CppTools::SymbolInfo toSymbolInfo(const ClangBackEnd::FollowSymbolMessage &message)
+CppEditor::SymbolInfo toSymbolInfo(const ClangBackEnd::FollowSymbolMessage &message)
 {
-    CppTools::SymbolInfo result;
+    CppEditor::SymbolInfo result;
     const ClangBackEnd::SourceRangeContainer &range = message.result.range;
 
     const ClangBackEnd::SourceLocationContainer &start = range.start;
@@ -280,8 +280,8 @@ void BackendReceiver::references(const ClangBackEnd::ReferencesMessage &message)
 
     const quint64 ticket = message.ticketNumber;
     const ReferencesEntry entry = m_referencesTable.take(ticket);
-    QFutureInterface<CppTools::CursorInfo> futureInterface = entry.futureInterface;
-    QTC_CHECK(futureInterface != QFutureInterface<CppTools::CursorInfo>());
+    QFutureInterface<CppEditor::CursorInfo> futureInterface = entry.futureInterface;
+    QTC_CHECK(futureInterface != QFutureInterface<CppEditor::CursorInfo>());
 
     if (futureInterface.isCanceled())
         return; // Editor document closed or a new request was issued making this result outdated.
@@ -323,9 +323,9 @@ static QStringList toStringList(const Utf8StringVector &utf8StringVector)
     return list;
 }
 
-static CppTools::ToolTipInfo toToolTipInfo(const ClangBackEnd::ToolTipMessage &message)
+static CppEditor::ToolTipInfo toToolTipInfo(const ClangBackEnd::ToolTipMessage &message)
 {
-    CppTools::ToolTipInfo info;
+    CppEditor::ToolTipInfo info;
 
     const ClangBackEnd::ToolTipInfo &backendInfo = message.toolTipInfo;
 
@@ -346,8 +346,8 @@ void BackendReceiver::tooltip(const ClangBackEnd::ToolTipMessage &message)
     qCDebugIpc() << "ToolTipMessage" << message.toolTipInfo.text;
 
     const quint64 ticket = message.ticketNumber;
-    QFutureInterface<CppTools::ToolTipInfo> futureInterface = m_toolTipsTable.take(ticket);
-    QTC_CHECK(futureInterface != QFutureInterface<CppTools::ToolTipInfo>());
+    QFutureInterface<CppEditor::ToolTipInfo> futureInterface = m_toolTipsTable.take(ticket);
+    QTC_CHECK(futureInterface != QFutureInterface<CppEditor::ToolTipInfo>());
 
     if (futureInterface.isCanceled())
         return; // A new request was issued making this one outdated.
@@ -362,8 +362,8 @@ void BackendReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &mess
                  << message.result;
 
     const quint64 ticket = message.ticketNumber;
-    QFutureInterface<CppTools::SymbolInfo> futureInterface = m_followTable.take(ticket);
-    QTC_CHECK(futureInterface != QFutureInterface<CppTools::SymbolInfo>());
+    QFutureInterface<CppEditor::SymbolInfo> futureInterface = m_followTable.take(ticket);
+    QTC_CHECK(futureInterface != QFutureInterface<CppEditor::SymbolInfo>());
 
     if (futureInterface.isCanceled())
         return; // Editor document closed or a new request was issued making this result outdated.

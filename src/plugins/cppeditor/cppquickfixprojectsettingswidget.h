@@ -54,7 +54,7 @@ private slots:
 private:
     bool useGlobalSettings();
 
-    Ui::CppQuickFixProjectSettingsWidget *ui;
+    QT_PREPEND_NAMESPACE(Ui)::CppQuickFixProjectSettingsWidget *ui;
     CppQuickFixSettingsWidget *m_settingsWidget;
     CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
 };

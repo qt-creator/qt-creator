@@ -31,7 +31,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>

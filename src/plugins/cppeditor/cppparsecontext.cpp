@@ -37,7 +37,7 @@
 namespace CppEditor {
 namespace Internal {
 
-void ParseContextModel::update(const CppTools::ProjectPartInfo &projectPartInfo)
+void ParseContextModel::update(const ProjectPartInfo &projectPartInfo)
 {
     beginResetModel();
     reset(projectPartInfo);
@@ -78,16 +78,16 @@ bool ParseContextModel::areMultipleAvailable() const
     return m_projectParts.size() >= 2;
 }
 
-void ParseContextModel::reset(const CppTools::ProjectPartInfo &projectPartInfo)
+void ParseContextModel::reset(const ProjectPartInfo &projectPartInfo)
 {
     // Sort
     m_hints = projectPartInfo.hints;
     m_projectParts = projectPartInfo.projectParts;
-    Utils::sort(m_projectParts, &CppTools::ProjectPart::displayName);
+    Utils::sort(m_projectParts, &ProjectPart::displayName);
 
     // Determine index for current
     const QString id = projectPartInfo.projectPart->id();
-    m_currentIndex = Utils::indexOf(m_projectParts, [id](const CppTools::ProjectPart::ConstPtr &pp) {
+    m_currentIndex = Utils::indexOf(m_projectParts, [id](const ProjectPart::ConstPtr &pp) {
         return pp->id() == id;
     });
     QTC_CHECK(m_currentIndex >= 0);
@@ -100,7 +100,7 @@ int ParseContextModel::currentIndex() const
 
 bool ParseContextModel::isCurrentPreferred() const
 {
-    return m_hints & CppTools::ProjectPartInfo::IsPreferredMatch;
+    return m_hints & ProjectPartInfo::IsPreferredMatch;
 }
 
 QString ParseContextModel::currentId() const

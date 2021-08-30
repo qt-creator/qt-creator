@@ -28,14 +28,14 @@
 #include "clangbackendcommunicator.h"
 #include "clangcompletionassistinterface.h"
 
-#include <cpptools/cppcompletionassistprovider.h>
+#include <cppeditor/cppcompletionassistprovider.h>
 
 #include <texteditor/codeassist/assistinterface.h>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangCompletionAssistProvider : public CppTools::CppCompletionAssistProvider
+class ClangCompletionAssistProvider : public CppEditor::CppCompletionAssistProvider
 {
     Q_OBJECT
 

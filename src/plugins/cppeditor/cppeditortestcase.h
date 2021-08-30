@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cpptools/cpptoolstestcase.h>
+#include "cpptoolstestcase.h"
 
 #include <QVector>
 
@@ -37,7 +37,7 @@ class CppEditorWidget;
 
 namespace Tests {
 
-class GenericCppTestDocument : public CppTools::Tests::BaseCppTestDocument
+class GenericCppTestDocument : public ::CppEditor::Tests::BaseCppTestDocument
 {
 public:
     GenericCppTestDocument(const QByteArray &fileName, const QByteArray &source,
@@ -57,7 +57,7 @@ public:
 
 using TestDocuments = QVector<GenericCppTestDocument>;
 
-class TestCase : public CppTools::Tests::TestCase
+class TestCase : public ::CppEditor::Tests::TestCase
 {
 public:
     TestCase(bool runGarbageCollector = true);

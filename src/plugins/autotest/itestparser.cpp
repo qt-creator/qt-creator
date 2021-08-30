@@ -26,7 +26,7 @@
 #include "itestparser.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <utils/textfileformat.h>
 #include <utils/algorithm.h>
 
@@ -48,14 +48,14 @@ void CppParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
     Q_UNUSED(fullParse)
-    m_cppSnapshot = CppTools::CppModelManager::instance()->snapshot();
-    m_workingCopy = CppTools::CppModelManager::instance()->workingCopy();
+    m_cppSnapshot = CppEditor::CppModelManager::instance()->snapshot();
+    m_workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
 }
 
 bool CppParser::selectedForBuilding(const Utils::FilePath &fileName)
 {
-    QList<CppTools::ProjectPart::ConstPtr> projParts =
-            CppTools::CppModelManager::instance()->projectPart(fileName);
+    QList<CppEditor::ProjectPart::ConstPtr> projParts =
+            CppEditor::CppModelManager::instance()->projectPart(fileName);
 
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
@@ -82,8 +82,8 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                const QString &cacheString,
                                const std::function<bool(const QString &)> &checker)
 {
-    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
+    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
+    const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
     if (projectParts.isEmpty())
         return false;
     const QStringList precompiledHeaders = projectParts.first()->precompiledHeaders;
@@ -128,7 +128,7 @@ bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
 void CppParser::release()
 {
     m_cppSnapshot = CPlusPlus::Snapshot();
-    m_workingCopy = CppTools::WorkingCopy();
+    m_workingCopy = CppEditor::WorkingCopy();
     QMutexLocker l(s_cacheMutex());
     s_pchLookupCache.clear();
 }

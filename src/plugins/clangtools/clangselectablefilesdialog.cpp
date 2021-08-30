@@ -29,7 +29,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/find/itemviewfind.h>
-#include <cpptools/projectinfo.h>
+#include <cppeditor/projectinfo.h>
 #include <projectexplorer/selectablefilesmodel.h>
 #include <texteditor/textdocument.h>
 
@@ -41,7 +41,7 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
 
-using namespace CppTools;
+using namespace CppEditor;
 using namespace Utils;
 using namespace ProjectExplorer;
 

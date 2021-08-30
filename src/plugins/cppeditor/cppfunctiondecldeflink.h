@@ -26,8 +26,7 @@
 #pragma once
 
 #include "cppquickfix.h"
-
-#include <cpptools/cpprefactoringchanges.h>
+#include "cpprefactoringchanges.h"
 
 #include <QString>
 #include <QCoreApplication>
@@ -98,7 +97,7 @@ public:
     int targetColumn = 0;
     QString targetInitial;
 
-    CppTools::CppRefactoringFileConstPtr targetFile;
+    CppRefactoringFileConstPtr targetFile;
     CPlusPlus::Function *targetFunction = nullptr;
     CPlusPlus::DeclarationAST *targetDeclaration = nullptr;
     CPlusPlus::FunctionDeclaratorAST *targetFunctionDeclarator = nullptr;

@@ -28,7 +28,7 @@
 #include "clangbackendreceiver.h"
 #include "clangbackendsender.h"
 
-#include <cpptools/projectpart.h>
+#include <cppeditor/projectpart.h>
 
 #include <clangsupport/clangcodemodelconnectionclient.h>
 #include <clangsupport/filecontainer.h>
@@ -57,7 +57,7 @@ class BackendCommunicator : public QObject
 public:
     using FileContainer = ClangBackEnd::FileContainer;
     using FileContainers = QVector<ClangBackEnd::FileContainer>;
-    using LocalUseMap = CppTools::SemanticInfo::LocalUseMap;
+    using LocalUseMap = CppEditor::SemanticInfo::LocalUseMap;
 
 public:
     BackendCommunicator();
@@ -92,19 +92,19 @@ public:
                             qint32 funcNameStartColumn = -1);
     void cancelCompletions(TextEditor::IAssistProcessor *processor);
     void requestAnnotations(const ClangBackEnd::FileContainer &fileContainer);
-    QFuture<CppTools::CursorInfo> requestReferences(
+    QFuture<CppEditor::CursorInfo> requestReferences(
             const FileContainer &fileContainer,
             quint32 line,
             quint32 column,
             const LocalUseMap &localUses);
-    QFuture<CppTools::CursorInfo> requestLocalReferences(
+    QFuture<CppEditor::CursorInfo> requestLocalReferences(
             const FileContainer &fileContainer,
             quint32 line,
             quint32 column);
-    QFuture<CppTools::ToolTipInfo> requestToolTip(const FileContainer &fileContainer,
+    QFuture<CppEditor::ToolTipInfo> requestToolTip(const FileContainer &fileContainer,
                                                   quint32 line,
                                                   quint32 column);
-    QFuture<CppTools::SymbolInfo> requestFollowSymbol(const FileContainer &curFileContainer,
+    QFuture<CppEditor::SymbolInfo> requestFollowSymbol(const FileContainer &curFileContainer,
                                                       quint32 line,
                                                       quint32 column);
 

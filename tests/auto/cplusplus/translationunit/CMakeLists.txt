@@ -1,4 +1,4 @@
 add_qtc_test(tst_cplusplus_translationunit
-  DEPENDS CppTools
+  DEPENDS CppEditor
   SOURCES tst_translationunit.cpp
 )

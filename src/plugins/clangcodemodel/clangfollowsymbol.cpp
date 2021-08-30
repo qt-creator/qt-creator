@@ -30,8 +30,8 @@
 #include "clangmodelmanagersupport.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppfollowsymbolundercursor.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppfollowsymbolundercursor.h>
 #include <texteditor/texteditor.h>
 
 #include <clangsupport/tokeninfocontainer.h>
@@ -150,7 +150,7 @@ static Utils::Link linkAtCursor(const QTextCursor &cursor,
 }
 
 static ::Utils::ProcessLinkCallback extendedCallback(::Utils::ProcessLinkCallback &&callback,
-                                                     const CppTools::SymbolInfo &result)
+                                                     const CppEditor::SymbolInfo &result)
 {
     // If globalFollowSymbol finds nothing follow to the declaration.
     return [original_callback = std::move(callback), result](const ::Utils::Link &link) {
@@ -169,12 +169,12 @@ static bool isSameInvocationContext(const Utils::FilePath &filePath)
         && Core::EditorManager::currentDocument()->filePath() == filePath;
 }
 
-void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
+void ClangFollowSymbol::findLink(const CppEditor::CursorInEditor &data,
                                  ::Utils::ProcessLinkCallback &&processLinkCallback,
                                  bool resolveTarget,
                                  const CPlusPlus::Snapshot &snapshot,
                                  const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                                 CppTools::SymbolFinder *symbolFinder,
+                                 CppEditor::SymbolFinder *symbolFinder,
                                  bool inNextSplit)
 {
     ClangdClient * const client
@@ -202,7 +202,7 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                                         static_cast<uint>(column),
                                         processor);
         if (link == Utils::Link()) {
-            CppTools::FollowSymbolUnderCursor followSymbol;
+            CppEditor::FollowSymbolUnderCursor followSymbol;
             return followSymbol.findLink(data,
                                          std::move(processLinkCallback),
                                          false,
@@ -214,7 +214,7 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
         return processLinkCallback(link);
     }
 
-    QFuture<CppTools::SymbolInfo> infoFuture
+    QFuture<CppEditor::SymbolInfo> infoFuture
             = processor->requestFollowSymbol(static_cast<int>(line),
                                              static_cast<int>(column));
 
@@ -230,11 +230,11 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                      callback=std::move(processLinkCallback)]() mutable {
         if (m_watcher->isCanceled() || !isSameInvocationContext(filePath))
             return callback(Utils::Link());
-        CppTools::SymbolInfo result = m_watcher->result();
+        CppEditor::SymbolInfo result = m_watcher->result();
         // We did not fail but the result is empty
         if (result.fileName.isEmpty() || result.isResultOnlyForFallBack) {
-            const CppTools::RefactoringEngineInterface &refactoringEngine
-                    = *CppTools::CppModelManager::instance();
+            const CppEditor::RefactoringEngineInterface &refactoringEngine
+                    = *CppEditor::CppModelManager::instance();
             refactoringEngine.globalFollowSymbol(data,
                                                  extendedCallback(std::move(callback), result),
                                                  snapshot,
@@ -251,11 +251,11 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     m_watcher->setFuture(infoFuture);
 }
 
-void ClangFollowSymbol::switchDeclDef(const CppTools::CursorInEditor &data,
+void ClangFollowSymbol::switchDeclDef(const CppEditor::CursorInEditor &data,
                                       Utils::ProcessLinkCallback &&processLinkCallback,
                                       const CPlusPlus::Snapshot &snapshot,
                                       const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                                      CppTools::SymbolFinder *symbolFinder)
+                                      CppEditor::SymbolFinder *symbolFinder)
 {
     ClangdClient * const client
             = ClangModelManagerSupport::instance()->clientForFile(data.filePath());
@@ -264,7 +264,7 @@ void ClangFollowSymbol::switchDeclDef(const CppTools::CursorInEditor &data,
                               std::move(processLinkCallback));
         return;
     }
-    CppTools::CppModelManager::builtinFollowSymbol().switchDeclDef(
+    CppEditor::CppModelManager::builtinFollowSymbol().switchDeclDef(
                 data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
                 symbolFinder);
 }

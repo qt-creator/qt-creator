@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <cpptools/cppselectionchanger.h>
+#include <cppeditor/cppselectionchanger.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/PreprocessorClient.h>
@@ -35,9 +35,9 @@
 #include <QTextDocument>
 
 using namespace CPlusPlus;
-using namespace CppTools;
+using namespace CppEditor;
 
-//TESTED_COMPONENT=src/plugins/cpptools
+//TESTED_COMPONENT=src/plugins/cppeditor
 
 enum {
     debug = false
@@ -205,7 +205,7 @@ QByteArray tst_CppSelectionChanger::preprocess(const QByteArray &source, const Q
 
 void tst_CppSelectionChanger::initTestCase()
 {
-    // Read cpp file contents into QTextDocument and CppTools::Document::Ptr.
+    // Read cpp file contents into QTextDocument and CppEditor::Document::Ptr.
     QString fileName(SRCDIR "/testCppFile.cpp");
     QFile file(fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);

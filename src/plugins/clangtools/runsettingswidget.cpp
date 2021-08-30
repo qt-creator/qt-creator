@@ -32,7 +32,7 @@
 #include "executableinfo.h"
 #include "settingswidget.h"
 
-#include <cpptools/clangdiagnosticconfigswidget.h>
+#include <cppeditor/clangdiagnosticconfigswidget.h>
 
 #include <QThread>
 
@@ -53,13 +53,13 @@ RunSettingsWidget::~RunSettingsWidget()
     delete m_ui;
 }
 
-CppTools::ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSelectionWidget()
+CppEditor::ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSelectionWidget()
 {
     return m_ui->diagnosticWidget;
 }
 
-static CppTools::ClangDiagnosticConfigsWidget *createEditWidget(
-    const CppTools::ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect)
+static CppEditor::ClangDiagnosticConfigsWidget *createEditWidget(
+    const CppEditor::ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect)
 {
     // Determine executable paths
     FilePath clangTidyPath;
@@ -92,7 +92,7 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
                                     s.diagnosticConfigId(),
                                     createEditWidget);
     connect(m_ui->diagnosticWidget,
-            &CppTools::ClangDiagnosticConfigsSelectionWidget::changed,
+            &CppEditor::ClangDiagnosticConfigsSelectionWidget::changed,
             this,
             &RunSettingsWidget::changed);
 

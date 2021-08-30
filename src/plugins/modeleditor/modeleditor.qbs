@@ -9,7 +9,7 @@ QtcPlugin {
     Depends { name: "Qt.svg"; required: false }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Modeling" }
 

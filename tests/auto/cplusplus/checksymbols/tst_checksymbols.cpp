@@ -28,9 +28,9 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/pp.h>
 
-#include <cpptools/cppchecksymbols.h>
-#include <cpptools/cppsemanticinfo.h>
-#include <cpptools/cpptoolstestcase.h>
+#include <cppeditor/cppchecksymbols.h>
+#include <cppeditor/cppsemanticinfo.h>
+#include <cppeditor/cpptoolstestcase.h>
 #include <texteditor/semantichighlighter.h>
 
 #include <QDebug>
@@ -47,7 +47,7 @@
 enum { enableListing = 0 };
 
 using namespace CPlusPlus;
-using namespace CppTools;
+using namespace CppEditor;
 
 typedef QByteArray _;
 typedef CheckSymbols::Result Use;

@@ -32,7 +32,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/taskhub.h>
 
@@ -247,7 +247,7 @@ TextEditor::RefactorMarker createFixItAvailableMarker(QTextDocument *textDocumen
             editor->invokeAssist(TextEditor::QuickFix);
         }
     };
-    marker.type = CppTools::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID;
+    marker.type = CppEditor::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID;
 
     return marker;
 }

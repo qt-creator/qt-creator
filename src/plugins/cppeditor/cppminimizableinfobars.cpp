@@ -26,16 +26,14 @@
 #include "cppminimizableinfobars.h"
 
 #include "cppeditorconstants.h"
+#include "cpptoolssettings.h"
 
 #include <QToolButton>
-
-#include <cpptools/cpptoolssettings.h>
 
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-using namespace CppTools;
 using namespace Utils;
 
 namespace CppEditor {

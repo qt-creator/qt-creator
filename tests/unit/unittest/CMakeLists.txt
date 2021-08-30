@@ -233,7 +233,7 @@ extend_qtc_test(unittest
 
 finalize_qtc_gtest(unittest ".c$")
 
-# Path needs to be before CppTools
+# Path needs to be before CppEditor
 target_include_directories(unittest
   PRIVATE
     BEFORE ../../../src/tools/clangbackend/source
@@ -442,8 +442,8 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/cpptools
-  DEFINES CPPTOOLS_STATIC_LIBRARY
+  SOURCES_PREFIX ../../../src/plugins/cppeditor
+  DEFINES CPPEDITOR_STATIC_LIBRARY
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
 )

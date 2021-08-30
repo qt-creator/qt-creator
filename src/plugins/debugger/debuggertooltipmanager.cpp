@@ -42,7 +42,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
 
-#include <cpptools/cppprojectfile.h>
+#include <cppeditor/cppprojectfile.h>
 
 #include <projectexplorer/session.h>
 
@@ -1203,8 +1203,8 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
-    context.isCppEditor = CppTools::ProjectFile::classify(document->filePath().toString())
-                            != CppTools::ProjectFile::Unsupported;
+    context.isCppEditor = CppEditor::ProjectFile::classify(document->filePath().toString())
+                            != CppEditor::ProjectFile::Unsupported;
 
     if (context.expression.isEmpty()) {
         ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),

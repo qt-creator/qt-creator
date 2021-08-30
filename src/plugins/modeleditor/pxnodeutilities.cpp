@@ -30,7 +30,7 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/model_controller/modelcontroller.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/projectnodes.h>
@@ -239,7 +239,7 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
 
 bool PxNodeUtilities::isProxyHeader(const QString &file) const
 {
-    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
     CPlusPlus::Document::Ptr document = snapshot.document(file);

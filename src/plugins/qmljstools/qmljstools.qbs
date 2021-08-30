@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "QtSupport" }
@@ -54,7 +54,7 @@ QtcPlugin {
     }
 
     Export {
-        Depends { name: "CppTools" }
+        Depends { name: "CppEditor" }
         Depends { name: "QmlDebug" }
     }
 }

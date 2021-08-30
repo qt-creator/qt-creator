@@ -8,6 +8,6 @@ QTC_PLUGIN_DEPENDS += \
     texteditor \
     qtsupport
 QTC_PLUGIN_RECOMMENDS += \
-    cpptools
+    cppeditor
 QTC_TEST_DEPENDS += \
     cppeditor

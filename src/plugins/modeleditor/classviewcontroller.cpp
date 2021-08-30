@@ -25,8 +25,8 @@
 
 #include "classviewcontroller.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 
@@ -42,7 +42,7 @@ QSet<QString> ClassViewController::findClassDeclarations(const QString &fileName
 {
     QSet<QString> classNames;
 
-    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
     // scan original file
@@ -51,7 +51,7 @@ QSet<QString> ClassViewController::findClassDeclarations(const QString &fileName
         appendClassDeclarationsFromDocument(document, line, column, &classNames);
 
     if (line <= 0) {
-        QString otherFileName = CppTools::correspondingHeaderOrSource(fileName);
+        QString otherFileName = CppEditor::correspondingHeaderOrSource(fileName);
 
         // scan other file
         document = snapshot.document(otherFileName);

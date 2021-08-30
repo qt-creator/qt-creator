@@ -75,7 +75,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -1172,7 +1172,7 @@ bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
 
 FakeVimPluginPrivate::FakeVimPluginPrivate()
 {
-    m_defaultExCommandMap[CppTools::Constants::SWITCH_HEADER_SOURCE] =
+    m_defaultExCommandMap[CppEditor::Constants::SWITCH_HEADER_SOURCE] =
         QRegularExpression("^A$");
     m_defaultExCommandMap["Coreplugin.OutputPane.previtem"] =
         QRegularExpression("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
@@ -2037,10 +2037,10 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
         keepOnlyWindow();
     } else if (cmd.cmd == "AS") {
         triggerAction(Core::Constants::SPLIT);
-        triggerAction(CppTools::Constants::SWITCH_HEADER_SOURCE);
+        triggerAction(CppEditor::Constants::SWITCH_HEADER_SOURCE);
     } else if (cmd.cmd == "AV") {
         triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
-        triggerAction(CppTools::Constants::SWITCH_HEADER_SOURCE);
+        triggerAction(CppEditor::Constants::SWITCH_HEADER_SOURCE);
     } else {
         // Check whether one of the configure commands matches.
         const auto end = m_exCommandMap.constEnd();

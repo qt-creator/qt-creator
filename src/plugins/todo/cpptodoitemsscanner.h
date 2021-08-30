@@ -28,7 +28,7 @@
 
 #include "todoitemsscanner.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 namespace Todo {
 namespace Internal {

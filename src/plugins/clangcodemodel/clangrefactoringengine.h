@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <cpptools/refactoringengineinterface.h>
-#include <cpptools/cppcursorinfo.h>
+#include <cppeditor/refactoringengineinterface.h>
+#include <cppeditor/cppcursorinfo.h>
 
 #include <QFutureWatcher>
 
@@ -38,25 +38,25 @@ class RefactoringServerInterface;
 namespace ClangCodeModel {
 namespace Internal {
 
-class RefactoringEngine : public CppTools::RefactoringEngineInterface
+class RefactoringEngine : public CppEditor::RefactoringEngineInterface
 {
 public:
-    void startLocalRenaming(const CppTools::CursorInEditor &data,
-                            const CppTools::ProjectPart *projectPart,
+    void startLocalRenaming(const CppEditor::CursorInEditor &data,
+                            const CppEditor::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CppTools::CursorInEditor &cursor, CppTools::UsagesCallback &&callback,
+    void globalRename(const CppEditor::CursorInEditor &cursor, CppEditor::UsagesCallback &&callback,
                       const QString &replacement) override;
-    void findUsages(const CppTools::CursorInEditor &cursor,
-                    CppTools::UsagesCallback &&callback) const override;
-    void globalFollowSymbol(const CppTools::CursorInEditor &cursor,
+    void findUsages(const CppEditor::CursorInEditor &cursor,
+                    CppEditor::UsagesCallback &&callback) const override;
+    void globalFollowSymbol(const CppEditor::CursorInEditor &cursor,
                             ::Utils::ProcessLinkCallback &&callback,
                             const CPlusPlus::Snapshot &snapshot,
                             const CPlusPlus::Document::Ptr &doc,
-                            CppTools::SymbolFinder *symbolFinder,
+                            CppEditor::SymbolFinder *symbolFinder,
                             bool inNextSplit) const override;
 
 private:
-    using FutureCursorWatcher = QFutureWatcher<CppTools::CursorInfo>;
+    using FutureCursorWatcher = QFutureWatcher<CppEditor::CursorInfo>;
     std::unique_ptr<FutureCursorWatcher> m_watcher;
 };
 

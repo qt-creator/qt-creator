@@ -1,6 +1,6 @@
 add_qtc_plugin(CompilationDatabaseProjectManager
   DEPENDS Utils
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer TextEditor
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor
   SOURCES
     compilationdatabaseconstants.h
     compilationdatabaseproject.cpp compilationdatabaseproject.h

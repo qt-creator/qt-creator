@@ -24,18 +24,18 @@
 ****************************************************************************/
 
 #include "cppquickfix_test.h"
+
+#include "cppcodestylepreferences.h"
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
+#include "cppmodelmanager.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 #include "cppquickfixsettings.h"
-
-#include <cpptools/cppcodestylepreferences.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppsourceprocessertesthelper.h>
-#include <cpptools/cpptoolssettings.h>
+#include "cppsourceprocessertesthelper.h"
+#include "cpptoolssettings.h"
 
 #include <utils/fileutils.h>
 
@@ -48,10 +48,10 @@
  */
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppTools;
 using namespace TextEditor;
 
-using CppTools::Tests::TestIncludePaths;
+using CppEditor::Tests::TemporaryDir;
+using CppEditor::Tests::TestIncludePaths;
 
 typedef QByteArray _;
 
@@ -142,7 +142,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<QuickFixTestDocument::Ptr
     QVERIFY2(cursorMarkersCount == 1, "Exactly one cursor marker is allowed.");
 
     // Write documents to disk
-    m_temporaryDirectory.reset(new CppTools::Tests::TemporaryDir);
+    m_temporaryDirectory.reset(new TemporaryDir);
     QVERIFY(m_temporaryDirectory->isValid());
     foreach (QuickFixTestDocument::Ptr document, m_testDocuments) {
         if (QFileInfo(document->m_fileName).isRelative())
@@ -5758,7 +5758,7 @@ void QuickfixTest::testAddIncludeForUndefinedIdentifier()
     QFETCH(int, refactoringOperationIndex);
     QFETCH(QString, includeForTestFactory);
 
-    CppTools::Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     foreach (QuickFixTestDocument::Ptr testDocument, testDocuments)
         testDocument->setBaseDirectory(temporaryDir.path());
@@ -5775,7 +5775,7 @@ void QuickfixTest::testAddIncludeForUndefinedIdentifier()
 
 void QuickfixTest::testAddIncludeForUndefinedIdentifierNoDoubleQtHeaderInclude()
 {
-    CppTools::Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     QList<QuickFixTestDocument::Ptr> testDocuments;
@@ -5954,7 +5954,7 @@ void QuickfixTest::testAddForwardDeclForUndefinedIdentifier()
     QFETCH(QString, symbol);
     QFETCH(int, symbolPos);
 
-    CppTools::Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     testDocuments.first()->setBaseDirectory(temporaryDir.path());
 

@@ -25,7 +25,7 @@
 
 #include "codemodelhelpers.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
@@ -36,7 +36,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-// Debug helpers for code model. @todo: Move to some CppTools library?
+// Debug helpers for code model. @todo: Move to some CppEditor library?
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -126,7 +126,7 @@ bool navigateToSlot(const QString &uiFileName,
         *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
-    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
         *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile.toUserOutput());

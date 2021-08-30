@@ -32,8 +32,8 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -251,7 +251,7 @@ void Manager::initialize()
     // connect to the progress manager for signals about Parsing tasks
     connect(ProgressManager::instance(), &ProgressManager::taskStarted,
             this, [this](Id type) {
-        if (type != CppTools::Constants::TASK_INDEX)
+        if (type != CppEditor::Constants::TASK_INDEX)
             return;
 
         // disable tree updates to speed up
@@ -260,7 +260,7 @@ void Manager::initialize()
     });
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
             this, [this](Id type) {
-        if (type != CppTools::Constants::TASK_INDEX)
+        if (type != CppEditor::Constants::TASK_INDEX)
             return;
 
         // parsing is finished, enable tree updates
@@ -287,10 +287,10 @@ void Manager::initialize()
     }, Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
-    CppTools::CppModelManager *codeModelManager = CppTools::CppModelManager::instance();
+    CppEditor::CppModelManager *codeModelManager = CppEditor::CppModelManager::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
-    connect(codeModelManager, &CppTools::CppModelManager::documentUpdated,
+    connect(codeModelManager, &CppEditor::CppModelManager::documentUpdated,
             this, [this](CPlusPlus::Document::Ptr doc) {
         // do nothing if Manager is disabled
         if (!state())
@@ -317,7 +317,7 @@ void Manager::initialize()
         }, Qt::QueuedConnection);
     });
 
-    connect(codeModelManager, &CppTools::CppModelManager::aboutToRemoveFiles,
+    connect(codeModelManager, &CppEditor::CppModelManager::aboutToRemoveFiles,
             d->m_parser, &Parser::removeFiles, Qt::QueuedConnection);
 }
 

@@ -28,7 +28,7 @@
 
 #include <projectexplorer/selectablefilesmodel.h>
 
-#include <cpptools/projectinfo.h>
+#include <cppeditor/projectinfo.h>
 
 #include <utils/qtcassert.h>
 

@@ -27,9 +27,8 @@
 #include "formclasswizarddialog.h"
 #include <designer/designerconstants.h>
 #include <designer/qtdesignerformclasscodegenerator.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <qtsupport/qtsupportconstants.h>
-
-#include <cpptools/cpptoolsconstants.h>
 
 #include <QDebug>
 
@@ -43,12 +42,12 @@ FormClassWizard::FormClassWizard()
 
 QString FormClassWizard::headerSuffix() const
 {
-    return preferredSuffix(CppTools::Constants::CPP_HEADER_MIMETYPE);
+    return preferredSuffix(CppEditor::Constants::CPP_HEADER_MIMETYPE);
 }
 
 QString FormClassWizard::sourceSuffix() const
 {
-    return preferredSuffix(CppTools::Constants::CPP_SOURCE_MIMETYPE);
+    return preferredSuffix(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
 }
 
 QString FormClassWizard::formSuffix() const

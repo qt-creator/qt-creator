@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "cpphighlighter.h"
-#include "cppeditorenums.h"
 
-#include <cpptools/cppdoxygen.h>
-#include <cpptools/cpptoolsreuse.h>
+#include "cppdoxygen.h"
+#include "cppeditorenums.h"
+#include "cpptoolsreuse.h"
+
 #include <texteditor/textdocumentlayout.h>
 
 #include <cplusplus/SimpleLexer.h>
@@ -200,7 +201,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         } else if (tk.isKeyword()
                    || (m_languageFeatures.qtKeywordsEnabled
-                       && CppTools::isQtKeyword(
+                       && isQtKeyword(
                            QStringView{text}.mid(tk.utf16charsBegin(), tk.utf16chars())))
                    || (m_languageFeatures.objCEnabled && tk.isObjCAtKeyword())) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_KEYWORD));
@@ -434,11 +435,11 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             ++it;
 
             const QChar *start = it;
-            while (CppTools::isValidAsciiIdentifierChar(*it))
+            while (isValidAsciiIdentifierChar(*it))
                 ++it;
 
-            int k = CppTools::classifyDoxygenTag(start, it - start);
-            if (k != CppTools::T_DOXY_IDENTIFIER) {
+            int k = classifyDoxygenTag(start, it - start);
+            if (k != T_DOXY_IDENTIFIER) {
                 setFormatWithSpaces(text, initial, start - uc - initial, format);
                 setFormat(start - uc - 1, it - start + 1, kwFormat);
                 initial = it - uc;

@@ -27,7 +27,7 @@
 
 #include "tokeninfocontainer.h"
 
-#include <cpptools/abstractoverviewmodel.h>
+#include <cppeditor/abstractoverviewmodel.h>
 
 namespace ClangBackEnd { class TokenInfoContainer; }
 
@@ -51,7 +51,7 @@ public:
     const ClangBackEnd::TokenInfoContainer token;
 };
 
-class OverviewModel : public CppTools::AbstractOverviewModel
+class OverviewModel : public CppEditor::AbstractOverviewModel
 {
     Q_OBJECT
 

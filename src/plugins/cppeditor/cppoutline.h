@@ -25,11 +25,11 @@
 
 #pragma once
 
+#include "abstractoverviewmodel.h"
 #include "cppeditorwidget.h"
 
 #include <texteditor/ioutlinewidget.h>
 
-#include <cpptools/abstractoverviewmodel.h>
 #include <utils/navigationtreeview.h>
 
 #include <QSortFilterProxyModel>
@@ -50,13 +50,13 @@ class CppOutlineFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    CppOutlineFilterModel(CppTools::AbstractOverviewModel &sourceModel, QObject *parent);
+    CppOutlineFilterModel(AbstractOverviewModel &sourceModel, QObject *parent);
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const override;
     Qt::DropActions supportedDragActions() const override;
 private:
-    CppTools::AbstractOverviewModel &m_sourceModel;
+    AbstractOverviewModel &m_sourceModel;
 };
 
 class CppOutlineWidget : public TextEditor::IOutlineWidget

@@ -4,7 +4,7 @@ QtcPlugin {
     name: "AutoTest"
 
     Depends { name: "Core" }
-    Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "CPlusPlus" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlJS" }

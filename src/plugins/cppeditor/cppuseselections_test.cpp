@@ -28,8 +28,7 @@
 #include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditortestcase.h"
-
-#include <cpptools/cppmodelmanager.h>
+#include "cppmodelmanager.h"
 
 #include <QElapsedTimer>
 #include <QtTest>
@@ -90,7 +89,7 @@ UseSelectionsTestCase::UseSelectionsTestCase(GenericCppTestDocument &testFile,
     QVERIFY(testFile.hasCursorMarker());
     testFile.m_source.remove(testFile.m_cursorPosition, 1);
 
-    CppTools::Tests::TemporaryDir temporaryDir;
+    ::CppEditor::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     testFile.setBaseDirectory(temporaryDir.path());
     testFile.writeToDisk();
@@ -103,7 +102,7 @@ UseSelectionsTestCase::UseSelectionsTestCase(GenericCppTestDocument &testFile,
 
     bool hasTimedOut;
     const SelectionList selections = waitForUseSelections(&hasTimedOut);
-    const bool clangCodeModel = CppTools::CppModelManager::instance()->isClangCodeModelActive();
+    const bool clangCodeModel = CppModelManager::instance()->isClangCodeModelActive();
     if (clangCodeModel) {
         QEXPECT_FAIL("local use as macro argument - argument eaten", "fails with CCM, find out why",
                      Abort);

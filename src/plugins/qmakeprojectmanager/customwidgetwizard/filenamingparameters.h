@@ -32,7 +32,7 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 /* Helper struct specifying how to generate file names
- * from class names according to the CppTools settings. */
+ * from class names according to the CppEditor settings. */
 
 struct FileNamingParameters
 {
