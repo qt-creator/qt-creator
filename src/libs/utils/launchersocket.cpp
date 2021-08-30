@@ -213,6 +213,7 @@ bool CallerHandle::shouldFlushFor(SignalType signalType) const
 void CallerHandle::handleError(const ErrorSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
+    m_processState = QProcess::NotRunning;
     m_error = launcherSignal->error();
     m_errorString = launcherSignal->errorString();
     emit errorOccurred(m_error);

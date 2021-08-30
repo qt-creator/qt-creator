@@ -30,6 +30,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
+#include <QElapsedTimer>
 #include <QRegularExpression>
 #include <QtTest>
 
@@ -141,6 +142,7 @@ private slots:
     void lineCallback();
     void lineCallbackIntern();
     void waitForStartedAndFinished();
+    void notRunningAfterStartingNonExistingProgram();
 
     void cleanupTestCase();
 
@@ -974,6 +976,35 @@ void tst_QtcProcess::waitForStartedAndFinished()
     QVERIFY(process.waitForFinished());
     QVERIFY(!process.waitForFinished());
     QCOMPARE(process.exitCode(), 0);
+}
+
+void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
+{
+    QtcProcess process;
+    process.setCommand({ FilePath::fromString(
+              "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
+
+    int errorCount = 0;
+    QObject::connect(&process, &QtcProcess::errorOccurred,
+                     [&errorCount](QProcess::ProcessError error) {
+        ++errorCount;
+        QCOMPARE(error, QProcess::FailedToStart);
+    });
+
+    const int loopCount = 2;
+    for (int i = 0; i < loopCount; ++i) {
+        // Work on the same process instance on every iteration
+        process.start();
+
+        QElapsedTimer timer;
+        timer.start();
+        const int maxWaitTimeMs = 1000;
+
+        QVERIFY(!process.waitForStarted(maxWaitTimeMs));
+        QVERIFY(timer.elapsed() < maxWaitTimeMs); // shouldn't wait, should finish immediately
+        QCOMPARE(process.state(), QProcess::NotRunning);
+        QVERIFY(process.exitCode() != 0);
+    }
 }
 
 QTEST_MAIN(tst_QtcProcess)

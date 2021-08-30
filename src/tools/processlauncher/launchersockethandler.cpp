@@ -71,12 +71,6 @@ public:
         }
     }
 
-    void stopStopProcedure()
-    {
-        m_stopState = StopState::Inactive;
-        m_stopTimer->stop();
-    }
-
     quintptr token() const { return m_token; }
     ProcessStartHandler *processStartHandler() { return &m_processStartHandler; }
 
@@ -176,13 +170,11 @@ void LauncherSocketHandler::handleSocketClosed()
 void LauncherSocketHandler::handleProcessError()
 {
     Process * proc = senderProcess();
-    if (proc->error() != QProcess::FailedToStart)
-        return;
-    proc->stopStopProcedure();
     ProcessErrorPacket packet(proc->token());
     packet.error = proc->error();
     packet.errorString = proc->errorString();
     sendPacket(packet);
+    removeProcess(proc->token());
 }
 
 void LauncherSocketHandler::handleProcessStarted()
@@ -213,7 +205,6 @@ void LauncherSocketHandler::handleReadyReadStandardError()
 void LauncherSocketHandler::handleProcessFinished()
 {
     Process * proc = senderProcess();
-    proc->stopStopProcedure();
     ProcessFinishedPacket packet(proc->token());
     packet.error = proc->error();
     packet.errorString = proc->errorString();
@@ -342,7 +333,7 @@ void LauncherSocketHandler::removeProcess(quintptr token)
     if (process->state() != QProcess::NotRunning)
         process->cancel();
     else
-        delete process;
+        process->deleteLater();
 }
 
 Process *LauncherSocketHandler::senderProcess() const
