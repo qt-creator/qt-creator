@@ -558,15 +558,21 @@ bool BaseSettings::isValid() const
 
 Client *BaseSettings::createClient()
 {
+    return createClient(nullptr);
+}
+
+Client *BaseSettings::createClient(ProjectExplorer::Project *project)
+{
     if (!isValid() || !m_enabled)
         return nullptr;
-    BaseClientInterface *interface = createInterface();
+    BaseClientInterface *interface = createInterfaceWithProject(project);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
     client->setName(Utils::globalMacroExpander()->expand(m_name));
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
     client->setActivateDocumentAutomatically(true);
+    client->setCurrentProject(project);
     return client;
 }
 
@@ -733,10 +739,12 @@ Utils::CommandLine StdIOSettings::command() const
                               Utils::CommandLine::Raw);
 }
 
-BaseClientInterface *StdIOSettings::createInterface() const
+BaseClientInterface *StdIOSettings::createInterfaceWithProject(ProjectExplorer::Project *project) const
 {
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(command());
+    if (project)
+        interface->setWorkingDirectory(project->projectDirectory().toString());
     return interface;
 }
 

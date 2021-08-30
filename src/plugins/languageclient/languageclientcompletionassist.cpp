@@ -74,6 +74,7 @@ public:
     quint64 hash() const override;
 
     const QString &sortText() const;
+    bool hasSortText() const;
 
     bool operator <(const LanguageClientCompletionItem &other) const;
 
@@ -216,6 +217,11 @@ const QString &LanguageClientCompletionItem::sortText() const
     return m_sortText;
 }
 
+bool LanguageClientCompletionItem::hasSortText() const
+{
+    return m_item.sortText().has_value();
+}
+
 QString LanguageClientCompletionItem::filterText() const
 {
     if (m_filterText.isEmpty()) {
@@ -257,12 +263,20 @@ class LanguageClientCompletionModel : public GenericProposalModel
 public:
     // GenericProposalModel interface
     bool containsDuplicates() const override { return false; }
-    bool isSortable(const QString &/*prefix*/) const override { return true; }
+    bool isSortable(const QString &/*prefix*/) const override;
     void sort(const QString &/*prefix*/) override;
     bool supportsPrefixExpansion() const override { return false; }
 
     QList<AssistProposalItemInterface *> items() const { return m_currentItems; }
 };
+
+bool LanguageClientCompletionModel::isSortable(const QString &) const
+{
+    return Utils::anyOf(items(), [](AssistProposalItemInterface *i) {
+        auto item = dynamic_cast<LanguageClientCompletionItem *>(i);
+        return !item || item->hasSortText();
+    });
+}
 
 void LanguageClientCompletionModel::sort(const QString &/*prefix*/)
 {

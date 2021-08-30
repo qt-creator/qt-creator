@@ -1278,6 +1278,22 @@ void ModelNode::setNodeSource(const QString &newNodeSource)
     m_model.data()->d->setNodeSource(internalNode(), newNodeSource);
 }
 
+void ModelNode::setNodeSource(const QString &newNodeSource, NodeSourceType type)
+{
+    Internal::WriteLocker locker(m_model.data());
+
+    if (!isValid()) {
+        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    if (internalNode()->nodeSourceType() == type && internalNode()->nodeSource() == newNodeSource)
+        return;
+
+    internalNode()->setNodeSourceType(type); // Set type first as it doesn't trigger any notifies
+    m_model.data()->d->setNodeSource(internalNode(), newNodeSource);
+}
+
 QString ModelNode::nodeSource() const
 {
     if (!isValid())

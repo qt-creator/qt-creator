@@ -75,6 +75,8 @@ public:
     void handleInstanceLocked(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
     void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
 
+    bool isInformationServer() const override;
+
 private slots:
     void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &objects, const QVariant &propNames);

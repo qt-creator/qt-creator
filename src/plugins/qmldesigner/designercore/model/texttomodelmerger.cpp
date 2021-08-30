@@ -2086,7 +2086,7 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
         return; //No object definition found
 
     if (node.nodeSource() != result)
-        ModelNode(node).setNodeSource(result);
+        ModelNode(node).setNodeSource(result, ModelNode::NodeWithComponentSource);
 }
 
 void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt)
@@ -2256,7 +2256,7 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
         return;
 
     if (node.nodeSource() != modelText)
-        ModelNode(node).setNodeSource(modelText);
+        ModelNode(node).setNodeSource(modelText, ModelNode::NodeWithCustomParserSource);
 
 }
 

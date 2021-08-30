@@ -2085,6 +2085,11 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
 #endif
 }
 
+bool Qt5InformationNodeInstanceServer::isInformationServer() const
+{
+    return true;
+}
+
 // update 3D view size when it changes in creator side
 void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {

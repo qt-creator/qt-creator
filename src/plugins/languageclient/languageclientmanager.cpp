@@ -172,9 +172,8 @@ Client *LanguageClientManager::startClient(BaseSettings *setting, ProjectExplore
     QTC_ASSERT(managerInstance, return nullptr);
     QTC_ASSERT(setting, return nullptr);
     QTC_ASSERT(setting->isValid(), return nullptr);
-    Client *client = setting->createClient();
+    Client *client = setting->createClient(project);
     QTC_ASSERT(client, return nullptr);
-    client->setCurrentProject(project);
     client->start();
     managerInstance->m_clientsForSetting[setting->m_id].append(client);
     return client;
