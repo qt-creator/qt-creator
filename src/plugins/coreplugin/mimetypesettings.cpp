@@ -502,8 +502,7 @@ void MimeTypeSettingsPrivate::ensurePendingMimeType(const Utils::MimeType &mimeT
 
 void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
 {
-    static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath()
-                                                   + kModifiedMimeTypesFile;
+    static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath(kModifiedMimeTypesFile);
 
     if (QFile::exists(modifiedMimeTypesFile.toString())
             || QDir().mkpath(modifiedMimeTypesFile.parentDir().toString())) {
