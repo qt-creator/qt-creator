@@ -51,6 +51,8 @@
 #include <QtQuick/private/qsgcontext_p.h>
 #include <QtQuick/private/qsgrenderer_p.h>
 #include <QtQuick/private/qsgrhilayer_p.h>
+#else
+#include <QtQuick/private/qquickitem_p.h>
 #endif
 
 namespace QmlDesigner {
