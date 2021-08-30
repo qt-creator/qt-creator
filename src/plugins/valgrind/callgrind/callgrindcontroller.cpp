@@ -223,10 +223,11 @@ void CallgrindController::getLocalDataFile()
 //            this, &CallgrindController::sftpInitialized);
 //    m_sftp->start();
 
-    const bool res = m_valgrindOutputFile.copyFile(m_hostOutputFile);
-    QTC_CHECK(res);
-
-    emit localParseDataAvailable(m_hostOutputFile);
+    const auto afterCopy = [this](bool res) {
+        QTC_CHECK(res);
+        emit localParseDataAvailable(m_hostOutputFile);
+    };
+    m_valgrindOutputFile.asyncCopyFile(afterCopy, m_hostOutputFile);
 }
 
 void CallgrindController::sftpInitialized()

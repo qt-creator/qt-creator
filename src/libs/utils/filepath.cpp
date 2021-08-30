@@ -738,6 +738,17 @@ QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const
     return f.readAll();
 }
 
+void FilePath::asyncFileContents(const Continuation<const QByteArray &> &cont,
+                                 qint64 maxSize, qint64 offset) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.asyncFileContents, return);
+        return s_deviceHooks.asyncFileContents(cont, *this, maxSize, offset);
+    }
+
+    cont(fileContents(maxSize, offset));
+}
+
 bool FilePath::writeFileContents(const QByteArray &data) const
 {
     if (needsDevice()) {
@@ -749,6 +760,17 @@ bool FilePath::writeFileContents(const QByteArray &data) const
     QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return false);
     qint64 res = file.write(data);
     return res == data.size();
+}
+
+void FilePath::asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.asyncWriteFileContents, return);
+        s_deviceHooks.asyncWriteFileContents(cont, *this, data);
+        return;
+    }
+
+    cont(writeFileContents(data));
 }
 
 bool FilePath::needsDevice() const
@@ -1317,6 +1339,19 @@ bool FilePath::copyFile(const FilePath &target) const
         return s_deviceHooks.copyFile(*this, target);
     }
     return QFile::copy(path(), target.path());
+}
+
+void FilePath::asyncCopyFile(const std::function<void(bool)> &cont, const FilePath &target) const
+{
+    if (host() != target.host()) {
+        asyncFileContents([cont, target](const QByteArray &ba) {
+            target.asyncWriteFileContents(cont, ba);
+        });
+    } else if (needsDevice()) {
+        s_deviceHooks.asyncCopyFile(cont, *this, target);
+    } else {
+        cont(copyFile(target));
+    }
 }
 
 bool FilePath::renameFile(const FilePath &target) const

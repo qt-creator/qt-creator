@@ -181,6 +181,13 @@ public:
     static void removeDuplicates(QList<FilePath> &files);
     static void sort(QList<FilePath> &files);
 
+    // Asynchronous interface
+    template <class ...Args> using Continuation = std::function<void(Args...)>;
+    void asyncCopyFile(const Continuation<bool> &cont, const FilePath &target) const;
+    void asyncFileContents(const Continuation<const QByteArray &> &cont,
+                           qint64 maxSize = -1, qint64 offset = 0) const;
+    void asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const;
+
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);

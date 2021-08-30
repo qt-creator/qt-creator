@@ -88,6 +88,11 @@ public:
     std::function<OsType(const FilePath &)> osType;
     std::function<Environment(const FilePath &)> environment;
     std::function<qint64(const FilePath &)> fileSize;
+
+    template <class ...Args> using Continuation = std::function<void(Args...)>;
+    std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;
+    std::function<void(const Continuation<const QByteArray &> &, const FilePath &, qint64, qint64)> asyncFileContents;
+    std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &)> asyncWriteFileContents;
 };
 
 class QTCREATOR_UTILS_EXPORT FileUtils

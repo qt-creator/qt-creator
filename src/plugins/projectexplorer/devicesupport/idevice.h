@@ -127,6 +127,7 @@ class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
 public:
     using Ptr = QSharedPointer<IDevice>;
     using ConstPtr = QSharedPointer<const IDevice>;
+    template <class ...Args> using Continuation = std::function<void(Args...)>;
 
     enum Origin { ManuallyAdded, AutoDetected };
     enum MachineType { Hardware, Emulator };
@@ -271,6 +272,13 @@ public:
     virtual qint64 fileSize(const Utils::FilePath &filePath) const;
 
     virtual void aboutToBeRemoved() const {}
+
+    virtual void asyncFileContents(const Continuation<QByteArray> &cont,
+                                   const Utils::FilePath &filePath,
+                                   qint64 limit, qint64 offset) const;
+    virtual void asyncWriteFileContents(const Continuation<bool> &cont,
+                                        const Utils::FilePath &filePath,
+                                        const QByteArray &data) const;
 
 protected:
     IDevice();

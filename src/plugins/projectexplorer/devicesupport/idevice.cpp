@@ -376,12 +376,26 @@ QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 
     return {};
 }
 
+void IDevice::asyncFileContents(const Continuation<QByteArray> &cont,
+                                const FilePath &filePath,
+                                qint64 limit, qint64 offset) const
+{
+    cont(fileContents(filePath, limit, offset));
+}
+
 bool IDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(data);
     QTC_CHECK(false);
     return {};
+}
+
+void IDevice::asyncWriteFileContents(const Continuation<bool> &cont,
+                                     const FilePath &filePath,
+                                     const QByteArray &data) const
+{
+    cont(writeFileContents(filePath, data));
 }
 
 QDateTime IDevice::lastModified(const FilePath &filePath) const

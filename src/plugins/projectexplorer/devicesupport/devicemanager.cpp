@@ -58,6 +58,8 @@ const char DeviceManagerKey[] = "DeviceManager";
 const char DeviceListKey[] = "DeviceList";
 const char DefaultDevicesKey[] = "DefaultDevices";
 
+template <class ...Args> using Continuation = std::function<void(Args...)>;
+
 class DeviceManagerPrivate
 {
 public:
@@ -493,6 +495,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return QByteArray());
         return device->fileContents(filePath, maxSize, offset);
+    };
+
+    deviceHooks.asyncFileContents = [](const Continuation<QByteArray> &cont, const FilePath &filePath,
+            qint64 maxSize, qint64 offset) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return);
+        device->asyncFileContents(cont, filePath, maxSize, offset);
     };
 
     deviceHooks.writeFileContents = [](const FilePath &filePath, const QByteArray &data) {
