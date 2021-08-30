@@ -363,6 +363,8 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
     p->standardInputFile = m_standardInputFile;
     p->belowNormalPriority = m_belowNormalPriority;
     p->nativeArguments = m_nativeArguments;
+    p->lowPriority = m_lowPriority;
+    p->unixTerminalDisabled = m_unixTerminalDisabled;
     m_startPacket.reset(p);
     if (LauncherInterface::socket()->isReady())
         doStart();
@@ -465,13 +467,13 @@ void CallerHandle::setNativeArguments(const QString &arguments)
 void CallerHandle::setLowPriority()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    m_lowPriority = true; // TODO: check me, not passed to the launcher currently
+    m_lowPriority = true;
 }
 
 void CallerHandle::setUnixTerminalDisabled()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    m_unixTerminalDisabled = true; // TODO: check me, not passed to the launcher currently
+    m_unixTerminalDisabled = true;
 }
 
 static void warnAboutWrongSignal(QProcess::ProcessState state, CallerHandle::SignalType newSignal)
