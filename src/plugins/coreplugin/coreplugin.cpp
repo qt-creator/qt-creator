@@ -404,10 +404,10 @@ void CorePlugin::warnAboutCrashReporing()
                  "To enable this feature go to %2.");
 
     if (Utils::HostOsInfo::isMacHost()) {
-        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME,
+        warnStr = warnStr.arg(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
                               Core::Constants::IDE_DISPLAY_NAME + tr(" > Preferences > Environment > System"));
     } else {
-        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME,
+        warnStr = warnStr.arg(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
                               tr("Tools > Options > Environment > System"));
     }
 
