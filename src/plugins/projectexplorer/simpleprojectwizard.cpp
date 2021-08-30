@@ -201,7 +201,7 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
     const QString projectPath = wizard->path();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
-    const FilePath proFileName = Utils::FilePath::fromFileInfo(QFileInfo(dir, projectName + ".pro").absoluteFilePath());
+    const FilePath proFileName = Utils::FilePath::fromString(QFileInfo(dir, projectName + ".pro").absoluteFilePath());
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
 
     MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
@@ -259,7 +259,7 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
     const QString projectPath = wizard->path();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
-    const FilePath projectFileName = Utils::FilePath::fromFileInfo(QFileInfo(dir, "CMakeLists.txt").absoluteFilePath());
+    const FilePath projectFileName = Utils::FilePath::fromString(QFileInfo(dir, "CMakeLists.txt").absoluteFilePath());
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
 
     MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
