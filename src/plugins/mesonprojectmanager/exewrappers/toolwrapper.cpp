@@ -25,6 +25,8 @@
 
 #include "toolwrapper.h"
 
+#include <utils/qtcprocess.h>
+
 namespace MesonProjectManager {
 namespace Internal {
 
@@ -60,11 +62,11 @@ void ToolWrapper::setExe(const Utils::FilePath &newExe)
 Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
 {
     if (toolPath.toFileInfo().isExecutable()) {
-        QProcess process;
-        process.start(toolPath.toString(), {"--version"});
-        if (process.waitForFinished()) {
-            return Version::fromString(QString::fromUtf8(process.readLine()));
-        }
+        Utils::QtcProcess process;
+        process.setCommand({ toolPath, { "--version" } });
+        process.start();
+        if (process.waitForFinished())
+            return Version::fromString(process.stdOut());
     }
     return {};
 }
