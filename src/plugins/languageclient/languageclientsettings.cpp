@@ -715,7 +715,7 @@ bool StdIOSettings::isValid() const
 QVariantMap StdIOSettings::toMap() const
 {
     QVariantMap map = BaseSettings::toMap();
-    map.insert(executableKey, m_executable);
+    map.insert(executableKey, m_executable.toVariant());
     map.insert(argumentsKey, m_arguments);
     return map;
 }
@@ -723,7 +723,7 @@ QVariantMap StdIOSettings::toMap() const
 void StdIOSettings::fromMap(const QVariantMap &map)
 {
     BaseSettings::fromMap(map);
-    m_executable = map[executableKey].toString();
+    m_executable = Utils::FilePath::fromVariant(map[executableKey]);
     m_arguments = map[argumentsKey].toString();
 }
 
@@ -734,9 +734,7 @@ QString StdIOSettings::arguments() const
 
 Utils::CommandLine StdIOSettings::command() const
 {
-    return Utils::CommandLine(Utils::FilePath::fromUserInput(m_executable),
-                              arguments(),
-                              Utils::CommandLine::Raw);
+    return Utils::CommandLine(m_executable, arguments(), Utils::CommandLine::Raw);
 }
 
 BaseClientInterface *StdIOSettings::createInterfaceWithProject(ProjectExplorer::Project *project) const
@@ -975,16 +973,16 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     mainLayout->addWidget(m_executable, baseRows, 1);
     mainLayout->addWidget(new QLabel(tr("Arguments:")), baseRows + 1, 0);
     m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_executable->setPath(QDir::toNativeSeparators(settings->m_executable));
+    m_executable->setFilePath(settings->m_executable);
     mainLayout->addWidget(m_arguments, baseRows + 1, 1);
 
     auto chooser = new Utils::VariableChooser(this);
     chooser->addSupportedWidget(m_arguments);
 }
 
-QString StdIOSettingsWidget::executable() const
+Utils::FilePath StdIOSettingsWidget::executable() const
 {
-    return m_executable->filePath().toString();
+    return m_executable->filePath();
 }
 
 QString StdIOSettingsWidget::arguments() const

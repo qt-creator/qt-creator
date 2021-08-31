@@ -124,7 +124,7 @@ public:
     StdIOSettings() = default;
     ~StdIOSettings() override = default;
 
-    QString m_executable;
+    Utils::FilePath m_executable;
     QString m_arguments;
 
     bool applyFromSettingsWidget(QWidget *widget) override;
@@ -204,7 +204,7 @@ public:
     explicit StdIOSettingsWidget(const StdIOSettings* settings, QWidget *parent = nullptr);
     ~StdIOSettingsWidget() override = default;
 
-    QString executable() const;
+    Utils::FilePath executable() const;
     QString arguments() const;
 
 private:

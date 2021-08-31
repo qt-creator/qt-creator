@@ -59,7 +59,7 @@ public:
     JLSSettingsWidget(const JLSSettings *settings, QWidget *parent);
 
     QString name() const { return m_name->text(); }
-    QString java() const { return m_java->filePath().toString(); }
+    FilePath java() const { return m_java->filePath(); }
     QString languageServer() const { return m_ls->filePath().toString(); }
     QString workspace() const { return m_workspace->filePath().toString(); }
 
@@ -85,7 +85,7 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
 
     mainLayout->addWidget(new QLabel(tr("Java:")), ++row, 0);
     m_java->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_java->setPath(QDir::toNativeSeparators(settings->m_executable));
+    m_java->setFilePath(settings->m_executable);
     mainLayout->addWidget(m_java, row, 1);
 
     mainLayout->addWidget(new QLabel(tr("Java Language Server:")), ++row, 0);
@@ -106,7 +106,7 @@ JLSSettings::JLSSettings()
     m_languageFilter.mimeTypes = QStringList(Constants::JAVA_MIMETYPE);
     const FilePath &javaPath = Utils::Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
-        m_executable = javaPath.toString();
+        m_executable = javaPath;
 }
 
 bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
@@ -192,8 +192,7 @@ private:
 LanguageClient::BaseClientInterface *JLSSettings::createInterface() const
 {
     auto interface = new JLSInterface();
-    CommandLine cmd{FilePath::fromString(m_executable)};
-    cmd.addArgs(arguments(), CommandLine::Raw);
+    CommandLine cmd{m_executable, arguments(), CommandLine::Raw};
     cmd.addArgs({"-data", interface->workspaceDir()});
     interface->setCommandLine(cmd);
     return interface;

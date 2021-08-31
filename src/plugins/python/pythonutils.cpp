@@ -225,7 +225,7 @@ const StdIOSettings *PyLSConfigureAssistant::languageServerForPython(const FileP
 static Client *registerLanguageServer(const FilePath &python)
 {
     auto *settings = new StdIOSettings();
-    settings->m_executable = python.toString();
+    settings->m_executable = python;
     settings->m_arguments = "-m pyls";
     settings->m_name = PyLSConfigureAssistant::tr("Python Language Server (%1)")
                            .arg(pythonName(python));
