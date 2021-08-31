@@ -101,9 +101,7 @@ static int parseMinSdk(const QDomElement &manifestElem);
 
 static const ProjectNode *currentProjectNode(const Target *target)
 {
-    if (RunConfiguration *rc = target->activeRunConfiguration())
-        return target->project()->findNodeForBuildKey(rc->buildKey());
-    return nullptr;
+    return target->project()->findNodeForBuildKey(target->activeBuildKey());
 }
 
 QString AndroidManager::packageName(const Target *target)
@@ -643,7 +641,6 @@ static bool mergeGradleProperties(const QString &path, GradleProperties properti
     return true;
 }
 
-
 bool AndroidManager::updateGradleProperties(Target *target, const QString &buildKey)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
@@ -654,8 +651,7 @@ bool AndroidManager::updateGradleProperties(Target *target, const QString &build
     if (key.isEmpty()) {
         // FIXME: This case is triggered from AndroidBuildApkWidget::createApplicationGroup
         // and should be avoided.
-        if (RunConfiguration *rc = target->activeRunConfiguration())
-            key = rc->buildKey();
+        key = target->activeBuildKey();
     }
 
     QTC_ASSERT(!key.isEmpty(), return false);
