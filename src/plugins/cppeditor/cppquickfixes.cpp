@@ -4121,8 +4121,8 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 
     // signal declaration
     if (generateFlags & Flag::GenerateSignal) {
-        const auto &paramType = overview.prettyType(returnTypeHeader);
-        const QString newValue = m_settings->signalWithNewValue ? paramType : QString();
+        const auto &parameter = overview.prettyType(returnTypeHeader, data.qPropertyName);
+        const QString newValue = m_settings->signalWithNewValue ? parameter : QString();
         const QString declaration = QString("void %1(%2);\n").arg(data.signalName, newValue);
         addHeaderCode(InsertionPointLocator::Signals, declaration);
     }

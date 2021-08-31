@@ -2801,7 +2801,7 @@ public:
     N2::test*getBar() const;
     void setBar(const custom<N2::test> &newBar);
 signals:
-    void barChanged(N2::test*);
+    void barChanged(N2::test*bar);
 private:
     Q_PROPERTY(N2::test* bar READ getBar NOTIFY barChanged)
 };
@@ -3598,7 +3598,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "    }\n"
              "\n"
              "signals:\n"
-             "    void itChanged(int);\n"
+             "    void itChanged(int it);\n"
              "\n"
              "private:\n"
              "    int m_it;\n"
@@ -3631,7 +3631,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "    }\n"
              "\n"
              "signals:\n"
-             "    void itChanged(int);\n"
+             "    void itChanged(int it);\n"
              "\n"
              "private:\n"
              "    int m_it;\n"
@@ -3693,7 +3693,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "        emit itChanged(m_it);\n"
              "    }\n"
              "signals:\n"
-             "    void itChanged(int);\n"
+             "    void itChanged(int it);\n"
              "};\n"
              "\n"
              "int XmarksTheSpot::getIt() const\n"
