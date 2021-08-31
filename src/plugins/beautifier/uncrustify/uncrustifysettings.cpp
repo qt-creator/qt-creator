@@ -54,7 +54,7 @@ const char SETTINGS_NAME[]                 = "uncrustify";
 UncrustifySettings::UncrustifySettings() :
     AbstractSettings(SETTINGS_NAME, ".cfg")
 {
-    connect(&m_versionProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&m_versionProcess, &Utils::QtcProcess::finished,
             this, &UncrustifySettings::parseVersionProcessResult);
 
     setCommand("uncrustify");
@@ -229,13 +229,13 @@ void UncrustifySettings::updateVersion()
         m_versionProcess.kill();
         m_versionProcess.waitForFinished();
     }
-    m_versionProcess.start(command().toString(), {"--version"});
+    m_versionProcess.setCommand({ command(), { "--version" } });
+    m_versionProcess.start();
 }
 
-void UncrustifySettings::parseVersionProcessResult(int exitCode, QProcess::ExitStatus exitStatus)
+void UncrustifySettings::parseVersionProcessResult()
 {
-    Q_UNUSED(exitCode)
-    if (exitStatus != QProcess::NormalExit)
+    if (m_versionProcess.exitStatus() != QProcess::NormalExit)
         return;
 
     if (!parseVersion(QString::fromUtf8(m_versionProcess.readAllStandardOutput()), m_version))

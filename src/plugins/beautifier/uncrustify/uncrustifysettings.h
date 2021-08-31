@@ -27,7 +27,7 @@
 
 #include "../abstractsettings.h"
 #include <utils/fileutils.h>
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 namespace Beautifier {
 namespace Internal {
@@ -66,8 +66,8 @@ public:
     void setUseSpecificConfigFile(bool useConfigFile);
 
 private:
-    QProcess m_versionProcess;
-    void parseVersionProcessResult(int exitCode, QProcess::ExitStatus exitStatus);
+    Utils::QtcProcess m_versionProcess;
+    void parseVersionProcessResult();
 };
 
 } // namespace Internal
