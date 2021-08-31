@@ -723,12 +723,11 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 
     using namespace TextEditor;
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document)) {
-        if (TextEditorWidget *widget = editor->editorWidget()) {
-            widget->setRefactorMarkers(
-                RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
-        }
+        TextEditorWidget *widget = editor->editorWidget();
+        QTC_ASSERT(widget, continue);
+        delete m_documentHighlightsTimer.take(widget);
+        widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
     }
-
     m_documentUpdateTimer.start();
 }
 
