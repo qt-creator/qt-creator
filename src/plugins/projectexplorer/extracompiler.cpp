@@ -39,6 +39,7 @@
 #include <texteditor/fontsettings.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include <QDateTime>
@@ -49,6 +50,8 @@
 #include <QTimer>
 #include <QTextBlock>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 Q_GLOBAL_STATIC(QThreadPool, s_extraCompilerThreadPool);
@@ -58,7 +61,7 @@ class ExtraCompilerPrivate
 {
 public:
     const Project *project;
-    Utils::FilePath source;
+    FilePath source;
     FileNameToContentsHash contents;
     Tasks issues;
     QDateTime compileTime;
@@ -71,13 +74,13 @@ public:
     void updateIssues();
 };
 
-ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FilePath &source,
-                             const Utils::FilePaths &targets, QObject *parent) :
+ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
+                             const FilePaths &targets, QObject *parent) :
     QObject(parent), d(std::make_unique<ExtraCompilerPrivate>())
 {
     d->project = project;
     d->source = source;
-    foreach (const Utils::FilePath &target, targets)
+    for (const FilePath &target : targets)
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
@@ -105,7 +108,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FilePath &sour
 
     // Use existing target files, where possible. Otherwise run the compiler.
     QDateTime sourceTime = d->source.lastModified();
-    foreach (const Utils::FilePath &target, targets) {
+    for (const FilePath &target : targets) {
         QFileInfo targetFileInfo(target.toFileInfo());
         if (!targetFileInfo.exists()) {
             d->dirty = true;
@@ -132,22 +135,22 @@ const Project *ExtraCompiler::project() const
     return d->project;
 }
 
-Utils::FilePath ExtraCompiler::source() const
+FilePath ExtraCompiler::source() const
 {
     return d->source;
 }
 
-QByteArray ExtraCompiler::content(const Utils::FilePath &file) const
+QByteArray ExtraCompiler::content(const FilePath &file) const
 {
     return d->contents.value(file);
 }
 
-Utils::FilePaths ExtraCompiler::targets() const
+FilePaths ExtraCompiler::targets() const
 {
     return d->contents.keys();
 }
 
-void ExtraCompiler::forEachTarget(std::function<void (const Utils::FilePath &)> func)
+void ExtraCompiler::forEachTarget(std::function<void (const FilePath &)> func)
 {
     for (auto it = d->contents.constBegin(), end = d->contents.constEnd(); it != end; ++it)
         func(it.key());
@@ -184,7 +187,7 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
     if (d->compileTime.isValid() && d->compileTime >= sourceTime)
         return;
 
-    forEachTarget([&](const Utils::FilePath &target) {
+    forEachTarget([&](const FilePath &target) {
         QFileInfo fi(target.toFileInfo());
         QDateTime generateTime = fi.exists() ? fi.lastModified() : QDateTime();
         if (generateTime.isValid() && (generateTime > sourceTime)) {
@@ -249,21 +252,21 @@ void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
     d->lastEditor = nullptr;
 }
 
-Utils::Environment ExtraCompiler::buildEnvironment() const
+Environment ExtraCompiler::buildEnvironment() const
 {
     if (Target *target = project()->activeTarget()) {
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
             return bc->environment();
         } else {
-            Utils::EnvironmentItems changes =
+            EnvironmentItems changes =
                     EnvironmentKitAspect::environmentChanges(target->kit());
-            Utils::Environment env = Utils::Environment::systemEnvironment();
+            Environment env = Environment::systemEnvironment();
             env.modify(changes);
             return env;
         }
     }
 
-    return Utils::Environment::systemEnvironment();
+    return Environment::systemEnvironment();
 }
 
 void ExtraCompiler::setCompileIssues(const Tasks &issues)
@@ -283,7 +286,7 @@ void ExtraCompilerPrivate::updateIssues()
 
     QList<QTextEdit::ExtraSelection> selections;
     const QTextDocument *document = widget->document();
-    foreach (const Task &issue, issues) {
+    for (const Task &issue : qAsConst(issues)) {
         QTextEdit::ExtraSelection selection;
         QTextCursor cursor(document->findBlockByNumber(issue.line - 1));
         cursor.movePosition(QTextCursor::StartOfLine);
@@ -300,7 +303,7 @@ void ExtraCompilerPrivate::updateIssues()
     widget->setExtraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection, selections);
 }
 
-void ExtraCompiler::setContent(const Utils::FilePath &file, const QByteArray &contents)
+void ExtraCompiler::setContent(const FilePath &file, const QByteArray &contents)
 {
     auto it = d->contents.find(file);
     if (it != d->contents.end()) {
@@ -327,8 +330,8 @@ QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
     return *factories();
 }
 
-ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const Utils::FilePath &source,
-                                           const Utils::FilePaths &targets, QObject *parent) :
+ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const FilePath &source,
+                                           const FilePaths &targets, QObject *parent) :
     ExtraCompiler(project, source, targets, parent)
 { }
 
@@ -348,7 +351,7 @@ void ProcessExtraCompiler::run(const QByteArray &sourceContents)
 
 QFuture<FileNameToContentsHash> ProcessExtraCompiler::run()
 {
-    const Utils::FilePath fileName = source();
+    const FilePath fileName = source();
     ContentProvider contents = [fileName]() {
         QFile file(fileName.toString());
         if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -358,9 +361,9 @@ QFuture<FileNameToContentsHash> ProcessExtraCompiler::run()
     return runImpl(contents);
 }
 
-Utils::FilePath ProcessExtraCompiler::workingDirectory() const
+FilePath ProcessExtraCompiler::workingDirectory() const
 {
-    return Utils::FilePath();
+    return FilePath();
 }
 
 QStringList ProcessExtraCompiler::arguments() const
@@ -389,7 +392,7 @@ QFuture<FileNameToContentsHash> ProcessExtraCompiler::runImpl(const ContentProvi
     connect(m_watcher, &QFutureWatcher<FileNameToContentsHash>::finished,
             this, &ProcessExtraCompiler::cleanUp);
 
-    m_watcher->setFuture(Utils::runAsync(extraCompilerThreadPool(),
+    m_watcher->setFuture(runAsync(extraCompilerThreadPool(),
                                          &ProcessExtraCompiler::runInThread, this,
                                          command(), workingDirectory(), arguments(), provider,
                                          buildEnvironment()));
@@ -398,9 +401,9 @@ QFuture<FileNameToContentsHash> ProcessExtraCompiler::runImpl(const ContentProvi
 
 void ProcessExtraCompiler::runInThread(
         QFutureInterface<FileNameToContentsHash> &futureInterface,
-        const Utils::FilePath &cmd, const Utils::FilePath &workDir,
+        const FilePath &cmd, const FilePath &workDir,
         const QStringList &args, const ContentProvider &provider,
-        const Utils::Environment &env)
+        const Environment &env)
 {
     if (cmd.isEmpty() || !cmd.toFileInfo().isExecutable())
         return;
@@ -409,29 +412,22 @@ void ProcessExtraCompiler::runInThread(
     if (sourceContents.isNull() || !prepareToRun(sourceContents))
         return;
 
-    QProcess process;
+    QtcProcess process;
 
-    process.setProcessEnvironment(env.toProcessEnvironment());
+    process.setEnvironment(env);
     if (!workDir.isEmpty())
         process.setWorkingDirectory(workDir.toString());
-    process.start(cmd.toString(), args, QIODevice::ReadWrite);
-    if (!process.waitForStarted()) {
-        handleProcessError(&process);
+    process.setCommand({ cmd, args });
+    process.setWriteData(sourceContents);
+    process.start();
+    if (!process.waitForStarted())
         return;
-    }
-    bool isCanceled = futureInterface.isCanceled();
-    if (!isCanceled) {
-        handleProcessStarted(&process, sourceContents);
-        forever {
-            bool done = process.waitForFinished(200);
-            isCanceled = futureInterface.isCanceled();
-            if (done || isCanceled)
-                break;
-        }
-    }
 
-    isCanceled |= process.state() == QProcess::Running;
-    if (isCanceled) {
+    while (!futureInterface.isCanceled())
+        if (process.waitForFinished(200))
+            break;
+
+    if (futureInterface.isCanceled()) {
         process.kill();
         process.waitForFinished();
         return;

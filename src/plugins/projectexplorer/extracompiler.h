@@ -40,7 +40,6 @@
 #include <functional>
 #include <memory>
 
-QT_FORWARD_DECLARE_CLASS(QProcess);
 QT_FORWARD_DECLARE_CLASS(QThreadPool);
 QT_BEGIN_NAMESPACE
 template <typename T>
@@ -49,6 +48,7 @@ template <typename T>
 class QFutureWatcher;
 QT_END_NAMESPACE
 
+namespace Utils { class QtcProcess; }
 
 namespace ProjectExplorer {
 
@@ -126,10 +126,7 @@ protected:
 
     virtual bool prepareToRun(const QByteArray &sourceContents);
 
-    virtual void handleProcessError(QProcess *process) { Q_UNUSED(process) }
-    virtual void handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
-    { Q_UNUSED(process); Q_UNUSED(sourceContents) }
-    virtual FileNameToContentsHash handleProcessFinished(QProcess *process) = 0;
+    virtual FileNameToContentsHash handleProcessFinished(Utils::QtcProcess *process) = 0;
 
     virtual Tasks parseIssues(const QByteArray &stdErr);
 

@@ -32,11 +32,11 @@
 #include <projectexplorer/buildconfiguration.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QFileInfo>
 #include <QDir>
 #include <QLoggingCategory>
-#include <QProcess>
 #include <QDateTime>
 
 using namespace ProjectExplorer;
@@ -70,7 +70,7 @@ QStringList UicGenerator::arguments() const
     return {"-p"};
 }
 
-FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
+FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::QtcProcess *process)
 {
     FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
@@ -85,12 +85,6 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
     content.prepend("#pragma once\n");
     result[targetList.first()] = content;
     return result;
-}
-
-void UicGenerator::handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
-{
-    process->write(sourceContents);
-    process->closeWriteChannel();
 }
 
 FileType UicGeneratorFactory::sourceType() const
