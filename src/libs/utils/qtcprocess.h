@@ -207,9 +207,6 @@ private:
     void beginFeed();
     void feedStdOut(const QByteArray &data);
     void endFeed();
-
-    void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
-    QProcessEnvironment processEnvironment() const = delete;
 };
 
 using ExitCodeInterpreter = std::function<QtcProcess::Result(int /*exitCode*/)>;
