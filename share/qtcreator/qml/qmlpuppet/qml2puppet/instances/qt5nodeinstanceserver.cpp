@@ -154,6 +154,7 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
         m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
 #endif
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
+    DesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
 }
 
 void Qt5NodeInstanceServer::resetAllItems()
