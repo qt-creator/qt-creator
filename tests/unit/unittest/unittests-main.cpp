@@ -29,10 +29,12 @@
 #include <sqlitelibraryinitializer.h>
 
 #include <sqliteglobal.h>
+#include <utils/launcherinterface.h>
 #include <utils/temporarydirectory.h>
 
 #include <QGuiApplication>
 #include <QLoggingCategory>
+#include <QScopeGuard>
 
 #ifdef WITH_BENCHMARKS
 #include <benchmark/benchmark.h>
@@ -58,7 +60,9 @@ int main(int argc, char *argv[])
     Sqlite::Database::activateLogging();
 
     QGuiApplication application(argc, argv);
-
+    Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
+                                            + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+    auto cleanup = qScopeGuard([] { Utils::LauncherInterface::stopLauncher(); });
     testing::InitGoogleTest(&argc, argv);
 #ifdef WITH_BENCHMARKS
     benchmark::Initialize(&argc, argv);

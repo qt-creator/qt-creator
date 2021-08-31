@@ -39,8 +39,12 @@
 
 QT_BEGIN_NAMESPACE
 class QTemporaryDir;
-class QProcessEnvironment;
 QT_END_NAMESPACE
+
+namespace Utils {
+class Environment;
+class QtcProcess;
+}
 
 namespace ClangBackEnd {
 
@@ -62,12 +66,12 @@ public:
 
 private:
     void checkIfProcessPathExists() const;
-    void checkIfProcessWasStartingSuccessful(QProcess *process) const;
-    [[noreturn]] void dispatchProcessError(QProcess *process) const;
+    void checkIfProcessWasStartingSuccessful(Utils::QtcProcess *process) const;
+    [[noreturn]] void dispatchProcessError(Utils::QtcProcess *process) const;
     void postProcessStartedEvent() const;
     [[noreturn]] void throwProcessException(const QString &message) const;
 
-    QProcessEnvironment processEnvironment() const;
+    Utils::Environment processEnvironment() const;
 
 private:
     std::unique_ptr<Utils::TemporaryDirectory> m_temporaryDirectory;
