@@ -133,6 +133,13 @@ void BeautifierPlugin::extensionsInitialized()
     dd = new BeautifierPluginPrivate;
 }
 
+ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
+{
+    delete dd;
+    dd = nullptr;
+    return SynchronousShutdown;
+}
+
 BeautifierPluginPrivate::BeautifierPluginPrivate()
 {
     updateActions();

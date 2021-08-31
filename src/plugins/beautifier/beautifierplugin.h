@@ -49,6 +49,7 @@ public:
 private:
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 };
 
 } // namespace Internal
