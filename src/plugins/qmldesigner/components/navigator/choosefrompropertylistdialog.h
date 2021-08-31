@@ -32,23 +32,24 @@
 
 namespace QmlDesigner {
 namespace Ui {
-class ChooseTexturePropertyDialog;
+class ChooseFromPropertyListDialog;
 }
 
-class ChooseTexturePropertyDialog : public QDialog
+class ChooseFromPropertyListDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ChooseTexturePropertyDialog(const ModelNode &node, QWidget *parent = 0);
-    ~ChooseTexturePropertyDialog();
+    explicit ChooseFromPropertyListDialog(const ModelNode &node, TypeName type, QWidget *parent = 0);
+    ~ChooseFromPropertyListDialog();
 
     TypeName selectedProperty() const;
 
 private:
     void fillList(const ModelNode &node);
 
-    Ui::ChooseTexturePropertyDialog *m_ui;
+    Ui::ChooseFromPropertyListDialog *m_ui;
     TypeName m_selectedProperty;
+    TypeName m_propertyTypeName;
 };
 }

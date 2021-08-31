@@ -23,20 +23,22 @@
 **
 ****************************************************************************/
 
-#include "choosetexturepropertydialog.h"
+#include "choosefrompropertylistdialog.h"
 #include "nodemetainfo.h"
-#include "ui_choosetexturepropertydialog.h"
+#include "ui_choosefrompropertylistdialog.h"
 
 namespace QmlDesigner {
 
-// This dialog displays all texture properties of an object and allows the user to choose one
-ChooseTexturePropertyDialog::ChooseTexturePropertyDialog(const ModelNode &node, QWidget *parent)
+// This dialog displays all given type properties of an object and allows the user to choose one
+ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const ModelNode &node, TypeName type, QWidget *parent)
     : QDialog(parent)
-    , m_ui(new Ui::ChooseTexturePropertyDialog)
+    , m_ui(new Ui::ChooseFromPropertyListDialog)
 {
+    m_propertyTypeName = type;
     m_ui->setupUi(this);
-    setWindowTitle(tr("Select Texture Property"));
-    m_ui->label->setText(tr("Set texture to property:"));
+    setWindowTitle(tr("Select property"));
+    m_ui->label->setText(tr("Bind to property:"));
+    m_ui->label->setToolTip(tr("Binds this component to the parent's selected property."));
     setFixedSize(size());
 
     connect(m_ui->listProps, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
@@ -51,25 +53,25 @@ ChooseTexturePropertyDialog::ChooseTexturePropertyDialog(const ModelNode &node, 
     fillList(node);
 }
 
-ChooseTexturePropertyDialog::~ChooseTexturePropertyDialog()
+ChooseFromPropertyListDialog::~ChooseFromPropertyListDialog()
 {
     delete m_ui;
 }
 
-TypeName ChooseTexturePropertyDialog::selectedProperty() const
+TypeName ChooseFromPropertyListDialog::selectedProperty() const
 {
     return m_selectedProperty;
 }
 
-void ChooseTexturePropertyDialog::fillList(const ModelNode &node)
+void ChooseFromPropertyListDialog::fillList(const ModelNode &node)
 {
-    // Fill the list with all properties of type Texture
+    // Fill the list with all properties of given type
     const auto metaInfo = node.metaInfo();
     const auto propNames = metaInfo.propertyNames();
-    const TypeName textureProp("QtQuick3D.Texture");
+    const TypeName property(m_propertyTypeName);
     QStringList nameList;
     for (const auto &propName : propNames) {
-        if (metaInfo.propertyTypeName(propName) == textureProp)
+        if (metaInfo.propertyTypeName(propName) == property)
             nameList.append(QString::fromLatin1(propName));
     }
 

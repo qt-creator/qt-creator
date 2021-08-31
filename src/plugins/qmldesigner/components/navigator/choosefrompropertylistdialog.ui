@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QmlDesigner::ChooseTexturePropertyDialog</class>
- <widget class="QDialog" name="QmlDesigner::ChooseTexturePropertyDialog">
+ <class>QmlDesigner::ChooseFromPropertyListDialog</class>
+ <widget class="QDialog" name="QmlDesigner::ChooseFromPropertyListDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -77,7 +77,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>QmlDesigner::ChooseTexturePropertyDialog</receiver>
+   <receiver>QmlDesigner::ChooseFromPropertyListDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -93,7 +93,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>QmlDesigner::ChooseTexturePropertyDialog</receiver>
+   <receiver>QmlDesigner::ChooseFromPropertyListDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

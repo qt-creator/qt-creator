@@ -25,7 +25,7 @@
 
 #include "navigatortreemodel.h"
 #include "navigatorview.h"
-#include "choosetexturepropertydialog.h"
+#include "choosefrompropertylistdialog.h"
 #include "qmldesignerplugin.h"
 #include "itemlibrarywidget.h"
 
@@ -700,7 +700,8 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         // notify user with a helpful messagebox that suggests the correct action.
                         showMatToCompInfo = true;
                     }
-                } else {
+                } else if (newModelNode.isSubclassOf("QtQuick3D.Shader")
+                           || newModelNode.isSubclassOf("QtQuick3D.Command")) {
                     const bool isShader = newModelNode.isSubclassOf("QtQuick3D.Shader");
                     if (isShader || newModelNode.isSubclassOf("QtQuick3D.Command")) {
                         if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass")) {
@@ -727,7 +728,25 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                             }
                         }
                     }
+                } else {
+                    ModelNode targetNode = targetProperty.parentModelNode();
+                    NodeMetaInfo metaInfo = targetNode.metaInfo();
+                    TypeName typeName = newModelNode.type();
+                    const PropertyNameList nameList = targetNode.metaInfo().directPropertyNames();
+                    for (const auto &propertyName : nameList) {
+                        auto testType = metaInfo.propertyTypeName(propertyName);
+                        if (testType == typeName || newModelNode.isSubclassOf(testType)) {
+                            ChooseFromPropertyListDialog *dialog = nullptr;
+                            dialog = new ChooseFromPropertyListDialog(targetNode, testType, Core::ICore::dialogParent());
+                            dialog->exec();
+                            if (!dialog || dialog->result() == QDialog::Accepted)
+                                targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
+                            delete dialog;
+                            break;
+                        }
+                    }
                 }
+
                 if (!validContainer) {
                     if (!showMatToCompInfo)
                         validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
@@ -982,10 +1001,10 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
 {
     if (targetNode.isSubclassOf("QtQuick3D.Material")) {
         // if dropping an image on a default material, create a texture instead of image
-        ChooseTexturePropertyDialog *dialog = nullptr;
+        ChooseFromPropertyListDialog *dialog = nullptr;
         if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial") || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
             // Show texture property selection dialog
-            dialog = new ChooseTexturePropertyDialog(targetNode, Core::ICore::dialogParent());
+            dialog = new ChooseFromPropertyListDialog(targetNode, "QtQuick3D.Texture", Core::ICore::dialogParent());
             dialog->exec();
         }
         if (!dialog || dialog->result() == QDialog::Accepted) {
