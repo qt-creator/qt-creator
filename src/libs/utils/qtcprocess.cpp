@@ -374,6 +374,29 @@ public:
         emit q->readyReadStandardError();
     }
 
+    FilePath resolve(const FilePath &workingDir, const FilePath &filePath) const
+    {
+        if (filePath.isAbsolutePath())
+            return filePath;
+
+        const FilePath fromWorkingDir = workingDir.absoluteFilePath(filePath);
+        if (fromWorkingDir.exists() && fromWorkingDir.isExecutableFile())
+            return fromWorkingDir;
+        return filePath.searchInPath();
+    }
+
+    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
+    {
+        const FilePath programFilePath = resolve(m_workingDirectory, FilePath::fromString(program));
+        if (programFilePath.exists() && programFilePath.isExecutableFile()) {
+            m_process->start(programFilePath.toString(), arguments, writeData);
+        } else {
+            m_process->setErrorString(QLatin1String(
+                       "The program \"%1\" does not exist or is not executable.").arg(program));
+            slotError(QProcess::FailedToStart);
+        }
+    }
+
     QtcProcess *q;
     ProcessInterface *m_process;
     const ProcessMode m_processMode;
@@ -586,7 +609,7 @@ void QtcProcess::start()
 #endif
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
-        d->m_process->start(command, QStringList(), d->m_writeData);
+        d->start(command, QStringList(), d->m_writeData);
     } else {
         if (!success) {
             setErrorString(tr("Error in command line."));
@@ -595,7 +618,7 @@ void QtcProcess::start()
             emit errorOccurred(QProcess::UnknownError);
             return;
         }
-        d->m_process->start(command, arguments.toUnixArgs(), d->m_writeData);
+        d->start(command, arguments.toUnixArgs(), d->m_writeData);
     }
 }
 
@@ -877,6 +900,8 @@ void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 
 QProcess::ProcessError QtcProcess::error() const
 {
+    if (d->m_startFailure)
+        return QProcess::FailedToStart;
     return d->m_process->error();
 }
 
