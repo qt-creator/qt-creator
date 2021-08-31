@@ -221,6 +221,9 @@ QString static getErrorString(QQmlEngine *engine, const QString &componentPath)
 
 bool isInPathList(const QStringList &pathList, const QString &componentPath)
 {
+    if (componentPath.indexOf("qml/QtQuick/Controls") > 0)
+        return true;
+
     return std::any_of(pathList.begin(), pathList.end(), [&](auto &&path) {
         return componentPath.startsWith(path);
     });
