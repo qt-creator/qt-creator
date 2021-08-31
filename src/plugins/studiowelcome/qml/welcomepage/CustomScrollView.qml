@@ -33,10 +33,5 @@ Controls.ScrollView {
            x: control.mirrored ? 0 : control.width - width
            y: control.topPadding
            height: control.availableHeight
-           active: control.ScrollBar.horizontal.active
-       }
-
-       Controls.ScrollBar.horizontal: CustomScrollBar {
-           visible: false
        }
 }
