@@ -329,10 +329,11 @@ bool isComponentType(const QmlDesigner::TypeName &type)
 
 bool isCustomParserType(const QmlDesigner::TypeName &type)
 {
-    return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel" ||
-           type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel" ||
-           type == "QtQuick.ListModel" || type == "Qt.ListModel" ||
-           type == "QtQuick.XmlListModel" || type == "Qt.XmlListModel";
+    return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel"
+           || type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel"
+           || type == "QtQuick.ListModel" || type == "Qt.ListModel"
+           || type == "QtQml.Models.ListModel" || type == "QtQuick.XmlListModel"
+           || type == "Qt.XmlListModel";
 }
 
 

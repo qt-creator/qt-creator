@@ -118,6 +118,7 @@ protected:
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
     void updateDirtyNodesRecursive(QQuickItem *parentItem) const;
     void updateAllDirtyNodesRecursive(QQuickItem *parentItem) const;
+    void setAllNodesDirtyRecursive(QQuickItem *parentItem) const;
     QRectF boundingRectWithStepChilds(QQuickItem *parentItem) const;
     void resetHorizontal();
     void resetVertical();

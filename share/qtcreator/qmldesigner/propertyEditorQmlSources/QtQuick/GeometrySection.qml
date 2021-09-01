@@ -36,7 +36,7 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    readonly property string disbaledTooltip: qsTr("This property is defined by an anchor or a layout.")
+    readonly property string disabledTooltip: qsTr("This property is defined by an anchor or a layout.")
 
     function positionDisabled() {
         return anchorBackend.isFilled || anchorBackend.isInLayout
@@ -88,7 +88,7 @@ Section {
 
             ControlLabel {
                 text: "X"
-                tooltip: xSpinBox.enabled ? "X" : root.disbaledTooltip
+                tooltip: xSpinBox.enabled ? "X" : root.disabledTooltip
                 enabled: xSpinBox.enabled
             }
 
@@ -109,7 +109,7 @@ Section {
 
             ControlLabel {
                 text: "Y"
-                tooltip: xSpinBox.enabled ? "Y" : root.disbaledTooltip
+                tooltip: xSpinBox.enabled ? "Y" : root.disabledTooltip
                 enabled: ySpinBox.enabled
             }
 /*
@@ -143,7 +143,7 @@ Section {
             ControlLabel {
                 //: The width of the object
                 text: qsTr("W", "width")
-                tooltip: widthSpinBox.enabled ? qsTr("Width") : root.disbaledTooltip
+                tooltip: widthSpinBox.enabled ? qsTr("Width") : root.disabledTooltip
                 enabled: widthSpinBox.enabled
             }
 
@@ -165,7 +165,7 @@ Section {
             ControlLabel {
                 //: The height of the object
                 text: qsTr("H", "height")
-                tooltip: heightSpinBox.enabled ? qsTr("Height") : root.disbaledTooltip
+                tooltip: heightSpinBox.enabled ? qsTr("Height") : root.disabledTooltip
                 enabled: heightSpinBox.enabled
             }
 /*

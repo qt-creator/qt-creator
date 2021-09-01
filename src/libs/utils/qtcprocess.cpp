@@ -556,11 +556,10 @@ void QtcProcess::start()
             qWarning("QtcProcess::start: Empty environment set when running '%s'.",
                      qPrintable(d->m_commandLine.executable().toString()));
         env = d->m_environment;
-
-        d->m_process->setProcessEnvironment(env.toProcessEnvironment());
     } else {
         env = Environment::systemEnvironment();
     }
+    d->m_process->setProcessEnvironment(env.toProcessEnvironment());
 
     d->m_process->setWorkingDirectory(d->m_workingDirectory.path());
 

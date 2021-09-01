@@ -89,8 +89,20 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                         if (hasInstanceForObject(item)) {
                             if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
                                 m_dirtyInstanceSet.insert(instanceForObject(item));
+                            if (QQuickItem *effectParent = parentEffectItem(item)) {
+                                if ((DesignerSupport::isDirty(
+                                        item,
+                                        DesignerSupport::DirtyType(
+                                            DesignerSupport::TransformUpdateMask
+                                            | DesignerSupport::Visible
+                                            | DesignerSupport::ContentUpdateMask)))
+                                    && hasInstanceForObject(effectParent)) {
+                                    m_dirtyInstanceSet.insert(instanceForObject(effectParent));
+                                }
+                            }
                         } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
-                            ServerNodeInstance ancestorInstance = findNodeInstanceForItem(item->parentItem());
+                            ServerNodeInstance ancestorInstance = findNodeInstanceForItem(
+                                item->parentItem());
                             if (ancestorInstance.isValid())
                                 m_dirtyInstanceSet.insert(ancestorInstance);
                         }

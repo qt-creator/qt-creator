@@ -493,6 +493,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     environment.set("QML_PUPPET_MODE", "true");
     environment.set("QML_DISABLE_DISK_CACHE", "true");
+    environment.set("QMLPUPPET_RENDER_EFFECTS", "true");
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (!environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !environment.hasKey("QT_SCALE_FACTOR")
             && QApplication::testAttribute(Qt::AA_EnableHighDpiScaling))

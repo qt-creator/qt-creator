@@ -35,23 +35,20 @@ Controls.ScrollBar {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
-    padding: control.interactive ? 1 : 2
-    visible: control.policy !== Controls.ScrollBar.AlwaysOff
-    minimumSize: orientation == Qt.Horizontal ? height / width : width / height
+    padding: active ? 1 : 2
+    visible: orientation === Qt.Horizontal ? contentWidth > width : contentHeight > height
+    minimumSize: orientation === Qt.Horizontal ? height / width : width / height
 
     contentItem: Rectangle {
         implicitWidth: 13
         implicitHeight: 13
-
-        color: Constants.textDefaultColor
+        color: active ? Constants.textHoverColor : Constants.textDefaultColor
     }
 
     background: Rectangle {
         implicitWidth: 16
         implicitHeight: 16
-        color: "#2d2e30"
-        visible: control.interactive
+        color: "#3b3c3d"
+        visible: active
     }
 }
-
-
