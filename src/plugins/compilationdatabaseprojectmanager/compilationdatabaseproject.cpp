@@ -440,8 +440,13 @@ Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
 #ifdef WITH_TESTS
     return Utils::FilePath::fromString(projectDirectory().fileName());
 #else
-    return Utils::FilePath::fromString(
+    auto rootPath = Utils::FilePath::fromString(
         namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+
+    if (rootPath.isEmpty())
+        rootPath = Utils::FilePath::fromString(projectDirectory().fileName());
+
+    return rootPath;
 #endif
 }
 
