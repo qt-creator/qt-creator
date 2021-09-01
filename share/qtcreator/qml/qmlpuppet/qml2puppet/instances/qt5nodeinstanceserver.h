@@ -71,6 +71,8 @@ public:
     QImage grabWindow() override;
     QImage grabItem(QQuickItem *item) override;
 
+    static QQuickItem *parentEffectItem(QQuickItem *item);
+
 protected:
     void initializeView() override;
     void resizeCanvasToRootItem() override;

@@ -64,10 +64,11 @@
     The output is evaluated as \c true if both inputs are \c true.
 
     For example, we could use the checked state of two check boxes to determine
-    the checked state of a third one. First we drag-and-drop three
-    \uicontrol {Check Box} component and an \uicontrol {And Operator} to
-    \uicontrol Navigator (1). Then we select the \uicontrol {And Operator}
-    component (2) and set its properties in \l Properties (3).
+    the checked state of a third one. First, we drag-and-drop three instances of
+    the \uicontrol {Check Box} components and one instance of the
+    \uicontrol {And Operator} component to \uicontrol Navigator (1). Then, we
+    select the \uicontrol {And Operator} component instance (2) and set its
+    properties in \l Properties (3).
 
     We select \inlineimage icons/action-icon.png
     next to the \uicontrol {Input 01} field to display the \uicontrol Actions
@@ -79,13 +80,6 @@
     second check box.
 
     \image studio-logic-helper-and.png "AND operator properties"
-
-    Then, we select the first and second check box, and set their
-    \uicontrol Checked property to \c true in \uicontrol Properties.
-    We can multiselect the controls and make the change simultaneously
-    for both of them.
-
-    \image studio-logic-helper-and-operator-multiselect.gif "Multiselecting check boxes and changing Checked property"
 
     Finally, we select the third check box and bind its \uicontrol Checked
     property to the \uicontrol Output property of the AND operator.
@@ -109,16 +103,17 @@
     condition is not met.
 
     For example, we could specify that if one check box is checked, another
-    one cannot be checked. First we drag-and-drop two \uicontrol {Check Box}
-    component and a \uicontrol {Not Operator} to \uicontrol Navigator. Then we
-    select \uicontrol {Not Operator} and set its properties in
+    one cannot be checked. First, we drag-and-drop two instances of the
+    \uicontrol {Check Box} component and one instance of the
+    \uicontrol {Not Operator} component to \uicontrol Navigator. Then, we select
+    the \uicontrol {Not Operator} component instance and set its properties in
     \uicontrol Properties. In the \uicontrol {Binding Editor}, we bind the
     value of the \c input property of the NOT operator to the value of the
-    \c checked property of the check box.
+    \c checked property of one check box instance.
 
     \image studio-logic-helper-not.png "NOT operator properties"
 
-    We then select the second check box and bind the value of its
+    We then select the other check box instance and bind the value of its
     \uicontrol Checked field to the value of of \uicontrol Output
     field of the \uicontrol {Not Operator} component.
 
@@ -137,10 +132,11 @@
     a slider and checkbox. Typically, it is used to bind a backend value
     to a control, such as a slider.
 
-    For example, to synchronize the values of two sliders, drag-and-drop two
-    \uicontrol Slider components and one \uicontrol {Bi Direct. Binding}
-    component to the same parent component in \uicontrol Navigator. Then select
-    the bi-directional binding and set its properties in \uicontrol Properties.
+    For example, to synchronize the values of two sliders, we drag-and-drop two
+    instances of the \uicontrol Slider component and one instance of the
+    \uicontrol {Bi Direct. Binding} component to the same parent component in
+    \uicontrol Navigator. Then, we select the bi-directional binding instance
+    and set its properties in \uicontrol Properties.
 
     \image studio-logic-helper-bidirectional-binding.png "Bi-directional binding properties"
 
@@ -158,7 +154,7 @@
 
     \section1 String Mapper
 
-    The \uicontrol {String Mapper} component maps numbers to strings. First you
+    The \uicontrol {String Mapper} component maps numbers to strings. First, you
     \l{Adding Bindings Between Properties}{add a binding} between the string
     mapper \c input property and the \c value property of the control that you
     want to fetch the values from. Then, you add a binding between the \c text
@@ -167,17 +163,17 @@
 
     For example, to use a \l Text component to display the value of a
     slider, we drag-and-drop \uicontrol Text, \uicontrol Slider, and
-    \uicontrol {String Mapper} components to the same parent component. Then
-    we select \uicontrol {String Mapper} in \uicontrol Navigator to display
-    its properties in \uicontrol Properties. There we bind the value of the
-    \c input property of the string mapper to the value of the \c value
-    property of the slider.
+    \uicontrol {String Mapper} components to the same parent component. Then,
+    we select the \uicontrol {String Mapper} instance in \uicontrol Navigator
+    to display its properties in \uicontrol Properties. There we bind the value
+    of the \uicontrol Input field to the value of the \c value property of the
+    \uicontrol Slider instance.
 
     \image studio-logic-helper-string-mapper-input.png "Binding slider value property to string mapper"
 
-    Next, we bind the value of the \uicontrol Text field of the
-    \uicontrol Text component to the value of the \uicontrol Text
-    field of the \uicontrol {String Mapper} component.
+    Next, we select the \uicontrol Text instance and bind the value of the
+    \uicontrol Text field to the value of the \uicontrol {Output text} field
+    (\c text property) of the \uicontrol {String Mapper} component.
 
     \image studio-logic-helper-string-mapper-text.png "Binding text property value to string mapper"
 
@@ -186,8 +182,8 @@
 
     \image studio-logic-helper-string-mapper.gif "Previewing text property binding to string mapper"
 
-    The value of the \uicontrol Decimals field determines the number of digits
-    after the decimal separator.
+    The value of the \uicontrol {Decimal places} field determines the number
+    of digits after the decimal separator.
 
     \section1 Minimum-Maximum Mapper
 
@@ -205,7 +201,7 @@
     above. We select it to display its properties in \uicontrol Properties.
     Then, we bind the value of the \uicontrol Input property of the mapper to
     the value of the \c value property of the slider and set the value
-    of the \uicontrol Maximum field to 0.60.
+    of the \uicontrol Max field to 0.60.
 
     \image studio-logic-helper-minmax-mapper-input.png "Binding slider value property to string mapper"
 
@@ -221,12 +217,12 @@
 
     \image studio-logic-helper-minmax-mapper.gif "Previewing a minimum-maximum mapper"
 
-    The \uicontrol {Out of range}, \uicontrol {Above maximum} and
-    \uicontrol {Below minimum} check boxes are set to \c true if
+    The \uicontrol {Out of range}, \uicontrol {Above max} and
+    \uicontrol {Below min} check boxes are set to \c true if
     the value of the \uicontrol Input field is out of range.
 
-    For example, in the context of speed, \uicontrol {Above maximum} being
-    \c true would mean \e {too fast}, whereas \uicontrol {Below minimum}
+    For example, in the context of speed, \uicontrol {Above max} being
+    \c true would mean \e {too fast}, whereas \uicontrol {Below min}
     being \c true, would mean \e {too slow}, and \uicontrol {Out of range}
     being \c true would mean \e {either too fast or too slow}.
 
@@ -240,23 +236,23 @@
     \image studio-logic-helper-range-mapper-properties.png "Range Mapper properties"
 
     Specify the minimum and maximum input and output values in the
-    \uicontrol {Input minimum}, \uicontrol {Input maximum},
-    \uicontrol {Output minimum}, and \uicontrol {Output maximum} fields
+    \uicontrol {Input min}, \uicontrol {Input max},
+    \uicontrol {Output min}, and \uicontrol {Output max} fields
     and the original value in the \uicontrol Output field.
 
-    For example, we can specify that the values of a slider range from -1 to 1.
-    If we want to display values from 10 to 1000, instead, we can bind the
+    For example, we can specify that the values of a slider range from 0 to 1.
+    If we want to display values from 10 to 100, instead, we can bind the
     values of the \uicontrol From and \uicontrol To fields of the \l Slider
-    component to the values of the \uicontrol {Input minimum} and
-    \uicontrol {Input maximum} fields of a \uicontrol {Range Mapper} component.
-    We then set the value of the \uicontrol {Output minimum} field to 10 and the
-    value of the \uicontrol {Output maximum} field to 1000.
+    component to the values of the \uicontrol {Input min} and
+    \uicontrol {Input max} fields of a \uicontrol {Range Mapper} component.
+    We then set the value of the \uicontrol {Output min} field to 10 and the
+    value of the \uicontrol {Output max} field to 100.
 
     \image studio-logic-helper-range-mapper-inputmin.png "Binding range mapper minimum input to slider.from property"
 
     When we move the slider handle in the preview, so that the input value
-    from the \l Slider component changes from -1 to 1, the output value changes
-    from 10 to 1000.
+    from the \l Slider component changes from 0 to 1, the output value changes
+    from 10 to 100.
 
     \image studio-logic-helper-range-mapper.gif "Previewing a range mapper"
 
@@ -281,7 +277,7 @@
     To define a price range from 0 to 1000, we bind the \uicontrol Input
     property of the \uicontrol {Range Mapper} component to the slider value
     and set the maximum input value for the price range in the
-    \uicontrol {Input maximum} field to 1000. The minimum input value is 0
+    \uicontrol {Input max} field to 1000. The minimum input value is 0
     by default, so we don't need to change it.
 
     \image studio-logic-helper-combining-example-rm.png "Range Mapper properties"
@@ -294,26 +290,26 @@
     For the blocked range, we bind the \uicontrol Input property of
     the minimum-maximum mapper to the \uicontrol Output value of the
     \uicontrol {Range Mapper} component and specify the maximum input
-    value in the \uicontrol Maximum field.
+    value in the \uicontrol Max field.
 
     \image studio-logic-helper-combining-example-mmm-blocked.png "Blocked range mapper properties"
 
     We use two \uicontrol {And Operator} components to determine that
     the sell button should be hidden when the value is in the blocked
-    range. We do this by binding the value of the \uicontrol {Output 01}
+    range. We do this by binding the value of the \uicontrol {Input 02}
     field to an evaluation of the value of \uicontrol {Out of range} field
     of the minimum-maximum mapper. We specify that when the value is not
     out of range, it evaluates to \e true.
 
-    \image studio-logic-helper-combining-example-ao1.png "Under value minimum-maximum mapper Output 01"
+    \image studio-logic-helper-combining-example-ao1.png "Under value minimum-maximum mapper Input 02"
 
     For the \e underValueAnd operator, we additionally bind the value of the
-    \uicontrol {Output 02} field to the value of the \uicontrol {Below minimum}
+    \uicontrol {Input 01} field to the value of the \uicontrol {Below min}
     field of the minimum-maximum mapper for the bad value range. For the
     \e overValueAnd operator, we bind it to the value of the
-    \uicontrol {Above maximum} field of the the same mapper.
+    \uicontrol {Above max} field of the the same mapper.
 
-    \image studio-logic-helper-combining-example-ao2.png "Under value minimum-maximum mapper Output 02"
+    \image studio-logic-helper-combining-example-ao2.png "Under value minimum-maximum mapper Input 01"
 
     We can now evaluate values of the \uicontrol {Min Max Mapper}
     and \uicontrol {And Operator} components to apply different
@@ -324,14 +320,14 @@
     \image studio-logic-helper-combining-example.png
 
     First, we create a \e tooLow state and set a \c when condition to
-    apply it when the value of the \uicontrol {Below minimum} field of
+    apply it when the value of the \uicontrol {Below min} field of
     the \uicontrol {Min Max Mapper} component for the blocked range
     evaluates to \c true.
 
     \image studio-logic-helper-combining-example-states-toolow.png "Setting when condition of tooLow state"
 
     For the \e tooHigh state at the other end of the scale, we set the \c when
-    condition to apply it when the value of the \uicontrol {Below minimum} field
+    condition to apply it when the value of the \uicontrol {Above max} field
     of the \uicontrol {Min Max Mapper} component for the blocked range evaluates
     to \c true.
 

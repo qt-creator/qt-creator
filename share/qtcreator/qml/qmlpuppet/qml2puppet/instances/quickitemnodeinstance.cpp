@@ -28,6 +28,9 @@
 
 #include <qmlprivategate.h>
 
+#include <QtQuick/private/qquickitem_p.h>
+#include <QtQuick/private/qquickshadereffectsource_p.h>
+
 #include <QQmlProperty>
 #include <QQmlExpression>
 #include <QQuickView>
@@ -476,11 +479,12 @@ QImage QuickItemNodeInstance::renderImage() const
     }
     renderImage.setDevicePixelRatio(devicePixelRatio);
 #else
-    if (s_unifiedRenderPath)
+    if (s_unifiedRenderPath) {
         renderImage = nodeInstanceServer()->grabWindow();
-    else
+        renderImage = renderImage.copy(renderBoundingRect.toRect());
+    } else {
         renderImage = nodeInstanceServer()->grabItem(quickItem());
-    renderImage = renderImage.copy(renderBoundingRect.toRect());
+    }
 
     /* When grabbing an offscren window the device pixel ratio is 1 */
     renderImage.setDevicePixelRatio(1);
@@ -608,9 +612,49 @@ void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem)
     updateDirtyNode(parentItem);
 }
 
+void QuickItemNodeInstance::setAllNodesDirtyRecursive(QQuickItem *parentItem) const
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    Q_UNUSED(parentItem)
+#else
+    const QList<QQuickItem *> children = parentItem->childItems();
+    for (QQuickItem *childItem : children)
+        setAllNodesDirtyRecursive(childItem);
+    DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+#endif
+}
+
 static inline bool isRectangleSane(const QRectF &rect)
 {
     return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
+}
+
+static bool isEffectItem(QQuickItem *item)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    Q_UNUSED(item)
+    return false;
+#else
+    if (qobject_cast<QQuickShaderEffectSource *>(item))
+        return true;
+
+    const auto propName = "source";
+
+    QQmlProperty prop(item, QString::fromLatin1(propName));
+    if (!prop.isValid())
+        return false;
+
+    QQuickShaderEffectSource *source = prop.read().value<QQuickShaderEffectSource *>();
+
+    if (source && source->sourceItem()) {
+        QQuickItemPrivate *pItem = QQuickItemPrivate::get(source->sourceItem());
+
+        if (pItem && pItem->layer() && pItem->layer()->enabled() && pItem->layer()->effect())
+            return true;
+    }
+
+    return false;
+#endif
 }
 
 QRectF QuickItemNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem) const
@@ -620,8 +664,9 @@ QRectF QuickItemNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem)
     boundingRect = boundingRect.united(QRectF(QPointF(0, 0), size()));
 
     for (QQuickItem *childItem : parentItem->childItems()) {
-        if (!nodeInstanceServer()->hasInstanceForObject(childItem)) {
-            QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));
+        if (!nodeInstanceServer()->hasInstanceForObject(childItem) && !isEffectItem(childItem)) {
+            QRectF transformedRect = childItem->mapRectToItem(parentItem,
+                                                              boundingRectWithStepChilds(childItem));
             if (isRectangleSane(transformedRect))
                 boundingRect = boundingRect.united(transformedRect);
         }
@@ -780,6 +825,9 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
     if (name == "y")
         m_y = value.toDouble();
 
+    if (name == "layer.enabled" || name == "layer.effect")
+        setAllNodesDirtyRecursive(quickItem());
+
     ObjectNodeInstance::setPropertyVariant(name, value);
 
     refresh();
@@ -848,6 +896,9 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
 
     if (name == "y")
         m_y = 0.0;
+
+    if (name == "layer.enabled" || name == "layer.effect")
+        setAllNodesDirtyRecursive(quickItem());
 
     DesignerSupport::resetAnchor(quickItem(), QString::fromUtf8(name));
 

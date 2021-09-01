@@ -200,7 +200,7 @@ QVariant ItemLibraryAssetsModel::data(const QModelIndex &index, int role) const
     }
 
     if (m_roleNames.contains(role))
-        return m_assetsDir ? m_assetsDir->property(m_roleNames.value(role)) : QVariant();
+        return m_assetsDir ? m_assetsDir->property(m_roleNames.value(role)) : QVariant("");
 
     qWarning() << Q_FUNC_INFO << "Invalid role requested: " << QString::number(role);
     return {};

@@ -51,6 +51,8 @@
 #include <QtQuick/private/qsgcontext_p.h>
 #include <QtQuick/private/qsgrenderer_p.h>
 #include <QtQuick/private/qsgrhilayer_p.h>
+#else
+#include <QtQuick/private/qquickitem_p.h>
 #endif
 
 namespace QmlDesigner {
@@ -152,6 +154,7 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
         m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
 #endif
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
+    DesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
 }
 
 void Qt5NodeInstanceServer::resetAllItems()
@@ -335,6 +338,44 @@ QImage Qt5NodeInstanceServer::grabWindow()
     return  {};
 }
 
+static bool hasEffect(QQuickItem *item)
+{
+    QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
+    return pItem && pItem->layer() && pItem->layer()->enabled() && pItem->layer()->effect();
+}
+
+QQuickItem *Qt5NodeInstanceServer::parentEffectItem(QQuickItem *item)
+{
+    QQuickItem *parent = item->parentItem();
+    while (parent) {
+        if (hasEffect(parent))
+            return parent;
+        parent = parent->parentItem();
+    }
+    return nullptr;
+}
+
+static bool isEffectItem(QQuickItem *item, QQuickShaderEffectSource *sourceItem)
+{
+    QQuickItemPrivate *pItem = QQuickItemPrivate::get(sourceItem);
+
+    if (!pItem || !pItem->layer())
+        return false;
+
+    const auto propName = pItem->layer()->name();
+
+    QQmlProperty prop(item, QString::fromLatin1(propName));
+    if (!prop.isValid())
+        return false;
+
+    return prop.read().value<QQuickShaderEffectSource *>() == sourceItem;
+}
+
+static bool isLayerEnabled(QQuickItemPrivate *item)
+{
+    return item && item->layer() && item->layer()->enabled();
+}
+
 QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 {
     QImage renderImage;
@@ -343,18 +384,54 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
         return {};
 
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
-    pItem->refFromEffectItem(false);
+
+    const bool renderEffects = qEnvironmentVariableIsSet("QMLPUPPET_RENDER_EFFECTS");
+
+    if (renderEffects) {
+        if (parentEffectItem(item))
+            return renderImage;
+
+        // Effects are actually implemented as a separate item we have to find first
+        if (hasEffect(item)) {
+            if (auto parent = item->parentItem()) {
+                const auto siblings = parent->childItems();
+                for (auto sibling : siblings) {
+                    if (isEffectItem(sibling, pItem->layer()->effectSource()))
+                        return grabItem(sibling);
+                }
+            }
+        }
+    }
+
+    if (!isLayerEnabled(pItem))
+        pItem->refFromEffectItem(false);
 
     ServerNodeInstance instance = instanceForObject(item);
-    const auto childInstances = instance.childItems();
+
+    // Setting layer enabled to false messes up the bounding rect.
+    // Therefore we calculate it upfront.
+    QRectF renderBoundingRect;
+    if (instance.isValid())
+        renderBoundingRect = instance.boundingRect();
+    else
+        renderBoundingRect = item->boundingRect();
 
     // Hide immediate children that have instances and are QQuickItems so we get only
     // the parent item's content, as compositing is handled on creator side.
-    for (const auto &childInstance : childInstances) {
-        QQuickItem *childItem = qobject_cast<QQuickItem *>(childInstance.internalObject());
-        if (childItem) {
-            QQuickItemPrivate *pChild = QQuickItemPrivate::get(childItem);
-            pChild->refFromEffectItem(true);
+    QSet<QQuickItem *> layerChildren;
+
+    if (instance.isValid()) { //Not valid for effect
+        const auto childInstances = instance.childItems();
+        for (const auto &childInstance : childInstances) {
+            QQuickItem *childItem = qobject_cast<QQuickItem *>(childInstance.internalObject());
+            if (childItem) {
+                QQuickItemPrivate *pChild = QQuickItemPrivate::get(childItem);
+                if (pChild->layer() && pChild->layer()->enabled()) {
+                    layerChildren.insert(childItem);
+                    pChild->layer()->setEnabled(false);
+                }
+                pChild->refFromEffectItem(true);
+            }
         }
     }
 
@@ -372,11 +449,15 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
         QSGRenderContext *rc = QQuickWindowPrivate::get(m_viewData.window.data())->context;
         QSGLayer *layer = rc->sceneGraphContext()->createLayer(rc);
         layer->setItem(pItem->itemNode());
-        QSizeF itemSize = QSizeF(item->width(), item->height());
-        layer->setRect(QRectF(0, itemSize.height(), itemSize.width(), -itemSize.height()));
+
+        layer->setRect(QRectF(renderBoundingRect.x(),
+                              renderBoundingRect.y() + renderBoundingRect.height(),
+                              renderBoundingRect.width(),
+                              -renderBoundingRect.height()));
+
         const QSize minSize = rc->sceneGraphContext()->minimumFBOSize();
-        layer->setSize(QSize(qMax(minSize.width(), int(itemSize.width())),
-                             qMax(minSize.height(), int(itemSize.height()))));
+        layer->setSize(QSize(qMax(minSize.width(), int(renderBoundingRect.width())),
+                             qMax(minSize.height(), int(renderBoundingRect.height()))));
         layer->scheduleUpdate();
 
         if (layer->updateTexture())
@@ -394,15 +475,24 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     m_viewData.renderControl->endFrame();
 
-    // Restore visibility of immediate children that have instances and are QQuickItems
-    for (const auto &childInstance : childInstances) {
-        QQuickItem *childItem = qobject_cast<QQuickItem *>(childInstance.internalObject());
-        if (childItem) {
-            QQuickItemPrivate *pChild = QQuickItemPrivate::get(childItem);
-            pChild->derefFromEffectItem(true);
+    if (instance.isValid()) { //Not valid for effect
+        const auto childInstances = instance.childItems();
+
+        // Restore visibility of immediate children that have instances and are QQuickItems
+        for (const auto &childInstance : childInstances) {
+            QQuickItem *childItem = qobject_cast<QQuickItem *>(childInstance.internalObject());
+            if (childItem) {
+                QQuickItemPrivate *pChild = QQuickItemPrivate::get(childItem);
+                pChild->derefFromEffectItem(true);
+                if (pChild->layer() && layerChildren.contains(childItem))
+                    pChild->layer()->setEnabled(true);
+            }
         }
     }
-    pItem->derefFromEffectItem(false);
+
+    if (!isLayerEnabled(pItem))
+        pItem->derefFromEffectItem(false);
+
 #else
     Q_UNUSED(item)
 #endif
