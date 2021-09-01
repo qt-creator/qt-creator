@@ -325,15 +325,11 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                 return;
 
             // Acquaint the client with all open C++ documents for this project.
-            ClangdClient * const fallbackClient = clientForProject(nullptr);
             bool hasDocuments = false;
             for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
                 if (!project->isKnownFile(editor->textDocument()->filePath()))
                     continue;
-                if (fallbackClient && fallbackClient->documentOpen(editor->textDocument()))
-                    fallbackClient->closeDocument(editor->textDocument());
-                if (!client->documentOpen(editor->textDocument()))
-                    client->openDocument(editor->textDocument());
+                LanguageClientManager::openDocumentWithClient(editor->textDocument(), client);
                 ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
                 hasDocuments = true;
             }
