@@ -37,6 +37,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QScopeGuard>
 #include <QTextCodec>
