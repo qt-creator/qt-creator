@@ -42,7 +42,6 @@ HEADERS += \
     cppeditoroutline.h \
     cppeditorplugin.h \
     cppeditorwidget.h \
-    cppeditorwidgetinterface.h \
     cppelementevaluator.h \
     cppfileiterationorder.h \
     cppfilesettingspage.h \

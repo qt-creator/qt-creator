@@ -41,7 +41,7 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppdoxygen.h>
-#include <cppeditor/cppeditorwidgetinterface.h>
+#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppfindreferences.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -532,7 +532,7 @@ private:
 class ClangdClient::FollowSymbolData {
 public:
     FollowSymbolData(ClangdClient *q, quint64 id, const QTextCursor &cursor,
-                     CppEditor::CppEditorWidgetInterface *editorWidget,
+                     CppEditor::CppEditorWidget *editorWidget,
                      const DocumentUri &uri, Utils::ProcessLinkCallback &&callback,
                      bool openInSplit)
         : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
@@ -561,19 +561,10 @@ public:
         openedFiles.clear();
     }
 
-    bool isEditorWidgetStillAlive() const
-    {
-        return Utils::anyOf(EditorManager::visibleEditors(), [this](IEditor *editor) {
-            const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-            return textEditor && dynamic_cast<CppEditor::CppEditorWidgetInterface *>(
-                    textEditor->editorWidget()) == editorWidget;
-        });
-    }
-
     ClangdClient * const q;
     const quint64 id;
     const QTextCursor cursor;
-    CppEditor::CppEditorWidgetInterface * const editorWidget;
+    const QPointer<CppEditor::CppEditorWidget> editorWidget;
     const DocumentUri uri;
     const Utils::ProcessLinkCallback callback;
     VirtualFunctionAssistProvider virtualFuncAssistProvider;
@@ -596,7 +587,7 @@ public:
 class SwitchDeclDefData {
 public:
     SwitchDeclDefData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
-                      CppEditor::CppEditorWidgetInterface *editorWidget,
+                      CppEditor::CppEditorWidget *editorWidget,
                       Utils::ProcessLinkCallback &&callback)
         : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(std::move(callback)) {}
@@ -639,7 +630,7 @@ public:
     const QPointer<TextEditor::TextDocument> document;
     const DocumentUri uri;
     const QTextCursor cursor;
-    CppEditor::CppEditorWidgetInterface * const editorWidget;
+    const QPointer<CppEditor::CppEditorWidget> editorWidget;
     Utils::ProcessLinkCallback callback;
     Utils::optional<DocumentSymbolsResult> docSymbols;
     Utils::optional<AstNode> ast;
@@ -1346,10 +1337,9 @@ void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool can
     runningFindUsages.remove(refData.key);
 }
 
-void ClangdClient::followSymbol(
-        TextEditor::TextDocument *document,
+void ClangdClient::followSymbol(TextEditor::TextDocument *document,
         const QTextCursor &cursor,
-        CppEditor::CppEditorWidgetInterface *editorWidget,
+        CppEditor::CppEditorWidget *editorWidget,
         Utils::ProcessLinkCallback &&callback,
         bool resolveTarget,
         bool openInSplit
@@ -1409,7 +1399,7 @@ void ClangdClient::followSymbol(
 }
 
 void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                                 CppEditor::CppEditorWidgetInterface *editorWidget,
+                                 CppEditor::CppEditorWidget *editorWidget,
                                  Utils::ProcessLinkCallback &&callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
@@ -1767,7 +1757,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
     // As soon as we know that there is more than one candidate, we start the code assist
     // procedure, to let the user know that things are happening.
     if (followSymbolData->allLinks.size() > 1 && !followSymbolData->virtualFuncAssistProcessor
-            && followSymbolData->isEditorWidgetStillAlive()) {
+            && followSymbolData->editorWidget) {
         followSymbolData->editorWidget->invokeTextEditorWidgetAssist(
                     TextEditor::FollowSymbol, &followSymbolData->virtualFuncAssistProvider);
     }
@@ -2745,17 +2735,17 @@ void ClangdClient::VirtualFunctionAssistProcessor::cancel()
 
 void ClangdClient::VirtualFunctionAssistProcessor::update()
 {
-    if (!m_data->followSymbolData->isEditorWidgetStillAlive())
+    if (!m_data->followSymbolData->editorWidget)
         return;
     setAsyncProposalAvailable(createProposal(false));
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::finalize()
 {
-    if (!m_data->followSymbolData->isEditorWidgetStillAlive())
+    if (!m_data->followSymbolData->editorWidget)
         return;
     const auto proposal = createProposal(true);
-    if (m_data->followSymbolData->editorWidget->inTestMode) {
+    if (m_data->followSymbolData->editorWidget->isInTestMode()) {
         m_data->followSymbolData->symbolsToDisplay.clear();
         const auto immediateProposal = createProposal(false);
         m_data->followSymbolData->editorWidget->setProposals(immediateProposal, proposal);

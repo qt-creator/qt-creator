@@ -25,11 +25,17 @@
 
 #pragma once
 
+#include "cppeditor_global.h"
+
+#include <texteditor/codeassist/assistenums.h>
 #include <texteditor/texteditor.h>
 
-#include "cppeditorwidgetinterface.h"
-
 #include <QScopedPointer>
+
+namespace TextEditor {
+class IAssistProposal;
+class IAssistProvider;
+}
 
 namespace CppEditor {
 class FollowSymbolInterface;
@@ -41,8 +47,9 @@ class CppEditorDocument;
 class CppEditorOutline;
 class CppEditorWidgetPrivate;
 class FunctionDeclDefLink;
+} // namespace Internal
 
-class CppEditorWidget : public TextEditor::TextEditorWidget, public CppEditorWidgetInterface
+class CPPEDITOR_EXPORT CppEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 
@@ -50,14 +57,14 @@ public:
     CppEditorWidget();
     ~CppEditorWidget() override;
 
-    CppEditorDocument *cppEditorDocument() const;
-    CppEditorOutline *outline() const;
+    Internal::CppEditorDocument *cppEditorDocument() const;
+    Internal::CppEditorOutline *outline() const;
 
     bool isSemanticInfoValidExceptLocalUses() const;
     bool isSemanticInfoValid() const;
     bool isRenaming() const;
 
-    QSharedPointer<FunctionDeclDefLink> declDefLink() const;
+    QSharedPointer<Internal::FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
     TextEditor::AssistInterface *createAssistInterface(
@@ -71,7 +78,7 @@ public:
     void selectAll() override;
 
     void switchDeclarationDefinition(bool inNextSplit);
-    void showPreProcessorWidget() override;
+    void showPreProcessorWidget();
 
     void findUsages() override;
     void findUsages(QTextCursor cursor);
@@ -85,15 +92,19 @@ public:
     static void updateWidgetHighlighting(QWidget *widget, bool highlight);
     static bool isWidgetHighlighted(QWidget *widget);
 
-    SemanticInfo semanticInfo() const override;
-    void updateSemanticInfo() override;
+    SemanticInfo semanticInfo() const;
+    void updateSemanticInfo();
     void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
-                                      TextEditor::IAssistProvider *provider) override;
+                                      TextEditor::IAssistProvider *provider);
 
     static const QList<QTextEdit::ExtraSelection>
     unselectLeadingWhitespace(const QList<QTextEdit::ExtraSelection> &selections);
 
+    bool isInTestMode() const;
+    void setProposals(const TextEditor::IAssistProposal *immediateProposal,
+                      const TextEditor::IAssistProposal *finalProposal);
 #ifdef WITH_TESTS
+    void enableTestMode();
 signals:
     void proposalsReady(const TextEditor::IAssistProposal *immediateProposal,
                         const TextEditor::IAssistProposal *finalProposal);
@@ -116,7 +127,7 @@ private:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
     void abortDeclDefLink();
-    void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
+    void onFunctionDeclDefLinkFound(QSharedPointer<Internal::FunctionDeclDefLink> link);
 
     void onCppDocumentUpdated();
 
@@ -137,9 +148,6 @@ private:
     void finalizeInitialization() override;
     void finalizeInitializationAfterDuplication(TextEditorWidget *other) override;
 
-    void setProposals(const TextEditor::IAssistProposal *immediateProposal,
-                      const TextEditor::IAssistProposal *finalProposal) override;
-
     unsigned documentRevision() const;
 
     QMenu *createRefactorMenu(QWidget *parent) const;
@@ -149,8 +157,7 @@ private:
     const ProjectPart *projectPart() const;
 
 private:
-    QScopedPointer<CppEditorWidgetPrivate> d;
+    QScopedPointer<Internal::CppEditorWidgetPrivate> d;
 };
 
-} // namespace Internal
 } // namespace CppEditor

@@ -404,7 +404,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         if (!builtinFollowSymbol) {
             if (curTestName == "testFollowSymbolQTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
-            widget->inTestMode = true;
+            widget->enableTestMode();
             widget->openLinkUnderCursor();
             break;
         }

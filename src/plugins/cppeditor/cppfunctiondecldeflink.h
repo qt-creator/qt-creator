@@ -35,9 +35,10 @@
 #include <QTextCursor>
 
 namespace CppEditor {
+class CppEditorWidget;
+
 namespace Internal {
 
-class CppEditorWidget;
 class FunctionDeclDefLink;
 
 class FunctionDeclDefLinkFinder : public QObject

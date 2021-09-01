@@ -26,6 +26,7 @@
 #include "cpprefactoringengine.h"
 
 #include "cppcanonicalsymbol.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppsemanticinfo.h"
 #include "cpptoolsreuse.h"
@@ -42,7 +43,7 @@ void CppRefactoringEngine::startLocalRenaming(const CursorInEditor &data,
                                               const ProjectPart *,
                                               RenameCallback &&renameSymbolsCallback)
 {
-    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    CppEditorWidget *editorWidget = data.editorWidget();
     QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
                                                    ClangBackEnd::SourceLocationsContainer(),
                                                    0); return;);
@@ -61,7 +62,7 @@ void CppRefactoringEngine::globalRename(const CursorInEditor &data,
     if (!modelManager)
         return;
 
-    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    CppEditorWidget *editorWidget = data.editorWidget();
     QTC_ASSERT(editorWidget, return;);
 
     SemanticInfo info = editorWidget->semanticInfo();
@@ -85,7 +86,7 @@ void CppRefactoringEngine::findUsages(const CursorInEditor &data,
     if (!modelManager)
         return;
 
-    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    CppEditorWidget *editorWidget = data.editorWidget();
     QTC_ASSERT(editorWidget, return;);
 
     SemanticInfo info = editorWidget->semanticInfo();

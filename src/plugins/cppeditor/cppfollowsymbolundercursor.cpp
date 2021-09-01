@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #include "cppfollowsymbolundercursor.h"
-#include "cppvirtualfunctionassistprovider.h"
+
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
-#include "functionutils.h"
 #include "cpptoolsreuse.h"
+#include "cppvirtualfunctionassistprovider.h"
+#include "functionutils.h"
 #include "symbolfinder.h"
 
 #include <cplusplus/ASTPath.h>
@@ -613,7 +615,7 @@ void FollowSymbolUnderCursor::findLink(
         }
     }
 
-    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    CppEditorWidget *editorWidget = data.editorWidget();
     if (!editorWidget)
         return processLinkCallback(link);
 

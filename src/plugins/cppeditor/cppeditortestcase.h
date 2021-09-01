@@ -32,9 +32,9 @@
 namespace TextEditor { class BaseTextEditor; }
 
 namespace CppEditor {
-namespace Internal {
 class CppEditorWidget;
 
+namespace Internal {
 namespace Tests {
 
 class GenericCppTestDocument : public CppEditor::Tests::BaseCppTestDocument

@@ -427,6 +427,7 @@ public:
     CppLocalRenaming m_localRenaming;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
     CppSelectionChanger m_cppSelectionChanger;
+    bool inTestMode = false;
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
@@ -437,6 +438,9 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     , m_useSelectionsUpdater(q)
     , m_cppSelectionChanger()
 {}
+} // namespace Internal
+
+using namespace Internal;
 
 CppEditorWidget::CppEditorWidget()
     : d(new CppEditorWidgetPrivate(this))
@@ -594,7 +598,7 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
 void CppEditorWidget::setProposals(const TextEditor::IAssistProposal *immediateProposal,
                                    const TextEditor::IAssistProposal *finalProposal)
 {
-    QTC_ASSERT(inTestMode, return);
+    QTC_ASSERT(isInTestMode(), return);
 #ifdef WITH_TESTS
     emit proposalsReady(immediateProposal, finalProposal);
 #endif
@@ -1504,7 +1508,12 @@ const QList<QTextEdit::ExtraSelection> CppEditorWidget::unselectLeadingWhitespac
     return filtered;
 }
 
-} // namespace Internal
+bool CppEditorWidget::isInTestMode() const { return d->inTestMode; }
+
+#ifdef WITH_TESTS
+void CppEditorWidget::enableTestMode() { d->inTestMode = true; }
+#endif
+
 } // namespace CppEditor
 
 #include "cppeditorwidget.moc"

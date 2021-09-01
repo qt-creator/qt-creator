@@ -108,7 +108,6 @@ QtcPlugin {
         "cppeditoroutline.h",
         "cppeditorplugin.cpp",
         "cppeditorplugin.h",
-        "cppeditorwidgetinterface.h",
         "cppelementevaluator.cpp",
         "cppelementevaluator.h",
         "cppfileiterationorder.cpp",

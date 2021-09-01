@@ -34,12 +34,11 @@
 
 
 namespace CppEditor {
+class CppEditorWidget;
 class CppRefactoringFile;
 using CppRefactoringFilePtr = QSharedPointer<CppRefactoringFile>;
 
 namespace Internal {
-
-class CppEditorWidget;
 
 class CppQuickFixInterface : public TextEditor::AssistInterface
 {

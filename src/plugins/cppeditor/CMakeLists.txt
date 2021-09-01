@@ -46,7 +46,6 @@ add_qtc_plugin(CppEditor
     cppeditoroutline.cpp cppeditoroutline.h
     cppeditorplugin.cpp cppeditorplugin.h
     cppeditorwidget.cpp cppeditorwidget.h
-    cppeditorwidgetinterface.h
     cppelementevaluator.cpp cppelementevaluator.h
     cppfileiterationorder.cpp cppfileiterationorder.h
     cppfilesettingspage.cpp cppfilesettingspage.h cppfilesettingspage.ui

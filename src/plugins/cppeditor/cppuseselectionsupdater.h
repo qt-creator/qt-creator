@@ -33,9 +33,9 @@
 #include <QTimer>
 
 namespace CppEditor {
-namespace Internal {
-
 class CppEditorWidget;
+
+namespace Internal {
 
 class CppUseSelectionsUpdater : public QObject
 {

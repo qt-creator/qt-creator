@@ -34,7 +34,7 @@
 #include <QVersionNumber>
 
 namespace Core { class SearchResultItem; }
-namespace CppEditor { class CppEditorWidgetInterface; }
+namespace CppEditor { class CppEditorWidget; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor { class BaseTextEditor; }
 
@@ -61,14 +61,14 @@ public:
                     const Utils::optional<QString> &replacement);
     void followSymbol(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
-            CppEditor::CppEditorWidgetInterface *editorWidget,
+            CppEditor::CppEditorWidget *editorWidget,
             Utils::ProcessLinkCallback &&callback,
             bool resolveTarget,
             bool openInSplit);
 
     void switchDeclDef(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
-            CppEditor::CppEditorWidgetInterface *editorWidget,
+            CppEditor::CppEditorWidget *editorWidget,
             Utils::ProcessLinkCallback &&callback);
 
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
