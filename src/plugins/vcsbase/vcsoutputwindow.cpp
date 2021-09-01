@@ -434,32 +434,6 @@ void VcsOutputWindow::appendWarning(const QString &text)
     append(text, Warning, false);
 }
 
-// Helper to format arguments for log windows hiding common password options.
-static inline QString formatArguments(const QStringList &args)
-{
-    const char passwordOptionC[] = "--password";
-
-    QString rc;
-    QTextStream str(&rc);
-    const int size = args.size();
-    // Skip authentication options
-    for (int i = 0; i < size; i++) {
-        const QString arg = filterPasswordFromUrls(args.at(i));
-        if (i)
-            str << ' ';
-        if (arg.startsWith(QString::fromLatin1(passwordOptionC) + '=')) {
-            str << ProcessArgs::quoteArg("--password=********");
-            continue;
-        }
-        str << ProcessArgs::quoteArg(arg);
-        if (arg == passwordOptionC) {
-            str << ' ' << ProcessArgs::quoteArg("********");
-            i++;
-        }
-    }
-    return rc;
-}
-
 QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const CommandLine &command)
 {
     if (workingDir.isEmpty())

@@ -193,7 +193,7 @@ class LauncherHandle : public QObject
     Q_OBJECT
 public:
     // Called from caller's thread, moved to launcher's thread afterwards.
-    LauncherHandle(quintptr token, ProcessMode mode) : m_token(token) {}
+    LauncherHandle(quintptr token, ProcessMode) : m_token(token) {}
     // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, CallerHandle::SignalType newSignal);
     CallerHandle *callerHandle() const { return m_callerHandle; }

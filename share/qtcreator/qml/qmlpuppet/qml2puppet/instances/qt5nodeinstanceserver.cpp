@@ -355,6 +355,7 @@ QQuickItem *Qt5NodeInstanceServer::parentEffectItem(QQuickItem *item)
     return nullptr;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 static bool isEffectItem(QQuickItem *item, QQuickShaderEffectSource *sourceItem)
 {
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(sourceItem);
@@ -375,6 +376,7 @@ static bool isLayerEnabled(QQuickItemPrivate *item)
 {
     return item && item->layer() && item->layer()->enabled();
 }
+#endif // QT_VERSION check
 
 QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 {

@@ -81,14 +81,14 @@ void AnnotationListModel::resetModel()
 
 ModelNode AnnotationListModel::getModelNode(int id) const
 {
-    if (id >= 0 && id < m_annoList.size())
+    if (id >= 0 && id < int(m_annoList.size()))
         return m_annoList.at(id).node;
     return {};
 }
 
 AnnotationListEntry AnnotationListModel::getStoredAnnotation(int id) const
 {
-    if (id >= 0 && id < m_annoList.size())
+    if (id >= 0 && id < int(m_annoList.size()))
         return m_annoList.at(id);
 
     return {};
@@ -134,7 +134,7 @@ int AnnotationListModel::columnCount(const QModelIndex &parent) const
 
 QVariant AnnotationListModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() < 0 || index.row() >= m_annoList.size())
+    if (!index.isValid() || index.row() < 0 || index.row() >= int(m_annoList.size()))
         return {};
 
     const auto &item = m_annoList.at(index.row());
@@ -153,7 +153,7 @@ QVariant AnnotationListModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags AnnotationListModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.row() < 0 || index.row() >= m_annoList.size())
+    if (!index.isValid() || index.row() < 0 || index.row() >= int(m_annoList.size()))
         return Qt::NoItemFlags;
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }

@@ -102,7 +102,6 @@ private:
     Internal::LauncherSocket *const m_socket;
     Internal::LauncherProcess *m_process = nullptr;
     QString m_pathToLauncher;
-    int m_startRequests = 0;
 };
 
 LauncherInterfacePrivate::LauncherInterfacePrivate()

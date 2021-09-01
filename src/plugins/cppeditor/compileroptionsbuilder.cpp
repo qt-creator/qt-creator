@@ -118,6 +118,8 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
 {
 }
 
+CompilerOptionsBuilder::~CompilerOptionsBuilder() = default;
+
 QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
                                           UsePrecompiledHeaders usePrecompiledHeaders)
 {

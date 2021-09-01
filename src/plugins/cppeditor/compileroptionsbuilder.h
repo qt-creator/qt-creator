@@ -52,6 +52,7 @@ public:
         UseBuildSystemWarnings useBuildSystemWarnings = UseBuildSystemWarnings::No,
         const QString &clangVersion = {},
         const Utils::FilePath &clangIncludeDirectory = {});
+    virtual ~CompilerOptionsBuilder();
 
     QStringList build(ProjectFile::Kind fileKind, UsePrecompiledHeaders usePrecompiledHeaders);
     QStringList options() const { return m_options; }

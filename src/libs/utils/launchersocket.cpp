@@ -484,12 +484,6 @@ void CallerHandle::setUnixTerminalDisabled()
     m_unixTerminalDisabled = true;
 }
 
-static void warnAboutWrongSignal(QProcess::ProcessState state, CallerHandle::SignalType newSignal)
-{
-    qWarning() << "LauncherHandle::doWaitForSignal: Can't wait for" << newSignal <<
-                  "while being in" << state << "state.";
-}
-
 bool CallerHandle::waitForSignal(int msecs, CallerHandle::SignalType newSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return false);

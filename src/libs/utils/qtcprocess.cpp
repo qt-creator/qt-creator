@@ -160,8 +160,8 @@ private:
         return int((nsesc + halfMillion) / million);
     }
 
+    const char * const m_functionName;
     const bool m_measureProcess;
-    const char *m_functionName;
     std::atomic_int m_hitThisAll = 0;
     std::atomic_int m_hitThisMain = 0;
     std::atomic_int64_t m_totalThisAll = 0;
