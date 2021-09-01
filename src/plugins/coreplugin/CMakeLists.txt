@@ -1,3 +1,8 @@
+if (NOT IS_ABSOLUTE ${IDE_LOGO_PATH})
+  set(IDE_LOGO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_LOGO_PATH}")
+endif()
+configure_file(core.qrc.cmakein core_cmake.qrc)
+
 add_qtc_plugin(Core
   DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
@@ -10,7 +15,7 @@ add_qtc_plugin(Core
     actionmanager/commandsfile.cpp actionmanager/commandsfile.h
     basefilewizard.cpp basefilewizard.h
     basefilewizardfactory.cpp basefilewizardfactory.h
-    core.qrc
+    ${CMAKE_CURRENT_BINARY_DIR}/core_cmake.qrc
     core_global.h
     coreconstants.h
     coreicons.cpp coreicons.h
@@ -192,7 +197,7 @@ if ((NOT WIN32) AND (NOT APPLE))
   # install logo
   foreach(size 16 24 32 48 64 128 256 512)
     install(
-      FILES images/logo/${size}/QtProject-qtcreator.png
+      FILES ${IDE_LOGO_PATH}/images/logo/${size}/QtProject-qtcreator.png
       DESTINATION share/icons/hicolor/${size}x${size}/apps
     )
   endforeach()

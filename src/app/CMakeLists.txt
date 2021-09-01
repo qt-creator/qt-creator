@@ -1,5 +1,9 @@
 configure_file(app_version.h.cmakein app_version.h ESCAPE_QUOTES)
 
+if(NOT IS_ABSOLUTE "${IDE_ICON_PATH}")
+  set(IDE_ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_ICON_PATH}")
+endif()
+
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/app_version.h
   DESTINATION ${IDE_HEADER_INSTALL_PATH}/src/app
@@ -39,6 +43,7 @@ if (WIN32)
     RC_VERSION=${RC_VERSION}
     RC_VERSION_STRING=${RC_VERSION_STRING}
     RC_COPYRIGHT=${RC_COPYRIGHT}
+    RC_ICON_PATH=${IDE_ICON_PATH}
   )
 
   target_sources(qtcreator PRIVATE qtcreator.rc)
@@ -57,7 +62,7 @@ if (APPLE)
     COMMAND
       xcrun actool --app-icon qtcreator --output-partial-info-plist "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.Info.plist"
       --platform macosx --minimum-deployment-target 10.7 --compile "${CMAKE_CURRENT_BINARY_DIR}"
-      "${CMAKE_CURRENT_SOURCE_DIR}/qtcreator.xcassets"
+      "${IDE_ICON_PATH}/qtcreator.xcassets"
       > /dev/null
     BYPRODUCTS qtcreator.Info.plist
     VERBATIM
