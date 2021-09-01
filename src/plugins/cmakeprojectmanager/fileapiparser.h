@@ -71,16 +71,6 @@ public:
     Utils::FilePath jsonFile(const QString &kind, const Utils::FilePath &replyDir) const;
 };
 
-class CMakeFileInfo
-{
-public:
-    QString path;
-    bool isCMake = false;
-    bool isCMakeListsDotTxt = false;
-    bool isExternal = false;
-    bool isGenerated = false;
-};
-
 class Directory
 {
 public:
@@ -243,7 +233,7 @@ class FileApiData
 public:
     FileApiDetails::ReplyFileContents replyFile;
     CMakeConfig cache;
-    std::vector<FileApiDetails::CMakeFileInfo> cmakeFiles;
+    std::vector<CMakeFileInfo> cmakeFiles;
     FileApiDetails::Configuration codemodel;
     std::vector<FileApiDetails::TargetDetails> targetDetails;
 };

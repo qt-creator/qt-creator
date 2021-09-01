@@ -249,10 +249,10 @@ static std::vector<CMakeFileInfo> readCMakeFilesFile(const FilePath &cmakeFilesF
     for (const QJsonValue &v : inputs) {
         CMakeFileInfo info;
         const QJsonObject input = v.toObject();
-        info.path = input.value("path").toString();
+        info.path = FilePath::fromString(input.value("path").toString());
 
         info.isCMake = input.value("isCMake").toBool();
-        const QString filename = FilePath::fromString(info.path).fileName();
+        const QString filename = info.path.fileName();
         info.isCMakeListsDotTxt = (filename.compare("CMakeLists.txt",
                                                     HostOsInfo::fileNameCaseSensitivity())
                                    == 0);

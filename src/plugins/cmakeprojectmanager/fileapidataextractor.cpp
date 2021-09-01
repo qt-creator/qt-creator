@@ -53,7 +53,7 @@ using namespace CMakeProjectManager::Internal::FileApiDetails;
 class CMakeFileResult
 {
 public:
-    QSet<FilePath> cmakeFiles;
+    QSet<CMakeFileInfo> cmakeFiles;
 
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesSource;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesBuild;
@@ -61,7 +61,7 @@ public:
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeListNodes;
 };
 
-CMakeFileResult extractCMakeFilesData(const std::vector<FileApiDetails::CMakeFileInfo> &cmakefiles,
+CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefiles,
                                       const FilePath &sourceDirectory,
                                       const FilePath &buildDirectory)
 {
@@ -72,9 +72,11 @@ CMakeFileResult extractCMakeFilesData(const std::vector<FileApiDetails::CMakeFil
 
     for (const CMakeFileInfo &info : cmakefiles) {
         const FilePath sfn = FilePath::fromString(
-            QDir::cleanPath(sourceDir.absoluteFilePath(info.path)));
+            QDir::cleanPath(sourceDir.absoluteFilePath(info.path.toString())));
         const int oldCount = result.cmakeFiles.count();
-        result.cmakeFiles.insert(sfn);
+        CMakeFileInfo absolute(info);
+        absolute.path = sfn;
+        result.cmakeFiles.insert(absolute);
         if (oldCount < result.cmakeFiles.count()) {
             if (info.isCMake && !info.isCMakeListsDotTxt) {
                 // Skip files that cmake considers to be part of the installation -- but include
@@ -109,7 +111,7 @@ class PreprocessedData
 public:
     CMakeProjectManager::CMakeConfig cache;
 
-    QSet<FilePath> cmakeFiles;
+    QSet<CMakeFileInfo> cmakeFiles;
 
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesSource;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesBuild;
