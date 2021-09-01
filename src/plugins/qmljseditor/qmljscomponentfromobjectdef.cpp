@@ -73,6 +73,7 @@ public:
         if (!m_idName.isEmpty()) {
             m_componentName = m_idName;
             m_componentName[0] = m_componentName.at(0).toUpper();
+            m_componentName.prepend("My");
         }
 
         setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
