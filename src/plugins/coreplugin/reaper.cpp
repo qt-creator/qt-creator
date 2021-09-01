@@ -157,6 +157,19 @@ void reap(QtcProcess *process, int timeoutMs)
     if (!process)
         return;
 
+    QTC_ASSERT(QThread::currentThread() == process->thread(), return);
+
+    // Neither can move object with a parent into a different thread
+    // nor reaping the process with a parent makes any sense.
+    process->setParent(nullptr);
+    if (process->thread() != qApp->thread()) {
+        process->moveToThread(qApp->thread());
+        QMetaObject::invokeMethod(process, [process, timeoutMs] {
+            reap(process, timeoutMs);
+        }); // will be queued
+        return;
+    }
+
     QTC_ASSERT(Internal::d, return);
 
     new Internal::ProcessReaper(process, timeoutMs);
