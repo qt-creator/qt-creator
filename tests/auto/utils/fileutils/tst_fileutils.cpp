@@ -25,6 +25,7 @@
 
 #include <QtTest>
 #include <QDebug>
+#include <QRandomGenerator>
 
 #include <utils/fileutils.h>
 #include <utils/link.h>
@@ -36,7 +37,8 @@ class tst_fileutils : public QObject
 {
     Q_OBJECT
 
-public:
+signals:
+    void asyncTestDone(); // test internal helper signal
 
 private slots:
     void initTestCase();
@@ -60,15 +62,22 @@ private slots:
     void pathAppended_data();
     void pathAppended();
 
+    void asyncLocalCopy();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
 };
 
-static void touch(const QDir &dir, const QString &filename)
+static void touch(const QDir &dir, const QString &filename, bool fill)
 {
     QFile file(dir.absoluteFilePath(filename));
     file.open(QIODevice::WriteOnly);
+    if (fill) {
+        QRandomGenerator *random = QRandomGenerator::global();
+        for (int i = 0; i < 10; ++i)
+            file.write(QString::number(random->generate(), 16).toUtf8());
+    }
     file.close();
 }
 
@@ -82,10 +91,13 @@ void tst_fileutils::initTestCase()
     dir.mkpath("a/x/y/z");
     dir.mkpath("a/b/x/y/z");
     dir.mkpath("x/y/z");
-    touch(dir, "a/b/c/d/file1.txt");
-    touch(dir, "a/x/y/z/file2.txt");
-    touch(dir, "a/file3.txt");
-    touch(dir, "x/y/file4.txt");
+    touch(dir, "a/b/c/d/file1.txt", false);
+    touch(dir, "a/x/y/z/file2.txt", false);
+    touch(dir, "a/file3.txt", false);
+    touch(dir, "x/y/file4.txt", false);
+
+    // initialize test for tst_fileutils::asyncLocalCopy()
+    touch(dir, "x/y/fileToCopy.txt", true);
 }
 
 void tst_fileutils::parentDir_data()
@@ -495,5 +507,24 @@ void tst_fileutils::pathAppended_data()
     QTest::newRow("u4") << "a/b" << "c/d" << "a/b/c/d";
 }
 
-QTEST_APPLESS_MAIN(tst_fileutils)
+void tst_fileutils::asyncLocalCopy()
+{
+    const FilePath orig = FilePath::fromString(rootPath).pathAppended("x/y/fileToCopy.txt");
+    QVERIFY(orig.exists());
+    const FilePath dest = FilePath::fromString(rootPath).pathAppended("x/fileToCopyDest.txt");
+    auto afterCopy = [&orig, &dest, this] (bool result) {
+        QVERIFY(result);
+        // check existence, size and content
+        QVERIFY(dest.exists());
+        QCOMPARE(dest.fileSize(), orig.fileSize());
+        QCOMPARE(dest.fileContents(), orig.fileContents());
+        emit asyncTestDone();
+    };
+    QSignalSpy spy(this, &tst_fileutils::asyncTestDone);
+    orig.asyncCopyFile(afterCopy, dest);
+    // we usually have already received the signal, but if it fails wait 3s
+    QVERIFY(spy.count() == 1 || spy.wait(3000));
+}
+
+QTEST_MAIN(tst_fileutils)
 #include "tst_fileutils.moc"
