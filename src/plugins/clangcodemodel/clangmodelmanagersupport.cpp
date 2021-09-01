@@ -69,6 +69,7 @@
 #include <QMenu>
 #include <QTextBlock>
 #include <QTimer>
+#include <QtDebug>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -376,7 +377,7 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
                 && c->state() != Client::ShutdownRequested
                 && c->state() != Client::Shutdown;
     });
-    QTC_CHECK(clients.size() <= 1);
+    QTC_ASSERT(clients.size() <= 1, qDebug() << project << clients.size());
     return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
