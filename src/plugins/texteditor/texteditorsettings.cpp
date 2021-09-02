@@ -178,8 +178,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
     Format declarationFormat;
     declarationFormat.setBold(true);
     formatDescr.emplace_back(C_DECLARATION,
-                             tr("Function Declaration"),
-                             tr("Style adjustments to (function) declarations."),
+                             tr("Declaration"),
+                             tr("Style adjustments to declarations."),
                              declarationFormat,
                              FormatDescription::ShowAllControls);
     formatDescr.emplace_back(C_FUNCTION_DEFINITION,
