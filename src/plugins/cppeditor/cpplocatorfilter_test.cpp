@@ -25,9 +25,7 @@
 
 #include "cpplocatorfilter_test.h"
 
-#include "cppclassesfilter.h"
 #include "cppcurrentdocumentfilter.h"
-#include "cppfunctionsfilter.h"
 #include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"

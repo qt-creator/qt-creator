@@ -23,7 +23,6 @@ add_qtc_plugin(CppEditor
     cppbuiltinmodelmanagersupport.cpp cppbuiltinmodelmanagersupport.h
     cppcanonicalsymbol.cpp cppcanonicalsymbol.h
     cppchecksymbols.cpp cppchecksymbols.h
-    cppclassesfilter.cpp cppclassesfilter.h
     cppcodeformatter.cpp cppcodeformatter.h
     cppcodemodelinspectordialog.cpp cppcodemodelinspectordialog.h cppcodemodelinspectordialog.ui
     cppcodemodelinspectordumper.cpp cppcodemodelinspectordumper.h
@@ -55,7 +54,6 @@ add_qtc_plugin(CppEditor
     cppfindreferences.cpp cppfindreferences.h
     cppfollowsymbolundercursor.cpp cppfollowsymbolundercursor.h
     cppfunctiondecldeflink.cpp cppfunctiondecldeflink.h
-    cppfunctionsfilter.cpp cppfunctionsfilter.h
     cpphighlighter.cpp cpphighlighter.h
     cppincludehierarchy.cpp cppincludehierarchy.h
     cppincludesfilter.cpp cppincludesfilter.h

@@ -20,7 +20,6 @@ HEADERS += \
     cppbuiltinmodelmanagersupport.h \
     cppcanonicalsymbol.h \
     cppchecksymbols.h \
-    cppclassesfilter.h \
     cppcodeformatter.h \
     cppcodemodelinspectordialog.h \
     cppcodemodelinspectordumper.h \
@@ -51,7 +50,6 @@ HEADERS += \
     cppfindreferences.h \
     cppfollowsymbolundercursor.h \
     cppfunctiondecldeflink.h \
-    cppfunctionsfilter.h \
     cpphighlighter.h \
     cppincludehierarchy.h \
     cppincludesfilter.h \
@@ -140,7 +138,6 @@ SOURCES += \
     cppbuiltinmodelmanagersupport.cpp \
     cppcanonicalsymbol.cpp \
     cppchecksymbols.cpp \
-    cppclassesfilter.cpp \
     cppcodeformatter.cpp \
     cppcodemodelinspectordialog.cpp \
     cppcodemodelinspectordumper.cpp \
@@ -165,7 +162,6 @@ SOURCES += \
     cppfindreferences.cpp \
     cppfollowsymbolundercursor.cpp \
     cppfunctiondecldeflink.cpp \
-    cppfunctionsfilter.cpp \
     cpphighlighter.cpp \
     cppincludehierarchy.cpp \
     cppincludesfilter.cpp \

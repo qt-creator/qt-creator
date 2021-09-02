@@ -54,4 +54,30 @@ protected:
     CppLocatorData *m_data = nullptr;
 };
 
+class CPPEDITOR_EXPORT CppClassesFilter : public CppLocatorFilter
+{
+    Q_OBJECT
+
+public:
+    explicit CppClassesFilter(CppLocatorData *locatorData);
+    ~CppClassesFilter() override;
+
+protected:
+    IndexItem::ItemType matchTypes() const override { return IndexItem::Class; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+};
+
+class CPPEDITOR_EXPORT CppFunctionsFilter : public CppLocatorFilter
+{
+    Q_OBJECT
+
+public:
+    explicit CppFunctionsFilter(CppLocatorData *locatorData);
+    ~CppFunctionsFilter() override;
+
+protected:
+    IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+};
+
 } // namespace CppEditor

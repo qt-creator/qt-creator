@@ -45,7 +45,7 @@
 #include "qmt/project/project.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <cppeditor/cppclassesfilter.h>
+#include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
 #include <coreplugin/editormanager/editormanager.h>

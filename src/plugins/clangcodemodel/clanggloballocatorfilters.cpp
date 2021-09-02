@@ -28,9 +28,8 @@
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
-#include <cppeditor/cppclassesfilter.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppfunctionsfilter.h>
+#include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
 #include <languageclient/locatorfilter.h>

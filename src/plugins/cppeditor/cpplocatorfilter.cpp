@@ -146,4 +146,56 @@ void CppLocatorFilter::accept(Core::LocatorFilterEntry selection,
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 
+CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
+    : CppLocatorFilter(locatorData)
+{
+    setId(Constants::CLASSES_FILTER_ID);
+    setDisplayName(Constants::CLASSES_FILTER_DISPLAY_NAME);
+    setDefaultShortcutString("c");
+    setDefaultIncludedByDefault(false);
+}
+
+CppClassesFilter::~CppClassesFilter() = default;
+
+Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
+{
+    const QVariant id = QVariant::fromValue(info);
+    Core::LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());
+    filterEntry.extraInfo = info->symbolScope().isEmpty()
+        ? info->shortNativeFilePath()
+        : info->symbolScope();
+    filterEntry.filePath = Utils::FilePath::fromString(info->fileName());
+    return filterEntry;
+}
+
+CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
+    : CppLocatorFilter(locatorData)
+{
+    setId(Constants::FUNCTIONS_FILTER_ID);
+    setDisplayName(Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
+    setDefaultShortcutString("m");
+    setDefaultIncludedByDefault(false);
+}
+
+CppFunctionsFilter::~CppFunctionsFilter() = default;
+
+Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
+{
+    const QVariant id = QVariant::fromValue(info);
+
+    QString name = info->symbolName();
+    QString extraInfo = info->symbolScope();
+    info->unqualifiedNameAndScope(name, &name, &extraInfo);
+    if (extraInfo.isEmpty()) {
+        extraInfo = info->shortNativeFilePath();
+    } else {
+        extraInfo.append(" (" + Utils::FilePath::fromString(info->fileName()).fileName() + ')');
+    }
+
+    Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
+    filterEntry.extraInfo = extraInfo;
+
+    return filterEntry;
+}
+
 } // namespace CppEditor
