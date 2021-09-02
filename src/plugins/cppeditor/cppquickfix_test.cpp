@@ -2798,12 +2798,12 @@ class Foo
 {
 public:
     custom<N2::test> bar@;
-    N2::test*getBar() const;
+    N2::test *getBar() const;
     void setBar(const custom<N2::test> &newBar);
 signals:
-    void barChanged(N2::test*bar);
+    void barChanged(N2::test *bar);
 private:
-    Q_PROPERTY(N2::test* bar READ getBar NOTIFY barChanged)
+    Q_PROPERTY(N2::test *bar READ getBar NOTIFY barChanged)
 };
 })--";
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
@@ -2812,7 +2812,7 @@ private:
     original = "";
     expected = R"-(
 using namespace N1;
-N2::test*Foo::getBar() const
+N2::test *Foo::getBar() const
 {
     return bar.get();
 }
@@ -2837,7 +2837,7 @@ void Foo::setBar(const custom<N2::test> &newBar)
     t.types.append("custom");
     t.equalComparison = "<cur>.equals(<new>)";
     t.returnExpression = "<cur>.get()";
-    t.returnType = "<T>*";
+    t.returnType = "<T> *";
     t.assignment = "<cur>.assign(<new>)";
     s->customTemplates.push_back(t);
 

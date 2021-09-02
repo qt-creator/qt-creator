@@ -4144,8 +4144,9 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
             type = ref->elementType();
         type.setConst(false);
 
-        QString propertyDeclaration = QLatin1String("Q_PROPERTY(") + overview.prettyType(type)
-                                      + QLatin1Char(' ') + memberBaseName(data.memberVariableName);
+        QString propertyDeclaration = QLatin1String("Q_PROPERTY(")
+                                      + overview.prettyType(type,
+                                                            memberBaseName(data.memberVariableName));
         bool needMember = false;
         if (data.getterName.isEmpty())
             needMember = true;
