@@ -26,7 +26,6 @@
 #include "followsymbol_switchmethoddecldef_test.h"
 
 #include "cppcodemodelsettings.h"
-#include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
@@ -44,6 +43,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/texteditor.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
@@ -317,7 +317,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
 
     // Write files to disk
-    ::CppEditor::Tests::TemporaryDir temporaryDir;
+    CppEditor::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     QString projectFileContent = "CppApplication { files: [";
     foreach (TestDocumentPtr testFile, testFiles) {
@@ -349,8 +349,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         openProjectResult.project()->configureAsExampleProject(m_testKit);
 
         // Wait until project is fully indexed.
-        QVERIFY(::CppEditor::Tests::waitForSignalOrTimeout(openProjectResult.project(),
-                &Project::indexingFinished, ::CppEditor::Tests::clangdIndexingTimeout()));
+        QVERIFY(CppEditor::Tests::waitForSignalOrTimeout(openProjectResult.project(),
+                &Project::indexingFinished, CppEditor::Tests::clangdIndexingTimeout()));
     }
 
     // Update Code Model
@@ -441,8 +441,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QEXPECT_FAIL("infiniteLoopLocalTypedef_QTCREATORBUG-11999",
                      "clangd bug: Go to definition does not return", Abort);
         if (expectedVirtualFunctionProposal.size() <= 1) {
-            QVERIFY(::CppEditor::Tests::waitForSignalOrTimeout(EditorManager::instance(),
-                                                            &EditorManager::linkOpened, 10000));
+            QVERIFY(CppEditor::Tests::waitForSignalOrTimeout(EditorManager::instance(),
+                                                             &EditorManager::linkOpened, 10000));
         } else {
             QTimer t;
             QEventLoop l;

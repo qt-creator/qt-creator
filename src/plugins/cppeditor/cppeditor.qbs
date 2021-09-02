@@ -101,8 +101,6 @@ QtcPlugin {
         "cppdoxygen.cpp",
         "cppdoxygen.h",
         "cppdoxygen.kwgen",
-        "cppeditor.cpp",
-        "cppeditor.h",
         "cppeditorwidget.cpp",
         "cppeditorwidget.h",
         "cppeditor.qrc",

@@ -29,15 +29,15 @@
 
 #include <QVector>
 
+namespace TextEditor { class BaseTextEditor; }
+
 namespace CppEditor {
 namespace Internal {
-
-class CppEditor;
 class CppEditorWidget;
 
 namespace Tests {
 
-class GenericCppTestDocument : public ::CppEditor::Tests::BaseCppTestDocument
+class GenericCppTestDocument : public CppEditor::Tests::BaseCppTestDocument
 {
 public:
     GenericCppTestDocument(const QByteArray &fileName, const QByteArray &source,
@@ -51,19 +51,19 @@ public:
     int m_anchorPosition;
     QString m_selectionStartMarker;
     QString m_selectionEndMarker;
-    CppEditor *m_editor;
+    TextEditor::BaseTextEditor *m_editor;
     CppEditorWidget *m_editorWidget;
 };
 
 using TestDocuments = QVector<GenericCppTestDocument>;
 
-class TestCase : public ::CppEditor::Tests::TestCase
+class TestCase : public CppEditor::Tests::TestCase
 {
 public:
     TestCase(bool runGarbageCollector = true);
 
     static bool openCppEditor(const QString &fileName,
-                              CppEditor **editor,
+                              TextEditor::BaseTextEditor **editor,
                               CppEditorWidget **editorWidget = 0);
 
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(

@@ -26,7 +26,6 @@
 #include "cpptypehierarchy.h"
 
 #include "cppeditorconstants.h"
-#include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppelementevaluator.h"
@@ -34,6 +33,7 @@
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/dropsupport.h>
@@ -188,7 +188,7 @@ void CppTypeHierarchyWidget::perform()
 
     m_showOldClass = false;
 
-    auto editor = qobject_cast<CppEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor());
     if (!editor) {
         showNoTypeHierarchyLabel();
         return;

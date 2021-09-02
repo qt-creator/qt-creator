@@ -25,9 +25,12 @@
 
 #include "cpptoolsreuse.h"
 
+#include "cppautocompleter.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cpphighlighter.h"
+#include "cppqtstyleindenter.h"
 #include "cpprefactoringchanges.h"
 #include "projectinfo.h"
 
@@ -36,6 +39,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/session.h>
+#include <texteditor/textdocument.h>
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
@@ -584,4 +588,15 @@ ProjectExplorer::Project *projectForProjectInfo(const ProjectInfo &info)
     return ProjectExplorer::SessionManager::projectWithProjectFilePath(info.projectFilePath());
 }
 
+namespace Internal {
+
+void decorateCppEditor(TextEditor::TextEditorWidget *editor)
+{
+    editor->textDocument()->setSyntaxHighlighter(new CppHighlighter);
+    editor->textDocument()->setIndenter(
+                new CppQtStyleIndenter(editor->textDocument()->document()));
+    editor->setAutoCompleter(new CppAutoCompleter);
+}
+
+} // namespace Internal
 } // CppEditor

@@ -26,9 +26,9 @@
 #include "cpppreprocessordialog.h"
 #include "ui_cpppreprocessordialog.h"
 
-#include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
+#include "cpptoolsreuse.h"
 
 #include <projectexplorer/session.h>
 
@@ -43,7 +43,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(const QString &filePath, QWidget *p
     m_ui->editorLabel->setText(m_ui->editorLabel->text().arg(Utils::FilePath::fromString(m_filePath).fileName()));
     m_ui->editWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    CppEditor::decorateEditor(m_ui->editWidget);
+    decorateCppEditor(m_ui->editWidget);
 
     const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath;
     const QString directives = ProjectExplorer::SessionManager::value(key).toString();

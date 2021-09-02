@@ -25,7 +25,6 @@
 
 #include "cppdoxygen_test.h"
 
-#include "cppeditor.h"
 #include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
 #include "cpptoolssettings.h"

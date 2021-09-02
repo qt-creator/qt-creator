@@ -38,7 +38,6 @@ HEADERS += \
     cppcursorinfo.h \
     cppdocumentationcommenthelper.h \
     cppdoxygen.h \
-    cppeditor.h \
     cppeditor_global.h \
     cppeditor_utils.h \
     cppeditorconstants.h \
@@ -163,7 +162,6 @@ SOURCES += \
     cppcurrentdocumentfilter.cpp \
     cppdocumentationcommenthelper.cpp \
     cppdoxygen.cpp \
-    cppeditor.cpp \
     cppeditordocument.cpp \
     cppeditoroutline.cpp \
     cppeditorplugin.cpp \

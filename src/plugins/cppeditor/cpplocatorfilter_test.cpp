@@ -56,7 +56,7 @@ QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
 class CppLocatorFilterTestCase
     : public BasicLocatorFilterTest
-    , public ::CppEditor::Tests::TestCase
+    , public CppEditor::Tests::TestCase
 {
 public:
     CppLocatorFilterTestCase(ILocatorFilter *filter,

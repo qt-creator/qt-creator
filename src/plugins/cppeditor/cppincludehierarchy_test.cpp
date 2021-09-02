@@ -25,13 +25,13 @@
 
 #include "cppincludehierarchy_test.h"
 
-#include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditortestcase.h"
 #include "cppincludehierarchy.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditor.h>
 #include <utils/fileutils.h>
 
 #include <QByteArray>
@@ -95,7 +95,7 @@ public:
 
         // Open Editor
         const QString fileName = temporaryDir.path() + QLatin1String("/file1.h");
-        CppEditor *editor;
+        TextEditor::BaseTextEditor *editor;
         QVERIFY(openCppEditor(fileName, &editor));
         closeEditorAtEndOfTestCase(editor);
 

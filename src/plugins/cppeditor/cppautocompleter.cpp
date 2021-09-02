@@ -33,7 +33,6 @@
 #include <QTextCursor>
 
 #ifdef WITH_TESTS
-#include "cppeditor.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
@@ -41,6 +40,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/executeondestruction.h>
 
@@ -211,7 +211,7 @@ static QTextCursor openEditor(const QString &text)
     Core::IEditor *editor =  Core::EditorManager::openEditorWithContents(
                 Constants::CPPEDITOR_ID, &name, text.toLocal8Bit());
 
-    Internal::CppEditor *cppEditor = qobject_cast<Internal::CppEditor *>(editor);
+    const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     if (cppEditor == 0)
         return tc;
     tc = cppEditor->editorWidget()->textCursor();

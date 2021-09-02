@@ -26,7 +26,6 @@
 #include "cppeditortestcase.h"
 
 #include "cppcodemodelsettings.h"
-#include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 #include "cppeditorplugin.h"
@@ -36,6 +35,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/CppDocument.h>
 #include <texteditor/storagesettings.h>
+#include <texteditor/texteditor.h>
 
 #include <QDir>
 
@@ -49,7 +49,7 @@ namespace Tests {
 
 GenericCppTestDocument::GenericCppTestDocument(const QByteArray &fileName, const QByteArray &source,
                                                char cursorMarker)
-    : ::CppEditor::Tests::BaseCppTestDocument(fileName, source, cursorMarker)
+    : CppEditor::Tests::BaseCppTestDocument(fileName, source, cursorMarker)
     , m_cursorPosition(-1)
     , m_anchorPosition(-1)
     , m_selectionStartMarker(QLatin1Char(m_cursorMarker) + QLatin1String("{start}"))
@@ -78,13 +78,14 @@ bool GenericCppTestDocument::hasCursorMarker() const { return m_cursorPosition !
 
 bool GenericCppTestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
 
-TestCase::TestCase(bool runGarbageCollector) : ::CppEditor::Tests::TestCase(runGarbageCollector)
+TestCase::TestCase(bool runGarbageCollector) : CppEditor::Tests::TestCase(runGarbageCollector)
 {
 }
 
-bool TestCase::openCppEditor(const QString &fileName, CppEditor **editor, CppEditorWidget **editorWidget)
+bool TestCase::openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
+                             CppEditorWidget **editorWidget)
 {
-    if (CppEditor *e = dynamic_cast<CppEditor *>(Core::EditorManager::openEditor(fileName))) {
+    if (const auto e = dynamic_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::openEditor(fileName))) {
         if (editor) {
             *editor = e;
             TextEditor::StorageSettings s = e->textDocument()->storageSettings();

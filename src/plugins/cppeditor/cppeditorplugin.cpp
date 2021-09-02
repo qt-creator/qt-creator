@@ -30,7 +30,6 @@
 #include "cppcodemodelsettings.h"
 #include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
-#include "cppeditor.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorwidget.h"
@@ -97,11 +96,13 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -158,7 +159,11 @@ public:
 
         setDocumentCreator([]() { return new CppEditorDocument; });
         setEditorWidgetCreator([]() { return new CppEditorWidget; });
-        setEditorCreator([]() { return new CppEditor; });
+        setEditorCreator([]() {
+            const auto editor = new BaseTextEditor;
+            editor->addContext(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            return editor;
+        });
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
         setCommentDefinition(CommentDefinition::CppStyle);
         setCodeFoldingSupported(true);
@@ -313,7 +318,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     ProjectPanelFactory::registerFactory(quickFixSettingsPanelFactory);
 
     SnippetProvider::registerGroup(Constants::CPP_SNIPPETS_GROUP_ID, tr("C++", "SnippetProvider"),
-                                   &CppEditor::decorateEditor);
+                                   &decorateCppEditor);
 
     createCppQuickFixes();
 
@@ -621,7 +626,7 @@ CppFileSettings *CppEditorPlugin::fileSettings()
 
 void CppEditorPlugin::switchHeaderSource()
 {
-    ::CppEditor::switchHeaderSource();
+    CppEditor::switchHeaderSource();
 }
 
 void CppEditorPlugin::switchHeaderSourceInNextSplit()

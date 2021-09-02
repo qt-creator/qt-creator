@@ -25,7 +25,6 @@
 
 #include "fileandtokenactions_test.h"
 
-#include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
@@ -42,6 +41,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
@@ -111,7 +111,7 @@ private:
     /// Move word camel case wise from current cursor position until given token (not included)
     /// and execute the tokenActions for each new position.
     static void moveWordCamelCaseToToken(TranslationUnit *translationUnit, const Token &token,
-                                         CppEditor *editor, const Actions &tokenActions);
+                                         BaseTextEditor *editor, const Actions &tokenActions);
 
     static void undoAllChangesAndCloseAllEditors();
 };
@@ -176,7 +176,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 
         // Open editor
         QCOMPARE(DocumentModel::openedDocuments().size(), 0);
-        CppEditor *editor;
+        BaseTextEditor *editor;
         CppEditorWidget *editorWidget;
         QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
 
@@ -276,7 +276,7 @@ void TestActionsTestCase::executeActionsOnEditorWidget(CppEditorWidget *editorWi
 
 void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationUnit,
                                                    const Token &token,
-                                                   CppEditor *editor,
+                                                   BaseTextEditor *editor,
                                                    const Actions &tokenActions)
 {
     QVERIFY(translationUnit);

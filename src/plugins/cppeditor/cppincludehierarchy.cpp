@@ -26,7 +26,6 @@
 #include "cppincludehierarchy.h"
 
 #include "baseeditordocumentprocessor.h"
-#include "cppeditor.h"
 #include "editordocumenthandle.h"
 #include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
@@ -41,6 +40,8 @@
 #include <coreplugin/find/itemviewfind.h>
 
 #include <cplusplus/CppDocument.h>
+
+#include <texteditor/texteditor.h>
 
 #include <utils/delegates.h>
 #include <utils/dropsupport.h>
@@ -428,7 +429,7 @@ void CppIncludeHierarchyWidget::perform()
 {
     showNoIncludeHierarchyLabel();
 
-    m_editor = qobject_cast<CppEditor *>(EditorManager::currentEditor());
+    m_editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
     if (!m_editor)
         return;
 
@@ -493,7 +494,7 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
     if (!m_toggleSync->isChecked())
         return;
 
-    auto editor = qobject_cast<CppEditor *>(EditorManager::currentEditor());
+    const auto editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
     if (!editor)
         return;
 

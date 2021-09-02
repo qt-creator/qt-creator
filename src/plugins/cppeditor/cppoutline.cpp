@@ -25,16 +25,14 @@
 
 #include "cppoutline.h"
 
-#include "cppeditor.h"
 #include "cppeditoroutline.h"
 #include "cppmodelmanager.h"
 #include "cppoverviewmodel.h"
 
-#include <texteditor/textdocument.h>
-
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
-
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <utils/linecolumn.h>
 #include <utils/qtcassert.h>
 
@@ -212,21 +210,20 @@ bool CppOutlineWidget::syncCursor()
 
 bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    const auto cppEditor = qobject_cast<CppEditor*>(editor);
-    if (!cppEditor)
+    const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
+    if (!cppEditor || !CppModelManager::isCppEditor(cppEditor))
         return false;
     return CppModelManager::supportsOutline(cppEditor->textDocument());
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
-    auto *cppEditor = qobject_cast<CppEditor*>(editor);
-    auto *cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
+    const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
+    QTC_ASSERT(cppEditor, return nullptr);
+    const auto cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
     QTC_ASSERT(cppEditorWidget, return nullptr);
 
-    auto *widget = new CppOutlineWidget(cppEditorWidget);
-
-    return widget;
+    return new CppOutlineWidget(cppEditorWidget);
 }
 
 } // namespace Internal

@@ -154,4 +154,8 @@ private:
     bool m_done = false;
 };
 
+namespace Internal {
+void decorateCppEditor(TextEditor::TextEditorWidget *editor);
+} // namespace Internal
+
 } // CppEditor

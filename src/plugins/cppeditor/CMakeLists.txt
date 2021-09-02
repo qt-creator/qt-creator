@@ -41,7 +41,6 @@ add_qtc_plugin(CppEditor
     cppcursorinfo.h
     cppdocumentationcommenthelper.cpp cppdocumentationcommenthelper.h
     cppdoxygen.cpp cppdoxygen.h
-    cppeditor.cpp cppeditor.h
     cppeditor.qrc
     cppeditor_global.h
     cppeditor_utils.h
@@ -135,7 +134,6 @@ add_qtc_plugin(CppEditor
     usages.h
     wrappablelineedit.cpp wrappablelineedit.h
    EXPLICIT_MOC
-     cppeditor.h
      cppquickfixsettingswidget.h
      cppquickfixprojectsettingswidget.h
 )

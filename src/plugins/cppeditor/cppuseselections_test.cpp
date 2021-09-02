@@ -25,7 +25,6 @@
 
 #include "cppuseselections_test.h"
 
-#include "cppeditor.h"
 #include "cppeditorwidget.h"
 #include "cppeditortestcase.h"
 #include "cppmodelmanager.h"
@@ -89,7 +88,7 @@ UseSelectionsTestCase::UseSelectionsTestCase(GenericCppTestDocument &testFile,
     QVERIFY(testFile.hasCursorMarker());
     testFile.m_source.remove(testFile.m_cursorPosition, 1);
 
-    ::CppEditor::Tests::TemporaryDir temporaryDir;
+    CppEditor::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     testFile.setBaseDirectory(temporaryDir.path());
     testFile.writeToDisk();

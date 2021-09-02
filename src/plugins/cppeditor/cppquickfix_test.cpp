@@ -26,7 +26,6 @@
 #include "cppquickfix_test.h"
 
 #include "cppcodestylepreferences.h"
-#include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
