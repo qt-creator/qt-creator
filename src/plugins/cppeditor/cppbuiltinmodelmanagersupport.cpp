@@ -23,19 +23,62 @@
 **
 ****************************************************************************/
 
-#include "cppcompletionassist.h"
 #include "cppbuiltinmodelmanagersupport.h"
+
+#include "builtineditordocumentprocessor.h"
+#include "cppcompletionassist.h"
+#include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
-#include "cpphoverhandler.h"
 #include "cppoverviewmodel.h"
 #include "cpprefactoringengine.h"
-#include "builtineditordocumentprocessor.h"
+#include "cpptoolsreuse.h"
 
 #include <app/app_version.h>
+#include <texteditor/basehoverhandler.h>
+#include <utils/executeondestruction.h>
 
 #include <QCoreApplication>
 
+using namespace Core;
+using namespace TextEditor;
+
 namespace CppEditor::Internal {
+namespace {
+class CppHoverHandler : public TextEditor::BaseHoverHandler
+{
+private:
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override
+    {
+        Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
+        QTextCursor tc(editorWidget->document());
+        tc.setPosition(pos);
+
+        CppElementEvaluator evaluator(editorWidget);
+        evaluator.setTextCursor(tc);
+        evaluator.execute();
+        QString tip;
+        if (evaluator.hasDiagnosis()) {
+            tip += evaluator.diagnosis();
+            setPriority(Priority_Diagnostic);
+        }
+        const QStringList fallback = identifierWordsUnderCursor(tc);
+        if (evaluator.identifiedCppElement()) {
+            const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
+            const QStringList candidates = cppElement->helpIdCandidates;
+            const HelpItem helpItem(candidates + fallback, cppElement->helpMark, cppElement->helpCategory);
+            setLastHelpItemIdentified(helpItem);
+            if (!helpItem.isValid())
+                tip += cppElement->tooltip;
+        } else {
+            setLastHelpItemIdentified({fallback, {}, HelpItem::Unknown});
+        }
+        setToolTip(tip);
+    }
+};
+} // anonymous namespace
 
 QString BuiltinModelManagerSupportProvider::id() const
 {

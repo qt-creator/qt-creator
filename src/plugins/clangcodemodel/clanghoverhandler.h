@@ -26,7 +26,6 @@
 #pragma once
 
 #include <cppeditor/baseeditordocumentprocessor.h>
-#include <cppeditor/cpphoverhandler.h>
 #include <texteditor/basehoverhandler.h>
 
 namespace ClangCodeModel {

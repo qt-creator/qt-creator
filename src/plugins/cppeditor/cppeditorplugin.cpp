@@ -35,7 +35,6 @@
 #include "cppeditorwidget.h"
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
-#include "cpphoverhandler.h"
 #include "cppincludehierarchy.h"
 #include "cppmodelmanager.h"
 #include "cppoutline.h"

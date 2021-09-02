@@ -132,8 +132,6 @@ QtcPlugin {
         "cppfunctionsfilter.h",
         "cpphighlighter.cpp",
         "cpphighlighter.h",
-        "cpphoverhandler.cpp",
-        "cpphoverhandler.h",
         "cppincludehierarchy.cpp",
         "cppincludehierarchy.h",
         "cppincludesfilter.cpp",

@@ -55,7 +55,6 @@ HEADERS += \
     cppfunctiondecldeflink.h \
     cppfunctionsfilter.h \
     cpphighlighter.h \
-    cpphoverhandler.h \
     cppincludehierarchy.h \
     cppincludesfilter.h \
     cppindexingsupport.h \
@@ -174,7 +173,6 @@ SOURCES += \
     cppfunctiondecldeflink.cpp \
     cppfunctionsfilter.cpp \
     cpphighlighter.cpp \
-    cpphoverhandler.cpp \
     cppincludehierarchy.cpp \
     cppincludesfilter.cpp \
     cppindexingsupport.cpp \

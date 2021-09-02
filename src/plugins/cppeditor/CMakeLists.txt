@@ -59,7 +59,6 @@ add_qtc_plugin(CppEditor
     cppfunctiondecldeflink.cpp cppfunctiondecldeflink.h
     cppfunctionsfilter.cpp cppfunctionsfilter.h
     cpphighlighter.cpp cpphighlighter.h
-    cpphoverhandler.cpp cpphoverhandler.h
     cppincludehierarchy.cpp cppincludehierarchy.h
     cppincludesfilter.cpp cppincludesfilter.h
     cppindexingsupport.cpp cppindexingsupport.h
