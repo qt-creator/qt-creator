@@ -17,6 +17,7 @@ Menu 1.0 Menu.qml
 MenuItem 1.0 MenuItem.qml
 MenuItemWithIcon 1.0 MenuItemWithIcon.qml
 MenuSeparator 1.0 MenuSeparator.qml
+RadioButton 1.0 RadioButton.qml
 RealSliderPopup 1.0 RealSliderPopup.qml
 RealSpinBox 1.0 RealSpinBox.qml
 RealSpinBoxIndicator 1.0 RealSpinBoxIndicator.qml

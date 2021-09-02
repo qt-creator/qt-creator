@@ -66,6 +66,12 @@ QtObject {
 
     property real checkBoxSpacing: Math.round(6 * values.scaleFactor)
 
+    property real radioButtonSpacing: values.checkBoxSpacing
+    property real radioButtonWidth: values.height
+    property real radioButtonHeight: values.height
+    property real radioButtonIndicatorWidth: 14
+    property real radioButtonIndicatorHeight: 14
+
     property real columnWidth: 225 + (175 * (values.scaleFactor * 2))
 
     property real marginTopBottom: 4
