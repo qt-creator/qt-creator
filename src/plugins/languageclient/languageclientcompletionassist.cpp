@@ -34,7 +34,6 @@
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/texteditorsettings.h>
@@ -321,36 +320,6 @@ public:
     int m_pos = -1;
 };
 
-
-class LanguageClientCompletionAssistProcessor final : public IAssistProcessor
-{
-public:
-    LanguageClientCompletionAssistProcessor(Client *client,
-                                            const CompletionItemsTransformer &itemsTransformer,
-                                            const CompletionApplyHelper &applyHelper,
-                                            const ProposalHandler &proposalHandler,
-                                            const QString &snippetsGroup);
-    ~LanguageClientCompletionAssistProcessor() override;
-    IAssistProposal *perform(const AssistInterface *interface) override;
-    bool running() override;
-    bool needsRestart() const override { return true; }
-    void cancel() override;
-
-private:
-    void handleCompletionResponse(const CompletionRequest::Response &response);
-
-    QPointer<QTextDocument> m_document;
-    Utils::FilePath m_filePath;
-    QPointer<Client> m_client;
-    Utils::optional<MessageId> m_currentRequest;
-    QMetaObject::Connection m_postponedUpdateConnection;
-    const CompletionItemsTransformer m_itemsTransformer;
-    const CompletionApplyHelper m_applyHelper;
-    const ProposalHandler m_proposalHandler;
-    const QString m_snippetsGroup;
-    int m_pos = -1;
-    int m_basePos = -1;
-};
 
 LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client,
     const CompletionItemsTransformer &itemsTransformer, const CompletionApplyHelper &applyHelper,

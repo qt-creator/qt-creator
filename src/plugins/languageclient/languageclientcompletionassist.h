@@ -25,8 +25,11 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <languageserverprotocol/completion.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 
 #include <utils/optional.h>
 
@@ -49,7 +52,8 @@ using CompletionApplyHelper = std::function<void(
         TextEditor::TextDocumentManipulatorInterface &, QChar)>;
 using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
 
-class LanguageClientCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProvider
+    : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
 
@@ -78,6 +82,37 @@ private:
     QString m_snippetsGroup;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
+};
+
+class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProcessor
+    : public TextEditor::IAssistProcessor
+{
+public:
+    LanguageClientCompletionAssistProcessor(Client *client,
+                                            const CompletionItemsTransformer &itemsTransformer,
+                                            const CompletionApplyHelper &applyHelper,
+                                            const ProposalHandler &proposalHandler,
+                                            const QString &snippetsGroup);
+    ~LanguageClientCompletionAssistProcessor() override;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    bool running() override;
+    bool needsRestart() const override { return true; }
+    void cancel() override;
+
+private:
+    void handleCompletionResponse(const LanguageServerProtocol::CompletionRequest::Response &response);
+
+    QPointer<QTextDocument> m_document;
+    Utils::FilePath m_filePath;
+    QPointer<Client> m_client;
+    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    QMetaObject::Connection m_postponedUpdateConnection;
+    const CompletionItemsTransformer m_itemsTransformer;
+    const CompletionApplyHelper m_applyHelper;
+    const ProposalHandler m_proposalHandler;
+    const QString m_snippetsGroup;
+    int m_pos = -1;
+    int m_basePos = -1;
 };
 
 } // namespace LanguageClient
