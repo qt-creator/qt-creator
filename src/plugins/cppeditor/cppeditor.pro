@@ -36,7 +36,6 @@ HEADERS += \
     cppcompletionassistprovider.h \
     cppcurrentdocumentfilter.h \
     cppcursorinfo.h \
-    cppdocumentationcommenthelper.h \
     cppdoxygen.h \
     cppeditor_global.h \
     cppeditor_utils.h \
@@ -158,7 +157,6 @@ SOURCES += \
     cppcompletionassistprocessor.cpp \
     cppcompletionassistprovider.cpp \
     cppcurrentdocumentfilter.cpp \
-    cppdocumentationcommenthelper.cpp \
     cppdoxygen.cpp \
     cppeditordocument.cpp \
     cppeditoroutline.cpp \

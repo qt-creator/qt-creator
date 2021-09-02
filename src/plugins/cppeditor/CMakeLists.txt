@@ -39,7 +39,6 @@ add_qtc_plugin(CppEditor
     cppcompletionassistprovider.cpp cppcompletionassistprovider.h
     cppcurrentdocumentfilter.cpp cppcurrentdocumentfilter.h
     cppcursorinfo.h
-    cppdocumentationcommenthelper.cpp cppdocumentationcommenthelper.h
     cppdoxygen.cpp cppdoxygen.h
     cppeditor.qrc
     cppeditor_global.h

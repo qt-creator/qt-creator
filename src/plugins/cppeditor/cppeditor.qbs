@@ -96,8 +96,6 @@ QtcPlugin {
         "cppcurrentdocumentfilter.cpp",
         "cppcurrentdocumentfilter.h",
         "cppcursorinfo.h",
-        "cppdocumentationcommenthelper.cpp",
-        "cppdocumentationcommenthelper.h",
         "cppdoxygen.cpp",
         "cppdoxygen.h",
         "cppdoxygen.kwgen",
