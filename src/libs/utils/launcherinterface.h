@@ -58,7 +58,8 @@ private:
     static bool isStarted();
     static bool isReady();
     static void sendData(const QByteArray &data);
-    static Utils::Internal::CallerHandle *registerHandle(quintptr token, ProcessMode mode);
+    static Utils::Internal::CallerHandle *registerHandle(QObject *parent, quintptr token,
+                                                         ProcessMode mode);
     static void unregisterHandle(quintptr token);
 
     LauncherInterface();

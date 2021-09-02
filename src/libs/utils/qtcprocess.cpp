@@ -214,8 +214,8 @@ class ProcessInterface : public QObject
 {
     Q_OBJECT
 public:
-    ProcessInterface(ProcessMode processMode)
-        : QObject()
+    ProcessInterface(QObject *parent, ProcessMode processMode)
+        : QObject(parent)
         , m_processMode(processMode) {}
 
     virtual QByteArray readAllStandardOutput() = 0;
@@ -276,7 +276,9 @@ private:
 class QProcessImpl : public ProcessInterface
 {
 public:
-    QProcessImpl(ProcessMode processMode) : ProcessInterface(processMode)
+    QProcessImpl(QObject *parent, ProcessMode processMode)
+        : ProcessInterface(parent, processMode)
+        , m_process(parent)
     {
         connect(&m_process, &QProcess::started,
                 this, &QProcessImpl::handleStarted);
@@ -369,10 +371,10 @@ class ProcessLauncherImpl : public ProcessInterface
 {
     Q_OBJECT
 public:
-    ProcessLauncherImpl(ProcessMode processMode)
-        : ProcessInterface(processMode), m_token(uniqueToken())
+    ProcessLauncherImpl(QObject *parent, ProcessMode processMode)
+        : ProcessInterface(parent, processMode), m_token(uniqueToken())
     {
-        m_handle = LauncherInterface::registerHandle(token(), processMode);
+        m_handle = LauncherInterface::registerHandle(parent, token(), processMode);
         connect(m_handle, &CallerHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
         connect(m_handle, &CallerHandle::started,
@@ -388,6 +390,7 @@ public:
     {
         cancel();
         LauncherInterface::unregisterHandle(token());
+        m_handle = nullptr;
     }
 
     QByteArray readAllStandardOutput() override { return m_handle->readAllStandardOutput(); }
@@ -448,11 +451,12 @@ void ProcessLauncherImpl::cancel()
     m_handle->cancel();
 }
 
-static ProcessInterface *newProcessInstance(QtcProcess::ProcessImpl processImpl, ProcessMode mode)
+static ProcessInterface *newProcessInstance(QObject *parent, QtcProcess::ProcessImpl processImpl,
+                                            ProcessMode mode)
 {
     if (processImpl == QtcProcess::QProcessImpl)
-        return new QProcessImpl(mode);
-    return new ProcessLauncherImpl(mode);
+        return new QProcessImpl(parent, mode);
+    return new ProcessLauncherImpl(parent, mode);
 }
 
 class QtcProcessPrivate : public QObject
@@ -461,7 +465,10 @@ public:
     explicit QtcProcessPrivate(QtcProcess *parent,
                                QtcProcess::ProcessImpl processImpl,
                                ProcessMode processMode)
-        : q(parent), m_process(newProcessInstance(processImpl, processMode)), m_processMode(processMode)
+        : QObject(parent)
+        , q(parent)
+        , m_process(newProcessInstance(parent, processImpl, processMode))
+        , m_processMode(processMode)
     {
         connect(m_process, &ProcessInterface::started,
                 q, &QtcProcess::started);
@@ -475,11 +482,6 @@ public:
                 this, &QtcProcessPrivate::handleReadyReadStandardError);
         connect(&m_timer, &QTimer::timeout, this, &QtcProcessPrivate::slotTimeout);
         m_timer.setInterval(1000);
-    }
-
-    ~QtcProcessPrivate()
-    {
-        delete m_process;
     }
 
     void handleReadyReadStandardOutput()

@@ -810,14 +810,14 @@ void LauncherSocket::sendData(const QByteArray &data)
         QMetaObject::invokeMethod(this, &LauncherSocket::handleRequests);
 }
 
-CallerHandle *LauncherSocket::registerHandle(quintptr token, ProcessMode mode)
+CallerHandle *LauncherSocket::registerHandle(QObject *parent, quintptr token, ProcessMode mode)
 {
     QTC_ASSERT(!isCalledFromLaunchersThread(), return nullptr);
     QMutexLocker locker(&m_mutex);
     if (m_handles.contains(token))
         return nullptr; // TODO: issue a warning
 
-    CallerHandle *callerHandle = new CallerHandle(token, mode);
+    CallerHandle *callerHandle = new CallerHandle(parent, token, mode);
     LauncherHandle *launcherHandle = new LauncherHandle(token, mode);
     callerHandle->setLauncherHandle(launcherHandle);
     launcherHandle->setCallerHandle(callerHandle);

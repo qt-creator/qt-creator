@@ -67,7 +67,8 @@ public:
         Finished
     };
     Q_ENUM(SignalType)
-    CallerHandle(quintptr token, ProcessMode mode) : QObject(), m_token(token), m_processMode(mode) {}
+    CallerHandle(QObject *parent, quintptr token, ProcessMode mode)
+        : QObject(parent), m_token(token), m_processMode(mode) {}
     ~CallerHandle() override;
 
     LauncherHandle *launcherHandle() const { return m_launcherHandle; }
@@ -252,7 +253,7 @@ public:
     void sendData(const QByteArray &data);
 
     // Called from caller's thread exclusively.
-    CallerHandle *registerHandle(quintptr token, ProcessMode mode);
+    CallerHandle *registerHandle(QObject *parent, quintptr token, ProcessMode mode);
     void unregisterHandle(quintptr token);
 
 signals:

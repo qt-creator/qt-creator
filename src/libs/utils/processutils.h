@@ -54,7 +54,7 @@ private:
 class ProcessHelper : public QProcess
 {
 public:
-    ProcessHelper(QObject *parent = nullptr) : QProcess(parent)
+    ProcessHelper(QObject *parent) : QProcess(parent)
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
         setChildProcessModifier([this] { setupChildProcess_impl(); });
