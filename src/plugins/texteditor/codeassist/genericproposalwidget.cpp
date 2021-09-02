@@ -618,8 +618,8 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_N:
         case Qt::Key_P:
             // select next/previous completion
-            d->m_explicitlySelected = true;
             if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
+                d->m_explicitlySelected = true;
                 int change = (ke->key() == Qt::Key_N) ? 1 : -1;
                 int nrows = d->m_model->size();
                 int row = d->m_completionListView->currentIndex().row();
