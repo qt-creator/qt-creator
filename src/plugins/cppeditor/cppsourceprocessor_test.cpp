@@ -29,7 +29,6 @@
 #include "cppmodelmanager.h"
 #include "cppsourceprocessertesthelper.h"
 #include "cppsourceprocessor.h"
-#include "cpptoolsbridge.h"
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 
@@ -132,7 +131,7 @@ void SourceProcessorTest::testIncludesCyclic()
 
     // Check editor snapshot
     const QString filePath = editor->document()->filePath().toString();
-    auto *processor = CppToolsBridge::baseEditorDocumentProcessor(filePath);
+    auto *processor = CppModelManager::cppEditorDocumentProcessor(filePath);
     QVERIFY(processor);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath));
     Snapshot snapshot = processor->snapshot();

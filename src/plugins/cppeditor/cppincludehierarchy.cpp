@@ -33,7 +33,6 @@
 #include "cppeditorplugin.h"
 #include "cppelementevaluator.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsbridge.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
@@ -224,7 +223,7 @@ void CppIncludeHierarchyItem::fetchMore()
 
     setChildrenChecked();
     if (m_subTree == InIncludes) {
-        auto processor = CppToolsBridge::baseEditorDocumentProcessor(editorFilePath);
+        auto processor = CppModelManager::cppEditorDocumentProcessor(editorFilePath);
         QTC_ASSERT(processor, return);
         const Snapshot snapshot = processor->snapshot();
         const FileAndLines includes = findIncludes(filePath(), snapshot);

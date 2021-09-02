@@ -44,8 +44,6 @@
 #include "cppquickfixes.h"
 #include "cppquickfixprojectsettingswidget.h"
 #include "cppquickfixsettingspage.h"
-#include "cpptoolsbridge.h"
-#include "cpptoolsbridgeqtcreatorimplementation.h"
 #include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "cpptypehierarchy.h"
@@ -227,8 +225,6 @@ static QHash<QString, QString> m_headerSourceMapping;
 CppEditorPlugin::CppEditorPlugin()
 {
     m_instance = this;
-    CppToolsBridge::setCppToolsBridgeImplementation(
-                std::make_unique<CppToolsBridgeQtCreatorImplementation>());
 }
 
 CppEditorPlugin::~CppEditorPlugin()

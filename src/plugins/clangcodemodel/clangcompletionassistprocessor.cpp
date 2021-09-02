@@ -36,7 +36,6 @@
 
 #include <cppeditor/cppdoxygen.h>
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cpptoolsbridge.h>
 #include <cppeditor/editordocumenthandle.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>

@@ -28,7 +28,6 @@
 #include "cppcodemodelsettings.h"
 #include "cppeditor_utils.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsbridge.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
@@ -104,7 +103,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
     }
 
     parser->update(future, updateParams);
-    CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
+    CppModelManager::instance()->finishedRefreshingSourceFiles({parser->filePath()});
 
     future.setProgressValue(1);
 }

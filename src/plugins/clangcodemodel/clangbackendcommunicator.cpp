@@ -39,7 +39,6 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/editordocumenthandle.h>
 #include <cppeditor/projectinfo.h>
-#include <cppeditor/cpptoolsbridge.h>
 
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -164,7 +163,7 @@ void removeNonCppEditors(QList<Core::IEditor*> &visibleEditors)
 
 Utf8StringVector visibleCppEditorDocumentsFilePaths()
 {
-    auto visibleEditors = CppEditor::CppToolsBridge::visibleEditors();
+    auto visibleEditors = Core::EditorManager::visibleEditors();
 
     removeNonCppEditors(visibleEditors);
 

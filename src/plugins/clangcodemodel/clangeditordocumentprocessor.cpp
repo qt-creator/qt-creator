@@ -42,7 +42,6 @@
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cpptoolsbridge.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/editordocumenthandle.h>
@@ -416,9 +415,8 @@ void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
 
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
-    auto *processor = CppEditor::CppToolsBridge::baseEditorDocumentProcessor(filePath);
-
-    return qobject_cast<ClangEditorDocumentProcessor*>(processor);
+    return qobject_cast<ClangEditorDocumentProcessor*>(
+                CppEditor::CppModelManager::cppEditorDocumentProcessor(filePath));
 }
 
 static bool isProjectPartLoadedOrIsFallback(CppEditor::ProjectPart::ConstPtr projectPart)

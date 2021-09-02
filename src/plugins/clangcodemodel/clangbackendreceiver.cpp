@@ -30,8 +30,6 @@
 #include "clangcompletionassistprocessor.h"
 #include "clangeditordocumentprocessor.h"
 
-#include <cppeditor/cpptoolsbridge.h>
-
 #include <clangsupport/clangcodemodelclientmessages.h>
 
 #include <QLoggingCategory>

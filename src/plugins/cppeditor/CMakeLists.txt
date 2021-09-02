@@ -96,9 +96,6 @@ add_qtc_plugin(CppEditor
     cppsemanticinfoupdater.cpp cppsemanticinfoupdater.h
     cppsourceprocessor.cpp cppsourceprocessor.h
     cppsymbolinfo.h
-    cpptoolsbridge.cpp cpptoolsbridge.h
-    cpptoolsbridgeinterface.h
-    cpptoolsbridgeqtcreatorimplementation.cpp cpptoolsbridgeqtcreatorimplementation.h
     cpptoolsjsextension.cpp cpptoolsjsextension.h
     cpptoolsreuse.cpp cpptoolsreuse.h
     cpptoolssettings.cpp cpptoolssettings.h

@@ -91,9 +91,6 @@ HEADERS += \
     cppsemanticinfoupdater.h \
     cppsourceprocessor.h \
     cppsymbolinfo.h \
-    cpptoolsbridge.h \
-    cpptoolsbridgeinterface.h \
-    cpptoolsbridgeqtcreatorimplementation.h \
     cpptoolsjsextension.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \
@@ -205,8 +202,6 @@ SOURCES += \
     cppselectionchanger.cpp \
     cppsemanticinfoupdater.cpp \
     cppsourceprocessor.cpp \
-    cpptoolsbridge.cpp \
-    cpptoolsbridgeqtcreatorimplementation.cpp \
     cpptoolsjsextension.cpp \
     cpptoolsreuse.cpp \
     cpptoolssettings.cpp \

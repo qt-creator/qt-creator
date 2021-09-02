@@ -31,7 +31,6 @@
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsbridge.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
@@ -1539,7 +1538,7 @@ void CppCodeModelInspectorDialog::refresh()
     if (editor) {
         const QString editorFilePath = editor->document()->filePath().toString();
         cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);
-        if (auto documentProcessor = CppToolsBridge::baseEditorDocumentProcessor(editorFilePath)) {
+        if (auto documentProcessor = CppModelManager::cppEditorDocumentProcessor(editorFilePath)) {
             const Snapshot editorSnapshot = documentProcessor->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle

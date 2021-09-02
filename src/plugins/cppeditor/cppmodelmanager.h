@@ -148,6 +148,7 @@ public:
 
     QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
     CppEditorDocumentHandle *cppEditorDocument(const QString &filePath) const;
+    static BaseEditorDocumentProcessor *cppEditorDocumentProcessor(const QString &filePath);
     void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);
     void unregisterCppEditorDocument(const QString &filePath);
 

@@ -37,7 +37,6 @@
 #include "cppquickfixassistant.h"
 #include "cppquickfixprojectsettings.h"
 #include "cpprefactoringchanges.h"
-#include "cpptoolsbridge.h"
 #include "cpptoolsreuse.h"
 #include "cppvirtualfunctionassistprovider.h"
 #include "includeutils.h"
@@ -7551,7 +7550,8 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
                                        QuickFixOperations &result)
 {
-    const auto processor = CppToolsBridge::baseEditorDocumentProcessor(interface.filePath().toString());
+    const auto processor = CppModelManager::cppEditorDocumentProcessor(
+                interface.filePath().toString());
     if (processor) {
         const auto clangFixItOperations = processor->extraRefactoringOperations(interface);
         result.append(clangFixItOperations);

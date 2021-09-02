@@ -849,6 +849,12 @@ CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const QString &fileP
     return d->m_cppEditorDocuments.value(filePath, 0);
 }
 
+BaseEditorDocumentProcessor *CppModelManager::cppEditorDocumentProcessor(const QString &filePath)
+{
+    const auto document = instance()->cppEditorDocument(filePath);
+    return document ? document->processor() : nullptr;
+}
+
 void CppModelManager::registerCppEditorDocument(CppEditorDocumentHandle *editorDocument)
 {
     QTC_ASSERT(editorDocument, return);
