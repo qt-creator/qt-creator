@@ -33,6 +33,8 @@
 
 #include <utils/optional.h>
 
+#include <QPointer>
+
 #include <functional>
 
 namespace TextEditor {
