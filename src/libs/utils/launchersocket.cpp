@@ -34,6 +34,8 @@
 #include <QLocalSocket>
 #include <QMutexLocker>
 
+#include <iostream>
+
 namespace Utils {
 namespace Internal {
 
@@ -230,12 +232,22 @@ void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
 void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    m_stdout += launcherSignal->stdOut();
-    m_stderr += launcherSignal->stdErr();
-    if (!m_stdout.isEmpty())
-        emit readyReadStandardOutput();
-    if (!m_stderr.isEmpty())
-        emit readyReadStandardError();
+    if (m_channelMode == QProcess::ForwardedOutputChannel
+            || m_channelMode == QProcess::ForwardedChannels) {
+        std::cout << launcherSignal->stdOut().constData();
+    } else {
+        m_stdout += launcherSignal->stdOut();
+        if (!m_stdout.isEmpty())
+            emit readyReadStandardOutput();
+    }
+    if (m_channelMode == QProcess::ForwardedErrorChannel
+            || m_channelMode == QProcess::ForwardedChannels) {
+        std::cerr << launcherSignal->stdErr().constData();
+    } else {
+        m_stderr += launcherSignal->stdErr();
+        if (!m_stderr.isEmpty())
+            emit readyReadStandardError();
+    }
 }
 
 void CallerHandle::handleFinished(const FinishedSignal *launcherSignal)
@@ -435,10 +447,6 @@ void CallerHandle::setStandardInputFile(const QString &fileName)
 void CallerHandle::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    if (mode != QProcess::SeparateChannels && mode != QProcess::MergedChannels) {
-        qWarning("setProcessChannelMode: The only supported modes are SeparateChannels and MergedChannels.");
-        return;
-    }
     m_channelMode = mode;
 }
 

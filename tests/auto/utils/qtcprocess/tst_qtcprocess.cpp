@@ -45,11 +45,27 @@
 
 using namespace Utils;
 
+// Many tests in this file need to start a new subprocess with custom code.
+// In order to simplify things we don't produce separate executables, but invoke
+// the same test process recursively and prior to the execution we set one of the
+// following environment variables:
+
 const char kExitCodeSubProcessCode[] = "QTC_TST_QTCPROCESS_EXITCODE_CODE";
-const char kRunBlockingStdOutSubProcessMagicWord[] = "42";
 const char kRunBlockingStdOutSubProcessWithEndl[] = "QTC_TST_QTCPROCESS_RUNBLOCKINGSTDOUT_WITHENDL";
 const char kLineCallback[] = "QTC_TST_QTCPROCESS_LINECALLBACK";
 const char kTestProcess[] = "QTC_TST_TEST_PROCESS";
+const char kForwardProcess[] = "QTC_TST_FORWARD_PROCESS";
+const char kForwardSubProcess[] = "QTC_TST_FORWARD_SUB_PROCESS";
+
+// The variables above are meant to be different custom executables. Inside initTestCase()
+// we are detecting if one of these variables is set and invoke directly a respective custom
+// executable code, which always ends up with a call to exit(). In this case we need to stop
+// the recursion, as from the test point of view we meant to execute only our custom code
+// without further execution of the test itself.
+
+const char forwardedOutputData[] = "This is the output message.";
+const char forwardedErrorData[] = "This is the error message.";
+const char runBlockingStdOutSubProcessMagicWord[] = "42";
 
 // Expect ending lines detected at '|':
 const char lineCallbackData[] =
@@ -71,7 +87,7 @@ static void blockingStdOutSubProcessMain()
     std::cout << "Wait for the Answer to the Ultimate Question of Life, "
                  "The Universe, and Everything..." << std::endl;
     QThread::msleep(300);
-    std::cout << kRunBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
+    std::cout << runBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
     if (qEnvironmentVariable(kRunBlockingStdOutSubProcessWithEndl) == "true")
         std::cout << std::endl;
     QThread::msleep(5000);
@@ -91,6 +107,42 @@ static void lineCallbackMain()
 static void testProcessSubProcessMain()
 {
     std::cout << "Test process successfully executed." << std::endl;
+    exit(0);
+}
+
+// Since we want to test whether the process forwards its channels or not, we can't just create
+// a process and start it, because in this case there is no way on how to check whether something
+// went into out output channels or not.
+
+// So we start two processes in chain instead. On the beginning the processChannelForwarding()
+// test starts the "testForwardProcessMain" - this one will start another process
+// "testForwardSubProcessMain" with forwarding options. The "testForwardSubProcessMain"
+// is very simple - it just puts something to the output and the error channels.
+// Then "testForwardProcessMain" either forwards these channels or not - we check it in the outer
+// processChannelForwarding() test.
+static void testForwardProcessMain()
+{
+    Environment env = Environment::systemEnvironment();
+    env.set(kForwardSubProcess, {});
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    const CommandLine command(FilePath::fromString(binary), args);
+
+    QtcProcess process;
+    const QProcess::ProcessChannelMode channelMode
+            = QProcess::ProcessChannelMode(qEnvironmentVariableIntValue(kForwardProcess));
+    process.setProcessChannelMode(channelMode);
+    process.setCommand(command);
+    process.setEnvironment(env);
+    process.start();
+    process.waitForFinished();
+    exit(0);
+}
+
+static void testForwardSubProcessMain()
+{
+    std::cout << forwardedOutputData << std::endl;
+    std::cerr << forwardedErrorData << std::endl;
     exit(0);
 }
 
@@ -143,6 +195,8 @@ private slots:
     void lineCallbackIntern();
     void waitForStartedAndFinished();
     void notRunningAfterStartingNonExistingProgram();
+    void processChannelForwarding_data();
+    void processChannelForwarding();
 
     void cleanupTestCase();
 
@@ -170,6 +224,10 @@ void tst_QtcProcess::initTestCase()
         lineCallbackMain();
     if (qEnvironmentVariableIsSet(kTestProcess))
         testProcessSubProcessMain();
+    if (qEnvironmentVariableIsSet(kForwardSubProcess))
+        testForwardSubProcessMain();
+    else if (qEnvironmentVariableIsSet(kForwardProcess))
+        testForwardProcessMain();
 
     homeStr = QLatin1String("@HOME@");
     home = QDir::homePath();
@@ -907,7 +965,7 @@ void tst_QtcProcess::runBlockingStdOut()
     sp.setTimeoutS(timeOutS);
     bool readLastLine = false;
     sp.setStdOutCallback([&readLastLine, &sp](const QString &out) {
-        if (out.startsWith(kRunBlockingStdOutSubProcessMagicWord)) {
+        if (out.startsWith(runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
             sp.kill();
         }
@@ -1005,6 +1063,43 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
         QCOMPARE(process.state(), QProcess::NotRunning);
         QVERIFY(process.exitCode() != 0);
     }
+}
+
+void tst_QtcProcess::processChannelForwarding_data()
+{
+    QTest::addColumn<QProcess::ProcessChannelMode>("channelMode");
+    QTest::addColumn<bool>("outputForwarded");
+    QTest::addColumn<bool>("errorForwarded");
+
+    QTest::newRow("SeparateChannels") << QProcess::SeparateChannels << false << false;
+    QTest::newRow("ForwardedChannels") << QProcess::ForwardedChannels << true << true;
+    QTest::newRow("ForwardedOutputChannel") << QProcess::ForwardedOutputChannel << true << false;
+    QTest::newRow("ForwardedErrorChannel") << QProcess::ForwardedErrorChannel << false << true;
+}
+
+void tst_QtcProcess::processChannelForwarding()
+{
+    QFETCH(QProcess::ProcessChannelMode, channelMode);
+    QFETCH(bool, outputForwarded);
+    QFETCH(bool, errorForwarded);
+
+    Environment env = Environment::systemEnvironment();
+    env.set(kForwardProcess, QString::number(int(channelMode)));
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    const CommandLine command(FilePath::fromString(binary), args);
+
+    QtcProcess process;
+    process.setCommand(command);
+    process.setEnvironment(env);
+    process.start();
+    QVERIFY(process.waitForFinished());
+
+    const QByteArray output = process.readAllStandardOutput();
+    const QByteArray error = process.readAllStandardError();
+
+    QCOMPARE(output.contains(QByteArray(forwardedOutputData)), outputForwarded);
+    QCOMPARE(error.contains(QByteArray(forwardedErrorData)), errorForwarded);
 }
 
 QTEST_MAIN(tst_QtcProcess)
