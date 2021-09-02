@@ -583,6 +583,21 @@ public:
     WizardProgressItem *m_startItem = nullptr;
 };
 
+inline QDebug &operator<<(QDebug &debug, const WizardProgressPrivate &progress)
+{
+    debug << "items:" << progress.m_items.size()
+          << "; visited:" << progress.m_visitedItems.size()
+          << "; reachable:" << progress.m_reachableItems.size();
+
+    return debug;
+}
+
+QDebug &operator<<(QDebug &debug, const WizardProgress &progress)
+{
+    debug << "WizardProgress{_: " << *progress.d_ptr << "}";
+    return debug;
+}
+
 class WizardProgressItemPrivate
 {
     WizardProgressItem *q_ptr;
@@ -596,6 +611,22 @@ public:
     QList<WizardProgressItem *> m_prevItems;
     WizardProgressItem *m_nextShownItem;
 };
+
+inline QDebug &operator<<(QDebug &debug, const WizardProgressItemPrivate &item)
+{
+    debug << "title:" << item.m_title
+          << "; word wrap:" << item.m_titleWordWrap
+          << "; progress:" << *item.m_wizardProgress
+          << "; pages:" << item.m_pages;
+
+    return debug;
+}
+
+QDebug &operator<<(QDebug &debug, const WizardProgressItem &item)
+{
+    debug << "WizardProgressItem{_: " << *item.d_ptr << "}";
+    return debug;
+}
 
 bool WizardProgressPrivate::isNextItem(WizardProgressItem *item, WizardProgressItem *nextItem)
 {

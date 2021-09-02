@@ -91,7 +91,11 @@ public:
 
 private:
     QSharedDataPointer<GeneratedFilePrivate> m_d;
+
+    friend CORE_EXPORT QDebug &operator<<(QDebug &debug, const Core::GeneratedFile &file);
 };
+
+CORE_EXPORT QDebug &operator<<(QDebug &debug, const Core::GeneratedFile &file);
 
 using GeneratedFiles = QList<GeneratedFile>;
 

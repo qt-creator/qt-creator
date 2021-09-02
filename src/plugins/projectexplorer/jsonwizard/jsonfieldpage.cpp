@@ -153,7 +153,7 @@ JsonFieldPage::Field::~Field()
     delete d->m_label;
 }
 
-QString JsonFieldPage::Field::type()
+QString JsonFieldPage::Field::type() const
 {
     return d->m_type;
 }
@@ -301,17 +301,17 @@ QWidget *JsonFieldPage::Field::widget(const QString &displayName, JsonFieldPage 
     return d->m_widget;
 }
 
-QString JsonFieldPage::Field::name()
+QString JsonFieldPage::Field::name() const
 {
     return d->m_name;
 }
 
-QString JsonFieldPage::Field::displayName()
+QString JsonFieldPage::Field::displayName() const
 {
     return d->m_displayName;
 }
 
-QString JsonFieldPage::Field::toolTip()
+QString JsonFieldPage::Field::toolTip() const
 {
     return d->m_toolTip;
 }
@@ -321,12 +321,12 @@ QString JsonFieldPage::Field::persistenceKey() const
     return d->m_persistenceKey;
 }
 
-bool JsonFieldPage::Field::isMandatory()
+bool JsonFieldPage::Field::isMandatory() const
 {
     return d->m_isMandatory;
 }
 
-bool JsonFieldPage::Field::hasSpan()
+bool JsonFieldPage::Field::hasSpan() const
 {
     return d->m_hasSpan;
 }
@@ -351,11 +351,11 @@ QWidget *JsonFieldPage::Field::widget() const
     return d->m_widget;
 }
 
-void JsonFieldPage::Field::setTexts(const QString &n, const QString &dn, const QString &tt)
+void JsonFieldPage::Field::setTexts(const QString &name, const QString &displayName, const QString &toolTip)
 {
-    d->m_name = n;
-    d->m_displayName = dn;
-    d->m_toolTip = tt;
+    d->m_name = name;
+    d->m_displayName = displayName;
+    d->m_toolTip = toolTip;
 }
 
 void JsonFieldPage::Field::setIsMandatory(bool b)
@@ -387,6 +387,29 @@ void JsonFieldPage::Field::setIsCompleteExpando(const QVariant &v, const QString
 void JsonFieldPage::Field::setPersistenceKey(const QString &key)
 {
     d->m_persistenceKey = key;
+}
+
+inline QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field::FieldPrivate &field)
+{
+    debug << "name:" << field.m_name
+          << "; displayName:" << field.m_displayName
+          << "; type:" << field.m_type
+          << "; mandatory:" << field.m_isMandatory
+          << "; hasUserChanges:" << field.m_hasUserChanges
+          << "; visibleExpression:" << field.m_visibleExpression
+          << "; enabledExpression:" << field.m_enabledExpression
+          << "; isComplete:" << field.m_isCompleteExpando
+          << "; isCompleteMessage:" << field.m_isCompleteExpandoMessage
+          << "; persistenceKey:" << field.m_persistenceKey;
+
+    return debug;
+}
+
+QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field &field)
+{
+    debug << "Field{_: " << *field.d << "; subclass: " << field.toString() << "}";
+
+    return debug;
 }
 
 // --------------------------------------------------------------------
@@ -896,7 +919,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
     m_checkedValue = consumeValue(tmp, "checkedValue", true).toString();
     m_uncheckedValue = consumeValue(tmp, "uncheckedValue", false).toString();
     if (m_checkedValue == m_uncheckedValue) {
-        *errorMessage= QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                    "CheckBox (\"%1\") values for checked and unchecked state are identical.")
                 .arg(name());
        return false;
@@ -968,8 +991,8 @@ QVariant CheckBoxField::toSettings() const
 std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &item, QString *errorMessage)
 {
     if (item.type() == QVariant::List) {
-        *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                     "No JSON lists allowed inside List items.");
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
+                                                    "No JSON lists allowed inside List items.");
         return {};
     }
     auto standardItem = std::make_unique<QStandardItem>();
@@ -1101,7 +1124,7 @@ void ListField::initializeData(MacroExpander *expander)
                     qWarning().noquote() << QString("Icon file \"%1\" not found.").arg(QDir::toNativeSeparators(iconPath));
                 }
             } else {
-                qWarning().noquote() <<  QString("%1 (\"%2\") has no parentWidget JsonFieldPage to get the icon path.").arg(type(), name());
+                qWarning().noquote() << QString("%1 (\"%2\") has no parentWidget JsonFieldPage to get the icon path.").arg(type(), name());
             }
         }
         expandedValuesItems.append(expandedValuesItem);
@@ -1132,7 +1155,7 @@ void ListField::setSelectionModel(QItemSelectionModel *selectionModel)
     m_selectionModel = selectionModel;
 }
 
-QSize ListField::maxIconSize()
+QSize ListField::maxIconSize() const
 {
     return m_maxIconSize;
 }
@@ -1173,7 +1196,7 @@ QVariant ListField::toSettings() const
 
 void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = qobject_cast<QComboBox*>(widget());
+    auto w = qobject_cast<QComboBox *>(widget());
     QTC_ASSERT(w, return);
     w->setModel(itemModel());
     w->setInsertPolicy(QComboBox::NoInsert);
@@ -1217,13 +1240,13 @@ void ComboBoxField::initializeData(MacroExpander *expander)
 {
     ListField::initializeData(expander);
     // refresh also the current text of the combobox
-    auto w = qobject_cast<QComboBox*>(widget());
+    auto w = qobject_cast<QComboBox *>(widget());
     w->setCurrentIndex(selectionModel()->currentIndex().row());
 }
 
 QVariant ComboBoxField::toSettings() const
 {
-    if (auto w = qobject_cast<QComboBox*>(widget()))
+    if (auto w = qobject_cast<QComboBox *>(widget()))
         return w->currentData(ValueRole);
     return {};
 }
@@ -1269,7 +1292,7 @@ void IconListField::initializeData(MacroExpander *expander)
     w->setSpacing(spacing);
     w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    // adding a third hight of the icon to see following items if there are some
+    // adding 1/3 height of the icon to see following items if there are some
     w->setMinimumHeight(maxIconSize().height() + maxIconSize().height() / 3);
     w->setIconSize(maxIconSize());
 }

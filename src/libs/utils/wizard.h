@@ -133,6 +133,8 @@ private:
     friend class Wizard;
     friend class WizardProgressItem;
 
+    friend QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &debug, const WizardProgress &progress);
+
     Q_DECLARE_PRIVATE(WizardProgress)
 
     class WizardProgressPrivate *d_ptr;
@@ -163,10 +165,15 @@ protected:
 
 private:
     friend class WizardProgress;
+    friend QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &d, const WizardProgressItem &item);
 
     Q_DECLARE_PRIVATE(WizardProgressItem)
 
     class WizardProgressItemPrivate *d_ptr;
 };
+
+QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &debug, const WizardProgress &progress);
+
+QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &debug, const WizardProgressItem &item);
 
 } // namespace Utils

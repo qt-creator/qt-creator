@@ -32,13 +32,13 @@
 #include <QWidget>
 #include <QString>
 #include <QVariant>
+#include <QStandardItem>
 #include <QDir>
 
 #include <memory>
 #include <vector>
 
 QT_BEGIN_NAMESPACE
-class QStandardItem;
 class QStandardItemModel;
 class QItemSelectionModel;
 QT_END_NAMESPACE
@@ -78,6 +78,14 @@ public:
 class LabelField : public JsonFieldPage::Field
 {
 private:
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "LabelField{text:" << m_text << "}";
+        return result;
+    }
+
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
     bool parseData(const QVariant &data, QString *errorMessage) override;
 
@@ -91,6 +99,14 @@ public:
     bool suppressName() const override { return true; }
 
 private:
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "SpacerField{factor:" << m_factor << "}";
+        return result;
+    }
+
     bool parseData(const QVariant &data, QString *errorMessage) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
@@ -112,6 +128,22 @@ private:
     QVariant toSettings() const override;
 
     void setupCompletion(Utils::FancyLineEdit *lineEdit);
+
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "LineEditField{currentText:" << m_currentText
+            << "; default:" << m_defaultText
+            << "; placeholder:" << m_placeholderText
+            << "; history id:" << m_historyId
+            << "; validator: " << m_validatorRegExp.pattern()
+            << "; fixupExpando: " << m_fixupExpando
+            << "; completion: " << QString::number((int)m_completion)
+            << "}";
+        return result;
+
+    }
 
     bool m_isModified = false;
     bool m_isValidating = false;
@@ -143,6 +175,17 @@ private:
     void fromSettings(const QVariant &value) override;
     QVariant toSettings() const override;
 
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "TextEditField{default:" << m_defaultText
+            << "; rich:" << m_acceptRichText
+            << "; disabled: " << m_disabledText
+            << "}";
+        return result;
+    }
+
     QString m_defaultText;
     bool m_acceptRichText = false;
     QString m_disabledText;
@@ -165,6 +208,19 @@ private:
 
     void fromSettings(const QVariant &value) override;
     QVariant toSettings() const override;
+
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "PathChooser{path:" << m_path
+            << "; base:" << m_basePath
+            << "; historyId:" << m_historyId
+            << "; kind:" << (int)Utils::PathChooser::ExistingDirectory
+            << "; currentPath:" << m_currentPath
+            << "}";
+        return result;
+    }
 
     QString m_path;
     QString m_basePath;
@@ -190,6 +246,20 @@ private:
     void initializeData(Utils::MacroExpander *expander) override;
     void fromSettings(const QVariant &value) override;
     QVariant toSettings() const override;
+
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "CheckBoxField{checked:" << m_checkedValue
+            << "; unchecked: " + m_uncheckedValue
+            << "; checkedExpression: QVariant("
+            << m_checkedExpression.typeName() << ":" << m_checkedExpression.toString()
+            <<  ")"
+            << "; isModified:" << m_isModified
+            << "}";
+        return result;
+    }
 
     QString m_checkedValue;
     QString m_uncheckedValue;
@@ -220,7 +290,27 @@ public:
     QStandardItemModel *itemModel();
     QItemSelectionModel *selectionModel() const;
     void setSelectionModel(QItemSelectionModel *selectionModel);
-    QSize maxIconSize();
+    QSize maxIconSize() const;
+
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "ListField{index:" << m_index
+            << "; disabledIndex:" << m_disabledIndex
+            << "; savedIndex: " << m_savedIndex
+            << "; items Count: " << m_itemList.size()
+            << "; items:";
+
+        if (m_itemList.empty())
+            out << "(empty)";
+        else
+            out << m_itemList.front()->text() << ", ...";
+
+        out << "}";
+
+        return result;
+    }
 
 private:
     void addPossibleIconSize(const QIcon &icon);
@@ -246,6 +336,14 @@ private:
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
     void initializeData(Utils::MacroExpander *expander) override;
     QVariant toSettings() const override;
+
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "ComboBox{" << ListField::toString() << "}";
+        return result;
+    }
 };
 
 class IconListField : public ListField
@@ -254,6 +352,14 @@ public:
     void setup(JsonFieldPage *page, const QString &name) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
     void initializeData(Utils::MacroExpander *expander) override;
+
+    QString toString() const override
+    {
+        QString result;
+        QTextStream out(&result);
+        out << "IconList{" << ListField::toString()<< "}";
+        return result;
+    }
 };
 
 } // namespace ProjectExplorer

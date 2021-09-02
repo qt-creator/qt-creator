@@ -105,6 +105,8 @@ public:
         QVariant m_condition;
         QVariant m_evaluate;
 
+        friend QDebug &operator<<(QDebug &debug, const OptionDefinition &option);
+
         friend class JsonWizard;
     };
     static QList<OptionDefinition> parseOptions(const QVariant &v, QString *errorMessage);
@@ -146,5 +148,23 @@ private:
     Utils::MacroExpander m_expander;
     Core::JsExpander m_jsExpander;
 };
+
+inline QDebug &operator<<(QDebug &debug, const JsonWizard::GeneratorFile &file)
+{
+    debug << "GeneratorFile{file: " << file.file << "}";
+
+    return debug;
+}
+
+inline QDebug &operator<<(QDebug &debug, const JsonWizard::OptionDefinition &option)
+{
+    debug << "Option{"
+      << "key:" << option.m_key
+      << "; value:" << option.m_value
+      << "; evaluate:" << option.m_evaluate
+      << "; condition:" << option.m_condition
+      << "}";
+    return debug;
+}
 
 } // namespace ProjectExplorer

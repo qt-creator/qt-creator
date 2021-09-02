@@ -74,18 +74,18 @@ public:
         virtual bool validate(Utils::MacroExpander *expander, QString *message);
 
         void initialize(Utils::MacroExpander *expander);
-        virtual void cleanup(Utils::MacroExpander *expander) {  Q_UNUSED(expander) }
+        virtual void cleanup(Utils::MacroExpander *expander) { Q_UNUSED(expander) }
 
         virtual bool suppressName() const { return false; }
 
         QWidget *widget(const QString &displayName, JsonFieldPage *page);
 
-        QString name();
-        QString displayName();
-        QString toolTip();
+        QString name() const;
+        QString displayName() const;
+        QString toolTip() const;
         QString persistenceKey() const;
-        bool isMandatory();
-        bool hasSpan();
+        bool isMandatory() const;
+        bool hasSpan() const;
         bool hasUserChanges() const;
 
     protected:
@@ -96,14 +96,14 @@ public:
         virtual void setup(JsonFieldPage *page, const QString &name)
         { Q_UNUSED(page); Q_UNUSED(name) }
 
-        QString type();
+        QString type() const;
         void setHasUserChanges();
 
     private:
         virtual void fromSettings(const QVariant &value);
         virtual QVariant toSettings() const;
 
-        void setTexts(const QString &n, const QString &dn, const QString &tt);
+        void setTexts(const QString &name, const QString &displayName, const QString &toolTip);
         void setIsMandatory(bool b);
         void setHasSpan(bool b);
 
@@ -111,8 +111,10 @@ public:
         void setEnabledExpression(const QVariant &v);
         void setIsCompleteExpando(const QVariant &v, const QString &m);
         void setPersistenceKey(const QString &key);
+        virtual QString toString() const = 0;
 
         friend class JsonFieldPage;
+        friend PROJECTEXPLORER_EXPORT QDebug &operator<<(QDebug &d, const Field &f);
 
         const std::unique_ptr<FieldPrivate> d;
     };
@@ -152,5 +154,7 @@ private:
 
     Utils::MacroExpander *m_expander;
 };
+
+PROJECTEXPLORER_EXPORT QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field &field);
 
 } // namespace ProjectExplorer

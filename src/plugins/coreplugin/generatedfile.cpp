@@ -64,6 +64,21 @@ public:
     GeneratedFile::Attributes attributes;
 };
 
+inline QDebug &operator<<(QDebug &debug, const Core::GeneratedFilePrivate &file)
+{
+    debug << "path: " << file.path
+          << "; editorId: " << file.editorId.toString()
+          << "; binary: " << file.binary
+          << "; contents: " << file.contents.size();
+    return debug;
+}
+
+QDebug &operator<<(QDebug &debug, const Core::GeneratedFile &file)
+{
+    debug << "GeneratedFile{_: " << *file.m_d << "}";
+    return debug;
+}
+
 GeneratedFilePrivate::GeneratedFilePrivate(const QString &path) : // FIXME Don't use - Remove when possible
     path(FilePath::fromString(path).cleanPath()),
     attributes({})

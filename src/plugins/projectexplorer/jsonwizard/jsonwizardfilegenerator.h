@@ -64,7 +64,19 @@ private:
                                      QString *errorMessage);
 
     QList<File> m_fileList;
+    friend QDebug &operator<<(QDebug &debug, const File &file);
 };
+
+inline QDebug &operator<<(QDebug &debug, const JsonWizardFileGenerator::File &file)
+{
+    debug << "WizardFile{"
+          << "source:" << file.source
+          << "; target:" << file.target
+          << "; condition:" << file.condition
+          << "; options:" << file.options
+          << "}";
+    return debug;
+}
 
 } // namespace Internal
 } // namespace ProjectExplorer

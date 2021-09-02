@@ -10,7 +10,8 @@ HEADERS += $$PWD/jsonfieldpage.h \
     $$PWD/jsonwizardgeneratorfactory.h \
     $$PWD/jsonwizardpagefactory.h \
     $$PWD/jsonwizardpagefactory_p.h \
-    $$PWD/jsonwizardscannergenerator.h
+    $$PWD/jsonwizardscannergenerator.h \
+    $$PWD/wizarddebug.h
 
 SOURCES += $$PWD/jsonfieldpage.cpp \
     $$PWD/jsonfilepage.cpp \

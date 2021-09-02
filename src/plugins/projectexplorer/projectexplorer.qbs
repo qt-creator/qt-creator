@@ -186,7 +186,8 @@ Project {
                 "jsonwizardgeneratorfactory.cpp", "jsonwizardgeneratorfactory.h",
                 "jsonwizardpagefactory.cpp", "jsonwizardpagefactory.h",
                 "jsonwizardpagefactory_p.cpp", "jsonwizardpagefactory_p.h",
-                "jsonwizardscannergenerator.cpp", "jsonwizardscannergenerator.h"
+                "jsonwizardscannergenerator.cpp", "jsonwizardscannergenerator.h",
+                "wizarddebug.h"
             ]
         }
 
