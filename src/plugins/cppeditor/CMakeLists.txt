@@ -46,7 +46,6 @@ add_qtc_plugin(CppEditor
     cppeditor_utils.h
     cppeditorconstants.h
     cppeditordocument.cpp cppeditordocument.h
-    cppeditorenums.h
     cppeditoroutline.cpp cppeditoroutline.h
     cppeditorplugin.cpp cppeditorplugin.h
     cppeditorwidget.cpp cppeditorwidget.h

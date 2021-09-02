@@ -26,7 +26,6 @@
 #include "cpphighlighter.h"
 
 #include "cppdoxygen.h"
-#include "cppeditorenums.h"
 #include "cpptoolsreuse.h"
 
 #include <texteditor/textdocumentlayout.h>

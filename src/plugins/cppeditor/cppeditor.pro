@@ -42,7 +42,6 @@ HEADERS += \
     cppeditor_utils.h \
     cppeditorconstants.h \
     cppeditordocument.h \
-    cppeditorenums.h \
     cppeditoroutline.h \
     cppeditorplugin.h \
     cppeditorwidget.h \
