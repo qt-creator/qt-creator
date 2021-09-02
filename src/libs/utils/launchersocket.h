@@ -92,6 +92,7 @@ public:
     QByteArray readAllStandardError();
 
     qint64 processId() const;
+    int exitCode() const;
     QString errorString() const;
     void setErrorString(const QString &str);
 

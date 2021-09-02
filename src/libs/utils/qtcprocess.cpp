@@ -237,6 +237,7 @@ public:
     virtual QProcess::ProcessError error() const = 0;
     virtual QProcess::ProcessState state() const = 0;
     virtual qint64 processId() const = 0;
+    virtual int exitCode() const = 0;
     virtual QProcess::ExitStatus exitStatus() const = 0;
     virtual QString errorString() const = 0;
     virtual void setErrorString(const QString &str) = 0;
@@ -332,6 +333,8 @@ public:
     { return m_process.state(); }
     qint64 processId() const override
     { return m_process.processId(); }
+    int exitCode() const override
+    { return m_process.exitCode(); }
     QProcess::ExitStatus exitStatus() const override
     { return m_process.exitStatus(); }
     QString errorString() const override
@@ -416,6 +419,7 @@ public:
     QProcess::ProcessError error() const override { return m_handle->error(); }
     QProcess::ProcessState state() const override { return m_handle->state(); }
     qint64 processId() const override { return m_handle->processId(); }
+    int exitCode() const override { return m_handle->exitCode(); }
     QProcess::ExitStatus exitStatus() const override { return m_handle->exitStatus(); }
     QString errorString() const override { return m_handle->errorString(); }
     void setErrorString(const QString &str) override { m_handle->setErrorString(str); }
@@ -537,7 +541,6 @@ public:
     QEventLoop m_eventLoop;
     QtcProcess::Result m_result = QtcProcess::StartFailed;
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
-    int m_exitCode = -1;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
     ExitCodeInterpreter m_exitCodeInterpreter;
@@ -558,7 +561,6 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result = QtcProcess::StartFailed;
-    m_exitCode = -1;
     m_startFailure = false;
 }
 
@@ -917,7 +919,9 @@ void QtcProcess::setResult(Result result)
 
 int QtcProcess::exitCode() const
 {
-    return d->m_exitCode;
+    if (d->m_startFailure)
+        return 255; // This code is being returned by QProcess when FailedToStart error occurred
+    return d->m_process->exitCode();
 }
 
 
@@ -1455,13 +1459,11 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
     switch (status) {
     case QProcess::NormalExit:
         m_result = interpretExitCode(exitCode);
-        m_exitCode = exitCode;
         break;
     case QProcess::CrashExit:
         // Was hang detected before and killed?
         if (m_result != QtcProcess::Hang)
             m_result = QtcProcess::TerminatedAbnormally;
-        m_exitCode = -1;
         break;
     }
     m_eventLoop.quit();

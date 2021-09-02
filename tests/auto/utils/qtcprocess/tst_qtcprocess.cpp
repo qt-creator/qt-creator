@@ -1061,6 +1061,8 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
         QVERIFY(!process.waitForStarted(maxWaitTimeMs));
         QVERIFY(timer.elapsed() < maxWaitTimeMs); // shouldn't wait, should finish immediately
         QCOMPARE(process.state(), QProcess::NotRunning);
+        QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+        QCOMPARE(process.error(), QProcess::FailedToStart);
         QVERIFY(process.exitCode() != 0);
     }
 }

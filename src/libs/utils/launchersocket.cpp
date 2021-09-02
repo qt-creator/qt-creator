@@ -218,6 +218,8 @@ void CallerHandle::handleError(const ErrorSignal *launcherSignal)
     m_processState = QProcess::NotRunning;
     m_error = launcherSignal->error();
     m_errorString = launcherSignal->errorString();
+    if (m_error == QProcess::FailedToStart)
+        m_exitCode = 255; // This code is being returned by QProcess when FailedToStart error occurred
     emit errorOccurred(m_error);
 }
 
@@ -326,6 +328,12 @@ qint64 CallerHandle::processId() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return 0);
     return m_processId;
+}
+
+int CallerHandle::exitCode() const
+{
+    QTC_ASSERT(isCalledFromCallersThread(), return -1);
+    return m_exitCode;
 }
 
 QString CallerHandle::errorString() const
