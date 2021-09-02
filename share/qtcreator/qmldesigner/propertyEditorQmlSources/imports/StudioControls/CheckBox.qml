@@ -131,7 +131,7 @@ T.CheckBox {
         },
         State {
             name: "globalHover"
-            when: actionIndicator.hover && myCheckBox.hover && !myCheckBox.pressed
+            when: actionIndicator.hover && !myCheckBox.pressed && myCheckBox.enabled
             PropertyChanges {
                 target: checkBoxBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
