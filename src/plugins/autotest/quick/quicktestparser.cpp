@@ -312,6 +312,7 @@ void QuickTestParser::handleDirectoryChanged(const QString &directory)
             return filesAndDates.value(file) != watched.value(file);
         });
         if (timestampChanged) {
+            m_watchedFiles[directory] = filesAndDates;
             PathsAndLanguages paths;
             paths.maybeInsert(Utils::FilePath::fromString(directory), Dialect::Qml);
             QFutureInterface<void> future;
