@@ -187,7 +187,6 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         qbsArguments=("-executable=$qbsapp" \
         "-executable=$qbsapp-config" \
         "-executable=$qbsapp-config-ui" \
-        "-executable=$qbsapp-qmltypes" \
         "-executable=$qbsapp-setup-android" \
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
