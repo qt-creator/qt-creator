@@ -87,6 +87,7 @@
         \"        <comment>Qt documentation file</comment>\",
         \"        <sub-class-of type=\'text/plain\'/>\",
         \"        <glob pattern=\'*.qdoc\' weight=\'70\'/>\",
+        \"        <glob pattern=\'*.qdocinc\' weight=\'70\'/>\",
         \"    </mime-type>\",
 
         \"    <mime-type type=\'text/x-moc\'>\",
