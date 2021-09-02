@@ -31,6 +31,7 @@
 #include <utils/textfileformat.h>
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QString>
 

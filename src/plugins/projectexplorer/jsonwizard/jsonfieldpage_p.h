@@ -34,12 +34,12 @@
 #include <QVariant>
 #include <QStandardItem>
 #include <QDir>
+#include <QTextStream>
 
 #include <memory>
 #include <vector>
 
 QT_BEGIN_NAMESPACE
-class QStandardItemModel;
 class QItemSelectionModel;
 QT_END_NAMESPACE
 

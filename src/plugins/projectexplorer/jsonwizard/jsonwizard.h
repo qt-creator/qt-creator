@@ -34,6 +34,7 @@
 #include <utils/wizard.h>
 #include <utils/macroexpander.h>
 
+#include <QDebug>
 #include <QVariant>
 
 namespace ProjectExplorer {

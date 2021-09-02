@@ -32,6 +32,7 @@
 
 #include <utils/theme/theme.h>
 
+#include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QHash>
