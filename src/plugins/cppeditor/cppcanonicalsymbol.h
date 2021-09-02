@@ -25,17 +25,15 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Symbol.h>
 #include <cplusplus/TypeOfExpression.h>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT CanonicalSymbol
+class CanonicalSymbol
 {
 public:
     CanonicalSymbol(const CPlusPlus::Document::Ptr &document,
@@ -59,4 +57,4 @@ private:
     CPlusPlus::TypeOfExpression m_typeOfExpression;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

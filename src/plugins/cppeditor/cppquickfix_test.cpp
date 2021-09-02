@@ -50,7 +50,7 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 
 using CppEditor::Tests::TemporaryDir;
-using CppEditor::Tests::TestIncludePaths;
+using CppEditor::Tests::Internal::TestIncludePaths;
 
 typedef QByteArray _;
 

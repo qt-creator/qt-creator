@@ -27,9 +27,9 @@
 
 #include "refactoringengineinterface.h"
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT CppRefactoringEngine : public RefactoringEngineInterface
+class CppRefactoringEngine : public RefactoringEngineInterface
 {
 public:
     void startLocalRenaming(const CursorInEditor &data,
@@ -46,4 +46,4 @@ public:
                             bool inNextSplit) const override;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

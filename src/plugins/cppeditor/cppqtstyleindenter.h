@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <texteditor/textindenter.h>
 
 namespace TextEditor { class ICodeStylePreferences; }
@@ -35,7 +33,8 @@ namespace CppEditor {
 class CppCodeStyleSettings;
 class CppCodeStylePreferences;
 
-class CPPEDITOR_EXPORT CppQtStyleIndenter : public TextEditor::TextIndenter
+namespace Internal {
+class CppQtStyleIndenter : public TextEditor::TextIndenter
 {
 public:
     explicit CppQtStyleIndenter(QTextDocument *doc);
@@ -66,4 +65,5 @@ private:
     CppCodeStylePreferences *m_cppCodeStylePreferences = nullptr;
 };
 
+} // namespace Internal
 } // namespace CppEditor

@@ -35,11 +35,12 @@
 #include <QFutureWatcher>
 
 namespace CppEditor {
-
 class ProjectInfo;
 
+namespace Internal {
+
 // registered in extensionsystem's object pool for plugins with weak dependency to CppEditor
-class CPPEDITOR_EXPORT CppProjectUpdaterFactory : public QObject
+class CppProjectUpdaterFactory : public QObject
 {
     Q_OBJECT
 public:
@@ -48,6 +49,8 @@ public:
     // keep the namespace, for the type name in the invokeMethod call
     Q_INVOKABLE CppProjectUpdaterInterface *create();
 };
+
+} // namespace Internal
 
 class CPPEDITOR_EXPORT CppProjectUpdater final : public QObject, public CppProjectUpdaterInterface
 {

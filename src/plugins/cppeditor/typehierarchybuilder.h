@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
@@ -43,9 +41,9 @@ class Name;
 class Scope;
 }
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT TypeHierarchy
+class TypeHierarchy
 {
     friend class TypeHierarchyBuilder;
 
@@ -64,7 +62,7 @@ private:
     QList<TypeHierarchy> _hierarchy;
 };
 
-class CPPEDITOR_EXPORT TypeHierarchyBuilder
+class TypeHierarchyBuilder
 {
 public:
     static TypeHierarchy buildDerivedTypeHierarchy(CPlusPlus::Symbol *symbol,
@@ -87,4 +85,4 @@ private:
     CPlusPlus::Overview _overview;
 };
 
-} // CppEditor
+} // CppEditor::Internal

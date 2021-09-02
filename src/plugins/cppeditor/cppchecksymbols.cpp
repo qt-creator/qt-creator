@@ -1136,7 +1136,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     accept(ast->ctor_initializer);
     accept(ast->function_body);
 
-    const LocalSymbols locals(_doc, ast);
+    const Internal::LocalSymbols locals(_doc, ast);
     foreach (const QList<Result> &uses, locals.uses) {
         foreach (const Result &u, uses)
             addUse(u);

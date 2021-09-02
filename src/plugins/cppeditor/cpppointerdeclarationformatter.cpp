@@ -46,7 +46,7 @@
 #define CHECK_C(cond, err) \
     if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << "Discarded:" << (err); continue; }
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 /*!
    Skips specifiers that are not type relevant and returns the index of the
@@ -471,4 +471,4 @@ void PointerDeclarationFormatter::printCandidate(AST *ast)
 #endif // DEBUG_OUTPUT
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

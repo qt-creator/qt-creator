@@ -27,7 +27,7 @@
 
 #include <QDir>
 
-namespace CppEditor::Tests {
+namespace CppEditor::Tests::Internal {
 
 QString TestIncludePaths::includeBaseDirectory()
 {
@@ -52,7 +52,7 @@ QString TestIncludePaths::directoryOfTestFile()
 
 QString TestIncludePaths::testFilePath(const QString &fileName)
 {
-    return Tests::TestIncludePaths::directoryOfTestFile() + QLatin1Char('/') + fileName;
+    return directoryOfTestFile() + QLatin1Char('/') + fileName;
 }
 
-} // namespace CppEditor::Tests
+} // namespace CppEditor::Tests::Internal

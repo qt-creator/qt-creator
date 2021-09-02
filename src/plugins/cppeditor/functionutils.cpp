@@ -45,7 +45,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 enum VirtualType { Virtual, PureVirtual };
 
@@ -219,11 +219,11 @@ QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsC
     return result;
 }
 
-}  // namespaceCppEditor
+}  // namespace CppEditor::Internal
 
 #ifdef WITH_TESTS
 namespace CppEditor::Internal {
-enum Virtuality
+enum class Virtuality
 {
     NotVirtual,
     Virtual,
@@ -272,14 +272,14 @@ void FunctionUtilsTest::testVirtualFunctions()
             QCOMPARE(FunctionUtils::isPureVirtualFunction(function, context), isPureVirtual);
             if (isVirtual) {
                 if (isPureVirtual)
-                    QCOMPARE(virtuality, PureVirtual);
+                    QCOMPARE(virtuality, Virtuality::PureVirtual);
                 else
-                    QCOMPARE(virtuality, Virtual);
+                    QCOMPARE(virtuality, Virtuality::Virtual);
             } else {
                 QEXPECT_FAIL("virtual-dtor-dtor", "Not implemented", Abort);
                 if (allFunctions.size() == 3)
                     QEXPECT_FAIL("dtor-virtual-dtor-dtor", "Not implemented", Abort);
-                QCOMPARE(virtuality, NotVirtual);
+                QCOMPARE(virtuality, Virtuality::NotVirtual);
             }
             if (firstVirtualIndex == -1)
                 QVERIFY(firstVirtuals.isEmpty());
@@ -300,74 +300,78 @@ void FunctionUtilsTest::testVirtualFunctions_data()
 
     QTest::newRow("none")
             << _("struct None { void foo() {} };\n")
-            << (VirtualityList() << NotVirtual)
+            << (VirtualityList() << Virtuality::NotVirtual)
             << (QList<int>() << -1);
 
     QTest::newRow("single-virtual")
             << _("struct V { virtual void foo() {} };\n")
-            << (VirtualityList() << Virtual)
+            << (VirtualityList() << Virtuality::Virtual)
             << (QList<int>() << 0);
 
     QTest::newRow("single-pure-virtual")
             << _("struct PV { virtual void foo() = 0; };\n")
-            << (VirtualityList() << PureVirtual)
+            << (VirtualityList() << Virtuality::PureVirtual)
             << (QList<int>() << 0);
 
     QTest::newRow("virtual-derived-with-specifier")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() {} };\n")
-            << (VirtualityList() << Virtual << Virtual)
+            << (VirtualityList() << Virtuality::Virtual << Virtuality::Virtual)
             << (QList<int>() << 0 << 0);
 
     QTest::newRow("virtual-derived-implicit")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { void foo() {} };\n")
-            << (VirtualityList() << Virtual << Virtual)
+            << (VirtualityList() << Virtuality::Virtual << Virtuality::Virtual)
             << (QList<int>() << 0 << 0);
 
     QTest::newRow("not-virtual-then-virtual")
             << _("struct Base { void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() {} };\n")
-            << (VirtualityList() << NotVirtual << Virtual)
+            << (VirtualityList() << Virtuality::NotVirtual << Virtuality::Virtual)
             << (QList<int>() << -1 << 1);
 
     QTest::newRow("virtual-final-not-virtual")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { void foo() final {} };\n"
                  "struct Derived2 : Derived { void foo() {} };")
-            << (VirtualityList() << Virtual << Virtual << NotVirtual)
+            << (VirtualityList() << Virtuality::Virtual << Virtuality::Virtual
+                << Virtuality::NotVirtual)
             << (QList<int>() << 0 << 0 << -1);
 
     QTest::newRow("virtual-then-pure")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() = 0; };\n"
                  "struct Derived2 : Derived { void foo() {} };")
-            << (VirtualityList() << Virtual << PureVirtual << Virtual)
+            << (VirtualityList() << Virtuality::Virtual << Virtuality::PureVirtual
+                << Virtuality::Virtual)
             << (QList<int>() << 0 << 0 << 0);
 
     QTest::newRow("virtual-virtual-final-not-virtual")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() final {} };\n"
                  "struct Derived2 : Derived { void foo() {} };")
-            << (VirtualityList() << Virtual << Virtual << NotVirtual)
+            << (VirtualityList() << Virtuality::Virtual << Virtuality::Virtual
+                << Virtuality::NotVirtual)
             << (QList<int>() << 0 << 0 << -1);
 
     QTest::newRow("ctor-virtual-dtor")
             << _("struct Base { Base() {} virtual ~Base() {} };\n")
-            << (VirtualityList() << NotVirtual << Virtual)
+            << (VirtualityList() << Virtuality::NotVirtual << Virtuality::Virtual)
             << (QList<int>() << -1 << 1);
 
     QTest::newRow("virtual-dtor-dtor")
             << _("struct Base { virtual ~Base() {} };\n"
                  "struct Derived : Base { ~Derived() {} };\n")
-            << (VirtualityList() << Virtual << Virtual)
+            << (VirtualityList() << Virtuality::Virtual << Virtuality::Virtual)
             << (QList<int>() << 0 << 0);
 
     QTest::newRow("dtor-virtual-dtor-dtor")
             << _("struct Base { ~Base() {} };\n"
                  "struct Derived : Base { virtual ~Derived() {} };\n"
                  "struct Derived2 : Derived { ~Derived2() {} };\n")
-            << (VirtualityList() << NotVirtual << Virtual << Virtual)
+            << (VirtualityList() << Virtuality::NotVirtual << Virtuality::Virtual
+                << Virtuality::Virtual)
             << (QList<int>() << -1 << 1 << 1);
 }
 

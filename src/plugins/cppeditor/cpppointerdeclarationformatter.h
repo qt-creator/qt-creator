@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "cpprefactoringchanges.h"
 
 #include <cplusplus/ASTVisitor.h>
@@ -34,7 +33,7 @@
 
 namespace CPlusPlus { class Overview; }
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 using namespace CPlusPlus;
 
@@ -52,7 +51,7 @@ using namespace CPlusPlus;
     \endlist
 */
 
-class CPPEDITOR_EXPORT PointerDeclarationFormatter: protected ASTVisitor
+class PointerDeclarationFormatter: protected ASTVisitor
 {
 public:
     /*!
@@ -117,4 +116,4 @@ private:
     Utils::ChangeSet m_changeSet;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

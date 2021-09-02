@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "projectpart.h"
 #include "projectinfo.h"
 
@@ -39,7 +38,7 @@ class WorkingCopy;
 
 namespace CppCodeModelInspector {
 
-struct CPPEDITOR_EXPORT Utils
+struct Utils
 {
     static QString toString(bool value);
     static QString toString(int value);
@@ -63,7 +62,7 @@ struct CPPEDITOR_EXPORT Utils
     static QList<CPlusPlus::Document::Ptr> snapshotToList(const CPlusPlus::Snapshot &snapshot);
 };
 
-class CPPEDITOR_EXPORT Dumper
+class Dumper
 {
 public:
     explicit Dumper(const CPlusPlus::Snapshot &globalSnapshot,

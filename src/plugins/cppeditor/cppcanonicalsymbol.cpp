@@ -36,7 +36,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor{
+namespace CppEditor::Internal {
 
 CanonicalSymbol::CanonicalSymbol(const Document::Ptr &document,
                                  const Snapshot &snapshot)
@@ -126,4 +126,4 @@ Symbol *CanonicalSymbol::canonicalSymbol(Scope *scope, const QString &code,
     return nullptr;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <coreplugin/helpitem.h>
 #include <texteditor/texteditor.h>
 
@@ -47,10 +45,12 @@ class LookupContext;
 }
 
 namespace CppEditor {
-class CppElement;
 class CppModelManager;
 
-class CPPEDITOR_EXPORT CppElementEvaluator final
+namespace Internal {
+class CppElement;
+
+class CppElementEvaluator final
 {
 public:
     explicit CppElementEvaluator(TextEditor::TextEditorWidget *editor);
@@ -75,7 +75,7 @@ private:
 
 class CppClass;
 
-class CPPEDITOR_EXPORT CppElement
+class CppElement
 {
 protected:
     CppElement();
@@ -92,7 +92,7 @@ public:
     QString tooltip;
 };
 
-class CPPEDITOR_EXPORT CppDeclarableElement : public CppElement
+class CppDeclarableElement : public CppElement
 {
 public:
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
@@ -105,7 +105,7 @@ public:
     QIcon icon;
 };
 
-class CPPEDITOR_EXPORT CppClass : public CppDeclarableElement
+class CppClass : public CppDeclarableElement
 {
 public:
     CppClass();
@@ -125,4 +125,5 @@ public:
     QList<CppClass> derived;
 };
 
+} // namespace Internal
 } // namespace CppEditor

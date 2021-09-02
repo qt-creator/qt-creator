@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <cplusplus/Overview.h>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
@@ -35,9 +33,9 @@ namespace CPlusPlus { class DeclarationAST; }
 namespace CPlusPlus { class Snapshot; }
 namespace Utils { class FilePath; }
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT DoxygenGenerator
+class DoxygenGenerator
 {
 public:
     DoxygenGenerator();
@@ -93,4 +91,4 @@ private:
     QString m_commentOffset;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

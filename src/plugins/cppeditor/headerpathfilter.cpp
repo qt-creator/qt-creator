@@ -39,7 +39,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 void HeaderPathFilter::process()
 {
@@ -181,4 +181,4 @@ QString HeaderPathFilter::ensurePathWithSlashEnding(const QString &path)
     return pathWithSlashEnding;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

@@ -25,12 +25,11 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "cppsemanticinfo.h"
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT LocalSymbols
+class LocalSymbols
 {
     Q_DISABLE_COPY(LocalSymbols)
 
@@ -40,4 +39,4 @@ public:
     SemanticInfo::LocalUseMap uses;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

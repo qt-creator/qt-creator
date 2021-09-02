@@ -31,8 +31,7 @@
 using namespace CPlusPlus;
 using namespace TextEditor;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 const QStringList magicQObjectFunctions()
 {
@@ -40,12 +39,10 @@ const QStringList magicQObjectFunctions()
     return list;
 }
 
-} // namespace Internal
-
 CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface, int priority)
     : QuickFixOperation(priority), CppQuickFixInterface(interface)
 {}
 
 CppQuickFixOperation::~CppQuickFixOperation() = default;
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

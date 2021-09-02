@@ -44,7 +44,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 static QStringList stripName(const QString &name)
 {
@@ -754,4 +754,4 @@ Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, c
     return Utils::Link();
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

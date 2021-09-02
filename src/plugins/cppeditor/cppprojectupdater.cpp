@@ -166,6 +166,7 @@ void CppProjectUpdater::checkForExtraCompilersFinished()
     m_futureSynchronizer.addFuture(updateFuture);
 }
 
+namespace Internal {
 CppProjectUpdaterFactory::CppProjectUpdaterFactory()
 {
     setObjectName("CppProjectUpdaterFactory");
@@ -175,5 +176,6 @@ CppProjectUpdaterInterface *CppProjectUpdaterFactory::create()
 {
     return new CppProjectUpdater;
 }
+} // namespace Internal
 
 } // namespace CppEditor

@@ -42,7 +42,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 DoxygenGenerator::DoxygenGenerator() = default;
 
@@ -337,4 +337,4 @@ QString DoxygenGenerator::offsetString() const
     return m_commentOffset;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

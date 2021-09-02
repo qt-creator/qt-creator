@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/PreprocessorClient.h>
 
@@ -42,8 +40,7 @@ namespace IncludeUtils {
 using Include = CPlusPlus::Document::Include;
 using IncludeType = CPlusPlus::Client::IncludeType;
 
-// TODO: Unexport
-class CPPEDITOR_EXPORT IncludeGroup
+class IncludeGroup
 {
 public:
     static QList<IncludeGroup> detectIncludeGroupsByNewLines(QList<Include> &includes);
@@ -78,7 +75,7 @@ private:
     QList<Include> m_includes;
 };
 
-class CPPEDITOR_EXPORT LineForNewIncludeDirective
+class LineForNewIncludeDirective
 {
 public:
     enum MocIncludeMode { RespectMocIncludes, IgnoreMocIncludes };

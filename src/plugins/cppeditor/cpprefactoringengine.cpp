@@ -36,7 +36,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 void CppRefactoringEngine::startLocalRenaming(const CursorInEditor &data,
                                               const ProjectPart *,
@@ -71,7 +71,7 @@ void CppRefactoringEngine::globalRename(const CursorInEditor &data,
     if (const CPlusPlus::Macro *macro = findCanonicalMacro(cursor, info.doc)) {
         modelManager->renameMacroUsages(*macro, replacement);
     } else {
-        CanonicalSymbol cs(info.doc, info.snapshot);
+        Internal::CanonicalSymbol cs(info.doc, info.snapshot);
         CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
         if (canonicalSymbol)
             modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
@@ -95,7 +95,7 @@ void CppRefactoringEngine::findUsages(const CursorInEditor &data,
     if (const CPlusPlus::Macro *macro = findCanonicalMacro(cursor, info.doc)) {
         modelManager->findMacroUsages(*macro);
     } else {
-        CanonicalSymbol cs(info.doc, info.snapshot);
+        Internal::CanonicalSymbol cs(info.doc, info.snapshot);
         CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
         if (canonicalSymbol)
             modelManager->findUsages(canonicalSymbol, cs.context());
@@ -115,4 +115,4 @@ void CppRefactoringEngine::globalFollowSymbol(
                                  documentFromSemanticInfo, symbolFinder, inNextSplit);
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

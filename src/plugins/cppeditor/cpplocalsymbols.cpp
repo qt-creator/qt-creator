@@ -30,7 +30,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 namespace {
 
@@ -309,4 +309,4 @@ LocalSymbols::LocalSymbols(Document::Ptr doc, DeclarationAST *ast)
     uses = findLocalSymbols.localUses;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

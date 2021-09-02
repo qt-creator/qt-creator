@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include "abstractoverviewmodel.h"
 
 #include <QModelIndex>
@@ -43,9 +41,9 @@ QT_END_NAMESPACE
 namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT CppEditorOutline : public QObject
+class CppEditorOutline : public QObject
 {
     Q_OBJECT
 
@@ -92,4 +90,4 @@ private:
     QTimer *m_updateIndexTimer;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

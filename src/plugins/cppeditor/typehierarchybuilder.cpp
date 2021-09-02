@@ -29,7 +29,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 namespace {
 
 QString unqualifyName(const QString &qualifiedName)
@@ -240,4 +240,4 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
     }
 }
 
-} // CppEditor
+} // CppEditor::Internal

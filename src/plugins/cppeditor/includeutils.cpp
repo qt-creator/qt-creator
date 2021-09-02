@@ -528,6 +528,7 @@ bool IncludeGroup::hasCommonIncludeDir() const
 #ifdef WITH_TESTS
 using namespace Tests;
 using namespace IncludeUtils;
+using Tests::Internal::TestIncludePaths;
 
 namespace Internal {
 

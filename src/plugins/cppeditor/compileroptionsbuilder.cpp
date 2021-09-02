@@ -341,10 +341,11 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
 
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
-    HeaderPathFilter filter{m_projectPart,
-                            m_useTweakedHeaderPaths,
-                            m_clangVersion,
-                            m_clangIncludeDirectory};
+    Internal::HeaderPathFilter filter{
+        m_projectPart,
+        m_useTweakedHeaderPaths,
+        m_clangVersion,
+        m_clangIncludeDirectory};
 
     filter.process();
 

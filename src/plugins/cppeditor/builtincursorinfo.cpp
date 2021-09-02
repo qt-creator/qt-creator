@@ -238,7 +238,8 @@ private:
         typeOfExpression.init(m_document, theSnapshot);
         typeOfExpression.setExpandTemplates(true);
 
-        if (Symbol *s = CanonicalSymbol::canonicalSymbol(m_scope, m_expression, typeOfExpression)) {
+        if (Symbol *s = Internal::CanonicalSymbol::canonicalSymbol(
+                    m_scope, m_expression, typeOfExpression)) {
             const QList<int> tokenIndices = CppModelManager::instance()
                     ->references(s, typeOfExpression.context());
             result = toRanges(tokenIndices, m_document->translationUnit());
@@ -339,7 +340,7 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
     const QTextCursor &textCursor = cursorInfoParams.textCursor;
     int line, column;
     Utils::Text::convertPosition(textCursor.document(), textCursor.position(), &line, &column);
-    CanonicalSymbol canonicalSymbol(document, snapshot);
+    Internal::CanonicalSymbol canonicalSymbol(document, snapshot);
     QString expression;
     Scope *scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
 
@@ -355,7 +356,7 @@ BuiltinCursorInfo::findLocalUses(const Document::Ptr &document, int line, int co
     AST *ast = document->translationUnit()->ast();
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(document->translationUnit());
     DeclarationAST *declaration = functionDefinitionUnderCursor(ast, line, column);
-    return LocalSymbols(document, declaration).uses;
+    return Internal::LocalSymbols(document, declaration).uses;
 }
 
 } // namespace CppEditor

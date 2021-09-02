@@ -136,7 +136,7 @@ public:
         if (!functionsClass)
             return nullptr;
 
-        const QList<Function *> overrides = FunctionUtils::overrides(
+        const QList<Function *> overrides = Internal::FunctionUtils::overrides(
             m_params.function, functionsClass, m_params.staticClass, m_params.snapshot);
         if (overrides.isEmpty())
             return nullptr;

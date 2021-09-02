@@ -32,13 +32,13 @@
 #include <QScopedPointer>
 
 namespace CppEditor {
-class CppEditorOutline;
 class FollowSymbolInterface;
 class SemanticInfo;
 class ProjectPart;
 
 namespace Internal {
 class CppEditorDocument;
+class CppEditorOutline;
 class CppEditorWidgetPrivate;
 class FunctionDeclDefLink;
 

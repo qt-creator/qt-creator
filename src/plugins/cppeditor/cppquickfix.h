@@ -37,9 +37,7 @@ class CppQuickFixInterface;
 // These are generated functions that should not be offered in quickfixes.
 const QStringList magicQObjectFunctions();
 
-}
-
-class CPPEDITOR_EXPORT CppQuickFixOperation
+class CppQuickFixOperation
     : public TextEditor::QuickFixOperation,
       public Internal::CppQuickFixInterface
 {
@@ -47,6 +45,8 @@ public:
     explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1);
     ~CppQuickFixOperation() override;
 };
+
+} // namespace Internal
 
 /*!
     The QuickFixFactory is responsible for generating QuickFixOperation s which are

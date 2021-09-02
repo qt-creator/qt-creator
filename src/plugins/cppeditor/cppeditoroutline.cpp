@@ -87,7 +87,7 @@ QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objec
 
 } // anonymous namespace
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     : QObject(editorWidget)
@@ -296,6 +296,6 @@ QModelIndex CppEditorOutline::indexForPosition(int line, int column,
     return lastIndex;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal
 
 #include <cppeditoroutline.moc>

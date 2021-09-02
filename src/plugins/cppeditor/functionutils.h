@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <QList>
 #include <QObject>
 
@@ -38,9 +36,9 @@ class Snapshot;
 class Symbol;
 } // namespace CPlusPlus
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT FunctionUtils
+class FunctionUtils
 {
 public:
     static bool isVirtualFunction(const CPlusPlus::Function *function,
@@ -58,7 +56,6 @@ public:
 };
 
 #ifdef WITH_TESTS
-namespace Internal {
 class FunctionUtilsTest : public QObject
 {
     Q_OBJECT
@@ -67,7 +64,6 @@ private slots:
     void testVirtualFunctions();
     void testVirtualFunctions_data();
 };
-} // namespace Internal
 #endif // WITH_TESTS
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

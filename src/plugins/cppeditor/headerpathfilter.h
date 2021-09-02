@@ -30,9 +30,9 @@
 
 #include <utils/filepath.h>
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-class CPPEDITOR_EXPORT HeaderPathFilter
+class HeaderPathFilter
 {
 public:
     HeaderPathFilter(const ProjectPart &projectPart,
@@ -76,4 +76,4 @@ public:
     const UseTweakedHeaderPaths useTweakedHeaderPaths;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

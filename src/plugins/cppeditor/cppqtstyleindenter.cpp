@@ -34,7 +34,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 CppQtStyleIndenter::CppQtStyleIndenter(QTextDocument *doc)
     : TextEditor::TextIndenter(doc)
@@ -205,4 +205,4 @@ TextEditor::IndentationForBlock CppQtStyleIndenter::indentationForBlocks(
     return ret;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

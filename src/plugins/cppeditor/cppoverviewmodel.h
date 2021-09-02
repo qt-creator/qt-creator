@@ -30,20 +30,10 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
-namespace CppEditor {
+namespace CppEditor::Internal {
+class SymbolItem;
 
-class SymbolItem : public Utils::TreeItem
-{
-public:
-    SymbolItem() = default;
-    explicit SymbolItem(CPlusPlus::Symbol *symbol) : symbol(symbol) {}
-
-    QVariant data(int column, int role) const override;
-
-    CPlusPlus::Symbol *symbol = nullptr; // not owned
-};
-
-class CPPEDITOR_EXPORT OverviewModel : public AbstractOverviewModel
+class OverviewModel : public AbstractOverviewModel
 {
     Q_OBJECT
 
@@ -68,4 +58,4 @@ private:
     friend class SymbolItem;
 };
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

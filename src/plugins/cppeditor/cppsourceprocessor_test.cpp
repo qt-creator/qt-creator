@@ -47,7 +47,7 @@ using ProjectExplorer::HeaderPathType;
 
 using Include = Document::Include;
 using CppEditor::Tests::TestCase;
-using CppEditor::Tests::TestIncludePaths;
+using CppEditor::Tests::Internal::TestIncludePaths;
 
 namespace CppEditor::Internal {
 

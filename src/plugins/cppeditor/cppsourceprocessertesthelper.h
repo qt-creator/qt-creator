@@ -25,14 +25,12 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
 #include <QtGlobal>
 #include <QString>
 
-namespace CppEditor::Tests {
+namespace CppEditor::Tests::Internal {
 
-class CPPEDITOR_EXPORT TestIncludePaths
+class TestIncludePaths
 {
     Q_DISABLE_COPY(TestIncludePaths)
 
@@ -44,4 +42,4 @@ public:
     static QString testFilePath(const QString &fileName = QLatin1String("file.cpp"));
 };
 
-} // namespace CppEditor::Tests
+} // namespace CppEditor::Tests::Internal

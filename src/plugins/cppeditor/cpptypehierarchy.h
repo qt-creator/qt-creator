@@ -53,12 +53,10 @@ class ProgressIndicator;
 }
 
 namespace CppEditor {
-class CppClass;
-class CppElement;
-
 namespace Internal {
-
+class CppClass;
 class CppEditorWidget;
+class CppElement;
 
 class CppTypeHierarchyModel : public QStandardItemModel
 {

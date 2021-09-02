@@ -47,7 +47,7 @@
 
 using namespace CPlusPlus;
 
-Q_DECLARE_METATYPE(CppEditor::Overview)
+Q_DECLARE_METATYPE(CppEditor::Internal::Overview)
 
 namespace CppEditor::Internal {
 namespace {
