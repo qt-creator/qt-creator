@@ -41,7 +41,6 @@ add_qtc_plugin(CppEditor
     cppdoxygen.cpp cppdoxygen.h
     cppeditor.qrc
     cppeditor_global.h
-    cppeditor_utils.h
     cppeditorconstants.h
     cppeditordocument.cpp cppeditordocument.h
     cppeditoroutline.cpp cppeditoroutline.h
@@ -93,7 +92,6 @@ add_qtc_plugin(CppEditor
     cppsemanticinfo.h
     cppsemanticinfoupdater.cpp cppsemanticinfoupdater.h
     cppsourceprocessor.cpp cppsourceprocessor.h
-    cppsymbolinfo.h
     cpptoolsjsextension.cpp cpptoolsjsextension.h
     cpptoolsreuse.cpp cpptoolsreuse.h
     cpptoolssettings.cpp cpptoolssettings.h

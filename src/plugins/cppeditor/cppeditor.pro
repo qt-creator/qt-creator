@@ -37,7 +37,6 @@ HEADERS += \
     cppcursorinfo.h \
     cppdoxygen.h \
     cppeditor_global.h \
-    cppeditor_utils.h \
     cppeditorconstants.h \
     cppeditordocument.h \
     cppeditoroutline.h \
@@ -88,7 +87,6 @@ HEADERS += \
     cppsemanticinfo.h \
     cppsemanticinfoupdater.h \
     cppsourceprocessor.h \
-    cppsymbolinfo.h \
     cpptoolsjsextension.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \

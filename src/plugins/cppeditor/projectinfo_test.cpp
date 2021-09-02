@@ -112,7 +112,7 @@ public:
                                            ProjectPartInfo::NoHint};
     QString preferredProjectPartId;
     Utils::FilePath activeProject;
-    Language languagePreference = Language::Cxx;
+    Utils::Language languagePreference = Utils::Language::Cxx;
     bool projectsChanged = false;
     ProjectPartChooser chooser;
 
@@ -224,7 +224,7 @@ void ProjectPartChooserTest::testForMultipleCheckIfActiveProjectChanged()
 void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCProjectPart()
 {
     ProjectPartChooserTestHelper t;
-    t.languagePreference = Language::C;
+    t.languagePreference = Utils::Language::C;
     t.projectPartsForFile = t.createCAndCxxProjectParts();
     const ProjectPart::ConstPtr cProjectPart = t.projectPartsForFile.at(0);
 
@@ -234,7 +234,7 @@ void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCProjectPart
 void ProjectPartChooserTest::testForMultipleAndAmbigiousHeaderPreferCxxProjectPart()
 {
     ProjectPartChooserTestHelper t;
-    t.languagePreference = Language::Cxx;
+    t.languagePreference = Utils::Language::Cxx;
     t.projectPartsForFile = t.createCAndCxxProjectParts();
     const ProjectPart::ConstPtr cxxProjectPart = t.projectPartsForFile.at(1);
 

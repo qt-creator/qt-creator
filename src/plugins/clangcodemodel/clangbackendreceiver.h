@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cppeditor/cppcursorinfo.h>
-#include <cppeditor/cppsymbolinfo.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/baseeditordocumentprocessor.h>
 
 #include <clangsupport/clangcodemodelclientinterface.h>

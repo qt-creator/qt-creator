@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "cppeditor_utils.h"
 #include "projectinfo.h"
 
 #include <QFutureInterface>
@@ -48,7 +47,7 @@ private:
                                        const ProjectExplorer::RawProjectPart &rawProjectPart,
                                        const ProjectFiles &projectFiles,
                                        const QString &partName,
-                                       Language language,
+                                       Utils::Language language,
                                        Utils::LanguageExtensions languageExtensions);
 
 private:

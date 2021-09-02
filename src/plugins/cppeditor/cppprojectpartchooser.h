@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cppeditor_utils.h"
+#include "cpptoolsreuse.h"
 #include "projectpart.h"
 
 #include <functional>
@@ -51,7 +51,7 @@ public:
             const ProjectPartInfo &currentProjectPartInfo,
             const QString &preferredProjectPartId,
             const ProjectExplorer::Project *activeProject,
-            Language languagePreference,
+            Utils::Language languagePreference,
             bool projectsUpdated) const;
 
 private:

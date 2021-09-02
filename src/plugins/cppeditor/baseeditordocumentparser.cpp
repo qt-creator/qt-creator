@@ -117,12 +117,11 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &fileP
     return BaseEditorDocumentParser::Ptr();
 }
 
-ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
-        const QString &filePath,
+ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(const QString &filePath,
         const QString &preferredProjectPartId,
         const ProjectPartInfo &currentProjectPartInfo,
         const ProjectExplorer::Project *activeProject,
-        Language languagePreference,
+        Utils::Language languagePreference,
         bool projectsUpdated)
 {
     Internal::ProjectPartChooser chooser;

@@ -2124,7 +2124,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
     if (m_parser) {
         m_parser->update({CppModelManager::instance()->workingCopy(),
                           nullptr,
-                          Language::Cxx,
+                          Utils::Language::Cxx,
                           false});
         m_snapshot = m_parser->snapshot();
         m_headerPaths = m_parser->headerPaths();

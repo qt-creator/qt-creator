@@ -27,9 +27,9 @@
 
 #include "baseeditordocumentparser.h"
 #include "cppcursorinfo.h"
-#include "cppsymbolinfo.h"
-#include "cppsemanticinfo.h"
 #include "cppeditor_global.h"
+#include "cppsemanticinfo.h"
+#include "cpptoolsreuse.h"
 
 #include <coreplugin/helpitem.h>
 #include <texteditor/codeassist/assistinterface.h>

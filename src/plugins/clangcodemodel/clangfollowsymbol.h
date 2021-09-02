@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/followsymbolinterface.h>
-#include <cppeditor/cppsymbolinfo.h>
 
 #include <QFutureWatcher>
 

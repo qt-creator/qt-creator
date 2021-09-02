@@ -38,6 +38,7 @@
 #include <set>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -81,10 +82,8 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate()
 }
 
 const QVector<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
-    const RawProjectPart &rawProjectPart, const Utils::FilePath &projectFilePath)
+    const RawProjectPart &rawProjectPart, const FilePath &projectFilePath)
 {
-    using Utils::LanguageExtension;
-
     QVector<ProjectPart::ConstPtr> result;
     ProjectFileCategorizer cat(rawProjectPart.displayName,
                                rawProjectPart.files,
@@ -140,12 +139,12 @@ const QVector<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
 }
 
 ProjectPart::ConstPtr ProjectInfoGenerator::createProjectPart(
-        const Utils::FilePath &projectFilePath,
+        const FilePath &projectFilePath,
         const RawProjectPart &rawProjectPart,
         const ProjectFiles &projectFiles,
         const QString &partName,
         Language language,
-        Utils::LanguageExtensions languageExtensions)
+        LanguageExtensions languageExtensions)
 {
     RawProjectPartFlags flags;
     ToolChainInfo tcInfo;

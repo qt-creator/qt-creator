@@ -28,6 +28,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace CppEditor::Internal {
 
 class ProjectPartPrioritizer
@@ -80,7 +82,7 @@ private:
     {
         // Prioritize
         QList<PrioritizedProjectPart> prioritized = Utils::transform(projectParts,
-                                                        [&](const ProjectPart::ConstPtr &projectPart) {
+                [&](const ProjectPart::ConstPtr &projectPart) {
             return PrioritizedProjectPart{projectPart, priority(*projectPart)};
         });
 
@@ -115,8 +117,7 @@ private:
 
     bool isPreferredLanguage(const ProjectPart &projectPart) const
     {
-        const bool isCProjectPart = projectPart.languageVersion
-                                    <= Utils::LanguageVersion::LatestC;
+        const bool isCProjectPart = projectPart.languageVersion <= LanguageVersion::LatestC;
         return (m_languagePreference == Language::C && isCProjectPart)
             || (m_languagePreference == Language::Cxx && !isCProjectPart);
     }
@@ -130,8 +131,7 @@ private:
     ProjectPartInfo m_info;
 };
 
-ProjectPartInfo ProjectPartChooser::choose(
-        const QString &filePath,
+ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
         const ProjectPartInfo &currentProjectPartInfo,
         const QString &preferredProjectPartId,
         const ProjectExplorer::Project *activeProject,

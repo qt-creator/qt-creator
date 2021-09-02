@@ -26,7 +26,7 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "cppeditor_utils.h"
+#include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 #include "projectpart.h"
 
@@ -55,7 +55,7 @@ public:
     struct UpdateParams {
         UpdateParams(const WorkingCopy &workingCopy,
                      const ProjectExplorer::Project *activeProject,
-                     Language languagePreference,
+                     Utils::Language languagePreference,
                      bool projectsUpdated)
             : workingCopy(workingCopy)
             , activeProject(activeProject)
@@ -66,7 +66,7 @@ public:
 
         WorkingCopy workingCopy;
         const ProjectExplorer::Project *activeProject = nullptr;
-        Language languagePreference = Language::Cxx;
+        Utils::Language languagePreference = Utils::Language::Cxx;
         bool projectsUpdated = false;
     };
 
@@ -98,7 +98,7 @@ protected:
             const QString &preferredProjectPartId,
             const ProjectPartInfo &currentProjectPartInfo,
             const ProjectExplorer::Project *activeProject,
-            Language languagePreference,
+            Utils::Language languagePreference,
             bool projectsUpdated);
 
     mutable QMutex m_stateAndConfigurationMutex;

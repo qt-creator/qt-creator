@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cppeditor_utils.h"
+#include "cpptoolsreuse.h"
 
 #include <QAbstractListModel>
 #include <QComboBox>

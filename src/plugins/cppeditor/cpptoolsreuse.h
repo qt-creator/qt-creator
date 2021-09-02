@@ -29,6 +29,7 @@
 
 #include "clangdiagnosticconfig.h"
 #include "compileroptionsbuilder.h"
+#include "projectpart.h"
 
 #include <texteditor/texteditor.h>
 
@@ -92,6 +93,44 @@ ClangDiagnosticConfigsModel CPPEDITOR_EXPORT diagnosticConfigsModel();
 ClangDiagnosticConfigsModel CPPEDITOR_EXPORT
 diagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs);
 
+class CPPEDITOR_EXPORT SymbolInfo
+{
+public:
+    int startLine = 0;
+    int startColumn = 0;
+    int endLine = 0;
+    int endColumn = 0;
+    QString fileName;
+    bool isResultOnlyForFallBack = false;
+};
+
+class ProjectPartInfo {
+public:
+    enum Hint {
+        NoHint = 0,
+        IsFallbackMatch  = 1 << 0,
+        IsAmbiguousMatch = 1 << 1,
+        IsPreferredMatch = 1 << 2,
+        IsFromProjectMatch = 1 << 3,
+        IsFromDependenciesMatch = 1 << 4,
+    };
+    Q_DECLARE_FLAGS(Hints, Hint)
+
+    ProjectPartInfo() = default;
+    ProjectPartInfo(const ProjectPart::ConstPtr &projectPart,
+                    const QList<ProjectPart::ConstPtr> &projectParts,
+                    Hints hints)
+        : projectPart(projectPart)
+        , projectParts(projectParts)
+        , hints(hints)
+    {
+    }
+
+public:
+    ProjectPart::ConstPtr projectPart;
+    QList<ProjectPart::ConstPtr> projectParts; // The one above as first plus alternatives.
+    Hints hints = NoHint;
+};
 
 QStringList CPPEDITOR_EXPORT getNamespaceNames(const CPlusPlus::Namespace *firstNamespace);
 QStringList CPPEDITOR_EXPORT getNamespaceNames(const CPlusPlus::Symbol *symbol);
