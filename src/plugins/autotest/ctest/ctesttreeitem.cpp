@@ -122,8 +122,10 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
         if (auto envAspect = runConfig->aspect<ProjectExplorer::EnvironmentAspect>())
             env = envAspect->environment();
     }
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        env.set("QT_FORCE_STDERR_LOGGING", "1");
         env.set("QT_LOGGING_TO_CONSOLE", "1");
+    }
     config->setEnvironment(env);
     const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     if (QTC_GUARD(buildConfig))
