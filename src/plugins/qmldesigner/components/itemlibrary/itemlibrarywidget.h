@@ -119,6 +119,7 @@ private:
     void handlePriorityImportsChanged();
 
     QTimer m_compressionTimer;
+    QTimer m_assetCompressionTimer;
     QSize m_itemIconSize;
 
     SynchronousImageCache &m_fontImageCache;

@@ -161,6 +161,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
 {
     m_compressionTimer.setInterval(200);
     m_compressionTimer.setSingleShot(true);
+    m_assetCompressionTimer.setInterval(200);
+    m_assetCompressionTimer.setSingleShot(true);
     ItemLibraryModel::registerQmlTypes();
 
     setWindowTitle(tr("Library", "Title of library view"));
@@ -234,17 +236,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     // reconstruct the model to update the icons
     connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged, [this](const QString & changedDirPath) {
         Q_UNUSED(changedDirPath)
-        // TODO: find a clever way to only refresh the changed directory part of the model
-
-        m_assetsModel->refresh();
-        if (!QApplication::activeModalWidget()) {
-            // reload assets qml so that an overridden file's image shows the new image
-            QTimer::singleShot(100, this, [this] {
-                const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
-                m_assetsWidget->engine()->clearComponentCache();
-                m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
-            });
-        }
+        m_assetCompressionTimer.start();
     });
 
     m_stackedWidget = new QStackedWidget(this);
@@ -270,6 +262,26 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);
 
     connect(&m_compressionTimer, &QTimer::timeout, this, &ItemLibraryWidget::updateModel);
+    connect(&m_assetCompressionTimer, &QTimer::timeout, this, [this]() {
+        // TODO: find a clever way to only refresh the changed directory part of the model
+
+        // Don't bother with asset updates after model has detached, project is probably closing
+        if (!m_model.isNull()) {
+            if (QApplication::activeModalWidget()) {
+                // Retry later, as updating file system watchers can crash when there is an active
+                // modal widget
+                m_assetCompressionTimer.start();
+            } else {
+                m_assetsModel->refresh();
+                // reload assets qml so that an overridden file's image shows the new image
+                QTimer::singleShot(100, this, [this] {
+                    const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
+                    m_assetsWidget->engine()->clearComponentCache();
+                    m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
+                });
+            }
+        }
+    });
 
     m_itemViewQuickWidget->engine()->addImageProvider("itemlibrary_preview",
                                                       new ItemLibraryIconImageProvider{m_imageCache});
