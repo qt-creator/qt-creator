@@ -4274,9 +4274,14 @@ void GdbEngine::debugLastCommand()
     runCommand(m_lastDebuggableCommand);
 }
 
+bool GdbEngine::isLocalRunEngine() const
+{
+    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine();
+}
+
 bool GdbEngine::isPlainEngine() const
 {
-    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && !terminal();
+    return isLocalRunEngine() && !terminal();
 }
 
 bool GdbEngine::isCoreEngine() const
@@ -4297,7 +4302,7 @@ bool GdbEngine::isLocalAttachEngine() const
 
 bool GdbEngine::isTermEngine() const
 {
-    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && terminal();
+    return isLocalRunEngine() && terminal();
 }
 
 bool GdbEngine::usesOutputCollector() const
@@ -4457,8 +4462,9 @@ void GdbEngine::setupInferior()
                 ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString("Going to attach to %1").arg(attachedPID);
         showMessage(msg, LogMisc);
-        handleInferiorPrepared();
-
+        const QString executable = runParameters().inferior.executable.toFileInfo().absoluteFilePath();
+        runCommand({"-file-exec-and-symbols \"" + executable + '"',
+                    CB(handleFileExecAndSymbols)});
     } else if (isPlainEngine()) {
 
         setEnvironmentVariables();
@@ -4707,7 +4713,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
             notifyInferiorSetupFailedHelper(msg);
         }
 
-    } else  if (isPlainEngine()) {
+    } else if (isLocalRunEngine()) {
 
         if (response.resultClass == ResultDone) {
             handleInferiorPrepared();

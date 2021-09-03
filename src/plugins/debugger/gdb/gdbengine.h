@@ -381,6 +381,7 @@ private: ////////// General Interface //////////
     void debugLastCommand() final;
     DebuggerCommand m_lastDebuggableCommand;
 
+    bool isLocalRunEngine() const;
     bool isPlainEngine() const;
     bool isCoreEngine() const;
     bool isRemoteEngine() const;
