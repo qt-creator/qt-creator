@@ -57,10 +57,8 @@ CMakeProcess::CMakeProcess()
 
 CMakeProcess::~CMakeProcess()
 {
-    if (m_process) {
-        m_process->disconnect();
+    if (m_process)
         Core::Reaper::reap(m_process.release());
-    }
 
     m_parser.flush();
 
