@@ -1099,7 +1099,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 m_rewriterView->setWarnings(warnings);
             qCInfo(rewriterBenchmark) << "checked semantic errors:" << time.elapsed();
         }
-        setupUsedImports();
 
         AST::UiObjectMember *astRootNode = nullptr;
         if (AST::UiProgram *program = m_document->qmlProgram())
@@ -1110,6 +1109,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         m_rewriterView->positionStorage()->cleanupInvalidOffsets();
 
         qCInfo(rewriterBenchmark) << "synced nodes:" << time.elapsed();
+
+        setupUsedImports();
 
         setActive(false);
 
