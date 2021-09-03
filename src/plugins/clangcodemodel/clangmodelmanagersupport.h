@@ -35,6 +35,7 @@
 #include <utils/id.h>
 
 #include <QObject>
+#include <QPointer>
 
 #include <memory>
 
@@ -133,6 +134,7 @@ private:
                               const CppEditor::ProjectInfo::ConstPtr &projectInfo);
     ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
     void claimNonProjectSources(ClangdClient *fallbackClient);
+    void watchForExternalChanges();
 
 private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
@@ -144,6 +146,7 @@ private:
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
     Utils::FutureSynchronizer m_generatorSynchronizer;
+    QList<QPointer<ClangdClient>> m_clientsToRestart;
 };
 
 class ClangModelManagerSupportProvider : public CppEditor::ModelManagerSupportProvider

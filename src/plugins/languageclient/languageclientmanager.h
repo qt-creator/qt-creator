@@ -31,6 +31,7 @@
 #include "locatorfilter.h"
 #include "lspinspector.h"
 
+#include <utils/algorithm.h>
 #include <utils/id.h>
 
 #include <languageserverprotocol/diagnostics.h>
@@ -86,6 +87,7 @@ public:
     static Client *clientForFilePath(const Utils::FilePath &filePath);
     static Client *clientForUri(const LanguageServerProtocol::DocumentUri &uri);
     static const QList<Client *> clientsForProject(const ProjectExplorer::Project *project);
+    template<typename T> static bool hasClients();
 
     ///
     /// \brief openDocumentWithClient
@@ -130,4 +132,12 @@ private:
     WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
     LspInspector m_inspector;
 };
+
+template<typename T> bool LanguageClientManager::hasClients()
+{
+    return Utils::contains(instance()->m_clients, [](const Client *c) {
+        return qobject_cast<const T* >(c);
+    });
+}
+
 } // namespace LanguageClient

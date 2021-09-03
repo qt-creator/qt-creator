@@ -88,6 +88,7 @@ signals:
     void highlightingResultsReady(const TextEditor::HighlightingResults &results,
                                   const Utils::FilePath &file);
     void proposalReady(TextEditor::IAssistProposal *proposal);
+    void textMarkCreated(const Utils::FilePath &file);
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;

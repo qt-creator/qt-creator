@@ -38,6 +38,7 @@
 #include "clangrefactoringengine.h"
 #include "clangutils.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -46,6 +47,7 @@
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppfollowsymbolundercursor.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/editordocumenthandle.h>
 
@@ -54,6 +56,7 @@
 #include <texteditor/quickfix.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/session.h>
@@ -108,6 +111,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     QTC_CHECK(!m_instance);
     m_instance = this;
 
+    watchForExternalChanges();
     CppEditor::CppModelManager::instance()->setCurrentDocumentFilter(
                 std::make_unique<ClangCurrentDocumentFilter>());
     cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
@@ -408,6 +412,69 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *fallbackClie
             fallbackClient->openDocument(editor->textDocument());
         }
     }
+}
+
+// If any open C/C++ source file is changed from outside Qt Creator, we restart the client
+// for the respective project to force re-parsing of open documents and re-indexing.
+// While this is not 100% bullet-proof, chances are good that in a typical session-based
+// workflow, e.g. a git branch switch will hit at least one open file.
+void ClangModelManagerSupport::watchForExternalChanges()
+{
+    const auto projectIsParsing = [](const ProjectExplorer::Project *project) {
+        const ProjectExplorer::BuildSystem * const bs = project && project->activeTarget()
+                ? project->activeTarget()->buildSystem() : nullptr;
+        return bs && (bs->isParsing() || bs->isWaitingForParse());
+    };
+
+    const auto timer = new QTimer(this);
+    timer->setInterval(3000);
+    connect(timer, &QTimer::timeout, this, [this, projectIsParsing] {
+        const auto clients = m_clientsToRestart;
+        m_clientsToRestart.clear();
+        for (ClangdClient * const client : clients) {
+            if (client && client->state() != Client::Shutdown
+                    && client->state() != Client::ShutdownRequested
+                    && !projectIsParsing(client->project())) {
+
+                // FIXME: Lots of const-incorrectness along the call chain of updateLanguageClient().
+                const auto project = const_cast<ProjectExplorer::Project *>(client->project());
+
+                updateLanguageClient(project, CppModelManager::instance()->projectInfo(project));
+            }
+        }
+    });
+
+    connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedExternally,
+            this, [this, timer, projectIsParsing](const QSet<Utils::FilePath> &files) {
+        if (!LanguageClientManager::hasClients<ClangdClient>())
+            return;
+        for (const Utils::FilePath &file : files) {
+            const ProjectFile::Kind kind = ProjectFile::classify(file.toString());
+            if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
+                continue;
+            const ProjectExplorer::Project * const project
+                    = ProjectExplorer::SessionManager::projectForFile(file);
+            if (!project)
+                continue;
+
+            // If a project file was changed, it is very likely that we will have to generate
+            // a new compilation database, in which case the client will be restarted via
+            // a different code path.
+            if (projectIsParsing(project))
+                return;
+
+            ClangdClient * const client = clientForProject(project);
+            if (client) {
+                m_clientsToRestart.append(client);
+                timer->start();
+            }
+
+            // It's unlikely that the same signal carries files from different projects,
+            // so we exit the loop as soon as we have dealt with one project, as the
+            // project look-up is not free.
+            return;
+        }
+    });
 }
 
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)

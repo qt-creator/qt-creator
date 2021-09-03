@@ -51,6 +51,7 @@
 
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QFile>
 #include <QFileInfo>
 #include <QPair>
 #include <QScopedPointer>
@@ -1920,6 +1921,50 @@ AssistProposalItemInterface *ClangdTestCompletion::getItem(
         }
     }
     return nullptr;
+}
+
+
+ClangdTestExternalChanges::ClangdTestExternalChanges()
+{
+    setProjectFileName("completion.pro");
+    setSourceFileNames({"mainwindow.cpp", "main.cpp"});
+}
+
+void ClangdTestExternalChanges::test()
+{
+    // Break a header file that is used, but not open in Creator.
+    // Neither we nor the server should notice, and no diagnostics should be shown for the
+    // source file that includes the now-broken header.
+    QFile header(project()->projectDirectory().toString() + "/mainwindow.h");
+    QVERIFY(header.open(QIODevice::WriteOnly));
+    header.write("blubb");
+    header.close();
+    ClangdClient * const oldClient = client();
+    QVERIFY(oldClient);
+    QVERIFY(!waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
+                                    &ClangModelManagerSupport::createdClient, timeOutInMs()));
+    QCOMPARE(client(), oldClient);
+    const TextDocument * const curDoc = document("main.cpp");
+    QVERIFY(curDoc);
+    QVERIFY(curDoc->marks().isEmpty());
+
+    // Now trigger an external change in an open, but not currently visible file and
+    // verify that we get a new client and diagnostics in the current editor.
+    TextDocument * const docToChange = document("mainwindow.cpp");
+    docToChange->setSilentReload();
+    QFile otherSource(filePath("mainwindow.cpp").toString());
+    QVERIFY(otherSource.open(QIODevice::WriteOnly));
+    otherSource.write("blubb");
+    otherSource.close();
+    QVERIFY(waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
+                                   &ClangModelManagerSupport::createdClient, timeOutInMs()));
+    ClangdClient * const newClient = ClangModelManagerSupport::instance()
+            ->clientForFile(filePath("main.cpp"));
+    QVERIFY(newClient);
+    QVERIFY(newClient != oldClient);
+    newClient->enableTesting();
+    if (curDoc->marks().isEmpty())
+        QVERIFY(waitForSignalOrTimeout(newClient, &ClangdClient::textMarkCreated, timeOutInMs()));
 }
 
 } // namespace Tests

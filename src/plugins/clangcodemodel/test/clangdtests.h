@@ -194,6 +194,17 @@ private:
     QSet<Utils::FilePath> m_documentsWithHighlighting;
 };
 
+class ClangdTestExternalChanges : public ClangdTest
+{
+    Q_OBJECT
+
+public:
+    ClangdTestExternalChanges();
+
+private slots:
+    void test();
+};
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel

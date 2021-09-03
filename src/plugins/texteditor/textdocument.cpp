@@ -106,6 +106,7 @@ public:
     QScopedPointer<Formatter> m_formatter;
 
     int m_autoSaveRevision = -1;
+    bool m_silentReload = false;
 
     TextMarks m_marksCache; // Marks not owned
     Utils::Guard m_modificationChangedGuard;
@@ -426,6 +427,13 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     return diffAction;
 }
 
+#ifdef WITH_TESTS
+void TextDocument::setSilentReload()
+{
+    d->m_silentReload = true;
+}
+#endif
+
 void TextDocument::triggerPendingUpdates()
 {
     if (d->m_fontSettingsNeedsApply)
@@ -705,6 +713,13 @@ void TextDocument::setFilePath(const Utils::FilePath &newName)
     if (newName == filePath())
         return;
     IDocument::setFilePath(newName.absoluteFilePath());
+}
+
+IDocument::ReloadBehavior TextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    if (d->m_silentReload)
+        return IDocument::BehaviorSilent;
+    return BaseTextDocument::reloadBehavior(state, type);
 }
 
 bool TextDocument::isModified() const

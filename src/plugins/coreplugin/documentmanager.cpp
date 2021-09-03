@@ -1114,6 +1114,7 @@ void DocumentManager::checkForReload()
 
     // clean up. do this before we may enter the main loop, otherwise we would
     // lose consecutive notifications.
+    emit filesChangedExternally(d->m_changedFiles);
     d->m_changedFiles.clear();
 
     // collect information about "expected" file names

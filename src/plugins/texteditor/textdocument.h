@@ -120,6 +120,7 @@ public:
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     void setFilePath(const Utils::FilePath &newName) override;
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
     QString fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
@@ -154,6 +155,10 @@ public:
 
     static QAction *createDiffAgainstCurrentFileAction(QObject *parent,
         const std::function<Utils::FilePath()> &filePath);
+
+#ifdef WITH_TESTS
+    void setSilentReload();
+#endif
 
 signals:
     void aboutToOpen(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);

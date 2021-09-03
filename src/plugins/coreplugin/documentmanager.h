@@ -153,6 +153,8 @@ signals:
                          const Utils::FilePath &to);
     void projectsDirectoryChanged(const Utils::FilePath &directory);
 
+    void filesChangedExternally(const QSet<Utils::FilePath> &filePaths);
+
 private:
     explicit DocumentManager(QObject *parent);
     ~DocumentManager() override;
