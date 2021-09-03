@@ -35,6 +35,7 @@
 
 #include "nodemetainfo.h"
 #include "qmlitemnode.h"
+#include "bindingproperty.h"
 #include <qmldesignerplugin.h>
 #include <abstractaction.h>
 #include <designeractionmanager.h>
@@ -162,14 +163,17 @@ void ColorTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemLis
 
 void ColorTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
-    if (m_colorDialog.data()
-            && m_oldColor.isValid())
+    if (m_colorDialog.data() && m_oldColor.isValid())
         m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
 
     if (!itemList.isEmpty()
             && itemList.constFirst()->qmlItemNode().modelNode().metaInfo().hasProperty("color")) {
         m_formEditorItem = itemList.constFirst();
-        m_oldColor =  m_formEditorItem->qmlItemNode().modelValue("color").value<QColor>();
+
+        if (m_formEditorItem->qmlItemNode().hasBindingProperty("color"))
+            m_oldExpression = m_formEditorItem->qmlItemNode().modelNode().bindingProperty("color").expression();
+        else
+            m_oldColor = m_formEditorItem->qmlItemNode().modelValue("color").value<QColor>();
 
         if (m_colorDialog.isNull()) {
             m_colorDialog = new QColorDialog(view()->formEditorWidget()->parentWidget());
@@ -217,27 +221,31 @@ QString ColorTool::name() const
 
 void ColorTool::colorDialogAccepted()
 {
+    m_oldExpression.clear();
     view()->changeToSelectionTool();
 }
 
 void ColorTool::colorDialogRejected()
 {
     if (m_formEditorItem) {
-        if (m_oldColor.isValid())
-            m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
-        else
-            m_formEditorItem->qmlItemNode().removeProperty("color");
-
+        if (!m_oldExpression.isEmpty())
+            m_formEditorItem->qmlItemNode().setBindingProperty("color", m_oldExpression);
+        else {
+            if (m_oldColor.isValid())
+                m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
+            else
+                m_formEditorItem->qmlItemNode().removeProperty("color");
+        }
     }
 
+    m_oldExpression.clear();
     view()->changeToSelectionTool();
 }
 
 void ColorTool::currentColorChanged(const QColor &color)
 {
-    if (m_formEditorItem) {
+    if (m_formEditorItem)
         m_formEditorItem->qmlItemNode().setVariantProperty("color", color);
-    }
 }
 
 }
