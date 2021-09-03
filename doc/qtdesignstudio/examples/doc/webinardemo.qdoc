@@ -50,15 +50,15 @@
     We organize our design in Photoshop using artboards as instructed in
     \l{Organizing Assets}.
 
-    \QB automatically proposes identifiers for all groups and layers. The ids
+    \QB automatically proposes identifiers for all groups and layers. The IDs
     will be used as filenames in \QDS. We want to change some of them in the
-    \uicontrol {QML ID} field, so that we can easily find them in \QDS. We
-    must keep in mind that the ids must be unique, that they must begin with
+    \uicontrol ID field, so that we can easily find them in \QDS. We
+    must keep in mind that the IDs must be unique, that they must begin with
     a lower-case letter or an underscore character, and that only letters,
     numbers, and underscore characters are allowed.
 
     Each artboard is exported automatically as a component. That is, a separate
-    QML file that contains all the artwork on the artboard. We determine whether
+    file that contains all the artwork on the artboard. We determine whether
     each group or layer is exported as a component or a child item. Child items
     will be exported as PNG files, with references to them in the component file
     that contains them.
@@ -94,23 +94,27 @@
 
     \image webinardemo-qb-stacklayout.png "Settings for exporting stackLayout artboard"
 
-    For the stackLayoutFrame layer, we want to use a \l StackLayout component,
+    For the \e stackLayoutFrame layer, we want to use a \l StackLayout component,
     which provides a stack of items where only one item is visible at a time.
-    In the \uicontrol {QML Type} field, we enter \e StackLayout.
+    In the \uicontrol Component field, we enter \e StackLayout.
 
     To be able to use the component, we enter the statement that imports the
     Qt Quick Layouts module, which contains the component, in the
-    \uicontrol {Add Imports} field: \c {QtQuick.Layouts 1.3}.
+    \uicontrol Imports field: \c {QtQuick.Layouts 1.3}.
 
     We will add content to the stack layout in \QDS.
 
     \section2 Using Qt Studio Effects
 
+    \note The availability of effects depends on whether you select
+    \uicontrol {Qt 5} or \uicontrol {Qt 6} when creating your project
+    in \QDS.
+
     \image webinardemo-qb-fastblur.png "Settings for exporting blurEffect layer"
 
-    We want to apply the \l {FastBlur} effect to the smallPopup UI control.
-    In the artboard, we have a blurEffect layer that we want to export as a
-    FastBlurItem component. In the \uicontrol {QML Type} field, we enter
+    We want to apply the \l {FastBlur} effect to the \e smallPopup UI control.
+    In the artboard, we have a \e blurEffect layer that we want to export as a
+    \e FastBlurItem component. In the \uicontrol Component field, we enter
     \e FastBlurItem.
 
     To be able to use the component, we added the statement that imports the
@@ -118,8 +122,11 @@
 
     We specify that the component to which we want to apply the effect is a
     child of the effect. We then specify the radius property for the effect,
-    in the \uicontrol {QML Properties} field. We can modify the property in
-    the \uicontrol Radius field in the \uicontrol Properties view in \QDS.
+    in the \uicontrol Properties field. We can modify the property in \QDS by
+    opening the \e {SmallPopup.ui.qml} file and selecting the instance of the
+    \uicontrol {Fast Blur Item} component in \uicontrol Navigator. We can find
+    the property in \l Properties > \uicontrol {Geometry- 2D} >
+    \uicontrol Radius.
 
     \image webinardemo-blureffect.png "FastBlurItem component in Design mode"
 
@@ -162,8 +169,8 @@
     The \e {LayoutReference.ui.qml} file contains a reference image of
     the UI we will create. We use the imported components to create the
     UI in the \e {MainApp.ui.qml} file. The imported components are
-    listed in \uicontrol Library > \uicontrol Components >
-    \uicontrol {My Components}, and we can drag-and-drop them to \l {Form Editor}.
+    listed in \l Library > \uicontrol Components > \uicontrol {My Components},
+    and we can drag-and-drop them to \l {Form Editor}.
 
     \image webinardemo-mainappui.png "Main app UI in Design mode"
 
@@ -172,21 +179,21 @@
     context menu. Any changes we make to a component are immediately visible in
     all the other components where it appears.
 
-    We can view the QML code for each component in \l{Text Editor}.
+    We can view the code for each component in \l{Text Editor}.
 
     We can now use states and the timeline to animate the components in the UI.
 
     \section2 Animating Components
 
-    We open the \e {Largepopup.ui.qml} file in the Design mode to add animation
-    to it. In the \uicontrol States view, we add the \e opening, \e open,
+    We open the \e {Largepopup.ui.qml} file in the \uicontrol Design mode to add
+    animation to it. In the \l States view, we add the \e opening, \e open,
     \e closing, and \e closed states for the popup.
 
     \image webinardemo-states.png "Popup states in the States view"
 
     For more information about using states, see \l {Creating States}.
 
-    We then use the \uicontrol Timeline view to add animations that are run
+    We then use the \l Timeline view to add animations that are run
     when moving from one state to another.
 
     \image webinardemo-timeline.png "Popup animations in the Timeline view"

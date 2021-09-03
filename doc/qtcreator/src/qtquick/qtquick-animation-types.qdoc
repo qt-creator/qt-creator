@@ -94,6 +94,9 @@
 
     \image qtquick-number-animation.gif "Number animation"
 
+    For an example of using property animation to animate the scale and opacity
+    of components, see the \l{Coffee Machine} example.
+
     \section2 Setting Non-Animated Properties
 
     To immediately change a property value during an animation

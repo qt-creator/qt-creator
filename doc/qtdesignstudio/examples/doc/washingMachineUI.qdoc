@@ -46,8 +46,8 @@
     \endlist
 
     Users select buttons to navigate between the screens.
-    We use \l{Connecting Components to Signals}{connections} to determine which
-    screen to open when users select a particular button and \l{Adding States}
+    We use \l{glossary-connection}{connections} to determine which
+    screen to open when users select a particular button and \l{glossary-state}
     {states} to show the screens. We use the \l{Creating Timeline Animations}
     {timeline} to create progress indicators for buttons and the \e Running
     screen.
@@ -76,9 +76,9 @@
     that we can use to configure and build our example application for running
     it on MCUs.
 
-    \note This example was developed using Qt for MCUs version 1.6. You
-    cannot run it on older versions, and we cannot make any promises about
-    newer versions.
+    \note This example has been tested to run using Qt for MCUs versions since
+    1.6. You cannot run it on older versions. Also, at the time of writing,
+    Qt for MCUs only supports Qt 5.
 
     \section1 Creating Screens
 
@@ -142,10 +142,10 @@
 
     First, we select the initial arc segment, \e arcSegment1, in
     \l Navigator to display its properties in \uicontrol Properties.
-    In the \uicontrol Layout tab, \uicontrol Rotation field, we select
+    In \uicontrol {Geometry - 2D} > \uicontrol Rotation, we select
     \inlineimage icons/action-icon.png
-    , and then select \uicontrol {Insert Keyframe} to insert a keyframe
-    that we can animate in the \uicontrol Timeline view.
+    (\uicontrol Actions), and then select \uicontrol {Insert Keyframe} to
+    insert a keyframe that we can animate in the \uicontrol Timeline view.
 
     \image washingmachineui-insert-keyframe.png "Inserting keyframe for Rotation property"
 
@@ -154,8 +154,8 @@
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
     First, we set the rotation at frame 0 to -90 in \uicontrol Properties >
-    \uicontrol Layout > \uicontrol Rotation. Next, we move the playhead to
-    frame 250 and set the rotation to 0.
+    \uicontrol {Geometry - 2D} > \uicontrol Rotation. Next, we move the playhead
+    to frame 250 and set the rotation to 0.
 
     When we deselect the record button to stop recording the timeline, the
     new timeline appears in the view.

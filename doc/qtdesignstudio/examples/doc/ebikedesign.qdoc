@@ -34,9 +34,9 @@
     \image ebikedesign.png "Standard screen"
 
     \e {E-Bike Design} is a control center application for electric bikes.
-    The application contains a Standard screen that displays a speedometer,
-    a Trip screen that displays statistics about the current trip, and a
-    Navigator screen that displays a map.
+    The application contains a \e Standard screen that displays a speedometer,
+    a \e Trip screen that displays statistics about the current trip, and a
+    \e Navigator screen that displays a map.
 
     The Trip and Navigator screens display a small animated speedometer that
     the users can select to move back to the Standard screen.
@@ -45,12 +45,13 @@
 
     In the \e {Screen01.ui.qml} file, we place the screens in a row in the
     following order from left to right: Trip, Standard, Navigator. We will
-    use states to show the appropriate screen in the viewport, and the timeline
-    to animate the transitions between and on the screens.
+    use \l{glossary-state}{states} to show the appropriate screen in the
+    viewport, and the timeline to animate the \l{glossary-transition}
+    {transitions} between and on the screens.
 
     \section1 Using Timelines to Animate Transitions
 
-    We use the \uicontrol Timeline view to animate the transitions between
+    We use the \l Timeline view to animate the transitions between
     the screens in \e {Screen01.ui.qml}.
 
     Our viewport contains 1000 frames, so we select the
@@ -67,7 +68,7 @@
     \image ebikedesign-timeline.png "Timeline view"
 
     At frame 0, we set the X coordinate to 0 in \l Properties >
-    \uicontrol Geometry > \uicontrol Position to display the Trip screen.
+    \uicontrol {Geometry - 2D} > \uicontrol Position to display the Trip screen.
     We then move the playhead to frame 1000 and set the X coordinate to
     -1286 to display the Standard screen. We continue by moving the playhead
     to frame 2000 and setting the X coordinate to -2560 to display the
@@ -84,8 +85,8 @@
 
     \image ebikedesign-trip-properties.png "Properties view of the Trip component"
 
-    We set values for the \uicontrol Visibility,
-    \uicontrol Opacity, \uicontrol currentFrame, and \uicontrol Scale properties
+    We set values for the \uicontrol Scale, \uicontrol Visibility,
+    \uicontrol Opacity, and \uicontrol currentFrame properties
     to fade out the current screen when moving to another one and to make the
     speedometer grow and shrink in size depending on its current position.
 
@@ -94,7 +95,7 @@
 
     \section1 Using States to Move Between Screens
 
-    We use the \uicontrol States view to determine the contents of the viewport.
+    We use the \l States view to determine the contents of the viewport.
     The animations are run in a particular state or when moving from one state
     to another.
 

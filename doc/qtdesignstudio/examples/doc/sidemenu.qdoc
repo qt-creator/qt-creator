@@ -29,7 +29,7 @@
 
     \title Side Menu
     \brief Illustrates how to create reusable components and an animated menu
-    for applying effects.
+    for applying 2D visual effects in Qt 5 projects.
 
     \image sidemenu.png "Side menu example application"
 
@@ -40,6 +40,9 @@
     Each button opens an image file. The side menu can be used to apply
     \l {2D Effects}{graphical effects}, such as hue, saturation,
     and blur, to the images.
+
+    \note Only a subset of effects is available if you select
+    \uicontrol {Qt 6} when \l{Creating Projects}{creating the project}.
 
     \section1 Creating Reusable Buttons
 
@@ -101,9 +104,9 @@
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
     \l {Form Editor}. The CustomButton component is listed in
     \l Library > \uicontrol Components > \uicontrol {My Components}.
-    We drag-and-drop several instances of the component to the
-    \uicontrol {Form Editor} and enclose them in a RowLayout component instance
-    to lay them out as a menu bar.
+    We drag-and-drop several instances of the component to \uicontrol Navigator
+    or \uicontrol {Form Editor} and enclose them in a \uicontrol {Row Layout}
+    component instance to lay them out as a menu bar.
 
     \image sidemenu-menubar.png
 
@@ -123,20 +126,23 @@
     \section1 Creating a Side Menu
 
     We can now continue to create a side menu that slides open when users
-    click the burger menu. In the \uicontrol {Form Editor}, we use the
-    \l Text and \l {slider-control}{Slider} components to create separate
+    click the burger menu. We drag-and-drop a \l Text component from
+    \uicontrol Library > \uicontrol Components > \uicontrol {Default Components}
+    > \uicontrol Basic and a \l {slider-control}{Slider} component from
+    \uicontrol {Qt Quick Controls} to \uicontrol Navigator to create separate
     submenus for each set of effects we want to apply to the images. We use
     a background image for the menu background and a BurgerMenu custom
     component for the burger menu icon.
 
     \image sidemenu-ui.png "SliderMenu component"
 
-    We add states to the \e {SideMenu.qml} file in the \uicontrol {Form Editor}.
+    We add states to the \e {SideMenu.qml} file in the \uicontrol States view.
     When the application starts, the side menu is in the \e closed state, which
     means that it is hidden. When users click the burger menu, the \c onClicked
-    signal handler triggers the transition to the \e opening state and runs an
-    animation. When the animation finishes, the side menu state changes to
-    \e open and the side menu is fully visible.
+    \l{glossary-signal}{signal handler} triggers the \l{glossary-transition}
+    {transition} to the \e opening state and runs an animation. When the
+    animation finishes, the side menu state changes to \e open and the side
+    menu is fully visible.
 
     When users click the burger menu again, the state changes to \e closing and
     another animation is run that closes the side menu. When the animation
@@ -165,7 +171,7 @@
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
     At frame 0, we set the X coordinate to -423 in \uicontrol Properties >
-    \uicontrol Geometry > \uicontrol Position. We then move the playhead
+    \uicontrol {Geometry - 2D} > \uicontrol Position. We then move the playhead
     to frame 1000 and set the X coordinate to 0.
 
     When we deselect the record button to stop recording the timeline, the
@@ -175,9 +181,11 @@
 
     We then record the transition of the \e imageBackground image. At frame
     0, we set the X coordinate to -424 again. We then move the playhead to
-    frame 400 and select \uicontrol {Insert Keyframe} in the \uicontrol Settings
-    menu of the X coordinate. We keep the value of the X coordinate -424. We
-    then move the playhead to frame 1000 and set the X coordinate to 0.
+    frame 400 and select \uicontrol {Insert Keyframe} in the
+    \inlineimage icons/action-icon.png
+    (\uicontrol Actions) menu of the X coordinate. We keep the value of the
+    X coordinate -424. We then move the playhead to frame 1000 and set the X
+    coordinate to 0.
 
     We select \inlineimage animation.png "Timeline Settings button"
     to open the \uicontrol {Timeline Settings} dialog. In the
@@ -219,20 +227,21 @@
     We use property bindings to connect the controls in the slider menu to
     \l {2D Effects}{graphical effects}. To have access to the
     properties from all the slider component instances, we export them as
-
-    in \e SliderMenu.ui.qml. We select \uicontrol {Export Property as Alias}
+    aliases in \e SliderMenu.ui.qml. We select \uicontrol {Export Property as Alias}
     in the \uicontrol Settings menu of the \uicontrol Value property in
     \uicontrol Properties > \uicontrol Slider.
 
-    We use the \uicontrol {Form Editor} to create the effect stack in the
-    \e {EffectStack.qml} file:
+    We open the \e {EffectStack.qml} file, and drag-and-drop components from
+    \uicontrol Library > \uicontrol Components >
+    \uicontrol {Qt Quick Studio Effects} to \uicontrol Navigator to create the
+    effect stack.
 
     \image sidemenu-effects-stack.png "Effects stack in the Navigator"
 
-    We use the \l {Images}{Image} component as the last item in the stack to
-    display images that we apply the effects to. We export the image source
-    property as an \l{Adding Property Aliases}{alias} to be able to switch
-    the image inside the stack.
+    We use an instance of the \l {Images}{Image} component as the last item in
+    the stack to display images that we apply the effects to. We export the
+    image source property as an \l{Adding Property Aliases}{alias} to be able
+    to switch the image inside the stack.
 
     For more information about the available graphical effects, see
     \l {2D Effects}.
