@@ -16,14 +16,16 @@
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
         { "key": "QbsFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "IsQt6", "value": "%{JS: value('QtVersion').IsQt6}" },
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
         { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: value('QtVersion').QtQuickVirtualKeyboardImport}" },
-        { "key": "QtQuickFeature", "value": "%{JS: (value('QtQuickVersion')=='') ? 'QtSupport.Wizards.FeatureQtQuick.6' : 'QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}'}" },
+        { "key": "QtQuickFeature", "value": "%{JS: (value('QtQuickVersion')=='') ? 'QtSupport.Wizards.FeatureQt.6.2' : 'QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}'}" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
-        { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" }
+        { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" },
+        { "key": "AdditionalQmlFiles", "value": "" }
     ],
 
     "pages":
@@ -87,12 +89,13 @@
                         "items":
                         [
                             {
-                                "trKey": "Qt 6",
+                                "trKey": "Qt 6.2",
                                 "value":
                                 {
                                     "QtQuickVersion": "",
                                     "QtQuickWindowVersion": "",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard",
+                                    "IsQt6": true
                                 }
                             },
                             {
@@ -101,7 +104,8 @@
                                 {
                                     "QtQuickVersion": "2.15",
                                     "QtQuickWindowVersion": "2.15",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15",
+                                    "IsQt6": false
                                 }
                             },
                             {
@@ -110,7 +114,8 @@
                                 {
                                     "QtQuickVersion": "2.14",
                                     "QtQuickWindowVersion": "2.14",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14",
+                                    "IsQt6": false
                                 }
                             },
                             {
@@ -119,7 +124,8 @@
                                 {
                                     "QtQuickVersion": "2.13",
                                     "QtQuickWindowVersion": "2.13",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
+                                    "IsQt6": false
                                 }
                             },
                             {
@@ -128,7 +134,8 @@
                                 {
                                     "QtQuickVersion": "2.12",
                                     "QtQuickWindowVersion": "2.12",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
+                                    "IsQt6": false
                                 }
                             }
                         ]
@@ -180,7 +187,7 @@
                     "condition": "%{JS: value('BuildSystem') === 'qmake'}"
                 },
                 {
-                    "source": "../CMakeLists.txt",
+                    "source": "%{JS: value('QtVersion').IsQt6 ? '../CMakeLists.6.x.txt' : '../CMakeLists.txt'}",
                     "target": "CMakeLists.txt",
                     "openAsProject": true,
                     "condition": "%{JS: value('BuildSystem') === 'cmake'}"
@@ -201,7 +208,8 @@
                     "openInEditor": true
                 },
                 {
-                    "source": "qml.qrc"
+                    "source": "qml.qrc",
+                    "condition": "%{JS: !value('QtVersion').IsQt6}"
                 },
                 {
                     "source": "../../translation.ts",

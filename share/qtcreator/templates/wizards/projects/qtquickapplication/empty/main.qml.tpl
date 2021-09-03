@@ -1,5 +1,7 @@
 import QtQuick %{QtQuickVersion}
+@if !%{IsQt6}
 import QtQuick.Window %{QtQuickWindowVersion}
+@endif
 @if %{UseVirtualKeyboard}
 import %{QtQuickVirtualKeyboardImport}
 @endif
