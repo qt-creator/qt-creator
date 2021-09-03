@@ -38,7 +38,7 @@ public:
   {
       process->kill();
       process->waitForFinished();
-      process->deleteLater();
+      delete process;
   }
 };
 
