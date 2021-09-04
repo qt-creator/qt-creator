@@ -155,11 +155,15 @@ bool AndroidDeployQtStep::init()
     if (!info.isValid()) // aborted
         return false;
 
+    const BuildSystem *bs = buildSystem();
+    auto selectedAbis = bs->property(Constants::ANDROID_ABIS).toStringList();
+
     const QString buildKey = target()->activeBuildKey();
-    auto selectedAbis = buildSystem()->property(Constants::ANDROID_ABIS).toStringList();
+    if (selectedAbis.isEmpty())
+        selectedAbis = bs->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
 
     if (selectedAbis.isEmpty())
-        selectedAbis = buildSystem()->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
+        selectedAbis.append(bs->extraData(buildKey, Constants::AndroidArch).toString());
 
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     if (qt && qt->supportsMultipleQtAbis() && !selectedAbis.contains(info.cpuAbi.first())) {

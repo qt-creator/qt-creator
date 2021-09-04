@@ -143,6 +143,9 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
     if (role == Android::Constants::AndroidArch)
         return value(Android::Constants::ANDROID_ABI);
 
+    if (role == Android::Constants::ANDROID_ABIS)
+        return value(Android::Constants::ANDROID_ABIS);
+
     if (role == Android::Constants::AndroidSoLibPath)
         return values(Android::Constants::ANDROID_SO_LIBS_PATHS);
 
