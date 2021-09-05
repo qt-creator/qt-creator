@@ -365,8 +365,11 @@ void GdbEngine::handleResponse(const QString &buff)
             QString data = parser.readCString();
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
-            if (data.startsWith("warning:"))
+            if (data.startsWith("warning:")) {
                 showMessage(data.mid(9), AppStuff); // Cut "warning: "
+                if (data.contains("is not compatible with target architecture"))
+                    m_ignoreNextTrap = true;
+            }
 
             m_pendingLogStreamOutput += data;
 
@@ -1266,11 +1269,12 @@ void GdbEngine::handleStop1(const GdbMi &data)
     // The bandaid here has the problem that it breaks for 'next' over a
     // statement that indirectly loads shared libraries
     // 6.1.2010: Breaks interrupting inferiors, disabled:
-    // if (reason == "signal-received"
-    //      && data.findChild("signal-name").data() == "SIGTRAP") {
-    //    continueInferiorInternal();
-    //    return;
-    // }
+     if (m_ignoreNextTrap && reason == "signal-received"
+             && data["signal-name"].data() == "SIGTRAP") {
+         m_ignoreNextTrap = false;
+         continueInferiorInternal();
+         return;
+     }
 
     // Jump over well-known frames.
     static int stepCounter = 0;

@@ -154,6 +154,7 @@ private: ////////// General Interface //////////
     int m_nonDiscardableCount = 0;
 
     bool m_rerunPending = false;
+    bool m_ignoreNextTrap = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
