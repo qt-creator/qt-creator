@@ -1127,10 +1127,9 @@ void AndroidConfigurations::removeOldToolChains()
 
 void AndroidConfigurations::removeUnusedDebuggers()
 {
-    const QList<BaseQtVersion *> qtVersions
-        = QtVersionManager::versions([](const BaseQtVersion *v) {
-              return v->type() == Constants::ANDROIDQT;
-          });
+    const QList<BaseQtVersion*> qtVersions = QtVersionManager::versions([](const BaseQtVersion *v) {
+        return v->type() == Constants::ANDROID_QT_TYPE;
+    });
 
     QVector<FilePath> uniqueNdks;
     for (const BaseQtVersion *qt : qtVersions) {
@@ -1267,8 +1266,8 @@ void AndroidConfigurations::updateAutomaticKitList()
     removeUnusedDebuggers();
 
     QHash<Abi, QList<const BaseQtVersion *> > qtVersionsForArch;
-    const QList<BaseQtVersion *> qtVersions = QtVersionManager::versions([](const BaseQtVersion *v) {
-        return v->type() == Constants::ANDROIDQT;
+    const QList<BaseQtVersion*> qtVersions = QtVersionManager::versions([](const BaseQtVersion *v) {
+        return v->type() == Constants::ANDROID_QT_TYPE;
     });
     for (const BaseQtVersion *qtVersion : qtVersions) {
         const Abis qtAbis = qtVersion->qtAbis();

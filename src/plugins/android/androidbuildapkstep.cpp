@@ -939,7 +939,8 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
     }
     if (id == Constants::SdkLocation)
         return QVariant::fromValue(AndroidConfigurations::currentConfig().sdkLocation());
-    if (id == Constants::AndroidABIs)
+
+    if (id == Constants::AndroidMkSpecAbis)
         return AndroidManager::applicationAbis(target());
 
     return AbstractProcessStep::data(id);

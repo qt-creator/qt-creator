@@ -128,20 +128,26 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
         return {};
     };
 
+    if (role == Android::Constants::AndroidAbi)
+        return value(Android::Constants::ANDROID_ABI);
+
+    if (role == Android::Constants::AndroidAbis)
+        return value(Android::Constants::ANDROID_ABIS);
+
+    // TODO: Concerns the variables below. Qt 6 uses target properties which cannot be read
+    // by the current mechanism, and the variables start with "Qt_" prefix.
+
     if (role == Android::Constants::AndroidPackageSourceDir)
         return value(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
-
-    if (role == Android::Constants::AndroidDeploySettingsFile)
-        return value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
 
     if (role == Android::Constants::AndroidExtraLibs)
         return value(Android::Constants::ANDROID_EXTRA_LIBS);
 
-    if (role == Android::Constants::ANDROID_APPLICATION_ARGUMENTS)
-        return value(Android::Constants::QT_ANDROID_APPLICATION_ARGUMENTS);
+    if (role == Android::Constants::AndroidDeploySettingsFile)
+        return value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
 
-    if (role == Android::Constants::AndroidArch)
-        return value(Android::Constants::ANDROID_ABI);
+    if (role == Android::Constants::AndroidApplicationArgs)
+        return value(Android::Constants::ANDROID_APPLICATION_ARGUMENTS);
 
     if (role == Android::Constants::ANDROID_ABIS)
         return value(Android::Constants::ANDROID_ABIS);
@@ -151,6 +157,9 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
 
     if (role == Android::Constants::AndroidTargets)
         return values("TARGETS_BUILD_PATH");
+
+    if (role == Android::Constants::AndroidApk)
+        return {};
 
     if (role == Ios::Constants::IosTarget) {
         // For some reason the artifact is e.g. "Debug/untitled.app/untitled" which is wrong.

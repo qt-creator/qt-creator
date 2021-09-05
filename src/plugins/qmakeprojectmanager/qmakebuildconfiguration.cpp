@@ -157,7 +157,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
 
         if (DeviceTypeKitAspect::deviceTypeId(target->kit())
                         == Android::Constants::ANDROID_DEVICE_TYPE) {
-            buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
+            buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
         }
 

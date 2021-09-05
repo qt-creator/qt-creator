@@ -364,16 +364,16 @@ QStringList QmakeProFileNode::targetApplications() const
 
 QVariant QmakeProFileNode::data(Utils::Id role) const
 {
-    if (role == Android::Constants::ANDROID_ABIS)
+    if (role == Android::Constants::AndroidAbis)
         return variableValue(Variable::AndroidAbis);
+    if (role == Android::Constants::AndroidAbi)
+        return singleVariableValue(Variable::AndroidAbi);
+    if (role == Android::Constants::AndroidExtraLibs)
+        return variableValue(Variable::AndroidExtraLibs);
     if (role == Android::Constants::AndroidPackageSourceDir)
         return singleVariableValue(Variable::AndroidPackageSourceDir);
     if (role == Android::Constants::AndroidDeploySettingsFile)
         return singleVariableValue(Variable::AndroidDeploySettingsFile);
-    if (role == Android::Constants::AndroidExtraLibs)
-        return variableValue(Variable::AndroidExtraLibs);
-    if (role == Android::Constants::AndroidArch)
-        return singleVariableValue(Variable::AndroidArch);
     if (role == Android::Constants::AndroidSoLibPath) {
         TargetInformation info = targetInformation();
         QStringList res = {info.buildDir.toString()};
@@ -431,8 +431,9 @@ bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
     if (Target *target = m_buildSystem->target()) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (version && !version->supportsMultipleQtAbis()) {
-            const QString arch = pro->singleVariableValue(Variable::AndroidArch);
-            scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
+            const QString arch = pro->singleVariableValue(Variable::AndroidAbi);
+            scope = QString("contains(%1,%2)").arg(Android::Constants::ANDROID_TARGET_ARCH)
+                                              .arg(arch);
             flags |= QmakeProjectManager::Internal::ProWriter::MultiLine;
         }
     }
@@ -443,7 +444,7 @@ bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
     if (role == Android::Constants::AndroidPackageSourceDir)
         return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR),
                                    {value.toString()}, scope, flags);
-    if (role == Android::Constants::ANDROID_APPLICATION_ARGUMENTS)
+    if (role == Android::Constants::AndroidApplicationArgs)
         return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_APPLICATION_ARGUMENTS),
                                    {value.toString()}, scope, flags);
 

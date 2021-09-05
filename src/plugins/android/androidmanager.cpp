@@ -408,7 +408,7 @@ QString AndroidManager::apkDevicePreferredAbi(const Target *target)
     auto libsPath = androidBuildDirectory(target).pathAppended("libs");
     if (!libsPath.exists()) {
         if (const ProjectNode *node = currentProjectNode(target))
-            return preferredAbi(node->data(Android::Constants::ANDROID_ABIS).toStringList(),
+            return preferredAbi(node->data(Android::Constants::AndroidAbis).toStringList(),
                                 target);
     }
     QStringList apkAbis;

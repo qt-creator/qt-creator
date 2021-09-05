@@ -1562,11 +1562,11 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                 = exactReader->values(QLatin1String("TARGET_VERSION_EXT"));
         result->newVarValues[Variable::StaticLibExtension] = exactReader->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
         result->newVarValues[Variable::ShLibExtension] = exactReader->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
-        result->newVarValues[Variable::AndroidArch] = exactReader->values(QLatin1String("ANDROID_TARGET_ARCH"));
+        result->newVarValues[Variable::AndroidAbi] = exactReader->values(QLatin1String(Android::Constants::ANDROID_TARGET_ARCH));
         result->newVarValues[Variable::AndroidDeploySettingsFile] = exactReader->values(QLatin1String(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE));
         result->newVarValues[Variable::AndroidPackageSourceDir] = exactReader->values(QLatin1String(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR));
-        result->newVarValues[Variable::AndroidAbis] = exactReader->values(QLatin1String("ANDROID_ABIS"));
-        result->newVarValues[Variable::AndroidApplicationArguments] = exactReader->values(QLatin1String(Android::Constants::ANDROID_APPLICATION_ARGUMENTS));
+        result->newVarValues[Variable::AndroidAbis] = exactReader->values(QLatin1String(Android::Constants::ANDROID_ABIS));
+        result->newVarValues[Variable::AndroidApplicationArgs] = exactReader->values(QLatin1String(Android::Constants::ANDROID_APPLICATION_ARGUMENTS));
         result->newVarValues[Variable::AndroidExtraLibs] = exactReader->values(QLatin1String(Android::Constants::ANDROID_EXTRA_LIBS));
         result->newVarValues[Variable::AppmanPackageDir] = exactReader->values(QLatin1String("AM_PACKAGE_DIR"));
         result->newVarValues[Variable::AppmanManifest] = exactReader->values(QLatin1String("AM_MANIFEST"));
