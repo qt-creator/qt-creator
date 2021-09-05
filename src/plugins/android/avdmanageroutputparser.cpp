@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "avdmanageroutputparser.h"
+#include "androidconfigurations.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
@@ -97,7 +98,7 @@ static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo
                 QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);
                 value = avdInfo.value(avdInfoTargetKey).toString();
                 if (!value.isEmpty())
-                    avd.sdk = value.section('-', -1).toInt();
+                    avd.sdk = AndroidConfig::platformNameToApiLevel(value);
                 else
                     qCDebug(avdOutputParserLog)
                         << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toString();
