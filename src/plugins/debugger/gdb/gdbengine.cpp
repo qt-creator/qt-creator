@@ -785,7 +785,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     } else {
         m_gdbProc.write(cmd.function.toUtf8() + "\r\n");
         if (command.flags & NeedsFlush)
-            m_gdbProc.write("p 0\r\n");
+            runCommand({"p 0"});
 
         // Start Watchdog.
         if (m_commandTimer.interval() <= 20000)

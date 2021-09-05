@@ -756,7 +756,7 @@ class Dumper(DumperBase):
         self.output += ',partial="%d"' % isPartial
         self.output += ',counts=%s' % self.counts
         self.output += ',timings=%s' % self.timings
-        self.reportResult(self.output)
+        self.reportResult(self.output, args)
 
     def parseAndEvaluate(self, exp):
         val = self.nativeParseAndEvaluate(exp)
@@ -1449,7 +1449,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-        self.reportResult('stack={frames=[' + self.output + ']}')
+        self.reportResult('stack={frames=[' + self.output + ']}', args)
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
@@ -1470,7 +1470,7 @@ class Dumper(DumperBase):
     def exitGdb(self, _):
         gdb.execute('quit')
 
-    def reportResult(self, result, args={}):
+    def reportResult(self, result, args):
         print('result={token="%s",%s}' % (args.get("token", 0), result))
 
     def profile1(self, args):
