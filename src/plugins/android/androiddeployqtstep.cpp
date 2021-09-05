@@ -134,9 +134,8 @@ bool AndroidDeployQtStep::init()
     QTC_ASSERT(bc, return false);
 
     auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
-    int minTargetApi = AndroidManager::minimumSDK(target());
     qCDebug(deployStepLog) << "Target architecture:" << m_androidABIs
-                           << "Min target API" << minTargetApi;
+                           << "Min target API" << AndroidManager::minimumSDK(target());
 
     // Try to re-use user-provided information from an earlier step of the same type.
     BuildStepList *bsl = stepList();
