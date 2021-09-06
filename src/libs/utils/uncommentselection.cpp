@@ -74,13 +74,14 @@ static bool isComment(const QString &text, int index,
 }
 
 
-void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &definition,
-                               bool preferSingleLine)
+QTextCursor Utils::unCommentSelection(const QTextCursor &cursorIn,
+                                      const CommentDefinition &definition,
+                                      bool preferSingleLine)
 {
     if (!definition.isValid())
-        return;
+        return cursorIn;
 
-    QTextCursor cursor = edit->textCursor();
+    QTextCursor cursor = cursorIn;
     QTextDocument *doc = cursor.document();
     cursor.beginEditBlock();
 
@@ -227,9 +228,9 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
 
     cursor.endEditBlock();
 
+    cursor = cursorIn;
     // adjust selection when commenting out
     if (hasSelection && !doMultiLineStyleUncomment && !doSingleLineStyleUncomment) {
-        cursor = edit->textCursor();
         if (!doMultiLineStyleComment)
             start = startBlock.position(); // move the comment into the selection
         int lastSelPos = anchorIsStart ? cursor.position() : cursor.anchor();
@@ -240,6 +241,6 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
             cursor.setPosition(lastSelPos);
             cursor.setPosition(start, QTextCursor::KeepAnchor);
         }
-        edit->setTextCursor(cursor);
     }
+    return cursor;
 }

@@ -28,6 +28,7 @@
 #include "utils_global.h"
 
 #include <QString>
+#include <QTextCursor>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -57,8 +58,8 @@ public:
 };
 
 QTCREATOR_UTILS_EXPORT
-void unCommentSelection(QPlainTextEdit *edit,
-                        const CommentDefinition &definiton = CommentDefinition(),
-                        bool preferSingleLine = false);
+QTextCursor unCommentSelection(const QTextCursor &cursor,
+                               const CommentDefinition &definiton = CommentDefinition(),
+                               bool preferSingleLine = false);
 
 } // namespace Utils

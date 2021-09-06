@@ -7336,8 +7336,11 @@ void TextEditorWidget::rewrapParagraph()
 
 void TextEditorWidget::unCommentSelection()
 {
-    Utils::unCommentSelection(this, d->m_commentDefinition,
-                              d->m_document->typingSettings().m_preferSingleLineComments);
+    const bool singleLine = d->m_document->typingSettings().m_preferSingleLineComments;
+    const QTextCursor cursor = Utils::unCommentSelection(textCursor(),
+                                                         d->m_commentDefinition,
+                                                         singleLine);
+    setTextCursor(cursor);
 }
 
 void TextEditorWidget::autoFormat()
