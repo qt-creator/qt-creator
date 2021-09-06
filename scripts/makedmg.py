@@ -54,7 +54,7 @@ def main():
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
         shutil.copy(os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT'), tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
-            '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', '1g', '-verbose']
+                   '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', '1500m', '-verbose']
         subprocess.check_call(dmg_cmd)
         # sleep a few seconds to make sure disk image is fully unmounted etc
         time.sleep(5)
