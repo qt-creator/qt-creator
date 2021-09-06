@@ -2047,8 +2047,10 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
         // as changes in the node tree (reparenting, adding new nodes) can make the previously set
         // hide status based on ancestor unreliable.
         node->setProperty("_edit3dHidden", edit3dHidden);
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
         if (auto model = qobject_cast<QQuick3DModel *>(node))
             model->setPickable(!edit3dHidden); // allow 3D objects to receive mouse clicks
+#endif
         const auto childItems = node->childItems();
         for (auto childItem : childItems) {
             const ServerNodeInstance quick3dInstance = getQuick3DInstanceAndHidden(childItem);
@@ -2070,7 +2072,9 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
                             value = QVariant::fromValue(node);
                         // Specify the actual pick target with dynamic property
                         checkModel->setProperty("_pickTarget", value);
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
                         checkModel->setPickable(!edit3dHidden);
+#endif
                     }
                 };
                 if (auto childNode = qobject_cast<QQuick3DNode *>(childItem))

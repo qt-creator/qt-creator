@@ -41,6 +41,7 @@ Model {
     property real offset: 0
 
     readonly property bool hovering: mouseAreaYZ.hovering || mouseAreaXZ.hovering
+    readonly property bool _edit3dLocked: true // Make this non-pickable
 
     property vector3d _scenePosPressed
     property real _posPressed

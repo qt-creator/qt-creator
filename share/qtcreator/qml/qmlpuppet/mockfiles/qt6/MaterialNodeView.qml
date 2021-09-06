@@ -52,6 +52,7 @@ View3D {
 
         Model {
             id: model
+            readonly property bool _edit3dLocked: true // Make this non-pickable
             source: "#Sphere"
             materials: previewMaterial
         }

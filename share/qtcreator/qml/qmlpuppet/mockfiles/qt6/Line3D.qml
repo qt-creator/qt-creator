@@ -36,6 +36,7 @@ Node {
     property alias color: lineMat.diffuseColor
 
     Model {
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         geometry: LineGeometry {
             id: lineGeometry
         }
