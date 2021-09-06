@@ -528,22 +528,28 @@ QString FilePath::baseName() const
 /// \returns the complete base name of the file without the path.
 ///
 /// The complete base name consists of all characters in the file up to
-/// (but not including) the last '.' character
+/// (but not including) the last '.' character. In case of ".ui.qml"
+/// it will be treated as one suffix.
 
 QString FilePath::completeBaseName() const
 {
     const QString &name = fileName();
+    if (name.endsWith(".ui.qml"))
+        return name.left(name.length() - QString(".ui.qml").length());
     return name.left(name.lastIndexOf('.'));
 }
 
 /// \returns the suffix (extension) of the file.
 ///
 /// The suffix consists of all characters in the file after
-/// (but not including) the last '.'.
+/// (but not including) the last '.'. In case of ".ui.qml" it will
+/// be treated as one suffix.
 
 QString FilePath::suffix() const
 {
     const QString &name = fileName();
+    if (name.endsWith(".ui.qml"))
+        return "ui.qml";
     const int index = name.lastIndexOf('.');
     if (index >= 0)
         return name.mid(index + 1);

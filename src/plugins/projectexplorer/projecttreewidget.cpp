@@ -473,8 +473,7 @@ void ProjectTreeWidget::editCurrentItem()
     if (!editor)
         return;
 
-    const QString text = editor->text();
-    const int dotIndex = text.lastIndexOf('.');
+    const int dotIndex = Utils::FilePath::fromString(editor->text()).completeBaseName().length();
     if (dotIndex > 0)
         editor->setSelection(0, dotIndex);
 }
