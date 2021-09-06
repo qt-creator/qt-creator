@@ -71,7 +71,6 @@ struct DirectoryData
     BaseQtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QMakeStepConfig config;
-    QMakeStepConfig::TargetArchConfig archConfig;
     QMakeStepConfig::OsType osType;
 };
 
@@ -155,29 +154,13 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         qCDebug(logs) << "  qt version:" << version->displayName() << " temporary:" << isTemporaryVersion;
 
-        data->archConfig = parse.config().archConfig;
         data->osType = parse.config().osType;
 
-        qCDebug(logs) << "  archConfig:" << data->archConfig;
         qCDebug(logs) << "  osType:    " << data->osType;
         if (version->type() == QLatin1String(IOSQT)
                 && data->osType == QMakeStepConfig::NoOsType) {
             data->osType = QMakeStepConfig::IphoneOS;
             qCDebug(logs) << "  IOS found without osType, adjusting osType" << data->osType;
-        }
-
-        if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            const ProjectExplorer::Abis abis = version->qtAbis();
-            if (!abis.isEmpty()) {
-                ProjectExplorer::Abi abi = abis.first();
-                if (abi.os() == ProjectExplorer::Abi::DarwinOS) {
-                    if (abi.wordWidth() == 64)
-                        data->archConfig = QMakeStepConfig::X86_64;
-                    else
-                        data->archConfig = QMakeStepConfig::X86;
-                    qCDebug(logs) << "  OS X found without targetarch, adjusting archType" << data->archConfig;
-                }
-            }
         }
 
         // find qmake arguments and mkspec
@@ -211,27 +194,23 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
     if (kitSpec.isEmpty() && kitVersion)
         kitSpec = kitVersion->mkspecFor(tc);
-    QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;
     QMakeStepConfig::OsType kitOsType = QMakeStepConfig::NoOsType;
     if (tc) {
-        kitTargetArch = QMakeStepConfig::targetArchFor(tc->targetAbi(), kitVersion);
         kitOsType = QMakeStepConfig::osTypeFor(tc->targetAbi(), kitVersion);
     }
     qCDebug(logs) << k->displayName()
                   << "version:" << (kitVersion == data->qtVersionData.qt)
                   << "spec:" << (kitSpec == data->parsedSpec)
-                  << "targetarch:" << (kitTargetArch == data->archConfig)
                   << "ostype:" << (kitOsType == data->osType);
     return kitVersion == data->qtVersionData.qt
             && kitSpec == data->parsedSpec
-            && kitTargetArch == data->archConfig
             && kitOsType == data->osType;
 }
 
 Kit *QmakeProjectImporter::createKit(void *directoryData) const
 {
     auto *data = static_cast<DirectoryData *>(directoryData);
-    return createTemporaryKit(data->qtVersionData, data->parsedSpec, data->archConfig, data->osType);
+    return createTemporaryKit(data->qtVersionData, data->parsedSpec, data->osType);
 }
 
 const QList<BuildInfo> QmakeProjectImporter::buildInfoList(void *directoryData) const
@@ -263,17 +242,14 @@ void QmakeProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
-static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, const QString &ms,
-                                                    const QMakeStepConfig::TargetArchConfig &archConfig)
+static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, const QString &ms)
 {
     const QString spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
     const QList<ToolChain *> toolchains = ToolChainManager::toolChains();
     const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const ToolChain *tc) {
-        return qtAbis.contains(tc->targetAbi())
-            && tc->suggestedMkspecList().contains(spec)
-            && QMakeStepConfig::targetArchFor(tc->targetAbi(), qtVersion) == archConfig;
+        return qtAbis.contains(tc->targetAbi()) && tc->suggestedMkspecList().contains(spec);
     };
     ToolChain * const cxxToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {
         return tc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID && matcher(tc);
@@ -291,13 +267,11 @@ static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, co
 
 Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersionData &data,
                                               const QString &parsedSpec,
-                                              const QMakeStepConfig::TargetArchConfig &archConfig,
                                               const QMakeStepConfig::OsType &osType) const
 {
     Q_UNUSED(osType) // TODO use this to select the right toolchain?
-    return QtProjectImporter::createTemporaryKit(data,
-                                                 [&data, parsedSpec, archConfig](Kit *k) -> void {
-        for (ToolChain * const tc : preferredToolChains(data.qt, parsedSpec, archConfig))
+    return QtProjectImporter::createTemporaryKit(data, [&data, parsedSpec](Kit *k) -> void {
+        for (ToolChain *const tc : preferredToolChains(data.qt, parsedSpec))
             ToolChainKitAspect::setToolChain(k, tc);
         if (parsedSpec != data.qt->mkspec())
             QmakeKitAspect::setMkspec(k, parsedSpec, QmakeKitAspect::MkspecSource::Code);

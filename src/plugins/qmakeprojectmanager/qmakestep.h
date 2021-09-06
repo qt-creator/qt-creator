@@ -66,15 +66,14 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT QMakeStepConfig
 {
 public:
-    enum TargetArchConfig {
-        NoArch, X86, X86_64, PowerPC, PowerPC64
-    };
+    // TODO remove, does nothing
+    enum TargetArchConfig { NoArch, X86, X86_64, PowerPC, PowerPC64 };
 
-    enum OsType {
-        NoOsType, IphoneSimulator, IphoneOS
-    };
+    enum OsType { NoOsType, IphoneSimulator, IphoneOS };
 
-    static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
+    // TODO remove, does nothing
+    static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi,
+                                          const QtSupport::BaseQtVersion *version);
     static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
 
     QStringList toArguments() const;
@@ -82,6 +81,7 @@ public:
     // Actual data
     QString sysRoot;
     QString targetTriple;
+    // TODO remove, does nothing
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
     Utils::TriState separateDebugInfo;
