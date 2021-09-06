@@ -27,7 +27,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/reaper.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -199,12 +198,7 @@ void ExecuteFilter::removeProcess()
         return;
 
     m_taskQueue.dequeue();
-    m_process->disconnect();
-    if (m_process->state() == QProcess::NotRunning)
-        m_process->deleteLater();
-    else
-        Reaper::reap(m_process);
-
+    delete m_process;
     m_process = nullptr;
 }
 

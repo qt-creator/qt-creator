@@ -84,6 +84,7 @@ SOURCES += \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
     $$PWD/processhandle.cpp \
+    $$PWD/processreaper.cpp \
     $$PWD/processutils.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/basetreeview.cpp \
@@ -222,6 +223,7 @@ HEADERS += \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
     $$PWD/processhandle.h \
+    $$PWD/processreaper.h \
     $$PWD/processutils.h \
     $$PWD/appmainwindow.h \
     $$PWD/basetreeview.h \

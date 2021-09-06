@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,29 +23,26 @@
 **
 ****************************************************************************/
 
-#include "reaper.h"
-#include "reaper_p.h"
+#include "processreaper.h"
+#include "qtcassert.h"
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-
+#include <QCoreApplication>
 #include <QProcess>
 #include <QThread>
 #include <QTimer>
 
 using namespace Utils;
 
-namespace Core {
+namespace Utils {
 namespace Internal {
 
-static ProcessReapers *d = nullptr;
+static ProcessReaper *d = nullptr;
 
-class ProcessReaper final : public QObject
+class Reaper final : public QObject
 {
 public:
-    ProcessReaper(QtcProcess *p, int timeoutMs);
-    ~ProcessReaper() final;
+    Reaper(QProcess *p, int timeoutMs);
+    ~Reaper() final;
 
     int timeoutMs() const;
     bool isFinished() const;
@@ -53,28 +50,28 @@ public:
 
 private:
     mutable QTimer m_iterationTimer;
-    QtcProcess *m_process;
+    QProcess *m_process = nullptr;
     int m_emergencyCounter = 0;
     QProcess::ProcessState m_lastState = QProcess::NotRunning;
 };
 
-ProcessReaper::ProcessReaper(QtcProcess *p, int timeoutMs) : m_process(p)
+Reaper::Reaper(QProcess *p, int timeoutMs) : m_process(p)
 {
     d->m_reapers.append(this);
 
     m_iterationTimer.setInterval(timeoutMs);
     m_iterationTimer.setSingleShot(true);
-    connect(&m_iterationTimer, &QTimer::timeout, this, &ProcessReaper::nextIteration);
+    connect(&m_iterationTimer, &QTimer::timeout, this, &Reaper::nextIteration);
 
-    QMetaObject::invokeMethod(this, &ProcessReaper::nextIteration, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, &Reaper::nextIteration, Qt::QueuedConnection);
 }
 
-ProcessReaper::~ProcessReaper()
+Reaper::~Reaper()
 {
     d->m_reapers.removeOne(this);
 }
 
-int ProcessReaper::timeoutMs() const
+int Reaper::timeoutMs() const
 {
     const int remaining = m_iterationTimer.remainingTime();
     if (remaining < 0)
@@ -83,12 +80,12 @@ int ProcessReaper::timeoutMs() const
     return remaining;
 }
 
-bool ProcessReaper::isFinished() const
+bool Reaper::isFinished() const
 {
     return !m_process;
 }
 
-void ProcessReaper::nextIteration()
+void Reaper::nextIteration()
 {
     QProcess::ProcessState state = m_process ? m_process->state() : QProcess::NotRunning;
     if (state == QProcess::NotRunning || m_emergencyCounter > 5) {
@@ -113,19 +110,23 @@ void ProcessReaper::nextIteration()
     ++m_emergencyCounter;
 }
 
-ProcessReapers::ProcessReapers()
+} // namespace Internal
+
+ProcessReaper::ProcessReaper()
 {
-    d = this;
+    QTC_ASSERT(Internal::d == nullptr, return);
+    Internal::d = this;
 }
 
-ProcessReapers::~ProcessReapers()
+ProcessReaper::~ProcessReaper()
 {
+    QTC_ASSERT(Internal::d == this, return);
     while (!m_reapers.isEmpty()) {
         int alreadyWaited = 0;
-        QList<ProcessReaper *> toDelete;
+        QList<Internal::Reaper *> toDelete;
 
         // push reapers along:
-        foreach (ProcessReaper *pr, m_reapers) {
+        for (Internal::Reaper *pr : qAsConst(m_reapers)) {
             const int timeoutMs = pr->timeoutMs();
             if (alreadyWaited < timeoutMs) {
                 const unsigned long toSleep = static_cast<unsigned long>(timeoutMs - alreadyWaited);
@@ -145,25 +146,30 @@ ProcessReapers::~ProcessReapers()
         toDelete.clear();
     }
 
-    d = nullptr;
+    Internal::d = nullptr;
 }
 
-} // namespace Internal
-
-namespace Reaper {
-
-void reap(QtcProcess *process, int timeoutMs)
+void ProcessReaper::reap(QProcess *process, int timeoutMs)
 {
     if (!process)
         return;
 
     QTC_ASSERT(QThread::currentThread() == process->thread(), return);
 
+    process->disconnect();
+    process->setParent(nullptr);
+    if (process->state() == QProcess::NotRunning) {
+        process->deleteLater();
+        return;
+    } else {
+        process->kill();
+    }
+
     // Neither can move object with a parent into a different thread
     // nor reaping the process with a parent makes any sense.
     process->setParent(nullptr);
-    if (process->thread() != qApp->thread()) {
-        process->moveToThread(qApp->thread());
+    if (process->thread() != QCoreApplication::instance()->thread()) {
+        process->moveToThread(QCoreApplication::instance()->thread());
         QMetaObject::invokeMethod(process, [process, timeoutMs] {
             reap(process, timeoutMs);
         }); // will be queued
@@ -172,9 +178,8 @@ void reap(QtcProcess *process, int timeoutMs)
 
     QTC_ASSERT(Internal::d, return);
 
-    new Internal::ProcessReaper(process, timeoutMs);
+    new Internal::Reaper(process, timeoutMs);
 }
 
-} // namespace Reaper
-} // namespace Core
+} // namespace Utils
 

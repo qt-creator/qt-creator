@@ -13,11 +13,15 @@ HEADERS += \
     launcherlogging.h \
     launchersockethandler.h \
     $$UTILS_DIR/launcherpackets.h \
-    $$UTILS_DIR/processutils.h
+    $$UTILS_DIR/processreaper.h \
+    $$UTILS_DIR/processutils.h \
+    $$UTILS_DIR/qtcassert.h
 
 SOURCES += \
     launcherlogging.cpp \
     launchersockethandler.cpp \
     processlauncher-main.cpp \
     $$UTILS_DIR/launcherpackets.cpp \
-    $$UTILS_DIR/processutils.cpp
+    $$UTILS_DIR/processreaper.cpp \
+    $$UTILS_DIR/processutils.cpp \
+    $$UTILS_DIR/qtcassert.cpp

@@ -23,8 +23,12 @@ QtcTool {
         files: [
             "launcherpackets.cpp",
             "launcherpackets.h",
+            "processreaper.cpp",
+            "processreaper.h",
             "processutils.cpp",
             "processutils.h",
+            "qtcassert.cpp",
+            "qtcassert.h",
         ]
     }
 }

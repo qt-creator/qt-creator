@@ -25,6 +25,7 @@
 
 #include "launcherlogging.h"
 #include "launchersockethandler.h"
+#include "processreaper.h"
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qtimer.h>
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    Utils::ProcessReaper processReaper;
     Utils::Internal::LauncherSocketHandler launcher(app.arguments().constLast());
     QTimer::singleShot(0, &launcher, &Utils::Internal::LauncherSocketHandler::start);
     return app.exec();

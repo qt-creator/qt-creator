@@ -44,7 +44,6 @@ namespace Internal {
 class EditMode;
 class MainWindow;
 class Locator;
-class ProcessReapers;
 
 class CorePlugin : public ExtensionSystem::IPlugin
 {
@@ -93,7 +92,6 @@ private:
     MainWindow *m_mainWindow = nullptr;
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
-    ProcessReapers *m_reaper = nullptr;
     Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;
 };

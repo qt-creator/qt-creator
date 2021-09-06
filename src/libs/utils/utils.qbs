@@ -218,6 +218,8 @@ Project {
             "portlist.h",
             "processhandle.cpp",
             "processhandle.h",
+            "processreaper.cpp",
+            "processreaper.h",
             "processutils.cpp",
             "processutils.h",
             "progressindicator.cpp",

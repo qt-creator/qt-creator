@@ -27,6 +27,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
 #include <utils/porting.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
@@ -203,6 +204,7 @@ private slots:
 private:
     void iteratorEditsHelper(OsType osType);
 
+    Utils::ProcessReaper processReaper;
     Environment envWindows;
     Environment envLinux;
 

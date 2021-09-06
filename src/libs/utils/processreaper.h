@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,28 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include <QList>
 
-namespace Core {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
 
-class CorePlugin;
-class ProcessReaper;
+namespace Utils {
 
-class ProcessReapers final
+namespace Internal { class Reaper; }
+
+class QTCREATOR_UTILS_EXPORT ProcessReaper final
 {
+public:
+    ProcessReaper();
+    ~ProcessReaper();
+
+    static void reap(QProcess *process, int timeoutMs = 500);
 private:
-    ~ProcessReapers();
-    ProcessReapers();
-
-    QList<ProcessReaper *> m_reapers;
-
-    friend class CorePlugin;
-    friend class ProcessReaper;
+    QList<Internal::Reaper *> m_reapers;
+    friend class Internal::Reaper;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Utils

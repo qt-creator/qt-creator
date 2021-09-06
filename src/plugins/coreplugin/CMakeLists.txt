@@ -135,7 +135,6 @@ add_qtc_plugin(Core
     progressmanager/progressbar.cpp progressmanager/progressbar.h
     progressmanager/progressmanager.cpp progressmanager/progressmanager.h progressmanager/progressmanager_p.h
     progressmanager/progressview.cpp progressmanager/progressview.h
-    reaper.cpp reaper.h reaper_p.h
     rightpane.cpp rightpane.h
     settingsdatabase.cpp settingsdatabase.h
     shellcommand.cpp shellcommand.h

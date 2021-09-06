@@ -28,7 +28,6 @@
 #include "../messagemanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/reaper.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -156,10 +155,7 @@ void SpotlightIterator::killProcess()
     QMutexLocker lock(&m_mutex);
     m_finished = true;
     m_waitForItems.wakeAll();
-    if (m_process->state() == QProcess::NotRunning)
-        m_process.reset();
-    else
-        Reaper::reap(m_process.release());
+    m_process.reset();
 }
 
 void SpotlightIterator::ensureNext()

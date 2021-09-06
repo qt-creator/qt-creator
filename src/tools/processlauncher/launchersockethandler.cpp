@@ -26,12 +26,12 @@
 #include "launchersockethandler.h"
 
 #include "launcherlogging.h"
+#include "processreaper.h"
 #include "processutils.h"
 
 #include <QCoreApplication>
 #include <QLocalSocket>
 #include <QProcess>
-#include <QTimer>
 
 namespace Utils {
 namespace Internal {
@@ -41,43 +41,13 @@ class Process : public ProcessHelper
     Q_OBJECT
 public:
     Process(quintptr token, QObject *parent = nullptr) :
-        ProcessHelper(parent), m_token(token), m_stopTimer(new QTimer(this))
-    {
-        m_stopTimer->setSingleShot(true);
-        connect(m_stopTimer, &QTimer::timeout, this, &Process::cancel);
-    }
-
-    void cancel()
-    {
-        if (state() == QProcess::NotRunning) {
-            deleteLater();
-            return;
-        }
-        switch (m_stopState) {
-        case StopState::Inactive:
-            m_stopState = StopState::Terminating;
-            m_stopTimer->start(3000);
-            terminate();
-            break;
-        case StopState::Terminating:
-            m_stopState = StopState::Killing;
-            m_stopTimer->start(3000);
-            kill();
-            break;
-        case StopState::Killing:
-            m_stopState = StopState::Inactive;
-            deleteLater(); // TODO: employ something like Core::Reaper here
-            break;
-        }
-    }
+        ProcessHelper(parent), m_token(token) { }
 
     quintptr token() const { return m_token; }
     ProcessStartHandler *processStartHandler() { return &m_processStartHandler; }
 
 private:
     const quintptr m_token;
-    QTimer * const m_stopTimer;
-    enum class StopState { Inactive, Terminating, Killing } m_stopState = StopState::Inactive;
     ProcessStartHandler m_processStartHandler;
 };
 
@@ -97,7 +67,7 @@ LauncherSocketHandler::~LauncherSocketHandler()
         m_socket->close();
     }
     for (auto it = m_processes.cbegin(); it != m_processes.cend(); ++it)
-        it.value()->disconnect();
+        ProcessReaper::reap(it.value());
 }
 
 void LauncherSocketHandler::start()
@@ -269,13 +239,15 @@ void LauncherSocketHandler::handleStopPacket()
 {
     Process * const process = m_processes.value(m_packetParser.token());
     if (!process) {
-        logWarn("got stop request for unknown process");
+        // This can happen when the process finishes on its own at about the same time the client
+        // sends the request. In this case the process was already deleted.
+        logDebug("got stop request for unknown process");
         return;
     }
     if (process->state() == QProcess::NotRunning) {
-        // This can happen if the process finishes on its own at about the same time the client
-        // sends the request.
-        logDebug("got stop request when process was not running");
+        // This shouldn't happen, since as soon as process finishes or error occurrs
+        // the process is being removed.
+        logWarn("got stop request when process was not running");
     } else {
         // We got the client request to stop the starting / running process.
         // We report process exit to the client.
@@ -331,11 +303,7 @@ void LauncherSocketHandler::removeProcess(quintptr token)
 
     Process *process = it.value();
     m_processes.erase(it);
-    process->disconnect();
-    if (process->state() != QProcess::NotRunning)
-        process->cancel();
-    else
-        process->deleteLater();
+    ProcessReaper::reap(process);
 }
 
 Process *LauncherSocketHandler::senderProcess() const

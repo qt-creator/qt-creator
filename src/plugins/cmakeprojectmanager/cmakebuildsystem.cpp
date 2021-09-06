@@ -39,7 +39,6 @@
 #include <android/androidconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/reaper.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppprojectupdater.h>
 #include <cppeditor/generatedcodemodelsupport.h>

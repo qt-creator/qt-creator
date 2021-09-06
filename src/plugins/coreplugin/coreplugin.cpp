@@ -32,7 +32,6 @@
 #include "iwizardfactory.h"
 #include "mainwindow.h"
 #include "modemanager.h"
-#include "reaper_p.h"
 #include "themechooser.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -96,13 +95,11 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
     m_instance = this;
-    m_reaper = new ProcessReapers;
     setupSystemEnvironment();
 }
 
 CorePlugin::~CorePlugin()
 {
-    delete m_reaper;
     IWizardFactory::destroyFeatureProvider();
     Find::destroy();
 

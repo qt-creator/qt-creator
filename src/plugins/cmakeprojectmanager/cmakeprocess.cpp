@@ -28,7 +28,6 @@
 #include "cmakeparser.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/reaper.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
@@ -57,11 +56,7 @@ CMakeProcess::CMakeProcess()
 
 CMakeProcess::~CMakeProcess()
 {
-    if (m_process) {
-        m_process->disconnect();
-        Core::Reaper::reap(m_process.release());
-    }
-
+    m_process.reset();
     m_parser.flush();
 
     if (m_future) {

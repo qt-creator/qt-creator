@@ -31,6 +31,7 @@
 #include "launcherinterface.h"
 #include "launcherpackets.h"
 #include "launchersocket.h"
+#include "processreaper.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 
@@ -278,86 +279,90 @@ class QProcessImpl : public ProcessInterface
 public:
     QProcessImpl(QObject *parent, ProcessMode processMode)
         : ProcessInterface(parent, processMode)
-        , m_process(parent)
+        , m_process(new ProcessHelper(parent))
     {
-        connect(&m_process, &QProcess::started,
+        connect(m_process, &QProcess::started,
                 this, &QProcessImpl::handleStarted);
-        connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &ProcessInterface::finished);
-        connect(&m_process, &QProcess::errorOccurred,
+        connect(m_process, &QProcess::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
-        connect(&m_process, &QProcess::readyReadStandardOutput,
+        connect(m_process, &QProcess::readyReadStandardOutput,
                 this, &ProcessInterface::readyReadStandardOutput);
-        connect(&m_process, &QProcess::readyReadStandardError,
+        connect(m_process, &QProcess::readyReadStandardError,
                 this, &ProcessInterface::readyReadStandardError);
     }
+    ~QProcessImpl() override
+    {
+        ProcessReaper::reap(m_process);
+    }
 
-    QByteArray readAllStandardOutput() override { return m_process.readAllStandardOutput(); }
-    QByteArray readAllStandardError() override { return m_process.readAllStandardError(); }
+    QByteArray readAllStandardOutput() override { return m_process->readAllStandardOutput(); }
+    QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
 
     void setProcessEnvironment(const QProcessEnvironment &environment) override
-    { m_process.setProcessEnvironment(environment); }
+    { m_process->setProcessEnvironment(environment); }
     void setWorkingDirectory(const QString &dir) override
-    { m_process.setWorkingDirectory(dir); }
+    { m_process->setWorkingDirectory(dir); }
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
         m_processStartHandler.setProcessMode(processMode());
         m_processStartHandler.setWriteData(writeData);
         if (isBelowNormalPriority())
-            m_processStartHandler.setBelowNormalPriority(&m_process);
-        m_processStartHandler.setNativeArguments(&m_process, nativeArguments());
+            m_processStartHandler.setBelowNormalPriority(m_process);
+        m_processStartHandler.setNativeArguments(m_process, nativeArguments());
         if (isLowPriority())
-            m_process.setLowPriority();
+            m_process->setLowPriority();
         if (isUnixTerminalDisabled())
-            m_process.setUnixTerminalDisabled();
-        m_process.start(program, arguments, m_processStartHandler.openMode());
-        m_processStartHandler.handleProcessStart(&m_process);
+            m_process->setUnixTerminalDisabled();
+        m_process->start(program, arguments, m_processStartHandler.openMode());
+        m_processStartHandler.handleProcessStart(m_process);
     }
     void terminate() override
-    { m_process.terminate(); }
+    { m_process->terminate(); }
     void kill() override
-    { m_process.kill(); }
+    { m_process->kill(); }
     void close() override
-    { m_process.close(); }
+    { m_process->close(); }
     qint64 write(const QByteArray &data) override
-    { return m_process.write(data); }
+    { return m_process->write(data); }
 
     void setStandardInputFile(const QString &fileName) override
-    { m_process.setStandardInputFile(fileName); }
+    { m_process->setStandardInputFile(fileName); }
     void setProcessChannelMode(QProcess::ProcessChannelMode mode) override
-    { m_process.setProcessChannelMode(mode); }
+    { m_process->setProcessChannelMode(mode); }
 
     QString program() const override
-    { return m_process.program(); }
+    { return m_process->program(); }
     QProcess::ProcessError error() const override
-    { return m_process.error(); }
+    { return m_process->error(); }
     QProcess::ProcessState state() const override
-    { return m_process.state(); }
+    { return m_process->state(); }
     qint64 processId() const override
-    { return m_process.processId(); }
+    { return m_process->processId(); }
     int exitCode() const override
-    { return m_process.exitCode(); }
+    { return m_process->exitCode(); }
     QProcess::ExitStatus exitStatus() const override
-    { return m_process.exitStatus(); }
+    { return m_process->exitStatus(); }
     QString errorString() const override
-    { return m_process.errorString(); }
+    { return m_process->errorString(); }
     void setErrorString(const QString &str) override
-    { m_process.setErrorString(str); }
+    { m_process->setErrorString(str); }
 
     bool waitForStarted(int msecs) override
-    { return m_process.waitForStarted(msecs); }
+    { return m_process->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) override
-    { return m_process.waitForReadyRead(msecs); }
+    { return m_process->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) override
-    { return m_process.waitForFinished(msecs); }
+    { return m_process->waitForFinished(msecs); }
 
 private:
     void handleStarted()
     {
-        m_processStartHandler.handleProcessStarted(&m_process);
+        m_processStartHandler.handleProcessStarted(m_process);
         emit started();
     }
-    ProcessHelper m_process;
+    ProcessHelper *m_process;
     ProcessStartHandler m_processStartHandler;
 };
 

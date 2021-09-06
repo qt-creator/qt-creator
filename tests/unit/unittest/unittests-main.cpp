@@ -30,6 +30,7 @@
 
 #include <sqliteglobal.h>
 #include <utils/launcherinterface.h>
+#include <utils/processreaper.h>
 #include <utils/temporarydirectory.h>
 
 #include <QGuiApplication>
@@ -60,6 +61,7 @@ int main(int argc, char *argv[])
     Sqlite::Database::activateLogging();
 
     QGuiApplication application(argc, argv);
+    Utils::ProcessReaper processReaper;
     Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
                                             + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     auto cleanup = qScopeGuard([] { Utils::LauncherInterface::stopLauncher(); });

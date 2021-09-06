@@ -28,6 +28,7 @@
 #include "filepath.h"
 #include "launcherpackets.h"
 #include "launchersocket.h"
+#include "processreaper.h"
 #include "qtcassert.h"
 
 #include <QCoreApplication>
@@ -143,7 +144,7 @@ void LauncherInterfacePrivate::doStop()
     m_process->disconnect();
     m_socket->shutdown();
     m_process->waitForFinished(3000);
-    m_process->deleteLater();
+    ProcessReaper::reap(m_process);
     m_process = nullptr;
 }
 

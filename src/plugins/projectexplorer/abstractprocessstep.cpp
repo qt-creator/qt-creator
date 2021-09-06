@@ -34,8 +34,6 @@
 #include "target.h"
 #include "task.h"
 
-#include <coreplugin/reaper.h>
-
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -255,7 +253,7 @@ void AbstractProcessStep::setLowPriority()
 
 void AbstractProcessStep::doCancel()
 {
-    Core::Reaper::reap(d->m_process.release());
+    d->m_process.reset();
 }
 
 ProcessParameters *AbstractProcessStep::processParameters()
