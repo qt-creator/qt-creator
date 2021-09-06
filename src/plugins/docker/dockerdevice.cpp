@@ -1383,7 +1383,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
         cmd.addArgs({"-w", workingDir.path()});
     if (process.keepsWriteChannelOpen())
         cmd.addArg("-i");
-    if (env.size() != 0 && hasLocalFileAccess()) {
+    if (env.size() != 0 && !hasLocalFileAccess()) {
         process.unsetEnvironment();
         // FIXME the below would be probably correct if the respective tools would use correct
         //       environment already, but most are using the host environment which usually makes
