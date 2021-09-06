@@ -109,7 +109,7 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
         return {};
     const QString cacheKey = sdkRoot.toString();
     if (!emSdkVersionCache()->contains(cacheKey)) {
-        Environment env;
+        Environment env = sdkRoot.deviceEnvironment();
         WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
         QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
         FilePath script = sdkRoot.withNewPath(scriptFile).searchOnDevice(env.path());
