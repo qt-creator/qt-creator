@@ -111,8 +111,8 @@ protected:
     }
 
 private:
-    const Class *_clazz;
-    ClassSpecifierAST *_result;
+    const Class * const _clazz;
+    ClassSpecifierAST *_result = nullptr;
 };
 
 void findMatch(const QList<AccessRange> &ranges,
@@ -397,8 +397,8 @@ namespace {
 template <class Key, class Value>
 class HighestValue
 {
-    Key _key;
-    Value _value;
+    Key _key{};
+    Value _value{};
     bool _set = false;
 public:
     HighestValue() = default;
