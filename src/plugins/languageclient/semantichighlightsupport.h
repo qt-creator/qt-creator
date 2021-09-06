@@ -81,7 +81,6 @@ public:
 //    void setAdditionalTokenModifierStyles(const QHash<int, TextEditor::TextStyle> &modifierStyles);
 
     void setTokensHandler(const SemanticTokensHandler &handler) { m_tokensHandler = handler; }
-    void forceHighlightingOnEmptyDelta() { m_highlightOnEmptyDelta = true; }
 
 private:
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
@@ -107,7 +106,6 @@ private:
     SemanticTokensHandler m_tokensHandler;
     QStringList m_tokenTypeStrings;
     QStringList m_tokenModifierStrings;
-    bool m_highlightOnEmptyDelta = false;
 };
 
 } // namespace LanguageClient

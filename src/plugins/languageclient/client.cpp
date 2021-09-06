@@ -1016,13 +1016,6 @@ void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
     m_tokenSupport.setTokensHandler(handler);
 }
 
-#ifdef WITH_TESTS
-void Client::forceHighlightingOnEmptyDelta()
-{
-    m_tokenSupport.forceHighlightingOnEmptyDelta();
-}
-#endif
-
 void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
 {
     m_symbolStringifier = stringifier;

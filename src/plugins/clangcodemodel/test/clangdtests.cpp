@@ -1432,7 +1432,6 @@ ClangdTestCompletion::ClangdTestCompletion()
 void ClangdTestCompletion::initTestCase()
 {
     ClangdTest::initTestCase();
-    client()->forceHighlightingOnEmptyDelta();
     startCollectingHighlightingInfo();
 }
 

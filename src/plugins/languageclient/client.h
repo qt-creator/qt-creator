@@ -195,10 +195,6 @@ public:
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
     { log(responseError.toString()); }
 
-#ifdef WITH_TESTS
-    void forceHighlightingOnEmptyDelta();
-#endif
-
 signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);
     void capabilitiesChanged(const DynamicCapabilities &capabilities);
