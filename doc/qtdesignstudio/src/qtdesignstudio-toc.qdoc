@@ -101,6 +101,7 @@
                                 \li \l{Lights}
                                 \li \l{Cameras}
                                 \li \l{Scene Environment}
+                                \li \l{Morph Target}
                             \endlist
                         \li \l {Creating Component Instances}
                         \li \l {Creating Custom Components}

@@ -1,0 +1,78 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-morph-target.html
+    \previouspage studio-3d-scene-environment.html
+    \nextpage quick-component-instances.html
+
+    \title Morph Target
+
+    The \uicontrol {Morph Target} component can be used to define morph targets
+    for vertex animation. Morph targets are the objects we bind to control
+    the morphing of a model. Usually, morphing is controlled by using
+    \l {Timeline}{timeline} animation or \l {Applying Animation}{property animation}.
+    The degree of morphing is controlled by defining the \uicontrol Weight
+    property of the \uicontrol {Morph Target} component.
+
+    The normal workflow is to use an external content creation tool to create
+    a mesh, which also contains morph targets, and import it to \QDS.
+
+    To add a morph target for a model in \QDS, drag-and-drop a
+    \uicontrol {Morph Target} component from \l Library > \uicontrol Components
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \uicontrol Scene in
+    \l Navigator. Then select the model in \uicontrol Navigator, and in
+    \l Properties > \uicontrol Model > \uicontrol {Morph Targets}, select the
+    name of the \uicontrol {Morph Target} component.
+
+    \section1 Morph Target Properties
+
+    To define attributes and weight for a \uicontrol {Morph Target}, select it
+    in \uicontrol Navigator and specify its properties in the
+    \uicontrol Properties view.
+
+    \image studio-3d-morph-target-properties.png "Morph Target Properties"
+
+    Use the \uicontrol Weight property to specify the weight of the
+    \uicontrol {Morph Target}. The value of \uicontrol Weight functions as the
+    multiplication factor used by the linear interpolation.
+    If the value is set to 1, the target is fully applied.
+    If the \uicontrol Weight property value is set to 0, it has no influence.
+
+    Use the \uicontrol Attributes property to specify a set of attributes for the
+    selected \uicontrol {Morph Target}. In order to animate vertex attributes
+    in morphing, the mesh must contain those target attributes and the
+    \uicontrol {Morph Target} must have the attributes enabled.
+
+    Click the dropdown menu to select one of the following attributes:
+        \list
+            \li \uicontrol Position animates the vertex positions.
+            \li \uicontrol Normal animates the normal vectors.
+            \li \uicontrol Tangent animates the tangent vectors.
+            \li \uicontrol Binormal animates the binormal vectors.
+        \endlist
+*/

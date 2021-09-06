@@ -82,6 +82,7 @@
         \li \l {Lights}
         \li \l {Cameras}
         \li \l {Scene Environment}
+        \li \l {Morph Target}
      \endlist
 
     When you import 3D scenes from files that you exported from 3D graphics
