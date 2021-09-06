@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,7 +33,7 @@
     \page creator-qml-performance-monitor.html
     \if defined(qtdesignstudio)
     \previouspage creator-qml-debugging-example.html
-    \nextpage creator-editor-external.html
+    \nextpage studio-advanced.html
     \else
     \previouspage creator-analyze-mode.html
     \nextpage creator-valgrind-overview.html

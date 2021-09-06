@@ -24,58 +24,27 @@
 ****************************************************************************/
 
 /*!
-    \previouspage qt-design-viewer.html
+    \previouspage creator-qml-performance-monitor.html
     \page studio-advanced.html
-    \nextpage studio-platforms.html
+    \nextpage creator-quick-ui-forms.html
 
-    \title Advanced Topics
+    \title Advanced Designer Topics
 
-    \QDS attempts to meet your needs, whether you have previous experience with
-    QML and coding or not. When you install \QDS, the default configuration
-    allows you to start designing and previewing UIs with very little effort.
-
-    However, you might want to use the \l{Text Editor} view sometimes to edit
-    your component files (.qml) or write some JavaScript to simulate application
-    logic and bring your UI to life. If you use JavaScript, you might also want
-    to debug and profile you UIs to find and fix problems in them.
-
-    You can also use special options to start \QC from the command line and use
-    it mainly from the keyboard.
+    \table
+        \row
+            \li \image front-advanced.png
+            \li Learn more about the UI files (.ui.qml), collecting data about
+                using \QDS, and about packaging applications for delivering
+                them to users or uploading them to app stores.
+    \endtable
 
     \list
 
         \li \l{UI Files}
 
-            Some of the wizards create projects that contain UI files
-            (.ui.qml). You should always edit UI files in \l{Form Editor}
+            Some of the wizard templates create projects that contain UI files.
+            You should always edit UI files in \l{Form Editor}
             and \l Properties, to avoid breaking the code.
-
-        \li \l{Coding}
-
-            You can use the code editor in the \uicontrol {Text Editor} view or
-            in the Edit mode to modify QML code. The code editor understands
-            the QML language as code, not just as plain text. This enables it
-            to provide you with useful features, such as semantic highlighting,
-            checking code syntax, code completion, and refactoring actions.
-        \li \l{Debugging and Profiling}
-
-            \QDS comes with a JavaScript debugger. In the Debug mode, you
-            can inspect the state of your UI while debugging.
-
-            The memory and CPU power available on devices are limited and
-            you should use them carefully. The QML Profiler enables you to
-            profile Qt Quick UIs.
-    \endlist
-
-    \section1 Related Topics
-
-    \list
-        \li \l{Using External Tools}
-
-            You can use external tools directly from \QC. lupdate and lrelease,
-            QML utilities, the default text editor for your system, and the
-            \c sort tool are preconfigured for use. You can change their default
-            configurations and configure new tools.
         \li \l{Managing Data Collection}
 
             \if defined (qtcreator)
@@ -90,5 +59,11 @@
             and transmitted to the backend storage. You can also modify
             settings for collecting user feedback.
             \endif
+        \li \l{Packaging Applications}
+
+            When you are ready to deliver your application to users or upload
+            it to app stores, you can use \QDS to create suitable packages that
+            contain all the necessary files, such as fonts, images, components,
+            and modules.
     \endlist
 */

@@ -1,0 +1,61 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage studio-packaging.html
+    \page studio-developer-topics.html
+    \nextpage creator-vcs-git.html
+
+    \title Developer Topics
+
+    \table
+        \row
+            \li \image front-projects.png
+            \li Learn more about using the Git version control system,
+                converting UI projects into applications, and using
+                external tools directly from \QDS.
+    \endtable
+
+    \list
+        \li \l{Using Git}
+
+            You can add the project files to the Git version control, so that
+            the developers can keep up with your changes. Store and edit only
+            project source files and configuration files. Do not store
+            generated files.
+       \li \l{Converting UI Projects to Applications}
+
+            \QDS projects are useful for creating UIs. To use them for
+            application development in \QC, you have to convert
+            them to Qt Quick Application projects that contain .pro,
+            .cpp, and .qrc files.
+        \li \l{Using External Tools}
+
+            You can use external tools directly from \QDS. Qt Linguist,
+            QML utilities, the default text editor for your system, and the
+            \c sort tool are preconfigured for use. You can change their default
+            configurations and configure new tools.
+    \endlist
+*/

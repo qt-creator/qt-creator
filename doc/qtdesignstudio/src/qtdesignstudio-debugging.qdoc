@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-simulink.html
+    \previouspage creator-editor-options-text.html
     \page studio-debugging.html
     \nextpage creator-debugging-qml.html
 
@@ -41,7 +41,7 @@
 
             This section uses the \l{QML Advanced Tutorial}{Same Game} example
             application to illustrate how to debug Qt Quick applications in the
-            Debug mode.
+            \uicontrol Debug mode.
         \li \l{Profiling QML Applications}
 
             You can use the QML Profiler to find causes for typical performance
