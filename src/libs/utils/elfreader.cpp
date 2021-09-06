@@ -28,12 +28,13 @@
 
 #include <QDir>
 #include <QDebug>
+#include <QtEndian>
 
 #include <new> // std::bad_alloc
 
 namespace Utils {
 
-quint16 getHalfWord(const unsigned char *&s, const ElfData &context)
+static quint16 getHalfWord(const unsigned char *&s, const ElfData &context)
 {
     quint16 res;
     if (context.endian == Elf_ELFDATA2MSB)
@@ -44,7 +45,7 @@ quint16 getHalfWord(const unsigned char *&s, const ElfData &context)
     return res;
 }
 
-quint32 getWord(const unsigned char *&s, const ElfData &context)
+static quint32 getWord(const unsigned char *&s, const ElfData &context)
 {
     quint32 res;
     if (context.endian == Elf_ELFDATA2MSB)
@@ -55,7 +56,7 @@ quint32 getWord(const unsigned char *&s, const ElfData &context)
     return res;
 }
 
-quint64 getAddress(const unsigned char *&s, const ElfData &context)
+static quint64 getAddress(const unsigned char *&s, const ElfData &context)
 {
     quint64 res;
     if (context.elfclass == Elf_ELFCLASS32) {
@@ -74,7 +75,7 @@ quint64 getAddress(const unsigned char *&s, const ElfData &context)
     return res;
 }
 
-quint64 getOffset(const unsigned char *&s, const ElfData &context)
+static quint64 getOffset(const unsigned char *&s, const ElfData &context)
 {
     return getAddress(s, context);
 }
@@ -99,10 +100,20 @@ static void parseProgramHeader(const uchar *s, ElfProgramHeader *sh, const ElfDa
     sh->memsz = getWord(s, context);
 }
 
-ElfMapper::ElfMapper(const ElfReader *reader) : file(reader->m_binary) {}
+ElfMapper::ElfMapper(const ElfReader *reader)
+    : binary(reader->m_binary)
+{}
 
 bool ElfMapper::map()
 {
+    if (binary.needsDevice()) {
+        raw = binary.fileContents();
+        start = raw.constData();
+        fdlen = raw.size();
+        return fdlen > 0;
+    }
+
+    file.setFileName(binary.fileName());
     if (!file.open(QIODevice::ReadOnly))
         return false;
 
@@ -121,7 +132,7 @@ bool ElfMapper::map()
     return true;
 }
 
-ElfReader::ElfReader(const QString &binary)
+ElfReader::ElfReader(const FilePath &binary)
     : m_binary(binary)
 {
 }
@@ -132,10 +143,10 @@ ElfData ElfReader::readHeaders()
     return m_elfData;
 }
 
-static inline QString msgInvalidElfObject(const QString &binary, const QString &why)
+static QString msgInvalidElfObject(const FilePath &binary, const QString &why)
 {
     return ElfReader::tr("\"%1\" is an invalid ELF object (%2)")
-           .arg(QDir::toNativeSeparators(binary), why);
+           .arg(binary.toUserOutput(), why);
 }
 
 ElfReader::Result ElfReader::readIt()
@@ -152,12 +163,12 @@ ElfReader::Result ElfReader::readIt()
     const quint64 fdlen = mapper.fdlen;
 
     if (fdlen < 64) {
-        m_errorString = tr("\"%1\" is not an ELF object (file too small)").arg(QDir::toNativeSeparators(m_binary));
+        m_errorString = tr("\"%1\" is not an ELF object (file too small)").arg(m_binary.toUserOutput());
         return NotElf;
     }
 
     if (strncmp(mapper.start, "\177ELF", 4) != 0) {
-        m_errorString = tr("\"%1\" is not an ELF object").arg(QDir::toNativeSeparators(m_binary));
+        m_errorString = tr("\"%1\" is not an ELF object").arg(m_binary.toUserOutput());
         return NotElf;
     }
 

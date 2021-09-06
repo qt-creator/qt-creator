@@ -2778,7 +2778,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             break;
         }
 
-        Utils::ElfReader reader(rp.symbolFile.toString());
+        ElfReader reader(rp.symbolFile);
         const ElfData elfData = reader.readHeaders();
         const QString error = reader.errorString();
 

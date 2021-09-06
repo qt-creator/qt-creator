@@ -27,12 +27,13 @@
 
 #include "utils_global.h"
 
-#include <qbytearray.h>
-#include <qendian.h>
-#include <qfile.h>
-#include <qvector.h>
-#include <qcoreapplication.h>
-#include <qsharedpointer.h>
+#include "filepath.h"
+
+#include <QByteArray>
+#include <QCoreApplication>
+#include <QFile>
+#include <QSharedPointer>
+#include <QVector>
 
 namespace Utils {
 
@@ -156,8 +157,9 @@ public:
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
     Q_DECLARE_TR_FUNCTIONS(Utils::ElfReader)
+
 public:
-    explicit ElfReader(const QString &binary);
+    explicit ElfReader(const FilePath &binary);
     enum Result { Ok, NotElf, Corrupt };
 
     ElfData readHeaders();
@@ -169,7 +171,7 @@ private:
     friend class ElfMapper;
     Result readIt();
 
-    QString m_binary;
+    FilePath m_binary;
     QString m_errorString;
     ElfData m_elfData;
 };
@@ -185,6 +187,7 @@ public:
     QByteArray raw;
     union { const char *start; const uchar *ustart; };
     quint64 fdlen = 0;
+    FilePath binary;
 };
 
 } // namespace Utils
