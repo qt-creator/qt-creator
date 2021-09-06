@@ -9,6 +9,7 @@ SOURCES += \
     autotestplugin.cpp \
     ctest/ctestconfiguration.cpp \
     ctest/ctestoutputreader.cpp \
+    ctest/ctestsettings.cpp \
     ctest/ctesttool.cpp \
     ctest/ctesttreeitem.cpp \
     itestframework.cpp \
@@ -80,6 +81,7 @@ HEADERS += \
     autotestplugin.h \
     ctest/ctestconfiguration.h \
     ctest/ctestoutputreader.h \
+    ctest/ctestsettings.h \
     ctest/ctesttool.h \
     ctest/ctesttreeitem.h \
     itemdatacache.h \

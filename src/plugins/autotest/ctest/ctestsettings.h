@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -24,32 +25,42 @@
 
 #pragma once
 
-#include "../testoutputreader.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QCoreApplication>
+#include <utils/aspects.h>
 
 namespace Autotest {
 namespace Internal {
 
-class CTestOutputReader final : public Autotest::TestOutputReader
+class CTestSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestOutputReader)
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestSettings)
 public:
-    CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                      QProcess *testApplication, const Utils::FilePath &buildDirectory);
+    CTestSettings();
 
-protected:
-    void processOutputLine(const QByteArray &outputLineWithNewLine) final;
-    TestResultPtr createDefaultResult() const final;
-private:
-    void sendCompleteInformation();
-    int m_currentTestNo = -1;
-    QString m_project;
-    QString m_testName;
-    QString m_description;
-    ResultType m_result = ResultType::Invalid;
-    bool m_expectExceptionFromCrash = false;
+    QStringList activeSettingsAsOptions() const;
+
+    Utils::IntegerAspect repetitionCount;
+    Utils::SelectionAspect repetitionMode;
+    Utils::SelectionAspect outputMode;
+    Utils::BoolAspect outputOnFail;
+    Utils::BoolAspect stopOnFailure;
+    Utils::BoolAspect scheduleRandom;
+    Utils::BoolAspect repeat;
+    // FIXME.. this makes the outputreader fail to get all results correctly for visual display
+    Utils::BoolAspect parallel;
+    Utils::IntegerAspect jobs;
+    Utils::BoolAspect testLoad;
+    Utils::IntegerAspect threshold;
+};
+
+class CTestSettingsPage final : public Core::IOptionsPage
+{
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestSettingsPage)
+public:
+    CTestSettingsPage(CTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal
 } // namespace Autotest
+

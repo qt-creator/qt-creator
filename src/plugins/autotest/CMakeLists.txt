@@ -25,6 +25,7 @@ add_qtc_plugin(AutoTest
     catch/catchtestsettings.cpp catch/catchtestsettings.h
     ctest/ctestconfiguration.cpp ctest/ctestconfiguration.h
     ctest/ctestoutputreader.cpp ctest/ctestoutputreader.h
+    ctest/ctestsettings.cpp ctest/ctestsettings.h
     ctest/ctesttool.cpp ctest/ctesttool.h
     ctest/ctesttreeitem.cpp ctest/ctesttreeitem.h
     gtest/gtest_utils.cpp gtest/gtest_utils.h

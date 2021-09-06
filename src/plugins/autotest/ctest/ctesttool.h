@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../itestframework.h"
+#include "ctestsettings.h"
 
 namespace Autotest {
 namespace Internal {
@@ -42,6 +43,12 @@ public:
 protected:
     const char *name() const final;
     ITestTreeItem *createRootNode() final;
+
+private:
+    ITestSettings *testSettings() override { return &m_settings; }
+
+    CTestSettings m_settings;
+    CTestSettingsPage m_settingsPage{&m_settings, settingsId()};
 };
 
 } // namespace Internal

@@ -129,7 +129,7 @@ static bool isSignificant(ResultType type)
     case ResultType::MessageCurrentTest:
     case ResultType::Application:
     case ResultType::Invalid:
-        QTC_ASSERT_STRING("Got unexpedted type in isSignificant check");
+        QTC_ASSERT_STRING("Got unexpected type in isSignificant check");
         return false;
     default:
         return true;

@@ -79,9 +79,12 @@ CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResultPtr> &futu
 
 void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
+    static const QRegularExpression verbose("^\\d+: .*$");
     static const QRegularExpression testProject("^Test project (.*)$");
-    static const QRegularExpression testCase("^(test \\d+)|(    Start\\s+\\d+: .*)$");
-    static const QRegularExpression testResult("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
+    static const QRegularExpression testCase1("^test (?<current>\\d+)$");
+    static const QRegularExpression testCase2("^    Start\\s+(?<current>\\d+): (?<name>.*)$");
+    static const QRegularExpression testResult("^\\s*(?<first>\\d+/\\d+)? "
+                                               "Test\\s+#(?<current>\\d+): (.*) (\\.+)\\s*"
                                                "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
                                                ".*\\*\\*\\*Exception:.*)\\s+(.*) sec$");
     static const QRegularExpression testCrash("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
@@ -100,7 +103,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         operator bool() const { return hasMatch(); }
     };
 
-    if (ExactMatch match = testProject.match(line)) {
+    if (ExactMatch match = verbose.match(line)) { // ignore verbose output for visual display
+        return;
+    } else if (ExactMatch match = testProject.match(line)) {
         if (!m_testName.isEmpty()) // possible?
             sendCompleteInformation();
         m_project = match.captured(1);
@@ -108,13 +113,27 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult->setResult(ResultType::TestStart);
         testResult->setDescription(tr("Running tests for %1").arg(m_project));
         reportResult(testResult);
-    } else if (ExactMatch match = testCase.match(line)) {
-        if (!m_testName.isEmpty())
+    } else if (ExactMatch match = testCase1.match(line)) {
+        int current = match.captured("current").toInt();
+        if (m_result != ResultType::Invalid && m_currentTestNo != -1 && current != m_currentTestNo)
             sendCompleteInformation();
+        m_currentTestNo = -1;
+    } else if (ExactMatch match = testCase2.match(line)) {
+        int current = match.captured("current").toInt();
+        if (m_result != ResultType::Invalid && m_currentTestNo != -1 && current != m_currentTestNo)
+            sendCompleteInformation();
+        m_currentTestNo = -1;
     } else if (ExactMatch match = testResult.match(line)) {
-        m_description = match.captured();
-        m_testName = match.captured(1);
-        const QString resultType = match.captured(3);
+        int current = match.captured("current").toInt();
+        if (m_result != ResultType::Invalid && m_currentTestNo != -1 && current != m_currentTestNo)
+            sendCompleteInformation();
+        if (!m_description.isEmpty() && match.captured("first").isEmpty())
+            m_description.append('\n').append(match.captured());
+        else
+            m_description = match.captured();
+        m_currentTestNo = current;
+        m_testName = match.captured(3);
+        const QString resultType = match.captured(5);
         if (resultType == "Passed")
             m_result = ResultType::Pass;
         else if (resultType == "***Failed" || resultType == "***Not Run")
@@ -162,12 +181,19 @@ TestResultPtr CTestOutputReader::createDefaultResult() const
 
 void CTestOutputReader::sendCompleteInformation()
 {
+    // some verbose output we did not ignore
+    if (m_result == ResultType::Invalid) {
+        QTC_CHECK(m_currentTestNo == -1 && m_testName.isEmpty());
+        return;
+    }
+
     TestResultPtr testResult = createDefaultResult();
     testResult->setResult(m_result);
     testResult->setDescription(m_description);
     reportResult(testResult);
     m_testName.clear();
     m_description.clear();
+    m_currentTestNo = -1;
     m_result = ResultType::Invalid;
 }
 

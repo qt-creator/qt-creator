@@ -26,6 +26,7 @@
 #include "ctesttreeitem.h"
 
 #include "ctestconfiguration.h"
+#include "ctestsettings.h"
 
 #include "../autotestplugin.h"
 #include "../itestframework.h"
@@ -107,8 +108,8 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
 
     const ProjectExplorer::BuildSystem *buildSystem = target->buildSystem();
     QStringList options{"--timeout", QString::number(AutotestPlugin::settings()->timeout / 1000)};
-    // TODO add ctest options from settings?
-    options << "--output-on-failure";
+    auto ctestSettings = static_cast<CTestSettings *>(testBase()->testSettings());
+    options << ctestSettings->activeSettingsAsOptions();
     Utils::CommandLine command = buildSystem->commandLineForTests(selected, options);
     if (command.executable().isEmpty())
         return {};

@@ -538,6 +538,34 @@
             statistical analysis and bootstrapping.
     \endlist
 
+    \section2 Specifying Settings for Running CTest-Based Tests
+    \list 1
+        \li To specify settings for running CTest-based tests, select
+        \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
+        \uicontrol {CTest}.
+        //! insert image here
+        \li Select the \uicontrol {Output on failure} check box to show test
+            specific output if a test fails. Contrary to the CTest default
+            this is enabled by default.
+        \li Select \uicontrol {Schedule random} to execute the tests in
+            random order.
+        \li Select \uicontrol {Stop on failure} to automatically stop the
+            test execution on the first failing test.
+        \li In the \uicontrol {Output mode} field, select the verbosity level
+            of the CTest output.
+            \note This only influences the output on the text display.
+        \li Select \uicontrol {Repeat tests} if you want to re-run tests
+            under certain circumstances.
+        \li In the \uicontrol {Repetition mode} field, select the mode for
+            re-running tests. The maximum count for repeating a test can be
+            specified in the \uicontrol {Count} field.
+        \li Select \uicontrol {Run in parallel} to run the tests in parallel
+            using the specified number of \uicontrol {Jobs}.
+        \li Select \uicontrol {Test load} to be able to limit the parallel
+            execution. CTest will not start a new test if it would cause the
+            CPU load to pass the threshold given in \uicontrol {Threshold}.
+    \endlist
+
     \section1 Viewing Test Output
 
     The test results are displayed in the \uicontrol {Test Results} output pane

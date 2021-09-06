@@ -125,6 +125,10 @@ void TestFrameworkManager::synchronizeSettings(QSettings *s)
         if (ITestSettings *fSettings = framework->testSettings())
             fSettings->readSettings(s);
     }
+    for (ITestTool *testTool : qAsConst(m_registeredTestTools)) {
+        if (ITestSettings *tSettings = testTool->testSettings())
+            tSettings->readSettings(s);
+    }
 }
 
 } // namespace Autotest
