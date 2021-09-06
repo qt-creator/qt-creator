@@ -31,6 +31,7 @@
 #include <QIcon>
 #include <QObject>
 #include <QString>
+#include <QUrl>
 
 #include <functional>
 
@@ -71,6 +72,8 @@ public:
     QString descriptionImage() const { return m_descriptionImage; }
     QSet<Utils::Id> requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
+    QUrl detailsPageQmlPath() const { return m_detailsPageQmlPath; }
+
     QSet<Utils::Id> supportedProjectTypes() const { return m_supportedProjectTypes; }
 
     void setId(const Utils::Id id) { m_id = id; }
@@ -85,12 +88,13 @@ public:
     void setRequiredFeatures(const QSet<Utils::Id> &featureSet) { m_requiredFeatures = featureSet; }
     void addRequiredFeature(const Utils::Id &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
+    void setDetailsPageQmlPath(const QString &filePath);
 
     QString runPath(const QString &defaultPath) const;
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
     Utils::Wizard *runWizard(const QString &path, QWidget *parent, Utils::Id platform,
-                             const QVariantMap &variables);
+                             const QVariantMap &variables, bool showWizard = true);
 
     virtual bool isAvailable(Utils::Id platformId) const;
     QSet<Utils::Id> supportedPlatforms() const;
@@ -118,7 +122,7 @@ protected:
     static QSet<Utils::Id> availableFeatures(Utils::Id platformId);
 
     virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
-                                         const QVariantMap &variables) = 0;
+                                         const QVariantMap &variables, bool showWizard = true) = 0;
 
 private:
     static void initialize();
@@ -134,6 +138,7 @@ private:
     QString m_category;
     QString m_displayCategory;
     QString m_descriptionImage;
+    QUrl m_detailsPageQmlPath;
     QSet<Utils::Id> m_requiredFeatures;
     QSet<Utils::Id> m_supportedProjectTypes;
     WizardFlags m_flags;

@@ -29,6 +29,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/wizardpage.h>
+#include <utils/algorithm.h>
 
 #include <QRegularExpression>
 #include <QVariant>
@@ -140,6 +141,13 @@ public:
     Utils::MacroExpander *expander();
 
     QVariant value(const QString &key);
+
+public:
+    Field *jsonField(const QString &name) {
+        return Utils::findOr(m_fields, nullptr, [&name](Field *f) {
+            return f->name() == name;
+        });
+    }
 
 private:
     static QHash<QString, FieldFactory> m_factories;

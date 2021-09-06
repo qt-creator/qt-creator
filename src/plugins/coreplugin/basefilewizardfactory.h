@@ -116,7 +116,7 @@ protected:
 private:
     // IWizard
     Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
-                                 const QVariantMap &extraValues) override;
+                                 const QVariantMap &extraValues, bool showWizard = true) override;
 };
 
 } // namespace Core

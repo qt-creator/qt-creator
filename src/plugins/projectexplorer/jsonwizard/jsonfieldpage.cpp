@@ -701,6 +701,14 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
     }));
 }
 
+void LineEditField::setText(const QString &text)
+{
+    m_currentText = text;
+
+    auto w = qobject_cast<FancyLineEdit *>(widget());
+    w->setText(m_currentText);
+}
+
 // --------------------------------------------------------------------
 // TextEditFieldData:
 // --------------------------------------------------------------------
@@ -1145,6 +1153,14 @@ QStandardItemModel *ListField::itemModel()
     return m_itemModel;
 }
 
+void ListField::selectRow(int row)
+{
+    auto index = itemModel()->index(row, 0);
+    selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+
+    this->updateIndex();
+}
+
 QItemSelectionModel *ListField::selectionModel() const
 {
     return m_selectionModel;
@@ -1249,6 +1265,20 @@ QVariant ComboBoxField::toSettings() const
     if (auto w = qobject_cast<QComboBox *>(widget()))
         return w->currentData(ValueRole);
     return {};
+}
+
+void ComboBoxField::selectRow(int row)
+{
+    ListField::selectRow(row);
+
+    auto w = qobject_cast<QComboBox *>(widget());
+    w->setCurrentIndex(row);
+}
+
+int ComboBoxField::selectedRow() const
+{
+    auto w = qobject_cast<QComboBox *>(widget());
+    return w->currentIndex();
 }
 
 void IconListField::setup(JsonFieldPage *page, const QString &name)

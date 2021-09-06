@@ -257,14 +257,17 @@ QString IWizardFactory::runPath(const QString &defaultPath) const
     created. The wizard should fill this in its path selection elements as a
     default path.
 */
-Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, Id platform, const QVariantMap &variables)
+Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, Id platform,
+                                         const QVariantMap &variables,
+                                         bool showWizard)
 {
     QTC_ASSERT(!s_isWizardRunning, return nullptr);
 
     s_isWizardRunning = true;
     ICore::updateNewItemDialogState();
 
-    Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables);
+    Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables, showWizard);
+
 
     if (wizard) {
         s_currentWizard = wizard;
@@ -286,7 +289,8 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
             s_reopenData.reopen();
         });
         s_inspectWizardAction->setEnabled(true);
-        wizard->show();
+        if (showWizard)
+            wizard->show();
         Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
     } else {
         s_isWizardRunning = false;
@@ -417,4 +421,19 @@ void IWizardFactory::initialize()
 
     s_inspectWizardAction = new QAction(tr("Inspect Wizard State"), ActionManager::instance());
     ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
+}
+
+void IWizardFactory::setDetailsPageQmlPath(const QString &filePath)
+{
+    if (filePath.isEmpty())
+        return;
+
+    if (filePath.startsWith(':')) {
+        m_detailsPageQmlPath.setScheme(QLatin1String("qrc"));
+        QString path = filePath;
+        path.remove(0, 1);
+        m_detailsPageQmlPath.setPath(path);
+    } else {
+        m_detailsPageQmlPath = QUrl::fromLocalFile(filePath);
+    }
 }

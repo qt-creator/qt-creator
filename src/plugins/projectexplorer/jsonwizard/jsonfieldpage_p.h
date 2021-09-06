@@ -113,7 +113,7 @@ private:
     int m_factor = 1;
 };
 
-class LineEditField : public JsonFieldPage::Field
+class PROJECTEXPLORER_EXPORT LineEditField : public JsonFieldPage::Field
 {
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;
@@ -159,6 +159,9 @@ private:
 
     enum class Completion { Classes, Namespaces, None };
     Completion m_completion = Completion::None;
+
+public:
+    void setText(const QString &text);
 };
 
 class TextEditField : public JsonFieldPage::Field
@@ -279,7 +282,10 @@ public:
     ListField();
     ~ListField() override;
 
-    protected:
+    QStandardItemModel *model() { return m_itemModel; }
+    virtual void selectRow(int row);
+
+protected:
     bool parseData(const QVariant &data, QString *errorMessage) override;
 
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override = 0;
@@ -329,7 +335,7 @@ private:
     mutable int m_savedIndex = -1;
 };
 
-class ComboBoxField : public ListField
+class PROJECTEXPLORER_EXPORT ComboBoxField : public ListField
 {
 private:
     void setup(JsonFieldPage *page, const QString &name) override;
@@ -344,6 +350,10 @@ private:
         out << "ComboBox{" << ListField::toString() << "}";
         return result;
     }
+
+public:
+    void selectRow(int row) override;
+    int selectedRow() const;
 };
 
 class IconListField : public ListField

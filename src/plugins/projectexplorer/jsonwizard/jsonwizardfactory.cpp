@@ -373,7 +373,7 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
 
 Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
                                                 Utils::Id platform,
-                                                const QVariantMap &variables)
+                                                const QVariantMap &variables, bool showWizard)
 {
     auto wizard = new JsonWizard(parent);
     wizard->setWindowIcon(icon());
@@ -464,7 +464,8 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
         return nullptr;
     }
 
-    wizard->show();
+    if (showWizard)
+        wizard->show();
     return wizard;
 }
 
@@ -601,6 +602,10 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         }
         setDescriptionImage(strVal);
     }
+
+    strVal = baseDir.absoluteFilePath("detailsPage.qml");
+    if (QFileInfo::exists(strVal))
+        setDetailsPageQmlPath(strVal);
 
     setRequiredFeatures(Utils::Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Utils::Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
