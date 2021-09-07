@@ -80,7 +80,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_RECENT, QStringList());
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_FAVORITE, QStringList());
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
-    restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, true);
+    restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, false);
     restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, true);
 
     settings->endGroup();
