@@ -96,19 +96,6 @@ Item {
             }
 
             onClicked: root.clicked()
-
-            Image {
-                id: downloadCloud
-                x: 210
-                y: 118
-                width: 60
-                height: 60
-                source: "images/downloadCloud.svg"
-                sourceSize.height: 60
-                sourceSize.width: 60
-                fillMode: Image.PreserveAspectFit
-                visible: false
-            }
         }
     }
 
@@ -205,6 +192,19 @@ Item {
         renderType: Text.NativeRendering
         font.pixelSize: 14
         font.family: StudioFonts.titilliumWeb_regular
+    }
+
+    Image {
+        id: downloadCloud
+        x: 210
+        y: 118
+        width: 60
+        height: 60
+        source: "images/downloadCloud.svg"
+        sourceSize.height: 60
+        sourceSize.width: 60
+        fillMode: Image.PreserveAspectFit
+        visible: false
     }
 }
 
