@@ -28,14 +28,14 @@
     \ingroup studioexamples
     \ingroup gstutorials
 
-    \title Log In UI - Part 3
+    \title Log In UI - States
     \brief Illustrates how to use states to create a second UI page.
-    \previouspage {Log In UI - Part 2}
-    \nextpage {Log In UI - Part 4}
+    \previouspage {Log In UI - Positioning}
+    \nextpage {Log In UI - Timeline}
 
     \image loginui3.gif "Log In UI"
 
-    \e{Log In UI - Part 3} is the third in a series of tutorials that build
+    \e{Log In UI - States} is the third in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 3
     describes how to use \e states to add a second page to the UI. On the
@@ -49,8 +49,8 @@
     These instructions build on:
 
     \list
-        \li \l {Log In UI - Part 1}
-        \li \l {Log In UI - Part 2}
+        \li \l {Log In UI - Components}
+        \li \l {Log In UI - Positioning}
     \endlist
 
     The \e {Learn More} sections provide additional information relevant to the
@@ -237,5 +237,5 @@
 
     To learn how to use a timeline to animate the transition between the login
     and registration pages, see the next tutorial in the series,
-    \l {Log In UI - Part 4}.
+    \l {Log In UI - Timeline}.
 */

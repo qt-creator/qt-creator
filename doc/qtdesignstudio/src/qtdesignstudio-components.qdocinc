@@ -72,7 +72,7 @@
     \endlist
 
     For an example of using the \uicontrol Button template to create a button
-    and styling it, see \l{Creating a Push Button} in the \l{Log In UI - Part 1}
+    and styling it, see \l{Creating a Push Button} in the \l{Log In UI - Components}
     tutorial.
 
     In addition, you can create starting points for different types of screens:

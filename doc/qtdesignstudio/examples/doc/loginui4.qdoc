@@ -28,14 +28,14 @@
     \ingroup studioexamples
     \ingroup gstutorials
 
-    \title Log In UI - Part 4
+    \title Log In UI - Timeline
     \brief Illustrates how to use the timeline and states to animate UI
     components.
-    \previouspage {Log In UI - Part 3}
+    \previouspage {Log In UI - States}
 
     \image loginui4.gif "Log In UI"
 
-    \e{Log In UI - Part 4} is the fourth in a series of tutorials that build
+    \e{Log In UI - Timeline} is the fourth in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 4
     describes how to use the timeline and states to animate UI components.
@@ -49,9 +49,9 @@
     These instructions build on:
 
     \list
-        \li \l {Log In UI - Part 1}
-        \li \l {Log In UI - Part 2}
-        \li \l {Log In UI - Part 3}
+        \li \l {Log In UI - Components}
+        \li \l {Log In UI - Positioning}
+        \li \l {Log In UI - States}
     \endlist
 
     The \e {Learn More} sections provide additional information relevant to the

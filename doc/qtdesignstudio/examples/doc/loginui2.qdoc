@@ -27,16 +27,16 @@
     \example loginui2
     \ingroup studioexamples
     \ingroup gstutorials
-    \previouspage {Log In UI - Part 1}
-    \nextpage {Log In UI - Part 3}
+    \previouspage {Log In UI - Components}
+    \nextpage {Log In UI - States}
 
-    \title Log In UI - Part 2
+    \title Log In UI - Positioning
     \brief Illustrates how to position UI components on pages using anchors and
     positioners.
 
     \image loginui2.png "Log In UI"
 
-    \e{Log In UI - Part 2} is the second in a series of tutorials that build
+    \e{Log In UI - Positioning} is the second in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 2
     describes how to position the UI components on pages to create a scalable
@@ -46,7 +46,7 @@
     their proper places when you resize the UI on the desktop or on devices
     with different screen sizes, you will use anchors and positioners.
 
-    These instructions build on \l {Log In UI - Part 1}.
+    These instructions build on \l {Log In UI - Components}.
 
     The \e {Learn More} sections provide additional information about the
     task at hand.
@@ -197,6 +197,6 @@
     \section1 Next Steps
 
     To learn how to add a second page and move to it from the main page, see
-    the next tutorial in the series, \l {Log In UI - Part 3}.
+    the next tutorial in the series, \l {Log In UI - States}.
 */
 

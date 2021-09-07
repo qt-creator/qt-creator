@@ -77,7 +77,7 @@ Button {
         implicitHeight: 40
         opacity: enabled ? 1 : 0.3
         radius: 50
-        border.color: "#41cd52"
+        border.color: "#ffffff"
     }
 
     contentItem: textItem
@@ -87,9 +87,10 @@ Button {
         font.pixelSize: 34
 
         opacity: enabled ? 1.0 : 0.3
-        color: "#41cd52"
-        horizontalAlignment: Text.AlignHCenter
+        color: "#ffffff"
+        horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
+        leftPadding: 50
         font.family: "Titillium Web ExtraLight"
     }
 
@@ -99,8 +100,13 @@ Button {
             when: !control.down
 
             PropertyChanges {
+                target: textItem
+                font.family: "Titillium Web ExtraLight"
+            }
+
+            PropertyChanges {
                 target: buttonBackground
-                color: "#00000000"
+                color: "#28e7e7e7"
             }
         },
         State {
@@ -113,15 +119,9 @@ Button {
 
             PropertyChanges {
                 target: buttonBackground
-                color: "#41cd52"
-                border.color: "#00000000"
+                color: "#e7e7e7"
+                border.color: "#ffffff"
             }
         }
     ]
 }
-
-/*##^##
-Designer {
-    D{i:0;height:100;width:500}
-}
-##^##*/
