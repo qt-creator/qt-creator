@@ -56,6 +56,9 @@ macro(qtc_auto_setup_conan)
 
     find_program(conan_program conan)
     if (NOT conan_program)
+      message(WARNING "Qt Creator: conan executable not found. "
+                      "Package manager auto-setup will be skipped. "
+                      "To disable this warning set QT_CREATOR_SKIP_CONAN_SETUP to ON.")
       return()
     endif()
 
@@ -127,6 +130,9 @@ macro(qtc_auto_setup_vcpkg)
 
     find_program(vcpkg_program vcpkg)
     if (NOT vcpkg_program)
+      message(WARNING "Qt Creator: vcpkg executable not found. "
+                      "Package manager auto-setup will be skipped. "
+                      "To disable this warning set QT_CREATOR_SKIP_VCPKG_SETUP to ON.")
       return()
     endif()
     get_filename_component(vpkg_root ${vcpkg_program} DIRECTORY)
