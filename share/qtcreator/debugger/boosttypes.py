@@ -23,6 +23,7 @@
 #
 ############################################################################
 
+from utils import DisplayFormat
 from dumper import Children
 
 
@@ -68,7 +69,11 @@ def qdump__boost__shared_ptr(d, value):
 
 
 def qdump__boost__container__list(d, value):
-    r = value["members_"]["m_icont"]["data_"]["root_plus_size_"]
+    try:
+        m_icont = value["m_icont"]
+    except:
+        m_icont = value["members_"]["m_icont"]
+    r = m_icont["data_"]["root_plus_size_"]
     n = r["size_"].integer()
     d.putItemCount(n)
     if d.isExpanded():
@@ -83,6 +88,32 @@ def qdump__boost__container__list(d, value):
             for i in d.childRange():
                 d.putSubItem(i, d.createValue(p + offset, innerType))
                 p = d.extractPointer(p)
+
+
+def qform__boost__container__vector():
+    return [DisplayFormat.ArrayPlot]
+
+
+def qdump__boost__container__vector(d, value):
+    holder = value["m_holder"]
+    size = holder["m_size"].integer()
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        T = value.type[0]
+        try:
+            start = holder["m_start"].pointer()
+        except:
+            start = holder["storage"].address()
+        d.putPlotData(start, size, T)
+
+
+def qform__boost__container__static_vector():
+    return [DisplayFormat.ArrayPlot]
+
+
+def qdump__boost__container__static_vector(d, value):
+    qdump__boost__container__vector(d, value)
 
 
 def qdump__boost__gregorian__date(d, value):

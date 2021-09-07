@@ -6690,9 +6690,6 @@ void tst_Dumpers::dumper_data()
              + Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
 
 
-/*
-    FIXME
-
     QTest::newRow("BoostList")
             << Data("#include <boost/container/list.hpp>\n",
                     "typedef std::pair<int, double> p;\n"
@@ -6700,11 +6697,42 @@ void tst_Dumpers::dumper_data()
                     "l.push_back(p(13, 61));\n"
                     "l.push_back(p(14, 64));\n"
                     "l.push_back(p(15, 65));\n"
-                    "l.push_back(p(16, 66));\n")
+                    "l.push_back(p(16, 66));\n",
+                    "&l")
              + BoostProfile()
              + Check("l", "<4 items>", TypePattern("boost::container::list<std::pair<int,double>.*>"))
+             + Check("l.1.first", "14", "int")
              + Check("l.2.second", FloatValue("65"), "double");
-*/
+
+
+    QTest::newRow("BoostVector")
+            << Data("#include <boost/container/vector.hpp>\n",
+                    "typedef std::pair<int, double> p;\n"
+                    "boost::container::vector<p> v;\n"
+                    "v.push_back(p(13, 61));\n"
+                    "v.push_back(p(14, 64));\n"
+                    "v.push_back(p(15, 65));\n"
+                    "v.push_back(p(16, 66));\n",
+                    "&v")
+             + BoostProfile()
+             + Check("v", "<4 items>", TypePattern("boost::container::vector<std::pair<int,double>.*>"))
+             + Check("v.1.first", "14", "int")
+             + Check("v.2.second", FloatValue("65"), "double");
+
+
+    QTest::newRow("BoostStaticVector")
+            << Data("#include <boost/container/static_vector.hpp>\n",
+                    "typedef std::pair<int, double> p;\n"
+                    "boost::container::static_vector<p, 10> v;\n"
+                    "v.push_back(p(13, 61));\n"
+                    "v.push_back(p(14, 64));\n"
+                    "v.push_back(p(15, 65));\n"
+                    "v.push_back(p(16, 66));\n",
+                    "&v")
+             + BoostProfile()
+             + Check("v", "<4 items>", TypePattern("boost::container::static_vector<std::pair<int,double>.*>"))
+             + Check("v.1.first", "14", "int")
+             + Check("v.2.second", FloatValue("65"), "double");
 
 
     QTest::newRow("BoostUnorderedSet")
