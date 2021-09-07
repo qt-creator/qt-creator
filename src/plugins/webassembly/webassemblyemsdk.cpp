@@ -189,7 +189,7 @@ EM_CACHE = C:/Users/user/dev/emsdk/upstream/emscripten\cache
 EMSDK_NODE = C:\Users\user\dev\emsdk\node\12.18.1_64bit\bin\node.exe
 EMSDK_PYTHON = C:\Users\user\dev\emsdk\python\3.7.4-pywin32_64bit\python.exe
 JAVA_HOME = C:\Users\user\dev\emsdk\java\8.152_64bit
-      )" << int(OsTypeWindows) << 5 << "C:/Users/user/dev/emsdk" << "C:\\Users\\user\\dev\\emsdk\\.emscripten";
+      )" << int(OsTypeWindows) << 6 << "C:/Users/user/dev/emsdk" << "C:\\Users\\user\\dev\\emsdk\\.emscripten";
 
     QTest::newRow("linux") << R"(
 Adding directories to PATH:
