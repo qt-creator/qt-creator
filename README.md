@@ -135,6 +135,9 @@ the first `cmake` call. If you want to build in release mode, change the build
 type to `-DCMAKE_BUILD_TYPE=Release`. You can also build with release
 optimizations but debug information with `-DCMAKE_BUILD_TYPE=RelWithDebInfo`.
 
+You can find more options in the generated CMakeCache.txt file. For instance,
+building of Qbs together with Qt Creator can be enabled with `-DBUILD_QBS=ON`.
+
 Installation is not needed. It is however possible, using
 
     cmake --install . --prefix /path/to/qtcreator_install

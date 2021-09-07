@@ -85,6 +85,7 @@ def get_arguments():
     parser.add_argument('--no-cdb',
                         help='Skip cdbextension and the python dependency packaging step (Windows)',
                         action='store_true', default=(not common.is_windows_platform()))
+    parser.add_argument('--no-qbs', help='Skip building Qbs as part of Qt Creator', action='store_true', default=False);
     parser.add_argument('--no-docs', help='Skip documentation generation',
                         action='store_true', default=False)
     parser.add_argument('--no-build-date', help='Does not show build date in about dialog, for reproducible builds',
@@ -151,27 +152,29 @@ def common_cmake_arguments(args):
     return cmake_args
 
 def build_qtcreator(args, paths):
+    def cmake_option(option):
+        return 'ON' if option else 'OFF'
     if args.no_qtcreator:
         return
     if not os.path.exists(paths.build):
         os.makedirs(paths.build)
+    build_qbs = (True if not args.no_qbs and os.path.exists(os.path.join(paths.src, 'src', 'shared', 'qbs', 'CMakeLists.txt'))
+                 else False)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt]
     if paths.llvm:
         prefix_paths += [paths.llvm]
     if paths.elfutils:
         prefix_paths += [paths.elfutils]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
-    with_docs_str = 'OFF' if args.no_docs else 'ON'
-    build_date_option = 'OFF' if args.no_build_date else 'ON'
-    test_option = 'ON' if args.with_tests else 'OFF'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DSHOW_BUILD_DATE=' + build_date_option,
-                  '-DWITH_DOCS=' + with_docs_str,
-                  '-DBUILD_DEVELOPER_DOCS=' + with_docs_str,
+                  '-DSHOW_BUILD_DATE=' + cmake_option(not args.no_build_date),
+                  '-DWITH_DOCS=' + cmake_option(not args.no_docs),
+                  '-DBUILD_QBS=' + cmake_option(build_qbs),
+                  '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_EXECUTABLE_SDKTOOL=OFF',
                   '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
-                  '-DWITH_TESTS=' + test_option]
+                  '-DWITH_TESTS=' + cmake_option(args.with_tests)]
     cmake_args += common_cmake_arguments(args)
 
     if common.is_windows_platform():

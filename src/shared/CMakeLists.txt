@@ -9,13 +9,7 @@ add_subdirectory(registryaccess)
 qtc_add_public_header(qtcreator_pch.h)
 qtc_add_public_header(qtcreator_gui_pch.h)
 
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qbs/CMakeLists.txt)
-  set(BUILD_QBS_DEFAULT YES)
-else()
-  set(BUILD_QBS_DEFAULT FALSE)
-endif()
-
-option(BUILD_QBS "Build Qbs together with Qt Creator" ${BUILD_QBS_DEFAULT})
+option(BUILD_QBS "Build Qbs together with Qt Creator" OFF)
 
 add_feature_info("Build Qbs" BUILD_QBS "")
 if (BUILD_QBS)
