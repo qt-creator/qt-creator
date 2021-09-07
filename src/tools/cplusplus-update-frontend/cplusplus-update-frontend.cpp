@@ -1034,7 +1034,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     QTextDocument cpp_document;
     cpp_document.setPlainText(QString::fromUtf8(source));
 
-    Document::Ptr AST_cpp_document = snapshot.preprocessedDocument(source, fileName);
+    Document::Ptr AST_cpp_document = snapshot.preprocessedDocument(source, Utils::FilePath::fromString(fileName));
     AST_cpp_document->check();
 
     Overview oo;
@@ -1325,7 +1325,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     QTextDocument document;
     document.setPlainText(QString::fromUtf8(source));
 
-    AST_h_document  = snapshot.preprocessedDocument(source, fileName);
+    AST_h_document  = snapshot.preprocessedDocument(source, Utils::FilePath::fromString(fileName));
     AST_h_document->check();
 
     FindASTNodes process(AST_h_document, &document);
@@ -1457,7 +1457,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
     QTextDocument document;
     document.setPlainText(QString::fromUtf8(source));
-    Document::Ptr doc = snapshot.preprocessedDocument(source, fileName);
+    Document::Ptr doc = snapshot.preprocessedDocument(source, Utils::FilePath::fromString(fileName));
     doc->check();
 
     FindASTForwards process(doc, &document);
