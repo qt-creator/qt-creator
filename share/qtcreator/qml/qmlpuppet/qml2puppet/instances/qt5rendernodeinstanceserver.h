@@ -43,6 +43,7 @@ public:
 protected:
     void collectItemChangesAndSendChangeCommands() override;
     ServerNodeInstance findNodeInstanceForItem(QQuickItem *item) const;
+    void resizeCanvasToRootItem() override;
 
 private:
     QSet<ServerNodeInstance> m_dirtyInstanceSet;
