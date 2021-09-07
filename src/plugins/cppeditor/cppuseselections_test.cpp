@@ -26,8 +26,8 @@
 #include "cppuseselections_test.h"
 
 #include "cppeditorwidget.h"
-#include "cppeditortestcase.h"
 #include "cppmodelmanager.h"
+#include "cpptoolstestcase.h"
 
 #include <QElapsedTimer>
 #include <QtTest>
@@ -68,7 +68,7 @@ namespace Tests {
 class UseSelectionsTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    UseSelectionsTestCase(GenericCppTestDocument &testDocument,
+    UseSelectionsTestCase(CppTestDocument &testDocument,
                           const SelectionList &expectedSelections);
 
 private:
@@ -80,7 +80,7 @@ private:
     CppEditorWidget *m_editorWidget = nullptr;
 };
 
-UseSelectionsTestCase::UseSelectionsTestCase(GenericCppTestDocument &testFile,
+UseSelectionsTestCase::UseSelectionsTestCase(CppTestDocument &testFile,
                                              const SelectionList &expectedSelections)
 {
     QVERIFY(succeededSoFar());
@@ -251,7 +251,7 @@ void SelectionsTest::testUseSelections()
     QFETCH(QByteArray, source);
     QFETCH(SelectionList, expectedSelections);
 
-    Tests::GenericCppTestDocument testDocument("file.cpp", source);
+    Tests::CppTestDocument testDocument("file.cpp", source);
     Tests::UseSelectionsTestCase(testDocument, expectedSelections);
 }
 

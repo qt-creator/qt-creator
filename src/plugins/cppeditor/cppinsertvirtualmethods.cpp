@@ -1889,7 +1889,7 @@ void InsertVirtualMethodsTest::test()
 /// Check: Insert in implementation file
 void InsertVirtualMethodsTest::testImplementationFile()
 {
-    QList<Tests::QuickFixTestDocument::Ptr> testFiles;
+    QList<Tests::TestDocumentPtr> testFiles;
     QByteArray original;
     QByteArray expected;
 
@@ -1916,7 +1916,7 @@ void InsertVirtualMethodsTest::testImplementationFile()
         "public:\n"
         "    virtual int a(const std::vector<int> &v);\n"
         "};\n";
-    testFiles << Tests::QuickFixTestDocument::create("file.h", original, expected);
+    testFiles << Tests::CppTestDocument::create("file.h", original, expected);
 
     // Source File
     original = "#include \"file.h\"\n";
@@ -1925,7 +1925,7 @@ void InsertVirtualMethodsTest::testImplementationFile()
         "\n\n"
         "int Derived::a(const std::vector<int> &v)\n"
         "{\n}";
-    testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
+    testFiles << Tests::CppTestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile,
@@ -1937,7 +1937,7 @@ void InsertVirtualMethodsTest::testImplementationFile()
 /// Check: Qualified names.
 void InsertVirtualMethodsTest::testBaseClassInNamespace()
 {
-    QList<Tests::QuickFixTestDocument::Ptr> testFiles;
+    QList<Tests::TestDocumentPtr> testFiles;
     QByteArray original;
     QByteArray expected;
 
@@ -1970,7 +1970,7 @@ void InsertVirtualMethodsTest::testBaseClassInNamespace()
         "public:\n"
         "    virtual BaseNS::BaseEnum a(BaseNS::BaseEnum e);\n"
         "};\n";
-    testFiles << Tests::QuickFixTestDocument::create("file.h", original, expected);
+    testFiles << Tests::CppTestDocument::create("file.h", original, expected);
 
     // Source File
     original = "#include \"file.h\"\n";
@@ -1979,7 +1979,7 @@ void InsertVirtualMethodsTest::testBaseClassInNamespace()
         "\n\n"
         "BaseNS::BaseEnum Derived::a(BaseNS::BaseEnum e)\n"
         "{\n}";
-    testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
+    testFiles << Tests::CppTestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile,

@@ -63,7 +63,7 @@ QString stripCursor(const QString &source)
     return copy;
 }
 
-class PointerDeclarationFormatterTestCase : public Tests::TestCase
+class PointerDeclarationFormatterTestCase : public CppEditor::Tests::TestCase
 {
 public:
     PointerDeclarationFormatterTestCase(const QByteArray &source,
@@ -83,7 +83,7 @@ public:
         }
 
         // Write source to temprorary file
-        Tests::TemporaryDir temporaryDir;
+        CppEditor::Tests::TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
         const QString filePath = temporaryDir.createFile("file.h",
                                                          sourceWithoutCursorMarker.toUtf8());

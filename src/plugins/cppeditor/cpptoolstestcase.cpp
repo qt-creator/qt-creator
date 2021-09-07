@@ -54,6 +54,136 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
+namespace CppEditor::Internal::Tests {
+
+CppTestDocument::CppTestDocument(const QByteArray &fileName, const QByteArray &source,
+                                         char cursorMarker)
+    : m_fileName(QString::fromUtf8(fileName))
+    , m_source(QString::fromUtf8(source))
+    , m_cursorMarker(cursorMarker)
+    , m_targetCursorPosition(m_source.indexOf(QLatin1Char('$')))
+    , m_selectionStartMarker(QLatin1Char(m_cursorMarker) + QLatin1String("{start}"))
+    , m_selectionEndMarker(QLatin1Char(m_cursorMarker) + QLatin1String("{end}"))
+{
+    // Try to find selection markers
+    const int selectionStartIndex = m_source.indexOf(m_selectionStartMarker);
+    const int selectionEndIndex = m_source.indexOf(m_selectionEndMarker);
+    const bool bothSelectionMarkersFound = selectionStartIndex != -1 && selectionEndIndex != -1;
+    const bool noneSelectionMarkersFounds = selectionStartIndex == -1 && selectionEndIndex == -1;
+    QTC_ASSERT(bothSelectionMarkersFound || noneSelectionMarkersFounds, return);
+
+    if (selectionStartIndex != -1) {
+        m_cursorPosition = selectionEndIndex;
+        m_anchorPosition = selectionStartIndex;
+
+    // No selection markers found, so check for simple cursorMarker
+    } else {
+        m_cursorPosition = m_source.indexOf(QLatin1Char(cursorMarker));
+    }
+
+    if (m_cursorPosition != -1 || m_targetCursorPosition != -1)
+        QVERIFY(m_cursorPosition != m_targetCursorPosition);
+}
+
+TestDocumentPtr CppTestDocument::create(const QByteArray &source, const QByteArray &fileName)
+{
+    const TestDocumentPtr doc(new CppTestDocument(fileName, source));
+    doc->removeMarkers();
+    return doc;
+}
+
+TestDocumentPtr CppTestDocument::create(const QByteArray &fileName, const QByteArray &source,
+                                            const QByteArray &expectedSource)
+{
+    const TestDocumentPtr doc(new CppTestDocument(fileName, source));
+    doc->m_expectedSource = QString::fromUtf8(expectedSource);
+    doc->removeMarkers();
+    return doc;
+}
+
+QString CppTestDocument::filePath() const
+{
+    if (!m_baseDirectory.isEmpty())
+        return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
+
+    if (!QFileInfo(m_fileName).isAbsolute())
+        return Utils::TemporaryDirectory::masterDirectoryPath() + '/' + m_fileName;
+
+    return m_fileName;
+}
+
+bool CppTestDocument::writeToDisk() const
+{
+    return CppEditor::Tests::TestCase::writeFile(filePath(), m_source.toUtf8());
+}
+
+void CppTestDocument::removeMarkers()
+{
+    // Remove selection markers
+    if (m_anchorPosition != -1) {
+        if (m_anchorPosition < m_cursorPosition) {
+            m_source.remove(m_anchorPosition, m_selectionStartMarker.size());
+            m_cursorPosition -= m_selectionStartMarker.size();
+            m_source.remove(m_cursorPosition, m_selectionEndMarker.size());
+        } else {
+            m_source.remove(m_cursorPosition, m_selectionEndMarker.size());
+            m_anchorPosition -= m_selectionEndMarker.size();
+            m_source.remove(m_anchorPosition, m_selectionStartMarker.size());
+        }
+
+    // Remove simple cursor marker
+    } else if (m_cursorPosition != -1 || m_targetCursorPosition != -1) {
+        if (m_cursorPosition > m_targetCursorPosition) {
+            m_source.remove(m_cursorPosition, 1);
+            if (m_targetCursorPosition != -1) {
+                m_source.remove(m_targetCursorPosition, 1);
+                --m_cursorPosition;
+            }
+        } else {
+            m_source.remove(m_targetCursorPosition, 1);
+            if (m_cursorPosition != -1) {
+                m_source.remove(m_cursorPosition, 1);
+                --m_targetCursorPosition;
+            }
+        }
+    }
+
+    const int cursorPositionInExpectedSource
+        = m_expectedSource.indexOf(QLatin1Char(m_cursorMarker));
+    if (cursorPositionInExpectedSource > -1)
+        m_expectedSource.remove(cursorPositionInExpectedSource, 1);
+}
+
+VerifyCleanCppModelManager::VerifyCleanCppModelManager()
+{
+    QVERIFY(isClean());
+}
+
+VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
+    QVERIFY(isClean());
+}
+
+#define RETURN_FALSE_IF_NOT(check) if (!(check)) return false;
+
+bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
+{
+    CppModelManager *mm = CppModelManager::instance();
+    RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
+    if (!testOnlyForCleanedProjects) {
+        RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
+        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
+        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    }
+    return true;
+}
+
+#undef RETURN_FALSE_IF_NOT
+
+} // namespace CppEditor::Internal::Tests
+
 namespace CppEditor::Tests {
 
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
@@ -73,28 +203,6 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QSt
         }
     }
     return true;
-}
-
-BaseCppTestDocument::BaseCppTestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
-    : m_fileName(QString::fromUtf8(fileName))
-    , m_source(QString::fromUtf8(source))
-    , m_cursorMarker(cursorMarker)
-{}
-
-QString BaseCppTestDocument::filePath() const
-{
-    if (!m_baseDirectory.isEmpty())
-        return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
-
-    if (!QFileInfo(m_fileName).isAbsolute())
-        return Utils::TemporaryDirectory::masterDirectoryPath() + '/' + m_fileName;
-
-    return m_fileName;
-}
-
-bool BaseCppTestDocument::writeToDisk() const
-{
-    return TestCase::writeFile(filePath(), m_source.toUtf8());
 }
 
 TestCase::TestCase(bool runGarbageCollector)
@@ -388,52 +496,6 @@ QString TemporaryCopiedDir::absolutePath(const QByteArray &relativePath) const
 {
     return m_temporaryDir.filePath(QString::fromUtf8(relativePath)).path();
 }
-
-FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteArray &contents)
-    : m_filePath(filePath)
-{
-    if (QFileInfo::exists(filePath)) {
-        qWarning().nospace() << "Will not overwrite existing file: " << m_filePath << "."
-            << " If this file is left over due to a(n) abort/crash, please remove manually.";
-        m_writtenSuccessfully = false;
-    } else {
-        m_writtenSuccessfully = TestCase::writeFile(filePath, contents);
-    }
-}
-
-FileWriterAndRemover::~FileWriterAndRemover()
-{
-    if (m_writtenSuccessfully && !QFile::remove(m_filePath))
-        qWarning() << "Failed to remove file from disk:" << qPrintable(m_filePath);
-}
-
-VerifyCleanCppModelManager::VerifyCleanCppModelManager()
-{
-    QVERIFY(isClean());
-}
-
-VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
-    QVERIFY(isClean());
-}
-
-#define RETURN_FALSE_IF_NOT(check) if (!(check)) return false;
-
-bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
-{
-    CppModelManager *mm = CppModelManager::instance();
-    RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
-    if (!testOnlyForCleanedProjects) {
-        RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
-        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
-        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
-    }
-    return true;
-}
-
-#undef RETURN_FALSE_IF_NOT
 
 int clangdIndexingTimeout()
 {

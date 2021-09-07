@@ -243,7 +243,6 @@ equals(TEST, 1) {
         cppcodegen_test.h \
         cppcompletion_test.h \
         cppdoxygen_test.h \
-        cppeditortestcase.h \
         cppheadersource_test.h \
         cppincludehierarchy_test.h \
         cpplocalsymbols_test.h \
@@ -267,7 +266,6 @@ equals(TEST, 1) {
         cppcodegen_test.cpp \
         cppcompletion_test.cpp \
         cppdoxygen_test.cpp \
-        cppeditortestcase.cpp \
         cppheadersource_test.cpp \
         cppincludehierarchy_test.cpp \
         cpplocalsymbols_test.cpp \

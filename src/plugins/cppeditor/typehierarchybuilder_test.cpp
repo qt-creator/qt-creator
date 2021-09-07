@@ -38,9 +38,9 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
-using CppEditor::Tests::BaseCppTestDocument;
+using CppEditor::Internal::Tests::CppTestDocument;
 
-Q_DECLARE_METATYPE(QList<BaseCppTestDocument>)
+Q_DECLARE_METATYPE(QList<CppTestDocument>)
 
 namespace CppEditor::Internal {
 namespace {
@@ -90,18 +90,18 @@ private:
     Class *m_clazz = nullptr;
 };
 
-class TypeHierarchyBuilderTestCase : public Tests::TestCase
+class TypeHierarchyBuilderTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    TypeHierarchyBuilderTestCase(const QList<BaseCppTestDocument> &documents,
+    TypeHierarchyBuilderTestCase(const QList<CppTestDocument> &documents,
                                  const QString &expectedHierarchy)
     {
         QVERIFY(succeededSoFar());
 
-        Tests::TemporaryDir temporaryDir;
+        CppEditor::Tests::TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
 
-        QList<BaseCppTestDocument> documents_ = documents;
+        QList<CppTestDocument> documents_ = documents;
 
         // Write files
         QSet<QString> filePaths;
@@ -137,12 +137,12 @@ public:
 
 void TypeHierarchyBuilderTest::test_data()
 {
-    QTest::addColumn<QList<BaseCppTestDocument> >("documents");
+    QTest::addColumn<QList<CppTestDocument> >("documents");
     QTest::addColumn<QString>("expectedHierarchy");
 
     QTest::newRow("basic-single-document")
-        << (QList<BaseCppTestDocument>()
-            << BaseCppTestDocument("a.h",
+        << (QList<CppTestDocument>()
+            << CppTestDocument("a.h",
                             "class A {};\n"
                             "class B : public A {};\n"
                             "class C1 : public B {};\n"
@@ -156,19 +156,19 @@ void TypeHierarchyBuilderTest::test_data()
             "    C2\n" );
 
     QTest::newRow("basic-multiple-documents")
-        << (QList<BaseCppTestDocument>()
-            << BaseCppTestDocument("a.h",
+        << (QList<CppTestDocument>()
+            << CppTestDocument("a.h",
                             "class A {};")
-            << BaseCppTestDocument("b.h",
+            << CppTestDocument("b.h",
                             "#include \"a.h\"\n"
                             "class B : public A {};")
-            << BaseCppTestDocument("c1.h",
+            << CppTestDocument("c1.h",
                             "#include \"b.h\"\n"
                             "class C1 : public B {};")
-            << BaseCppTestDocument("c2.h",
+            << CppTestDocument("c2.h",
                             "#include \"b.h\"\n"
                             "class C2 : public B {};")
-            << BaseCppTestDocument("d.h",
+            << CppTestDocument("d.h",
                             "#include \"c1.h\"\n"
                             "class D : public C1 {};"))
         << QString::fromLatin1(
@@ -182,7 +182,7 @@ void TypeHierarchyBuilderTest::test_data()
 
 void TypeHierarchyBuilderTest::test()
 {
-    QFETCH(QList<BaseCppTestDocument>, documents);
+    QFETCH(QList<CppTestDocument>, documents);
     QFETCH(QString, expectedHierarchy);
 
     TypeHierarchyBuilderTestCase(documents, expectedHierarchy);

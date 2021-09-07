@@ -27,7 +27,6 @@
 
 #include "cppcodemodelsettings.h"
 #include "cppeditorplugin.h"
-#include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
@@ -189,55 +188,9 @@ private:
     CppEditorWidget *m_editorWidget;
 };
 
-class FollowSymbolTestDocument;
-typedef QSharedPointer<FollowSymbolTestDocument> TestDocumentPtr;
-
-/**
- * Represents a test document.
- *
- * A TestDocument's source can contain special characters:
- *   - a '@' character denotes the initial text cursor position
- *   - a '$' character denotes the target text cursor position
- */
-class FollowSymbolTestDocument : public Tests::GenericCppTestDocument
-{
-public:
-    FollowSymbolTestDocument(const QByteArray &source, const QByteArray &fileName)
-        : Tests::GenericCppTestDocument(fileName, source)
-        , m_targetCursorPosition(m_source.indexOf(QLatin1Char('$')))
-    {
-        if (m_cursorPosition != -1 || m_targetCursorPosition != -1)
-            QVERIFY(m_cursorPosition != m_targetCursorPosition);
-
-        if (m_cursorPosition > m_targetCursorPosition) {
-            m_source.remove(m_cursorPosition, 1);
-            if (m_targetCursorPosition != -1) {
-                m_source.remove(m_targetCursorPosition, 1);
-                --m_cursorPosition;
-            }
-        } else {
-            m_source.remove(m_targetCursorPosition, 1);
-            if (m_cursorPosition != -1) {
-                m_source.remove(m_cursorPosition, 1);
-                --m_targetCursorPosition;
-            }
-        }
-    }
-
-    static TestDocumentPtr create(const QByteArray &source, const QByteArray &fileName)
-    {
-        return TestDocumentPtr(new FollowSymbolTestDocument(source, fileName));
-    }
-
-    bool hasTargetCursorMarker() const { return m_targetCursorPosition != -1; }
-
-public:
-    int m_targetCursorPosition;
-};
-
 QList<TestDocumentPtr> singleDocument(const QByteArray &source)
 {
-    return QList<TestDocumentPtr>() << FollowSymbolTestDocument::create(source, "file.cpp");
+    return QList<TestDocumentPtr>() << CppTestDocument::create(source, "file.cpp");
 }
 
 /**
@@ -337,7 +290,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     } projectCloser;
 
     if (useClangd) {
-        FollowSymbolTestDocument projectFile(projectFileContent.toUtf8(), "project.qbs");
+        CppTestDocument projectFile("project.qbs", projectFileContent.toUtf8());
         projectFile.setBaseDirectory(temporaryDir.path());
         QVERIFY(projectFile.writeToDisk());
         const auto openProjectResult =
@@ -865,8 +818,8 @@ void FollowSymbolTest::testSwitchMethodDeclDef()
     QFETCH(QByteArray, source);
 
     const QList<TestDocumentPtr> testFiles = QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create(header, "file.h")
-        << FollowSymbolTestDocument::create(source, "file.cpp");
+        << CppTestDocument::create(header, "file.h")
+        << CppTestDocument::create(source, "file.cpp");
 
     F2TestCase(F2TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
 }
@@ -1439,87 +1392,87 @@ void FollowSymbolTest::testFollowSymbolMultipleDocuments_data()
     QTest::addColumn<QList<TestDocumentPtr> >("documents");
 
     QTest::newRow("skipForwardDeclarationBasic") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("class $Foo {};\n",
+        << CppTestDocument::create("class $Foo {};\n",
                                 "defined.h")
-        << FollowSymbolTestDocument::create("class Foo;\n"
+        << CppTestDocument::create("class Foo;\n"
                                 "@Foo foo;\n",
                                 "forwardDeclaredAndUsed.h")
     );
 
     QTest::newRow("skipForwardDeclarationTemplates") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("template <class E> class $Container {};\n",
+        << CppTestDocument::create("template <class E> class $Container {};\n",
                                 "defined.h")
-        << FollowSymbolTestDocument::create("template <class E> class Container;\n"
+        << CppTestDocument::create("template <class E> class Container;\n"
                                 "@Container<int> container;\n",
                                 "forwardDeclaredAndUsed.h")
     );
 
     QTest::newRow("matchFunctionSignature") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("class Foo {\n"
+        << CppTestDocument::create("class Foo {\n"
                                 "    void @foo(int);\n"
                                 "    void foo() {}\n"
                                 "};\n",
                                 "foo.h")
-        << FollowSymbolTestDocument::create("#include \"foo.h\"\n"
+        << CppTestDocument::create("#include \"foo.h\"\n"
                                 "void Foo::$foo(int) {}\n",
                                 "foo.cpp")
     );
 
     QTest::newRow("matchFunctionSignature2") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("namespace N { class C; }\n"
+        << CppTestDocument::create("namespace N { class C; }\n"
                                 "bool *@fun(N::C *) const;\n",
                                 "foo.h")
-        << FollowSymbolTestDocument::create("#include \"foo.h\"\n"
+        << CppTestDocument::create("#include \"foo.h\"\n"
                                 "using namespace N;\n"
                                 "bool *$fun(C *) const {}\n",
                                 "foo.cpp")
     );
 
     QTest::newRow("matchFunctionSignatureFuzzy1Forward") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("class Foo {\n"
+        << CppTestDocument::create("class Foo {\n"
                                 "    void @foo(int);\n"
                                 "    void foo();\n"
                                 "};\n",
                                 "foo.h")
-        << FollowSymbolTestDocument::create("#include \"foo.h\"\n"
+        << CppTestDocument::create("#include \"foo.h\"\n"
                                 "void Foo::$foo() {}\n",
                                 "foo.cpp")
     );
 
     QTest::newRow("matchFunctionSignatureFuzzy1Backward") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("class Foo {\n"
+        << CppTestDocument::create("class Foo {\n"
                                 "    void $foo(int);\n"
                                 "};\n",
                                 "foo.h")
-        << FollowSymbolTestDocument::create("#include \"foo.h\"\n"
+        << CppTestDocument::create("#include \"foo.h\"\n"
                                 "void Foo::@foo() {}\n",
                                 "foo.cpp")
     );
 
     QTest::newRow("matchFunctionSignatureFuzzy2Forward") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("class Foo {\n"
+        << CppTestDocument::create("class Foo {\n"
                                 "    void foo(int);\n"
                                 "    void @foo();\n"
                                 "};\n",
                                 "foo.h")
-        << FollowSymbolTestDocument::create("#include \"foo.h\"\n"
+        << CppTestDocument::create("#include \"foo.h\"\n"
                                 "void Foo::$foo(int) {}\n",
                                 "foo.cpp")
     );
 
     QTest::newRow("matchFunctionSignatureFuzzy2Backward") << (QList<TestDocumentPtr>()
-        << FollowSymbolTestDocument::create("class Foo {\n"
+        << CppTestDocument::create("class Foo {\n"
                                 "    void $foo();\n"
                                 "};\n",
                                 "foo.h")
-        << FollowSymbolTestDocument::create("#include \"foo.h\"\n"
+        << CppTestDocument::create("#include \"foo.h\"\n"
                                 "void Foo::@foo(int) {}\n",
                                 "foo.cpp")
     );
 
     QTest::newRow("globalVar") << QList<TestDocumentPtr>{
-            FollowSymbolTestDocument::create("namespace NS { extern int @globalVar; }\n", "file.h"),
-            FollowSymbolTestDocument::create(
+            CppTestDocument::create("namespace NS { extern int @globalVar; }\n", "file.h"),
+            CppTestDocument::create(
                 "int globalVar;\n"
                 "namespace NS {\n"
                 "extern int globalVar;\n"
@@ -1527,7 +1480,7 @@ void FollowSymbolTest::testFollowSymbolMultipleDocuments_data()
                 "}\n", "file.cpp")};
 
     QTest::newRow("staticMemberVar") << QList<TestDocumentPtr>{
-        FollowSymbolTestDocument::create(
+        CppTestDocument::create(
             "namespace NS {\n"
             "class Test {\n"
             "    static int @var;\n"
@@ -1535,7 +1488,7 @@ void FollowSymbolTest::testFollowSymbolMultipleDocuments_data()
             "class OtherClass { static int var; };\n"
             "}\n"
             "class OtherClass { static int var; };\n", "file.h"),
-        FollowSymbolTestDocument::create(
+        CppTestDocument::create(
             "#include \"file.h\"\n"
             "int var;\n"
             "int OtherClass::var;\n"
@@ -2058,12 +2011,12 @@ void FollowSymbolTest::testFollowVirtualFunctionCall()
 void FollowSymbolTest::testFollowVirtualFunctionCallMultipleDocuments()
 {
     QList<TestDocumentPtr> testFiles = QList<TestDocumentPtr>()
-            << FollowSymbolTestDocument::create("struct A { virtual void virt(int) = 0; };\n",
+            << CppTestDocument::create("struct A { virtual void virt(int) = 0; };\n",
                                     "a.h")
-            << FollowSymbolTestDocument::create("#include \"a.h\"\n"
+            << CppTestDocument::create("#include \"a.h\"\n"
                                     "struct B : A { void virt(int) {} };\n",
                                     "b.h")
-            << FollowSymbolTestDocument::create("#include \"a.h\"\n"
+            << CppTestDocument::create("#include \"a.h\"\n"
                                     "void f(A *o) { o->$@virt(42); }\n",
                                     "u.cpp")
             ;

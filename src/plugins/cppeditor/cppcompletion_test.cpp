@@ -57,7 +57,7 @@ namespace {
 
 using _ = QByteArray;
 
-class CompletionTestCase : public Tests::TestCase
+class CompletionTestCase : public CppEditor::Tests::TestCase
 {
 public:
     CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray(),
@@ -72,7 +72,7 @@ public:
         m_source[m_position] = ' ';
 
         // Write source to file
-        m_temporaryDir.reset(new Tests::TemporaryDir());
+        m_temporaryDir.reset(new CppEditor::Tests::TemporaryDir());
         QVERIFY(m_temporaryDir->isValid());
         const QByteArray fileExt = isObjC ? "mm" : "h";
         const QString fileName = m_temporaryDir->createFile("file." + fileExt, m_source);
@@ -155,7 +155,7 @@ private:
     QByteArray m_source;
     int m_position = -1;
     Snapshot m_snapshot;
-    QScopedPointer<Tests::TemporaryDir> m_temporaryDir;
+    QScopedPointer<CppEditor::Tests::TemporaryDir> m_temporaryDir;
     TextEditorWidget *m_editorWidget = nullptr;
     QTextDocument *m_textDocument = nullptr;
     IEditor *m_editor = nullptr;

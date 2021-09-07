@@ -64,13 +64,13 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent,
             this, &ModelManagerTestHelper::gcFinished);
 
     cleanup();
-    QVERIFY(Tests::VerifyCleanCppModelManager::isClean(m_testOnlyForCleanedProjects));
+    QVERIFY(Internal::Tests::VerifyCleanCppModelManager::isClean(m_testOnlyForCleanedProjects));
 }
 
 ModelManagerTestHelper::~ModelManagerTestHelper()
 {
     cleanup();
-    QVERIFY(Tests::VerifyCleanCppModelManager::isClean(m_testOnlyForCleanedProjects));
+    QVERIFY(Internal::Tests::VerifyCleanCppModelManager::isClean(m_testOnlyForCleanedProjects));
 }
 
 void ModelManagerTestHelper::cleanup()

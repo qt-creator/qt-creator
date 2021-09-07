@@ -99,7 +99,7 @@ QT_END_NAMESPACE
 namespace CppEditor::Internal {
 
 namespace  {
-class SymbolSearcherTestCase : public Tests::TestCase
+class SymbolSearcherTestCase : public CppEditor::Tests::TestCase
 {
 public:
     SymbolSearcherTestCase(const QString &testFile,

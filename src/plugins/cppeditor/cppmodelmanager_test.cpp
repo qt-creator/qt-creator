@@ -61,7 +61,7 @@ using CppEditor::Tests::ProjectOpenerAndCloser;
 using CppEditor::Tests::TemporaryCopiedDir;
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
-using CppEditor::Tests::VerifyCleanCppModelManager;
+using CppEditor::Internal::Tests::VerifyCleanCppModelManager;
 
 Q_DECLARE_METATYPE(CppEditor::ProjectFile)
 
@@ -88,7 +88,7 @@ public:
 };
 
 QStringList toAbsolutePaths(const QStringList &relativePathList,
-                            const Tests::TemporaryCopiedDir &temporaryDir)
+                            const TemporaryCopiedDir &temporaryDir)
 {
     QStringList result;
     foreach (const QString &file, relativePathList)
@@ -157,13 +157,13 @@ public:
 
     bool writeContents(const QByteArray &contents) const
     {
-        return Tests::TestCase::writeFile(m_filePath, contents);
+        return TestCase::writeFile(m_filePath, contents);
     }
 
 private:
     void restoreContents() const
     {
-        Tests::TestCase::writeFile(m_filePath, m_originalFileContents);
+        TestCase::writeFile(m_filePath, m_originalFileContents);
     }
 
     QByteArray m_originalFileContents;
@@ -463,8 +463,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
     QFETCH(QStringList, initialProjectFiles);
     QFETCH(QStringList, finalProjectFiles);
 
-    Tests::TemporaryCopiedDir temporaryDir(
-                MyTestDataDir(QLatin1String("testdata_refresh2")).path());
+    TemporaryCopiedDir temporaryDir(MyTestDataDir(QLatin1String("testdata_refresh2")).path());
     fileToChange = temporaryDir.absolutePath(fileToChange.toUtf8());
     initialProjectFiles = toAbsolutePaths(initialProjectFiles, temporaryDir);
     finalProjectFiles = toAbsolutePaths(finalProjectFiles, temporaryDir);
@@ -715,7 +714,7 @@ struct EditorCloser {
     ~EditorCloser()
     {
         if (editor)
-            QVERIFY(Tests::TestCase::closeEditorWithoutGarbageCollectorInvocation(editor));
+            QVERIFY(TestCase::closeEditorWithoutGarbageCollectorInvocation(editor));
     }
 };
 

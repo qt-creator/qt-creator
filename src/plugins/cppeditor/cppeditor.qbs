@@ -280,8 +280,6 @@ QtcPlugin {
             "cppcompletion_test.h",
             "cppdoxygen_test.cpp",
             "cppdoxygen_test.h",
-            "cppeditortestcase.cpp",
-            "cppeditortestcase.h",
             "cppheadersource_test.cpp",
             "cppheadersource_test.h",
             "cppincludehierarchy_test.cpp",

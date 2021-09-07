@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cppeditortestcase.h"
+#include "cpptoolstestcase.h"
 
 #include <texteditor/commentssettings.h>
 

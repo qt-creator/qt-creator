@@ -25,7 +25,6 @@
 
 #include "cppdoxygen_test.h"
 
-#include "cppeditortestcase.h"
 #include "cppeditorwidget.h"
 #include "cpptoolssettings.h"
 
@@ -42,7 +41,7 @@ namespace { typedef QByteArray _; }
 
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
-using CppEditor::Tests::VerifyCleanCppModelManager;
+using CppEditor::Internal::Tests::VerifyCleanCppModelManager;
 
 namespace CppEditor {
 namespace Internal {
@@ -377,7 +376,7 @@ void DoxygenTest::testWithMacroFromHeaderBeforeFunction()
         " */\n"
         "API void f();\n";
 
-    const GenericCppTestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
+    const CppTestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
 
     runTest(given, expected, /*settings=*/ 0, {headerDocumentDefiningMacro});
 }
@@ -423,12 +422,12 @@ void DoxygenTest::runTest(const QByteArray &original,
     // Write files to disk
     TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
-    GenericCppTestDocument testDocument("file.cpp", original, '|');
+    CppTestDocument testDocument("file.cpp", original, '|');
     QVERIFY(testDocument.hasCursorMarker());
     testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
     testDocument.setBaseDirectory(temporaryDir.path());
     QVERIFY(testDocument.writeToDisk());
-    foreach (GenericCppTestDocument testDocument, includedHeaderDocuments) {
+    foreach (CppTestDocument testDocument, includedHeaderDocuments) {
         testDocument.setBaseDirectory(temporaryDir.path());
         QVERIFY(testDocument.writeToDisk());
     }

@@ -41,6 +41,8 @@
  */
 using namespace CPlusPlus;
 
+using CppEditor::Tests::TemporaryDir;
+
 namespace CppEditor::Internal {
 namespace {
 
@@ -56,7 +58,7 @@ Document::Ptr createDocument(const QString &filePath, const QByteArray &text,
     return document;
 }
 
-Document::Ptr createDocumentAndFile(Tests::TemporaryDir *temporaryDir,
+Document::Ptr createDocumentAndFile(TemporaryDir *temporaryDir,
                                     const QByteArray relativeFilePath,
                                     const QByteArray text,
                                     int expectedGlobalSymbolCount)
@@ -334,7 +336,7 @@ void CodegenTest::testQtdesignerIntegration()
 
 void CodegenTest::testDefinitionEmptyClass()
 {
-    Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QByteArray headerText = "\n"
@@ -380,7 +382,7 @@ void CodegenTest::testDefinitionEmptyClass()
 
 void CodegenTest::testDefinitionFirstMember()
 {
-    Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QByteArray headerText = "\n"
@@ -438,7 +440,7 @@ void CodegenTest::testDefinitionFirstMember()
 
 void CodegenTest::testDefinitionLastMember()
 {
-    Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QByteArray headerText = "\n"
@@ -497,7 +499,7 @@ void CodegenTest::testDefinitionLastMember()
 
 void CodegenTest::testDefinitionMiddleMember()
 {
-    Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QByteArray headerText = "\n"
@@ -563,7 +565,7 @@ void CodegenTest::testDefinitionMiddleMember()
 
 void CodegenTest::testDefinitionMiddleMemberSurroundedByUndefined()
 {
-    Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QByteArray headerText = "\n"
@@ -623,7 +625,7 @@ void CodegenTest::testDefinitionMiddleMemberSurroundedByUndefined()
 
 void CodegenTest::testDefinitionMemberSpecificFile()
 {
-    Tests::TemporaryDir temporaryDir;
+    TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QByteArray headerText = "\n"

@@ -56,6 +56,67 @@ namespace CppEditor {
 class CppEditorWidget;
 class CppModelManager;
 
+namespace Internal::Tests {
+
+class CppTestDocument;
+typedef QSharedPointer<CppTestDocument> TestDocumentPtr;
+
+/**
+ * Represents a test document.
+ *
+ * The source can contain special characters:
+ *   - A '@' character denotes the initial text cursor position
+ *   - A '$' character denotes the target text cursor position (for "follow symbol" type of tests)
+ *   - For selections, the markers "@{start}" and "@{end}" can be used.
+ */
+class CppTestDocument
+{
+public:
+    CppTestDocument(const QByteArray &fileName, const QByteArray &source,
+                    char cursorMarker = '@');
+
+    static TestDocumentPtr create(const QByteArray &source, const QByteArray &fileName);
+    static TestDocumentPtr create(const QByteArray &fileName, const QByteArray &source,
+                                  const QByteArray &expectedSource);
+
+    QString baseDirectory() const { return m_baseDirectory; }
+    void setBaseDirectory(const QString &baseDirectory) { m_baseDirectory = baseDirectory; }
+
+    QString filePath() const;
+    bool writeToDisk() const;
+
+    bool hasCursorMarker() const { return m_cursorPosition != -1; }
+    bool hasAnchorMarker() const { return m_anchorPosition != -1; }
+    bool hasTargetCursorMarker() const { return m_targetCursorPosition != -1; }
+
+    void removeMarkers();
+
+    QString m_baseDirectory;
+    QString m_fileName;
+    QString m_source;
+    char m_cursorMarker;
+    int m_targetCursorPosition;
+    int m_cursorPosition = -1;
+    int m_anchorPosition = -1;
+    QString m_selectionStartMarker;
+    QString m_selectionEndMarker;
+    QString m_expectedSource;
+    TextEditor::BaseTextEditor *m_editor = nullptr;
+    CppEditorWidget *m_editorWidget = nullptr;
+};
+
+using TestDocuments = QVector<CppTestDocument>;
+
+class VerifyCleanCppModelManager
+{
+public:
+    VerifyCleanCppModelManager();
+    ~VerifyCleanCppModelManager();
+    static bool isClean(bool testCleanedProjects = true);
+};
+
+} // namespace Internal::Tests
+
 namespace Tests {
 
 int CPPEDITOR_EXPORT clangdIndexingTimeout();
@@ -74,25 +135,6 @@ template <typename Signal> inline bool waitForSignalOrTimeout(
     loop.exec();
     return timer.isActive();
 }
-
-class CPPEDITOR_EXPORT BaseCppTestDocument
-{
-public:
-    BaseCppTestDocument(const QByteArray &fileName, const QByteArray &source,
-                        char cursorMarker = '@');
-
-    QString baseDirectory() const { return m_baseDirectory; }
-    void setBaseDirectory(const QString &baseDirectory) { m_baseDirectory = baseDirectory; }
-
-    QString filePath() const;
-    bool writeToDisk() const;
-
-public:
-    QString m_baseDirectory;
-    QString m_fileName;
-    QString m_source;
-    char m_cursorMarker;
-};
 
 class CPPEDITOR_EXPORT TestCase
 {
@@ -180,26 +222,6 @@ public:
 
 private:
     TemporaryCopiedDir();
-};
-
-class CPPEDITOR_EXPORT VerifyCleanCppModelManager
-{
-public:
-    VerifyCleanCppModelManager();
-    ~VerifyCleanCppModelManager();
-    static bool isClean(bool testCleanedProjects = true);
-};
-
-class FileWriterAndRemover
-{
-public:
-    FileWriterAndRemover(const QString &filePath, const QByteArray &contents); // Writes file
-    bool writtenSuccessfully() const { return m_writtenSuccessfully; }
-    ~FileWriterAndRemover(); // Removes file
-
-private:
-    const QString m_filePath;
-    bool m_writtenSuccessfully;
 };
 
 } // namespace Tests

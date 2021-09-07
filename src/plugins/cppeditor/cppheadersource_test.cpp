@@ -58,7 +58,7 @@ void HeaderSourceTest::test()
     QFETCH(QString, sourceFileName);
     QFETCH(QString, headerFileName);
 
-    Tests::TemporaryDir temporaryDir;
+    CppEditor::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
 
     const QDir path = QDir(temporaryDir.path() + QLatin1Char('/') + _(QTest::currentDataTag()));

@@ -134,7 +134,6 @@ extend_qtc_plugin(CppEditor
     cppcodegen_test.cpp cppcodegen_test.h
     cppcompletion_test.cpp cppcompletion_test.h
     cppdoxygen_test.cpp cppdoxygen_test.h
-    cppeditortestcase.cpp cppeditortestcase.h
     cppheadersource_test.cpp cppheadersource_test.h
     cppincludehierarchy_test.cpp cppincludehierarchy_test.h
     cpplocalsymbols_test.cpp cpplocalsymbols_test.h
