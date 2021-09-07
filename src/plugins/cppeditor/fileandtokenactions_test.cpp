@@ -77,7 +77,7 @@ namespace CppEditor::Internal::Tests {
 
 namespace {
 
-class TestActionsTestCase : public Tests::TestCase
+class TestActionsTestCase : public CppEditor::Tests::TestCase
 {
 public:
     class AbstractAction
@@ -141,7 +141,7 @@ static bool waitUntilAProjectIsLoaded(int timeOutInMs = 30000)
 }
 
 TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Actions &fileActions)
-    : Tests::TestCase(/*runGarbageCollector=*/false)
+    : CppEditor::Tests::TestCase(/*runGarbageCollector=*/false)
 {
     QVERIFY(succeededSoFar());
 

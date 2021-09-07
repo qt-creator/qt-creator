@@ -1182,7 +1182,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
 
     // Open editor for file 1
     TextEditor::BaseTextEditor *editor1;
-    QVERIFY(helper.openBaseTextEditor(filePath1, &editor1));
+    QVERIFY(helper.openCppEditor(filePath1, &editor1));
     helper.closeEditorAtEndOfTestCase(editor1);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 2U);
@@ -1195,7 +1195,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
 
     // Open editor for file 2
     TextEditor::BaseTextEditor *editor2;
-    QVERIFY(helper.openBaseTextEditor(filePath2, &editor2));
+    QVERIFY(helper.openCppEditor(filePath2, &editor2));
     helper.closeEditorAtEndOfTestCase(editor2);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 3U);

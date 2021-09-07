@@ -53,6 +53,7 @@ class IAssistProposal;
 }
 
 namespace CppEditor {
+class CppEditorWidget;
 class CppModelManager;
 
 namespace Tests {
@@ -102,7 +103,8 @@ public:
     ~TestCase();
 
     bool succeededSoFar() const;
-    bool openBaseTextEditor(const QString &fileName, TextEditor::BaseTextEditor **editor);
+    static bool openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
+                              CppEditorWidget **editorWidget = nullptr);
     void closeEditorAtEndOfTestCase(Core::IEditor *editor);
 
     static bool closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor);
@@ -114,6 +116,8 @@ public:
     static bool garbageCollectGlobalSnapshot();
 
     static bool waitForProcessedEditorDocument(const QString &filePath, int timeOutInMs = 5000);
+    static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
+            CppEditorWidget *editorWidget);
 
     enum { defaultTimeOutInMs = 30 * 1000 /*= 30 secs*/ };
     static bool waitUntilProjectIsFullyOpened(ProjectExplorer::Project *project,

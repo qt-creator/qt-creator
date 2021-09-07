@@ -41,6 +41,7 @@
 namespace { typedef QByteArray _; }
 
 using CppEditor::Tests::TemporaryDir;
+using CppEditor::Tests::TestCase;
 using CppEditor::Tests::VerifyCleanCppModelManager;
 
 namespace CppEditor {

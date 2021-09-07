@@ -27,9 +27,10 @@
 
 #include "baseeditordocumentparser.h"
 #include "baseeditordocumentprocessor.h"
-#include "editordocumenthandle.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
+#include "editordocumenthandle.h"
 #include "projectinfo.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,6 +41,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
+#include <texteditor/storagesettings.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/executeondestruction.h>
@@ -119,16 +121,29 @@ bool TestCase::succeededSoFar() const
     return m_succeededSoFar;
 }
 
-bool TestCase::openBaseTextEditor(const QString &fileName, TextEditor::BaseTextEditor **editor)
+bool TestCase::openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
+                             CppEditorWidget **editorWidget)
 {
-    using BTEditor = TextEditor::BaseTextEditor;
-    if (auto e = qobject_cast<BTEditor *>(Core::EditorManager::openEditor(fileName))) {
+    if (const auto e = dynamic_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::openEditor(fileName))) {
         if (editor) {
             *editor = e;
-            return true;
+            TextEditor::StorageSettings s = e->textDocument()->storageSettings();
+            s.m_addFinalNewLine = false;
+            e->textDocument()->setStorageSettings(s);
         }
+        if (editorWidget) {
+            if (CppEditorWidget *w = dynamic_cast<CppEditorWidget *>(e->editorWidget())) {
+                *editorWidget = w;
+                return true;
+            } else {
+                return false; // no or wrong widget
+            }
+        } else {
+            return true; // ok since no widget requested
+        }
+    } else {
+        return false; // no or wrong editor
     }
-    return false;
 }
 
 CPlusPlus::Snapshot TestCase::globalSnapshot()
@@ -165,6 +180,13 @@ bool TestCase::waitForProcessedEditorDocument(const QString &filePath, int timeO
 {
     auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
     return waitForProcessedEditorDocument_internal(editorDocument, timeOutInMs);
+}
+
+CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(CppEditorWidget *editorWidget)
+{
+    while (!editorWidget->isSemanticInfoValid())
+        QCoreApplication::processEvents();
+    return editorWidget->semanticInfo().doc;
 }
 
 bool TestCase::parseFiles(const QSet<QString> &filePaths)

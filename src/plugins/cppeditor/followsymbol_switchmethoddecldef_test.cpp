@@ -245,7 +245,7 @@ QList<TestDocumentPtr> singleDocument(const QByteArray &source)
  * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
  * and checking the result.
  */
-class F2TestCase : public Tests::TestCase
+class F2TestCase : public CppEditor::Tests::TestCase
 {
 public:
     enum CppEditorAction {

@@ -70,7 +70,7 @@ QString toString(CppIncludeHierarchyModel &model)
             + toString(model, model.index(1, 0));
 }
 
-class IncludeHierarchyTestCase : public Tests::TestCase
+class IncludeHierarchyTestCase : public CppEditor::Tests::TestCase
 {
 public:
     IncludeHierarchyTestCase(const QList<QByteArray> &sourceList,

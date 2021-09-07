@@ -57,19 +57,6 @@ public:
 
 using TestDocuments = QVector<GenericCppTestDocument>;
 
-class TestCase : public CppEditor::Tests::TestCase
-{
-public:
-    TestCase(bool runGarbageCollector = true);
-
-    static bool openCppEditor(const QString &fileName,
-                              TextEditor::BaseTextEditor **editor,
-                              CppEditorWidget **editorWidget = 0);
-
-    static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
-            CppEditorWidget *editorWidget);
-};
-
 } // namespace Tests
 } // namespace Internal
 } // namespace CppEditor

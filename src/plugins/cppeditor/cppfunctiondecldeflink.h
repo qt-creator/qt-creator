@@ -38,7 +38,6 @@ namespace CppEditor {
 class CppEditorWidget;
 
 namespace Internal {
-
 class FunctionDeclDefLink;
 
 class FunctionDeclDefLinkFinder : public QObject

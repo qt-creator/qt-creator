@@ -65,7 +65,7 @@ namespace Tests {
 
 // Check: If the user puts the cursor on e.g. a function-local variable,
 // a type name or a macro use, all occurrences of that entity are highlighted.
-class UseSelectionsTestCase : public TestCase
+class UseSelectionsTestCase : public CppEditor::Tests::TestCase
 {
 public:
     UseSelectionsTestCase(GenericCppTestDocument &testDocument,

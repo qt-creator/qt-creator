@@ -34,7 +34,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/CppDocument.h>
-#include <texteditor/storagesettings.h>
 #include <texteditor/texteditor.h>
 
 #include <QDir>
@@ -77,43 +76,6 @@ GenericCppTestDocument::GenericCppTestDocument(const QByteArray &fileName, const
 bool GenericCppTestDocument::hasCursorMarker() const { return m_cursorPosition != -1; }
 
 bool GenericCppTestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
-
-TestCase::TestCase(bool runGarbageCollector) : CppEditor::Tests::TestCase(runGarbageCollector)
-{
-}
-
-bool TestCase::openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
-                             CppEditorWidget **editorWidget)
-{
-    if (const auto e = dynamic_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::openEditor(fileName))) {
-        if (editor) {
-            *editor = e;
-            TextEditor::StorageSettings s = e->textDocument()->storageSettings();
-            s.m_addFinalNewLine = false;
-            e->textDocument()->setStorageSettings(s);
-        }
-        if (editorWidget) {
-            if (CppEditorWidget *w = dynamic_cast<CppEditorWidget *>(e->editorWidget())) {
-                *editorWidget = w;
-                return true;
-            } else {
-                return false; // no or wrong widget
-            }
-        } else {
-            return true; // ok since no widget requested
-        }
-    } else {
-        return false; // no or wrong editor
-    }
-}
-
-CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(
-        CppEditorWidget *editorWidget)
-{
-    while (!editorWidget->isSemanticInfoValid())
-        QCoreApplication::processEvents();
-    return editorWidget->semanticInfo().doc;
-}
 
 } // namespace Tests
 } // namespace Internal

@@ -69,7 +69,7 @@ public:
     QString m_expectedSource;
 };
 
-class BaseQuickFixTestCase : public TestCase
+class BaseQuickFixTestCase : public CppEditor::Tests::TestCase
 {
 public:
     /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'
