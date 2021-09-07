@@ -409,6 +409,11 @@ QVariant QmakeProFileNode::data(Utils::Id role) const
             return info.buildDir.toString();
     }
 
+    if (role == Ios::Constants::IosCmakeGenerator) {
+        // qmake is not CMake, so return empty value
+        return {};
+    }
+
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
         return !proFile()->variableValue(Variable::Config).contains("no_keywords");
 

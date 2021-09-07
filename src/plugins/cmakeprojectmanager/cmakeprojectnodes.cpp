@@ -156,8 +156,19 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
         return m_artifact.fileName();
     }
 
-    if (role == Ios::Constants::IosBuildDir)
-        return {}; // defaults to build configuration build directory
+    if (role == Ios::Constants::IosBuildDir) {
+        // This is a path relative to root build directory.
+        // When generating Xcode project, CMake may put here a "${EFFECTIVE_PLATFORM_NAME}" macro,
+        // which is expanded by Xcode at build time.
+        // To get an actual executable path, iOS plugin replaces this macro with either "-iphoneos"
+        // or "-iphonesimulator" depending on the device type (which is unavailable here).
+
+        // dir/target.app/target -> dir
+        return m_artifact.parentDir().parentDir().toString();
+    }
+
+    if (role == Ios::Constants::IosCmakeGenerator)
+        return value("CMAKE_GENERATOR");
 
     QTC_ASSERT(false, qDebug() << "Unknown role" << role.toString());
     // Better guess than "not present".

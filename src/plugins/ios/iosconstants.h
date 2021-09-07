@@ -47,6 +47,7 @@ const char IOS_DEPLOY_STEP_ID[] = "Qt4ProjectManager.IosDeployStep";
 
 const char IosTarget[] = "IosTarget"; // QString
 const char IosBuildDir[] = "IosBuildDir"; // QString
+const char IosCmakeGenerator[] = "IosCmakeGenerator";
 
 const quint16 IOS_DEVICE_PORT_START = 30000;
 const quint16 IOS_DEVICE_PORT_END = 31000;

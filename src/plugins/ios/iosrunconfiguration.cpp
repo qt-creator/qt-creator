@@ -169,30 +169,85 @@ FilePath IosRunConfiguration::bundleDirectory() const
         return {};
     }
     FilePath res;
+    bool shouldAppendBuildTypeAndPlatform = true;
     if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
         Project *project = target()->project();
-        if (ProjectNode *node = project->findNodeForBuildKey(buildKey()))
-            res = FilePath::fromString(node->data(Constants::IosBuildDir).toString());
-        if (res.isEmpty())
+        if (ProjectNode *node = project->findNodeForBuildKey(buildKey())) {
+            QString pathStr = node->data(Constants::IosBuildDir).toString();
+            const QString cmakeGenerator = node->data(Constants::IosCmakeGenerator).toString();
+
+            if (cmakeGenerator.isEmpty()) {
+                // qmake node gives absolute IosBuildDir
+                res = FilePath::fromString(pathStr);
+            } else {
+                // CMake node gives IosBuildDir relative to root build directory
+
+                bool useCmakePath = true;
+
+                if (pathStr.isEmpty())
+                    useCmakePath = false;
+
+                if (useCmakePath && cmakeGenerator == "Xcode") {
+                    // When generating Xcode project, CMake may put a "${EFFECTIVE_PLATFORM_NAME}" macro,
+                    // which is expanded by Xcode at build time.
+                    // To get an actual executable path at configure time, replace this macro here
+                    // depending on the device type.
+
+                    const QString before = "${EFFECTIVE_PLATFORM_NAME}";
+
+                    int idx = pathStr.indexOf(before);
+
+                    if (idx == -1) {
+                        useCmakePath = false;
+                    } else {
+                        QString after;
+                        if (isDevice)
+                            after = "-iphoneos";
+                        else
+                            after = "-iphonesimulator";
+
+                        pathStr.replace(idx, before.length(), after);
+                    }
+                }
+
+                if (useCmakePath) {
+                    // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
+                    // so use canonical path to ensure that redundand dot is removed.
+                    res = bc->buildDirectory().pathAppended(pathStr).canonicalPath();
+                    // All done with path provided by CMake
+                    shouldAppendBuildTypeAndPlatform = false;
+                } else {
+                    res = bc->buildDirectory();
+                }
+            }
+        }
+
+        if (res.isEmpty()) {
+            // Fallback
             res = bc->buildDirectory();
-        switch (bc->buildType()) {
-        case BuildConfiguration::Debug :
-        case BuildConfiguration::Unknown :
-            if (isDevice)
-                res = res / "Debug-iphoneos";
-            else
-                res = res.pathAppended("Debug-iphonesimulator");
-            break;
-        case BuildConfiguration::Profile :
-        case BuildConfiguration::Release :
-            if (isDevice)
-                res = res.pathAppended("Release-iphoneos");
-            else
-                res = res.pathAppended("Release-iphonesimulator");
-            break;
-        default:
-            qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
-                     << target()->activeBuildConfiguration()->buildType();
+            shouldAppendBuildTypeAndPlatform = true;
+        }
+
+        if (shouldAppendBuildTypeAndPlatform) {
+            switch (bc->buildType()) {
+            case BuildConfiguration::Debug :
+            case BuildConfiguration::Unknown :
+                if (isDevice)
+                    res = res / "Debug-iphoneos";
+                else
+                    res = res.pathAppended("Debug-iphonesimulator");
+                break;
+            case BuildConfiguration::Profile :
+            case BuildConfiguration::Release :
+                if (isDevice)
+                    res = res.pathAppended("Release-iphoneos");
+                else
+                    res = res.pathAppended("Release-iphonesimulator");
+                break;
+            default:
+                qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
+                         << target()->activeBuildConfiguration()->buildType();
+            }
         }
     }
     return res.pathAppended(applicationName() + ".app");
