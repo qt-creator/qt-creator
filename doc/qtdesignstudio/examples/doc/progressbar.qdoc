@@ -39,14 +39,16 @@
     First, we create an empty project, as described in \l {Creating Projects}.
     For the purposes of this example, we call the project \e progressbar.
 
-    In this example, we use two overlapping rectangles and a text label to
-    create the progress bar. For another example of a progress bar, see the
-    \l {progress-bar-control}{Progress Bar} component in Qt Quick Controls.
+    In this example, we use two overlapping instances of the preset
+    \l{basic-rectangle}{Rectangle} component and an instance of the preset
+    \l{Text} component to create the progress bar. There is also a preset
+    \l {progress-bar-control}{Progress Bar} component available in
+    \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick Controls}.
 
     In the \uicontrol Design mode, we drag-and-drop a \uicontrol Rectangle from
     \l Library > \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Basic to \l {Form Editor} and modify its size to create the
-    background for the progress bar. We change its ID to \e background in
+    background for the progress bar. We change its ID to \e pb_back in
     \l Properties.
 
     We want to be able to control the background rectangle and the text label
@@ -66,7 +68,7 @@
     \image progressbar-rectangle.png "Progress bar background in the Form Editor"
 
     We now drag-and-drop another rectangle on top of the background rectangle in
-    \uicontrol Navigator and change its ID to \e indicator in
+    \uicontrol Navigator and change its ID to \e pb_front in
     \uicontrol Properties.
     We then anchor the left, top, and bottom of the indicator to its parent with
     5-pixel margins. We leave the right side free because its value needs to
@@ -87,8 +89,8 @@
 
     \section2 Adding Color Animation
 
-    First, we add a color animation to the \e root component. We select the
-    \inlineimage plus.png
+    First, we add a color animation to the \e root component in the \e Root.qml
+    file. We select the \inlineimage plus.png
     button to add a 100-frame timeline to root. You can use the default
     values for all other fields.
 
@@ -103,8 +105,9 @@
     We then set the color at frame 0 to green (\e {#8de98d}) in
     \uicontrol Properties > \uicontrol Text > \uicontrol {Text Color}.
     We can either \l{Picking Colors}{pick a color} from the color selector
-    or use the \uicontrol {Set Binding} command in the \inlineimage submenu.png
-    (\uicontrol Settings) menu to open the \uicontrol {Binding Editor}.
+    or use the \uicontrol {Set Binding} command in the
+    \inlineimage icons/action-icon.png
+    (\uicontrol Actions) menu to open the \uicontrol {Binding Editor}.
 
     We then move the playhead to frame 50 and set the text color to red
     (\e {#de4f4f}). Finally, we move the playhead to frame 100 and set
@@ -117,10 +120,11 @@
 
     \section2 Animating the Indicator
 
-    We select \e indicator in \uicontrol Navigator and then select the record
+    We select \e pb_front in \uicontrol Navigator and then select the record
     button again to animate the width of the indicator. At frame 0, we set the
-    width to 0 in \uicontrol Properties > \uicontrol Geometry > \uicontrol Size.
-    We then move the playhead to 100 frames and set the width to 590.
+    width to 0 in \uicontrol Properties > \uicontrol {Geometry - 2D} >
+    \uicontrol Size. We then move the playhead to 100 frames and set the width
+    to 590.
 
     \image progressbar-timeline-indicator.png "Indicator timeline"
 
@@ -160,9 +164,9 @@
     open \e Root.qml in \uicontrol {Form Editor}.
 
     We want to be able to use the keyframe value as the value of the text label,
-    so we will export it as a property alias. We select \e timeline in
-    \uicontrol Navigator and then \uicontrol Properties > \uicontrol Timeline >
-    \uicontrol {Current frame} > \uicontrol Settings >
+    so we will export it as a \l{Adding Property Aliases}{property alias}. We
+    select \e timeline in \uicontrol Navigator and then \uicontrol Properties >
+    \uicontrol Timeline > \uicontrol {Current frame} > \uicontrol Actions >
     \uicontrol {Export Property as Alias}.
 
     \image progressbar-root-export-property.png "Export keyframe group as a property"

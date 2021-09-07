@@ -45,6 +45,8 @@
 #include <qmldesignerplugin.h>
 #endif
 
+#include <utils/qtcassert.h>
+
 #include <QRegularExpression>
 
 namespace QmlDesigner {
@@ -356,6 +358,16 @@ static void removeAliasExports(const QmlObjectNode &node)
 
 }
 
+static void removeLayerEnabled(const ModelNode &node)
+{
+    QTC_ASSERT(node.isValid(), return );
+    if (node.parentProperty().isValid() && node.parentProperty().name() == "layer.effect") {
+        ModelNode parent = node.parentProperty().parentModelNode();
+        if (parent.isValid() && parent.hasProperty("layer.enabled"))
+            parent.removeProperty("layer.enabled");
+    }
+}
+
 /*!
     Deletes this object's node and its dependencies from the model.
     Everything that belongs to this Object, the ModelNode, and ChangeOperations
@@ -366,6 +378,7 @@ void QmlObjectNode::destroy()
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
+    removeLayerEnabled(modelNode());
     removeAliasExports(modelNode());
 
     for (QmlModelStateOperation stateOperation : allAffectingStatesOperations()) {

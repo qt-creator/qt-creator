@@ -77,7 +77,10 @@
     The \uicontrol Source field must be empty when custom geometry is used.
 
     Set the \uicontrol Instancing property to render a number of instances of
-    the model as defined by the instance table.
+    the model as defined by an instancing table. The instancing tables can be
+    defined by using one of the \l{Instanced Rendering}{instancing components}
+    available in \uicontrol Library > \uicontrol Components >
+    \uicontrol {Qt Quick 3D} > {Qt Quick 3D}.
 
     Set the \uicontrol {Instance root} property to define the origin of the
     instance's coordinate system.

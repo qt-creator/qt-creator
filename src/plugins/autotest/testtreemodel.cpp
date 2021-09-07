@@ -391,11 +391,9 @@ void TestTreeModel::synchronizeTestTools()
 
     for (ITestTool *testTool : qAsConst(tools)) {
         ITestTreeItem *testToolRootNode = testTool->rootNode();
-        if (testTool->active()) {
-            invisibleRoot->appendChild(testToolRootNode);
-            if (!oldFrameworkRoots.removeOne(testToolRootNode))
-                newlyAdded.insert(testTool);
-        }
+        invisibleRoot->appendChild(testToolRootNode);
+        if (!oldFrameworkRoots.removeOne(testToolRootNode))
+            newlyAdded.insert(testTool);
     }
 
     if (project) {

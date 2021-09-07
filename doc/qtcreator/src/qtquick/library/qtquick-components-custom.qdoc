@@ -49,20 +49,19 @@
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \if defined(qtcreator)
-            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \uicontrol Qt > \uicontrol {Qt Quick UI File} >
             \else
-            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
             \endif
-            \uicontrol Choose to create a new .qml file.
+            \uicontrol Choose to create a new \c .ui.qml file.
             \note Components are listed in \uicontrol Library >
             \uicontrol Components > \uicontrol {My Components} only
             if the filename begins with a capital letter.
-        \li Click \uicontrol Design to open the component file (ui.qml) in
+        \li Click \uicontrol Design to open the file in
             \uicontrol {Form Editor}.
         \li Drag-and-drop a component from \uicontrol Library to
             \uicontrol Navigator or \uicontrol {Form Editor}.
         \li Edit component properties in the \uicontrol Properties view.
-            \image qmldesigner-custom-component-properties.png
             The available properties depend on the component type. You can
             \l{Specifying Dynamic Properties}{add properties for
             components} in \uicontrol {Connection View} > \uicontrol Properties.

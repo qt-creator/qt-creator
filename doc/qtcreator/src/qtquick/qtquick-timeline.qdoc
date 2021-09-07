@@ -132,9 +132,9 @@
 
     \list 1
         \li In the \l Navigator view, select the component to animate.
-        \li In the \l Properties view, select \uicontrol Settings >
-            \uicontrol {Insert Keyframe} for the property that you want to
-            animate.
+        \li In the \l Properties view, select \inlineimage icons/action-icon.png
+            (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
+            that you want to animate.
         \li In the \l Timeline view, select the
             \uicontrol {Per Property Recording} button
             to start recording property changes.

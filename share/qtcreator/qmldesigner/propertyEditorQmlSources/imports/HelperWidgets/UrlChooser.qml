@@ -71,7 +71,7 @@ Row {
                 border.color: StudioTheme.Values.themeToolTipOutline
                 border.width: StudioTheme.Values.border
             }
-            contentItem: Label {
+            contentItem: Text {
                 color: StudioTheme.Values.themeToolTipText
                 text: toolTip.text
                 verticalAlignment: Text.AlignVCenter
@@ -135,7 +135,7 @@ Row {
                     border.color: StudioTheme.Values.themeToolTipOutline
                     border.width: StudioTheme.Values.border
                 }
-                contentItem: Label {
+                contentItem: Text {
                     color: StudioTheme.Values.themeToolTipText
                     text: itemToolTip.text
                     verticalAlignment: Text.AlignVCenter

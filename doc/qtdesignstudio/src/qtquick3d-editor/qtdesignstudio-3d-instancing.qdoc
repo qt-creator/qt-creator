@@ -1,0 +1,153 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-instancing.html
+    \previouspage studio-3d-node.html
+    \nextpage studio-skeletal-components.html
+
+    \title Instanced Rendering
+
+    Instancing allows duplicating a model with variations. In contrast to using
+    the \uicontrol Repeater3D component, the model and its graphics resources are
+    only allocated once. The rendering of the duplicated instances is done at a
+    low level by the GPU. Depending on the complexity of the model, this can
+    give a performance improvement of several orders of magnitude.
+
+    In practice, instancing is done by defining a table that specifies how each
+    instance is modified relative to the base model.
+
+    You can add instancing to your scenes by using the instancing components
+    available in \uicontrol Library > \uicontrol Components >
+    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}:
+        \list
+            \li \uicontrol {Instancing}
+            \li \uicontrol {Instance List}
+            \li \uicontrol {Instance List Entry}.
+        \endlist
+
+    \section1 Reading Instance Tables from Files
+
+    The \uicontrol Instancing component makes it possible to read instance tables
+    from files in XML or binary format. The binary file format uses the same
+    layout as the table that is uploaded to the GPU, so it can be directly mapped
+    to memory.
+
+    In order to be valid, the XML file must have a top-level instance table
+    element. Each instance is represented by an Instance element inside the
+    InstanceTable. Unknown elements are silently ignored.
+
+    An Instance element can have a number of attributes. Color attributes are
+    specified by using SVG color names, such as "red", "green", or
+    "lightsteelblue", or by using a hexadecimal notation. \c Vector3d and
+    \c vector4d attributes are specified by a string of space-separated numbers,
+    where missing trailing numbers indicate zeroes. The following attributes are
+    supported: position, scale, eulerRotation, quaternion, custom, and color.
+    For more information about instance tables, see the documentation for the
+    \l[Instancing]{FileInstancing} QML type.
+
+    To use the \uicontrol Instancing component, drag-and-drop it from
+    \uicontrol Library to \uicontrol Scene in \uicontrol Navigator.
+
+    \section2 Instancing Properties
+
+    Define the location of an XML or a binary file containing the instance data
+    in \uicontrol Properties > \uicontrol {File Instancing} > \uicontrol Source.
+
+    \image studio-3d-instancing-properties.png "File Instancing in the Properties View"
+
+    If the file name has a \c .bin extension, it is assumed to refer to a binary
+    file. Otherwise it is assumed to refer to an XML file. If an XML file
+    \c foo.xml is specified, and the file \c foo.xml.bin exists, the binary file
+    \c foo.xml.bin will be loaded instead.
+
+    After defining the \uicontrol Source property for the \uicontrol Instancing
+    component, select a model in \uicontrol Navigator, and in
+    \uicontrol Properties > \uicontrol Model > \uicontrol Instancing, select the
+    name of the \uicontrol Instancing component.
+
+    \image studio-3d-instancing-model.png "The Instancing property"
+
+    \section1 Using Instance Lists to Build Instance Tables
+
+    Use the \uicontrol {Instance List} component to define an instance table in
+    \QDS. An instance table consists of instances defined as
+    \uicontrol {Instance List Entry} components, which can have property bindings
+    and animation. This gives great flexibility but also causes memory overhead.
+    Therefore, it is not recommended to use \uicontrol {Instance List}
+    for procedurally generated tables containing a large number of instances.
+    Also, any property change to an entry will cause the entire instance table
+    to be recalculated and uploaded to the GPU.
+
+    \image studio-3d-instancing-instance-list.png "Instance List and Instance Entries in Navigator"
+
+    To build an instance table:
+        \list 1
+            \li Drag-and-drop an \uicontrol {Instance List} component from
+                \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D}
+                > \uicontrol {Qt Quick 3D} to \uicontrol Scene in
+                \uicontrol Navigator.
+            \li Drag-and-drop \uicontrol {Instance List Entry} components to the
+                \uicontrol {Instance List} component to create list items.
+                \image studio-3d-instancing-instance-list.png "Instance List and Instance Entries in Navigator"
+
+            \li Select the \uicontrol {Instance List} in \uicontrol Navigator, and in
+                \uicontrol Properties > \uicontrol {Instance List} >
+                \uicontrol Instances, select each \uicontrol {Instance List Entry}
+                you wish to include in the \uicontrol {Instance List} by using
+                the dropdown menu. You can add more fields for the property by
+                clicking the \inlineimage plus.png
+                icon.
+            \li To define an \uicontrol {Instance List Entry}, select it in
+                \uicontrol Navigator, and specify its properties in
+                \uicontrol Properties > \uicontrol {Instance List Entry}.
+            \li Select a model component in \uicontrol Navigator, and in
+                \uicontrol Properties > \uicontrol Instancing, select the name
+                of the \uicontrol {Instance List} component.
+        \endlist
+
+    \section2 Defining Instance List Entries
+
+    Use the \uicontrol {Instance List Entry} component to specify each instance
+    in an \uicontrol {Instance List}.
+
+    Each of the \uicontrol {Instance List Entry} properties can have
+    \l {Adding Bindings Between Properties}{bindings} and animation. Select an
+    \uicontrol {Instance List Entry} in \uicontrol Navigator to specify the
+    properties in \uicontrol Properties > \uicontrol {Instance List Entry}.
+
+    \image studio-3d-instancing-instance-list-entry-properties.png "Instance List Entry Properties"
+
+    Use the \uicontrol Color property to \l{Picking Colors}{specify the color}
+    for the instance.
+
+    Specify the position for the instance using the \uicontrol Position property,
+    and the scale by defining the scale factors of the \uicontrol Scale property
+    along the x, y, and z axes.
+
+    Set the rotation for the instance using the \uicontrol Rotation
+    property, which specifies the rotation for the instance as an Euler vector
+    containing the rotation in degrees around the x, y, and z axes.
+*/

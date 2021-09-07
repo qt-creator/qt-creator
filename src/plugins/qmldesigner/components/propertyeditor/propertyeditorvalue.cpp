@@ -155,15 +155,17 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
 void PropertyEditorValue::setValue(const QVariant &value)
 {
+    const bool colorsEqual = cleverColorCompare(value, m_value);
+
     if (!compareVariants(m_value, value) &&
             !cleverDoubleCompare(value, m_value) &&
-            !cleverColorCompare(value, m_value))
+            !colorsEqual)
         m_value = value;
 
     fixAmbigousColorNames(modelNode(), name(), &m_value);
     fixUrl(modelNode(), name(), &m_value);
 
-    if (m_value.isValid())
+    if (m_value.isValid() && !colorsEqual)
         emit valueChangedQml();
 
     emit isExplicitChanged();

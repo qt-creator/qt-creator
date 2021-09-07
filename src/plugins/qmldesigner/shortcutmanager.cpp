@@ -154,7 +154,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     m_deleteAction.setIcon(QIcon::fromTheme(QLatin1String("edit-cut"), Utils::Icons::EDIT_CLEAR_TOOLBAR.icon()));
 
     command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerMainContext);
-    command->setDefaultKeySequences({QKeySequence::Delete, QKeySequence::Backspace});
+    command->setDefaultKeySequences({Qt::Key_Backspace, Qt::Key_Delete});
 
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     if (!Utils::HostOsInfo::isMacHost())

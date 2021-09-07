@@ -85,6 +85,11 @@ static void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Environment &e
             continue;
         }
     }
+
+    // QTCREATORBUG-26199: Wrapper scripts (e.g. emcc.bat) of older emsdks might not find python
+    const QString emsdkPython = env.value("EMSDK_PYTHON");
+    if (!emsdkPython.isEmpty())
+        env.appendOrSetPath(FilePath::fromUserInput(emsdkPython).parentDir().toUserOutput());
 }
 
 bool WebAssemblyEmSdk::isValid(const FilePath &sdkRoot)

@@ -88,8 +88,12 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
 void FileApiReader::resetData()
 {
     m_cmakeFiles.clear();
-    if (!m_parameters.sourceDirectory.isEmpty())
-        m_cmakeFiles.insert(m_parameters.sourceDirectory.pathAppended("CMakeLists.txt"));
+    if (!m_parameters.sourceDirectory.isEmpty()) {
+        CMakeFileInfo cmakeListsTxt;
+        cmakeListsTxt.path = m_parameters.sourceDirectory.pathAppended("CMakeLists.txt");
+        cmakeListsTxt.isCMakeListsDotTxt = true;
+        m_cmakeFiles.insert(cmakeListsTxt);
+    }
 
     m_cache.clear();
     m_buildTargets.clear();
@@ -124,8 +128,9 @@ void FileApiReader::parse(bool forceCMakeRun,
     const bool hasArguments = !args.isEmpty();
     const bool replyFileMissing = !replyFile.exists();
     const bool cmakeFilesChanged = m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()
-                                   && anyOf(m_cmakeFiles, [&replyFile](const FilePath &f) {
-                                          return f.lastModified() > replyFile.lastModified();
+                                   && anyOf(m_cmakeFiles, [&replyFile](const CMakeFileInfo &info) {
+                                          return !info.isGenerated
+                                                 && info.path.lastModified() > replyFile.lastModified();
                                       });
     const bool queryFileChanged = anyOf(FileApiParser::cmakeQueryFilePaths(m_parameters.buildDirectory),
                                         [&replyFile](const FilePath &qf) {
@@ -175,7 +180,10 @@ bool FileApiReader::isParsing() const
 
 QSet<FilePath> FileApiReader::projectFilesToWatch() const
 {
-    return m_cmakeFiles;
+    return Utils::transform(
+                Utils::filtered(m_cmakeFiles,
+                                [](const CMakeFileInfo &info) { return !info.isGenerated; }),
+                [](const CMakeFileInfo &info) { return info.path;});
 }
 
 QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
@@ -249,7 +257,7 @@ void FileApiReader::endState(const FilePath &replyFilePath)
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.buildDirectory;
-    const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? *m_cmakeFiles.begin() : FilePath{};
+    const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? (*m_cmakeFiles.begin()).path : FilePath{};
     const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
 
     QTC_CHECK(!replyFilePath.needsDevice());

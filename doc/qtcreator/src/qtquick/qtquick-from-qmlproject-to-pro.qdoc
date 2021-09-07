@@ -55,8 +55,10 @@
     from the Qt UI Quick project to the application project.
 
     You can use the \c RESOURCES option in the project configuration file to
-    automatically add all the QML files and related assets to a Qt resource
-    file.
+    automatically add all the QML files and related assets to a
+    \l{The Qt Resource System}{Qt resource collection file (.qrc)}. However,
+    large files should be included as external binary resources instead of
+    compiling them into the binary.
 
     The wizard automatically adds the \c QML_IMPORT_PATH option to the project
     file for specifying the required
@@ -131,6 +133,21 @@
     \e {main.cpp} file should look as follows:
 
     \quotefile progressbar/main.cpp
+
+    \section1 Handling Large Data Files
+
+    Graphical assets used in the UI, such as images, effects, or 3D scenes
+    are a typical cause for performance problems in UIs. Even building the
+    application requires huge amounts of memory if you try to include large
+    asset files, such as 100-MB 3D models or 64-MB textures, into the \c .qrc
+    file for compiling them into the binary.
+
+    First try to optimize your assets, as described in \l{Optimizing Designs}
+    and \l {Creating Optimized 3D Scenes}.
+
+    If you really need large assets, they should either be loaded directly from
+    the file system or use the Qt resource system in the dynamic way. For more
+    information, see \l{The Qt Resource System} in the Qt documentation.
 
     \section1 Adding Custom Fonts
 

@@ -158,26 +158,6 @@ QList<QMakeAssignment> MakeFileParse::parseAssignments(const QList<QMakeAssignme
                         m_qmakeBuildConfig.explicitBuildAll = false;
                         m_qmakeBuildConfig.explicitNoBuildAll = true;
                     }
-                } else if (value == QLatin1String("x86")) {
-                    if (qa.op == QLatin1String("+="))
-                        m_config.archConfig = QMakeStepConfig::X86;
-                    else
-                        m_config.archConfig = QMakeStepConfig::NoArch;
-                } else if (value == QLatin1String("x86_64")) {
-                    if (qa.op == QLatin1String("+="))
-                        m_config.archConfig = QMakeStepConfig::X86_64;
-                    else
-                        m_config.archConfig = QMakeStepConfig::NoArch;
-                } else if (value == QLatin1String("ppc")) {
-                    if (qa.op == QLatin1String("+="))
-                        m_config.archConfig = QMakeStepConfig::PowerPC;
-                    else
-                        m_config.archConfig = QMakeStepConfig::NoArch;
-                } else if (value == QLatin1String("ppc64")) {
-                    if (qa.op == QLatin1String("+="))
-                        m_config.archConfig = QMakeStepConfig::PowerPC64;
-                    else
-                        m_config.archConfig = QMakeStepConfig::NoArch;
                 } else if (value == QLatin1String("iphonesimulator")) {
                     if (qa.op == QLatin1String("+="))
                         m_config.osType = QMakeStepConfig::IphoneSimulator;
@@ -376,7 +356,6 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
     qCDebug(logging()) << "  Explicit Release" << m_qmakeBuildConfig.explicitRelease;
     qCDebug(logging()) << "  Explicit BuildAll" << m_qmakeBuildConfig.explicitBuildAll;
     qCDebug(logging()) << "  Explicit NoBuildAll" << m_qmakeBuildConfig.explicitNoBuildAll;
-    qCDebug(logging()) << "  TargetArch" << m_config.archConfig;
     qCDebug(logging()) << "  OsType" << m_config.osType;
     qCDebug(logging()) << "  LinkQmlDebuggingQQ2"
                        << (m_config.linkQmlDebuggingQQ2 == TriState::Enabled);
@@ -530,7 +509,6 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     QCOMPARE(parser.effectiveBuildConfig({}), effectiveBuildConfig);
 
     const QMakeStepConfig qmsc = parser.config();
-    QCOMPARE(qmsc.archConfig, static_cast<QMakeStepConfig::TargetArchConfig>(archConfig));
     QCOMPARE(qmsc.osType, static_cast<QMakeStepConfig::OsType>(osType));
     QCOMPARE(qmsc.linkQmlDebuggingQQ2 == TriState::Enabled, linkQmlDebuggingQQ2);
     QCOMPARE(qmsc.useQtQuickCompiler == TriState::Enabled, useQtQuickCompiler);

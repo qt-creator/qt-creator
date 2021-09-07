@@ -4117,8 +4117,8 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 
     // signal declaration
     if (generateFlags & Flag::GenerateSignal) {
-        const auto &paramType = overview.prettyType(returnTypeHeader);
-        const QString newValue = m_settings->signalWithNewValue ? paramType : QString();
+        const auto &parameter = overview.prettyType(returnTypeHeader, data.qPropertyName);
+        const QString newValue = m_settings->signalWithNewValue ? parameter : QString();
         const QString declaration = QString("void %1(%2);\n").arg(data.signalName, newValue);
         addHeaderCode(InsertionPointLocator::Signals, declaration);
     }
@@ -4140,8 +4140,9 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
             type = ref->elementType();
         type.setConst(false);
 
-        QString propertyDeclaration = QLatin1String("Q_PROPERTY(") + overview.prettyType(type)
-                                      + QLatin1Char(' ') + memberBaseName(data.memberVariableName);
+        QString propertyDeclaration = QLatin1String("Q_PROPERTY(")
+                                      + overview.prettyType(type,
+                                                            memberBaseName(data.memberVariableName));
         bool needMember = false;
         if (data.getterName.isEmpty())
             needMember = true;

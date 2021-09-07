@@ -28,6 +28,7 @@
 #include "cmakebuildtarget.h"
 #include "cmakeprocess.h"
 #include "cmakeprojectnodes.h"
+#include "fileapidataextractor.h"
 
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/treescanner.h>
@@ -100,7 +101,7 @@ private:
 
     // cmake data:
     CMakeConfig m_cache;
-    QSet<Utils::FilePath> m_cmakeFiles;
+    QSet<CMakeFileInfo> m_cmakeFiles;
     QList<CMakeBuildTarget> m_buildTargets;
     ProjectExplorer::RawProjectParts m_projectParts;
     std::unique_ptr<CMakeProjectNode> m_rootProjectNode;
