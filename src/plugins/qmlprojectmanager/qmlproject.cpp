@@ -151,8 +151,14 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                     return node->filePath().completeSuffix() == "ui.qml"
                            && node->filePath().parentDir() == folder;
                 });
-                if (!uiFiles.isEmpty())
-                    Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
+                if (!uiFiles.isEmpty()) {
+                    Utils::FilePath currentFile;
+                    if (auto cd = Core::EditorManager::currentDocument())
+                        currentFile = cd->filePath();
+
+                    if (currentFile.isEmpty() || !isKnownFile(currentFile))
+                        Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
+                }
             }
         });
     }
