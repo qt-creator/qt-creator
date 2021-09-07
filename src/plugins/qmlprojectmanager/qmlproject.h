@@ -145,7 +145,7 @@ protected:
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
-
+    QMetaObject::Connection m_openFileConnection;
 };
 
 } // namespace QmlProjectManager

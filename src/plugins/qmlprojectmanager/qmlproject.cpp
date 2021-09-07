@@ -144,23 +144,27 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
             QTimer::singleShot(0, this, lambda);
         }
     } else {
-        connect(this, &QmlProject::anyParsingFinished, this, [this](Target *target, bool success) {
-            if (target && success) {
-                const Utils::FilePath &folder = projectDirectory();
-                const Utils::FilePaths &uiFiles = files([&](const ProjectExplorer::Node *node) {
-                    return node->filePath().completeSuffix() == "ui.qml"
-                           && node->filePath().parentDir() == folder;
-                });
-                if (!uiFiles.isEmpty()) {
-                    Utils::FilePath currentFile;
-                    if (auto cd = Core::EditorManager::currentDocument())
-                        currentFile = cd->filePath();
+        m_openFileConnection = connect(
+            this, &QmlProject::anyParsingFinished, this, [this](Target *target, bool success) {
+                if (m_openFileConnection)
+                    disconnect(m_openFileConnection);
 
-                    if (currentFile.isEmpty() || !isKnownFile(currentFile))
-                        Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
+                if (target && success) {
+                    const Utils::FilePath &folder = projectDirectory();
+                    const Utils::FilePaths &uiFiles = files([&](const ProjectExplorer::Node *node) {
+                        return node->filePath().completeSuffix() == "ui.qml"
+                               && node->filePath().parentDir() == folder;
+                    });
+                    if (!uiFiles.isEmpty()) {
+                        Utils::FilePath currentFile;
+                        if (auto cd = Core::EditorManager::currentDocument())
+                            currentFile = cd->filePath();
+
+                        if (currentFile.isEmpty() || !isKnownFile(currentFile))
+                            Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
+                    }
                 }
-            }
-        });
+            });
     }
 }
 
