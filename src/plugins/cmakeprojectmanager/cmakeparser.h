@@ -57,6 +57,7 @@ private:
     ProjectExplorer::Task m_lastTask;
     QRegularExpression m_commonError;
     QRegularExpression m_nextSubError;
+    QRegularExpression m_commonWarning;
     QRegularExpression m_locationLine;
     bool m_skippedFirstEmptyLine = false;
     int m_lines = 0;

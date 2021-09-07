@@ -36,6 +36,7 @@ namespace CMakeProjectManager {
 
 const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*?):([0-9]*?)( \\((.*?)\\))?:";
 const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*?):";
+const char COMMON_WARNING_PATTERN[] = "^CMake Warning (\\(dev\\) )?at (.*?):([0-9]*?)( \\((.*?)\\))?:";
 const char LOCATION_LINE_PATTERN[] = ":(\\d+?):(?:(\\d+?))?$";
 
 CMakeParser::CMakeParser()
@@ -45,6 +46,9 @@ CMakeParser::CMakeParser()
 
     m_nextSubError.setPattern(QLatin1String(NEXT_SUBERROR_PATTERN));
     QTC_CHECK(m_nextSubError.isValid());
+
+    m_commonWarning.setPattern(QLatin1String(COMMON_WARNING_PATTERN));
+    QTC_CHECK(m_commonWarning.isValid());
 
     m_locationLine.setPattern(QLatin1String(LOCATION_LINE_PATTERN));
     QTC_CHECK(m_locationLine.isValid());
@@ -102,7 +106,23 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
                                            match, 1);
             m_lines = 1;
             return {Status::InProgress, linkSpecs};
-        } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
+        }
+        match = m_commonWarning.match(trimmedLine);
+        if (match.hasMatch()) {
+            QString path = m_sourceDirectory ? m_sourceDirectory->absoluteFilePath(
+                               QDir::fromNativeSeparators(match.captured(2)))
+                                             : QDir::fromNativeSeparators(match.captured(2));
+            m_lastTask = BuildSystemTask(Task::Warning,
+                                         QString(),
+                                         absoluteFilePath(FilePath::fromUserInput(path)),
+                                         match.captured(3).toInt());
+            m_lines = 1;
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
+                                           match, 1);
+            return {Status::InProgress, linkSpecs};
+        }
+        else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
             if (!m_lastTask.summary.isEmpty())
                 m_lastTask.summary.append(' ');
             m_lastTask.summary.append(trimmedLine.trimmed());
@@ -294,7 +314,7 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
                                    FilePath::fromUserInput("CMakeLists.txt"), 4))
             << QString();
 
-    QTest::newRow("cmake warning")
+    QTest::newRow("cmake syntax warning")
             << QString::fromLatin1("Syntax Warning in cmake code at\n"
                                    "/test/path/CMakeLists.txt:9:15\n"
                                    "Argument not separated from preceding token by whitespace.")
@@ -305,6 +325,29 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
                                    "Argument not separated from preceding token by whitespace.",
                                    FilePath::fromUserInput("/test/path/CMakeLists.txt"), 9))
             << QString();
+
+    QTest::newRow("cmake warning")
+            << QString::fromLatin1("CMake Warning at CMakeLists.txt:13 (message):\n"
+                                   "  this is a warning\n\n")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks()
+                << BuildSystemTask(Task::Warning,
+                                   "this is a warning",
+                                   FilePath::fromUserInput("CMakeLists.txt"), 13))
+            << QString();
+
+    QTest::newRow("cmake author warning")
+            << QString::fromLatin1("CMake Warning (dev) at CMakeLists.txt:15 (message):\n"
+                                   "  this is an author warning\n\n")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks()
+                << BuildSystemTask(Task::Warning,
+                                   "this is an author warning",
+                                   FilePath::fromUserInput("CMakeLists.txt"), 15))
+            << QString();
+
     QTest::newRow("eat normal CMake output")
         << QString::fromLatin1("-- Qt5 install prefix: /usr/lib\n"
                                " * Plugin componentsplugin, with CONDITION TARGET QmlDesigner")
