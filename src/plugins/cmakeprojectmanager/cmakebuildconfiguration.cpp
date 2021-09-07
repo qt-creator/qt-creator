@@ -948,6 +948,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
 
             if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
+                // Don't build apk under ALL target because Qt Creator will handle it
+                if (qt->qtVersion() >= QtSupport::QtVersionNumber{6, 1, 0})
+                    initialArgs.append("-DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL:BOOL=ON");
                 initialArgs.append("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
                 initialArgs.append("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
             } else {
