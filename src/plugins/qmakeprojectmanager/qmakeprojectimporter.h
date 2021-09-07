@@ -50,7 +50,6 @@ private:
 
     ProjectExplorer::Kit *createTemporaryKit(const QtProjectImporter::QtVersionData &data,
                                              const QString &parsedSpec,
-                                             const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig,
                                              const QMakeStepConfig::OsType &osType) const;
 };
 

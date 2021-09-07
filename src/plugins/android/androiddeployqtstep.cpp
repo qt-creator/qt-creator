@@ -544,10 +544,12 @@ void AndroidDeployQtStep::stdError(const QString &line)
         return;
 
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
-        || newOutput.startsWith("note", Qt::CaseInsensitive))
+        || newOutput.startsWith("note", Qt::CaseInsensitive)
+        || newOutput.startsWith(QLatin1String("All files should be loaded."))) {
         TaskHub::addTask(DeploymentTask(Task::Warning, newOutput));
-    else if (newOutput != QLatin1String("All files should be loaded. Notifying the device."))
+    } else {
         TaskHub::addTask(DeploymentTask(Task::Error, newOutput));
+    }
 }
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(

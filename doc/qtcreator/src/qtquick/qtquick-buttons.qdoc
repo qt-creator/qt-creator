@@ -42,12 +42,12 @@
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \if defined(qtcreator)
-            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \uicontrol Qt > \uicontrol {Qt Quick UI File} >
             \else
-            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
             \endif
-            \uicontrol Choose to create a QML file called Button.qml (for
-            example).
+            \uicontrol Choose to create a \l{UI Files}{UI file} called
+            Button.ui.qml (for example).
 
             \note Components are listed in \l Library > \uicontrol Components >
             \uicontrol {My Components} only if the filename begins with a
@@ -160,11 +160,12 @@
     To create a button component, select \uicontrol File >
     \uicontrol {New File or Project} >
     \if defined(qtcreator)
-    \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+    \uicontrol Qt > \uicontrol {Qt Quick UI File} >
     \else
-    \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+    \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
     \endif
-    \uicontrol Choose to create a file called Button.qml (for example).
+    \uicontrol Choose to create a \l{UI Files}{UI file} called Button.ui.qml
+    (for example).
 
     \note Components are listed in \l Library > \uicontrol Components >
     \uicontrol {My Components} only if the filename begins with a
@@ -175,8 +176,7 @@
     To construct the button component:
 
     \list 1
-        \li Click \uicontrol {Design} to edit the component file in
-            \l {Form Editor}.
+        \li Click \uicontrol {Design} to edit the UI file in \l {Form Editor}.
         \li Select \l Library > \uicontrol Assets > \inlineimage plus.png
             to copy the image files you want to use to the project folder.
         \li In \l Navigator, select the root component and set the

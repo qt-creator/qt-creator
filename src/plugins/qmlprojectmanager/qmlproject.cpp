@@ -34,6 +34,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -144,6 +145,18 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 
             QTimer::singleShot(0, this, lambda);
         }
+    } else {
+        connect(this, &QmlProject::anyParsingFinished, this, [this](Target *target, bool success) {
+            if (target && success) {
+                const Utils::FilePath &folder = projectDirectory();
+                const Utils::FilePaths &uiFiles = files([&](const ProjectExplorer::Node *node) {
+                    return node->filePath().completeSuffix() == "ui.qml"
+                           && node->filePath().parentDir() == folder;
+                });
+                if (!uiFiles.isEmpty())
+                    Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
+            }
+        });
     }
 }
 

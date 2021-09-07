@@ -44,9 +44,9 @@
     \endlist
 
     Setting up a new project in \QDS is aided by a wizard that guides you
-    step-by-step through the project creation process. The wizards prompt you
-    to enter the settings needed for that particular type of project and create
-    the necessary files for you.
+    step-by-step through the project creation process. The wizard templates
+    prompt you to enter the settings needed for a particular type of project
+    and create the necessary files for you.
 
     \QDS projects are useful for creating UIs. You cannot use them for
     application development, because they do not contain:
@@ -65,25 +65,43 @@
     \image studio-project-wizards.png "A list of project wizards"
 
     You can export designs from other design tools and import them to projects
-    or create them from scratch using the following wizards:
+    or create them from scratch using the following wizard templates:
 
-    \list
-        \li \uicontrol {Qt for MCUs Application} creates an application that
-            uses a subset of preset components (as supported by Qt for MCUs)
-            that you can deploy, run, and debug on MCU boards.
-        \li \uicontrol {Qt Quick Application - Empty} creates a project that
-            uses default components and preset UI controls and can be run on
-            all target platforms.
-        \li \uicontrol {Qt Quick 3D Application} creates a project that uses
-            default components, UI controls, and 3D components.
-        \li \uicontrol {Qt Quick Application - Scroll} and
-            \uicontrol {Qt Quick Application - Stack} create an application
-            that uses UI controls to implement a scrollable list or a set of
-            pages with a stack-based navigation model.
-        \li \uicontrol {Qt Quick Application - Launcher} creates a
-            project that uses default components and UI controls and
+    \table
+    \header
+        \li Category
+        \li Wizard Template
+        \li Purpose
+    \row
+        \li {1,2} General
+        \li Qt Quick Application - Empty
+        \li Creates a project that uses default components and preset UI
+            controls and can be run on all target platforms.
+    \row
+        \li Qt Quick 3D Application
+        \li Creates a project that uses default components, UI controls, and
+            3D components.
+    \row
+        \li Qt for MCUs
+        \li Qt for MCUs Application
+        \li Creates an application that uses a subset of preset components
+            (as supported by Qt for MCUs) that you can deploy, run, and debug
+            on MCU boards.
+    \row
+        \li {1,2} Mobile
+        \li Qt Quick Application - Scroll
+        \li Creates an application that uses UI controls to implement a
+            scrollable list.
+    \row
+        \li Qt Quick Application - Stack
+        \li Creates an application that uses UI controls to implement a
+            set of pages with a stack-based navigation model.
+    \row
+        \li Desktop
+        \li Qt Quick Application - Launcher
+        \li Creates a project that uses default components and UI controls and
             defines a launcher application.
-    \endlist
+    \endtable
 
     For an example of creating a \uicontrol {Qt Quick 3D Application} project,
     watch the following video:
@@ -94,19 +112,31 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project}.
-        \li Select the type of your project, and then select \uicontrol Choose.
+        \li Select a wizard template, and then select \uicontrol Choose.
         \li In the \uicontrol Name field, enter a name for the project.
-            When naming your own projects, keep in mind that they cannot be
-            easily renamed later.
+            Keep in mind that projects cannot be easily renamed later.
+            \image studio-project-location.png "Project Location dialog"
         \li In the \uicontrol {Create in} field, enter the path for the project
-            files, and then select \uicontrol Next (or \uicontrol Continue on
-            \macos). You can move project folders later without problems.
+            files. You can move project folders later without problems.
+        \li Select \uicontrol Next (or \uicontrol Continue on \macos).
         \li In the \uicontrol {Screen resolution} field, select the screen
             resolution for previewing the UI on the desktop or on a device.
+            This determines the screen size.
+            \image studio-project-custom-screen-size.png "Define Project Details dialog"
+        \li To use a custom screen size, specify the width and height of the
+            screen in the \uicontrol {Custom screen width} and
+            \uicontrol {Custom screen height} fields.
             You can easily change the screen size later in \l Properties.
         \li In the \uicontrol {Qt Quick Controls Style} field, select one of
-            the predefined \l{Styling Qt Quick Controls}{UI styles} to use,
-            and then select \uicontrol Finish (or \uicontrol Done on \macos).
+            the predefined \l{Styling Qt Quick Controls}{UI styles} to use.
+        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to enable
+            users to enter text using a virtual keyboard.
+        \li In the \uicontrol {Target Qt Version} field, select the Qt version
+            to use for developing the application. While you can change the
+            Qt version later in the \uicontrol {Run Settings} of the project,
+            keep in mind that the two versions are not fully compatible.
+        \li Select \uicontrol Finish (or \uicontrol Done on \macos) to create
+            the project.
     \endlist
 
     \QDS creates the following files and folders:
@@ -144,51 +174,77 @@
 
     \section1 Adding Files to Projects
 
-    You can use wizards also to add individual files to your projects.
+    You can use wizard templates also to add individual files to projects.
+
+    The wizard templates in the \uicontrol {Qt Quick Controls} category create
+    stylable versions of the components in the \uicontrol {Qt Quick Controls}
+    module. For more information, see \l{Creating Custom Controls}.
+
     You can create the following types of files:
 
-    \list
-        \li \uicontrol {Qt Quick Files}
-            \list
-                \li \uicontrol {Flow Item} and \uicontrol {Flow View}
-                    generate components that you can use to design the
-                    \l{Designing Application Flows}{application flow}.
-                \li \uicontrol {Qt Quick File} generates a component with one
-                    of the following default components or \l{Using Positioners}
-                    {positioners} as the root component: \l {basic-item}{Item},
-                    \l {basic-rectangle}{Rectangle}, \l {Images}{Image},
-                    \l {Border Image}, \l Flickable, Row, Column, Flow, or Grid.
-                \li \uicontrol {Qt Quick UI File} generates a component file
-                    with one of the above components as the root component.
-                \li \uicontrol {Qt Quick Views} generates a Grid View or a
-                    List View. For more information, see \l{List and Grid Views}.
-
-            \endlist
-        \li \uicontrol {Qt Quick Controls} create stylable versions of the
-            components in the Qt Quick Controls module:
-            \list
-                \li \l {Button}{Custom Button} creates a push button with a text
-                    label.
-                \li \l {Check Box}{Custom CheckBox} creates a check box.
-                \li \l {Slider and Dial}{Custom Dial} creates a dial.
-                \li \l {Slider and Dial}{Custom Slider} creates a slider.
-                \li \l {Spin Box}{Custom SpinBox} creates a spin box.
-                \li \l {Switch}{Custom Switch} creates a switch with on and off
-                    states.
-                \li \l [Qt Quick Controls 2] {Pane} provides a background that
-                    matches the UI style and theme.
-                \li \l [Qt Quick Controls 2] {StackView} provides a stack-based
-                    navigation model.
-                \li \l [Qt Quick Controls 2] {SwipeView} enables users to
-                    navigate pages by swiping sideways.
-            \endlist
-            For more information, see \l{Creating Custom Controls}.
-        \li \uicontrol ListModel adds a \l{Editing List Models}{list model} to
-            the project.
-        \li \uicontrol {JavaScript File} generates files that you can use to
-            write the application logic. This is useful for testing the
-            application before the developers implement the application logic
-            in C++, for example. For more information, see
-            \l {Simulating Application Logic}.
-    \endlist
+    \table
+    \header
+        \li Category
+        \li Wizard Template
+        \li Purpose
+    \row
+        \li {1,4} Qt Quick Files
+        \li Flow Item and Flow View
+        \li Generate components that you can use to design the
+            \l{Designing Application Flows}{application flow}.
+    \row
+        \li Qt Quick File
+        \li Generates a component with one of the following default components
+            or \l{Using Positioners}{positioners} as the root component:
+            \l {basic-item}{Item}, \l {basic-rectangle}{Rectangle}, \l {Images}
+            {Image}, \l {Border Image}, \l Flickable, Row, Column, Flow, or
+            Grid.
+    \row
+        \li Qt Quick UI File
+        \li Generates a UI file with one of the above components as the root
+            component.
+    \row
+        \li Qt Quick Views
+        \li Generates a Grid View or a List View. For more information, see
+            \l{List and Grid Views}.
+    \row
+        \li {1,9} Qt Quick Controls
+        \li Custom Button
+        \li Creates a \l {Button}{push button} with a text label.
+    \row
+        \li Custom \CheckBox
+        \li Creates a \l {Check Box}{check box}.
+    \row
+        \li Custom Dial
+        \li Creates a \l {Slider and Dial}{dial}.
+    \row
+        \li Custom Slider
+        \li Creates a \l {Slider and Dial}{slider}.
+    \row
+        \li Custom \SpinBox
+        \li Creates a \l {Spin Box}{spin box}.
+    \row
+        \li Custom Switch
+        \li Creates a \l {Switch}{switch} with on and off states.
+    \row
+        \li \l Pane
+        \li Provides a background that matches the UI style and theme.
+    \row
+        \li StackView
+        \li Provides a stack-based navigation model.
+    \row
+        \li SwipeView
+        \li Enables users to navigate pages by swiping sideways.
+    \row
+        \li QML Files
+        \li ListModel
+        \li Adds a \l{Editing List Models}{list model} to the project.
+    \row
+        \li JavaScript
+        \li JavaScript File
+        \li Generates files that you can use to write the application logic.
+            This is useful for testing the application before the developers
+            implement the application logic in C++, for example. For more
+            information, see \l {Simulating Application Logic}.
+    \endtable
 */

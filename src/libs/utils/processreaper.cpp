@@ -157,7 +157,6 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     QTC_ASSERT(QThread::currentThread() == process->thread(), return);
 
     process->disconnect();
-    process->setParent(nullptr);
     if (process->state() == QProcess::NotRunning) {
         process->deleteLater();
         return;

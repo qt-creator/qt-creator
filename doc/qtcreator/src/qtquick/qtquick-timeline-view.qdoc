@@ -52,10 +52,10 @@
 
     To animate component properties in the \uicontrol Timeline view, you
     must \l{Setting Keyframe Values}{insert keyframes} for them. In the
-    \l Properties view, select \uicontrol Settings >
-    \uicontrol {Insert Keyframe} for a property that you want to animate.
-    A keyframe track is generated for each component that you insert keyframes
-    for.
+    \l Properties view, select \inlineimage icons/action-icon.png
+    (\uicontrol Actions) > \uicontrol {Insert Keyframe} for a property that you
+    want to animate. A keyframe track is generated for each component that you
+    insert keyframes for.
 
     \image studio-timeline-with-empty-tracks.png "Timeline view with a property"
 

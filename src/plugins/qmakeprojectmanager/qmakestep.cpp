@@ -185,7 +185,6 @@ QMakeStepConfig QMakeStep::deducedArguments() const
 
     BaseQtVersion *version = QtKitAspect::qtVersion(kit);
 
-    config.archConfig = QMakeStepConfig::targetArchFor(targetAbi, version);
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
     config.separateDebugInfo = qmakeBuildConfiguration()->separateDebugInfo();
     config.linkQmlDebuggingQQ2 = qmakeBuildConfiguration()->qmlDebugging();
@@ -780,25 +779,9 @@ QMakeStepFactory::QMakeStepFactory()
     setFlags(BuildStepInfo::UniqueStep);
 }
 
-QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targetAbi, const BaseQtVersion *version)
+QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &, const BaseQtVersion *)
 {
-    TargetArchConfig arch = NoArch;
-    if (!version || version->type() != QtSupport::Constants::DESKTOPQT)
-        return arch;
-    if (targetAbi.os() == Abi::DarwinOS && targetAbi.binaryFormat() == Abi::MachOFormat) {
-        if (targetAbi.architecture() == Abi::X86Architecture) {
-            if (targetAbi.wordWidth() == 32)
-                arch = X86;
-            else if (targetAbi.wordWidth() == 64)
-                arch = X86_64;
-        } else if (targetAbi.architecture() == Abi::PowerPCArchitecture) {
-            if (targetAbi.wordWidth() == 32)
-                arch = PowerPC;
-            else if (targetAbi.wordWidth() == 64)
-                arch = PowerPC64;
-        }
-    }
-    return arch;
+    return NoArch;
 }
 
 QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const Abi &targetAbi, const BaseQtVersion *version)

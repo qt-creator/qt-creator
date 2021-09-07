@@ -38,10 +38,10 @@
     sliders. The progress of the brewing process is displayed as
     an animation. When the coffee is ready, the startup screen appears again.
 
-    The \e {ApplicationFlow.ui.qml} file contains all the screens in the
-    UI. We use states to display the appropriate screen in the
-    viewport and the timeline to animate the transitions between and on
-    the screens.
+    The \e {ApplicationFlowForm.ui.qml} file contains all the screens in the
+    UI. We use \l{glossary-state}{states} to display the appropriate screen in
+    the viewport and the timeline to animate the \l{glossary-transition}
+    {transitions} between and on the screens.
 
     \section1 Application Flow
 
@@ -55,10 +55,10 @@
     \printuntil }
     \dots
 
-    Selecting the coffee type triggers the respective signal handler in
-    \e {SideBar.qml}, which sets the default mix for the selected coffee type.
-    The following code snippet displays the \c {cappuccinoButton.onClicked()}
-    signal handler:
+    Selecting the coffee type triggers the respective \l{glossary-signal}
+    {signal handler} in \e {SideBar.qml}, which sets the default mix for
+    the selected coffee type. The following code snippet displays the
+    \c {cappuccinoButton.onClicked()} signal handler:
 
     \quotefromfile CoffeeMachine/SideBar.qml
     \skipto cappuccinoButton.onClicked
@@ -113,11 +113,11 @@
     \section1 Using Timelines to Animate Transitions
 
     The Coffee Machine application screens for choosing coffee, empty cup, and
-    brewing each use custom components specified in separate component files
-    (.qml).
+    brewing each use custom components specified in separate \l{UI Files}
+    {UI files} (ui.qml).
 
-    We use the \uicontrol Timeline view to animate the transitions between
-    the screens during the application flow in \e {ApplicationFlow.ui.qml}.
+    We use the \l Timeline view to animate the transitions between the screens
+    during the application flow in \e {ApplicationFlowForm.ui.qml}.
 
     \image coffee-machine-timeline.png
 
@@ -132,9 +132,9 @@
     select the \inlineimage recordfill.png
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
-    At frame 0, we set the X coordinate to 0 in \l Properties > \uicontrol
-    Geometry > \uicontrol Position. We then move the playhead to 400 frames and
-    set the X coordinate to a negative value.
+    At frame 0, we set the X coordinate to 0 in \l Properties >
+    \uicontrol {Geometry - 2D} > \uicontrol Position. We then move the
+    playhead to 400 frames and set the X coordinate to a negative value.
 
     \image coffee-machine-properties.png
 
@@ -146,13 +146,13 @@
 
     \section1 Using States to Move Between Screens
 
-    We use the \uicontrol States view to determine the contents of the
+    We use the \l States view to determine the contents of the
     viewport. The animations are run when moving from one state to another.
 
     \image coffee-machine-states.png
 
     We create the states by moving from viewport to viewport in
-    \e ApplicationFlow.ui.qml and clicking \inlineimage plus.png "Add button"
+    \e ApplicationFlowForm.ui.qml and selecting \uicontrol {Create New State}
     in the \uicontrol States view.
 
     We also create states for animations that are run when moving to the
@@ -171,7 +171,7 @@
     the end frame to 200, because we are moving back on the timeline to display
     the selection sidebar.
 
-    In the \uicontrol {Transitions to states} field, we select the state to
+    In the \uicontrol {Transition to state} field, we select the state to
     switch to when the animation ends. In the lower part of the dialog, we
     bind the states that don't have animations to fixed frames.
 */

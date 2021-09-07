@@ -121,7 +121,7 @@ T.ComboBox {
                                                     ComboBox.ActivatedReason.Other)
     }
 
-    onActivated: {
+    onActivated: function(index) {
         myTimer.activatedIndex = index
         myTimer.restart()
     }

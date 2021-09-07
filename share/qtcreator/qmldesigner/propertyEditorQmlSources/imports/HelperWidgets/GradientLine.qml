@@ -96,13 +96,12 @@ Item {
         height: 80
         width: parent.width
 
-        property int effectiveWidth: width - 10
+        property int effectiveWidth: colorLine.width - 10
         property int selectedIndex: 0
 
         function select(index) {
-            for (var i = 0; i < repeater.model.count; i++) {
+            for (var i = 0; i < repeater.model.count; i++)
                 repeater.itemAt(i).item.highlighted = false
-            }
 
             if (repeater.model.count < index + 1)
                 return
@@ -113,11 +112,12 @@ Item {
             gradientModel.lock()
             root.currentColor = repeater.itemAt(index).item.color
             gradientModel.unlock()
+
             root.selectedNodeChanged()
         }
 
         function invalidate() {
-            var gradientString = "import QtQuick 2.15; Gradient {"
+            var gradientString = "import QtQuick 2.15; Gradient { orientation: Gradient.Horizontal;"
 
             for (var i = 0; i < gradientModel.count; i++) {
                 gradientString += "GradientStop {}"
@@ -209,21 +209,21 @@ Item {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
+                Image {
+                    id: checkerboard
+                    anchors.fill: parent
+                    source: "images/checkers.png"
+                    fillMode: Image.Tile
+                }
+
                 Rectangle {
                     id: gradientRectangle
-                    smooth: true
-                    x: 0
-                    y: 16
-                    radius: 1
-                    border.color: "#555555"
-                    border.width: 1
-                    width: parent.height
-                    height: parent.width
+                    anchors.fill: parent
+                    border.color: StudioTheme.Values.themeControlOutline
+                    border.width: StudioTheme.Values.border
                     gradient: Gradient {
                         id: gradient
                     }
-                    transformOrigin: Item.TopLeft
-                    rotation: 270
                 }
             }
         }
@@ -270,6 +270,13 @@ Item {
 
             onXChanged: gradientStopHandle.refreshToolTip(gradientStopHandle.toolTipVisible)
 
+            Image {
+                width: 10
+                height: 10
+                source: "images/checkers.png"
+                fillMode: Image.Tile
+            }
+
             Rectangle {
                 id: rectangle
                 width: 10
@@ -277,7 +284,6 @@ Item {
                 color: "red"
                 border.color: "gray"
                 border.width: 1
-                radius: 1
             }
 
             Canvas {

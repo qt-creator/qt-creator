@@ -36,17 +36,19 @@ Column {
     }
 
     property int mode: ColorPicker.Mode.HSVA
-    property color color
+    property color color: "#303091"
+
+    property real red: 0
+    property real green: 0
+    property real blue: 0
 
     property real hue: 0
-    property real saturationHSL: 0
-    property real saturationHSV: 0
-    property real lightness: 0
-    property real value: 0
+    property real saturationHSL: 0.5
+    property real saturationHSV: 0.5
+    property real lightness: 0.5
+    property real value: 0.5
 
     property real alpha: 1
-
-    property bool achromatic: false
 
     property int sliderMargins: 6
     property bool block: false
@@ -57,44 +59,41 @@ Column {
 
     spacing: 10
 
-    onModeChanged: {
+    onColorChanged: {
+        if (root.block)
+            return
+
         switch (root.mode) {
         case ColorPicker.Mode.RGBA:
-            root.color = Qt.rgba(root.color.r, root.color.g, root.color.b, root.alpha)
+            root.red = root.color.r
+            root.green = root.color.g
+            root.blue = root.color.b
+            root.alpha = root.color.a
+
             break
         case ColorPicker.Mode.HSLA:
-            root.color = Qt.hsla(root.hue, root.saturationHSL, root.lightness, root.alpha)
+            if (root.color.hslHue !== -1)
+                root.hue = root.color.hslHue
+
+            root.saturationHSL = root.color.hslSaturation
+            root.lightness = root.color.hslLightness
+            root.alpha = root.color.a
+
             break
         case ColorPicker.Mode.HSVA:
         default:
-            root.color = Qt.hsva(root.hue, root.saturationHSV, root.value, root.alpha)
+            if (root.color.hsvHue !== -1)
+                root.hue = root.color.hsvHue
+
+            root.saturationHSV = root.color.hsvSaturation
+            root.value = root.color.hsvValue
+            root.alpha = root.color.a
+
             break
         }
 
-        gradientOverlay.requestPaint()
+        root.invalidateColor()
     }
-
-    onHueChanged: {
-        if (root.mode === ColorPicker.Mode.HSLA)
-            root.color.hslHue = root.hue
-        else
-            root.color.hsvHue = root.hue
-    }
-    onSaturationHSLChanged: {
-        root.color.hslSaturation = root.saturationHSL
-        invalidateColor()
-    }
-    onSaturationHSVChanged: {
-        root.color.hsvSaturation = root.saturationHSV
-    }
-    onLightnessChanged: {
-        root.color.hslLightness = root.lightness
-    }
-    onValueChanged: {
-        root.color.hsvValue = root.value
-    }
-    onAlphaChanged: invalidateColor()
-    onColorChanged: invalidateColor()
 
     function invalidateColor() {
         if (root.block)
@@ -102,36 +101,48 @@ Column {
 
         root.block = true
 
-        if (root.color.hsvSaturation > 0.0
-                && root.color.hsvValue > 0.0
-                && root.color.hsvHue !== -1.0)
-            root.hue = root.color.hsvHue
+        switch (root.mode) {
+        case ColorPicker.Mode.RGBA:
+            root.color = Qt.rgba(root.red, root.green, root.blue, root.alpha)
+            // Set HSVA and HSLA
+            if (root.color.hsvHue !== -1)
+                root.hue = root.color.hsvHue // doesn't matter if hsvHue or hslHue
 
-        if (root.color.hslSaturation > 0.0
-                && root.color.hslLightness > 0.0
-                && root.color.hslHue !== -1.0)
-            root.hue = root.color.hslHue
+            if (root.color.hslLightness !== 0.0 && root.color.hslLightness !== 1.0)
+                root.saturationHSL = root.color.hslSaturation
 
-        if (root.color.hslLightness !== 0.0 && root.color.hslLightness !== 1.0 && !root.achromatic)
-            root.saturationHSL = root.color.hslSaturation
+            if (root.color.hsvValue !== 0.0)
+                root.saturationHSV = root.color.hsvSaturation
 
-        if (root.color.hsvValue !== 0.0 && root.color.hsvValue !== 1.0 && !root.achromatic)
-            root.saturationHSV = root.color.hsvSaturation
-
-        root.lightness = root.color.hslLightness
-        root.value = root.color.hsvValue
-
-        if (root.color.hslLightness === 0.0 || root.color.hslLightness === 1.0
-                || root.color.hsvValue === 0.0 || root.color.hsvValue === 1.0
-                || root.color.hsvHue === -1.0 || root.color.hslHue === -1.0)
-            root.achromatic = true
-        else
-            root.achromatic = false
-
-        if (root.mode === ColorPicker.Mode.HSLA)
+            root.lightness = root.color.hslLightness
+            root.value = root.color.hsvValue
+            break
+        case ColorPicker.Mode.HSLA:
             root.color = Qt.hsla(root.hue, root.saturationHSL, root.lightness, root.alpha)
-        else
+            // Set RGBA and HSVA
+            root.red = root.color.r
+            root.green = root.color.g
+            root.blue = root.color.b
+
+            if (root.color.hsvValue !== 0.0)
+                root.saturationHSV = root.color.hsvSaturation
+
+            root.value = root.color.hsvValue
+            break
+        case ColorPicker.Mode.HSVA:
+        default:
             root.color = Qt.hsva(root.hue, root.saturationHSV, root.value, root.alpha)
+            // Set RGBA and HSLA
+            root.red = root.color.r
+            root.green = root.color.g
+            root.blue = root.color.b
+
+            if (root.color.hslLightness !== 0.0 && root.color.hslLightness !== 1.0)
+                root.saturationHSL = root.color.hslSaturation
+
+            root.lightness = root.color.hslLightness
+            break
+        }
 
         luminanceSlider.value = (1.0 - root.value)
         hueSlider.value = root.hue
@@ -142,21 +153,21 @@ Column {
         root.block = false
     }
 
-    function drawHSVA(ctx) {
-        for (var row = 0; row < gradientOverlay.height; row++) {
-            var gradient = ctx.createLinearGradient(0, 0, gradientOverlay.width, 0)
-            var v = Math.abs(row - gradientOverlay.height) / gradientOverlay.height
+    function drawHSVA(ctx, width, height, hue) {
+        for (var row = 0; row < height; row++) {
+            var gradient = ctx.createLinearGradient(0, 0, width, 0)
+            var v = Math.abs(row - height) / height
 
-            gradient.addColorStop(0, Qt.hsva(root.hue, 0, v, 1))
-            gradient.addColorStop(1, Qt.hsva(root.hue, 1, v, 1))
+            gradient.addColorStop(0, Qt.hsva(hue, 0, v, 1))
+            gradient.addColorStop(1, Qt.hsva(hue, 1, v, 1))
 
             ctx.fillStyle = gradient
-            ctx.fillRect(0, row, gradientOverlay.width, 1)
+            ctx.fillRect(0, row, width, 1)
         }
     }
 
-    function drawRGBA(ctx) {
-        var gradient = ctx.createLinearGradient(0, 0, gradientOverlay.width, 0)
+    function drawRGBA(ctx, width, height) {
+        var gradient = ctx.createLinearGradient(0, 0, width, 0)
         gradient.addColorStop(0.000, Qt.rgba(1, 0, 0, 1))
         gradient.addColorStop(0.167, Qt.rgba(1, 1, 0, 1))
         gradient.addColorStop(0.333, Qt.rgba(0, 1, 0, 1))
@@ -166,26 +177,26 @@ Column {
         gradient.addColorStop(1.000, Qt.rgba(1, 0, 0, 1))
 
         ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, gradientOverlay.width, gradientOverlay.height)
+        ctx.fillRect(0, 0, width, height)
 
-        gradient = ctx.createLinearGradient(0, 0, 0, gradientOverlay.height)
+        gradient = ctx.createLinearGradient(0, 0, 0, height)
         gradient.addColorStop(0.000, Qt.rgba(0, 0, 0, 0))
         gradient.addColorStop(1.000, Qt.rgba(1, 1, 1, 1))
 
         ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, gradientOverlay.width, gradientOverlay.height)
+        ctx.fillRect(0, 0, width, height)
     }
 
-    function drawHSLA(ctx) {
-        for (var row = 0; row < gradientOverlay.height; row++) {
-            var gradient = ctx.createLinearGradient(0, 0, gradientOverlay.width, 0)
-            var l = Math.abs(row - gradientOverlay.height) / gradientOverlay.height
+    function drawHSLA(ctx, width, height, hue) {
+        for (var row = 0; row < height; row++) {
+            var gradient = ctx.createLinearGradient(0, 0, width, 0)
+            var l = Math.abs(row - height) / height
 
-            gradient.addColorStop(0, Qt.hsla(root.hue, 0, l, 1))
-            gradient.addColorStop(1, Qt.hsla(root.hue, 1, l, 1))
+            gradient.addColorStop(0, Qt.hsla(hue, 0, l, 1))
+            gradient.addColorStop(1, Qt.hsla(hue, 1, l, 1))
 
             ctx.fillStyle = gradient
-            ctx.fillRect(0, row, gradientOverlay.width, 1)
+            ctx.fillRect(0, row, width, 1)
         }
     }
 
@@ -211,11 +222,12 @@ Column {
                 id: gradientOverlay
 
                 anchors.fill: parent
-                opacity: root.color.a
+                opacity: root.alpha
 
                 Connections {
                     target: root
                     function onHueChanged() { gradientOverlay.requestPaint() }
+                    function onModeChanged() { gradientOverlay.requestPaint() }
                 }
 
                 onPaint: {
@@ -225,14 +237,14 @@ Column {
 
                     switch (root.mode) {
                     case ColorPicker.Mode.RGBA:
-                        root.drawRGBA(ctx)
+                        root.drawRGBA(ctx, gradientOverlay.width, gradientOverlay.height)
                         break
                     case ColorPicker.Mode.HSLA:
-                        root.drawHSLA(ctx)
+                        root.drawHSLA(ctx, gradientOverlay.width, gradientOverlay.height, root.hue)
                         break
                     case ColorPicker.Mode.HSVA:
                     default:
-                        root.drawHSVA(ctx)
+                        root.drawHSVA(ctx, gradientOverlay.width, gradientOverlay.height, root.hue)
                         break
                     }
 
@@ -244,9 +256,14 @@ Column {
                 id: pickerCross
 
                 property color strokeStyle: "lightGray"
+                property string loadImageUrl: "images/checkers.png"
+                property int radius: 10
 
-                opacity: 0.8
+                Component.onCompleted: pickerCross.loadImage(pickerCross.loadImageUrl)
+                onImageLoaded: pickerCross.requestPaint()
+
                 anchors.fill: parent
+                anchors.margins: -pickerCross.radius
                 antialiasing: true
 
                 Connections {
@@ -261,35 +278,63 @@ Column {
                     ctx.save()
                     ctx.clearRect(0, 0, pickerCross.width, pickerCross.height)
 
-                    var yy, xx = 0
+                    var normX, normY = 0
 
                     switch (root.mode) {
                     case ColorPicker.Mode.RGBA:
-                        yy = pickerCross.height - root.saturationHSV * pickerCross.height
-                        xx = root.hue * pickerCross.width
+                        normX = root.hue
+                        normY = 1.0 - root.saturationHSV
                         break
                     case ColorPicker.Mode.HSLA:
-                        yy = pickerCross.height - root.lightness * pickerCross.height
-                        xx = root.saturationHSL * pickerCross.width
+                        normX = root.saturationHSL
+                        normY = 1.0 - root.lightness
                         break
                     case ColorPicker.Mode.HSVA:
                     default:
-                        yy = pickerCross.height - root.value * pickerCross.height
-                        xx = root.saturationHSV * pickerCross.width
+                        normX = root.saturationHSV
+                        normY = 1.0 - root.value
                         break
                     }
 
-                    ctx.strokeStyle = pickerCross.strokeStyle
-                    ctx.lineWidth = 1
+                    var width = pickerCross.width - pickerCross.radius * 2
+                    var height = pickerCross.height - pickerCross.radius * 2
 
+                    var x = normX * width
+                    var y = normY * height
+
+                    var centerX = pickerCross.radius + x
+                    var centerY = pickerCross.radius + y
+
+                    // Draw checkerboard
+                    if (isImageLoaded(pickerCross.loadImageUrl)) {
+                        ctx.beginPath()
+                        ctx.arc(centerX, centerY, pickerCross.radius, 0, 2 * Math.PI)
+                        ctx.clip()
+
+                        var pattern = context.createPattern(pickerCross.loadImageUrl, 'repeat')
+                        context.fillStyle = pattern
+
+                        ctx.fillRect(x, y, pickerCross.radius * 2, pickerCross.radius * 2)
+                    }
+
+                    // Draw current color
+                    if (root.mode === ColorPicker.Mode.RGBA)
+                        ctx.fillStyle = Qt.hsva(root.hue, root.saturationHSV, 1, root.alpha)
+                    else
+                        ctx.fillStyle = root.color
+
+                    ctx.fillRect(x, y, pickerCross.radius * 2, pickerCross.radius * 2)
+
+                    // Draw black and white circle
+                    ctx.lineWidth = 2
+                    ctx.strokeStyle = "black"
                     ctx.beginPath()
-                    ctx.moveTo(0, yy)
-                    ctx.lineTo(pickerCross.width, yy)
+                    ctx.arc(centerX, centerY, pickerCross.radius, 0, 2 * Math.PI)
                     ctx.stroke()
 
+                    ctx.strokeStyle = "white"
                     ctx.beginPath()
-                    ctx.moveTo(xx, 0)
-                    ctx.lineTo(xx, pickerCross.height)
+                    ctx.arc(centerX, centerY, pickerCross.radius - 2, 0, 2 * Math.PI)
                     ctx.stroke()
 
                     ctx.restore()
@@ -298,31 +343,48 @@ Column {
 
             MouseArea {
                 id: mouseArea
-
                 anchors.fill: parent
+                anchors.margins: -pickerCross.radius
                 preventStealing: true
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                 onPositionChanged: function(mouse) {
                     if (mouseArea.pressed && mouse.buttons === Qt.LeftButton) {
-                        var xx = Math.max(0, Math.min(mouse.x, parent.width))
-                        var yy = Math.max(0, Math.min(mouse.y, parent.height))
+                        // Generate color values from mouse position
+
+                        // Clip/limit to margin
+                        var x = Math.max(0, Math.min(mouse.x - pickerCross.radius, parent.width))
+                        var y = Math.max(0, Math.min(mouse.y - pickerCross.radius, parent.height))
+
+                        var normX = x / parent.width
+                        var normY = y / parent.height
 
                         switch (root.mode) {
                         case ColorPicker.Mode.RGBA:
-                            root.saturationHSV = 1.0 - yy / parent.height
-                            root.hue = xx / parent.width
+                            var tmpColor = Qt.hsva(normX, // hue
+                                                   1.0 - normY, // saturation
+                                                   root.value,
+                                                   root.alpha)
+
+                            root.hue = normX
+                            root.saturationHSV = 1.0 - normY
+
+                            root.red = tmpColor.r
+                            root.green = tmpColor.g
+                            root.blue = tmpColor.b
                             break
                         case ColorPicker.Mode.HSLA:
-                            root.saturationHSL = xx / parent.width
-                            root.lightness = 1.0 - yy / parent.height
+                            root.saturationHSL = normX
+                            root.lightness = 1.0 - normY
                             break
                         case ColorPicker.Mode.HSVA:
                         default:
-                            root.saturationHSV = xx / parent.width
-                            root.value = 1.0 - yy / parent.height
+                            root.saturationHSV = normX
+                            root.value = 1.0 - normY
                             break
                         }
+
+                        root.invalidateColor()
                     }
                 }
                 onPressed: function(mouse) {
@@ -345,9 +407,11 @@ Column {
         id: hueSlider
         visible: root.mode !== ColorPicker.Mode.RGBA
         width: parent.width
-        onValueChanged: {
+        onMoved: {
             if (root.hue !== hueSlider.value)
                 root.hue = hueSlider.value
+
+            root.invalidateColor()
         }
         onClicked: root.updateColor()
     }
@@ -356,10 +420,21 @@ Column {
         id: luminanceSlider
         visible: root.mode === ColorPicker.Mode.RGBA
         width: parent.width
-        color: Qt.hsva(root.hue, root.color.hsvSaturation, 1, 1)
-        onValueChanged: {
-            if (root.value !== luminanceSlider.value)
+        color: Qt.hsva(root.hue, root.saturationHSV, root.value, root.alpha)
+        onMoved: {
+            if (root.value !== (1.0 - luminanceSlider.value))
                 root.value = (1.0 - luminanceSlider.value)
+
+            var tmpColor = Qt.hsva(root.hue,
+                                   root.saturationHSV,
+                                   root.value,
+                                   root.alpha)
+
+            root.red = tmpColor.r
+            root.green = tmpColor.g
+            root.blue = tmpColor.b
+
+            root.invalidateColor()
         }
         onClicked: root.updateColor()
     }
@@ -367,10 +442,12 @@ Column {
     OpacitySlider {
         id: opacitySlider
         width: parent.width
-        color: Qt.rgba(root.color.r, root.color.g, root.color.b, 1)
-        onValueChanged: {
-            if (root.alpha !== opacitySlider.value)
+        color: root.color
+        onMoved: {
+            if (root.alpha !== (1.0 - opacitySlider.value))
                 root.alpha = (1.0 - opacitySlider.value)
+
+            root.invalidateColor()
         }
         onClicked: root.updateColor()
     }

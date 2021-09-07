@@ -153,8 +153,10 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
 Utils::Environment prepareBasicEnvironment(const Utils::Environment &env)
 {
     Utils::Environment result(env);
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        result.set("QT_FORCE_STDERR_LOGGING", "1");
         result.set("QT_LOGGING_TO_CONSOLE", "1");
+    }
     const int timeout = AutotestPlugin::settings()->timeout;
     if (timeout > 5 * 60 * 1000) // Qt5.5 introduced hard limit, Qt5.6.1 added env var to raise this
         result.set("QTEST_FUNCTION_TIMEOUT", QString::number(timeout));

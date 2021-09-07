@@ -156,8 +156,8 @@
     to rotate component instances in steps of 5 or 45 degrees, respectively.
 
     You can set the \l{Managing 2D Transformations}{origin} in \l Properties >
-    \uicontrol Advanced > \uicontrol Origin. There, you can also enter the value
-    of the \uicontrol Rotation property in degrees.
+    \uicontrol {Geometry - 2D} > \uicontrol Origin. There, you can also enter
+    the value of the \uicontrol Rotation property in degrees.
 
     \section1 Zooming
 
