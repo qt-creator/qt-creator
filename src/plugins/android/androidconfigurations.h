@@ -90,7 +90,6 @@ public:
 
     static QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
     static QString apiLevelNameFor(const SdkPlatform *platform);
-    static int platformNameToApiLevel(const QString &platformName);
 
     Utils::FilePath sdkLocation() const;
     void setSdkLocation(const Utils::FilePath &sdkLocation);

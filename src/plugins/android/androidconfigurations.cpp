@@ -415,28 +415,6 @@ QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
                 QString("android-%1").arg(platform->apiLevel()) : "";
 }
 
-int AndroidConfig::platformNameToApiLevel(const QString &platformName)
-{
-    int apiLevel = -1;
-    static const QRegularExpression re("(android-)(?<apiLevel>[0-9A-Z]{1,})",
-                                       QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch match = re.match(platformName);
-    if (match.hasMatch()) {
-        QString apiLevelStr = match.captured("apiLevel");
-        bool isUInt;
-        apiLevel = apiLevelStr.toUInt(&isUInt);
-        if (!isUInt) {
-            if (apiLevelStr == 'Q')
-                apiLevel = 29;
-            else if (apiLevelStr == 'R')
-                apiLevel = 30;
-            else if (apiLevelStr == 'S')
-                apiLevel = 31;
-        }
-    }
-    return apiLevel;
-}
-
 bool AndroidConfig::isCmdlineSdkToolsInstalled() const
 {
     QString toolPath("cmdline-tools/latest/bin/sdkmanager");
