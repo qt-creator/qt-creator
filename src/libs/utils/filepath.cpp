@@ -438,6 +438,7 @@ FilePath FilePath::fromFileInfo(const QFileInfo &info)
 /// \returns a QFileInfo
 QFileInfo FilePath::toFileInfo() const
 {
+    QTC_ASSERT(!needsDevice(), return QFileInfo());
     return QFileInfo(m_data);
 }
 
@@ -831,6 +832,7 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
+    QTC_ASSERT(!needsDevice(), return *this);
     FilePath result = *this;
     result.m_data = QFileInfo(m_data).absolutePath();
     return result;
@@ -838,6 +840,7 @@ FilePath FilePath::absolutePath() const
 
 FilePath FilePath::absoluteFilePath() const
 {
+    QTC_ASSERT(!needsDevice(), return *this);
     FilePath result = *this;
     result.m_data = QFileInfo(m_data).absoluteFilePath();
     return result;
@@ -1056,6 +1059,7 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 ///
 FilePath FilePath::relativePath(const FilePath &anchor) const
 {
+    QTC_ASSERT(!needsDevice(), return *this);
     const QFileInfo fileInfo(m_data);
     QString absolutePath;
     QString filename;
