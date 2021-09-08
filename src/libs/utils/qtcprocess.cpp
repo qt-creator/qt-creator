@@ -252,6 +252,12 @@ public:
     void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
     bool isUnixTerminalDisabled() const { return m_unixTerminalDisabled; }
 
+    void setUseTerminal(bool on) { m_useTerminal = on; }
+    bool useTerminal() const { return m_useTerminal; }
+
+    void setRunAsRoot(bool on) { m_runAsRoot = on; }
+    bool runAsRoot() const { return m_runAsRoot; }
+
     void setBelowNormalPriority() { m_belowNormalPriority = true; }
     bool isBelowNormalPriority() const { return m_belowNormalPriority; }
     void setNativeArguments(const QString &arguments) { m_nativeArguments = arguments; }
@@ -272,6 +278,8 @@ private:
     QString m_nativeArguments;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
+    bool m_useTerminal = false;
+    bool m_runAsRoot = false;
 };
 
 class QProcessImpl : public ProcessInterface
@@ -807,6 +815,16 @@ void QtcProcess::setLowPriority()
 void QtcProcess::setDisableUnixTerminal()
 {
     d->m_process->setUnixTerminalDisabled();
+}
+
+void QtcProcess::setUseTerminal(bool on)
+{
+    d->m_process->setUseTerminal(on);
+}
+
+void QtcProcess::setRunAsRoot(bool on)
+{
+    d->m_process->setRunAsRoot(on);
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)
