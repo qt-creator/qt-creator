@@ -92,7 +92,9 @@ static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 
 /* "red" is the same color as "#ff0000"
   To simplify editing we convert all explicit color names in the hash format */
-static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const QmlDesigner::PropertyName &name, QVariant *value)
+static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode,
+                                  const QmlDesigner::PropertyName &name,
+                                  QVariant *value)
 {
     if (modelNode.isValid() && modelNode.metaInfo().isValid()
             && (modelNode.metaInfo().propertyTypeName(name) == "QColor"
@@ -104,7 +106,7 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const
             color.setAlpha(alpha);
             *value = color;
         } else if (value->toString() != QStringLiteral("transparent")) {
-            *value = QColor(value->toString()).name();
+            *value = QColor(value->toString()).name(QColor::HexArgb);
         }
     }
 }
