@@ -1,0 +1,95 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-repeater-3d.html
+    \previouspage studio-3d-morph-target.html
+    \nextpage quick-component-instances.html
+
+    \title Repeater3D
+
+    \note The \uicontrol Repeater3D component is released as a tech preview
+    feature in \QDS 2.2, and its functionality will be improved in future
+    releases.
+
+    The \uicontrol Repeater3D component is used to create a large number of
+    similar items. Like other view types, \uicontrol Repeater3D needs a model
+    and a delegate. For each entry in the model, the delegate is instantiated in
+    a context seeded with data from the model.
+
+    The model can be any of the supported \l{Lists and Other Data Models}
+    {data models}. Additionally, like delegates for other views, a delegate for
+    the \uicontrol Repeater3D can access its index within the repeater, as well
+    as the model data relevant to the delegate.
+
+    Add a \uicontrol Repeater3D component to your scene by drag-and-dropping it
+    from \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    \uicontrol {Qt Quick 3D} to \uicontrol Scene in \uicontrol Navigator.
+
+    \note \uicontrol Repeater3D owns all items it instantiates. Removing or
+    dynamically destroying an item created by \uicontrol Repeater3D results in
+    unpredictable behavior.
+
+    \note \uicontrol Repeater3D can only repeat objects derived from
+    \uicontrol Nodes.
+
+    For more information, see \l{https://doc.qt.io/qt/qml-qtquick3d-repeater3d.html}
+    {Repeater3D} in the \uicontrol {Qt Quick 3D} documentation.
+
+    \section1 Repeater 3D Properties
+
+    To define a model providing data for the repeater, select it in \l Navigator,
+    and then in \uicontrol Properties > \uicontrol Repeater, specify the
+    \uicontrol Model property. Currently, you can only use the \uicontrol Model
+    property in the \uicontrol Properties view to set a numeric model or to bind
+    to QML based models. You can use the \l {Working in Edit Mode}{Edit} mode or
+    \l {Text Editor} to define any of the supported data models as the value of
+    the \uicontrol Model property:
+        \list
+            \li A number that indicates the number of delegates to be created by
+                the repeater.
+            \li A model, such as a \uicontrol ListModel component, or a
+                QAbstractItemModel subclass.
+            \li A string list.
+            \li An object list.
+        \endlist
+
+    The type of model affects the properties that are exposed to the delegate.
+
+    The \uicontrol Delegate property specifies a template defining each object
+    instantiated by the repeater. Currently, the \uicontrol Delegate property
+    needs to be defined in code using the \uicontrol Edit mode or
+    \uicontrol {Text Editor}. Delegates are exposed to a read-only index
+    property that indicates the index of the delegate within the repeater. For
+    more information, see \l{https://doc.qt.io/qt/qml-qtquick3d-repeater3d.html#delegate-prop}
+    {Delegate} in the \uicontrol {Qt Quick 3D} documentation.
+
+    If the model is a model object, such as a ListModel, the delegate can access
+    all model roles as named properties, in the same way that delegates do for
+    view classes like \uicontrol ListView.
+
+*/

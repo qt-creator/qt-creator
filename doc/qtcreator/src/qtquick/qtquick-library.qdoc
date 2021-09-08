@@ -83,6 +83,7 @@
         \li \l{Cameras}
         \li \l{Scene Environment}
         \li \l{Morph Target}
+        \li \l{Repeater3D}
     \endlist
 
     For more information about creating your own components, see
