@@ -217,24 +217,23 @@ void ChooseDirectoryPage::initializePage()
     const Target *target = m_wizard->buildSystem()->target();
     const QString buildKey = m_wizard->buildKey();
     const BuildTargetInfo bti = target->buildTarget(buildKey);
-    const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
 
-    QString androidPackageDir;
+    FilePath androidPackageDir;
     if (const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey))
-        androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
+        androidPackageDir = FilePath::fromVariant(node->data(Android::Constants::AndroidPackageSourceDir));
 
     if (androidPackageDir.isEmpty()) {
         m_label->setText(tr("Select the Android package source directory.\n\n"
                           "The files in the Android package source directory are copied to the build directory's "
                           "Android directory and the default files are overwritten."));
 
-        m_androidPackageSourceDir->setPath(projectDir + "/android");
+        m_androidPackageSourceDir->setFilePath(bti.projectFilePath / "android");
         connect(m_androidPackageSourceDir, &PathChooser::rawPathChanged,
                 this, &ChooseDirectoryPage::checkPackageSourceDir);
     } else {
         m_label->setText(tr("The Android template files will be created in the %1 set in the .pro "
                             "file.").arg(QLatin1String(Constants::ANDROID_PACKAGE_SOURCE_DIR)));
-        m_androidPackageSourceDir->setPath(androidPackageDir);
+        m_androidPackageSourceDir->setFilePath(androidPackageDir);
         m_androidPackageSourceDir->setReadOnly(true);
     }
 

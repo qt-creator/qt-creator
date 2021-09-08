@@ -72,7 +72,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
         }
         if (!m_configPath->hasFocus()) {
             if (project->configPath().isEmpty()) {
-                m_configPath->setPath(QString());
+                m_configPath->setFilePath({});
             } else {
                 // make path absolute (may be relative to current project's directory)
                 QDir projectDir = QFileInfo(project->fileName()).absoluteDir();

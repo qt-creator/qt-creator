@@ -225,7 +225,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     auto keystoreLocationChooser = new PathChooser(group);
     keystoreLocationChooser->setExpectedKind(PathChooser::File);
     keystoreLocationChooser->lineEdit()->setReadOnly(true);
-    keystoreLocationChooser->setPath(m_step->keystorePath().toUserOutput());
+    keystoreLocationChooser->setFilePath(m_step->keystorePath());
     keystoreLocationChooser->setInitialBrowsePathBackup(FileUtils::homePath());
     keystoreLocationChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
     keystoreLocationChooser->setPromptDialogTitle(tr("Select Keystore File"));
@@ -241,7 +241,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
         AndroidCreateKeystoreCertificate d;
         if (d.exec() != QDialog::Accepted)
             return;
-        keystoreLocationChooser->setPath(d.keystoreFilePath().toUserOutput());
+        keystoreLocationChooser->setFilePath(d.keystoreFilePath());
         m_step->setKeystorePath(d.keystoreFilePath());
         m_step->setKeystorePassword(d.keystorePassword());
         m_step->setCertificateAlias(d.certificateAlias());

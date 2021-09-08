@@ -597,9 +597,9 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     const ExternalTool *tool = ExternalToolModel::toolForIndex(index);
     if (!tool) {
         m_ui.description->clear();
-        m_ui.executable->setPath(QString());
+        m_ui.executable->setFilePath({});
         m_ui.arguments->clear();
-        m_ui.workingDirectory->setPath(QString());
+        m_ui.workingDirectory->setFilePath({});
         m_ui.inputText->clear();
         m_ui.infoWidget->setEnabled(false);
         m_environment.clear();

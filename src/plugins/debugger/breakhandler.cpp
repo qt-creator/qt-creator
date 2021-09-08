@@ -623,7 +623,7 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
 {
     const unsigned invertedPartsMask = ~partsMask;
     if (invertedPartsMask & FileAndLinePart) {
-        m_pathChooserFileName->setPath(QString());
+        m_pathChooserFileName->setFilePath({});
         m_lineEditLineNumber->clear();
         m_comboBoxPathUsage->setCurrentIndex(BreakpointPathUsageEngineDefault);
     }

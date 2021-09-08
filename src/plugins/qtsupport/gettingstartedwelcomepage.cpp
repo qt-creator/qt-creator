@@ -110,7 +110,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
     const QString defaultRootDirectory = DocumentManager::projectsDirectory().toString();
     QtcSettings *settings = ICore::settings();
-    chooser->setPath(settings->value(C_FALLBACK_ROOT, defaultRootDirectory).toString());
+    chooser->setFilePath(FilePath::fromVariant(settings->value(C_FALLBACK_ROOT, defaultRootDirectory)));
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };

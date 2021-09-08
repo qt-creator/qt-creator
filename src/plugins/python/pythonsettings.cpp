@@ -73,7 +73,7 @@ public:
     void updateInterpreter(const Interpreter &interpreter)
     {
         m_name->setText(interpreter.name);
-        m_executable->setPath(interpreter.command.toString());
+        m_executable->setFilePath(interpreter.command);
         m_currentId = interpreter.id;
     }
 
