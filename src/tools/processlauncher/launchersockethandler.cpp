@@ -144,7 +144,11 @@ void LauncherSocketHandler::handleProcessError()
     packet.error = proc->error();
     packet.errorString = proc->errorString();
     sendPacket(packet);
-    removeProcess(proc->token());
+
+    // In case of FailedToStart we won't receive finished signal, so we remove the process here.
+    // For all other errors we should expect corresponding finished signal to appear.
+    if (proc->error() == QProcess::FailedToStart)
+        removeProcess(proc->token());
 }
 
 void LauncherSocketHandler::handleProcessStarted()
