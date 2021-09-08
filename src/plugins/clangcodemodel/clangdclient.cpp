@@ -906,6 +906,9 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();
     Client::handleDiagnostics(params);
+    const int docVersion = documentVersion(uri.toFilePath());
+    if (params.version().value_or(docVersion) != docVersion)
+        return;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
         const ClangdDiagnostic clangdDiagnostic(diagnostic);
         for (const CodeAction &action : clangdDiagnostic.codeActions().value_or(QList<CodeAction>{}))
