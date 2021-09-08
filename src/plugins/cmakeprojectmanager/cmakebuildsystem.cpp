@@ -1255,10 +1255,10 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         // this is not 100% correct since CMake resolve them to CMAKE_CURRENT_SOURCE_DIR
         // depending on context, but we cannot do better here
         return first == second
-               || projectDirectory.absoluteFilePath(first)
-                      == projectDirectory.absoluteFilePath(second)
-               || projectDirectory.absoluteFilePath(first).canonicalPath()
-                      == projectDirectory.absoluteFilePath(second).canonicalPath();
+               || projectDirectory.resolvePath(first)
+                      == projectDirectory.resolvePath(second)
+               || projectDirectory.resolvePath(first).canonicalPath()
+                      == projectDirectory.resolvePath(second).canonicalPath();
     };
 
     // Replace path values that do not  exist on file system

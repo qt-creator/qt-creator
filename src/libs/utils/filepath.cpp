@@ -381,12 +381,19 @@ bool FilePath::isRelativePath() const
     return isRelativePathHelper(m_data, osType());
 }
 
-FilePath FilePath::resolvePath(const QString &fileName) const
+FilePath FilePath::resolvePath(const FilePath &tail) const
 {
-    if (FileUtils::isAbsolutePath(fileName))
-        return FilePath::fromString(QDir::cleanPath(fileName));
+    if (!isRelativePathHelper(tail.m_data, osType()))
+        return tail;
+    return pathAppended(tail.m_data);
+}
+
+FilePath FilePath::resolvePath(const QString &tail) const
+{
+    if (!FileUtils::isRelativePath(tail))
+        return FilePath::fromString(QDir::cleanPath(tail));
     FilePath result = *this;
-    result.setPath(QDir::cleanPath(m_data + '/' + fileName));
+    result.setPath(QDir::cleanPath(m_data + '/' + tail));
     return result;
 }
 
@@ -844,13 +851,6 @@ FilePath FilePath::absoluteFilePath() const
     FilePath result = *this;
     result.m_data = QFileInfo(m_data).absoluteFilePath();
     return result;
-}
-
-FilePath FilePath::absoluteFilePath(const FilePath &tail) const
-{
-    if (isRelativePathHelper(tail.m_data, osType()))
-        return pathAppended(tail.m_data);
-    return tail;
 }
 
 FilePath FilePath::normalizedPathName() const

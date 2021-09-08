@@ -211,7 +211,7 @@ bool WinRtPackageDeploymentStep::init()
     if (!qt)
         return false;
 
-    const FilePath windeployqtPath = qt->hostBinPath().resolvePath("windeployqt.exe");
+    const FilePath windeployqtPath = qt->hostBinPath().resolvePath(QString("windeployqt.exe"));
 
     CommandLine windeployqt{windeployqtPath};
     windeployqt.addArg(QDir::toNativeSeparators(m_targetFilePath));

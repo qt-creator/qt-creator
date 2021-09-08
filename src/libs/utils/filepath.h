@@ -117,7 +117,6 @@ public:
     FilePath parentDir() const;
     FilePath absolutePath() const;
     FilePath absoluteFilePath() const;
-    FilePath absoluteFilePath(const FilePath &tail) const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
@@ -155,7 +154,8 @@ public:
     FilePath relativePath(const FilePath &anchor) const;
     FilePath pathAppended(const QString &str) const;
     FilePath stringAppended(const QString &str) const;
-    FilePath resolvePath(const QString &fileName) const;
+    FilePath resolvePath(const FilePath &tail) const;
+    FilePath resolvePath(const QString &tail) const;
     FilePath cleanPath() const;
 
     FilePath canonicalPath() const;

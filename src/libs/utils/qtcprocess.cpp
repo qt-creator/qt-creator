@@ -516,7 +516,7 @@ public:
         if (filePath.isAbsolutePath())
             return filePath;
 
-        const FilePath fromWorkingDir = workingDir.absoluteFilePath(filePath);
+        const FilePath fromWorkingDir = workingDir.resolvePath(filePath);
         if (fromWorkingDir.exists() && fromWorkingDir.isExecutableFile())
             return fromWorkingDir;
         return filePath.searchInPath();

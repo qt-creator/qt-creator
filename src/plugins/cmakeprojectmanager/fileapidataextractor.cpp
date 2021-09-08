@@ -201,12 +201,12 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
     const QList<CMakeBuildTarget> result = transform<QList>(input.targetDetails,
         [&sourceDir, &sourceDirectory, &buildDirectory,
          &haveLibrariesRelativeToBuildDirectory](const TargetDetails &t) {
-            const FilePath currentBuildDir = buildDirectory.absoluteFilePath(t.buildDir);
+            const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
 
             CMakeBuildTarget ct;
             ct.title = t.name;
             if (!t.artifacts.isEmpty())
-                ct.executable = buildDirectory.absoluteFilePath(t.artifacts.at(0));
+                ct.executable = buildDirectory.resolvePath(t.artifacts.at(0));
             TargetType type = UtilityType;
             if (t.type == "EXECUTABLE")
                 type = ExecutableType;
@@ -222,7 +222,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
             ct.workingDirectory = ct.executable.isEmpty()
                                       ? currentBuildDir.absolutePath()
                                       : ct.executable.parentDir();
-            ct.sourceDirectory = sourceDirectory.absoluteFilePath(t.sourceDir);
+            ct.sourceDirectory = sourceDirectory.resolvePath(t.sourceDir);
 
             ct.backtrace = extractBacktraceInformation(t.backtraceGraph, sourceDir, t.backtrace, 0);
 
@@ -276,7 +276,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                             continue;
 
                         const FilePath buildDir = haveLibrariesRelativeToBuildDirectory ? buildDirectory : currentBuildDir;
-                        FilePath tmp = buildDir.absoluteFilePath(FilePath::fromUserInput(part));
+                        FilePath tmp = buildDir.resolvePath(FilePath::fromUserInput(part));
 
                         if (f.role == "libraries")
                             tmp = tmp.parentDir();

@@ -251,7 +251,7 @@ FilePath BuildConfiguration::buildDirectory() const
     path = QDir::cleanPath(macroExpander()->expand(path));
 
     const FilePath projectDir = target()->project()->projectDirectory();
-    const FilePath buildDir = projectDir.absoluteFilePath(FilePath::fromString(path));
+    const FilePath buildDir = projectDir.resolvePath(FilePath::fromString(path));
 
     return mapFromBuildDeviceToGlobalPath(buildDir);
 }

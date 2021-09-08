@@ -967,7 +967,7 @@ FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
 {
     FilePath queryDir = buildDirectory / CMAKE_RELATIVE_QUERY_PATH;
     return transform(CMAKE_QUERY_FILENAMES, [&queryDir](const QString &name) {
-        return queryDir.absoluteFilePath(FilePath::fromString(name));
+        return queryDir.resolvePath(FilePath::fromString(name));
     });
 }
 
