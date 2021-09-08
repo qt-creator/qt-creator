@@ -231,6 +231,17 @@ void BaseFileFind::setCurrentSearchEngine(int index)
     emit currentSearchEngineChanged();
 }
 
+static QString displayText(const QString &line)
+{
+    QString result = line;
+    auto end = result.end();
+    for (auto it = result.begin(); it != end; ++it) {
+        if (!it->isPrint())
+            *it = QChar('?');
+    }
+    return result;
+}
+
 static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
                           SearchResult *search, int index)
 {
@@ -240,7 +251,7 @@ static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
         SearchResultItem item;
         item.setFilePath(Utils::FilePath::fromString(result.fileName));
         item.setMainRange(result.lineNumber, result.matchStart, result.matchLength);
-        item.setLineText(result.matchingLine);
+        item.setLineText(displayText(result.matchingLine));
         item.setUseTextEditorFont(true);
         item.setUserData(result.regexpCapturedTexts);
         items << item;
