@@ -30,10 +30,9 @@
 
     \title Previewing on Devices
 
-    \omit
     To preview UIs on Android devices, you need to enable USB debugging on them
     and connect them to your system with a USB cable.
-    \endomit
+
     To preview UIs on Boot2Qt devices, you need to connect the devices to your
     system with a USB cable, or a wired or wireless connection, depending on
     the device, and configure connections to them. The necessary kits have been
@@ -58,11 +57,10 @@
             press \key {Alt+P}.
     \endlist
 
-    \omit
     \section2 Previewing on Android Devices
 
     The USB debugging feature on Android devices enables creating connections
-    to the devices from \QDS and running the live preview utility on them.
+    to the devices from \QDS and running the preview utility on them.
 
     Debugging is enabled in different ways on different Android devices.
     Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}.
@@ -77,7 +75,6 @@
     is copied to them. This might take some time. Thereafter, previewing will
     get faster, because only the UI files need to be copied to the
     device.
-    \endomit
 
     \section2 Previewing on Boot2Qt Devices
 

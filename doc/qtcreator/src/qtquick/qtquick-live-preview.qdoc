@@ -31,9 +31,12 @@
     \title Validating with Target Hardware
 
     You can use the live preview feature to preview a UI file or the entire
-    UI on the desktop, as well as on Android and embedded Linux
+    UI on the desktop, as well as on embedded Linux
     devices. The changes you make to the UI are instantly visible
-    to you in the preview.
+    to you in the preview. While the preview is available on Android devices,
+    it does not instantly reflect the changes made to the UI in the editor. It
+    shows the snapshot of your project from the moment you start the preview on
+    the device.
 
     In addition, you can use \QDV to run
     \if defined(qtcreator)
