@@ -784,8 +784,11 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         QMetaObject::invokeMethod(this, [this, buffer] { handleResponse(buffer); });
     } else {
         m_gdbProc.write(cmd.function.toUtf8() + "\r\n");
-        if (command.flags & NeedsFlush)
-            runCommand({"p 0"});
+        if (command.flags & NeedsFlush) {
+            // We don't need the response or result here, just want to flush
+            // anything that's still on the gdb side.
+            m_gdbProc.write({"p 0\n"});
+        }
 
         // Start Watchdog.
         if (m_commandTimer.interval() <= 20000)
@@ -857,7 +860,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     //qDebug() << "\nRESULT" << response->token << response->toString();
 
     int token = response->token;
-    if (token == -1)
+    if (token <= 0)
         return;
 
     if (!m_commandForToken.contains(token)) {
