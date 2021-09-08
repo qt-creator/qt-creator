@@ -899,16 +899,15 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
     if (filepath.isEmpty() || defaultExtension.isEmpty())
         return FilePath::fromString(filepath);
 
-    QString rc = filepath;
-    QFileInfo fi(filepath);
+    FilePath rc = FilePath::fromString(filepath);
     // Add extension unless user specified something else
     const QChar dot = QLatin1Char('.');
-    if (!fi.fileName().contains(dot)) {
+    if (!rc.fileName().contains(dot)) {
         if (!defaultExtension.startsWith(dot))
-            rc += dot;
-        rc += defaultExtension;
+            rc.stringAppended(dot);
+        rc.stringAppended(defaultExtension);
     }
-    return FilePath::fromString(rc);
+    return rc;
 }
 
 /// Constructs a FilePath from \a filePath
