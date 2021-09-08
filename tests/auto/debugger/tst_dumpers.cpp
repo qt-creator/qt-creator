@@ -4549,8 +4549,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <complex.h>\n",
 
                     "// Doesn't work when compiled as C++.\n"
-                    "double complex a = 0;\n"
-                    "double _Complex b = 0;\n",
+                    "double complex a = 1;\n"
+                    "double _Complex b = 1;\n",
 
                     "&a, &b")
 
@@ -4558,10 +4558,11 @@ void tst_Dumpers::dumper_data()
                + GdbVersion(70500)
                + NoCdbEngine
 
-               + Check("a", "0 + 0 * I", "complex double") % GdbEngine
-               + Check("b", "0 + 0 * I", "complex double") % GdbEngine
-               + Check("a", "0 + 0i", "_Complex double") % LldbEngine
-               + Check("b", "0 + 0i", "_Complex double") % LldbEngine;
+                // 1 + 0 * I  or 1 + 0i;   complex double  or _Complex double
+               + Check("a", ValuePattern("1 \\+ ((0 \\* I)|(0i))"),
+                            TypePattern("_?[cC]omplex double"))
+               + Check("b", ValuePattern("1 \\+ ((0 \\* I)|(0i))"),
+                            TypePattern("_?[cC]omplex double"));
 
 
     QTest::newRow("StdFunction")
