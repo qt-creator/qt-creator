@@ -75,7 +75,6 @@
 #include <QStandardPaths>
 #include <QStringList>
 #include <QTcpSocket>
-#include <QThread>
 
 #include <functional>
 #include <memory>

@@ -33,7 +33,6 @@
 #include "sqlitewritestatement.h"
 
 #include <QFileInfo>
-#include <QThread>
 #include <QDebug>
 
 #include "sqlite.h"

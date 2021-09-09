@@ -43,7 +43,6 @@
 #include <QTemporaryFile>
 #include <QTextStream>
 #include <QTextDocument>
-#include <QThread>
 
 using namespace ProjectExplorer;
 using namespace TextEditor;

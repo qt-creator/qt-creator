@@ -48,7 +48,6 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QMimeData>
-#include <QThread>
 #include <QUndoStack>
 
 using namespace ScxmlEditor::PluginInterface;

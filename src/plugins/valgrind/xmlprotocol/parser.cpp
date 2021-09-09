@@ -38,7 +38,6 @@
 #include <QHash>
 #include <QIODevice>
 #include <QPair>
-#include <QThread>
 #include <QXmlStreamReader>
 
 namespace {
