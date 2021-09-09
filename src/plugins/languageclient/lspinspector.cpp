@@ -42,6 +42,7 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QSplitter>
 #include <QStyledItemDelegate>
 #include <QTextCodec>
@@ -427,6 +428,11 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
+    const auto clearButton = buttonBox->addButton(tr("Clear"), QDialogButtonBox::ResetRole);
+    connect(clearButton, &QPushButton::clicked, this, [this] {
+        m_inspector->clear();
+        currentClientChanged(m_clients->currentItem()->text());
+    });
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
