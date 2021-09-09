@@ -454,8 +454,7 @@ void PersistentSettingsWriter::setContents(const QVariantMap &data)
 
 bool PersistentSettingsWriter::write(const QVariantMap &data, QString *errorString) const
 {
-    QDir tmp;
-    tmp.mkpath(m_fileName.toFileInfo().path());
+    m_fileName.parentDir().ensureWritableDir();
     FileSaver saver(m_fileName, QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
