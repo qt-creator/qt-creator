@@ -87,6 +87,7 @@ public:
     bool deleteFiles(ProjectExplorer::Node *, const Utils::FilePaths &) final;
     bool renameFile(ProjectExplorer::Node *,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
+    QString name() const final { return QLatin1String("nim"); }
 
     void triggerParsing() override;
 

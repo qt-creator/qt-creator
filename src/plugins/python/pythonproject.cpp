@@ -69,6 +69,7 @@ public:
     bool renameFile(Node *,
                     const Utils::FilePath &oldFilePath,
                     const Utils::FilePath &newFilePath) override;
+    QString name() const override { return QLatin1String("python"); }
 
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const QString &fileName);

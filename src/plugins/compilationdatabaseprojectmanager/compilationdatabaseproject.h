@@ -64,6 +64,7 @@ public:
     ~CompilationDatabaseBuildSystem();
 
     void triggerParsing() final;
+    QString name() const final { return QLatin1String("compilationdb"); }
 
     void reparseProject();
     void updateDeploymentData();

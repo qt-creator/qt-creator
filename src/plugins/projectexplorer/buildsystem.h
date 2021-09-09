@@ -101,6 +101,7 @@ public:
                             const Utils::FilePath &newFilePath);
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
+    virtual QString name() const = 0;
 
     virtual Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const;
     virtual QVariant additionalData(Utils::Id id) const;

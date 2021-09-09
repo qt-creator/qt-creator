@@ -44,6 +44,7 @@ public:
 
 private:
     void triggerParsing() final;
+    QString name() const final { return QLatin1String("autotools"); }
 
     /**
      * Is invoked when the makefile parsing by m_makefileParserThread has

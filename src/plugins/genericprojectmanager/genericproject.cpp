@@ -138,6 +138,7 @@ public:
     RemovedFilesFromProject removeFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
     bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
     bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
+    QString name() const final { return QLatin1String("generic"); }
 
     FilePath filesFilePath() const { return ::FilePath::fromString(m_filesFileName); }
 

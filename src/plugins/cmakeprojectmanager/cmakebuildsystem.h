@@ -67,6 +67,7 @@ public:
                   const Utils::FilePaths &filePaths, Utils::FilePaths *) final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
+    QString name() const final { return QLatin1String("cmake"); }
 
     // Actions:
     void runCMake();

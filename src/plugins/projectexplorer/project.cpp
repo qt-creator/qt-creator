@@ -1100,6 +1100,7 @@ public:
     using BuildSystem::BuildSystem;
 
     void triggerParsing() final {}
+    QString name() const final { return QLatin1String("test"); }
 };
 
 class TestProject : public Project

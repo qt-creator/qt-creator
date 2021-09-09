@@ -161,6 +161,11 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
 
     d->m_macroExpander.registerVariable("sourceDir", tr("Source directory"),
             [project] { return project->projectDirectory().toUserOutput(); });
+    d->m_macroExpander.registerVariable("BuildSystem:Name", tr("Build system"), [this] {
+        if (const BuildSystem * const bs = buildSystem())
+            return bs->name();
+        return QString();
+    });
 
     // TODO: Remove in ~4.16.
     d->m_macroExpander.registerVariable(Constants::VAR_CURRENTPROJECT_NAME,

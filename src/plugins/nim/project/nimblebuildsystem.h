@@ -82,7 +82,7 @@ private:
     bool deleteFiles(ProjectExplorer::Node *, const Utils::FilePaths &) override;
     bool renameFile(ProjectExplorer::Node *,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
-
+    QString name() const final { return QLatin1String("mimble"); }
     void triggerParsing() final;
 
     std::vector<NimbleTask> m_tasks;

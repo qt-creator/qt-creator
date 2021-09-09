@@ -59,6 +59,7 @@ public:
                      const Utils::FilePaths &filePaths) override;
     bool renameFile(ProjectExplorer::Node *context,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
+    QString name() const override { return QLatin1String("qml"); }
 
     QmlProject *qmlProject() const;
 

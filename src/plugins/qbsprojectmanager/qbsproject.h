@@ -91,9 +91,9 @@ public:
                                                          Utils::FilePaths *notRemoved = nullptr) final;
     bool renameFile(ProjectExplorer::Node *context,
                     const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
-
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
+    QString name() const final { return QLatin1String("qbs"); }
 
     bool isProjectEditable() const;
     bool addFilesToProduct(const Utils::FilePaths &filePaths,
