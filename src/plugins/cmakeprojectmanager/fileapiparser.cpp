@@ -96,11 +96,7 @@ static QJsonDocument readJsonFile(const FilePath &filePath)
     qCDebug(cmakeFileApi) << "readJsonFile:" << filePath;
     QTC_ASSERT(!filePath.isEmpty(), return {});
 
-    QTC_CHECK(!filePath.needsDevice());
-
-    QFile file(filePath.path());
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    const QJsonDocument doc = QJsonDocument::fromJson(filePath.fileContents());
 
     return doc;
 }
