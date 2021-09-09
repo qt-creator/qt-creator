@@ -67,12 +67,8 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
 {
     CMakeFileResult result;
 
-    QDir sourceDir(sourceDirectory.toString());
-    QDir buildDir(buildDirectory.toString());
-
     for (const CMakeFileInfo &info : cmakefiles) {
-        const FilePath sfn = FilePath::fromString(
-            QDir::cleanPath(sourceDir.absoluteFilePath(info.path.toString())));
+        const FilePath sfn = sourceDirectory.resolvePath(info.path);
         const int oldCount = result.cmakeFiles.count();
         CMakeFileInfo absolute(info);
         absolute.path = sfn;
@@ -93,9 +89,9 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
 
             if (info.isCMakeListsDotTxt) {
                 result.cmakeListNodes.emplace_back(std::move(node));
-            } else if (sfn.isChildOf(sourceDir)) {
+            } else if (sfn.isChildOf(sourceDirectory)) {
                 result.cmakeNodesSource.emplace_back(std::move(node));
-            } else if (sfn.isChildOf(buildDir)) {
+            } else if (sfn.isChildOf(buildDirectory)) {
                 result.cmakeNodesBuild.emplace_back(std::move(node));
             } else {
                 result.cmakeNodesOther.emplace_back(std::move(node));
