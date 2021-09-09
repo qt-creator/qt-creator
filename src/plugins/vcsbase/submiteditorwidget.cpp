@@ -541,7 +541,6 @@ void SubmitEditorWidget::verifyDescription()
 
     enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
     QStringList hints;
-    QStringList toolTips;
     if (subjectLength < MinSubjectLength)
         hints.append(warning + tr("Warning: The commit subject is very short."));
 
