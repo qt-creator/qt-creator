@@ -839,6 +839,8 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
+    if (isAbsolutePath())
+        return parentDir();
     QTC_ASSERT(!needsDevice(), return *this);
     FilePath result = *this;
     result.m_data = QFileInfo(m_data).absolutePath();
@@ -847,6 +849,8 @@ FilePath FilePath::absolutePath() const
 
 FilePath FilePath::absoluteFilePath() const
 {
+    if (isAbsolutePath())
+        return *this;
     QTC_ASSERT(!needsDevice(), return *this);
     FilePath result = *this;
     result.m_data = QFileInfo(m_data).absoluteFilePath();
