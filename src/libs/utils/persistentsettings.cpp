@@ -183,7 +183,7 @@ void ParseValueStackEntry::addChild(const QString &key, const QVariant &v)
 class ParseContext : public Context
 {
 public:
-    QVariantMap parse(QFile &file);
+    QVariantMap parse(const FilePath &file);
 
 private:
     enum Element { QtCreatorElement, DataElement, VariableElement,
@@ -204,9 +204,9 @@ private:
     QString m_currentVariableName;
 };
 
-QVariantMap ParseContext::parse(QFile &file)
+QVariantMap ParseContext::parse(const FilePath &file)
 {
-    QXmlStreamReader r(&file);
+    QXmlStreamReader r(file.fileContents());
 
     m_result.clear();
     m_currentVariableName.clear();
@@ -354,15 +354,11 @@ bool PersistentSettingsReader::load(const FilePath &fileName)
 {
     m_valueMap.clear();
 
-    QFile file(fileName.toString());
-    if (file.size() == 0) // skip empty files
+    if (fileName.fileSize() == 0) // skip empty files
         return false;
 
-    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
-        return false;
     ParseContext ctx;
-    m_valueMap = ctx.parse(file);
-    file.close();
+    m_valueMap = ctx.parse(fileName);
     return true;
 }
 

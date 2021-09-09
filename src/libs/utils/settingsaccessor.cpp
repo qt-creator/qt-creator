@@ -218,12 +218,10 @@ QVariantMap SettingsAccessor::prepareToWriteSettings(const QVariantMap &data) co
 
 FilePaths BackUpStrategy::readFileCandidates(const FilePath &baseFileName) const
 {
+    const QStringList filter(baseFileName.fileName() + '*');
+    const FilePath baseFileDir = baseFileName.parentDir();
 
-    const QFileInfo pfi = baseFileName.toFileInfo();
-    const QStringList filter(pfi.fileName() + '*');
-    const QFileInfoList list = QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System);
-
-    return Utils::transform(list, [](const QFileInfo &fi) { return FilePath::fromString(fi.absoluteFilePath()); });
+    return baseFileDir.dirEntries(filter, QDir::Files | QDir::Hidden | QDir::System);
 }
 
 int BackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
