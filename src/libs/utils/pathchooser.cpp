@@ -357,6 +357,11 @@ FilePath PathChooser::filePath() const
     return d->expandedPath(rawFilePath().toString());
 }
 
+FilePath PathChooser::absoluteFilePath() const
+{
+    return d->m_baseDirectory.resolvePath(filePath());
+}
+
 // FIXME: try to remove again
 QString PathChooser::expandedDirectory(const QString &input, const Environment &env,
                                        const QString &baseDir)

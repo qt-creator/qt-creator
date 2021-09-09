@@ -90,7 +90,8 @@ public:
     bool isValid() const;
     QString errorMessage() const;
 
-    FilePath filePath() const;
+    FilePath filePath() const; // Close to what's in the line edit.
+    FilePath absoluteFilePath() const; // Relative paths resolved wrt the specified base dir.
 
     QString rawPath() const; // The raw unexpanded input.
     FilePath rawFilePath() const; // The raw unexpanded input as FilePath.
