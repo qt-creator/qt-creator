@@ -193,6 +193,8 @@ public:
 
     void setStandardInputFile(const QString &inputFile);
 
+    QString toStandaloneCommandLine() const;
+
 signals:
     void started();
     void finished();

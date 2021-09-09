@@ -832,6 +832,25 @@ void QtcProcess::setStandardInputFile(const QString &inputFile)
     d->m_process->setStandardInputFile(inputFile);
 }
 
+QString QtcProcess::toStandaloneCommandLine() const
+{
+    QStringList parts;
+    parts.append("/usr/bin/env");
+    if (!d->m_workingDirectory.isEmpty()) {
+        parts.append("-C");
+        d->m_workingDirectory.path();
+    }
+    parts.append("-i");
+    if (d->m_environment.size() > 0) {
+        const QStringList envVars = d->m_environment.toStringList();
+        std::transform(envVars.cbegin(), envVars.cend(),
+                       std::back_inserter(parts), ProcessArgs::quoteArgUnix);
+    }
+    parts.append(d->m_commandLine.executable().path());
+    parts.append(d->m_commandLine.splitArguments());
+    return parts.join(" ");
+}
+
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 {
     s_deviceHooks = hooks;
