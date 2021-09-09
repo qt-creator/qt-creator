@@ -74,17 +74,14 @@ struct DirectoryData
     QVector<ToolChainDescription> toolChains;
 };
 
-static QStringList scanDirectory(const QString &path, const QString &prefix)
+static QStringList scanDirectory(const FilePath &path, const QString &prefix)
 {
     QStringList result;
     qCDebug(cmInputLog) << "Scanning for directories matching" << prefix << "in" << path;
 
-    const QDir base = QDir(path);
-    foreach (const QString &dir, base.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        const QString subPath = path + '/' + dir;
-        qCDebug(cmInputLog) << "Checking" << subPath;
-        if (dir.startsWith(prefix))
-            result.append(subPath);
+    foreach (const FilePath &entry, path.dirEntries({prefix + ".*"}, QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QTC_ASSERT(entry.isDir(), continue);
+        result.append(entry.toString());
     }
     return result;
 }
@@ -119,13 +116,15 @@ QStringList CMakeProjectImporter::importCandidates()
 {
     QStringList candidates;
 
-    QFileInfo pfi = projectFilePath().toFileInfo();
-    candidates << scanDirectory(pfi.absolutePath(), "build");
+    candidates << scanDirectory(projectFilePath().absolutePath(), "build");
 
     foreach (Kit *k, KitManager::kits()) {
-        QFileInfo fi(CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(), k,
-                                                                   QString(), BuildConfiguration::Unknown).toString());
-        candidates << scanDirectory(fi.absolutePath(), QString());
+        FilePath shadowBuildDirectory
+            = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
+                                                            k,
+                                                            QString(),
+                                                            BuildConfiguration::Unknown);
+        candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
     }
     const QStringList finalists = Utils::filteredUnique(candidates);
     qCInfo(cmInputLog) << "import candidates:" << finalists;
