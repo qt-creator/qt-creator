@@ -51,6 +51,9 @@
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/baseqtversion.h>
+
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -253,10 +256,29 @@ FilePath AndroidManager::androidBuildDirectory(const Target *target)
     return buildDirectory(target) / Constants::ANDROID_BUILD_DIRECTORY;
 }
 
+bool AndroidManager::isQt5CmakeProject(const ProjectExplorer::Target *target)
+{
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const bool isQt5 = qt && qt->qtVersion() < QtSupport::QtVersionNumber{6, 0, 0};
+    const Core::Context cmakeCtx = Core::Context(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+    const bool isCmakeProject = (target->project()->projectContext() == cmakeCtx);
+    return isQt5 && isCmakeProject;
+}
+
 FilePath AndroidManager::buildDirectory(const Target *target)
 {
-    if (const BuildSystem *bs = target->buildSystem())
-        return bs->buildTarget(target->activeBuildKey()).workingDirectory;
+    if (const BuildSystem *bs = target->buildSystem()) {
+        const QString buildKey = target->activeBuildKey();
+        const FilePath buildDir = bs->buildTarget(target->activeBuildKey()).workingDirectory;
+        if (isQt5CmakeProject(target)) {
+            // Return the main build dir and not the android libs dir
+            const QString libsDir = QString(Constants::ANDROID_BUILD_DIRECTORY) + "/libs";
+            Utils::FilePath parentDuildDir = buildDir.parentDir();
+            if (parentDuildDir.endsWith(libsDir) || libsDir.endsWith(libsDir + "/"))
+                return parentDuildDir.parentDir().parentDir();
+        }
+        return buildDir;
+    }
     return {};
 }
 

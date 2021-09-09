@@ -93,6 +93,8 @@ public:
     static QStringList applicationAbis(const ProjectExplorer::Target *target);
     static QString archTriplet(const QString &abi);
 
+    static bool isQt5CmakeProject(const ProjectExplorer::Target *target);
+
     // TODO: remove this on 6.0 branch, kept here for binary compatibility for 5.0 release.
     static Utils::FilePath dirPath(const ProjectExplorer::Target *target);
     static Utils::FilePath androidBuildDirectory(const ProjectExplorer::Target *target);
