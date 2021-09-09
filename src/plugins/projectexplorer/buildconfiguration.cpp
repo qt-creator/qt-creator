@@ -247,11 +247,13 @@ BuildConfiguration::~BuildConfiguration()
 
 FilePath BuildConfiguration::buildDirectory() const
 {
-    QString path = environment().expandVariables(d->m_buildDirectoryAspect->value().trimmed());
-    path = QDir::cleanPath(macroExpander()->expand(path));
+    FilePath path = FilePath::fromString(
+        environment().expandVariables(d->m_buildDirectoryAspect->value().trimmed()));
+    path = macroExpander()->expand(path);
+    path = path.cleanPath();
 
     const FilePath projectDir = target()->project()->projectDirectory();
-    const FilePath buildDir = projectDir.resolvePath(FilePath::fromString(path));
+    const FilePath buildDir = projectDir.resolvePath(path);
 
     return mapFromBuildDeviceToGlobalPath(buildDir);
 }
