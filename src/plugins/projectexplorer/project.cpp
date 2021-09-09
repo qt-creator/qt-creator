@@ -709,7 +709,7 @@ FilePath Project::projectDirectory(const FilePath &top)
 {
     if (top.isEmpty())
         return FilePath();
-    return FilePath::fromString(top.toFileInfo().absoluteDir().path());
+    return top.absolutePath();
 }
 
 void Project::changeRootProjectDirectory()
