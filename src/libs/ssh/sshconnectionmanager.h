@@ -32,10 +32,21 @@ namespace QSsh {
 class SshConnection;
 class SshConnectionParameters;
 
-QSSH_EXPORT SshConnection *acquireConnection(const SshConnectionParameters &sshParams);
-QSSH_EXPORT void releaseConnection(SshConnection *connection);
+namespace Internal { class SshConnectionManagerPrivate; }
 
-// Make sure the next acquireConnection with the given parameters will return a new connection.
-QSSH_EXPORT void forceNewConnection(const SshConnectionParameters &sshParams);
+class QSSH_EXPORT SshConnectionManager final
+{
+public:
+    SshConnectionManager();
+    ~SshConnectionManager();
+
+    static SshConnection *acquireConnection(const SshConnectionParameters &sshParams);
+    static void releaseConnection(SshConnection *connection);
+    // Make sure the next acquireConnection with the given parameters will return a new connection.
+    static void forceNewConnection(const SshConnectionParameters &sshParams);
+
+private:
+    Internal::SshConnectionManagerPrivate *d;
+};
 
 } // namespace QSsh

@@ -32,6 +32,8 @@
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
 
+#include <ssh/sshconnectionmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -538,6 +540,7 @@ int main(int argc, char **argv)
     Utils::ProcessReaper processReaper;
     Utils::LauncherInterface::startLauncher();
     auto cleanup = qScopeGuard([] { Utils::LauncherInterface::stopLauncher(); });
+    QSsh::SshConnectionManager sshConnectionManager;
 
     const QStringList pluginArguments = app.arguments();
 

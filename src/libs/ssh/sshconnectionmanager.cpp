@@ -38,6 +38,7 @@
 
 namespace QSsh {
 namespace Internal {
+
 class UnacquiredConnection {
 public:
     UnacquiredConnection(SshConnection *conn) : connection(conn), scheduledForRemoval(false) {}
@@ -52,21 +53,25 @@ bool operator!=(const UnacquiredConnection &c1, const UnacquiredConnection &c2) 
     return !(c1 == c2);
 }
 
-static class SshConnectionManager *s_instance = nullptr;
+static class SshConnectionManagerPrivate *s_instance = nullptr;
 
-class SshConnectionManager : public QObject
+class SshConnectionManagerPrivate : public QObject
 {
 public:
-    SshConnectionManager(QObject *parent)
-        : QObject(parent)
+    SshConnectionManagerPrivate()
     {
+        QTC_ASSERT(s_instance == nullptr, return);
+        s_instance = this;
+
         connect(&m_removalTimer, &QTimer::timeout,
-                this, &SshConnectionManager::removeInactiveConnections);
+                this, &SshConnectionManagerPrivate::removeInactiveConnections);
         m_removalTimer.start(SshSettings::connectionSharingTimeout() * 1000 * 60 / 2);
     }
 
-    ~SshConnectionManager()
+    ~SshConnectionManagerPrivate() override
     {
+        QTC_ASSERT(s_instance == this, return);
+
         for (const UnacquiredConnection &connection : qAsConst(m_unacquiredConnections)) {
             disconnect(connection.connection, nullptr, this, nullptr);
             delete connection.connection;
@@ -110,7 +115,7 @@ public:
         // create a new connection:
         SshConnection * const connection = new SshConnection(sshParams);
         connect(connection, &SshConnection::disconnected,
-                this, &SshConnectionManager::cleanup);
+                this, &SshConnectionManagerPrivate::cleanup);
         if (SshSettings::connectionSharingEnabled())
             m_acquiredConnections.append(connection);
 
@@ -203,29 +208,34 @@ private:
     QTimer m_removalTimer;
 };
 
-static SshConnectionManager *instance()
-{
-    QTC_CHECK(QThread::currentThread() == qApp->thread());
-    if (s_instance == nullptr)
-        s_instance = new SshConnectionManager(qApp); // Deleted together with application
-    return s_instance;
-}
-
 } // namespace Internal
 
-SshConnection *acquireConnection(const SshConnectionParameters &sshParams)
+SshConnectionManager::SshConnectionManager()
+    : d(new Internal::SshConnectionManagerPrivate())
 {
-    return Internal::instance()->acquireConnection(sshParams);
 }
 
-void releaseConnection(SshConnection *connection)
+SshConnectionManager::~SshConnectionManager()
 {
-    Internal::instance()->releaseConnection(connection);
+    delete d;
 }
 
-void forceNewConnection(const SshConnectionParameters &sshParams)
+SshConnection *SshConnectionManager::acquireConnection(const SshConnectionParameters &sshParams)
 {
-    Internal::instance()->forceNewConnection(sshParams);
+    QTC_ASSERT(Internal::s_instance, return nullptr);
+    return Internal::s_instance->acquireConnection(sshParams);
+}
+
+void SshConnectionManager::releaseConnection(SshConnection *connection)
+{
+    QTC_ASSERT(Internal::s_instance, return);
+    Internal::s_instance->releaseConnection(connection);
+}
+
+void SshConnectionManager::forceNewConnection(const SshConnectionParameters &sshParams)
+{
+    QTC_ASSERT(Internal::s_instance, return);
+    Internal::s_instance->forceNewConnection(sshParams);
 }
 
 } // namespace QSsh

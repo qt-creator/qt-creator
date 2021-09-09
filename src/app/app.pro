@@ -17,7 +17,7 @@ include(../rpath.pri)
 
 include(../libs/qt-breakpad/qtbreakpad.pri)
 
-LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation) -l$$qtLibraryName(Utils)
+LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation) -l$$qtLibraryName(Utils) -l$$qtLibraryName(QtcSsh)
 
 win32 {
     # We need the version in two separate formats for the .rc file

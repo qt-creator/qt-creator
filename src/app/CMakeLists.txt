@@ -8,7 +8,7 @@ install(
 
 add_qtc_executable(qtcreator
   DEFINES IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
-  DEPENDS Aggregation ExtensionSystem Qt5::Core Qt5::Widgets Utils shared_qtsingleapplication app_version
+  DEPENDS Aggregation ExtensionSystem Qt5::Core Qt5::Widgets Utils QtcSsh shared_qtsingleapplication app_version
   SOURCES
     main.cpp
     ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.h

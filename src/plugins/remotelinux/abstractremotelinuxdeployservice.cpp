@@ -194,7 +194,7 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
     }
 
     d->state = Connecting;
-    d->connection = QSsh::acquireConnection(deviceConfiguration()->sshParameters());
+    d->connection = SshConnectionManager::acquireConnection(deviceConfiguration()->sshParameters());
     connect(d->connection, &SshConnection::errorOccurred,
             this, &AbstractRemoteLinuxDeployService::handleConnectionFailure);
     if (d->connection->state() == SshConnection::Connected) {
@@ -259,7 +259,7 @@ void AbstractRemoteLinuxDeployService::setFinished()
     d->state = Inactive;
     if (d->connection) {
         disconnect(d->connection, nullptr, this, nullptr);
-        QSsh::releaseConnection(d->connection);
+        SshConnectionManager::releaseConnection(d->connection);
         d->connection = nullptr;
     }
     d->stopRequested = false;

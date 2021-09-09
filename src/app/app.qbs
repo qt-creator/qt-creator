@@ -46,6 +46,7 @@ QtcProduct {
     Depends { name: "app_version_header" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Utils" }
+    Depends { name: "QtcSsh" }
     Depends { name: "ExtensionSystem" }
 
     files: [

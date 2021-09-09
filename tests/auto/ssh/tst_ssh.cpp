@@ -26,6 +26,7 @@
 #include <ssh/sftpsession.h>
 #include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
+#include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sshsettings.h>
 #include <utils/algorithm.h>
@@ -115,6 +116,8 @@ private slots:
 
 private:
     bool waitForConnection(SshConnection &connection);
+
+    SshConnectionManager sshConnectionManager;
 };
 
 void tst_Ssh::initTestCase()

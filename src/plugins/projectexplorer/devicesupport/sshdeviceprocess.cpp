@@ -96,7 +96,7 @@ void SshDeviceProcess::start(const Runnable &runnable)
     d->runnable = runnable;
     QSsh::SshConnectionParameters params = device()->sshParameters();
     params.x11DisplayName = d->displayName();
-    d->connection = QSsh::acquireConnection(params);
+    d->connection = QSsh::SshConnectionManager::acquireConnection(params);
     connect(d->connection, &QSsh::SshConnection::errorOccurred,
             this, &SshDeviceProcess::handleConnectionError);
     connect(d->connection, &QSsh::SshConnection::disconnected,
@@ -364,7 +364,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         process->disconnect(q);
     if (connection) {
         connection->disconnect(q);
-        QSsh::releaseConnection(connection);
+        QSsh::SshConnectionManager::releaseConnection(connection);
         connection = nullptr;
     }
 }
