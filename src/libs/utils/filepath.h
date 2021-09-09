@@ -143,7 +143,7 @@ public:
 
     FilePath resolvePath(const FilePath &tail) const;
     FilePath resolvePath(const QString &tail) const;
-    FilePath cleanPath() const;
+    [[nodiscard]] FilePath cleanPath() const;
     FilePath canonicalPath() const;
     FilePath symLinkTarget() const;
     FilePath resolveSymlinks() const;
