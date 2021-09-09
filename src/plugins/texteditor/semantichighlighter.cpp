@@ -167,26 +167,19 @@ void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
         SyntaxHighlighter *highlighter,
         const QFuture<HighlightingResult> &future)
 {
-    // find block number of last result
-    int lastBlockNumber = 0;
+    const QTextDocument * const doc = highlighter->document();
+    QTextBlock firstBlockToClear = doc->begin();
     for (int i = future.resultCount() - 1; i >= 0; --i) {
         const HighlightingResult &result = future.resultAt(i);
         if (result.line) {
-            lastBlockNumber = int(result.line) - 1;
+            const QTextBlock blockForLine = doc->findBlockByNumber(result.line - 1);
+            const QTextBlock lastBlockWithResults = doc->findBlock(
+                        blockForLine.position() + result.column - 1 + result.length);
+            firstBlockToClear = lastBlockWithResults.next();
             break;
         }
     }
 
-    QTextDocument *doc = highlighter->document();
-
-    const int firstBlockToClear = lastBlockNumber + 1;
-    if (firstBlockToClear >= doc->blockCount())
-        return;
-
-    QTextBlock b = doc->findBlockByNumber(firstBlockToClear);
-
-    while (b.isValid()) {
+    for (QTextBlock b = firstBlockToClear; b.isValid(); b = b.next())
         highlighter->clearExtraFormats(b);
-        b = b.next();
-    }
 }
