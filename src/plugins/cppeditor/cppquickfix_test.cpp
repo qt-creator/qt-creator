@@ -4614,7 +4614,7 @@ void QuickfixTest::testInsertDefFromDeclTemplateFunction()
         "};\n"
         "\n"
         "template<class T>\n"
-        "void Foo::func<T>()\n"
+        "void Foo::func()\n"
         "{\n"
         "\n"
         "}\n";
@@ -4934,6 +4934,28 @@ void QuickfixTest::testInsertDeclFromDefTemplateFuncInt()
             "\n"
             "template<int N>\n"
             "void Foo::fu@nc() {}\n";
+
+    InsertDeclFromDef factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
+}
+
+void QuickfixTest::testInsertDeclFromDefTemplateReturnType()
+{
+    QByteArray original =
+            "class Foo\n"
+            "{\n"
+            "};\n"
+            "\n"
+            "std::vector<int> Foo::fu@nc() const {}\n";
+
+    QByteArray expected =
+            "class Foo\n"
+            "{\n"
+            "public:\n"
+            "    std::vector<int> func() const;\n"
+            "};\n"
+            "\n"
+            "std::vector<int> Foo::func() const {}\n";
 
     InsertDeclFromDef factory;
     QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);

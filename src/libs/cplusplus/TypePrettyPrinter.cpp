@@ -427,8 +427,15 @@ void TypePrettyPrinter::visit(Function *type)
         _name.clear();
     }
 
+    Overview retAndArgOverview;
+    retAndArgOverview.starBindFlags = _overview->starBindFlags;
+    retAndArgOverview.showReturnTypes = true;
+    retAndArgOverview.showArgumentNames = false;
+    retAndArgOverview.showFunctionSignatures = true;
+    retAndArgOverview.showTemplateParameters = true;
+
     if (_overview->showReturnTypes) {
-        const QString returnType = _overview->prettyType(type->returnType());
+        const QString returnType = retAndArgOverview.prettyType(type->returnType());
         if (!returnType.isEmpty()) {
             if (!endsWithPtrOrRef(returnType) || !(_overview->starBindFlags & Overview::BindToIdentifier))
                 _text.prepend(QLatin1Char(' '));
@@ -463,13 +470,6 @@ void TypePrettyPrinter::visit(Function *type)
     }
 
     if (_overview->showFunctionSignatures) {
-        Overview argumentText;
-        argumentText.starBindFlags = _overview->starBindFlags;
-        argumentText.showReturnTypes = true;
-        argumentText.showArgumentNames = false;
-        argumentText.showFunctionSignatures = true;
-        argumentText.showTemplateParameters = _overview->showTemplateParameters;
-
         _text += QLatin1Char('(');
 
         for (int index = 0, argc = type->argumentCount(); index < argc; ++index) {
@@ -485,7 +485,7 @@ void TypePrettyPrinter::visit(Function *type)
                 if (_overview->showArgumentNames)
                     name = arg->name();
 
-                _text += argumentText.prettyType(arg->type(), name);
+                _text += retAndArgOverview.prettyType(arg->type(), name);
 
                 if (_overview->showDefaultArguments) {
                     if (const StringLiteral *initializer = arg->initializer()) {

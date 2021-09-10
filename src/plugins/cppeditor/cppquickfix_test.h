@@ -161,6 +161,7 @@ private slots:
     void testInsertDeclFromDef();
     void testInsertDeclFromDefTemplateFuncTypename();
     void testInsertDeclFromDefTemplateFuncInt();
+    void testInsertDeclFromDefTemplateReturnType();
     void testInsertDeclFromDefNotTriggeredForTemplateFunc();
 
     void testAddIncludeForUndefinedIdentifier_data();
