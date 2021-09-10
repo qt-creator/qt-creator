@@ -33,8 +33,8 @@
           "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }"
         },
         {
-          "key": "TestCaseFileWithHeaderSuffix",
-          "value": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Util.preferredSuffix('text/x-c++hdr') }"
+          "key": "TestCaseFileGTestWithCppSuffix",
+          "value": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Util.preferredSuffix('text/x-c++src') }"
         },
         {
           "key": "GUARD",
@@ -276,8 +276,8 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "files/tst_src.h",
-                    "target": "%{TestCaseFileWithHeaderSuffix}",
+                    "source": "files/tst_src_gt.cpp",
+                    "target": "%{TestCaseFileGTestWithCppSuffix}",
                     "condition": "%{JS: value('TestFrameWork') == 'GTest'}",
                     "openInEditor": true
                 },

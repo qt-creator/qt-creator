@@ -1,10 +1,4 @@
 %{Cpp:LicenseTemplate}\
-@if '%{Cpp:PragmaOnce}'
-#pragma once
-@else
-#ifndef %{GUARD}
-#define %{GUARD}
-@endif
 
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
@@ -17,6 +11,3 @@ TEST(%{TestSuiteName}, %{TestCaseName})
     ASSERT_THAT(0, Eq(0));
 }
 
-@if ! '%{Cpp:PragmaOnce}'
-#endif // %{GUARD}
-@endif
