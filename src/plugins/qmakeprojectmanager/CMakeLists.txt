@@ -4,7 +4,6 @@ add_qtc_plugin(QmakeProjectManager
   PLUGIN_RECOMMENDS Designer
   SOURCES
     addlibrarywizard.cpp addlibrarywizard.h
-    applicationlauncher.h
     customwidgetwizard/classdefinition.cpp customwidgetwizard/classdefinition.h customwidgetwizard/classdefinition.ui
     customwidgetwizard/classlist.cpp customwidgetwizard/classlist.h
     customwidgetwizard/customwidgetpluginwizardpage.cpp customwidgetwizard/customwidgetpluginwizardpage.h customwidgetwizard/customwidgetpluginwizardpage.ui
