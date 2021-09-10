@@ -23,30 +23,6 @@
 **
 ****************************************************************************/
 
-//! [qtpsbridge videos]
-
-    \section2 \QBPS Videos
-
-    For more information, watch a video tutorial and webinar about using \QBPS
-    that are also accessible from the \uicontrol Tutorials tab of the Welcome
-    mode:
-
-    \list
-        \li Building an Instrument Cluster for Your Car HMI, Part 1
-
-            \youtube aV6kFxH3Xws
-
-            You can access the Cluster tutorial source files in the
-            \uicontrol Examples tab.
-
-        \li From Photoshop to Prototype with Qt Design Studio
-
-            \youtube ZzbucmQPU44
-    \endlist
-
-//! [qtpsbridge videos]
-
-
 //! [qtsketchbridge tutorials]
 
     \section2 \QBSK Tutorials
