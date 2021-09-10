@@ -110,6 +110,7 @@ Rectangle {
                 bindingEditor.showWidget()
                 bindingEditor.text = delegateWhenConditionString
                 bindingEditor.prepareBindings()
+                bindingEditor.updateWindowName()
             }
         }
 
@@ -309,6 +310,7 @@ Rectangle {
         }
 
         stateModelNodeProperty: statesEditorModel.stateModelNode()
+        stateNameProperty: myRoot.delegateStateName
 
         onRejected: {
             hideWidget()

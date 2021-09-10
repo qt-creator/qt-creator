@@ -26,9 +26,10 @@
 #ifndef ABSTRACTEDITORDIALOG_H
 #define ABSTRACTEDITORDIALOG_H
 
-#include <bindingeditor/bindingeditorwidget.h>
 #include <qmldesignercorelib_global.h>
+
 #include <texteditor/texteditor.h>
+#include <bindingeditor/bindingeditorwidget.h>
 
 #include <QDialog>
 

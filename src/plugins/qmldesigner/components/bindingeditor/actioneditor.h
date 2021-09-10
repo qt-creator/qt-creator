@@ -64,7 +64,7 @@ public:
 
     void prepareConnections();
 
-    Q_INVOKABLE void updateWindowName();
+    Q_INVOKABLE void updateWindowName(const QString &targetName = {});
 
 signals:
     void accepted();

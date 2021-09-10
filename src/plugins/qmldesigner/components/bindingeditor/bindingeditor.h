@@ -44,6 +44,7 @@ class BindingEditor : public QObject
     Q_PROPERTY(QVariant backendValueProperty READ backendValue WRITE setBackendValue NOTIFY backendValueChanged)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QVariant stateModelNodeProperty READ stateModelNode WRITE setStateModelNode NOTIFY stateModelNodeChanged)
+    Q_PROPERTY(QString stateNameProperty WRITE setStateName)
 
 public:
     BindingEditor(QObject *parent = nullptr);
@@ -64,11 +65,14 @@ public:
     void setModelNodeBackend(const QVariant &modelNodeBackend);
 
     //2. modelnode (this one also sets backend value type name to bool)
+    //State Name is not mandatory, but used in bindingEditor dialog name
     void setStateModelNode(const QVariant &stateModelNode);
+    void setStateName(const QString &name);
 
-    //3. modelnode + backend value type name
+    //3. modelnode + backend value type name + optional target name
     void setModelNode(const ModelNode &modelNode);
     void setBackendValueTypeName(const TypeName &backendValueTypeName);
+    void setTargetName(const QString &target);
 
     Q_INVOKABLE void prepareBindings();
     Q_INVOKABLE void updateWindowName();
@@ -93,6 +97,7 @@ private:
     QVariant m_stateModelNode;
     QmlDesigner::ModelNode m_modelNode;
     TypeName m_backendValueTypeName;
+    QString m_targetName;
 };
 
 }

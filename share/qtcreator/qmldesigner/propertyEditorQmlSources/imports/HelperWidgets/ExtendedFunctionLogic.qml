@@ -164,6 +164,7 @@ Item {
                 bindingEditor.showWidget()
                 bindingEditor.text = backendValue.expression
                 bindingEditor.prepareBindings()
+                bindingEditor.updateWindowName()
             }
 
             BindingEditor {

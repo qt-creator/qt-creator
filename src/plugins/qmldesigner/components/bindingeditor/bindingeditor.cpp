@@ -42,8 +42,6 @@
 
 namespace QmlDesigner {
 
-static BindingEditor *s_lastBindingEditor = nullptr;
-
 BindingEditor::BindingEditor(QObject *)
 {
 }
@@ -61,11 +59,6 @@ void BindingEditor::registerDeclarativeType()
 void BindingEditor::prepareDialog()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_BINDINGEDITOR_OPENED);
-
-    if (s_lastBindingEditor)
-        s_lastBindingEditor->hideWidget();
-
-    s_lastBindingEditor = this;
 
     m_dialog = new BindingEditorDialog(Core::ICore::dialogParent());
 
@@ -91,9 +84,6 @@ void BindingEditor::showWidget(int x, int y)
 
 void BindingEditor::hideWidget()
 {
-    if (s_lastBindingEditor == this)
-        s_lastBindingEditor = nullptr;
-
     if (m_dialog) {
         m_dialog->unregisterAutoCompletion(); //we have to do it separately, otherwise we have an autocompletion action override
         m_dialog->close();
@@ -124,6 +114,12 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
 
         if (node.isValid()) {
             m_backendValueTypeName = node.metaInfo().propertyTypeName(propertyEditorValue->name());
+
+            QString nodeId = node.id();
+            if (nodeId.isEmpty())
+                nodeId = node.simplifiedTypeName();
+
+            m_targetName = nodeId + "." + propertyEditorValue->name();
 
             if (m_backendValueTypeName == "alias" || m_backendValueTypeName == "unknown")
                 if (QmlObjectNode::isValidQmlObjectNode(node))
@@ -164,6 +160,12 @@ void BindingEditor::setStateModelNode(const QVariant &stateModelNode)
     }
 }
 
+void BindingEditor::setStateName(const QString &name)
+{
+    m_targetName = name;
+    m_targetName += ".when";
+}
+
 void BindingEditor::setModelNode(const ModelNode &modelNode)
 {
     if (modelNode.isValid())
@@ -175,6 +177,11 @@ void BindingEditor::setBackendValueTypeName(const TypeName &backendValueTypeName
     m_backendValueTypeName = backendValueTypeName;
 
     emit backendValueChanged();
+}
+
+void BindingEditor::setTargetName(const QString &target)
+{
+    m_targetName = target;
 }
 
 void BindingEditor::prepareBindings()
@@ -279,8 +286,13 @@ void BindingEditor::prepareBindings()
 
 void BindingEditor::updateWindowName()
 {
-    if (!m_dialog.isNull() && !m_backendValueTypeName.isEmpty())
-        m_dialog->setWindowTitle(m_dialog->defaultTitle() + " [" + m_backendValueTypeName + "]");
+    if (!m_dialog.isNull() && !m_backendValueTypeName.isEmpty()) {
+        const QString targetString = " ["
+                + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
+                + QString::fromUtf8(m_backendValueTypeName) + "]";
+
+        m_dialog->setWindowTitle(m_dialog->defaultTitle() + targetString);
+    }
 }
 
 QVariant BindingEditor::backendValue() const
