@@ -959,33 +959,30 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
-        if (device && device->osType() == Utils::OsTypeMac) {
-            if (isIos(k)) {
-                QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
-                if (qt && qt->qtVersion().majorVersion >= 6) {
-                    // TODO it would be better if we could set
-                    // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
-                    // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
-                    // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
-                    // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
-                    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
-                    // TODO the architectures are probably not correct with Apple Silicon in the mix...
-                    const QString architecture = deviceType == Ios::Constants::IOS_DEVICE_TYPE
-                                                     ? QLatin1String("arm64")
-                                                     : QLatin1String("x86_64");
-                    const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
-                                                ? QLatin1String("iphoneos")
-                                                : QLatin1String("iphonesimulator");
-                    initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
-                    initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
-                    initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
-                    initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
-                    initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
-                }
-            } else {
-                // macOS
-                initialArgs.append("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
+        if (isIos(k)) {
+            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            if (qt && qt->qtVersion().majorVersion >= 6) {
+                // TODO it would be better if we could set
+                // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
+                // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
+                // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
+                // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
+                const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+                // TODO the architectures are probably not correct with Apple Silicon in the mix...
+                const QString architecture = deviceType == Ios::Constants::IOS_DEVICE_TYPE
+                                                 ? QLatin1String("arm64")
+                                                 : QLatin1String("x86_64");
+                const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
+                                            ? QLatin1String("iphoneos")
+                                            : QLatin1String("iphonesimulator");
+                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
+                initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
+                initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
+                initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
+                initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
             }
+        } else if (device && device->osType() == Utils::OsTypeMac) {
+            initialArgs.append("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
         }
 
         if (isWebAssembly(k) || isQnx(k)) {
