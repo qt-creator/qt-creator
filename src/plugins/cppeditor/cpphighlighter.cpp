@@ -26,6 +26,7 @@
 #include "cpphighlighter.h"
 
 #include "cppdoxygen.h"
+#include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 
 #include <texteditor/textdocumentlayout.h>
@@ -165,7 +166,22 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_NUMERIC_LITERAL)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_NUMBER));
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
-            if (!highlightRawStringLiteral(text, tk)) {
+            // Our highlighting is broken for multi-line raw string literals, so if a superior
+            // option is available, don't do anything.
+            // Note that this does not just save unneeded work, but can actually be required,
+            // because mis-detected strings are not necessarily overwritten by the semantic
+            // highlighter. Example:
+            // const char *s = R"delim(
+            //    line1
+            //    "line)"  // <- is misdeteced by SimpleLexer as end of raw string literal
+            //    line3    // <- erroneously not formatted by us, but that would be ok;
+            //             //    the semantic highlighter does it for us later
+            //    )delim"; // <- end quote is erroneously interpreted as *start* of a string,
+            //             //    and because clangd does not include punctuation in its semantic
+            //             //    tokens, the semicolon would stay formatted as a string even
+            //             //    after the semantic highlighter has run.
+            if (!CppModelManager::instance()->isClangCodeModelActive()
+                    && !highlightRawStringLiteral(text, tk)) {
                 setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                                     formatForCategory(C_STRING));
             }
