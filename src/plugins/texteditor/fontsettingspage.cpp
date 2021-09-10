@@ -31,6 +31,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -154,6 +155,10 @@ public:
                 this, &FontSettingsPageWidget::openCopyColorSchemeDialog);
         connect(m_ui.deleteButton, &QPushButton::clicked,
                 this, &FontSettingsPageWidget::confirmDeleteColorScheme);
+        connect(m_ui.importButton, &QPushButton::clicked,
+                this, &FontSettingsPageWidget::importScheme);
+        connect(m_ui.exportButton, &QPushButton::clicked,
+                this, &FontSettingsPageWidget::exportScheme);
 
         updatePointSizes();
         refreshColorSchemeList();
@@ -171,6 +176,8 @@ public:
     void openCopyColorSchemeDialog();
     void copyColorScheme(const QString &name);
     void confirmDeleteColorScheme();
+    void importScheme();
+    void exportScheme();
     void deleteColorScheme();
 
     void maybeSaveColorScheme();
@@ -471,7 +478,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
     Utils::FilePath fileName = createColorSchemeFileName(baseFileName);
 
     if (!fileName.isEmpty()) {
-        // Ask about saving any existing modifactions
+        // Ask about saving any existing modifications
         maybeSaveColorScheme();
 
         // Make sure we're copying the current version
@@ -525,17 +532,73 @@ void FontSettingsPageWidget::deleteColorScheme()
         m_schemeListModel.removeColorScheme(index);
 }
 
+void FontSettingsPageWidget::importScheme()
+{
+    const Utils::FilePath importedFile
+        = Utils::FileUtils::getOpenFilePath(this,
+                                            tr("Import Color Scheme"),
+                                            {},
+                                            tr("Color scheme (*.xml);;All files (*)"));
+
+    if (importedFile.isEmpty())
+        return;
+
+    Utils::FilePath fileName = createColorSchemeFileName(importedFile.baseName() + "%1."
+                                                         + importedFile.suffix());
+
+    // Ask about saving any existing modifications
+    maybeSaveColorScheme();
+
+    QInputDialog *dialog = new QInputDialog(m_ui.copyButton->window());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setInputMode(QInputDialog::TextInput);
+    dialog->setWindowTitle(tr("Import Color Scheme"));
+    dialog->setLabelText(tr("Color scheme name:"));
+    dialog->setTextValue(importedFile.baseName());
+
+    connect(dialog, &QInputDialog::textValueSelected, this, [this, fileName](const QString &name) {
+        m_value.setColorScheme(m_ui.schemeEdit->colorScheme());
+
+        ColorScheme scheme = m_value.colorScheme();
+        scheme.setDisplayName(name);
+        if (scheme.save(fileName.path(), Core::ICore::dialogParent()))
+            m_value.setColorSchemeFileName(fileName.path());
+
+        refreshColorSchemeList();
+    });
+    dialog->open();
+}
+
+void FontSettingsPageWidget::exportScheme()
+{
+    int index = m_ui.schemeComboBox->currentIndex();
+    if (index == -1)
+        return;
+
+    const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
+
+    const Utils::FilePath filePath
+        = Utils::FileUtils::getSaveFilePath(this,
+                                            tr("Export Color Scheme"),
+                                            Utils::FilePath::fromString(entry.fileName),
+                                            tr("Color scheme (*.xml);;All files (*)"));
+
+    if (!filePath.isEmpty())
+        m_value.colorScheme().save(filePath.toString(), Core::ICore::dialogParent());
+}
+
 void FontSettingsPageWidget::maybeSaveColorScheme()
 {
     if (m_value.colorScheme() == m_ui.schemeEdit->colorScheme())
         return;
 
-    QMessageBox messageBox(QMessageBox::Warning,
-                                              tr("Color Scheme Changed"),
-                                              tr("The color scheme \"%1\" was modified, do you want to save the changes?")
-                                                  .arg(m_ui.schemeEdit->colorScheme().displayName()),
-                                              QMessageBox::Discard | QMessageBox::Save,
-                                              m_ui.schemeComboBox->window());
+    QMessageBox
+        messageBox(QMessageBox::Warning,
+                   tr("Color Scheme Changed"),
+                   tr("The color scheme \"%1\" was modified, do you want to save the changes?")
+                       .arg(m_ui.schemeEdit->colorScheme().displayName()),
+                   QMessageBox::Discard | QMessageBox::Save,
+                   m_ui.schemeComboBox->window());
 
     // Change the text of the discard button
     auto discardButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));

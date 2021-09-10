@@ -146,6 +146,13 @@
       <string>Color Scheme</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="5">
+       <widget class="QPushButton" name="exportButton">
+        <property name="text">
+         <string>Export</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QComboBox" name="schemeComboBox">
         <property name="sizePolicy">
@@ -156,14 +163,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="copyButton">
-        <property name="text">
-         <string>Copy...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
+      <item row="0" column="3">
        <widget class="QPushButton" name="deleteButton">
         <property name="enabled">
          <bool>false</bool>
@@ -173,7 +173,21 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="3">
+      <item row="0" column="2">
+       <widget class="QPushButton" name="copyButton">
+        <property name="text">
+         <string>Copy...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QPushButton" name="importButton">
+        <property name="text">
+         <string>Import</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="6">
        <widget class="TextEditor::Internal::ColorSchemeEdit" name="schemeEdit" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -204,6 +218,8 @@
   <tabstop>schemeComboBox</tabstop>
   <tabstop>copyButton</tabstop>
   <tabstop>deleteButton</tabstop>
+  <tabstop>importButton</tabstop>
+  <tabstop>exportButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -129,7 +129,7 @@ static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
 
   \code
     QString error;
-    book ok = Utils::FileUtils::copyRecursively("/foo/bar", "/foo/baz", &error);
+    bool ok = Utils::FileUtils::copyRecursively("/foo/bar", "/foo/baz", &error);
     if (!ok)
       qDebug() << error;
   \endcode
