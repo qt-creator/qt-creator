@@ -177,9 +177,9 @@ bool AddValueOperation::appendListToMap(QVariantMap &map,
         return false;
     }
 
-    if (!data.canConvert<QVariantList>()) {
+    if (data.type() != QVariant::List) {
         std::cerr << "Error: Data stored in " << std::quoted(key.toStdString())
-                  << " can not be converted into QVariantList." << std::endl;
+                  << " is not a QVariantList." << std::endl;
         return false;
     }
 
