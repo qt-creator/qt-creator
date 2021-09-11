@@ -27,14 +27,12 @@
 
 #include "ui_androidsettingswidget.h"
 
-#include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidsdkdownloader.h"
 #include "androidsdkmanager.h"
 #include "androidsdkmanagerwidget.h"
 #include "androidtoolchain.h"
-#include "avddialog.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -76,21 +74,7 @@ namespace Android {
 namespace Internal {
 
 class AndroidSdkManagerWidget;
-class AndroidAvdManager;
 class SummaryWidget;
-
-class AvdModel final : public ListModel<AndroidDeviceInfo>
-{
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AvdModel)
-
-public:
-    AvdModel();
-
-    QVariant itemData(const AndroidDeviceInfo &info, int column, int role) const final;
-
-    QString avdName(const QModelIndex &index) const;
-    QModelIndex indexForAvdName(const QString &avdName) const;
-};
 
 class AndroidSettingsWidget final : public Core::IOptionsPageWidget
 {
@@ -114,20 +98,9 @@ private:
     void openNDKDownloadUrl();
     void openOpenJDKDownloadUrl();
     void downloadOpenSslRepo(const bool silent = false);
-    void addAVD();
-    void avdAdded();
-    void removeAVD();
-    void startAVD();
-    void avdActivated(const QModelIndex &);
-    void editEmulatorArgsAVD();
     void createKitToggled();
 
     void updateUI();
-    void updateAvds();
-
-    void startUpdateAvd();
-    void enableAvdControls();
-    void disableAvdControls();
 
     void downloadSdk();
     void addCustomNdkItem();
@@ -136,12 +109,7 @@ private:
     Ui_AndroidSettingsWidget m_ui;
     AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
     AndroidConfig m_androidConfig{AndroidConfigurations::currentConfig()};
-    AvdModel m_AVDModel;
-    QFutureWatcher<CreateAvdInfo> m_futureWatcher;
 
-    QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
-    QString m_lastAddedAvd;
-    AndroidAvdManager m_avdManager{m_androidConfig};
     AndroidSdkManager m_sdkManager{m_androidConfig};
     AndroidSdkDownloader m_sdkDownloader;
     bool m_isInitialReloadDone = false;
@@ -252,44 +220,6 @@ private:
     DetailsWidget *m_detailsWidget = nullptr;
     QMap<int, RowData> m_validationData;
 };
-
-QModelIndex AvdModel::indexForAvdName(const QString &avdName) const
-{
-    return findIndex([avdName](const AndroidDeviceInfo &info) { return info.avdname == avdName; });
-}
-
-QString AvdModel::avdName(const QModelIndex &index) const
-{
-    return dataAt(index.row()).avdname;
-}
-
-QVariant AvdModel::itemData(const AndroidDeviceInfo &info, int column, int role) const
-{
-    if (role != Qt::DisplayRole)
-        return {};
-
-    switch (column) {
-        case 0:
-            return info.avdname;
-        case 1:
-            return info.sdk;
-        case 2:
-            return info.cpuAbi.isEmpty() ? QVariant() : QVariant(info.cpuAbi.first());
-        case 3:
-            return info.avdDevice.isEmpty() ? QVariant("Custom") : info.avdDevice;
-        case 4:
-            return info.avdTarget;
-        case 5:
-            return info.avdSdcardSize;
-    }
-    return {};
-}
-
-AvdModel::AvdModel()
-{
-    //: AVD - Android Virtual Device
-    setHeader({tr("AVD Name"), tr("API"), tr("CPU/ABI"), tr("Device Type"), tr("Target"), tr("SD-card Size")});
-}
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
 {
@@ -432,11 +362,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui.openSslPathChooser->setFilePath(m_androidConfig.openSslLocation());
 
     m_ui.CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
-    m_ui.AVDTableView->setModel(&m_AVDModel);
-    m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    for (int column : {1, 2, 5})
-        m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(
-                    column, QHeaderView::ResizeToContents);
 
     const QIcon downloadIcon = Icons::ONLINE.icon();
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
@@ -475,24 +400,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     connect(m_ui.openSslPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateOpenSsl);
-    connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
-            this, &AndroidSettingsWidget::updateAvds);
-    connect(m_ui.AVDRefreshPushButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::startUpdateAvd);
-    connect(&m_futureWatcher, &QFutureWatcherBase::finished,
-            this, &AndroidSettingsWidget::avdAdded);
-    connect(m_ui.AVDAddPushButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::addAVD);
-    connect(m_ui.AVDRemovePushButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::removeAVD);
-    connect(m_ui.AVDStartPushButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::startAVD);
-    connect(m_ui.AVDTableView, &QAbstractItemView::activated,
-            this, &AndroidSettingsWidget::avdActivated);
-    connect(m_ui.AVDTableView, &QAbstractItemView::clicked,
-            this, &AndroidSettingsWidget::avdActivated);
-    connect(m_ui.AVDAdvancedOptionsPushButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::editEmulatorArgsAVD);
     connect(m_ui.CreateKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
     connect(m_ui.downloadNDKToolButton, &QAbstractButton::clicked,
@@ -530,38 +437,6 @@ AndroidSettingsWidget::~AndroidSettingsWidget()
 {
     // Deleting m_sdkManagerWidget will cancel all ongoing and pending sdkmanager operations.
     delete m_sdkManagerWidget;
-    m_futureWatcher.waitForFinished();
-}
-
-void AndroidSettingsWidget::disableAvdControls()
-{
-    m_ui.AVDAddPushButton->setEnabled(false);
-    m_ui.AVDTableView->setEnabled(false);
-    m_ui.AVDRemovePushButton->setEnabled(false);
-    m_ui.AVDStartPushButton->setEnabled(false);
-}
-
-void AndroidSettingsWidget::enableAvdControls()
-{
-    m_ui.AVDTableView->setEnabled(true);
-    m_ui.AVDAddPushButton->setEnabled(true);
-    avdActivated(m_ui.AVDTableView->currentIndex());
-}
-
-void AndroidSettingsWidget::startUpdateAvd()
-{
-    disableAvdControls();
-    m_virtualDevicesWatcher.setFuture(m_avdManager.avdList());
-}
-
-void AndroidSettingsWidget::updateAvds()
-{
-    m_AVDModel.setAllData(m_virtualDevicesWatcher.result());
-    if (!m_lastAddedAvd.isEmpty()) {
-        m_ui.AVDTableView->setCurrentIndex(m_AVDModel.indexForAvdName(m_lastAddedAvd));
-        m_lastAddedAvd.clear();
-    }
-    enableAvdControls();
 }
 
 void AndroidSettingsWidget::validateJdk()
@@ -648,7 +523,6 @@ void AndroidSettingsWidget::validateSdk()
         }
     }
 
-    startUpdateAvd();
     updateNdkList();
     updateUI();
 }
@@ -754,80 +628,6 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     gitCloner->start();
 }
 
-void AndroidSettingsWidget::addAVD()
-{
-    disableAvdControls();
-    CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(this, &m_sdkManager, m_androidConfig);
-
-    if (!info.isValid()) {
-        enableAvdControls();
-        return;
-    }
-
-    m_futureWatcher.setFuture(m_avdManager.createAvd(info));
-}
-
-void AndroidSettingsWidget::avdAdded()
-{
-    CreateAvdInfo info = m_futureWatcher.result();
-    if (!info.error.isEmpty()) {
-        enableAvdControls();
-        QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
-        return;
-    }
-
-    startUpdateAvd();
-    m_lastAddedAvd = info.name;
-}
-
-void AndroidSettingsWidget::removeAVD()
-{
-    disableAvdControls();
-    QString avdName = m_AVDModel.avdName(m_ui.AVDTableView->currentIndex());
-    if (QMessageBox::question(this, tr("Remove Android Virtual Device"),
-                              tr("Remove device \"%1\"? This cannot be undone.").arg(avdName),
-                              QMessageBox::Yes | QMessageBox::No)
-            == QMessageBox::No) {
-        enableAvdControls();
-        return;
-    }
-
-    m_avdManager.removeAvd(avdName);
-    startUpdateAvd();
-}
-
-void AndroidSettingsWidget::startAVD()
-{
-    m_avdManager.startAvdAsync(m_AVDModel.avdName(m_ui.AVDTableView->currentIndex()));
-}
-
-void AndroidSettingsWidget::avdActivated(const QModelIndex &index)
-{
-    m_ui.AVDRemovePushButton->setEnabled(index.isValid());
-    m_ui.AVDStartPushButton->setEnabled(index.isValid());
-}
-
-void AndroidSettingsWidget::editEmulatorArgsAVD()
-{
-    const QString helpUrl =
-            "https://developer.android.com/studio/run/emulator-commandline#startup-options";
-
-    QInputDialog dialog(this);
-    dialog.setWindowTitle(tr("Emulator Command-line Startup Options"));
-    dialog.setLabelText(tr("Emulator command-line startup options (<a href=\"%1\">Help Web Page</a>):").arg(helpUrl));
-    dialog.setTextValue(m_androidConfig.emulatorArgs().join(' '));
-
-    if (auto label = dialog.findChild<QLabel*>()) {
-        label->setOpenExternalLinks(true);
-        label->setMinimumWidth(500);
-    }
-
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-
-    m_androidConfig.setEmulatorArgs(ProcessArgs::splitArgs(dialog.textValue()));
-}
-
 void AndroidSettingsWidget::createKitToggled()
 {
     m_androidConfig.setAutomaticKitCreation(m_ui.CreateKitCheckBox->isChecked());
@@ -840,7 +640,6 @@ void AndroidSettingsWidget::updateUI()
     const bool androidSetupOk = m_androidSummary->allRowsOk();
     const bool openSslOk = m_openSslSummary->allRowsOk();
 
-    m_ui.avdManagerTab->setEnabled(javaSetupOk && androidSetupOk);
     m_ui.sdkManagerTab->setEnabled(sdkToolsOk);
 
     const QListWidgetItem *currentItem = m_ui.ndkListWidget->currentItem();

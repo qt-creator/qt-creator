@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androiddeviceinfo.h"
 
@@ -84,6 +85,10 @@ class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     AndroidDeviceFactory();
+    ProjectExplorer::IDevice::Ptr create() const override;
+
+private:
+    AndroidConfig m_androidConfig;
 };
 
 class AndroidDeviceManager : public QObject
@@ -94,13 +99,21 @@ public:
     void updateDevicesList();
     void updateDevicesListOnce();
 
+    void startAvd(const ProjectExplorer::IDevice::Ptr &device);
+    void eraseAvd(const ProjectExplorer::IDevice::Ptr &device);
+
+    void setEmulatorArguments();
+
 private:
     AndroidDeviceManager(QObject *parent = nullptr);
     void devicesListUpdated();
+    void handleAvdRemoved();
 
     QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
     QFutureWatcher<QVector<AndroidDeviceInfo>> m_devicesFutureWatcher;
+    QFutureWatcher<QPair<ProjectExplorer::IDevice::ConstPtr, bool>> m_removeAvdFutureWatcher;
     QTimer m_devicesUpdaterTimer;
+    AndroidAvdManager m_avdManager;
     AndroidConfig m_androidConfig;
 };
 

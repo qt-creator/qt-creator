@@ -105,7 +105,8 @@ CreateAvdInfo AvdDialog::gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager 
 {
     CreateAvdInfo result;
     AvdDialog d(minApiLevel, sdkManager, abis, config, parent);
-    if (d.exec() != QDialog::Accepted || !d.isValid())
+    result.cancelled = (d.exec() != QDialog::Accepted);
+    if (result.cancelled || !d.isValid())
         return result;
 
     result.systemImage = d.systemImage();
