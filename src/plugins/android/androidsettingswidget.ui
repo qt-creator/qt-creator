@@ -100,7 +100,7 @@
            <bool>true</bool>
           </property>
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -119,7 +119,7 @@
            <bool>false</bool>
           </property>
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
