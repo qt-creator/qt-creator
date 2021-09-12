@@ -98,12 +98,10 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     auto proxyModel = new PackageFilterModel(m_sdkModel);
     m_ui->packagesView->setModel(proxyModel);
+    m_ui->packagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageNameColumn,
-                                                       QHeaderView::ResizeToContents);
-    m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::apiLevelColumn,
-                                                       QHeaderView::ResizeToContents);
-    m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageRevisionColumn,
-                                                       QHeaderView::ResizeToContents);
+                                                       QHeaderView::Stretch);
+    m_ui->packagesView->header()->setStretchLastSection(false);
     connect(m_ui->expandCheck, &QCheckBox::stateChanged, [this](int state) {
        if (state == Qt::Checked)
            m_ui->packagesView->expandAll();

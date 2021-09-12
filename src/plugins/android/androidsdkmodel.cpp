@@ -40,7 +40,7 @@ static Q_LOGGING_CATEGORY(androidSdkModelLog, "qtc.android.sdkmodel", QtWarningM
 namespace Android {
 namespace Internal {
 
-const int packageColCount = 4;
+const int packageColCount = 3;
 
 AndroidSdkModel::AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager *sdkManager,
                                  QObject *parent)
@@ -73,9 +73,6 @@ QVariant AndroidSdkModel::headerData(int section, Qt::Orientation orientation, i
             break;
         case apiLevelColumn:
             data = tr("API");
-            break;
-        case operationColumn:
-            data = tr("Operation");
             break;
         default:
             break;
@@ -162,7 +159,6 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-
     if (!index.parent().isValid()) {
         // Top level tools
         if (index.row() == 0) {
@@ -202,25 +198,29 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
             return p->revision().toString();
         case apiLevelColumn:
             return apiLevelStr;
-        case operationColumn:
-            if (p->type() == AndroidSdkPackage::SdkToolsPackage &&
-                    p->state() == AndroidSdkPackage::Installed) {
-                return tr("Update Only");
-            } else {
-                return p->state() == AndroidSdkPackage::Installed ? tr("Uninstall") : tr("Install");
-            }
         default:
             break;
         }
     }
 
-    if (role == Qt::DecorationRole && index.column() == packageNameColumn) {
-        return p->state() == AndroidSdkPackage::Installed ? Utils::Icons::OK.icon() :
-                                                        Utils::Icons::EMPTY16.icon();
+    if (index.column() == packageNameColumn) {
+        if (role == Qt::CheckStateRole) {
+            if (p->state() == AndroidSdkPackage::Installed)
+                return m_changeState.contains(p) ? Qt::Unchecked : Qt::Checked;
+            else
+                return m_changeState.contains(p) ? Qt::Checked : Qt::Unchecked;
+        }
+
+        if (role == Qt::FontRole) {
+            QFont font;
+            if (m_changeState.contains(p))
+                font.setBold(true);
+            return font;
+        }
     }
 
-    if (role == Qt::CheckStateRole && index.column() == operationColumn )
-        return m_changeState.contains(p) ? Qt::Checked : Qt::Unchecked;
+    if (role == Qt::TextAlignmentRole && index.column() == packageRevisionColumn)
+        return Qt::AlignHCenter;
 
     if (role == Qt::ToolTipRole)
         return QString("%1 - (%2)").arg(p->descriptionText()).arg(p->sdkStylePath());
@@ -245,14 +245,14 @@ QHash<int, QByteArray> AndroidSdkModel::roleNames() const
 Qt::ItemFlags AndroidSdkModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QAbstractItemModel::flags(index);
-    if (index.column() == operationColumn)
+    if (index.column() == packageNameColumn)
         f |= Qt::ItemIsUserCheckable;
 
     void *ip = index.internalPointer();
-    if (ip && index.column() == operationColumn) {
+    if (ip && index.column() == packageNameColumn) {
         auto package = static_cast<const AndroidSdkPackage *>(ip);
-        if (package->state() == AndroidSdkPackage::Installed &&
-                package->type() == AndroidSdkPackage::SdkToolsPackage) {
+        if (package->state() == AndroidSdkPackage::Installed
+                && package->type() == AndroidSdkPackage::SdkToolsPackage) {
             f &= ~Qt::ItemIsEnabled;
         }
     }
@@ -264,10 +264,13 @@ bool AndroidSdkModel::setData(const QModelIndex &index, const QVariant &value, i
     void *ip = index.internalPointer();
     if (ip && role == Qt::CheckStateRole) {
         auto package = static_cast<const AndroidSdkPackage *>(ip);
-        if (value.toInt() == Qt::Checked) {
+        if (value.toInt() == Qt::Checked && package->state() != AndroidSdkPackage::Installed) {
             m_changeState << package;
             emit dataChanged(index, index, {Qt::CheckStateRole});
         } else if (m_changeState.remove(package)) {
+            emit dataChanged(index, index, {Qt::CheckStateRole});
+        } else if (value.toInt() == Qt::Unchecked) {
+            m_changeState.insert(package);
             emit dataChanged(index, index, {Qt::CheckStateRole});
         }
         return true;

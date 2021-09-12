@@ -42,8 +42,7 @@ public:
     enum PackageColumn {
         packageNameColumn = 0,
         apiLevelColumn,
-        packageRevisionColumn,
-        operationColumn
+        packageRevisionColumn
     };
 
     enum ExtraRoles {
