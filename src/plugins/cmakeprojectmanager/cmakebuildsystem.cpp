@@ -323,9 +323,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
 
 FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    QFileInfo fi = sourceFile.toFileInfo();
     FilePath project = projectDirectory();
-    FilePath baseDirectory = FilePath::fromString(fi.absolutePath());
+    FilePath baseDirectory = sourceFile.parentDir();
 
     while (baseDirectory.isChildOf(project)) {
         const FilePath cmakeListsTxt = baseDirectory.pathAppended("CMakeLists.txt");
@@ -334,22 +333,19 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
         baseDirectory = baseDirectory.parentDir();
     }
 
-    QDir srcDirRoot = QDir(project.toString());
-    QString relativePath = srcDirRoot.relativeFilePath(baseDirectory.toString());
-    QDir buildDir = QDir(cmakeBuildConfiguration()->buildDirectory().toString());
-    QString generatedFilePath = buildDir.absoluteFilePath(relativePath);
+    const FilePath relativePath = baseDirectory.relativePath(project);
+    FilePath generatedFilePath = cmakeBuildConfiguration()->buildDirectory().resolvePath(
+        relativePath);
 
-    if (fi.suffix() == "ui") {
-        generatedFilePath += "/ui_";
-        generatedFilePath += fi.completeBaseName();
-        generatedFilePath += ".h";
-        return {FilePath::fromString(QDir::cleanPath(generatedFilePath))};
+    if (sourceFile.suffix() == "ui") {
+        generatedFilePath = generatedFilePath
+                                .pathAppended("ui_" + sourceFile.completeBaseName() + ".h")
+                                .cleanPath();
+        return {generatedFilePath};
     }
-    if (fi.suffix() == "scxml") {
-        generatedFilePath += "/";
-        generatedFilePath += QDir::cleanPath(fi.completeBaseName());
-        return {FilePath::fromString(generatedFilePath + ".h"),
-                FilePath::fromString(generatedFilePath + ".cpp")};
+    if (sourceFile.suffix() == "scxml") {
+        generatedFilePath = generatedFilePath.pathAppended(sourceFile.completeBaseName());
+        return {generatedFilePath.stringAppended(".h"), generatedFilePath.stringAppended(".cpp")};
     }
 
     // TODO: Other types will be added when adapters for their compilers become available.
