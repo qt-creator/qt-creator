@@ -123,7 +123,14 @@ bool SymbolInformation::operator<(const SymbolInformation &other) const
             return false;
     }
 
-    int cmp = name().compare(other.name());
+    // The desired behavior here is to facilitate case insensitive
+    // sorting without generating false case sensitive equalities.
+    // Performance should be appropriate since in C++ there aren't
+    // many symbols that differ by case only.
+
+    int cmp = name().compare(other.name(), Qt::CaseInsensitive);
+    if (cmp == 0)
+        cmp = name().compare(other.name());
     if (cmp < 0)
         return true;
     if (cmp > 0)

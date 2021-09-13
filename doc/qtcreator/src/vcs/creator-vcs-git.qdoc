@@ -32,7 +32,7 @@
 /*!
     \page creator-vcs-git.html
     \if defined(qtdesignstudio)
-    \previouspage studio-packaging.html
+    \previouspage studio-developer-topics.html
     \nextpage quick-converting-ui-projects.html
     \else
     \previouspage creator-vcs-cvs.html

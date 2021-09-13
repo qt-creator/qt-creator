@@ -322,7 +322,7 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
 
     auto vbox = new QVBoxLayout(group);
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(m_step->kit());
-    if (version && version->supportsMultipleQtAbis()) {
+    if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}) {
         auto buildAAB = new QCheckBox(tr("Build Android App Bundle (*.aab)"), group);
         buildAAB->setChecked(m_step->buildAAB());
         connect(buildAAB, &QAbstractButton::toggled, m_step, &AndroidBuildApkStep::setBuildAAB);

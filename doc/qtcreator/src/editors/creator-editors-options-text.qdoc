@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,7 +33,7 @@
     \page creator-editor-options-text.html
     \previouspage creator-editor-options.html
     \if defined(qtdesignstudio)
-    \nextpage studio-javascript.html
+    \nextpage studio-debugging.html
     \else
     \nextpage creator-editor-fakevim.html
     \endif

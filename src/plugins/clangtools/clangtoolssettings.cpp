@@ -225,7 +225,7 @@ QVersionNumber ClangToolsSettings::clangTidyVersion()
 
 QVersionNumber ClangToolsSettings::clazyVersion()
 {
-    return ClazyStandaloneInfo(Internal::clazyStandaloneExecutable()).version;
+    return ClazyStandaloneInfo::getInfo(Internal::clazyStandaloneExecutable()).version;
 }
 
 } // namespace Internal

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 VersionData {
-    name: "QUL 1.8"
+    name: "QUL 1.9"
 
     bannedItems: ["QtQuick.AnimatedImage",
         "QtQuick.FocusScope",

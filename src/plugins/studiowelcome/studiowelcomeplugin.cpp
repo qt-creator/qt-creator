@@ -187,7 +187,10 @@ public:
         QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/index.html"));
     }
 
-    Q_INVOKABLE void openExample(const QString &example, const QString &formFile, const QString &url)
+    Q_INVOKABLE void openExample(const QString &example,
+                                 const QString &formFile,
+                                 const QString &url,
+                                 const QString &explicitQmlproject)
     {
         if (!url.isEmpty()) {
             ExampleCheckout *checkout = new ExampleCheckout;
@@ -195,12 +198,18 @@ public:
             connect(checkout,
                     &ExampleCheckout::finishedSucessfully,
                     this,
-                    [checkout, formFile, example]() {
-                        const QString projectFile = checkout->extractionFolder() + "/" + example
-                                                    + "/" + example + ".qmlproject";
+                    [checkout, formFile, example, explicitQmlproject]() {
+                        const QString exampleFolder = checkout->extractionFolder() + "/" + example
+                                                      + "/";
+
+                        QString projectFile = exampleFolder + example + ".qmlproject";
+
+                        if (!explicitQmlproject.isEmpty())
+                            projectFile = exampleFolder + explicitQmlproject;
 
                         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-                        const QString qmlFile = checkout->extractionFolder() + "/" + example + "/"
+
+                        const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/"
                                                 + formFile;
 
                         Core::EditorManager::openEditor(qmlFile);

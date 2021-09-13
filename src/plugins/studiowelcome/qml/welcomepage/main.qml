@@ -61,7 +61,7 @@ Item {
                 ProjectsGrid {
                     model: ExamplesModel {}
                     onItemSelected: function(index, item) {
-                        projectModel.openExample(item.projectName, item.qmlFileName, item.url)
+                        projectModel.openExample(item.projectName, item.qmlFileName, item.url, item.explicitQmlproject)
                     }
                 }
             }

@@ -30,7 +30,8 @@ win32 {
         RC_APPLICATION_NAME=\"$$replace(APPLICATION_NAME, " ", "\\x20")\" \
         RC_VERSION=$$replace(QTCREATOR_VERSION, "\\.", ","),0 \
         RC_VERSION_STRING=\"$${QTCREATOR_DISPLAY_VERSION}\" \
-        RC_COPYRIGHT=\"$$replace(COPYRIGHT, " ", "\\x20")\"
+        RC_COPYRIGHT=\"$$replace(COPYRIGHT, " ", "\\x20")\" \
+        RC_ICON_PATH=.
     RC_FILE = qtcreator.rc
 } else:macx {
     LIBS += -framework CoreFoundation

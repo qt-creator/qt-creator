@@ -721,6 +721,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         m_openedDocument[document] = document->plainText();
     }
 
+    ++m_documentVersions[document->filePath()];
     using namespace TextEditor;
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document)) {
         TextEditorWidget *widget = editor->editorWidget();
@@ -1227,7 +1228,7 @@ void Client::sendPostponedDocumentUpdates()
         const auto uri = DocumentUri::fromFilePath(filePath);
         m_highlights[uri].clear();
         VersionedTextDocumentIdentifier docId(uri);
-        docId.setVersion(++m_documentVersions[filePath]);
+        docId.setVersion(m_documentVersions[filePath]);
         DidChangeTextDocumentParams params;
         params.setTextDocument(docId);
         params.setContentChanges(m_documentsToUpdate.take(document));

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,30 +23,40 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include <QtTest>
+#include <QDebug>
 
-#include "qt5nodeinstanceserver.h"
+#include <qmljs/qmljsutils.h>
 
-namespace QmlDesigner {
-
-class Qt5RenderNodeInstanceServer : public Qt5NodeInstanceServer
+class tst_QmlJSUtils: public QObject
 {
     Q_OBJECT
-public:
-    explicit Qt5RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
-    void createScene(const CreateSceneCommand &command) override;
-    void clearScene(const ClearSceneCommand &command) override;
-    void completeComponent(const CompleteComponentCommand &command) override;
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
-
-protected:
-    void collectItemChangesAndSendChangeCommands() override;
-    ServerNodeInstance findNodeInstanceForItem(QQuickItem *item) const;
-    void resizeCanvasToRootItem() override;
-
-private:
-    QSet<ServerNodeInstance> m_dirtyInstanceSet;
+private slots:
+    void moduleVersionNumbers_data();
+    void moduleVersionNumbers();
 };
 
-} // namespace QmlDesigner
+void tst_QmlJSUtils::moduleVersionNumbers_data()
+{
+    QTest::addColumn<QString>("version");
+    QTest::addColumn<QStringList>("result");
+
+    QTest::newRow("empty") << "" << QStringList();
+    QTest::newRow("full") << "2.15" << QStringList{"2.15", "2"};
+    QTest::newRow("single") << "2" << QStringList{"2"};
+    // result if "import QtQuick 2":
+    QTest::newRow("major") << "2.-1" << QStringList{"2.-1", "2"};
+    QTest::newRow("broken") << "2.+3" << QStringList{"2.+3", "2.+"};
+}
+
+void tst_QmlJSUtils::moduleVersionNumbers()
+{
+    QFETCH(QString, version);
+    QFETCH(QStringList, result);
+    QCOMPARE(QmlJS::splitVersion(version), result);
+}
+
+QTEST_GUILESS_MAIN(tst_QmlJSUtils)
+
+#include "tst_qmljsutils.moc"

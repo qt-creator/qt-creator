@@ -158,11 +158,13 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
         _rootObjectValue = objectValue;
         _inlineComponents[_currentComponentName] = objectValue;
         if (!_currentComponentName.isEmpty()) {
-            if (_currentComponentName.contains('.'))
+            if (_currentComponentName.contains('.')) {
                 parentComponentName = _currentComponentName.mid(0,_currentComponentName.lastIndexOf('.'));
-            else
+                nextRoot = _inlineComponents.value(parentComponentName);
+            } else {
                 parentComponentName = "";
-            nextRoot = _inlineComponents.value(parentComponentName);
+                nextRoot = _rootObjectValue;
+            }
             // we add the inline component inside its parent
             nextRoot->setMember(_currentComponentName.mid(_currentComponentName.lastIndexOf('.') + 1), objectValue);
             _rootObjectValue->setClassName(_doc->componentName() + "." + _currentComponentName); // use :: instead of .?

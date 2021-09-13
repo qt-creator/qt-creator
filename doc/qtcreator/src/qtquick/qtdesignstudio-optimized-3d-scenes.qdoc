@@ -27,7 +27,7 @@
     \page studio-optimized-3d-scenes.html
     \previouspage qtquick-optimizing-designs.html
     \if defined(qtdesignstudio)
-    \nextpage creator-coding.html
+    \nextpage studio-implementing-applications.html
     \else
     \nextpage qtquick-iso-icon-browser.html
     \endif

@@ -1,0 +1,65 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage studio-optimized-3d-scenes.html
+    \page studio-implementing-applications.html
+    \nextpage creator-coding.html
+
+    \title Implementing Applications
+
+    \table
+        \row
+            \li \image front-preview.png
+            \li \QDS attempts to meet your needs, whether you have previous
+                experience with QML and coding or not. When you install \QDS,
+                the default configuration allows you to start wireframing,
+                prototyping, and validating UIs with very little effort.
+
+                However, you might want to use the \l{Text Editor} view
+                sometimes to edit your component files (.qml). If you use
+                JavaScript, you might also want to debug and profile you
+                UIs to find and fix problems in them.
+    \endtable
+
+    \list
+        \li \l{Coding}
+
+            You can use the code editor in the \uicontrol {Text Editor} view or
+            in the \uicontrol Edit mode to modify QML code. The code editor
+            understands the QML language as code, not just as plain text. This
+            enables it to provide you with useful features, such as semantic
+            highlighting, checking code syntax, code completion, and refactoring
+            actions.
+        \li \l{Debugging and Profiling}
+
+            \QDS comes with a JavaScript debugger. In the \uicontrol Debug mode,
+            you can inspect the state of your UI while debugging.
+
+            The memory and CPU power available on devices are limited and
+            you should use them carefully. The QML Profiler enables you to
+            profile Qt Quick UIs.
+    \endlist
+*/

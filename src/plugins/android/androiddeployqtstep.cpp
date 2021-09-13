@@ -134,7 +134,7 @@ bool AndroidDeployQtStep::init()
     QTC_ASSERT(bc, return false);
 
     auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
-    int minTargetApi = AndroidManager::minimumSDK(target());
+    const int minTargetApi = AndroidManager::minimumSDK(target());
     qCDebug(deployStepLog) << "Target architecture:" << m_androidABIs
                            << "Min target API" << minTargetApi;
 

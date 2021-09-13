@@ -149,6 +149,12 @@ ServerNodeInstance Qt5RenderNodeInstanceServer::findNodeInstanceForItem(QQuickIt
     return ServerNodeInstance();
 }
 
+void Qt5RenderNodeInstanceServer::resizeCanvasToRootItem()
+{
+    Qt5NodeInstanceServer::resizeCanvasToRootItem();
+    m_dirtyInstanceSet.insert(rootNodeInstance());
+}
+
 
 void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {

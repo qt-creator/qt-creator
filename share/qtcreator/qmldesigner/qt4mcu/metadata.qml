@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,7 +27,7 @@
 Metadata {
     id: metadataFile
 
-    defaultVersion: v18
+    defaultVersion: v19
 
     VersionData {
         id: v14
@@ -45,5 +45,11 @@ Metadata {
         id: v18
         name: "QUL 1.8"
         path: "qul-18.qml"
+    }
+
+    VersionData {
+        id: v19
+        name: "QUL 1.9"
+        path: "qul-19.qml"
     }
 }

@@ -49,7 +49,7 @@ public:
     virtual QString currentFindString() const = 0;
     virtual QString completedFindString() const = 0;
 
-    virtual void highlightAll(const QString &txt, FindFlags findFlags) {}
+    virtual void highlightAll(const QString &, FindFlags) {}
     virtual Result findIncremental(const QString &txt, FindFlags findFlags) = 0;
     virtual Result findStep(const QString &txt, FindFlags findFlags) = 0;
     virtual void replace(const QString &before, const QString &after,
