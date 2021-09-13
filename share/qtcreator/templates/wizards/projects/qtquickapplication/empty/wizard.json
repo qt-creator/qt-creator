@@ -25,7 +25,8 @@
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" },
-        { "key": "AdditionalQmlFiles", "value": "" }
+        { "key": "AdditionalQmlFiles", "value": "" },
+        { "key": "AdditionalQmlFilesQbs", "value": "" }
     ],
 
     "pages":

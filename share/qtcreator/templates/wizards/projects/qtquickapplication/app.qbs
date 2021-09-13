@@ -9,19 +9,21 @@ CppApplication {
 
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
-
-    cpp.cxxLanguageVersion: "c++14"
+@if !%{IsQt6}
 
     cpp.defines: [
         // You can make your code fail to compile if it uses deprecated APIs.
         // In order to do so, uncomment the following line.
         //"QT_DISABLE_DEPRECATED_BEFORE=0x060000" // disables all the APIs deprecated before Qt 6.0.0
     ]
+@endif
 
     files: [
         "%{MainCppFileName}",
+@if !%{IsQt6}
         "main.qml",
         "qml.qrc",
+@endif
 @if %{HasTranslation}
         "%{TsFileName}",
 @endif
@@ -34,7 +36,13 @@ CppApplication {
         fileTags: "qt.core.resource_data"
     }
 @endif
-
+@if %{IsQt6}
+    Group {
+        files: ["main.qml"%{AdditionalQmlFilesQbs}]
+        Qt.core.resourcePrefix: "%{ProjectName}/"
+        fileTags: ["qt.qml.qml", "qt.core.resource_data"]
+    }
+@endif
     Group {     // Properties for the produced executable
         fileTagsFilter: "application"
         qbs.install: true

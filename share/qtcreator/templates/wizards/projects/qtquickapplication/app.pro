@@ -3,17 +3,23 @@ QT += quick virtualkeyboard
 @else
 QT += quick
 @endif
-
-CONFIG += c++11
+@if !%{IsQt6}
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+@endif
 
 SOURCES += \\
         %{MainCppFileName}
 
+@if %{IsQt6}
+resources.files = main.qml %{AdditionalQmlFiles}
+resources.prefix = /$${TARGET}
+RESOURCES += resources
+@else
 RESOURCES += qml.qrc
+@endif
 @if %{HasTranslation}
 
 TRANSLATIONS += \\
