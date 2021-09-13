@@ -127,12 +127,14 @@ using PrefixList = QList<Prefix *>;
 class ResourceFile
 {
     Q_DECLARE_TR_FUNCTIONS(ResourceFile)
+
 public:
-    ResourceFile(const QString &file_name = QString(), const QString &contents = QString());
+    ResourceFile(const Utils::FilePath &filePath = {}, const QString &contents = {});
     ~ResourceFile();
 
-    void setFileName(const QString &file_name) { m_file_name = file_name; }
-    QString fileName() const { return m_file_name; }
+    void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
+    Utils::FilePath filePath() const { return m_filePath; }
+
     Core::IDocument::OpenResult load();
     bool save();
     QString contents() const;
@@ -177,7 +179,7 @@ public:
 
 private:
     PrefixList m_prefix_list;
-    QString m_file_name;
+    Utils::FilePath m_filePath;
     QString m_contents;
     QString m_error_message;
     Utils::TextFileFormat m_textFileFormat;
@@ -204,8 +206,7 @@ class ResourceModel : public QAbstractItemModel
 public:
     explicit ResourceModel(QObject *parent = nullptr);
 
-    QModelIndex index(int row, int column,
-                        const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = {}) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -223,8 +224,8 @@ protected:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
 public:
-    QString fileName() const { return m_resource_file.fileName(); }
-    void setFileName(const QString &file_name) { m_resource_file.setFileName(file_name); }
+    Utils::FilePath filePath() const { return m_resource_file.filePath(); }
+    void setFilePath(const Utils::FilePath &filePath) { m_resource_file.setFilePath(filePath); }
     void getItem(const QModelIndex &index, QString &prefix, QString &file) const;
 
     QString lang(const QModelIndex &index) const;

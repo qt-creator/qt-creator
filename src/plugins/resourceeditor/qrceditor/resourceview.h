@@ -54,7 +54,7 @@ public:
     explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = nullptr);
     ~ResourceView() override;
 
-    QString fileName() const;
+    Utils::FilePath filePath() const;
 
     bool isPrefix(const QModelIndex &index) const;
 

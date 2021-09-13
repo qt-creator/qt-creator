@@ -53,8 +53,6 @@ namespace Internal {
 
 enum { debugResourceEditorW = 0 };
 
-
-
 ResourceEditorDocument::ResourceEditorDocument(QObject *parent) :
     IDocument(parent),
     m_model(new RelativeResourceModel(this))
@@ -120,15 +118,15 @@ ResourceEditorW::~ResourceEditorW()
 }
 
 Core::IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
-                                                         const Utils::FilePath &filePath,
-                                                         const Utils::FilePath &realFilePath)
+                                                         const FilePath &filePath,
+                                                         const FilePath &realFilePath)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << filePath;
 
     setBlockDirtyChanged(true);
 
-    m_model->setFileName(realFilePath.toString());
+    m_model->setFilePath(realFilePath);
 
     OpenResult openResult = m_model->reload();
     if (openResult != OpenResult::Success) {
@@ -157,17 +155,17 @@ bool ResourceEditorDocument::save(QString *errorString, const FilePath &filePath
         return false;
 
     m_blockDirtyChanged = true;
-    m_model->setFileName(actualName.toString());
+    m_model->setFilePath(actualName);
     if (!m_model->save()) {
         *errorString = m_model->errorMessage();
-        m_model->setFileName(this->filePath().toString());
+        m_model->setFilePath(this->filePath());
         m_blockDirtyChanged = false;
         return false;
     }
 
     m_shouldAutoSave = false;
     if (autoSave) {
-        m_model->setFileName(this->filePath().toString());
+        m_model->setFilePath(this->filePath());
         m_model->setDirty(true);
         m_blockDirtyChanged = false;
         return true;
@@ -197,10 +195,10 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
     if (!saver.finalize(Core::ICore::dialogParent()))
         return false;
 
-    const QString originalFileName = m_model->fileName();
-    m_model->setFileName(saver.filePath().toString());
+    const FilePath originalFileName = m_model->filePath();
+    m_model->setFilePath(saver.filePath());
     const bool success = (m_model->reload() == OpenResult::Success);
-    m_model->setFileName(originalFileName);
+    m_model->setFilePath(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.filePath() << ") returns " << success;
@@ -210,7 +208,7 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
 
 void ResourceEditorDocument::setFilePath(const FilePath &newName)
 {
-    m_model->setFileName(newName.toString());
+    m_model->setFilePath(newName);
     IDocument::setFilePath(newName);
 }
 

@@ -48,8 +48,10 @@
 
 #include <QDomDocument>
 
-using namespace ResourceEditor;
-using namespace ResourceEditor::Internal;
+using namespace Utils;
+
+namespace ResourceEditor {
+namespace Internal {
 
 File::File(Prefix *prefix, const QString &_name, const QString &_alias)
     : Node(this, prefix)
@@ -96,9 +98,9 @@ bool FileList::containsFile(File *file)
 ** ResourceFile
 */
 
-ResourceFile::ResourceFile(const QString &file_name, const QString &contents)
+ResourceFile::ResourceFile(const FilePath &filePath, const QString &contents)
 {
-    setFileName(file_name);
+    setFilePath(filePath);
     m_contents = contents;
 }
 
@@ -111,7 +113,7 @@ Core::IDocument::OpenResult ResourceFile::load()
 {
     m_error_message.clear();
 
-    if (m_file_name.isEmpty()) {
+    if (m_filePath.isEmpty()) {
         m_error_message = tr("The file name is empty.");
         return Core::IDocument::OpenResult::ReadError;
     }
@@ -123,7 +125,7 @@ Core::IDocument::OpenResult ResourceFile::load()
     if (m_contents.isEmpty()) {
 
         // Regular file
-        QFile file(m_file_name);
+        QFile file(m_filePath.toString());
         if (!file.open(QIODevice::ReadOnly)) {
             m_error_message = file.errorString();
             return Core::IDocument::OpenResult::ReadError;
@@ -236,14 +238,12 @@ bool ResourceFile::save()
 {
     m_error_message.clear();
 
-    if (m_file_name.isEmpty()) {
+    if (m_filePath.isEmpty()) {
         m_error_message = tr("The file name is empty.");
         return false;
     }
 
-    return m_textFileFormat.writeFile(Utils::FilePath::fromString(m_file_name),
-                                      contents(),
-                                      &m_error_message);
+    return m_textFileFormat.writeFile(m_filePath, contents(), &m_error_message);
 }
 
 void ResourceFile::refresh()
@@ -431,10 +431,10 @@ int ResourceFile::indexOfFile(int pref_idx, const QString &file) const
 
 QString ResourceFile::relativePath(const QString &abs_path) const
 {
-    if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
+    if (m_filePath.isEmpty() || QFileInfo(abs_path).isRelative())
          return abs_path;
 
-    QFileInfo fileInfo(m_file_name);
+    QFileInfo fileInfo = m_filePath.toFileInfo();
     return fileInfo.absoluteDir().relativeFilePath(abs_path);
 }
 
@@ -444,7 +444,7 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
     if (fi.isAbsolute())
         return rel_path;
 
-    QString rc = QFileInfo(m_file_name).path();
+    QString rc = m_filePath.toFileInfo().path();
     rc +=  QLatin1Char('/');
     rc += rel_path;
     return QDir::cleanPath(rc);
@@ -832,7 +832,7 @@ bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int
     if (role != Qt::EditRole)
         return false;
 
-    const QDir baseDir = QFileInfo(fileName()).absoluteDir();
+    const QDir baseDir = filePath().toFileInfo().absoluteDir();
     Utils::FilePath newFileName = Utils::FilePath::fromUserInput(
                 baseDir.absoluteFilePath(value.toString()));
 
@@ -995,7 +995,7 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     firstFile = cnt;
     lastFile = cnt + unique_list.count() - 1;
 
-    Core::VcsManager::promptToAdd(QFileInfo(m_resource_file.fileName()).absolutePath(), fileNames);
+    Core::VcsManager::promptToAdd(m_resource_file.filePath().absolutePath().toString(), fileNames);
 }
 
 
@@ -1264,3 +1264,6 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
         return nullptr;
     }
 }
+
+} // Internal
+} // ResourceEditor

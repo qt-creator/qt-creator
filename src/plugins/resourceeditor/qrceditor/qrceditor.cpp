@@ -232,7 +232,7 @@ static inline bool copyFile(const QString &file, const QString &copyName, QWidge
 
 void QrcEditor::resolveLocationIssues(QStringList &files)
 {
-    const QDir dir = QFileInfo(m_treeview->fileName()).absoluteDir();
+    const QDir dir = m_treeview->filePath().toFileInfo().absoluteDir();
     const QString dotdotSlash = QLatin1String("../");
     int i = 0;
     const int count = files.count();

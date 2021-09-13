@@ -41,8 +41,8 @@
 #include <QMouseEvent>
 #include <QUndoStack>
 
-using namespace ResourceEditor;
-using namespace ResourceEditor::Internal;
+namespace ResourceEditor {
+namespace Internal {
 
 ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent) :
     Utils::TreeView(parent),
@@ -343,9 +343,9 @@ bool ResourceView::isPrefix(const QModelIndex &index) const
     return false;
 }
 
-QString ResourceView::fileName() const
+Utils::FilePath ResourceView::filePath() const
 {
-    return m_qrcModel->fileName();
+    return m_qrcModel->filePath();
 }
 
 void ResourceView::setResourceDragEnabled(bool e)
@@ -358,3 +358,6 @@ bool ResourceView::resourceDragEnabled() const
 {
     return m_qrcModel->resourceDragEnabled();
 }
+
+} // Internal
+} // ResourceEditor
