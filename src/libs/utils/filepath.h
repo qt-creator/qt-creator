@@ -56,12 +56,12 @@ public:
 
     template <size_t N> FilePath(const char (&literal)[N]) { setFromString(literal); }
 
-    static FilePath fromString(const QString &filepath);
-    static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
-    static FilePath fromUserInput(const QString &filepath);
-    static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
-    static FilePath fromVariant(const QVariant &variant);
-    static FilePath fromUrl(const QUrl &url);
+    [[nodiscard]] static FilePath fromString(const QString &filepath);
+    [[nodiscard]] static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
+    [[nodiscard]] static FilePath fromUserInput(const QString &filepath);
+    [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
+    [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
+    [[nodiscard]] static FilePath fromUrl(const QUrl &url);
 
     QString toUserOutput() const;
     QString toString() const;
@@ -85,8 +85,8 @@ public:
     QString suffix() const;
     QString completeSuffix() const;
 
-    FilePath pathAppended(const QString &str) const;
-    FilePath stringAppended(const QString &str) const;
+    [[nodiscard]] FilePath pathAppended(const QString &str) const;
+    [[nodiscard]] FilePath stringAppended(const QString &str) const;
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
 
@@ -131,8 +131,8 @@ public:
     bool operator<=(const FilePath &other) const;
     bool operator>(const FilePath &other) const;
     bool operator>=(const FilePath &other) const;
-    FilePath operator+(const QString &s) const;
-    FilePath operator/(const QString &str) const;
+    [[nodiscard]] FilePath operator+(const QString &s) const;
+    [[nodiscard]] FilePath operator/(const QString &str) const;
 
     Qt::CaseSensitivity caseSensitivity() const;
 
@@ -141,24 +141,24 @@ public:
 
     uint hash(uint seed) const;
 
-    FilePath resolvePath(const FilePath &tail) const;
-    FilePath resolvePath(const QString &tail) const;
+    [[nodiscard]] FilePath resolvePath(const FilePath &tail) const;
+    [[nodiscard]] FilePath resolvePath(const QString &tail) const;
     [[nodiscard]] FilePath cleanPath() const;
-    FilePath canonicalPath() const;
-    FilePath symLinkTarget() const;
-    FilePath resolveSymlinks() const;
-    FilePath withExecutableSuffix() const;
-    FilePath relativeChildPath(const FilePath &parent) const;
-    FilePath relativePath(const FilePath &anchor) const;
-    FilePath searchInDirectories(const QList<FilePath> &dirs) const;
-    FilePath searchInPath(const QList<FilePath> &additionalDirs = {}) const;
-    Environment deviceEnvironment() const;
-    FilePath onDevice(const FilePath &deviceTemplate) const;
-    FilePath withNewPath(const QString &newPath) const;
+    [[nodiscard]] FilePath canonicalPath() const;
+    [[nodiscard]] FilePath symLinkTarget() const;
+    [[nodiscard]] FilePath resolveSymlinks() const;
+    [[nodiscard]] FilePath withExecutableSuffix() const;
+    [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
+    [[nodiscard]] FilePath relativePath(const FilePath &anchor) const;
+    [[nodiscard]] FilePath searchInDirectories(const QList<FilePath> &dirs) const;
+    [[nodiscard]] FilePath searchInPath(const QList<FilePath> &additionalDirs = {}) const;
+    [[nodiscard]] Environment deviceEnvironment() const;
+    [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
+    [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
-    FilePath normalizedPathName() const;
+    [[nodiscard]] FilePath normalizedPathName() const;
 
     QString shortNativePath() const;
     bool startsWithDriveLetter() const;
@@ -175,12 +175,12 @@ public:
     void asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const;
 
     // Deprecated.
-    static FilePath fromFileInfo(const QFileInfo &info); // Avoid.
-    QFileInfo toFileInfo() const; // Avoid.
-    QDir toDir() const; // Avoid.
-    FilePath absolutePath() const; // Avoid. Use resolvePath(...)[.parent()] with proper base.
-    FilePath absoluteFilePath() const; // Avoid. Use resolvePath(...) with proper base.
-    bool isChildOf(const QDir &dir) const; // Avoid. Use isChildOf(FilePath).
+    [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info); // Avoid.
+    [[nodiscard]] QFileInfo toFileInfo() const; // Avoid.
+    [[nodiscard]] QDir toDir() const; // Avoid.
+    [[nodiscard]] FilePath absolutePath() const; // Avoid. Use resolvePath(...)[.parent()] with proper base.
+    [[nodiscard]] FilePath absoluteFilePath() const; // Avoid. Use resolvePath(...) with proper base.
+    [[nodiscard]] bool isChildOf(const QDir &dir) const; // Avoid. Use isChildOf(FilePath).
 
 private:
     friend class ::tst_fileutils;
