@@ -48,6 +48,19 @@
 
 #include <cstdlib>
 
+/*
+In order to run this test properly it requires some setup (example for fedora):
+1. Run a server:
+   systemctl start sshd
+2. Create your own ssh key (needed only once). For fedora it needs ecdsa type:
+   ssh-keygen -t ecdsa
+3. Make your public key known to the server (needed only once):
+   ssh-copy-id -i [full path to your public key]
+4. Set the env variables before executing test:
+   QTC_SSH_TEST_HOST=127.0.0.1
+   QTC_SSH_TEST_KEYFILE=[full path to your private key]
+   QTC_SSH_TEST_USER=[your user name]
+*/
 using namespace QSsh;
 
 static QString getHostFromEnvironment()
