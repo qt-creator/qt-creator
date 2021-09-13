@@ -40,6 +40,7 @@
 #include <cplusplus/MatchingText.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppcompletionassistprovider.h>
 #include <cppeditor/cppdoxygen.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppfindreferences.h>
@@ -768,10 +769,6 @@ public:
     void handleSemanticTokens(TextEditor::TextDocument *doc,
                               const QList<ExpandedSemanticToken> &tokens);
 
-    void applyCompletionItem(const CompletionItem &item,
-                             TextEditor::TextDocumentManipulatorInterface &manipulator,
-                             QChar typedChar);
-
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
     DoxygenAssistProvider doxygenAssistProvider;
@@ -796,6 +793,21 @@ public:
     }
 };
 
+class ClangdCompletionAssistProvider : public LanguageClientCompletionAssistProvider
+{
+public:
+    ClangdCompletionAssistProvider(ClangdClient *client);
+
+private:
+    int activationCharSequenceLength() const override { return 3; }
+    bool isActivationCharSequence(const QString &sequence) const override;
+    bool isContinuationChar(const QChar &c) const override;
+
+    void applyCompletionItem(const CompletionItem &item,
+                             TextEditor::TextDocumentManipulatorInterface &manipulator,
+                             QChar typedChar);
+};
+
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     : Client(clientInterface(project, jsonDbDir)), d(new Private(this, project))
 {
@@ -805,6 +817,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
             "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
     setSupportedLanguage(langFilter);
     setActivateDocumentAutomatically(true);
+    setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     if (!project) {
         QJsonObject initOptions;
         const QStringList clangOptions = createClangOptions(
@@ -878,34 +891,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const DocumentUri &uri) {
         gatherHelpItemForTooltip(response, uri);
-    });
-    setCompletionItemsTransformer([](const Utils::FilePath &filePath, const QString &content,
-                                     int pos,  const QList<CompletionItem> &items) {
-        qCDebug(clangdLog) << "received" << items.count() << "completions";
-
-        // If there are signals among the candidates, we employ the built-in code model to find out
-        // whether the cursor was on the second argument of a (dis)connect() call.
-        // If so, we offer only signals, as nothing else makes sense in that context.
-        static const auto criterion = [](const CompletionItem &ci) {
-            const Utils::optional<MarkupOrString> doc = ci.documentation();
-            if (!doc)
-                return false;
-            QString docText;
-            if (Utils::holds_alternative<QString>(*doc))
-                docText = Utils::get<QString>(*doc);
-            else if (Utils::holds_alternative<MarkupContent>(*doc))
-                docText = Utils::get<MarkupContent>(*doc).content();
-            return docText.contains("Annotation: qt_signal");
-        };
-        if (pos != -1 && Utils::anyOf(items, criterion) && CppEditor::CppModelManager::instance()
-                ->positionRequiresSignal(filePath.toString(), content.toUtf8(), pos)) {
-            return Utils::filtered(items, criterion);
-        }
-        return items;
-    });
-    setCompletionApplyHelper([this](const CompletionItem &item,
-            TextEditor::TextDocumentManipulatorInterface &manipulator, QChar typedChar) {
-        d->applyCompletionItem(item, manipulator, typedChar);
     });
 
     connect(this, &Client::workDone, this,
@@ -2615,8 +2600,176 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
     q->sendContent(astReq, SendDocUpdates::Ignore);
 }
 
-void ClangdClient::Private::applyCompletionItem(const CompletionItem &item,
-        TextEditor::TextDocumentManipulatorInterface &manipulator, QChar typedChar)
+void ClangdClient::VirtualFunctionAssistProcessor::cancel()
+{
+    resetData();
+}
+
+void ClangdClient::VirtualFunctionAssistProcessor::update()
+{
+    if (!m_data->followSymbolData->editorWidget)
+        return;
+    setAsyncProposalAvailable(createProposal(false));
+}
+
+void ClangdClient::VirtualFunctionAssistProcessor::finalize()
+{
+    if (!m_data->followSymbolData->editorWidget)
+        return;
+    const auto proposal = createProposal(true);
+    if (m_data->followSymbolData->editorWidget->isInTestMode()) {
+        m_data->followSymbolData->symbolsToDisplay.clear();
+        const auto immediateProposal = createProposal(false);
+        m_data->followSymbolData->editorWidget->setProposals(immediateProposal, proposal);
+    } else {
+        setAsyncProposalAvailable(proposal);
+    }
+    resetData();
+}
+
+void ClangdClient::VirtualFunctionAssistProcessor::resetData()
+{
+    if (!m_data)
+        return;
+    m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
+    m_data->followSymbolData.reset();
+    m_data = nullptr;
+}
+
+TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::createProposal(bool final) const
+{
+    QTC_ASSERT(m_data && m_data->followSymbolData, return nullptr);
+
+    QList<TextEditor::AssistProposalItemInterface *> items;
+    bool needsBaseDeclEntry = !m_data->followSymbolData->defLinkNode.range()
+            .contains(Position(m_data->followSymbolData->cursor));
+    for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
+        Utils::Link link = symbol.second;
+        if (m_data->followSymbolData->defLink == link) {
+            if (!needsBaseDeclEntry)
+                continue;
+            needsBaseDeclEntry = false;
+        } else {
+            const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
+            if (defLink.hasValidTarget())
+                link = defLink;
+        }
+        items << createEntry(symbol.first, link);
+    }
+    if (needsBaseDeclEntry)
+        items << createEntry({}, m_data->followSymbolData->defLink);
+    if (!final) {
+        const auto infoItem = new CppEditor::VirtualFunctionProposalItem({}, false);
+        infoItem->setText(ClangdClient::tr("collecting overrides ..."));
+        infoItem->setOrder(-1);
+        items << infoItem;
+    }
+
+    return new CppEditor::VirtualFunctionProposal(
+                m_data->followSymbolData->cursor.position(),
+                items, m_data->followSymbolData->openInSplit);
+}
+
+CppEditor::VirtualFunctionProposalItem *
+ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
+                                                          const Utils::Link &link) const
+{
+    const auto item = new CppEditor::VirtualFunctionProposalItem(
+                link, m_data->followSymbolData->openInSplit);
+    QString text = name;
+    if (link == m_data->followSymbolData->defLink) {
+        item->setOrder(1000); // Ensure base declaration is on top.
+        if (text.isEmpty()) {
+            text = ClangdClient::tr("<base declaration>");
+        } else if (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
+                   || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition()) {
+            text += " = 0";
+        }
+    }
+    item->setText(text);
+    return item;
+}
+
+TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor() const
+{
+    return m_data->followSymbolData->virtualFuncAssistProcessor
+            = new VirtualFunctionAssistProcessor(m_data);
+}
+
+Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
+{
+    return optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
+}
+
+QString ClangdDiagnostic::category() const
+{
+    return typedValue<QString>("category");
+}
+
+ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *client)
+    : LanguageClientCompletionAssistProvider(client)
+{
+    setItemsTransformer([](const Utils::FilePath &filePath, const QString &content,
+                        int pos,  const QList<CompletionItem> &items) {
+        qCDebug(clangdLog) << "received" << items.count() << "completions";
+
+        // If there are signals among the candidates, we employ the built-in code model to find out
+        // whether the cursor was on the second argument of a (dis)connect() call.
+        // If so, we offer only signals, as nothing else makes sense in that context.
+        static const auto criterion = [](const CompletionItem &ci) {
+            const Utils::optional<MarkupOrString> doc = ci.documentation();
+            if (!doc)
+                return false;
+            QString docText;
+            if (Utils::holds_alternative<QString>(*doc))
+                docText = Utils::get<QString>(*doc);
+            else if (Utils::holds_alternative<MarkupContent>(*doc))
+                docText = Utils::get<MarkupContent>(*doc).content();
+            return docText.contains("Annotation: qt_signal");
+        };
+        if (pos != -1 && Utils::anyOf(items, criterion) && CppEditor::CppModelManager::instance()
+                ->positionRequiresSignal(filePath.toString(), content.toUtf8(), pos)) {
+            return Utils::filtered(items, criterion);
+        }
+        return items;
+    });
+
+    setApplyHelper([this](const CompletionItem &item,
+                   TextEditor::TextDocumentManipulatorInterface &manipulator, QChar typedChar) {
+        applyCompletionItem(item, manipulator, typedChar);
+    });
+}
+
+bool ClangdCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
+{
+    const QChar &ch  = sequence.at(2);
+    const QChar &ch2 = sequence.at(1);
+    const QChar &ch3 = sequence.at(0);
+    unsigned kind = T_EOF_SYMBOL;
+    const int pos = CppEditor::CppCompletionAssistProvider::activationSequenceChar(
+                ch, ch2, ch3, &kind, false, false);
+    if (pos == 0)
+        return false;
+
+    // We want to minimize unneeded completion requests, as those trigger document updates,
+    // which trigger re-highlighting and diagnostics, which we try to delay.
+    // Therefore, we do not trigger on syntax elements that often occur in non-applicable
+    // contexts, such as '(', '<' or '/'.
+    switch (kind) {
+    case T_DOT: case T_COLON_COLON: case T_ARROW: case T_DOT_STAR: case T_ARROW_STAR: case T_POUND:
+        return true;
+    }
+    return false;
+}
+
+bool ClangdCompletionAssistProvider::isContinuationChar(const QChar &c) const
+{
+    return CppEditor::isValidIdentifierChar(c);
+}
+
+void ClangdCompletionAssistProvider::applyCompletionItem(
+        const CompletionItem &item, TextEditor::TextDocumentManipulatorInterface &manipulator,
+        QChar typedChar)
 {
     const auto edit = item.textEdit();
     if (!edit)
@@ -2732,112 +2885,6 @@ void ClangdClient::Private::applyCompletionItem(const CompletionItem &item,
         for (const auto &edit : *additionalEdits)
             applyTextEdit(manipulator, edit);
     }
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::cancel()
-{
-    resetData();
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::update()
-{
-    if (!m_data->followSymbolData->editorWidget)
-        return;
-    setAsyncProposalAvailable(createProposal(false));
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::finalize()
-{
-    if (!m_data->followSymbolData->editorWidget)
-        return;
-    const auto proposal = createProposal(true);
-    if (m_data->followSymbolData->editorWidget->isInTestMode()) {
-        m_data->followSymbolData->symbolsToDisplay.clear();
-        const auto immediateProposal = createProposal(false);
-        m_data->followSymbolData->editorWidget->setProposals(immediateProposal, proposal);
-    } else {
-        setAsyncProposalAvailable(proposal);
-    }
-    resetData();
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::resetData()
-{
-    if (!m_data)
-        return;
-    m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
-    m_data->followSymbolData.reset();
-    m_data = nullptr;
-}
-
-TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::createProposal(bool final) const
-{
-    QTC_ASSERT(m_data && m_data->followSymbolData, return nullptr);
-
-    QList<TextEditor::AssistProposalItemInterface *> items;
-    bool needsBaseDeclEntry = !m_data->followSymbolData->defLinkNode.range()
-            .contains(Position(m_data->followSymbolData->cursor));
-    for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
-        Utils::Link link = symbol.second;
-        if (m_data->followSymbolData->defLink == link) {
-            if (!needsBaseDeclEntry)
-                continue;
-            needsBaseDeclEntry = false;
-        } else {
-            const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
-            if (defLink.hasValidTarget())
-                link = defLink;
-        }
-        items << createEntry(symbol.first, link);
-    }
-    if (needsBaseDeclEntry)
-        items << createEntry({}, m_data->followSymbolData->defLink);
-    if (!final) {
-        const auto infoItem = new CppEditor::VirtualFunctionProposalItem({}, false);
-        infoItem->setText(ClangdClient::tr("collecting overrides ..."));
-        infoItem->setOrder(-1);
-        items << infoItem;
-    }
-
-    return new CppEditor::VirtualFunctionProposal(
-                m_data->followSymbolData->cursor.position(),
-                items, m_data->followSymbolData->openInSplit);
-}
-
-CppEditor::VirtualFunctionProposalItem *
-ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
-                                                          const Utils::Link &link) const
-{
-    const auto item = new CppEditor::VirtualFunctionProposalItem(
-                link, m_data->followSymbolData->openInSplit);
-    QString text = name;
-    if (link == m_data->followSymbolData->defLink) {
-        item->setOrder(1000); // Ensure base declaration is on top.
-        if (text.isEmpty()) {
-            text = ClangdClient::tr("<base declaration>");
-        } else if (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
-                   || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition()) {
-            text += " = 0";
-        }
-    }
-    item->setText(text);
-    return item;
-}
-
-TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor() const
-{
-    return m_data->followSymbolData->virtualFuncAssistProcessor
-            = new VirtualFunctionAssistProcessor(m_data);
-}
-
-Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
-{
-    return optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
-}
-
-QString ClangdDiagnostic::category() const
-{
-    return typedValue<QString>("category");
 }
 
 } // namespace Internal

@@ -1027,22 +1027,6 @@ SymbolStringifier Client::symbolStringifier() const
     return m_symbolStringifier;
 }
 
-void Client::setCompletionItemsTransformer(const CompletionItemsTransformer &transformer)
-{
-    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
-                m_clientProviders.completionAssistProvider)) {
-        provider->setItemsTransformer(transformer);
-    }
-}
-
-void Client::setCompletionApplyHelper(const CompletionApplyHelper &applyHelper)
-{
-    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
-                m_clientProviders.completionAssistProvider)) {
-        provider->setApplyHelper(applyHelper);
-    }
-}
-
 void Client::setCompletionProposalHandler(const ProposalHandler &handler)
 {
     if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
@@ -1065,6 +1049,12 @@ void Client::setSnippetsGroup(const QString &group)
                 m_clientProviders.completionAssistProvider)) {
         provider->setSnippetsGroup(group);
     }
+}
+
+void Client::setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider)
+{
+    delete m_clientProviders.completionAssistProvider;
+    m_clientProviders.completionAssistProvider = provider;
 }
 
 void Client::start()

@@ -183,11 +183,10 @@ public:
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
-    void setCompletionItemsTransformer(const CompletionItemsTransformer &transformer);
-    void setCompletionApplyHelper(const CompletionApplyHelper &applyHelper);
     void setCompletionProposalHandler(const ProposalHandler &handler);
     void setFunctionHintProposalHandler(const ProposalHandler &handler);
     void setSnippetsGroup(const QString &group);
+    void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
 
     // logging
     void log(const QString &message) const;

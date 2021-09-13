@@ -71,10 +71,13 @@ public:
 
     void setTriggerCharacters(const Utils::optional<QList<QString>> triggerChars);
 
-    void setItemsTransformer(const CompletionItemsTransformer &transformer);
-    void setApplyHelper(const CompletionApplyHelper &applyHelper);
     void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
     void setSnippetsGroup(const QString &group) { m_snippetsGroup = group; }
+
+protected:
+    void setItemsTransformer(const CompletionItemsTransformer &transformer);
+    void setApplyHelper(const CompletionApplyHelper &applyHelper);
+    Client *client() const { return m_client; }
 
 private:
     QList<QString> m_triggerChars;
