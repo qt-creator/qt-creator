@@ -217,6 +217,4 @@ using ExitCodeInterpreter = std::function<QtcProcess::Result(int /*exitCode*/)>;
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &);
 
-using SynchronousProcess = QtcProcess; // FIXME: Remove.
-
 } // namespace Utils
