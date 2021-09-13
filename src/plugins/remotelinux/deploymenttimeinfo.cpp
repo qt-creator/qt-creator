@@ -33,9 +33,9 @@
 #include <ssh/sshconnectionmanager.h>
 
 #include <QDateTime>
-#include <QFileInfo>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 using namespace QSsh;
 
 namespace RemoteLinux {
@@ -180,7 +180,8 @@ void DeploymentTimeInfo::importDeployTimes(const QVariantMap &map)
                                sysrootList.size());
 
     for (int i = 0; i < elemCount; ++i) {
-        const DeployableFile df(fileList.at(i).toString(), remotePathList.at(i).toString());
+        const DeployableFile df(FilePath::fromVariant(fileList.at(i)),
+                                remotePathList.at(i).toString());
         const DeployParameters dp{df, hostList.at(i).toString(), sysrootList.at(i).toString()};
         d->lastDeployed.insert(dp, { localTimesList.at(i).toDateTime(),
                                      remoteTimesList.length() > i

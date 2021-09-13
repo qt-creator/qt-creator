@@ -43,8 +43,6 @@ public:
     };
 
     DeployableFile() = default;
-    DeployableFile(const QString &m_localFilePath, const QString &m_remoteDir,
-                   Type type = TypeNormal);
     DeployableFile(const Utils::FilePath &localFilePath, const QString &remoteDir,
                    Type type = TypeNormal);
 

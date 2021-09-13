@@ -35,6 +35,8 @@
 
 #include <utils/algorithm.h>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
@@ -107,7 +109,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     m_usesCustomDeploymentData = map.value(USES_DEPLOYMENT_DATA, false).toBool();
     const QVariantMap deployData = map.value(DEPLOYMENT_DATA).toMap();
     for (auto it = deployData.begin(); it != deployData.end(); ++it)
-        m_customDeploymentData.addFile(it.key(), it.value().toString());
+        m_customDeploymentData.addFile(FilePath::fromString(it.key()), it.value().toString());
     return true;
 }
 

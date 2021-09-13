@@ -74,9 +74,9 @@ public:
         if (role != Qt::EditRole)
             return false;
         if (column == 0)
-            file = DeployableFile(data.toString(), file.remoteDirectory());
+            file = DeployableFile(FilePath::fromVariant(data), file.remoteDirectory());
         else if (column == 1)
-            file = DeployableFile(file.localFilePath().toString(), data.toString());
+            file = DeployableFile(file.localFilePath(), data.toString());
         return true;
     }
 

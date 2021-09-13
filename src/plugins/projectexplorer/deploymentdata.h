@@ -54,7 +54,7 @@ public:
     Utils::FilePath localInstallRoot() const { return m_localInstallRoot; }
 
     void addFile(const DeployableFile &file);
-    void addFile(const QString &localFilePath, const QString &remoteDirectory,
+    void addFile(const Utils::FilePath &localFilePath, const QString &remoteDirectory,
                  DeployableFile::Type type = DeployableFile::TypeNormal);
     QString addFilesFromDeploymentFile(const QString &deploymentFilePath, const QString &sourceDir);
 

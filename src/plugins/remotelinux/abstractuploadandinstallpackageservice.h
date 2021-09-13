@@ -44,8 +44,6 @@ protected:
      AbstractUploadAndInstallPackageService();
     ~AbstractUploadAndInstallPackageService() override;
 
-    QString packageFilePath() const;
-
 private:
     void handleUploadFinished(const QString &errorMsg);
     void handleInstallationFinished(const QString &errorMsg);

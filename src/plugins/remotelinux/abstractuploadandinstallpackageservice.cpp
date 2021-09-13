@@ -35,6 +35,7 @@
 #include <QString>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -53,7 +54,7 @@ public:
 
     State state;
     PackageUploader * const uploader;
-    QString packageFilePath;
+    Utils::FilePath packageFilePath;
 };
 
 } // namespace Internal
@@ -72,12 +73,7 @@ AbstractUploadAndInstallPackageService::~AbstractUploadAndInstallPackageService(
 
 void AbstractUploadAndInstallPackageService::setPackageFilePath(const QString &filePath)
 {
-    d->packageFilePath = filePath;
-}
-
-QString AbstractUploadAndInstallPackageService::packageFilePath() const
-{
-    return d->packageFilePath;
+    d->packageFilePath = FilePath::fromString(filePath);
 }
 
 QString AbstractUploadAndInstallPackageService::uploadDir() const
@@ -87,7 +83,7 @@ QString AbstractUploadAndInstallPackageService::uploadDir() const
 
 bool AbstractUploadAndInstallPackageService::isDeploymentNecessary() const
 {
-    return hasLocalFileChanged(DeployableFile(packageFilePath(), QString()));
+    return hasLocalFileChanged(DeployableFile(d->packageFilePath, QString()));
 }
 
 void AbstractUploadAndInstallPackageService::doDeviceSetup()
@@ -109,13 +105,13 @@ void AbstractUploadAndInstallPackageService::doDeploy()
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Uploading;
-    const QString fileName = Utils::FilePath::fromString(packageFilePath()).fileName();
+    const QString fileName = d->packageFilePath.fileName();
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
     connect(d->uploader, &PackageUploader::progress,
             this, &AbstractUploadAndInstallPackageService::progressMessage);
     connect(d->uploader, &PackageUploader::uploadFinished,
             this, &AbstractUploadAndInstallPackageService::handleUploadFinished);
-    d->uploader->uploadPackage(connection(), packageFilePath(), remoteFilePath);
+    d->uploader->uploadPackage(connection(), d->packageFilePath.toString(), remoteFilePath);
 }
 
 void AbstractUploadAndInstallPackageService::stopDeployment()
@@ -146,8 +142,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
     }
 
     emit progressMessage(tr("Successfully uploaded package file."));
-    const QString remoteFilePath = uploadDir() + QLatin1Char('/')
-        + Utils::FilePath::fromString(packageFilePath()).fileName();
+    const QString remoteFilePath = uploadDir() + '/' + d->packageFilePath.fileName();
     d->state = Installing;
     emit progressMessage(tr("Installing package to device..."));
     connect(packageInstaller(), &AbstractRemoteLinuxPackageInstaller::stdoutData,
@@ -164,7 +159,7 @@ void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QS
     QTC_ASSERT(d->state == Installing, return);
 
     if (errorMsg.isEmpty()) {
-        saveDeploymentTimeStamp(DeployableFile(packageFilePath(), QString()), QDateTime());
+        saveDeploymentTimeStamp(DeployableFile(d->packageFilePath, QString()), QDateTime());
         emit progressMessage(tr("Package installed."));
     } else {
         emit errorMessage(errorMsg);

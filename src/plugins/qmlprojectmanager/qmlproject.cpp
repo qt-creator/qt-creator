@@ -520,7 +520,7 @@ void QmlBuildSystem::updateDeploymentData()
     ProjectExplorer::DeploymentData deploymentData;
     for (const QString &file : m_projectItem->files()) {
         deploymentData.addFile(
-                    file,
+                    FilePath::fromString(file),
                     targetFile(Utils::FilePath::fromString(file)).parentDir().toString());
     }
 

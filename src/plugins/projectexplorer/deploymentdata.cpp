@@ -31,6 +31,8 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 void DeploymentData::setLocalInstallRoot(const Utils::FilePath &installRoot)
@@ -43,7 +45,7 @@ void DeploymentData::addFile(const DeployableFile &file)
     m_files << file;
 }
 
-void DeploymentData::addFile(const QString &localFilePath, const QString &remoteDirectory,
+void DeploymentData::addFile(const FilePath &localFilePath, const QString &remoteDirectory,
                              DeployableFile::Type type)
 {
     addFile(DeployableFile(localFilePath, remoteDirectory, type));
@@ -94,7 +96,7 @@ QString DeploymentData::addFilesFromDeploymentFile(const QString &deploymentFile
             QString targetFile = line.mid(splitPoint + 1);
             if (QFileInfo(targetFile).isRelative())
                 targetFile.prepend(deploymentPrefix);
-            addFile(sourceFile, targetFile);
+            addFile(FilePath::fromString(sourceFile), targetFile);
         }
     }
     return deploymentPrefix;

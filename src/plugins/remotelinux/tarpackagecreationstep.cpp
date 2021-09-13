@@ -130,7 +130,7 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
     }
 
     for (const QString &fileName : files) {
-        const QString localFilePath = deployable.localFilePath().pathAppended(fileName).toString();
+        const FilePath localFilePath = deployable.localFilePath().pathAppended(fileName);
 
         const QString remoteDir = deployable.remoteDirectory() + '/' + fileInfo.fileName();
 

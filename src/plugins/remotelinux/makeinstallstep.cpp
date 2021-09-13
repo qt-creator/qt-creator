@@ -201,7 +201,7 @@ void MakeInstallStep::finish(bool success)
             const DeployableFile::Type type = appFileNames.contains(fi.fileName())
                 ? DeployableFile::TypeExecutable
                 : DeployableFile::TypeNormal;
-            m_deploymentData.addFile(fi.filePath(),
+            m_deploymentData.addFile(FilePath::fromString(fi.filePath()),
                                      fi.dir().path().mid(installRoot().toString().length()), type);
         }
         buildSystem()->setDeploymentData(m_deploymentData);

@@ -286,7 +286,8 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
                 remoteDir = fullRemoteDirectory() + QLatin1Char('/') +
                         baseDir.relativeFilePath(dirPath);
             }
-            result.append(DeployableFile(fileInfo.absoluteFilePath(), remoteDir));
+            result.append(DeployableFile(Utils::FilePath::fromString(fileInfo.absoluteFilePath()),
+                                         remoteDir));
         }
     }
 
