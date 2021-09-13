@@ -169,6 +169,7 @@ if [ $LLVM_INSTALL_DIR ]; then
         clazysource="$LLVM_INSTALL_DIR"/bin/clazy-standalone
         cp -Rf "$clazysource" "$libexec_path/clang/bin/" || exit 1
         install_name_tool -add_rpath "@executable_path/../lib" "$libexec_path/clang/bin/clazy-standalone" || exit 1
+        install_name_tool -delete_rpath "/Users/qt/work/build/libclang/lib" "$libexec_path/clang/bin/clazy-standalone" 2> /dev/null
     fi
     clangbackendArgument="-executable=$libexec_path/clangbackend"
 fi
