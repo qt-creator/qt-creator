@@ -426,27 +426,25 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
     return rpps;
 }
 
-FilePath directorySourceDir(const Configuration &c, const QDir &sourceDir, int directoryIndex)
+FilePath directorySourceDir(const Configuration &c, const FilePath &sourceDir, int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
     QTC_ASSERT(di < c.directories.size(), return FilePath());
 
-    return FilePath::fromString(
-        QDir::cleanPath(sourceDir.absoluteFilePath(c.directories[di].sourcePath)));
+    return sourceDir.resolvePath(c.directories[di].sourcePath).cleanPath();
 }
 
-FilePath directoryBuildDir(const Configuration &c, const QDir &buildDir, int directoryIndex)
+FilePath directoryBuildDir(const Configuration &c, const FilePath &buildDir, int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
     QTC_ASSERT(di < c.directories.size(), return FilePath());
 
-    return FilePath::fromString(
-        QDir::cleanPath(buildDir.absoluteFilePath(c.directories[di].buildPath)));
+    return buildDir.resolvePath(c.directories[di].buildPath).cleanPath();
 }
 
 void addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
                  const Configuration &config,
-                 const QDir &sourceDir)
+                 const FilePath &sourceDir)
 {
     for (const FileApiDetails::Project &p : config.projects) {
         if (p.parent == -1)
@@ -504,15 +502,12 @@ void addCompileGroups(ProjectNode *targetRoot,
     targetRoot->forEachGenericNode(
         [&alreadyListed](const Node *n) { alreadyListed.insert(n->filePath()); });
 
-    const QDir topSourceDir(topSourceDirectory.toString());
-
     std::vector<std::unique_ptr<FileNode>> buildFileNodes;
     std::vector<std::unique_ptr<FileNode>> otherFileNodes;
     std::vector<std::vector<std::unique_ptr<FileNode>>> sourceGroupFileNodes{td.sourceGroups.size()};
 
     for (const SourceInfo &si : td.sources) {
-        const FilePath sourcePath = FilePath::fromString(
-            QDir::cleanPath(topSourceDir.absoluteFilePath(si.path)));
+        const FilePath sourcePath = topSourceDirectory.resolvePath(si.path).cleanPath();
 
         // Filter out already known files:
         const int count = alreadyListed.count();
@@ -574,9 +569,8 @@ void addCompileGroups(ProjectNode *targetRoot,
 void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                 const Configuration &config,
                 const std::vector<TargetDetails> &targetDetails,
-                const FilePath &topSourceDir,
-                const QDir &sourceDir,
-                const QDir &buildDir,
+                const FilePath &sourceDir,
+                const FilePath &buildDir,
                 QSet<FilePath> &knownHeaderNodes)
 {
     for (const FileApiDetails::Target &t : config.targets) {
@@ -591,7 +585,7 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
         tNode->setTargetInformation(td.artifacts, td.type);
         tNode->setBuildDirectory(directoryBuildDir(config, buildDir, t.directory));
 
-        addCompileGroups(tNode, topSourceDir, dir, tNode->buildDirectory(), td, knownHeaderNodes);
+        addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td, knownHeaderNodes);
     }
 }
 
@@ -600,9 +594,6 @@ std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProject
 {
     std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> result;
     result.first = std::make_unique<CMakeProjectNode>(sourceDirectory);
-
-    const QDir sourceDir(sourceDirectory.toString());
-    const QDir buildDir(buildDirectory.toString());
 
     const FileApiDetails::Project topLevelProject
         = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::Project::parent, -1));
@@ -616,14 +607,13 @@ std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProject
     data.cmakeListNodes.clear(); // Remove all the nullptr in the vector...
 
     QSet<FilePath> knownHeaders;
-    addProjects(cmakeListsNodes, data.codemodel, sourceDir);
+    addProjects(cmakeListsNodes, data.codemodel, sourceDirectory);
 
     addTargets(cmakeListsNodes,
                data.codemodel,
                data.targetDetails,
                sourceDirectory,
-               sourceDir,
-               buildDir,
+               buildDirectory,
                knownHeaders);
 
     // addHeaderNodes(root.get(), knownHeaders, allFiles);
