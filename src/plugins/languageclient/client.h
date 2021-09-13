@@ -234,7 +234,6 @@ private:
 
     void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
-    void requestSemanticTokens(TextEditor::TextEditorWidget *widget);
     void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
     void rehighlight();
 
