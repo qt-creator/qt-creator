@@ -698,22 +698,41 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 
     if (syncKind != TextDocumentSyncKind::None) {
         if (syncKind == TextDocumentSyncKind::Incremental) {
-            DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
-            QTextDocument oldDoc(m_openedDocument[document]);
-            QTextCursor cursor(&oldDoc);
-            // Workaround https://bugreports.qt.io/browse/QTBUG-80662
-            // The contentsChanged gives a character count that can be wrong for QTextCursor
-            // when there are special characters removed/added (like formating characters).
-            // Also, characterCount return the number of characters + 1 because of the hidden
-            // paragraph separator character.
-            // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
-            // For charsAdded, textAt handles the case itself.
-            cursor.setPosition(qMin(oldDoc.characterCount() - 1, position + charsRemoved));
-            cursor.setPosition(position, QTextCursor::KeepAnchor);
-            change.setRange(Range(cursor));
-            change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
-            change.setText(document->textAt(position, charsAdded));
-            m_documentsToUpdate[document] << change;
+            // If the new change is a pure insertion and its range is adjacent to the range of the
+            // previous change, we can trivially merge the two changes.
+            // For the typical case of the user typing a continuous sequence of characters,
+            // this will save a lot of TextDocumentContentChangeEvent elements in the data stream,
+            // as otherwise we'd send tons of single-character changes.
+            const QString &text = document->textAt(position, charsAdded);
+            auto &queue = m_documentsToUpdate[document];
+            bool append = true;
+            if (!queue.isEmpty() && charsRemoved == 0) {
+                auto &prev = queue.last();
+                const int prevStart = prev.range()->start()
+                        .toPositionInDocument(document->document());
+                if (prevStart + prev.text().length() == position) {
+                    prev.setText(prev.text() + text);
+                    append = false;
+                }
+            }
+            if (append) {
+                QTextDocument oldDoc(m_openedDocument[document]);
+                QTextCursor cursor(&oldDoc);
+                // Workaround https://bugreports.qt.io/browse/QTBUG-80662
+                // The contentsChanged gives a character count that can be wrong for QTextCursor
+                // when there are special characters removed/added (like formating characters).
+                // Also, characterCount return the number of characters + 1 because of the hidden
+                // paragraph separator character.
+                // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
+                // For charsAdded, textAt handles the case itself.
+                cursor.setPosition(qMin(oldDoc.characterCount() - 1, position + charsRemoved));
+                cursor.setPosition(position, QTextCursor::KeepAnchor);
+                DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
+                change.setRange(Range(cursor));
+                change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
+                change.setText(text);
+                queue << change;
+            }
         } else {
             m_documentsToUpdate[document] = {
                 DidChangeTextDocumentParams::TextDocumentContentChangeEvent(document->plainText())};
