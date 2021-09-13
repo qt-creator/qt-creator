@@ -51,27 +51,7 @@
        <property name="spacing">
         <number>4</number>
        </property>
-       <item row="0" column="0" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QCheckBox" name="expandCheck">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Expand All</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
+       <item row="2" column="0" colspan="4">
         <widget class="QTreeView" name="packagesView">
          <property name="indentation">
           <number>20</number>
@@ -81,7 +61,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="4">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QPushButton" name="updateInstalledButton">
@@ -148,6 +128,16 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="1" column="1">
+        <widget class="Utils::FancyLineEdit" name="searchField"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QCheckBox" name="expandCheck">
+         <property name="text">
+          <string>Expand All</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -234,6 +224,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>packagesView</tabstop>
   <tabstop>showAllRadio</tabstop>
