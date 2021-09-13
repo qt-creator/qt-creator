@@ -81,10 +81,9 @@ static void copySourcePathsToClipboard(const FilePaths &srcPaths, const ProjectN
 {
     QClipboard *clip = QGuiApplication::clipboard();
 
-    QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
-    QString data = Utils::transform(srcPaths, [projDir](const FilePath &path) {
-        return QDir::cleanPath(projDir.relativeFilePath(path.toString()));
-    }).join(" ");
+    QString data = Utils::transform(srcPaths, [projDir = node->filePath()](const FilePath &path) {
+                       return path.relativePath(projDir).cleanPath().toString();
+                   }).join(" ");
     clip->setText(data);
 }
 
