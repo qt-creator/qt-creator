@@ -51,10 +51,6 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-/******************************************************************************
-** File
-*/
-
 File::File(Prefix *prefix, const QString &_name, const QString &_alias)
     : Node(this, prefix)
     , name(_name)
@@ -843,7 +839,7 @@ bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int
     if (newFileName.isEmpty())
         return false;
 
-    if (!newFileName.isChildOf(baseDir))
+    if (!newFileName.isChildOf(filePath().absolutePath()))
         return false;
 
     return renameFile(file(index), newFileName.toString());

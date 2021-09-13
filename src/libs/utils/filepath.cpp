@@ -1011,12 +1011,6 @@ bool FilePath::isChildOf(const FilePath &s) const
     return m_data.at(s.m_data.size()) == QLatin1Char('/');
 }
 
-/// \overload
-bool FilePath::isChildOf(const QDir &dir) const
-{
-    return isChildOf(FilePath::fromString(dir.absolutePath()));
-}
-
 /// \returns whether FilePath startsWith \a s
 bool FilePath::startsWith(const QString &s) const
 {

@@ -180,7 +180,6 @@ public:
     [[nodiscard]] QDir toDir() const; // Avoid.
     [[nodiscard]] FilePath absolutePath() const; // Avoid. Use resolvePath(...)[.parent()] with proper base.
     [[nodiscard]] FilePath absoluteFilePath() const; // Avoid. Use resolvePath(...) with proper base.
-    [[nodiscard]] bool isChildOf(const QDir &dir) const; // Avoid. Use isChildOf(FilePath).
 
 private:
     friend class ::tst_fileutils;
