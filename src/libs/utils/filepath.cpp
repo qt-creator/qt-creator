@@ -911,8 +911,8 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
     const QChar dot = QLatin1Char('.');
     if (!rc.fileName().contains(dot)) {
         if (!defaultExtension.startsWith(dot))
-            rc.stringAppended(dot);
-        rc.stringAppended(defaultExtension);
+            rc = rc.stringAppended(dot);
+        rc = rc.stringAppended(defaultExtension);
     }
     return rc;
 }
