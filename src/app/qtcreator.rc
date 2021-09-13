@@ -3,7 +3,9 @@
 #define STRINGIFY1(x) #x
 #define STRINGIFY(x) STRINGIFY1(x)
 
-IDI_ICON1               ICON    DISCARDABLE     "qtcreator.ico"
+#define ICON_PATH STRINGIFY(RC_ICON_PATH/qtcreator.ico)
+
+IDI_ICON1               ICON    DISCARDABLE     ICON_PATH
 IDI_ICON2               ICON    DISCARDABLE     "winicons/c.ico"
 IDI_ICON3               ICON    DISCARDABLE     "winicons/cpp.ico"
 IDI_ICON4               ICON    DISCARDABLE     "winicons/h.ico"

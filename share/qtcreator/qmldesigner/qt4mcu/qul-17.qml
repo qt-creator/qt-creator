@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -82,9 +82,13 @@ VersionData {
     }
 
     QtQuick.Item {
-        bannedProperties: ["layer", "opacity", "gradient", "smooth", "antialiasing",
-            "border", "baselineOffset", "focus", "activeFocusOnTab",
+        bannedProperties: ["layer", "opacity", "smooth", "antialiasing",
+            "baselineOffset", "focus", "activeFocusOnTab",
             "rotation", "scale", "transformOrigin"]
+    }
+
+    QtQuick.Rectangle {
+        bannedProperties: ["gradient", "border"]
     }
 
     QtQuick.Flickable {
@@ -115,7 +119,7 @@ VersionData {
         allowChildren: false
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
-            "styleColor", "minimumPointSize", "minimumPixelSize", "styleColor",
+            "styleColor", "minimumPointSize", "minimumPixelSize",
             "fontSizeMode", "renderType", "textFormat", "maximumLineCount"]
     }
 
@@ -125,11 +129,12 @@ VersionData {
     }
 
     QtQuick.Column {
-        bannedProperties: ["layoutDirection"]
+        bannedProperties: ["bottomPadding", "leftPadding", "rightPadding", "topPadding"]
     }
 
     QtQuick.Row {
-        bannedProperties: ["layoutDirection"]
+        bannedProperties: ["bottomPadding", "leftPadding", "rightPadding", "topPadding",
+            "effectiveLayoutDirection", "layoutDirection"]
     }
 
     QtQuick.ListView {

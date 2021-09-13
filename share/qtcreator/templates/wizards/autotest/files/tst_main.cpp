@@ -5,7 +5,6 @@ QUICK_TEST_MAIN(example)
 @endif
 @if "%{TestFrameWork}" == "GTest"
 %{Cpp:LicenseTemplate}\
-#include "%{TestCaseFileWithHeaderSuffix}"
 
 #include <gtest/gtest.h>
 

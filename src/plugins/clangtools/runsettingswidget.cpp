@@ -82,7 +82,7 @@ static CppEditor::ClangDiagnosticConfigsWidget *createEditWidget(
     return new DiagnosticConfigsWidget(configs,
                                        configToSelect,
                                        ClangTidyInfo(clangTidyPath),
-                                       ClazyStandaloneInfo(clazyStandalonePath));
+                                       ClazyStandaloneInfo::getInfo(clazyStandalonePath));
 }
 
 void RunSettingsWidget::fromSettings(const RunSettings &s)

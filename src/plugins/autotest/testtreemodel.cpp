@@ -96,6 +96,7 @@ void TestTreeModel::setupParsingConnections()
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
+        synchronizeTestTools();
         m_checkStateCache = project ? AutotestPlugin::projectSettings(project)->checkStateCache()
                                     : nullptr;
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
@@ -266,8 +267,14 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     m_checkStateCache->evolve(ITestBase::Tool);
 
     ITestTool *testTool = TestFrameworkManager::testToolForBuildSystemId(bs->project()->id());
-    if (!testTool || !testTool->active())
+    if (!testTool)
         return;
+    // FIXME
+    const TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(bs->project());
+    if ((projectSettings->useGlobalSettings() && !testTool->active())
+            || !projectSettings->activeTestTools().contains(testTool)) {
+        return;
+    }
 
     ITestTreeItem *rootNode = testTool->rootNode();
     QTC_ASSERT(rootNode, return);
@@ -281,6 +288,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
         rootNode->appendChild(item);
     }
     revalidateCheckState(rootNode);
+    emit testTreeModelChanged();
 }
 
 const QList<TestTreeItem *> TestTreeModel::frameworkRootNodes() const

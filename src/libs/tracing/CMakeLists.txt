@@ -102,6 +102,8 @@ else() # < Qt 6.2
     BATCHABLE
     PREFIX
       "/QtCreator/Tracing"
+    BASE
+      "qml"
     FILES
       qml/notes_qt6.vert
       qml/notes_qt6.frag

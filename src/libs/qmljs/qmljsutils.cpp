@@ -213,6 +213,29 @@ bool QmlJS::maybeModuleVersion(const QString &version) {
     return version.isEmpty() || version == undefinedVersion || re.match(version).hasMatch();
 }
 
+const QStringList QmlJS::splitVersion(const QString &version)
+{
+    // Successively removing minor and major version numbers.
+    QStringList result;
+    int versionEnd = version.length();
+    while (versionEnd > 0) {
+        result.append(version.left(versionEnd));
+        // remove numbers and then potential . at the end
+        const int oldVersionEnd = versionEnd;
+        while (versionEnd > 0 && version.at(versionEnd - 1).isDigit())
+            --versionEnd;
+        // handle e.g. -1, because an import "QtQuick 2" results in version "2.-1"
+        if (versionEnd > 0 && version.at(versionEnd - 1) == '-')
+            --versionEnd;
+        if (versionEnd > 0 && version.at(versionEnd - 1) == '.')
+            --versionEnd;
+        // bail out if we didn't proceed because version string contains invalid characters
+        if (versionEnd == oldVersionEnd)
+            break;
+    }
+    return result;
+}
+
 /*!
  * \brief Get the path of a module
  * \param name
@@ -242,24 +265,19 @@ QStringList QmlJS::modulePaths(const QString &name, const QString &version,
 
     const QString sanitizedVersion = version == undefinedVersion ? QString() : version;
     const QStringList parts = name.split('.', Qt::SkipEmptyParts);
-    auto mkpath = [] (const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
-
-    // Regular expression for building candidates by successively removing minor and major
-    // version numbers.  It does not match the undefined version, so it has to be applied to the
-    // sanitized version.
-    const QRegularExpression re("\\.?\\d+$");
+    auto mkpath = [](const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
 
     QStringList result;
     QString candidate;
 
-    for (QString ver = sanitizedVersion; !ver.isEmpty(); ver.remove(re)) {
-        for (const QString &path: importPaths) {
+    for (const QString &versionPart : splitVersion(sanitizedVersion)) {
+        for (const QString &path : importPaths) {
             for (int i = parts.count() - 1; i >= 0; --i) {
-                candidate = QDir::cleanPath(
-                            QString::fromLatin1("%1/%2.%3/%4").arg(path,
-                                                                   mkpath(parts.mid(0, i + 1)),
-                                                                   ver,
-                                                                   mkpath(parts.mid(i + 1))));
+                candidate = QDir::cleanPath(QString::fromLatin1("%1/%2.%3/%4")
+                                                .arg(path,
+                                                     mkpath(parts.mid(0, i + 1)),
+                                                     versionPart,
+                                                     mkpath(parts.mid(i + 1))));
                 if (QDir(candidate).exists())
                     result << candidate;
             }

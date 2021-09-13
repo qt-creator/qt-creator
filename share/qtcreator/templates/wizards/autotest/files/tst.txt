@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(%{TestCaseName} LANGUAGES CXX)
 
+enable_testing()
+
 @if "%{TestFrameWork}" == "QtTest"
 @if "%{RequireGUI}" == "true"
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Gui Test REQUIRED)
@@ -19,7 +21,6 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-enable_testing()
 
 add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
@@ -43,7 +44,6 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-enable_testing()
 
 # no need to copy around qml test files for shadow builds - just set the respective define
 add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
@@ -57,6 +57,8 @@ target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest)
 @if  "%{TestFrameWork}" == "GTest"
 
 @if "%{GTestCXX11}" == "true"
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DGTEST_LANGUAGE_CXX11)
 @endif
 
@@ -92,7 +94,7 @@ endif ()
 
 include_directories(${GTestIncludes})
 
-add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileWithHeaderSuffix}
+add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileGTestWithCppSuffix}
                ${GTestFiles})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 target_link_libraries(%{TestCaseName} PRIVATE Threads::Threads)
@@ -103,7 +105,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-enable_testing()
 
 add_executable(%{TestCaseName} %{MainCppName})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})

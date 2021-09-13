@@ -193,7 +193,7 @@ static QString defaultCommand()
 static QString defaultArguments(Qt::CaseSensitivity sens = Qt::CaseInsensitive)
 {
     if (HostOsInfo::isMacHost())
-        return QString("\"kMDItemFSName = '*%{Query:Escaped}*'%1\"")
+        return QString("\"kMDItemFSName = '*%{Query:EscapedWithWildcards}*'%1\"")
             .arg(sens == Qt::CaseInsensitive ? QString("c") : "");
     if (HostOsInfo::isWindowsHost())
         return QString("%1 -n 10000 %{Query:Escaped}")
@@ -206,6 +206,13 @@ const char kCommandKey[] = "command";
 const char kArgumentsKey[] = "arguments";
 const char kCaseSensitiveKey[] = "caseSensitive";
 
+static QString escaped(const QString &query)
+{
+    QString quoted = query;
+    quoted.replace('\\', "\\\\").replace('\'', "\\\'").replace('\"', "\\\"");
+    return quoted;
+}
+
 static MacroExpander *createMacroExpander(const QString &query)
 {
     MacroExpander *expander = new MacroExpander;
@@ -215,11 +222,14 @@ static MacroExpander *createMacroExpander(const QString &query)
     expander->registerVariable("Query:Escaped",
                                SpotlightLocatorFilter::tr(
                                    "Locator query string with quotes escaped with backslash."),
+                               [query] { return escaped(query); });
+    expander->registerVariable("Query:EscapedWithWildcards",
+                               SpotlightLocatorFilter::tr(
+                                   "Locator query string with quotes escaped with backslash and "
+                                   "spaces replaced with \"*\" wildcards."),
                                [query] {
-                                   QString quoted = query;
-                                   quoted.replace('\\', "\\\\")
-                                       .replace('\'', "\\\'")
-                                       .replace('\"', "\\\"");
+                                   QString quoted = escaped(query);
+                                   quoted.replace(' ', '*');
                                    return quoted;
                                });
     expander->registerVariable("Query:Regex",

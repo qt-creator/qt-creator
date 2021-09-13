@@ -1140,7 +1140,7 @@ QString removeClangTidyCheck(const QString &checks, const QString &check)
 
 QString removeClazyCheck(const QString &checks, const QString &check)
 {
-    const ClazyStandaloneInfo clazyInfo(clazyStandaloneExecutable());
+    const ClazyStandaloneInfo clazyInfo = ClazyStandaloneInfo::getInfo(clazyStandaloneExecutable());
     ClazyChecksTreeModel model(clazyInfo.supportedChecks);
     model.enableChecks(checks.split(',', Qt::SkipEmptyParts));
     const QModelIndex index = model.indexForName(check.mid(QString("clazy-").length()));
@@ -1190,7 +1190,8 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
         if (diag.name.startsWith("clazy-")) {
             if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks) {
                 config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
-                const ClazyStandaloneInfo clazyInfo(clazyStandaloneExecutable());
+                const ClazyStandaloneInfo clazyInfo
+                        = ClazyStandaloneInfo::getInfo(clazyStandaloneExecutable());
                 config.setClazyChecks(clazyInfo.defaultChecks.join(','));
             }
             config.setClazyChecks(removeClazyCheck(config.clazyChecks(), diag.name));

@@ -366,8 +366,11 @@ void GdbEngine::handleResponse(const QString &buff)
             QString data = parser.readCString();
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
-            if (data.startsWith("warning:"))
+            if (data.startsWith("warning:")) {
                 showMessage(data.mid(9), AppStuff); // Cut "warning: "
+                if (data.contains("is not compatible with target architecture"))
+                    m_ignoreNextTrap = true;
+            }
 
             m_pendingLogStreamOutput += data;
 
@@ -1270,11 +1273,12 @@ void GdbEngine::handleStop1(const GdbMi &data)
     // The bandaid here has the problem that it breaks for 'next' over a
     // statement that indirectly loads shared libraries
     // 6.1.2010: Breaks interrupting inferiors, disabled:
-    // if (reason == "signal-received"
-    //      && data.findChild("signal-name").data() == "SIGTRAP") {
-    //    continueInferiorInternal();
-    //    return;
-    // }
+     if (m_ignoreNextTrap && reason == "signal-received"
+             && data["signal-name"].data() == "SIGTRAP") {
+         m_ignoreNextTrap = false;
+         continueInferiorInternal();
+         return;
+     }
 
     // Jump over well-known frames.
     static int stepCounter = 0;
@@ -4277,9 +4281,14 @@ void GdbEngine::debugLastCommand()
     runCommand(m_lastDebuggableCommand);
 }
 
+bool GdbEngine::isLocalRunEngine() const
+{
+    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine();
+}
+
 bool GdbEngine::isPlainEngine() const
 {
-    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && !terminal();
+    return isLocalRunEngine() && !terminal();
 }
 
 bool GdbEngine::isCoreEngine() const
@@ -4300,7 +4309,7 @@ bool GdbEngine::isLocalAttachEngine() const
 
 bool GdbEngine::isTermEngine() const
 {
-    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && terminal();
+    return isLocalRunEngine() && terminal();
 }
 
 bool GdbEngine::usesOutputCollector() const
@@ -4460,8 +4469,10 @@ void GdbEngine::setupInferior()
                 ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString("Going to attach to %1").arg(attachedPID);
         showMessage(msg, LogMisc);
-        handleInferiorPrepared();
-
+        const QString executable
+            = runParameters().inferior.command.executable().toFileInfo().absoluteFilePath();
+        runCommand({"-file-exec-and-symbols \"" + executable + '"',
+                    CB(handleFileExecAndSymbols)});
     } else if (isPlainEngine()) {
 
         setEnvironmentVariables();
@@ -4710,7 +4721,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
             notifyInferiorSetupFailedHelper(msg);
         }
 
-    } else  if (isPlainEngine()) {
+    } else if (isLocalRunEngine()) {
 
         if (response.resultClass == ResultDone) {
             handleInferiorPrepared();

@@ -70,7 +70,8 @@ QtcProduct {
         cpp.defines: outer.concat(["RC_VERSION=" + qtc.qtcreator_version.replace(/\./g, ",") + ",0",
                                    "RC_VERSION_STRING=" + qtc.qtcreator_display_version,
                                    "RC_COPYRIGHT=2008-" + qtc.qtcreator_copyright_year
-                                   + " The Qt Company Ltd".replace(/ /g, "\\x20")])
+                                   + " The Qt Company Ltd".replace(/ /g, "\\x20"),
+                                   "RC_ICON_PATH=."])
         files: "qtcreator.rc"
     }
 

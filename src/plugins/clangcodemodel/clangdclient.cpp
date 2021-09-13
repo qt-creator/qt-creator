@@ -739,7 +739,8 @@ public:
         : q(q), settings(CppEditor::ClangdProjectSettings(project).settings()) {}
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                    const QString &searchTerm, const Utils::optional<QString> &replacement);
+                    const QString &searchTerm, const Utils::optional<QString> &replacement,
+                    bool categorize);
     void handleFindUsagesResult(quint64 key, const QList<Location> &locations);
     static void handleRenameRequest(const SearchResult *search,
                                     const ReplacementData &replacementData,
@@ -988,7 +989,8 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
     const TextDocumentIdentifier docId(DocumentUri::fromFilePath(document->filePath()));
     const TextDocumentPositionParams params(docId, Range(cursor).start());
     SymbolInfoRequest symReq(params);
-    symReq.setResponseCallback([this, doc = QPointer(document), cursor, replacement]
+    const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
+    symReq.setResponseCallback([this, doc = QPointer(document), cursor, replacement, categorize]
                                (const SymbolInfoRequest::Response &response) {
         if (!doc)
             return;
@@ -1001,7 +1003,7 @@ void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCur
         const SymbolDetails &sd = list->first();
         if (sd.name().isEmpty())
             return;
-        d->findUsages(doc.data(), cursor, sd.name(), replacement);
+        d->findUsages(doc.data(), cursor, sd.name(), replacement, categorize);
     });
     sendContent(symReq);
 }
@@ -1010,6 +1012,9 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();
     Client::handleDiagnostics(params);
+    const int docVersion = documentVersion(uri.toFilePath());
+    if (params.version().value_or(docVersion) != docVersion)
+        return;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
         const ClangdDiagnostic clangdDiagnostic(diagnostic);
         for (const CodeAction &action : clangdDiagnostic.codeActions().value_or(QList<CodeAction>{}))
@@ -1044,10 +1049,11 @@ CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->s
 
 void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
-        const Utils::optional<QString> &replacement)
+        const Utils::optional<QString> &replacement, bool categorize)
 {
     ReferencesData refData;
     refData.key = nextJobId++;
+    refData.categorize = categorize;
     if (replacement) {
         ReplacementData replacementData;
         replacementData.oldSymbolName = searchTerm;

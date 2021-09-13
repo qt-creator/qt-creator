@@ -163,6 +163,22 @@ ClangTidyInfo::ClangTidyInfo(const FilePath &executablePath)
     , supportedChecks(queryClangTidyChecks(executablePath, "-checks=*"))
 {}
 
+ClazyStandaloneInfo ClazyStandaloneInfo::getInfo(const FilePath &executablePath)
+{
+    const QDateTime timeStamp = executablePath.lastModified();
+    const auto it = cache.find(executablePath);
+    if (it == cache.end()) {
+        const ClazyStandaloneInfo info(executablePath);
+        cache.insert(executablePath, qMakePair(timeStamp, info));
+        return info;
+    }
+    if (it->first != timeStamp) {
+        it->first = timeStamp;
+        it->second = ClazyStandaloneInfo::getInfo(executablePath);
+    }
+    return it->second;
+}
+
 ClazyStandaloneInfo::ClazyStandaloneInfo(const FilePath &executablePath)
     : defaultChecks(queryClangTidyChecks(executablePath, {})) // Yup, behaves as clang-tidy.
     , supportedChecks(querySupportedClazyChecks(executablePath))
@@ -227,6 +243,8 @@ QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolP
         return qMakePair(FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION));
     return qMakePair(dynamicResourceDir + "/include", dynamicVersion);
 }
+
+QHash<Utils::FilePath, QPair<QDateTime, ClazyStandaloneInfo>> ClazyStandaloneInfo::cache;
 
 } // namespace Internal
 } // namespace ClangTools

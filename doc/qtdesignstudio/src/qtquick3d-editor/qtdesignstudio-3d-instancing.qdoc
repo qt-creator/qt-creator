@@ -66,7 +66,8 @@
     where missing trailing numbers indicate zeroes. The following attributes are
     supported: position, scale, eulerRotation, quaternion, custom, and color.
     For more information about instance tables, see the documentation for the
-    \l[Instancing]{FileInstancing} QML type.
+    \l{https://doc.qt.io/qt/qml-qtquick3d-fileinstancing.html}{FileInstancing}
+    QML type.
 
     To use the \uicontrol Instancing component, drag-and-drop it from
     \uicontrol Library to \uicontrol Scene in \uicontrol Navigator.

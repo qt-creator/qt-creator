@@ -60,7 +60,7 @@ CppApplication {
 
     files: [
         "%{MainCppName}",
-        "%{TestCaseFileWithHeaderSuffix}",
+        "%{TestCaseFileGTestWithCppSuffix}",
     ].concat(googleCommon.getGTestAll(qbs, googletestDir))
      .concat(googleCommon.getGMockAll(qbs, googletestDir))
 @endif

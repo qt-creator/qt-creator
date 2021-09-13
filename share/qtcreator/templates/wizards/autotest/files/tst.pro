@@ -38,11 +38,9 @@ CONFIG -= app_bundle
 CONFIG += thread
 CONFIG -= qt
 
-HEADERS += \\
-        %{TestCaseFileWithHeaderSuffix}
-
 SOURCES += \\
-        %{MainCppName}
+        %{MainCppName} \
+        %{TestCaseFileGTestWithCppSuffix}
 @endif
 @if "%{TestFrameWork}" == "BoostTest"
 TEMPLATE = app

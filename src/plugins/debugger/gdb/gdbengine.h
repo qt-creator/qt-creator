@@ -154,6 +154,7 @@ private: ////////// General Interface //////////
     int m_nonDiscardableCount = 0;
 
     bool m_rerunPending = false;
+    bool m_ignoreNextTrap = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
@@ -381,6 +382,7 @@ private: ////////// General Interface //////////
     void debugLastCommand() final;
     DebuggerCommand m_lastDebuggableCommand;
 
+    bool isLocalRunEngine() const;
     bool isPlainEngine() const;
     bool isCoreEngine() const;
     bool isRemoteEngine() const;

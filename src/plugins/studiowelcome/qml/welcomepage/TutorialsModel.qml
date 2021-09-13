@@ -27,36 +27,6 @@ import QtQuick 2.0
 
 ListModel {
     ListElement {
-        displayName: "Learn to use Qt Design Studio (Part 1)"
-        thumbnail: "images/tutorial1.png"
-        url: "https://www.youtube.com/watch?v=aV6kFxH3Xws"
-    }
-
-    ListElement {
-        displayName: "Learn to use Qt Design Studio (Part 2)"
-        thumbnail: "images/tutorial2.png"
-        url: "https://www.youtube.com/watch?v=Z3uPoe-4UAw"
-    }
-
-    ListElement {
-        displayName: "Learn to use Qt Design Studio (Part 3)"
-        thumbnail: "images/tutorial3.png"
-        url: "https://www.youtube.com/watch?v=9AjvxoeqAKo"
-    }
-
-    ListElement {
-        displayName: "Learn to use Qt Design Studio (Part 4)"
-        thumbnail: "images/tutorial4.png"
-        url: "https://www.youtube.com/watch?v=8pJpdMwLaAg"
-    }
-
-    ListElement {
-        displayName: "Learn to use Qt Design Studio (Part 5)"
-        thumbnail: "images/tutorial5.png"
-        url: "https://www.youtube.com/watch?v=U91nAFReAoU"
-    }
-
-    ListElement {
         displayName: "The Designer Tool Developers Love"
         thumbnail: "images/webinar1.png"
         url: "https://youtu.be/gU_tDbebAzM"

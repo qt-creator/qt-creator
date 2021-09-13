@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "changestyleaction.h"
+#include "designermcumanager.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -142,6 +143,10 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
             comboBox->setDisabled(true);
             comboBox->setToolTip(tr(disbledTooltip));
             comboBox->setCurrentIndex(0);
+        } else if (DesignerMcuManager::instance().isMCUProject()) {
+            comboBox->setDisabled(true);
+            //TODO: add tooltip regarding MCU limitations, however we are behind string freeze
+            comboBox->setEditText(style);
         } else {
             comboBox->setDisabled(false);
             comboBox->setToolTip(tr(enabledTooltip));

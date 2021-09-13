@@ -85,22 +85,19 @@
             \li \inlineimage front-projects.png
             \li \inlineimage front-help.png
         \row
-        \li \b {\l{Implementing Applications}} (NEW)
+        \li \b {\l{Implementing Applications}}
             \list
-                \li Using Flows in Production (NEW)
-                \li \l{Coding}{Cross-Platform Development} (NEW)
+                \li \l{Coding}{Cross-Platform Development}
                 \li \l{Debugging and Profiling}
-                \li \l{Designer-Developer Workflow} (NEW)
             \endlist
-        \li \b {\l{Advanced Topics}{Advanced Designer Topics}} (NEW)
+        \li \b {\l{Advanced Designer Topics}}
             \list
-                \li Extending Component Functionality (NEW)
                 \li \l{UI Files}
                 \li \l {Managing Data Collection}
-            \endlist
-        \li \b {\l{Developer Topics}} (NEW)
-            \list
                 \li \l{Packaging Applications}
+            \endlist
+        \li \b {\l{Developer Topics}}
+            \list
                 \li \l{Using Git}
                 \li \l{Converting UI Projects to Applications}
                 \li \l{Using External Tools}

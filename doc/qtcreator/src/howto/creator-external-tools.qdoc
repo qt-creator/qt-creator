@@ -32,8 +32,8 @@
 /*!
     \page creator-editor-external.html
     \if defined(qtdesignstudio)
-    \previouspage creator-qml-performance-monitor.html
-    \nextpage creator-telemetry.html
+    \previouspage quick-converting-ui-projects.html
+    \nextpage studio-help.html
     \else
     \previouspage creator-keyboard-shortcuts.html
     \nextpage creator-task-lists.html

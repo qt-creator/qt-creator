@@ -141,7 +141,10 @@ int AndroidManager::minimumSDK(const Target *target)
     QDomDocument doc;
     if (!openXmlFile(doc, AndroidManager::manifestSourcePath(target)))
         return minimumSDK(target->kit());
-    return parseMinSdk(doc.documentElement());
+    const int minSdkVersion = parseMinSdk(doc.documentElement());
+    if (minSdkVersion == 0)
+        return AndroidManager::defaultMinimumSDK(QtSupport::QtKitAspect::qtVersion(target->kit()));
+    return minSdkVersion;
 }
 
 /*!
@@ -150,17 +153,19 @@ int AndroidManager::minimumSDK(const Target *target)
 */
 int AndroidManager::minimumSDK(const Kit *kit)
 {
-    int minSDKVersion = -1;
+    int minSdkVersion = -1;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
         FilePath stockManifestFilePath = FilePath::fromUserInput(
             version->prefix().toString() + "/src/android/templates/AndroidManifest.xml");
         QDomDocument doc;
         if (openXmlFile(doc, stockManifestFilePath)) {
-            minSDKVersion = parseMinSdk(doc.documentElement());
+            minSdkVersion = parseMinSdk(doc.documentElement());
         }
     }
-    return minSDKVersion;
+    if (minSdkVersion == 0)
+        return AndroidManager::defaultMinimumSDK(version);
+    return minSdkVersion;
 }
 
 QString AndroidManager::buildTargetSDK(const Target *target)
