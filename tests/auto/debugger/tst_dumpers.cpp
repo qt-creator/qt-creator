@@ -28,9 +28,9 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
+#include <utils/commandline.h> // for Utils::ProcessArgs
 #include <utils/fileutils.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 
 #include <QtTest>
 #include <math.h>
@@ -97,18 +97,16 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
         return false;
     }
 
-    Utils::QtcProcess run;
+    QProcess run;
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset("ORIGINALPATH");
-    run.setEnvironment(env);
-    const Utils::FilePath cmdPath
-            = Utils::FilePath::fromString(QString::fromLocal8Bit(qgetenv("COMSPEC")));
+    run.setEnvironment(env.toStringList());
+    const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    QString cmdArguments = " /E:ON /V:ON /c \"" + saver.filePath().toUserOutput() + '"';
-    run.setCommand(Utils::CommandLine(cmdPath, cmdArguments, Utils::CommandLine::Raw));
-    run.start();
+    QStringList cmdArguments{"/E:ON", "/V:ON", "/c", "\"" + saver.filePath().toUserOutput() + '"'};
+    run.start(cmdPath, cmdArguments);
 
     if (!run.waitForStarted()) {
         qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(batchFile),
@@ -117,7 +115,9 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     }
     if (!run.waitForFinished()) {
         qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(batchFile));
-        run.stopProcess();
+        run.terminate();
+        if (!run.waitForFinished())
+            run.kill();
         return false;
     }
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
