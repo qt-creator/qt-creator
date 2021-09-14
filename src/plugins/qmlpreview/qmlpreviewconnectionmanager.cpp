@@ -263,9 +263,7 @@ void QmlPreviewConnectionManager::destroyClients()
 {
     clearClient(m_qmlPreviewClient);
     clearClient(m_qmlDebugTranslationClient.release());
-    m_fileSystemWatcher.removeFiles(m_fileSystemWatcher.files());
-    QTC_ASSERT(m_fileSystemWatcher.directories().isEmpty(),
-               m_fileSystemWatcher.removeDirectories(m_fileSystemWatcher.directories()));
+    m_fileSystemWatcher.clear();
 }
 
 } // namespace Internal

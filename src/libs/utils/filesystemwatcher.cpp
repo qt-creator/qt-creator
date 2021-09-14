@@ -249,10 +249,7 @@ void FileSystemWatcher::init()
 
 FileSystemWatcher::~FileSystemWatcher()
 {
-    if (!d->m_files.isEmpty())
-        removeFiles(files());
-    if (!d->m_directories.isEmpty())
-        removeDirectories(directories());
+    clear();
 
     if (!fileSystemWatcherStaticDataMap.isDestroyed() && --(d->m_staticData->m_objectCount) == 0) {
         delete d->m_staticData->m_watcher;
@@ -348,6 +345,14 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
 
     if (!toRemove.isEmpty())
         d->m_staticData->m_watcher->removePaths(toRemove);
+}
+
+void FileSystemWatcher::clear()
+{
+    if (!d->m_files.isEmpty())
+        removeFiles(files());
+    if (!d->m_directories.isEmpty())
+        removeDirectories(directories());
 }
 
 QStringList FileSystemWatcher::files() const

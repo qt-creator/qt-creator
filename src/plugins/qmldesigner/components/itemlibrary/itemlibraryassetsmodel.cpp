@@ -228,8 +228,7 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
 {
     static const QStringList ignoredTopLevelDirs {"imports", "asset_imports"};
 
-    m_fileSystemWatcher->removeDirectories(m_fileSystemWatcher->directories());
-    m_fileSystemWatcher->removeFiles(m_fileSystemWatcher->files());
+    m_fileSystemWatcher->clear();
 
     std::function<bool(ItemLibraryAssetsDir *, int)> parseDirRecursive;
     parseDirRecursive = [this, &parseDirRecursive](ItemLibraryAssetsDir *currAssetsDir, int currDepth) {

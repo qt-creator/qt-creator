@@ -443,7 +443,7 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
 
     if (d->workingDirectory != workingDirectory) {
         d->workingDirectory = workingDirectory;
-        d->fsWatcher.removeFiles(d->fsWatcher.files());
+        d->fsWatcher.clear();
         const QString gitDir = d->client->findGitDirForRepository(workingDirectory);
         if (!gitDir.isEmpty())
             d->fsWatcher.addFile(gitDir + "/HEAD", Utils::FileSystemWatcher::WatchModifiedDate);

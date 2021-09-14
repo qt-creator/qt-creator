@@ -54,6 +54,8 @@ public:
     void removeFile(const QString &file);
     void removeFiles(const QStringList &files);
 
+    void clear();
+
     bool watchesFile(const QString &file) const;
     QStringList files() const;
 

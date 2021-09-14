@@ -597,7 +597,7 @@ void GenericBuildSystem::updateDeploymentData()
                                                   projectDirectory().toString());
         setDeploymentData(deploymentData);
         if (m_deployFileWatcher.files() != QStringList(deploymentFilePath.toString())) {
-            m_deployFileWatcher.removeFiles(m_deployFileWatcher.files());
+            m_deployFileWatcher.clear();
             m_deployFileWatcher.addFile(deploymentFilePath.toString(),
                                         FileSystemWatcher::WatchModifiedDate);
         }

@@ -77,8 +77,7 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
     qCDebug(cmakeFileApiMode) << "Work directory:" << m_parameters.buildDirectory.toUserOutput();
 
     // Reset watcher:
-    m_watcher.removeFiles(m_watcher.files());
-    m_watcher.removeDirectories(m_watcher.directories());
+    m_watcher.clear();
 
     FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory, m_watcher);
 
