@@ -27,8 +27,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <aggregation/aggregate.h>
-#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/outputwindow.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
@@ -123,9 +121,6 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     outputFormatter()->setBoldFontEnabled(false);
     m_parser = new VcsOutputLineParser;
     setLineParsers({m_parser});
-    auto agg = new Aggregation::Aggregate;
-    agg->add(this);
-    agg->add(new Core::BaseTextFind(this));
 }
 
 // Search back for beginning of word

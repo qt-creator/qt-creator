@@ -35,7 +35,6 @@
 #include "taskhub.h"
 
 #include <coreplugin/outputwindow.h>
-#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
@@ -93,15 +92,6 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
         parser->runPostPrintActions();
     });
 
-    // Let selected text be colored as if the text edit was editable,
-    // otherwise the highlight for searching is too light
-    QPalette p = m_outputWindow->palette();
-    QColor activeHighlight = p.color(QPalette::Active, QPalette::Highlight);
-    p.setColor(QPalette::Highlight, activeHighlight);
-    QColor activeHighlightedText = p.color(QPalette::Active, QPalette::HighlightedText);
-    p.setColor(QPalette::HighlightedText, activeHighlightedText);
-    m_outputWindow->setPalette(p);
-
     Utils::ProxyAction *cancelBuildProxyButton =
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
@@ -134,10 +124,6 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
         Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
     });
-
-    auto agg = new Aggregation::Aggregate;
-    agg->add(m_outputWindow);
-    agg->add(new Core::BaseTextFind(m_outputWindow));
 
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
 

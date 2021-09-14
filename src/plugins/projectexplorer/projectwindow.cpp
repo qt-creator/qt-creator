@@ -44,6 +44,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
 #include <coreplugin/find/optionspopup.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -111,6 +112,8 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
     : OutputWindow(Context(kBuildSystemOutputContext), "ProjectsMode.BuildSystemOutput.Zoom")
     , m_clear(new QAction)
 {
+    setReadOnly(true);
+
     Command *clearCommand = ActionManager::command(Core::Constants::OUTPUTPANE_CLEAR);
     m_clear->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     m_clear->setText(clearCommand->action()->text());
@@ -624,8 +627,10 @@ public:
         q->addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
 
         m_buildSystemOutput = new BuildSystemOutputWindow;
-        m_buildSystemOutput->setReadOnly(true);
         auto output = new QWidget;
+        // ProjectWindow sets background role to Base which is wrong for the output window,
+        // especially the find tool bar (resulting in wrong label color)
+        output->setBackgroundRole(QPalette::Window);
         output->setObjectName("BuildSystemOutput");
         output->setWindowTitle(ProjectWindow::tr("Build System Output"));
         auto outputLayout = new QVBoxLayout;
@@ -634,6 +639,7 @@ public:
         outputLayout->setSpacing(0);
         outputLayout->addWidget(m_buildSystemOutput->toolBar());
         outputLayout->addWidget(m_buildSystemOutput);
+        outputLayout->addWidget(new FindToolBarPlaceHolder(m_buildSystemOutput));
         auto outputDock = q->addDockForWidget(output, true);
         q->addDockWidget(Qt::RightDockWidgetArea, outputDock);
     }

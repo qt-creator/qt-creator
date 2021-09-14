@@ -26,11 +26,13 @@
 #include "outputwindow.h"
 
 #include "actionmanager/actionmanager.h"
-#include "editormanager/editormanager.h"
 #include "coreconstants.h"
 #include "coreplugin.h"
+#include "editormanager/editormanager.h"
+#include "find/basetextfind.h"
 #include "icore.h"
 
+#include <aggregation/aggregate.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
@@ -176,6 +178,19 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
         float zoom = Core::ICore::settings()->value(d->settingsKey).toFloat();
         setFontZoom(zoom);
     }
+
+    // Let selected text be colored as if the text edit was editable,
+    // otherwise the highlight for searching is too light
+    QPalette p = palette();
+    QColor activeHighlight = p.color(QPalette::Active, QPalette::Highlight);
+    p.setColor(QPalette::Highlight, activeHighlight);
+    QColor activeHighlightedText = p.color(QPalette::Active, QPalette::HighlightedText);
+    p.setColor(QPalette::HighlightedText, activeHighlightedText);
+    setPalette(p);
+
+    auto agg = new Aggregation::Aggregate;
+    agg->add(this);
+    agg->add(new BaseTextFind(this));
 }
 
 OutputWindow::~OutputWindow()

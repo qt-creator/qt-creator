@@ -27,9 +27,7 @@
 #include "outputwindow.h"
 #include "icontext.h"
 #include "coreconstants.h"
-#include "find/basetextfind.h"
 
-#include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
 #include <utils/utilsicons.h>
 
@@ -45,24 +43,12 @@ MessageOutputWindow::MessageOutputWindow()
 {
     m_widget = new OutputWindow(Context(Constants::C_GENERAL_OUTPUT_PANE), zoomSettingsKey);
     m_widget->setReadOnly(true);
-    // Let selected text be colored as if the text edit was editable,
-    // otherwise the highlight for searching is too light
-    QPalette p = m_widget->palette();
-    QColor activeHighlight = p.color(QPalette::Active, QPalette::Highlight);
-    p.setColor(QPalette::Highlight, activeHighlight);
-    QColor activeHighlightedText = p.color(QPalette::Active, QPalette::HighlightedText);
-    p.setColor(QPalette::HighlightedText, activeHighlightedText);
-    m_widget->setPalette(p);
 
     connect(this, &IOutputPane::zoomInRequested, m_widget, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOutRequested, m_widget, &Core::OutputWindow::zoomOut);
     connect(this, &IOutputPane::resetZoomRequested, m_widget, &Core::OutputWindow::resetZoom);
     connect(this, &IOutputPane::fontChanged, m_widget, &OutputWindow::setBaseFont);
     connect(this, &IOutputPane::wheelZoomEnabledChanged, m_widget, &OutputWindow::setWheelZoomEnabled);
-
-    auto agg = new Aggregation::Aggregate;
-    agg->add(m_widget);
-    agg->add(new BaseTextFind(m_widget));
 
     setupFilterUi("MessageOutputPane.Filter");
     setFilteringEnabled(true);

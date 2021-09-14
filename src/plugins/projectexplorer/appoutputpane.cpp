@@ -35,7 +35,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
 #include <texteditor/behaviorsettings.h>
@@ -447,9 +446,6 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             ow, updateBehaviorSettings);
 
-    auto *agg = new Aggregation::Aggregate;
-    agg->add(ow);
-    agg->add(new Core::BaseTextFind(ow));
     m_runControlTabs.push_back(RunControlTab(rc, ow));
     m_tabWidget->addTab(ow, rc->displayName());
     qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
