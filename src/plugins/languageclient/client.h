@@ -62,6 +62,8 @@
 #include <QJsonDocument>
 #include <QTextCursor>
 
+#include <unordered_map>
+
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor
@@ -252,7 +254,7 @@ private:
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
     QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
-    QMap<TextEditor::TextDocument *,
+    std::unordered_map<TextEditor::TextDocument *,
          QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
         m_documentsToUpdate;
     QMap<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;

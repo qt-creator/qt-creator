@@ -808,7 +808,7 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
     TextEditor::TextDocument *document = widget->textDocument();
-    if (m_documentsToUpdate.contains(document))
+    if (m_documentsToUpdate.find(document) != m_documentsToUpdate.end())
         return; // we are currently changing this document so postpone the DocumentHighlightsRequest
     QTimer *timer = m_documentHighlightsTimer[widget];
     if (!timer) {
@@ -1218,7 +1218,7 @@ void Client::resetAssistProviders(TextEditor::TextDocument *document)
 void Client::sendPostponedDocumentUpdates()
 {
     m_documentUpdateTimer.stop();
-    if (m_documentsToUpdate.isEmpty())
+    if (m_documentsToUpdate.empty())
         return;
     TextEditor::TextEditorWidget *currentWidget
         = TextEditor::TextEditorWidget::currentTextEditorWidget();
@@ -1228,11 +1228,9 @@ void Client::sendPostponedDocumentUpdates()
         TextEditor::TextDocument *document;
         DidChangeTextDocumentNotification notification;
     };
-
-    QList<DocumentUpdate> updates;
-
-    const QList<TextEditor::TextDocument *> documents = m_documentsToUpdate.keys();
-    for (auto document : documents) {
+    const auto updates = Utils::transform<QList<DocumentUpdate>>(m_documentsToUpdate,
+                                                                 [this](const auto &elem) {
+        TextEditor::TextDocument * const document = elem.first;
         const FilePath &filePath = document->filePath();
         const auto uri = DocumentUri::fromFilePath(filePath);
         m_highlights[uri].clear();
@@ -1240,13 +1238,13 @@ void Client::sendPostponedDocumentUpdates()
         docId.setVersion(m_documentVersions[filePath]);
         DidChangeTextDocumentParams params;
         params.setTextDocument(docId);
-        params.setContentChanges(m_documentsToUpdate.take(document));
+        params.setContentChanges(elem.second);
+        return DocumentUpdate{document, DidChangeTextDocumentNotification(params)};
+    });
+    m_documentsToUpdate.clear();
 
-        updates.append({document, DidChangeTextDocumentNotification(params)});
-    }
-
-    for (const DocumentUpdate &update : qAsConst(updates)) {
-        sendContent(update.notification);
+    for (const DocumentUpdate &update : updates) {
+        sendContent(update.notification, SendDocUpdates::Ignore);
         emit documentUpdated(update.document);
 
         if (currentWidget && currentWidget->textDocument() == update.document)
@@ -1423,8 +1421,8 @@ void Client::rehighlight()
 
 bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
 {
-    return Utils::contains(m_documentsToUpdate.keys(), [fileName](const TextEditor::TextDocument *doc) {
-        return doc->filePath() == fileName;
+    return Utils::contains(m_documentsToUpdate, [fileName](const auto &elem) {
+        return elem.first->filePath() == fileName;
     });
 }
 
