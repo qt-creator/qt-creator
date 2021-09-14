@@ -140,12 +140,26 @@ QFileIconProvider *iconProvider()
     return instance();
 }
 
+static const QIcon &unknownFileIcon()
+{
+    static const QIcon icon(QApplication::style()->standardIcon(QStyle::SP_FileIcon));
+    return icon;
+}
+
+static const QIcon &dirIcon()
+{
+    static const QIcon icon(QApplication::style()->standardIcon(QStyle::SP_DirIcon));
+    return icon;
+}
+
 QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
     if (debug)
         qDebug() << "FileIconProvider::icon" << filePath.absoluteFilePath();
-    // Check for cached overlay icons by file suffix.
     bool isDir = filePath.isDir();
+    if (filePath.needsDevice())
+        return isDir ? dirIcon() : unknownFileIcon();
+    // Check for cached overlay icons by file suffix.
     const QString filename = !isDir ? filePath.fileName() : QString();
     if (!filename.isEmpty()) {
         const Utils::optional<QIcon> icon = getIcon(m_filenameCache, filename);
@@ -161,12 +175,11 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 
     // Get icon from OS (and cache it based on suffix!)
     QIcon icon;
-    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
         icon = QFileIconProvider::icon(filePath.toFileInfo());
-    } else { // File icons are unknown on linux systems.
-        static const QIcon unknownFileIcon(QApplication::style()->standardIcon(QStyle::SP_FileIcon));
-        icon = isDir ? QFileIconProvider::icon(filePath.toFileInfo()) : unknownFileIcon;
-    }
+    else // File icons are unknown on linux systems.
+        icon = isDir ? QFileIconProvider::icon(filePath.toFileInfo()) : unknownFileIcon();
+
     if (!isDir && !suffix.isEmpty())
         m_suffixCache.insert(suffix, icon);
     return icon;
