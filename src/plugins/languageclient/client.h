@@ -229,8 +229,7 @@ private:
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void resetAssistProviders(TextEditor::TextDocument *document);
 
-    enum class SemanticTokensUpdateMode { Now, Delayed };
-    void sendPostponedDocumentUpdates(SemanticTokensUpdateMode semanticTokensUpdateMode);
+    void sendPostponedDocumentUpdates(Schedule semanticTokensSchedule);
 
     void updateCompletionProvider(TextEditor::TextDocument *document);
     void updateFunctionHintProvider(TextEditor::TextDocument *document);

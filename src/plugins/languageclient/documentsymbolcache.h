@@ -26,6 +26,7 @@
 #pragma once
 
 #include "languageclient_global.h"
+#include "languageclientutils.h"
 
 #include "utils/optional.h"
 
@@ -47,7 +48,7 @@ class LANGUAGECLIENT_EXPORT DocumentSymbolCache : public QObject
 public:
     DocumentSymbolCache(Client *client);
 
-    void requestSymbols(const LanguageServerProtocol::DocumentUri &uri);
+    void requestSymbols(const LanguageServerProtocol::DocumentUri &uri, Schedule schedule);
 
 signals:
     void gotSymbols(const LanguageServerProtocol::DocumentUri &uri,

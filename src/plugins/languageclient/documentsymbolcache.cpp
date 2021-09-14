@@ -54,10 +54,17 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
     connect(&m_compressionTimer, &QTimer::timeout, this, &DocumentSymbolCache::requestSymbolsImpl);
 }
 
-void DocumentSymbolCache::requestSymbols(const DocumentUri &uri)
+void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedule)
 {
     m_compressedUris.insert(uri);
-    m_compressionTimer.start(200);
+    switch (schedule) {
+    case Schedule::Now:
+        requestSymbolsImpl();
+        break;
+    case Schedule::Delayed:
+        m_compressionTimer.start(200);
+        break;
+    }
 }
 
 void DocumentSymbolCache::requestSymbolsImpl()

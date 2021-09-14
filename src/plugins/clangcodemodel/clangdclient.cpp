@@ -1421,7 +1421,7 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
 
     });
     sendContent(astRequest, SendDocUpdates::Ignore);
-    documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri);
+    documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri, Schedule::Now);
 
 }
 

@@ -155,10 +155,10 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
             &LanguageClientOutlineWidget::handleResponse);
     connect(client, &Client::documentUpdated, this, [this](TextEditor::TextDocument *document) {
         if (m_client && m_uri == DocumentUri::fromFilePath(document->filePath()))
-            m_client->documentSymbolCache()->requestSymbols(m_uri);
+            m_client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
     });
 
-    client->documentSymbolCache()->requestSymbols(m_uri);
+    client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
 
     auto *layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -367,7 +367,7 @@ void OutlineComboBox::activateEntry()
 void OutlineComboBox::documentUpdated(TextEditor::TextDocument *document)
 {
     if (document == m_editorWidget->textDocument())
-        m_client->documentSymbolCache()->requestSymbols(m_uri);
+        m_client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
 }
 
 } // namespace LanguageClient

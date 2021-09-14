@@ -44,6 +44,8 @@ namespace LanguageClient {
 
 class Client;
 
+enum class Schedule { Now, Delayed };
+
 Utils::ChangeSet editsToChangeSet(const QList<LanguageServerProtocol::TextEdit> &edits,
                                   const QTextDocument *doc);
 bool LANGUAGECLIENT_EXPORT applyWorkspaceEdit(const Client *client, const LanguageServerProtocol::WorkspaceEdit &edit);

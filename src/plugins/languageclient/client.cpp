@@ -94,7 +94,7 @@ Client::Client(BaseClientInterface *clientInterface)
     m_documentUpdateTimer.setSingleShot(true);
     m_documentUpdateTimer.setInterval(500);
     connect(&m_documentUpdateTimer, &QTimer::timeout, this,
-            [this] { sendPostponedDocumentUpdates(SemanticTokensUpdateMode::Now); });
+            [this] { sendPostponedDocumentUpdates(Schedule::Now); });
 
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
@@ -410,7 +410,7 @@ void Client::sendContent(const IContent &content, SendDocUpdates sendUpdates)
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
     if (sendUpdates == SendDocUpdates::Send)
-        sendPostponedDocumentUpdates(SemanticTokensUpdateMode::Delayed);
+        sendPostponedDocumentUpdates(Schedule::Delayed);
     if (Utils::optional<ResponseHandler> responseHandler = content.responseHandler())
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
@@ -1216,7 +1216,7 @@ void Client::resetAssistProviders(TextEditor::TextDocument *document)
         document->setQuickFixAssistProvider(providers.quickFixAssistProvider);
 }
 
-void Client::sendPostponedDocumentUpdates(SemanticTokensUpdateMode semanticTokensUpdateMode)
+void Client::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule)
 {
     m_documentUpdateTimer.stop();
     if (m_documentsToUpdate.empty())
@@ -1251,14 +1251,17 @@ void Client::sendPostponedDocumentUpdates(SemanticTokensUpdateMode semanticToken
         if (currentWidget && currentWidget->textDocument() == update.document)
             requestDocumentHighlights(currentWidget);
 
-        if (semanticTokensUpdateMode == SemanticTokensUpdateMode::Now) {
+        switch (semanticTokensSchedule) {
+        case Schedule::Now:
             m_tokenSupport.updateSemanticTokens(update.document);
-        } else {
+            break;
+        case Schedule::Delayed:
             QTimer::singleShot(m_documentUpdateTimer.interval(), this,
                                [this, doc = QPointer(update.document)] {
                 if (doc && m_documentsToUpdate.find(doc) == m_documentsToUpdate.end())
                     m_tokenSupport.updateSemanticTokens(doc);
             });
+            break;
         }
     }
 }
