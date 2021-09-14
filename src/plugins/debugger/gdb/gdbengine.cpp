@@ -4000,7 +4000,7 @@ void GdbEngine::setupEngine()
         runCommand(cmd);
     }
 
-    const QString commands = debuggerSettings()->extraDumperCommands.value();
+    const QString commands = expand(debuggerSettings()->extraDumperCommands.value());
     if (!commands.isEmpty())
         runCommand({commands});
 
