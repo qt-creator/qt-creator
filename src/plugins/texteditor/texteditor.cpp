@@ -296,6 +296,8 @@ public:
 class HoverHandlerRunner
 {
 public:
+    using Callback = std::function<void(TextEditorWidget *, BaseHoverHandler *, int)>;
+
     HoverHandlerRunner(TextEditorWidget *widget, QList<BaseHoverHandler *> &handlers)
         : m_widget(widget)
         , m_handlers(handlers)
@@ -304,7 +306,7 @@ public:
 
     ~HoverHandlerRunner() { abortHandlers(); }
 
-    void startChecking(const QTextCursor &textCursor, const QPoint &point)
+    void startChecking(const QTextCursor &textCursor, const Callback &callback)
     {
         if (m_handlers.empty())
             return;
@@ -313,7 +315,7 @@ public:
         const int documentRevision = textCursor.document()->revision();
         const int position = Text::wordStartCursor(textCursor).position();
         if (m_lastHandlerInfo.applies(documentRevision, position)) {
-            m_lastHandlerInfo.handler->showToolTip(m_widget, point);
+            callback(m_widget, m_lastHandlerInfo.handler, position);
             return;
         }
 
@@ -325,7 +327,7 @@ public:
         // Update invocation data
         m_documentRevision = documentRevision;
         m_position = position;
-        m_point = point;
+        m_callback = callback;
 
         // Re-initialize process data
         m_currentHandlerIndex = 0;
@@ -375,7 +377,7 @@ public:
         // All were queried, run the best
         if (m_bestHandler) {
             m_lastHandlerInfo = LastHandlerInfo(m_bestHandler, m_documentRevision, m_position);
-            m_bestHandler->showToolTip(m_widget, m_point);
+            m_callback(m_widget, m_bestHandler, m_position);
         }
     }
 
@@ -410,7 +412,7 @@ private:
     } m_lastHandlerInfo;
 
     // invocation data
-    QPoint m_point;
+    Callback m_callback;
     int m_position = -1;
     int m_documentRevision = -1;
 
@@ -3550,7 +3552,10 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
         return;
     }
 
-    m_hoverHandlerRunner.startChecking(c, toolTipPoint);
+    const auto callback = [toolTipPoint](TextEditorWidget *widget, BaseHoverHandler *handler, int) {
+        handler->showToolTip(widget, toolTipPoint);
+    };
+    m_hoverHandlerRunner.startChecking(c, callback);
 }
 
 bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,
@@ -8150,22 +8155,28 @@ void BaseTextEditor::setContextHelp(const HelpItem &item)
 
 void TextEditorWidget::contextHelpItem(const IContext::HelpCallback &callback)
 {
-    const QString fallbackWordUnderCursor = Text::wordUnderCursor(textCursor());
-    if (d->m_contextHelpItem.isEmpty() && !d->m_hoverHandlers.isEmpty()) {
-        d->m_hoverHandlers.first()->contextHelpId(this,
-                                                  Text::wordStartCursor(textCursor()).position(),
-                                                  [fallbackWordUnderCursor, callback](const HelpItem &item) {
-                                                      if (item.isEmpty())
-                                                          callback(fallbackWordUnderCursor);
-                                                      else
-                                                          callback(item);
-                                                  });
-    } else {
-        if (d->m_contextHelpItem.isEmpty())
-            callback(fallbackWordUnderCursor);
-        else
-            callback(d->m_contextHelpItem);
+    if (!d->m_contextHelpItem.isEmpty()) {
+        callback(d->m_contextHelpItem);
+        return;
     }
+    const QString fallbackWordUnderCursor = Text::wordUnderCursor(textCursor());
+    if (d->m_hoverHandlers.isEmpty()) {
+        callback(fallbackWordUnderCursor);
+        return;
+    }
+
+    const auto hoverHandlerCallback = [fallbackWordUnderCursor, callback](
+            TextEditorWidget *widget, BaseHoverHandler *handler, int position) {
+        handler->contextHelpId(widget, position,
+                               [fallbackWordUnderCursor, callback](const HelpItem &item) {
+            if (item.isEmpty())
+                callback(fallbackWordUnderCursor);
+            else
+                callback(item);
+        });
+
+    };
+    d->m_hoverHandlerRunner.startChecking(textCursor(), hoverHandlerCallback);
 }
 
 void TextEditorWidget::setContextHelpItem(const HelpItem &item)
