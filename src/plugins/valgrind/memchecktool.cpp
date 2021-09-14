@@ -996,7 +996,8 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
 
     m_errorView->setDefaultSuppressionFile(dir + name + ".supp");
 
-    foreach (const QString &file, runTool->suppressionFiles()) {
+    const QStringList suppressionFiles = runTool->suppressionFiles();
+    for (const QString &file : suppressionFiles) {
         QAction *action = m_filterMenu->addAction(FilePath::fromString(file).fileName());
         action->setToolTip(file);
         connect(action, &QAction::triggered, this, [file] {

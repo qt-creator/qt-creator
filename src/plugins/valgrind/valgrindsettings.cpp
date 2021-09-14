@@ -52,14 +52,6 @@ namespace Internal {
 // SuppressionAspect
 //
 
-// This is somewhat unusual, as it looks the same in Global Settings and Project
-// settings, but behaves differently (Project only stores a diff) depending on
-// context.
-
-const char globalSuppressionKey[] = "Analyzer.Valgrind.SupressionFiles";
-const char removedProjectSuppressionKey[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
-const char addedProjectSuppressionKey[] = "Analyzer.Valgrind.AddedSuppressionFiles";
-
 class SuppressionAspectPrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::ValgrindConfigWidget)
@@ -79,24 +71,13 @@ public:
     QPointer<QListView> entryList;
 
     QStandardItemModel m_model; // The volatile value of this aspect.
-
-    QStringList globalSuppressionFiles; // Real value, only used for global settings
-
-    QStringList removedProjectSuppressionFiles; // Part of real value for project settings
-    QStringList addedProjectSuppressionFiles; // Part of real value for project settings
 };
 
 void SuppressionAspect::addSuppressionFile(const QString &suppression)
 {
-    if (d->isGlobal) {
-        d->globalSuppressionFiles.append(suppression);
-    } else {
-        const QStringList globalSuppressions = ValgrindGlobalSettings::instance()->suppressions.value();
-        if (!d->addedProjectSuppressionFiles.contains(suppression))
-            d->addedProjectSuppressionFiles.append(suppression);
-        d->removedProjectSuppressionFiles.removeAll(suppression);
-    }
-    setVolatileValue(value());
+    QStringList val = value();
+    val.append(suppression);
+    setValue(val);
 }
 
 void SuppressionAspectPrivate::slotAddSuppression()
@@ -152,6 +133,7 @@ void SuppressionAspectPrivate::slotSuppressionSelectionChanged()
 SuppressionAspect::SuppressionAspect(bool global)
 {
     d = new SuppressionAspectPrivate(this, global);
+    setSettingsKey("Analyzer.Valgrind.SuppressionFiles");
 }
 
 SuppressionAspect::~SuppressionAspect()
@@ -161,34 +143,12 @@ SuppressionAspect::~SuppressionAspect()
 
 QStringList SuppressionAspect::value() const
 {
-    // Note: BaseAspect::d->value is /not/ used.
-    if (d->isGlobal)
-        return d->globalSuppressionFiles;
-
-    QStringList ret = ValgrindGlobalSettings::instance()->suppressions.value();
-    for (const QString &s : d->removedProjectSuppressionFiles)
-        ret.removeAll(s);
-    ret.append(d->addedProjectSuppressionFiles);
-    return ret;
+    return BaseAspect::value().toStringList();
 }
 
 void SuppressionAspect::setValue(const QStringList &val)
 {
-    if (d->isGlobal) {
-        d->globalSuppressionFiles = val;
-    } else {
-        const QStringList globals = ValgrindGlobalSettings::instance()->suppressions.value();
-        d->addedProjectSuppressionFiles.clear();
-        for (const QString &s : val) {
-            if (!globals.contains(s))
-                d->addedProjectSuppressionFiles.append(s);
-        }
-        d->removedProjectSuppressionFiles.clear();
-        for (const QString &s : globals) {
-            if (!val.contains(s))
-                d->removedProjectSuppressionFiles.append(s);
-        }
-    }
+    BaseAspect::setValue(val);
 }
 
 void SuppressionAspect::addToLayout(LayoutBuilder &builder)
@@ -202,7 +162,7 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
     d->addEntry = new QPushButton(tr("Add..."));
     d->removeEntry = new QPushButton(tr("Remove"));
 
-    d->entryList = new QListView;
+    d->entryList = createSubWidget<QListView>();
     d->entryList->setModel(&d->m_model);
     d->entryList->setSelectionMode(QAbstractItemView::MultiSelection);
 
@@ -216,37 +176,21 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
     builder.addItem(Column { new QLabel(tr("Suppression files:")), Stretch() });
     Row group {
         d->entryList.data(),
-                Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
+        Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
     };
     builder.addItem(Span { 2, group });
+
+    setVolatileValue(value());
 }
 
 void SuppressionAspect::fromMap(const QVariantMap &map)
 {
-    if (d->isGlobal) {
-        d->globalSuppressionFiles = map.value(globalSuppressionKey).toStringList();
-    } else {
-        d->addedProjectSuppressionFiles = map.value(addedProjectSuppressionKey).toStringList();
-        d->removedProjectSuppressionFiles = map.value(removedProjectSuppressionKey).toStringList();
-    }
-    setVolatileValue(value());
+    BaseAspect::fromMap(map);
 }
 
 void SuppressionAspect::toMap(QVariantMap &map) const
 {
-    auto save = [&map](const QStringList &data, const QString &key) {
-        if (data.isEmpty())
-            map.remove(key);
-        else
-            map.insert(key, data);
-    };
-
-    if (d->isGlobal) {
-        save(d->globalSuppressionFiles, globalSuppressionKey);
-    } else {
-        save(d->addedProjectSuppressionFiles, addedProjectSuppressionKey);
-        save(d->removedProjectSuppressionFiles, removedProjectSuppressionKey);
-    }
+    BaseAspect::toMap(map);
 }
 
 QVariant SuppressionAspect::volatileValue() const
@@ -265,21 +209,6 @@ void SuppressionAspect::setVolatileValue(const QVariant &val)
     d->m_model.clear();
     for (const QString &file : files)
         d->m_model.appendRow(new QStandardItem(file));
-}
-
-void SuppressionAspect::cancel()
-{
-    setVolatileValue(value());
-}
-
-void SuppressionAspect::apply()
-{
-    setValue(volatileValue().toStringList());
-}
-
-void SuppressionAspect::finish()
-{
-    setVolatileValue(value()); // Clean up m_model content
 }
 
 //////////////////////////////////////////////////////////////////

@@ -57,10 +57,6 @@ public:
     QVariant volatileValue() const final;
     void setVolatileValue(const QVariant &val) final;
 
-    void cancel() final;
-    void apply() final;
-    void finish() final;
-
     void addSuppressionFile(const QString &suppressionFile);
 
 private:
