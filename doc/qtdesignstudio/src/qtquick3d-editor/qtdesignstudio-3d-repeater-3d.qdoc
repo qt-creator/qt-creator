@@ -28,7 +28,7 @@
 /*!
     \page studio-3d-repeater-3d.html
     \previouspage studio-3d-morph-target.html
-    \nextpage quick-component-instances.html
+    \nextpage studio-3d-loader-3d.html
 
     \title Repeater3D
 
@@ -60,7 +60,7 @@
     For more information, see \l{https://doc.qt.io/qt/qml-qtquick3d-repeater3d.html}
     {Repeater3D} in the \uicontrol {Qt Quick 3D} documentation.
 
-    \section1 Repeater 3D Properties
+    \section1 Repeater3D Properties
 
     To define a model providing data for the repeater, select it in \l Navigator,
     and then in \uicontrol Properties > \uicontrol Repeater, specify the
