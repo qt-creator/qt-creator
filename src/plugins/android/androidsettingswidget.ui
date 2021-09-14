@@ -7,93 +7,23 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="javaSettingsGroupBox">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Java Settings</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="downloadOpenJDKToolButton">
-        <property name="toolTip">
-         <string>Open JDK download URL in the system's browser.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="OpenJDKLocationLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>JDK location:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="3">
-       <widget class="Utils::DetailsWidget" name="javaDetailsWidget" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="androidSettingsGroupBox">
      <property name="title">
       <string>Android Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="1" rowspan="3">
-       <widget class="QListWidget" name="ndkListWidget">
-        <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::AdjustToContents</enum>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-        <property name="resizeMode">
-         <enum>QListView::Adjust</enum>
-        </property>
-        <property name="modelColumn">
-         <number>0</number>
-        </property>
-        <property name="sortingEnabled">
-         <bool>false</bool>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
+      </item>
+      <item row="1" column="6">
+       <widget class="QToolButton" name="downloadSDKToolButton">
+        <property name="toolTip">
+         <string>Open Android SDK download URL in the system's browser.</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2" rowspan="3" colspan="4">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item row="3" column="2" rowspan="3" colspan="4">
+       <layout class="QVBoxLayout" name="ndkListControlsLayout">
         <item>
          <widget class="QPushButton" name="addCustomNdkButton">
           <property name="enabled">
@@ -133,7 +63,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_3">
+         <spacer name="ndkListControlsSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -147,24 +77,65 @@
         </item>
        </layout>
       </item>
-      <item row="5" column="0" colspan="7">
+      <item row="6" column="0" colspan="7">
        <widget class="Utils::DetailsWidget" name="androidDetailsWidget" native="true"/>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="ndkComboBoxLabel">
-        <property name="text">
-         <string>Android NDK list:</string>
+      <item row="3" column="1" rowspan="3">
+       <widget class="QListWidget" name="ndkListWidget">
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QToolButton" name="downloadSDKToolButton">
-        <property name="toolTip">
-         <string>Open Android SDK download URL in the system's browser.</string>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="resizeMode">
+         <enum>QListView::Adjust</enum>
+        </property>
+        <property name="modelColumn">
+         <number>0</number>
+        </property>
+        <property name="sortingEnabled">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
+       <widget class="QLabel" name="OpenJDKLocationLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>JDK location:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QToolButton" name="downloadOpenJDKToolButton">
+        <property name="toolTip">
+         <string>Open JDK download URL in the system's browser.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QLabel" name="SDKLocationLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -180,23 +151,27 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="6">
+      <item row="1" column="2" colspan="4">
+       <widget class="QPushButton" name="sdkToolsAutoDownloadButton">
+        <property name="text">
+         <string>Set Up SDK</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="ndkComboBoxLabel">
+        <property name="text">
+         <string>Android NDK list:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6">
        <widget class="QToolButton" name="downloadNDKToolButton">
         <property name="toolTip">
          <string>Open Android NDK download URL in the system's browser.</string>
         </property>
         <property name="text">
          <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
-      </item>
-      <item row="0" column="2" colspan="4">
-       <widget class="QPushButton" name="sdkToolsAutoDownloadButton">
-        <property name="text">
-         <string>Set Up SDK</string>
         </property>
        </widget>
       </item>
