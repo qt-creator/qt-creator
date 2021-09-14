@@ -37,6 +37,7 @@
 #include "configmodelitemdelegate.h"
 
 #include <android/androidconstants.h>
+#include <docker/dockerconstants.h>
 #include <ios/iosconstants.h>
 #include <qnx/qnxconstants.h>
 #include <webassembly/webassemblyconstants.h>
@@ -798,6 +799,11 @@ static bool isQnx(const Kit *k)
     return DeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
 }
 
+static bool isDocker(const Kit *k)
+{
+    return DeviceTypeKitAspect::deviceTypeId(k) == Docker::Constants::DOCKER_DEVICE_TYPE;
+}
+
 static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
 {
     // Generator:
@@ -812,7 +818,7 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
         = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
     // Package manager
-    if (settings->packageManagerAutoSetup.value())
+    if (!isDocker(k) && settings->packageManagerAutoSetup.value())
         initialArgs.append(QString::fromLatin1("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH=%1")
                            .arg("%{IDE:ResourcePath}/package-manager/auto-setup.cmake"));
 
