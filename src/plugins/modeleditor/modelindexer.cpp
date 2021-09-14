@@ -403,9 +403,8 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
     const Utils::MimeType modelMimeType = Utils::mimeTypeForName(Constants::MIME_TYPE_MODEL);
     if (modelMimeType.isValid()) {
         for (const Utils::FilePath &file : files) {
-            const QFileInfo fileInfo = file.toFileInfo();
-            if (modelMimeType.suffixes().contains(fileInfo.completeSuffix())) {
-                QueuedFile queuedFile(file.toString(), project, fileInfo.lastModified());
+            if (modelMimeType.suffixes().contains(file.completeSuffix())) {
+                QueuedFile queuedFile(file.toString(), project, file.lastModified());
                 filesQueue.append(queuedFile);
                 filesSet.insert(queuedFile);
             }
