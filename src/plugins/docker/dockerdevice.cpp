@@ -333,6 +333,8 @@ public:
     QFileSystemWatcher m_mergedDirWatcher;
 
     Environment m_cachedEnviroment;
+
+    bool m_useFind = true;  // prefer find over ls and hacks, but be able to use ls as fallback
 };
 
 class DockerDeviceWidget final : public IDeviceWidget
@@ -1311,6 +1313,75 @@ bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permiss
     return false;
 }
 
+FilePaths DockerDevice::findFilesWithFind(const FilePath &filePath,
+                                          const QStringList &nameFilters,
+                                          QDir::Filters filters,
+                                          QDir::SortFlags sort) const
+{
+    QTC_CHECK(filePath.isAbsolutePath());
+    QStringList arguments{filePath.path(), "-maxdepth", "1"};
+    if (filters & QDir::NoSymLinks)
+        arguments.prepend("-H");
+    else
+        arguments.prepend("-L");
+
+
+    QStringList filterOptions;
+    if (filters & QDir::Dirs)
+        filterOptions << "-type" << "d";
+    if (filters & QDir::Files) {
+        if (!filterOptions.isEmpty())
+            filterOptions << "-o";
+        filterOptions << "-type" << "f";
+    }
+
+    if (filters & QDir::Readable)
+        filterOptions << "-readable";
+    if (filters & QDir::Writable)
+        filterOptions << "-writable";
+    if (filters & QDir::Executable)
+        filterOptions << "-executable";
+
+    QTC_CHECK(filters ^ QDir::AllDirs);
+    QTC_CHECK(filters ^ QDir::Drives);
+    QTC_CHECK(filters ^ QDir::NoDot);
+    QTC_CHECK(filters ^ QDir::NoDotDot);
+    QTC_CHECK(filters ^ QDir::Hidden);
+    QTC_CHECK(filters ^ QDir::System);
+
+    const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
+                                                               : QString{"-iname"};
+    if (!nameFilters.isEmpty()) {
+        filterOptions << nameOption << nameFilters.first();
+        const QRegularExpression oneChar("\\[.*?\\]");
+        for (int i = 1, len = nameFilters.size(); i < len; ++i) {
+            QString current = nameFilters.at(i);
+            current.replace(oneChar, "?"); // BAD! but still better than nothing
+            filterOptions << "-o" << nameOption << current;
+        }
+    }
+    arguments << filterOptions;
+    const QString output = d->outputForRunInShell({"find", arguments});
+    if (!output.isEmpty() && !output.startsWith(filePath.path())) { // missing find, unknown option
+        LOG("Setting 'do not use find'" << output.left(output.indexOf('\n')));
+        d->m_useFind = false;
+        return {};
+    }
+
+    QStringList entries = output.split("\n", Qt::SkipEmptyParts);
+    if (sort & QDir::Name)
+        entries.sort(filters & QDir::CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    QTC_CHECK(sort == QDir::Name || sort == QDir::NoSort || sort == QDir::Unsorted);
+
+    // strip out find messages
+    entries = Utils::filtered(entries,
+                              [](const QString &entry) { return !entry.startsWith("find: "); });
+    FilePaths result;
+    for (const QString &entry : qAsConst(entries))
+        result.append(FilePath::fromString(entry).onDevice(filePath));
+    return result;
+}
+
 static FilePaths filterEntriesHelper(const FilePath &base,
                                      const QStringList &entries,
                                      const QStringList &nameFilters,
@@ -1360,6 +1431,13 @@ FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
         });
     }
 
+    if (d->m_useFind) {
+        const FilePaths result = findFilesWithFind(filePath, nameFilters, filters, sort);
+        if (d->m_useFind)
+            return result;
+    }
+
+    // if we do not have find - use ls as fallback
     const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
     QStringList entries = output.split('\n', Qt::SkipEmptyParts);
     return filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
