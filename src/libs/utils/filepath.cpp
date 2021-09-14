@@ -33,6 +33,7 @@
 #include "qtcassert.h"
 #include "savefile.h"
 
+#include <QtGlobal>
 #include <QDataStream>
 #include <QDateTime>
 #include <QDebug>
@@ -719,6 +720,22 @@ FilePaths FilePath::dirEntries(const QStringList &nameFilters,
 QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
 {
     return dirEntries({}, filters);
+}
+
+void FilePath::iterateDirectory(const std::function<void(const FilePath &item)> &callBack,
+                                const QStringList &nameFilters,
+                                QDir::Filters filters,
+                                QDirIterator::IteratorFlags flags)
+{
+    if (needsDevice()) {
+        for (const FilePath &filePath :
+             s_deviceHooks.dirEntries(*this, nameFilters, filters, QDir::NoSort))
+            callBack(filePath);
+    }
+
+    QDirIterator it(m_data, nameFilters, filters, flags);
+    while (it.hasNext())
+        callBack(FilePath::fromString(it.next()));
 }
 
 QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const

@@ -30,6 +30,7 @@
 #include "hostosinfo.h"
 
 #include <QDir>
+#include <QDirIterator>
 #include <QMetaType>
 
 #include <functional>
@@ -155,6 +156,10 @@ public:
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
+    void iterateDirectory(const std::function<void(const FilePath &item)> &callBack,
+                          const QStringList &nameFilters,
+                          QDir::Filters filters = QDir::NoFilter,
+                          QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags);
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
