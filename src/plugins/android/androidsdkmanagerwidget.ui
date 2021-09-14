@@ -94,6 +94,72 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
+             <layout class="QHBoxLayout" name="channelLayout">
+              <item>
+               <widget class="QLabel" name="ChannelLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Channel:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="channelCheckbox">
+                <item>
+                 <property name="text">
+                  <string>Default</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Stable</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Beta</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Dev</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Canary</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="oboleteCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Include obsolete</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QRadioButton" name="showAvailableRadio">
               <property name="text">
                <string>Available</string>

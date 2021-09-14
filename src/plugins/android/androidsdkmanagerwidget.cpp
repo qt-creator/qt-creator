@@ -150,6 +150,49 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         m_sdkManager->acceptSdkLicense(false);
         m_ui->sdkLicensebuttonBox->setEnabled(false); // Wait for next license to enable controls
     });
+
+    connect(m_ui->oboleteCheckBox, &QCheckBox::stateChanged, [this](int state) {
+        const QString obsoleteArg = "--include_obsolete";
+        QStringList args = m_androidConfig.sdkManagerToolArgs();
+        if (state == Qt::Checked && !args.contains(obsoleteArg)) {
+            args.append(obsoleteArg);
+            m_androidConfig.setSdkManagerToolArgs(args);
+       } else if (state == Qt::Unchecked && args.contains(obsoleteArg)) {
+            args.removeAll(obsoleteArg);
+            m_androidConfig.setSdkManagerToolArgs(args);
+       }
+        m_sdkManager->reloadPackages(true);
+    });
+
+    connect(m_ui->channelCheckbox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int index) {
+        QStringList args = m_androidConfig.sdkManagerToolArgs();
+        QString existingArg;
+        for (int i = 0; i < 4; ++i) {
+            const QString arg = "--channel=" + QString::number(i);
+            if (args.contains(arg)) {
+                existingArg = arg;
+                break;
+            }
+        }
+
+        if (index == 0 && !existingArg.isEmpty()) {
+            args.removeAll(existingArg);
+            m_androidConfig.setSdkManagerToolArgs(args);
+        } else if (index > 0) {
+            // Add 1 to account for Stable (second item) being channel 0
+            const QString channelArg = "--channel=" + QString::number(index - 1);
+            if (existingArg != channelArg) {
+                if (!existingArg.isEmpty()) {
+                    args.removeAll(existingArg);
+                    m_androidConfig.setSdkManagerToolArgs(args);
+                }
+                args.append(channelArg);
+                m_androidConfig.setSdkManagerToolArgs(args);
+            }
+       }
+        m_sdkManager->reloadPackages(true);
+    });
 }
 
 AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
