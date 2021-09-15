@@ -77,6 +77,7 @@ signals:
     void finished(ParseResult result);
 
 private:
+    void parserJobFinished();
     void finish(ParseResult result);
     DbContents parseProject();
     std::vector<DbEntry> readJsonObjects() const;
@@ -90,6 +91,7 @@ private:
     DbContents m_dbContents;
     QByteArray m_projectFileContents;
     QByteArray m_projectFileHash;
+    int m_runningParserJobs = 0;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
 };
