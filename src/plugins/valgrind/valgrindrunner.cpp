@@ -192,19 +192,19 @@ void ValgrindRunner::Private::remoteProcessStarted()
     // plain path to exe, m_valgrindExe contains e.g. env vars etc. pp.
     // FIXME: Really?
     const QString proc = m_valgrindCommand.executable().toString().split(' ').last();
+    QString procEscaped = proc;
+    procEscaped.replace("/", "\\\\/");
 
     Runnable findPid;
-    // sleep required since otherwise we might only match "bash -c..."
-    //  and not the actual valgrind run
+    // sleep required since otherwise we might only match "bash -c..." and not the actual
+    // valgrind run
     findPid.command.setExecutable("/bin/sh");
     findPid.command.setArguments(QString("-c \""
-                                           "sleep 1; ps ax" // list all processes with aliased name
-                                           " | grep '\\b%1.*%2'" // find valgrind process
-                                           " | tail -n 1" // limit to single process
-                                           // we pick the last one, first would be "bash -c ..."
-                                           " | awk '{print $1;}'" // get pid
-                                           "\""
-                                           ).arg(proc, m_debuggee.command.executable().fileName()));
+           "sleep 1; ps ax"        // list all processes with aliased name
+           " | grep '%1.*%2'"      // find valgrind process that runs with our exec
+           " | awk '\\$5 ~ /^%3/"  // 5th column must start with valgrind process
+           " {print \\$1;}'"       // print 1st then (with PID)
+           "\"").arg(proc, m_debuggee.command.executable().fileName(), procEscaped));
 
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(&m_findPID, &ApplicationLauncher::remoteStderr,
