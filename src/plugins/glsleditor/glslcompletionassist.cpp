@@ -187,7 +187,7 @@ static QIcon glslIcon(IconTypes iconType)
 // ----------------------------
 // GlslCompletionAssistProvider
 // ----------------------------
-IAssistProcessor *GlslCompletionAssistProvider::createProcessor() const
+IAssistProcessor *GlslCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new GlslCompletionAssistProcessor;
 }

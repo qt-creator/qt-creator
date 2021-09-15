@@ -137,9 +137,9 @@ public:
     {
         VirtualFunctionAssistProvider::configure(params);
 
-        const QScopedPointer<IAssistProcessor> processor(createProcessor());
         AssistInterface *assistInterface
-                = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
+            = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
+        const QScopedPointer<IAssistProcessor> processor(createProcessor(assistInterface));
 
         const QScopedPointer<IAssistProposal> immediateProposal(
             processor->immediateProposal(assistInterface));

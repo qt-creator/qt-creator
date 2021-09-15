@@ -119,7 +119,7 @@ TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textE
     QTC_ASSERT(assistProvider->runType() == IAssistProvider::Asynchronous,
                return TextEditor::ProposalModelPtr());
 
-    QScopedPointer<IAssistProcessor> processor(assistProvider->createProcessor());
+    QScopedPointer<IAssistProcessor> processor(assistProvider->createProcessor(assistInterface));
     QTC_ASSERT(processor, return TextEditor::ProposalModelPtr());
 
     WaitForAsyncCompletions waitForCompletions;

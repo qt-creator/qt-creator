@@ -259,7 +259,7 @@ private:
 };
 
 
-TextEditor::IAssistProcessor *NimCompletionAssistProvider::createProcessor() const
+IAssistProcessor *NimCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new NimCompletionAssistProcessor();
 }

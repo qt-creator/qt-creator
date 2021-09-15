@@ -221,7 +221,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     m_assistKind = kind;
     m_requestProvider = provider;
-    IAssistProcessor *processor = provider->createProcessor();
+    IAssistProcessor *processor = provider->createProcessor(assistInterface);
 
     switch (provider->runType()) {
     case IAssistProvider::Synchronous: {

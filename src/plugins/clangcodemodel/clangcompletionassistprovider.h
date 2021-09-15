@@ -44,7 +44,7 @@ public:
 
     IAssistProvider::RunType runType() const override;
 
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
     TextEditor::AssistInterface *createAssistInterface(
         const Utils::FilePath &filePath,
         const TextEditor::TextEditorWidget *textEditorWidget,

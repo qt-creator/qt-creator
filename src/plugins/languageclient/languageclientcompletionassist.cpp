@@ -474,7 +474,8 @@ LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(C
     , m_client(client)
 { }
 
-IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor() const
+IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor(
+    const AssistInterface *) const
 {
     return new LanguageClientCompletionAssistProcessor(m_client, m_itemsTransformer, m_applyHelper,
                                                        m_proposalHandler, m_snippetsGroup);

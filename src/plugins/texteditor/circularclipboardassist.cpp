@@ -113,7 +113,7 @@ IAssistProvider::RunType ClipboardAssistProvider::runType() const
     return Synchronous;
 }
 
-IAssistProcessor *ClipboardAssistProvider::createProcessor() const
+IAssistProcessor *ClipboardAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new ClipboardAssistProcessor;
 }

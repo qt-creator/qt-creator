@@ -44,7 +44,7 @@ using namespace ProjectExplorer;
 // CMakeFileCompletionAssistProvider
 // -------------------------------
 
-IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
+IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new CMakeFileCompletionAssist;
 }

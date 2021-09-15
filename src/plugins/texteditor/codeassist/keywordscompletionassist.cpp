@@ -284,7 +284,7 @@ IAssistProvider::RunType KeywordsCompletionAssistProvider::runType() const
     return Synchronous;
 }
 
-IAssistProcessor *KeywordsCompletionAssistProvider::createProcessor() const
+IAssistProcessor *KeywordsCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     auto processor = new KeywordsCompletionAssistProcessor(m_keyWords);
     processor->setSnippetGroup(m_snippetGroup);

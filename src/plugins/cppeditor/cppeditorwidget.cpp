@@ -1122,7 +1122,8 @@ static void addRefactoringActions(QMenu *menu, AssistInterface *iface)
     using Processor = QScopedPointer<IAssistProcessor>;
     using Proposal = QScopedPointer<IAssistProposal>;
 
-    const Processor processor(CppEditorPlugin::instance()->quickFixProvider()->createProcessor());
+    const Processor processor(
+        CppEditorPlugin::instance()->quickFixProvider()->createProcessor(iface));
     const Proposal proposal(processor->perform(iface)); // OK, perform() takes ownership of iface.
     if (proposal) {
         auto model = proposal->model().staticCast<GenericProposalModel>();

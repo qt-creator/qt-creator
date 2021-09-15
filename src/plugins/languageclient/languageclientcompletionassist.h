@@ -62,7 +62,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProvider
 public:
     LanguageClientCompletionAssistProvider(Client *client);
 
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
     RunType runType() const override;
 
     int activationCharSequenceLength() const override;

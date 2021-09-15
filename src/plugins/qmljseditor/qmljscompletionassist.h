@@ -125,7 +125,7 @@ class QMLJSEDITOR_EXPORT QmlJSCompletionAssistProvider : public TextEditor::Comp
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
     int activationCharSequenceLength() const override;
     bool isActivationCharSequence(const QString &sequence) const override;

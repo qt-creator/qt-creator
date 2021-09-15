@@ -40,7 +40,7 @@ public:
             const QString &snippetGroup = QString(Constants::TEXT_SNIPPET_GROUP_ID));
 
     RunType runType() const override;
-    IAssistProcessor *createProcessor() const override;
+    IAssistProcessor *createProcessor(const AssistInterface *) const override;
 
 private:
     QString m_snippetGroup;

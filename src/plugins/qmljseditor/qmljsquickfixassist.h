@@ -59,7 +59,7 @@ public:
     ~QmlJSQuickFixAssistProvider() override = default;
 
     IAssistProvider::RunType runType() const override;
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 };
 
 } // Internal

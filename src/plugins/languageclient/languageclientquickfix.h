@@ -54,7 +54,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientQuickFixProvider : public TextEditor::
 public:
     explicit LanguageClientQuickFixProvider(Client *client);
     IAssistProvider::RunType runType() const override;
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
 private:
     Client *m_client = nullptr; // not owned

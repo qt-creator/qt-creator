@@ -44,7 +44,7 @@ class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistPro
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 };
 
 } // Internal

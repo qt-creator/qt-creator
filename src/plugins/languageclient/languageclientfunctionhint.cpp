@@ -157,7 +157,8 @@ FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
     , m_client(client)
 {}
 
-TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor() const
+TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor(
+    const AssistInterface *) const
 {
     return new FunctionHintProcessor(m_client, m_proposalHandler);
 }

@@ -34,7 +34,7 @@ class NimCompletionAssistProvider : public TextEditor::CompletionAssistProvider
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProcessor *createProcessor() const final;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const final;
     int activationCharSequenceLength() const final;
     bool isActivationCharSequence(const QString &sequence) const final;
     RunType runType() const final;

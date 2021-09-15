@@ -880,7 +880,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
-                        Internal::QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor());
+                Internal::QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor(interface));
             QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
                 GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();

@@ -54,7 +54,8 @@ TextEditor::IAssistProvider::RunType ClangCompletionAssistProvider::runType() co
     return Asynchronous;
 }
 
-TextEditor::IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
+TextEditor::IAssistProcessor *ClangCompletionAssistProvider::createProcessor(
+    const TextEditor::AssistInterface *) const
 {
     return new ClangCompletionAssistProcessor;
 }

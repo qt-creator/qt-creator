@@ -86,7 +86,7 @@ IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
     return Synchronous;
 }
 
-IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
+IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new QmlJSQuickFixAssistProcessor;
 }

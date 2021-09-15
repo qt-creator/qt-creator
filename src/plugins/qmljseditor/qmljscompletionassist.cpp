@@ -515,7 +515,7 @@ bool QmlJSCompletionAssistProvider::isContinuationChar(const QChar &c) const
     return isIdentifierChar(c, false);
 }
 
-IAssistProcessor *QmlJSCompletionAssistProvider::createProcessor() const
+IAssistProcessor *QmlJSCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new QmlJSCompletionAssistProcessor;
 }

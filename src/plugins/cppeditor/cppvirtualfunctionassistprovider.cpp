@@ -189,7 +189,7 @@ IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
     return AsynchronousWithThread;
 }
 
-IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
+IAssistProcessor *VirtualFunctionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new VirtualFunctionAssistProcessor(m_params);
 }

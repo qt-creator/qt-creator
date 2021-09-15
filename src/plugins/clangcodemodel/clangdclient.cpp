@@ -525,7 +525,7 @@ public:
 
 private:
     RunType runType() const override { return Asynchronous; }
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
     ClangdClient::Private * const m_data;
 };
@@ -723,7 +723,7 @@ public:
 
 private:
     RunType runType() const override { return Synchronous; }
-    TextEditor::IAssistProcessor *createProcessor() const override
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override
     {
         return new DoxygenAssistProcessor(m_position, m_completionOperator, m_proposalHandler);
     }
@@ -2690,7 +2690,8 @@ ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
     return item;
 }
 
-TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor() const
+TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor(
+    const TextEditor::AssistInterface *) const
 {
     return m_data->followSymbolData->virtualFuncAssistProcessor
             = new VirtualFunctionAssistProcessor(m_data);

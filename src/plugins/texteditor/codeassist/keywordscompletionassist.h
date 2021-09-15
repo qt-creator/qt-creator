@@ -95,7 +95,7 @@ public:
 
     // IAssistProvider interface
     RunType runType() const override;
-    IAssistProcessor *createProcessor() const override;
+    IAssistProcessor *createProcessor(const AssistInterface *) const override;
 
 private:
     Keywords m_keyWords;

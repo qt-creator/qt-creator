@@ -77,7 +77,7 @@ public:
     void clearParams() { m_params = Parameters(); }
 
     IAssistProvider::RunType runType() const override;
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
 private:
     Parameters m_params;

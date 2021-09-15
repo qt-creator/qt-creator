@@ -985,7 +985,7 @@ void FakeVimUserCommandsPage::apply()
 class FakeVimCompletionAssistProvider : public CompletionAssistProvider
 {
 public:
-    IAssistProcessor *createProcessor() const override;
+    IAssistProcessor *createProcessor(const AssistInterface *) const override;
 
     void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
     {
@@ -1122,7 +1122,7 @@ private:
     const FakeVimCompletionAssistProvider *m_provider;
 };
 
-IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor() const
+IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new FakeVimCompletionAssistProcessor(this);
 }

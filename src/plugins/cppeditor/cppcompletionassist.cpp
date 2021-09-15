@@ -417,7 +417,7 @@ int CppFunctionHintModel::activeArgument(const QString &prefix) const
 // InternalCompletionAssistProvider
 // ---------------------------
 
-IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
+IAssistProcessor *InternalCompletionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new InternalCppCompletionAssistProcessor;
 }

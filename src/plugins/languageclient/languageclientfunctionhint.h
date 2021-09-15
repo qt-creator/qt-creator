@@ -43,7 +43,7 @@ class FunctionHintAssistProvider : public TextEditor::CompletionAssistProvider
 public:
     explicit FunctionHintAssistProvider(Client *client);
 
-    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
     RunType runType() const override;
 
     int activationCharSequenceLength() const override;

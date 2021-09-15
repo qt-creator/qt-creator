@@ -69,7 +69,7 @@ IAssistProvider::RunType DocumentContentCompletionProvider::runType() const
     return Asynchronous;
 }
 
-IAssistProcessor *DocumentContentCompletionProvider::createProcessor() const
+IAssistProcessor *DocumentContentCompletionProvider::createProcessor(const AssistInterface *) const
 {
     return new DocumentContentCompletionProcessor(m_snippetGroup);
 }

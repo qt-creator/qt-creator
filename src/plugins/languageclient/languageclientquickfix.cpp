@@ -165,7 +165,7 @@ IAssistProvider::RunType LanguageClientQuickFixProvider::runType() const
     return Asynchronous;
 }
 
-IAssistProcessor *LanguageClientQuickFixProvider::createProcessor() const
+IAssistProcessor *LanguageClientQuickFixProvider::createProcessor(const AssistInterface *) const
 {
     return new LanguageClientQuickFixAssistProcessor(m_client);
 }

@@ -72,7 +72,7 @@ IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
     return Synchronous;
 }
 
-IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
+IAssistProcessor *CppQuickFixAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new CppQuickFixAssistProcessor;
 }

@@ -31,6 +31,7 @@
 
 namespace TextEditor {
 
+class AssistInterface;
 class IAssistProcessor;
 
 class TEXTEDITOR_EXPORT IAssistProvider : public QObject
@@ -47,7 +48,7 @@ public:
     };
 
     virtual RunType runType() const = 0;
-    virtual IAssistProcessor *createProcessor() const = 0;
+    virtual IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const = 0;
 };
 
 } // TextEditor
