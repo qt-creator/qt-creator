@@ -2427,6 +2427,8 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
 
     QTextDocument doc(docContents);
     const auto isOutputParameter = [&ast](const ExpandedSemanticToken &token) {
+        if (token.modifiers.contains("usedAsMutableReference"))
+            return true;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
         const Position pos(token.line - 1, token.column - 1);
