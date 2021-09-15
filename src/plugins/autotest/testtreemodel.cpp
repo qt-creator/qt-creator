@@ -407,7 +407,7 @@ void TestTreeModel::synchronizeTestTools()
     if (project) {
         const QList<Target *> &allTargets = project->targets();
         auto target = allTargets.empty() ? nullptr : allTargets.first();
-        if (QTC_GUARD(target)) {
+        if (target) {
             auto bs = target->buildSystem();
             for (ITestTool *testTool : newlyAdded) {
                 ITestTreeItem *rootNode = testTool->rootNode();

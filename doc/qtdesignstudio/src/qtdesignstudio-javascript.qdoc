@@ -49,11 +49,6 @@
     be registered as a singleton type. This enables the use of global
     property values in the UI.
 
-    You can find a video tutorial about creating JavaScript for generating mock
-    data for a UI
-    \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partfour}
-    {here}.
-
     To create the necessary files:
 
     \list 1

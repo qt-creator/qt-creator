@@ -106,6 +106,5 @@
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.
 
-    \include qtbridge-tutorial-links.qdocinc qtpsbridge videos
     \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 */

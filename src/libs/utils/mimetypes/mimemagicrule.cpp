@@ -359,8 +359,9 @@ MimeMagicRule::MimeMagicRule(MimeMagicRule::Type theType,
     }
 }
 
-MimeMagicRule::MimeMagicRule(const MimeMagicRule &other) :
-    d(new MimeMagicRulePrivate(*other.d))
+MimeMagicRule::MimeMagicRule(const MimeMagicRule &other)
+    : m_subMatches(other.m_subMatches)
+    , d(new MimeMagicRulePrivate(*other.d))
 {
 }
 
@@ -369,13 +370,13 @@ MimeMagicRule::~MimeMagicRule() = default;
 MimeMagicRule &MimeMagicRule::operator=(const MimeMagicRule &other)
 {
     *d = *other.d;
+    m_subMatches = other.m_subMatches;
     return *this;
 }
 
 bool MimeMagicRule::operator==(const MimeMagicRule &other) const
 {
-    return d == other.d ||
-           *d == *other.d;
+    return (d == other.d || *d == *other.d) && m_subMatches == other.m_subMatches;
 }
 
 MimeMagicRule::Type MimeMagicRule::type() const
