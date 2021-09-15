@@ -31,7 +31,6 @@
 
 #include <languageserverprotocol/completion.h>
 #include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/snippets/snippet.h>
@@ -54,38 +53,6 @@ using namespace LanguageServerProtocol;
 using namespace TextEditor;
 
 namespace LanguageClient {
-
-class LanguageClientCompletionItem : public AssistProposalItemInterface
-{
-public:
-    LanguageClientCompletionItem(CompletionItem item, const CompletionApplyHelper &applyHelper);
-
-    // AssistProposalItemInterface interface
-    QString text() const override;
-    QString filterText() const override;
-    bool implicitlyApplies() const override;
-    bool prematurelyApplies(const QChar &typedCharacter) const override;
-    void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
-    QIcon icon() const override;
-    QString detail() const override;
-    bool isSnippet() const override;
-    bool isValid() const override;
-    quint64 hash() const override;
-
-    const QString &sortText() const;
-    bool hasSortText() const;
-
-    bool operator <(const LanguageClientCompletionItem &other) const;
-
-    bool isPerfectMatch(int pos, QTextDocument *doc) const;
-
-private:
-    CompletionItem m_item;
-    const CompletionApplyHelper m_applyHelper;
-    mutable QChar m_triggeredCommitCharacter;
-    mutable QString m_sortText;
-    mutable QString m_filterText;
-};
 
 LanguageClientCompletionItem::LanguageClientCompletionItem(CompletionItem item,
                                                            const CompletionApplyHelper &applyHelper)
