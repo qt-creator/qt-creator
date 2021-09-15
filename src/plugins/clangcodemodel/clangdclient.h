@@ -52,8 +52,6 @@ public:
     QVersionNumber versionNumber() const;
     CppEditor::ClangdSettings::Data settingsData() const;
 
-    void openEditorDocument(TextEditor::BaseTextEditor *editor);
-
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);
 

@@ -1091,12 +1091,6 @@ void ClangdClient::enableTesting()
     });
 }
 
-void ClangdClient::openEditorDocument(TextEditor::BaseTextEditor *editor)
-{
-    if (!documentOpen(editor->textDocument()))
-        openDocument(editor->textDocument());
-}
-
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
 {
     const auto refData = runningFindUsages.find(key);

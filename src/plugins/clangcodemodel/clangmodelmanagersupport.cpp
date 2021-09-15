@@ -321,7 +321,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         if (Client * const oldClient = clientForProject(project))
             LanguageClientManager::shutdownClient(oldClient);
         ClangdClient * const client = createClient(project, jsonDbDir);
-        connect(client, &Client::initialized, this, [this, client, project, projectInfo, jsonDbDir] {
+        connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
             if (!SessionManager::hasProject(project))
                 return;
@@ -333,14 +333,11 @@ void ClangModelManagerSupport::updateLanguageClient(
                 return;
 
             // Acquaint the client with all open C++ documents for this project.
-            ClangdClient * const fallbackClient = clientForProject(nullptr);
             bool hasDocuments = false;
             for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
                 if (!project->isKnownFile(editor->textDocument()->filePath()))
                     continue;
-                if (fallbackClient && fallbackClient->documentOpen(editor->textDocument()))
-                    fallbackClient->closeDocument(editor->textDocument());
-                client->openEditorDocument(editor);
+                LanguageClientManager::openDocumentWithClient(editor->textDocument(), client);
                 ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
                 hasDocuments = true;
             }
@@ -498,7 +495,7 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
         ProjectExplorer::Project * const project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
         if (ClangdClient * const client = clientForProject(project))
-            client->openEditorDocument(qobject_cast<TextEditor::BaseTextEditor *>(editor));
+            LanguageClientManager::openDocumentWithClient(textDocument, client);
     }
 }
 
