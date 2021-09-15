@@ -24,6 +24,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 qtc_handle_sccache_support()
 
+option(BUILD_LINK_WITH_QT "Link with Qt from the parent Qt Creator" OFF)
+qtc_link_with_qt()
+
 option(WITH_TESTS "Build Tests" OFF)
 add_feature_info("Build tests" ${WITH_TESTS} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality (e.g. source file disk checking)" OFF)
