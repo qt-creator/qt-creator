@@ -212,7 +212,10 @@
     \if defined(qtdesignstudio)
     \section1 Iso Icon
 
-    The IsoIcon component specifies an icon from an ISO 7000 icon library as a
+    \note The Iso Icon component is not available if you selected
+    \uicontrol {Qt 6} when \l{Creating Projects}{creating the project}.
+
+    The Iso Icon component specifies an icon from an ISO 7000 icon library as a
     \l [QtQuickExtras] {Picture} component. The icon to use for the type and
     its color can be specified.
 
@@ -223,7 +226,7 @@
     \image studio-iso-icon.png
 
     You can use the \l{Picking Colors}{color picker} in \l Properties to
-    set the icon color.
+    set the value of \uicontrol {Icon color}.
 
     \image iso-icon-browser.png
     \endif
@@ -270,6 +273,8 @@
         \li
         \li An icon from an ISO 7000 icon library specified as a \l Picture
             component. You can select the icon to use and its color.
+
+            \note This component is not supported on Qt 6.
     \endif
     \endtable
 */
