@@ -77,11 +77,14 @@ Test Integration
 ### Qt Quick
 
 * Fixed unnecessary updates of QML code model
-* Fixed wizard for Google Test with CMake (QTCREATORBUG-26253)
 
 ### CTest
 
 * Fixed missing test output
+
+### Google Test
+
+* Fixed wizard for CMake (QTCREATORBUG-26253)
 
 Platforms
 ---------
