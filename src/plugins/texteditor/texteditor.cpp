@@ -783,7 +783,6 @@ public:
     TextMark* m_dragMark = nullptr;
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
-    TextEditorWidget::AssistRequestHandler m_assistRequestHandler;
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
@@ -3532,11 +3531,6 @@ void TextEditorWidget::showTextMarksToolTip(const QPoint &pos,
                                             const TextMark *mainTextMark) const
 {
     d->showTextMarksToolTip(pos, marks, mainTextMark);
-}
-
-void TextEditorWidget::setAssistRequestHandler(const AssistRequestHandler &handler)
-{
-    d->m_assistRequestHandler = handler;
 }
 
 void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
@@ -8546,9 +8540,6 @@ QTextBlock TextEditorWidget::blockForVerticalOffset(int offset) const
 
 void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
-    if (d->m_assistRequestHandler && d->m_assistRequestHandler(this, kind, provider))
-        return;
-
     if (kind == QuickFix && d->m_snippetOverlay->isVisible())
         d->m_snippetOverlay->accept();
 

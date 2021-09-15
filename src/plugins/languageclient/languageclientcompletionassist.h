@@ -78,6 +78,7 @@ protected:
     void setItemsTransformer(const CompletionItemsTransformer &transformer);
     void setApplyHelper(const CompletionApplyHelper &applyHelper);
     Client *client() const { return m_client; }
+    const ProposalHandler &proposalHandler() const { return m_proposalHandler; }
 
 private:
     QList<QString> m_triggerChars;

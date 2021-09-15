@@ -98,6 +98,7 @@ private:
     class FollowSymbolData;
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
+    class ClangdCompletionAssistProvider;
     Private * const d;
 };
 

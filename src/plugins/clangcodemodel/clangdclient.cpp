@@ -710,29 +710,6 @@ private:
     const ProposalHandler m_handler;
 };
 
-class DoxygenAssistProvider : public TextEditor::IAssistProvider
-{
-public:
-    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
-
-    void setParameters(int position, unsigned completionOperator)
-    {
-        m_position = position;
-        m_completionOperator = completionOperator;
-    }
-
-private:
-    RunType runType() const override { return Synchronous; }
-    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override
-    {
-        return new DoxygenAssistProcessor(m_position, m_completionOperator, m_proposalHandler);
-    }
-
-    ProposalHandler m_proposalHandler;
-    int m_position = 0;
-    unsigned m_completionOperator = 0;
-};
-
 class ClangdClient::Private
 {
 public:
@@ -771,7 +748,6 @@ public:
 
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
-    DoxygenAssistProvider doxygenAssistProvider;
     QHash<quint64, ReferencesData> runningFindUsages;
     Utils::optional<FollowSymbolData> followSymbolData;
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
@@ -793,12 +769,15 @@ public:
     }
 };
 
-class ClangdCompletionAssistProvider : public LanguageClientCompletionAssistProvider
+class ClangdClient::ClangdCompletionAssistProvider : public LanguageClientCompletionAssistProvider
 {
 public:
     ClangdCompletionAssistProvider(ClangdClient *client);
 
 private:
+    TextEditor::IAssistProcessor *createProcessor(
+        const TextEditor::AssistInterface *assistInterface) const override;
+
     int activationCharSequenceLength() const override { return 3; }
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
@@ -806,6 +785,8 @@ private:
     void applyCompletionItem(const CompletionItem &item,
                              TextEditor::TextDocumentManipulatorInterface &manipulator,
                              QChar typedChar);
+
+    ClangdClient::Private *m_data = nullptr;
 };
 
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
@@ -1102,14 +1083,11 @@ void ClangdClient::enableTesting()
 {
     d->isTesting = true;
     setCompletionProposalHandler([this](TextEditor::IAssistProposal *proposal) {
-        emit proposalReady(proposal);
+        QMetaObject::invokeMethod(this, [this, proposal] { emit proposalReady(proposal); },
+            Qt::QueuedConnection);
     });
     setFunctionHintProposalHandler([this](TextEditor::IAssistProposal *proposal) {
         emit proposalReady(proposal);
-    });
-    d->doxygenAssistProvider.setProposalHandler([this](TextEditor::IAssistProposal *proposal) {
-        QMetaObject::invokeMethod(this, [this, proposal] { emit proposalReady(proposal); },
-                                  Qt::QueuedConnection);
     });
 }
 
@@ -1117,34 +1095,6 @@ void ClangdClient::openEditorDocument(TextEditor::BaseTextEditor *editor)
 {
     if (!documentOpen(editor->textDocument()))
         openDocument(editor->textDocument());
-    const auto assistRequestHandler = [self = QPointer(this)](
-            TextEditor::TextEditorWidget *editorWidget, TextEditor::AssistKind kind,
-            TextEditor::IAssistProvider *provider) {
-        if (!self)
-            return false;
-        if (kind != TextEditor::Completion || provider)
-            return false;
-        ClangCompletionContextAnalyzer contextAnalyzer(editorWidget->document(),
-                                                       editorWidget->position(), false, {});
-        contextAnalyzer.analyze();
-        self->setSnippetsGroup(contextAnalyzer.addSnippets()
-                               ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID : QString());
-        switch (contextAnalyzer.completionAction()) {
-        case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
-            qCDebug(clangdLog) << "completion changed to function hint";
-            editorWidget->invokeAssist(TextEditor::FunctionHint, provider);
-            return true;
-        case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
-            self->d->doxygenAssistProvider.setParameters(contextAnalyzer.positionForProposal(),
-                                                         contextAnalyzer.completionOperator());
-            editorWidget->invokeAssist(kind, &self->d->doxygenAssistProvider);
-            return true;
-        default:
-            break;
-        }
-        return false;
-    };
-    editor->editorWidget()->setAssistRequestHandler(assistRequestHandler);
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
@@ -2713,8 +2663,9 @@ QString ClangdDiagnostic::category() const
     return typedValue<QString>("category");
 }
 
-ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *client)
+ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *client)
     : LanguageClientCompletionAssistProvider(client)
+    , m_data(client->d)
 {
     setItemsTransformer([](const Utils::FilePath &filePath, const QString &content,
                         int pos,  const QList<CompletionItem> &items) {
@@ -2747,7 +2698,29 @@ ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *cli
     });
 }
 
-bool ClangdCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
+TextEditor::IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
+    const TextEditor::AssistInterface *assistInterface) const
+{
+    ClangCompletionContextAnalyzer contextAnalyzer(assistInterface->textDocument(),
+                                                   assistInterface->position(), false, {});
+    contextAnalyzer.analyze();
+    client()->setSnippetsGroup(
+        contextAnalyzer.addSnippets() ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID : QString());
+    switch (contextAnalyzer.completionAction()) {
+    case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
+        qCDebug(clangdLog) << "completion changed to function hint";
+        return new FunctionHintProcessor(client(), proposalHandler());
+    case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
+        return new DoxygenAssistProcessor(contextAnalyzer.positionForProposal(),
+                                          contextAnalyzer.completionOperator(),
+                                          proposalHandler());
+    default:
+        break;
+    }
+    return LanguageClientCompletionAssistProvider::createProcessor(assistInterface);
+}
+
+bool ClangdClient::ClangdCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
     const QChar &ch  = sequence.at(2);
     const QChar &ch2 = sequence.at(1);
@@ -2769,12 +2742,12 @@ bool ClangdCompletionAssistProvider::isActivationCharSequence(const QString &seq
     return false;
 }
 
-bool ClangdCompletionAssistProvider::isContinuationChar(const QChar &c) const
+bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QChar &c) const
 {
     return CppEditor::isValidIdentifierChar(c);
 }
 
-void ClangdCompletionAssistProvider::applyCompletionItem(
+void ClangdClient::ClangdCompletionAssistProvider::applyCompletionItem(
         const CompletionItem &item, TextEditor::TextDocumentManipulatorInterface &manipulator,
         QChar typedChar)
 {
