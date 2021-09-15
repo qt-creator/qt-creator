@@ -364,16 +364,21 @@ void AndroidConfig::parseDependenciesJson()
 QVector<int> AndroidConfig::availableNdkPlatforms(const BaseQtVersion *qtVersion) const
 {
     QVector<int> availableNdkPlatforms;
-    QDirIterator it(ndkLocation(qtVersion).pathAppended("platforms").toString(),
-                    QStringList("android-*"),
-                    QDir::Dirs);
-    while (it.hasNext()) {
-        const QString &fileName = it.next();
-        availableNdkPlatforms.push_back(
-            fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
-    }
-    Utils::sort(availableNdkPlatforms, std::greater<>());
 
+    ndkLocation(qtVersion)
+        .pathAppended("platforms")
+        .iterateDirectory(
+            [&availableNdkPlatforms](const FilePath &filePath) {
+                availableNdkPlatforms.push_back(
+                    filePath.toString()
+                        .mid(filePath.path().lastIndexOf('-') + 1)
+                        .toInt());
+                return true;
+            },
+            {"android-*"},
+            QDir::Dirs);
+
+    Utils::sort(availableNdkPlatforms, std::greater<>());
     return availableNdkPlatforms;
 }
 

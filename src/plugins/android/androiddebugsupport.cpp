@@ -44,7 +44,6 @@
 
 #include <utils/hostosinfo.h>
 
-#include <QDirIterator>
 #include <QHostAddress>
 #include <QJsonDocument>
 #include <QLoggingCategory>

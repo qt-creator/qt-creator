@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "androidsdkdownloader.h"
-
+#include "utils/filepath.h"
+#include "utils/qtcprocess.h"
 #include <coreplugin/icore.h>
 
 #include <QDir>
@@ -33,6 +34,8 @@
 #include <QProcess>
 #include <QCryptographicHash>
 #include <QStandardPaths>
+
+using namespace Utils;
 
 namespace {
 Q_LOGGING_CATEGORY(sdkDownloaderLog, "qtc.android.sdkDownloader", QtWarningMsg)
@@ -59,21 +62,24 @@ void AndroidSdkDownloader::sslErrors(const QList<QSslError> &sslErrors)
 }
 #endif
 
-static void setSdkFilesExecPermission( const QString &sdkExtractPath)
+static void setSdkFilesExecPermission( const FilePath &sdkExtractPath)
 {
-    QDirIterator it(sdkExtractPath + "/tools", QStringList() << "*",
-                    QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        QFile file(it.next());
-        if (!file.fileName().contains('.')) {
-            QFlags<QFileDevice::Permission> currentPermissions
-                = file.permissions();
-            file.setPermissions(currentPermissions | QFileDevice::ExeOwner);
-        }
-    }
+    const FilePath filePath = sdkExtractPath / "tools";
+
+    filePath.iterateDirectory(
+        [](const FilePath &filePath) {
+            if (!filePath.fileName().contains('.')) {
+                QFlags<QFileDevice::Permission> currentPermissions = filePath.permissions();
+                filePath.setPermissions(currentPermissions | QFileDevice::ExeOwner);
+            }
+            return true;
+        },
+        {"*"},
+        QDir::Files,
+        QDirIterator::Subdirectories);
 }
 
-void AndroidSdkDownloader::downloadAndExtractSdk(const QString &jdkPath, const QString &sdkExtractPath)
+void AndroidSdkDownloader::downloadAndExtractSdk(const FilePath &jdkPath, const FilePath &sdkExtractPath)
 {
     if (m_androidConfig.sdkToolsUrl().isEmpty()) {
         logError(tr("The SDK Tools download URL is empty."));
@@ -108,28 +114,29 @@ void AndroidSdkDownloader::downloadAndExtractSdk(const QString &jdkPath, const Q
     });
 }
 
-bool AndroidSdkDownloader::extractSdk(const QString &jdkPath, const QString &sdkExtractPath)
+bool AndroidSdkDownloader::extractSdk(const FilePath &jdkPath, const FilePath &sdkExtractPath)
 {
-    QDir sdkDir = QDir(sdkExtractPath);
+    QDir sdkDir = sdkExtractPath.toDir();
     if (!sdkDir.exists()) {
         if (!sdkDir.mkpath(".")) {
-            logError(QString(tr("Could not create the SDK folder %1.")).arg(sdkExtractPath));
+            logError(QString(tr("Could not create the SDK folder %1."))
+                         .arg(sdkExtractPath.toUserOutput()));
             return false;
         }
     }
 
-    QProcess jarExtractProc;
+    QtcProcess jarExtractProc;
     jarExtractProc.setWorkingDirectory(sdkExtractPath);
-    QString jarCmdPath(jdkPath + "/bin/jar");
-    jarExtractProc.start(jarCmdPath, {"xf", m_sdkFilename});
-    jarExtractProc.waitForFinished();
+    FilePath jarCmdPath(jdkPath / "/bin/jar");
+    jarExtractProc.setCommand({jarCmdPath, {"xf", m_sdkFilename.path()}});
+    jarExtractProc.runBlocking();
 
     return jarExtractProc.exitCode() ? false : true;
 }
 
 bool AndroidSdkDownloader::verifyFileIntegrity()
 {
-    QFile f(m_sdkFilename);
+    QFile f(m_sdkFilename.toString());
     if (f.open(QFile::ReadOnly)) {
         QCryptographicHash hash(QCryptographicHash::Sha256);
         if (hash.addData(&f)) {
@@ -187,11 +194,12 @@ QString AndroidSdkDownloader::getSaveFilename(const QUrl &url)
     return fullPath;
 }
 
-bool AndroidSdkDownloader::saveToDisk(const QString &filename, QIODevice *data)
+bool AndroidSdkDownloader::saveToDisk(const FilePath &filename, QIODevice *data)
 {
-    QFile file(filename);
+    QFile file(filename.toString());
     if (!file.open(QIODevice::WriteOnly)) {
-        logError(QString(tr("Could not open %1 for writing: %2.")).arg(filename, file.errorString()));
+        logError(QString(tr("Could not open %1 for writing: %2."))
+                     .arg(filename.toUserOutput(), file.errorString()));
         return false;
     }
 
@@ -218,7 +226,7 @@ void AndroidSdkDownloader::downloadFinished(QNetworkReply *reply)
         if (isHttpRedirect(reply)) {
             cancelWithError(QString(tr("Download from %1 was redirected.")).arg(url.toString()));
         } else {
-            m_sdkFilename = getSaveFilename(url);
+            m_sdkFilename = FilePath::fromString(getSaveFilename(url));
             if (saveToDisk(m_sdkFilename, reply) && verifyFileIntegrity())
                 emit sdkPackageWriteFinished();
             else

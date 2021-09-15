@@ -32,6 +32,8 @@
 #include <QObject>
 #include <QProgressDialog>
 
+namespace Utils { class FilePath; }
+
 namespace Android {
 namespace Internal {
 
@@ -41,7 +43,7 @@ class AndroidSdkDownloader : public QObject
 
 public:
     AndroidSdkDownloader();
-    void downloadAndExtractSdk(const QString &jdkPath, const QString &sdkExtractPath);
+    void downloadAndExtractSdk(const Utils::FilePath &jdkPath, const Utils::FilePath &sdkExtractPath);
     static QString dialogTitle();
 
     void cancel();
@@ -53,10 +55,10 @@ signals:
 
 private:
     static QString getSaveFilename(const QUrl &url);
-    bool saveToDisk(const QString &filename, QIODevice *data);
+    bool saveToDisk(const Utils::FilePath &filename, QIODevice *data);
     static bool isHttpRedirect(QNetworkReply *m_reply);
 
-    bool extractSdk(const QString &jdkPath, const QString &sdkExtractPath);
+    bool extractSdk(const Utils::FilePath &jdkPath, const Utils::FilePath &sdkExtractPath);
     bool verifyFileIntegrity();
     void cancelWithError(const QString &error);
     void logError(const QString &error);
@@ -68,7 +70,7 @@ private:
 
     QNetworkAccessManager m_manager;
     QNetworkReply *m_reply = nullptr;
-    QString m_sdkFilename;
+    Utils::FilePath m_sdkFilename;
     QProgressDialog *m_progressDialog = nullptr;
     AndroidConfig m_androidConfig;
 };
