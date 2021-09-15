@@ -22,6 +22,7 @@ Editing
 
 * Fixed freeze with imports that don't specify minor version
   (QTCREATORBUG-26178, QTCREATORBUG-26216)
+* Fixed crash when using inline components (QTCREATORBUG-26151)
 
 ### Language Client
 
@@ -76,6 +77,7 @@ Test Integration
 ### Qt Quick
 
 * Fixed unnecessary updates of QML code model
+* Fixed wizard for Google Test with CMake (QTCREATORBUG-26253)
 
 ### CTest
 
@@ -92,6 +94,10 @@ Platforms
 
 * Fixed cleaning up of old auto-generated Android kits
 * Fixed minimum SDK level for CMake projects (QTCREATORBUG-26127)
+
+### iOS
+
+* Fixed initial CMake parameters for iOS device builds
 
 ### Web Assembly
 
