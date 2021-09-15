@@ -725,7 +725,7 @@ QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
 void FilePath::iterateDirectory(const std::function<void(const FilePath &item)> &callBack,
                                 const QStringList &nameFilters,
                                 QDir::Filters filters,
-                                QDirIterator::IteratorFlags flags)
+                                QDirIterator::IteratorFlags flags) const
 {
     if (needsDevice()) {
         for (const FilePath &filePath :

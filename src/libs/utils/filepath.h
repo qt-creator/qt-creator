@@ -159,7 +159,7 @@ public:
     void iterateDirectory(const std::function<void(const FilePath &item)> &callBack,
                           const QStringList &nameFilters,
                           QDir::Filters filters = QDir::NoFilter,
-                          QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags);
+                          QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
