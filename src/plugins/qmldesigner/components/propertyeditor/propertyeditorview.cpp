@@ -165,7 +165,7 @@ void PropertyEditorView::changeValue(const QString &name)
             m_locked = false;
             QString errMsg = QmlDesigner::ModelNode::getIdValidityErrorMessage(newId);
             if (!errMsg.isEmpty())
-                Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  errMsg.arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  errMsg);
             else
                 Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  tr("%1 already exists.").arg(newId));
         }
