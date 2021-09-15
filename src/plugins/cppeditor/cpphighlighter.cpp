@@ -96,6 +96,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     bool expectPreprocessorKeyword = false;
     bool onlyHighlightComments = false;
+    bool blockHasPreprocessorDirective = false;
 
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
@@ -153,6 +154,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                           formatForCategory(C_PREPROCESSOR));
             expectPreprocessorKeyword = true;
+            blockHasPreprocessorDirective = true;
         } else if (highlightCurrentWordAsPreprocessor && (tk.isKeyword() || tk.is(T_IDENTIFIER))
                    && isPPKeyword(Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars()))) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_PREPROCESSOR));
@@ -180,8 +182,8 @@ void CppHighlighter::highlightBlock(const QString &text)
             //             //    and because clangd does not include punctuation in its semantic
             //             //    tokens, the semicolon would stay formatted as a string even
             //             //    after the semantic highlighter has run.
-            if (!CppModelManager::instance()->isClangCodeModelActive()
-                    && !highlightRawStringLiteral(text, tk)) {
+            if ((!CppModelManager::instance()->isClangCodeModelActive()
+                 || blockHasPreprocessorDirective) && !highlightRawStringLiteral(text, tk)) {
                 setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                                     formatForCategory(C_STRING));
             }
