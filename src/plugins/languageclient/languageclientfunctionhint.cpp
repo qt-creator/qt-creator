@@ -81,9 +81,8 @@ QString FunctionHintProposalModel::text(int index) const
            + label.mid(end).toHtmlEscaped();
 }
 
-FunctionHintProcessor::FunctionHintProcessor(Client *client, const ProposalHandler &proposalHandler)
+FunctionHintProcessor::FunctionHintProcessor(Client *client)
     : m_client(client)
-    , m_proposalHandler(proposalHandler)
 {}
 
 IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface)
@@ -117,24 +116,16 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
     m_client->removeAssistProcessor(this);
     auto result = response.result().value_or(LanguageClientValue<SignatureHelp>());
     if (result.isNull()) {
-        processProposal(nullptr);
+        setAsyncProposalAvailable(nullptr);
         return;
     }
     const SignatureHelp &signatureHelp = result.value();
     if (signatureHelp.signatures().isEmpty()) {
-        processProposal(nullptr);
+        setAsyncProposalAvailable(nullptr);
     } else {
         FunctionHintProposalModelPtr model(new FunctionHintProposalModel(signatureHelp));
-        processProposal(new FunctionHintProposal(m_pos, model));
+        setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
     }
-}
-
-void FunctionHintProcessor::processProposal(IAssistProposal *proposal)
-{
-    if (m_proposalHandler)
-        m_proposalHandler(proposal);
-    else
-        setAsyncProposalAvailable(proposal);
 }
 
 FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
@@ -145,7 +136,7 @@ FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
 TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor(
     const AssistInterface *) const
 {
-    return new FunctionHintProcessor(m_client, m_proposalHandler);
+    return new FunctionHintProcessor(m_client);
 }
 
 IAssistProvider::RunType FunctionHintAssistProvider::runType() const

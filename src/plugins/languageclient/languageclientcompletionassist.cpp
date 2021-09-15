@@ -287,13 +287,16 @@ public:
     int m_pos = -1;
 };
 
-
-LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client,
-    const CompletionItemsTransformer &itemsTransformer, const CompletionApplyHelper &applyHelper,
-    const ProposalHandler &proposalHandler, const QString &snippetsGroup)
-    : m_client(client), m_itemsTransformer(itemsTransformer), m_applyHelper(applyHelper),
-      m_proposalHandler(proposalHandler), m_snippetsGroup(snippetsGroup)
-{ }
+LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(
+    Client *client,
+    const CompletionItemsTransformer &itemsTransformer,
+    const CompletionApplyHelper &applyHelper,
+    const QString &snippetsGroup)
+    : m_client(client)
+    , m_itemsTransformer(itemsTransformer)
+    , m_applyHelper(applyHelper)
+    , m_snippetsGroup(snippetsGroup)
+{}
 
 LanguageClientCompletionAssistProcessor::~LanguageClientCompletionAssistProcessor()
 {
@@ -427,10 +430,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     proposal->m_pos = m_pos;
     proposal->setFragile(true);
     proposal->setSupportsPrefix(false);
-    if (m_proposalHandler)
-        m_proposalHandler(proposal);
-    else
-        setAsyncProposalAvailable(proposal);
+    setAsyncProposalAvailable(proposal);
     m_client->removeAssistProcessor(this);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
                               << items.count() << " completions handled";
@@ -444,8 +444,10 @@ LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(C
 IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor(
     const AssistInterface *) const
 {
-    return new LanguageClientCompletionAssistProcessor(m_client, m_itemsTransformer, m_applyHelper,
-                                                       m_proposalHandler, m_snippetsGroup);
+    return new LanguageClientCompletionAssistProcessor(m_client,
+                                                       m_itemsTransformer,
+                                                       m_applyHelper,
+                                                       m_snippetsGroup);
 }
 
 IAssistProvider::RunType LanguageClientCompletionAssistProvider::runType() const

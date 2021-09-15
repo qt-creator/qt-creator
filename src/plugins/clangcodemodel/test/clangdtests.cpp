@@ -77,6 +77,7 @@ using Range = std::tuple<int, int, int>;
 } // namespace ClangCodeModel
 
 Q_DECLARE_METATYPE(ClangCodeModel::Internal::Tests::Range)
+Q_DECLARE_METATYPE(IAssistProposal *)
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -1885,7 +1886,7 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
     connect(client(), &ClangdClient::proposalReady, &loop, [&proposal, &loop](IAssistProposal *p) {
         proposal = p;
         loop.quit();
-    });
+    }, Qt::QueuedConnection);
     editor->editorWidget()->invokeAssist(Completion, nullptr);
     timer.start(5000);
     loop.exec();

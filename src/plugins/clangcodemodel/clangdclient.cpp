@@ -681,9 +681,11 @@ public:
 class DoxygenAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
-    DoxygenAssistProcessor(int position, unsigned completionOperator,
-                           const ProposalHandler &handler)
-        : m_position(position), m_completionOperator(completionOperator), m_handler(handler) {}
+    DoxygenAssistProcessor(ClangdClient *client, int position, unsigned completionOperator)
+        : m_client(client)
+        , m_position(position)
+        , m_completionOperator(completionOperator)
+    {}
 
 private:
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *) override
@@ -699,16 +701,16 @@ private:
         TextEditor::GenericProposalModelPtr model(new TextEditor::GenericProposalModel);
         model->loadContent(completions);
         const auto proposal = new TextEditor::GenericProposal(m_position, model);
-        if (m_handler) {
-            m_handler(proposal);
+        if (m_client->testingEnabled()) {
+            emit m_client->proposalReady(proposal);
             return nullptr;
         }
         return proposal;
     }
 
+    ClangdClient * const m_client;
     const int m_position;
     const unsigned m_completionOperator;
-    const ProposalHandler m_handler;
 };
 
 class ClangdClient::Private
@@ -770,6 +772,67 @@ public:
     }
 };
 
+QList<LanguageServerProtocol::CompletionItem> completionItemsTransformer(
+    const Utils::FilePath &filePath,
+    const QString &content,
+    int pos,
+    const QList<CompletionItem> &items)
+{
+    qCDebug(clangdLog) << "received" << items.count() << "completions";
+
+    // If there are signals among the candidates, we employ the built-in code model to find out
+    // whether the cursor was on the second argument of a (dis)connect() call.
+    // If so, we offer only signals, as nothing else makes sense in that context.
+    static const auto criterion = [](const CompletionItem &ci) {
+        const Utils::optional<MarkupOrString> doc = ci.documentation();
+        if (!doc)
+            return false;
+        QString docText;
+        if (Utils::holds_alternative<QString>(*doc))
+            docText = Utils::get<QString>(*doc);
+        else if (Utils::holds_alternative<MarkupContent>(*doc))
+            docText = Utils::get<MarkupContent>(*doc).content();
+        return docText.contains("Annotation: qt_signal");
+    };
+    if (pos != -1 && Utils::anyOf(items, criterion)
+        && CppEditor::CppModelManager::instance()->positionRequiresSignal(filePath.toString(),
+                                                                          content.toUtf8(),
+                                                                          pos)) {
+        return Utils::filtered(items, criterion);
+    }
+    return items;
+};
+
+class ClangdClient::ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
+{
+public:
+    ClangdCompletionAssistProcessor(ClangdClient *client, const QString &snippetsGroup)
+        : LanguageClientCompletionAssistProcessor(client,
+                                                  &completionItemsTransformer,
+                                                  &applyCompletionItem,
+                                                  snippetsGroup)
+        , m_client(client)
+    {
+    }
+
+private:
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override
+    {
+        if (m_client->d->isTesting) {
+            setAsyncCompletionAvailableHandler([this](TextEditor::IAssistProposal *proposal) {
+                emit m_client->proposalReady(proposal);
+            });
+        }
+        return LanguageClientCompletionAssistProcessor::perform(interface);
+    }
+
+    static void applyCompletionItem(const CompletionItem &item,
+                                    TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                    QChar typedChar);
+
+    ClangdClient * const m_client;
+};
+
 class ClangdClient::ClangdCompletionAssistProvider : public LanguageClientCompletionAssistProvider
 {
 public:
@@ -783,9 +846,7 @@ private:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
 
-    void applyCompletionItem(const CompletionItem &item,
-                             TextEditor::TextDocumentManipulatorInterface &manipulator,
-                             QChar typedChar);
+    ClangdClient * const m_client;
 };
 
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
@@ -1081,13 +1142,11 @@ void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
 void ClangdClient::enableTesting()
 {
     d->isTesting = true;
-    setCompletionProposalHandler([this](TextEditor::IAssistProposal *proposal) {
-        QMetaObject::invokeMethod(this, [this, proposal] { emit proposalReady(proposal); },
-            Qt::QueuedConnection);
-    });
-    setFunctionHintProposalHandler([this](TextEditor::IAssistProposal *proposal) {
-        emit proposalReady(proposal);
-    });
+}
+
+bool ClangdClient::testingEnabled() const
+{
+    return d->isTesting;
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
@@ -2664,39 +2723,32 @@ QString ClangdDiagnostic::category() const
     return typedValue<QString>("category");
 }
 
+class ClangdClient::ClangdFunctionHintProcessor : public FunctionHintProcessor
+{
+public:
+    ClangdFunctionHintProcessor(ClangdClient *client)
+        : FunctionHintProcessor(client)
+        , m_client(client)
+    {}
+
+private:
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override
+    {
+        if (m_client->d->isTesting) {
+            setAsyncCompletionAvailableHandler([this](TextEditor::IAssistProposal *proposal) {
+                emit m_client->proposalReady(proposal);
+            });
+        }
+        return FunctionHintProcessor::perform(interface);
+    }
+
+    ClangdClient * const m_client;
+};
+
 ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *client)
     : LanguageClientCompletionAssistProvider(client)
-{
-    setItemsTransformer([](const Utils::FilePath &filePath, const QString &content,
-                        int pos,  const QList<CompletionItem> &items) {
-        qCDebug(clangdLog) << "received" << items.count() << "completions";
-
-        // If there are signals among the candidates, we employ the built-in code model to find out
-        // whether the cursor was on the second argument of a (dis)connect() call.
-        // If so, we offer only signals, as nothing else makes sense in that context.
-        static const auto criterion = [](const CompletionItem &ci) {
-            const Utils::optional<MarkupOrString> doc = ci.documentation();
-            if (!doc)
-                return false;
-            QString docText;
-            if (Utils::holds_alternative<QString>(*doc))
-                docText = Utils::get<QString>(*doc);
-            else if (Utils::holds_alternative<MarkupContent>(*doc))
-                docText = Utils::get<MarkupContent>(*doc).content();
-            return docText.contains("Annotation: qt_signal");
-        };
-        if (pos != -1 && Utils::anyOf(items, criterion) && CppEditor::CppModelManager::instance()
-                ->positionRequiresSignal(filePath.toString(), content.toUtf8(), pos)) {
-            return Utils::filtered(items, criterion);
-        }
-        return items;
-    });
-
-    setApplyHelper([this](const CompletionItem &item,
-                   TextEditor::TextDocumentManipulatorInterface &manipulator, QChar typedChar) {
-        applyCompletionItem(item, manipulator, typedChar);
-    });
-}
+    , m_client(client)
+{}
 
 TextEditor::IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
     const TextEditor::AssistInterface *assistInterface) const
@@ -2704,20 +2756,21 @@ TextEditor::IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::crea
     ClangCompletionContextAnalyzer contextAnalyzer(assistInterface->textDocument(),
                                                    assistInterface->position(), false, {});
     contextAnalyzer.analyze();
-    client()->setSnippetsGroup(
-        contextAnalyzer.addSnippets() ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID : QString());
     switch (contextAnalyzer.completionAction()) {
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
         qCDebug(clangdLog) << "completion changed to function hint";
-        return new FunctionHintProcessor(client(), proposalHandler());
+        return new ClangdFunctionHintProcessor(m_client);
     case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
-        return new DoxygenAssistProcessor(contextAnalyzer.positionForProposal(),
-                                          contextAnalyzer.completionOperator(),
-                                          proposalHandler());
+        return new DoxygenAssistProcessor(m_client,
+                                          contextAnalyzer.positionForProposal(),
+                                          contextAnalyzer.completionOperator());
     default:
         break;
     }
-    return LanguageClientCompletionAssistProvider::createProcessor(assistInterface);
+    const QString snippetsGroup = contextAnalyzer.addSnippets()
+                                      ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID
+                                      : QString();
+    return new ClangdCompletionAssistProcessor(m_client, snippetsGroup);
 }
 
 bool ClangdClient::ClangdCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
@@ -2747,7 +2800,7 @@ bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QCha
     return CppEditor::isValidIdentifierChar(c);
 }
 
-void ClangdClient::ClangdCompletionAssistProvider::applyCompletionItem(
+void ClangdClient::ClangdCompletionAssistProcessor::applyCompletionItem(
         const CompletionItem &item, TextEditor::TextDocumentManipulatorInterface &manipulator,
         QChar typedChar)
 {

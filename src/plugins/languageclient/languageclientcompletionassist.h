@@ -53,7 +53,6 @@ using CompletionItemsTransformer = std::function<QList<LanguageServerProtocol::C
 using CompletionApplyHelper = std::function<void(
         const LanguageServerProtocol::CompletionItem &,
         TextEditor::TextDocumentManipulatorInterface &, QChar)>;
-using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
 
 class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProvider
     : public TextEditor::CompletionAssistProvider
@@ -72,20 +71,17 @@ public:
 
     void setTriggerCharacters(const Utils::optional<QList<QString>> triggerChars);
 
-    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
     void setSnippetsGroup(const QString &group) { m_snippetsGroup = group; }
 
 protected:
     void setItemsTransformer(const CompletionItemsTransformer &transformer);
     void setApplyHelper(const CompletionApplyHelper &applyHelper);
     Client *client() const { return m_client; }
-    const ProposalHandler &proposalHandler() const { return m_proposalHandler; }
 
 private:
     QList<QString> m_triggerChars;
     CompletionItemsTransformer m_itemsTransformer;
     CompletionApplyHelper m_applyHelper;
-    ProposalHandler m_proposalHandler;
     QString m_snippetsGroup;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
@@ -98,7 +94,6 @@ public:
     LanguageClientCompletionAssistProcessor(Client *client,
                                             const CompletionItemsTransformer &itemsTransformer,
                                             const CompletionApplyHelper &applyHelper,
-                                            const ProposalHandler &proposalHandler,
                                             const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
@@ -116,7 +111,6 @@ private:
     QMetaObject::Connection m_postponedUpdateConnection;
     const CompletionItemsTransformer m_itemsTransformer;
     const CompletionApplyHelper m_applyHelper;
-    const ProposalHandler m_proposalHandler;
     const QString m_snippetsGroup;
     int m_pos = -1;
     int m_basePos = -1;

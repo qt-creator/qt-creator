@@ -1047,22 +1047,6 @@ SymbolStringifier Client::symbolStringifier() const
     return m_symbolStringifier;
 }
 
-void Client::setCompletionProposalHandler(const ProposalHandler &handler)
-{
-    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
-                m_clientProviders.completionAssistProvider)) {
-        provider->setProposalHandler(handler);
-    }
-}
-
-void Client::setFunctionHintProposalHandler(const ProposalHandler &handler)
-{
-    if (const auto provider = qobject_cast<FunctionHintAssistProvider *>(
-                m_clientProviders.functionHintProvider)) {
-        provider->setProposalHandler(handler);
-    }
-}
-
 void Client::setSnippetsGroup(const QString &group)
 {
     if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(

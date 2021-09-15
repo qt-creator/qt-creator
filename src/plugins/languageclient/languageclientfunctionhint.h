@@ -40,8 +40,6 @@ namespace LanguageClient {
 
 class Client;
 
-using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
-
 class LANGUAGECLIENT_EXPORT FunctionHintAssistProvider : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
@@ -58,11 +56,8 @@ public:
 
     void setTriggerCharacters(const Utils::optional<QList<QString>> &triggerChars);
 
-    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
-
 private:
     QList<QString> m_triggerChars;
-    ProposalHandler m_proposalHandler;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
 };
@@ -70,7 +65,7 @@ private:
 class LANGUAGECLIENT_EXPORT FunctionHintProcessor : public TextEditor::IAssistProcessor
 {
 public:
-    explicit FunctionHintProcessor(Client *client, const ProposalHandler &proposalHandler);
+    explicit FunctionHintProcessor(Client *client);
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
     bool running() override { return m_currentRequest.has_value(); }
     bool needsRestart() const override { return true; }
@@ -79,10 +74,8 @@ public:
 private:
     void handleSignatureResponse(
         const LanguageServerProtocol::SignatureHelpRequest::Response &response);
-    void processProposal(TextEditor::IAssistProposal *proposal);
 
     QPointer<Client> m_client;
-    const ProposalHandler m_proposalHandler;
     Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     int m_pos = -1;
 };
