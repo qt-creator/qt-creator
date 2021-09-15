@@ -54,9 +54,9 @@ class SdkToolResult {
 public:
     SdkToolResult() = default;
     bool success() const { return m_success; }
-    const QString &stdOut() { return m_stdOut; }
-    const QString &stdErr() { return m_stdErr; }
-    const QString &exitMessage() { return m_exitMessage; }
+    const QString &stdOut() const { return m_stdOut; }
+    const QString &stdErr() const { return m_stdErr; }
+    const QString &exitMessage() const { return m_exitMessage; }
 
 private:
     bool m_success = false;
