@@ -59,8 +59,7 @@ CompilationDbParser::CompilationDbParser(const QString &projectName,
 {
     connect(&m_parserWatcher, &QFutureWatcher<void>::finished, this, [this] {
         m_dbContents = m_parserWatcher.result();
-        if (!m_treeScanner || m_treeScanner->isFinished())
-            finish(ParseResult::Success);
+        parserJobFinished();
     });
 }
 
@@ -80,6 +79,7 @@ void CompilationDbParser::start()
         return;
     }
     m_projectFileHash = newHash;
+    m_runningParserJobs = 0;
 
     // Thread 1: Scan disk.
     if (!m_rootPath.isEmpty()) {
@@ -109,10 +109,9 @@ void CompilationDbParser::start()
         Core::ProgressManager::addTask(m_treeScanner->future(),
                                        tr("Scan \"%1\" project tree").arg(m_projectName),
                                        "CompilationDatabase.Scan.Tree");
-        connect(m_treeScanner, &TreeScanner::finished, this, [this] {
-            if (m_parserWatcher.isFinished())
-                finish(ParseResult::Success);
-        });
+        ++m_runningParserJobs;
+        connect(m_treeScanner, &TreeScanner::finished,
+                this, &CompilationDbParser::parserJobFinished);
     }
 
     // Thread 2: Parse the project file.
@@ -120,6 +119,7 @@ void CompilationDbParser::start()
     Core::ProgressManager::addTask(future,
                                    tr("Parse \"%1\" project").arg(m_projectName),
                                    "CompilationDatabase.Parse");
+    ++m_runningParserJobs;
     m_parserWatcher.setFuture(future);
 }
 
@@ -141,6 +141,12 @@ QList<FileNode *> CompilationDbParser::scannedFiles() const
     const TreeScanner::Result result = m_treeScanner->release();
     return m_treeScanner && !m_treeScanner->future().isCanceled() ? result.allFiles
                                                                   : QList<FileNode *>();
+}
+
+void CompilationDbParser::parserJobFinished()
+{
+    if (--m_runningParserJobs == 0)
+        finish(ParseResult::Success);
 }
 
 void CompilationDbParser::finish(ParseResult result)
