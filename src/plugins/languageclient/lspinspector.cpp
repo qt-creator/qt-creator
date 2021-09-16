@@ -431,7 +431,8 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     const auto clearButton = buttonBox->addButton(tr("Clear"), QDialogButtonBox::ResetRole);
     connect(clearButton, &QPushButton::clicked, this, [this] {
         m_inspector->clear();
-        currentClientChanged(m_clients->currentItem()->text());
+        if (m_clients->currentItem())
+            currentClientChanged(m_clients->currentItem()->text());
     });
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
