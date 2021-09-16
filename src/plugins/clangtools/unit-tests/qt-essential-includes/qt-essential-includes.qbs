@@ -6,8 +6,6 @@ QtApplication {
     Depends {
         name: "Qt"
         submodules: [
-            "multimedia",
-            "multimediawidgets",
             "network",
             "qml",
             "quick",
@@ -16,6 +14,9 @@ QtApplication {
             "widgets",
         ]
     }
+
+    Depends { name: "Qt.multimedia"; required: false }
+    Depends { name: "Qt.multimediawidgets"; required: false }
 
     files : [
         "main.cpp",
