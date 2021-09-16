@@ -153,7 +153,7 @@ PropertyNameList propertyNameListForWritableProperties(QObject *object,
                                                        const PropertyName &baseName,
                                                        QObjectList *inspectedObjects)
 {
-    return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object, baseName, inspectedObjects);
+    return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object);
 }
 
 void tweakObjects(QObject *object)
