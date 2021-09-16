@@ -52,6 +52,10 @@
     You can edit the properties of the controls in all the preset
     \l{Adding States}{states} to apply your own style to them.
 
+    \note For buttons and check boxes, you can disable the misbehaving hover
+    effects by selecting \l Properties > \uicontrol Control, and then disabling
+    the \uicontrol Hover check box.
+
     \image studio-dial.png "A stylable Dial component in Form Editor"
 
     To create stylable UI controls:
