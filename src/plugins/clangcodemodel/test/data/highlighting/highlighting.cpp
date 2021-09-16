@@ -811,3 +811,10 @@ std::vector<int
  >
   >
 vp3;
+
+void staticMemberFuncTest() {
+    struct S { static void staticFunc(int &); };
+    S s;
+    int i;
+    s.staticFunc(i);
+}

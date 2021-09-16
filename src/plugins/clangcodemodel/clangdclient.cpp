@@ -2444,6 +2444,10 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
             }
             if (it->kind().endsWith("Cast") && it->hasConstType())
                 return false;
+            if (it->kind() == "Member" && it->arcanaContains("(")
+                    && !it->arcanaContains("bound member function type")) {
+                return false;
+            }
         }
         return false;
     };

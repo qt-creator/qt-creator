@@ -1231,6 +1231,10 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
     QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
         << QList<int>{C_DISABLED_CODE} << 0;
+    QTest::newRow("static function call (object)") << 819 << 5 << 819 << 6
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("static function call (argument)") << 819 << 18 << 819 << 19
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
 }
 
 void ClangdTestHighlighting::test()
