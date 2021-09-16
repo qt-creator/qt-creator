@@ -182,6 +182,9 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_buildTargetModel.setHeader({tr("Target")});
 
     setBuildTargets({defaultBuildTarget()});
+    auto *bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+    if (bs && !bs->buildTargets().isEmpty())
+        recreateBuildTargetsModel();
 
     setLowPriority();
 
