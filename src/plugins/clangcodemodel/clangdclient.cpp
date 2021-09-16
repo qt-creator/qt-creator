@@ -2386,20 +2386,28 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
 
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
 // and not even in a consistent manner. We don't want this, so we have to clean up here.
-// TODO: Fix in clangd?
-static void cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextDocument *doc,
-                                const QString &docContent)
+// But note that we require this behavior, as otherwise we would not be able to grey out
+// e.g. empty lines after an #fdef, due to the lack of symbols.
+static QList<TextEditor::BlockRange>
+cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextDocument *doc,
+                    const QString &docContent)
 {
-    bool inDisabled = false;
+    QList<TextEditor::BlockRange> ifdefedOutRanges;
+    int rangeStartPos = -1;
     for (auto it = results.begin(); it != results.end();) {
-        const bool wasInDisabled = inDisabled;
+        const bool wasIfdefedOut = rangeStartPos != -1;
         if (it->textStyles.mainStyle != TextEditor::C_DISABLED_CODE) {
-            inDisabled = false;
+            if (wasIfdefedOut) {
+                const QTextBlock block = doc->findBlockByNumber(it->line - 1);
+                ifdefedOutRanges << TextEditor::BlockRange(rangeStartPos, block.position());
+                rangeStartPos = -1;
+            }
             ++it;
             continue;
         }
 
-        inDisabled = true;
+        if (!wasIfdefedOut)
+            rangeStartPos = doc->findBlockByNumber(it->line - 1).position();
         const int pos = Utils::Text::positionInText(doc, it->line, it->column);
         const QStringView content(QStringView(docContent).mid(pos, it->length).trimmed());
         if (!content.startsWith(QLatin1String("#if"))
@@ -2410,25 +2418,37 @@ static void cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextD
             continue;
         }
 
-        if (!wasInDisabled) {
+        if (!wasIfdefedOut) {
             // The #if or #else that starts disabled code should not be disabled.
+            const QTextBlock nextBlock = doc->findBlockByNumber(it->line);
+            rangeStartPos = nextBlock.isValid() ? nextBlock.position() : -1;
             it = results.erase(it);
             continue;
         }
 
-        if (wasInDisabled && (it + 1 == results.end()
+        if (wasIfdefedOut && (it + 1 == results.end()
                 || (it + 1)->textStyles.mainStyle != TextEditor::C_DISABLED_CODE)) {
             // The #else or #endif that ends disabled code should not be disabled.
+            const QTextBlock block = doc->findBlockByNumber(it->line - 1);
+            ifdefedOutRanges << TextEditor::BlockRange(rangeStartPos, block.position());
+            rangeStartPos = -1;
             it = results.erase(it);
             continue;
         }
         ++it;
     }
+
+    if (rangeStartPos != -1)
+        ifdefedOutRanges << TextEditor::BlockRange(rangeStartPos, doc->characterCount());
+
+    return ifdefedOutRanges;
 }
 
 static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult> &future,
                                 const QList<ExpandedSemanticToken> &tokens,
-                                const QString &docContents, const AstNode &ast)
+                                const QString &docContents, const AstNode &ast,
+                                const QPointer<TextEditor::TextEditorWidget> &widget,
+                                int docRevision)
 {
     if (future.isCanceled()) {
         future.reportFinished();
@@ -2548,7 +2568,12 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
     };
 
     TextEditor::HighlightingResults results = Utils::transform(tokens, toResult);
-    cleanupDisabledCode(results, &doc, docContents);
+    const QList<TextEditor::BlockRange> ifdefedOutBlocks
+            = cleanupDisabledCode(results, &doc, docContents);
+    QMetaObject::invokeMethod(widget, [widget, ifdefedOutBlocks, docRevision] {
+        if (widget && widget->textDocument()->document()->revision() == docRevision)
+            widget->setIfdefedOutBlocks(ifdefedOutBlocks);
+    }, Qt::QueuedConnection);
     collectExtraResults(future, results, ast, &doc, docContents);
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
@@ -2588,9 +2613,13 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         if (ast && clangdLogAst().isDebugEnabled())
             ast->print();
 
+        IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
+                [doc](const IEditor *editor) { return editor->document() == doc; });
+        const auto editorWidget = TextEditor::TextEditorWidget::fromEditor(editor);
         const auto runner = [tokens, text = doc->document()->toPlainText(),
-                             theAst = ast ? *ast : AstNode()] {
-            return Utils::runAsync(semanticHighlighter, tokens, text, theAst);
+                             theAst = ast ? *ast : AstNode(), w = QPointer(editorWidget),
+                             rev = doc->document()->revision()] {
+            return Utils::runAsync(semanticHighlighter, tokens, text, theAst, w, rev);
         };
 
         if (isTesting) {
