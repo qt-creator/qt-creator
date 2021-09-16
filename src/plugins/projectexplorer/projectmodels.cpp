@@ -315,8 +315,11 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
             const QMessageBox::StandardButton reply = QMessageBox::question(
                         Core::ICore::dialogParent(), tr("Rename More Files?"),
                         tr("Would you like to rename these files as well?\n    %1")
-                        .arg(fileNames.join("\n    ")));
-            if (reply == QMessageBox::Yes) {
+                        .arg(fileNames.join("\n    ")),
+                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                        QMessageBox::Yes);
+            switch (reply) {
+            case QMessageBox::Yes:
                 for (Node * const n : candidateNodes) {
                     QString targetFilePath = orgFileInfo.absolutePath() + '/'
                                              + newFilePath.completeBaseName();
@@ -326,6 +329,11 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
                     toRename.emplace_back(std::make_tuple(n, n->filePath(),
                                                           FilePath::fromString(targetFilePath)));
                 }
+                break;
+            case QMessageBox::Cancel:
+                return false;
+            default:
+                break;
             }
         }
     }
