@@ -25,6 +25,10 @@
 
 #include "exewrappers/mesonwrapper.h"
 
+#include <utils/launcherinterface.h>
+#include <utils/processreaper.h>
+
+#include <QCoreApplication>
 #include <QDir>
 #include <QObject>
 #include <QString>
@@ -44,7 +48,12 @@ class AMesonWrapper : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase() {}
+    void initTestCase()
+    {
+        Utils::LauncherInterface::startLauncher(
+                    QCoreApplication::instance()->applicationDirPath() + '/'
+                    + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+    }
 
     void shouldFindMesonFromPATH()
     {
@@ -104,7 +113,13 @@ private slots:
                                           Utils::FilePath::fromString(build_dir.path()))));
     }
 
-    void cleanupTestCase() {}
+    void cleanupTestCase()
+    {
+        Utils::LauncherInterface::stopLauncher();
+    }
+
+private:
+    Utils::ProcessReaper processReaper;
 };
 
 QTEST_MAIN(AMesonWrapper)

@@ -110,13 +110,13 @@ Project {
     }
 
     QtcAutotest {
-        name: "tst_mesonwrapper"
+        name: "mesonwrapper"
         condition: project.withAutotests
 
         Depends { name: "Core" }
         Depends { name: "Utils" }
 
-        cpp.defines: project.testDefines
+        cpp.defines: base.concat(project.testDefines)
         cpp.includePaths: "."
 
         files: [
@@ -131,13 +131,13 @@ Project {
     }
 
     QtcAutotest {
-        name: "tst_mesoninfoparser"
+        name: "mesoninfoparser"
         condition: project.withAutotests
 
         Depends { name: "Core" }
         Depends { name: "Utils" }
 
-        cpp.defines: project.testDefines
+        cpp.defines: base.concat(project.testDefines)
         cpp.includePaths: "."
 
         files: [
@@ -153,7 +153,7 @@ Project {
     }
 
     QtcAutotest {
-        name: "tst_ninjaparser"
+        name: "ninjaparser"
         condition: project.withAutotests
 
         Depends { name: "Core" }
@@ -171,14 +171,14 @@ Project {
     }
 
     QtcAutotest {
-        name: "tst_mesonparser"
+        name: "mesonparser"
         condition: project.withAutotests
 
         Depends { name: "Core" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "Utils" }
 
-        cpp.defines: "MESONPARSER_DISABLE_TASKS_FOR_TESTS"
+        cpp.defines: base.concat("MESONPARSER_DISABLE_TASKS_FOR_TESTS")
         cpp.includePaths: "."
 
         files: [

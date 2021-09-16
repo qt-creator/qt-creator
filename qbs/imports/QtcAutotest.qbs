@@ -17,9 +17,14 @@ QtcProduct {
         project.buildDirectory + '/' + qtc.ide_library_path,
         project.buildDirectory + '/' + qtc.ide_plugin_path
     ]
-    cpp.defines: base.filter(function(d) {
-        return d !== "QT_RESTRICTED_CAST_FROM_ASCII";
-    })
+    cpp.defines: {
+        var defines = base.filter(function(d) { return d !== "QT_RESTRICTED_CAST_FROM_ASCII"; });
+        var absLibExecPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix,
+                                                qtc.ide_libexec_path);
+        var relLibExecPath = FileInfo.relativePath(destinationDirectory, absLibExecPath);
+        defines.push('TEST_RELATIVE_LIBEXEC_PATH="' + relLibExecPath + '"');
+        return defines;
+    }
 
     Group {
         fileTagsFilter: product.type

@@ -86,6 +86,9 @@ add_qtc_plugin(MesonProjectManager
   resources.qrc
 )
 
+file(RELATIVE_PATH RELATIVE_TEST_PATH "${PROJECT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_LIBEXEC_PATH}")
+
 if(WITH_TESTS)
 add_qtc_test(tst_mesonwrapper
   INCLUDES
@@ -96,6 +99,7 @@ add_qtc_test(tst_mesonwrapper
   DEFINES
      MESON_SAMPLES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/resources"
      MESON_SAMPLES_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+     TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesonwrapper.cpp
     exewrappers/mesonwrapper.cpp
@@ -115,6 +119,7 @@ add_qtc_test(tst_mesoninfoparser
   DEFINES
      MESON_SAMPLES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/resources"
      MESON_SAMPLES_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+     TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesoninfoparser.cpp
     exewrappers/mesonwrapper.cpp
