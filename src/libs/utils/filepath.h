@@ -156,7 +156,7 @@ public:
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
-    void iterateDirectory(const std::function<void(const FilePath &item)> &callBack,
+    void iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
                           const QStringList &nameFilters,
                           QDir::Filters filters = QDir::NoFilter,
                           QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;

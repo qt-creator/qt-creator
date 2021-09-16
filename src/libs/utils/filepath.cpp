@@ -722,7 +722,7 @@ QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
     return dirEntries({}, filters);
 }
 
-void FilePath::iterateDirectory(const std::function<void(const FilePath &item)> &callBack,
+void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
                                 const QStringList &nameFilters,
                                 QDir::Filters filters,
                                 QDirIterator::IteratorFlags flags) const
@@ -730,12 +730,14 @@ void FilePath::iterateDirectory(const std::function<void(const FilePath &item)> 
     if (needsDevice()) {
         for (const FilePath &filePath :
              s_deviceHooks.dirEntries(*this, nameFilters, filters, QDir::NoSort))
-            callBack(filePath);
+            if (!callBack(filePath))
+                return;
     }
 
     QDirIterator it(m_data, nameFilters, filters, flags);
     while (it.hasNext())
-        callBack(FilePath::fromString(it.next()));
+        if (!callBack(FilePath::fromString(it.next())))
+            return;
 }
 
 QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const
