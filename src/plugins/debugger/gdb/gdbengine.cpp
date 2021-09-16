@@ -1603,17 +1603,20 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
             return cleanFilePath;
     }
     if (m_baseNameToFullName.isEmpty()) {
-        QString debugSource = sysroot + "/usr/src/debug";
-        if (QFileInfo(debugSource).isDir()) {
-            QDirIterator it(debugSource, QDirIterator::Subdirectories);
-            while (it.hasNext()) {
-                it.next();
-                QString name = it.fileName();
-                if (!name.startsWith('.')) {
-                    QString path = it.filePath();
-                    m_baseNameToFullName.insert(name, path);
-                }
-            }
+        FilePath filePath = FilePath::fromString(sysroot + "/usr/src/debug");
+
+        if (filePath.isDir()) {
+            filePath.iterateDirectory(
+                [this](const FilePath &filePath) {
+                    QString name = filePath.fileName();
+                    if (!name.startsWith('.')) {
+                        QString path = filePath.path();
+                        m_baseNameToFullName.insert(name, path);
+                    }
+                },
+                {"*"},
+                QDir::NoFilter,
+                QDirIterator::Subdirectories);
         }
     }
 
