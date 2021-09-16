@@ -78,6 +78,11 @@ public:
         return m_sourcePathCache.id({sourceName, sourceContextId});
     }
 
+    SourceId sourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName) const
+    {
+        return m_sourcePathCache.id({sourceName, sourceContextId});
+    }
+
     SourceContextId sourceContextId(Utils::SmallStringView sourceContextPath) const
     {
         Utils::SmallStringView path = sourceContextPath.back() == '/'

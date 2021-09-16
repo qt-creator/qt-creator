@@ -76,10 +76,9 @@ protected:
     }
 
 protected:
-    NiceMock<SqliteDatabaseMock> databaseMock;
-    NiceMock<ProjectStorageMock> storageMock{databaseMock};
+    NiceMock<ProjectStorageMock> storageMock;
     Cache cache{storageMock};
-    NiceMock<ProjectStorageMock> storageMockFilled{databaseMock};
+    NiceMock<ProjectStorageMock> storageMockFilled;
     Cache cacheNotFilled{storageMockFilled};
 };
 
@@ -100,6 +99,15 @@ TEST_F(SourcePathCache, SourceIdWithOutAnyEntryCalls)
 TEST_F(SourcePathCache, SourceIdOfSourceIdWithOutAnyEntry)
 {
     auto sourceId = cache.sourceId(SourcePathView("/path/to/file.cpp"));
+
+    ASSERT_THAT(sourceId, SourceId{42});
+}
+
+TEST_F(SourcePathCache, SourceIdWithSourceContextIdAndSourceName)
+{
+    auto sourceContextId = cache.sourceContextId("/path/to"_sv);
+
+    auto sourceId = cache.sourceId(sourceContextId, "file.cpp"_sv);
 
     ASSERT_THAT(sourceId, SourceId{42});
 }

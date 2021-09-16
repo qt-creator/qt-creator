@@ -44,6 +44,7 @@ public:
     MOCK_METHOD(void, write, (long long), ());
     MOCK_METHOD(void, write, (long long, long long), ());
     MOCK_METHOD(void, write, (long long, long long, int), ());
+    MOCK_METHOD(void, write, (long long, long long, long long), ());
     MOCK_METHOD(void, write, (long long, unsigned int), ());
     MOCK_METHOD(void, write, (Utils::SmallStringView, long long), ());
     MOCK_METHOD(void, write, (Utils::SmallStringView, Utils::SmallStringView), ());
@@ -95,6 +96,7 @@ public:
     MOCK_METHOD(void, write, (void *, long long), ());
     MOCK_METHOD(void, write, (int), ());
     MOCK_METHOD(void, write, (int, long long), ());
+    MOCK_METHOD(void, write, (int, long long, long long), ());
     MOCK_METHOD(void, write, (int, int), ());
     MOCK_METHOD(void, write, (uint, uint, uint), ());
     MOCK_METHOD(void, write, (int, off_t, time_t), ());
@@ -109,6 +111,7 @@ public:
     MOCK_METHOD(void, write, (uint, Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (int, Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (int, Utils::SmallStringView, long long), ());
+    MOCK_METHOD(void, write, (long long, Sqlite::NullValue, Sqlite::NullValue), ());
 
     MOCK_METHOD(void, write, (Utils::span<int>, Utils::span<long long>), ());
     MOCK_METHOD(void, write, (Utils::span<long long>), ());

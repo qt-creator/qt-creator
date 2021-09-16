@@ -101,8 +101,7 @@ protected:
     }
 
 protected:
-    NiceMock<SqliteDatabaseMock> databaseMock;
-    NiceMock<ProjectStorageMock> mockStorage{databaseMock};
+    NiceMock<ProjectStorageMock> mockStorage;
     StorageAdapter storageAdapter{mockStorage};
     Cache cache{storageAdapter};
     typename Cache::MutexType &mockMutex = cache.mutex();

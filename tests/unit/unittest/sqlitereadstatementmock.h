@@ -27,7 +27,7 @@
 
 #include "googletest.h"
 
-#include <cppeditor/usages.h>
+#include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/sourcepathcachetypes.h>
 #include <projectstorageids.h>
@@ -60,10 +60,6 @@ public:
                 (Utils::SmallStringView, long long),
                 ());
 
-    MOCK_METHOD(CppEditor::Usages, valuesReturnSourceUsages, (std::size_t, int, int, int), ());
-
-    MOCK_METHOD(CppEditor::Usages, valuesReturnSourceUsages, (std::size_t, int, int, int, int), ());
-
     MOCK_METHOD(Utils::optional<int>, valueReturnInt32, (Utils::SmallStringView), ());
 
     MOCK_METHOD(Utils::optional<int>, valueReturnInt32, (int, Utils::SmallStringView), ());
@@ -78,7 +74,7 @@ public:
 
     MOCK_METHOD(Utils::optional<Utils::SmallString>, valueReturnSmallString, (int), ());
 
-    MOCK_METHOD(QmlDesigner::TypeId, valueReturnsTypeId, (Utils::SmallStringView name), ());
+    MOCK_METHOD(QmlDesigner::TypeId, valueReturnsTypeId, (long long, Utils::SmallStringView name), ());
     MOCK_METHOD(QmlDesigner::TypeId, valueWithTransactionReturnsTypeId, (long long, long long), ());
     MOCK_METHOD(QmlDesigner::PropertyDeclarationId,
                 valueWithTransactionReturnsPropertyDeclarationId,
@@ -151,6 +147,8 @@ public:
                 (std::size_t, long long),
                 ());
 
+    MOCK_METHOD(QmlDesigner::FileStatuses, rangesReturnsFileStatuses, (Utils::span<const int>), ());
+
     template<typename ResultType, typename... QueryTypes>
     auto optionalValue(const QueryTypes &...queryValues)
     {
@@ -221,8 +219,6 @@ public:
             return valuesReturnStringVector(reserveSize);
         else if constexpr (std::is_same_v<ResultType, long long>)
             return valuesReturnRowIds(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, CppEditor::Usage>)
-            return valuesReturnSourceUsages(reserveSize, queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceContext>)
             return valuesReturnCacheSourceContexts(reserveSize);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::Source>)
@@ -255,6 +251,8 @@ public:
             return rangeReturnStorageSignalDeclarationViews(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumerationDeclarationView>)
             return rangeReturnStorageEnumerationDeclarationViews(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::FileStatus>)
+            return rangesReturnsFileStatuses(queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::values does not handle result type!");

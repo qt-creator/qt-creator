@@ -34,6 +34,7 @@ namespace QmlDesigner {
 class FileStatus
 {
 public:
+    explicit FileStatus() = default;
     explicit FileStatus(SourceId sourceId, long long size, long long lastModified)
         : sourceId{sourceId}
         , size{size}
@@ -49,7 +50,8 @@ public:
     friend bool operator==(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId == second.sourceId && first.size == second.size
-               && first.lastModified == second.lastModified;
+               && first.lastModified == second.lastModified && first.size >= 0
+               && first.lastModified >= 0;
     }
 
     friend bool operator!=(const FileStatus &first, const FileStatus &second)
@@ -72,10 +74,14 @@ public:
         return first.sourceId < second;
     }
 
+    bool isValid() const { return sourceId && size >= 0 && lastModified >= 0; }
+
+    explicit operator bool() const { return isValid(); }
+
 public:
     SourceId sourceId;
-    long long size;
-    long long lastModified;
+    long long size = -1;
+    long long lastModified = -1;
 };
 
 using FileStatuses = std::vector<FileStatus>;

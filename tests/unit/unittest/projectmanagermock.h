@@ -27,18 +27,10 @@
 
 #include "googletest.h"
 
-#include <projectstorage/filestatus.h>
-#include <projectstorage/filesysteminterface.h>
+#include <projectstorage/projectmanagerinterface.h>
 
-class FileSystemMock : public QmlDesigner::FileSystemInterface
+class ProjectManagerMock : public QmlDesigner::ProjectManagerInterface
 {
 public:
-    MOCK_METHOD(QmlDesigner::SourceIds,
-                directoryEntries,
-                (const QString &directoryPath),
-                (const, override));
-    MOCK_METHOD(long long, lastModified, (QmlDesigner::SourceId sourceId), (const, override));
-    MOCK_METHOD(QmlDesigner::FileStatus, fileStatus, (QmlDesigner::SourceId sourceId), (const, override));
-    MOCK_METHOD(void, remove, (const QmlDesigner::SourceIds &sourceIds), (override));
-    MOCK_METHOD(QString, contentAsQString, (const QString &filePath), (const, override));
+    MOCK_METHOD(QStringList, qtQmlDirs, (), (const));
 };

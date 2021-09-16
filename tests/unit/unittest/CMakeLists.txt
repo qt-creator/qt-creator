@@ -33,7 +33,7 @@ add_qtc_test(unittest GTEST
   DEPENDS
     Qt5::Core Qt5::Network Qt5::Widgets
     Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
-    Qt6Core5Compat
+    Qt6Core5Compat QmlJS
     Googletest
   DEFINES
     QT_NO_CAST_TO_ASCII
@@ -342,6 +342,8 @@ extend_qtc_test(unittest
     projectstorage/filestatus.h
     projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
     projectstorage/nonlockingmutex.h
+    projectstorage/projectmanagerinterface.h
+    projectstorage/projectstorageinterface.h
     projectstorage/projectstorage.h
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatcherinterface.h
@@ -351,6 +353,7 @@ extend_qtc_test(unittest
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatchertypes.h
     projectstorage/projectstoragetypes.h
+    projectstorage/projectstorageupdater.cpp projectstorage/projectstorageupdater.h
     projectstorage/sourcepath.h
     projectstorage/sourcepathcache.h
     projectstorage/sourcepathcache.h
@@ -359,6 +362,8 @@ extend_qtc_test(unittest
     projectstorage/storagecache.h
     projectstorage/storagecacheentry.h
     projectstorage/storagecachefwd.h
+    projectstorage/qmldocumentparserinterface.h
+    projectstorage/qmltypesparserinterface.h
     rewritertransaction.cpp
     rewritertransaction.h
   EXPLICIT_MOC
@@ -373,7 +378,9 @@ extend_qtc_test(unittest
     filesystemmock.h
     filestatuscache-test.cpp
     listmodeleditor-test.cpp
+    projectmanagermock.h
     projectstorage-test.cpp
+    projectstorageupdater-test.cpp
     projectstoragesqlitefunctionregistry-test.cpp
     projectstoragepathwatchermock.h
     projectstoragepathwatchernotifiermock.h
@@ -383,7 +390,8 @@ extend_qtc_test(unittest
     sourcepathcachemock.h
     sourcepathview-test.cpp
     storagecache-test.cpp
-
+    qmldocumentparsermock.h
+    qmltypesparsermock.h
 )
 
 # QmlDesigner tests END

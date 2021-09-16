@@ -25,10 +25,8 @@
 
 #pragma once
 
-#include "filestatus.h"
 #include "projectstorageexceptions.h"
-#include "projectstorageids.h"
-#include "projectstoragetypes.h"
+#include "projectstorageinterface.h"
 #include "sourcepathcachetypes.h"
 
 #include <sqlitealgorithms.h>
@@ -43,7 +41,7 @@
 namespace QmlDesigner {
 
 template<typename Database>
-class ProjectStorage
+class ProjectStorage final : public ProjectStorageInterface
 {
 public:
     template<int ResultCount>
@@ -61,7 +59,7 @@ public:
                      Storage::Documents documents,
                      Storage::Types types,
                      SourceIds sourceIds,
-                     FileStatuses fileStatuses)
+                     FileStatuses fileStatuses) override
     {
         Sqlite::ImmediateTransaction transaction{database};
 
@@ -298,6 +296,14 @@ public:
     {
         return selectAllFileStatusesStatement.template rangeWithTransaction<FileStatus>();
     }
+
+    FileStatus fetchFileStatus(SourceId sourceId) const override
+    {
+        return selectFileStatusesForSourceIdStatement.template valueWithTransaction<FileStatus>(
+            &sourceId);
+    }
+
+    SourceIds fetchSourceDependencieIds(SourceId sourceId) const override { return {}; }
 
 private:
     class AliasPropertyDeclaration
@@ -1240,6 +1246,11 @@ private:
 
     TypeId declareType(Storage::Type &type)
     {
+        if (type.import.name.isEmpty() && type.typeName.isEmpty()) {
+            type.typeId = selectTypeIdBySourceIdStatement.template value<TypeId>(&type.sourceId);
+            return type.typeId;
+        }
+
         ImportId importId = fetchImportId(type.import);
 
         if (!importId)
@@ -2186,11 +2197,16 @@ public:
         "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) ORDER "
         "BY sourceId",
         database};
+    mutable ReadStatement<3> selectFileStatusesForSourceIdStatement{
+        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId=?1 ORDER BY sourceId",
+        database};
     WriteStatement insertFileStatusStatement{
         "INSERT INTO fileStatuses(sourceId, size, lastModified) VALUES(?1, ?2, ?3)", database};
     WriteStatement deleteFileStatusStatement{"DELETE FROM fileStatuses WHERE sourceId=?1", database};
     WriteStatement updateFileStatusStatement{
         "UPDATE fileStatuses SET size=?2, lastModified=?3 WHERE sourceId=?1", database};
+    ReadStatement<1> selectTypeIdBySourceIdStatement{"SELECT typeId FROM types WHERE sourceId=?",
+                                                     database};
 };
 
 } // namespace QmlDesigner

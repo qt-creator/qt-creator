@@ -41,6 +41,7 @@ namespace {
 using Watcher = QmlDesigner::ProjectStoragePathWatcher<NiceMock<MockQFileSytemWatcher>,
                                                        NiceMock<MockTimer>,
                                                        NiceMock<SourcePathCacheMock>>;
+using QmlDesigner::FileStatus;
 using QmlDesigner::IdPaths;
 using QmlDesigner::ProjectChunkId;
 using QmlDesigner::ProjectChunkIds;
@@ -81,7 +82,9 @@ protected:
             .WillByDefault(Return(sourceContextIds[1]));
         ON_CALL(sourcePathCacheMock, sourceContextId(TypedEq<SourceId>(pathIds[4])))
             .WillByDefault(Return(sourceContextIds[2]));
-        ON_CALL(mockFileSystem, lastModified(_)).WillByDefault(Return(1));
+        ON_CALL(mockFileSystem, fileStatus(_)).WillByDefault([](auto sourceId) {
+            return FileStatus{sourceId, 1, 1};
+        });
         ON_CALL(sourcePathCacheMock,
                 sourceContextId(TypedEq<Utils::SmallStringView>(sourceContextPathString)))
             .WillByDefault(Return(sourceContextIds[0]));
@@ -359,9 +362,12 @@ TEST_F(ProjectStoragePathWatcher, TwoNotifyFileChanges)
     watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2]}},
                            {id2, {pathIds[0], pathIds[1], pathIds[2], pathIds[3], pathIds[4]}},
                            {id3, {pathIds[4]}}});
-    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
-    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[1]))).WillByDefault(Return(2));
-    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[3]))).WillByDefault(Return(2));
+    ON_CALL(mockFileSystem, fileStatus(Eq(pathIds[0])))
+        .WillByDefault(Return(FileStatus{pathIds[0], 1, 2}));
+    ON_CALL(mockFileSystem, fileStatus(Eq(pathIds[1])))
+        .WillByDefault(Return(FileStatus{pathIds[1], 1, 2}));
+    ON_CALL(mockFileSystem, fileStatus(Eq(pathIds[3])))
+        .WillByDefault(Return(FileStatus{pathIds[3], 1, 2}));
 
     EXPECT_CALL(notifier,
                 pathsWithIdsChanged(
@@ -376,8 +382,11 @@ TEST_F(ProjectStoragePathWatcher, NotifyForPathChanges)
 {
     watcher.updateIdPaths(
         {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
-    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
-    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[3]))).WillByDefault(Return(2));
+    ON_CALL(mockFileSystem, fileStatus(Eq(pathIds[0])))
+        .WillByDefault(Return(FileStatus{pathIds[0], 1, 2}));
+
+    ON_CALL(mockFileSystem, fileStatus(Eq(pathIds[3])))
+        .WillByDefault(Return(FileStatus{pathIds[3], 1, 2}));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(pathIds[0])));
 
@@ -397,7 +406,8 @@ TEST_F(ProjectStoragePathWatcher, NoDuplicatePathChanges)
 {
     watcher.updateIdPaths(
         {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
-    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
+    ON_CALL(mockFileSystem, fileStatus(Eq(pathIds[0])))
+        .WillByDefault(Return(FileStatus{pathIds[0], 1, 2}));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(pathIds[0])));
 

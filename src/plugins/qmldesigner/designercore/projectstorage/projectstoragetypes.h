@@ -145,6 +145,11 @@ public:
         : name{name}
     {}
 
+    friend bool operator==(const ExportedType &first, const ExportedType &second)
+    {
+        return first.name == second.name;
+    }
+
 public:
     Utils::SmallString name;
 };
@@ -157,6 +162,11 @@ public:
         : name{name}
         , import{std::move(import)}
     {}
+
+    friend bool operator==(const ExplicitExportedType &first, const ExplicitExportedType &second)
+    {
+        return first.name == second.name && first.import == second.import;
+    }
 
 public:
     Utils::SmallString name;
@@ -172,6 +182,11 @@ public:
     explicit NativeType(Utils::SmallStringView name)
         : name{name}
     {}
+
+    friend bool operator==(const NativeType &first, const NativeType &second)
+    {
+        return first.name == second.name;
+    }
 
 public:
     Utils::SmallString name;
@@ -422,6 +437,13 @@ public:
         , kind{PropertyKind::Alias}
     {}
 
+    friend bool operator==(const PropertyDeclaration &first, const PropertyDeclaration &second)
+    {
+        return first.name == second.name && first.typeName == second.typeName
+               && first.aliasPropertyName == second.aliasPropertyName
+               && first.traits == second.traits && first.kind == second.kind;
+    }
+
 public:
     Utils::SmallString name;
     TypeName typeName;
@@ -516,10 +538,20 @@ public:
         , typeId{typeId}
     {}
 
+    friend bool operator==(const Type &first, const Type &second) noexcept
+    {
+        return first.typeName == second.typeName && first.prototype == second.prototype
+               && first.exportedTypes == second.exportedTypes
+               && first.propertyDeclarations == second.propertyDeclarations
+               && first.functionDeclarations == second.functionDeclarations
+               && first.signalDeclarations == second.signalDeclarations
+               && first.import == second.import && first.sourceId == second.sourceId
+               && first.sourceId == second.sourceId;
+    }
+
 public:
     Utils::SmallString typeName;
     TypeName prototype;
-    Utils::SmallString attachedType;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
     FunctionDeclarations functionDeclarations;
@@ -529,7 +561,6 @@ public:
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;
-    bool isCreatable = false;
 };
 
 using Types = std::vector<Type>;
@@ -591,8 +622,8 @@ public:
 
     friend bool operator==(const ImportView &first, const ImportView &second)
     {
-        return first.name == second.name
-               && first.version == second.version && first.sourceId == second.sourceId;
+        return first.name == second.name && first.version == second.version
+               && first.sourceId == second.sourceId;
     }
 
 public:

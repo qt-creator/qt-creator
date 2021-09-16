@@ -29,36 +29,55 @@
 
 #include "sqlitedatabasemock.h"
 
-#include <projectstorage/projectstoragetypes.h>
+#include <projectstorage/filestatus.h>
+#include <projectstorage/projectstorageinterface.h>
 #include <projectstorage/sourcepathcache.h>
-#include <projectstorageids.h>
 
-class ProjectStorageMock
+class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
-    ProjectStorageMock(SqliteDatabaseMock &databaseMock)
-        : databaseMock{databaseMock}
-    {}
+    MOCK_METHOD(void,
+                synchronize,
+                (QmlDesigner::Storage::ImportDependencies importDependencies,
+                 QmlDesigner::Storage::Documents documents,
+                 QmlDesigner::Storage::Types types,
+                 QmlDesigner::SourceIds sourceIds,
+                 QmlDesigner::FileStatuses fileStatuses),
+                (override));
 
-    MOCK_METHOD1(fetchSourceContextId,
-                 QmlDesigner::SourceContextId(Utils::SmallStringView SourceContextPath));
-    MOCK_METHOD2(fetchSourceId,
-                 QmlDesigner::SourceId(QmlDesigner::SourceContextId SourceContextId,
-                                       Utils::SmallStringView sourceName));
-    MOCK_METHOD1(fetchSourceContextIdUnguarded,
-                 QmlDesigner::SourceContextId(Utils::SmallStringView SourceContextPath));
-    MOCK_METHOD2(fetchSourceIdUnguarded,
-                 QmlDesigner::SourceId(QmlDesigner::SourceContextId SourceContextId,
-                                       Utils::SmallStringView sourceName));
-    MOCK_METHOD1(fetchSourceContextPath,
-                 Utils::PathString(QmlDesigner::SourceContextId sourceContextId));
-    MOCK_METHOD1(fetchSourceNameAndSourceContextId,
-                 QmlDesigner::Cache::SourceNameAndSourceContextId(QmlDesigner::SourceId sourceId));
-    MOCK_METHOD0(fetchAllSourceContexts, std::vector<QmlDesigner::Cache::SourceContext>());
-    MOCK_METHOD0(fetchAllSources, std::vector<QmlDesigner::Cache::Source>());
+    MOCK_METHOD(QmlDesigner::FileStatus,
+                fetchFileStatus,
+                (QmlDesigner::SourceId sourceId),
+                (const, override));
 
-    SqliteDatabaseMock &database() { return databaseMock; }
+    MOCK_METHOD(QmlDesigner::SourceIds,
+                fetchSourceDependencieIds,
+                (QmlDesigner::SourceId sourceId),
+                (const, override));
 
-    SqliteDatabaseMock &databaseMock;
+    MOCK_METHOD(QmlDesigner::SourceContextId,
+                fetchSourceContextId,
+                (Utils::SmallStringView SourceContextPath),
+                ());
+    MOCK_METHOD(QmlDesigner::SourceId,
+                fetchSourceId,
+                (QmlDesigner::SourceContextId SourceContextId, Utils::SmallStringView sourceName),
+                ());
+    MOCK_METHOD(QmlDesigner::SourceContextId,
+                fetchSourceContextIdUnguarded,
+                (Utils::SmallStringView SourceContextPath),
+                ());
+    MOCK_METHOD(QmlDesigner::SourceId,
+                fetchSourceIdUnguarded,
+                (QmlDesigner::SourceContextId SourceContextId, Utils::SmallStringView sourceName),
+                ());
+    MOCK_METHOD(Utils::PathString,
+                fetchSourceContextPath,
+                (QmlDesigner::SourceContextId sourceContextId));
+    MOCK_METHOD(QmlDesigner::Cache::SourceNameAndSourceContextId,
+                fetchSourceNameAndSourceContextId,
+                (QmlDesigner::SourceId sourceId));
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>, fetchAllSourceContexts, (), ());
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, fetchAllSources, (), ());
 };
 
