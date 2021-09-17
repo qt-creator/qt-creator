@@ -1189,7 +1189,7 @@ QmakeProFile::~QmakeProFile()
         m_parseFutureWatcher->cancel();
         m_parseFutureWatcher->waitForFinished();
         if (m_readerExact)
-            applyAsyncEvaluate();
+            applyAsyncEvaluate(false);
         delete m_parseFutureWatcher;
     }
     cleanupProFileReaders();
@@ -1198,8 +1198,9 @@ QmakeProFile::~QmakeProFile()
 void QmakeProFile::setupFutureWatcher()
 {
     m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResult *>;
-    QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished,
-                     [this](){ applyAsyncEvaluate(); });
+    QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this]() {
+        applyAsyncEvaluate(true);
+    });
 }
 
 bool QmakeProFile::isParent(QmakeProFile *node)
@@ -1643,9 +1644,9 @@ void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResult *> &fi, QmakeE
     fi.reportResult(evalResult);
 }
 
-void QmakeProFile::applyAsyncEvaluate()
+void QmakeProFile::applyAsyncEvaluate(bool apply)
 {
-    if (m_parseFutureWatcher->isFinished())
+    if (apply)
         applyEvaluate(m_parseFutureWatcher->result());
     m_buildSystem->decrementPendingEvaluateFutures();
 }
