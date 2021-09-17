@@ -566,6 +566,15 @@ void FolderNavigationWidget::removeCurrentItem()
     }
 }
 
+void FolderNavigationWidget::syncWithFilePath(const Utils::FilePath &filePath)
+{
+    if (filePath.isEmpty())
+        return;
+    if (m_rootAutoSync)
+        selectBestRootForFile(filePath);
+    selectFile(filePath);
+}
+
 bool FolderNavigationWidget::autoSynchronization() const
 {
     return m_autoSync;
@@ -598,10 +607,7 @@ void FolderNavigationWidget::handleCurrentEditorChanged(Core::IEditor *editor)
     if (!m_autoSync || !editor || editor->document()->filePath().isEmpty()
             || editor->document()->isTemporary())
         return;
-    const Utils::FilePath filePath = editor->document()->filePath();
-    if (m_rootAutoSync)
-        selectBestRootForFile(filePath);
-    selectFile(filePath);
+    syncWithFilePath(editor->document()->filePath());
 }
 
 void FolderNavigationWidget::selectBestRootForFile(const Utils::FilePath &filePath)

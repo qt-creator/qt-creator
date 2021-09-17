@@ -238,8 +238,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, Side fallbackSide)
         preferredPosition = info.position;
     }
 
-    navigationWidget->activateSubWidget(factoryId, preferredPosition);
-    return navigationWidget;
+    return navigationWidget->activateSubWidget(factoryId, preferredPosition);
 }
 
 void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)

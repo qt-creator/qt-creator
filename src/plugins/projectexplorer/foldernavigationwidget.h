@@ -115,6 +115,8 @@ public:
     void editCurrentItem();
     void removeCurrentItem();
 
+    void syncWithFilePath(const Utils::FilePath &filePath);
+
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 

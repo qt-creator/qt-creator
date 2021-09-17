@@ -147,6 +147,11 @@ QString FileUtils::msgFindInDirectory()
     return QApplication::translate("Core::Internal", "Find in This Directory...");
 }
 
+QString FileUtils::msgFileSystemAction()
+{
+    return QApplication::translate("Core::Internal", "Show in File System View");
+}
+
 QString FileUtils::msgGraphicalShellAction()
 {
     if (HostOsInfo::isWindowsHost())

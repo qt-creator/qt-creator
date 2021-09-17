@@ -125,6 +125,7 @@
 #include <coreplugin/locator/directoryfilter.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -236,6 +237,7 @@ const char REMOVEPROJECT[]        = "ProjectExplorer.RemoveProject";
 const char OPENFILE[]             = "ProjectExplorer.OpenFile";
 const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
 const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
+const char SHOWINFILESYSTEMVIEW[] = "ProjectExplorer.OpenFileSystemView";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
 const char DIFFFILE[]             = "ProjectExplorer.DiffFile";
@@ -454,6 +456,7 @@ public:
     void openFile();
     void searchOnFileSystem();
     void showInGraphicalShell();
+    void showInFileSystemPane();
     void removeFile();
     void duplicateFile();
     void deleteFile();
@@ -552,6 +555,7 @@ public:
     ParameterAction *m_closeProjectFilesActionContextMenu;
     QAction *m_searchOnFileSystem;
     QAction *m_showInGraphicalShell;
+    QAction *m_showFileSystemPane;
     QAction *m_openTerminalHere;
     QAction *m_openTerminalHereBuildEnv;
     QAction *m_openTerminalHereRunEnv;
@@ -1044,6 +1048,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                         projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
+
+    // Show in File System View
+    dd->m_showFileSystemPane = new QAction(Core::FileUtils::msgFileSystemAction(), this);
+    cmd = ActionManager::registerAction(dd->m_showFileSystemPane,
+                                        Constants::SHOWINFILESYSTEMVIEW,
+                                        projectTreeContext);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
+    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     // Open Terminal Here menu
     dd->m_openTerminalHere = new QAction(Core::FileUtils::msgTerminalHereAction(), this);
@@ -1772,6 +1786,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::searchOnFileSystem);
     connect(dd->m_showInGraphicalShell, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::showInGraphicalShell);
+    // the following can delete the projects view that triggered the action, so make sure we
+    // are out of the context menu before actually doing it by queuing the action
+    connect(dd->m_showFileSystemPane,
+            &QAction::triggered,
+            dd,
+            &ProjectExplorerPluginPrivate::showInFileSystemPane,
+            Qt::QueuedConnection);
 
     connect(dd->m_openTerminalHere, &QAction::triggered, dd, []() { dd->openTerminalHere(sysEnv); });
     connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, []() { dd->openTerminalHere(buildEnv); });
@@ -3343,6 +3364,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_openTerminalHereRunEnv->setVisible(false);
 
     m_showInGraphicalShell->setVisible(true);
+    m_showFileSystemPane->setVisible(true);
     m_searchOnFileSystem->setVisible(true);
 
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
@@ -3445,6 +3467,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
         if (supports(HidePathActions)) {
             m_openTerminalHere->setVisible(false);
             m_showInGraphicalShell->setVisible(false);
+            m_showFileSystemPane->setVisible(false);
             m_searchOnFileSystem->setVisible(false);
         }
 
@@ -3698,6 +3721,16 @@ void ProjectExplorerPluginPrivate::showInGraphicalShell()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
     Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
+}
+
+void ProjectExplorerPluginPrivate::showInFileSystemPane()
+{
+    Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode, return );
+    QWidget *widget = NavigationWidget::activateSubWidget(m_folderNavigationWidgetFactory.id(),
+                                                          Side::Left);
+    if (auto *navWidget = qobject_cast<FolderNavigationWidget *>(widget))
+        navWidget->syncWithFilePath(currentNode->filePath());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)

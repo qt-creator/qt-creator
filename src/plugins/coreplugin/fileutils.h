@@ -46,6 +46,7 @@ struct CORE_EXPORT FileUtils
     static void openTerminal(const Utils::FilePath &path);
     static void openTerminal(const Utils::FilePath &path, const Utils::Environment &env);
     static QString msgFindInDirectory();
+    static QString msgFileSystemAction();
     // Platform-dependent action descriptions
     static QString msgGraphicalShellAction();
     static QString msgTerminalHereAction();
