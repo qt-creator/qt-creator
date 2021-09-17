@@ -159,7 +159,6 @@ void reap(QtcProcess *process, int timeoutMs)
 
     process->setStdOutCallback(nullptr);
     process->setStdErrCallback(nullptr);
-    process->disconnect();
 
     QTC_ASSERT(Internal::d, return);
 
