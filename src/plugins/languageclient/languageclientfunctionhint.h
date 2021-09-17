@@ -25,8 +25,14 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
+#include <languageserverprotocol/languagefeatures.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <utils/optional.h>
+
+#include <QPointer>
 
 namespace TextEditor { class IAssistProposal; }
 
@@ -36,7 +42,7 @@ class Client;
 
 using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
 
-class FunctionHintAssistProvider : public TextEditor::CompletionAssistProvider
+class LANGUAGECLIENT_EXPORT FunctionHintAssistProvider : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
 
@@ -59,6 +65,26 @@ private:
     ProposalHandler m_proposalHandler;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
+};
+
+class LANGUAGECLIENT_EXPORT FunctionHintProcessor : public TextEditor::IAssistProcessor
+{
+public:
+    explicit FunctionHintProcessor(Client *client, const ProposalHandler &proposalHandler);
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    bool running() override { return m_currentRequest.has_value(); }
+    bool needsRestart() const override { return true; }
+    void cancel() override;
+
+private:
+    void handleSignatureResponse(
+        const LanguageServerProtocol::SignatureHelpRequest::Response &response);
+    void processProposal(TextEditor::IAssistProposal *proposal);
+
+    QPointer<Client> m_client;
+    const ProposalHandler m_proposalHandler;
+    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    int m_pos = -1;
 };
 
 } // namespace LanguageClient

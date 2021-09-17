@@ -81,25 +81,10 @@ QString FunctionHintProposalModel::text(int index) const
            + label.mid(end).toHtmlEscaped();
 }
 
-class FunctionHintProcessor : public IAssistProcessor
-{
-public:
-    explicit FunctionHintProcessor(Client *client, const ProposalHandler &proposalHandler)
-        : m_client(client), m_proposalHandler(proposalHandler) {}
-    IAssistProposal *perform(const AssistInterface *interface) override;
-    bool running() override { return m_currentRequest.has_value(); }
-    bool needsRestart() const override { return true; }
-    void cancel() override;
-
-private:
-    void handleSignatureResponse(const SignatureHelpRequest::Response &response);
-    void processProposal(TextEditor::IAssistProposal *proposal);
-
-    QPointer<Client> m_client;
-    const ProposalHandler m_proposalHandler;
-    Utils::optional<MessageId> m_currentRequest;
-    int m_pos = -1;
-};
+FunctionHintProcessor::FunctionHintProcessor(Client *client, const ProposalHandler &proposalHandler)
+    : m_client(client)
+    , m_proposalHandler(proposalHandler)
+{}
 
 IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface)
 {
