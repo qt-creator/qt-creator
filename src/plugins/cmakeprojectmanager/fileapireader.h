@@ -72,9 +72,7 @@ public:
     CMakeConfig takeParsedConfiguration(QString &errorMessage);
     QString ctestPath() const;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const ProjectExplorer::TreeScanner::Result &allFiles,
-        QString &errorMessage,
-        bool includeHeaderNodes);
+        const ProjectExplorer::TreeScanner::Result &allFiles, bool failedToParse);
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);
 
     bool isMultiConfig() const;

@@ -131,7 +131,7 @@ private:
     void combineScanAndParse();
 
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const ProjectExplorer::TreeScanner::Result &allFiles, bool includeHeadersNode);
+        const ProjectExplorer::TreeScanner::Result &allFiles, bool failedToParse);
     void checkAndReportError(QString &errorMessage);
 
     void updateCMakeConfiguration(QString &errorMessage);

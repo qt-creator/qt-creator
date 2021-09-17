@@ -522,11 +522,9 @@ void CMakeBuildSystem::clearCMakeCache()
 }
 
 std::unique_ptr<CMakeProjectNode> CMakeBuildSystem::generateProjectTree(
-    const TreeScanner::Result &allFiles, bool includeHeaderNodes)
+    const TreeScanner::Result &allFiles, bool failedToParse)
 {
-    QString errorMessage;
-    auto root = m_reader.generateProjectTree(allFiles, errorMessage, includeHeaderNodes);
-    checkAndReportError(errorMessage);
+    auto root = m_reader.generateProjectTree(allFiles, failedToParse);
     return root;
 }
 
@@ -599,7 +597,7 @@ void CMakeBuildSystem::updateProjectData()
 
     Project *p = project();
     {
-        auto newRoot = generateProjectTree(m_allFiles, true);
+        auto newRoot = generateProjectTree(m_allFiles, false);
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
 
@@ -698,7 +696,7 @@ void CMakeBuildSystem::updateFallbackProjectData()
 
     QTC_ASSERT(m_treeScanner.isFinished() && !m_reader.isParsing(), return );
 
-    auto newRoot = generateProjectTree(m_allFiles, false);
+    auto newRoot = generateProjectTree(m_allFiles, true);
     setRootProjectNode(std::move(newRoot));
 
     qCDebug(cmakeBuildSystemLog) << "All fallback CMake project data up to date.";
