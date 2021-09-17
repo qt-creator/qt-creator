@@ -24,6 +24,7 @@ SOURCES = \
     preprocessorKeywordsCompletion.cpp \
     preprocessorKeywordsCompletion2.cpp \
     preprocessorKeywordsCompletion3.cpp \
+    privateFuncDefCompletion.cpp \
     signalCompletion.cpp
 
 HEADERS = mainwindow.h

@@ -169,6 +169,7 @@ private slots:
     void testFunctionHintsFiltered();
     void testFunctionHintConstructor();
     void testCompleteClassAndConstructor();
+    void testCompletePrivateFunctionDefinition();
 
     void testCompleteWithDotToArrowCorrection();
     void testDontCompleteWithDotToArrowCorrectionForFloats();

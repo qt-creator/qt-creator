@@ -1431,7 +1431,8 @@ ClangdTestCompletion::ClangdTestCompletion()
                         "membercompletion-inside.cpp", "membercompletion-outside.cpp",
                         "noDotToArrowCorrectionForFloats.cpp",
                         "preprocessorKeywordsCompletion.cpp", "preprocessorKeywordsCompletion2.cpp",
-                        "preprocessorKeywordsCompletion3.cpp", "signalCompletion.cpp"});
+                        "preprocessorKeywordsCompletion3.cpp", "privateFuncDefCompletion.cpp",
+                        "signalCompletion.cpp"});
 }
 
 void ClangdTestCompletion::initTestCase()
@@ -1662,6 +1663,18 @@ void ClangdTestCompletion::testCompleteClassAndConstructor()
     QCOMPARE(manipulator.getLine(7), "    Foo( /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), qMakePair(7, 9));
     QCOMPARE(manipulator.skipPos(), -1);
+}
+
+void ClangdTestCompletion::testCompletePrivateFunctionDefinition()
+{
+    ProposalModelPtr proposal;
+    getProposal("privateFuncDefCompletion.cpp", proposal);
+
+    QVERIFY(proposal);
+    QEXPECT_FAIL("", "FIXME: clangd needs to differentiate "
+                     "between function call and function definiton", Abort);
+    QCOMPARE(proposal->size(), 1);
+    QVERIFY(hasItem(proposal, " theFunc()"));
 }
 
 void ClangdTestCompletion::testCompleteWithDotToArrowCorrection()

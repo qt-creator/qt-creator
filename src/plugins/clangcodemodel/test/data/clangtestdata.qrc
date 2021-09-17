@@ -53,5 +53,6 @@
         <file>completion/functionAddress.cpp</file>
         <file>completion/preprocessorKeywordsCompletion2.cpp</file>
         <file>completion/preprocessorKeywordsCompletion3.cpp</file>
+        <file>completion/privateFuncDefCompletion.cpp</file>
     </qresource>
 </RCC>
