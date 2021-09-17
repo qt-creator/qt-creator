@@ -30,6 +30,8 @@ QtcTool {
             "processutils.h",
             "qtcassert.cpp",
             "qtcassert.h",
+            "singleton.cpp",
+            "singleton.h",
         ]
     }
 }

@@ -25,9 +25,10 @@
 
 #include "launcherlogging.h"
 #include "launchersockethandler.h"
-#include "processreaper.h"
+#include "singleton.h"
 
 #include <QtCore/qcoreapplication.h>
+#include <QtCore/qscopeguard.h>
 #include <QtCore/qtimer.h>
 
 #ifdef Q_OS_WIN
@@ -52,7 +53,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Utils::ProcessReaper processReaper;
+    auto cleanup = qScopeGuard([] { Utils::Singleton::deleteAll(); });
+
     Utils::Internal::LauncherSocketHandler launcher(app.arguments().constLast());
     QTimer::singleShot(0, &launcher, &Utils::Internal::LauncherSocketHandler::start);
     return app.exec();

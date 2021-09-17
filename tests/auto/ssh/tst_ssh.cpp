@@ -26,15 +26,14 @@
 #include <ssh/sftpsession.h>
 #include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/launcherinterface.h>
-#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
+#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDateTime>
@@ -134,17 +133,12 @@ private slots:
     void cleanupTestCase();
 private:
     bool waitForConnection(SshConnection &connection);
-
-    Utils::ProcessReaper *processReaper = nullptr;
-    SshConnectionManager *sshConnectionManager = nullptr;
 };
 
 void tst_Ssh::initTestCase()
 {
-    processReaper = new Utils::ProcessReaper();
-    Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
-                                            + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    sshConnectionManager = new SshConnectionManager();
+    Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                                + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
                                                            + "/qtc-ssh-autotest-XXXXXX");
 }
@@ -647,9 +641,7 @@ void tst_Ssh::sftp()
 
 void tst_Ssh::cleanupTestCase()
 {
-    delete sshConnectionManager;
-    Utils::LauncherInterface::stopLauncher();
-    delete processReaper;
+    Utils::Singleton::deleteAll();
 }
 
 bool tst_Ssh::waitForConnection(SshConnection &connection)

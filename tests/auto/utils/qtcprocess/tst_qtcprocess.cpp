@@ -27,8 +27,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
 #include <utils/porting.h>
-#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
+#include <utils/singleton.h>
 #include <utils/stringutils.h>
 
 #include <QElapsedTimer>
@@ -213,7 +213,6 @@ private slots:
 private:
     void iteratorEditsHelper(OsType osType);
 
-    Utils::ProcessReaper processReaper;
     Environment envWindows;
     Environment envLinux;
 
@@ -225,8 +224,8 @@ private:
 
 void tst_QtcProcess::initTestCase()
 {
-    Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
-                                            + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+    Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                                + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     if (qEnvironmentVariableIsSet(kExitCodeSubProcessCode))
         exitCodeSubProcessMain();
     if (qEnvironmentVariableIsSet(kRunBlockingStdOutSubProcessWithEndl))
@@ -285,7 +284,7 @@ void tst_QtcProcess::initTestCase()
 
 void tst_QtcProcess::cleanupTestCase()
 {
-    Utils::LauncherInterface::stopLauncher();
+    Utils::Singleton::deleteAll();
 }
 
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)

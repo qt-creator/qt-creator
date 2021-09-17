@@ -36,8 +36,6 @@ using namespace Utils;
 namespace Utils {
 namespace Internal {
 
-static ProcessReaper *d = nullptr;
-
 class Reaper final : public QObject
 {
 public:
@@ -57,7 +55,7 @@ private:
 
 Reaper::Reaper(QProcess *p, int timeoutMs) : m_process(p)
 {
-    d->m_reapers.append(this);
+    ProcessReaper::instance()->m_reapers.append(this);
 
     m_iterationTimer.setInterval(timeoutMs);
     m_iterationTimer.setSingleShot(true);
@@ -68,7 +66,7 @@ Reaper::Reaper(QProcess *p, int timeoutMs) : m_process(p)
 
 Reaper::~Reaper()
 {
-    d->m_reapers.removeOne(this);
+    ProcessReaper::instance()->m_reapers.removeOne(this);
 }
 
 int Reaper::timeoutMs() const
@@ -112,15 +110,8 @@ void Reaper::nextIteration()
 
 } // namespace Internal
 
-ProcessReaper::ProcessReaper()
-{
-    QTC_ASSERT(Internal::d == nullptr, return);
-    Internal::d = this;
-}
-
 ProcessReaper::~ProcessReaper()
 {
-    QTC_ASSERT(Internal::d == this, return);
     while (!m_reapers.isEmpty()) {
         int alreadyWaited = 0;
         QList<Internal::Reaper *> toDelete;
@@ -145,8 +136,6 @@ ProcessReaper::~ProcessReaper()
         qDeleteAll(toDelete);
         toDelete.clear();
     }
-
-    Internal::d = nullptr;
 }
 
 void ProcessReaper::reap(QProcess *process, int timeoutMs)
@@ -174,8 +163,6 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
         }); // will be queued
         return;
     }
-
-    QTC_ASSERT(Internal::d, return);
 
     new Internal::Reaper(process, timeoutMs);
 }

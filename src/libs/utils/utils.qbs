@@ -264,6 +264,8 @@ Project {
             "shellcommand.h",
             "shellcommandpage.cpp",
             "shellcommandpage.h",
+            "singleton.cpp",
+            "singleton.h",
             "sizedarray.h",
             "smallstring.h",
             "smallstringiterator.h",

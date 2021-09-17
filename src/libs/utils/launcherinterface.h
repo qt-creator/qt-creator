@@ -27,9 +27,10 @@
 
 #include "utils_global.h"
 
+#include "processreaper.h"
 #include "processutils.h"
+#include "singleton.h"
 
-#include <QObject>
 #include <QThread>
 
 namespace Utils {
@@ -40,15 +41,11 @@ class LauncherInterfacePrivate;
 class ProcessLauncherImpl;
 }
 
-class QTCREATOR_UTILS_EXPORT LauncherInterface : public QObject
+class QTCREATOR_UTILS_EXPORT LauncherInterface final
+        : public SingletonWithOptionalDependencies<LauncherInterface, ProcessReaper>
 {
-    Q_OBJECT
 public:
-    static void startLauncher(const QString &pathToLauncher = {});
-    static void stopLauncher();
-
-signals:
-    void errorOccurred(const QString &error);
+    static void setPathToLauncher(const QString &pathToLauncher);
 
 private:
     friend class Utils::Internal::CallerHandle;
@@ -63,10 +60,11 @@ private:
     static void unregisterHandle(quintptr token);
 
     LauncherInterface();
-    ~LauncherInterface() override;
+    ~LauncherInterface();
 
     QThread m_thread;
     Internal::LauncherInterfacePrivate *m_private;
+    friend class SingletonWithOptionalDependencies<LauncherInterface, ProcessReaper>;
 };
 
 } // namespace Utils

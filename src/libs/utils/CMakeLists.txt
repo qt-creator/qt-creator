@@ -144,6 +144,7 @@ add_qtc_library(Utils
     settingsutils.h
     shellcommand.cpp shellcommand.h
     shellcommandpage.cpp shellcommandpage.h
+    singleton.cpp singleton.h
     sizedarray.h
     smallstring.h
     smallstringfwd.h
