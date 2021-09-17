@@ -50,6 +50,11 @@
     Similarly, you can add custom properties for your own components that are
     based on preset components.
 
+    Any content that is data-driven should be exported as a public property
+    (alias property) of the relevant component. For example, a speedometer
+    should have an \e int or \e real property for speed to which the UI is
+    bound.
+
     You can add properties for components in \l {Connection View} >
     \uicontrol Properties.
 
