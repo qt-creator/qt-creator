@@ -33,7 +33,8 @@
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
@@ -41,6 +42,7 @@
 #include <QList>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QtSupport {
 
@@ -269,14 +271,51 @@ void TestQtProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
+static QStringList additionalFilesToCopy(const BaseQtVersion *qt)
+{
+    // This is a hack and only works with local, "standard" installations of Qt
+    const int major = qt->qtVersion().majorVersion;
+    if (major >= 6) {
+        if (HostOsInfo::isMacHost()) {
+            return {"lib/QtCore.framework/Versions/A/QtCore"};
+        } else if (HostOsInfo::isWindowsHost()) {
+            const QString release = QString("bin/Qt%1Core.dll").arg(major);
+            const QString debug = QString("bin/Qt%1Cored.dll").arg(major);
+            const FilePath base = qt->qmakeFilePath().parentDir().parentDir();
+            if (base.pathAppended(release).exists())
+                return {release};
+            if (base.pathAppended(debug).exists())
+                return {debug};
+            return {release};
+        } else if (HostOsInfo::isLinuxHost()) {
+            const QString core = QString("lib/libQt%1Core.so.%1").arg(major);
+            const QDir base(qt->qmakeFilePath().parentDir().parentDir().pathAppended("lib").toString());
+            const QStringList icuLibs = Utils::transform(base.entryList({"libicu*.so.*"}), [](const QString &lib) { return QString("lib/" + lib); });
+            return QStringList(core) + icuLibs;
+        }
+    }
+    return {};
+}
+
 static Utils::FilePath setupQmake(const BaseQtVersion *qt, const QString &path)
 {
-    const QFileInfo fi = QFileInfo(qt->qmakeFilePath().toFileInfo().canonicalFilePath());
-    const QString qmakeFile = path + "/" + fi.fileName();
-    if (!QFile::copy(fi.absoluteFilePath(), qmakeFile))
-        return Utils::FilePath();
+    // This is a hack and only works with local, "standard" installations of Qt
+    const FilePath qmake = qt->qmakeFilePath().canonicalPath();
+    const QString qmakeFile = "bin/" + qmake.fileName();
+    const FilePath source = qmake.parentDir().parentDir();
+    const FilePath target = FilePath::fromString(path);
 
-    return Utils::FilePath::fromString(qmakeFile);
+    const QStringList filesToCopy = QStringList(qmakeFile) + additionalFilesToCopy(qt);
+    for (const QString &file : filesToCopy) {
+        const FilePath sourceFile = source.pathAppended(file);
+        const FilePath targetFile = target.pathAppended(file);
+        if (!targetFile.parentDir().ensureWritableDir() || !sourceFile.copyFile(targetFile)) {
+            qDebug() << "Failed to copy" << sourceFile.toString() << "to" << targetFile.toString();
+            return {};
+        }
+    }
+
+    return target.pathAppended(qmakeFile);
 }
 
 void QtSupportPlugin::testQtProjectImporter_oneProject_data()
