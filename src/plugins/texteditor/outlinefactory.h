@@ -58,8 +58,6 @@ private:
     void updateEditor(Core::IEditor *editor);
     void updateCurrentEditor();
 
-    QStackedWidget *m_widgetStack;
-    OutlineFactory *m_factory;
     QToolButton *m_toggleSync;
     QToolButton *m_filterButton;
     QToolButton *m_toggleSort;

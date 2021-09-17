@@ -62,8 +62,6 @@ void IOutlineWidgetFactory::updateOutline()
 namespace Internal {
 
 OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
-    QStackedWidget(),
-    m_factory(factory),
     m_syncWithEditor(true),
     m_sorted(false)
 {
