@@ -785,8 +785,6 @@ private:
     void applyCompletionItem(const CompletionItem &item,
                              TextEditor::TextDocumentManipulatorInterface &manipulator,
                              QChar typedChar);
-
-    ClangdClient::Private *m_data = nullptr;
 };
 
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
@@ -2659,7 +2657,6 @@ QString ClangdDiagnostic::category() const
 
 ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *client)
     : LanguageClientCompletionAssistProvider(client)
-    , m_data(client->d)
 {
     setItemsTransformer([](const Utils::FilePath &filePath, const QString &content,
                         int pos,  const QList<CompletionItem> &items) {
