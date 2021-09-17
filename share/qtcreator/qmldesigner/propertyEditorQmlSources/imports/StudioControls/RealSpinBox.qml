@@ -74,6 +74,9 @@ T.SpinBox {
     property real __sliderIndicatorWidth: StudioTheme.Values.sliderIndicatorWidth
     property real __sliderIndicatorHeight: StudioTheme.Values.sliderIndicatorHeight
 
+    property alias __devicePixelRatio: spinBoxInput.devicePixelRatio
+    property alias pixelsPerUnit: spinBoxInput.pixelsPerUnit
+
     property alias compressedValueTimer: myTimer
 
     signal realValueModified

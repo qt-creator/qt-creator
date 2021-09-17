@@ -541,6 +541,14 @@ void PropertyEditorContextObject::holdCursorInPlace()
         QCursor::setPos(w->screen(), m_lastPos);
 }
 
+int PropertyEditorContextObject::devicePixelRatio()
+{
+    if (QWidget *w = QApplication::activeWindow())
+        return w->devicePixelRatio();
+
+    return 1;
+}
+
 QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &family)
 {
     const QFontDatabase dataBase;

@@ -36,6 +36,9 @@ TextInput {
     property bool drag: false
     property bool hover: mouseArea.containsMouse && textInput.enabled
 
+    property int devicePixelRatio: 1
+    property int pixelsPerUnit: 10
+
     z: 2
     font: myControl.font
     color: StudioTheme.Values.themeTextColor
@@ -77,18 +80,21 @@ TextInput {
 
             if (event.modifiers & Qt.ControlModifier) {
                 mouseArea.stepSize = myControl.minStepSize
-                mouseArea.calcValue(myControl.realValueModified)
+                mouseArea.calcValue()
+                myControl.realValueModified()
             }
 
             if (event.modifiers & Qt.ShiftModifier) {
                 mouseArea.stepSize = myControl.maxStepSize
-                mouseArea.calcValue(myControl.realValueModified)
+                mouseArea.calcValue()
+                myControl.realValueModified()
             }
         }
         Keys.onReleased: function(event) {
             event.accepted = true
             mouseArea.stepSize = myControl.realStepSize
-            mouseArea.calcValue(myControl.realValueModified)
+            mouseArea.calcValue()
+            myControl.realValueModified()
         }
     }
 
@@ -102,15 +108,22 @@ TextInput {
 
         property real stepSize: myControl.realStepSize
 
+        // Properties to store the state of a drag operation
         property bool dragging: false
-        property bool wasDragging: false
+        property bool hasDragged: false
         property bool potentialDragStart: false
 
-        property real initialValue: myControl.realValue
+        property real initialValue: myControl.realValue // value on drag operation starts
 
         property real pressStartX: 0.0
         property real dragStartX: 0.0
         property real translationX: 0.0
+
+        property real dragDirection: 0.0
+        property real totalUnits: 0.0 // total number of units dragged
+        property real units: 0.0
+
+        property real __pixelsPerUnit: textInput.devicePixelRatio * textInput.pixelsPerUnit
 
         anchors.fill: parent
         enabled: true
@@ -118,18 +131,19 @@ TextInput {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
+        preventStealing: true
 
         onPositionChanged: function(mouse) {
             if (!mouseArea.dragging
                     && !myControl.edit
                     && Math.abs(mouseArea.pressStartX - mouse.x) > StudioTheme.Values.dragThreshold
-                    && mouse.buttons === 1
+                    && mouse.buttons === Qt.LeftButton
                     && mouseArea.potentialDragStart) {
                 mouseArea.dragging = true
                 mouseArea.potentialDragStart = false
                 mouseArea.initialValue = myControl.realValue
                 mouseArea.cursorShape = Qt.ClosedHandCursor
-                mouseArea.dragStartX = mouseArea.mouseX
+                mouseArea.dragStartX = mouse.x
 
                 myControl.drag = true
                 myControl.dragStarted()
@@ -143,18 +157,32 @@ TextInput {
 
             mouse.accepted = true
 
-            mouseArea.translationX += (mouseArea.mouseX - mouseArea.dragStartX)
-            mouseArea.calcValue(myControl.realValueModified)
-        }
+            var translationX = mouse.x - mouseArea.dragStartX
 
-        onCanceled: mouseArea.endDrag()
+            // Early return if mouse didn't move along x-axis
+            if (translationX === 0.0)
+                return
+
+            var currentDragDirection = Math.sign(translationX)
+
+            // Has drag direction changed
+            if (currentDragDirection !== mouseArea.dragDirection) {
+                mouseArea.translationX = 0.0
+                mouseArea.dragDirection = currentDragDirection
+                mouseArea.totalUnits = mouseArea.units
+            }
+
+            mouseArea.translationX += translationX
+            mouseArea.calcValue()
+            myControl.realValueModified()
+        }
 
         onClicked: function(mouse) {
             if (textInput.edit)
                 mouse.accepted = false
 
-            if (mouseArea.wasDragging) {
-                mouseArea.wasDragging = false
+            if (mouseArea.hasDragged) {
+                mouseArea.hasDragged = false
                 return
             }
 
@@ -167,7 +195,7 @@ TextInput {
                 mouse.accepted = false
 
             mouseArea.potentialDragStart = true
-            mouseArea.pressStartX = mouseArea.mouseX
+            mouseArea.pressStartX = mouse.x
         }
 
         onReleased: function(mouse) {
@@ -182,11 +210,12 @@ TextInput {
                 return
 
             mouseArea.dragging = false
-            mouseArea.wasDragging = true
+            mouseArea.hasDragged = true
 
             if (myControl.compressedValueTimer.running) {
                 myControl.compressedValueTimer.stop()
-                mouseArea.calcValue(myControl.compressedRealValueModified)
+                mouseArea.calcValue()
+                myControl.compressedRealValueModified()
             }
             mouseArea.cursorShape = Qt.PointingHandCursor
             myControl.drag = false
@@ -196,21 +225,21 @@ TextInput {
             textInput.focus = false
             myControl.focus = false
 
-            mouseArea.translationX = 0
+            mouseArea.translationX = 0.0
+            mouseArea.units = 0.0
+            mouseArea.totalUnits = 0.0
         }
 
-        function calcValue(callback) {
-            var minTranslation = (myControl.realFrom - mouseArea.initialValue) / mouseArea.stepSize
-            var maxTranslation = (myControl.realTo - mouseArea.initialValue) / mouseArea.stepSize
+        function calcValue() {
+            var minUnit = (myControl.realFrom - mouseArea.initialValue) / mouseArea.stepSize
+            var maxUnit = (myControl.realTo - mouseArea.initialValue) / mouseArea.stepSize
 
-            mouseArea.translationX = Math.min(Math.max(mouseArea.translationX, minTranslation), maxTranslation)
-
-            myControl.setRealValue(mouseArea.initialValue + (mouseArea.translationX * mouseArea.stepSize))
+            var units = Math.trunc(mouseArea.translationX / mouseArea.__pixelsPerUnit)
+            mouseArea.units = Math.min(Math.max(mouseArea.totalUnits + units, minUnit), maxUnit)
+            myControl.setRealValue(mouseArea.initialValue + (mouseArea.units * mouseArea.stepSize))
 
             if (mouseArea.dragging)
                 myControl.dragging()
-
-            callback()
         }
 
         onWheel: function(wheel) {

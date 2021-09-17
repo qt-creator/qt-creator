@@ -41,6 +41,7 @@ Item {
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
 
     property alias realDragRange: spinBox.realDragRange
+    property alias pixelsPerUnit: spinBox.pixelsPerUnit
 
     width: 96
     implicitHeight: spinBox.height
@@ -64,6 +65,8 @@ Item {
     StudioControls.RealSpinBox {
         id: spinBox
 
+        __devicePixelRatio: devicePixelRatio()
+
         onDragStarted: {
             hideCursor()
             transaction.start()
@@ -74,11 +77,12 @@ Item {
             transaction.end()
         }
 
+        // Needs to be held in place due to screen size limits potentially being hit while dragging
         onDragging: holdCursorInPlace()
 
         onRealValueModified: {
             if (transaction.active())
-                commitValue()
+                spinBox.commitValue()
         }
 
         function commitValue() {
@@ -105,13 +109,13 @@ Item {
             id: colorLogic
             backendValue: spinBox.backendValue
             onValueFromBackendChanged: {
-                if (valueFromBackend !== undefined)
-                    spinBox.realValue = valueFromBackend
+                if (colorLogic.valueFromBackend !== undefined)
+                    spinBox.realValue = colorLogic.valueFromBackend
             }
         }
 
         labelColor: spinBox.edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
 
-        onCompressedRealValueModified: commitValue()
+        onCompressedRealValueModified: spinBox.commitValue()
     }
 }

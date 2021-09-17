@@ -38,6 +38,8 @@ Item {
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
     property alias hover: spinBox.hover
 
+    property alias pixelsPerUnit: spinBox.pixelsPerUnit
+
     signal valueModified
     signal dragStarted
     signal indicatorPressed
@@ -49,6 +51,8 @@ Item {
 
     StudioControls.RealSpinBox {
         id: spinBox
+
+        __devicePixelRatio: devicePixelRatio()
 
         onDragStarted: {
             hideCursor()

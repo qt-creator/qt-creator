@@ -96,6 +96,8 @@ public:
     Q_INVOKABLE void restoreCursor();
     Q_INVOKABLE void holdCursorInPlace();
 
+    Q_INVOKABLE int devicePixelRatio();
+
     Q_INVOKABLE QStringList styleNamesForFamily(const QString &family);
 
     Q_INVOKABLE QStringList allStatesForId(const QString &id);
