@@ -51,8 +51,9 @@ class CandidateTreeItem : public TreeItem
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::AddRunConfigDialog)
 public:
-    CandidateTreeItem(const RunConfigurationCreationInfo &rci, const FilePath &projectRoot)
-        : m_creationInfo(rci), m_projectRoot(projectRoot)
+    CandidateTreeItem(const RunConfigurationCreationInfo &rci, const Target *target)
+        : m_creationInfo(rci), m_projectRoot(target->project()->projectDirectory()),
+          m_displayName(target->macroExpander()->expand(rci.displayName))
     { }
 
     RunConfigurationCreationInfo creationInfo() const { return m_creationInfo; }
@@ -64,7 +65,7 @@ private:
         if (role == IsCustomRole)
             return m_creationInfo.projectFilePath.isEmpty();
         if (column == 0 && role == Qt::DisplayRole)
-            return m_creationInfo.displayName;
+            return m_displayName;
         if (column == 1 && role == Qt::DisplayRole) {
             FilePath displayPath = m_creationInfo.projectFilePath.relativeChildPath(m_projectRoot);
             if (displayPath.isEmpty()) {
@@ -78,6 +79,7 @@ private:
 
     const RunConfigurationCreationInfo m_creationInfo;
     const FilePath m_projectRoot;
+    const QString m_displayName;
 };
 
 class CandidatesModel : public TreeModel<TreeItem, CandidateTreeItem>
@@ -89,8 +91,7 @@ public:
         setHeader({tr("Name"), tr("Source")});
         for (const RunConfigurationCreationInfo &rci
              : RunConfigurationFactory::creatorsForTarget(target)) {
-            rootItem()->appendChild(new CandidateTreeItem(rci,
-                                                          target->project()->projectDirectory()));
+            rootItem()->appendChild(new CandidateTreeItem(rci, target));
         }
     }
 };
