@@ -30,6 +30,7 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+#include <QEasingCurve>
 #include <QHeaderView>
 #include <QHoverEvent>
 #include <QLayout>
@@ -37,6 +38,8 @@
 #include <QPainter>
 #include <QPixmapCache>
 #include <QTimer>
+
+#include <qdrawutil.h>
 
 namespace Core {
 
@@ -483,6 +486,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QTextOption wrapped;
     wrapped.setWrapMode(QTextOption::WordWrap);
     int offset = 0;
+    float animationProgress = 0; // Linear increase from 0.0 to 1.0 during hover animation
     if (hovered) {
         if (index != m_previousIndex) {
             m_previousIndex = index;
@@ -491,9 +495,11 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             m_currentWidget = qobject_cast<QAbstractItemView *>(
                 const_cast<QWidget *>(option.widget));
         }
-        offset = m_startTime.elapsed() * GridProxyModel::GridItemHeight / 200; // Duration 200 ms.
+        animationProgress = m_startTime.elapsed() / 200.0; // Duration 200 ms.
+        static const QEasingCurve animationCurve(QEasingCurve::OutQuad);
+        offset = animationCurve.valueForProgress(animationProgress) * shiftY;
         if (offset < shiftY)
-            QTimer::singleShot(5, this, &ListItemDelegate::goon);
+            QTimer::singleShot(10, this, &ListItemDelegate::goon);
         else if (offset > shiftY)
             offset = shiftY;
     } else {
@@ -504,9 +510,9 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     const QRect shiftedTextRect = textRect.adjusted(0, -offset, 0, -offset);
 
     // The pixmap.
-    if (offset == 0) {
+    if (offset < shiftY) {
         QPixmap pm = index.data(ListModel::ItemImageRole).value<QPixmap>();
-        QRect inner(x + 11, y - offset, ListModel::defaultImageSize.width(),
+        QRect inner(x + 11, y, ListModel::defaultImageSize.width(),
                     ListModel::defaultImageSize.height());
         QRect pixmapRect = inner;
         if (!pm.isNull()) {
@@ -527,8 +533,13 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             painter->setFont(sizedFont(11, option.widget));
             painter->drawText(pixmapRect.adjusted(6, 10, -6, -10), item->description, wrapped);
         }
-        painter->setPen(foregroundColor1);
-        painter->drawRect(pixmapRect.adjusted(-1, -1, -1, -1));
+        qDrawPlainRect(painter, pixmapRect.translated(-1, -1), foregroundColor1);
+    }
+
+    // The description background rect
+    if (offset) {
+        QRect backgroundRect = shiftedTextRect.adjusted(0, -16, 0, 0);
+        painter->fillRect(backgroundRect, backgroundColor);
     }
 
     // The title of the example.
@@ -548,6 +559,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     if (offset) {
         int ll = nameRect.bottom() + 5;
         painter->setPen(lightColor);
+        painter->setOpacity(animationProgress); // "fade in" separator line and description
         painter->drawLine(x, ll, x + w, ll);
     }
 
@@ -558,6 +570,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         painter->setPen(foregroundColor2);
         painter->setFont(sizedFont(11, option.widget));
         painter->drawText(descRect, item->description, wrapped);
+        painter->setOpacity(1);
     }
 
     // Separator line between text and 'Tags:' section
@@ -591,11 +604,8 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
 
     // Box it when hovered.
-    if (hovered) {
-        painter->setPen(lightColor);
-        painter->drawRect(rc.adjusted(0, 0, -1, -1));
-    }
-
+    if (hovered)
+        qDrawPlainRect(painter, rc, lightColor);
 }
 
 bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
