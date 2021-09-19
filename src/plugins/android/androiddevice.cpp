@@ -29,14 +29,17 @@
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
+#include "androidmanager.h"
 #include "androidsignaloperation.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <utils/url.h>
 #include <utils/runextensions.h>
+#include <utils/url.h>
 
+#include <QFormLayout>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
@@ -50,6 +53,50 @@ constexpr int deviceUpdaterMsInterval = 30000;
 
 namespace Android {
 namespace Internal {
+
+class AndroidDeviceWidget : public IDeviceWidget
+{
+public:
+    AndroidDeviceWidget(const ProjectExplorer::IDevice::Ptr &device);
+
+    void updateDeviceFromUi() final {}
+};
+
+AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
+    : IDeviceWidget(device)
+{
+    const auto dev = qSharedPointerCast<AndroidDevice>(device);
+    const auto formLayout = new QFormLayout(this);
+    formLayout->setFormAlignment(Qt::AlignLeft);
+    formLayout->setContentsMargins(0, 0, 0, 0);
+    setLayout(formLayout);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    if (!dev->isValid())
+        return;
+
+    formLayout->addRow(AndroidDevice::tr("Device name:"), new QLabel(dev->displayName()));
+    formLayout->addRow(AndroidDevice::tr("Device type:"), new QLabel(dev->deviceTypeName()));
+
+    const QString serialNumber = dev->serialNumber();
+    const QString printableSerialNumber = serialNumber.isEmpty() ? tr("Unknown") : serialNumber;
+    formLayout->addRow(AndroidDevice::tr("Serial number:"), new QLabel(printableSerialNumber));
+
+    const QString abis = dev->supportedAbis().join(", ");
+    formLayout->addRow(AndroidDevice::tr("CPU architecture:"), new QLabel(abis));
+
+    const auto osString = QString("%1 (SDK %2)").arg(dev->androidVersion()).arg(dev->sdkLevel());
+    formLayout->addRow(AndroidDevice::tr("OS version:"), new QLabel(osString));
+
+    if (dev->machineType() == IDevice::Emulator) {
+        const QString targetName = dev->androidTargetName();
+        formLayout->addRow(AndroidDevice::tr("Android target flavor:"), new QLabel(targetName));
+        formLayout->addRow(AndroidDevice::tr("SD card size:"), new QLabel(dev->sdcardSize()));
+        formLayout->addRow(AndroidDevice::tr("Skin type:"), new QLabel(dev->skinName()));
+        const QString openGlStatus = dev->openGlStatusString();
+        formLayout->addRow(AndroidDevice::tr("OpenGL status:"), new QLabel(openGlStatus));
+    }
+}
 
 AndroidDevice::AndroidDevice()
 {
@@ -206,6 +253,56 @@ int AndroidDevice::sdkLevel() const
     return extraData(Constants::AndroidSdk).toInt();
 }
 
+QString AndroidDevice::androidVersion() const
+{
+    return AndroidManager::androidNameForApiLevel(sdkLevel());
+}
+
+QString AndroidDevice::deviceTypeName() const
+{
+    if (machineType() == Emulator)
+        return tr("Emulator for ") + extraData(Constants::AndroidAvdDevice).toString();
+    return tr("Physical device");
+}
+
+QString AndroidDevice::skinName() const
+{
+    const QString skin = extraData(Constants::AndroidAvdSkin).toString();
+    return skin.isEmpty() ? tr("None") : skin;
+}
+
+QString AndroidDevice::androidTargetName() const
+{
+    const QString target = extraData(Constants::AndroidAvdTarget).toString();
+    return target.isEmpty() ? tr("Unknown") : target;
+}
+
+QString AndroidDevice::sdcardSize() const
+{
+    const QString size = extraData(Constants::AndroidAvdSdcard).toString();
+    return size.isEmpty() ? tr("Unknown") : size;
+}
+
+AndroidConfig::OpenGl AndroidDevice::openGlStatus() const
+{
+    return AndroidConfigurations::currentConfig().getOpenGLEnabled(displayName());
+}
+
+QString AndroidDevice::openGlStatusString() const
+{
+    const AndroidConfig::OpenGl glStatus = AndroidConfigurations::currentConfig()
+            .getOpenGLEnabled(displayName());
+    switch (glStatus) {
+    case (AndroidConfig::OpenGl::Enabled):
+        return tr("Enabled");
+    case (AndroidConfig::OpenGl::Disabled):
+        return tr("Disabled");
+    case (AndroidConfig::OpenGl::Unknown):
+        return tr("Unknown");
+    }
+    return tr("Unknown");
+}
+
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 {
     return IDevice::DeviceInfo();
@@ -213,7 +310,7 @@ IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 
 IDeviceWidget *AndroidDevice::createWidget()
 {
-    return nullptr;
+    return new AndroidDeviceWidget(sharedFromThis());
 }
 
 bool AndroidDevice::canAutoDetectPorts() const

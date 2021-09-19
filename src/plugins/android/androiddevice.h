@@ -64,6 +64,14 @@ public:
     QString avdName() const;
     int sdkLevel() const;
 
+    QString deviceTypeName() const;
+    QString androidVersion() const;
+    QString skinName() const;
+    QString androidTargetName() const;
+    QString sdcardSize() const;
+    QString openGlStatusString() const;
+    AndroidConfig::OpenGl openGlStatus() const;
+
 private:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
