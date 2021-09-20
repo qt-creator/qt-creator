@@ -97,7 +97,7 @@ class AbstractProcessStep::Private
 public:
     Private(AbstractProcessStep *q) : q(q) {}
 
-    void cleanUp(QtcProcess *process);
+    void cleanUp(int exitCode, QProcess::ExitStatus status);
 
     AbstractProcessStep *q;
     std::unique_ptr<QtcProcess> m_process;
@@ -253,7 +253,7 @@ void AbstractProcessStep::setLowPriority()
 
 void AbstractProcessStep::doCancel()
 {
-    d->m_process.reset();
+    d->cleanUp(-1, QProcess::CrashExit);
 }
 
 ProcessParameters *AbstractProcessStep::processParameters()
@@ -279,11 +279,11 @@ void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
         params->setCommandLine(d->m_commandLineProvider());
 }
 
-void AbstractProcessStep::Private::cleanUp(QtcProcess *process)
+void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
 {
     // The process has finished, leftover data is read in processFinished
-    q->processFinished(process->exitCode(), process->exitStatus());
-    const bool returnValue = q->processSucceeded(process->exitCode(), process->exitStatus())
+    q->processFinished(exitCode, status);
+    const bool returnValue = q->processSucceeded(exitCode, status)
                                 || m_ignoreReturnValue;
 
     m_process.reset();
@@ -360,8 +360,7 @@ bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus st
 
 void AbstractProcessStep::processReadyReadStdOutput()
 {
-    if (!d->m_process)
-        return;
+    QTC_ASSERT(d->m_process.get(), return);
     stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
 }
 
@@ -378,8 +377,7 @@ void AbstractProcessStep::stdOutput(const QString &output)
 
 void AbstractProcessStep::processReadyReadStdError()
 {
-    if (!d->m_process)
-        return;
+    QTC_ASSERT(d->m_process.get(), return);
     stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
 }
 
@@ -401,13 +399,10 @@ void AbstractProcessStep::finish(bool success)
 
 void AbstractProcessStep::slotProcessFinished()
 {
-    QtcProcess *process = d->m_process.get();
-    if (!process) // Happens when the process was canceled and handed over to the Reaper.
-        process = qobject_cast<QtcProcess *>(sender()); // The process was canceled!
-    QTC_ASSERT(process, return);
-    stdError(d->stderrStream->toUnicode(process->readAllStandardError()));
-    stdOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()));
-    d->cleanUp(process);
+    QTC_ASSERT(d->m_process.get(), return);
+    stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
+    stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
+    d->cleanUp(d->m_process->exitCode(), d->m_process->exitStatus());
 }
 
 } // namespace ProjectExplorer
