@@ -1,10 +1,11 @@
 
+
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the examples of the Qt Toolkit.
+** This file is part of the examples of the Qt Design Studio.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -48,160 +49,113 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-import QtQuick 2.10
+import QtQuick
+import QtQuick.Controls
 import loginui3 1.0
-import QtQuick.Controls 2.3
 
 Rectangle {
-    id: root
-    state: "loginState"
+    id: rectangle
     width: Constants.width
     height: Constants.height
-    gradient: Gradient {
-        GradientStop {
-            position: 0.5
-            color: "#ffffff"
-        }
 
-        GradientStop {
-            position: 1
-            color: "#41cd52"
-        }
-    }
-
-    PushButton {
-        id: backButton
-        x: 590
-        y: 20
-        width: 40
-        text: "<"
-        font.pixelSize: 24
-        anchors.right: parent.right
-        anchors.rightMargin: 10
-        anchors.top: parent.top
-        anchors.topMargin: 20
-    }
-
-    Text {
-        id: pageTitle
-        x: 258
-        y: 70
-        width: 123
-        height: 40
-        text: qsTr("Qt Account")
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 70
-        font.pixelSize: 24
-        font.bold: true
-    }
+    color: Constants.backgroundColor
+    state: "login"
 
     Image {
-        id: logo
-        x: 10
-        y: 10
-        width: 100
-        height: 100
-        anchors.topMargin: 10
-        anchors.left: parent.left
-        anchors.leftMargin: 10
-        anchors.top: parent.top
-        source: "qt_logo_green_64x64px.png"
+        id: adventurePage
+        anchors.fill: parent
+        source: "images/adventurePage.jpg"
         fillMode: Image.PreserveAspectFit
     }
 
-    Connections {
-        target: registerButton
-        onClicked: {
-            root.state = "registerState"
+    Image {
+        id: qt_logo_green_128x128px
+        x: 296
+        anchors.top: parent.top
+        source: "images/qt_logo_green_128x128px.png"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 40
+        fillMode: Image.PreserveAspectFit
+    }
+    Text {
+        id: tagLine
+        width: 541
+        height: 78
+        color: "#ffffff"
+        text: qsTr("Are you ready to explore?")
+        anchors.top: qt_logo_green_128x128px.bottom
+        font.pixelSize: 50
+        anchors.topMargin: 40
+        anchors.horizontalCenter: parent.horizontalCenter
+        font.family: "Titillium Web ExtraLight"
+    }
+
+    Column {
+        id: fields
+        x: 128
+        anchors.top: tagLine.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 170
+        spacing: 20
+
+        EntryField {
+            id: username
+            text: "Username or Email"
+        }
+
+        EntryField {
+            id: password
+            text: qsTr("Password")
+        }
+
+        EntryField {
+            id: repeatPassword
+            text: "Repeat Password"
         }
     }
 
-    Connections {
-        target: backButton
-        onClicked: {
-            root.state = "loginState"
+    Column {
+        id: buttons
+        x: 102
+        y: 966
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottomMargin: 100
+        spacing: 20
+
+        PushButton {
+            id: login
+            text: qsTr("Continue")
+        }
+
+        PushButton {
+            id: createAccount
+            text: qsTr("Create Account")
+
+            Connections {
+                target: createAccount
+                onClicked: rectangle.state = "createAccount"
+            }
         }
     }
-
     states: [
         State {
-            name: "loginState"
+            name: "login"
 
             PropertyChanges {
-                target: verifyPasswordField
-                visible: false
-            }
-
-            PropertyChanges {
-                target: backButton
+                target: repeatPassword
                 visible: false
             }
         },
         State {
-            name: "registerState"
+            name: "createAccount"
 
             PropertyChanges {
-                target: loginButton
+                target: createAccount
                 visible: false
             }
         }
     ]
-    Column {
-        id: fieldColumn
-        x: 170
-        y: 200
-        width: 300
-        height: 130
-        spacing: 5
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 200
-
-        TextField {
-            id: usernameField
-            width: 300
-            placeholderText: qsTr("Username")
-            font.pointSize: 10
-        }
-
-        TextField {
-            id: passwordField
-            width: 300
-            placeholderText: qsTr("Password")
-            font.pointSize: 10
-        }
-
-        TextField {
-            id: verifyPasswordField
-            width: 300
-            visible: true
-            font.pointSize: 10
-            placeholderText: qsTr("Verify password")
-        }
-    }
-
-    Column {
-        id: buttonColumn
-        x: 260
-        y: 345
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 50
-        spacing: 5
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        PushButton {
-            id: loginButton
-            width: 120
-            text: qsTr("Log In")
-        }
-
-        PushButton {
-            id: registerButton
-            width: 120
-            text: qsTr("Create Account")
-        }
-    }
 }
 
 /*##^##

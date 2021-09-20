@@ -67,8 +67,8 @@ T.AbstractButton {
     indicator: Item {
         x: 0
         y: 0
-        implicitWidth: myButton.width
-        implicitHeight: myButton.height
+        width: myButton.width
+        height: myButton.height
 
         T.Label {
             id: buttonIcon

@@ -352,7 +352,7 @@ private:
     void setParseInProgress(bool b);
     void setValidParseRecursive(bool b);
 
-    void applyAsyncEvaluate();
+    void applyAsyncEvaluate(bool apply);
 
     void setupReader();
     Internal::QmakeEvalInput evalInput() const;

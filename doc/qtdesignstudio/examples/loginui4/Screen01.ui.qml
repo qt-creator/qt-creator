@@ -1,10 +1,11 @@
 
+
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the examples of the Qt Toolkit.
+** This file is part of the examples of the Qt Design Studio.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -48,168 +49,118 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-import QtQuick 2.12
+import QtQuick
+import QtQuick.Controls
 import loginui4 1.0
-import QtQuick.Controls 2.15
 import QtQuick.Timeline 1.0
 
 Rectangle {
     id: rectangle
     width: Constants.width
     height: Constants.height
-    color: "#ffffff"
-    gradient: Gradient {
-        GradientStop {
-            position: 0.50125
-            color: "#ffffff"
-        }
 
-        GradientStop {
-            position: 1
-            color: "#41cd52"
-        }
-    }
-
-    Text {
-        id: pageTitle
-        text: qsTr("Qt Account")
-        anchors.top: parent.top
-        font.pixelSize: 24
-        anchors.topMargin: 70
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.bold: true
-        font.family: Constants.font.family
-    }
+    color: Constants.backgroundColor
+    state: "login"
 
     Image {
-        id: logo
-        anchors.left: parent.left
-        anchors.top: parent.top
-        source: "qt_logo_green_64x64px.png"
-        anchors.topMargin: 10
-        anchors.leftMargin: 10
+        id: adventurePage
+        anchors.fill: parent
+        source: "images/adventurePage.jpg"
         fillMode: Image.PreserveAspectFit
     }
 
+    Image {
+        id: qt_logo_green_128x128px
+        x: 296
+        anchors.top: parent.top
+        source: "images/qt_logo_green_128x128px.png"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 40
+        fillMode: Image.PreserveAspectFit
+    }
+    Text {
+        id: tagLine
+        width: 541
+        height: 78
+        color: "#ffffff"
+        text: qsTr("Are you ready to explore?")
+        anchors.top: qt_logo_green_128x128px.bottom
+        font.pixelSize: 50
+        anchors.topMargin: 40
+        anchors.horizontalCenter: parent.horizontalCenter
+        font.family: "Titillium Web ExtraLight"
+    }
+
+    EntryField {
+        id: username
+        x: 110
+        text: "Username or Email"
+        anchors.top: tagLine.bottom
+        anchors.topMargin: 170
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
+
+    EntryField {
+        id: password
+        x: 110
+        text: qsTr("Password")
+        anchors.top: username.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+    }
+
+    EntryField {
+        id: repeatPassword
+        x: 110
+        text: "Repeat Password"
+        anchors.top: password.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+    }
+
     Column {
-        id: buttonColumn
+        id: buttons
+        x: 102
+        y: 966
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 50
-        spacing: 5
+        anchors.bottomMargin: 100
+        spacing: 20
 
         PushButton {
-            id: loginButton
-            width: 120
-            opacity: 1
-            text: qsTr("Log In")
+            id: login
+            text: qsTr("Continue")
         }
 
         PushButton {
-            id: registerButton
-            width: 120
+            id: createAccount
             text: qsTr("Create Account")
-            font.bold: true
 
             Connections {
-                target: registerButton
-                onClicked: rectangle.state = "registerState"
+                target: createAccount
+                onClicked: rectangle.state = "createAccount"
             }
         }
-    }
-
-    PushButton {
-        id: backButton
-        width: 40
-        opacity: 1.2
-        text: "<"
-        anchors.right: parent.right
-        anchors.top: parent.top
-        font.pixelSize: 24
-        anchors.rightMargin: 10
-        anchors.topMargin: 10
-        font.bold: true
-        checked: true
-
-        Connections {
-            target: backButton
-            onClicked: rectangle.state = "loginState"
-        }
-    }
-
-    TextField {
-        id: verifyPasswordField
-        x: 170
-        width: 300
-        opacity: 1
-        anchors.top: passwordField.bottom
-        anchors.horizontalCenter: passwordField.horizontalCenter
-        anchors.topMargin: 5
-        placeholderText: qsTr("Verify password")
-    }
-
-    TextField {
-        id: passwordField
-        x: 170
-        width: 300
-        anchors.top: usernameField.bottom
-        anchors.horizontalCenter: usernameField.horizontalCenter
-        anchors.topMargin: 5
-        placeholderText: qsTr("Password")
-    }
-
-    TextField {
-        id: usernameField
-        x: 170
-        width: 300
-        text: ""
-        anchors.top: parent.top
-        horizontalAlignment: Text.AlignLeft
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 200
-        placeholderText: qsTr("Username")
     }
 
     Timeline {
         id: timeline
         animations: [
             TimelineAnimation {
-                id: toLoginState
+                id: toCreateAccountState
+                running: false
                 loops: 1
                 duration: 1000
-                running: false
                 to: 1000
                 from: 0
-            },
-            TimelineAnimation {
-                id: toRegisterState
-                loops: 1
-                duration: 1000
-                running: false
-                to: 0
-                from: 1000
             }
         ]
-        enabled: true
         endFrame: 1000
         startFrame: 0
+        enabled: true
 
         KeyframeGroup {
-            target: backButton
-            property: "opacity"
-            Keyframe {
-                frame: 0
-                value: 0
-            }
-
-            Keyframe {
-                frame: 1000
-                value: 1
-            }
-        }
-
-        KeyframeGroup {
-            target: verifyPasswordField
+            target: repeatPassword
             property: "opacity"
 
             Keyframe {
@@ -218,18 +169,14 @@ Rectangle {
             }
 
             Keyframe {
-                frame: 1000
+                frame: 999
                 value: 1
             }
         }
 
         KeyframeGroup {
-            target: loginButton
+            target: createAccount
             property: "opacity"
-            Keyframe {
-                frame: 0
-                value: 1
-            }
 
             Keyframe {
                 frame: 1000
@@ -238,8 +185,9 @@ Rectangle {
         }
 
         KeyframeGroup {
-            target: verifyPasswordField
+            target: repeatPassword
             property: "anchors.topMargin"
+
             Keyframe {
                 frame: 0
                 value: -40
@@ -247,32 +195,26 @@ Rectangle {
 
             Keyframe {
                 easing.bezierCurve: [0.39,0.575,0.565,1,1,1]
-                frame: 1000
-                value: 5
+                frame: 999
+                value: 20
             }
         }
     }
     states: [
         State {
-            name: "loginState"
+            name: "login"
 
             PropertyChanges {
                 target: timeline
-                currentFrame: 0
                 enabled: true
             }
 
             PropertyChanges {
-                target: toLoginState
-            }
-
-            PropertyChanges {
-                target: toRegisterState
-                running: true
+                target: toCreateAccountState
             }
         },
         State {
-            name: "registerState"
+            name: "createAccount"
 
             PropertyChanges {
                 target: timeline
@@ -280,7 +222,7 @@ Rectangle {
             }
 
             PropertyChanges {
-                target: toLoginState
+                target: toCreateAccountState
                 running: true
             }
         }
@@ -289,7 +231,6 @@ Rectangle {
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:0.5}D{i:5}D{i:7}D{i:10}D{i:12}D{i:13}D{i:14}D{i:15}
+    D{i:0;formeditorZoom:0.5}D{i:6}D{i:9}D{i:11}
 }
 ##^##*/
-

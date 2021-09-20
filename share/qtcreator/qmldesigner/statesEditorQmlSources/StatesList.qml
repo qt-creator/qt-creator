@@ -79,7 +79,7 @@ FocusScope {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-        onClicked: {
+        onClicked: function(mouse) {
             if (mouse.button === Qt.LeftButton) {
                 contextMenu.dismiss()
                 focus = true

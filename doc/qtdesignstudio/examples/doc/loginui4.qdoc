@@ -28,30 +28,31 @@
     \ingroup studioexamples
     \ingroup gstutorials
 
-    \title Log In UI - Part 4
+    \title Log In UI - Timeline
     \brief Illustrates how to use the timeline and states to animate UI
     components.
-    \previouspage {Log In UI - Part 3}
+    \previouspage {Log In UI - States}
 
     \image loginui4.gif "Log In UI"
 
-    \e{Log In UI - Part 4} is the fourth in a series of tutorials that build
+    \e{Log In UI - Timeline} is the fourth in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
-    some basic UI components, such as pages, buttons, and entry fields. Part 4
-    describes how to use the timeline and states to animate UI components.
+    some basic UI components, such as pages, buttons, and entry fields. The
+    fourth part of the tutorial describes how to use the timeline and states
+    to animate UI components.
 
-    In Part 3, you learned how to use states to simulate page changes
-    in a UI and connections to provide user interaction with it. In
-    Part 4, you will now learn another way of animating the UI by creating
+    In \l {Log In UI - States}, you learned how to use states to simulate page
+    changes in a UI and connections to provide user interaction with it. In
+    this part, you will now learn another way of animating the UI by creating
     \l{Creating Timeline Animations}{timeline animations} that you bind
     to states.
 
     These instructions build on:
 
     \list
-        \li \l {Log In UI - Part 1}
-        \li \l {Log In UI - Part 2}
-        \li \l {Log In UI - Part 3}
+        \li \l {Log In UI - Components}
+        \li \l {Log In UI - Positioning}
+        \li \l {Log In UI - States}
     \endlist
 
     The \e {Learn More} sections provide additional information relevant to the
@@ -59,18 +60,18 @@
 
     \section1 Animating UI Components
 
-    In Part 3, you changed the visibility property in different states to
-    simulate changing pages. To make sure that those changes won't interfere
-    with the changes to the opacity property you will make in Part 4, you will
-    first remove the states.
+    In \l {Log In UI - States}, you changed the visibility property in different
+    states to simulate changing pages. To make sure that those changes won't
+    interfere with the changes to the opacity property you will make next, you
+    will first remove the states.
 
     Then, you will add a timeline and insert keyframes for the opacity property
-    to hide the password verification field and back button on the login page
-    and the login button on the registration page. Because we want the password
-    verification field to appear to slide down from the password field, you will
-    also need to insert a keyframe for its anchor margin property. To be able to
-    animate the anchor, you also need to pull out the fields from the fields
-    column and anchor them to the page and to each other instead.
+    to hide the \e {Retype Password} field on the login page and the
+    \e {Create Account} button on the account creation page. Because we want the
+    retype password field to appear to slide down from the password field, you
+    will also need to insert a keyframe for its anchor margin property. To be
+    able to animate the anchor, you also need to pull out the fields from the
+    column component and anchor them to the rectangle and to each other instead.
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
@@ -82,39 +83,47 @@
     First, you will prepare the \e Screen01 component for adding animation:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} in \l {Form Editor} for editing.
-        \li In the \l States view, select the \inlineimage close.png
-            (\uicontrol Close) button in \e loginState and \e registerState
-            to remove the states.
-        \li Select the fields in \e fieldColumn in \l Navigator
-            and drag and drop them to their parent rectangle to prepare for
-            deleting the column component.
-        \li Select \e fieldColumn in \uicontrol Navigator and press
-            \key Delete to delete it.
-        \li Select \e usernameField in \uicontrol Navigator.
-        \li In \l Properties > \uicontrol Layout, select the
-            \inlineimage icons/anchor-top.png
-            (\uicontrol Top) button to anchor the top of the field to the top
-            of its parent. \QDS will suggest an appropriate margin based on
-            the current position of the field on the y axis, 200 pixels.
-        \li Select the \inlineimage icons/anchor-center-horizontal.png
-            (\uicontrol {Horizontal Center}) button to anchor
-            the horizontal center of the field to that of its parent.
-        \li Select \e passwordField, and then select the \uicontrol Top
-            button in \uicontrol Properties > \uicontrol Layout.
-        \li In the \uicontrol Target field, select \e usernameField to anchor
-            the top of \e passwordField to the bottom of \e usernameField
-            with a 5-pixel margin.
-        \li Select the \uicontrol {Horizontal Center} button to anchor the
-            horizontal center of \e passwordField to that of \e usernameField.
-        \li Repeat the above steps to anchor the top of \e verifyPasswordField
-            to the bottom of \e passwordField with a 5-pixel margin and to
-            anchor its horizontal center to that of \e passwordField.
+        \li Double-click \e Screen01.ui.qml in \l Projects to open it
+            in \l {Form Editor}.
+        \li In the \l States view, select \e login, and then select
+            \inlineimage close.png
+            to remove the state. Repeat for the \e createAccount state.
+        \li Select \e username in \l Navigator, and then select
+            \inlineimage arrowleft.png
+            to move it into the parent rectangle to prepare for
+            deleting the \e fields column component instance.
+        \li Select \inlineimage icons/navigator-arrowup.png
+            to move \e username below \e tagLine in \uicontrol Navigator
+            to preserve the \l{Arranging Components}{component hierarchy}.
+        \li Repeat for \e password and \e repeatPassword.
+        \li Select \e fields in \uicontrol Navigator and press \key Delete to
+            delete it.
+        \li Select \e username in \uicontrol Navigator to display its properties
+            in \l Properties.
+        \li Select \uicontrol Layout > \inlineimage icons/anchor-top.png
+            to anchor the top of \e username to the bottom of \e tagLine in the
+            \uicontrol Target field. \QDS will suggest an appropriate margin
+            based on the current position of the field on the y axis, 170
+            pixels.
+        \li Select \inlineimage icons/anchor-center-horizontal.png
+            to anchor \e username horizontally to its parent in the
+            \uicontrol Target field.
+        \li Select \e password in \uicontrol Navigator to display its properties
+            in \uicontrol Properties.
+        \li Select \uicontrol Layout > \inlineimage icons/anchor-top.png
+            to anchor the top of \e password to the bottom of \e username in
+            the \uicontrol Target field with a 20-pixel margin.
+        \li Select \inlineimage icons/anchor-center-horizontal.png
+            to anchor \e password horizontally to its parent in the
+            \uicontrol Target field.
+        \li Repeat the above steps to anchor the top of \e repeatPassword
+            to the bottom of \e password with a 20-pixel margin and to
+            anchor it horizontally to its parent.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    You could also animate the y-position property of the verify password
+    You could also animate the y-position property of the repeat password
     field for a similar effect. In that case, you would need to use absolute
     positioning for the field. This is less flexible if you export your
     design from a design tool, such as Adobe Photoshop, and decide to change
@@ -122,18 +131,13 @@
     would probably stay the same, even if the positions of the fields on the
     page would change.
 
-    \e Screen01 should now look something like this in the \uicontrol Design
-    mode and live preview:
+    \e Screen01 should not display visible changes in \uicontrol {Form Editor}:
 
-    \image loginui4-page.png "UI with all the buttons and fields in the Design mode"
+    \image loginui3-base-state.jpg "UI with all the buttons and fields in the Design mode"
 
     \section2 Adding a Timeline and Animation Settings
 
-    You are now ready to add the \l{Creating Timeline Animations}{timeline}. You will
-    need two animations, one for moving into the registration page and another
-    for returning to the login page. You can use the same animation for both
-    cases, by running it either from the beginning to the end or from the
-    end to the beginning.
+    You are now ready to add the \l{Creating Timeline Animations}{timeline}.
 
     To add a timeline with settings for running the animation:
 
@@ -143,18 +147,12 @@
         \li In \uicontrol Timeline, select \inlineimage plus.png
             to add a 1000-frame timeline and settings for running the animation.
             \image loginui4-timeline-settings.png
-        \li In the \uicontrol {Animation ID} field, enter \e toLoginState.
-        \li Deselect the \uicontrol {Running in base state} check box, because
+        \li In the \uicontrol {Animation ID} field, enter
+            \e toCreateAccountState.
+        \li Deselect the \uicontrol {Running in base state} check box because
             you want the animation to run only after the user clicks the
             \uicontrol {Create Account} button. You can use the default settings
             for the other fields.
-        \li Select \inlineimage plus.png
-            next to the \uicontrol {Animation Settings} group to add settings
-            for running the animation when the user clicks the back button.
-        \li In the \uicontrol {Animation ID} field, enter \e toRegisterState.
-        \li To run the animation backwards when the user clicks the back button,
-            enter \e 1000 in the \uicontrol {Start frame} field and \e 0 in the
-            \uicontrol {End frame} field.
         \li Select \uicontrol Close in the \uicontrol {Timeline Settings} view
             to save the timeline and the animation settings.
     \endlist
@@ -167,14 +165,17 @@
     \uicontrol Timeline:
 
     \list 1
-        \li Select \e backButton in \uicontrol Navigator.
-        \li In \uicontrol Properties > \uicontrol Opacity > \uicontrol Settings,
-            select \uicontrol {Insert Keyframe} to insert a keyframe for the
-            opacity property of the button.
+        \li Select \e repeatPassword in \uicontrol Navigator to display its
+            properties in \uicontrol Properties.
+        \li In \uicontrol Visibility > \uicontrol Opacity, select
+            \inlineimage icons/action-icon.png
+            > \uicontrol {Insert Keyframe} to insert a keyframe for the
+            opacity property of the component.
+            \image loginui4-keyframe-opacity.png "Inserting keyframe for opacity property"
         \li In \uicontrol Timeline, check that the playhead is in
             frame 0, and select the \inlineimage recordfill.png
             (\uicontrol {Per Property Recording}) button for the
-            \uicontrol opacity property of \e backButton to start
+            \uicontrol opacity property of \e repeatPassword to start
             recording property changes.
             \image loginui4-timeline-opacity.png "Record button for the opacity property"
         \li In the field next to the opacity property name on that same line,
@@ -188,12 +189,8 @@
         \li Select the record button again to stop recording property changes.
             If you forget this, all the following changes will be recorded, and
             the results will be unpredictable.
-        \li Select \e verifyPasswordField in \uicontrol Navigator,
-            and repeat the above steps to insert a keyframe for the
-            \uicontrol opacity property of the field and to record
-            changes for it.
-        \li Select \e loginButton in \uicontrol Navigator, and repeat
-            the above steps to insert a keyframe for the \uicontrol opacity
+        \li Select \e createAccount in \uicontrol Navigator, and repeat
+            the above steps to insert a keyframe for the \uicontrol Opacity
             property of the button and to record changes for it. However, this
             time the opacity value needs to be 1 in frame 0 and 0 in frame 1000.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
@@ -201,30 +198,34 @@
     \endlist
 
     When you move the playhead along the timeline, you can see how the login
-    button fades out while the verify password field and back button fade in.
+    button fades out while the repeat password field fades in.
 
-    You will now animate the top anchor margin of the verify password field
+    You will now animate the top anchor margin of the repeat password field
     to make it appear to slide down from the password field.
 
     \section2 Animating Anchors
 
-    To animate the top anchor margin of the verify password field:
+    To animate the top anchor margin of the repeat password field:
 
     \list 1
-        \li Select \e verifyPasswordField in \uicontrol Navigator.
-        \li Select \uicontrol Properties > \uicontrol Layout > \uicontrol Margin
+        \li Select \e repeatPassword in \uicontrol Navigator to display its
+            properties in \uicontrol Properties.
+        \li In \uicontrol Layout > \uicontrol Margin (under
+            \inlineimage icons/anchor-top.png
+            ), select \inlineimage icons/action-icon.png
             > \uicontrol {Insert Keyframe} to insert a keyframe for the top
-            anchor margin of \e verifyPasswordField.
+            anchor margin of \e repeatPassword.
+            \image loginui4-keyframe-top-anchor-margin.png "Inserting keyframe for top anchor margin"
         \li In \uicontrol Timeline, check that the playhead is in
             frame 0, and select the record button for the \e anchors.topMargin
-            property of \e verifyPasswordField.
+            property of \e repeatPassword.
         \li In the field next to the property, set a negative value for the
-            top anchor margin, -40, to place \e verifyPasswordField on top of
-            \e passwordField.
+            top anchor margin, -40, to place \e repeatPassword on top of
+            \e password.
         \li Move the playhead to frame 1000 and change the top anchor margin
-            to 5, so that, combined with the change in the opacity value,
-            \e verifyPasswordField appears to slide down and settle below
-            \e passwordField.
+            to 20, so that, combined with the change in the \uicontrol Opacity
+            value, \e repeatPassword appears to slide down and settle below
+            \e password.
         \li Select the record button again to stop recording property changes.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
@@ -239,6 +240,7 @@
         \li Click the keyframe marker \inlineimage keyframe_linear_inactive.png
             for the \e anchors.topMargin property at frame 1000 on the
             timeline to select it.
+            \image loginui4-easing-curve-top-anchor-margin.png "Top anchor margin keyframe marker"
         \li Right-click the keyframe marker to open a context menu, and
             select \uicontrol {Edit Easing Curve} to add an easing curve
             to the animation.
@@ -256,7 +258,7 @@
 
     \image loginui4-timeline.png "Timeline view with the recorded property changes"
 
-    Next, you'll create states for the login and registration pages and bind
+    Next, you'll create states for the login and account creation pages and bind
     them to the animation settings.
 
     \section1 Binding Animation to States
@@ -267,27 +269,30 @@
 
     \list 1
         \li In \uicontrol States, select \uicontrol {Create New State} twice to
-            add two states called \e loginState and \e registerState. You don't
-            need to make any property changes this time, because you'll bind the
+            add two states called \e login and \e createAccount. You don't
+            need to make any property changes this time because you'll bind the
             states to property animations.
+       \li In \uicontrol States, select \inlineimage icons/action-icon.png
+            for \e login to open the \uicontrol Actions menu, and then
+            select \uicontrol {Set as Default} to determine that the \e login
+            state is applied when the application starts.
         \li In \uicontrol Timeline, select the \inlineimage animation.png
             (\uicontrol {Timeline Settings (S)}) button on the toolbar (or press
-            \key S to open the \uicontrol {Timeline Settings} dialog.
+            \key S) to open the \uicontrol {Timeline Settings} dialog.
             \image loginui4-timeline-settings-states.png
         \li Double-click the cell in the \uicontrol Timeline column on the
-            \e loginState row, and select \e timeline in the list.
+            \e createAccount row, and select \e timeline in the list.
         \li Double-click the cell in the \uicontrol Animation column on the
-            \e loginState row, and select \e toRegisterState.
-        \li Repeat these steps for \e registerState row, but select
-            \e toLoginState in the \uicontrol Animation column.
+            \e createAccount row, and select \e toCreateAccountState.
         \li Click \uicontrol Close to save the timeline settings.
+        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+            to save your changes.
     \endlist
 
     In the live preview, you can now click the \uicontrol {Create Account}
-    button to go to the registration page and the back button to return to
-    the login page.
+    button to go to the account creation page.
 
-    \image loginui4.gif "Moving between login page and registration page"
+    \image loginui4.gif "Moving between login page and account creation page"
 
     \section2 Learn More - Timeline
 

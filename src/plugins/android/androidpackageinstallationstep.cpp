@@ -38,6 +38,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -66,6 +67,9 @@ public:
     AndroidPackageInstallationStep(BuildStepList *bsl, Id id);
 
     QString nativeAndroidBuildPath() const;
+
+    Utils::FilePath androidBuildDirectory() const;
+    Utils::FilePath buildDirectory() const;
 
 private:
     bool init() final;
@@ -103,6 +107,8 @@ bool AndroidPackageInstallationStep::init()
     cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
 
     processParameters()->setCommandLine(cmd);
+    // This is useful when running an example target from a Qt module project.
+    processParameters()->setWorkingDirectory(buildDirectory());
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
@@ -114,12 +120,24 @@ bool AndroidPackageInstallationStep::init()
 
 QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
 {
-    QString buildPath = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
+    QString buildPath = androidBuildDirectory().toString();
     if (HostOsInfo::isWindowsHost())
         if (buildEnvironment().searchInPath("sh.exe").isEmpty())
             buildPath = QDir::toNativeSeparators(buildPath);
 
     return buildPath;
+}
+
+FilePath AndroidPackageInstallationStep::androidBuildDirectory() const
+{
+    return buildDirectory() / Constants::ANDROID_BUILD_DIRECTORY;
+}
+
+FilePath AndroidPackageInstallationStep::buildDirectory() const
+{
+    if (const BuildSystem *bs = buildSystem())
+        return buildSystem()->buildTarget(target()->activeBuildKey()).workingDirectory;
+    return {};
 }
 
 void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *formatter)

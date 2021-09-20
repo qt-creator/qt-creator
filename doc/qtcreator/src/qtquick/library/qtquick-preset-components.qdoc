@@ -84,6 +84,7 @@
         \li \l {Scene Environment}
         \li \l {Morph Target}
         \li \l {Repeater3D}
+        \li \l {Loader3D}
      \endlist
 
     When you import 3D scenes from files that you exported from 3D graphics

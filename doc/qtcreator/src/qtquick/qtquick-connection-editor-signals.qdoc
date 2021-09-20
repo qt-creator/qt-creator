@@ -93,7 +93,7 @@
     For examples of using the \uicontrol {Connections} view, see:
 
     \list
-        \li \l{Connecting Buttons to States} in \l{Log In UI - Part 3}
+        \li \l{Connecting Buttons to States} in \l{Log In UI - States}
         \li \l{Connecting Buttons to State Changes} in \l{Washing Machine UI}
     \endlist
     \endif

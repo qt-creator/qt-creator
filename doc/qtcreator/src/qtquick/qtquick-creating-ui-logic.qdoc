@@ -61,7 +61,7 @@
     state change.
 
     \if defined(qtdesignstudio)
-    The \l{Log In UI - Part 3} example illustrates using states to create
+    The \l{Log In UI - States} example illustrates using states to create
     two UI screens and signals emitted by buttons to apply the states.
     The button components also switch states when they are pressed down.
 

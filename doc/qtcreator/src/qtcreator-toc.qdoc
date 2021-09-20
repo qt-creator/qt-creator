@@ -146,6 +146,7 @@
                                 \li \l{Scene Environment}
                                 \li \l{Morph Target}
                                 \li \l{Repeater3D}
+                                \li \l{Loader3D}
                             \endlist
                         \li \l {Creating Component Instances}
                         \li \l {Creating Custom Components}

@@ -218,21 +218,21 @@ QString ModelNode::getIdValidityErrorMessage(const QString &id)
         return {}; // valid
 
     if (id.at(0).isUpper())
-        return QObject::tr("ID cannot start with an uppercase character.");
+        return QObject::tr("ID cannot start with an uppercase character (%1).").arg(id);
 
     if (id.at(0).isDigit())
-        return QObject::tr("ID cannot start with a number.");
+        return QObject::tr("ID cannot start with a number (%1).").arg(id);
 
     if (id.contains(' '))
-        return QObject::tr("ID cannot include whitespace.");
+        return QObject::tr("ID cannot include whitespace (%1).").arg(id);
 
     if (idIsQmlKeyWord(id))
-        return QObject::tr("%1 is a reserved QML keyword.");
+        return QObject::tr("%1 is a reserved QML keyword.").arg(id);
 
     if (isIdToAvoid(id))
-        return QObject::tr("%1 is a reserved property keyword.");
+        return QObject::tr("%1 is a reserved property keyword.").arg(id);
 
-    return QObject::tr("ID includes invalid characters.");
+    return QObject::tr("ID includes invalid characters (%1).").arg(id);
 }
 
 bool ModelNode::hasId() const
