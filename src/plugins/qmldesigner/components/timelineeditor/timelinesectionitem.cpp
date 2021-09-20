@@ -818,8 +818,10 @@ void TimelineRulerSectionItem::setPlaybackLoopTimes(float startFrame, float endF
 void TimelineRulerSectionItem::extendPlaybackLoop(const QList<qreal> &positions, bool reset)
 {
     if (m_playbackLoopEnabled) {
-        qreal originalLeft, left = m_playbackLoopStart;
-        qreal originalRight, right = m_playbackLoopEnd;
+        qreal originalLeft = m_playbackLoopStart;
+        qreal left = m_playbackLoopStart;
+        qreal originalRight = m_playbackLoopEnd;
+        qreal right = m_playbackLoopEnd;
 
         if (reset) {
             if (positions.count() >= 2) {
