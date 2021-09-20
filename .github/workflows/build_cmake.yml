@@ -455,6 +455,11 @@ jobs:
         find_package(Python3 REQUIRED COMPONENTS Interpreter)
         string(REPLACE "x86" "x64" Python3_EXECUTABLE "${Python3_EXECUTABLE}")
 
+        set(WITH_TESTS "--with-tests")
+        if (${{github.ref}} MATCHES "tags/v")
+          unset(WITH_TESTS)
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -465,7 +470,7 @@ jobs:
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
             --llvm-path "${{ steps.libclang.outputs.libclang_dir }}"
             --python3 "${Python3_EXECUTABLE}"
-            --with-tests
+            ${WITH_TESTS}
             ${CDB_OPTION}
             ${ELFUTILS_OPTION}
             --add-config=-DCMAKE_C_COMPILER_LAUNCHER=ccache
