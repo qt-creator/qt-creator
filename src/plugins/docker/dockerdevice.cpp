@@ -798,8 +798,7 @@ void DockerDevicePrivate::startContainer()
             dockerRun.addArgs({"-v", mount + ':' + mount});
     }
 
-    dockerRun.addArg(m_data.imageId);
-    dockerRun.addArg("/bin/sh");
+    dockerRun.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
 
     LOG("RUNNING: " << dockerRun.toUserOutput());
     QTC_ASSERT(!m_shell, delete m_shell);
@@ -808,12 +807,14 @@ void DockerDevicePrivate::startContainer()
     connect(m_shell, &QtcProcess::finished, this, [this] {
         LOG("\nSHELL FINISHED\n");
         if (m_shell) {
+            const int exitCode = m_shell->exitCode();
             LOG("RES: " << m_shell->result()
+                << " EXIT CODE: " << exitCode
                 << " STDOUT: " << m_shell->readAllStandardOutput()
                 << " STDERR: " << m_shell->readAllStandardError());
             // negative exit codes indicate problems like no docker daemon, missing permissions,
             // no shell and seem to result in exit codes 125+
-            if (m_shell->exitCode() > 120) {
+            if (exitCode > 120) {
                 DockerPlugin::setGlobalDaemonState(false);
                 LOG("DOCKER DAEMON NOT RUNNING?");
                 MessageManager::writeFlashing(tr("Docker Daemon appears to be not running. "
