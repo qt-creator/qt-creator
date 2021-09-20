@@ -27,8 +27,8 @@
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" },
-        { "key": "AdditionalQmlFiles", "value": "Page1Form.ui.qml Page2Form.ui.qml" },
-        { "key": "AdditionalQmlFilesQbs", "value": ", \"Page1Form.ui.qml\", \"Page2Form.ui.qml\"" }
+        { "key": "AdditionalQmlFiles", "value": "Page1Form.qml Page2Form.qml" },
+        { "key": "AdditionalQmlFilesQbs", "value": ", \"Page1Form.qml\", \"Page2Form.qml\"" }
     ],
 
     "pages":
@@ -279,12 +279,12 @@
                     "openInEditor": true
                 },
                 {
-                    "source": "Page1Form.ui.qml.tpl",
-                    "target": "Page1Form.ui.qml"
+                    "source": "Page1Form.qml.tpl",
+                    "target": "Page1Form.qml"
                 },
                 {
-                    "source": "Page2Form.ui.qml.tpl",
-                    "target": "Page2Form.ui.qml"
+                    "source": "Page2Form.qml.tpl",
+                    "target": "Page2Form.qml"
                 },
                 {
                     "source": "../qtquickcontrols2.conf",

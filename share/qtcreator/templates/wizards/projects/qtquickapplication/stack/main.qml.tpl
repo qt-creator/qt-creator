@@ -45,7 +45,7 @@ ApplicationWindow {
                 text: qsTr("Page 1")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page1Form.ui.qml")
+                    stackView.push("Page1Form.qml")
                     drawer.close()
                 }
             }
@@ -53,7 +53,7 @@ ApplicationWindow {
                 text: qsTr("Page 2")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page2Form.ui.qml")
+                    stackView.push("Page2Form.qml")
                     drawer.close()
                 }
             }
@@ -62,7 +62,7 @@ ApplicationWindow {
 
     StackView {
         id: stackView
-        initialItem: "HomeForm.ui.qml"
+        initialItem: "HomeForm.qml"
         anchors.fill: parent
     }
 @if %{UseVirtualKeyboard}
