@@ -241,9 +241,14 @@ void SemanticHighlighter::onHighlighterFinished()
     } else {
         firstResultBlock = m_baseTextDocument->document()->findBlockByNumber(
                     m_watcher->resultAt(0).line - 1);
-        lastResultBlock = m_baseTextDocument->document()->findBlockByNumber(
-                    m_watcher->future().resultAt(m_watcher->future().resultCount() - 1).line - 1);
+        const HighlightingResult &lastResult
+                = m_watcher->future().resultAt(m_watcher->future().resultCount() - 1);
+        const QTextBlock lastResultStartBlock
+                = m_baseTextDocument->document()->findBlockByNumber(lastResult.line - 1);
+        lastResultBlock = m_baseTextDocument->document()->findBlock(
+                    lastResultStartBlock.position() + lastResult.column - 1 + lastResult.length);
     }
+
     for (QTextBlock currentBlock = m_baseTextDocument->document()->firstBlock();
          currentBlock != firstResultBlock; currentBlock = currentBlock.next()) {
         TextDocumentLayout::setParentheses(currentBlock, getClearedParentheses(currentBlock));
