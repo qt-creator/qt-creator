@@ -25,14 +25,12 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QHash>
 #include <QTimer>
 
-namespace Utils {
-class QtcProcess;
-class FilePath;
-using FilePaths = QList<FilePath>;
-}
+namespace Utils { class QtcProcess; }
 
 namespace Cppcheck {
 namespace Internal {

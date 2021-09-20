@@ -26,6 +26,7 @@
 #pragma once
 
 #include "environmentfwd.h"
+#include "namevalueitem.h"
 #include "optional.h"
 #include "utils_global.h"
 
