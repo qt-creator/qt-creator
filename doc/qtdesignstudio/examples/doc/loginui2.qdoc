@@ -27,39 +27,41 @@
     \example loginui2
     \ingroup studioexamples
     \ingroup gstutorials
-    \previouspage {Log In UI - Part 1}
-    \nextpage {Log In UI - Part 3}
+    \previouspage {Log In UI - Components}
+    \nextpage {Log In UI - States}
 
-    \title Log In UI - Part 2
+    \title Log In UI - Positioning
     \brief Illustrates how to position UI components on pages using anchors and
     positioners.
 
-    \image loginui2.png "Log In UI"
+    \image loginui1.jpg "Log In UI"
 
-    \e{Log In UI - Part 2} is the second in a series of tutorials that build
+    \e{Log In UI - Positioning} is the second in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
-    some basic UI components, such as pages, buttons, and entry fields. Part 2
-    describes how to position the UI components on pages to create a scalable
-    UI.
+    some basic UI components, such as pages, buttons, and entry fields. The
+    second tutorial in the series describes how to position the UI components
+    on pages to create a scalable UI.
 
     To ensure that the layout is responsive and all the UI components stay in
     their proper places when you resize the UI on the desktop or on devices
     with different screen sizes, you will use anchors and positioners.
 
-    These instructions build on \l {Log In UI - Part 1}.
+    These instructions build on \l {Log In UI - Components}.
 
     The \e {Learn More} sections provide additional information about the
     task at hand.
 
     \section1 Anchoring UI Components
 
-    First, you will \l {Setting Anchors and Margins}{anchor} the static page
-    elements, logo image (\e logo) and page title (\e pageTitle), to the page.
-    When you created the project using the new project wizard template
-    in Part 1 of this tutorial, the wizard template anchored \e pageTitle to the
-    vertical and horizontal center of the page. Therefore, you will only
-    need to replace the vertical anchor of \e pageTitle with a top anchor
-    to align it with \e logo on the page.
+    First, you will \l {Setting Anchors and Margins}{anchor} the
+    static page elements, background image (\e adventurePage), logo
+    (\e qt_logo_green_128x128px), and tag line (\e tagLine), to the page.
+
+    When you created the project using the project wizard template
+    in \l {Log In UI - Components}, the wizard template anchored \e tagLine to
+    the vertical and horizontal center of the page. Therefore, you will only
+    need to replace the vertical anchor of \e tagLine with a top anchor and
+    adjust the margins to align it with \e qt_logo_green_128x128px on the page.
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
@@ -71,17 +73,40 @@
     \list 1
         \li Open \e {Screen01.ui.qml} for editing in the
             \uicontrol {Form Editor} view.
-        \li Select \e logo in the \l Navigator view.
-        \li In the \l Properties view, \uicontrol Layout tab,
-            select the \inlineimage icons/anchor-top.png
-            (\uicontrol Top) and \inlineimage icons/anchor-left.png
-            (\uicontrol Left) anchor buttons to anchor \e logo to the top left
-            corner of its parent with 10-pixel margins.
-        \li Select \e pageTitle in \uicontrol Navigator.
-        \li Deselect the \inlineimage icons/anchor-center-vertical.png
-            (\uicontrol {Vertical Center}) button to remove the
-            anchor, and then select the \uicontrol Top button to anchor the
-            title to the top of the page with a 70-pixel margin.
+        \li Select \e adventurePage in the \l Navigator view to display its
+            properties in the \l Properties view.
+        \li In \uicontrol Properties > \uicontrol Layout, select
+            the \inlineimage icons/anchor-fill.png
+            anchor button to anchor \e adventurePage to its
+            parent in the \uicontrol Target field. This attaches the background
+            image to the rectangle on all sides.
+            \image loginui2-layout.png "Layout properties"
+        \li Select \e qt_logo_green_128x128px in \l Navigator.
+        \li In \uicontrol Properties > \uicontrol Layout, select the
+            \inlineimage icons/anchor-top.png
+            and \inlineimage icons/anchor-center-horizontal.png
+            anchor buttons to anchor \e qt_logo_green_128x128px to the top of
+            its parent in the \uicontrol Target field with a 40-pixel margin
+            and to center it horizontally. This attaches the logo to the
+            rectangle at the top, while keeping its horizontal center aligned
+            with that of the rectangle.
+        \li Select \e tagLine in \uicontrol Navigator.
+        \li In \uicontrol Properties > \uicontrol Layout, deselect the
+            \inlineimage icons/anchor-center-vertical.png
+            button to remove the vertical center anchor, and then select the
+            \inlineimage icons/anchor-top.png
+            button to anchor the tag line to
+            \e qt_logo_green_128x128px in the \uicontrol Target field with a
+            40-pixel margin. This attaches the top of the tag line to the
+            bottom of the logo, while keeping its horizontal center aligned
+            with that of the rectangle.
+            \image loginui2-layout-text.png "Text Layout properties"
+            \note You can anchor component instances to their parent and sibling
+            components. If a component instance is not listed in the
+            \uicontrol Target field, check that the component instance is
+            located in the correct place in the component hierarchy in
+            \uicontrol Navigator. For more information,
+            see \l{Arranging Components}.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -89,7 +114,7 @@
     Your page now should look something like this in the \uicontrol Design mode
     and live preview:
 
-    \image loginui2-loginpage.png "Login page in the Design mode"
+    \image loginui2-loginpage.jpg "Login page in the Design mode and live preview"
 
     \section2 Learn More - Anchors
 
@@ -107,74 +132,50 @@
 
     \section1 Using Column Positioners
 
-    You will now add two entry fields to the page and position them in a column
+    You will now position the entry fields and buttons in columns
     to learn another method of \l{Using Positioners}{positioning components}.
-    Next, you will position the push buttons on the page in another column.
-    Finally, you will anchor the columns to the page to enable their positions
+    Then, you will anchor the columns to the page to enable their positions
     to change when the screen size changes.
 
-    To add entry fields to the page:
+    To position the fields and buttons as columns:
 
     \list 1
-        \li Drag-and-drop two instances of the \uicontrol {Text Field}
-            component from \l Library > \uicontrol Components >
-            \uicontrol {Qt Quick Controls} to \l {Form Editor}.
-        \li Select one of the text fields in \l Navigator, and
-            change its ID to \e usernameField in \l Properties.
-        \li In the \uicontrol Geometry group, \uicontrol Size field,
-            make the field wide enough to accommodate long user names
-            by setting its width to \e 300 pixels.
-        \li In the \uicontrol Placeholder field, set the text to display
-            inside the field before users type in it to \e Username
-        \li Select \uicontrol tr to mark the text translatable.
-            \image loginui2-field-properties.png "Text field properties"
-        \li Select the other text field, and change its ID to
-            \e passwordField, placeholder text to \e Password,
-            and width to \e 300 pixels.
-    \endlist
-
-    The Text Field component has additional properties that you can use to change
-    its appearance. For example, you can change the color, font, alignment, or
-    word and letter spacing of the placeholder text.
-
-    You will now position the fields and buttons as columns:
-
-    \list 1
-        \li Select \e usernameField and \e passwordField in \uicontrol Navigator
-            (press the \key Shift key for multiple selection), and right-click
+        \li Select \e username and \e password in \uicontrol Navigator
+            (press and hold the \key Shift or \key Ctrl key for
+            \l {Multiselection}{multiple selection}), and right-click
             either of them to open a context menu.
         \li Select \uicontrol Position > \uicontrol {Position in Column}
             to position the fields on top of each other in
             \uicontrol {Form Editor}.
         \li Select the column in \uicontrol Navigator and change its ID
-            to \e fieldColumn in \uicontrol Properties.
-        \li In the \uicontrol Spacing field, set the spacing between the
-            fields to 5 pixels.
+            to \e fields in \uicontrol Properties.
+        \li In \uicontrol Column > \uicontrol Spacing, set the spacing between
+            the fields to 20 pixels.
             \image loginui2-column-properties.png "Column properties"
-        \li Select \e loginButton and \e registerButton, and then select
+        \li Select \e login and \e createAccount, and then select
             \uicontrol Position > \uicontrol {Position in Column} to position
             them in a column.
-        \li Select the button column, change its ID to \e buttonColumn, and
-            set the spacing between the buttons to 5 pixels, as above.
+        \li Select the button column, change its ID to \e buttons, and
+            set the spacing between the buttons to 20 pixels, as above.
     \endlist
 
     You will now anchor the field and button columns to the page:
 
     \list 1
-        \li Select \e fieldColumn in \uicontrol Navigator.
+        \li Select \e fields in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
-            \uicontrol Top button to anchor the top of the button column to
-            the top of its parent with a 200-pixel margin.
+            \inlineimage icons/anchor-top.png
+            button to anchor the top of the field column to
+            the bottom of \e tagLine with a 170-pixel margin.
         \li Select the \inlineimage icons/anchor-center-horizontal.png
-            (\uicontrol {Horizontal Center}) button to center the field
-            column horizontally on the page.
-        \li Select \e buttonColumn in \uicontrol Navigator.
+            button to anchor the column horizontally to its parent.
+        \li Select \e buttons in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \inlineimage icons/anchor-bottom.png
-            (\uicontrol Bottom) button to anchor the bottom of the button
-            column to the bottom of its parent with a 50-pixel margin.
-        \li Select the \uicontrol {Horizontal Center} button to center
-            the button column horizontally on the page.
+            button to anchor the button column to the bottom of its parent
+            with a 50-pixel margin.
+        \li Select the \inlineimage icons/anchor-center-horizontal.png
+            button to anchor the column horizontally to its parent.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -182,7 +183,7 @@
     The second iteration of your UI is now ready and should look something like
     this in the \uicontrol Design mode and live preview:
 
-    \image loginui2-loginpage-ready.png "Login page in the Design mode"
+    \image loginui2-loginpage-ready.jpg "Login page in the Design mode and live preview"
 
     \section1 Learn More - Positioners
 
@@ -197,6 +198,6 @@
     \section1 Next Steps
 
     To learn how to add a second page and move to it from the main page, see
-    the next tutorial in the series, \l {Log In UI - Part 3}.
+    the next tutorial in the series, \l {Log In UI - States}.
 */
 

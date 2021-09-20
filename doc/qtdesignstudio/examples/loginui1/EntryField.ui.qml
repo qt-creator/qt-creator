@@ -1,4 +1,5 @@
 
+
 /****************************************************************************
 **
 ** Copyright (C) 2021 The Qt Company Ltd.
@@ -53,6 +54,8 @@ import QtQuick.Controls 2.12
 
 Button {
     id: control
+    width: 500
+    height: 100
 
     implicitWidth: Math.max(
                        buttonBackground ? buttonBackground.implicitWidth : 0,
@@ -64,26 +67,31 @@ Button {
     rightPadding: 4
 
     text: "My Button"
+    hoverEnabled: false
 
     background: buttonBackground
     Rectangle {
         id: buttonBackground
+        color: "#00000000"
         implicitWidth: 100
         implicitHeight: 40
         opacity: enabled ? 1 : 0.3
-        radius: 20
-        border.color: "#41cd52"
+        radius: 50
+        border.color: "#ffffff"
     }
 
     contentItem: textItem
     Text {
         id: textItem
         text: control.text
+        font.pixelSize: 34
 
         opacity: enabled ? 1.0 : 0.3
-        horizontalAlignment: Text.AlignHCenter
+        color: "#ffffff"
+        horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
-        font.bold: true
+        leftPadding: 50
+        font.family: "Titillium Web ExtraLight"
     }
 
     states: [
@@ -92,8 +100,13 @@ Button {
             when: !control.down
 
             PropertyChanges {
+                target: textItem
+                font.family: "Titillium Web ExtraLight"
+            }
+
+            PropertyChanges {
                 target: buttonBackground
-                border.color: "#41cd52"
+                color: "#28e7e7e7"
             }
         },
         State {
@@ -101,12 +114,13 @@ Button {
             when: control.down
             PropertyChanges {
                 target: textItem
-                color: "#41cd52"
+                color: "#ffffff"
             }
 
             PropertyChanges {
                 target: buttonBackground
-                border.color: "#41cd52"
+                color: "#e7e7e7"
+                border.color: "#ffffff"
             }
         }
     ]

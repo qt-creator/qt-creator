@@ -47,9 +47,13 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/baseqtversion.h>
+
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -242,8 +246,37 @@ bool AndroidManager::isQtCreatorGenerated(const FilePath &deploymentFile)
 
 FilePath AndroidManager::dirPath(const Target *target)
 {
-    if (auto *bc = target->activeBuildConfiguration())
-        return bc->buildDirectory() / Constants::ANDROID_BUILDDIRECTORY;
+    return androidBuildDirectory(target);
+}
+
+FilePath AndroidManager::androidBuildDirectory(const Target *target)
+{
+    return buildDirectory(target) / Constants::ANDROID_BUILD_DIRECTORY;
+}
+
+bool AndroidManager::isQt5CmakeProject(const ProjectExplorer::Target *target)
+{
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const bool isQt5 = qt && qt->qtVersion() < QtSupport::QtVersionNumber{6, 0, 0};
+    const Core::Context cmakeCtx = Core::Context(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+    const bool isCmakeProject = (target->project()->projectContext() == cmakeCtx);
+    return isQt5 && isCmakeProject;
+}
+
+FilePath AndroidManager::buildDirectory(const Target *target)
+{
+    if (const BuildSystem *bs = target->buildSystem()) {
+        const QString buildKey = target->activeBuildKey();
+        const FilePath buildDir = bs->buildTarget(target->activeBuildKey()).workingDirectory;
+        if (isQt5CmakeProject(target)) {
+            // Return the main build dir and not the android libs dir
+            const QString libsDir = QString(Constants::ANDROID_BUILD_DIRECTORY) + "/libs";
+            Utils::FilePath parentDuildDir = buildDir.parentDir();
+            if (parentDuildDir.endsWith(libsDir) || libsDir.endsWith(libsDir + "/"))
+                return parentDuildDir.parentDir().parentDir();
+        }
+        return buildDir;
+    }
     return {};
 }
 
@@ -264,7 +297,7 @@ FilePath AndroidManager::apkPath(const Target *target)
     else
         apkPath += QLatin1String("debug.apk");
 
-    return dirPath(target) / apkPath;
+    return androidBuildDirectory(target) / apkPath;
 }
 
 bool AndroidManager::matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis)
@@ -339,7 +372,7 @@ FilePath AndroidManager::manifestPath(const Target *target)
     QVariant manifest = target->namedSettings(AndroidManifestName);
     if (manifest.isValid())
         return manifest.value<FilePath>();
-    return dirPath(target).pathAppended(AndroidManifestName);
+    return androidBuildDirectory(target).pathAppended(AndroidManifestName);
 }
 
 void AndroidManager::setManifestPath(Target *target, const FilePath &path)
@@ -371,7 +404,7 @@ static QString preferredAbi(const QStringList &appAbis, const Target *target)
 
 QString AndroidManager::apkDevicePreferredAbi(const Target *target)
 {
-    auto libsPath = dirPath(target).pathAppended("libs");
+    auto libsPath = androidBuildDirectory(target).pathAppended("libs");
     if (!libsPath.exists()) {
         if (const ProjectNode *node = currentProjectNode(target))
             return preferredAbi(node->data(Android::Constants::ANDROID_ABIS).toStringList(),

@@ -42,6 +42,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <proparser/profileevaluator.h>
 
@@ -172,19 +173,24 @@ int AndroidQtVersion::minimumNDK() const
 Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target)
 {
     // Try to fetch the file name from node data as provided by qmake and Qbs
-    const QString buildKey = target->activeBuildKey();
+    QString buildKey = target->activeBuildKey();
     const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
     if (node) {
         const QString nameFromData = node->data(Constants::AndroidDeploySettingsFile).toString();
         if (!nameFromData.isEmpty())
             return Utils::FilePath::fromUserInput(nameFromData);
     }
+
     // If unavailable, construct the name by ourselves (CMake)
-    const BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-    const bool isQt6 = qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0};
-    return target->activeBuildConfiguration()->buildDirectory().pathAppended(
-                isQt6 ? QString::fromLatin1("android-%1-deployment-settings.json").arg(buildKey)
-                      : QLatin1String("android_deployment_settings.json"));
+    const BuildSystem *bs = target->buildSystem();
+    if (!bs)
+        return {};
+    const QString displayName = bs->buildTarget(buildKey).displayName;
+    return AndroidManager::buildDirectory(target).pathAppended(
+                AndroidManager::isQt5CmakeProject(target)
+                ? QLatin1String("android_deployment_settings.json")
+                : QString::fromLatin1("android-%1-deployment-settings.json")
+                  .arg(displayName));
 }
 
 void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const

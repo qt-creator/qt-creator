@@ -28,29 +28,30 @@
     \ingroup studioexamples
     \ingroup gstutorials
 
-    \title Log In UI - Part 3
+    \title Log In UI - States
     \brief Illustrates how to use states to create a second UI page.
-    \previouspage {Log In UI - Part 2}
-    \nextpage {Log In UI - Part 4}
+    \previouspage {Log In UI - Positioning}
+    \nextpage {Log In UI - Timeline}
 
     \image loginui3.gif "Log In UI"
 
-    \e{Log In UI - Part 3} is the third in a series of tutorials that build
+    \e{Log In UI - States} is the third in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
-    some basic UI components, such as pages, buttons, and entry fields. Part 3
-    describes how to use \e states to add a second page to the UI. On the
-    first page, users can enter a username and password to log in. On the
-    second page, they can register if they do not already have an account.
+    some basic UI components, such as pages, buttons, and entry fields. The
+    third tutorial in the series describes how to use \e states to add a
+    second page to the UI. On the first page, users can enter a username
+    and password to log in. On the second page, they can register if they
+    do not already have an account.
 
     Because the second page will contain most of the same UI components as the
     login page, you will use \e states to show and hide UI components as necessary
-    when a user selects the \uicontrol {Create Account} button.
+    when a user selects the \e {Create Account} button.
 
     These instructions build on:
 
     \list
-        \li \l {Log In UI - Part 1}
-        \li \l {Log In UI - Part 2}
+        \li \l {Log In UI - Components}
+        \li \l {Log In UI - Positioning}
     \endlist
 
     The \e {Learn More} sections provide additional information relevant to the
@@ -58,93 +59,82 @@
 
     \section1 Adding UI Components
 
-    You will add another text field for verifying the password that users
-    enter to create an account and a back button for returning to the login
-    page. You are already familiar with the tasks in this section from Part 1
-    and Part 2 of this tutorial.
+    You will add another entry field for verifying the password that users
+    enter to create an account. You are already familiar with the tasks in
+    this section from previous parts of the tutorial.
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
     (\uicontrol {Show Live Preview}) button on the \l {Form Editor}
     toolbar or press \key {Alt+P}.
 
-    To add the text field and a back button needed on the registration page
-    to the \e Screen01 component:
+    To add the entry field needed on the second page to the \e Screen01
+    component:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} in \uicontrol {Form Editor} for editing.
-        \li Drag-and-drop a \uicontrol {Text Field} from \l Library
-            > \uicontrol Components > \uicontrol {Qt Quick Controls} to
-            \e fieldColumn in \l Navigator.
-        \li In \l Properties, change the ID of the text field to
-            \e verifyPasswordField.
-        \li In the \uicontrol Geometry group, \uicontrol Size field, set the
-            width of the field to \e 300 pixels to match the size of the
-            existing fields.
-        \li In the \uicontrol Placeholder field, set the placeholder text to
-            \e {Verify password} and mark the text translatable.
-        \li Drag-and-drop a PushButton component from \uicontrol Library >
-            \uicontrol Components > \uicontrol {My Components} to the root
-            rectangle in \uicontrol Navigator.
-        \li Select the button in \uicontrol Navigator and change its ID to
-            \e backButton in \uicontrol Properties.
-        \li In the \uicontrol Geometry group, \uicontrol Size field, set the
-            button width to \e 40 pixels to create a small round button.
-        \li In the \uicontrol Text field, enter \e <.
-        \li In the \uicontrol Font group, \uicontrol Size field, set the font
-            size to \e 24 pixels.
-        \li Under \uicontrol Layout, select the \inlineimage icons/anchor-top.png
-            (\uicontrol Top) and \inlineimage icons/anchor-right.png
-            (\uicontrol Right) anchor buttons to anchor \e backButton to
-            the top right corner of its parent with 20- and 10-pixel margins,
-            respectively.
+        \li Double-click \e Screen01.ui.qml in \uicontrol Projects to open it
+            in \uicontrol {Form Editor}.
+        \li Drag-and-drop an instance of the EntryField component from
+            \uicontrol Library > \uicontrol Components >
+            \uicontrol {My Components} to \e fields in \l Navigator.
+        \li Select the EntryField instance in \uicontrol Navigator to modify
+        its ID and text in \uicontrol Properties.
+        \li In \uicontrol Component > \uicontrol ID, enter
+            \e repeatPassword.
+        \li In \uicontrol {Button Content} > \uicontrol Text, enter
+            \e {Repeat Password} and select \uicontrol tr to mark the text
+            translatable.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    \e Screen01 should now look something like this in the \uicontrol Design
-    mode and live preview:
+    \e Screen01 should now look something like this in \uicontrol {Form Editor}:
 
-    \image loginui3-base-state.png "Login page with new UI components"
+    \image loginui3-base-state.jpg "Login page with a Repeat Password field"
 
-    Next, you will add states for the login page and the registration page,
-    where you use the visibility property to hide the password verification
-    field and the back button on the login page and the login button on the
-    registration page.
+    Next, you will add states for the login page and the account creation page,
+    where you use the visibility property to hide the repeat password field on
+    the login page and the \e {Create Account} button on the account creation
+    page.
 
     \section1 Using States to Simulate Page Changes
 
     You will now add \l{Adding States}{states} to the UI to show and hide UI
-    components in the \uicontrol {Form Editor}, depending on the current page:
+    components in \uicontrol {Form Editor}, depending on the current page:
 
     \list 1
         \li In the \l States view, select \uicontrol {Create New State}.
-            \image loginui3-login-state.png "States view"
-        \li Enter \e loginState as the state name.
-        \li Select \e verifyPasswordField in the \uicontrol Navigator,
-            and deselect the \uicontrol Visibility check box in
-            \uicontrol Properties to hide the verify password field in
-            the login state.
+        \li Enter \e login as the state name.
+            \image loginui3-login-state.jpg "States view"
+        \li Select \e repeatPassword in \uicontrol Navigator to display its
+            properties in \uicontrol Properties.
+        \li In the \uicontrol Visibility section, deselect the
+            \uicontrol Visible check box to hide the repeat
+            password field in the login state.
             \image loginui3-visibility.png
-        \li Repeat the above step for \e backButton to hide it, too.
         \li In \uicontrol States, select \inlineimage icons/action-icon.png
-            for \e loginState to open the \uicontrol Actions menu, and then
-            select \uicontrol {Set as Default} to determine that \e loginState
-            is applied when the application starts.
+            for \e login to open the \uicontrol Actions menu, and then
+            select \uicontrol {Set as Default} to determine that the \e login
+            state is applied when the application starts.
         \li With the base state selected, add another state and name it
-            \e registerState. This state should now look identical to the base
+            \e createAccount. This state should now look identical to the base
             state.
-        \li Select \e loginButton in the \uicontrol Navigator, and deselect
-            the \uicontrol Visibility check box in \uicontrol Properties to
-            hide the login button in the registration state.
+        \li Select \e createAccount in the \uicontrol Navigator to display its
+            properties in \uicontrol Properties.
+        \li In \uicontrol Visibility, deselect the \uicontrol Visible check box
+            to hide the \e {Create Account} button in the account creation
+            state.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    You can now see all the states in the \uicontrol States view. The live
-    preview displays the default state, \e loginState:
+    You can now see all the states in the \uicontrol States view:
 
-    \image loginui3-states.png "States view"
+    \image loginui3-states.jpg "All states in the States view"
+
+    The live preview displays the default state, \e login:
+
+    \image loginui3-login-state-preview.jpg "Preview of the login state"
 
     \section2 Learn More - States
 
@@ -171,9 +161,7 @@
 
     Next, you will create connections to specify that clicking the
     \uicontrol {Create Account} button on the login page triggers a
-    transition to the registration page and that clicking the back
-    button on the registration page triggers a transition to the login
-    page.
+    transition to the account creation page.
 
     \section1 Connecting Buttons to States
 
@@ -183,35 +171,27 @@
     is clicked within the area.
 
     You will now use \l {Connection View} to
-    \l{Connecting Components to Signals}{connect} the clicked signal of
-    \e registerButton to \e registerState and that of \e backButton
-    to \e loginState:
+    \l{Connecting Components to Signals}{connect} the clicked signal of the
+    \e createAccount button to \e createAccount state:
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Connection View} to open the \uicontrol Connections tab.
-        \li Select \e registerButton in the \uicontrol Navigator.
+        \li Select \e createAccount in \uicontrol Navigator.
         \li In the \uicontrol Connections tab, select the \inlineimage plus.png
             button to add the action that the \c onClicked signal handler of
-            \e registerButton should apply.
+            \e createAccount should apply.
         \li Double-click the value \uicontrol Action column and select
-            \uicontrol {Change state to registerState} in the drop-down menu.
-        \li Repeat the steps above to connect \e backButton to \e loginState
-            by selecting \uicontrol {Change state to loginState} in the last
-            step.
+            \uicontrol {Change state to createAccount} in the drop-down menu.
+            \image loginui3-connections.png "Connections tab"
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    You can now see the following connections in the \uicontrol Design mode:
-
-    \image loginui3-connections.png "Connections tab"
-
     In the live preview, you can now click the \uicontrol {Create Account}
-    button to go to the registration page and the back button to return to
-    the login page.
+    button to go to the account creation page.
 
-    \image loginui3.gif "Moving between login page and registration page"
+    \image loginui3.gif "Moving between login page and account creation page"
 
 
     \section2 Learn More - Signal and Event Handlers
@@ -220,11 +200,11 @@
     needs to know that the user has clicked on it. In response, the button may
     change color to indicate its state and perform an action.
 
-    A \e {signal-and-handler} mechanism is used, where the \e signal is the
-    event that is responded to through a \e {signal handler}. When a signal is
-    emitted, the corresponding signal handler is invoked. Placing logic, such
-    as a script or other operations, in the handler allows the component to
-    respond to the event.
+    To accomplish this, a \e {signal-and-handler} mechanism is used, where the
+    \e signal is the event that is responded to through a \e {signal handler}.
+    When a signal is emitted, the corresponding signal handler is invoked.
+    Placing logic, such as a script or other operations, in the handler allows
+    the component to respond to the event.
 
     For more information, see \l{Signal and Handler Event System}.
 
@@ -236,6 +216,6 @@
     \l{Lists and Other Data Models}.
 
     To learn how to use a timeline to animate the transition between the login
-    and registration pages, see the next tutorial in the series,
-    \l {Log In UI - Part 4}.
+    and account creation pages, see the next tutorial in the series,
+    \l {Log In UI - Timeline}.
 */

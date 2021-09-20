@@ -35,8 +35,9 @@
     You can follow a set of hands-on tutorials that build on each other to
     illustrate how to use the features of \QDS. Even if you plan to export your
     designs from a design tool, it is useful to first create a small UI from
-    scratch to learn to use \QDS. In particular, Part 1 describes the terms
-    and concepts that you will run into when exporting designs with \QB.
+    scratch to learn to use \QDS. In particular, \e {Log In UI - Components}
+    describes the terms and concepts that you will run into when exporting
+    designs with \QB.
 
     Before you start, take a look at the following topics to familiarize
     yourself with the parts of \QDS in general, and the \uicontrol Design

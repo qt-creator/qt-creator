@@ -154,7 +154,7 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     if (!process)
         return;
 
-    QTC_ASSERT(QThread::currentThread() == process->thread(), return);
+    QTC_ASSERT(QThread::currentThread() == process->thread(), return );
 
     process->disconnect();
     if (process->state() == QProcess::NotRunning) {

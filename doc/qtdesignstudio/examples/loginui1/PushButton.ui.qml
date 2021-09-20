@@ -1,4 +1,5 @@
 
+
 /****************************************************************************
 **
 ** Copyright (C) 2021 The Qt Company Ltd.
@@ -53,6 +54,8 @@ import QtQuick.Controls 2.12
 
 Button {
     id: control
+    width: 500
+    height: 100
 
     implicitWidth: Math.max(
                        buttonBackground ? buttonBackground.implicitWidth : 0,
@@ -64,14 +67,16 @@ Button {
     rightPadding: 4
 
     text: "My Button"
+    hoverEnabled: false
 
     background: buttonBackground
     Rectangle {
         id: buttonBackground
+        color: "#00000000"
         implicitWidth: 100
         implicitHeight: 40
         opacity: enabled ? 1 : 0.3
-        radius: 20
+        radius: 50
         border.color: "#41cd52"
     }
 
@@ -79,11 +84,13 @@ Button {
     Text {
         id: textItem
         text: control.text
+        font.pixelSize: 34
 
         opacity: enabled ? 1.0 : 0.3
+        color: "#41cd52"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        font.bold: true
+        font.family: "Titillium Web ExtraLight"
     }
 
     states: [
@@ -93,7 +100,7 @@ Button {
 
             PropertyChanges {
                 target: buttonBackground
-                border.color: "#41cd52"
+                color: "#00000000"
             }
         },
         State {
@@ -101,13 +108,20 @@ Button {
             when: control.down
             PropertyChanges {
                 target: textItem
-                color: "#41cd52"
+                color: "#ffffff"
             }
 
             PropertyChanges {
                 target: buttonBackground
-                border.color: "#41cd52"
+                color: "#41cd52"
+                border.color: "#00000000"
             }
         }
     ]
 }
+
+/*##^##
+Designer {
+    D{i:0;height:100;width:500}
+}
+##^##*/

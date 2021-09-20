@@ -7,7 +7,7 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.2/6.2.0-beta4-released/"
+        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.2/6.2.0-rc-released/"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations"

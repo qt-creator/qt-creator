@@ -58,7 +58,7 @@
     by using a \l{Creating Custom Controls}{wizard template}. For more
     information about editing the states within the button component and
     hiding and showing buttons to create several screens, see
-    \l{Log In UI - Part 1} and \l{Log In UI - Part 3}.
+    \l{Log In UI - Components} and \l{Log In UI - States}.
     \endif
 
     To add motion to a screen, you can change the position of a component

@@ -456,11 +456,13 @@ WelcomeMode::WelcomeMode()
 
     setWidget(m_modeWidget);
 
-    QStringList designStudioQchPathes = {Core::HelpManager::documentationPath()
-                                         + "/qtdesignstudio.qch",
-                                         Core::HelpManager::documentationPath() + "/qtquick.qch",
-                                         Core::HelpManager::documentationPath()
-                                         + "/qtquickcontrols.qch"};
+    QStringList designStudioQchPathes
+        = {Core::HelpManager::documentationPath() + "/qtdesignstudio.qch",
+           Core::HelpManager::documentationPath() + "/qtquick.qch",
+           Core::HelpManager::documentationPath() + "/qtquickcontrols.qch",
+           Core::HelpManager::documentationPath() + "/qtquicktimeline.qch",
+           Core::HelpManager::documentationPath() + "/qtquick3d.qch",
+           Core::HelpManager::documentationPath() + "/qtqml.qch"};
 
     Core::HelpManager::registerDocumentation(
                 Utils::filtered(designStudioQchPathes,

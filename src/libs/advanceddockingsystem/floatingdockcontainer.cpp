@@ -562,7 +562,7 @@ static const char* windowsMessageString(int messageId)
                 this,
                 &FloatingDockContainer::close);
     #else
-        setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+        setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint | Qt::Tool);
         QBoxLayout *boxLayout = new QBoxLayout(QBoxLayout::TopToBottom);
         boxLayout->setContentsMargins(0, 0, 0, 0);
         boxLayout->setSpacing(0);
