@@ -180,9 +180,29 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose
                 && result.kind != DoubleAngleBracketClose
                 && result.kind != TernaryIf && result.kind != TernaryElse) {
-            const QTextBlock block =
+            const QTextBlock firstBlockForResult =
                     m_baseTextDocument->document()->findBlockByNumber(result.line - 1);
-            TextDocumentLayout::setParentheses(block, getClearedParentheses(block));
+            const int startRange = firstBlockForResult.position() + result.column - 1;
+            const int endRange = startRange + result.length;
+            const QTextBlock lastBlockForResult = m_baseTextDocument->document()
+                    ->findBlock(endRange);
+            const QTextBlock endBlock = lastBlockForResult.next();
+            for (QTextBlock block = firstBlockForResult; block != endBlock; block = block.next()) {
+                Parentheses syntacticParens = getClearedParentheses(block);
+
+                // Remove mis-detected parentheses inserted by syntactic highlighter.
+                // This typically happens with raw string literals.
+                if (result.textStyles.mainStyle != C_PUNCTUATION) {
+                    for (auto it = syntacticParens.begin(); it != syntacticParens.end();) {
+                        const int absParenPos = block.position() + it->pos;
+                        if (absParenPos >= startRange && absParenPos < endRange)
+                            it = syntacticParens.erase(it);
+                        else
+                            ++it;
+                    }
+                }
+                TextDocumentLayout::setParentheses(block, syntacticParens);
+            }
             continue;
         }
         if (parentheses.first.isValid() && result.line - 1 > parentheses.first.blockNumber()) {
