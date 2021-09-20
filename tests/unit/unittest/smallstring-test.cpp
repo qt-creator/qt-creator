@@ -825,11 +825,29 @@ TEST(SmallString, AppendNullSmallString)
     ASSERT_THAT(text, SmallString("text"));
 }
 
+TEST(SmallString, AppendNullQString)
+{
+    SmallString text("text");
+
+    text += QString();
+
+    ASSERT_THAT(text, SmallString("text"));
+}
+
 TEST(SmallString, AppendEmptySmallString)
 {
     SmallString text("text");
 
     text += SmallString("");
+
+    ASSERT_THAT(text, SmallString("text"));
+}
+
+TEST(SmallString, AppendEmptyQString)
+{
+    SmallString text("text");
+
+    text += QString("");
 
     ASSERT_THAT(text, SmallString("text"));
 }
@@ -843,6 +861,15 @@ TEST(SmallString, AppendShortSmallString)
     ASSERT_THAT(text, SmallString("some text"));
 }
 
+TEST(SmallString, AppendShortQString)
+{
+    SmallString text("some ");
+
+    text += QString("text");
+
+    ASSERT_THAT(text, SmallString("some text"));
+}
+
 TEST(SmallString, AppendLongSmallStringToShortSmallString)
 {
     SmallString text("some ");
@@ -852,12 +879,34 @@ TEST(SmallString, AppendLongSmallStringToShortSmallString)
     ASSERT_THAT(text, SmallString("some very very very very very long string"));
 }
 
+TEST(SmallString, AppendLongQStringToShortSmallString)
+{
+    SmallString text("some ");
+
+    text += QString("very very very very very long string");
+
+    ASSERT_THAT(text, SmallString("some very very very very very long string"));
+}
+
 TEST(SmallString, AppendLongSmallString)
 {
     SmallString longText("some very very very very very very very very very very very long string");
-    longText+= SmallString(" text");
+
+    longText += SmallString(" text");
 
     ASSERT_THAT(longText, SmallString("some very very very very very very very very very very very long string text"));
+}
+
+TEST(SmallString, AppendLongQString)
+{
+    SmallString longText("some very very very very very very very very very very very long string");
+
+    longText += QString(" text");
+
+    ASSERT_THAT(
+        longText,
+        SmallString(
+            "some very very very very very very very very very very very long string text"));
 }
 
 TEST(SmallString, AppendInitializerList)

@@ -34,6 +34,9 @@
 
 #include <QByteArray>
 #include <QString>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QStringEncoder>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -133,6 +136,10 @@ public:
 
     BasicSmallString(const QString &qString)
         : BasicSmallString(BasicSmallString::fromQString(qString))
+    {}
+
+    BasicSmallString(const QStringView qStringView)
+        : BasicSmallString(BasicSmallString::fromQStringView(qStringView))
     {}
 
     BasicSmallString(const QByteArray &qByteArray)
@@ -353,16 +360,23 @@ public:
         return end();
     }
 
-    static
-    BasicSmallString fromQString(const QString &qString)
+    static BasicSmallString fromQString(const QString &qString)
     {
-        const QByteArray &utf8ByteArray = qString.toUtf8();
+        BasicSmallString string;
+        string.append(qString);
 
-        return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
+        return string;
     }
 
-    static
-    BasicSmallString fromQByteArray(const QByteArray &utf8ByteArray)
+    static BasicSmallString fromQStringView(QStringView qStringView)
+    {
+        BasicSmallString string;
+        string.append(qStringView);
+
+        return string;
+    }
+
+    static BasicSmallString fromQByteArray(const QByteArray &utf8ByteArray)
     {
         return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
@@ -467,7 +481,32 @@ public:
         setSize(newSize);
     }
 
+    void append(QStringView string)
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QStringEncoder encoder{QStringEncoder::Utf8};
+
+        size_type oldSize = size();
+        size_type newSize = oldSize + static_cast<size_type>(encoder.requiredSpace(string.size()));
+
+        reserve(optimalCapacity(newSize));
+        auto newEnd = encoder.appendToBuffer(data() + size(), string);
+        *newEnd = 0;
+        setSize(newEnd - data());
+#else
+        QByteArray array = string.toUtf8();
+        append(SmallStringView{array.data(), static_cast<size_type>(array.size())});
+#endif
+    }
+
     BasicSmallString &operator+=(SmallStringView string)
+    {
+        append(string);
+
+        return *this;
+    }
+
+    BasicSmallString &operator+=(QStringView string)
     {
         append(string);
 
