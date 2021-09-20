@@ -303,38 +303,59 @@ SecondColumnLayout {
                 }
             }
 
+            // This connection is meant to update the popups y-position and the main scrollviews
+            // height as soon as the height of the color picker changes. Initially the height of the
+            // color picker is 0 until its completion is done.
+            Connections {
+                target: colorPicker
+                function onHeightChanged() {
+                    cePopup.setPopupY()
+                    cePopup.setMainScrollViewHeight()
+                }
+            }
+
             onOpened: {
+                cePopup.setPopupY()
+                cePopup.setMainScrollViewHeight()
+            }
+            onYChanged: cePopup.setMainScrollViewHeight()
+            onHeightChanged: cePopup.setMainScrollViewHeight()
+
+            function setMainScrollViewHeight() {
                 if (Controller.mainScrollView === null)
                     return
 
                 var mapped = preview.mapToItem(Controller.mainScrollView.contentItem, cePopup.x, cePopup.y)
-                Controller.mainScrollView.temporaryHeight = mapped.y + cePopup.height + 20
+                Controller.mainScrollView.temporaryHeight = mapped.y + cePopup.height
+                        + StudioTheme.Values.colorEditorPopupMargin
             }
 
-            onHeightChanged: {
+            function setPopupY() {
                 if (Controller.mainScrollView === null)
                     return
 
-                var mapped = preview.mapToItem(Controller.mainScrollView.contentItem, cePopup.x, cePopup.y)
-                Controller.mainScrollView.temporaryHeight = mapped.y + cePopup.height + 20
+                var tmp = preview.mapToItem(Controller.mainScrollView.contentItem, preview.x, preview.y)
+                cePopup.y = Math.max(-tmp.y + StudioTheme.Values.colorEditorPopupMargin,
+                                     cePopup.__defaultY)
             }
 
-            onClosed: {
-                Controller.mainScrollView.temporaryHeight = 0
-            }
+            onClosed: Controller.mainScrollView.temporaryHeight = 0
 
-            x: - StudioTheme.Values.colorEditorPopupWidth * 0.5
-               + preview.width * 0.5
-            y: - StudioTheme.Values.colorEditorPopupMargin
-               - (StudioTheme.Values.colorEditorPopupSpacing * 2)
-               - StudioTheme.Values.defaultControlHeight
-               - StudioTheme.Values.colorEditorPopupLineHeight
-               - colorPicker.height * 0.5
-               + preview.height * 0.5
+            property real __defaultX: - StudioTheme.Values.colorEditorPopupWidth * 0.5
+                                      + preview.width * 0.5
+            property real __defaultY: - StudioTheme.Values.colorEditorPopupPadding
+                                      - (StudioTheme.Values.colorEditorPopupSpacing * 2)
+                                      - StudioTheme.Values.defaultControlHeight
+                                      - StudioTheme.Values.colorEditorPopupLineHeight
+                                      - colorPicker.height * 0.5
+                                      + preview.height * 0.5
+
+            x: cePopup.__defaultX
+            y: cePopup.__defaultY
 
             width: StudioTheme.Values.colorEditorPopupWidth
             height: colorColumn.height + sectionColumn.height
-                    + StudioTheme.Values.colorEditorPopupMargin + 2 // TODO magic number
+                    + StudioTheme.Values.colorEditorPopupPadding + 2 // TODO magic number
 
             padding: StudioTheme.Values.border
             margins: -1 // If not defined margin will be -1
@@ -353,7 +374,7 @@ SecondColumnLayout {
                     anchors.top: parent.top
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    anchors.margins: StudioTheme.Values.colorEditorPopupMargin
+                    anchors.margins: StudioTheme.Values.colorEditorPopupPadding
                     spacing: StudioTheme.Values.colorEditorPopupSpacing
 
                     RowLayout {
@@ -714,7 +735,7 @@ SecondColumnLayout {
 
                 Column {
                     id: sectionColumn
-                    anchors.topMargin: StudioTheme.Values.colorEditorPopupMargin
+                    anchors.topMargin: StudioTheme.Values.colorEditorPopupPadding
                     anchors.top: colorColumn.bottom
                     anchors.left: parent.left
                     anchors.right: parent.right
