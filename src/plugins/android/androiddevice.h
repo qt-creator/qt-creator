@@ -46,6 +46,8 @@ class AndroidDevice final : public ProjectExplorer::IDevice
 public:
     AndroidDevice();
 
+    void fromMap(const QVariantMap &map) override;
+
     static IDevice::Ptr create();
     static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
     static void setAndroidDeviceInfoExtras(IDevice *dev, const AndroidDeviceInfo &info);
@@ -74,6 +76,7 @@ public:
     AndroidConfig::OpenGl openGlStatus() const;
 
 private:
+    void addEmulatorActionsIfNotFound();
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     bool canAutoDetectPorts() const override;
@@ -99,10 +102,10 @@ public:
     void updateDevicesList();
     void updateDevicesListOnce();
 
-    void startAvd(const ProjectExplorer::IDevice::Ptr &device);
-    void eraseAvd(const ProjectExplorer::IDevice::Ptr &device);
+    void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
+    void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
 
-    void setEmulatorArguments();
+    void setEmulatorArguments(QWidget *parent = nullptr);
 
 private:
     AndroidDeviceManager(QObject *parent = nullptr);

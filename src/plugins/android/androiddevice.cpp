@@ -69,8 +69,8 @@ public:
 
     void updateDeviceFromUi() final {}
     static QString dialogTitle();
-    static bool criticalDialog(const QString &error);
-    static bool questionDialog(const QString &question);
+    static bool criticalDialog(const QString &error, QWidget *parent = nullptr);
+    static bool questionDialog(const QString &question, QWidget *parent = nullptr);
 };
 
 AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
@@ -114,10 +114,10 @@ QString AndroidDeviceWidget::dialogTitle()
     return tr("Android Device Manager");
 }
 
-bool AndroidDeviceWidget::criticalDialog(const QString &error)
+bool AndroidDeviceWidget::criticalDialog(const QString &error, QWidget *parent)
 {
     qCDebug(androidDeviceLog) << error;
-    QMessageBox box(Core::ICore::dialogParent());
+    QMessageBox box(parent ? parent : Core::ICore::dialogParent());
     box.QDialog::setWindowTitle(dialogTitle());
     box.setText(error);
     box.setIcon(QMessageBox::Critical);
@@ -125,9 +125,9 @@ bool AndroidDeviceWidget::criticalDialog(const QString &error)
     return box.exec();
 }
 
-bool AndroidDeviceWidget::questionDialog(const QString &question)
+bool AndroidDeviceWidget::questionDialog(const QString &question, QWidget *parent)
 {
-    QMessageBox box(Core::ICore::dialogParent());
+    QMessageBox box(parent ? parent : Core::ICore::dialogParent());
     box.QDialog::setWindowTitle(dialogTitle());
     box.setText(question);
     box.setIcon(QMessageBox::Question);
@@ -155,19 +155,56 @@ AndroidDevice::AndroidDevice()
         AndroidDeviceManager::instance()->updateDevicesListOnce();
     }});
 
-    addDeviceAction({tr("Start AVD"), [](const IDevice::Ptr &device, QWidget *parent) {
-        if (device->machineType() == IDevice::Emulator)
-            AndroidDeviceManager::instance()->startAvd(device);
-    }});
+    addEmulatorActionsIfNotFound();
+}
 
-    addDeviceAction({tr("Erase AVD"), [](const IDevice::Ptr &device, QWidget *parent) {
-        if (device->machineType() == IDevice::Emulator)
-            AndroidDeviceManager::instance()->eraseAvd(device);
-    }});
+void AndroidDevice::addEmulatorActionsIfNotFound()
+{
+    static const QString startAvdAction = tr("Start AVD");
+    static const QString eraseAvdAction = tr("Erase AVD");
+    static const QString avdArgumentsAction = tr("AVD Arguments");
 
-    addDeviceAction({tr("AVD Arguments"), [](const IDevice::Ptr &device, QWidget *parent) {
-        AndroidDeviceManager::instance()->setEmulatorArguments();
-    }});
+    bool hasStartAction = false;
+    bool hasEraseAction = false;
+    bool hasAvdArgumentsAction = false;
+
+    for (const DeviceAction &item : deviceActions()) {
+        if (item.display == startAvdAction)
+            hasStartAction = true;
+        else if (item.display == eraseAvdAction)
+            hasEraseAction = true;
+        else if (item.display == avdArgumentsAction)
+            hasAvdArgumentsAction = true;
+    }
+
+    if (machineType() == Emulator) {
+        if (!hasStartAction) {
+            addDeviceAction({startAvdAction, [](const IDevice::Ptr &device, QWidget *parent) {
+                AndroidDeviceManager::instance()->startAvd(device, parent);
+            }});
+        }
+
+        if (!hasEraseAction) {
+            addDeviceAction({eraseAvdAction, [](const IDevice::Ptr &device, QWidget *parent) {
+                AndroidDeviceManager::instance()->eraseAvd(device, parent);
+            }});
+        }
+
+        if (!hasAvdArgumentsAction) {
+            addDeviceAction({avdArgumentsAction, [](const IDevice::Ptr &device, QWidget *parent) {
+                Q_UNUSED(device)
+                AndroidDeviceManager::instance()->setEmulatorArguments(parent);
+            }});
+        }
+    }
+}
+
+void AndroidDevice::fromMap(const QVariantMap &map)
+{
+    IDevice::fromMap(map);
+    // Add Actions for Emulator is not added already.
+    // This is needed because actions for Emulators and physical devices are not the same.
+    addEmulatorActionsIfNotFound();
 }
 
 IDevice::Ptr AndroidDevice::create()
@@ -407,8 +444,9 @@ void AndroidDeviceManager::updateDevicesListOnce()
     }
 }
 
-void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device)
+void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)
 {
+    Q_UNUSED(parent)
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
@@ -422,7 +460,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device)
     });
 }
 
-void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device)
+void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
 {
     if (device.isNull())
         return;
@@ -432,7 +470,7 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device)
 
     const QString name = static_cast<const AndroidDevice *>(device.data())->avdName();
     const QString question = tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
-    if (!AndroidDeviceWidget::questionDialog(question))
+    if (!AndroidDeviceWidget::questionDialog(question, parent))
         return;
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
@@ -460,12 +498,12 @@ void AndroidDeviceManager::handleAvdRemoved()
     }
 }
 
-void AndroidDeviceManager::setEmulatorArguments()
+void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
 {
     const QString helpUrl =
             "https://developer.android.com/studio/run/emulator-commandline#startup-options";
 
-    QInputDialog dialog(Core::ICore::dialogParent());
+    QInputDialog dialog(parent ? parent : Core::ICore::dialogParent());
     dialog.setWindowTitle(tr("Emulator Command-line Startup Options"));
     dialog.setLabelText(tr("Emulator command-line startup options "
                            "(<a href=\"%1\">Help Web Page</a>):").arg(helpUrl));
