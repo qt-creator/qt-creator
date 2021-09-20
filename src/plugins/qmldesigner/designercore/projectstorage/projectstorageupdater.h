@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "filestatus.h"
 #include "nonlockingmutex.h"
 #include "projectstorageids.h"
 #include "projectstoragetypes.h"
@@ -85,26 +86,30 @@ private:
 
     void parseTypeInfos(const QStringList &typeInfos,
                         SourceContextId directoryId,
-                        Storage::Modules &modules,
+                        Storage::Imports &imports,
                         Storage::Types &types,
-                        SourceIds &sourceIds);
+                        SourceIds &sourceIds,
+                        FileStatuses &fileStatuses);
     void parseTypeInfos(const SourceIds &qmltypesSourceIds,
-                        Storage::Modules &modules,
+                        Storage::Imports &imports,
                         Storage::Types &types,
-                        SourceIds &sourceIds);
+                        SourceIds &sourceIds,
+                        FileStatuses &fileStatuses);
     void parseTypeInfo(SourceId sourceId,
                        const QString &qmltypesPath,
-                       Storage::Modules &modules,
+                       Storage::Imports &imports,
                        Storage::Types &types,
-                       SourceIds &sourceIds);
+                       SourceIds &sourceIds,
+                       FileStatuses &fileStatuses);
     void parseQmlComponents(ComponentReferences components,
                             SourceContextId directoryId,
                             Utils::SmallStringView moduleName,
-                            Storage::Modules &modules,
+                            Storage::Imports &imports,
                             Storage::Types &types,
-                            SourceIds &sourceIds);
+                            SourceIds &sourceIds,
+                            FileStatuses &fileStatuses);
 
-    FileState fileState(SourceId sourceId) const;
+    FileState fileState(SourceId sourceId, FileStatuses &fileStatuses) const;
 
 private:
     ProjectManagerInterface &m_projectManager;

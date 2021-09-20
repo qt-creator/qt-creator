@@ -1080,7 +1080,8 @@ std::ostream &operator<<(std::ostream &out, Version version)
 
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.name << "\")";
+    return out << "(\"" << exportedType.name << "\""
+               << ", " << exportedType.version << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)

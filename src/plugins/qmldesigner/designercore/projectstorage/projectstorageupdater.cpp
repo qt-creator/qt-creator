@@ -62,28 +62,31 @@ void ProjectUpdater::update()
         SourcePath qmldirSourcePath{qmldirPath};
         SourceId qmlDirSourceId = m_pathCache.sourceId(qmldirSourcePath);
 
-        switch (fileState(qmlDirSourceId)) {
+        switch (fileState(qmlDirSourceId, fileStatuses)) {
         case FileState::Changed: {
             QmlDirParser parser;
             parser.parse(m_fileSystem.contentAsQString(qmldirPath));
+
+            modules.emplace_back(parser.typeNamespace(), qmlDirSourceId);
 
             sourceIds.push_back(qmlDirSourceId);
 
             Utils::SmallString moduleName{parser.typeNamespace()};
             SourceContextId directoryId = m_pathCache.sourceContextId(qmlDirSourceId);
 
-            parseTypeInfos(parser.typeInfos(), directoryId, modules, types, sourceIds);
+            parseTypeInfos(parser.typeInfos(), directoryId, imports, types, sourceIds, fileStatuses);
             parseQmlComponents(createComponentReferences(parser.components()),
                                directoryId,
                                moduleName,
-                               modules,
+                               imports,
                                types,
-                               sourceIds);
+                               sourceIds,
+                               fileStatuses);
             break;
         }
         case FileState::NotChanged: {
             SourceIds qmltypesSourceIds = m_projectStorage.fetchSourceDependencieIds(qmlDirSourceId);
-            parseTypeInfos(qmltypesSourceIds, modules, types, sourceIds);
+            parseTypeInfos(qmltypesSourceIds, imports, types, sourceIds, fileStatuses);
             break;
         }
         case FileState::NotExists: {
@@ -102,9 +105,10 @@ void ProjectUpdater::update()
 
 void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
                                     SourceContextId directoryId,
-                                    Storage::Modules &modules,
+                                    Storage::Imports &imports,
                                     Storage::Types &types,
-                                    SourceIds &sourceIds)
+                                    SourceIds &sourceIds,
+                                    FileStatuses &fileStatuses)
 {
     QString directory{m_pathCache.sourceContextPath(directoryId)};
 
@@ -112,41 +116,44 @@ void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
         SourceId sourceId = m_pathCache.sourceId(directoryId, Utils::SmallString{typeInfo});
         QString qmltypesPath = directory + "/" + typeInfo;
 
-        parseTypeInfo(sourceId, qmltypesPath, modules, types, sourceIds);
+        parseTypeInfo(sourceId, qmltypesPath, imports, types, sourceIds, fileStatuses);
     }
 }
 
 void ProjectUpdater::parseTypeInfos(const SourceIds &qmltypesSourceIds,
-                                    Storage::Modules &modules,
+                                    Storage::Imports &imports,
                                     Storage::Types &types,
-                                    SourceIds &sourceIds)
+                                    SourceIds &sourceIds,
+                                    FileStatuses &fileStatuses)
 {
     for (SourceId sourceId : qmltypesSourceIds) {
         QString qmltypesPath = m_pathCache.sourcePath(sourceId).toQString();
 
-        parseTypeInfo(sourceId, qmltypesPath, modules, types, sourceIds);
+        parseTypeInfo(sourceId, qmltypesPath, imports, types, sourceIds, fileStatuses);
     }
 }
 
 void ProjectUpdater::parseTypeInfo(SourceId sourceId,
                                    const QString &qmltypesPath,
-                                   Storage::Modules &modules,
+                                   Storage::Imports &imports,
                                    Storage::Types &types,
-                                   SourceIds &sourceIds)
+                                   SourceIds &sourceIds,
+                                   FileStatuses &fileStatuses)
 {
-    if (fileState(sourceId) == FileState::Changed) {
+    if (fileState(sourceId, fileStatuses) == FileState::Changed) {
         sourceIds.push_back(sourceId);
         const auto content = m_fileSystem.contentAsQString(qmltypesPath);
-        m_qmlTypesParser.parse(content, modules, types, sourceIds);
+        m_qmlTypesParser.parse(content, imports, types, sourceIds);
     }
 }
 
 void ProjectUpdater::parseQmlComponents(ComponentReferences components,
                                         SourceContextId directoryId,
                                         Utils::SmallStringView moduleName,
-                                        Storage::Modules &modules,
+                                        Storage::Imports &imports,
                                         Storage::Types &types,
-                                        SourceIds &sourceIds)
+                                        SourceIds &sourceIds,
+                                        FileStatuses &fileStatuses)
 {
     std::sort(components.begin(), components.end(), [](auto &&first, auto &&second) {
         return std::tie(first.get().typeName, first.get().majorVersion, first.get().minorVersion)
@@ -166,22 +173,27 @@ void ProjectUpdater::parseQmlComponents(ComponentReferences components,
         Utils::SmallString fileName{component.fileName};
         SourceId sourceId = m_pathCache.sourceId(directoryId, fileName);
 
+        if (fileState(sourceId, fileStatuses) != FileState::Changed)
+            continue;
+
         sourceIds.push_back(sourceId);
 
         const auto content = m_fileSystem.contentAsQString(directory + "/" + component.fileName);
-        auto type = m_qmlDocumentParser.parse(content);
+        auto type = m_qmlDocumentParser.parse(content, imports);
 
         type.typeName = fileName;
         type.module.name = moduleName;
         type.accessSemantics = Storage::TypeAccessSemantics::Reference;
         type.sourceId = sourceId;
-        type.exportedTypes.push_back(Storage::ExportedType{Utils::SmallString{component.typeName}});
+        type.exportedTypes.push_back(
+            Storage::ExportedType{Utils::SmallString{component.typeName},
+                                  Storage::Version{component.majorVersion, component.minorVersion}});
 
         types.push_back(std::move(type));
     }
 }
 
-ProjectUpdater::FileState ProjectUpdater::fileState(SourceId sourceId) const
+ProjectUpdater::FileState ProjectUpdater::fileState(SourceId sourceId, FileStatuses &fileStatuses) const
 {
     auto currentFileStatus = m_fileStatusCache.find(sourceId);
 
@@ -190,8 +202,10 @@ ProjectUpdater::FileState ProjectUpdater::fileState(SourceId sourceId) const
 
     auto projectStorageFileStatus = m_projectStorage.fetchFileStatus(sourceId);
 
-    if (!projectStorageFileStatus.isValid() || projectStorageFileStatus != currentFileStatus)
+    if (!projectStorageFileStatus.isValid() || projectStorageFileStatus != currentFileStatus) {
+        fileStatuses.push_back(currentFileStatus);
         return FileState::Changed;
+    }
 
     return FileState::NotChanged;
 }

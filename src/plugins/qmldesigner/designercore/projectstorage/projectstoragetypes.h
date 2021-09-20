@@ -130,6 +130,11 @@ public:
         , sourceId{sourceId}
     {}
 
+    explicit Module(QStringView name, SourceId sourceId = SourceId{})
+        : name{name}
+        , sourceId{sourceId}
+    {}
+
     explicit Module(Utils::SmallStringView name, int sourceId)
         : name{name}
         , sourceId{sourceId}
