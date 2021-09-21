@@ -105,7 +105,8 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     run.setEnvironment(env.toStringList());
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    QStringList cmdArguments{"/E:ON", "/V:ON", "/c", "\"" + saver.filePath().toUserOutput() + '"'};
+    QStringList cmdArguments{"/E:ON", "/V:ON", "/c",
+                             Utils::ProcessArgs::quoteArg(saver.filePath().toUserOutput())};
     run.start(cmdPath, cmdArguments);
 
     if (!run.waitForStarted()) {
