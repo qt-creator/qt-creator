@@ -51,9 +51,10 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/namedwidget.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
@@ -1175,6 +1176,7 @@ void CMakeBuildConfiguration::setError(const QString &message)
         qCDebug(cmakeBuildConfigurationLog) << "Emitting enabledChanged signal";
         emit enabledChanged();
     }
+    TaskHub::addTask(BuildSystemTask(Task::TaskType::Error, message));
     emit errorOccurred(m_error);
 }
 
@@ -1183,6 +1185,7 @@ void CMakeBuildConfiguration::setWarning(const QString &message)
     if (m_warning == message)
         return;
     m_warning = message;
+    TaskHub::addTask(BuildSystemTask(Task::TaskType::Warning, message));
     emit warningOccurred(m_warning);
 }
 
