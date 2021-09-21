@@ -530,12 +530,12 @@ void ShortcutSettingsWidget::defaultAction()
 
 void ShortcutSettingsWidget::exportAction()
 {
-    QString fileName
+    const FilePath filePath
         = DocumentManager::getSaveFileNameWithExtension(tr("Export Keyboard Mapping Scheme"),
-                                                        schemesPath().toString(),
+                                                        schemesPath(),
                                                         tr("Keyboard Mapping Scheme (*.kms)"));
-    if (!fileName.isEmpty()) {
-        CommandsFile cf(FilePath::fromString(fileName));
+    if (!filePath.isEmpty()) {
+        CommandsFile cf(filePath);
         cf.exportCommands(m_scitems);
     }
 }

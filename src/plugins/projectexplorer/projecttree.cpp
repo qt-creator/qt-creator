@@ -240,12 +240,12 @@ void ProjectTree::setCurrent(Node *node, Project *project)
 void ProjectTree::sessionChanged()
 {
     if (m_currentProject) {
-        Core::DocumentManager::setDefaultLocationForNewFiles(m_currentProject->projectDirectory().toString());
+        Core::DocumentManager::setDefaultLocationForNewFiles(m_currentProject->projectDirectory());
     } else if (Project *project = SessionManager::startupProject()) {
-        Core::DocumentManager::setDefaultLocationForNewFiles(project->projectDirectory().toString());
+        Core::DocumentManager::setDefaultLocationForNewFiles(project->projectDirectory());
         updateFromNode(nullptr); // Make startup project current if there is no other current
     } else {
-        Core::DocumentManager::setDefaultLocationForNewFiles(QString());
+        Core::DocumentManager::setDefaultLocationForNewFiles({});
     }
     update();
 }

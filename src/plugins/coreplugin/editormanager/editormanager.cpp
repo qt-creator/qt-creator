@@ -2478,7 +2478,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!document)
         return false;
 
-    const auto &absoluteFilePath = FilePath::fromString(DocumentManager::getSaveAsFileName(document));
+    const FilePath absoluteFilePath = DocumentManager::getSaveAsFileName(document);
 
     if (absoluteFilePath.isEmpty())
         return false;

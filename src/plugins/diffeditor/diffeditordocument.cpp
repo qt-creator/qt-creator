@@ -253,11 +253,11 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
     return true;
 }
 
-QString DiffEditorDocument::fallbackSaveAsPath() const
+FilePath DiffEditorDocument::fallbackSaveAsPath() const
 {
     if (!m_baseDirectory.isEmpty())
-        return m_baseDirectory.toString();
-    return QDir::homePath();
+        return m_baseDirectory;
+    return FileUtils::homePath();
 }
 
 bool DiffEditorDocument::isSaveAsAllowed() const

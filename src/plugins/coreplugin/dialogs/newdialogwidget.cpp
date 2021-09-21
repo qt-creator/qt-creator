@@ -473,10 +473,10 @@ void NewDialogWidget::saveState()
                                            m_ui->comboBox->currentData().toString());
 }
 
-static void runWizard(IWizardFactory *wizard, const QString &defaultLocation, Id platform,
+static void runWizard(IWizardFactory *wizard, const FilePath &defaultLocation, Id platform,
                       const QVariantMap &variables)
 {
-    QString path = wizard->runPath(defaultLocation);
+    const FilePath path = wizard->runPath(defaultLocation);
     wizard->runWizard(path, ICore::dialogParent(), platform, variables);
 }
 
@@ -486,7 +486,7 @@ void NewDialogWidget::accept()
     if (m_ui->templatesView->currentIndex().isValid()) {
         IWizardFactory *wizard = currentWizardFactory();
         if (QTC_GUARD(wizard)) {
-            QMetaObject::invokeMethod(wizard, std::bind(&runWizard, wizard, m_defaultLocation.toString(),
+            QMetaObject::invokeMethod(wizard, std::bind(&runWizard, wizard, m_defaultLocation,
                                       selectedPlatform(), m_extraVariables), Qt::QueuedConnection);
         }
     }

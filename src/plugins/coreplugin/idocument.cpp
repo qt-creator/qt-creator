@@ -565,9 +565,9 @@ void IDocument::setTemporary(bool temporary)
 
     \sa fallbackSaveAsFileName()
 */
-QString IDocument::fallbackSaveAsPath() const
+FilePath IDocument::fallbackSaveAsPath() const
 {
-    return QString();
+    return {};
 }
 
 /*!

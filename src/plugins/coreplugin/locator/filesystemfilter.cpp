@@ -78,7 +78,7 @@ FileSystemFilter::FileSystemFilter()
 void FileSystemFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
-    m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory();
+    m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory().toString();
     m_currentIncludeHidden = m_includeHidden;
 }
 

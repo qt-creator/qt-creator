@@ -213,7 +213,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 
                 connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
                     if (!ICore::isNewItemDialogRunning()) {
-                        QString path = newFactory->runPath(QString());
+                        FilePath path = newFactory->runPath({});
                         newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
                     }
                 });
@@ -227,9 +227,9 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
     return s_allFactories;
 }
 
-QString IWizardFactory::runPath(const QString &defaultPath) const
+FilePath IWizardFactory::runPath(const FilePath &defaultPath) const
 {
-    QString path = defaultPath;
+    FilePath path = defaultPath;
     if (path.isEmpty()) {
         switch (kind()) {
         case IWizardFactory::ProjectWizard:
@@ -237,7 +237,7 @@ QString IWizardFactory::runPath(const QString &defaultPath) const
             // use last visited directory of file dialog. Never start
             // at current.
             path = DocumentManager::useProjectsDirectory()
-                       ? DocumentManager::projectsDirectory().toString()
+                       ? DocumentManager::projectsDirectory()
                        : DocumentManager::fileDialogLastVisitedDirectory();
             break;
         default:
@@ -257,9 +257,9 @@ QString IWizardFactory::runPath(const QString &defaultPath) const
     created. The wizard should fill this in its path selection elements as a
     default path.
 */
-Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, Id platform,
-                                         const QVariantMap &variables,
-                                         bool showWizard)
+Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id platform,
+                                  const QVariantMap &variables,
+                                  bool showWizard)
 {
     QTC_ASSERT(!s_isWizardRunning, return nullptr);
 

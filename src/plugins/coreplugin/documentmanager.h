@@ -87,13 +87,14 @@ public:
     static Utils::FilePaths getOpenFileNames(const QString &filters,
                                              const Utils::FilePath &path = {},
                                              QString *selectedFilter = nullptr);
-    static QString getSaveFileName(const QString &title,
-                                   const QString &pathIn,
-                                   const QString &filter = QString(),
-                                   QString *selectedFilter = nullptr);
-    static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
-                                         const QString &filter);
-    static QString getSaveAsFileName(const IDocument *document);
+    static Utils::FilePath getSaveFileName(const QString &title,
+                                           const Utils::FilePath &pathIn,
+                                           const QString &filter = {},
+                                           QString *selectedFilter = nullptr);
+    static Utils::FilePath getSaveFileNameWithExtension(const QString &title,
+                                                        const Utils::FilePath &pathIn,
+                                                        const QString &filter);
+    static Utils::FilePath getSaveAsFileName(const IDocument *document);
 
     static bool saveAllModifiedDocumentsSilently(bool *canceled = nullptr,
                                                  QList<IDocument *> *failedToClose = nullptr);
@@ -123,13 +124,13 @@ public:
                                      QList<IDocument *> *failedToClose = nullptr);
     static void showFilePropertiesDialog(const Utils::FilePath &filePath);
 
-    static QString fileDialogLastVisitedDirectory();
-    static void setFileDialogLastVisitedDirectory(const QString &);
+    static Utils::FilePath fileDialogLastVisitedDirectory();
+    static void setFileDialogLastVisitedDirectory(const Utils::FilePath &);
 
-    static QString fileDialogInitialDirectory();
+    static Utils::FilePath fileDialogInitialDirectory();
 
-    static QString defaultLocationForNewFiles();
-    static void setDefaultLocationForNewFiles(const QString &location);
+    static Utils::FilePath defaultLocationForNewFiles();
+    static void setDefaultLocationForNewFiles(const Utils::FilePath &location);
 
     static bool useProjectsDirectory();
     static void setUseProjectsDirectory(bool);

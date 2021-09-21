@@ -88,7 +88,7 @@ public:
     bool isAvailable(Utils::Id platformId) const override;
 
 private:
-    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
+    Utils::Wizard *runWizardImpl(const Utils::FilePath &path, QWidget *parent, Utils::Id platform,
                                  const QVariantMap &variables, bool showWizard = true) override;
 
     // Create all wizards. As other plugins might register factories for derived

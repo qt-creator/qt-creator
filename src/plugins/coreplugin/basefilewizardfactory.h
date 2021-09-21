@@ -114,9 +114,8 @@ protected:
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = nullptr);
 
 private:
-    // IWizard
-    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
-                                 const QVariantMap &extraValues, bool showWizard = true) override;
+    Utils::Wizard *runWizardImpl(const Utils::FilePath &path, QWidget *parent, Utils::Id platform,
+                                 const QVariantMap &extraValues, bool showWizard = true) final;
 };
 
 } // namespace Core

@@ -89,7 +89,7 @@ public:
     void updateRevisions();
 
 public:
-    QString m_defaultPath;
+    FilePath m_defaultPath;
     QString m_suggestedFileName;
     TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
@@ -571,7 +571,7 @@ bool TextDocument::isSaveAsAllowed() const
     return true;
 }
 
-QString TextDocument::fallbackSaveAsPath() const
+FilePath TextDocument::fallbackSaveAsPath() const
 {
     return d->m_defaultPath;
 }
@@ -581,7 +581,7 @@ QString TextDocument::fallbackSaveAsFileName() const
     return d->m_suggestedFileName;
 }
 
-void TextDocument::setFallbackSaveAsPath(const QString &defaultPath)
+void TextDocument::setFallbackSaveAsPath(const FilePath &defaultPath)
 {
     d->m_defaultPath = defaultPath;
 }

@@ -90,10 +90,10 @@ public:
     void setFlags(WizardFlags flags) { m_flags = flags; }
     void setDetailsPageQmlPath(const QString &filePath);
 
-    QString runPath(const QString &defaultPath) const;
+    Utils::FilePath runPath(const Utils::FilePath &defaultPath) const;
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
-    Utils::Wizard *runWizard(const QString &path, QWidget *parent, Utils::Id platform,
+    Utils::Wizard *runWizard(const Utils::FilePath &path, QWidget *parent, Utils::Id platform,
                              const QVariantMap &variables, bool showWizard = true);
 
     virtual bool isAvailable(Utils::Id platformId) const;
@@ -121,8 +121,11 @@ protected:
     static QSet<Utils::Id> pluginFeatures();
     static QSet<Utils::Id> availableFeatures(Utils::Id platformId);
 
-    virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
-                                         const QVariantMap &variables, bool showWizard = true) = 0;
+    virtual Utils::Wizard *runWizardImpl(const Utils::FilePath &path,
+                                         QWidget *parent,
+                                         Utils::Id platform,
+                                         const QVariantMap &variables,
+                                         bool showWizard = true) = 0;
 
 private:
     static void initialize();

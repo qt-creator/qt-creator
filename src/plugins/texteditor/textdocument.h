@@ -122,10 +122,10 @@ public:
     void setFilePath(const Utils::FilePath &newName) override;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
-    QString fallbackSaveAsPath() const override;
+    Utils::FilePath fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
 
-    void setFallbackSaveAsPath(const QString &fallbackSaveAsPath);
+    void setFallbackSaveAsPath(const Utils::FilePath &fallbackSaveAsPath);
     void setFallbackSaveAsFileName(const QString &fallbackSaveAsFileName);
 
     OpenResult open(QString *errorString, const Utils::FilePath &filePath,

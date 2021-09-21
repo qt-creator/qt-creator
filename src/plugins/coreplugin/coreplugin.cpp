@@ -202,7 +202,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
                                []() { return DocumentManager::projectsDirectory().toString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
-                               []() { return DocumentManager::fileDialogLastVisitedDirectory(); });
+                               []() { return DocumentManager::fileDialogLastVisitedDirectory().toString(); });
     expander->registerVariable("HostOs:isWindows",
                                tr("Is %1 running on Windows?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });

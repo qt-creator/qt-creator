@@ -69,7 +69,7 @@ static int indexOfFile(const GeneratedFiles &f, const QString &path)
     \sa Core::BaseFileWizardFactory
 */
 
-Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
+Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
                                                     Id platform,
                                                     const QVariantMap &extraValues,
                                                     bool showWizard)
@@ -86,7 +86,8 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget
     if (flags().testFlag(ForceCapitalLetterForFileName))
         dialogParameterFlags |= WizardDialogParameters::ForceCapitalLetterForFileName;
 
-    Utils::Wizard *wizard = create(parent, WizardDialogParameters(path, platform,
+    Utils::Wizard *wizard = create(parent, WizardDialogParameters(path.toString(),
+                                                                  platform,
                                                                   requiredFeatures(),
                                                                   dialogParameterFlags,
                                                                   extraValues));

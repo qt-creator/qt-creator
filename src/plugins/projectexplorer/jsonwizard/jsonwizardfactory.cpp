@@ -54,6 +54,8 @@
 #include <QMap>
 #include <QUuid>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 static QList<JsonWizardPageFactory *> s_pageFactories;
@@ -371,7 +373,7 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
     s_generatorFactories.append(factory);
 }
 
-Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
+Utils::Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
                                                 Utils::Id platform,
                                                 const QVariantMap &variables, bool showWizard)
 {
@@ -394,7 +396,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
         wizard->setValue(i.key(), i.value());
 
-    wizard->setValue(QStringLiteral("InitialPath"), path);
+    wizard->setValue(QStringLiteral("InitialPath"), path.toString());
     wizard->setValue(QStringLiteral("Platform"), platform.toString());
 
     QString kindStr = QLatin1String(Core::Constants::WIZARD_KIND_UNKNOWN);
@@ -452,7 +454,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
                                                                  return f->canCreate(data.typeId);
                                                             });
         QTC_ASSERT(factory, continue);
-        JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path, platform, variables);
+        JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path.toString(), platform, variables);
         QTC_ASSERT(gen, continue);
 
         wizard->addGenerator(gen);
@@ -603,9 +605,9 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         setDescriptionImage(strVal);
     }
 
-    strVal = baseDir.absoluteFilePath("detailsPage.qml");
-    if (QFileInfo::exists(strVal))
-        setDetailsPageQmlPath(strVal);
+    const FilePath detailsPage = baseDir.resolvePath(QString("detailsPage.qml"));
+    if (detailsPage.exists())
+        setDetailsPageQmlPath(detailsPage.toString());
 
     setRequiredFeatures(Utils::Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Utils::Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());

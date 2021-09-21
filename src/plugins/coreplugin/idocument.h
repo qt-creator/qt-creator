@@ -108,7 +108,7 @@ public:
     bool isTemporary() const;
     void setTemporary(bool temporary);
 
-    virtual QString fallbackSaveAsPath() const;
+    virtual Utils::FilePath fallbackSaveAsPath() const;
     virtual QString fallbackSaveAsFileName() const;
 
     QString mimeType() const;

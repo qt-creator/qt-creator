@@ -213,18 +213,18 @@ void GenerateResource::generateMenuEntry()
     QObject::connect(action, &QAction::triggered, [] () {
         auto currentProject = ProjectExplorer::SessionManager::startupProject();
         QTC_ASSERT(currentProject, return);
-        auto projectPath = currentProject->projectFilePath().parentDir().toString();
+        const FilePath projectPath = currentProject->projectFilePath().parentDir();
 
         auto projectFileName = Core::DocumentManager::getSaveFileName(
             QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as QRC File"),
-            projectPath + "/" + currentProject->displayName() + ".qrc",
+            projectPath.pathAppended(currentProject->displayName() + ".qrc"),
             QCoreApplication::translate("QmlDesigner::GenerateResource",
                                         "QML Resource File (*.qrc)"));
         if (projectFileName.isEmpty())
             return;
 
-        QTemporaryFile temp(projectPath + "/XXXXXXX.create.resource.qrc");
-        QFile persistentFile(projectFileName);
+        QTemporaryFile temp(projectPath.toString() + "/XXXXXXX.create.resource.qrc");
+        QFile persistentFile(projectFileName.toString());
 
         if (!temp.open())
             return;
@@ -289,7 +289,7 @@ void GenerateResource::generateMenuEntry()
         QByteArray firstLine = temp.readLine();
         QList<ResourceFile> fileList = getFilesFromQrc(&temp);
 
-        QFile existingQrcFile(projectFileName);
+        QFile existingQrcFile(projectFileName.toString());
         if (existingQrcFile.exists()) {
             existingQrcFile.open(QFile::ReadOnly);
             fileList = getFilesFromQrc(&existingQrcFile, true);
@@ -297,7 +297,7 @@ void GenerateResource::generateMenuEntry()
         }
 
         QDir dir;
-        dir.setCurrent(projectPath);
+        dir.setCurrent(projectPath.toString());
 
         Utils::FilePaths paths = currentProject->files(ProjectExplorer::Project::AllFiles);
         QStringList projectFiles = {};
@@ -363,11 +363,11 @@ void GenerateResource::generateMenuEntry()
     QObject::connect(rccAction, &QAction::triggered, [] () {
         auto currentProject = ProjectExplorer::SessionManager::startupProject();
         QTC_ASSERT(currentProject, return);
-        auto projectPath = currentProject->projectFilePath().parentDir().toString();
+        const FilePath projectPath = currentProject->projectFilePath().parentDir();
 
-        auto resourceFileName = Core::DocumentManager::getSaveFileName(
+        const FilePath resourceFileName = Core::DocumentManager::getSaveFileName(
             QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as Resource"),
-            projectPath + "/" + currentProject->displayName() + ".qmlrc",
+            projectPath.pathAppended(currentProject->displayName() + ".qmlrc"),
             QCoreApplication::translate("QmlDesigner::GenerateResource",
                                         "QML Resource File (*.qmlrc);;Resource File (*.rcc)"));
         if (resourceFileName.isEmpty())
@@ -376,12 +376,12 @@ void GenerateResource::generateMenuEntry()
         Core::MessageManager::writeSilently(
             QCoreApplication::translate("QmlDesigner::GenerateResource",
                                         "Generate a resource file out of project %1 to %2")
-                .arg(currentProject->displayName(), QDir::toNativeSeparators(resourceFileName)));
+                .arg(currentProject->displayName(), resourceFileName.toUserOutput()));
 
         QString projectFileName = currentProject->displayName() + ".qrc";
-        QFile persistentFile(projectPath + "/" + projectFileName);
+        QFile persistentFile(projectPath.toString() + "/" + projectFileName);
 
-        QTemporaryFile temp(projectPath + "/XXXXXXX.create.resource.qrc");
+        QTemporaryFile temp(projectPath.toString() + "/XXXXXXX.create.resource.qrc");
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
@@ -407,7 +407,7 @@ void GenerateResource::generateMenuEntry()
                     Core::MessageManager::writeDisrupting(
                         QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "Unable to generate resource file: %1")
-                        .arg(resourceFileName));
+                        .arg(resourceFileName.toUserOutput()));
                     return;
                 }
                 QByteArray stdOut;
@@ -477,7 +477,7 @@ void GenerateResource::generateMenuEntry()
         }
 
         QDir dir;
-        dir.setCurrent(projectPath);
+        dir.setCurrent(projectPath.toString());
 
         Utils::FilePaths paths = currentProject->files(ProjectExplorer::Project::AllFiles);
         QStringList projectFiles = {};
@@ -508,7 +508,7 @@ void GenerateResource::generateMenuEntry()
         temp.close();
         persistentFile.close();
         QStringList modifiedList = getFileList(fileList);
-        QTemporaryFile tempFile(projectPath + "/XXXXXXX.create.modifiedresource.qrc");
+        QTemporaryFile tempFile(projectPath.toString() + "/XXXXXXX.create.modifiedresource.qrc");
 
         if (!tempFile.open())
             return;
@@ -527,7 +527,7 @@ void GenerateResource::generateMenuEntry()
         tempFile.write("\n</RCC>\n");
         tempFile.close();
 
-        const QStringList arguments2 = {"--binary", "--output", resourceFileName,
+        const QStringList arguments2 = {"--binary", "--output", resourceFileName.path(),
                                         tempFile.fileName()};
 
         for (const auto &arguments : {arguments2}) {
@@ -537,7 +537,7 @@ void GenerateResource::generateMenuEntry()
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "Unable to generate resource file: %1")
-                        .arg(resourceFileName));
+                        .arg(resourceFileName.toUserOutput()));
                 return;
             }
             QByteArray stdOut;
