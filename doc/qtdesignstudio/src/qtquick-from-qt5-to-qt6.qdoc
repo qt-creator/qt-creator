@@ -1,0 +1,141 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-porting-projects.html
+    \previouspage creator-vcs-git.html
+    \nextpage quick-converting-ui-projects.html
+
+    \title Converting Qt 5 Projects into Qt 6 Projects
+
+    \QDS supports creating UIs with Qt 6 in addition to Qt 5. However, to
+    make a project that uses Qt 5 use Qt 6, you have to be aware of a few
+    differences and issues that are discussed in this topic.
+
+    \section1 Font Loader
+
+    Projects that were \l{Creating Projects}{created} with \QDS 2.1 use
+    \c FontLoader in a way that is not supported in Qt 6. Specifically, the
+    \c name property is read-only in Qt 6. Therefore, you must modify the
+    \c Constants.qml file to have fonts loaded correctly. You can either
+    remove the \c FontLoader or switch to using the \c source property
+    instead of the \c name property.
+
+    To remove the \c FontLoader, delete the following line from the
+    \c Constants.qml file:
+
+    \code
+    readonly property FontLoader mySystemFont: FontLoader { name: "Arial" }
+    \endcode
+
+    Then, remove the following lines that contain references to mySystemFont:
+
+    \code
+    readonly property font font: Qt.font({
+                                            family: mySystemFont.name,
+                                            pixelSize: Qt.application.font.pixelSize
+                                         })
+
+    readonly property font largeFont: Qt.font({
+                                                 family: mySystemFont.name,
+                                                 pixelSize: Qt.application.font.pixelSize * 1.6
+                                             })
+    \endcode
+
+    Alternatively, you can keep the \c FontLoader and use the \c source property
+    instead of the \c name property. If you are unsure about how to do this, you
+    can replace the \c Constants.qml file with a new one that you create by
+    using \QDS 2.2.
+
+    \section1 Qt Quick Studio Components
+
+    \l{Summary of Shapes}{Qt Quick Studio Components} are available in Qt 6,
+    except for the \l {Iso Icon} component. It specifies an icon from an
+    ISO 7000 icon library as a \l [QtQuickExtras] {Picture} component, which
+    is not supported in Qt 6. Therefore, Iso Icon is also not supported in Qt 6.
+
+    \section1 Qt Quick Studio Effects
+
+    \l{2D Effects} are only partially supported. The following 2D effects are
+    not available in Qt 6:
+
+    \list
+        \li Blend
+        \li Inner Shadow
+        \li Blur effects except:
+            \list
+                \li DirectionalBlur
+                \li FastBlur
+                \li GaussianBlur
+                \li MaskedBlur
+                \li RecursiveBlur
+                \li RadialBlur
+                \li ZoomBlur
+            \endlist
+        \endlist
+
+    Substitutes are provided for the obsolete effects to keep Qt 5 based
+    applications working, but the effects will not be rendered as expected.
+
+    \section1 Qt Quick 3D
+
+    In Qt 6, you cannot use the import \c {import QtQuick3D 1.15}, which
+    imports a Qt 5 based Qt Quick 3D module. Qt 6 does not require a version
+    for imports, and therefore it is not used by default. To turn a Qt 5 based
+    project into a Qt 6 based project, you have to adjust the imports in all
+    \c .qml files that use Qt Quick 3D by removing the version numbers.
+
+    For more information about changes in Qt Quick 3D, see the
+    \l{https://doc-snapshots.qt.io/qt6-dev/qtquick3d-changes-qt6.html}
+    {changes file}.
+
+    \section1 QML
+
+    For general information about changes in QML between Qt 5 and Qt 6, see:
+
+    \list
+        \li \l{https://doc.qt.io/qt-6/obsoleteqmltypes.html}{Obsolete types}
+        \li \l{https://doc.qt.io/qt-6/quick-changes-qt6.html}{Changes in Qt Quick}
+    \endlist
+
+    The most notable change is that Qt 6 does not require a version for
+    imports anymore.
+
+    \section1 \QDS
+
+    Projects that support only Qt 6 are marked with \c {qt6Project: true} in
+    the \c .qmlproject file. This line is added if you choose \uicontrol {Qt 6}
+    in the wizard when creating the project. If the project file does not
+    contain this line, the project will use Qt 5 and a Qt 5 kit by default.
+    You can change this in the project \uicontrol {Run Settings}, where you
+    can select \uicontrol {Qt 6} instead.
+
+    Projects that use Qt 6 specific features will not work with Qt 5. This
+    means that projects that are supposed to work with both Qt 5 and Qt 6
+    require versions for their imports.
+
+    Therefore, if you want to use Qt Quick 3D, using the same project with Qt 5
+    and Qt 6 is not possible.
+*/

@@ -26,7 +26,7 @@
 /*!
     \page quick-converting-ui-projects.html
     \if defined(qtdesignstudio)
-    \previouspage creator-vcs-git.html
+    \previouspage studio-porting-projects.html
     \nextpage creator-editor-external.html
     \else
     \previouspage qtquick-iso-icon-browser.html
