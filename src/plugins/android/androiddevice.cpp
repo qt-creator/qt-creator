@@ -334,7 +334,11 @@ bool AndroidDevice::isValid() const
 
 QString AndroidDevice::serialNumber() const
 {
-    return extraData(Constants::AndroidSerialNumber).toString();
+    const QString serialNumber = extraData(Constants::AndroidSerialNumber).toString();
+    if (machineType() == Hardware)
+        return serialNumber;
+
+    return AndroidConfigurations::currentConfig().getRunningAvdsSerialNumber(avdName());
 }
 
 QString AndroidDevice::avdName() const

@@ -712,15 +712,37 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     return QString::fromLatin1(name).trimmed();
 }
 
+static SdkToolResult emulatorNameAdbCommand(const QString &serialNumber)
+{
+    QStringList args = AndroidDeviceInfo::adbSelector(serialNumber);
+    args.append({"emu", "avd", "name"});
+    return AndroidManager::runAdbCommand(args);
+}
+
+QString AndroidConfig::getRunningAvdsSerialNumber(const QString &name) const
+{
+    for (const AndroidDeviceInfo &dev : connectedDevices()) {
+        if (!dev.serialNumber.startsWith("emulator"))
+            continue;
+        SdkToolResult result = emulatorNameAdbCommand(dev.serialNumber);
+        const QString stdOut = result.stdOut();
+        if (stdOut.isEmpty())
+            continue; // Not an avd
+        const QStringList outputLines = stdOut.split('\n');
+        if (outputLines.size() > 1 && outputLines.first() == name)
+            return dev.serialNumber;
+    }
+
+    return {};
+}
+
 QStringList AndroidConfig::getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs)
 {
     QStringList runningDevs;
     for (const AndroidDeviceInfo &dev : devs) {
         if (!dev.serialNumber.startsWith("emulator"))
             continue;
-        QStringList args = AndroidDeviceInfo::adbSelector(dev.serialNumber);
-        args.append({"emu", "avd", "name"});
-        SdkToolResult result = AndroidManager::runAdbCommand(args);
+        SdkToolResult result = emulatorNameAdbCommand(dev.serialNumber);
         const QString stdOut = result.stdOut();
         if (stdOut.isEmpty())
             continue; // Not an avd

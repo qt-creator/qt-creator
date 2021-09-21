@@ -174,6 +174,7 @@ public:
     static Utils::FilePath getJdkPath();
     static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
 
+    QString getRunningAvdsSerialNumber(const QString &name) const;
     static QStringList getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs);
 
 private:
