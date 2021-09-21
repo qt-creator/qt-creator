@@ -31,12 +31,16 @@
 #include "androidqmlpreviewworker.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+
 #include <qmlprojectmanager/qmlprojectconstants.h>
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -258,10 +262,11 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
 
     if (!avdMan.isAvdBooted(devSN)) {
         m_devInfo = {};
-        int minTargetApi = AndroidManager::minimumSDK(m_rc->target());
-        AndroidDeviceInfo devInfoLocal = AndroidConfigurations::showDeviceDialog(m_rc->project(),
-                                                                                 minTargetApi,
-                                                                                 apkInfo()->abis);
+        int minTargetApi = AndroidManager::minimumSDK(m_rc->target()->kit());
+        using namespace ProjectExplorer;
+        const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).data();
+        AndroidDeviceInfo devInfoLocal = AndroidDevice::androidDeviceInfoFromIDevice(dev);
+
         if (devInfoLocal.isValid()) {
             if (devInfoLocal.type == AndroidDeviceInfo::Emulator) {
                 appendMessage(tr("Launching AVD."), NormalMessageFormat);
