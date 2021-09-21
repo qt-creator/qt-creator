@@ -106,7 +106,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyWizard()
     QString errorMessage;
     const QJsonObject wizard = createGeneralWizard(QJsonObject());
 
-    const FactoryPtr factory(ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {}, &errorMessage));
     QVERIFY(factory == nullptr);
     QCOMPARE(qPrintable(errorMessage), "Page has no typeId set.");
 }
@@ -117,7 +117,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyPage()
     const QJsonObject pages = createFieldPageJsonObject(QJsonArray());
     const QJsonObject wizard = createGeneralWizard(pages);
 
-    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {}, &errorMessage));
     QVERIFY(factory == nullptr);
     QCOMPARE(qPrintable(errorMessage), "When parsing fields of page \"PE.Wizard.Page.Fields\": ");
 }
@@ -150,7 +150,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields()
     const QJsonObject wizard = createGeneralWizard(pages);
 
     QTest::ignoreMessage(QtWarningMsg, QRegularExpression("has unsupported keys: wrong"));
-    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {}, &errorMessage));
     QVERIFY(factory);
     QVERIFY(errorMessage.isEmpty());
 }
@@ -173,7 +173,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsCheckBox()
     });
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
     Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
@@ -205,7 +205,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsLineEdit()
     });
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
     Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
@@ -234,7 +234,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
 
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
     Utils::Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
 
@@ -292,7 +292,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
 
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
     Wizard *wizard = factory->runWizard({}, &parent, Id(), QVariantMap());
 

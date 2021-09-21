@@ -31,14 +31,9 @@
 
 #include <coreplugin/iwizardfactory.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
-#include <QMap>
 #include <QVariant>
-
-QT_BEGIN_NAMESPACE
-class QDir;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
@@ -94,7 +89,8 @@ private:
     // Create all wizards. As other plugins might register factories for derived
     // classes. Called when the new file dialog is shown for the first time.
     static QList<IWizardFactory *> createWizardFactories();
-    static JsonWizardFactory *createWizardFactory(const QVariantMap &data, const QDir &baseDir,
+    static JsonWizardFactory *createWizardFactory(const QVariantMap &data,
+                                                  const Utils::FilePath &baseDir,
                                                   QString *errorMessage);
     static Utils::FilePaths &searchPaths();
 
@@ -102,10 +98,10 @@ private:
     static int verbose();
 
     static void destroyAllFactories();
-    bool initialize(const QVariantMap &data, const QDir &baseDir, QString *errorMessage);
+    bool initialize(const QVariantMap &data, const Utils::FilePath &baseDir, QString *errorMessage);
 
     QVariant m_enabledExpression;
-    QString m_wizardDir;
+    Utils::FilePath m_wizardDir;
     QList<Generator> m_generators;
 
     QList<Page> m_pages;

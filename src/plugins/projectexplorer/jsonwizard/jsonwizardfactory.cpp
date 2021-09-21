@@ -217,8 +217,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
         if (path.isEmpty())
             continue;
 
-        QDir dir(path.toString());
-        if (!dir.exists()) {
+        if (!path.exists()) {
             if (verbose())
                 verboseLog.append(tr("Path \"%1\" does not exist when checking Json wizard search paths.\n")
                                   .arg(path.toUserOutput()));
@@ -227,22 +226,19 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
         const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
         const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-        QFileInfoList dirs = dir.entryInfoList(filters, sortflags);
+        FilePaths dirs = path.dirEntries({}, filters, sortflags);
 
         while (!dirs.isEmpty()) {
-            const QFileInfo dirFi = dirs.takeFirst();
-            const QDir current(dirFi.absoluteFilePath());
+            const FilePath currentDir = dirs.takeFirst();
             if (verbose())
                 verboseLog.append(tr("Checking \"%1\" for %2.\n")
-                                  .arg(QDir::toNativeSeparators(current.absolutePath()))
+                                  .arg(currentDir.toUserOutput())
                                   .arg(wizardFileName));
-            if (current.exists(wizardFileName)) {
-                QFile configFile(current.absoluteFilePath(wizardFileName));
-                configFile.open(QIODevice::ReadOnly);
+            const FilePath currentFile = currentDir / wizardFileName;
+            if (currentFile.exists()) {
                 QJsonParseError error;
-                const QByteArray fileData = configFile.readAll();
+                const QByteArray fileData = currentFile.fileContents();
                 const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
-                configFile.close();
 
                 if (error.error != QJsonParseError::NoError) {
                     int line = 1;
@@ -256,7 +252,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                         }
                     }
                     verboseLog.append(tr("* Failed to parse \"%1\":%2:%3: %4\n")
-                                      .arg(configFile.fileName())
+                                      .arg(currentFile.fileName())
                                       .arg(line).arg(column)
                                       .arg(error.errorString()));
                     continue;
@@ -264,7 +260,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
                 if (!json.isObject()) {
                     verboseLog.append(tr("* Did not find a JSON object in \"%1\".\n")
-                                      .arg(configFile.fileName()));
+                                      .arg(currentFile.fileName()));
                     continue;
                 }
 
@@ -279,7 +275,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                     continue;
                 }
 
-                JsonWizardFactory *factory = createWizardFactory(data, current, &errorMessage);
+                JsonWizardFactory *factory = createWizardFactory(data, currentDir, &errorMessage);
                 if (!factory) {
                     verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
                     continue;
@@ -287,7 +283,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
                 result << factory;
             } else {
-                QFileInfoList subDirs = current.entryInfoList(filters, sortflags);
+                FilePaths subDirs = currentDir.dirEntries({}, filters, sortflags);
                 if (!subDirs.isEmpty()) {
                     // There is no QList::prepend(QList)...
                     dirs.swap(subDirs);
@@ -307,7 +303,8 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
     return result;
 }
 
-JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data, const QDir &baseDir,
+JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data,
+                                                          const FilePath &baseDir,
                                                           QString *errorMessage)
 {
     auto *factory = new JsonWizardFactory;
@@ -381,7 +378,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *p
     wizard->setWindowIcon(icon());
     wizard->setWindowTitle(displayName());
 
-    wizard->setValue(QStringLiteral("WizardDir"), m_wizardDir);
+    wizard->setValue(QStringLiteral("WizardDir"), m_wizardDir.toVariant());
     QSet<Utils::Id> tmp = requiredFeatures();
     tmp.subtract(pluginFeatures());
     wizard->setValue(QStringLiteral("RequiredFeatures"), Utils::Id::toStringList(tmp));
@@ -537,7 +534,7 @@ void JsonWizardFactory::destroyAllFactories()
     s_generatorFactories.clear();
 }
 
-bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir, QString *errorMessage)
+bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &baseDir, QString *errorMessage)
 {
     QTC_ASSERT(errorMessage, return false);
 
@@ -582,29 +579,27 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     setCategory(strVal);
 
     strVal = data.value(QLatin1String(ICON_KEY)).toString();
-    if (!strVal.isEmpty()) {
-        strVal = baseDir.absoluteFilePath(strVal);
-        if (!QFileInfo::exists(strVal)) {
-            *errorMessage = tr("Icon file \"%1\" not found.").arg(QDir::toNativeSeparators(strVal));
-            return false;
-        }
+    const FilePath iconPath = baseDir.resolvePath(strVal);
+    if (!iconPath.exists()) {
+        *errorMessage = tr("Icon file \"%1\" not found.").arg(iconPath.toUserOutput());
+        return false;
     }
     const QString iconText = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
-    setIcon(strVal.isEmpty() ? QIcon() : QIcon(strVal), iconText);
+    setIcon(strVal.isEmpty() ? QIcon() : QIcon(iconPath.toString()), iconText);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {
-        strVal = baseDir.absoluteFilePath(strVal);
-        if (!QFileInfo::exists(strVal)) {
-            *errorMessage = tr("Image file \"%1\" not found.").arg(QDir::toNativeSeparators(strVal));
+        const FilePath imagePath = baseDir.resolvePath(strVal);
+        if (!imagePath.exists()) {
+            *errorMessage = tr("Image file \"%1\" not found.").arg(imagePath.toUserOutput());
             return false;
         }
-        setDescriptionImage(strVal);
+        setDescriptionImage(imagePath.toString());
     }
 
-    strVal = baseDir.absoluteFilePath("detailsPage.qml");
-    if (QFileInfo::exists(strVal))
-        setDetailsPageQmlPath(strVal);
+    const FilePath detailsPage = baseDir.resolvePath(QString("detailsPage.qml"));
+    if (detailsPage.exists())
+        setDetailsPageQmlPath(detailsPage.toString());
 
     setRequiredFeatures(Utils::Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Utils::Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
