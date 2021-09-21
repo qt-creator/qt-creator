@@ -441,7 +441,7 @@
         \li \b{Open Source front-end for C++ (license MIT)}, enhanced for use
             in \QC.\br
             Roberto Raggi <roberto.raggi@gmail.com>\br
-            QtCreator/src/shared/cplusplus\br\br
+            QtCreator/src/libs/3rdparty/cplusplus\br\br
 
         \li \b{ANGLE Library (Windows)}
 
