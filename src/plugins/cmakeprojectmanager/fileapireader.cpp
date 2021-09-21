@@ -154,7 +154,7 @@ void FileApiReader::parse(bool forceCMakeRun,
                                          .arg(args.join("\", \""));
         startCMakeState(args);
     } else {
-        endState(replyFile);
+        endState(replyFile, false);
     }
 }
 
@@ -245,7 +245,7 @@ void FileApiReader::startState()
     emit configurationStarted();
 }
 
-void FileApiReader::endState(const FilePath &replyFilePath)
+void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBackup)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: END STATE.";
     QTC_ASSERT(m_isParsing, return );
@@ -283,7 +283,7 @@ void FileApiReader::endState(const FilePath &replyFilePath)
                         });
     onResultReady(m_future.value(),
                   this,
-                  [this, topCmakeFile, sourceDirectory, buildDirectory](
+                  [this, topCmakeFile, sourceDirectory, buildDirectory, restoredFromBackup](
                       const std::shared_ptr<FileApiQtcData> &value) {
                       m_isParsing = false;
                       m_cache = std::move(value->cache);
@@ -297,7 +297,7 @@ void FileApiReader::endState(const FilePath &replyFilePath)
                       m_usesAllCapsTargets = std::move(value->usesAllCapsTargets);
 
                       if (value->errorMessage.isEmpty()) {
-                          emit this->dataAvailable();
+                          emit this->dataAvailable(restoredFromBackup);
                       } else {
                           emit this->errorOccurred(value->errorMessage);
                       }
@@ -352,6 +352,11 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
     QTC_CHECK(settingsFile.writeFileContents(contents));
 }
 
+int FileApiReader::lastCMakeExitCode() const
+{
+    return m_lastCMakeExitCode;
+}
+
 void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: START CMAKE STATE.";
@@ -383,7 +388,8 @@ void FileApiReader::cmakeFinishedState()
 
     FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory, m_watcher);
 
-    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory));
+    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory),
+             m_lastCMakeExitCode != 0);
 }
 
 void FileApiReader::replyDirectoryHasChanged(const QString &directory) const

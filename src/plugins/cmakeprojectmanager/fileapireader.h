@@ -78,15 +78,17 @@ public:
     bool isMultiConfig() const;
     bool usesAllCapsTargets() const;
 
+    int lastCMakeExitCode() const;
+
 signals:
     void configurationStarted() const;
-    void dataAvailable() const;
+    void dataAvailable(bool restoredFromBackup) const;
     void dirty() const;
     void errorOccurred(const QString &message) const;
 
 private:
     void startState();
-    void endState(const Utils::FilePath &replyFilePath);
+    void endState(const Utils::FilePath &replyFilePath, bool restoredFromBackup);
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState();
 

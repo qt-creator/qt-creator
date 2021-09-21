@@ -42,6 +42,7 @@ namespace ProjectExplorer { class ExtraCompiler; }
 namespace CMakeProjectManager {
 
 class CMakeBuildConfiguration;
+class CMakeProject;
 
 namespace Internal {
 
@@ -101,6 +102,8 @@ public:
     bool isMultiConfig() const;
     bool usesAllCapsTargets() const;
 
+    CMakeProject *project() const;
+
 private:
     // Actually ask for parsing:
     enum ReparseParameters {
@@ -128,7 +131,7 @@ private:
     void handleTreeScanningFinished();
 
     // Combining Treescanner and Parser states:
-    void combineScanAndParse();
+    void combineScanAndParse(bool restoredFromBackup);
 
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
         const ProjectExplorer::TreeScanner::Result &allFiles, bool failedToParse);
@@ -143,7 +146,7 @@ private:
                               const QList<QByteArray> &moduleMappings);
     void updateInitialCMakeExpandableVars();
 
-    void handleParsingSucceeded();
+    void handleParsingSucceeded(bool restoredFromBackup);
     void handleParsingFailed(const QString &msg);
 
     void wireUpConnections();

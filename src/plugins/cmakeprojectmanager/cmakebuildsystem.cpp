@@ -30,6 +30,7 @@
 #include "cmakebuildstep.h"
 #include "cmakebuildtarget.h"
 #include "cmakekitinformation.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakeprojectplugin.h"
@@ -373,6 +374,8 @@ QString CMakeBuildSystem::reparseParametersString(int reparseFlags)
 void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &parameters,
                                                     const int reparseParameters)
 {
+    project()->clearIssues();
+
     qCDebug(cmakeBuildSystemLog) << cmakeBuildConfiguration()->displayName()
                                  << "setting parameters and requesting reparse"
                                  << reparseParametersString(reparseParameters);
@@ -467,7 +470,7 @@ void CMakeBuildSystem::handleTreeScanningFinished()
 
     m_waitingForScan = false;
 
-    combineScanAndParse();
+    combineScanAndParse(m_reader.lastCMakeExitCode() != 0);
 }
 
 bool CMakeBuildSystem::persistCMakeState()
@@ -528,7 +531,7 @@ std::unique_ptr<CMakeProjectNode> CMakeBuildSystem::generateProjectTree(
     return root;
 }
 
-void CMakeBuildSystem::combineScanAndParse()
+void CMakeBuildSystem::combineScanAndParse(bool restoredFromBackup)
 {
     if (cmakeBuildConfiguration()->isActive()) {
         if (m_waitingForParse || m_waitingForScan)
@@ -537,8 +540,22 @@ void CMakeBuildSystem::combineScanAndParse()
         if (m_combinedScanAndParseResult) {
             updateProjectData();
             m_currentGuard.markAsSuccess();
+
+            if (restoredFromBackup)
+                project()->addIssue(
+                    CMakeProject::IssueType::Error,
+                    tr("<b>CMake configuration failed<b>"
+                       "<p>The backup of the previous configuration has been restored.</p>"
+                       "<p>Have a look at the Issues pane or in the \"Projects > Build\" settings "
+                       "for more information about the failure.</p"));
         } else {
             updateFallbackProjectData();
+
+            project()->addIssue(
+                CMakeProject::IssueType::Error,
+                tr("<b>Failed to load project<b>"
+                   "<p>Have a look at the Issues pane or in the \"Projects > Build\" settings "
+                   "for more information about the failure.</p"));
         }
     }
 
@@ -720,7 +737,7 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
     cmakeBuildConfiguration()->setConfigurationFromCMake(cmakeConfig);
 }
 
-void CMakeBuildSystem::handleParsingSucceeded()
+void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
 {
     if (!cmakeBuildConfiguration()->isActive()) {
         stopParsingAndClearState();
@@ -755,7 +772,7 @@ void CMakeBuildSystem::handleParsingSucceeded()
     QTC_ASSERT(m_waitingForParse, return );
     m_waitingForParse = false;
 
-    combineScanAndParse();
+    combineScanAndParse(restoredFromBackup);
 }
 
 void CMakeBuildSystem::handleParsingFailed(const QString &msg)
@@ -772,7 +789,7 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
     m_waitingForParse = false;
     m_combinedScanAndParseResult = false;
 
-    combineScanAndParse();
+    combineScanAndParse(false);
 }
 
 void CMakeBuildSystem::wireUpConnections()
@@ -1071,6 +1088,11 @@ bool CMakeBuildSystem::isMultiConfig() const
 bool CMakeBuildSystem::usesAllCapsTargets() const
 {
     return m_reader.usesAllCapsTargets();
+}
+
+CMakeProject *CMakeBuildSystem::project() const
+{
+    return static_cast<CMakeProject *>(ProjectExplorer::BuildSystem::project());
 }
 
 const QList<TestCaseInfo> CMakeBuildSystem::testcasesInfo() const

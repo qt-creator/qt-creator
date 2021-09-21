@@ -48,6 +48,10 @@ public:
 
     ProjectExplorer::ProjectImporter *projectImporter() const final;
 
+    using IssueType = ProjectExplorer::Task::TaskType;
+    void addIssue(IssueType type, const QString &text);
+    void clearIssues();
+
 protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
@@ -59,6 +63,8 @@ private:
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
 
     friend class Internal::CMakeBuildSystem;
+
+    ProjectExplorer::Tasks m_issues;
 };
 
 } // namespace CMakeProjectManager

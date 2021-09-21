@@ -26,8 +26,8 @@
 #include "cmakeproject.h"
 
 #include "cmakebuildconfiguration.h"
-#include "cmakebuildsystem.h"
 #include "cmakebuildstep.h"
+#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
@@ -75,6 +75,8 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     if (ToolChainKitAspect::toolChains(k).isEmpty())
         result.append(createProjectTask(Task::TaskType::Warning, tr("No compilers set in kit.")));
 
+    result.append(m_issues);
+
     return result;
 }
 
@@ -84,6 +86,16 @@ ProjectImporter *CMakeProject::projectImporter() const
     if (!m_projectImporter)
         m_projectImporter = new CMakeProjectImporter(projectFilePath());
     return m_projectImporter;
+}
+
+void CMakeProject::addIssue(IssueType type, const QString &text)
+{
+    m_issues.append(createProjectTask(type, text));
+}
+
+void CMakeProject::clearIssues()
+{
+    m_issues.clear();
 }
 
 bool CMakeProject::setupTarget(Target *t)
