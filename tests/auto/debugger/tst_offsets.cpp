@@ -157,7 +157,17 @@ void tst_offsets::offsets_data()
     const int qtVersion = QT_VERSION;
     const quintptr qtTypeVersion = qtHookData[6];
 
-    if (qtVersion > 0x50600 && qtTypeVersion >= 17)
+    if (qtTypeVersion >= 20)
+#ifdef Q_OS_WIN
+#   ifdef Q_CC_MSVC
+        OFFSET_TEST(QFilePrivate, fileName) << 0 << 304;
+#   else // MinGW
+        OFFSET_TEST(QFilePrivate, fileName) << 0 << 304;
+#   endif
+#else
+        OFFSET_TEST(QFilePrivate, fileName) << 0 << 304;
+#endif
+    else if (qtVersion > 0x50600 && qtTypeVersion >= 17)
 #ifdef Q_OS_WIN
 #   ifdef Q_CC_MSVC
         OFFSET_TEST(QFilePrivate, fileName) << 164 << 224;
@@ -229,13 +239,16 @@ void tst_offsets::offsets_data()
     OFFSET_TEST(QFileSystemEntry, m_filePath) << 0 << 0;
     OFFSET_TEST(QFileInfoPrivate, fileEntry) << 4 << 8;
 
-    QTest::newRow("sizeof(QObjectData)") << int(sizeof(QObjectData))
-        << 28 << 48; // vptr + 3 ptr + 2 int + ptr
+    // Qt5: vptr + 3 ptr + 2 int + ptr
+    // Qt6: vptr + objectlist + 8 unit:1 + uint:24 + int + ptr + bindingstorage + ptr
+    int size32 = qtVersion >= 0x60000 ? 60 : 28;
+    int size64 = qtVersion >= 0x60000 ? 80 : 48;
+    QTest::newRow("sizeof(QObjectData)") << int(sizeof(QObjectData)) << size32 << size64;
 
-    if (qtVersion >= 0x50000)
-        OFFSET_TEST(QObjectPrivate, extraData) << 28 << 48; // sizeof(QObjectData)
+    if (qtVersion >= 0x50000 && qtTypeVersion < 21)
+        OFFSET_TEST(QObjectPrivate, extraData) << size32 << size64; // sizeof(QObjectData)
     else
-        OFFSET_TEST(QObjectPrivate, extraData) << 32 << 56; // sizeof(QObjectData) + 1 ptr
+        OFFSET_TEST(QObjectPrivate, extraData) << size32 + 4 << size64 + 8; // sizeof(QObjectData) + 1 ptr
 
 #if QT_VERSION < 0x50000
         OFFSET_TEST(QObjectPrivate, objectName) << 28 << 48;  // sizeof(QObjectData)
