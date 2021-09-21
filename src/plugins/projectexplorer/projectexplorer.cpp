@@ -2331,7 +2331,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
 {
-    OpenProjectResult result = openProject(FilePath::fromString(fileName));
+    OpenProjectResult result = openProject(FilePath::fromUserInput(fileName));
     if (!result)
         showOpenProjectError(result);
 }
