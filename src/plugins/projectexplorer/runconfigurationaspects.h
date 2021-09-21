@@ -82,6 +82,7 @@ public:
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
+    void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -95,6 +96,7 @@ private:
     Utils::FilePath m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
+    Utils::MacroExpanderProvider m_expanderProvider;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect

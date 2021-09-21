@@ -233,6 +233,8 @@ bool RunConfiguration::isEnabled() const
 
 QWidget *RunConfiguration::createConfigurationWidget()
 {
+    if (const auto wdAspect = aspect<WorkingDirectoryAspect>())
+        wdAspect->setMacroExpanderProvider([this] { return &m_expander; });
     Layouting::Form builder;
     for (BaseAspect *aspect : qAsConst(m_aspects)) {
         if (aspect->isVisible())

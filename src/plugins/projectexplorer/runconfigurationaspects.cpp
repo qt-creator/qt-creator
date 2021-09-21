@@ -176,6 +176,8 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
+    if (m_expanderProvider)
+        m_chooser->setMacroExpander(m_expanderProvider());
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
@@ -289,6 +291,11 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
             m_chooser->setFilePath(m_defaultWorkingDirectory);
         m_workingDirectory = defaultWorkingDir;
     }
+}
+
+void WorkingDirectoryAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
+{
+    m_expanderProvider = expanderProvider;
 }
 
 /*!
