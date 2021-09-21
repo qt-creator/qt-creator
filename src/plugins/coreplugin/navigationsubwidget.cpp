@@ -26,8 +26,9 @@
 #include "navigationsubwidget.h"
 #include "navigationwidget.h"
 
-#include "inavigationwidgetfactory.h"
+#include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
+#include "inavigationwidgetfactory.h"
 
 #include <coreplugin/icore.h>
 
@@ -148,7 +149,15 @@ void NavigationSubWidget::populateSplitMenu()
     int count = factoryModel->rowCount();
     for (int i = 0; i < count; ++i) {
         QModelIndex index = factoryModel->index(i, 0);
-        QAction *action = m_splitMenu->addAction(factoryModel->data(index).toString());
+        const Id id = factoryModel->data(index, NavigationWidget::FactoryActionIdRole).value<Id>();
+        Command *command = ActionManager::command(id);
+        const QString factoryName = factoryModel->data(index).toString();
+        const QString displayName = command->keySequence().isEmpty()
+                                        ? factoryName
+                                        : QString("%1 (%2)").arg(factoryName,
+                                                                 command->keySequence().toString(
+                                                                     QKeySequence::NativeText));
+        QAction *action = m_splitMenu->addAction(displayName);
         connect(action, &QAction::triggered, this, [this, i]() { emit splitMe(i); });
     }
 }

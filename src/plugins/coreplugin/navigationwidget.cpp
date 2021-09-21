@@ -263,6 +263,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
         QStandardItem *newRow = new QStandardItem(factory->displayName());
         newRow->setData(QVariant::fromValue(factory), FactoryObjectRole);
         newRow->setData(QVariant::fromValue(factory->id()), FactoryIdRole);
+        newRow->setData(QVariant::fromValue(actionId), FactoryActionIdRole);
         newRow->setData(factory->priority(), FactoryPriorityRole);
         d->m_factoryModel->appendRow(newRow);
     }

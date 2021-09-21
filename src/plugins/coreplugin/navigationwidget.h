@@ -82,6 +82,7 @@ public:
     enum FactoryModelRoles {
         FactoryObjectRole = Qt::UserRole,
         FactoryIdRole,
+        FactoryActionIdRole,
         FactoryPriorityRole
     };
 
