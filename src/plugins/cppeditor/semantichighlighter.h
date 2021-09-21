@@ -56,7 +56,6 @@ public:
         MacroUse,
         FunctionUse,
         PseudoKeywordUse,
-        StringUse,
         FunctionDeclarationUse,
         VirtualFunctionDeclarationUse,
         AngleBracketOpen,

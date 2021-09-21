@@ -72,7 +72,6 @@ static QString useKindToString(UseKind useKind)
     CASE_STR(FunctionUse);
     CASE_STR(FunctionDeclarationUse);
     CASE_STR(PseudoKeywordUse);
-    CASE_STR(StringUse);
     default:
         QTest::qFail("Unknown UseKind", __FILE__, __LINE__);
         return QLatin1String("Unknown UseKind");

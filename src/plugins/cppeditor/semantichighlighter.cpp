@@ -298,7 +298,6 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
     m_formatMap[VirtualFunctionDeclarationUse] =
             fs.toTextCharFormat(TextStyles::mixinStyle(C_VIRTUAL_METHOD, C_DECLARATION));
     m_formatMap[PseudoKeywordUse] = fs.toTextCharFormat(C_KEYWORD);
-    m_formatMap[StringUse] = fs.toTextCharFormat(C_STRING);
 }
 
 } // namespace CppEditor
