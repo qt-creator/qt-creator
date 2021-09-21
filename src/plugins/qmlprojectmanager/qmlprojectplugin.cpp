@@ -27,33 +27,144 @@
 #include "qmlproject.h"
 #include "qmlprojectrunconfiguration.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/session.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
+
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
+#include <utils/infobar.h>
+
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTimer>
+#include <QPointer>
 
 using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 namespace Internal {
 
+const char openInQDSAppSetting[] = "OpenInQDSAppUiQml";
+
+static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
+{
+    if (!spec)
+        return false;
+
+    return spec->name().contains("QmlDesigner");
+}
+
+static bool qmlDesignerEnabled()
+{
+    const auto plugins = ExtensionSystem::PluginManager::plugins();
+    const auto it = std::find_if(plugins.begin(), plugins.end(), &isQmlDesigner);
+    return it != plugins.end() && (*it)->plugin();
+}
+
 class QmlProjectPluginPrivate
 {
 public:
     QmlProjectRunConfigurationFactory runConfigFactory;
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
+    RunWorkerFactory runWorkerFactory{RunWorkerFactory::make<SimpleTargetRunner>(),
+                                      {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+                                      {runConfigFactory.runConfigurationId()}};
+    QPointer<QMessageBox> lastMessageBox;
 };
 
 QmlProjectPlugin::~QmlProjectPlugin()
 {
+    if (d->lastMessageBox)
+        d->lastMessageBox->deleteLater();
     delete d;
+}
+
+void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
+{
+    const QString &qdsPath = QmlProjectPlugin::qdsInstallationEntry();
+    bool qdsStarted = false;
+    //-a and -client arguments help to append project to open design studio application
+    if (Utils::HostOsInfo::isMacHost())
+        qdsStarted = QProcess::startDetached("/usr/bin/open", {"-a", qdsPath, fileName.toString()});
+    else
+        qdsStarted = QProcess::startDetached(qdsPath, {"-client", fileName.toString()});
+
+    if (!qdsStarted) {
+        QMessageBox::warning(Core::ICore::dialogParent(),
+                             fileName.fileName(),
+                             QObject::tr("Failed to start Qt Design Studio."));
+    }
+}
+
+QString QmlProjectPlugin::qdsInstallationEntry()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
+
+    return settings->value(qdsInstallationEntry).toString();
+}
+
+bool QmlProjectPlugin::qdsInstallationExists()
+{
+    return Utils::FilePath::fromString(qdsInstallationEntry()).exists();
+}
+
+Utils::FilePath findQmlProject(const Utils::FilePath &folder)
+{
+    QDir dir = folder.toDir();
+    for (const QString &file : dir.entryList({"*.qmlproject"}))
+        return Utils::FilePath::fromString(folder.toString() + "/" + file);
+    return {};
+}
+
+Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
+{
+    auto ret = findQmlProject(folder);
+    if (ret.exists())
+        return ret;
+
+    QDir dir = folder.toDir();
+    if (dir.cdUp())
+        return findQmlProjectUpwards(Utils::FilePath::fromString(dir.absolutePath()));
+    return {};
+}
+
+static bool findAndOpenProject(const Utils::FilePath &filePath)
+{
+
+    ProjectExplorer::Project *project
+            = ProjectExplorer::SessionManager::projectForFile(filePath);
+
+    if (project) {
+        if (project->projectFilePath().suffix() == "qmlproject") {
+            QmlProjectPlugin::openQDS(project->projectFilePath());
+            return true;
+        } else {
+            auto projectFolder = project->rootProjectDirectory();
+            auto qmlProjectFile = findQmlProject(projectFolder);
+            if (qmlProjectFile.exists()) {
+                QmlProjectPlugin::openQDS(qmlProjectFile);
+                return true;
+            }
+        }
+    }
+
+    auto qmlProjectFile = findQmlProjectUpwards(filePath);
+    if (qmlProjectFile.exists()) {
+        QmlProjectPlugin::openQDS(qmlProjectFile);
+        return true;
+    }
+    return false;
 }
 
 bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
@@ -62,10 +173,66 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
     d = new QmlProjectPluginPrivate;
 
+    if (!qmlDesignerEnabled()) {
+        connect(Core::EditorManager::instance(),
+                &Core::EditorManager::currentEditorChanged,
+                [this](Core::IEditor *editor) {
+                    QmlJS::ModelManagerInterface *modelManager
+                        = QmlJS::ModelManagerInterface::instance();
+
+                    if (!editor)
+                        return;
+
+                    if (d->lastMessageBox)
+                        return;
+                    auto filePath = editor->document()->filePath();
+                    QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(
+                        filePath.toString());
+                    if (!document.isNull()
+                        && document->language() == QmlJS::Dialect::QmlQtQuick2Ui) {
+
+                        const QString description = tr("Files of the type ui.qml are intended for Qt Design Studio.");
+
+                        if (!qdsInstallationExists()) {
+                            if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
+                                                Utils::InfoBarEntry
+                                                    info(openInQDSAppSetting,
+                                                         description + tr(" Learn more about Qt Design Studio here: ")
+                                                         + "<a href='https://www.qt.io/product/ui-design-tools'>Qt Design Studio</a>",
+                                                         Utils::InfoBarEntry::GlobalSuppression::Enabled);
+                                                Core::ICore::infoBar()->addInfo(info);
+                            }
+                            return;
+                        }
+
+                        if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
+                            Utils::InfoBarEntry
+                                    info(openInQDSAppSetting,
+                                         description + "\n" + tr("Do you want to open this file in Qt Design Studio?"),
+                                         Utils::InfoBarEntry::GlobalSuppression::Enabled);
+                            info.setCustomButtonInfo(tr("Open in Qt Design Studio"), [filePath] {
+                                Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
+
+                                if (findAndOpenProject(filePath)) {
+                                    openQDS(filePath);
+                                    //The first one might be ignored when QDS is starting up
+                                    QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
+                                } else {
+                                    Core::AsynchronousMessageBox::warning(tr("Qt Design Studio"),
+                                                                          tr("No project file (*.qmlproject) found for Qt Design Studio."));
+                                }
+                            });
+                            Core::ICore::infoBar()->addInfo(info);
+                        }
+                    }
+        });
+    }
+
     ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
-    Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
+    Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
+                                                         "qmlproject");
     return true;
-}
+} // namespace Internal
 
 } // namespace Internal
 } // namespace QmlProjectManager

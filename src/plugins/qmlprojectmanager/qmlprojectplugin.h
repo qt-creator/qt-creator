@@ -26,6 +26,7 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
+#include <utils/filepath.h>
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -38,6 +39,10 @@ class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 public:
     QmlProjectPlugin() = default;
     ~QmlProjectPlugin() final;
+
+    static void openQDS(const Utils::FilePath &fileName);
+    static QString qdsInstallationEntry();
+    static bool qdsInstallationExists();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;

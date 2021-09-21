@@ -278,6 +278,7 @@ void InfoBarDisplay::update()
 
         QLabel *infoWidgetLabel = new QLabel(info.m_infoText);
         infoWidgetLabel->setWordWrap(true);
+        infoWidgetLabel->setOpenExternalLinks(true);
         hbox->addWidget(infoWidgetLabel, 1);
 
         if (info.m_detailsWidgetCreator) {

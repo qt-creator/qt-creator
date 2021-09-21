@@ -27,10 +27,11 @@
 
 #include "fileformat/qmlprojectfileformat.h"
 #include "fileformat/qmlprojectitem.h"
-#include "qmlprojectrunconfiguration.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectnodes.h"
+#include "qmlprojectplugin.h"
+#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -94,23 +95,6 @@ static int preferedQtTarget(Target *target)
 
 const char openInQDSAppSetting[] = "OpenInQDSApp";
 
-static void openQDS(const QString &qdsPath, const Utils::FilePath &fileName)
-{
-    bool qdsStarted = false;
-    //-a and -client arguments help to append project to open design studio application
-    if (Utils::HostOsInfo::isMacHost())
-        qdsStarted = Utils::QtcProcess::startDetached({"/usr/bin/open", {"-a", qdsPath, fileName.toString()}});
-    else
-        //ToDo change qdsPath type to FilePath
-        qdsStarted = Utils::QtcProcess::startDetached({Utils::FilePath::fromString(qdsPath), {"-client", fileName.toString()}});
-
-    if (!qdsStarted) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             fileName.fileName(),
-                             QObject::tr("Failed to start Qt Design Studio."));
-    }
-}
-
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
 {
@@ -121,23 +105,17 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
-
     if (!isQtDesignStudio()) {
-        const QString qdsPath = settings->value(qdsInstallationEntry).toString();
-        const bool foundQDS = Utils::FilePath::fromString(qdsPath).exists();
-
-        if (foundQDS) {
-            auto lambda = [fileName, qdsPath]() {
+        if (QmlProjectPlugin::qdsInstallationExists()) {
+            auto lambda = [fileName]() {
                 if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
                     Utils::InfoBarEntry
                         info(openInQDSAppSetting,
                              tr("Would you like to open the project in Qt Design Studio?"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-                    info.setCustomButtonInfo(tr("Open in Qt Design Studio"), [&, qdsPath, fileName] {
+                    info.setCustomButtonInfo(tr("Open in Qt Design Studio"), [&, fileName] {
                         Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
-                        openQDS(qdsPath, fileName);
+                        QmlProjectPlugin::openQDS(fileName);
                     });
                     Core::ICore::infoBar()->addInfo(info);
                 }
