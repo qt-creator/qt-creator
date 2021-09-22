@@ -28,6 +28,8 @@
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
+#include <cppeditor/cppprojectfilecategorizer.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -329,6 +331,11 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
 
+        CppEditor::ProjectFileCategorizer
+            categorizer({}, transform<QList>(t.sources, [&sourceDir](const SourceInfo &si) {
+                            return sourceDir.absoluteFilePath(si.path);
+                        }));
+
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
         for (const CompileInfo &ci : t.compileGroups) {
@@ -375,8 +382,14 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                                            return si.path.endsWith(ending);
                                        }).path);
 
-            rpp.setFiles(transform<QList>(ci.sources, [&t, &sourceDir](const int si) {
-                return sourceDir.absoluteFilePath(t.sources[static_cast<size_t>(si)].path);
+            CppEditor::ProjectFiles sources;
+            if (ci.language == "C")
+                sources = categorizer.cSources();
+            else if (ci.language == "CXX")
+                sources = categorizer.cxxSources();
+
+            rpp.setFiles(transform<QList>(sources, [](const CppEditor::ProjectFile &pf) {
+                return pf.path;
             }));
             if (!precompiled_header.isEmpty()) {
                 if (precompiled_header.toFileInfo().isRelative()) {

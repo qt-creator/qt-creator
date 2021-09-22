@@ -34,7 +34,7 @@
 
 namespace CppEditor {
 
-class ProjectFileCategorizer
+class CPPEDITOR_EXPORT ProjectFileCategorizer
 {
 public:
     using FileIsActive = ProjectExplorer::RawProjectPart::FileIsActive;
