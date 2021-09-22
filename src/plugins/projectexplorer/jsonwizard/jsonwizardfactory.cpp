@@ -588,12 +588,9 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
             *errorMessage = tr("Icon file \"%1\" not found.").arg(QDir::toNativeSeparators(strVal));
             return false;
         }
-        setIcon(QIcon(strVal));
     }
-
-    strVal = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
-    if (!strVal.isEmpty())
-        setIconText(strVal);
+    const QString iconText = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
+    setIcon(iconText.isEmpty() ? QIcon() : QIcon(strVal), iconText);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {

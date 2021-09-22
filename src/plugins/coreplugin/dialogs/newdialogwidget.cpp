@@ -255,9 +255,6 @@ void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
     parentItem->appendRow(projectKindItem);
     parentItem->appendRow(filesKindItem);
 
-    if (m_dummyIcon.isNull())
-        m_dummyIcon = QIcon(":/utils/images/wizardicon-file.png");
-
     const QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
 
     const bool allowAllTemplates = ICore::settings()->value(ALLOW_ALL_TEMPLATES, true).toBool();
@@ -360,28 +357,6 @@ IWizardFactory *NewDialogWidget::currentWizardFactory() const
     return factoryOfItem(m_model->itemFromIndex(index));
 }
 
-static QIcon iconWithText(const QIcon &icon, const QString &text)
-{
-    if (text.isEmpty())
-        return icon;
-    QIcon iconWithText;
-    for (const QSize &pixmapSize : icon.availableSizes()) {
-        QPixmap pixmap = icon.pixmap(pixmapSize);
-        const int fontSize = pixmap.height() / 4;
-        const int margin = pixmap.height() / 8;
-        QFont font;
-        font.setPixelSize(fontSize);
-        font.setStretch(85);
-        QPainter p(&pixmap);
-        p.setFont(font);
-        QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
-        textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-        p.drawText(pixmap.rect().adjusted(margin, margin, -margin, -margin), text, textOption);
-        iconWithText.addPixmap(pixmap);
-    }
-    return iconWithText;
-}
-
 void NewDialogWidget::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
 {
     const QString categoryName = factory->category();
@@ -399,15 +374,7 @@ void NewDialogWidget::addItem(QStandardItem *topLevelCategoryItem, IWizardFactor
         categoryItem->setData(factory->category(), Qt::UserRole);
     }
 
-    QStandardItem *wizardItem = new QStandardItem(factory->displayName());
-    QIcon wizardIcon;
-
-    // spacing hack. Add proper icons instead
-    if (factory->icon().isNull())
-        wizardIcon = m_dummyIcon;
-    else
-        wizardIcon = factory->icon();
-    wizardItem->setIcon(iconWithText(wizardIcon, factory->iconText()));
+    QStandardItem *wizardItem = new QStandardItem(factory->icon(), factory->displayName());
     wizardItem->setData(QVariant::fromValue(WizardFactoryContainer(factory, 0)), Qt::UserRole);
     wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     categoryItem->appendRow(wizardItem);

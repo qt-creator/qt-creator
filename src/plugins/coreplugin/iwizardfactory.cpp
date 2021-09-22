@@ -423,6 +423,39 @@ void IWizardFactory::initialize()
     ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
 }
 
+static QIcon iconWithText(const QIcon &icon, const QString &text)
+{
+    if (icon.isNull()) {
+        static const QIcon fallBack(":/utils/images/wizardicon-file.png");
+        return iconWithText(fallBack, text);
+    }
+
+    if (text.isEmpty())
+        return icon;
+
+    QIcon iconWithText;
+    for (const QSize &pixmapSize : icon.availableSizes()) {
+        QPixmap pixmap = icon.pixmap(pixmapSize);
+        const int fontSize = pixmap.height() / 4;
+        const int margin = pixmap.height() / 8;
+        QFont font;
+        font.setPixelSize(fontSize);
+        font.setStretch(85);
+        QPainter p(&pixmap);
+        p.setFont(font);
+        QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
+        textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        p.drawText(pixmap.rect().adjusted(margin, margin, -margin, -margin), text, textOption);
+        iconWithText.addPixmap(pixmap);
+    }
+    return iconWithText;
+}
+
+void IWizardFactory::setIcon(const QIcon &icon, const QString &iconText)
+{
+    m_icon = iconWithText(icon, iconText);
+}
+
 void IWizardFactory::setDetailsPageQmlPath(const QString &filePath)
 {
     if (filePath.isEmpty())

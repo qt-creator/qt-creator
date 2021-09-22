@@ -86,7 +86,6 @@ private:
     QStandardItemModel *m_model;
     QSortFilterProxyModel *m_filterProxyModel;
     QPushButton *m_okButton = nullptr;
-    QIcon m_dummyIcon;
     QList<QStandardItem *> m_categoryItems;
     Utils::FilePath m_defaultLocation;
     QVariantMap m_extraVariables;
