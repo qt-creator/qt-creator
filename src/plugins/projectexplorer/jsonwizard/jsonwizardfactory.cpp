@@ -605,9 +605,9 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         setDescriptionImage(strVal);
     }
 
-    const FilePath detailsPage = baseDir.resolvePath(QString("detailsPage.qml"));
-    if (detailsPage.exists())
-        setDetailsPageQmlPath(detailsPage.toString());
+    strVal = baseDir.absoluteFilePath("detailsPage.qml");
+    if (QFileInfo::exists(strVal))
+        setDetailsPageQmlPath(strVal);
 
     setRequiredFeatures(Utils::Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Utils::Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
