@@ -1642,10 +1642,12 @@ bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
     QMutexLocker l(&m_shellMutex);
     m_shell->readAllStandardOutput(); // clean possible left-overs
     m_shell->write(cmd.toUserOutput().toUtf8() + "\necho $?\n");
-    m_shell->waitForReadyRead();
+    QTC_ASSERT(m_shell->waitForReadyRead(), return false);
     QByteArray output = m_shell->readAllStandardOutput();
-    int result = output.toInt();
+    bool ok;
+    int result = output.toInt(&ok);
     LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
+    QTC_ASSERT(ok, return false);
     return result == 0;
 }
 
