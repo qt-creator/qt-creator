@@ -819,31 +819,30 @@ void DockerDevicePrivate::startContainer()
     dockerRun.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
 
     LOG("RUNNING: " << dockerRun.toUserOutput());
-    QTC_ASSERT(!m_shell, delete m_shell);
-    m_shell = new QtcProcess(ProcessMode::Writer);
-    m_shell->setCommand(dockerRun);
-    connect(m_shell, &QtcProcess::finished, this, [this] {
+    QPointer<QtcProcess> shell = new QtcProcess(ProcessMode::Writer);
+    connect(shell, &QtcProcess::finished, this, [this, shell] {
         LOG("\nSHELL FINISHED\n");
-        if (m_shell) {
-            const int exitCode = m_shell->exitCode();
-            LOG("RES: " << m_shell->result()
-                << " EXIT CODE: " << exitCode
-                << " STDOUT: " << m_shell->readAllStandardOutput()
-                << " STDERR: " << m_shell->readAllStandardError());
-            // negative exit codes indicate problems like no docker daemon, missing permissions,
-            // no shell and seem to result in exit codes 125+
-            if (exitCode > 120) {
-                DockerPlugin::setGlobalDaemonState(false);
-                LOG("DOCKER DAEMON NOT RUNNING?");
-                MessageManager::writeFlashing(tr("Docker Daemon appears to be not running. "
-                                                 "Verify daemon is up and running and reset the "
-                                                 "docker daemon on the docker device settings page "
-                                                 "or restart Qt Creator."));
-            }
+        QTC_ASSERT(shell, return);
+        const int exitCode = shell->exitCode();
+        LOG("RES: " << shell->result()
+            << " EXIT CODE: " << exitCode
+            << " STDOUT: " << shell->readAllStandardOutput()
+            << " STDERR: " << shell->readAllStandardError());
+        // negative exit codes indicate problems like no docker daemon, missing permissions,
+        // no shell and seem to result in exit codes 125+
+        if (exitCode > 120) {
+            DockerPlugin::setGlobalDaemonState(false);
+            LOG("DOCKER DAEMON NOT RUNNING?");
+            MessageManager::writeFlashing(tr("Docker Daemon appears to be not running. "
+                                             "Verify daemon is up and running and reset the "
+                                             "docker daemon on the docker device settings page "
+                                             "or restart Qt Creator."));
         }
-        m_container.clear();
     });
 
+    QTC_ASSERT(!m_shell, delete m_shell);
+    m_shell = shell;
+    m_shell->setCommand(dockerRun);
     m_shell->start();
     m_shell->waitForStarted();
 
@@ -1611,9 +1610,11 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 
 bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
 {
-    if (!DockerPlugin::isDaemonRunning().value_or(false))
+    if (!QTC_GUARD(DockerPlugin::isDaemonRunning().value_or(false))) {
+        LOG("No daemon. Could not run " << cmd.toUserOutput());
         return false;
-    QTC_ASSERT(m_shell, return false);
+    }
+    QTC_ASSERT(m_shell, LOG("No shell. Could not run " << cmd.toUserOutput()); return false);
     QMutexLocker l(&m_shellMutex);
     m_shell->readAllStandardOutput(); // clean possible left-overs
     m_shell->write(cmd.toUserOutput().toUtf8() + "\necho $?\n");
