@@ -58,6 +58,8 @@ public:
     QModelIndex parent(const QModelIndex &child) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 
     void setSourceModel(QAbstractItemModel *sm) override;
 

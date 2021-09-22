@@ -34,6 +34,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
+#include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
 #include <QAbstractItemModel>
@@ -50,7 +51,6 @@
 #ifdef HELP_NEW_FILTER_ENGINE
 #include <QHelpLink>
 #endif
-
 
 using namespace Help::Internal;
 
@@ -118,15 +118,12 @@ void IndexWindow::setOpenInNewPageActionVisible(bool visible)
 
 void IndexWindow::filterIndices(const QString &filter)
 {
-    QModelIndex bestMatch;
-    if (filter.contains(QLatin1Char('*')))
-        bestMatch = m_filteredIndexModel->filter(filter, filter);
-    else
-        bestMatch = m_filteredIndexModel->filter(filter, QString());
-    if (bestMatch.isValid()) {
-        m_indexWidget->setCurrentIndex(bestMatch);
-        m_indexWidget->scrollTo(bestMatch);
-    }
+    const QString wildcard = filter.contains(QLatin1Char('*')) ? filter : QString();
+    const QModelIndex bestMatch = m_filteredIndexModel->filter(filter, wildcard);
+    if (!bestMatch.isValid())
+        return;
+    m_indexWidget->setCurrentIndex(bestMatch);
+    m_indexWidget->scrollTo(bestMatch);
 }
 
 bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
@@ -215,12 +212,15 @@ void IndexWindow::open(const QModelIndex &index, bool newPage)
 
 Qt::DropActions IndexFilterModel::supportedDragActions() const
 {
+    if (!sourceModel())
+        return Qt::IgnoreAction;
     return sourceModel()->supportedDragActions();
 }
 
 QModelIndex IndexFilterModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
+    QTC_ASSERT(row < m_toSource.size(), return {});
     return createIndex(row, column);
 }
 
@@ -232,14 +232,29 @@ QModelIndex IndexFilterModel::parent(const QModelIndex &child) const
 
 int IndexFilterModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid()) // our items don't have children
         return 0;
     return m_toSource.size();
 }
 
 int IndexFilterModel::columnCount(const QModelIndex &parent) const
 {
+    if (!sourceModel())
+        return 0;
     return sourceModel()->columnCount(mapToSource(parent));
+}
+
+QVariant IndexFilterModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    // we don't show header
+    return {};
+}
+
+bool IndexFilterModel::hasChildren(const QModelIndex &parent) const
+{
+    if (parent.isValid()) // our items don't have children
+        return false;
+    return m_toSource.count();
 }
 
 void IndexFilterModel::setSourceModel(QAbstractItemModel *sm)
@@ -293,6 +308,11 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
     m_wildcard = wildcard;
     m_toSource.clear();
 
+    if (!sourceModel()) {
+        endResetModel();
+        return {};
+    }
+
     // adapted copy from QHelpIndexModel
 
     if (filter.isEmpty() && wildcard.isEmpty()) {
@@ -301,6 +321,8 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
         for (int i = 0; i < count; ++i)
             m_toSource.append(i);
         endResetModel();
+        if (m_toSource.isEmpty())
+            return {};
         return index(0, 0);
     }
 
@@ -330,7 +352,7 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
         }
     } else {
         int i = 0;
-        foreach (const QString &index, indices) {
+        for (const QString &index : indices) {
             if (index.contains(filter, Qt::CaseInsensitive)) {
                 m_toSource.append(i);
                 if (perfectMatch == -1 && index.startsWith(filter, Qt::CaseInsensitive)) {
@@ -347,27 +369,30 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
         }
     }
 
+    endResetModel();
+    if (goodMatch == -1)
+        return {};
     if (perfectMatch == -1)
         perfectMatch = qMax(0, goodMatch);
-
-    endResetModel();
-    return index(perfectMatch, 0, QModelIndex());
+    return index(perfectMatch, 0);
 }
 
 QModelIndex IndexFilterModel::mapToSource(const QModelIndex &proxyIndex) const
 {
-    if (!proxyIndex.isValid() || proxyIndex.parent().isValid() || proxyIndex.row() >= m_toSource.size())
-        return QModelIndex();
-    return index(m_toSource.at(proxyIndex.row()), proxyIndex.column());
+    if (!sourceModel() || !proxyIndex.isValid()
+            || proxyIndex.parent().isValid() || proxyIndex.row() >= m_toSource.size()) {
+        return {};
+    }
+    return sourceModel()->index(m_toSource.at(proxyIndex.row()), proxyIndex.column());
 }
 
 QModelIndex IndexFilterModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
     if (!sourceIndex.isValid() || sourceIndex.parent().isValid())
-        return QModelIndex();
-    int i = m_toSource.indexOf(sourceIndex.row());
+        return {};
+    const int i = m_toSource.indexOf(sourceIndex.row());
     if (i < 0)
-        return QModelIndex();
+        return {};
     return index(i, sourceIndex.column());
 }
 
