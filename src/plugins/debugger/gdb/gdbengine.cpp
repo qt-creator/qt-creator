@@ -4466,9 +4466,15 @@ void GdbEngine::setupInferior()
                 ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString("Going to attach to %1").arg(attachedPID);
         showMessage(msg, LogMisc);
-        const QString executable = runParameters().inferior.executable.toFileInfo().absoluteFilePath();
-        runCommand({"-file-exec-and-symbols \"" + executable + '"',
-                    CB(handleFileExecAndSymbols)});
+        // For some reason, this breaks GDB 9 on Linux. See QTCREATORBUG-26299.
+        if (HostOsInfo::isWindowsHost() && m_gdbVersion >= 100000) {
+            // Required for debugging MinGW32 apps with 64-bit GDB. See QTCREATORBUG-26208.
+            const QString executable = runParameters().inferior.executable.toFileInfo().absoluteFilePath();
+            runCommand({"-file-exec-and-symbols \"" + executable + '"',
+                        CB(handleFileExecAndSymbols)});
+        } else {
+            handleInferiorPrepared();
+        }
     } else if (isPlainEngine()) {
 
         setEnvironmentVariables();
