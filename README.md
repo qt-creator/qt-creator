@@ -353,7 +353,7 @@ we thank the authors who made this possible:
 
   Roberto Raggi <roberto.raggi@gmail.com>
 
-  QtCreator/src/shared/cplusplus
+  QtCreator/src/libs/3rdparty/cplusplus
 
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
 
