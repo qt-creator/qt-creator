@@ -68,7 +68,9 @@
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
 #include <QHeaderView>
+#include <QHostAddress>
 #include <QLoggingCategory>
+#include <QNetworkInterface>
 #include <QPushButton>
 #include <QRandomGenerator>
 #include <QRegularExpression>
@@ -772,6 +774,20 @@ void DockerDevicePrivate::stopCurrentContainer()
     proc.runBlocking();
 }
 
+static QString getLocalIPv4Address()
+{
+    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+    for (auto &a : addresses) {
+        if (a.isInSubnet(QHostAddress("192.168.0.0"), 16))
+            return a.toString();
+        if (a.isInSubnet(QHostAddress("10.0.0.0"), 8))
+            return a.toString();
+        if (a.isInSubnet(QHostAddress("172.16.0.0"), 12))
+            return a.toString();
+    }
+    return QString();
+}
+
 void DockerDevicePrivate::startContainer()
 {
     QString tempFileName;
@@ -782,9 +798,11 @@ void DockerDevicePrivate::startContainer()
         tempFileName = temp.fileName();
     }
 
+    const QString display = HostOsInfo::isWindowsHost() ? QString(getLocalIPv4Address() + ":0.0")
+                                                        : QString(":0");
     CommandLine dockerRun{"docker", {"run", "-i", "--cidfile=" + tempFileName,
                                     "--rm",
-                                    "-e", "DISPLAY=:0",
+                                    "-e", QString("DISPLAY=%1").arg(display),
                                     "-e", "XAUTHORITY=/.Xauthority",
                                     "--net", "host"}};
 
