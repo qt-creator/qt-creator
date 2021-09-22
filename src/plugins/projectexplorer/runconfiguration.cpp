@@ -197,7 +197,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
                                tr("The run configuration's working directory"),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
-        return wdAspect ? wdAspect->workingDirectory(&m_expander).toString() : QString();
+        return wdAspect ? wdAspect->workingDirectory().toString() : QString();
     });
     m_expander.registerVariable("RunConfig:Name", tr("The run configuration's name."),
             [this] { return displayName(); });
@@ -215,6 +215,11 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
             arguments = argumentsAspect->arguments(macroExpander());
         return CommandLine{executable, arguments, CommandLine::Raw};
     };
+
+    addPostInit([this] {
+        if (const auto wdAspect = aspect<WorkingDirectoryAspect>())
+            wdAspect->setMacroExpander(&m_expander);
+    });
 }
 
 RunConfiguration::~RunConfiguration() = default;
@@ -233,8 +238,6 @@ bool RunConfiguration::isEnabled() const
 
 QWidget *RunConfiguration::createConfigurationWidget()
 {
-    if (const auto wdAspect = aspect<WorkingDirectoryAspect>())
-        wdAspect->setMacroExpanderProvider([this] { return &m_expander; });
     Layouting::Form builder;
     for (BaseAspect *aspect : qAsConst(m_aspects)) {
         if (aspect->isVisible())
@@ -402,7 +405,7 @@ Runnable RunConfiguration::runnable() const
     Runnable r;
     r.command = commandLine();
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
-        r.workingDirectory = workingDirectoryAspect->workingDirectory(macroExpander());
+        r.workingDirectory = workingDirectoryAspect->workingDirectory();
     if (auto environmentAspect = aspect<EnvironmentAspect>())
         r.environment = environmentAspect->environment();
     if (m_runnableModifier)
@@ -571,6 +574,7 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
         rc->m_aspects.registerAspect(factory(target));
 
     rc->acquaintAspects();
+    rc->doPostInit();
     return rc;
 }
 

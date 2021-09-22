@@ -1966,7 +1966,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         [] {
             if (const RunConfiguration * const rc = activeRunConfiguration()) {
                 if (const auto wdAspect = rc->aspect<WorkingDirectoryAspect>())
-                    return wdAspect->workingDirectory(rc->macroExpander()).toString();
+                    return wdAspect->workingDirectory().toString();
             }
             return QString();
     });

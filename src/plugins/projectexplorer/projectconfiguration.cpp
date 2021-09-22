@@ -145,6 +145,12 @@ void ProjectConfiguration::acquaintAspects()
         aspect->acquaintSiblings(m_aspects);
 }
 
+void ProjectConfiguration::doPostInit()
+{
+    for (const std::function<void()> &postInit : qAsConst(m_postInit))
+        postInit();
+}
+
 FilePath ProjectConfiguration::mapFromBuildDeviceToGlobalPath(const FilePath &path) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(kit());

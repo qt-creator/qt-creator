@@ -203,7 +203,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
                                [this] {
         if (RunConfiguration * const rc = activeRunConfiguration()) {
             if (const auto wdAspect = rc->aspect<WorkingDirectoryAspect>())
-                return wdAspect->workingDirectory(&d->m_macroExpander).toString();
+                return wdAspect->workingDirectory().toString();
         }
         return QString();
     }, false);

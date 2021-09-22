@@ -91,6 +91,9 @@ public:
 
     Utils::FilePath mapFromBuildDeviceToGlobalPath(const Utils::FilePath &path) const;
 
+    void addPostInit(const std::function<void()> &fixup) { m_postInit.append(fixup); }
+    void doPostInit();
+
 signals:
     void displayNameChanged();
     void toolTipChanged();
@@ -103,6 +106,7 @@ private:
     const Utils::Id m_id;
     Utils::DisplayName m_displayName;
     QString m_toolTip;
+    QList<std::function<void()>> m_postInit;
 };
 
 // helper function:

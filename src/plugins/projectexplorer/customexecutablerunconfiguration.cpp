@@ -98,8 +98,7 @@ bool CustomExecutableRunConfiguration::isEnabled() const
 
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
-    FilePath workingDirectory =
-            aspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
+    const FilePath workingDirectory = aspect<WorkingDirectoryAspect>()->workingDirectory();
 
     Runnable r;
     r.command = commandLine();

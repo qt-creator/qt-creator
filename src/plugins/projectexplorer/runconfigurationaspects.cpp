@@ -176,8 +176,8 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
-    if (m_expanderProvider)
-        m_chooser->setMacroExpander(m_expanderProvider());
+    if (QTC_GUARD(m_macroExpander))
+        m_chooser->setMacroExpander(m_macroExpander);
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
@@ -246,14 +246,12 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 
     Macros in the value are expanded using \a expander.
 */
-FilePath WorkingDirectoryAspect::workingDirectory(const MacroExpander *expander) const
+FilePath WorkingDirectoryAspect::workingDirectory() const
 {
     const Environment env = m_envAspect ? m_envAspect->environment()
                                         : Environment::systemEnvironment();
     FilePath res = m_workingDirectory;
-    QString workingDir = m_workingDirectory.path();
-    if (expander)
-        workingDir = expander->expandProcessArgs(workingDir);
+    const QString workingDir = m_workingDirectory.path();
     res.setPath(PathChooser::expandedDirectory(workingDir, env, QString()));
     return res;
 }
@@ -293,9 +291,9 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
     }
 }
 
-void WorkingDirectoryAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
+void WorkingDirectoryAspect::setMacroExpander(MacroExpander *macroExpander)
 {
-    m_expanderProvider = expanderProvider;
+    m_macroExpander = macroExpander;
 }
 
 /*!

@@ -78,11 +78,11 @@ public:
     void addToLayout(Utils::LayoutBuilder &builder) override;
     void acquaintSiblings(const Utils::AspectContainer &) override;
 
-    Utils::FilePath workingDirectory(const Utils::MacroExpander *expander) const;
+    Utils::FilePath workingDirectory() const;
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
-    void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
+    void setMacroExpander(Utils::MacroExpander *macroExpander);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -96,7 +96,7 @@ private:
     Utils::FilePath m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
-    Utils::MacroExpanderProvider m_expanderProvider;
+    Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
