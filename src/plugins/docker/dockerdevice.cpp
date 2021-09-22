@@ -94,7 +94,7 @@ namespace Docker {
 namespace Internal {
 
 static Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
-#define LOG(x) qCDebug(dockerDeviceLog) << x << '\n'
+#define LOG(x) qCDebug(dockerDeviceLog) << this << x << '\n'
 
 class DockerDeviceProcess : public ProjectExplorer::DeviceProcess
 {
@@ -302,11 +302,11 @@ class DockerDevicePrivate : public QObject
 public:
     DockerDevicePrivate(DockerDevice *parent) : q(parent)
     {
-        connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [](const QString &path) {
+        connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
             Q_UNUSED(path)
             LOG("Container watcher change, file: " << path);
         });
-        connect(&m_mergedDirWatcher, &QFileSystemWatcher::directoryChanged, this, [](const QString &path) {
+        connect(&m_mergedDirWatcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString &path) {
             Q_UNUSED(path)
             LOG("Container watcher change, directory: " << path);
         });
