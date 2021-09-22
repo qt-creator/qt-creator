@@ -739,7 +739,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                             ChooseFromPropertyListDialog *dialog = nullptr;
                             dialog = new ChooseFromPropertyListDialog(targetNode, testType, Core::ICore::dialogParent());
                             dialog->exec();
-                            if (!dialog || dialog->result() == QDialog::Accepted)
+                            if (dialog->result() == QDialog::Accepted)
                                 targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
                             delete dialog;
                             break;
