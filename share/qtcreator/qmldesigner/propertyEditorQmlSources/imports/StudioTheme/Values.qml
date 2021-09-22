@@ -185,9 +185,10 @@ QtObject {
     // Color Editor Popup
     property real colorEditorPopupWidth: 4 * values.colorEditorPopupSpinBoxWidth
                                          + 3 * values.controlGap
-                                         + 2 * values.colorEditorPopupMargin
+                                         + 2 * values.colorEditorPopupPadding
     property real colorEditorPopupHeight: 800
-    property real colorEditorPopupMargin: 10
+    property real colorEditorPopupPadding: 10
+    property real colorEditorPopupMargin: 20
 
     property real colorEditorPopupSpacing: 10
     property real colorEditorPopupLineHeight: 60

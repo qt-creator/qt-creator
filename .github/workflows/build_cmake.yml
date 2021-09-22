@@ -455,6 +455,11 @@ jobs:
         find_package(Python3 REQUIRED COMPONENTS Interpreter)
         string(REPLACE "x86" "x64" Python3_EXECUTABLE "${Python3_EXECUTABLE}")
 
+        set(WITH_TESTS "--with-tests")
+        if (${{github.ref}} MATCHES "tags/v")
+          unset(WITH_TESTS)
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -465,7 +470,7 @@ jobs:
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
             --llvm-path "${{ steps.libclang.outputs.libclang_dir }}"
             --python3 "${Python3_EXECUTABLE}"
-            --with-tests
+            ${WITH_TESTS}
             ${CDB_OPTION}
             ${ELFUTILS_OPTION}
             --add-config=-DCMAKE_C_COMPILER_LAUNCHER=ccache
@@ -597,12 +602,10 @@ jobs:
         config:
         - {
             name: "Windows Latest MSVC", artifact: "Windows-MSVC",
-            is_msvc: true,
             os: ubuntu-latest
           }
         - {
             name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-            is_msvc: false,
             os: ubuntu-latest
           }
         - {
@@ -629,21 +632,21 @@ jobs:
         path: ./
 
     - name: Download wininterrupt artifact
-      if: runner.os == 'Windows'
+      if: contains(matrix.config.artifact, 'Windows')
       uses: actions/download-artifact@v1
       with:
         name: wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download qtcreatorcdbext artifact
-      if: runner.os == 'Windows' && matrix.config.is_msvc
+      if: matrix.config.artifact == 'Windows-MSVC'
       uses: actions/upload-artifact@v1
       with:
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download disk image artifact
-      if: runner.os == 'macOS'
+      if: matrix.config.artifact == 'macOS'
       uses: actions/upload-artifact@v1
       with:
         name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
@@ -680,7 +683,7 @@ jobs:
         asset_content_type: application/x-gtar
 
     - name: Upload wininterrupt to Release
-      if: runner.os == 'Windows'
+      if: contains(matrix.config.artifact, 'Windows')
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -691,7 +694,7 @@ jobs:
         asset_content_type: application/x-gtar
 
     - name: Upload qtcreatorcdbext to Release
-      if: runner.os == 'Windows' && matrix.config.is_msvc
+      if: matrix.config.artifact == 'Windows-MSVC'
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -702,7 +705,7 @@ jobs:
         asset_content_type: application/x-gtar
 
     - name: Upload disk image to Release
-      if: runner.os == 'macOS'
+      if: matrix.config.artifact == 'macOS'
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
