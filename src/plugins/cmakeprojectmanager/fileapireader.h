@@ -105,7 +105,6 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     ProjectExplorer::RawProjectParts m_projectParts;
     std::unique_ptr<CMakeProjectNode> m_rootProjectNode;
-    QSet<Utils::FilePath> m_knownHeaders;
     QString m_ctestPath;
     bool m_isMultiConfig = false;
     bool m_usesAllCapsTargets = false;

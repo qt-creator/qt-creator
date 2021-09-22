@@ -503,8 +503,7 @@ void addCompileGroups(ProjectNode *targetRoot,
                       const Utils::FilePath &topSourceDirectory,
                       const Utils::FilePath &sourceDirectory,
                       const Utils::FilePath &buildDirectory,
-                      const TargetDetails &td,
-                      QSet<FilePath> &knownHeaderNodes)
+                      const TargetDetails &td)
 {
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
@@ -531,10 +530,6 @@ void addCompileGroups(ProjectNode *targetRoot,
         // Create FileNodes from the file
         auto node = std::make_unique<FileNode>(sourcePath, Node::fileTypeForFileName(sourcePath));
         node->setIsGenerated(si.isGenerated);
-
-        // Register headers:
-        if (node->fileType() == FileType::Header)
-            knownHeaderNodes.insert(node->filePath());
 
         // Where does the file node need to go?
         if (sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
@@ -583,8 +578,7 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
                 const Configuration &config,
                 const std::vector<TargetDetails> &targetDetails,
                 const FilePath &sourceDir,
-                const FilePath &buildDir,
-                QSet<FilePath> &knownHeaderNodes)
+                const FilePath &buildDir)
 {
     for (const FileApiDetails::Target &t : config.targets) {
         const TargetDetails &td = Utils::findOrDefault(targetDetails,
@@ -598,42 +592,37 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
         tNode->setTargetInformation(td.artifacts, td.type);
         tNode->setBuildDirectory(directoryBuildDir(config, buildDir, t.directory));
 
-        addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td, knownHeaderNodes);
+        addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td);
     }
 }
 
-std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProjectNode(
+std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
     PreprocessedData &data, const FilePath &sourceDirectory, const FilePath &buildDirectory)
 {
-    std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> result;
-    result.first = std::make_unique<CMakeProjectNode>(sourceDirectory);
+    std::unique_ptr<CMakeProjectNode> result = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
     const FileApiDetails::Project topLevelProject
         = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::Project::parent, -1));
     if (!topLevelProject.name.isEmpty())
-        result.first->setDisplayName(topLevelProject.name);
+        result->setDisplayName(topLevelProject.name);
     else
-        result.first->setDisplayName(sourceDirectory.fileName());
+        result->setDisplayName(sourceDirectory.fileName());
 
-    QHash<FilePath, ProjectNode *> cmakeListsNodes = addCMakeLists(result.first.get(),
+    QHash<FilePath, ProjectNode *> cmakeListsNodes = addCMakeLists(result.get(),
                                                                    std::move(data.cmakeListNodes));
     data.cmakeListNodes.clear(); // Remove all the nullptr in the vector...
 
-    QSet<FilePath> knownHeaders;
     addProjects(cmakeListsNodes, data.codemodel, sourceDirectory);
 
     addTargets(cmakeListsNodes,
                data.codemodel,
                data.targetDetails,
                sourceDirectory,
-               buildDirectory,
-               knownHeaders);
-
-    // addHeaderNodes(root.get(), knownHeaders, allFiles);
+               buildDirectory);
 
     if (!data.cmakeNodesSource.empty() || !data.cmakeNodesBuild.empty()
         || !data.cmakeNodesOther.empty())
-        addCMakeInputs(result.first.get(),
+        addCMakeInputs(result.get(),
                        sourceDirectory,
                        buildDirectory,
                        std::move(data.cmakeNodesSource),
@@ -643,8 +632,6 @@ std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProject
     data.cmakeNodesSource.clear(); // Remove all the nullptr in the vector...
     data.cmakeNodesBuild.clear();  // Remove all the nullptr in the vector...
     data.cmakeNodesOther.clear();  // Remove all the nullptr in the vector...
-
-    result.second = knownHeaders;
 
     return result;
 }
@@ -720,10 +707,9 @@ FileApiQtcData extractData(FileApiData &input,
     result.cmakeFiles = std::move(data.cmakeFiles);
     result.projectParts = generateRawProjectParts(data, sourceDirectory);
 
-    auto pair = generateRootProjectNode(data, sourceDirectory, buildDirectory);
-    ProjectTree::applyTreeManager(pair.first.get()); // QRC nodes
-    result.rootProjectNode = std::move(pair.first);
-    result.knownHeaders = std::move(pair.second);
+    auto rootProjectNode = generateRootProjectNode(data, sourceDirectory, buildDirectory);
+    ProjectTree::applyTreeManager(rootProjectNode.get()); // QRC nodes
+    result.rootProjectNode = std::move(rootProjectNode);
 
     setupLocationInfoForTargets(result.rootProjectNode.get(), result.buildTargets);
 

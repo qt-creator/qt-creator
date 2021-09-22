@@ -175,39 +175,6 @@ CMakeTargetNode *createTargetNode(const QHash<Utils::FilePath, ProjectNode *> &c
     return tn;
 }
 
-void addHeaderNodes(ProjectNode *root,
-                    QSet<Utils::FilePath> &seenHeaders,
-                    const QList<FileNode *> &allFiles)
-{
-    QTC_ASSERT(root, return );
-
-    if (root->isEmpty())
-        return;
-
-    auto headerNode = std::make_unique<VirtualFolderNode>(root->filePath());
-    headerNode->setPriority(Node::DefaultPriority - 5);
-    headerNode->setDisplayName(
-        QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
-                                    "<Headers>"));
-    headerNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_H));
-
-    // Add scanned headers:
-    for (const FileNode *fn : allFiles) {
-        if (fn->fileType() != FileType::Header || !fn->filePath().isChildOf(root->filePath()))
-            continue;
-        const int count = seenHeaders.count();
-        seenHeaders.insert(fn->filePath());
-        if (seenHeaders.count() != count) {
-            std::unique_ptr<FileNode> node(fn->clone());
-            node->setEnabled(false);
-            headerNode->addNestedNode(std::move(node));
-        }
-    }
-
-    if (!headerNode->isEmpty())
-        root->addNode(std::move(headerNode));
-}
-
 template<typename Result>
 static std::unique_ptr<Result> cloneFolderNode(FolderNode *node)
 {

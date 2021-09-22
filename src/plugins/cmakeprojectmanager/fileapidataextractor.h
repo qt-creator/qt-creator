@@ -67,7 +67,6 @@ public:
     QList<CMakeBuildTarget> buildTargets;
     ProjectExplorer::RawProjectParts projectParts;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
-    QSet<Utils::FilePath> knownHeaders;
     QString ctestPath;
     bool isMultiConfig = false;
     bool usesAllCapsTargets = false;

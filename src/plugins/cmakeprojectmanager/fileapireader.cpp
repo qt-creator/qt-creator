@@ -98,7 +98,6 @@ void FileApiReader::resetData()
     m_buildTargets.clear();
     m_projectParts.clear();
     m_rootProjectNode.reset();
-    m_knownHeaders.clear();
 }
 
 void FileApiReader::parse(bool forceCMakeRun,
@@ -220,8 +219,6 @@ std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
 {
     if (failedToParse)
         addFileSystemNodes(m_rootProjectNode.get(), allFiles.folderNode);
-    else
-        addHeaderNodes(m_rootProjectNode.get(), m_knownHeaders, allFiles.allFiles);
 
     return std::exchange(m_rootProjectNode, {});
 }
@@ -291,7 +288,6 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                       m_buildTargets = std::move(value->buildTargets);
                       m_projectParts = std::move(value->projectParts);
                       m_rootProjectNode = std::move(value->rootProjectNode);
-                      m_knownHeaders = std::move(value->knownHeaders);
                       m_ctestPath = std::move(value->ctestPath);
                       m_isMultiConfig = std::move(value->isMultiConfig);
                       m_usesAllCapsTargets = std::move(value->usesAllCapsTargets);
