@@ -685,7 +685,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
             return GeneratorInfo("Ninja").toVariant();
     }
 
-    if (HostOsInfo::isWindowsHost()) {
+    if (tool->filePath().osType() == OsTypeWindows) {
         // *sigh* Windows with its zoo of incompatible stuff again...
         ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
         if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
