@@ -36,6 +36,8 @@
 #include <codecvt>
 #include <iomanip>
 
+#include <Windows.h>
+
 static const char whiteSpace[] = " \t\r\n";
 
 void trimFront(std::string &s)
@@ -152,7 +154,10 @@ std::string wStringToString(const std::wstring &w)
 
 std::wstring utf8ToUtf16(const std::string &s)
 {
-    return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(s.data());
+    const int size = MultiByteToWideChar(CP_UTF8, 0, s.data(), int(s.size()), NULL, 0);
+    std::wstring result(size, 0);
+    MultiByteToWideChar(CP_UTF8, 0, s.data(), int(s.size()), result.data(), size);
+    return result;
 }
 
 // Convert an ASCII hex digit to its value 'A'->10
