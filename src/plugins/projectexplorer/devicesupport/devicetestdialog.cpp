@@ -71,8 +71,10 @@ DeviceTestDialog::~DeviceTestDialog() = default;
 
 void DeviceTestDialog::reject()
 {
-    if (!d->finished)
+    if (!d->finished) {
+        d->deviceTester->disconnect(this);
         d->deviceTester->stopTest();
+    }
     QDialog::reject();
 }
 
