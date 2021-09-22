@@ -551,6 +551,12 @@ void FancyTabWidget::insertTab(int index, QWidget *tab, const QIcon &icon, const
     m_tabBar->insertTab(index, icon, label, hasMenu);
 }
 
+void FancyTabWidget::removeTab(int index)
+{
+    m_modesStack->removeWidget(m_modesStack->widget(index));
+    m_tabBar->removeTab(index);
+}
+
 void FancyTabWidget::setBackgroundBrush(const QBrush &brush)
 {
     QPalette pal;

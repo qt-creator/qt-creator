@@ -256,6 +256,21 @@ void ModeManagerPrivate::appendMode(IMode *mode)
     QObject::connect(mode, &IMode::enabledStateChanged, [this, mode] { enabledStateChanged(mode); });
 }
 
+void ModeManager::removeMode(IMode *mode)
+{
+    const int index = d->m_modes.indexOf(mode);
+    if (index >= d->m_modes.size() - 1 && d->m_modes.size() > 1)
+        d->m_modeStack->setCurrentIndex(d->m_modes.size() - 2);
+    d->m_modes.remove(index);
+    if (d->m_startingUp)
+        return;
+
+    d->m_modeCommands.remove(index);
+    d->m_modeStack->removeTab(index);
+
+    d->m_mainWindow->removeContextObject(mode);
+}
+
 void ModeManagerPrivate::enabledStateChanged(IMode *mode)
 {
     int index = d->m_modes.indexOf(mode);
