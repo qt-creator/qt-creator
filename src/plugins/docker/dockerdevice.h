@@ -44,6 +44,7 @@ public:
     QString tag;
     QString size;
     bool useLocalUidGid = true;
+    bool useFilePathMapping = true;
     QStringList mounts;
 };
 

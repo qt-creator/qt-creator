@@ -385,6 +385,15 @@ public:
             data.useLocalUidGid = on;
         });
 
+        m_usePathMapping = new QCheckBox(tr("Use local file path mapping"));
+        m_usePathMapping->setToolTip(tr("Map docker filesystem to a local directory."));
+        m_usePathMapping->setChecked(data.useFilePathMapping);
+        m_usePathMapping->setEnabled(HostOsInfo::isLinuxHost());
+        connect(m_usePathMapping, &QCheckBox::toggled, this, [&, dockerDevice](bool on) {
+            data.useFilePathMapping = on;
+            dockerDevice->tryCreateLocalFileAccess();
+        });
+
         m_pathsLineEdit = new QLineEdit;
         m_pathsLineEdit->setText(data.repo);
         m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
@@ -433,6 +442,7 @@ public:
             repoLabel, m_repoLineEdit, Break(),
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
+            m_usePathMapping, Break(),
             tr("Paths to mount:"), m_pathsLineEdit, Break(),
             Column {
                 Space(20),
@@ -452,6 +462,7 @@ private:
     QToolButton *m_daemonReset;
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
+    QCheckBox *m_usePathMapping;
     QLineEdit *m_pathsLineEdit;
 
     KitDetector m_kitItemDetector;
@@ -880,6 +891,13 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     if (!m_shell)
         startContainer();
 
+    if (!m_data.useFilePathMapping) {
+        if (!m_mergedDir.isEmpty()) {
+            m_mergedDirWatcher.removePath(m_mergedDir);
+            m_mergedDir.clear();
+        }
+        return;
+    }
     if (!DockerPlugin::isDaemonRunning().value_or(false))
         return;
     QtcProcess proc;
@@ -955,6 +973,7 @@ const char DockerDeviceDataRepoKey[] = "DockerDeviceDataRepo";
 const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
 const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
 const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
+const char DockerDeviceUseFilePathMapping[] = "DockerDeviceFilePathMapping";
 const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 
 void DockerDevice::fromMap(const QVariantMap &map)
@@ -966,6 +985,8 @@ void DockerDevice::fromMap(const QVariantMap &map)
     d->m_data.size = map.value(DockerDeviceDataSizeKey).toString();
     d->m_data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser,
                                          HostOsInfo::isLinuxHost()).toBool();
+    d->m_data.useFilePathMapping = map.value(DockerDeviceUseFilePathMapping,
+                                             HostOsInfo::isLinuxHost()).toBool();
     d->m_data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
 }
 
@@ -977,6 +998,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceDataTagKey, d->m_data.tag);
     map.insert(DockerDeviceDataSizeKey, d->m_data.size);
     map.insert(DockerDeviceUseOutsideUser, d->m_data.useLocalUidGid);
+    map.insert(DockerDeviceUseFilePathMapping, d->m_data.useFilePathMapping);
     map.insert(DockerDeviceMappedPaths, d->m_data.mounts);
     return map;
 }
