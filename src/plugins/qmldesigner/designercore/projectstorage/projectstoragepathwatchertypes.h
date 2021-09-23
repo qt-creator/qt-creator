@@ -27,6 +27,7 @@
 
 #include "projectstorageids.h"
 
+#include <tuple>
 #include <vector>
 
 namespace QmlDesigner {

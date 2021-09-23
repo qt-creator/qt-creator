@@ -28,6 +28,7 @@
 #include "filestatus.h"
 #include "nonlockingmutex.h"
 #include "projectstorageids.h"
+#include "projectstoragepathwatchertypes.h"
 #include "projectstoragetypes.h"
 
 #include <qmljs/parser/qmldirparser_p.h>
@@ -76,6 +77,7 @@ public:
     {}
 
     void update();
+    void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths);
 
 private:
     enum class FileState {

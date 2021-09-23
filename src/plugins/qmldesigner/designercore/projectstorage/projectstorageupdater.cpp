@@ -103,6 +103,8 @@ void ProjectUpdater::update()
                                  std::move(fileStatuses));
 }
 
+void ProjectUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) {}
+
 void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
                                     SourceContextId directoryId,
                                     Storage::Imports &imports,

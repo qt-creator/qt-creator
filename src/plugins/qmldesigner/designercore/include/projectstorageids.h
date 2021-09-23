@@ -86,7 +86,8 @@ enum class BasicIdType {
     Module,
     ProjectPartId,
     Import,
-    ImportedTypeName
+    ImportedTypeName,
+    ExportedTypeName
 };
 
 using TypeId = BasicId<BasicIdType::Type>;
@@ -121,5 +122,8 @@ using ImportIds = std::vector<ImportId>;
 
 using ImportedTypeNameId = BasicId<BasicIdType::ImportedTypeName>;
 using ImportedTypeNameIds = std::vector<ImportedTypeNameId>;
+
+using ExportedTypeNameId = BasicId<BasicIdType::ExportedTypeName>;
+using ExportedTypeNameIds = std::vector<ExportedTypeNameId>;
 
 } // namespace QmlDesigner

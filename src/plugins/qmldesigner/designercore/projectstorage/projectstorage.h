@@ -369,13 +369,19 @@ private:
                           std::vector<AliasPropertyDeclaration> &insertedAliasPropertyDeclarations,
                           std::vector<AliasPropertyDeclaration> &updatedAliasPropertyDeclarations)
     {
+        Storage::ExportedTypes exportedTypes;
+        exportedTypes.reserve(types.size() * 3);
 
         for (auto &&type : types) {
             if (!type.sourceId)
                 throw TypeHasInvalidSourceId{};
 
-            updatedTypeIds.push_back(declareType(type));
+            TypeId typeId = declareType(type);
+            updatedTypeIds.push_back(typeId);
+            extractExportedTypes(typeId, type, exportedTypes);
         }
+
+        synchronizeExportedTypes(updatedTypeIds, exportedTypes);
 
         for (auto &&type : types)
             syncPrototypes(type);
@@ -745,37 +751,78 @@ private:
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
     }
 
-    void upsertExportedType(ModuleId moduleId,
-                            Utils::SmallStringView name,
-                            TypeId typeId,
-                            Storage::Version version)
+    void synchronizeExportedTypes(const TypeIds &typeIds, Storage::ExportedTypes &exportedTypes)
     {
-        if (version) {
-            upsertTypeNamesWithVersionStatement.write(&moduleId,
-                                                      name,
-                                                      static_cast<long long>(
-                                                          Storage::TypeNameKind::Exported),
-                                                      version.major.value,
-                                                      version.minor.value,
-                                                      &typeId);
+        std::sort(exportedTypes.begin(), exportedTypes.end(), [](auto &&first, auto &&second) {
+            return std::tie(first.moduleId, first.name, first.version)
+                   < std::tie(second.moduleId, second.name, second.version);
+        });
 
-        } else if (version.major) {
-            upsertTypeNamesWithMajorVersionStatement.write(&moduleId,
-                                                           name,
-                                                           static_cast<long long>(
-                                                               Storage::TypeNameKind::Exported),
-                                                           version.major.value,
-                                                           &typeId);
-        } else {
-            upsertTypeNamesWithoutVersionStatement.write(
-                &moduleId, name, static_cast<long long>(Storage::TypeNameKind::Exported), &typeId);
-        }
+        auto range = selectExportedTypesForTypeIdStatement.template range<Storage::ExportedTypeView>(
+            const_cast<void *>(static_cast<const void *>(typeIds.data())),
+            static_cast<long long>(typeIds.size()));
+
+        auto compareKey = [](const Storage::ExportedTypeView &view,
+                             const Storage::ExportedType &type) -> long long {
+            auto moduleIdDifference = view.moduleId.id - type.moduleId.id;
+            if (moduleIdDifference != 0)
+                return moduleIdDifference;
+
+            auto nameDifference = Sqlite::compare(view.name, type.name);
+            if (nameDifference != 0)
+                return nameDifference;
+
+            auto versionDifference = view.version.major.value - type.version.major.value;
+            if (versionDifference != 0)
+                return versionDifference;
+
+            return view.version.minor.value - type.version.minor.value;
+        };
+
+        auto insert = [&](const Storage::ExportedType &type) {
+            if (type.version) {
+                upsertExportedTypeNamesWithVersionStatement.write(&type.moduleId,
+                                                                  type.name,
+                                                                  static_cast<long long>(
+                                                                      Storage::TypeNameKind::Exported),
+                                                                  type.version.major.value,
+                                                                  type.version.minor.value,
+                                                                  &type.typeId);
+
+            } else if (type.version.major) {
+                upsertExportedTypeNamesWithMajorVersionStatement
+                    .write(&type.moduleId,
+                           type.name,
+                           static_cast<long long>(Storage::TypeNameKind::Exported),
+                           type.version.major.value,
+                           &type.typeId);
+            } else {
+                upsertExportedTypeNamesWithoutVersionStatement
+                    .write(&type.moduleId,
+                           type.name,
+                           static_cast<long long>(Storage::TypeNameKind::Exported),
+                           &type.typeId);
+            }
+        };
+
+        auto update = [&](const Storage::ExportedTypeView &view, const Storage::ExportedType &type) {
+            if (view.typeId != type.typeId)
+                updateExportedTypeNameTypeIdStatement.write(&view.exportedTypeNameId, &type.typeId);
+        };
+
+        auto remove = [&](const Storage::ExportedTypeView &view) {
+            deleteExportedTypeNameStatement.write(&view.exportedTypeNameId);
+        };
+
+        Sqlite::insertUpdateDelete(range, exportedTypes, compareKey, insert, update, remove);
     }
 
     void upsertNativeType(ModuleId moduleId, Utils::SmallStringView name, TypeId typeId)
     {
-        upsertTypeNamesWithoutVersionStatement
-            .write(&moduleId, name, static_cast<long long>(Storage::TypeNameKind::Native), &typeId);
+        upsertExportedTypeNameStatement.write(&moduleId,
+                                              name,
+                                              static_cast<long long>(Storage::TypeNameKind::Native),
+                                              &typeId);
     }
 
     void synchronizePropertyDeclarationsInsertAlias(
@@ -1205,30 +1252,50 @@ private:
         Sqlite::insertUpdateDelete(range, enumerationDeclarations, compareKey, insert, update, remove);
     }
 
+    void extractExportedTypes(TypeId typeId,
+                              const Storage::Type &type,
+                              Storage::ExportedTypes &exportedTypes)
+    {
+        for (const auto &exportedType : type.exportedTypes)
+            exportedTypes.emplace_back(exportedType.name, exportedType.version, typeId, type.moduleId);
+    }
+
+    struct ModuleAndTypeId
+    {
+        ModuleAndTypeId() = default;
+        ModuleAndTypeId(int moduleId, long long typeId)
+            : moduleId{moduleId}
+            , typeId{typeId}
+        {}
+
+        ModuleId moduleId;
+        TypeId typeId;
+    };
+
     TypeId declareType(Storage::Type &type)
     {
         if (type.module.name.isEmpty() && type.typeName.isEmpty()) {
-            type.typeId = selectTypeIdBySourceIdStatement.template value<TypeId>(&type.sourceId);
+            auto [moduleId, typeId] = selectModuleAndTypeIdBySourceIdStatement
+                                          .template value<ModuleAndTypeId>(&type.sourceId);
+            type.typeId = typeId;
+            type.moduleId = moduleId;
             return type.typeId;
         }
 
-        ModuleId moduleId = fetchModuleIdUnguarded(type.module);
+        type.moduleId = fetchModuleIdUnguarded(type.module);
 
-        if (!moduleId)
+        if (!type.moduleId)
             throw ModuleDoesNotExists{};
 
-        type.typeId = upsertTypeStatement.template value<TypeId>(&moduleId,
+        type.typeId = upsertTypeStatement.template value<TypeId>(&type.moduleId,
                                                                  type.typeName,
                                                                  static_cast<int>(type.accessSemantics),
                                                                  &type.sourceId);
 
         if (!type.typeId)
-            type.typeId = selectTypeIdByModuleIdAndNameStatement.template value<TypeId>(&moduleId,
+            type.typeId = selectTypeIdByModuleIdAndNameStatement.template value<TypeId>(&type.moduleId,
                                                                                         type.typeName);
-        upsertNativeType(moduleId, type.typeName, type.typeId);
-
-        for (const auto &exportedType : type.exportedTypes)
-            upsertExportedType(moduleId, exportedType.name, type.typeId, exportedType.version);
+        upsertNativeType(type.moduleId, type.typeName, type.typeId);
 
         return type.typeId;
     }
@@ -1275,6 +1342,9 @@ private:
 
     void syncPrototypes(Storage::Type &type)
     {
+        if (type.changeLevel == Storage::ChangeLevel::Minimal)
+            return;
+
         if (Utils::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
                          type.prototype)) {
             updatePrototypeStatement.write(&type.typeId, Sqlite::NullValue{}, Sqlite::NullValue{});
@@ -1642,7 +1712,7 @@ private:
                                                              Sqlite::Enforment::Deferred);
             auto &nameColumn = table.addColumn("name");
             auto &kindColumn = table.addColumn("kind");
-            table.addColumn("typeId");
+            auto &typeIdColumn = table.addColumn("typeId");
             auto &majorVersionColumn = table.addColumn("majorVersion");
             auto &minorVersionColumn = table.addColumn("minorVersion");
 
@@ -1653,6 +1723,8 @@ private:
             table.addUniqueIndex(
                 {moduleIdColumn, nameColumn, kindColumn, majorVersionColumn, minorVersionColumn},
                 "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
+
+            table.addIndex({typeIdColumn}, "kind=1");
 
             table.initialize(database);
         }
@@ -1827,23 +1899,6 @@ public:
         "SELECT nullif(propertyTypeId, -1), propertyDeclarationId, propertyTraits "
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
-        database};
-    WriteStatement upsertTypeNamesWithVersionStatement{
-        "INSERT INTO exportedTypeNames(moduleId, name, kind, majorVersion, minorVersion, typeId) "
-        "VALUES(?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT DO UPDATE SET typeId=excluded.typeId, "
-        "majorVersion=excluded.majorVersion, minorVersion=excluded.minorVersion WHERE typeId IS "
-        "NOT excluded.typeId OR majorVersion IS NOT excluded.majorVersion OR minorVersion IS NOT "
-        "excluded.minorVersion",
-        database};
-    WriteStatement upsertTypeNamesWithMajorVersionStatement{
-        "INSERT INTO exportedTypeNames(moduleId, name, kind, majorVersion, typeId) "
-        "VALUES(?1, ?2, ?3, ?4, ?5) ON CONFLICT DO UPDATE SET typeId=excluded.typeId, "
-        "majorVersion=excluded.majorVersion WHERE typeId IS NOT excluded.typeId OR majorVersion IS "
-        "NOT excluded.majorVersion",
-        database};
-    WriteStatement upsertTypeNamesWithoutVersionStatement{
-        "INSERT INTO exportedTypeNames(moduleId, name, kind, typeId) VALUES(?1, ?2, ?3, ?4) ON "
-        "CONFLICT DO UPDATE SET typeId=excluded.typeId WHERE typeId IS NOT excluded.typeId",
         database};
     mutable ReadStatement<1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
@@ -2188,8 +2243,8 @@ public:
     WriteStatement deleteFileStatusStatement{"DELETE FROM fileStatuses WHERE sourceId=?1", database};
     WriteStatement updateFileStatusStatement{
         "UPDATE fileStatuses SET size=?2, lastModified=?3 WHERE sourceId=?1", database};
-    ReadStatement<1> selectTypeIdBySourceIdStatement{"SELECT typeId FROM types WHERE sourceId=?",
-                                                     database};
+    ReadStatement<2> selectModuleAndTypeIdBySourceIdStatement{
+        "SELECT moduleId, typeId FROM types WHERE sourceId=?", database};
     mutable ReadStatement<1> selectImportedTypeNameIdStatement{
         "SELECT importedTypeNameId FROM importedTypeNames WHERE kind=?1 AND importOrSourceId=?2 "
         "AND name=?3 LIMIT 1",
@@ -2235,6 +2290,31 @@ public:
         database};
     WriteStatement deleteAllSourcesStatement{"DELETE FROM sources", database};
     WriteStatement deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
+    mutable ReadStatement<6> selectExportedTypesForTypeIdStatement{
+        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
+        "exportedTypeNameId FROM exportedTypeNames WHERE typeId IN carray(?1, ?2, 'int64') AND "
+        "kind=1 ORDER BY moduleId, name, majorVersion, minorVersion",
+        database};
+    WriteStatement upsertExportedTypeNamesWithVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, majorVersion, minorVersion, typeId) "
+        "VALUES(?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT DO UPDATE SET typeId=excluded.typeId",
+        database};
+    WriteStatement upsertExportedTypeNamesWithMajorVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, majorVersion, typeId) "
+        "VALUES(?1, ?2, ?3, ?4, ?5) ON CONFLICT DO UPDATE SET typeId=excluded.typeId",
+        database};
+    WriteStatement upsertExportedTypeNamesWithoutVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, typeId) VALUES(?1, ?2, ?3, ?4) ON "
+        "CONFLICT DO UPDATE SET typeId=excluded.typeId",
+        database};
+    WriteStatement upsertExportedTypeNameStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, kind, typeId) VALUES(?1, ?2, ?3, ?4) ON "
+        "CONFLICT DO UPDATE SET typeId=excluded.typeId WHERE typeId IS NOT excluded.typeId",
+        database};
+    WriteStatement deleteExportedTypeNameStatement{
+        "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
+    WriteStatement updateExportedTypeNameTypeIdStatement{
+        "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
 };
 
 } // namespace QmlDesigner

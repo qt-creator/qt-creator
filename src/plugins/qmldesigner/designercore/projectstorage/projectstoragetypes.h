@@ -30,6 +30,7 @@
 #include <utils/smallstring.h>
 #include <utils/variant.h>
 
+#include <tuple>
 #include <vector>
 
 namespace QmlDesigner::Storage {
@@ -268,6 +269,13 @@ public:
         , version{version}
     {}
 
+    explicit ExportedType(Utils::SmallStringView name, Version version, TypeId typeId, ModuleId moduleId)
+        : name{name}
+        , version{version}
+        , typeId{typeId}
+        , moduleId{moduleId}
+    {}
+
     explicit ExportedType(Utils::SmallStringView name, int majorVersion, int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
@@ -281,9 +289,36 @@ public:
 public:
     Utils::SmallString name;
     Storage::Version version;
+    TypeId typeId;
+    ModuleId moduleId;
 };
 
 using ExportedTypes = std::vector<ExportedType>;
+
+class ExportedTypeView
+{
+public:
+    explicit ExportedTypeView() = default;
+    explicit ExportedTypeView(int moduleId,
+                              Utils::SmallStringView name,
+                              int majorVersion,
+                              int minorVersion,
+                              int typeId,
+                              long long exportedTypeNameId)
+        : name{name}
+        , version{majorVersion, minorVersion}
+        , typeId{typeId}
+        , moduleId{moduleId}
+        , exportedTypeNameId{exportedTypeNameId}
+    {}
+
+public:
+    Utils::SmallStringView name;
+    Storage::Version version;
+    TypeId typeId;
+    ModuleId moduleId;
+    ExportedTypeNameId exportedTypeNameId;
+};
 
 class NativeType
 {
@@ -591,6 +626,8 @@ public:
     PropertyDeclarationId aliasId;
 };
 
+enum class ChangeLevel { Full, Minimal };
+
 class Type
 {
 public:
@@ -605,7 +642,7 @@ public:
                   FunctionDeclarations functionDeclarations = {},
                   SignalDeclarations signalDeclarations = {},
                   EnumerationDeclarations enumerationDeclarations = {},
-                  TypeId typeId = TypeId{})
+                  ChangeLevel changeLevel = ChangeLevel::Full)
         : typeName{typeName}
         , prototype{std::move(prototype)}
         , exportedTypes{std::move(exportedTypes)}
@@ -616,7 +653,7 @@ public:
         , module{std::move(module)}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
-        , typeId{typeId}
+        , changeLevel{changeLevel}
     {}
 
     explicit Type(Utils::SmallStringView moduleName,
@@ -684,6 +721,8 @@ public:
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;
+    ModuleId moduleId;
+    ChangeLevel changeLevel = ChangeLevel::Full;
 };
 
 using Types = std::vector<Type>;

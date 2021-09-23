@@ -122,6 +122,19 @@ MATCHER_P(IsExportedType,
     return type.name == name;
 }
 
+MATCHER_P3(IsExportedType,
+           name,
+           majorVersion,
+           minorVersion,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::ExportedType{name,
+                                                     Storage::Version{majorVersion, minorVersion}}))
+{
+    const Storage::ExportedType &type = arg;
+
+    return type.name == name && type.version == Storage::Version{majorVersion, minorVersion};
+}
+
 MATCHER_P3(IsPropertyDeclaration,
            name,
            typeName,
@@ -417,6 +430,7 @@ protected:
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    //Sqlite::Database database{TESTDATA_DIR "/aaaa.db", Sqlite::JournalMode::Wal};
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
@@ -4495,6 +4509,46 @@ TEST_F(ProjectStorage, EnsureThatPrototypesForRemovedTypesAreNotAnymoreRelinked)
                         {});
 
     ASSERT_NO_THROW(storage.synchronize({}, {}, {}, {sourceId1, sourceId2}, {}));
+}
+
+TEST_F(ProjectStorage, MinimalUpdates)
+{
+    auto types = createTypes();
+    storage.synchronize(modules,
+                        imports,
+                        types,
+                        {sourceId1, sourceId2, moduleSourceId1, moduleSourceId2, moduleSourceId3},
+                        {});
+    Storage::Type quickType{Storage::Module{"QtQuick"},
+                            "QQuickItem",
+                            {},
+                            TypeAccessSemantics::Reference,
+                            sourceId1,
+                            {Storage::ExportedType{"Item", Storage::Version{2, 0}}},
+                            {},
+                            {},
+                            {},
+                            {},
+                            Storage::ChangeLevel::Minimal};
+
+    storage.synchronize({modules[1]}, {}, {quickType}, {moduleSourceId2}, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(AllOf(IsStorageType(Storage::Module{"Qml"},
+                                                         "QObject",
+                                                         Storage::NativeType{},
+                                                         TypeAccessSemantics::Reference,
+                                                         sourceId2),
+                                           Field(&Storage::Type::exportedTypes,
+                                                 UnorderedElementsAre(IsExportedType("Object"),
+                                                                      IsExportedType("Obj")))),
+                                     AllOf(IsStorageType(Storage::Module{"QtQuick"},
+                                                         "QQuickItem",
+                                                         Storage::NativeType{"QObject"},
+                                                         TypeAccessSemantics::Reference,
+                                                         sourceId1),
+                                           Field(&Storage::Type::exportedTypes,
+                                                 UnorderedElementsAre(IsExportedType("Item", 2, 0))))));
 }
 
 } // namespace
