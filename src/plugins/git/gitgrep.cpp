@@ -252,8 +252,8 @@ GitGrep::GitGrep(GitClient *client)
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
-            m_widget, [this](const QString &path) {
-        setEnabled(isGitDirectory(FilePath::fromString(path)));
+            m_widget, [this](const FilePath &path) {
+        setEnabled(isGitDirectory(path));
     });
     connect(this, &SearchEngine::enabledChanged, m_widget, &QWidget::setEnabled);
     findInFiles->addSearchEngine(this);

@@ -58,7 +58,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc) : d(new
     setDisplayStyle(PathChooserDisplay);
     setExpectedKind(Utils::PathChooser::Directory);
     setValidationFunction([this](FancyLineEdit *edit, QString *error) {
-        const FilePath fixedDir = fixupDir(FilePath::fromString(edit->text()));
+        const FilePath fixedDir = fixupDir(FilePath::fromUserInput(edit->text()));
         if (!fixedDir.isEmpty())
             edit->setText(fixedDir.toUserOutput());
         return pathChooser() ? pathChooser()->defaultValidationFunction()(edit, error) : true;

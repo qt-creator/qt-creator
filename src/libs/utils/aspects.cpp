@@ -1067,7 +1067,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setEnvironmentChange(d->m_environmentChange);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
-        d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
+        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
         addLabeledItem(builder, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());

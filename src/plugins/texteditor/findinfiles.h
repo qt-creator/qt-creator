@@ -63,7 +63,7 @@ public:
     static FindInFiles *instance();
 
 signals:
-    void pathChanged(const QString &directory);
+    void pathChanged(const Utils::FilePath &directory);
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,

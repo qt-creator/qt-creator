@@ -270,7 +270,7 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] {
         const QString text = d->m_lineEdit->text();
         emit pathChanged(text);
-        emit filePathChanged(FilePath::fromString(text));
+        emit filePathChanged(FilePath::fromUserInput(text));
     });
 
     d->m_lineEdit->setMinimumWidth(120);

@@ -247,7 +247,7 @@ BuildConfiguration::~BuildConfiguration()
 
 FilePath BuildConfiguration::buildDirectory() const
 {
-    FilePath path = FilePath::fromString(
+    FilePath path = FilePath::fromUserInput(
         environment().expandVariables(d->m_buildDirectoryAspect->value().trimmed()));
     path = macroExpander()->expand(path);
     path = path.cleanPath();

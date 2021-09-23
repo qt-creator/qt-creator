@@ -79,7 +79,7 @@ static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo
         } else if (valueForKey(avdInfoNameKey, line, &value)) {
             avd.avdname = value;
         } else if (valueForKey(avdInfoPathKey, line, &value)) {
-            const Utils::FilePath avdPath = Utils::FilePath::fromString(value);
+            const Utils::FilePath avdPath = Utils::FilePath::fromUserInput(value);
             if (avdPath.exists()) {
                 // Get ABI.
                 const Utils::FilePath configFile = avdPath.pathAppended("config.ini");
