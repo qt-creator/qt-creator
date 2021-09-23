@@ -133,14 +133,29 @@ TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager
     if (!astVisitor.testCases().isEmpty())
         return astVisitor.testCases();
 
-    // check pch usage - might give false positives, but we can't do better without cost
     TestCases result;
-    const QRegularExpression regex("\\bQTEST_(APPLESS_|GUILESS_)?MAIN"
+    const QRegularExpression regex("\\b(QTEST_(APPLESS_|GUILESS_)?MAIN)"
                                    "\\s*\\(\\s*([[:alnum:]]+)\\s*\\)");
-    QRegularExpressionMatchIterator it = regex.globalMatch(QString::fromUtf8(fileContent));
+    QRegularExpressionMatchIterator it = regex.globalMatch(QString::fromUtf8(document->utf8Source()));
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
-        result.append({match.captured(2), false});
+        const int start = match.capturedStart(1);
+        const int end = match.capturedEnd(1);
+
+        if (const auto *translationUnit = document->translationUnit()) {
+            bool commentedOut = false;
+            const int count = translationUnit->commentCount();
+            for (int curr = 0; curr < count; ++curr) {
+                CPlusPlus::Token token = translationUnit->commentAt(curr);
+                if (token.utf16charsBegin() <= start && token.utf16charsEnd() > end) {
+                    commentedOut = true;
+                    break;
+                }
+            }
+            if (commentedOut) // don't treat commented out macros as active
+                continue;
+        }
+        result.append({match.captured(3), false});
     }
     return result;
 }
