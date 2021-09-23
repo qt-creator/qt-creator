@@ -94,8 +94,10 @@
 
     \image qtquick-number-animation.gif "Number animation"
 
+    \if defined(qtdesignstudio)
     For an example of using property animation to animate the scale and opacity
     of components, see the \l{Coffee Machine} example.
+    \endif
 
     \section2 Setting Non-Animated Properties
 
