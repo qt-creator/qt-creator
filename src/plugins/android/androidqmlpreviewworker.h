@@ -25,8 +25,11 @@
 
 #pragma once
 #include "androidconfigurations.h"
+
 #include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
+
+#include <QFutureWatcher>
 
 namespace Android {
 class SdkToolResult;
@@ -45,6 +48,10 @@ class AndroidQmlPreviewWorker : public ProjectExplorer::RunWorker
     Q_OBJECT
 public:
     AndroidQmlPreviewWorker(ProjectExplorer::RunControl *runControl);
+    ~AndroidQmlPreviewWorker();
+
+signals:
+    void previewPidChanged();
 
 private:
     void start() override;
@@ -52,22 +59,33 @@ private:
 
     bool ensureAvdIsRunning();
     bool checkAndInstallPreviewApp();
-    bool prepareUpload(UploadInfo &transfer);
-    bool uploadFiles(const UploadInfo &transfer);
+    bool preparePreviewArtefacts();
+    bool uploadPreviewArtefacts();
 
-    bool runPreviewApp(const UploadInfo &transfer);
+    SdkToolResult runAdbCommand(const QStringList &arguments) const;
+    SdkToolResult runAdbShellCommand(const QStringList &arguments) const;
+    int pidofPreview() const;
+    bool isPreviewRunning(int lastKnownPid = -1) const;
+
+    void startPidWatcher();
+    void startLogcat();
+    void filterLogcatAndAppendMessage(const QString &stdOut);
+
+    bool startPreviewApp();
     bool stopPreviewApp();
 
-    void startLogcat();
-    void appendLogLines(const QStringList &lines);
-
+    Utils::FilePath designViewerApkPath(const QString &abi) const;
     Utils::FilePath createQmlrcFile(const Utils::FilePath &workFolder, const QString &basename);
 
     ProjectExplorer::RunControl *m_rc = nullptr;
-    AndroidConfig m_config;
-    AndroidDeviceInfo m_devInfo;
+    AndroidConfig m_androidConfig;
+    QString m_serialNumber;
     QStringList m_avdAbis;
     int m_viewerPid = -1;
+    QFutureWatcher<void> m_pidFutureWatcher;
+    Utils::QtcProcess m_logcatProcess;
+    QString m_logcatStartTimeStamp;
+    UploadInfo m_uploadInfo;
 };
 
 } // namespace Internal
