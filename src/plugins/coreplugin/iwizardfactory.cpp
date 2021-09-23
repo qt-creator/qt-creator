@@ -38,6 +38,7 @@
 #include <utils/wizard.h>
 
 #include <QAction>
+#include <QPainter>
 
 /*!
     \class Core::IWizardFactory
