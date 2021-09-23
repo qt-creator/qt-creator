@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -23,35 +23,36 @@
 **
 ****************************************************************************/
 
-// Note: The \page value is hard-coded as a link in Qt Bridge for Sketch.
+// Note: The \page value is hard-coded as a link in Qt Bridge for Adobe XD.
 
 /*!
-    \previouspage qtbridge-xd-using.html
-    \page sketchqtbridge.html
-    \nextpage qtbridge-sketch-setup.html
+    \previouspage qtbridge-ps-using.html
+    \page xdqtbridge.html
+    \nextpage qtbridge-xd-setup.html
 
-    \title Exporting Designs from Sketch
+    \title Exporting Designs from Adobe XD
 
-    You can use \QBSK to export designs from Sketch to \e {.metadata}
+    \note This is a \e {Technical Preview} release of the \QBXD. Some design
+    elements might not be exported and imported into \QDS as expected.
+
+    You can use \QBXD to export designs from Adobe XD to \e {.qtbridge}
     format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
-    \image studio-sketch-export.png
+    \image qt-bridge-xd.png
 
-    The following topics describe setting up and using \QBSK:
+    The following topics describe setting up and using \QBXD:
 
     \list
 
-        \li \l{Setting Up Qt Bridge for Sketch}
+        \li \l{Setting Up Qt Bridge for Adobe XD}
 
-            You must install Sketch and the \QBSK export tool before you can use
-            the tool to export designs.
+            You must install and set up the \QBXD export plugin before you can use
+            it to export designs.
 
-        \li \l{Using Qt Bridge for Sketch}
+        \li \l{Using Qt Bridge for Adobe XD}
 
-            To get the best results when you use \QBSK to export designs from
-            Sketch, you should follow the guidelines for working with Sketch and
-            organizing your assets.
+            To get the best results when you use \QB to export designs from
+            Adobe XD, you should follow the guidelines for working with
+            Adobe XD and organizing your assets.
     \endlist
-
-    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 */

@@ -1,0 +1,219 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Bridge documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage qtbridge-xd-setup.html
+    \page qtbridge-xd-using.html
+    \nextpage sketchqtbridge.html
+
+    \title Using \QBXD
+
+    \section1 Organizing Assets
+
+    To get the best results when you use \QBXD to export designs from Adobe XD
+    to \QDS, follow these guidelines when working with Adobe XD:
+
+    \list
+        \li Arrange your design into \e artboards and organize it into groups and
+            layers that are imported into \QDS as separate files.
+        \li Use descriptive and unique IDs to avoid duplicate asset names and IDs
+            in the generated UI.
+    \endlist
+
+
+    To use the fonts that you use in Adobe XD also in \QDS, you need to import
+    them to \QDS as assets. \QDS deploys them to devices when you preview the
+    UI. For more information, see \l{Using Custom Fonts}.
+
+
+    \section2 Supported Design Elements
+
+    You can export the following parts of your design using \QBXD:
+    \list
+        \li Artboard
+        \li Group
+        \li Shapes (Rectangle, Ellipse, Polygon, Line, Pen)
+        \li Text
+    \endlist
+
+    The following design elements might not be exported as expected.
+    \list
+        \li Components
+        \li Prototype
+        \li Repeat Grid
+    \endlist
+
+
+    \section2 Using Artboards
+
+    The hierarchical relationships between artboards and layers are preserved
+    when you export designs from Adobe XD and import them into \QDS. The
+    relationships are the basis of how the Items are organized in the generated
+    code in \QDS.
+
+    An artboard can only be exported as a component or skipped. A component will
+    be imported as a separate file that contains the artwork and text on the
+    artboard.
+
+    \section2 Annotate Layers for Export
+
+    With \QBXD, layers can be annotated to hint how each layer or group must be
+    exported. \uicontrol The {Home} panel displays and allows layer annotation for
+    export:
+
+    \image qt-bridge-xd-home.png
+
+    \list 1
+        \li \QBXD automatically proposes identifiers for all groups and layers
+            that you can change in the \uicontrol {ID} field. Use unique and
+            descriptive IDs to avoid duplicate IDs when the layer and the
+            respective artwork is imported into \QDS. Even though the importer
+            in \QDS is capable of fixing duplicate IDs, doing so will generate
+            warnings. It is recommend that you should manually check all the
+            IDs to make them unique and descriptive.
+
+        \li In the \uicontrol {Export As} field, select the export type for the
+            group or layer:
+            \list
+                \li \uicontrol Component exports the layer as a separate UI file
+                    that contains all the exportable artwork and text in it. Only
+                    Artboards can be exported as components.
+                \li \uicontrol Child exports each asset of the selected group
+                    or layer a separate PNG file, with references
+                    to the images in the component file.
+                \li \uicontrol Merged merges the rendition of the selected groups
+                    and layers into the rendition of parent artboard or group as
+                    one item.
+                \li \uicontrol Skipped completely skips the selected layer.
+            \endlist
+        \li In the \uicontrol {Component} field, specify the component or
+            \l {Shapes}{Qt Quick Studio Component} to morph this
+            layer into. The component that is generated during import will be
+            of this type. For example, if you drew a rectangle, you can export
+            it as a \l {basic-rectangle}{Rectangle} component.
+            You can provide the import statement of the module where the
+            component is defined in the \uicontrol {Imports} field.
+            \note The implicit properties except position and size are not
+            applied when the \uicontrol {Component} is defined. For example, all text
+            properties will be ignored if \uicontrol {Component} is defined
+            for a text layer, but explicit properties defined in the \uicontrol
+            {Properties} field will be applied.
+        \li In the \uicontrol {Imports} field, enter additional import statements
+            to have them added to the generated code file. For example, to use
+            Qt Quick Controls 2.3, you need the import statement
+            \c {QtQuick.Controls 2.3} and to use Qt Quick Studio Components 1.0,
+            you need the import statement \c {QtQuick.Studio.Components 1.0}.
+            You can also import a module as an alias.
+        \li In the \uicontrol {Properties} field, specify properties for the
+            component. You can add and modify properties in \QDS.
+        \li Select the \uicontrol Clip check box to enable clipping in the
+            component generated from the layer. The generated component will clip
+            its own painting, as well as the painting of its children, to its
+            bounding rectangle.
+        \li Select the \uicontrol Visible check box to determine the visibility
+            of the layer in the generated UI in \QDS.
+        \li Select \uicontrol Export to export the document into a .qtbridge
+            archive.
+    \endlist
+
+
+    \section2 Export Defaults
+
+    \QBXD assigns the following defaults to the layers:
+
+    By default:
+    \list
+        \li Artboards are exported as \e components.
+        \li Immediate children of an Artboard and Text layers are exported as
+            \e child.
+        \li Any layer not falling under the aforementioned criteria is exported
+            as \e merged.
+        \li Images are exported as PNGs by default with no Hi-DPI images.
+        \li \uicontrol Visible is set to \c true.
+    \endlist
+
+    All the assets and metadata are copied to the directory you specified. This
+    might take a little while depending on the complexity of your project.
+
+    You can now create a project in \QDS and import the assets to it, as
+    described in \l {Creating Projects} and \l{Importing Designs}.
+
+    \section1 \QBXD Settings
+
+    Select \uicontrol Settings to change the export settings.
+
+    \image qt-bridge-xd-menu.png
+
+    \image qt-bridge-xd-settings.png
+
+
+    \list 1
+        \li Select \uicontrol {Reset All} to remove all of the \QB data
+            stored in the document. Use \uicontrol {Edit} > \uicontrol {Undo}
+            to restore the data if you accidentally removed it.
+        \li You can export images into PNG, JPG or SVG format. In the section
+            \uicontrol {Export Formats}, select the image format to
+            export.
+        \li Depending on the image format selected for export, the
+            \uicontrol {Format Options} allows fine tuning the exported
+            image.
+            \list
+                \li Select \uicontrol {Hi-DPI Assets} to generate Hi-DPI
+                    images alongside normal scale images. Being a vector format,
+                    this option is not available for SVG format.
+                \li Select \uicontrol {SVG Minify} to minify the SVG.
+                \li Select \uicontrol {JPG Quality} to specify the JPG
+                    compression quality in the range [1, 100].
+            \endlist
+    \endlist
+
+    \section1 Suggestions and Tips
+
+    You can export assets using the default settings and make all the changes
+    later in \QDS. If you are familiar with the \l{QML Syntax Basics}
+    {QML syntax}, you can modify the settings to tailor the generated code to
+    a certain degree. For example, you can specify the component or
+    \l {Shapes}{Qt Quick Studio Component} to use for a component or
+    layer. If you have drawn an arc that you mean to animate, you can export it
+    as an \l Arc component to avoid having to replace the arc image with an Arc
+    component in \QDS. Or you could export a button as a Qt Quick Controls
+    \l Button component.
+
+    \list
+        \li Name the layers in exactly the same way as your IDs, to be able to
+            find artwork later, especially as the export files can grow very
+            large and complicated as they approach the level of a complete UI
+            project.
+        \li Make sure to skip all artboards that you don't want to be part of
+            the final UI to avoid cluttering the \QDS project. You can select
+            multiple artboards on a page and then select \uicontrol Skip in \QBXD
+            to skip them.
+        \li Store all assets in the scalable vector graphics (SVG) format to be
+            able to easily rescale them for different screen sizes and resolutions.
+            You can export assets into JPG, PNG, or SVG format and select options
+            for optimizing them during the export.
+    \endlist
+
+*/
