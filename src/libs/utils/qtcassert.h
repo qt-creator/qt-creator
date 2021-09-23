@@ -27,7 +27,10 @@
 
 #include "utils_global.h"
 
-namespace Utils { QTCREATOR_UTILS_EXPORT void writeAssertLocation(const char *msg); }
+namespace Utils {
+QTCREATOR_UTILS_EXPORT void writeAssertLocation(const char *msg);
+QTCREATOR_UTILS_EXPORT void dumpBacktrace(int maxdepth);
+} // Utils
 
 #define QTC_ASSERT_STRINGIFY_HELPER(x) #x
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
