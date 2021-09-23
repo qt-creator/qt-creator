@@ -319,7 +319,7 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
     // adapted copy from QHelpIndexModel
 
     if (filter.isEmpty() && wildcard.isEmpty()) {
-        int count = sourceModel()->rowCount();
+        const int count = sourceModel()->rowCount();
         m_toSource.reserve(count);
         for (int i = 0; i < count; ++i)
             m_toSource.append(i);
@@ -329,55 +329,48 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
         return index(0, 0);
     }
 
-    QHelpIndexModel *indexModel = qobject_cast<QHelpIndexModel *>(sourceModel());
-    const QStringList indices = indexModel->stringList();
-    int goodMatch = -1;
-    int perfectMatch = -1;
+    const QStringList indices = static_cast<QHelpIndexModel *>(sourceModel())->stringList();
 
-    if (!wildcard.isEmpty()) {
+    const auto match = [this, &indices, &filter] (std::function<bool(const QString &)> matcher) {
+        int goodMatch = -1;
+        int perfectMatch = -1;
+        int i = 0;
+        for (const QString &index : indices) {
+            if (matcher(index)) {
+                m_toSource.append(i);
+                if (perfectMatch == -1 && index.startsWith(filter, Qt::CaseInsensitive)) {
+                    if (goodMatch == -1)
+                        goodMatch = m_toSource.size() - 1;
+                    if (filter.length() == index.length()){
+                        perfectMatch = m_toSource.size() - 1;
+                    }
+                } else if (perfectMatch > -1 && index == filter) {
+                    perfectMatch = m_toSource.size() - 1;
+                }
+            }
+            ++i;
+        }
+        return perfectMatch >= 0 ? perfectMatch : goodMatch;
+    };
+
+    const auto matchSimpleOrRegExp = [&] () {
+        if (wildcard.isEmpty()) {
+            return match([&filter] (const QString &index) {
+                return index.contains(filter, Qt::CaseInsensitive);
+            });
+        }
         const QRegularExpression regExp(QRegularExpression::wildcardToRegularExpression(wildcard),
                                         QRegularExpression::CaseInsensitiveOption);
-        int i = 0;
-        for (const QString &index : indices) {
-            if (index.contains(regExp)) {
-                m_toSource.append(i);
-                if (perfectMatch == -1 && index.startsWith(filter, Qt::CaseInsensitive)) {
-                    if (goodMatch == -1)
-                        goodMatch = m_toSource.size() - 1;
-                    if (filter.length() == index.length()){
-                        perfectMatch = m_toSource.size() - 1;
-                    }
-                } else if (perfectMatch > -1 && index == filter) {
-                    perfectMatch = m_toSource.size() - 1;
-                }
-            }
-            ++i;
-        }
-    } else {
-        int i = 0;
-        for (const QString &index : indices) {
-            if (index.contains(filter, Qt::CaseInsensitive)) {
-                m_toSource.append(i);
-                if (perfectMatch == -1 && index.startsWith(filter, Qt::CaseInsensitive)) {
-                    if (goodMatch == -1)
-                        goodMatch = m_toSource.size() - 1;
-                    if (filter.length() == index.length()){
-                        perfectMatch = m_toSource.size() - 1;
-                    }
-                } else if (perfectMatch > -1 && index == filter) {
-                    perfectMatch = m_toSource.size() - 1;
-                }
-            }
-            ++i;
-        }
-    }
+        return match([&regExp] (const QString &index) {
+            return index.contains(regExp);
+        });
+    };
+    const int matchedIndex = matchSimpleOrRegExp();
 
     endResetModel();
-    if (goodMatch == -1)
+    if (matchedIndex == -1)
         return {};
-    if (perfectMatch == -1)
-        perfectMatch = qMax(0, goodMatch);
-    return index(perfectMatch, 0);
+    return index(matchedIndex, 0);
 }
 
 QModelIndex IndexFilterModel::mapToSource(const QModelIndex &proxyIndex) const
