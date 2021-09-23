@@ -624,7 +624,7 @@ void ClangdTestTooltips::test()
 
     if (client()->versionNumber() < QVersionNumber(14)
             && QLatin1String(QTest::currentDataTag()) == QLatin1String("IncludeDirective")) {
-        QSKIP("FIXME: clangd sends empty or no hover data for includes");
+        QSKIP("clangd <= 13 sends empty or no hover data for includes");
     }
 
     QTimer timer;
