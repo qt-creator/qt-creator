@@ -26,7 +26,7 @@
 import platform
 import struct
 import re
-from dumper import Children, SubItem, UnnamedSubItem, DumperBase
+from dumper import Children, SubItem, UnnamedSubItem, toInteger, DumperBase
 from utils import DisplayFormat, TypeCode
 
 
@@ -3106,7 +3106,7 @@ def qdumpHelper_QJsonValue(d, data, base, pv):
     if t == 2:
         d.putType('QJsonValue (Number)')
         if latinOrIntValue:
-            w = int(v)
+            w = toInteger(v)
             if w >= 0x4000000:
                 w -= 0x8000000
             d.putValue(w)

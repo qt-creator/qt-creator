@@ -46,6 +46,12 @@ except:
     pass
 
 
+if sys.version_info[0] >= 3:
+    toInteger = int
+else:
+    toInteger = long
+
+
 class ReportItem():
     """
     Helper structure to keep temporary 'best' information about a value
@@ -511,7 +517,7 @@ class DumperBase():
                         item = item[:-1]
                     if item.endswith('u'):
                         item = item[:-1]
-                    val = int(item)
+                    val = toInteger(item)
                     if val > 0x80000000:
                         val -= 0x100000000
                     res.append(val)
@@ -523,6 +529,9 @@ class DumperBase():
     # Hex decoding operating on str, return str.
     @staticmethod
     def hexdecode(s, encoding='utf8'):
+        if sys.version_info[0] == 2:
+            # For python2 we need an extra str() call to return str instead of unicode
+            return str(s.decode('hex').decode(encoding))
         return bytes.fromhex(s).decode(encoding)
 
     # Hex encoding operating on str or bytes, return str.
@@ -530,6 +539,10 @@ class DumperBase():
     def hexencode(s):
         if s is None:
             s = ''
+        if sys.version_info[0] == 2:
+            if isinstance(s, buffer):
+                return bytes(s).encode('hex')
+            return s.encode('hex')
         if isinstance(s, str):
             s = s.encode('utf8')
         return base64.b16encode(s).decode('utf8')
@@ -885,7 +898,7 @@ class DumperBase():
         self.check(ref < 1000000)
 
     def checkIntType(self, thing):
-        if not isinstance(thing, int):
+        if not self.isInt(thing):
             raise RuntimeError('Expected an integral value, got %s' % type(thing))
 
     def readToFirstZero(self, base, tsize, maximum):
@@ -1024,7 +1037,8 @@ class DumperBase():
     def putType(self, typish, priority=0):
         # Higher priority values override lower ones.
         if priority >= self.currentType.priority:
-            if isinstance(typish, str):
+            types = (str) if sys.version_info[0] >= 3 else (str, unicode)
+            if isinstance(typish, types):
                 self.currentType.value = typish
             else:
                 self.currentType.value = typish.name
@@ -1138,7 +1152,7 @@ class DumperBase():
     def cleanAddress(self, addr):
         if addr is None:
             return '<no address>'
-        return '0x%x' % int(hex(addr), 16)
+        return '0x%x' % toInteger(hex(addr), 16)
 
     def stripNamespaceFromType(self, typeName):
         ns = self.qtNamespace()
@@ -1708,7 +1722,7 @@ class DumperBase():
     def split(self, pattern, value):
         if isinstance(value, self.Value):
             return value.split(pattern)
-        if isinstance(value, int):
+        if self.isInt(value):
             val = self.Value(self)
             val.laddress = value
             return val.split(pattern)
@@ -1773,12 +1787,12 @@ class DumperBase():
         stringdataOffset = ptrSize
         if self.isWindowsTarget() and self.qtVersion() >= 0x060000:
             stringdataOffset += ptrSize # indirect super data member
-        stringdata = self.extractPointer(int(metaObjectPtr) + stringdataOffset)
+        stringdata = self.extractPointer(toInteger(metaObjectPtr) + stringdataOffset)
 
         def unpackString(base, size):
             try:
                 s = struct.unpack_from('%ds' % size, self.readRawMemory(base, size))[0]
-                return s.decode('utf8')
+                return s if sys.version_info[0] == 2 else s.decode('utf8')
             except:
                 return '<not available>'
 
@@ -1788,7 +1802,7 @@ class DumperBase():
 
         if revision >= 7:  # Qt 5.
             byteArrayDataSize = 24 if ptrSize == 8 else 16
-            literal = stringdata + int(index) * byteArrayDataSize
+            literal = stringdata + toInteger(index) * byteArrayDataSize
             base, size, _ = self.qArrayDataHelper(literal)
             return unpackString(base, size)
 
@@ -2324,7 +2338,7 @@ class DumperBase():
         return self.extractSomething(value, 'b', 8)
 
     def extractSomething(self, value, pattern, bitsize):
-        if isinstance(value, int):
+        if self.isInt(value):
             val = self.Value(self)
             val.laddress = value
             return val.extractSomething(pattern, bitsize)
@@ -2521,10 +2535,13 @@ class DumperBase():
         return msg
 
     def reloadDumpers(self, args):
-        import importlib
         for mod in self.dumpermodules:
             m = sys.modules[mod]
-            importlib.reload(m)
+            if sys.version_info[0] >= 3:
+                import importlib
+                importlib.reload(m)
+            else:
+                reload(m)
         self.setupDumpers(args)
 
     def loadDumpers(self, args):
@@ -2708,9 +2725,12 @@ class DumperBase():
     def extractInterpreterStack(self):
         return self.sendInterpreterRequest('backtrace', {'limit': 10})
 
-    def isInt(self, thing): # Unused since 6.0
+    def isInt(self, thing):
         if isinstance(thing, int):
             return True
+        if sys.version_info[0] == 2:
+            if isinstance(thing, long):
+                return True
         return False
 
     def putItems(self, count, generator, maxNumChild=10000):
@@ -2943,7 +2963,7 @@ class DumperBase():
             return self._type
 
         def check(self):
-            if self.laddress is not None and not isinstance(self.laddress, int):
+            if self.laddress is not None and not self.dumper.isInt(self.laddress):
                 raise RuntimeError('INCONSISTENT ADDRESS: %s' % type(self.laddress))
             if self.type is not None and not isinstance(self.type, self.dumper.Type):
                 raise RuntimeError('INCONSISTENT TYPE: %s' % type(self.type))
@@ -2975,6 +2995,8 @@ class DumperBase():
             if simple is not None:
                 return str(simple)
             #if self.ldata is not None:
+            #    if sys.version_info[0] == 2 and isinstance(self.ldata, buffer):
+            #        return bytes(self.ldata).encode('hex')
             #    return self.ldata.encode('hex')
             if self.laddress is not None:
                 return 'value of type %s at address 0x%x' % (self.type.name, self.laddress)
@@ -3116,7 +3138,7 @@ class DumperBase():
                 return res
             elif isinstance(index, self.dumper.Field):
                 field = index
-            elif isinstance(index, int):
+            elif self.dumper.isInt(index):
                 if self.type.code == TypeCode.Array:
                     addr = self.laddress + int(index) * self.type.ltarget.size()
                     return self.dumper.createValue(addr, self.type.ltarget)
@@ -3179,7 +3201,10 @@ class DumperBase():
                         lbyte = ldata[i]
                     else:
                         lbyte = ldata[fieldOffset + fieldSize - 1 - i]
-                    data += lbyte
+                    if sys.version_info[0] >= 3:
+                        data += lbyte
+                    else:
+                        data += ord(lbyte)
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
                 val.lvalue = data
@@ -3238,7 +3263,7 @@ class DumperBase():
 
         def __add__(self, other):
             self.check()
-            if isinstance(other, int):
+            if self.dumper.isInt(other):
                 stripped = self.type.stripTypedefs()
                 if stripped.code == TypeCode.Pointer:
                     address = self.pointer() + stripped.dereference().size() * other
@@ -3312,7 +3337,10 @@ class DumperBase():
 
         def zeroExtend(self, data, size):
             ext = '\0' * (size - len(data))
-            pad = bytes(ext, encoding='latin1')
+            if sys.version_info[0] == 3:
+                pad = bytes(ext, encoding='latin1')
+            else:
+                pad = bytes(ext)
             return pad + data if self.dumper.isBigEndian else data + pad
 
         def cast(self, typish):
@@ -3406,7 +3434,7 @@ class DumperBase():
             return tuple(map(structFixer, fields, result))
 
     def checkPointer(self, p, align=1):
-        ptr = p if isinstance(p, int) else p.pointer()
+        ptr = p if self.isInt(p) else p.pointer()
         self.readRawMemory(ptr, 1)
 
     def type(self, typeId):
@@ -3522,7 +3550,7 @@ class DumperBase():
                 % (tdata.name, tdata.lbitsize, tdata.code)
 
         def __getitem__(self, index):
-            if isinstance(index, int):
+            if self.dumper.isInt(index):
                 return self.templateArgument(index)
             raise RuntimeError('CANNOT INDEX TYPE')
 
@@ -3715,7 +3743,7 @@ class DumperBase():
         return 'I' if self.ptrSize() == 4 else 'Q'
 
     def toPointerData(self, address):
-        if not isinstance(address, int):
+        if not self.isInt(address):
             raise RuntimeError('wrong')
         return bytes(struct.pack(self.packCode + self.ptrCode(), address))
 
@@ -3726,7 +3754,7 @@ class DumperBase():
         if not isinstance(targetTypish, self.Type) and not isinstance(targetTypish, str):
             raise RuntimeError('Expected type in createPointerValue(), got %s'
                                % type(targetTypish))
-        if not isinstance(targetAddress, int):
+        if not self.isInt(targetAddress):
             raise RuntimeError('Expected integral address value in createPointerValue(), got %s'
                                % type(targetTypish))
         val = self.Value(self)
@@ -3741,7 +3769,7 @@ class DumperBase():
         if not isinstance(targetType, self.Type):
             raise RuntimeError('Expected type in createReferenceValue(), got %s'
                                % type(targetType))
-        if not isinstance(targetAddress, int):
+        if not self.isInt(targetAddress):
             raise RuntimeError('Expected integral address value in createReferenceValue(), got %s'
                                % type(targetType))
         val = self.Value(self)
@@ -3925,7 +3953,7 @@ class DumperBase():
     def createValue(self, datish, typish):
         val = self.Value(self)
         val._type = self.createType(typish)
-        if isinstance(datish, int):  # Used as address.
+        if self.isInt(datish):  # Used as address.
             #DumperBase.warn('CREATING %s AT 0x%x' % (val.type.name, datish))
             val.laddress = datish
             if self.useDynamicType:
