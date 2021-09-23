@@ -165,7 +165,6 @@ Project {
             name: "shared"
             prefix: "shared/"
             files: [
-                "backtrace.cpp", "backtrace.h",
                 "cdbsymbolpathlisteditor.cpp",
                 "cdbsymbolpathlisteditor.h",
                 "hostutils.cpp", "hostutils.h",
