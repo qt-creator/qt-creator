@@ -184,7 +184,6 @@ void AndroidRunner::launchAVD()
     if (!m_target || !m_target->project())
         return;
 
-    int deviceAPILevel = AndroidManager::minimumSDK(m_target);
     QStringList androidAbis = AndroidManager::applicationAbis(m_target);
 
     // Get AVD info

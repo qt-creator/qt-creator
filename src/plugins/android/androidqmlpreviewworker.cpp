@@ -262,7 +262,6 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
 
     if (!avdMan.isAvdBooted(devSN)) {
         m_devInfo = {};
-        int minTargetApi = AndroidManager::minimumSDK(m_rc->target()->kit());
         using namespace ProjectExplorer;
         const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).data();
         AndroidDeviceInfo devInfoLocal = AndroidDevice::androidDeviceInfoFromIDevice(dev);

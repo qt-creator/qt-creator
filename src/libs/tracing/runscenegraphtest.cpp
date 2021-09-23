@@ -37,6 +37,7 @@
 
 namespace Timeline {
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 static void renderMessageHandler(QtMsgType type, const QMessageLogContext &context,
                                  const QString &message)
 {
@@ -45,6 +46,7 @@ static void renderMessageHandler(QtMsgType type, const QMessageLogContext &conte
     else
         QTest::qWarn(message.toLatin1().constData(), context.file, context.line);
 }
+#endif // < Qt 6
 
 void runSceneGraphTest(QSGNode *node)
 {
@@ -78,6 +80,8 @@ void runSceneGraphTest(QSGNode *node)
 
     // Unfortunately we cannot check the results of the rendering. But at least we know the shaders
     // have not crashed here.
+#else
+    Q_UNUSED(node)
 #endif // < Qt 6
 
     context.doneCurrent();

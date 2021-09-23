@@ -396,7 +396,6 @@ void QmakeProjectManagerPlugin::testMakefileParser_data()
     QTest::addColumn<QString>("command");
     QTest::addColumn<QString>("project");
     QTest::addColumn<QString>("unparsedArguments");
-    QTest::addColumn<int>("archConfig");
     QTest::addColumn<int>("osType");
     QTest::addColumn<bool>("linkQmlDebuggingQQ2");
     QTest::addColumn<bool>("useQtQuickCompiler");
@@ -407,85 +406,85 @@ void QmakeProjectManagerPlugin::testMakefileParser_data()
             << QString::fromLatin1("-spec linux-g++ CONFIG+=debug CONFIG+=qml_debug -o Makefile ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.7 extra1")
             << QString::fromLatin1("SOMETHING=ELSE -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug -o Makefile ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.7 extra2")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE CONFIG+=debug CONFIG+=qml_debug -o Makefile ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.7 extra3")
             << QString::fromLatin1("-spec linux-g++ CONFIG+=debug SOMETHING=ELSE CONFIG+=qml_debug -o Makefile ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.7 extra4")
             << QString::fromLatin1("-spec linux-g++ CONFIG+=debug CONFIG+=qml_debug SOMETHING=ELSE -o Makefile ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.7 extra5")
             << QString::fromLatin1("-spec linux-g++ CONFIG+=debug CONFIG+=qml_debug -o Makefile SOMETHING=ELSE ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.7 extra6")
             << QString::fromLatin1("-spec linux-g++ CONFIG+=debug CONFIG+=qml_debug -o Makefile ../untitled7/untitled7.pro SOMETHING=ELSE")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8")
             << QString::fromLatin1("-o Makefile ../untitled7/untitled7.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8 extra1")
             << QString::fromLatin1("SOMETHING=ELSE -o Makefile ../untitled7/untitled7.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8 extra2")
             << QString::fromLatin1("-o Makefile SOMETHING=ELSE ../untitled7/untitled7.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8 extra3")
             << QString::fromLatin1("-o Makefile ../untitled7/untitled7.pro SOMETHING=ELSE -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8 extra4")
             << QString::fromLatin1("-o Makefile ../untitled7/untitled7.pro -spec linux-g++ SOMETHING=ELSE CONFIG+=debug CONFIG+=qml_debug")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8 extra5")
             << QString::fromLatin1("-o Makefile ../untitled7/untitled7.pro -spec linux-g++ CONFIG+=debug SOMETHING=ELSE CONFIG+=qml_debug")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
     QTest::newRow("Qt 5.8 extra6")
             << QString::fromLatin1("-o Makefile ../untitled7/untitled7.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug SOMETHING=ELSE")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
-            << static_cast<int>(QMakeStepConfig::NoArch) << static_cast<int>(QMakeStepConfig::NoOsType)
+            << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
 }
 
@@ -494,7 +493,6 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     QFETCH(QString, command);
     QFETCH(QString, project);
     QFETCH(QString, unparsedArguments);
-    QFETCH(int, archConfig);
     QFETCH(int, osType);
     QFETCH(bool, linkQmlDebuggingQQ2);
     QFETCH(bool, useQtQuickCompiler);

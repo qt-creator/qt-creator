@@ -247,6 +247,9 @@ int IndexFilterModel::columnCount(const QModelIndex &parent) const
 QVariant IndexFilterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     // we don't show header
+    Q_UNUSED(section)
+    Q_UNUSED(orientation)
+    Q_UNUSED(role)
     return {};
 }
 

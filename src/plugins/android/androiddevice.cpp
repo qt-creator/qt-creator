@@ -426,7 +426,7 @@ void AndroidDeviceManager::devicesListUpdated()
     }
 
     // Set devices no longer connected to disconnected state.
-    for (const IDevice::ConstPtr dev : existingDevs) {
+    for (const IDevice::ConstPtr &dev : existingDevs) {
         if (dev->id() != Constants::ANDROID_DEVICE_ID && !connectedDevs.contains(dev)
                 && dev->deviceState() != IDevice::DeviceDisconnected) {
             qCDebug(androidDeviceLog, "Device id \"%s\" is no longer connected.",
@@ -443,7 +443,7 @@ AndroidDeviceManager *AndroidDeviceManager::instance()
 }
 
 AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
-    : m_androidConfig(AndroidConfigurations::currentConfig())
+    : QObject(parent), m_androidConfig(AndroidConfigurations::currentConfig())
 {
     connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
         m_devicesUpdaterTimer.stop();

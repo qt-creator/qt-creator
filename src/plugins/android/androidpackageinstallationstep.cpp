@@ -136,7 +136,7 @@ FilePath AndroidPackageInstallationStep::androidBuildDirectory() const
 FilePath AndroidPackageInstallationStep::buildDirectory() const
 {
     if (const BuildSystem *bs = buildSystem())
-        return buildSystem()->buildTarget(target()->activeBuildKey()).workingDirectory;
+        return bs->buildTarget(target()->activeBuildKey()).workingDirectory;
     return {};
 }
 

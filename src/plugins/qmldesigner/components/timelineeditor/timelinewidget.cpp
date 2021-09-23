@@ -292,6 +292,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     connect(graphicsScene()->layoutRuler(), &TimelineRulerSectionItem::playbackLoopValuesChanged, updatePlaybackLoopValues);
 
     auto setPlaybackState = [this](QAbstractAnimation::State newState, QAbstractAnimation::State oldState) {
+        Q_UNUSED(oldState)
         m_toolbar->setPlayState(newState == QAbstractAnimation::State::Running);
     };
     connect(m_playbackAnimation, &QVariantAnimation::stateChanged, setPlaybackState);
@@ -431,7 +432,6 @@ void TimelineWidget::updatePlaybackValues()
         if (m_playbackAnimation->state() == QAbstractAnimation::Running)
             m_playbackAnimation->stop();
     }
-    qreal a = m_playbackAnimation->duration();
     qreal newCurrentTime = (currentTimeline.currentKeyframe() - startFrame) * (1.0 / m_playbackSpeed);
     if (qRound(m_playbackAnimation->startValue().toDouble()) != qRound(startFrame)
         || qRound(m_playbackAnimation->endValue().toDouble()) != qRound(endFrame)) {
