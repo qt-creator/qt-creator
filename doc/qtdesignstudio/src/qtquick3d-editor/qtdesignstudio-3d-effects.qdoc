@@ -38,10 +38,14 @@
     \uicontrol {Qt Quick 3D Effects} to a \uicontrol View3D component in
     \l Navigator.
 
-    You can use the \l Effect component available in \uicontrol
-    {Qt Quick 3D Effects} > \uicontrol {Custom Shader Utils} as the base
+    You can use the \l Effect component available in \uicontrol Library >
+    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} as the base
     component for creating custom post-processing effects. For more information,
     see \l {Custom Effects and Materials} and \l {Custom Shaders}.
+    \note In \uicontrol {Qt 5}, the \uicontrol Effect component is located
+    in \uicontrol {Qt Quick 3D Effects} >
+    \uicontrol {Qt Quick 3D Custom Shader Utilities}.
+
 
     You can apply multiple effects to a scene. Select the \uicontrol
     {Scene Environment} component in \uicontrol Navigator to view the applied
