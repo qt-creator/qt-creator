@@ -433,10 +433,7 @@ void ClangModelManagerSupport::watchForExternalChanges()
             if (client && client->state() != Client::Shutdown
                     && client->state() != Client::ShutdownRequested
                     && !projectIsParsing(client->project())) {
-
-                // FIXME: Lots of const-incorrectness along the call chain of updateLanguageClient().
-                const auto project = const_cast<ProjectExplorer::Project *>(client->project());
-
+                ProjectExplorer::Project * const project = client->project();
                 updateLanguageClient(project, CppModelManager::instance()->projectInfo(project));
             }
         }

@@ -928,7 +928,7 @@ void Client::executeCommand(const Command &command)
         sendContent(ExecuteCommandRequest(ExecuteCommandParams(command)));
 }
 
-const ProjectExplorer::Project *Client::project() const
+ProjectExplorer::Project *Client::project() const
 {
     return m_project;
 }

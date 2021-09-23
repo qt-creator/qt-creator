@@ -157,7 +157,7 @@ public:
 
     // workspace control
     virtual void setCurrentProject(ProjectExplorer::Project *project);
-    const ProjectExplorer::Project *project() const;
+    ProjectExplorer::Project *project() const;
     virtual void projectOpened(ProjectExplorer::Project *project);
     virtual void projectClosed(ProjectExplorer::Project *project);
 
@@ -280,7 +280,7 @@ private:
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
-    const ProjectExplorer::Project *m_project = nullptr;
+    ProjectExplorer::Project *m_project = nullptr;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
     ProgressManager m_progressManager;
