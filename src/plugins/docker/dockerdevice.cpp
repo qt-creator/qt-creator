@@ -877,7 +877,9 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
     if (!m_container.isEmpty() || DockerPlugin::isDaemonRunning().value_or(true) == false)
         return;
 
-    startContainer();
+    if (!m_shell)
+        startContainer();
+
     if (!DockerPlugin::isDaemonRunning().value_or(false))
         return;
     QtcProcess proc;
