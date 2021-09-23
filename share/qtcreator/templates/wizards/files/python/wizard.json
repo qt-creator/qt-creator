@@ -7,6 +7,7 @@
     "trDisplayName": "Python File",
     "trDisplayCategory": "Python",
     "icon": "icon.png",
+    "iconKind": "Themed",
     "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
 
     "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-python')}" },

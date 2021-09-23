@@ -7,6 +7,7 @@
     "trDisplayName": "C++ Library",
     "trDisplayCategory": "Library",
     "icon": "../../global/lib.png",
+    "iconKind": "Themed",
     "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0)}",
 
     "options":

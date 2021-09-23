@@ -34,6 +34,7 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/selectablefilesmodel.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -169,7 +170,7 @@ SimpleProjectWizard::SimpleProjectWizard()
 {
     setSupportedProjectTypes({QmakeProjectManager::Constants::QMAKEPROJECT_ID,
                               CMakeProjectManager::Constants::CMAKE_PROJECT_ID});
-    setIcon(QIcon(QLatin1String(":/projectexplorer/images/importasproject.png")));
+    setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
     setDisplayName(tr("Import as qmake or cmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.<p>"

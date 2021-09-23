@@ -433,7 +433,8 @@ void IWizardFactory::initialize()
 static QIcon iconWithText(const QIcon &icon, const QString &text)
 {
     if (icon.isNull()) {
-        static const QIcon fallBack(":/utils/images/wizardicon-file.png");
+        static const QIcon fallBack =
+                IWizardFactory::themedIcon(":/utils/images/wizardicon-file.png");
         return iconWithText(fallBack, text);
     }
 
