@@ -632,7 +632,7 @@ class Type
 {
 public:
     explicit Type() = default;
-    explicit Type(Module module,
+    explicit Type(ModuleId moduleId,
                   Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
                   TypeAccessSemantics accessSemantics,
@@ -650,26 +650,26 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
-        , module{std::move(module)}
+        , moduleId{moduleId}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , changeLevel{changeLevel}
     {}
 
-    explicit Type(Utils::SmallStringView moduleName,
+    explicit Type(ModuleId moduleId,
                   Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
-        , module{moduleName}
+        , moduleId{moduleId}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
 
     {}
 
-    explicit Type(Utils::SmallStringView moduleName,
+    explicit Type(int moduleId,
                   Utils::SmallStringView typeName,
                   long long typeId,
                   Utils::SmallStringView prototype,
@@ -677,22 +677,7 @@ public:
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
-        , module{moduleName}
-        , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
-        , sourceId{sourceId}
-        , typeId{typeId}
-    {}
-
-    explicit Type(Utils::SmallStringView moduleName,
-                  int moduleId,
-                  Utils::SmallStringView typeName,
-                  long long typeId,
-                  Utils::SmallStringView prototype,
-                  int accessSemantics,
-                  int sourceId)
-        : typeName{typeName}
-        , prototype{NativeType{prototype}}
-        , module{moduleName, moduleId}
+        , moduleId{moduleId}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
@@ -705,7 +690,7 @@ public:
                && first.propertyDeclarations == second.propertyDeclarations
                && first.functionDeclarations == second.functionDeclarations
                && first.signalDeclarations == second.signalDeclarations
-               && first.module == second.module && first.sourceId == second.sourceId
+               && first.moduleId == second.moduleId && first.sourceId == second.sourceId
                && first.sourceId == second.sourceId;
     }
 
@@ -717,7 +702,6 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
-    Module module;
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
     SourceId sourceId;
     TypeId typeId;

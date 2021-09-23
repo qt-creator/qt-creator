@@ -71,13 +71,12 @@ void ProjectUpdater::update()
 
             sourceIds.push_back(qmlDirSourceId);
 
-            Utils::SmallString moduleName{parser.typeNamespace()};
             SourceContextId directoryId = m_pathCache.sourceContextId(qmlDirSourceId);
 
             parseTypeInfos(parser.typeInfos(), directoryId, imports, types, sourceIds, fileStatuses);
             parseQmlComponents(createComponentReferences(parser.components()),
                                directoryId,
-                               moduleName,
+                               ModuleId{&qmlDirSourceId},
                                imports,
                                types,
                                sourceIds,
@@ -151,7 +150,7 @@ void ProjectUpdater::parseTypeInfo(SourceId sourceId,
 
 void ProjectUpdater::parseQmlComponents(ComponentReferences components,
                                         SourceContextId directoryId,
-                                        Utils::SmallStringView moduleName,
+                                        ModuleId moduleId,
                                         Storage::Imports &imports,
                                         Storage::Types &types,
                                         SourceIds &sourceIds,
@@ -184,7 +183,7 @@ void ProjectUpdater::parseQmlComponents(ComponentReferences components,
         auto type = m_qmlDocumentParser.parse(content, imports);
 
         type.typeName = fileName;
-        type.module.name = moduleName;
+        type.moduleId = moduleId;
         type.accessSemantics = Storage::TypeAccessSemantics::Reference;
         type.sourceId = sourceId;
         type.exportedTypes.push_back(

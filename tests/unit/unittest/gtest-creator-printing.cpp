@@ -1101,7 +1101,7 @@ std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importe
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using Utils::operator<<;
-    return out << "(module: " << type.module << ", typename: \"" << type.typeName
+    return out << "(moduleId: " << type.moduleId << ", typename: \"" << type.typeName
                << "\", prototype: " << type.prototype << ", " << type.accessSemantics
                << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
                << ", properties: " << type.propertyDeclarations

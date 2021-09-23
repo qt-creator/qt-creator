@@ -1274,15 +1274,13 @@ private:
 
     TypeId declareType(Storage::Type &type)
     {
-        if (type.module.name.isEmpty() && type.typeName.isEmpty()) {
+        if (!type.moduleId && type.typeName.isEmpty()) {
             auto [moduleId, typeId] = selectModuleAndTypeIdBySourceIdStatement
                                           .template value<ModuleAndTypeId>(&type.sourceId);
             type.typeId = typeId;
             type.moduleId = moduleId;
             return type.typeId;
         }
-
-        type.moduleId = fetchModuleIdUnguarded(type.module);
 
         if (!type.moduleId)
             throw ModuleDoesNotExists{};
@@ -1935,10 +1933,10 @@ public:
         "SELECT name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM exportedTypeNames "
         "WHERE typeId=? AND kind=1",
         database};
-    mutable ReadStatement<7> selectTypesStatement{
-        "SELECT m.name, m.moduleId, t.name, typeId, (SELECT name FROM types WHERE "
+    mutable ReadStatement<6> selectTypesStatement{
+        "SELECT moduleId, name, typeId, (SELECT name FROM types WHERE "
         "typeId=t.prototypeId), accessSemantics, ifnull(sourceId, -1) FROM types AS "
-        "t JOIN modules AS m USING (moduleId)",
+        "t",
         database};
     ReadStatement<1> selectNotUpdatedTypesInSourcesStatement{
         "SELECT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN carray(?2))",

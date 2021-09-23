@@ -105,7 +105,7 @@ private:
                        FileStatuses &fileStatuses);
     void parseQmlComponents(ComponentReferences components,
                             SourceContextId directoryId,
-                            Utils::SmallStringView moduleName,
+                            ModuleId moduleId,
                             Storage::Imports &imports,
                             Storage::Types &types,
                             SourceIds &sourceIds,
