@@ -43,7 +43,7 @@ public:
     virtual ~JsonWizardPageFactory();
 
     bool canCreate(Utils::Id typeId) const { return m_typeIds.contains(typeId); }
-    QList<Utils::Id> supportedIds() const { return m_typeIds; }
+    const QList<Utils::Id> &supportedIds() const { return m_typeIds; }
 
     virtual Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) = 0;
 

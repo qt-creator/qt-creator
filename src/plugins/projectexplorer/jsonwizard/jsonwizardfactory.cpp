@@ -58,38 +58,39 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
+const char WIZARD_PATH[] = "templates/wizards";
+const char WIZARD_FILE[] = "wizard.json";
+
+const char VERSION_KEY[] = "version";
+const char ENABLED_EXPRESSION_KEY[] = "enabled";
+
+const char KIND_KEY[] = "kind";
+const char SUPPORTED_PROJECTS[] = "supportedProjectTypes";
+const char ID_KEY[] = "id";
+const char CATEGORY_KEY[] = "category";
+const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
+const char DISPLAY_NAME_KEY[] = "trDisplayName";
+const char ICON_KEY[] = "icon";
+const char ICON_TEXT_KEY[] = "iconText";
+const char IMAGE_KEY[] = "image";
+const char DESCRIPTION_KEY[] = "trDescription";
+const char REQUIRED_FEATURES_KEY[] = "featuresRequired";
+const char SUGGESTED_FEATURES_KEY[] = "featuresSuggested";
+const char GENERATOR_KEY[] = "generators";
+const char PAGES_KEY[] = "pages";
+const char TYPE_ID_KEY[] = "typeId";
+const char DATA_KEY[] = "data";
+const char PAGE_SUB_TITLE_KEY[] = "trSubTitle";
+const char PAGE_SHORT_TITLE_KEY[] = "trShortTitle";
+const char PAGE_INDEX_KEY[] = "index";
+const char OPTIONS_KEY[] = "options";
+const char PLATFORM_INDEPENDENT_KEY[] = "platformIndependent";
+
 static QList<JsonWizardPageFactory *> s_pageFactories;
 static QList<JsonWizardGeneratorFactory *> s_generatorFactories;
 
-static const char WIZARD_PATH[] = "templates/wizards";
-static const char WIZARD_FILE[] = "wizard.json";
-
-static const char VERSION_KEY[] = "version";
-static const char ENABLED_EXPRESSION_KEY[] = "enabled";
-
-static const char KIND_KEY[] = "kind";
-static const char SUPPORTED_PROJECTS[] = "supportedProjectTypes";
-static const char ID_KEY[] = "id";
-static const char CATEGORY_KEY[] = "category";
-static const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
-static const char DISPLAY_NAME_KEY[] = "trDisplayName";
-static const char ICON_KEY[] = "icon";
-static const char ICON_TEXT_KEY[] = "iconText";
-static const char IMAGE_KEY[] = "image";
-static const char DESCRIPTION_KEY[] = "trDescription";
-static const char REQUIRED_FEATURES_KEY[] = "featuresRequired";
-static const char SUGGESTED_FEATURES_KEY[] = "featuresSuggested";
-static const char GENERATOR_KEY[] = "generators";
-static const char PAGES_KEY[] = "pages";
-static const char TYPE_ID_KEY[] = "typeId";
-static const char DATA_KEY[] = "data";
-static const char PAGE_SUB_TITLE_KEY[] = "trSubTitle";
-static const char PAGE_SHORT_TITLE_KEY[] = "trShortTitle";
-static const char PAGE_INDEX_KEY[] = "index";
-static const char OPTIONS_KEY[] = "options";
-static const char PLATFORM_INDEPENDENT_KEY[] = "platformIndependent";
-
 int JsonWizardFactory::m_verbose = 0;
+
 
 // Return locale language attribute "de_UTF8" -> "de", empty string for "C"
 static QString languageSetting()
@@ -107,8 +108,8 @@ template<class T>
 static QString supportedTypeIds(const QList<T *> &factories)
 {
     QStringList tmp;
-    foreach (const T*f, factories) {
-        foreach (Utils::Id i, f->supportedIds())
+    for (const T *f : factories) {
+        foreach (Id i, f->supportedIds())
             tmp.append(i.toString());
     }
     return tmp.join(QLatin1String("', '"));
@@ -129,9 +130,9 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Generator has no typeId set.");
         return gen;
     }
-    Utils::Id typeId = Utils::Id::fromString(QLatin1String(Constants::GENERATOR_ID_PREFIX) + strVal);
+    Id typeId = Id::fromString(QLatin1String(Constants::GENERATOR_ID_PREFIX) + strVal);
     JsonWizardGeneratorFactory *factory
-            = Utils::findOr(s_generatorFactories, nullptr, [typeId](JsonWizardGeneratorFactory *f) { return f->canCreate(typeId); });
+            = findOr(s_generatorFactories, nullptr, [typeId](JsonWizardGeneratorFactory *f) { return f->canCreate(typeId); });
     if (!factory) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory",
                                                     "TypeId \"%1\" of generator is unknown. Supported typeIds are: \"%2\".")
@@ -165,7 +166,7 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page has no typeId set.");
         return p;
     }
-    Utils::Id typeId = Utils::Id::fromString(QLatin1String(Constants::PAGE_ID_PREFIX) + strVal);
+    Id typeId = Id::fromString(QLatin1String(Constants::PAGE_ID_PREFIX) + strVal);
 
     JsonWizardPageFactory *factory
             = Utils::findOr(s_pageFactories, nullptr, [typeId](JsonWizardPageFactory *f) { return f->canCreate(typeId); });
@@ -213,7 +214,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
     const QString wizardFileName = QLatin1String(WIZARD_FILE);
 
     QList <Core::IWizardFactory *> result;
-    foreach (const Utils::FilePath &path, searchPaths()) {
+    foreach (const FilePath &path, searchPaths()) {
         if (path.isEmpty())
             continue;
 
@@ -323,7 +324,7 @@ static QStringList environmentTemplatesPaths()
 
     if (!envTempPath.isEmpty()) {
         for (const QString &path : envTempPath
-             .split(Utils::HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts)) {
+             .split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts)) {
             QString canonicalPath = QDir(path).canonicalPath();
             if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
                 paths.append(canonicalPath);
@@ -333,17 +334,17 @@ static QStringList environmentTemplatesPaths()
     return paths;
 }
 
-Utils::FilePaths &JsonWizardFactory::searchPaths()
+FilePaths &JsonWizardFactory::searchPaths()
 {
-    static Utils::FilePaths m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH),
-                                             Core::ICore::resourcePath(WIZARD_PATH)};
+    static FilePaths m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH),
+                                      Core::ICore::resourcePath(WIZARD_PATH)};
     for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
-        m_searchPaths << Utils::FilePath::fromString(environmentTemplateDirName);
+        m_searchPaths << FilePath::fromString(environmentTemplateDirName);
 
     return m_searchPaths;
 }
 
-void JsonWizardFactory::addWizardPath(const Utils::FilePath &path)
+void JsonWizardFactory::addWizardPath(const FilePath &path)
 {
     searchPaths().append(path);
 }
@@ -370,24 +371,24 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
     s_generatorFactories.append(factory);
 }
 
-Utils::Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
-                                                Utils::Id platform,
-                                                const QVariantMap &variables, bool showWizard)
+Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
+                                         Id platform,
+                                         const QVariantMap &variables, bool showWizard)
 {
     auto wizard = new JsonWizard(parent);
     wizard->setWindowIcon(icon());
     wizard->setWindowTitle(displayName());
 
     wizard->setValue(QStringLiteral("WizardDir"), m_wizardDir.toVariant());
-    QSet<Utils::Id> tmp = requiredFeatures();
+    QSet<Id> tmp = requiredFeatures();
     tmp.subtract(pluginFeatures());
-    wizard->setValue(QStringLiteral("RequiredFeatures"), Utils::Id::toStringList(tmp));
+    wizard->setValue(QStringLiteral("RequiredFeatures"), Id::toStringList(tmp));
     tmp = m_preferredFeatures;
     tmp.subtract(pluginFeatures());
-    wizard->setValue(QStringLiteral("PreferredFeatures"), Utils::Id::toStringList(tmp));
+    wizard->setValue(QStringLiteral("PreferredFeatures"), Id::toStringList(tmp));
 
-    wizard->setValue(QStringLiteral("Features"), Utils::Id::toStringList(availableFeatures(platform)));
-    wizard->setValue(QStringLiteral("Plugins"), Utils::Id::toStringList(pluginFeatures()));
+    wizard->setValue(QStringLiteral("Features"), Id::toStringList(availableFeatures(platform)));
+    wizard->setValue(QStringLiteral("Plugins"), Id::toStringList(pluginFeatures()));
 
     // Add data to wizard:
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
@@ -409,26 +410,26 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *p
     wizard->setValue(QStringLiteral("category"), category());
     wizard->setValue(QStringLiteral("id"), id().toString());
 
-    Utils::MacroExpander *expander = wizard->expander();
-    foreach (const JsonWizard::OptionDefinition &od, m_options) {
+    MacroExpander *expander = wizard->expander();
+    for (const JsonWizard::OptionDefinition &od : qAsConst(m_options)) {
         if (od.condition(*expander))
             wizard->setValue(od.key(), od.value(*expander));
     }
 
     bool havePage = false;
-    foreach (const Page &data, m_pages) {
+    for (const Page &data : qAsConst(m_pages)) {
         QTC_ASSERT(data.isValid(), continue);
 
         if (!JsonWizard::boolFromVariant(data.enabled, wizard->expander()))
             continue;
 
         havePage = true;
-        JsonWizardPageFactory *factory = Utils::findOr(s_pageFactories, nullptr,
+        JsonWizardPageFactory *factory = findOr(s_pageFactories, nullptr,
                                                        [&data](JsonWizardPageFactory *f) {
                                                             return f->canCreate(data.typeId);
                                                        });
         QTC_ASSERT(factory, continue);
-        Utils::WizardPage *page = factory->create(wizard, data.typeId, data.data);
+        WizardPage *page = factory->create(wizard, data.typeId, data.data);
         QTC_ASSERT(page, continue);
 
         page->setTitle(data.title);
@@ -444,7 +445,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *p
         }
     }
 
-    foreach (const Generator &data, m_generators) {
+    for (const Generator &data : qAsConst(m_generators)) {
         QTC_ASSERT(data.isValid(), continue);
         JsonWizardGeneratorFactory *factory = Utils::findOr(s_generatorFactories, nullptr,
                                                             [&data](JsonWizardGeneratorFactory *f) {
@@ -491,7 +492,7 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
         const QString locale = languageSetting().toLower();
         QStringList locales;
         locales << locale << QLatin1String("en") << QLatin1String("C") << tmp.keys();
-        foreach (const QString &locale, locales) {
+        for (const QString &locale : qAsConst(locales)) {
             QString result = tmp.value(locale, QString()).toString();
             if (!result.isEmpty())
                 return result;
@@ -501,19 +502,19 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
     return QCoreApplication::translate("ProjectExplorer::JsonWizard", value.toByteArray());
 }
 
-bool JsonWizardFactory::isAvailable(Utils::Id platformId) const
+bool JsonWizardFactory::isAvailable(Id platformId) const
 {
     if (!IWizardFactory::isAvailable(platformId)) // check for required features
         return false;
 
-    Utils::MacroExpander expander;
-    Utils::MacroExpander *e = &expander;
+    MacroExpander expander;
+    MacroExpander *e = &expander;
     expander.registerVariable("Platform", tr("The platform selected for the wizard."),
                               [platformId]() { return platformId.toString(); });
     expander.registerVariable("Features", tr("The features available to this wizard."),
-                              [e, platformId]() { return JsonWizard::stringListToArrayString(Utils::Id::toStringList(availableFeatures(platformId)), e); });
+                              [e, platformId]() { return JsonWizard::stringListToArrayString(Id::toStringList(availableFeatures(platformId)), e); });
     expander.registerVariable("Plugins", tr("The plugins loaded."), [e]() {
-        return JsonWizard::stringListToArrayString(Utils::Id::toStringList(pluginFeatures()), e);
+        return JsonWizard::stringListToArrayString(Id::toStringList(pluginFeatures()), e);
     });
     Core::JsExpander jsExpander;
     jsExpander.registerObject("Wizard",
@@ -544,7 +545,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
 
     m_enabledExpression = data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true);
 
-    QSet<Utils::Id> projectTypes = Utils::Id::fromStringList(data.value(QLatin1String(SUPPORTED_PROJECTS)).toStringList());
+    QSet<Id> projectTypes = Id::fromStringList(data.value(QLatin1String(SUPPORTED_PROJECTS)).toStringList());
     // FIXME: "kind" was relevant up to and including Qt Creator 3.6:
     const QString unsetKind = QUuid::createUuid().toString();
     QString strVal = data.value(QLatin1String(KIND_KEY), unsetKind).toString();
@@ -569,7 +570,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
         *errorMessage = tr("No id set.");
         return false;
     }
-    setId(Utils::Id::fromString(strVal));
+    setId(Id::fromString(strVal));
 
     strVal = data.value(QLatin1String(CATEGORY_KEY)).toString();
     if (strVal.isEmpty()) {
@@ -601,8 +602,8 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
     if (detailsPage.exists())
         setDetailsPageQmlPath(detailsPage.toString());
 
-    setRequiredFeatures(Utils::Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
-    m_preferredFeatures = Utils::Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
+    setRequiredFeatures(Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
+    m_preferredFeatures = Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
     m_preferredFeatures.unite(requiredFeatures());
 
     strVal = localizedString(data.value(QLatin1String(DISPLAY_NAME_KEY)));
@@ -633,7 +634,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
         return false;
     }
 
-    foreach (const QVariant &v, list) {
+    for (const QVariant &v : qAsConst(list)) {
         Generator gen = parseGenerator(v, errorMessage);
         if (gen.isValid())
             m_generators.append(gen);
@@ -648,7 +649,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
         return false;
     }
 
-    foreach (const QVariant &v, list) {
+    for (const QVariant &v : qAsConst(list)) {
         Page p = parsePage(v, errorMessage);
         if (p.isValid())
             m_pages.append(p);
@@ -668,9 +669,9 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
 
 namespace Internal {
 
-JsonWizardFactoryJsExtension::JsonWizardFactoryJsExtension(Utils::Id platformId,
-                                                           const QSet<Utils::Id> &availableFeatures,
-                                                           const QSet<Utils::Id> &pluginFeatures)
+JsonWizardFactoryJsExtension::JsonWizardFactoryJsExtension(Id platformId,
+                                                           const QSet<Id> &availableFeatures,
+                                                           const QSet<Id> &pluginFeatures)
     : m_platformId(platformId)
     , m_availableFeatures(availableFeatures)
     , m_pluginFeatures(pluginFeatures)
@@ -681,9 +682,9 @@ QVariant JsonWizardFactoryJsExtension::value(const QString &name) const
     if (name == "Platform")
         return m_platformId.toString();
     if (name == "Features")
-        return Utils::Id::toStringList(m_availableFeatures);
+        return Id::toStringList(m_availableFeatures);
     if (name == "Plugins")
-        return Utils::Id::toStringList(m_pluginFeatures);
+        return Id::toStringList(m_pluginFeatures);
     return QVariant();
 }
 
