@@ -590,7 +590,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         }
     }
     const QString iconText = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
-    setIcon(iconText.isEmpty() ? QIcon() : QIcon(strVal), iconText);
+    setIcon(strVal.isEmpty() ? QIcon() : QIcon(strVal), iconText);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {
