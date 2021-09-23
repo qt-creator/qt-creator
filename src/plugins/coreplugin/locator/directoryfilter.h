@@ -60,8 +60,8 @@ public:
     void setExclusionFilters(const QStringList &exclusionFilters);
 
 protected:
-    void saveState(QJsonObject &object) const final;
-    void restoreState(const QJsonObject &object) final;
+    void saveState(QJsonObject &object) const override;
+    void restoreState(const QJsonObject &object) override;
 
 private:
     void handleAddDirectory();

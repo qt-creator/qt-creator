@@ -154,6 +154,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPair>
@@ -396,6 +397,15 @@ public:
     }
 };
 
+class AllProjectFilesFilter : public DirectoryFilter
+{
+public:
+    AllProjectFilesFilter();
+
+protected:
+    void saveState(QJsonObject &object) const override;
+    void restoreState(const QJsonObject &object) override;
+};
 
 class ProjectExplorerPluginPrivate : public QObject
 {
@@ -626,7 +636,7 @@ public:
 
     AllProjectsFilter m_allProjectsFilter;
     CurrentProjectFilter m_currentProjectFilter;
-    DirectoryFilter m_allProjectDirectoriesFilter;
+    AllProjectFilesFilter m_allProjectDirectoriesFilter;
 
     ProcessStepFactory m_processStepFactory;
 
@@ -2848,14 +2858,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 // because someone delete all build configurations
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate()
-    : m_allProjectDirectoriesFilter("Files in All Project Directories")
 {
-    m_allProjectDirectoriesFilter.setDisplayName(m_allProjectDirectoriesFilter.id().toString());
-    // shared with "Files in Any Project":
-    m_allProjectDirectoriesFilter.setDefaultShortcutString("a");
-    m_allProjectDirectoriesFilter.setDefaultIncludedByDefault(false); // but not included in default
-    m_allProjectDirectoriesFilter.setFilters({});
-    m_allProjectDirectoriesFilter.setIsCustomFilter(false);
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
@@ -4161,6 +4164,38 @@ bool ProjectManager::canOpenProjectForMimeType(const MimeType &mt)
         }
     }
     return false;
+}
+
+AllProjectFilesFilter::AllProjectFilesFilter()
+    : DirectoryFilter("Files in All Project Directories")
+{
+    setDisplayName(id().toString());
+    // shared with "Files in Any Project":
+    setDefaultShortcutString("a");
+    setDefaultIncludedByDefault(false); // but not included in default
+    setFilters({});
+    setIsCustomFilter(false);
+}
+
+const char kDirectoriesKey[] = "directories";
+const char kFilesKey[] = "files";
+
+void AllProjectFilesFilter::saveState(QJsonObject &object) const
+{
+    DirectoryFilter::saveState(object);
+    // do not save the directories, they are automatically managed
+    object.remove(kDirectoriesKey);
+    object.remove(kFilesKey);
+}
+
+void AllProjectFilesFilter::restoreState(const QJsonObject &object)
+{
+    // do not restore the directories (from saved settings from Qt Creator <= 5,
+    // they are automatically managed
+    QJsonObject withoutDirectories = object;
+    withoutDirectories.remove(kDirectoriesKey);
+    withoutDirectories.remove(kFilesKey);
+    DirectoryFilter::restoreState(withoutDirectories);
 }
 
 } // namespace ProjectExplorer
