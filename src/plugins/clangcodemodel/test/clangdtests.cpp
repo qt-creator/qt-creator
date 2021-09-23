@@ -232,10 +232,11 @@ void ClangdTestFindReferences::test_data()
     QTest::newRow("direct member initialization") << "defs.h" << 101 << ItemList{
         makeItem(5, 21, Usage::Type::Initialization), makeItem(45, 16, Usage::Type::Read)};
 
-    // FIXME: The override gets reported twice. clangd bug?
-    QTest::newRow("pure virtual declaration") << "defs.h" << 420 << ItemList{
-        makeItem(17, 17, Usage::Type::Declaration), makeItem(21, 9, Usage::Type::Declaration),
-        makeItem(21, 9, Usage::Type::Declaration)};
+    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Type::Declaration),
+                             makeItem(21, 9, Usage::Type::Declaration)};
+    if (client()->versionNumber() < QVersionNumber(14))
+        pureVirtualRefs << pureVirtualRefs.last();
+    QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
     QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{
         makeItem(6, 10, Usage::Type::Initialization), makeItem(8, 4, Usage::Type::Write),
