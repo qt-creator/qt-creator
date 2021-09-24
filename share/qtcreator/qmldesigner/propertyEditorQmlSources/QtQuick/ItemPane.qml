@@ -157,9 +157,13 @@ PropertyEditorPane {
                 visible: specificsOne.source.toString() !== ""
             }
 
-            AdvancedSection {}
+            AdvancedSection {
+                expanded: false
+            }
 
-            LayerSection {}
+            LayerSection {
+                expanded: false
+            }
         }
 
         Column {
