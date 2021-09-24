@@ -38,8 +38,6 @@
 #include <QPlainTextDocumentLayout>
 
 namespace TextEditor {
-struct Parenthesis;
-using Parentheses = QVector<Parenthesis>;
 
 struct TEXTEDITOR_EXPORT Parenthesis
 {
@@ -55,6 +53,8 @@ struct TEXTEDITOR_EXPORT Parenthesis
 
     bool operator==(const Parenthesis &other) const;
 };
+using Parentheses = QVector<Parenthesis>;
+TEXTEDITOR_EXPORT void insertSorted(Parentheses &list, const Parenthesis &elem);
 
 TEXTEDITOR_EXPORT QDebug operator<<(QDebug debug, const Parenthesis &parenthesis);
 

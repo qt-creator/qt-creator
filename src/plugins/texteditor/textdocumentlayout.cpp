@@ -698,4 +698,11 @@ bool Parenthesis::operator==(const Parenthesis &other) const
     return pos == other.pos && chr == other.chr && source == other.source && type == other.type;
 }
 
+void insertSorted(Parentheses &list, const Parenthesis &elem)
+{
+    const auto it = std::lower_bound(list.begin(), list.end(), elem,
+            [](const auto &p1, const auto &p2) { return p1.pos < p2.pos; });
+    list.insert(it, elem);
+}
+
 } // namespace TextEditor

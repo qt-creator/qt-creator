@@ -94,11 +94,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     // Keep "semantic parentheses".
     Parentheses parentheses = Utils::filtered(TextDocumentLayout::parentheses(currentBlock()),
             [](const Parenthesis &p) { return p.source.isValid(); });
-    const auto insertParen = [&parentheses](const Parenthesis &p) {
-        const auto it = std::lower_bound(parentheses.begin(), parentheses.end(), p,
-                [](const auto &p1, const auto &p2) { return p1.pos < p2.pos; });
-        parentheses.insert(it, p);
-    };
+    const auto insertParen = [&parentheses](const Parenthesis &p) { insertSorted(parentheses, p); };
     parentheses.reserve(5);
 
     bool expectPreprocessorKeyword = false;
