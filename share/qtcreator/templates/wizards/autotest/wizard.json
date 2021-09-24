@@ -8,7 +8,7 @@
     "trDisplayCategory": "Other Project",
     "icon": "autotest.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureDesktop" ],
-    "enabled": "%{JS: value('Plugins').indexOf('AutoTest') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 
     "options":
     [
