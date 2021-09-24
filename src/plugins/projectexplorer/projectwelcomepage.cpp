@@ -562,8 +562,7 @@ public:
 
         auto manageSessionsButton = new WelcomePageButton(this);
         manageSessionsButton->setText(ProjectWelcomePage::tr("Manage"));
-        const Icon icon({{":/utils/images/settings.png", Theme::Welcome_ForegroundSecondaryColor}}, Icon::Tint);
-        manageSessionsButton->setIcon(icon.pixmap());
+        manageSessionsButton->setIcon(pixmap("settings", Theme::Welcome_ForegroundSecondaryColor));
         manageSessionsButton->setOnClicked([] { ProjectExplorerPlugin::showSessionManager(); });
 
         auto newButton = new WelcomePageButton(this);

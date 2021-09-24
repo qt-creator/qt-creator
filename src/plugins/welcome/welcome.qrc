@@ -25,5 +25,7 @@
         <file>images/border.png</file>
         <file>images/download.png</file>
         <file>images/download@2x.png</file>
+        <file>images/settings.png</file>
+        <file>images/settings@2x.png</file>
     </qresource>
 </RCC>
