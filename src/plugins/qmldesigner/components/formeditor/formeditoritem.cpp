@@ -99,8 +99,7 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_borderWidth(1.0),
     m_highlightBoundingRect(false),
     m_blurContent(false),
-    m_isContentVisible(true),
-    m_isFormEditorVisible(true)
+    m_isContentVisible(true)
 {
     setCacheMode(QGraphicsItem::NoCache);
     setup();
@@ -206,17 +205,6 @@ bool FormEditorItem::isContentVisible() const
         return parentItem()->isContentVisible() && m_isContentVisible;
 
     return m_isContentVisible;
-}
-
-
-bool FormEditorItem::isFormEditorVisible() const
-{
-    return m_isFormEditorVisible;
-}
-void FormEditorItem::setFormEditorVisible(bool isVisible)
-{
-    m_isFormEditorVisible = isVisible;
-    setVisible(isVisible);
 }
 
 QPointF FormEditorItem::center() const

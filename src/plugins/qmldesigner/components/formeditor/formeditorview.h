@@ -144,7 +144,6 @@ protected:
 private:
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);
     void removeNodeFromScene(const QmlItemNode &qmlItemNode);
-    void hideNodeFromScene(const QmlItemNode &qmlItemNode);
     void createFormEditorWidget();
     void temporaryBlockView(int duration = 1000);
     void resetNodeInstanceView();

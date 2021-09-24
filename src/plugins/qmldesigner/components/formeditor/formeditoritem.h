@@ -104,9 +104,6 @@ public:
     void setContentVisible(bool visible);
     bool isContentVisible() const;
 
-    bool isFormEditorVisible() const;
-    void setFormEditorVisible(bool isVisible);
-
     QPointF center() const;
     qreal selectionWeigth(const QPointF &point, int iteration);
 
@@ -152,7 +149,6 @@ private: // variables
     bool m_highlightBoundingRect;
     bool m_blurContent;
     bool m_isContentVisible;
-    bool m_isFormEditorVisible;
 };
 
 class FormEditorFlowItem : public FormEditorItem

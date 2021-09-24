@@ -1085,9 +1085,17 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
             if (modelNode.isValid()
                     && modelNode != parentProperty.parentModelNode()
                     && !modelNode.isAncestorOf(parentProperty.parentModelNode())
-                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType) || propertyQmlType == "alias")) {
+                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType)
+                        || propertyQmlType == "alias"
+                        || parentProperty.name() == "data")) {
                 //### todo: allowing alias is just a heuristic
                 //once the MetaInfo is part of instances we can do this right
+
+                // We assume above that "data" property in parent accepts all types.
+                // This is a workaround for Component parents to accept children, even though they
+                // do not have an actual "data" property or apparently any other default property.
+                // When the actual reparenting happens, model will create the "data" property if
+                // it is missing.
 
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
                 if (nodeCanBeMovedToParentProperty) {

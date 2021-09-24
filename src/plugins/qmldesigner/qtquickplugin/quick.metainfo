@@ -432,4 +432,20 @@ MetaInfo {
         }
     }
 
+    Type {
+        name: "QtQml.Component"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+        }
+
+        ItemLibraryEntry {
+            name: "Component"
+            category: "e.Qt Quick - Component"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
 }
