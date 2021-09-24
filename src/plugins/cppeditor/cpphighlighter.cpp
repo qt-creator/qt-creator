@@ -91,7 +91,14 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     const int firstNonSpace = tokens.first().utf16charsBegin();
 
-    Parentheses parentheses;
+    // Keep "semantic parentheses".
+    Parentheses parentheses = Utils::filtered(TextDocumentLayout::parentheses(currentBlock()),
+            [](const Parenthesis &p) { return p.source.isValid(); });
+    const auto insertParen = [&parentheses](const Parenthesis &p) {
+        const auto it = std::lower_bound(parentheses.begin(), parentheses.end(), p,
+                [](const auto &p1, const auto &p2) { return p1.pos < p2.pos; });
+        parentheses.insert(it, p);
+    };
     parentheses.reserve(5);
 
     bool expectPreprocessorKeyword = false;
@@ -116,7 +123,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         if (tk.is(T_LPAREN) || tk.is(T_LBRACE) || tk.is(T_LBRACKET)) {
             const QChar c = text.at(tk.utf16charsBegin());
-            parentheses.append(Parenthesis(Parenthesis::Opened, c, tk.utf16charsBegin()));
+            insertParen({Parenthesis::Opened, c, tk.utf16charsBegin()});
             if (tk.is(T_LBRACE)) {
                 ++braceDepth;
 
@@ -129,7 +136,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             }
         } else if (tk.is(T_RPAREN) || tk.is(T_RBRACE) || tk.is(T_RBRACKET)) {
             const QChar c = text.at(tk.utf16charsBegin());
-            parentheses.append(Parenthesis(Parenthesis::Closed, c, tk.utf16charsBegin()));
+            insertParen({Parenthesis::Closed, c, tk.utf16charsBegin()});
             if (tk.is(T_RBRACE)) {
                 --braceDepth;
                 if (braceDepth < foldingIndent) {
@@ -210,7 +217,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 else
                     foldingIndent = qMin(braceDepth, foldingIndent);
                 const int tokenEnd = tk.utf16charsBegin() + tk.utf16chars() - 1;
-                parentheses.append(Parenthesis(Parenthesis::Closed, QLatin1Char('-'), tokenEnd));
+                insertParen({Parenthesis::Closed, QLatin1Char('-'), tokenEnd});
 
                 // clear the initial state.
                 initialLexerState = 0;
@@ -246,8 +253,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     if (!initialLexerState && lexerState && !tokens.isEmpty()) {
         const Token &lastToken = tokens.last();
         if (lastToken.is(T_COMMENT) || lastToken.is(T_DOXY_COMMENT)) {
-            parentheses.append(Parenthesis(Parenthesis::Opened, QLatin1Char('+'),
-                                           lastToken.utf16charsBegin()));
+            insertParen({Parenthesis::Opened, QLatin1Char('+'), lastToken.utf16charsBegin()});
             ++braceDepth;
         }
     }
