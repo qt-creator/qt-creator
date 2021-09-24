@@ -33,7 +33,7 @@
     \page creator-vcs-git.html
     \if defined(qtdesignstudio)
     \previouspage studio-developer-topics.html
-    \nextpage quick-converting-ui-projects.html
+    \nextpage studio-porting-projects.html
     \else
     \previouspage creator-vcs-cvs.html
     \nextpage creator-vcs-mercurial.html

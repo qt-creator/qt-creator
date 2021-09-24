@@ -34,10 +34,10 @@ Row {
     property string scope: "Text"
     property bool blueHighlight: false
     property variant backendValue: backendValues.horizontalAlignment
-    property variant value: backendValue.enumeration
+    property variant value: root.backendValue.enumeration
     property bool baseStateFlag: isBaseState
-    property color __currentColor: blueHighlight ? StudioTheme.Values.themeIconColorInteraction
-                                                 : StudioTheme.Values.themeIconColor
+    property color __currentColor: root.blueHighlight ? StudioTheme.Values.themeIconColorInteraction
+                                                      : StudioTheme.Values.themeIconColor
 
     onValueChanged: {
         buttonAlignLeft.checked = true
@@ -45,45 +45,45 @@ Row {
         buttonAlignRight.checked = false
         buttonAlignJustify.checked = false
 
-        if (value !== undefined) {
-            if (value === "AlignLeft")
+        if (root.value !== undefined) {
+            if (root.value === "AlignLeft")
                 buttonAlignLeft.checked = true
-            else if (value === "AlignHCenter")
+            else if (root.value === "AlignHCenter")
                 buttonAlignHCenter.checked = true
-            else if (value === "AlignRight")
+            else if (root.value === "AlignRight")
                 buttonAlignRight.checked = true
-            else if (value === "AlignJustify")
+            else if (root.value === "AlignJustify")
                 buttonAlignJustify.checked = true
         }
-        evaluate()
+        root.evaluate()
     }
 
     property bool isInModel: {
-        if (backendValue !== undefined && backendValue.isInModel !== undefined)
-            return backendValue.isInModel
+        if (root.backendValue !== undefined && root.backendValue.isInModel !== undefined)
+            return root.backendValue.isInModel
 
         return false
     }
-    onIsInModelChanged: evaluate()
+    onIsInModelChanged: root.evaluate()
     property bool isInSubState: {
-        if (backendValue !== undefined && backendValue.isInSubState !== undefined)
-            return backendValue.isInSubState
+        if (root.backendValue !== undefined && root.backendValue.isInSubState !== undefined)
+            return root.backendValue.isInSubState
 
         return false
     }
-    onIsInSubStateChanged: evaluate()
+    onIsInSubStateChanged: root.evaluate()
 
     function evaluate() {
-        if (baseStateFlag) {
-            if (backendValue !== null && backendValue.isInModel)
-                blueHighlight = true
+        if (root.baseStateFlag) {
+            if (root.backendValue !== null && root.backendValue.isInModel)
+                root.blueHighlight = true
             else
-                blueHighlight = false
+                root.blueHighlight = false
         } else {
-            if (backendValue !== null && backendValue.isInSubState)
-                blueHighlight = true
+            if (root.backendValue !== null && root.backendValue.isInSubState)
+                root.blueHighlight = true
             else
-                blueHighlight = false
+                root.blueHighlight = false
         }
     }
 
@@ -109,10 +109,10 @@ Row {
             checkable: true
             autoExclusive: true
             StudioControls.ButtonGroup.group: group
-            iconColor: __currentColor
+            iconColor: root.__currentColor
             onClicked: {
-                if (checked)
-                    backendValue.setEnumeration(root.scope, "AlignLeft")
+                if (buttonAlignLeft.checked)
+                    root.backendValue.setEnumeration(root.scope, "AlignLeft")
             }
         }
 
@@ -122,10 +122,10 @@ Row {
             checkable: true
             autoExclusive: true
             StudioControls.ButtonGroup.group: group
-            iconColor: __currentColor
+            iconColor: root.__currentColor
             onClicked: {
-                if (checked)
-                    backendValue.setEnumeration(root.scope, "AlignHCenter")
+                if (buttonAlignHCenter.checked)
+                    root.backendValue.setEnumeration(root.scope, "AlignHCenter")
             }
         }
 
@@ -135,10 +135,10 @@ Row {
             checkable: true
             autoExclusive: true
             StudioControls.ButtonGroup.group: group
-            iconColor: __currentColor
+            iconColor: root.__currentColor
             onClicked: {
-                if (checked)
-                    backendValue.setEnumeration(root.scope, "AlignRight")
+                if (buttonAlignRight.checked)
+                    root.backendValue.setEnumeration(root.scope, "AlignRight")
             }
         }
 
@@ -148,10 +148,10 @@ Row {
             checkable: true
             autoExclusive: true
             StudioControls.ButtonGroup.group: group
-            iconColor: __currentColor
+            iconColor: root.__currentColor
             onClicked: {
-                if (checked)
-                    backendValue.setEnumeration(root.scope, "AlignJustify")
+                if (buttonAlignRight.checked)
+                    root.backendValue.setEnumeration(root.scope, "AlignJustify")
             }
         }
     }

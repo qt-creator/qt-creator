@@ -88,6 +88,7 @@
                                 \li \l{Logic Helpers}
                                 \li \l Animations
                                 \li \l{3D Views}
+                                \li \l{Node}
                                 \li \l{Group}
                                 \li \l{Instanced Rendering}
                                 \li \l{Skeletal Animation}
@@ -258,6 +259,7 @@
         \li \l{Developer Topics}
             \list
                 \li \l{Using Git}
+                \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
                 \li \l{Using External Tools}
             \endlist

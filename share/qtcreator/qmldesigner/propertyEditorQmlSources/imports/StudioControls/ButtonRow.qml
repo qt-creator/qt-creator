@@ -48,6 +48,8 @@ Row {
         // + StudioTheme.Values.border on width because of negative spacing on the row
         width: actionIndicator.visible ? myButtonRow.__actionIndicatorWidth + StudioTheme.Values.border : 0
         height: actionIndicator.visible ? myButtonRow.__actionIndicatorHeight : 0
+
+        onHoverChanged: myButtonRow.hoverCallback()
     }
 
     spacing: -StudioTheme.Values.border

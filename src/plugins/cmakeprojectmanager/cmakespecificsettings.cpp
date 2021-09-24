@@ -25,6 +25,7 @@
 
 #include "cmakespecificsettings.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/layoutbuilder.h>
@@ -36,6 +37,9 @@ namespace Internal {
 
 CMakeSpecificSettings::CMakeSpecificSettings()
 {
+    // TODO: fixup of QTCREATORBUG-26289 , remove in Qt Creator 7 or so
+    Core::ICore::settings()->remove("CMakeSpecificSettings/NinjaPath");
+
     setSettingsGroup("CMakeSpecificSettings");
     setAutoApply(false);
 
@@ -51,6 +55,9 @@ CMakeSpecificSettings::CMakeSpecificSettings()
 
     registerAspect(&ninjaPath);
     ninjaPath.setSettingsKey("NinjaPath");
+    // never save this to the settings:
+    ninjaPath.setToSettingsTransformation(
+        [](const QVariant &) { return QVariant::fromValue(QString()); });
 
     registerAspect(&packageManagerAutoSetup);
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");

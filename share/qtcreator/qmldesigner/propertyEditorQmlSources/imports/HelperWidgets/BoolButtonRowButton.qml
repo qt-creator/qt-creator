@@ -34,46 +34,42 @@ StudioControls.Button {
     property variant backendValue
     property bool isHighlighted: false
 
-    iconColor: isHighlighted ? StudioTheme.Values.themeIconColorInteraction
-                             : StudioTheme.Values.themeIconColor
+    iconColor: button.isHighlighted ? StudioTheme.Values.themeIconColorInteraction
+                                    : StudioTheme.Values.themeIconColor
     actionIndicatorVisible: true
     checkable: true
 
     QtObject {
         id: innerObject
+
         function evaluate() {
             if (innerObject.baseStateFlag) {
-                if (button.backendValue !== null
-                        && innerObject.isInModel) {
-                    isHighlighted = true
-                } else {
-                    isHighlighted = false
-                }
+                if (button.backendValue !== null && innerObject.isInModel)
+                    button.isHighlighted = true
+                else
+                    button.isHighlighted = false
             } else {
-                if (button.backendValue !== null
-                        && innerObject.isInSubState) {
-                    isHighlighted = true
-                } else {
-                    isHighlighted = false
-                }
+                if (button.backendValue !== null && innerObject.isInSubState)
+                    button.isHighlighted = true
+                else
+                    button.isHighlighted = false
             }
         }
 
         property bool baseStateFlag: isBaseState
-        onBaseStateFlagChanged: evaluate()
+        onBaseStateFlagChanged: innerObject.evaluate()
 
         property bool isInModel: button.backendValue === undefined ? false
                                                                    : button.backendValue.isInModel
-        onIsInModelChanged: evaluate()
-
+        onIsInModelChanged: innerObject.evaluate()
 
         property bool isInSubState: button.backendValue === undefined ? false
                                                                       : button.backendValue.isInSubState
-        onIsInSubStateChanged: evaluate()
+        onIsInSubStateChanged: innerObject.evaluate()
 
         property variant theValue: button.backendValue === undefined ? 0 : button.backendValue.value
         onTheValueChanged: {
-            evaluate()
+            innerObject.evaluate()
             button.checked = innerObject.theValue
         }
     }

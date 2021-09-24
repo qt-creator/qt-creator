@@ -47,15 +47,14 @@
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
-    \QC generates a component file, \e main.qml, and opens it in
-    \l {Text Editor}. The wizard template uses an instance of the \l Window
-    control, which does not support adding states. Because we want to use states
-    in this example, we first replace the instance of the Window component with
-    an instance of the basic \l {basic-rectangle}{Rectangle} component. We must
-    also remove the line that sets the \c title property, which the Rectangle
-    component does not have. If you change the value of the \l Type property in
-    the \l Properties view, \QC offers to automatically remove the \c title
-    property.
+    \QC generates a component file, \e main.qml, and opens it in the
+    \l {Text Editor} view. Select \uicontrol Design to open the file in
+    the \l {Form Editor} view.
+
+    \note The visibility of Design views depends on the selected workspace.
+    To open hidden views, select \uicontrol View > \uicontrol Views
+    in the \uicontrol Design mode. For more information about moving
+    views around, see \l {Managing Workspaces}.
 
     \section1 Creating the Main View
 
@@ -65,15 +64,22 @@
     We use the \e qt-logo.png image in this tutorial, but you can also use
     any other image or a component, instead.
 
-    \note If a view is hidden, you can show it by selecting \uicontrol View >
-    \uicontrol Views.
-
     \list 1
+
+        \li In \uicontrol Library > \uicontrol Components >
+            \uicontrol {Default Components} > \uicontrol Basic, select
+            \uicontrol Rectangle and drag and drop it to \e Window in
+            \uicontrol Navigator.
 
         \li Select the \uicontrol Rectangle instance in \l Navigator, and enter
             \e page in the \uicontrol ID field in \l Properties.
 
-        \li Select \l Library > \uicontrol Assets > \inlineimage plus.png
+        \li In \uicontrol Layout, select the
+            \inlineimage icons/anchor-fill.png "Fill anchor button"
+            fill anchor button to anchor the rectangle to the window on all
+            sides.
+
+        \li Select \uicontrol Library > \uicontrol Assets > \inlineimage plus.png
             to locate qt-logo.png (or your own image) and add it to the
             project folder.
 
@@ -91,7 +97,7 @@
 
             \li In the \uicontrol ID field, enter \e icon.
 
-            \li In the \uicontrol Position field, set \uicontrol X to \e 10 and
+            \li In the \uicontrol Position field, set \uicontrol X and
                 \uicontrol Y to \e 20.
 
         \endlist
@@ -111,26 +117,25 @@
             \li In the \uicontrol ID field, enter \e topLeftRect.
 
             \li In the \uicontrol Size field, set \uicontrol W and
-                \uicontrol H to \e 64, for the rectangle size to
-                match the image size.
+                \uicontrol H to values that match the image size
+                (\e 55 and \e 41).
 
-            \li In the \uicontrol Color field, click the
-                \inlineimage icon_color_none.png
-                (\uicontrol Transparent) button to make the rectangle
-                transparent.
+            \li Select the \uicontrol Color field, and then select the
+                \inlineimage icons/transparent.png "Transparent button"
+                button in the \l{Picking colors}{color picker} to make
+                the rectangle transparent.
 
             \li In the \uicontrol {Border color} field, set the border
                 color to \e #808080 to make the rectangle visible on
-                the white background.
+                the background.
 
             \li Click \uicontrol {Layout}, and then click the
-                \inlineimage icons/anchor-top.png
-                (\uicontrol Top) and \inlineimage icons/anchor-left.png
-                (\uicontrol Left) anchor buttons to anchor the
-                rectangle to the top left corner of the page.
+                \inlineimage icons/anchor-top.png "Top anchor button"
+                top and \inlineimage icons/anchor-left.png "Left anchor button"
+                left anchor buttons to anchor the rectangle to the top left
+                corner of the page.
 
-            \li In the \uicontrol Margin field, select \e 20 for the top anchor
-                and \e 10 for the left anchor.
+            \li In the \uicontrol Margin field, select \e 20 for both anchors.
 
                 \image qmldesigner-tutorial-topleftrect-layout.png "Anchor margins"
 
@@ -140,9 +145,8 @@
             \uicontrol Library to \e topLeftRect in \uicontrol Navigator.
 
         \li Click \uicontrol {Layout}, and then click the
-            \inlineimage icons/anchor-fill.png
-            (\uicontrol {Fill to Parent}) button to anchor the mouse area to the
-            rectangle.
+            \inlineimage icons/anchor-fill.png "Fill anchor button"
+            button to anchor the mouse area to its parent.
 
         \li In the \uicontrol Navigator, copy \e topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to \e page in \uicontrol Navigator
@@ -156,13 +160,13 @@
             \li In the \uicontrol ID field, enter \e middleRightRect.
 
             \li In \uicontrol {Layout}, select the
-                \inlineimage icons/anchor-center-vertical.png
-                (\uicontrol {Vertical Center} anchor button and then the
-                \inlineimage icons/anchor-right.png
-                (\uicontrol Right) anchor button to anchor the rectangle
+                \inlineimage icons/anchor-center-vertical.png "Vertical center anchor button"
+                vertical center anchor button and then the
+                \inlineimage icons/anchor-right.png "Right anchor button"
+                right anchor button to anchor the rectangle
                 to the middle right margin of its parent.
 
-            \li In the \uicontrol Margin field, select \e 10 for the right
+            \li In the \uicontrol Margin field, select \e 20 for the right
                 anchor and \e 0 for the vertical center anchor.
 
         \endlist
@@ -179,8 +183,7 @@
                 (\uicontrol Left) anchor buttons to anchor the rectangle
                 to the bottom left margin of its parent.
 
-            \li In the \uicontrol Margin field, select \e 20 for the bottom
-                anchor and \e 10 for the left anchor.
+            \li In the \uicontrol Margin field, select \e 20 for both anchors.
 
         \endlist
 
@@ -199,18 +202,41 @@
     For more information about the views you used, see:
 
     \list
+        \li \l {Form Editor}
         \li \l Library
         \li \l Navigator
         \li \l Properties
     \endlist
 
     Next, we will make the image move between the rectangles when users click
-    them by adding states and by connecting mouse clicks to state changes.
+    them by \l{Adding States}{adding states} and by connecting mouse clicks
+    to state changes.
+
+    Because the Window component requires states to be added into child
+    components, we must first move \e page into a separate component.
+
+    \section1 Turning Page into a Custom Component
+
+    To turn \e page into a custom component, right-click it
+    in \uicontrol Navigator or \uicontrol {Form Editor}, and select
+    \uicontrol {Move Component into Separate File} in the context menu.
+
+    \image qmldesigner-tutorial-page-component.png "Move page component instance into a separate file"
+
+    \list 1
+        \li In \uicontrol {Component name}, enter \e Page.
+        \li In \uicontrol {Property assignments for main.qml} select both
+            check boxes to preserve the appearance of the UI.
+        \li Select \uicontrol OK to create a file called \e Page.qml that
+            defines the Page custom component and to add an instance of it
+            into \e main.qml.
+    \endlist
 
     \section1 Connecting Mouse Clicks to State Changes
 
     To make the image move between the rectangles when users click them, we add
-    states, where we change the values of the \c x and \c y properties of
+    states to the Page component, where we change the values of the \c x and
+    \c y properties of
     \e icon to match those of the middle right and top left rectangles. Then,
     we connect the \c onClicked signals of the mouse areas to the state changes.
 
@@ -219,6 +245,9 @@
     \c y properties of \e icon to those of the rectangles.
 
     \list 1
+        \li Right-click \e page in \uicontrol Navigator, and select
+            \uicontrol {Go into Component} in the context menu to open
+            \e Page.qml in \uicontrol {Form Editor}.
         \li In the \uicontrol States view, select \uicontrol {Create New State}
             three times to create \e State1, \e State2, and \e State3.
         \li Select \e State1 in \uicontrol States.
@@ -227,13 +256,22 @@
             \uicontrol {Set as Default} to display \e State1 when
             the application starts.
         \li Select \e State2 in \uicontrol States.
-        \li Select \e icon in \uicontrol Navigator and drag it on top of the
-            middle left rectangle in \uicontrol {Form Editor}. This changes the
-            \c x and \c y property values of \e icon to match those of
-            \e middleRightRect in \e State2.
-            \image qmldesigner-tutorial-states.png "States view"
-        \li Select \e State3 in \uicontrol States, and drag \e icon on top of
-            the bottom left rectangle in \uicontrol {Form Editor}.
+        \li Select \e icon in \uicontrol Navigator to display its properties
+            in \uicontrol Properties.
+        \li In \uicontrol {Geometry - 2D} > \uicontrol Position > \uicontrol X,
+            select \inlineimage icons/action-icon.png "Actions button"
+            , and then select \uicontrol {Set Binding} to open
+            \uicontrol {Binding Editor}.
+        \li Select the \e middleRightRect component and the \e x property
+            to bind the \e x property value of \e icon to that of
+            \e middleRightRect.
+            \image qmldesigner-tutorial-bindings.png "Binding Editor"
+        \li Select \uicontrol OK to create the binding.
+        \li Repeat for \uicontrol Y, but set the binding as
+            \e middleRightRect.y.
+        \li Select \e State3 in \uicontrol States, and bind the \e x and \e y
+            property values of \e icon to those of \e bottomLeftRect
+            (\e bottomLeftRect.x and \e bottomLeftRect.y).
         \li In \l {Connection View} > \uicontrol Connections, click the
             \inlineimage plus.png
             button to create a new connection.
@@ -250,10 +288,30 @@
 
     Click the rectangles to move the Qt logo from one rectangle to another.
 
+    If you develop with Qt 6, you must specify the connections as
+    functions. This is currently not supported in \uicontrol {Connections},
+    so you must do it in \uicontrol {Text Editor}. For example:
+
+    \code
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+
+        Connections {
+            target: mouseArea
+            function onClicked()
+            {
+                page.state = "State1"
+            }
+        }
+    }
+    \endcode
+
     For more information about the views you used, see:
 
     \list
         \li \l States
+        \li \l{Setting Bindings}
         \li \l{Connecting Components to Signals}
     \endlist
 

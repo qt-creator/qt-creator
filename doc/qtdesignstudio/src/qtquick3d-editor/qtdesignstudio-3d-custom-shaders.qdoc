@@ -33,25 +33,40 @@
     \title Custom Shaders
 
     You can use the 3D shader utilities and commands available in \l Library
-    > \uicontrol Components > \uicontrol QtQuick3D > \uicontrol
-    {Custom Shader Utils} to create your own effects and materials.
-
-    \image studio-qtquick-3d-shader-utilities.png
-
-    Additional 3D shader utilities include the \uicontrol Effect, which you can
-    find in  \uicontrol Library > \uicontrol {QtQuick3D Effects} > \uicontrol
-    {Qt Quick 3D Custom Shader Utils}, and \uicontrol {Custom Material},
-    available in \uicontrol Library > \uicontrol {QtQuick3D Materials} >
-    \uicontrol {Qt Quick 3D Custom Shader Utils}.
-
-    \image studio-qtquick-3d-shader-effect.png
-    \image studio-qtquick-3d-shader-custom-material.png
+    > \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    \uicontrol {Qt Quick 3D Custom Shader Utilities} to create your own effects
+    and materials.
 
     If the custom shader utilities are not displayed in \uicontrol Library, add
     the \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
-    For more information on using the shaders, see
+    \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
+    when \l {Creating Projects}{creating your project}, the available custom
+    shader utilities and their properties will be slightly different, and some
+    of the components can be found in different locations in \uicontrol Library.
+
+    \image studio-qtquick-3d-shader-utilities.png "Custom shader utilities in Library"
+
+    You can find additional shader utilities, the \uicontrol Effect and
+    \uicontrol {Custom Material} components, in \uicontrol Library >
+    \uicontrol Components > \uicontrol {Qt Quick3D} > \uicontrol {Qt Quick 3D}.
+
+    \image studio-qtquick-3d-components.png "Effect and Custom Material Components in Library"
+
+    \note In Qt 5 the \uicontrol Effect component is located in
+    \uicontrol {Qt Quick 3D Effects} >
+    \uicontrol {Qt Quick 3D Custom Shader Utilities}. To use the
+    \uicontrol Effect component, add the \uicontrol QtQuick3D.Effects module to
+    your project.
+
+    \note In Qt 5 the \uicontrol {Custom Material} component can be found in
+    \uicontrol {Qt Quick 3D Materials} >
+    \uicontrol {Qt Quick 3D Custom Shader Utilities}. To use the
+    \uicontrol {Custom Material} component, add the
+    \uicontrol QtQuick3D.Materials module to your project.
+
+    For more information about using the shaders, see
     \l {Custom Effects and Materials}.
 
     See the following tables for available shader utilities and commands.
@@ -60,125 +75,210 @@
     \table
     \header
         \li Custom Shader
+        \li Qt 5 Only
         \li Description
 
     \row
         \li \l Buffer
-        \li A buffer to be used for a pass of a Custom Material or an Effect.
+        \li
+        \li A buffer to be used for a pass of \uicontrol {Custom Material}
+            or \uicontrol Effect instances.
 
-            Specify attributes for the buffer by defining the \uicontrol Name
-            and \uicontrol Format and \uicontrol {Allocation Flags} properties.
+            The \uicontrol Name property identifies the \uicontrol Buffer
+            instance. When the value of this property is empty, the buffer will
+            refer to the default output texture of the render pass instead of
+            allocating a buffer. This can be useful to override certain settings
+            of the output, such as the texture format, without introducing a new,
+            separate intermediate texture.
+
+            The \uicontrol Format property specifies the format of the buffer.
 
             The \uicontrol Filter property specifies the filter operation when a
-            render pass is reading the buffer that differs in size in comparison
+            render pass is reading a buffer that differs in size in comparison
             to the current output buffer.
 
-            The \uicontrol {Coordinate Operation} property specifies the texture
+            The \uicontrol {Coordinate operation} property specifies the texture
             coordinate operation for coordinates outside [0, 1] range.
+            Select the \uicontrol ClampToEdge operation to clamp coordinates to
+            edges. The \uicontrol Repeat operation wraps the coordinates at the
+            edges to tile the texture, while \uicontrol MirroredRepeat also
+            mirrors every other repeat of the texture while tiling it.
 
-            You can also specify the \uicontrol {Size Multiplier} of the buffer.
-            Value of 1.0 creates buffer with the same size while 0.5 creates
-            buffer with width and height halved.
+            The \uicontrol {Allocation flags} property defines allocation flags
+            for the \uicontrol Buffer instance. Select \uicontrol SceneLifeTime
+            to allocate the buffer for the whole lifetime of the scene.
+
+            \uicontrol {Size multiplier} specifies the size of the
+            \uicontrol Buffer instance. Value of 1.0 creates a buffer with the
+            same size, while 0.5 creates a buffer with width and height halved.
 
     \row
         \li \l {CustomMaterial} {Custom Material}
+        \li
         \li The base component for creating custom materials used to shade
-            models.
+            model instances.
+
+            The \uicontrol {Shading mode} property specifies whether the material
+            is \uicontrol Shaded or \uicontrol Unshaded.
+
+            The \uicontrol {Vertex shader} and \uicontrol {Fragment shader}
+            properties define the vertex and fragment shader files for the
+            material. Select the shader files from the dropdown menus. You can
+            select \inlineimage icons/add-file-16px.png
+            to add new shader files to the dropdown menus.
+
+            The \uicontrol {Source blend} and \uicontrol {Destination blend}
+            properties specify the source and destination blend factors.
+
+            The \uicontrol {Always dirty} property determines whether the
+            material is refreshed every time it is used.
+
+            The \uicontrol {Line Width} property defines the width of the lines
+            when the geometry is using lines or line strips.
 
             Specify the attributes of the \uicontrol {Custom Material} by
             defining the \uicontrol Transparency, \uicontrol Refraction and
-            \uicontrol {Always Dirty} properties. The \uicontrol Passes property
-            contains a list of render passes implemented by the material.
+            \uicontrol {Always dirty} properties.
+
             The \uicontrol {Shader Info} specifies the shader info of the
-            material. For more information, see
-            \l {Custom Effects and Materials}.
+            material. For more information, see \l {Custom Effects and Materials}.
+
+            \note In Qt 5 you can also define render passes for
+            \uicontrol {Custom Material} instances by using the
+            \uicontrol Passes property, which lists render passes implemented
+            by the material.
 
     \row
         \li \l Effect
+        \li
         \li A base component for creating post-processing effects.
 
             The \uicontrol Passes property contains a list of render passes
-            implemented by the effect. For more information, see
-            \l {Custom Effects and Materials}.
+            implemented by the effect. You can add more entry fields to the list
+            by selecting \inlineimage plus.png
+            . For more information, see \l {Custom Effects and Materials}.
 
     \row
         \li \l Pass
-        \li A render pass in a Custom Material or an Effect.
+        \li
+        \li A render pass of an \uicontrol Effect instance. In Qt 5 you can also
+            use render passes for \uicontrol {Custom Materials}.
 
             The \uicontrol Commands property specifies the list of render
-            commands of the pass. You can further define a render pass by using
-            the \uicontrol Buffer and \uicontrol Shaders properties.
+            commands for the \uicontrol Pass instance, while the
+            \uicontrol Shaders property lists the shaders for it. Use the
+            dropdown menus to select the render commands and shader files of
+            your choice.
 
+            The \uicontrol Buffer property specifies an output buffer for the
+            \uicontrol Pass instance.
     \row
         \li \l Shader
-        \li A container component for defining shader code used by Custom
-            Materials and Effects.
+        \li
+        \li A container component for defining shader code used by
+            \uicontrol Effect instances.
 
-            Define the \uicontrol Shader attributes by specifying the
-            \uicontrol Source and \uicontrol Stage properties.
+            The \uicontrol Source property specifies the shader file to be used
+            by the \uicontrol Shader instance, and the \uicontrol Stage property
+            defines a \uicontrol Vertex or \uicontrol Fragment stage for it.
+
+            \note In Qt 5 you can also set the \uicontrol Stage property to
+            \uicontrol Shared, \uicontrol Geometry, or \uicontrol Compute.
 
     \row
         \li \l {ShaderInfo} {Shader Info}
+        \li \inlineimage ok.png
         \li Basic information about custom shader code for Custom Materials.
 
             The \uicontrol Version property specifies the shader code version,
             while the \uicontrol Type property defines the shader code type.
+
             The \uicontrol Key property specifies the options used by the shader
             using the combination of shader key values, such as diffuse or
             specular lighting, refraction, transparency, displacement,
             transmissiveness, glossiness, and alpha cutout.
 
+            The \uicontrol Key property specifies the options used by the shader
+            using the combination of shader key values. Use the dropdown list
+            to select the one of available shader keys:
+            \list
+                \li The \uicontrol Diffuse shader key applies diffuse lighting
+                    and \uicontrol Specular applies specular lighting to the
+                    shader instance.
+                \li The \uicontrol Cutout shader key applies alpha cutout to
+                    the shader instance.
+                \li The \uicontrol Refraction shader key applies refraction to
+                    the shader instance, while using the \uicontrol Transparent
+                    key applies transparency to the shader instance.
+                \li The \uicontrol Displace shader key applies displacement
+                    mapping to the shader instance.
+                \li The \uicontrol Transmissive shader key applies
+                    transmissiveness to the shader instance.
+                \li The \uicontrol Glossy shader key applies glossiness to the
+                    shader instance by default. This shader key is a combination
+                    of \uicontrol Diffuse and \uicontrol Specular keys.
+            \endlist
     \row
         \li \l {TextureInput} {Texture Input}
-        \li A texture channel for a Custom Material or an Effect.
+        \li
+        \li A texture channel for \uicontrol {Custom Material} and Effect
+            instances.
 
-        The \uicontrol Texture property specifies the texture to input, while
-        the \uicontrol Enabled determines whether the texture is enabled.
-
+            The \uicontrol Texture property specifies the texture to input,
+            while \uicontrol Enabled determines whether the texture is
+            enabled.
+            In \uicontrol Effect instances, setting \uicontrol Enabled
+            to \uicontrol false causes the shaders to sample a dummy, opaque
+            black texture instead of the one specified by texture.
     \endtable
-
 
     \section1 Available Custom Shader Commands
     \table
     \header
         \li Command
+        \li Qt 5 Only
         \li Description
 
     \row
         \li \l Blending
+        \li \inlineimage ok.png
         \li A pass command that specifies the source blending function.
 
-            Use the \uicontrol Source and \uicontrol Destination to further
-            define the function.
-
+            The \uicontrol Source property specifies the source blending
+            function, while the \uicontrol Destination property specifies the
+            destination for it.
     \row
         \li \l {BufferBlit} {Buffer Blit}
+        \li \inlineimage ok.png
         \li A copy operation between two buffers in a pass of a Custom Material
             or an Effect.
 
-            Define the source and the destination buffer of the copy-operation
-            by using the \uicontrol Source and \uicontrol Destination
-            properties.
-
+            The \uicontrol Source and \uicontrol Destination specify the source
+            and the destination buffers for the copy-operation.
     \row
         \li \l {BufferInput} {Buffer Input}
+        \li
         \li An input buffer to be used for a pass of a Custom Material or an
             Effect.
 
-            The \uicontrol Buffer property specifies the buffer used for the
-            parameter. The \uicontrol Parameter specifies the name of the input
-            parameter in the shader.
+            The \uicontrol Buffer property specifies the input buffer for an
+            instance of the \uicontrol Pass instance. The \uicontrol Parameter
+            specifies the name of the input parameter in the shader.
 
     \row
         \li \l {CullMode} {Cull Mode}
+        \li \inlineimage ok.png
         \li A culling mode for a render pass.
 
-            The \uicontrol Mode specifies the culling mode in a pass when the
-            \uicontrol {State} property of the \uicontrol {Render State} is
-            set to \uicontrol CullFace.
+            The \uicontrol Mode property specifies the culling mode in a pass
+            when the \uicontrol {State} property of the \uicontrol {Render State}
+            is set to \uicontrol CullFace. Use the dropdown menu to set the
+            culling mode to \uicontrol BackFaceCulling,
+            \uicontrol FrontFaceCulling, or \uicontrol NoCulling.
 
     \row
         \li \l {DepthInput} {Depth Input}
+        \li \inlineimage ok.png
         \li An output texture for the depth buffer.
 
             The \uicontrol Parameter property specifies the name of the texture
@@ -186,14 +286,23 @@
 
     \row
         \li \l {RenderState} {Render State}
-        \li The render state to be enabled or disabled in a pass of a Custom
-            Material or an Effect.
+        \li \inlineimage ok.png
+        \li The render state to be enabled or disabled in a pass of a
+            \uicontrol {Custom Material} or an \uicontrol Effect instance.
 
             The \uicontrol State property specifies the render state to
-            enable or disable in a pass.
+            enable or disable in a pass. Use the dropdown menu to set the
+            \uicontrol State to \uicontrol Blend, \uicontrol CullFace,
+            \uicontrol DepthTest, \uicontrol StencilTest,
+            \uicontrol ScissorTest, \uicontrol DepthWrite, or
+            \uicontrol Multisample.
+
+            The \uicontrol Enabled property defines the \uicontrol Enable state
+            for the \uicontrol {Render State}.
 
     \row
         \li \l {SetUniformValue} {Set Uniform Value}
+        \li
         \li A value to be set during a single pass.
 
             The \uicontrol Target property specifies the name of the uniform

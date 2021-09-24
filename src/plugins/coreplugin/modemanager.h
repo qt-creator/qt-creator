@@ -67,6 +67,8 @@ public:
     static void setFocusToCurrentMode();
     static Style modeStyle();
 
+    static void removeMode(IMode *mode);
+
 public slots:
     static void setModeStyle(Style layout);
     static void cycleModeStyle();
