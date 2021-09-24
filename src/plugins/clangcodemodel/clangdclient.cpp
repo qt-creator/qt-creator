@@ -2187,7 +2187,7 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
                 // the closing angle brackets, then the inner TemplateSpecialization node's range
                 // will extend one character too far, covering the outer's closing angle bracket.
                 // This is what we are correcting for here.
-                // TODO: Can we fix this in clang?
+                // This issue is tracked at https://github.com/clangd/clangd/issues/871.
                 if (searchStart2 == searchEnd2)
                     --searchStart2;
                 insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.at(1)),
@@ -2451,8 +2451,8 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
                         const AstNode node = path.at(path.length() - 2);
                         if (node.kind() == "CXXDestructor" && !node.arcanaContains("implicit")) {
                             styles.mainStyle = TextEditor::C_FUNCTION;
-                            // TODO: "declaration" modifier is missing for destructors; fix in clangd
-                            // (the scope is also wrong)
+
+                            // https://github.com/clangd/clangd/issues/872
                             if (node.role() == "declaration")
                                 styles.mixinStyles.push_back(TextEditor::C_DECLARATION);
                         }
