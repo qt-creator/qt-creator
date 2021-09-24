@@ -1058,6 +1058,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     // parentheses matcher
     m_formatRange = true;
     m_parenthesesMatchingTimer.setSingleShot(true);
+    m_parenthesesMatchingTimer.setInterval(50);
     QObject::connect(&m_parenthesesMatchingTimer, &QTimer::timeout,
                      this, &TextEditorWidgetPrivate::_q_matchParentheses);
 
@@ -2714,7 +2715,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 
     skip_event:
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer.start(50);
+        d->m_parenthesesMatchingTimer.start();
 
     if (!ro && d->m_contentsChanged && isPrintableText(eventText) && !inOverwriteMode)
         d->m_codeAssistant.process();
@@ -3427,6 +3428,9 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
 
     QObject::connect(documentLayout, &TextDocumentLayout::updateExtraArea,
                      this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
+    QObject::connect(documentLayout, &TextDocumentLayout::parenthesesChanged,
+                     &m_parenthesesMatchingTimer, QOverload<>::of(&QTimer::start));
 
     QObject::connect(documentLayout, &QAbstractTextDocumentLayout::documentSizeChanged,
                      this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
@@ -5431,7 +5435,7 @@ void TextEditorWidgetPrivate::updateHighlights()
         // Delay update when no matching is displayed yet, to avoid flicker
         if (q->extraSelections(TextEditorWidget::ParenthesesMatchingSelection).isEmpty()
             && m_bracketsAnimator == nullptr) {
-            m_parenthesesMatchingTimer.start(50);
+            m_parenthesesMatchingTimer.start();
         } else {
             // when we uncheck "highlight matching parentheses"
             // we need clear current selection before viewport update

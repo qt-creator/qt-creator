@@ -52,7 +52,11 @@ struct TEXTEDITOR_EXPORT Parenthesis
     QChar chr;
     Utils::Id source;
     Type type = Opened;
+
+    bool operator==(const Parenthesis &other) const;
 };
+
+TEXTEDITOR_EXPORT QDebug operator<<(QDebug debug, const Parenthesis &parenthesis);
 
 class TEXTEDITOR_EXPORT CodeFormatterData
 {
@@ -231,6 +235,7 @@ public:
 signals:
     void updateExtraArea();
     void foldChanged(const int blockNumber, bool folded);
+    void parenthesesChanged(const QTextBlock block);
 };
 
 } // namespace TextEditor

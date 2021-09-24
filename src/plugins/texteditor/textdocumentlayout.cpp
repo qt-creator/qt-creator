@@ -387,12 +387,12 @@ TextDocumentLayout::~TextDocumentLayout()
 
 void TextDocumentLayout::setParentheses(const QTextBlock &block, const Parentheses &parentheses)
 {
-    if (parentheses.isEmpty()) {
-        if (TextBlockUserData *userData = textUserData(block))
-            userData->clearParentheses();
-    } else {
-        userData(block)->setParentheses(parentheses);
-    }
+    if (TextDocumentLayout::parentheses(block) == parentheses)
+        return;
+
+    userData(block)->setParentheses(parentheses);
+    if (auto layout = qobject_cast<TextDocumentLayout *>(block.document()->documentLayout()))
+        emit layout->parenthesesChanged(block);
 }
 
 Parentheses TextDocumentLayout::parentheses(const QTextBlock &block)
@@ -682,6 +682,20 @@ void TextDocumentLayout::FoldValidator::finalize()
         m_layout->requestUpdate();
         m_layout->emitDocumentSizeChanged();
     }
+}
+
+QDebug operator<<(QDebug debug, const Parenthesis &parenthesis)
+{
+    QDebugStateSaver saver(debug);
+    debug << (parenthesis.type == Parenthesis::Opened ? "Opening " : "Closing ") << parenthesis.chr
+          << " at " << parenthesis.pos;
+
+    return debug;
+}
+
+bool Parenthesis::operator==(const Parenthesis &other) const
+{
+    return pos == other.pos && chr == other.chr && source == other.source && type == other.type;
 }
 
 } // namespace TextEditor
