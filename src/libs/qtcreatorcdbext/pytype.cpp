@@ -31,7 +31,7 @@
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
 
-#include <Windows.h>
+#include <windows.h>
 #ifndef _NO_CVCONST_H
 #define _NO_CVCONST_H
 #include <dbghelp.h>

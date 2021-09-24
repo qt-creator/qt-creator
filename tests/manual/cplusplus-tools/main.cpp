@@ -31,7 +31,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
-//#include <Windows.h>
+//#include <windows.h>
 //#include <linux/version.h>
 #include "dummy.h"
 #include "detail/header.h"

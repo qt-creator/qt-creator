@@ -36,7 +36,7 @@
 #include <codecvt>
 #include <iomanip>
 
-#include <Windows.h>
+#include <windows.h>
 
 static const char whiteSpace[] = " \t\r\n";
 
