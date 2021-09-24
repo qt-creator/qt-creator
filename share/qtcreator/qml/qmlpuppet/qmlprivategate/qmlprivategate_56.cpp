@@ -378,7 +378,6 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
         }
 
         if (!isQuickStyleItem(item)) {
-            qDebug() << Q_FUNC_INFO << item;
             if (item) {
                 static_cast<QQmlParserStatus *>(item)->componentComplete();
             } else {

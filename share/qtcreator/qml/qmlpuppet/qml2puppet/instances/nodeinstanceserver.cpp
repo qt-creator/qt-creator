@@ -561,10 +561,9 @@ void NodeInstanceServer::setupDefaultDummyData()
         }
     }
 
-    if (m_dummyContextObject) {
-        qDebug() << "Loaded default dummy context object.";
+    if (m_dummyContextObject)
         m_dummyContextObject->setParent(this);
-    }
+
 
     refreshBindings();
 }
