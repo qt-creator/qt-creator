@@ -1120,7 +1120,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     });
 
     for (const Location &loc : locations)
-        refData->fileData[loc.uri()].rangesAndLineText << qMakePair(loc.range(), QString()); // TODO: Can we assume that locations for the same file are grouped?
+        refData->fileData[loc.uri()].rangesAndLineText << qMakePair(loc.range(), QString());
     for (auto it = refData->fileData.begin(); it != refData->fileData.end(); ++it) {
         const QStringList lines = SymbolSupport::getFileContents(it.key().toFilePath());
         it->fileContent = lines.join('\n');
