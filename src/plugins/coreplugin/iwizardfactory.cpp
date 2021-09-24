@@ -437,6 +437,8 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
     QIcon iconWithText;
     for (const QSize &pixmapSize : icon.availableSizes()) {
         QPixmap pixmap = icon.pixmap(pixmapSize);
+        const qreal originalPixmapDpr = pixmap.devicePixelRatio();
+        pixmap.setDevicePixelRatio(1); // Hack for QTCREATORBUG-26315
         const int fontSize = pixmap.height() / 4;
         const int margin = pixmap.height() / 8;
         QFont font;
@@ -447,6 +449,8 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
         QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
         textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
         p.drawText(pixmap.rect().adjusted(margin, margin, -margin, -margin), text, textOption);
+        p.end();
+        pixmap.setDevicePixelRatio(originalPixmapDpr);
         iconWithText.addPixmap(pixmap);
     }
     return iconWithText;
