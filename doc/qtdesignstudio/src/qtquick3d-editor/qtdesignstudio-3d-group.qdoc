@@ -1,0 +1,51 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-group.html
+    \previouspage studio-3d-node.html
+    \nextpage studio-3d-instancing.html
+
+    \title Group
+
+    The \uicontrol Group component is a \l Node component that can be
+    used to wrap other objects for the purpose of grouping them. This allows you
+    to transform and set the opacity and visibility of multiple 3D components in
+    the \l Properties view simultaneously.
+
+    To add a \uicontrol Group component
+    to your scene, drag-and-drop it from \l Library > \uicontrol Components >
+    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to the \l {3D Editor}
+    view or to \l Navigator > \uicontrol View3D > \uicontrol {Scene Environment}
+    > \uicontrol Scene.
+
+    If the \uicontrol Group component is not displayed in
+    \uicontrol Library, you should add the \uicontrol {Qt Quick 3D} module to
+    your project, as described in \l {Adding and Removing Modules}.
+
+    Select the \uicontrol Group component in \uicontrol Navigator to modify
+    \uicontrol Node properties for its child components in the
+    \uicontrol Properties view.
+*/

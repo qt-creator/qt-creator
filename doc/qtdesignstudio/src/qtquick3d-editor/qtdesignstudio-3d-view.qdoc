@@ -31,7 +31,7 @@
     \title 3D Views
 
     To create a Qt Quick 3D UI project, we recommend using a \uicontrol
-    {Qt Quick 3D Application Template} wizard template that adds the
+    {Qt Quick 3D Application} wizard template that adds the
     \l {3D Components}{Qt Quick 3D} components to \l Library >
     \uicontrol Components and contains a 3D view. A 3D view component includes a
     \l {Scene Environment}{scene environment} as well as a scene

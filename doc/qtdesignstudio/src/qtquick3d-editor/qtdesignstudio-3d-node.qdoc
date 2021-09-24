@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -25,26 +25,21 @@
 
 /*!
     \page studio-3d-node.html
-    \previouspage quick-animations.html
-    \nextpage studio-3d-instancing.html
+    \previouspage studio-3d-view.html
+    \nextpage studio-3d-group.html
 
-    \title Group
+    \title Node
 
-    The \uicontrol Group component is a \uicontrol Node component that can be
-    used to wrap other objects for the purpose of grouping them. This allows you
-    to transform and set the opacity and visibility of multiple 3D components in
-    the \l Properties view simultaneously. To add a \uicontrol Group component
-    to your scene, drag-and-drop it from \l Library > \uicontrol Components >
-    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to the \l {3D Editor}
-    view or to \l Navigator > \uicontrol View3D > \uicontrol {Scene Environment}
-    > \uicontrol Scene. If the \uicontrol Group component is not displayed in
-    \uicontrol Library, you should add the \uicontrol {Qt Quick 3D} module to
-    your project, as described in \l {Adding and Removing Modules}.
-
-    Select the \uicontrol Group component in \uicontrol Navigator to modify its
-    properties in the \uicontrol Properties view.
+    You can set properties for 3D components that are based on the
+    \uicontrol Node component in \uicontrol Properties > \uicontrol Node
+    and \uicontrol Transform.
 
     \section1 Setting Node Opacity and Visibility
+
+    You can set the opacity and visibility of 3D components that are based on
+    the \uicontrol Node component in \uicontrol Properties > \uicontrol Node.
+
+    \image studio-3d-properties-node.png "Node properties"
 
     All components have an \uicontrol Opacity value applied to them. The opacity
     of 100 makes a component fully opaque, while the opacity of 0 prevents a
@@ -61,7 +56,14 @@
     show components. It is useful when you want to show a component in a
     particular state, but hide it in another state, for example.
 
+    The \uicontrol {Static flags} property is currently not used.
+
     \section1 Managing 3D Transformations
+
+    You can manage 3D transformations for components that are based on the
+    \uicontrol Node component in \uicontrol Transform.
+
+    \image studio-3d-properties-transform.png "Transform properties"
 
     The value of the \uicontrol Translation property contains the position
     translation of the component in the local coordinate space established by
