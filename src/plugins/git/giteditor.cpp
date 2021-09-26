@@ -217,6 +217,7 @@ void GitEditorWidget::setPlainText(const QString &text)
         for (const auto &formattedChunk : formattedTextList)
             cursor.insertText(formattedChunk.text, formattedChunk.format);
         cursor.endEditBlock();
+        document()->setModified(false);
 
         return;
     }
