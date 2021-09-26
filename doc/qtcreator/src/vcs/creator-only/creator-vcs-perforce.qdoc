@@ -50,7 +50,9 @@
     \uicontrol {P4 user}, \uicontrol {P4 client}, and \uicontrol {P4 port}. To
     specify the details individually for several projects, use configuration
     files instead. Create a \c {p4config.txt} configuration file for each
-    project in the top level project directory.
+    project in the top level project directory, and run
+    \c{p4 set P4CONFIG=p4config.txt} once. Note that
+    \uicontrol {Environment Variables} must be unchecked.
 
     \section1 Editing Files
 
