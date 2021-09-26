@@ -151,8 +151,9 @@ AndroidDevice::AndroidDevice()
     setOsType(Utils::OsTypeOtherUnix);
     setDeviceState(DeviceConnected);
 
-    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &, QWidget *) {
-        AndroidDeviceManager::instance()->updateDevicesListOnce();
+    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
+        Q_UNUSED(parent)
+        AndroidDeviceManager::instance()->updateDeviceState(device);
     }});
 
     addEmulatorActionsIfNotFound();
@@ -446,6 +447,28 @@ void AndroidDeviceManager::updateDevicesListOnce()
             return m_androidConfig.connectedDevices();
         }));
     }
+}
+
+void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Ptr &device)
+{
+    const AndroidDevice *dev = static_cast<AndroidDevice *>(device.data());
+    const QString serial = dev->serialNumber();
+    DeviceManager *const devMgr = DeviceManager::instance();
+    const Utils::Id id = dev->id();
+    if (serial.isEmpty() && dev->machineType() == IDevice::Emulator) {
+        devMgr->setDeviceState(id, IDevice::DeviceConnected);
+        return;
+    }
+
+    const QStringList args = AndroidDeviceInfo::adbSelector(serial) << "shell" << "echo" << "1";
+    const SdkToolResult result = AndroidManager::runAdbCommand(args);
+    const int success = result.success();
+    if (success)
+        devMgr->setDeviceState(id, IDevice::DeviceReadyToUse);
+    else if (dev->machineType() == IDevice::Emulator || result.stdErr().contains("unauthorized"))
+        devMgr->setDeviceState(id, IDevice::DeviceConnected);
+    else
+        devMgr->setDeviceState(id, IDevice::DeviceDisconnected);
 }
 
 void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)

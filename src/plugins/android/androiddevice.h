@@ -101,6 +101,7 @@ public:
     void setupDevicesWatcher();
     void updateDevicesList();
     void updateDevicesListOnce();
+    void updateDeviceState(const ProjectExplorer::IDevice::Ptr &device);
 
     void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
     void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
