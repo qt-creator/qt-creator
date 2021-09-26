@@ -26,6 +26,8 @@
 #include "avddialog.h"
 #include "androidsdkmanager.h"
 #include "androidavdmanager.h"
+#include "androiddevice.h"
+#include "androidconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
@@ -33,6 +35,7 @@
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
+#include <QFutureWatcher>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QToolTip>
@@ -46,29 +49,35 @@ namespace {
 static Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
 }
 
-AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStringList &abis,
-                     const AndroidConfig &config, QWidget *parent) :
-    QDialog(parent),
-    m_sdkManager(sdkManager),
-    m_minApiLevel(minApiLevel),
-    m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*")),
-    m_androidConfig(config)
+AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
+    : QDialog(parent),
+      m_sdkManager(m_androidConfig),
+      m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*")),
+      m_androidConfig(config)
 {
-    QTC_CHECK(m_sdkManager);
     m_avdDialog.setupUi(this);
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
 
-    if (abis.isEmpty()) {
-        m_avdDialog.abiComboBox->addItems(QStringList({
-                                               ProjectExplorer::Constants::ANDROID_ABI_X86,
-                                               ProjectExplorer::Constants::ANDROID_ABI_X86_64,
-                                               ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
-                                               ProjectExplorer::Constants::ANDROID_ABI_ARMEABI,
-                                               ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A}));
-    } else {
-        m_avdDialog.abiComboBox->addItems(abis);
-    }
+    connect(&m_hideTipTimer, &QTimer::timeout, this, &Utils::ToolTip::hide);
+    connect(m_avdDialog.deviceDefinitionTypeComboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &AvdDialog::updateDeviceDefinitionComboBox);
+    connect(m_avdDialog.abiComboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &AvdDialog::updateApiLevelComboBox);
+
+    deviceTypeToStringMap.insert(AvdDialog::Phone, "Phone");
+    deviceTypeToStringMap.insert(AvdDialog::Tablet, "Tablet");
+    deviceTypeToStringMap.insert(AvdDialog::Automotive, "Automotive");
+    deviceTypeToStringMap.insert(AvdDialog::TV, "TV");
+    deviceTypeToStringMap.insert(AvdDialog::Wear, "Wear");
+
+    m_avdDialog.abiComboBox->addItems(QStringList({
+                                           ProjectExplorer::Constants::ANDROID_ABI_X86,
+                                           ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+                                           ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
+                                           ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A}));
 
     auto v = new QRegularExpressionValidator(m_allowedNameChars, this);
     m_avdDialog.nameLineEdit->setValidator(v);
@@ -77,22 +86,42 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     m_avdDialog.warningText->setType(Utils::InfoLabel::Warning);
     m_avdDialog.warningText->setElideMode(Qt::ElideNone);
 
-    connect(&m_hideTipTimer, &QTimer::timeout, this, []() { Utils::ToolTip::hide(); });
-
     parseDeviceDefinitionsList();
-    for (const QString &type : DeviceTypeToStringMap)
+    for (const QString &type : deviceTypeToStringMap)
         m_avdDialog.deviceDefinitionTypeComboBox->addItem(type);
 
-    connect(m_avdDialog.deviceDefinitionTypeComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            &AvdDialog::updateDeviceDefinitionComboBox);
-    connect(m_avdDialog.abiComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &AvdDialog::updateApiLevelComboBox);
-
-    m_avdDialog.deviceDefinitionTypeComboBox->setCurrentIndex(1); // Set Phone type as default index
     updateApiLevelComboBox();
+}
+
+int AvdDialog::exec()
+{
+    const int execResult = QDialog::exec();
+    if (execResult == QDialog::Accepted) {
+        CreateAvdInfo result;
+        result.systemImage = systemImage();
+        result.name = name();
+        result.abi = abi();
+        result.deviceDefinition = deviceDefinition();
+        result.sdcardSize = sdcardSize();
+        result.overwrite = m_avdDialog.overwriteCheckBox->isChecked();
+
+        const AndroidAvdManager avdManager = AndroidAvdManager(m_androidConfig);
+        QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
+        createAvdFutureWatcher.setFuture(avdManager.createAvd(result));
+
+        QEventLoop loop;
+        QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::finished,
+                         &loop, &QEventLoop::quit);
+        QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::canceled,
+                         &loop, &QEventLoop::quit);
+        loop.exec(QEventLoop::ExcludeUserInputEvents);
+
+        const QFuture<CreateAvdInfo> future = createAvdFutureWatcher.future();
+        if (future.isResultReadyAt(0))
+            m_createdAvdInfo = future.result();
+    }
+
+    return execResult;
 }
 
 bool AvdDialog::isValid() const
@@ -100,23 +129,27 @@ bool AvdDialog::isValid() const
     return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty();
 }
 
-CreateAvdInfo AvdDialog::gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
-                                             const AndroidConfig &config, int minApiLevel, const QStringList &abis)
+ProjectExplorer::IDevice::Ptr AvdDialog::device() const
 {
-    CreateAvdInfo result;
-    AvdDialog d(minApiLevel, sdkManager, abis, config, parent);
-    result.cancelled = (d.exec() != QDialog::Accepted);
-    if (result.cancelled || !d.isValid())
-        return result;
+    AndroidDevice *dev = new AndroidDevice();
+    const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(m_createdAvdInfo);
+    using namespace ProjectExplorer;
+    dev->setupId(IDevice::AutoDetected, deviceId);
+    dev->setMachineType(IDevice::Emulator);
+    dev->setDisplayName(m_createdAvdInfo.name);
+    dev->setDeviceState(IDevice::DeviceConnected);
+    dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
+    dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});
+    if (!m_createdAvdInfo.systemImage) {
+        qCWarning(avdDialogLog) << "System image of the created AVD is nullptr";
+        return IDevice::Ptr();
+    }
+    dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.systemImage->apiLevel());
+    dev->setExtraData(Constants::AndroidAvdSdcard, QString("%1 MB")
+                      .arg(m_createdAvdInfo.sdcardSize));
+    dev->setExtraData(Constants::AndroidAvdDevice, m_createdAvdInfo.deviceDefinition);
 
-    result.systemImage = d.systemImage();
-    result.name = d.name();
-    result.abi = d.abi();
-    result.deviceDefinition = d.deviceDefinition();
-    result.sdcardSize = d.sdcardSize();
-    result.overwrite = d.m_avdDialog.overwriteCheckBox->isChecked();
-
-    return result;
+    return IDevice::Ptr(dev);
 }
 
 AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
@@ -175,7 +208,7 @@ void AvdDialog::parseDeviceDefinitionsList()
 
 void AvdDialog::updateDeviceDefinitionComboBox()
 {
-    DeviceType curDeviceType = DeviceTypeToStringMap.key(
+    DeviceType curDeviceType = deviceTypeToStringMap.key(
         m_avdDialog.deviceDefinitionTypeComboBox->currentText());
 
     m_avdDialog.deviceDefinitionComboBox->clear();
@@ -215,8 +248,8 @@ int AvdDialog::sdcardSize() const
 
 void AvdDialog::updateApiLevelComboBox()
 {
-    SystemImageList installedSystemImages = m_sdkManager->installedSystemImages();
-    DeviceType curDeviceType = DeviceTypeToStringMap.key(
+    SystemImageList installedSystemImages = m_sdkManager.installedSystemImages();
+    DeviceType curDeviceType = deviceTypeToStringMap.key(
         m_avdDialog.deviceDefinitionTypeComboBox->currentText());
 
     QString selectedAbi = abi();
@@ -250,8 +283,7 @@ void AvdDialog::updateApiLevelComboBox()
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(
             tr("Cannot create a new AVD. No suitable Android system image is installed.<br/>"
-               "Install a system image of at least API version %1 from the SDK Manager tab.")
-                .arg(m_minApiLevel));
+               "Install a system image for the intended Android version from the SDK Manager."));
         m_avdDialog.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else if (filteredList.isEmpty()) {
         m_avdDialog.targetApiComboBox->setEnabled(false);

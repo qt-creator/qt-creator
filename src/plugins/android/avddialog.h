@@ -41,21 +41,27 @@ class AvdDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AvdDialog(int minApiLevel,
-                       AndroidSdkManager *sdkManager,
-                       const QStringList &abis,
-                       const AndroidConfig &config,
-                       QWidget *parent = nullptr);
+    explicit AvdDialog(const AndroidConfig &config, QWidget *parent = nullptr);
+    int exec() override;
 
-    enum DeviceType { TV, Phone, Wear, Tablet, Automotive, PhoneOrTablet };
+    enum DeviceType { Phone, Tablet, Automotive, TV, Wear, PhoneOrTablet };
 
-    const QMap<DeviceType, QString> DeviceTypeToStringMap{
-        {TV,            "TV"},
-        {Phone,         "Phone"},
-        {Wear,          "Wear"},
-        {Tablet,        "Tablet"},
-        {Automotive,    "Automotive"}
-    };
+    ProjectExplorer::IDevice::Ptr device() const;
+
+    const SystemImage *systemImage() const;
+    QString name() const;
+    QString abi() const;
+    QString deviceDefinition() const;
+    int sdcardSize() const;
+    bool isValid() const;
+
+private:
+    void parseDeviceDefinitionsList();
+    void updateDeviceDefinitionComboBox();
+    void updateApiLevelComboBox();
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
+    static AvdDialog::DeviceType tagToDeviceType(const QString &type_tag);
 
     struct DeviceDefinitionStruct
     {
@@ -64,30 +70,14 @@ public:
         DeviceType deviceType;
     };
 
-    const SystemImage *systemImage() const;
-    QString name() const;
-    QString abi() const;
-    QString deviceDefinition() const;
-    int sdcardSize() const;
-    bool isValid() const;
-    static AvdDialog::DeviceType tagToDeviceType(const QString &type_tag);
-    static CreateAvdInfo gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
-                                             const AndroidConfig &config,
-                                             int minApiLevel = 0, const QStringList &abis = {});
-
-private:
-    void parseDeviceDefinitionsList();
-    void updateDeviceDefinitionComboBox();
-    void updateApiLevelComboBox();
-    bool eventFilter(QObject *obj, QEvent *event) override;
-
     Ui::AddNewAVDDialog m_avdDialog;
-    AndroidSdkManager *m_sdkManager;
-    int m_minApiLevel;
+    AndroidSdkManager m_sdkManager;
+    CreateAvdInfo m_createdAvdInfo;
     QTimer m_hideTipTimer;
     QRegularExpression m_allowedNameChars;
     QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
     AndroidConfig m_androidConfig;
+    QMap<AvdDialog::DeviceType, QString> deviceTypeToStringMap;
 };
 }
 }
