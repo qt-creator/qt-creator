@@ -21,8 +21,6 @@ QtcPlugin {
         "qnxtoolchain.cpp",
         "qnxtoolchain.h",
         "qnx.qrc",
-        "qnxbaseqtconfigwidget.cpp",
-        "qnxbaseqtconfigwidget.h",
         "qnxconstants.h",
         "qnxconfiguration.cpp",
         "qnxconfiguration.h",

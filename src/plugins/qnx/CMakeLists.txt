@@ -5,7 +5,6 @@ add_qtc_plugin(Qnx
     qnx.qrc
     qnx_export.h
     qnxanalyzesupport.cpp qnxanalyzesupport.h
-    qnxbaseqtconfigwidget.cpp qnxbaseqtconfigwidget.h
     qnxconfiguration.cpp qnxconfiguration.h
     qnxconfigurationmanager.cpp qnxconfigurationmanager.h
     qnxconstants.h

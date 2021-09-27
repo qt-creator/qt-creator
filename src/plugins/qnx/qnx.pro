@@ -3,7 +3,6 @@ QT += network xml
 include(../../qtcreatorplugin.pri)
 
 SOURCES += qnxplugin.cpp \
-    qnxbaseqtconfigwidget.cpp \
     qnxutils.cpp \
     qnxdevicewizard.cpp \
     qnxrunconfiguration.cpp \
@@ -25,7 +24,6 @@ SOURCES += qnxplugin.cpp \
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
-    qnxbaseqtconfigwidget.h \
     qnxutils.h \
     qnxdevicewizard.h \
     qnxrunconfiguration.h \

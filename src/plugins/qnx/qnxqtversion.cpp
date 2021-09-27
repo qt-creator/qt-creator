@@ -25,17 +25,21 @@
 
 #include "qnxqtversion.h"
 
-#include "qnxbaseqtconfigwidget.h"
 #include "qnxconstants.h"
 #include "qnxutils.h"
 
 #include <coreplugin/featureprovider.h>
 #include <proparser/profileevaluator.h>
+
+#include <qtsupport/qtconfigwidget.h>
 #include <qtsupport/qtsupportconstants.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/pathchooser.h>
 
 #include <QDir>
+#include <QHBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -48,6 +52,28 @@ const char SDP_PATH_KEY[] = "SDKPath";
 const char QNX_TARGET_KEY[] = "QNX_TARGET";
 const char QNX_HOST_KEY[]   = "QNX_HOST";
 const char QNX_QNX_FEATURE[] = "QtSupport.Wizards.FeatureQNX";
+
+class QnxBaseQtConfigWidget : public QtSupport::QtConfigWidget
+{
+public:
+    explicit QnxBaseQtConfigWidget(QnxQtVersion *version)
+    {
+        QTC_ASSERT(version, return);
+
+        auto layout = new QHBoxLayout(this);
+        auto sdpPathChooser(new PathChooser);
+        layout->addWidget(sdpPathChooser);
+
+        sdpPathChooser->setExpectedKind(PathChooser::ExistingDirectory);
+        sdpPathChooser->setHistoryCompleter("Qnx.Sdp.History");
+        sdpPathChooser->setFilePath(version->sdpPath());
+
+        connect(sdpPathChooser, &PathChooser::rawPathChanged, [this, version, sdpPathChooser] {
+            version->setSdpPath(sdpPathChooser->filePath());
+            emit changed();
+        });
+    }
+};
 
 QnxQtVersion::QnxQtVersion() = default;
 
