@@ -36,6 +36,8 @@
 
 #include <QCoreApplication>
 
+using namespace Utils;
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -70,8 +72,8 @@ Core::GeneratedFiles SubdirsProjectWizard::generateFiles(const QWizard *w,
 {
     const auto *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     const QtProjectParameters params = wizard->parameters();
-    const QString projectPath = params.projectPath();
-    const QString profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
+    const FilePath projectPath = params.projectPath();
+    const FilePath profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
     profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute | Core::GeneratedFile::OpenEditorAttribute);
@@ -85,10 +87,10 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
     const auto *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     if (QtWizard::qt4ProjectPostGenerateFiles(wizard, files, errorMessage)) {
         const QtProjectParameters params = wizard->parameters();
-        const QString projectPath = params.projectPath();
-        const QString profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
+        const FilePath projectPath = params.projectPath();
+        const FilePath profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
         QVariantMap map;
-        map.insert(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE), profileName);
+        map.insert(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE), profileName.toVariant());
         map.insert(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS),
                    Utils::transform<QStringList>(wizard->selectedKits(), &Utils::Id::toString));
         IWizardFactory::requestNewItemDialog(tr("New Subproject", "Title of dialog"),
@@ -96,7 +98,7 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
                                                              [](Core::IWizardFactory *f) {
                                                                  return f->supportedProjectTypes().contains(Constants::QMAKEPROJECT_ID);
                                                              }),
-                                             Utils::FilePath::fromString(wizard->parameters().projectPath()),
+                                             wizard->parameters().projectPath(),
                                              map);
     } else {
         return false;

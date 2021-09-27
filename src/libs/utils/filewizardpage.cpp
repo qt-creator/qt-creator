@@ -80,6 +80,16 @@ QString FileWizardPage::fileName() const
     return d->m_ui.nameLineEdit->text();
 }
 
+FilePath FileWizardPage::filePath() const
+{
+    return d->m_ui.pathChooser->filePath();
+}
+
+void FileWizardPage::setFilePath(const FilePath &filePath)
+{
+    d->m_ui.pathChooser->setFilePath(filePath);
+}
+
 QString FileWizardPage::path() const
 {
     return d->m_ui.pathChooser->filePath().toString();
@@ -87,7 +97,7 @@ QString FileWizardPage::path() const
 
 void FileWizardPage::setPath(const QString &path)
 {
-    d->m_ui.pathChooser->setPath(path);
+    d->m_ui.pathChooser->setFilePath(FilePath::fromString(path));
 }
 
 void FileWizardPage::setFileName(const QString &name)

@@ -166,7 +166,7 @@ BaseFileWizard *CustomWizard::create(QWidget *parent, const WizardDialogParamete
 
     d->m_context->reset();
     auto customPage = new CustomWizardPage(d->m_context, parameters());
-    customPage->setPath(p.defaultPath());
+    customPage->setFilePath(p.defaultPath());
     if (parameters()->firstPageId >= 0)
         wizard->setPage(parameters()->firstPageId, customPage);
     else
@@ -506,7 +506,7 @@ BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
 }
 
 void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
-                                                  const QString &defaultPath,
+                                                  const FilePath &defaultPath,
                                                   const QList<QWizardPage *> &extensionPages) const
 {
     const CustomWizardParametersPtr pa = parameters();
@@ -526,7 +526,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
     }
     for (QWizardPage *ep : extensionPages)
         w->addPage(ep);
-    w->setFilePath(FilePath::fromString(defaultPath));
+    w->setFilePath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 
     connect(w, &BaseProjectWizardDialog::projectParametersChanged,

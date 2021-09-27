@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
 #include "wizardpage.h"
 
 namespace Utils {
@@ -44,7 +45,9 @@ public:
     ~FileWizardPage() override;
 
     QString fileName() const;
-    QString path() const;
+    QString path() const; // Deprecated: Use filePath()
+
+    Utils::FilePath filePath() const;
 
     bool isComplete() const override;
 
@@ -64,8 +67,9 @@ signals:
     void pathChanged();
 
 public slots:
-    void setPath(const QString &path);
+    void setPath(const QString &path); // Deprecated: Use setFilePath
     void setFileName(const QString &name);
+    void setFilePath(const Utils::FilePath &filePath);
 
 private:
     void slotValidChanged();

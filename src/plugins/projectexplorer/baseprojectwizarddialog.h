@@ -61,7 +61,7 @@ public:
     Utils::FilePath filePath() const;
 
     // Generate a new project name (untitled<n>) in path.
-    static QString uniqueProjectName(const QString &path);
+    static QString uniqueProjectName(const Utils::FilePath &path);
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
     void setIntroDescription(const QString &d);

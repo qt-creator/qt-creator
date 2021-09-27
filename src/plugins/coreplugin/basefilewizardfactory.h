@@ -30,6 +30,8 @@
 
 #include <coreplugin/iwizardfactory.h>
 
+#include <utils/filepath.h>
+
 #include <QList>
 #include <QVariantMap>
 
@@ -54,7 +56,7 @@ public:
     };
     Q_DECLARE_FLAGS(DialogParameterFlags, DialogParameterEnum)
 
-    explicit WizardDialogParameters(const QString &defaultPath, Utils::Id platform,
+    explicit WizardDialogParameters(const Utils::FilePath &defaultPath, Utils::Id platform,
                                     const QSet<Utils::Id> &requiredFeatures, DialogParameterFlags flags,
                                     const QVariantMap &extraValues)
         : m_defaultPath(defaultPath),
@@ -64,23 +66,14 @@ public:
           m_extraValues(extraValues)
     {}
 
-    QString defaultPath() const
-    { return m_defaultPath; }
-
-    Utils::Id selectedPlatform() const
-    { return m_selectedPlatform; }
-
-    QSet<Utils::Id> requiredFeatures() const
-    { return m_requiredFeatures; }
-
-    DialogParameterFlags flags() const
-    { return m_parameterFlags; }
-
-    QVariantMap extraValues() const
-    { return m_extraValues; }
+    Utils::FilePath defaultPath() const { return m_defaultPath; }
+    Utils::Id selectedPlatform() const { return m_selectedPlatform; }
+    QSet<Utils::Id> requiredFeatures() const { return m_requiredFeatures; }
+    DialogParameterFlags flags() const { return m_parameterFlags; }
+    QVariantMap extraValues() const { return m_extraValues; }
 
 private:
-    QString m_defaultPath;
+    Utils::FilePath m_defaultPath;
     Utils::Id m_selectedPlatform;
     QSet<Utils::Id> m_requiredFeatures;
     DialogParameterFlags m_parameterFlags;
@@ -94,7 +87,7 @@ class CORE_EXPORT BaseFileWizardFactory : public IWizardFactory
     friend class BaseFileWizard;
 
 public:
-    static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
+    static Utils::FilePath buildFileName(const Utils::FilePath &path, const QString &baseName, const QString &extension);
 
 protected:
     virtual BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const = 0;

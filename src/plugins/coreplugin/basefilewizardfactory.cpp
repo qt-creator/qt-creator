@@ -86,11 +86,11 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, QWidge
     if (flags().testFlag(ForceCapitalLetterForFileName))
         dialogParameterFlags |= WizardDialogParameters::ForceCapitalLetterForFileName;
 
-    Utils::Wizard *wizard = create(parent, WizardDialogParameters(path.toString(),
-                                                                  platform,
-                                                                  requiredFeatures(),
-                                                                  dialogParameterFlags,
-                                                                  extraValues));
+    Wizard *wizard = create(parent, WizardDialogParameters(path,
+                                                           platform,
+                                                           requiredFeatures(),
+                                                           dialogParameterFlags,
+                                                           extraValues));
     QTC_CHECK(wizard);
     return wizard;
 }
@@ -287,21 +287,17 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     \a baseName already has one.
 */
 
-QString BaseFileWizardFactory::buildFileName(const QString &path,
-                                      const QString &baseName,
-                                      const QString &extension)
+FilePath BaseFileWizardFactory::buildFileName(const FilePath &path,
+                                              const QString &baseName,
+                                              const QString &extension)
 {
-    QString rc = path;
-    const QChar slash = QLatin1Char('/');
-    if (!rc.isEmpty() && !rc.endsWith(slash))
-        rc += slash;
-    rc += baseName;
+    FilePath rc = path.pathAppended(baseName);
     // Add extension unless user specified something else
-    const QChar dot = QLatin1Char('.');
+    const QChar dot = '.';
     if (!extension.isEmpty() && !baseName.contains(dot)) {
         if (!extension.startsWith(dot))
-            rc += dot;
-        rc += extension;
+            rc = rc.stringAppended(dot);
+        rc = rc.stringAppended(extension);
     }
     if (debugWizard)
         qDebug() << Q_FUNC_INFO << rc;

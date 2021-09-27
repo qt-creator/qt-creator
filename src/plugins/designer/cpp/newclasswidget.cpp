@@ -29,6 +29,8 @@
 #include <QFileDialog>
 #include <QDebug>
 
+using namespace Utils;
+
 enum { debugNewClassWidget = 0 };
 
 /*! \class Utils::NewClassWidget
@@ -171,14 +173,14 @@ QString NewClassWidget::formFileName() const
     return d->m_ui.formFileLineEdit->text();
 }
 
-QString NewClassWidget::path() const
+FilePath NewClassWidget::filePath() const
 {
-    return d->m_ui.pathChooser->filePath().toString();
+    return d->m_ui.pathChooser->filePath();
 }
 
-void NewClassWidget::setPath(const QString &path)
+void NewClassWidget::setFilePath(const FilePath &path)
 {
-     d->m_ui.pathChooser->setPath(path);
+     d->m_ui.pathChooser->setFilePath(path);
 }
 
 QString NewClassWidget::sourceExtension() const
@@ -305,21 +307,21 @@ static QString ensureSuffix(QString f, const QString &extension)
 }
 
 // If a non-empty name was passed, expand to directory and suffix
-static QString expandFileName(const QDir &dir, const QString &name, const QString &extension)
+static FilePath expandFileName(const FilePath &dir, const QString &name, const QString &extension)
 {
     if (name.isEmpty())
-        return QString();
-    return dir.absoluteFilePath(ensureSuffix(name, extension));
+        return {};
+    return dir / ensureSuffix(name, extension);
 }
 
-QStringList NewClassWidget::files() const
+Utils::FilePaths NewClassWidget::files() const
 {
-    QStringList rc;
-    const QDir dir = QDir(path());
-    rc.push_back(expandFileName(dir, headerFileName(), headerExtension()));
-    rc.push_back(expandFileName(dir, sourceFileName(), sourceExtension()));
-    rc.push_back(expandFileName(dir, formFileName(), formExtension()));
-    return rc;
+    const FilePath dir = filePath();
+    return {
+        expandFileName(dir, headerFileName(), headerExtension()),
+        expandFileName(dir, sourceFileName(), sourceExtension()),
+        expandFileName(dir, formFileName(), formExtension()),
+    };
 }
 
 } // namespace Internal

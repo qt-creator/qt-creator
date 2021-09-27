@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
@@ -41,14 +43,15 @@ QString createMacro(const QString &name, const QString &suffix);
 // Base parameters for application project generation with functionality to
 // write a .pro-file section.
 
-struct QtProjectParameters {
+struct QtProjectParameters
+{
     enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, QtPlugin, EmptyProject };
     enum QtVersionSupport { SupportQt4And5, SupportQt4Only, SupportQt5Only };
     enum Flags { WidgetsRequiredFlag = 0x1 };
 
     QtProjectParameters();
     // Return project path as "path/name"
-    QString projectPath() const;
+    Utils::FilePath projectPath() const;
     void writeProFile(QTextStream &) const;
     static void writeProFileHeader(QTextStream &);
 
@@ -62,7 +65,7 @@ struct QtProjectParameters {
     QtVersionSupport qtVersionSupport = SupportQt4And5;
     QString fileName;
     QString target;
-    QString path;
+    Utils::FilePath path;
     QStringList selectedModules;
     QStringList deselectedModules;
     QString targetDirectory;

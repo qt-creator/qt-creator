@@ -148,8 +148,8 @@ public:
         addPage(m_secondPage);
     }
 
-    QString path() const { return m_firstPage->path(); }
-    void setPath(const QString &path) { m_firstPage->setPath(path); }
+    Utils::FilePath projectDir() const { return m_firstPage->filePath(); }
+    void setProjectDir(const Utils::FilePath &path) { m_firstPage->setFilePath(path); }
     FilePaths selectedFiles() const { return m_secondPage->selectedFiles(); }
     FilePaths selectedPaths() const { return m_secondPage->selectedPaths(); }
     QString qtModules() const { return m_secondPage->qtModules(); }
@@ -162,8 +162,7 @@ public:
 
 void FilesSelectionWizardPage::initializePage()
 {
-    m_filesWidget->resetModel(FilePath::fromString(m_simpleProjectWizardDialog->path()),
-                              FilePaths());
+    m_filesWidget->resetModel(m_simpleProjectWizardDialog->projectDir(), FilePaths());
 }
 
 SimpleProjectWizard::SimpleProjectWizard()
@@ -187,7 +186,7 @@ BaseFileWizard *SimpleProjectWizard::create(QWidget *parent,
                                             const WizardDialogParameters &parameters) const
 {
     auto wizard = new SimpleProjectWizardDialog(this, parent);
-    wizard->setPath(parameters.defaultPath());
+    wizard->setProjectDir(parameters.defaultPath());
 
     for (QWizardPage *p : wizard->extensionPages())
         wizard->addPage(p);
@@ -199,7 +198,7 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
                                   QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const QString projectPath = wizard->path();
+    const QString projectPath = wizard->projectDir().toString();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
     const FilePath proFileName = Utils::FilePath::fromString(QFileInfo(dir, projectName + ".pro").absoluteFilePath());
@@ -257,8 +256,7 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
                                   QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const QString projectPath = wizard->path();
-    const QDir dir(projectPath);
+    const QDir dir(wizard->projectDir().toString());
     const QString projectName = wizard->projectName();
     const FilePath projectFileName = Utils::FilePath::fromString(QFileInfo(dir, "CMakeLists.txt").absoluteFilePath());
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
