@@ -52,7 +52,7 @@ private:
     void keyFileEditingFinished();
     void gdbServerEditingFinished();
     void handleFreePortsChanged();
-    void setPrivateKey(const QString &path);
+    void setPrivateKey(const Utils::FilePath &path);
     void createNewKey();
     void hostKeyCheckingChanged(bool doCheck);
 

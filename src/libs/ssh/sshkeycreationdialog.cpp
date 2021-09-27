@@ -32,9 +32,6 @@
 #include <utils/pathchooser.h>
 
 #include <QApplication>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
@@ -50,7 +47,7 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     m_ui->privateKeyFileButton->setText(Utils::PathChooser::browseButtonLabel());
     const QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/qtc_id");
-    setPrivateKeyFile(defaultPath);
+    setPrivateKeyFile(FilePath::fromString(defaultPath));
 
     connect(m_ui->rsa, &QRadioButton::toggled,
             this, &SshKeyCreationDialog::keyTypeChanged);
@@ -86,16 +83,16 @@ void SshKeyCreationDialog::generateKeys()
         showError(tr("The ssh-keygen tool was not found."));
         return;
     }
-    if (QFileInfo::exists(privateKeyFilePath())) {
+    if (privateKeyFilePath().exists()) {
         showError(tr("Refusing to overwrite existing private key file \"%1\".")
-                  .arg(QDir::toNativeSeparators(privateKeyFilePath())));
+                  .arg(privateKeyFilePath().toUserOutput()));
         return;
     }
     const QString keyTypeString = QLatin1String(m_ui->rsa->isChecked() ? "rsa": "ecdsa");
     QApplication::setOverrideCursor(Qt::BusyCursor);
     QProcess keygen;
     const QStringList args{"-t", keyTypeString, "-b", m_ui->comboBox->currentText(),
-                "-N", QString(), "-f", privateKeyFilePath()};
+                "-N", QString(), "-f", privateKeyFilePath().path()};
     QString errorMsg;
     keygen.start(SshSettings::keygenFilePath().toString(), args);
     keygen.closeWriteChannel();
@@ -115,14 +112,14 @@ void SshKeyCreationDialog::handleBrowseButtonClicked()
 {
     const FilePath filePath = FileUtils::getSaveFilePath(this, tr("Choose Private Key File Name"));
     if (!filePath.isEmpty())
-        setPrivateKeyFile(filePath.toString());
+        setPrivateKeyFile(filePath);
 }
 
-void SshKeyCreationDialog::setPrivateKeyFile(const QString &filePath)
+void SshKeyCreationDialog::setPrivateKeyFile(const FilePath &filePath)
 {
-    m_ui->privateKeyFileValueLabel->setText(filePath);
+    m_ui->privateKeyFileValueLabel->setText(filePath.toUserOutput());
     m_ui->generateButton->setEnabled(!privateKeyFilePath().isEmpty());
-    m_ui->publicKeyFileLabel->setText(filePath + QLatin1String(".pub"));
+    m_ui->publicKeyFileLabel->setText(filePath.toUserOutput() + ".pub");
 }
 
 void SshKeyCreationDialog::showError(const QString &details)
@@ -130,14 +127,14 @@ void SshKeyCreationDialog::showError(const QString &details)
     QMessageBox::critical(this, tr("Key Generation Failed"), details);
 }
 
-QString SshKeyCreationDialog::privateKeyFilePath() const
+FilePath SshKeyCreationDialog::privateKeyFilePath() const
 {
-    return m_ui->privateKeyFileValueLabel->text();
+    return FilePath::fromUserInput(m_ui->privateKeyFileValueLabel->text());
 }
 
-QString SshKeyCreationDialog::publicKeyFilePath() const
+FilePath SshKeyCreationDialog::publicKeyFilePath() const
 {
-    return m_ui->publicKeyFileLabel->text();
+    return FilePath::fromUserInput(m_ui->publicKeyFileLabel->text());
 }
 
 } // namespace QSsh

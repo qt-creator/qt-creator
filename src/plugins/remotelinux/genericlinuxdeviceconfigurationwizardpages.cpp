@@ -250,7 +250,7 @@ void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::createKey()
 {
     SshKeyCreationDialog dlg(this);
     if (dlg.exec() == QDialog::Accepted)
-        d->keyFileChooser.setPath(dlg.privateKeyFilePath());
+        d->keyFileChooser.setFilePath(dlg.privateKeyFilePath());
 }
 
 void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::deployKey()

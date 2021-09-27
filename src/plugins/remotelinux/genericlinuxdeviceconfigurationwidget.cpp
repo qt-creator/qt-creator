@@ -138,9 +138,9 @@ void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
     updatePortsWarningLabel();
 }
 
-void GenericLinuxDeviceConfigurationWidget::setPrivateKey(const QString &path)
+void GenericLinuxDeviceConfigurationWidget::setPrivateKey(const FilePath &path)
 {
-    m_ui->keyFileLineEdit->setPath(path);
+    m_ui->keyFileLineEdit->setFilePath(path);
     keyFileEditingFinished();
 }
 
