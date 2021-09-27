@@ -13,55 +13,122 @@ the public Git repository. For example:
 General
 -------
 
-* ...
+* Moved launching of tools to external process
+* Merged `CppTools` plugin into `CppEditor` plugin
 
 Editing
 -------
 
+* Added support for multiple cursor editing (QTCREATORBUG-16013)
+* Added import and export for font settings (QTCREATORBUG-6833)
+
 ### C++
+
+* Added completion and function hint to `clangd` support
+* Added option for saving open files automatically after refactoring
+  (QTCREATORBUG-25924)
+* Fixed `Insert Definition` for templates with value parameters
+  (QTCREATORBUG-26113)
+* Fixed canceling of C++ parsing on configuration change (QTCREATORBUG-24890)
 
 ### QML
 
-### Language Client
-
-### Beautifier
-
-### Designer
+* Improved wizards for Qt 6.2 (QTCREATORBUG-26170)
+* Simplified wizards
 
 Projects
 --------
 
-Debugging
----------
+* Added option to close all projects except one to Projects' view context menu
+* Added option to cancel file renaming (QTCREATORBUG-26268)
+* Added `Show in File System View` to project context menu
+* Added `Advanced Find` scope for `Files in All Project Directories`
+* Fixed stale directories in `Files in All Project Directories` locator filter
+* Fixed redundant output on process crash (QTCREATORBUG-26049)
+* Fixed duplicates in file rename dialog (QTCREATORBUG-26268)
+* Fixed variable expansion for working directory (QTCREATORBUG-26274)
 
-### GDB
+### CMake
 
-* Dropped support for GDB versions using Python version 2.x.
-  Python 3.6+ is required now.
+* Removed separate `<Headers>` node from project tree (QTCREATORBUG-18206,
+  QTCREATORBUG-24609, QTCREATORBUG-25407)
+* Fixed that CMake warnings and project loading errors were not added to
+  `Issues` pane (QTCREATORBUG-26231)
+* Fixed header file handling when mentioned in target sources
+  (QTCREATORBUG-23783, QTCREATORBUG-23843, QTCREATORBUG-26201,
+  QTCREATORBUG-26238)
 
-### QML
+Version Control Systems
+-----------------------
 
-Analyzer
---------
+### Git
 
-FakeVim
--------
+* Added option to `Show HEAD` when amending commit (QTCREATORBUG-25004)
+* Fixed wrong modified state of log viewer
+
+Test Integration
+----------------
+
+* Added option to run tests without deployment
+
+## CTest
+
+* Added options page (QTCREATORBUG-26029)
 
 Platforms
 ---------
 
-### Windows
-
 ### macOS
+
+* Changed prebuilt binaries to universal Intel + ARM
 
 ### Android
 
-### Remote Linux
+* Removed device selection dialog in favor of device selection in target
+  selector (QTCREATORBUG-23991)
+* Added details to device settings (QTCREATORBUG-23991)
 
-### QNX
+### Docker
 
-### MCU
-
+* Various improvements
 
 Credits for these changes go to:
 --------------------------------
+Aleksei German  
+Alessandro Portale  
+Alex Richardson  
+Alp Öz  
+Andre Hartmann  
+André Pönitz  
+Artem Sokolovskii  
+Artur Shepilko  
+Assam Boudjelthia  
+Christian Kandeler  
+Christian Stenger  
+Cristian Adam  
+David Schulz  
+Eike Ziller  
+Fawzi Mohamed  
+Henning Gruendl  
+Ihor Dutchak  
+Jaroslaw Kobus  
+Jonas Karlsson  
+Kai Köhne  
+Kama Wójcik  
+Li Xi  
+Loren Burkholder  
+Mahmoud Badri  
+Marco Bubke  
+Martin Kampas  
+Miina Puuronen  
+Orgad Shaneh  
+Petar Perisin  
+Piotr Mikolajczyk  
+Samuel Ghinet  
+Shantanu Tushar  
+Tasuku Suzuki  
+Thiago Macieira  
+Thomas Hartmann  
+Tony Leinonen  
+Tor Arne Vestbø  
+Vladimir Serdyuk  
