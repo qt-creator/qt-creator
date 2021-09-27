@@ -30,12 +30,11 @@
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
 
+#include <utils/filepath.h>
+
 #include <memory>
 
-namespace Utils {
-class FilePath;
-class ProjectIntroPage;
-} // Utils
+namespace Utils { class ProjectIntroPage; }
 
 namespace ProjectExplorer {
 
@@ -68,7 +67,7 @@ public:
     void setFilePath(const Utils::FilePath &path);
     void setProjectName(const QString &name);
     void setProjectList(const QStringList &projectList);
-    void setProjectDirectories(const QStringList &directories);
+    void setProjectDirectories(const Utils::FilePaths &directories);
     void setForceSubProject(bool force);
 
 signals:

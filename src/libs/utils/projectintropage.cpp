@@ -62,7 +62,7 @@ public:
     bool m_complete = false;
     QRegularExpressionValidator m_projectNameValidator;
     bool m_forceSubProject = false;
-    QStringList m_projectDirectories;
+    FilePaths m_projectDirectories;
 };
 
 ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
@@ -157,7 +157,7 @@ bool ProjectIntroPage::validate()
         int index = d->m_ui.projectComboBox->currentIndex();
         if (index == 0)
             return false;
-        d->m_ui.pathChooser->setPath(d->m_projectDirectories.at(index));
+        d->m_ui.pathChooser->setFilePath(d->m_projectDirectories.at(index));
     }
     // Validate and display status
     if (!d->m_ui.pathChooser->isValid()) {
@@ -230,7 +230,7 @@ void ProjectIntroPage::setProjectList(const QStringList &projectList)
     d->m_ui.projectComboBox->addItems(projectList);
 }
 
-void ProjectIntroPage::setProjectDirectories(const QStringList &directoryList)
+void ProjectIntroPage::setProjectDirectories(const FilePaths &directoryList)
 {
     d->m_projectDirectories = directoryList;
 }

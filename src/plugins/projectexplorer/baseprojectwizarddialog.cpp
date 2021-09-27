@@ -26,7 +26,6 @@
 #include "baseprojectwizarddialog.h"
 
 #include <coreplugin/documentmanager.h>
-#include <utils/fileutils.h>
 #include <utils/projectintropage.h>
 
 #include <QDir>
@@ -45,28 +44,25 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-struct BaseProjectWizardDialogPrivate {
-    explicit BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id = -1);
+struct BaseProjectWizardDialogPrivate
+{
+    explicit BaseProjectWizardDialogPrivate(ProjectIntroPage *page, int id = -1)
+        : desiredIntroPageId(id), introPage(page)
+    {}
 
     const int desiredIntroPageId;
-    Utils::ProjectIntroPage *introPage;
-    int introPageId;
-    Utils::Id selectedPlatform;
-    QSet<Utils::Id> requiredFeatureSet;
+    ProjectIntroPage *introPage;
+    int introPageId = -1;
+    Id selectedPlatform;
+    QSet<Id> requiredFeatureSet;
 };
 
-BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id) :
-    desiredIntroPageId(id),
-    introPage(page),
-    introPageId(-1)
-{
-}
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                  QWidget *parent,
                                                  const Core::WizardDialogParameters &parameters) :
     Core::BaseFileWizard(factory, parameters.extraValues(), parent),
-    d(std::make_unique<BaseProjectWizardDialogPrivate>(new Utils::ProjectIntroPage))
+    d(std::make_unique<BaseProjectWizardDialogPrivate>(new ProjectIntroPage))
 {
     setFilePath(FilePath::fromString(parameters.defaultPath()));
     setSelectedPlatform(parameters.selectedPlatform());
@@ -130,7 +126,7 @@ void BaseProjectWizardDialog::setProjectList(const QStringList &projectList)
     d->introPage->setProjectList(projectList);
 }
 
-void BaseProjectWizardDialog::setProjectDirectories(const QStringList &directories)
+void BaseProjectWizardDialog::setProjectDirectories(const FilePaths &directories)
 {
     d->introPage->setProjectDirectories(directories);
 }
@@ -156,7 +152,7 @@ bool BaseProjectWizardDialog::validateCurrentPage()
     return Core::BaseFileWizard::validateCurrentPage();
 }
 
-Utils::ProjectIntroPage *BaseProjectWizardDialog::introPage() const
+ProjectIntroPage *BaseProjectWizardDialog::introPage() const
 {
     return d->introPage;
 }
@@ -180,26 +176,26 @@ QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
 
 void BaseProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
-    foreach (QWizardPage *p,wizardPageList)
+    for (QWizardPage *p : wizardPageList)
         addPage(p);
 }
 
-Utils::Id BaseProjectWizardDialog::selectedPlatform() const
+Id BaseProjectWizardDialog::selectedPlatform() const
 {
     return d->selectedPlatform;
 }
 
-void BaseProjectWizardDialog::setSelectedPlatform(Utils::Id platform)
+void BaseProjectWizardDialog::setSelectedPlatform(Id platform)
 {
     d->selectedPlatform = platform;
 }
 
-QSet<Utils::Id> BaseProjectWizardDialog::requiredFeatures() const
+QSet<Id> BaseProjectWizardDialog::requiredFeatures() const
 {
     return d->requiredFeatureSet;
 }
 
-void BaseProjectWizardDialog::setRequiredFeatures(const QSet<Utils::Id> &featureSet)
+void BaseProjectWizardDialog::setRequiredFeatures(const QSet<Id> &featureSet)
 {
     d->requiredFeatureSet = featureSet;
 }
