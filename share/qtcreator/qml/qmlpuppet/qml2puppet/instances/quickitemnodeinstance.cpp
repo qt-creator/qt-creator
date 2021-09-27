@@ -335,7 +335,19 @@ QRectF QuickItemNodeInstance::boundingRect() const
         if (quickItem()->clip()) {
             return quickItem()->boundingRect();
         } else {
-            return boundingRectWithStepChilds(quickItem());
+            QSize maximumSize(4000, 4000);
+            auto isValidSize = [maximumSize] (const QRectF& rect) {
+                QSize size = rect.size().toSize();
+                return size.width() * size.height() <= maximumSize.width() * maximumSize.height();
+            };
+
+            QRectF rect = boundingRectWithStepChilds(quickItem());
+            if (isValidSize(rect))
+                return rect;
+            else if (rect = quickItem()->boundingRect(); isValidSize(rect))
+                return rect;
+            else
+                return QRectF(QPointF(0.0, 0.0), maximumSize);
         }
     }
 
@@ -462,8 +474,6 @@ QImage QuickItemNodeInstance::renderImage() const
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSize size = renderBoundingRect.size().toSize();
     static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
-    if (size.width() * size.height() > 4000 * 4000)
-        size = QSize(0,0);
     size *= devicePixelRatio;
 
     if (s_unifiedRenderPath) {
