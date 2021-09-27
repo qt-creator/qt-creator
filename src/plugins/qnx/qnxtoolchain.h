@@ -46,8 +46,8 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
-    QString sdpPath() const;
-    void setSdpPath(const QString &sdpPath);
+    Utils::FilePath sdpPath() const;
+    void setSdpPath(const Utils::FilePath &sdpPath);
     QString cpuDir() const;
     void setCpuDir(const QString &cpuDir);
 
@@ -57,7 +57,7 @@ protected:
     DetectedAbisResult detectSupportedAbis() const override;
 
 private:
-    QString m_sdpPath;
+    Utils::FilePath m_sdpPath;
     QString m_cpuDir;
 };
 

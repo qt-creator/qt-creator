@@ -33,30 +33,28 @@
 #include <QDir>
 #include <QHBoxLayout>
 
+using namespace Utils;
+
 namespace Qnx {
 namespace Internal {
 
 QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxQtVersion *version) :
     m_version(version),
-    m_sdpPathChooser(new Utils::PathChooser)
+    m_sdpPathChooser(new PathChooser)
 {
     QTC_ASSERT(version, return);
 
     auto layout = new QHBoxLayout(this);
     layout->addWidget(m_sdpPathChooser);
 
-    m_sdpPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_sdpPathChooser->setHistoryCompleter(QLatin1String("Qnx.Sdp.History"));
-    m_sdpPathChooser->setPath(version->sdpPath());
+    m_sdpPathChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_sdpPathChooser->setHistoryCompleter("Qnx.Sdp.History");
+    m_sdpPathChooser->setFilePath(version->sdpPath());
 
-    connect(m_sdpPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &QnxBaseQtConfigWidget::updateSdpPath);
-}
-
-void QnxBaseQtConfigWidget::updateSdpPath(const QString &path)
-{
-    m_version->setSdpPath(path);
-    emit changed();
+    connect(m_sdpPathChooser, &PathChooser::rawPathChanged, [this] {
+        m_version->setSdpPath(m_sdpPathChooser->filePath());
+        emit changed();
+    });
 }
 
 } // namespace Internal

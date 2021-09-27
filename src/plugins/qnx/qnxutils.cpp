@@ -78,11 +78,11 @@ QString QnxUtils::cpuDirShortDescription(const QString &cpuDir)
     return cpuDir;
 }
 
-EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
+EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
 {
     EnvironmentItems items;
 
-    if (!QFileInfo::exists(fileName))
+    if (!filePath.exists())
         return items;
 
     const bool isWindows = HostOsInfo::isWindowsHost();
@@ -97,10 +97,10 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
     QTextStream fileContent(&tmpFile);
     if (isWindows)
         fileContent << "@echo off\n"
-                    << "call " << fileName << '\n';
+                    << "call " << filePath.path() << '\n';
     else
         fileContent << "#!/bin/bash\n"
-                    << ". " << fileName << '\n';
+                    << ". " << filePath.path() << '\n';
     QString linePattern = QString::fromLatin1(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
     for (int i = 0, len = sizeof(EVAL_ENV_VARS) / sizeof(const char *); i < len; ++i)
         fileContent << linePattern.arg(QLatin1String(EVAL_ENV_VARS[i])) << QLatin1Char('\n');
@@ -140,19 +140,18 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
     return items;
 }
 
-QString QnxUtils::envFilePath(const QString &sdpPath)
+FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
 {
-    QDir sdp(sdpPath);
-    QStringList entries;
-    if (HostOsInfo::isWindowsHost())
-        entries = sdp.entryList(QStringList(QLatin1String("*-env.bat")));
+    FilePaths entries;
+    if (sdpPath.osType() == OsTypeWindows)
+        entries = sdpPath.dirEntries({"*-env.bat"});
     else
-        entries = sdp.entryList(QStringList(QLatin1String("*-env.sh")));
+        entries = sdpPath.dirEntries({"*-env.sh"});
 
     if (!entries.isEmpty())
-        return sdp.absoluteFilePath(entries.first());
+        return entries.first();
 
-    return QString();
+    return {};
 }
 
 QString QnxUtils::defaultTargetVersion(const QString &sdpPath)
@@ -208,7 +207,7 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
     return sdpList;
 }
 
-EnvironmentItems QnxUtils::qnxEnvironment(const QString &sdpPath)
+EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
 {
     return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
 }

@@ -109,14 +109,14 @@ QString QnxQtVersion::cpuDir() const
 QVariantMap QnxQtVersion::toMap() const
 {
     QVariantMap result = BaseQtVersion::toMap();
-    result.insert(QLatin1String(SDP_PATH_KEY), sdpPath());
+    result.insert(SDP_PATH_KEY, sdpPath().toVariant());
     return result;
 }
 
 void QnxQtVersion::fromMap(const QVariantMap &map)
 {
     BaseQtVersion::fromMap(map);
-    setSdpPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDP_PATH_KEY)).toString()));
+    setSdpPath(FilePath::fromVariant(map.value(SDP_PATH_KEY)));
 }
 
 Abis QnxQtVersion::detectQtAbis() const
@@ -134,7 +134,7 @@ void QnxQtVersion::addToEnvironment(const Kit *k, Environment &env) const
     env.prependOrSetLibrarySearchPath(libraryPath().toString());
 }
 
-void QnxQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
+void QnxQtVersion::setupQmakeRunEnvironment(Environment &env) const
 {
     if (!sdpPath().isEmpty())
         updateEnvironment();
@@ -160,12 +160,12 @@ QString QnxQtVersion::invalidReason() const
     return QtSupport::BaseQtVersion::invalidReason();
 }
 
-QString QnxQtVersion::sdpPath() const
+FilePath QnxQtVersion::sdpPath() const
 {
     return m_sdpPath;
 }
 
-void QnxQtVersion::setSdpPath(const QString &sdpPath)
+void QnxQtVersion::setSdpPath(const FilePath &sdpPath)
 {
     if (m_sdpPath == sdpPath)
         return;

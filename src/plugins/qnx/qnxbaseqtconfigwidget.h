@@ -27,7 +27,10 @@
 
 #include <qtsupport/qtconfigwidget.h>
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class PathChooser;
+class FilePath;
+} // Utils
 
 namespace Qnx {
 namespace Internal {
@@ -40,9 +43,6 @@ class QnxBaseQtConfigWidget : public QtSupport::QtConfigWidget
 
 public:
     explicit QnxBaseQtConfigWidget(QnxQtVersion *version);
-
-private slots:
-    void updateSdpPath(const QString &path);
 
 private:
     QnxQtVersion *m_version;
